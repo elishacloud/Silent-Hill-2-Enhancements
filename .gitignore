@@ -1,0 +1,54 @@
+# Build results
+[Bb]in/*
+[Oo]bj/*
+[Bb]uild/*
+[Dd]ebug/*
+[Rr]elease/*
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+*.dll
+*.drv
+
+# Other Visual Studio files
+ipch/*
+*.user
+*.suo
+*.aps
+*.log
+*.tlog
+*.exp
+*.ncb
+*.res
+*.sdf
+*.opensdf
+*.lastbuildstate
+*.ipsh
+*.idb
+*.pdb
+*.db
+.opendb
+RC*
+*.opendb
+*.TMP

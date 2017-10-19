@@ -1,0 +1,21 @@
+AIX header:
+0x00-0x02: "AIX"
+0x03: "F","P", or "E"
+0x04-0x07: offset of next AIX header, from 0x08
+0x08... data
+
+AIXF data: (starts file)
+0x00
+
+AIXP header:
+0x00-0x03: "AIXP"
+0x04-0x07: offset to start of next AIXP header (from 0x10)
+0x08: channel number
+0x09: 0x03 (maybe number of channels?)
+0x0a-0x0b: size of data
+0x0c-0x0f: frame number (-1 = first frame, -2 = last frame)
+0x10... data
+
+AIXE header:
+0x00-0x03: "AIXE"
+0x04-0x07: offset to end of file (or to more AIXPs)

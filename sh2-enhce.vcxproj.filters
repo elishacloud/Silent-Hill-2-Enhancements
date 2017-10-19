@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="SFX\sfx.cpp">
+      <Filter>SFX</Filter>
+    </ClCompile>
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Common\Settings.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenRes\ScreenRes.cpp">
+      <Filter>ScreenRes</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="sh2-enhce.h" />
+    <ClInclude Include="SFX\sfx.h">
+      <Filter>SFX</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Logging.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Settings.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenRes\ScreenRes.h">
+      <Filter>ScreenRes</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="BuildNo.rc" />
+    <ResourceCompile Include="sh2-enhce.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="sh2-enhce.def" />
+    <None Include="Common\Settings.ini">
+      <Filter>Common</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="SFX">
+      <UniqueIdentifier>{3797826a-64b4-49e4-a37e-a220325cda64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{11a991a1-b0f8-43df-a3c8-3107c47f5b8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ScreenRes">
+      <UniqueIdentifier>{b2c30983-642d-48e5-80ea-1a4f95cd07e5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

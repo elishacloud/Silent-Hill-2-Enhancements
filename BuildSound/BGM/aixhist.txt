@@ -1,0 +1,4 @@
+aix2adx history
+
+0.1 - 01/23/06 - will continue to output streams past AIXE marker
+0.0 - 01/22/06 - first version

@@ -147,7 +147,7 @@ void UpdateSFXAddr()
 			Log() << "Updating SFX memory addresses";
 
 			// Write to memory
-			for (int x = 1; x < 700; x++)
+			for (int x = 0; x < 700; x++)
 			{
 				*((DWORD *)((DWORD)sfxAddr + x * sizeof(DWORD))) = NewSFXAddr[SFXAddrMapping[x]];
 			}

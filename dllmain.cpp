@@ -60,7 +60,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		Log::LOG.open(LogPath);
 
 		// Starting
-		Log() << "Starting Silent Hill 2 enhancement ASI!";
+		Log() << "Starting Silent Hill 2 Enhancement ASI!";
 
 		// Get config file path
 		char configname[MAX_PATH];

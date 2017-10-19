@@ -92,14 +92,15 @@ void UpdateSFXAddr()
 		// Define vars
 		UINT IndexCount = 0;
 		DWORD NewSFXAddr[417] = { 0 };
-		const DWORD BlockSize = 1024;
+		const DWORD BlockSize = 8192;
 		std::string chunk;
 		chunk.resize(BlockSize + 5);
 
 		// Loop through sddata.bin
-		for (DWORD x = 0; x < size - 5; x += BlockSize)
+		DWORD x = 0;
+		while (x < size - 5 && IndexCount != 417)
 		{
-			// Read 1024 bytes (extra 5 bytes in case the "RIFF" string spans multiple chunks)
+			// Read a chunk of bytes (extra 5 bytes in case the "RIFF" string spans multiple chunks)
 			infile.seekg(x);
 			infile.read(&chunk[0], BlockSize + 5);
 
@@ -110,7 +111,11 @@ void UpdateSFXAddr()
 				// If found add to array
 				NewSFXAddr[IndexCount] = x + Position;
 				IndexCount++;
-				if (IndexCount == 417) break;
+				x += Position + 5;
+			}
+			else
+			{
+				x += BlockSize;
 			}
 		}
 

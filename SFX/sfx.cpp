@@ -102,7 +102,15 @@ void UpdateSFXAddr()
 		{
 			// Read a chunk of bytes (extra 5 bytes in case the "RIFF" string spans multiple chunks)
 			infile.seekg(x);
-			infile.read(&chunk[0], BlockSize + 5);
+			if (size > x + BlockSize + 5)
+			{
+				infile.read(&chunk[0], BlockSize + 5);
+			}
+			else
+			{
+				chunk.resize(size - x);
+				infile.read(&chunk[0], size - x);
+			}
 
 			// Search for "RIFF" the magic number for a WAV file
 			size_t Position = chunk.find("RIFF");

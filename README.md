@@ -1,6 +1,6 @@
 # Silent Hill 2 Enhancement ASI
 ### Introduction
-This is a project that is designed to enhance Silent Hill 2.  So far it mainly focuses on enhancing the audio (SFX, BMG and Dialog).  But we hope to do more soon.
+This is a project that is designed to enhance Silent Hill 2.  So far it mainly focuses on enhancing the audio (SFX, BGM and Dialog).  But we hope to do more soon.
 
 ### Features
 Below is a list of features:
@@ -10,7 +10,7 @@ Below is a list of features:
 
 ### Installation
 
-1. Download the latest binary release from the repository's Release page and unzip it to the 'scripts' folder.  If you don't have a scripts folder than check out the Silent Hill 2 [widescreen installation Guide](http://widescreenfix.townofsilenthill.com/SH2/).
+1. Download the latest binary release from the repository's [Releases](https://github.com/elishacloud/Silent-Hill-2-Enhancements/releases) page and unzip it to the 'scripts' folder.  If you don't have a scripts folder than check out the Silent Hill 2 [widescreen installation Guide](http://widescreenfix.townofsilenthill.com/SH2/).
 2. (optional) Edit the 'sh2-enhce.ini' config file for the settings you desire.
 
 ### Uninstallation
@@ -30,7 +30,7 @@ This project uses code from several other projects. Below is a list of locations
 
  - [DxWrapper](https://github.com/elishacloud/dxwrapper): Includes code to resets the display adapter.
  - [Aqrit's ddwrapper](http://bitpatch.com/ddwrapper.html): Includes code to read the ini config file.
- - [Winning Eleven AFSExplorer](http://www.theisozone.com/downloads/playstation/tools/afs-explorer-var-37-afsexplorer-v37/): Used to update the 'voice.asf' file.
+ - [Winning Eleven AFSExplorer](http://www.theisozone.com/downloads/playstation/tools/afs-explorer-var-37-afsexplorer-v37/): Used to update the 'voice.afs' file.
  - **adxencd**: Used to encode ADX files from raw WAV files.
  - **adx2aix**: Used to multiplex multiple ADX files into a single AIX file.
  - **aix2adx**: Used to convert the ADX files into WAV format.

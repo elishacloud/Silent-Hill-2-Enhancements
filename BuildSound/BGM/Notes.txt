@@ -1,20 +1,20 @@
 Description:
-To create the ADX and AIX files for Silent Hill 2 copy all the WAV files into a folder, copy and run the 'Build-BMG-Files.bat' tool.  This tool will create all the ADX and AIX.  It will also create a folder call 'sound' and put all the files in their correct folders under 'sound'.  Just copy the 'sound' folder over the top of the 'sound' folder in the 'Silent Hill 2\data' folder.
+To create the ADX and AIX files for Silent Hill 2 copy all the WAV files into a folder, copy and run the 'Build-BGM-Files.bat' tool.  This tool will create all the ADX and AIX.  It will also create a folder call 'sound' and put all the files in their correct folders under 'sound'.  Just copy the 'sound' folder over the top of the 'sound' folder in the 'Silent Hill 2\data' folder.
 
 Instructions:
-1. Copy all the BMG WAV files into a folder.
-2. Copy adxencd.exe, adx2aix.exe, Build-Dialog-Files.bat and all the 'bmg_[100...128].lst' files into the same folder with the WAV files.
-3. Run the 'Build-BMG-Files.bat' script.
-4. Copy the new 'sound' folder created by the 'Build-BMG-Files.bat' script unto the 'Silent Hill 2\data' folder overriding any files.
+1. Copy all the BGM WAV files into a folder.
+2. Copy adxencd.exe, adx2aix.exe, Build-Dialog-Files.bat and all the 'bgm_[100...128].lst' files into the same folder with the WAV files.
+3. Run the 'Build-BGM-Files.bat' script.
+4. Copy the new 'sound' folder created by the 'Build-BGM-Files.bat' script unto the 'Silent Hill 2\data' folder overriding any files.
 
 **IMPORTANT: Make sure to back up the original 'sound' folder in case you run into any issues.
 
 Required Files:
 1. adxencd.exe
 2. adx2aix.exe
-3. Build-BMG-Files.bat
-4. Script 'lst' files: bmg_[100...128].lst
-5. Silent Hill 2 dialog wav sound files: bmg_[001...128][0000...0007].wav
+3. Build-BGM-Files.bat
+4. Script 'lst' files: bgm_[100...128].lst
+5. Silent Hill 2 dialog wav sound files: bgm_[001...128][0000...0007].wav
 
 Script Files:
 	adx2aix.exe
@@ -48,7 +48,7 @@ Script Files:
 	bgm_124.lst
 	bgm_125.lst
 	bgm_128.lst
-	Build-BMG-Files.bat
+	Build-BGM-Files.bat
 
 Audio Files:
 	bgm_001.wav

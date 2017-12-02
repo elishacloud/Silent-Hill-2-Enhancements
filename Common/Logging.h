@@ -6,7 +6,16 @@
 class Log
 {
 public:
-	Log() {}
+	Log()
+	{
+		SYSTEMTIME st = {};
+		GetLocalTime(&st);
+
+		char time[100];
+		sprintf_s(time, "%02hu:%02hu:%02hu.%03hu ", st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
+
+		LOG << time;
+	}
 	~Log()
 	{
 		if (LOG.is_open())

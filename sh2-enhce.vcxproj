@@ -16,6 +16,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common\Settings.cpp" />
+    <ClCompile Include="Common\Utils.cpp" />
+    <ClCompile Include="NoCDPatch\nocd.cpp" />
     <ClCompile Include="ScreenRes\ScreenRes.cpp" />
     <ClCompile Include="SFX\sfx.cpp" />
     <ClCompile Include="dllmain.cpp" />
@@ -23,12 +25,14 @@
   <ItemGroup>
     <ClInclude Include="Common\Logging.h" />
     <ClInclude Include="Common\Settings.h" />
+    <ClInclude Include="Common\Utils.h" />
+    <ClInclude Include="NoCDPatch\nocd.h" />
     <ClInclude Include="ScreenRes\ScreenRes.h" />
     <ClInclude Include="SFX\sfx.h" />
     <ClInclude Include="sh2-enhce.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Common\Settings.ini" />
+    <None Include="Common\sh2-enhce.ini" />
     <None Include="sh2-enhce.def" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -5,17 +5,25 @@ This is a project that is designed to enhance Silent Hill 2.  So far it mainly f
 ### Features
 Below is a list of features:
 
+ - Disables the CD check
  - Dynamically updates SH2 memory with correct index locations for the SFX from the sddata.bin file, required if you want to modify the sddata.bin file
  - Resets the display adapter on exit to fix issue when using WineD3D casing the screen to go dark
+ - Includes tools to allow you to update the sound files
 
 ### Installation
 
 1. Download the latest binary release from the repository's [Releases](https://github.com/elishacloud/Silent-Hill-2-Enhancements/releases) page and unzip it to the 'scripts' folder.  If you don't have a scripts folder than check out the Silent Hill 2 [widescreen installation Guide](http://widescreenfix.townofsilenthill.com/SH2/).
-2. (optional) Edit the 'sh2-enhce.ini' config file for the settings you desire.
+2. (optional) Edit the 'sh2-enhce.ini' config file for the settings you desire.  See sample file [here](https://github.com/elishacloud/Silent-Hill-2-Enhancements/blob/master/Common/sh2-enhce.ini)
 
 ### Uninstallation
 
 Delete the 'sh2-enhce.asi' and 'sh2-enhce.ini' files. You can also delete the log file, if there is one.
+
+### Update Sound files
+
+[Sound Effect files (SFX)](https://github.com/elishacloud/Silent-Hill-2-Enhancements/tree/master/BuildSound/SFX)
+[Dialogue files](https://github.com/elishacloud/Silent-Hill-2-Enhancements/tree/master/BuildSound/Dialog)
+[Background music (BGM)](https://github.com/elishacloud/Silent-Hill-2-Enhancements/tree/master/BuildSound/BGM)
 
 ### License
 Copyright (C) 2017 Elisha Riedlinger

@@ -16,6 +16,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include "NoCDPatch\nocd.h"
 #include "SFX\sfx.h"
 #include "ScreenRes\ScreenRes.h"
 #include "Common\Settings.h"
@@ -25,7 +26,8 @@ std::ofstream Log::LOG;
 char LogPath[MAX_PATH];
 
 bool EnableSFXAddrHack = true;
-bool ResetScreenRes = true;
+bool ResetScreenRes = false;
+bool NoCDPatch = true;
 
 // Set config from string (file)
 void __stdcall ParseCallback(char* name, char* value)
@@ -36,6 +38,7 @@ void __stdcall ParseCallback(char* name, char* value)
 	// Check settings
 	if (!_strcmpi(name, "EnableSFXAddrHack")) EnableSFXAddrHack = SetValue(value);
 	if (!_strcmpi(name, "ResetScreenRes")) ResetScreenRes = SetValue(value);
+	if (!_strcmpi(name, "NoCDPatch")) NoCDPatch = SetValue(value);
 }
 
 // Dll main function
@@ -81,6 +84,9 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		{
 			Log() << "Config file not found, using defaults";
 		}
+
+		// Enable No-CD Patch
+		if (NoCDPatch) DisableCDCheck();
 
 		// Update SFX addresses
 		if (EnableSFXAddrHack) UpdateSFXAddr();

@@ -11,6 +11,12 @@
     <ClCompile Include="ScreenRes\ScreenRes.cpp">
       <Filter>ScreenRes</Filter>
     </ClCompile>
+    <ClCompile Include="NoCDPatch\nocd.cpp">
+      <Filter>NoCDPatch</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Utils.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sh2-enhce.h" />
@@ -26,6 +32,12 @@
     <ClInclude Include="ScreenRes\ScreenRes.h">
       <Filter>ScreenRes</Filter>
     </ClInclude>
+    <ClInclude Include="NoCDPatch\nocd.h">
+      <Filter>NoCDPatch</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Utils.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="BuildNo.rc" />
@@ -33,7 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="sh2-enhce.def" />
-    <None Include="Common\Settings.ini">
+    <None Include="Common\sh2-enhce.ini">
       <Filter>Common</Filter>
     </None>
   </ItemGroup>
@@ -46,6 +58,9 @@
     </Filter>
     <Filter Include="ScreenRes">
       <UniqueIdentifier>{b2c30983-642d-48e5-80ea-1a4f95cd07e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NoCDPatch">
+      <UniqueIdentifier>{a3887a48-2290-4d36-b519-0b39258252f0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

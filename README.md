@@ -5,10 +5,10 @@ This is a project that is designed to enhance Silent Hill 2.  So far it mainly f
 ### Features
 Below is a list of features:
 
- - Disables the CD check
- - Dynamically updates SH2 memory with correct index locations for the SFX from the sddata.bin file, required if you want to modify the sddata.bin file
- - Resets the display adapter on exit to fix issue when using WineD3D casing the screen to go dark
- - Includes tools to allow you to update the sound files
+ * Disables the CD check
+ * Dynamically updates SH2 memory with correct index locations for the SFX from the sddata.bin file, required if you want to modify the sddata.bin file
+ * Resets the display adapter on exit to fix issue when using WineD3D casing the screen to go dark
+ * Includes tools to allow you to update the sound files
 
 ### Installation
 
@@ -21,9 +21,9 @@ Delete the 'sh2-enhce.asi' and 'sh2-enhce.ini' files. You can also delete the lo
 
 ### Update Sound files
 
-[Sound Effect files (SFX)](https://github.com/elishacloud/Silent-Hill-2-Enhancements/tree/master/BuildSound/SFX)
-[Dialogue files](https://github.com/elishacloud/Silent-Hill-2-Enhancements/tree/master/BuildSound/Dialog)
-[Background music (BGM)](https://github.com/elishacloud/Silent-Hill-2-Enhancements/tree/master/BuildSound/BGM)
+* [Sound Effect files (SFX)](https://github.com/elishacloud/Silent-Hill-2-Enhancements/tree/master/BuildSound/SFX)
+* [Dialogue files](https://github.com/elishacloud/Silent-Hill-2-Enhancements/tree/master/BuildSound/Dialog)
+* [Background music (BGM)](https://github.com/elishacloud/Silent-Hill-2-Enhancements/tree/master/BuildSound/BGM)
 
 ### License
 Copyright (C) 2017 Elisha Riedlinger
@@ -36,11 +36,11 @@ This software is provided 'as-is', without any express or implied warranty. In n
 
 This project uses code from several other projects. Below is a list of locations that source code was taken from:
 
- - [DxWrapper](https://github.com/elishacloud/dxwrapper): Includes code to resets the display adapter.
- - [Aqrit's ddwrapper](http://bitpatch.com/ddwrapper.html): Includes code to read the ini config file.
- - [Winning Eleven AFSExplorer](http://www.theisozone.com/downloads/playstation/tools/afs-explorer-var-37-afsexplorer-v37/): Used to update the 'voice.afs' file.
- - **adxencd**: Used to encode ADX files from raw WAV files.
- - **adx2aix**: Used to multiplex multiple ADX files into a single AIX file.
- - **aix2adx**: Used to convert the ADX files into WAV format.
+ * [DxWrapper](https://github.com/elishacloud/dxwrapper): Includes code to resets the display adapter.
+ * [Aqrit's ddwrapper](http://bitpatch.com/ddwrapper.html): Includes code to read the ini config file.
+ * [Winning Eleven AFSExplorer](http://www.theisozone.com/downloads/playstation/tools/afs-explorer-var-37-afsexplorer-v37/): Used to update the 'voice.afs' file.
+ * **adxencd**: Used to encode ADX files from raw WAV files.
+ * **adx2aix**: Used to multiplex multiple ADX files into a single AIX file.
+ * **aix2adx**: Used to convert the ADX files into WAV format.
 
 Thanks for stopping by!

@@ -26,7 +26,7 @@ void DisableCDCheck()
 	void *CDCheckAddr = GetAddressOfData(FuncBlock, 7);
 
 	// Address found
-	if (CDCheckAddr)
+	if (CDCheckAddr && (DWORD)CDCheckAddr < 0x00FFFFFF)
 	{
 		// Log message
 		Log() << "Found CD check function at address: " << CDCheckAddr;
@@ -50,6 +50,6 @@ void DisableCDCheck()
 	}
 	else
 	{
-		Log() << "Could not find pointer address in memory!";
+		Log() << "Could not find CD check function address in memory!";
 	}
 }

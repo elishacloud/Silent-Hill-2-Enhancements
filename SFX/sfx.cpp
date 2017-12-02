@@ -28,7 +28,7 @@ void UpdateSFXAddr()
 	void *sfxAddr = GetAddressOfData(sfxBlock, 24);
 
 	// Address found
-	if (sfxAddr)
+	if (sfxAddr && (DWORD)sfxAddr < 0x00FFFFFF)
 	{
 		// Log message
 		Log() << "Found SFX pointer address at: " << sfxAddr;
@@ -125,6 +125,6 @@ void UpdateSFXAddr()
 	}
 	else
 	{
-		Log() << "Could not find pointer address in memory!";
+		Log() << "Could not find SFX pointer address in memory!";
 	}
 }

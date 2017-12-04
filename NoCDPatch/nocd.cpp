@@ -22,11 +22,11 @@
 
 void DisableCDCheck()
 {
-	// Find address for SFX indexes
-	void *CDCheckAddr = GetAddressOfData(FuncBlock, 7);
+	// Find address for CD check
+	void *CDCheckAddr = GetAddressOfData(CDFuncBlock, 7, 4);
 
 	// Address found
-	if (CDCheckAddr && (DWORD)CDCheckAddr < 0x00FFFFFF)
+	if ((CDCheckAddr) ? (memcmp(CDBlockTest, ((DWORD *)((DWORD)CDCheckAddr + 11)), 8) == 0) : false)
 	{
 		// Log message
 		Log() << "Found CD check function at address: " << CDCheckAddr;

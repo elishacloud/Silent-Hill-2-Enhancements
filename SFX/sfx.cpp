@@ -25,10 +25,10 @@
 void UpdateSFXAddr()
 {
 	// Find address for SFX indexes
-	void *sfxAddr = GetAddressOfData(sfxBlock, 24);
+	void *sfxAddr = GetAddressOfData(sfxBlock, 24, 4);
 
 	// Address found
-	if (sfxAddr && (DWORD)sfxAddr < 0x00FFFFFF)
+	if (sfxAddr)
 	{
 		// Log message
 		Log() << "Found SFX pointer address at: " << sfxAddr;
@@ -103,7 +103,7 @@ void UpdateSFXAddr()
 			Log() << "Could not find all the indexes in sddata.bin!  Found " << IndexCount;
 		}
 
-		// Make memory writeable
+		// Update SFX address array
 		DWORD oldProtect;
 		if (VirtualProtect(sfxAddr, 700 * sizeof(DWORD), PAGE_EXECUTE_READWRITE, &oldProtect))
 		{
@@ -121,6 +121,42 @@ void UpdateSFXAddr()
 		else
 		{
 			Log() << "Could not write to memory!";
+		}
+
+		// Find address for sddata.bin file pointer
+		void *sfxAddr = GetAddressOfData(sfxPtrvDC, 5, 1, 0x00401000);															// Directors Cut
+		sfxAddr = (!sfxAddr || (DWORD)sfxAddr > (DWORD)0x00628FFF) ? GetAddressOfData(sfxPtrv10, 5, 1, 0x00401000) : sfxAddr;	// v1.0
+		sfxAddr = (!sfxAddr || (DWORD)sfxAddr > (DWORD)0x00628FFF) ? GetAddressOfData(sfxPtrv11, 5, 1, 0x00401000) : sfxAddr;	// v1.1
+		sfxAddr = (!sfxAddr || (DWORD)sfxAddr > (DWORD)0x00628FFF) ? nullptr : sfxAddr;
+
+		if (sfxAddr)
+		{
+			// Log message
+			Log() << "Found sddata.bin pointer at address: " << sfxAddr;
+
+			// Alocate memory
+			char *PtrBytes;
+			PtrBytes = new char[size + 1];
+
+			// Update sddata.bin pointer address
+			if (VirtualProtect(sfxAddr, 4, PAGE_EXECUTE_READWRITE, &oldProtect))
+			{
+				Log() << "Updating sddata.bin pointer memory addresses";
+
+				// Write to memory
+				*((DWORD *)((DWORD)sfxAddr + 1)) = (DWORD)PtrBytes;
+
+				// Restore protection
+				VirtualProtect(sfxAddr, 4, oldProtect, &oldProtect);
+			}
+			else
+			{
+				Log() << "Could not write to memory!";
+			}
+		}
+		else
+		{
+			Log() << "Could not find sddata.bin pointer address in memory!";
 		}
 	}
 	else

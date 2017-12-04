@@ -16,10 +16,16 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include "Utils.h"
 #include "..\Common\Logging.h"
 
-// Search memory for byte array
 void *GetAddressOfData(const void *data, size_t len)
+{
+	return GetAddressOfData(data, len, 1);
+}
+
+// Search memory for byte array
+void *GetAddressOfData(const void *data, size_t len, DWORD step, DWORD start)
 {
 	HANDLE hProcess = GetCurrentProcess();
 	if (hProcess)
@@ -29,8 +35,8 @@ void *GetAddressOfData(const void *data, size_t len)
 
 		MEMORY_BASIC_INFORMATION info;
 		std::string chunk;
-		BYTE* p = 0;
-		while (p < si.lpMaximumApplicationAddress)
+		BYTE* p = (BYTE*)start;
+		while (p < si.lpMaximumApplicationAddress && ((DWORD)p) < start + ((DWORD)0x0FFFFFFF))
 		{
 			if (VirtualQueryEx(hProcess, p, &info, sizeof(info)) == sizeof(info))
 			{
@@ -39,7 +45,7 @@ void *GetAddressOfData(const void *data, size_t len)
 				SIZE_T bytesRead;
 				if (ReadProcessMemory(hProcess, p, &chunk[0], info.RegionSize, &bytesRead))
 				{
-					for (size_t i = 0; i < (bytesRead - len); i += 4)
+					for (size_t i = 0; i < (bytesRead - len); i += step)
 					{
 						if (memcmp(data, &chunk[i], len) == 0)
 						{

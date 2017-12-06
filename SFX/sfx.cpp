@@ -124,10 +124,12 @@ void UpdateSFXAddr()
 		}
 
 		// Find address for sddata.bin file pointer
-		void *sfxAddr = GetAddressOfData(sfxPtrvDC, 5, 1, 0x00401000);															// Directors Cut
-		sfxAddr = (!sfxAddr || (DWORD)sfxAddr > (DWORD)0x00628FFF) ? GetAddressOfData(sfxPtrv10, 5, 1, 0x00401000) : sfxAddr;	// v1.0
-		sfxAddr = (!sfxAddr || (DWORD)sfxAddr > (DWORD)0x00628FFF) ? GetAddressOfData(sfxPtrv11, 5, 1, 0x00401000) : sfxAddr;	// v1.1
-		sfxAddr = (!sfxAddr || (DWORD)sfxAddr > (DWORD)0x00628FFF) ? nullptr : sfxAddr;
+		const DWORD start = 0x00401000;
+		const DWORD distance = 0x00280000;
+		void *sfxAddr = GetAddressOfData(sfxPtrvDC, 5, 1, start, distance);																		// Directors Cut
+		sfxAddr = ((DWORD)sfxAddr < start || (DWORD)sfxAddr > start + distance) ? GetAddressOfData(sfxPtrv10, 5, 1, start, distance) : sfxAddr;	// v1.0
+		sfxAddr = ((DWORD)sfxAddr < start || (DWORD)sfxAddr > start + distance) ? GetAddressOfData(sfxPtrv11, 5, 1, start, distance) : sfxAddr;	// v1.1
+		sfxAddr = ((DWORD)sfxAddr < start || (DWORD)sfxAddr > start + distance) ? nullptr : sfxAddr;
 
 		if (sfxAddr)
 		{

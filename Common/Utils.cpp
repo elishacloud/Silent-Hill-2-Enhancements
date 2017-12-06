@@ -19,13 +19,14 @@
 #include "Utils.h"
 #include "..\Common\Logging.h"
 
-void *GetAddressOfData(const void *data, size_t len)
+// Search memory for byte array
+void *GetAddressOfData(const void *data, size_t len, DWORD step)
 {
-	return GetAddressOfData(data, len, 1);
+	return GetAddressOfData(data, len, 1, 0);
 }
 
 // Search memory for byte array
-void *GetAddressOfData(const void *data, size_t len, DWORD step, DWORD start)
+void *GetAddressOfData(const void *data, size_t len, DWORD step, DWORD start, DWORD distance)
 {
 	HANDLE hProcess = GetCurrentProcess();
 	if (hProcess)
@@ -36,7 +37,7 @@ void *GetAddressOfData(const void *data, size_t len, DWORD step, DWORD start)
 		MEMORY_BASIC_INFORMATION info;
 		std::string chunk;
 		BYTE* p = (BYTE*)start;
-		while (p < si.lpMaximumApplicationAddress && ((DWORD)p) < start + ((DWORD)0x0FFFFFFF))
+		while (p < si.lpMaximumApplicationAddress && (DWORD)p < start + distance)
 		{
 			if (VirtualQueryEx(hProcess, p, &info, sizeof(info)) == sizeof(info))
 			{
@@ -47,9 +48,16 @@ void *GetAddressOfData(const void *data, size_t len, DWORD step, DWORD start)
 				{
 					for (size_t i = 0; i < (bytesRead - len); i += step)
 					{
-						if (memcmp(data, &chunk[i], len) == 0)
+						if ((DWORD)p + i > start)
 						{
-							return (BYTE*)p + i;
+							if (memcmp(data, &chunk[i], len) == 0)
+							{
+								return (BYTE*)p + i;
+							}
+						}
+						if ((DWORD)p > start + distance)
+						{
+							return nullptr;
 						}
 					}
 				}

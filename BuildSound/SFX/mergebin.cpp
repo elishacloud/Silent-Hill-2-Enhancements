@@ -123,7 +123,9 @@ int main(int argc, char** argv)
 					size = i;
 				}
 			}
-			if (memblock[size - 1] == 0x01 && memblock[size - 2] == memblock[size - 3])
+			if ((FileCounter >= 350 && FileCounter <= 393) &&
+				((memblock[size - 1] == 0x01 && memblock[size - 2] == memblock[size - 3]) ||
+				(memblock[size - 1] == 0x00 && memblock[size - 2] == memblock[size - 3])))
 			{
 				size -= 2;
 			}
@@ -136,7 +138,14 @@ int main(int argc, char** argv)
 			{
 				char metablock[2];
 				metablock[0] = memblock[size - 1];
-				metablock[1] = 0x01;
+				if (FileCounter > 366)
+				{
+					metablock[1] = 0x00;
+				}
+				else
+				{
+					metablock[1] = 0x01;
+				}
 				myfile.write(metablock, 2);
 			}
 			else

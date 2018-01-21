@@ -3,6 +3,21 @@
 
 using namespace std;
 
+constexpr BYTE WAVList[] = {
+	0x4C, 0x49, 0x53, 0x54 };
+
+constexpr BYTE WAVMetadata[] = {
+	0x4C, 0x49, 0x53, 0x54,
+	0x1C, 0x00, 0x00, 0x00,
+	0x49, 0x4E, 0x46, 0x4F,
+	0x49, 0x43, 0x4F, 0x50,
+	0x10, 0x00, 0x00, 0x00,
+	0x28, 0x43, 0x29, 0x31,
+	0x39, 0x39, 0x37, 0x20,
+	0x4B, 0x4F, 0x4E, 0x41,
+	0x4D, 0x49, 0x2E, 0x00,
+	0x00, 0x00 };
+
 char t_xFileName[MAX_PATH] = { '\0' };
 
 static char* GetFileName(DWORD FileNum)
@@ -99,8 +114,35 @@ int main(int argc, char** argv)
 			// Close file
 			infile.close();
 
+			// Remove metadata
+			for (size_t i = 0; i < size; i += 2)
+			{
+				int locMetadata = memcmp(WAVList, &memblock[i], 4);
+				if (locMetadata == 0)
+				{
+					size = i;
+				}
+			}
+			if (memblock[size - 1] == 0x01 && memblock[size - 2] == memblock[size - 3])
+			{
+				size -= 2;
+			}
+
 			// Write byte to file
 			myfile.write(memblock, size);
+
+			// Write metadata
+			if (FileCounter >= 350 && FileCounter <= 393)
+			{
+				char metablock[2];
+				metablock[0] = memblock[size - 1];
+				metablock[1] = 0x01;
+				myfile.write(metablock, 2);
+			}
+			else
+			{
+				myfile.write((char*)WAVMetadata, sizeof(WAVMetadata));
+			}
 
 			// Flush data
 			myfile.flush();

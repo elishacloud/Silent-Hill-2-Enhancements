@@ -114,44 +114,35 @@ int main(int argc, char** argv)
 			// Close file
 			infile.close();
 
-			// Remove metadata
+			// Remove WAV metadata
 			for (size_t i = 0; i < size; i += 2)
 			{
-				int locMetadata = memcmp(WAVList, &memblock[i], 4);
-				if (locMetadata == 0)
+				if (memcmp(WAVList, &memblock[i], 4) == 0)
 				{
 					size = i;
 				}
 			}
-			if ((FileCounter >= 350 && FileCounter <= 393) &&
-				((memblock[size - 1] == 0x01 && memblock[size - 2] == memblock[size - 3]) ||
-				(memblock[size - 1] == 0x00 && memblock[size - 2] == memblock[size - 3])))
+
+			// Remove loop metadata
+			if (memblock[size - 1] == 0x01 && memblock[size - 2] == memblock[size - 3])
 			{
 				size -= 2;
 			}
 
-			// Write byte to file
+			// Write bytes to file
 			myfile.write(memblock, size);
 
-			// Write metadata
-			if (FileCounter >= 350 && FileCounter <= 393)
+			// Write loop metadata
+			if (FileCounter >= 350 && FileCounter <= 366 || FileCounter == 416)
 			{
 				char metablock[2];
 				metablock[0] = memblock[size - 1];
-				if (FileCounter > 366)
-				{
-					metablock[1] = 0x00;
-				}
-				else
-				{
-					metablock[1] = 0x01;
-				}
+				metablock[1] = 0x01;
 				myfile.write(metablock, 2);
 			}
-			else
-			{
-				myfile.write((char*)WAVMetadata, sizeof(WAVMetadata));
-			}
+
+			// Write WAV metadata
+			myfile.write((char*)WAVMetadata, sizeof(WAVMetadata));
 
 			// Flush data
 			myfile.flush();

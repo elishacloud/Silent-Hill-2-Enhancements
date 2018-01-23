@@ -156,7 +156,7 @@ adxencd bgm_128_0000.wav
 adxencd bgm_128_0001.wav
 
 rem ****
-echo Creating AIX files
+echo Creating lst files
 rem ****
 
 echo bgm_100_0000.adx > bgm_100.lst
@@ -326,7 +326,7 @@ adx2aix bgm_125.lst bgm_125.aix
 adx2aix bgm_128.lst bgm_128.aix
 
 rem ****
-echo Create folders and move files to folders
+echo Creating folders and moving files to folders
 rem ****
 
 md sound
@@ -385,5 +385,10 @@ move /y bgm_004.adx sound\adx\town
 move /y bgm_005.adx sound\adx\town
 move /y bgm_018.adx sound\adx\town
 move /y bgm_117.aix sound\adx\town
+
+rem ****
+echo Cleaning up
+rem ****
+
 del bgm_???_*????.adx
 del bgm_*.lst

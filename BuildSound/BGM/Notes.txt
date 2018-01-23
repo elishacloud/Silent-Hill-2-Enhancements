@@ -3,7 +3,7 @@ To create the ADX and AIX files for Silent Hill 2 copy all the WAV files into a 
 
 Instructions:
 1. Copy all the BGM WAV files into a folder.
-2. Copy adxencd.exe, adx2aix.exe, Build-Dialog-Files.bat and all the 'bgm_[100...128].lst' files into the same folder with the WAV files.
+2. Copy adxencd.exe, adx2aix.exe and Build-Dialog-Files.bat files into the same folder with the WAV files.
 3. Run the 'Build-BGM-Files.bat' script.
 4. Copy the new 'sound' folder created by the 'Build-BGM-Files.bat' script unto the 'Silent Hill 2\data' folder overriding any files.
 
@@ -13,41 +13,12 @@ Required Files:
 1. adxencd.exe
 2. adx2aix.exe
 3. Build-BGM-Files.bat
-4. Script 'lst' files: bgm_[100...128].lst
-5. Silent Hill 2 dialog wav sound files: bgm_[001...128][0000...0007].wav
+4. Silent Hill 2 dialog wav sound files: bgm_[001...128][0000...0007].wav
 
 Script Files:
 	adx2aix.exe
 	adxencd.exe
 	aix2adx.exe
-	bgm_100.lst
-	bgm_101.lst
-	bgm_102.lst
-	bgm_103.lst
-	bgm_104.lst
-	bgm_105.lst
-	bgm_106.lst
-	bgm_107.lst
-	bgm_108.lst
-	bgm_109.lst
-	bgm_110.lst
-	bgm_111.lst
-	bgm_112.lst
-	bgm_112_NG.lst
-	bgm_113.lst
-	bgm_114_b.lst
-	bgm_115.lst
-	bgm_116.lst
-	bgm_117.lst
-	bgm_118.lst
-	bgm_119.lst
-	bgm_120.lst
-	bgm_121.lst
-	bgm_122.lst
-	bgm_123.lst
-	bgm_124.lst
-	bgm_125.lst
-	bgm_128.lst
 	Build-BGM-Files.bat
 
 Audio Files:

@@ -17,8 +17,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include "nocd.h"
-//#include "nocd_10.h"
-//#include "nocd_DC.h"
 #include "..\Common\Utils.h"
 #include "..\Common\Logging.h"
 
@@ -54,71 +52,4 @@ void DisableCDCheck()
 	{
 		Log() << "Could not find CD check function address in memory!";
 	}
-
-	// Find address for copy protection
-	/*CDCheckAddr = GetAddressOfData(CDCopyProtection, 24, 2, 0x02000000);
-	CDCheckAddr = (CDCheckAddr) ? (void*)((DWORD)CDCheckAddr - 15) : nullptr;
-
-	// Address found
-	if ((CDCheckAddr) ? (memcmp(CDCopyProtectionTest, CDCheckAddr, 6) == 0) : false)
-	{
-		// Log message
-		Log() << "Found copy protection function at address: " << CDCheckAddr;
-
-		void *CodeAddr = nullptr;
-		void *EntryPointAddr = nullptr;
-		const BYTE *CodeData;
-
-		if (memcmp(CDCodeDatav10, CDCodeAddrv10, 32) == 0)
-		{
-			CodeAddr = CDCodeAddrv10;
-			EntryPointAddr = EntryPointAddrv10;
-			CodeData = &CDCodeDatav10[0];
-		}
-		else if (memcmp(CDCodeDatavDC, CDCodeAddrvDC, 32) == 0)
-		{
-			CodeAddr = CDCodeAddrvDC;
-			EntryPointAddr = EntryPointAddrvDC;
-			CodeData = &CDCodeDatavDC[0];
-		}
-
-		// Found code to be updated
-		if (CodeAddr)
-		{
-			Log() << "Found code to be updated! " << CodeAddr;
-
-			// Update code data
-			DWORD oldProtect;
-			if (VirtualProtect(CodeAddr, CDCodeSize + 8, PAGE_EXECUTE_READWRITE, &oldProtect))
-			{
-				Log() << "Updating code data memory";
-
-				// Write to memory
-				for (size_t x = 0; x < CDCodeSize; x++)
-				{
-					*((DWORD *)((DWORD)CodeAddr + x)) = CodeData[x];
-				}
-
-				// Restore protection
-				VirtualProtect(CodeAddr, CDCodeSize + 8, oldProtect, &oldProtect);
-
-				// Update code protection
-				if (VirtualProtect(CDCheckAddr, 12, PAGE_EXECUTE_READWRITE, &oldProtect))
-				{
-					Log() << "Updating code protection memory";
-
-					// Write to memory
-					*((DWORD *)((DWORD)CDCheckAddr)) = 0xE9;	// jmp
-					*((DWORD *)((DWORD)CDCheckAddr + 1)) = (DWORD)EntryPointAddr;
-
-					// Restore protection
-					VirtualProtect(CDCheckAddr, 12, oldProtect, &oldProtect);
-				}
-			}
-		}
-	}
-	else
-	{
-		Log() << "Could not find copy protection function address in memory!";
-	}*/
 }

@@ -17,6 +17,9 @@
     <ClCompile Include="Common\Utils.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="Tex\Tex.cpp">
+      <Filter>Tex</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sh2-enhce.h" />
@@ -37,6 +40,9 @@
     </ClInclude>
     <ClInclude Include="Common\Utils.h">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Tex\Tex.h">
+      <Filter>Tex</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -61,6 +67,9 @@
     </Filter>
     <Filter Include="NoCDPatch">
       <UniqueIdentifier>{a3887a48-2290-4d36-b519-0b39258252f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tex">
+      <UniqueIdentifier>{79e40265-6652-4076-861d-a9461124aabf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

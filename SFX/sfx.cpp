@@ -125,7 +125,7 @@ void UpdateSFXAddr()
 
 		// Find address for sddata.bin file pointer
 		const DWORD start = 0x00401000;
-		const DWORD distance = 0x00280000;
+		const DWORD distance = 0x00127FFF;
 		void *sfxAddr = GetAddressOfData(sfxPtrvDC, 5, 1, start, distance);																		// Directors Cut
 		sfxAddr = ((DWORD)sfxAddr < start || (DWORD)sfxAddr > start + distance) ? GetAddressOfData(sfxPtrv10, 5, 1, start, distance) : sfxAddr;	// v1.0
 		sfxAddr = ((DWORD)sfxAddr < start || (DWORD)sfxAddr > start + distance) ? GetAddressOfData(sfxPtrv11, 5, 1, start, distance) : sfxAddr;	// v1.1
@@ -141,7 +141,7 @@ void UpdateSFXAddr()
 			PtrBytes = new char[size + 1];
 
 			// Update sddata.bin pointer address
-			if (VirtualProtect(sfxAddr, 4, PAGE_EXECUTE_READWRITE, &oldProtect))
+			if (VirtualProtect(sfxAddr, 5, PAGE_EXECUTE_READWRITE, &oldProtect))
 			{
 				Log() << "Updating sddata.bin pointer memory addresses";
 
@@ -149,7 +149,7 @@ void UpdateSFXAddr()
 				*((DWORD *)((DWORD)sfxAddr + 1)) = (DWORD)PtrBytes;
 
 				// Restore protection
-				VirtualProtect(sfxAddr, 4, oldProtect, &oldProtect);
+				VirtualProtect(sfxAddr, 5, oldProtect, &oldProtect);
 			}
 			else
 			{

@@ -57,22 +57,25 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		SetThreadPriority(hCurrentThread, THREAD_PRIORITY_HIGHEST);
 
 		// Get log file path and open log file
-		char LogPath[MAX_PATH];
-		GetModuleFileNameA(hModule, LogPath, MAX_PATH);
-		strcpy_s(strrchr(LogPath, '.'), MAX_PATH - strlen(LogPath), ".log");
-		Log::LOG.open(LogPath);
+		char pathname[MAX_PATH];
+		GetModuleFileNameA(hModule, pathname, MAX_PATH);
+		strcpy_s(strrchr(pathname, '.'), MAX_PATH - strlen(pathname), ".log");
+		Log::LOG.open(pathname);
 
 		// Starting
 		Log() << "Starting Silent Hill 2 Enhancement ASI!";
 
+		// Get Silent Hill 2 file path
+		GetModuleFileNameA(nullptr, pathname, MAX_PATH);
+		Log() << "Running from:  " << pathname;
+
 		// Get config file path
-		char configname[MAX_PATH];
-		GetModuleFileNameA(hModule, configname, MAX_PATH);
-		strcpy_s(strrchr(configname, '.'), MAX_PATH - strlen(configname), ".ini");
+		GetModuleFileNameA(hModule, pathname, MAX_PATH);
+		strcpy_s(strrchr(pathname, '.'), MAX_PATH - strlen(pathname), ".ini");
 
 		// Read config file
-		Log() << "Reading config file:  " << configname;
-		char* szCfg = Read(configname);
+		Log() << "Reading config file:  " << pathname;
+		char* szCfg = Read(pathname);
 
 		// Parce config file
 		if (szCfg)

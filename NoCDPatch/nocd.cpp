@@ -23,7 +23,7 @@
 void DisableCDCheck()
 {
 	// Find address for CD check
-	void *CDCheckAddr = GetAddressOfData(CDFuncBlock, 7, 4);
+	void *CDCheckAddr = GetAddressOfData(CDFuncBlock, 7, 4, 0x00401000, 0x00010000);
 
 	// Address found
 	if ((CDCheckAddr) ? (memcmp(CDBlockTest, ((DWORD *)((DWORD)CDCheckAddr + 11)), 8) == 0) : false)

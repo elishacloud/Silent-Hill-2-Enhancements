@@ -18,7 +18,6 @@
 #include <Windows.h>
 #include "NoCDPatch\nocd.h"
 #include "SFX\sfx.h"
-#include "Tex\Tex.h"
 #include "ScreenRes\ScreenRes.h"
 #include "Common\Settings.h"
 #include "Common\Logging.h"
@@ -27,7 +26,6 @@ std::ofstream Log::LOG;
 char LogPath[MAX_PATH];
 
 bool EnableSFXAddrHack = true;
-bool EnableTexAddrHack = true;
 bool ResetScreenRes = false;
 bool NoCDPatch = true;
 
@@ -39,7 +37,6 @@ void __stdcall ParseCallback(char* name, char* value)
 
 	// Check settings
 	if (!_strcmpi(name, "EnableSFXAddrHack")) EnableSFXAddrHack = SetValue(value);
-	if (!_strcmpi(name, "EnableTexAddrHack")) EnableTexAddrHack = SetValue(value);
 	if (!_strcmpi(name, "ResetScreenRes")) ResetScreenRes = SetValue(value);
 	if (!_strcmpi(name, "NoCDPatch")) NoCDPatch = SetValue(value);
 }
@@ -96,9 +93,6 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 
 		// Update SFX addresses
 		if (EnableSFXAddrHack) UpdateSFXAddr();
-
-		// Update Tex addresses
-		if (EnableTexAddrHack) UpdateTexAddr();
 
 		// Resetting thread priority
 		SetThreadPriority(hCurrentThread, dwPriorityClass);

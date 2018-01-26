@@ -21,7 +21,6 @@
     <ClCompile Include="ScreenRes\ScreenRes.cpp" />
     <ClCompile Include="SFX\sfx.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="Tex\Tex.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Logging.h" />
@@ -31,7 +30,6 @@
     <ClInclude Include="ScreenRes\ScreenRes.h" />
     <ClInclude Include="SFX\sfx.h" />
     <ClInclude Include="sh2-enhce.h" />
-    <ClInclude Include="Tex\Tex.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Common\sh2-enhce.ini" />

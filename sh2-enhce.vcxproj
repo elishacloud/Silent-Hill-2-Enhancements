@@ -27,6 +27,8 @@
     <ClInclude Include="Common\Settings.h" />
     <ClInclude Include="Common\Utils.h" />
     <ClInclude Include="NoCDPatch\nocd.h" />
+    <ClInclude Include="NoCDPatch\nocd_10.h" />
+    <ClInclude Include="NoCDPatch\nocd_DC.h" />
     <ClInclude Include="ScreenRes\ScreenRes.h" />
     <ClInclude Include="SFX\sfx.h" />
     <ClInclude Include="sh2-enhce.h" />

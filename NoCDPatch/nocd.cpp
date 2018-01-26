@@ -17,8 +17,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include "nocd.h"
-//#include "nocd_10.h"
-//#include "nocd_DC.h"
+#include "nocd_10.h"
+#include "nocd_DC.h"
 #include "..\Common\Utils.h"
 #include "..\Common\Logging.h"
 
@@ -56,7 +56,7 @@ void DisableCDCheck()
 	}
 
 	// Find address for copy protection
-	/*CDCheckAddr = GetAddressOfData(CDCopyProtection, 24, 2, 0x02000000);
+	CDCheckAddr = GetAddressOfData(CDCopyProtection, 24, 2, 0x02000000);
 	CDCheckAddr = (CDCheckAddr) ? (void*)((DWORD)CDCheckAddr - 15) : nullptr;
 
 	// Address found
@@ -120,5 +120,5 @@ void DisableCDCheck()
 	else
 	{
 		Log() << "Could not find copy protection function address in memory!";
-	}*/
+	}
 }

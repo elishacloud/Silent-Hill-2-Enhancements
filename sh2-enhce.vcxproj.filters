@@ -38,6 +38,12 @@
     <ClInclude Include="Common\Utils.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="NoCDPatch\nocd_10.h">
+      <Filter>NoCDPatch</Filter>
+    </ClInclude>
+    <ClInclude Include="NoCDPatch\nocd_DC.h">
+      <Filter>NoCDPatch</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="BuildNo.rc" />

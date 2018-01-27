@@ -135,10 +135,18 @@ int main(int argc, char** argv)
 			// Write loop metadata
 			if (FileCounter >= 350 && FileCounter <= 366 || FileCounter == 416)
 			{
-				char metablock[2];
-				metablock[0] = memblock[size - 1];
-				metablock[1] = 0x01;
+				char metablock[2] = { memblock[size - 1], 0x01 };
 				myfile.write(metablock, 2);
+			}
+
+			// Write default metadata
+			else if (FileCounter >= 367 && FileCounter <= 393)
+			{
+				if (memblock[size - 1] != 0x00 || memblock[size - 2] != memblock[size - 3])
+				{
+					char metablock[2] = { memblock[size - 1], 0x00 };
+					myfile.write(metablock, 2);
+				}
 			}
 
 			// Write WAV metadata

@@ -104,7 +104,7 @@ int main(int argc, char** argv)
 			//printf("sddata%d.wav -> %d\n", FileCounter, aIndex);
 			printf("%d - ", FileCounter);
 
-			// Read bytes until metadata location
+			// Read bytes
 			char * memblock;
 			memblock = new char[size + 1];
 			ZeroMemory(memblock, size + 1);

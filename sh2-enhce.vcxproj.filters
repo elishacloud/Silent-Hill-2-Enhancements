@@ -8,9 +8,6 @@
     <ClCompile Include="Common\Settings.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="ScreenRes\ScreenRes.cpp">
-      <Filter>ScreenRes</Filter>
-    </ClCompile>
     <ClCompile Include="NoCDPatch\nocd.cpp">
       <Filter>NoCDPatch</Filter>
     </ClCompile>
@@ -28,9 +25,6 @@
     </ClInclude>
     <ClInclude Include="Common\Settings.h">
       <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="ScreenRes\ScreenRes.h">
-      <Filter>ScreenRes</Filter>
     </ClInclude>
     <ClInclude Include="NoCDPatch\nocd.h">
       <Filter>NoCDPatch</Filter>
@@ -55,9 +49,6 @@
     </Filter>
     <Filter Include="Common">
       <UniqueIdentifier>{11a991a1-b0f8-43df-a3c8-3107c47f5b8c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ScreenRes">
-      <UniqueIdentifier>{b2c30983-642d-48e5-80ea-1a4f95cd07e5}</UniqueIdentifier>
     </Filter>
     <Filter Include="NoCDPatch">
       <UniqueIdentifier>{a3887a48-2290-4d36-b519-0b39258252f0}</UniqueIdentifier>

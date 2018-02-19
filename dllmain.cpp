@@ -18,7 +18,6 @@
 #include <Windows.h>
 #include "NoCDPatch\nocd.h"
 #include "SFX\sfx.h"
-#include "ScreenRes\ScreenRes.h"
 #include "Common\Settings.h"
 #include "Common\Logging.h"
 
@@ -26,7 +25,7 @@ std::ofstream Log::LOG;
 char LogPath[MAX_PATH];
 
 bool EnableSFXAddrHack = true;
-bool ResetScreenRes = false;
+bool ResetScreenRes = true;
 bool NoCDPatch = true;
 
 // Set config from string (file)
@@ -102,15 +101,23 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 	}
 	break;
 	case DLL_THREAD_ATTACH:
-
-		// Check and store screen resolution
-		if (ResetScreenRes) CheckCurrentScreenRes();
-
 		break;
 	case DLL_PROCESS_DETACH:
 
 		// Reset screen back to original Windows settings to fix some display errors on exit
-		if (ResetScreenRes) ResetScreen();
+		if (ResetScreenRes)
+		{
+			// Reset screen settings
+			Log() << "Reseting screen resolution...";
+			std::string lpRamp((3 * 256 * 2), '\0');
+			HDC hDC = GetDC(nullptr);
+			GetDeviceGammaRamp(hDC, &lpRamp[0]);
+			Sleep(0);
+			SetDeviceGammaRamp(hDC, &lpRamp[0]);
+			ReleaseDC(nullptr, hDC);
+			Sleep(0);
+			ChangeDisplaySettings(nullptr, 0);
+		}
 
 		// Quiting
 		Log() << "Unloading ASI!";

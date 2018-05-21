@@ -1,31 +1,23 @@
 Description:
-To create the voice.afs file for Silent Hill 2 copy all the WAV files into a folder and run the 'Build-Dialog-Files.bat' tool.  This tool will create all the ADX files.  It will also create a folder call 'ADX' and put all the files into this folder.  Then you need to run the AFSExplorer tool to merge them back into the 'voice.afs' file.
+To create the voice.afs file for Silent Hill 2 copy all the WAV files into a folder and run the 'Build-Dialog-Files.bat' tool.  This tool will create the voice.afs file.  All you need to do is copy the 'voice' folder over the top of the 'voice' folder in the 'Silent Hill 2\data\sound\adx' folder.
 
 Instructions:
 1. Copy all the Dialog WAV files into a folder.
-2. Copy adxencd.exe and Build-Dialog-Files.bat into the same folder with the WAV files.
+2. Copy adxencd.exe, AFSPacker.exe and Build-Dialog-Files.bat into the same folder with the WAV files.
 3. Run the 'Build-Dialog-Files.bat' script.
-4. Run the AFSExplorer tool.
-5. Click: File -> Import AFS File...
-6. Select any existing voice.afs file to open (example the file from the 'Silent Hill 2\data\sound\adx\voice' folder).
-7. Click: Action -> Import folder...
-8. Browse to the 'ADX' folder created by the 'Build-Dialog-Files.bat' script and select this folder.
-9. Click 'Yes' to any prompts about rebuilding the AFS file.
-10. Select a new folder and file name for the AFS file (you probably want to call it 'voice.afs').
-11. Once it is done you can close the AFSExplorer.
-12. Copy this new 'voice.afs' file into the 'Silent Hill 2\data\sound\adx\voice' folder.
+4. Copy this new 'voice' folder into the 'Silent Hill 2\data\sound\adx' folder.
 
 **IMPORTANT: Make sure to back up the original 'voice.afs' in case you run into any issues.
 
 Required Files:
 1. adxencd.exe
 2. Build-Dialog-Files.bat
-3. AFSExplorer.exe
+3. AFSPacker.exe
 4. Silent Hill 2 dialog wav sound files
 
 Script Files:
 	adxencd.exe
-	AFSExplorer.exe
+	AFSPacker.exe
 	Build-Dialog-Files.bat
 
 Audio Files:

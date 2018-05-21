@@ -26,7 +26,7 @@ Delete the 'sh2-enhce.asi' and 'sh2-enhce.ini' files. You can also delete the lo
 * [Background music (BGM)](https://github.com/elishacloud/Silent-Hill-2-Enhancements/tree/master/BuildSound/BGM)
 
 ### License
-Copyright (C) 2017 Elisha Riedlinger
+Copyright (C) 2018 Elisha Riedlinger
 
 This software is provided 'as-is', without any express or implied warranty. In no event will the author(s) be held liable for any damages arising from the use of this software. Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
 
@@ -38,7 +38,7 @@ This project uses code from several other projects. Below is a list of locations
 
  * [DxWrapper](https://github.com/elishacloud/dxwrapper): Includes code to resets the display adapter.
  * [Aqrit's ddwrapper](http://bitpatch.com/ddwrapper.html): Includes code to read the ini config file.
- * [Winning Eleven AFSExplorer](http://www.theisozone.com/downloads/playstation/tools/afs-explorer-var-37-afsexplorer-v37/): Used to update the 'voice.afs' file.
+ * [AFS Packer](https://www.romhacking.net/utilities/843/) By PacoChan: Used to create the 'voice.afs' file.
  * **adxencd**: Used to encode ADX files from raw WAV files.
  * **adx2aix**: Used to multiplex multiple ADX files into a single AIX file.
  * **aix2adx**: Used to convert the ADX files into WAV format.

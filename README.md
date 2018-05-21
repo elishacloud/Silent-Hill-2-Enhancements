@@ -41,6 +41,6 @@ This project uses code from several other projects. Below is a list of locations
  * [AFS Packer](https://www.romhacking.net/utilities/843/) By PacoChan: Used to create the 'voice.afs' file.
  * **adxencd**: Used to encode ADX files from raw WAV files.
  * **adx2aix**: Used to multiplex multiple ADX files into a single AIX file.
- * **aix2adx**: Used to convert the ADX files into WAV format.
+ * **aix2adx**: Used to convert the AIX files into ADX format.
 
 Thanks for stopping by!

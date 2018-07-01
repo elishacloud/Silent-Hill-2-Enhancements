@@ -1,26 +1,52 @@
-Description:
-To create the voice.afs file for Silent Hill 2 copy all the WAV files into a folder and run the 'Build-Dialog-Files.bat' tool.  This tool will create the voice.afs file.  All you need to do is copy the 'voice' folder over the top of the 'voice' folder in the 'Silent Hill 2\data\sound\adx' folder.
+# SFX Builder for Silent Hill 2
 
-Instructions:
+### Description:
+The dialogue files in Silent Hill 2 on the PC are stored in the `Silent Hill 2\data\sound\adx\voice\voice.afs` file. The afs format is just a container format (like an ISO) and stores all the dialog entries. The dialog files need to be in a specific order in the afs file and have a specific name. All of them have the extension adx, but the actual content can be in either adx or wav format. 
+
+### Looping:
+Some files in Silent Hill 2 should loop.  To do this requires modification of the adx file metadata.  The `adxencd.exe` tool has two parameters to handle this.  The first is `-lps` and the second is `-lpe`.  `-lps` stands for "loop start" and indicates the first audio [sample](https://en.wikipedia.org/wiki/Sampling_(signal_processing)) of the area in the file where you want to loop.  `-lps` stands for "loop end" and indicates the last audio sample that you want to include in the loop.  A loop can start or end anywhere in the wav file
+
+The `Build-Dialog-Files.bat` file should be modified with the loop parameters before running it so that you ensure that these files loop correctly.
+
+Here is an example:
+```
+adxencd gero_ed.wav -lps483700 -lpe1065230
+```
+
+In this example the loop starts at audio sample 483700 and ends at audio sample 1065230.
+
+The following dialog files should loop in Silent Hill 2:
+	1fwb_rain.wav
+	clock_4.wav
+	forest_wind.wav
+	gero_ed.wav
+	goki_jet.wav
+	lakeside.wav
+	suiteki.wav
+	tv_noiz_1.wav
+
+### Instructions:
+To create the `voice.afs` file for Silent Hill 2 copy all the WAV files into a folder and run the `Build-Dialog-Files.bat` tool.  This tool will create the `voice.afs` file.  All you need to do is copy the `voice` folder over the top of the `voice` folder in the `Silent Hill 2\data\sound\adx` folder.
+
 1. Copy all the Dialog WAV files into a folder.
-2. Copy adxencd.exe, AFSPacker.exe and Build-Dialog-Files.bat into the same folder with the WAV files.
-3. Run the 'Build-Dialog-Files.bat' script.
-4. Copy this new 'voice' folder into the 'Silent Hill 2\data\sound\adx' folder.
+2. Copy `adxencd.exe`, `AFSPacker.exe` and `Build-Dialog-Files.bat` into the same folder with the WAV files.
+3. Run the `Build-Dialog-Files.bat` script.
+4. Copy this new `voice` folder into the `Silent Hill 2\data\sound\adx` folder.
 
-**IMPORTANT: Make sure to back up the original 'voice.afs' in case you run into any issues.
+**IMPORTANT: Make sure to back up the original `voice.afs` in case you run into any issues.
 
-Required Files:
+#### Required Files:
 1. adxencd.exe
 2. Build-Dialog-Files.bat
 3. AFSPacker.exe
 4. Silent Hill 2 dialog wav sound files
 
-Script Files:
+#### Script Files:
 	adxencd.exe
 	AFSPacker.exe
 	Build-Dialog-Files.bat
 
-Audio Files:
+#### Audio Files:
 	1fwb_rain.wav
 	62_0A.wav
 	703_a.wav

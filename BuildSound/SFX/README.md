@@ -1,24 +1,48 @@
-Description:
-To create the 'sddata.bin' file for Silent Hill 2 copy all the WAV files into a folder and run the mergebin.exe tool.  This tool will automatically create the 'sddata.bin' file.  Then just copy the 'sddata.bin' file over the top of the 'sddata.bin' file in the 'Silent Hill 2\data' folder.
+# SFX Builder for Silent Hill 2
 
-Note: you will need to enable the Silent Hill 2 Enhancement ASI plugin for the updated 'sddata.bin' file to work.
+### Description:
+The SFX files in Silent Hill 2 on the PC are stored in the `Silent Hill 2\data\sound\sddata.bin` file. This file is a very simple concatenation of wav files. There are 417 SFX files and all of these are very short, most are 1 to 2 seconds.
 
-Instructions:
-1. Copy all the SFX WAV files into the same folder with the mergebin.exe tool.
-2. Run the mergebin.exe tool.
-3. Copy the 'sddata.bin' file unto the 'Silent Hill 2\data' folder overriding any files.
+This project contains two tools:
+* [mergebin](mergebin.cpp) - This file will take input of 417 wav files and output a single concatenated `sddata.bin` file that is ready to be used by the PC.  These files need to be located in the same folder as the tool.
+* [splitbin](splitbin.cpp) - This file will take input the `sddata.bin` Silent Hill 2 file and will output 417 wav files.
 
-**IMPORTANT: Make sure to back up the original 'sddata.bin' in case you run into any issues.
+**NOTE: All wav files that are used by Silent Hill 2 in the SFX file must be mono.  Silent Hill 2 cannot handle stereo SFX files.
 
-Required Files:
+### Looping:
+Some of these files loop, but most just play once.  The files that loop have metadata added to the end, which is just a simple hex `0x00` for non-looping tracks and `0x01` for looping tracks.
+
+The following files have looping metadata added to them when you run `mergebin.exe`:
+1. `sddata350` through `sddata366`
+2. `sddata416`
+
+The following files have non-looping metadata added to them when you run `mergebin.exe`:
+1. `sddata367` through `sddata393`
+
+All other files have no metadata added to them.
+
+**NOTE: sddata352 must be saved as 16000 Hz and sddata377 at 11025 Hz in order for them to work correctly with Silent Hill 2.
+
+### Instructions:
+To create the 'sddata.bin' file for Silent Hill 2 copy all the WAV files into a folder and run the `mergebin.exe` tool.  This tool will automatically create the `sddata.bin` file.  Then just copy the `sddata.bin` file over the top of the `sddata.bin` file in the `Silent Hill 2\data` folder.
+
+**NOTE: you will need to enable the Silent Hill 2 Enhancement ASI plugin for the updated `sddata.bin` file to work.
+
+1. Copy all the SFX mono WAV files into the same folder with the mergebin.exe tool.
+2. Run the `mergebin.exe` tool.
+3. Copy the `sddata.bin` file unto the `Silent Hill 2\data` folder overriding any files.
+
+**IMPORTANT: Make sure to back up the original `sddata.bin` in case you run into any issues.
+
+#### Required Files:
 1. mergebin.exe
 2. Silent Hill 2 SFX wav sound files: sddata[000...416].wav
 
-Script Files:
+#### Script Files:
 	mergebin.exe
 	splitbin.exe
 
-Audio Files:
+#### Audio Files:
 	sddata000.wav
 	sddata001.wav
 	sddata002.wav

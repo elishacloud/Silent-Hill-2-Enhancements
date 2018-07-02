@@ -1,4 +1,4 @@
-# SFX Builder for Silent Hill 2
+# Dialog Builder for Silent Hill 2
 
 ### Description:
 The dialogue files in Silent Hill 2 on the PC are stored in the `Silent Hill 2\data\sound\adx\voice\voice.afs` file. The afs format is just a container format (like an ISO) and stores all the dialog entries. The dialog files need to be in a specific order in the afs file and have a specific name. All of them have the extension adx, but the actual content can be in either adx or wav format. 

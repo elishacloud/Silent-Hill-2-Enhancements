@@ -22,7 +22,7 @@ Delete the 'sh2-enhce.asi' and 'sh2-enhce.ini' files. You can also delete the lo
 ### Update Sound files
 
 * [Sound Effect files (SFX)](https://github.com/elishacloud/Silent-Hill-2-Enhancements/tree/master/BuildSound/SFX)
-* [Dialogue files](https://github.com/elishacloud/Silent-Hill-2-Enhancements/tree/master/BuildSound/Dialog)
+* [Dialog files](https://github.com/elishacloud/Silent-Hill-2-Enhancements/tree/master/BuildSound/Dialog)
 * [Background music (BGM)](https://github.com/elishacloud/Silent-Hill-2-Enhancements/tree/master/BuildSound/BGM)
 
 ### License

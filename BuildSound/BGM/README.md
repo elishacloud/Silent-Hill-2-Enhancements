@@ -26,11 +26,11 @@ In this example the loop starts at audio sample 483700 and ends at audio sample 
 To create the ADX and AIX files for Silent Hill 2 copy all the WAV files into a folder, copy and run the `Build-BGM-Files.bat` tool.  This tool will create all the ADX and AIX.  It will also create a folder call `sound` and put all the files in their correct folders under `sound`.  Just copy the `sound` folder over the top of the `sound` folder in the `Silent Hill 2\data` folder.
 
 1. Copy all the BGM WAV files into a folder.
-2. Copy adxencd.exe, adx2aix.exe and Build-Dialog-Files.bat files into the same folder with the WAV files.
-3. Run the 'Build-BGM-Files.bat' script.
-4. Copy the new 'sound' folder created by the 'Build-BGM-Files.bat' script unto the 'Silent Hill 2\data' folder overriding any files.
+2. Copy `adxencd.exe`, `adx2aix.exe` and `Build-Dialog-Files.bat` files into the same folder with the WAV files.
+3. Run the `Build-BGM-Files.bat` script.
+4. Copy the new `sound` folder created by the `Build-BGM-Files.bat` script unto the `Silent Hill 2\data` folder overriding any files.
 
-**IMPORTANT: Make sure to back up the original 'sound' folder in case you run into any issues.
+**IMPORTANT: Make sure to back up the original `sound` folder in case you run into any issues.
 
 #### Required Files:
 1. adxencd.exe

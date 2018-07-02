@@ -3,12 +3,16 @@
 ### Description:
 The BGM files in Silent Hill 2 on the PC are stored in multiple adx and aix format files which are all located in the `Silent Hill 2\data\sound\adx` folder and associated subfolders. adx is a compressed audio format used mostly in console video games. aix is a multiplexed file that includes several adx file streams. Just like the Dialog files, Silent Hill 2 supports both wav and adx for these files. However since all of these files need to loop and Silent Hill 2 does not support looping wav files these need to be in the lower quality adx format.
 
+### Multiplexed files:
+
 The AIX files can include multiple ADX files in them.  For example `bgm_115.aix` includes the following files in it:
 * bgm_115_0000.adx
 * bgm_115_0001.adx
 * bgm_115_0002.adx
 * bgm_115_0003.adx
 * bgm_115_0004.adx
+
+** NOTE: All of the audio files in an AIX multiplex file needs to be the exact same length, format and have the exact same audio metadata in them for them to work correctly with Silent Hill 2.  In addition, ADX metadata is not supported with multiplexed AIX files in Silent Hill 2.
 
 ### Looping:
 All of the BGM files in Silent Hill 2 should loop.  To do this requires modification of the adx file metadata.  The `adxencd.exe` tool has two parameters to handle this.  The first is `-lps` and the second is `-lpe`.  `-lps` stands for "loop start" and indicates the first audio [sample](https://en.wikipedia.org/wiki/Sampling_(signal_processing)) of the area in the file where you want to loop.  `-lps` stands for "loop end" and indicates the last audio sample that you want to include in the loop.  A loop can start or end anywhere in the wav file

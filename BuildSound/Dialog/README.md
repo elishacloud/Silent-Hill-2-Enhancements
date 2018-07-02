@@ -16,14 +16,14 @@ adxencd gero_ed.wav -lps483700 -lpe1065230
 In this example the loop starts at audio sample 483700 and ends at audio sample 1065230.
 
 The following dialog files should loop in Silent Hill 2:
-	1fwb_rain.wav
-	clock_4.wav
-	forest_wind.wav
-	gero_ed.wav
-	goki_jet.wav
-	lakeside.wav
-	suiteki.wav
-	tv_noiz_1.wav
+* 1fwb_rain.wav
+* clock_4.wav
+* forest_wind.wav
+* gero_ed.wav
+* goki_jet.wav
+* lakeside.wav
+* suiteki.wav
+* tv_noiz_1.wav
 
 ### Instructions:
 To create the `voice.afs` file for Silent Hill 2 copy all the WAV files into a folder and run the `Build-Dialog-Files.bat` tool.  This tool will create the `voice.afs` file.  All you need to do is copy the `voice` folder over the top of the `voice` folder in the `Silent Hill 2\data\sound\adx` folder.

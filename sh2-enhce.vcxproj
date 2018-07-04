@@ -15,23 +15,50 @@
     <ResourceCompile Include="sh2-enhce.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Common\LoadASI.cpp" />
     <ClCompile Include="Common\Settings.cpp" />
     <ClCompile Include="Common\Utils.cpp" />
+    <ClCompile Include="d3d8to9\d3d8to9.cpp" />
+    <ClCompile Include="External\d3d8to9\source\d3d8to9_base.cpp" />
+    <ClCompile Include="External\d3d8to9\source\d3d8to9_device.cpp" />
+    <ClCompile Include="External\d3d8to9\source\d3d8to9_index_buffer.cpp" />
+    <ClCompile Include="External\d3d8to9\source\d3d8to9_surface.cpp" />
+    <ClCompile Include="External\d3d8to9\source\d3d8to9_swap_chain.cpp" />
+    <ClCompile Include="External\d3d8to9\source\d3d8to9_texture.cpp" />
+    <ClCompile Include="External\d3d8to9\source\d3d8to9_vertex_buffer.cpp" />
+    <ClCompile Include="External\d3d8to9\source\d3d8to9_volume.cpp" />
+    <ClCompile Include="External\d3d8to9\source\d3d8types.cpp" />
+    <ClCompile Include="External\d3d8to9\source\lookup_table.cpp" />
+    <ClCompile Include="Hooking\Hook.cpp" />
+    <ClCompile Include="Hooking\HotPatch.cpp" />
+    <ClCompile Include="Hooking\IATPatch.cpp" />
     <ClCompile Include="NoCDPatch\nocd.cpp" />
     <ClCompile Include="SFX\sfx.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Wrappers\wrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Common\LoadASI.h" />
     <ClInclude Include="Common\Logging.h" />
     <ClInclude Include="Common\Settings.h" />
     <ClInclude Include="Common\Utils.h" />
+    <ClInclude Include="d3d8to9\d3d8to9.h" />
+    <ClInclude Include="External\d3d8to9\source\d3d8to9.hpp" />
+    <ClInclude Include="External\d3d8to9\source\d3d8types.hpp" />
+    <ClInclude Include="External\d3d8to9\source\d3dx9.hpp" />
+    <ClInclude Include="External\d3d8to9\source\lookup_table.hpp" />
+    <ClInclude Include="Hooking\Hook.h" />
     <ClInclude Include="NoCDPatch\nocd.h" />
     <ClInclude Include="SFX\sfx.h" />
     <ClInclude Include="sh2-enhce.h" />
+    <ClInclude Include="Wrappers\d3d8.h" />
+    <ClInclude Include="Wrappers\dinput8.h" />
+    <ClInclude Include="Wrappers\dsound.h" />
+    <ClInclude Include="Wrappers\wrapper.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Common\sh2-enhce.ini" />
-    <None Include="sh2-enhce.def" />
+    <None Include="Common\Settings.ini" />
+    <None Include="Wrappers\wrapper.def" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E204DCB3-D122-4F2E-88A8-89AC22CE3274}</ProjectGuid>
@@ -43,7 +70,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -66,10 +93,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <TargetExt>.asi</TargetExt>
+    <IncludePath>$(ProjectDir);$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <TargetExt>.asi</TargetExt>
+    <IncludePath>$(ProjectDir);$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -81,11 +110,12 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ModuleDefinitionFile>sh2-enhce.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>Wrappers\wrapper.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>IF NOT EXIST "$(TargetDir)Build" mkdir "$(TargetDir)Build" &gt;nul
+copy /Y "$(TargetDir)$(TargetName)$(TargetExt)" "$(TargetDir)Build\d3d8.dll" &gt;nul
+copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)Build\d3d8.ini" &gt;nul</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -97,12 +127,13 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <PreprocessorDefinitions>D3D8TO9NOLOG;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <ModuleDefinitionFile>sh2-enhce.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>Wrappers\wrapper.def</ModuleDefinitionFile>
     </Link>
     <PreBuildEvent>
       <Command>cmd /c "@echo off &amp;&amp; cd /D ""$(ProjectDir)"" &amp;&amp; if not exist BuildNo.rc echo #define BUILD_NUMBER 0 &gt;BuildNo.rc"
@@ -112,8 +143,9 @@ cmd /c "@echo off &amp;&amp; cd /D ""$(ProjectDir)"" &amp;&amp; del Build.txt"
 cmd /c "@echo off &amp;&amp; cd /D ""$(ProjectDir)"" &amp;&amp; type BuildNo.rc"</Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>IF NOT EXIST "$(TargetDir)Build" mkdir "$(TargetDir)Build" &gt;nul
+copy /Y "$(TargetDir)$(TargetName)$(TargetExt)" "$(TargetDir)Build\d3d8.dll" &gt;nul
+copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)Build\d3d8.ini" &gt;nul</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

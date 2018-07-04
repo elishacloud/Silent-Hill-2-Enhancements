@@ -1,5 +1,5 @@
 /**
-* Copyright (C) 2017 Elisha Riedlinger
+* Copyright (C) 2018 Elisha Riedlinger
 *
 * This software is  provided 'as-is', without any express  or implied  warranty. In no event will the
 * authors be held liable for any damages arising from the use of this software.
@@ -18,6 +18,8 @@
 #include <Windows.h>
 #include "Utils.h"
 #include "..\Common\Logging.h"
+
+std::vector<HMODULE> custom_dll;		// Used for custom dll's and asi plugins
 
 // Search memory for byte array
 void *GetAddressOfData(const void *data, size_t len, DWORD step)
@@ -70,4 +72,13 @@ void *GetAddressOfData(const void *data, size_t len, DWORD step, DWORD start, DW
 		}
 	}
 	return nullptr;
+}
+
+// Add HMODULE to vector
+void AddHandleToVector(HMODULE dll)
+{
+	if (dll)
+	{
+		custom_dll.push_back(dll);
+	}
 }

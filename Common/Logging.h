@@ -3,6 +3,16 @@
 #include <fstream>
 #include <stdarg.h> 
 
+static std::ostream& operator<<(std::ostream& os, const wchar_t* wchr)
+{
+	std::wstring ws(wchr);
+	static std::string str;
+	str.assign(std::string(ws.begin(), ws.end()));
+	return os << str.c_str();
+}
+
+extern std::ofstream LOG;
+
 class Log
 {
 public:
@@ -33,8 +43,6 @@ public:
 		}
 		return *this;
 	}
-
-	static std::ofstream LOG;
 };
 
 static void logf(char * fmt, ...)

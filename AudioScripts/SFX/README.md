@@ -9,6 +9,11 @@ This project contains two tools:
 
 **NOTE: All wav files that are used by Silent Hill 2 in the SFX file must be mono.  Silent Hill 2 cannot handle stereo SFX files.
 
+### Audio file mapping:
+You can view a partial map of the audio files and where they are used [here](SFX-Map.csv).
+
+Thanks to [Polymega](https://github.com/Polymega) for help in creating this map!
+
 ### Looping:
 Some of these files loop, but most just play once.  The files that loop have metadata added to the end, which is just a simple hex `0x00` for non-looping tracks and `0x01` for looping tracks.
 

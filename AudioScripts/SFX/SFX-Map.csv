@@ -1,0 +1,418 @@
+PC - Name,Description
+sddata000,Elevator button?
+sddata001,Elevator button?
+sddata002,Elevator button?
+sddata003,Door
+sddata004,Door
+sddata005,Door
+sddata006,Door
+sddata007,??
+sddata008,Door
+sddata009,Footstep
+sddata010,??
+sddata011,??
+sddata012,Shot
+sddata013,Monster noise
+sddata014,Shot
+sddata015,Monster noise
+sddata016,Door??
+sddata017,??
+sddata018,Monster noise
+sddata019,Monster noise
+sddata020,Monster noise
+sddata021,Monster noise
+sddata022,Page turn
+sddata023,Loud beep
+sddata024,Door
+sddata025,Door??
+sddata026,Secret hyper spray??
+sddata027,Chainsaw
+sddata028,Chainsaw
+sddata029,Clock door close?
+sddata030,Clock door unlock?
+sddata031,Clock door open
+sddata032,Pushing clock
+sddata033,Rotate head puzzle
+sddata034,Rotate head puzzle
+sddata035,Rotate head puzzle
+sddata036,Opening can
+sddata037,??
+sddata038,??
+sddata039,??
+sddata040,Dog bone acquired??
+sddata041,Door
+sddata042,Door
+sddata043,Door??
+sddata044,??
+sddata045,Door??
+sddata046,Door
+sddata047,Door
+sddata048,Door
+sddata049,Door
+sddata050,Door
+sddata051,Door
+sddata052,Door
+sddata053,Door
+sddata054,Door
+sddata055,Door
+sddata056,Door
+sddata057,Door
+sddata058,Door
+sddata059,Door
+sddata060,Door
+sddata061,Door??
+sddata062,Door
+sddata063,Door
+sddata064,Door
+sddata065,Door
+sddata066,Door
+sddata067,Eddie death scream
+sddata068,Eddie injured
+sddata069,Eddie injured
+sddata070,Eddie injured
+sddata071,??
+sddata072,Eddie's footsteps during his bossfight
+sddata073,Shot
+sddata074,Firearm??
+sddata075,??
+sddata076,Elevator
+sddata077,Elevator
+sddata078,Elevator
+sddata079,Elevator
+sddata080,??
+sddata081,Reload??
+sddata082,Elevator
+sddata083,Footstep water
+sddata084,Footstep water
+sddata085,??
+sddata086,Melee swing
+sddata087,James swinging Great Knife
+sddata088,Opening metal container
+sddata089,Hospital removing locks on box
+sddata090,Checking doctor's coat??
+sddata091,Ladder transition
+sddata092,Door
+sddata093,Door
+sddata094,Door
+sddata095,Hotel Stairway Footstep
+sddata096,Well wall breaking
+sddata097,??
+sddata098,??
+sddata099,??
+sddata100,??
+sddata101,Monster noise
+sddata102,??
+sddata103,??
+sddata104,Monster noise
+sddata105,Breathing ambient noise
+sddata106,Breathing ambient noise
+sddata107,Ambient noise
+sddata108,Breathing ambient noise
+sddata109,Breathing ambient noise
+sddata110,Ambient noise
+sddata111,??
+sddata112,??
+sddata113,James being choked?
+sddata114,James being choked?
+sddata115,??
+sddata116,Elevator Door Open/Close?
+sddata117,Elevator Door Open/Close?
+sddata118,Door close
+sddata119,Egg in door??
+sddata120,Item picked up SFX
+sddata121,OJ down chute??
+sddata122,James being hit?
+sddata123,James breathing
+sddata124,James falling off ledge??
+sddata125,Move head puzzle?
+sddata126,James quick turn
+sddata127,James quick turn metal
+sddata128,??
+sddata129,??
+sddata130,Footstep
+sddata131,Footstep??
+sddata132,Footstep??
+sddata133,James injured
+sddata134,James injured
+sddata135,James injured
+sddata136,James injured
+sddata137,James injured
+sddata138,James injured
+sddata139,James dying scream
+sddata140,James dying scream
+sddata141,Footstep (glass)
+sddata142,James footstep (grass)
+sddata143,Footstep (metal)
+sddata144,Footstep
+sddata145,Footstep??
+sddata146,Footstep (metal)
+sddata147,Footstep
+sddata148,Footstep
+sddata149,Footstep
+sddata150,Footstep
+sddata151,Footstep
+sddata152,Footstep
+sddata153,Door??
+sddata154,Metal scraping
+sddata155,Music box wind up
+sddata156,Music box close?
+sddata157,Unlock SFX
+sddata158,Unlock SFX
+sddata159,Boat SFX
+sddata160,Boat SFX
+sddata161,Footstep??
+sddata162,??
+sddata163,Prison noose  scream
+sddata164,Door
+sddata165,Door
+sddata166,Maria footstep??
+sddata167,Shot
+sddata168,Shot
+sddata169,Shot Mannequin
+sddata170,Shot Mannequin
+sddata171,Mannequin SFX
+sddata172,Mannequin SFX
+sddata173,Monster noise
+sddata174,Monster noise
+sddata175,Page turn
+sddata176,"Maria: ""James"""
+sddata177,Footstep (Maria)
+sddata178,??
+sddata179,Maria footstep (grass)
+sddata180,Footstep
+sddata181,Footstep??
+sddata182,Footstep??
+sddata183,Footstep??
+sddata184,Footstep (Maria)
+sddata185,Maria breathing
+sddata186,Maria injured
+sddata187,Maria dying scream
+sddata188,Monster noise
+sddata189,??
+sddata190,??
+sddata191,??
+sddata192,??
+sddata193,??
+sddata194,Monster noise
+sddata195,Monster noise
+sddata196,Monster noise
+sddata197,Monster noise
+sddata198,Monster noise choking
+sddata199,Monster noise
+sddata200,Monster noise
+sddata201,Monster noise
+sddata202,Monster noise
+sddata203,Monster noise
+sddata204,Door??
+sddata205,"Prison ""Ritual"""
+sddata206,Prison monster injured
+sddata207,Prison monster injured
+sddata208,Prison monster footstep
+sddata209,Door (gate)
+sddata210,Door (gate)
+sddata211,Lying Figure footstep
+sddata212,Shot Lying Figure
+sddata213,Shot Lying Figure
+sddata214,Lying Figure injured
+sddata215,Lying Figure injured
+sddata216,Lying Figure crawling
+sddata217,Lying Figure Crawling
+sddata218,Lying Figure Crawling
+sddata219,Lying Figure SFX
+sddata220,Lying Figure SFX
+sddata221,Lying Figure SFX
+sddata222,"Wet, gross noise"
+sddata223,Monster noise
+sddata224,Monster noise
+sddata225,Monster noise
+sddata226,Monster noise
+sddata227,Monster noise
+sddata228,"Wet, gross noise"
+sddata229,Monster noise
+sddata230,Lying Figure spray attack
+sddata231,Unlock SFX
+sddata232,"""Thud"" SFX"
+sddata233,Footstep (metal)
+sddata234,??
+sddata235,??
+sddata236,Nurse injured
+sddata237,Nurse injured
+sddata238,Nurse injured
+sddata239,Nurse injured
+sddata240,Nurse footstep??
+sddata241,??
+sddata242,??
+sddata243,??
+sddata244,??
+sddata245,??
+sddata246,??
+sddata247,Monster noise
+sddata248,Monster noise slowed down
+sddata249,Nurse SFX
+sddata250,Nurse SFX slowed down
+sddata251,Nurse SFX??
+sddata252,Nurse SFX?? Slowed down
+sddata253,Opening chest with hair
+sddata254,??
+sddata255,??
+sddata256,??
+sddata257,??
+sddata258,??
+sddata259,??
+sddata260,??
+sddata261,??
+sddata262,??
+sddata263,??
+sddata264,??
+sddata265,??
+sddata266,??
+sddata267,Lid coming off?
+sddata268,Handgun shot
+sddata269,Handgun reload
+sddata270,Handgun empty
+sddata271,Clock puzzle SFX??
+sddata272,Can opener SFX??
+sddata273,Hospital game show box opening
+sddata274,Rifle shot
+sddata275,Rifle empty
+sddata276,Rifle reload
+sddata277,??
+sddata278,Insert plaque on noose
+sddata279,Shotgun blast
+sddata280,Shotgun empty
+sddata281,Shotgun reload
+sddata282,Firearm reload??
+sddata283,Paint thinner remove marker
+sddata284,Suitcase unlock
+sddata285,Suitcase turn lock wheel
+sddata286,Can opener SFX??
+sddata287,??
+sddata288,??
+sddata289,Suitcase open
+sddata290,Elevator button?
+sddata291,Menu Back SFX
+sddata292,Adjust volume bar ticks in options menu
+sddata293,Menu Move SFX
+sddata294,Menu Error?? SFX
+sddata295,Menu Invalid?? SFX
+sddata296,Menu Can't Selected?? SFX
+sddata297,Menu Select SFX
+sddata298,??
+sddata299,??
+sddata300,??
+sddata301,??
+sddata302,??
+sddata303,??
+sddata304,Cockroach SFX
+sddata305,Cockroach SFX
+sddata306,Cockroach SFX
+sddata307,Cockroach SFX
+sddata308,Cockroach SFX
+sddata309,Cockroach SFX
+sddata310,Cockroach SFX
+sddata311,Cockroach SFX
+sddata312,Rotating handcuff wheel??
+sddata313,??
+sddata314,??
+sddata315,??
+sddata316,Prison bathroom scare
+sddata317,??
+sddata318,??
+sddata319,??
+sddata320,??
+sddata321,??
+sddata322,RPT Great Knife noise
+sddata323,RPT Great Knife noise
+sddata324,RPT Great Knife noise
+sddata325,RPT Great Knife noise
+sddata326,RPT Great Knife noise
+sddata327,RPT Great Knife noise
+sddata328,RPT Footstep
+sddata329,Shot (metal deflect)
+sddata330,??
+sddata331,??
+sddata332,??
+sddata333,??
+sddata334,??
+sddata335,Monster noise
+sddata336,Monster noise
+sddata337,Great Knife swing?
+sddata338,Metal bang SFX
+sddata339,??
+sddata340,Metal bang SFX
+sddata341,??
+sddata342,RPT swinging great knife?
+sddata343,VHS into player
+sddata344,VHS into player
+sddata345,Moving plate off ground?
+sddata346,"Wood ""clang"" hit"
+sddata347,"Metal ""clang"" hit"
+sddata348,Thud
+sddata349,??
+sddata350,Hotel basement generator?
+sddata351,Chainsaw
+sddata352,Chainsaw
+sddata353,Chainsaw stuck in log
+sddata354,Elevator
+sddata355,RPT Butcher Room Fan
+sddata356,Elevator??
+sddata357,Mary boss attack SFX
+sddata358,??
+sddata359,Car engine
+sddata360,Radio static
+sddata361,Radio static
+sddata362,Radio static
+sddata363,Radio static
+sddata364,Radio static
+sddata365,Radio static??
+sddata366,Radio static??
+sddata367,Feet running fast
+sddata368,Basement pig noise
+sddata369,Hotel secret crying noise
+sddata370,Hotel secret crying noise extended
+sddata371,Beginning woods walk crunch
+sddata372,Apt secret door knob rattle
+sddata373,Loud drop (BFaW?)
+sddata374,Loud drop (BFaW?)
+sddata375,Breathing in hotel elevator with paint thinner
+sddata376,Glass shattering
+sddata377,Breathing ambient noise
+sddata378,Apt man screaming
+sddata379,??
+sddata380,Footstep
+sddata381,??
+sddata382,"Mary: ""James!"""
+sddata383,Monster noise
+sddata384,Flying bug noise
+sddata385,Footstep
+sddata386,?? (WTF!)
+sddata387,Apt secret whisper
+sddata388,SHHS Staircase fog horn
+sddata389,Noose horsemen SFX??
+sddata390,"Beginning Lake Monster SFX (""gurgle gurgle gurgle"")"
+sddata391,??
+sddata392,Monster noise
+sddata393,Flesh Lips SFX?
+sddata394,Page turn
+sddata395,Something lit on fire?
+sddata396,Loud bang
+sddata397,James quick turn
+sddata398,James quick turn (metal)
+sddata399,??
+sddata400,Footstep??
+sddata401,Footstep??
+sddata402,Ladder transition
+sddata403,??
+sddata404,Metal clang
+sddata405,??
+sddata406,??
+sddata407,Maria injured
+sddata408,Maria injured
+sddata409,Maria injured
+sddata410,Maria injured
+sddata411,Maria injured
+sddata412,Footsteps quickly running
+sddata413,BFaW Metal Plates inserted??
+sddata414,BFaW Metal Plates inserted??
+sddata415,Locked SFX?
+sddata416,Electical panel short circuited

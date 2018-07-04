@@ -1,0 +1,36 @@
+LIBRARY
+EXPORTS
+
+
+; ****
+;LIBRARY "dsound"    <--- Needs to have the correct ordinals since some programs use the ordinal numbers for dsound APIs
+; ****
+DirectSoundCreate				@1
+DirectSoundEnumerateA			@2
+DirectSoundEnumerateW			@3
+DllCanUnloadNow					PRIVATE
+DllGetClassObject				PRIVATE
+DirectSoundCaptureCreate		@6
+DirectSoundCaptureEnumerateA	@7
+DirectSoundCaptureEnumerateW	@8
+GetDeviceID						@9
+DirectSoundFullDuplexCreate		@10
+DirectSoundCreate8				@11
+DirectSoundCaptureCreate8		@12
+
+
+; ****
+;LIBRARY "d3d8"
+; ****
+Direct3D8EnableMaximizedWindowedModeShim
+ValidatePixelShader
+ValidateVertexShader
+DebugSetMute
+Direct3DCreate8
+
+
+; ****
+;LIBRARY "dinput8"
+; ****
+DirectInput8Create
+GetdfDIJoystick

@@ -1,5 +1,5 @@
 /**
-* Copyright (C) 2017 Elisha Riedlinger
+* Copyright (C) 2018 Elisha Riedlinger
 *
 * This software is  provided 'as-is', without any express  or implied  warranty. In no event will the
 * authors be held liable for any damages arising from the use of this software.
@@ -18,17 +18,27 @@
 #include <Windows.h>
 #include "NoCDPatch\nocd.h"
 #include "SFX\sfx.h"
+#include "d3d8to9\d3d8to9.h"
+#include "Hooking\Hook.h"
+#include "Wrappers\wrapper.h"
+#include "Common\LoadASI.h"
+#include "Common\Utils.h"
 #include "Common\Settings.h"
 #include "Common\Logging.h"
 
-std::ofstream Log::LOG;
+// Basic logging
+std::ofstream LOG;
 char LogPath[MAX_PATH];
 
+// Configurable settings
 bool EnableSFXAddrHack = true;
+bool d3d8to9 = true;
 bool ResetScreenRes = true;
 bool NoCDPatch = true;
+bool LoadPlugins = true;
+bool LoadFromScriptsOnly = true;
 
-// Set config from string (file)
+// Get config settings from string (file)
 void __stdcall ParseCallback(char* name, char* value)
 {
 	// Check for valid entries
@@ -36,8 +46,11 @@ void __stdcall ParseCallback(char* name, char* value)
 
 	// Check settings
 	if (!_strcmpi(name, "EnableSFXAddrHack")) EnableSFXAddrHack = SetValue(value);
+	if (!_strcmpi(name, "d3d8to9")) ResetScreenRes = SetValue(value);
 	if (!_strcmpi(name, "ResetScreenRes")) ResetScreenRes = SetValue(value);
 	if (!_strcmpi(name, "NoCDPatch")) NoCDPatch = SetValue(value);
+	if (!_strcmpi(name, "LoadPlugins")) NoCDPatch = SetValue(value);
+	if (!_strcmpi(name, "LoadFromScriptsOnly")) NoCDPatch = SetValue(value);
 }
 
 // Dll main function
@@ -59,10 +72,10 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		char pathname[MAX_PATH];
 		GetModuleFileNameA(hModule, pathname, MAX_PATH);
 		strcpy_s(strrchr(pathname, '.'), MAX_PATH - strlen(pathname), ".log");
-		Log::LOG.open(pathname);
+		LOG.open(pathname);
 
 		// Starting
-		Log() << "Starting Silent Hill 2 Enhancement ASI!";
+		Log() << "Starting Silent Hill 2 Enhancements!";
 
 		// Get Silent Hill 2 file path
 		GetModuleFileNameA(nullptr, pathname, MAX_PATH);
@@ -87,11 +100,64 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			Log() << "Config file not found, using defaults";
 		}
 
+		// Create wrapper
+		HMODULE dll = Wrapper::CreateWrapper();
+		if (dll)
+		{
+			AddHandleToVector(dll);
+			Log() << "Wrapper created for " << dtypename[Wrapper::dtype];
+		}
+		else if (Wrapper::dtype != DTYPE_ASI)
+		{
+			Log() << "Error: could not create wrapper!";
+		}
+
+		// Enable d3d8to9
+		if (d3d8to9)
+		{
+			HMODULE d3d9_dll = LoadLibrary(L"d3d9.dll");
+			if (d3d9_dll)
+			{
+				AddHandleToVector(d3d9_dll);
+				p_Direct3DCreate9 = GetProcAddress(d3d9_dll, "Direct3DCreate9");
+				if (Wrapper::dtype == DTYPE_D3D8)
+				{
+					d3d8::Direct3DCreate8_var = p_Direct3DCreate8to9;
+				}
+				else
+				{
+					// Load d3d8 procs
+					HMODULE d3d8_dll = LoadLibrary(L"d3d8.dll");
+					AddHandleToVector(d3d8_dll);
+
+					// Hook d3d8.dll -> D3d8to9
+					Log() << "Hooking d3d8.dll APIs...";
+					Hook::HookAPI(dll, "d3d8.dll", Hook::GetProcAddress(d3d8_dll, "Direct3DCreate8"), "Direct3DCreate8", p_Direct3DCreate8to9);
+				}
+			}
+			else
+			{
+				Log() << "Error: could not load d3d9.dll!";
+			}
+		}
+
 		// Enable No-CD Patch
-		if (NoCDPatch) DisableCDCheck();
+		if (NoCDPatch)
+		{
+			DisableCDCheck();
+		}
 
 		// Update SFX addresses
-		if (EnableSFXAddrHack) UpdateSFXAddr();
+		if (EnableSFXAddrHack)
+		{
+			UpdateSFXAddr();
+		}
+
+		// Load ASI pluggins
+		if (LoadPlugins)
+		{
+			LoadASIPlugins(LoadFromScriptsOnly);
+		}
 
 		// Resetting thread priority
 		SetThreadPriority(hCurrentThread, dwPriorityClass);
@@ -119,8 +185,21 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			ChangeDisplaySettings(nullptr, 0);
 		}
 
+		// Unloading all modules
+		if (custom_dll.size())
+		{
+			Log() << "Unloading all loaded modules";
+			for (HMODULE it : custom_dll)
+			{
+				if (it)
+				{
+					FreeLibrary(it);
+				}
+			}
+		}
+
 		// Quiting
-		Log() << "Unloading ASI!";
+		Log() << "Unloading Silent Hill 2 Enhancements!";
 
 		break;
 	}

@@ -3,6 +3,11 @@
 ### Description:
 The dialogue files in Silent Hill 2 on the PC are stored in the `Silent Hill 2\data\sound\adx\voice\voice.afs` file. The afs format is just a container format (like an ISO) and stores all the dialog entries. The dialog files need to be in a specific order in the afs file and have a specific name. All of them have the extension adx, but the actual content can be in either adx or wav format. 
 
+### Audio file mapping:
+You can view a partial map of the audio files and where they are used [here](Dialog-Map.csv).
+
+Thanks to [Polymega](https://github.com/Polymega) for help in creating this map!
+
 ### Looping:
 Some dialog files in Silent Hill 2 should loop.  To do this requires modification of the adx file metadata.  The `adxencd.exe` tool has two parameters to handle this.  The first is `-lps` and the second is `-lpe`.  `-lps` stands for "loop start" and indicates the first audio [sample](https://en.wikipedia.org/wiki/Sampling_(signal_processing)) of the area in the file where you want to loop.  `-lps` stands for "loop end" and indicates the last audio sample that you want to include in the loop.  A loop can start or end anywhere in the wav file
 

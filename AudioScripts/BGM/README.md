@@ -3,6 +3,11 @@
 ### Description:
 The BGM files in Silent Hill 2 on the PC are stored in multiple adx and aix format files which are all located in the `Silent Hill 2\data\sound\adx` folder and associated subfolders. adx is a compressed audio format used mostly in console video games. aix is a multiplexed file that includes several adx file streams. Just like the Dialog files, Silent Hill 2 supports both wav and adx for these files. However since all of these files need to loop and Silent Hill 2 does not support looping wav files these need to be in the lower quality adx format.
 
+### Audio file mapping:
+You can view a partial map of the audio files and where they are used [here](BGM-Map.csv).
+
+Thanks to [Polymega](https://github.com/Polymega) for help in creating this map!
+
 ### Multiplexed files:
 
 The AIX files can include multiple ADX files in them.  For example `bgm_115.aix` includes the following files in it:

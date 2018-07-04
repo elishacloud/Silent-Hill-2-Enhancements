@@ -14,6 +14,54 @@
     <ClCompile Include="Common\Utils.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="Wrappers\wrapper.cpp">
+      <Filter>Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="d3d8to9\d3d8to9.cpp">
+      <Filter>d3d8to9</Filter>
+    </ClCompile>
+    <ClCompile Include="Hooking\Hook.cpp">
+      <Filter>Hooking</Filter>
+    </ClCompile>
+    <ClCompile Include="Hooking\HotPatch.cpp">
+      <Filter>Hooking</Filter>
+    </ClCompile>
+    <ClCompile Include="Hooking\IATPatch.cpp">
+      <Filter>Hooking</Filter>
+    </ClCompile>
+    <ClCompile Include="External\d3d8to9\source\d3d8to9_base.cpp">
+      <Filter>External\d3d8to9</Filter>
+    </ClCompile>
+    <ClCompile Include="External\d3d8to9\source\d3d8to9_device.cpp">
+      <Filter>External\d3d8to9</Filter>
+    </ClCompile>
+    <ClCompile Include="External\d3d8to9\source\d3d8to9_index_buffer.cpp">
+      <Filter>External\d3d8to9</Filter>
+    </ClCompile>
+    <ClCompile Include="External\d3d8to9\source\d3d8to9_surface.cpp">
+      <Filter>External\d3d8to9</Filter>
+    </ClCompile>
+    <ClCompile Include="External\d3d8to9\source\d3d8to9_swap_chain.cpp">
+      <Filter>External\d3d8to9</Filter>
+    </ClCompile>
+    <ClCompile Include="External\d3d8to9\source\d3d8to9_texture.cpp">
+      <Filter>External\d3d8to9</Filter>
+    </ClCompile>
+    <ClCompile Include="External\d3d8to9\source\d3d8to9_vertex_buffer.cpp">
+      <Filter>External\d3d8to9</Filter>
+    </ClCompile>
+    <ClCompile Include="External\d3d8to9\source\d3d8to9_volume.cpp">
+      <Filter>External\d3d8to9</Filter>
+    </ClCompile>
+    <ClCompile Include="External\d3d8to9\source\d3d8types.cpp">
+      <Filter>External\d3d8to9</Filter>
+    </ClCompile>
+    <ClCompile Include="External\d3d8to9\source\lookup_table.cpp">
+      <Filter>External\d3d8to9</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\LoadASI.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sh2-enhce.h" />
@@ -32,14 +80,49 @@
     <ClInclude Include="Common\Utils.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="Wrappers\d3d8.h">
+      <Filter>Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\dinput8.h">
+      <Filter>Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\dsound.h">
+      <Filter>Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\wrapper.h">
+      <Filter>Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="Hooking\Hook.h">
+      <Filter>Hooking</Filter>
+    </ClInclude>
+    <ClInclude Include="External\d3d8to9\source\d3d8to9.hpp">
+      <Filter>External\d3d8to9</Filter>
+    </ClInclude>
+    <ClInclude Include="External\d3d8to9\source\d3d8types.hpp">
+      <Filter>External\d3d8to9</Filter>
+    </ClInclude>
+    <ClInclude Include="External\d3d8to9\source\d3dx9.hpp">
+      <Filter>External\d3d8to9</Filter>
+    </ClInclude>
+    <ClInclude Include="External\d3d8to9\source\lookup_table.hpp">
+      <Filter>External\d3d8to9</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\LoadASI.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="d3d8to9\d3d8to9.h">
+      <Filter>d3d8to9</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="BuildNo.rc" />
     <ResourceCompile Include="sh2-enhce.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="sh2-enhce.def" />
-    <None Include="Common\sh2-enhce.ini">
+    <None Include="Wrappers\wrapper.def">
+      <Filter>Wrappers</Filter>
+    </None>
+    <None Include="Common\Settings.ini">
       <Filter>Common</Filter>
     </None>
   </ItemGroup>
@@ -52,6 +135,21 @@
     </Filter>
     <Filter Include="NoCDPatch">
       <UniqueIdentifier>{a3887a48-2290-4d36-b519-0b39258252f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Wrappers">
+      <UniqueIdentifier>{b4119dde-0573-429b-9f66-93d73e31189c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="d3d8to9">
+      <UniqueIdentifier>{fef3e004-d4b3-462a-bdb7-a504eef37587}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hooking">
+      <UniqueIdentifier>{f3bc2c9d-3d63-4e99-b24a-29cb21ee295c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External">
+      <UniqueIdentifier>{a9ab4474-9fe4-4399-8354-0036db96b13a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\d3d8to9">
+      <UniqueIdentifier>{56cc2b13-4905-4fb2-96b0-6d4d8af0a885}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

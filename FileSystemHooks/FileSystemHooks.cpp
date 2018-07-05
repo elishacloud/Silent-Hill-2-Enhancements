@@ -27,7 +27,8 @@ wchar_t ModulePathW[MAX_PATH];
 
 wchar_t *ConfigFileList[] =
 {
-	L"sh2fog.ini"
+	L"sh2fog.ini",
+	L"SilentHill2.WidescreenFix.ini"
 };
 
 LPCSTR GetFileName(LPCSTR lpFileName)

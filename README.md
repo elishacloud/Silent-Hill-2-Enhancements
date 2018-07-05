@@ -5,8 +5,9 @@ This is a project that is designed to enhance Silent Hill 2.  So far it mainly f
 ### Features
 Below is a list of features:
 
- * Dynamically updates SH2 memory with correct index locations for the SFX from the `sddata.bin` file (required if you are using a modified version of the `sddata.bin` file)
+ * The [Widescreen Fix](https://github.com/ThirteenAG/WidescreenFixesPack/releases/tag/sh2) runs the game in widescreen to fit any sized monitor appropriately and fixes other inherit game bugs.
  * The [Nemesis2000 Fog Fix](http://ps2wide.net/pc.html#sh2) which makes the game's fog closer resemble the PlayStation 2's version which is considered the best
+ * Dynamically updates SH2 memory with correct index locations for the SFX from the `sddata.bin` file (required if you are using a modified version of the `sddata.bin` file)
  * ASI loader to load custom libraries with the file extension .asi into the game using [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader)
  * Conversion of Direct3D 8 (d3d8.dll) to Direct3D 9 (d3d9.dll) using [d3d8to9](https://github.com/crosire/d3d8to9)
  * Disables the CD check
@@ -37,7 +38,8 @@ This project uses code from several other projects. Below is a list of locations
  * [DxWrapper](https://github.com/elishacloud/dxwrapper): Includes code to create wrapper dlls and resets the display adapter.
  * [GetFunctionAddress](http://www.rohitab.com/discuss/topic/40594-parsing-pe-export-table/): Includes code from rohitab.com to parse the PE export table.
  * [MemoryModule](https://github.com/fancycode/MemoryModule): Includes code for loading libraries from memory.
- * [Nemesis2000 Fog Fix](http://ps2wide.net/pc.html#sh2): Includes the full binary file for fog fix.
+ * [Nemesis2000 Fog Fix](http://ps2wide.net/pc.html#sh2): Includes the full binary file for fog fix by Nemesis2000.
  * [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader): Includes code for loading ASI plugins.
+ * [Widescreen Fix](https://github.com/ThirteenAG/WidescreenFixesPack/releases/tag/sh2): Includes the full binary file for the Widescreen Fix by [ThirteenAG](https://github.com/ThirteenAG) and [AeroWidescreen](https://github.com/AeroWidescreen).
 
 Thanks for stopping by!

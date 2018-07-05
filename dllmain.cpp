@@ -29,6 +29,7 @@
 #include "Common\Logging.h"
 
 #define IDR_SH2FOG   101
+#define IDR_SH2WID   102
 
 // Basic logging
 std::ofstream LOG;
@@ -42,6 +43,7 @@ bool NoCDPatch = true;
 bool LoadFromScriptsOnly = false;
 bool LoadPlugins = false;
 bool ResetScreenRes = true;
+bool WidescreenFix = true;
 
 // Get config settings from string (file)
 void __stdcall ParseCallback(char* name, char* value)
@@ -57,10 +59,12 @@ void __stdcall ParseCallback(char* name, char* value)
 	if (!_strcmpi(name, "LoadFromScriptsOnly")) LoadFromScriptsOnly = SetValue(value);
 	if (!_strcmpi(name, "LoadPlugins")) LoadPlugins = SetValue(value);
 	if (!_strcmpi(name, "ResetScreenRes")) ResetScreenRes = SetValue(value);
+	if (!_strcmpi(name, "WidescreenFix")) WidescreenFix = SetValue(value);
 }
 
 // Handles
 HMEMORYMODULE FogFixHandle = nullptr;
+HMEMORYMODULE WidescreenFixHandle = nullptr;
 
 // Dll main function
 bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
@@ -193,6 +197,28 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			}
 		}
 
+		// Widescreen Fix
+		if (WidescreenFix)
+		{
+			HRSRC hResource = FindResource(hModule, MAKEINTRESOURCE(IDR_SH2WID), RT_RCDATA);
+			if (hResource)
+			{
+				HGLOBAL hLoadedResource = LoadResource(hModule, hResource);
+				if (hLoadedResource)
+				{
+					LPVOID pLockedResource = LockResource(hLoadedResource);
+					if (pLockedResource)
+					{
+						DWORD dwResourceSize = SizeofResource(hModule, hResource);
+						if (dwResourceSize != 0)
+						{
+							WidescreenFixHandle = MemoryLoadLibrary((const void*)pLockedResource, dwResourceSize);
+						}
+					}
+				}
+			}
+		}
+
 		// Resetting thread priority
 		SetThreadPriority(hCurrentThread, dwPriorityClass);
 
@@ -226,6 +252,10 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		if (FogFixHandle)
 		{
 			MemoryFreeLibrary(FogFixHandle);
+		}
+		if (WidescreenFixHandle)
+		{
+			MemoryFreeLibrary(WidescreenFixHandle);
 		}
 
 		// Unloading all modules

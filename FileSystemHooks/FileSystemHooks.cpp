@@ -84,7 +84,6 @@ DWORD WINAPI GetModuleFileNameAHandler(HMODULE hModule, LPSTR lpFilename, DWORD 
 
 		if (lpFilename[0] != '\\' && lpFilename[1] != '\\' && lpFilename[2] != '\\' && lpFilename[3] != '\\')
 		{
-			hModule = nullptr;
 			DWORD lSize = org_GetModuleFileName(nullptr, lpFilename, nSize);
 			char *pdest = strrchr(lpFilename, '\\');
 			if (pdest && lSize > 0 && nSize - lSize + strlen(ModulePathA) > 0)

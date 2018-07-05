@@ -36,10 +36,10 @@ void FindFiles(WIN32_FIND_DATA* fd)
 			{
 				auto pos = wcslen(fd->cFileName);
 
-				if (fd->cFileName[pos - 4] == L'.' &&
-					(fd->cFileName[pos - 3] == L'a' || fd->cFileName[pos - 3] == L'A') &&
-					(fd->cFileName[pos - 2] == L's' || fd->cFileName[pos - 2] == L'S') &&
-					(fd->cFileName[pos - 1] == L'i' || fd->cFileName[pos - 1] == L'I'))
+				if (fd->cFileName[pos - 4] == '.' &&
+					(fd->cFileName[pos - 3] == 'a' || fd->cFileName[pos - 3] == 'A') &&
+					(fd->cFileName[pos - 2] == 's' || fd->cFileName[pos - 2] == 'S') &&
+					(fd->cFileName[pos - 1] == 'i' || fd->cFileName[pos - 1] == 'I'))
 				{
 					wchar_t path[MAX_PATH] = { 0 };
 					swprintf_s(path, L"%s\\%s", dir, fd->cFileName);

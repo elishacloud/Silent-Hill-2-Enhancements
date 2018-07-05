@@ -20,23 +20,28 @@
 #include "SFX\sfx.h"
 #include "d3d8to9\d3d8to9.h"
 #include "Hooking\Hook.h"
+#include "FileSystemHooks\FileSystemHooks.h"
+#include "External\MemoryModule\MemoryModule.h"
 #include "Wrappers\wrapper.h"
 #include "Common\LoadASI.h"
 #include "Common\Utils.h"
 #include "Common\Settings.h"
 #include "Common\Logging.h"
 
+#define IDR_SH2FOG   101
+
 // Basic logging
 std::ofstream LOG;
-char LogPath[MAX_PATH];
+wchar_t LogPath[MAX_PATH];
 
 // Configurable settings
-bool EnableSFXAddrHack = true;
 bool d3d8to9 = true;
-bool ResetScreenRes = true;
+bool EnableSFXAddrHack = true;
+bool Nemesis2000FogFix = true;
 bool NoCDPatch = true;
-bool LoadPlugins = true;
-bool LoadFromScriptsOnly = true;
+bool LoadFromScriptsOnly = false;
+bool LoadPlugins = false;
+bool ResetScreenRes = true;
 
 // Get config settings from string (file)
 void __stdcall ParseCallback(char* name, char* value)
@@ -45,13 +50,17 @@ void __stdcall ParseCallback(char* name, char* value)
 	if (!IsValidSettings(name, value)) return;
 
 	// Check settings
+	if (!_strcmpi(name, "d3d8to9")) d3d8to9 = SetValue(value);
 	if (!_strcmpi(name, "EnableSFXAddrHack")) EnableSFXAddrHack = SetValue(value);
-	if (!_strcmpi(name, "d3d8to9")) ResetScreenRes = SetValue(value);
-	if (!_strcmpi(name, "ResetScreenRes")) ResetScreenRes = SetValue(value);
+	if (!_strcmpi(name, "Nemesis2000FogFix")) Nemesis2000FogFix = SetValue(value);
 	if (!_strcmpi(name, "NoCDPatch")) NoCDPatch = SetValue(value);
-	if (!_strcmpi(name, "LoadPlugins")) NoCDPatch = SetValue(value);
-	if (!_strcmpi(name, "LoadFromScriptsOnly")) NoCDPatch = SetValue(value);
+	if (!_strcmpi(name, "LoadFromScriptsOnly")) LoadFromScriptsOnly = SetValue(value);
+	if (!_strcmpi(name, "LoadPlugins")) LoadPlugins = SetValue(value);
+	if (!_strcmpi(name, "ResetScreenRes")) ResetScreenRes = SetValue(value);
 }
+
+// Handles
+HMEMORYMODULE FogFixHandle = nullptr;
 
 // Dll main function
 bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
@@ -69,21 +78,24 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		SetThreadPriority(hCurrentThread, THREAD_PRIORITY_HIGHEST);
 
 		// Get log file path and open log file
-		char pathname[MAX_PATH];
-		GetModuleFileNameA(hModule, pathname, MAX_PATH);
-		strcpy_s(strrchr(pathname, '.'), MAX_PATH - strlen(pathname), ".log");
+		wchar_t pathname[MAX_PATH];
+		GetModuleFileName(hModule, pathname, MAX_PATH);
+		wcscpy_s(wcsrchr(pathname, '.'), MAX_PATH - wcslen(pathname), L".log");
 		LOG.open(pathname);
 
 		// Starting
 		Log() << "Starting Silent Hill 2 Enhancements!";
 
 		// Get Silent Hill 2 file path
-		GetModuleFileNameA(nullptr, pathname, MAX_PATH);
+		GetModuleFileName(nullptr, pathname, MAX_PATH);
 		Log() << "Running from:  " << pathname;
 
 		// Get config file path
-		GetModuleFileNameA(hModule, pathname, MAX_PATH);
-		strcpy_s(strrchr(pathname, '.'), MAX_PATH - strlen(pathname), ".ini");
+		GetModuleFileName(hModule, pathname, MAX_PATH);
+		wcscpy_s(wcsrchr(pathname, '.'), MAX_PATH - wcslen(pathname), L".ini");
+
+		// Hook CreateFile API
+		InstallFileSystemHooks(hModule, pathname);
 
 		// Read config file
 		Log() << "Reading config file:  " << pathname;
@@ -132,7 +144,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 
 					// Hook d3d8.dll -> D3d8to9
 					Log() << "Hooking d3d8.dll APIs...";
-					Hook::HookAPI(dll, "d3d8.dll", Hook::GetProcAddress(d3d8_dll, "Direct3DCreate8"), "Direct3DCreate8", p_Direct3DCreate8to9);
+					Hook::HotPatch(Hook::GetProcAddress(d3d8_dll, "Direct3DCreate8"), "Direct3DCreate8", p_Direct3DCreate8to9, true);
 				}
 			}
 			else
@@ -154,9 +166,31 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		}
 
 		// Load ASI pluggins
-		if (LoadPlugins)
+		if (LoadPlugins && Wrapper::dtype != DTYPE_ASI)
 		{
 			LoadASIPlugins(LoadFromScriptsOnly);
+		}
+
+		// Load Nemesis2000's Fog Fix
+		if (Nemesis2000FogFix)
+		{
+			HRSRC hResource = FindResource(hModule, MAKEINTRESOURCE(IDR_SH2FOG), RT_RCDATA);
+			if (hResource)
+			{
+				HGLOBAL hLoadedResource = LoadResource(hModule, hResource);
+				if (hLoadedResource)
+				{
+					LPVOID pLockedResource = LockResource(hLoadedResource);
+					if (pLockedResource)
+					{
+						DWORD dwResourceSize = SizeofResource(hModule, hResource);
+						if (dwResourceSize != 0)
+						{
+							FogFixHandle = MemoryLoadLibrary((const void*)pLockedResource, dwResourceSize);
+						}
+					}
+				}
+			}
 		}
 
 		// Resetting thread priority
@@ -183,6 +217,15 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			ReleaseDC(nullptr, hDC);
 			Sleep(0);
 			ChangeDisplaySettings(nullptr, 0);
+		}
+
+		// Unhook APIs
+		Hook::UnhookAll();
+
+		// Unhook memory module handles
+		if (FogFixHandle)
+		{
+			MemoryFreeLibrary(FogFixHandle);
 		}
 
 		// Unloading all modules

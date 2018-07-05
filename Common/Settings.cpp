@@ -50,14 +50,14 @@ bool IsValidSettings(char* name, char* value)
 }
 
 // Reads szFileName from disk
-char* Read(char* szFileName)
+char* Read(wchar_t* szFileName)
 {
 	HANDLE hFile;
 	DWORD dwBytesToRead;
 	DWORD dwBytesRead;
 
 	char* szCfg = nullptr;
-	hFile = CreateFileA(szFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+	hFile = CreateFile(szFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 	if (hFile != INVALID_HANDLE_VALUE)
 	{
 		dwBytesToRead = GetFileSize(hFile, nullptr);

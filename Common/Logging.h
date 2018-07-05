@@ -6,9 +6,7 @@
 static std::ostream& operator<<(std::ostream& os, const wchar_t* wchr)
 {
 	std::wstring ws(wchr);
-	static std::string str;
-	str.assign(std::string(ws.begin(), ws.end()));
-	return os << str.c_str();
+	return os << std::string(ws.begin(), ws.end()).c_str();
 }
 
 extern std::ofstream LOG;

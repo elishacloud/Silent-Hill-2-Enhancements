@@ -62,9 +62,14 @@
     <ClCompile Include="Common\LoadASI.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="FileSystemHooks\FileSystemHooks.cpp">
+      <Filter>FileSystemHooks</Filter>
+    </ClCompile>
+    <ClCompile Include="External\MemoryModule\MemoryModule.c">
+      <Filter>External\MemoryModule</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="sh2-enhce.h" />
     <ClInclude Include="SFX\sfx.h">
       <Filter>SFX</Filter>
     </ClInclude>
@@ -113,10 +118,24 @@
     <ClInclude Include="d3d8to9\d3d8to9.h">
       <Filter>d3d8to9</Filter>
     </ClInclude>
+    <ClInclude Include="FileSystemHooks\FileSystemHooks.h">
+      <Filter>FileSystemHooks</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\sh2-enhce.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="External\MemoryModule\MemoryModule.h">
+      <Filter>External\MemoryModule</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="BuildNo.rc" />
-    <ResourceCompile Include="sh2-enhce.rc" />
+    <ResourceCompile Include="Resources\sh2-enhce.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="Resources\BuildNo.rc" />
+    <ResourceCompile Include="Resources\UALx86.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Wrappers\wrapper.def">
@@ -150,6 +169,15 @@
     </Filter>
     <Filter Include="External\d3d8to9">
       <UniqueIdentifier>{56cc2b13-4905-4fb2-96b0-6d4d8af0a885}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FileSystemHooks">
+      <UniqueIdentifier>{e1efbab0-570e-45c6-a23d-2ab4275931a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{9530d5d6-2e97-44ac-bf25-78f74779f6d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\MemoryModule">
+      <UniqueIdentifier>{25ae67b5-cfe4-4166-9701-53e48a1cb574}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

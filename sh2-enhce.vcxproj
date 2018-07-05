@@ -11,8 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="BuildNo.rc" />
-    <ResourceCompile Include="sh2-enhce.rc" />
+    <ResourceCompile Include="Resources\BuildNo.rc" />
+    <ResourceCompile Include="Resources\sh2-enhce.rc" />
+    <ResourceCompile Include="Resources\UALx86.rc" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common\LoadASI.cpp" />
@@ -29,6 +30,8 @@
     <ClCompile Include="External\d3d8to9\source\d3d8to9_volume.cpp" />
     <ClCompile Include="External\d3d8to9\source\d3d8types.cpp" />
     <ClCompile Include="External\d3d8to9\source\lookup_table.cpp" />
+    <ClCompile Include="External\MemoryModule\MemoryModule.c" />
+    <ClCompile Include="FileSystemHooks\FileSystemHooks.cpp" />
     <ClCompile Include="Hooking\Hook.cpp" />
     <ClCompile Include="Hooking\HotPatch.cpp" />
     <ClCompile Include="Hooking\IATPatch.cpp" />
@@ -47,10 +50,12 @@
     <ClInclude Include="External\d3d8to9\source\d3d8types.hpp" />
     <ClInclude Include="External\d3d8to9\source\d3dx9.hpp" />
     <ClInclude Include="External\d3d8to9\source\lookup_table.hpp" />
+    <ClInclude Include="External\MemoryModule\MemoryModule.h" />
+    <ClInclude Include="FileSystemHooks\FileSystemHooks.h" />
     <ClInclude Include="Hooking\Hook.h" />
     <ClInclude Include="NoCDPatch\nocd.h" />
+    <ClInclude Include="Resources\sh2-enhce.h" />
     <ClInclude Include="SFX\sfx.h" />
-    <ClInclude Include="sh2-enhce.h" />
     <ClInclude Include="Wrappers\d3d8.h" />
     <ClInclude Include="Wrappers\dinput8.h" />
     <ClInclude Include="Wrappers\dsound.h" />
@@ -136,11 +141,11 @@ copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)Build\d3d8.ini" &gt;nul<
       <ModuleDefinitionFile>Wrappers\wrapper.def</ModuleDefinitionFile>
     </Link>
     <PreBuildEvent>
-      <Command>cmd /c "@echo off &amp;&amp; cd /D ""$(ProjectDir)"" &amp;&amp; if not exist BuildNo.rc echo #define BUILD_NUMBER 0 &gt;BuildNo.rc"
-cmd /c "@echo off &amp;&amp; cd /D ""$(ProjectDir)"" &amp;&amp; FOR /F "tokens=3" %%i IN (BuildNo.rc) DO set /a var=%%i+1 &gt;Build.txt"
-cmd /c "@echo off &amp;&amp; cd /D ""$(ProjectDir)"" &amp;&amp; FOR /F %%i IN (Build.txt) DO echo #define BUILD_NUMBER %%i &gt;BuildNo.rc"
+      <Command>cmd /c "@echo off &amp;&amp; cd /D ""$(ProjectDir)"" &amp;&amp; if not exist Resources\BuildNo.rc echo #define BUILD_NUMBER 0 &gt;Resources\BuildNo.rc"
+cmd /c "@echo off &amp;&amp; cd /D ""$(ProjectDir)"" &amp;&amp; FOR /F "tokens=3" %%i IN (Resources\BuildNo.rc) DO set /a var=%%i+1 &gt;Build.txt"
+cmd /c "@echo off &amp;&amp; cd /D ""$(ProjectDir)"" &amp;&amp; FOR /F %%i IN (Build.txt) DO echo #define BUILD_NUMBER %%i &gt;Resources\BuildNo.rc"
 cmd /c "@echo off &amp;&amp; cd /D ""$(ProjectDir)"" &amp;&amp; del Build.txt"
-cmd /c "@echo off &amp;&amp; cd /D ""$(ProjectDir)"" &amp;&amp; type BuildNo.rc"</Command>
+cmd /c "@echo off &amp;&amp; cd /D ""$(ProjectDir)"" &amp;&amp; type Resources\BuildNo.rc"</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>IF NOT EXIST "$(TargetDir)Build" mkdir "$(TargetDir)Build" &gt;nul

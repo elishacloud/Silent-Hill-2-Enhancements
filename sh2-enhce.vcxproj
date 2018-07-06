@@ -17,6 +17,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common\LoadASI.cpp" />
+    <ClCompile Include="Common\Logging.cpp" />
     <ClCompile Include="Common\Settings.cpp" />
     <ClCompile Include="Common\Utils.cpp" />
     <ClCompile Include="d3d8to9\d3d8to9.cpp" />

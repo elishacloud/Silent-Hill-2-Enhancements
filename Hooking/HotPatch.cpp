@@ -1,5 +1,5 @@
 /**
-* Copyright (C) 2017 Elisha Riedlinger
+* Copyright (C) 2018 Elisha Riedlinger
 *
 * This software is  provided 'as-is', without any express  or implied  warranty. In no event will the
 * authors be held liable for any damages arising from the use of this software.
@@ -88,8 +88,11 @@ void *Hook::HotPatch(void *apiproc, const char *apiname, void *hookproc, bool fo
 		// Save memory
 		HotPatchProcs.push_back(tmpMemory);
 
-		// restore protection
+		// Restore protection
 		VirtualProtect(patch_address, 12, dwPrevProtect, &dwPrevProtect);
+
+		// Flush cache
+		FlushInstructionCache(GetCurrentProcess(), patch_address, 12);
 #ifdef _DEBUG
 		logf("HotPatch: api=%s addr=%p->%p hook=%p", apiname, apiproc, orig_address, hookproc);
 #endif
@@ -103,8 +106,11 @@ void *Hook::HotPatch(void *apiproc, const char *apiname, void *hookproc, bool fo
 		DWORD *patchAddr;
 		memcpy(&patchAddr, ((BYTE*)apiproc + 2), sizeof(DWORD));
 
-		// restore protection
+		// Restore protection
 		VirtualProtect(patch_address, 12, dwPrevProtect, &dwPrevProtect);
+
+		// Flush cache
+		FlushInstructionCache(GetCurrentProcess(), patch_address, 12);
 #ifdef _DEBUG
 		logf("HotPatch: api=%s addr=%p->%p hook=%p", apiname, apiproc, orig_address, hookproc);
 #endif
@@ -181,6 +187,9 @@ bool Hook::UnHotPatchAll()
 
 			// Restore protection
 			VirtualProtect(HotPatchProcs.back().procaddr, 12, dwPrevProtect, &dwPrevProtect);
+
+			// Flush cache
+			FlushInstructionCache(GetCurrentProcess(), HotPatchProcs.back().procaddr, 12);
 		}
 		else
 		{
@@ -244,6 +253,9 @@ bool Hook::UnhookHotPatch(void *apiproc, const char *apiname, void *hookproc)
 						// Restore protection
 						VirtualProtect(patch_address, 12, dwPrevProtect, &dwPrevProtect);
 
+						// Flush cache
+						FlushInstructionCache(GetCurrentProcess(), patch_address, 12);
+
 						// Return
 						return true;
 					}
@@ -270,7 +282,11 @@ bool Hook::UnhookHotPatch(void *apiproc, const char *apiname, void *hookproc)
 		*((DWORD *)(patch_address + 1)) = 0x90909090; // 4 nops
 		*((WORD *)(patch_address + 5)) = 0x9090; // 2 nops
 
-		VirtualProtect(patch_address, 12, dwPrevProtect, &dwPrevProtect); // restore protection
+		// Restore protection
+		VirtualProtect(patch_address, 12, dwPrevProtect, &dwPrevProtect);
+
+		// Flush cache
+		FlushInstructionCache(GetCurrentProcess(), patch_address, 12);
 #ifdef _DEBUG
 		logf("UnhookHotPatch: api=%s addr=%p->%p hook=%p", apiname, apiproc, orig_address, hookproc);
 #endif
@@ -279,7 +295,8 @@ bool Hook::UnhookHotPatch(void *apiproc, const char *apiname, void *hookproc)
 
 	logf("HotPatch: failed to unhook '%s' at addr=%p", apiname, apiproc);
 
-	VirtualProtect(patch_address, 12, dwPrevProtect, &dwPrevProtect); // restore protection
+	// Restore protection
+	VirtualProtect(patch_address, 12, dwPrevProtect, &dwPrevProtect);
 #ifdef _DEBUG
 	logf("UnhookHotPatch: api=%s addr=%p->%p hook=%p", apiname, apiproc, orig_address, hookproc);
 #endif

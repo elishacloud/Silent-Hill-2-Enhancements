@@ -16,6 +16,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <algorithm>
 #include "Hooking\Hook.h"
 #include "Common\Logging.h"
 #include "FileSystemHooks.h"
@@ -24,11 +25,13 @@ char ConfigPathA[MAX_PATH];
 wchar_t ConfigPathW[MAX_PATH];
 char ModulePathA[MAX_PATH];
 wchar_t ModulePathW[MAX_PATH];
+wchar_t ProcNameW[MAX_PATH];
+DWORD nPathSize = 0;
 
 wchar_t *ConfigFileList[] =
 {
 	L"sh2fog.ini",
-	L"SilentHill2.WidescreenFix.ini"
+	ProcNameW
 };
 
 LPCSTR GetFileName(LPCSTR lpFileName)
@@ -65,7 +68,6 @@ typedef DWORD(WINAPI *PFN_GetPrivateProfileStringA)(LPCSTR lpAppName, LPCSTR lpK
 typedef DWORD(WINAPI *PFN_GetPrivateProfileStringW)(LPCWSTR lpAppName, LPCWSTR lpKeyName, LPCWSTR lpDefault, LPWSTR lpReturnedString, DWORD nSize, LPCWSTR lpFileName);
 
 // Proc addresses
-HMODULE hModule_dll = nullptr;
 FARPROC p_GetModuleFileNameA = nullptr;
 FARPROC p_GetModuleFileNameW = nullptr;
 FARPROC p_CreateFileA = nullptr;
@@ -82,16 +84,12 @@ DWORD WINAPI GetModuleFileNameAHandler(HMODULE hModule, LPSTR lpFilename, DWORD 
 	{
 		DWORD ret = org_GetModuleFileName(hModule, lpFilename, nSize);
 
-		if (lpFilename[0] != '\\' && lpFilename[1] != '\\' && lpFilename[2] != '\\' && lpFilename[3] != '\\')
+		if (lpFilename[0] != '\\' && lpFilename[1] != '\\' && lpFilename[2] != '\\' && lpFilename[3] != '\\' &&
+			lpFilename[0] != ':' && lpFilename[1] != ':' && lpFilename[2] != ':' && lpFilename[3] != ':')
 		{
-			DWORD lSize = org_GetModuleFileName(nullptr, lpFilename, nSize);
-			char *pdest = strrchr(lpFilename, '\\');
-			if (pdest && lSize > 0 && nSize - lSize + strlen(ModulePathA) > 0)
-			{
-				strcpy_s(pdest + 1, nSize - lSize, ModulePathA);
-				return strlen(lpFilename);
-			}
-			return lSize;
+			ZeroMemory(lpFilename, nSize * sizeof(char));
+			memcpy(lpFilename, ModulePathA, (nSize - 1) * sizeof(char));
+			ret = min(nPathSize, nSize);
 		}
 
 		return ret;
@@ -111,16 +109,12 @@ DWORD WINAPI GetModuleFileNameWHandler(HMODULE hModule, LPWSTR lpFilename, DWORD
 	{
 		DWORD ret = org_GetModuleFileName(hModule, lpFilename, nSize);
 
-		if (lpFilename[0] != '\\' && lpFilename[1] != '\\' && lpFilename[2] != '\\' && lpFilename[3] != '\\')
+		if (lpFilename[0] != '\\' && lpFilename[1] != '\\' && lpFilename[2] != '\\' && lpFilename[3] != '\\' &&
+			lpFilename[0] != ':' && lpFilename[1] != ':' && lpFilename[2] != ':' && lpFilename[3] != ':')
 		{
-			DWORD lSize = org_GetModuleFileName(nullptr, lpFilename, nSize);
-			wchar_t *pdest = wcsrchr(lpFilename, '\\');
-			if (pdest && lSize > 0 && nSize - lSize + wcslen(ModulePathW) > 0)
-			{
-				wcscpy_s(pdest + 1, nSize - lSize, ModulePathW);
-				return wcslen(lpFilename);
-			}
-			return lSize;
+			ZeroMemory(lpFilename, nSize * sizeof(wchar_t));
+			memcpy(lpFilename, ModulePathW, (nSize - 1) * sizeof(wchar_t));
+			ret = (nPathSize, nSize);
 		}
 
 		return ret;
@@ -193,20 +187,25 @@ DWORD WINAPI GetPrivateProfileStringWHooked(LPCWSTR lpAppName, LPCWSTR lpKeyName
 
 void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 {
-	// Module handle
-	hModule_dll = hModule;
-
 	// Get module path
-	wchar_t pathname[MAX_PATH];
-	GetModuleFileName(hModule, pathname, MAX_PATH);
-	wcscpy_s(ModulePathW, MAX_PATH - wcslen(pathname), wcsrchr(pathname, '\\') + 1);
+	GetModuleFileName(hModule, ModulePathW, MAX_PATH);
 	std::wstring ws(ModulePathW);
 	strcpy_s(ModulePathA, MAX_PATH, std::string(ws.begin(), ws.end()).c_str());
+	nPathSize = strlen(ModulePathA);
+
+	// Get proc name as ini
+	wchar_t PathW[MAX_PATH];
+	GetModuleFileName(nullptr, PathW, MAX_PATH);
+	wcscpy_s(wcsrchr(PathW, '.'), MAX_PATH, L".ini");
+	wcscpy_s(ProcNameW, MAX_PATH, wcsrchr(PathW, '\\') + 1);
 
 	// Store config path
 	wcscpy_s(ConfigPathW, MAX_PATH , ConfigPath);
 	ws.assign(ConfigPath);
 	strcpy_s(ConfigPathA, MAX_PATH, std::string(ws.begin(), ws.end()).c_str());
+
+	// Logging
+	Log() << "Hooking the FileSystem APIs...";
 
 	// Hook GetModuleFileName to fix module name in modules loaded from memory
 	InterlockedExchangePointer((PVOID*)&p_GetModuleFileNameA, Hook::HookAPI(GetModuleHandle(L"kernel32"), "kernel32.dll", Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "GetModuleFileNameA"), "GetModuleFileNameA", GetModuleFileNameAHandler));

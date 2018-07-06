@@ -3,6 +3,10 @@
 #include <fstream>
 #include <stdarg.h> 
 
+void LogOSVersion();
+void LogComputerManufacturer();
+void LogVideoCard();
+
 static std::ostream& operator<<(std::ostream& os, const wchar_t* wchr)
 {
 	std::wstring ws(wchr);

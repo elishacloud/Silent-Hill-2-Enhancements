@@ -1,6 +1,6 @@
-# Silent Hill 2 Enhancement ASI
+# Silent Hill 2 Enhancement
 ### Introduction
-This is a project that is designed to enhance Silent Hill 2.  So far it mainly focuses on enhancing the audio (SFX, BGM and Dialog).  But we hope to do more soon.
+A project designed to enhance Silent Hill 2 (SH2) for the PC. It also includes scripts to build or modify SH2 audio files (SFX, BGM and Dialog).
 
 ### Features
 Below is a list of features:
@@ -34,12 +34,20 @@ This project uses code from several other projects. Below is a list of locations
  * [AFS Packer](https://www.romhacking.net/utilities/843/) By PacoChan: Used to create the 'voice.afs' file.
  * [Aqrit's ddwrapper](http://bitpatch.com/ddwrapper.html): Includes code to read the ini config file.
  * [d3d8to9](https://github.com/crosire/d3d8to9): Includes the full Direct3D 8 to Direct3D 9 code.
+ * [DSoundCtrl](https://github.com/nRaecheR/DirectSoundControl): Includes code from DirectSoundControl for GetOSVersion and GetVersionReg functions.
  * [DxWnd](https://sourceforge.net/projects/dxwnd/): Includes code from DxWnd for API hooking, DxWnd proxy loading (init.cpp) and exception handling.
  * [DxWrapper](https://github.com/elishacloud/dxwrapper): Includes code to create wrapper dlls and resets the display adapter.
+ * [GetComputerManufacturer](http://www.rohitab.com/discuss/topic/35915-win32-api-to-get-system-information/): Includes code from rohitab.com to get the computer vendor and model.
+ * [GetFileVersionInfo ](https://stackoverflow.com/a/940743): Includes code from stackoverflow.com for getting the version of a PE file.
  * [GetFunctionAddress](http://www.rohitab.com/discuss/topic/40594-parsing-pe-export-table/): Includes code from rohitab.com to parse the PE export table.
  * [MemoryModule](https://github.com/fancycode/MemoryModule): Includes code for loading libraries from memory.
  * [Nemesis2000 Fog Fix](http://ps2wide.net/pc.html#sh2): Includes the full binary file for fog fix by Nemesis2000.
  * [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader): Includes code for loading ASI plugins.
  * [Widescreen Fix](https://github.com/ThirteenAG/WidescreenFixesPack/releases/tag/sh2): Includes the full binary file for the Widescreen Fix by [ThirteenAG](https://github.com/ThirteenAG) and [AeroWidescreen](https://github.com/AeroWidescreen).
+
+### Development
+This project is written in C++ using Microsoft Visual Studio Community 2015.
+
+The project uses the Windows 10 SDK and WDK. The exact version required can be seen in the project properties in Visual Studio.
 
 Thanks for stopping by!

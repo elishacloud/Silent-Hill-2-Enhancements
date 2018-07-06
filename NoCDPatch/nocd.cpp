@@ -35,13 +35,16 @@ void DisableCDCheck()
 		DWORD oldProtect;
 		if (VirtualProtect(CDCheckAddr, 2, PAGE_EXECUTE_READWRITE, &oldProtect))
 		{
-			Log() << "Updating CD check function memory addresses";
+			Log() << "Bypassing CD check...";
 
 			// Write to memory
 			*((DWORD *)((DWORD)CDCheckAddr)) = 0xC3;
 
 			// Restore protection
 			VirtualProtect(CDCheckAddr, 2, oldProtect, &oldProtect);
+
+			// Flush cache
+			FlushInstructionCache(GetCurrentProcess(), CDCheckAddr, 2);
 		}
 		else
 		{

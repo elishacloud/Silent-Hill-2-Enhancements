@@ -107,7 +107,7 @@ void UpdateSFXAddr()
 		DWORD oldProtect;
 		if (VirtualProtect(sfxAddr, 700 * sizeof(DWORD), PAGE_EXECUTE_READWRITE, &oldProtect))
 		{
-			Log() << "Updating SFX memory addresses";
+			Log() << "Updating SFX memory addresses...";
 
 			// Write to memory
 			for (int x = 0; x < 700; x++)
@@ -143,7 +143,7 @@ void UpdateSFXAddr()
 			// Update sddata.bin pointer address
 			if (VirtualProtect(sfxAddr, 5, PAGE_EXECUTE_READWRITE, &oldProtect))
 			{
-				Log() << "Updating sddata.bin pointer memory addresses";
+				Log() << "Updating sddata.bin pointer memory addresses...";
 
 				// Write to memory
 				*((DWORD *)((DWORD)sfxAddr + 1)) = (DWORD)PtrBytes;

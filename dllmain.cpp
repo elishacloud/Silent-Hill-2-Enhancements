@@ -90,6 +90,11 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		// Starting
 		Log() << "Starting Silent Hill 2 Enhancements!";
 
+		// Init Logs
+		LogComputerManufacturer();
+		LogVideoCard();
+		LogOSVersion();
+
 		// Get Silent Hill 2 file path
 		GetModuleFileName(nullptr, pathname, MAX_PATH);
 		Log() << "Running from:  " << pathname;
@@ -97,9 +102,6 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		// Get config file path
 		GetModuleFileName(hModule, pathname, MAX_PATH);
 		wcscpy_s(wcsrchr(pathname, '.'), MAX_PATH - wcslen(pathname), L".ini");
-
-		// Hook CreateFile API
-		InstallFileSystemHooks(hModule, pathname);
 
 		// Read config file
 		Log() << "Reading config file:  " << pathname;
@@ -113,7 +115,13 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		}
 		else
 		{
-			Log() << "Config file not found, using defaults";
+			Log() << "Error: Config file not found, using defaults";
+		}
+
+		// Hook CreateFile API, only needed for external modules
+		if (Nemesis2000FogFix || WidescreenFix)
+		{
+			InstallFileSystemHooks(hModule, pathname);
 		}
 
 		// Create wrapper
@@ -190,6 +198,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 						DWORD dwResourceSize = SizeofResource(hModule, hResource);
 						if (dwResourceSize != 0)
 						{
+							Log() << "Loading the Nemesis2000 Fog Fix module...";
 							FogFixHandle = MemoryLoadLibrary((const void*)pLockedResource, dwResourceSize);
 						}
 					}
@@ -212,6 +221,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 						DWORD dwResourceSize = SizeofResource(hModule, hResource);
 						if (dwResourceSize != 0)
 						{
+							Log() << "Loading the WidescreenFixesPack and sh2proxy module...";
 							WidescreenFixHandle = MemoryLoadLibrary((const void*)pLockedResource, dwResourceSize);
 						}
 					}
@@ -234,7 +244,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		if (ResetScreenRes)
 		{
 			// Reset screen settings
-			Log() << "Reseting screen resolution...";
+			Log() << "Reseting screen resolution";
 			std::string lpRamp((3 * 256 * 2), '\0');
 			HDC hDC = GetDC(nullptr);
 			GetDeviceGammaRamp(hDC, &lpRamp[0]);

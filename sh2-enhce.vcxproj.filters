@@ -68,6 +68,9 @@
     <ClCompile Include="External\MemoryModule\MemoryModule.c">
       <Filter>External\MemoryModule</Filter>
     </ClCompile>
+    <ClCompile Include="Common\Logging.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFX\sfx.h">
@@ -132,8 +135,10 @@
     <ResourceCompile Include="Resources\sh2-enhce.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
-    <ResourceCompile Include="Resources\BuildNo.rc" />
     <ResourceCompile Include="Resources\UALx86.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="Resources\BuildNo.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
   </ItemGroup>

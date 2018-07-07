@@ -1,6 +1,6 @@
 # Silent Hill 2 Enhancement
 ### Introduction
-A project designed to enhance Silent Hill 2 (SH2) for the PC. It also includes scripts to build or modify SH2 audio files (SFX, BGM and Dialog).
+A project designed to enhance Silent Hill 2 (SH2) graphics and audio for the PC. It also includes scripts to build or modify SH2 audio files (SFX, BGM and Dialog).
 
 ### Features
 Below is a list of features:
@@ -14,8 +14,8 @@ Below is a list of features:
  * Resets the display adapter on exit to fix issue when using WineD3D casing the screen to go dark
  * Includes [scripts](AudioScripts) to allow you to create or update the SH2 audio files
 
-### Silent Hill 2 Widescreen Installation Guide
-To learn more, check out the [Silent Hill 2 Widescreen Installation Guide](http://www.enhanced.townofsilenthill.com/SH2/) webpage.
+### Silent Hill 2 Enhanced Edition Installation Guide
+To learn more, check out the [Silent Hill 2 Enhanced Edition Installation Guide](http://www.enhanced.townofsilenthill.com/SH2/) webpage.
 
 ### License
 Copyright (C) 2018 Elisha Riedlinger

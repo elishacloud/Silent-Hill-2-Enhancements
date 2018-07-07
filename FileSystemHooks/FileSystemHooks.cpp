@@ -21,6 +21,8 @@
 #include "Common\Logging.h"
 #include "FileSystemHooks.h"
 
+HMODULE moduleHandle = nullptr;
+
 char ConfigPathA[MAX_PATH];
 wchar_t ConfigPathW[MAX_PATH];
 char ModulePathA[MAX_PATH];
@@ -60,6 +62,8 @@ LPCWSTR GetFileName(LPCWSTR lpFileName)
 }
 
 // API typedef
+typedef BOOL(WINAPI *PFN_GetModuleHandleExA)(DWORD dwFlags, LPCSTR lpModuleName, HMODULE *phModule);
+typedef BOOL(WINAPI *PFN_GetModuleHandleExW)(DWORD dwFlags, LPCWSTR lpModuleName, HMODULE *phModule);
 typedef DWORD(WINAPI *PFN_GetModuleFileNameA)(HMODULE, LPSTR, DWORD);
 typedef DWORD(WINAPI *PFN_GetModuleFileNameW)(HMODULE, LPWSTR, DWORD);
 typedef HANDLE(WINAPI *PFN_CreateFileA)(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile);
@@ -68,12 +72,56 @@ typedef DWORD(WINAPI *PFN_GetPrivateProfileStringA)(LPCSTR lpAppName, LPCSTR lpK
 typedef DWORD(WINAPI *PFN_GetPrivateProfileStringW)(LPCWSTR lpAppName, LPCWSTR lpKeyName, LPCWSTR lpDefault, LPWSTR lpReturnedString, DWORD nSize, LPCWSTR lpFileName);
 
 // Proc addresses
+FARPROC p_GetModuleHandleExA = nullptr;
+FARPROC p_GetModuleHandleExW = nullptr;
 FARPROC p_GetModuleFileNameA = nullptr;
 FARPROC p_GetModuleFileNameW = nullptr;
 FARPROC p_CreateFileA = nullptr;
 FARPROC p_CreateFileW = nullptr;
 FARPROC p_GetPrivateProfileStringA = nullptr;
 FARPROC p_GetPrivateProfileStringW = nullptr;
+
+// Update GetModuleHandleExA to fix module handle
+BOOL WINAPI GetModuleHandleExAHandler(DWORD dwFlags, LPCSTR lpModuleName, HMODULE *phModule)
+{
+	PFN_GetModuleHandleExA org_GetModuleHandleEx = (PFN_GetModuleHandleExA)InterlockedCompareExchangePointer((PVOID*)&p_GetModuleHandleExA, nullptr, nullptr);
+
+	if (org_GetModuleHandleEx)
+	{
+		BOOL ret = org_GetModuleHandleEx(dwFlags, lpModuleName, phModule);
+		if ((dwFlags & GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS) && !*phModule && moduleHandle)
+		{
+			*phModule = moduleHandle;
+			ret = TRUE;
+		}
+		return ret;
+	}
+
+	Log() << __FUNCTION__ << " Error: invalid proc address!";
+	SetLastError(5);
+	return FALSE;
+}
+
+// Update GetModuleHandleExW to fix module handle
+BOOL WINAPI GetModuleHandleExWHandler(DWORD dwFlags, LPCWSTR lpModuleName, HMODULE *phModule)
+{
+	PFN_GetModuleHandleExW org_GetModuleHandleEx = (PFN_GetModuleHandleExW)InterlockedCompareExchangePointer((PVOID*)&p_GetModuleHandleExW, nullptr, nullptr);
+
+	if (org_GetModuleHandleEx)
+	{
+		BOOL ret = org_GetModuleHandleEx(dwFlags, lpModuleName, phModule);
+		if ((dwFlags & GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS) && !*phModule && moduleHandle)
+		{
+			*phModule = moduleHandle;
+			ret = TRUE;
+		}
+		return ret;
+	}
+
+	Log() << __FUNCTION__ << " Error: invalid proc address!";
+	SetLastError(5);
+	return FALSE;
+}
 
 // Update GetModuleFileNameA to fix module name
 DWORD WINAPI GetModuleFileNameAHandler(HMODULE hModule, LPSTR lpFilename, DWORD nSize)
@@ -126,7 +174,7 @@ DWORD WINAPI GetModuleFileNameWHandler(HMODULE hModule, LPWSTR lpFilename, DWORD
 }
 
 // CreateFileA wrapper function
-HANDLE WINAPI CreateFileAHooked(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile)
+HANDLE WINAPI CreateFileAHandler(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile)
 {
 	PFN_CreateFileA org_CreateFile = (PFN_CreateFileA)InterlockedCompareExchangePointer((PVOID*)&p_CreateFileA, nullptr, nullptr);
 
@@ -141,7 +189,7 @@ HANDLE WINAPI CreateFileAHooked(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD 
 }
 
 // CreateFileW wrapper function
-HANDLE WINAPI CreateFileWHooked(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile)
+HANDLE WINAPI CreateFileWHandler(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile)
 {
 	PFN_CreateFileW org_CreateFile = (PFN_CreateFileW)InterlockedCompareExchangePointer((PVOID*)&p_CreateFileW, nullptr, nullptr);
 
@@ -156,7 +204,7 @@ HANDLE WINAPI CreateFileWHooked(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWORD
 }
 
 // GetPrivateProfileStringA wrapper function
-DWORD WINAPI GetPrivateProfileStringAHooked(LPCSTR lpAppName, LPCSTR lpKeyName, LPCSTR lpDefault, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName)
+DWORD WINAPI GetPrivateProfileStringAHandler(LPCSTR lpAppName, LPCSTR lpKeyName, LPCSTR lpDefault, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName)
 {
 	PFN_GetPrivateProfileStringA org_GetPrivateProfileString = (PFN_GetPrivateProfileStringA)InterlockedCompareExchangePointer((PVOID*)&p_GetPrivateProfileStringA, nullptr, nullptr);
 
@@ -171,7 +219,7 @@ DWORD WINAPI GetPrivateProfileStringAHooked(LPCSTR lpAppName, LPCSTR lpKeyName, 
 }
 
 // GetPrivateProfileStringW wrapper function
-DWORD WINAPI GetPrivateProfileStringWHooked(LPCWSTR lpAppName, LPCWSTR lpKeyName, LPCWSTR lpDefault, LPWSTR lpReturnedString, DWORD nSize, LPCWSTR lpFileName)
+DWORD WINAPI GetPrivateProfileStringWHandler(LPCWSTR lpAppName, LPCWSTR lpKeyName, LPCWSTR lpDefault, LPWSTR lpReturnedString, DWORD nSize, LPCWSTR lpFileName)
 {
 	PFN_GetPrivateProfileStringW org_GetPrivateProfileString = (PFN_GetPrivateProfileStringW)InterlockedCompareExchangePointer((PVOID*)&p_GetPrivateProfileStringW, nullptr, nullptr);
 
@@ -187,6 +235,8 @@ DWORD WINAPI GetPrivateProfileStringWHooked(LPCWSTR lpAppName, LPCWSTR lpKeyName
 
 void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 {
+	moduleHandle = hModule;
+
 	// Get module path
 	GetModuleFileName(hModule, ModulePathW, MAX_PATH);
 	std::wstring ws(ModulePathW);
@@ -208,12 +258,14 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	Log() << "Hooking the FileSystem APIs...";
 
 	// Hook GetModuleFileName to fix module name in modules loaded from memory
+	InterlockedExchangePointer((PVOID*)&p_GetModuleHandleExA, Hook::HookAPI(GetModuleHandle(L"kernel32"), "kernel32.dll", Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "GetModuleHandleExA"), "GetModuleHandleExA", GetModuleHandleExAHandler));
+	InterlockedExchangePointer((PVOID*)&p_GetModuleHandleExW, Hook::HookAPI(GetModuleHandle(L"kernel32"), "kernel32.dll", Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "GetModuleHandleExW"), "GetModuleHandleExW", GetModuleHandleExWHandler));
 	InterlockedExchangePointer((PVOID*)&p_GetModuleFileNameA, Hook::HookAPI(GetModuleHandle(L"kernel32"), "kernel32.dll", Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "GetModuleFileNameA"), "GetModuleFileNameA", GetModuleFileNameAHandler));
 	InterlockedExchangePointer((PVOID*)&p_GetModuleFileNameW, Hook::HookAPI(GetModuleHandle(L"kernel32"), "kernel32.dll", Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "GetModuleFileNameW"), "GetModuleFileNameW", GetModuleFileNameWHandler));
 
 	// Hook FileSystem APIs
-	InterlockedExchangePointer((PVOID*)&p_CreateFileA, Hook::HotPatch(Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "CreateFileA"), "CreateFileA", *CreateFileAHooked));
-	InterlockedExchangePointer((PVOID*)&p_CreateFileW, Hook::HotPatch(Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "CreateFileW"), "CreateFileW", *CreateFileWHooked));
-	InterlockedExchangePointer((PVOID*)&p_GetPrivateProfileStringA, Hook::HotPatch(Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "GetPrivateProfileStringA"), "GetPrivateProfileStringA", *GetPrivateProfileStringAHooked));
-	InterlockedExchangePointer((PVOID*)&p_GetPrivateProfileStringW, Hook::HotPatch(Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "GetPrivateProfileStringW"), "GetPrivateProfileStringW", *GetPrivateProfileStringWHooked));
+	InterlockedExchangePointer((PVOID*)&p_CreateFileA, Hook::HotPatch(Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "CreateFileA"), "CreateFileA", *CreateFileAHandler));
+	InterlockedExchangePointer((PVOID*)&p_CreateFileW, Hook::HotPatch(Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "CreateFileW"), "CreateFileW", *CreateFileWHandler));
+	InterlockedExchangePointer((PVOID*)&p_GetPrivateProfileStringA, Hook::HotPatch(Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "GetPrivateProfileStringA"), "GetPrivateProfileStringA", *GetPrivateProfileStringAHandler));
+	InterlockedExchangePointer((PVOID*)&p_GetPrivateProfileStringW, Hook::HotPatch(Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "GetPrivateProfileStringW"), "GetPrivateProfileStringW", *GetPrivateProfileStringWHandler));
 }

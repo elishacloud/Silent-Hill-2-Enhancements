@@ -17,8 +17,8 @@ The dialogue files in Silent Hill 2 on the PC are stored in the `Silent Hill 2\d
 #### Background Music (BGM):
 The BGM files in Silent Hill 2 on the PC are stored in multiple adx and aix format files which are all located in the `Silent Hill 2\data\sound\adx` folder and associated subfolders.  adx is a compressed  audio format used mostly in console video games.  aix is a multiplexed file that includes several adx file streams.  Just like the Dialog files, Silent Hill 2 supports both wav and adx for these files.  However since all of these files need to loop and Silent Hill 2 does not support looping wav files these need to be in the lower quality adx format.  See the readme file in the [BGM](BGM) folder for more details.
 
-### Silent Hill 2 Widescreen Fix
-To learn more, check out the [Silent Hill 2 Widescreen Installation Guide](http://www.enhanced.townofsilenthill.com/SH2/) webpage.
+### Silent Hill 2 Enhanced Edition
+To learn more, check out the [Silent Hill 2 Enhanced Edition Installation Guide](http://www.enhanced.townofsilenthill.com/SH2/) webpage.
 
 ### License
 Copyright (C) 2018 Elisha Riedlinger

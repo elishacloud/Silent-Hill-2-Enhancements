@@ -16,6 +16,8 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <vector>
+#include "Resources\sh2-enhce.h"
 #include "NoCDPatch\nocd.h"
 #include "SFX\sfx.h"
 #include "d3d8to9\d3d8to9.h"
@@ -34,6 +36,9 @@
 // Basic logging
 std::ofstream LOG;
 wchar_t LogPath[MAX_PATH];
+
+// Memory modules
+std::vector<HMEMORYMODULE> HMModules;
 
 // Configurable settings
 bool d3d8to9 = true;
@@ -62,10 +67,6 @@ void __stdcall ParseCallback(char* name, char* value)
 	if (!_strcmpi(name, "WidescreenFix")) WidescreenFix = SetValue(value);
 }
 
-// Handles
-HMEMORYMODULE FogFixHandle = nullptr;
-HMEMORYMODULE WidescreenFixHandle = nullptr;
-
 // Dll main function
 bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 {
@@ -88,7 +89,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		LOG.open(pathname);
 
 		// Starting
-		Log() << "Starting Silent Hill 2 Enhancements!";
+		Log() << "Starting Silent Hill 2 Enhancements! v" << APP_VERSION;
 
 		// Init Logs
 		LogComputerManufacturer();
@@ -199,7 +200,15 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 						if (dwResourceSize != 0)
 						{
 							Log() << "Loading the Nemesis2000 Fog Fix module...";
-							FogFixHandle = MemoryLoadLibrary((const void*)pLockedResource, dwResourceSize);
+							HMEMORYMODULE hModule = MemoryLoadLibrary((const void*)pLockedResource, dwResourceSize);
+							if (hModule)
+							{
+								HMModules.push_back(hModule);
+							}
+							else
+							{
+								Log() << "Error: Nemesis2000 Fog Fix Module could not be loaded!";
+							}
 						}
 					}
 				}
@@ -222,7 +231,15 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 						if (dwResourceSize != 0)
 						{
 							Log() << "Loading the WidescreenFixesPack and sh2proxy module...";
-							WidescreenFixHandle = MemoryLoadLibrary((const void*)pLockedResource, dwResourceSize);
+							HMEMORYMODULE hModule = MemoryLoadLibrary((const void*)pLockedResource, dwResourceSize);
+							if (hModule)
+							{
+								HMModules.push_back(hModule);
+							}
+							else
+							{
+								Log() << "Error: WidescreenFixesPack Module could not be loaded!";
+							}
 						}
 					}
 				}
@@ -259,13 +276,9 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		Hook::UnhookAll();
 
 		// Unhook memory module handles
-		if (FogFixHandle)
+		for (HMEMORYMODULE it : HMModules)
 		{
-			MemoryFreeLibrary(FogFixHandle);
-		}
-		if (WidescreenFixHandle)
-		{
-			MemoryFreeLibrary(WidescreenFixHandle);
+			MemoryFreeLibrary(it);
 		}
 
 		// Unloading all modules

@@ -27,6 +27,7 @@ The following dialog files should loop in Silent Hill 2:
 * gero_ed.wav
 * goki_jet.wav
 * lakeside.wav
+* silen.wav
 * suiteki.wav
 * tv_noiz_1.wav
 

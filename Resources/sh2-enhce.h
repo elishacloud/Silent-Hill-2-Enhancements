@@ -2,6 +2,10 @@
 
 #include "BuildNo.rc"
 
+// Included resource files
+#define IDR_SH2FOG   101
+#define IDR_SH2WID   102
+
 // Main resource file details
 #define APP_NAME				"Silent Hill 2 Enhancement Module"
 #define APP_MAJOR				1

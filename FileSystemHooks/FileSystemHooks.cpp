@@ -21,44 +21,67 @@
 #include "Common\Logging.h"
 #include "FileSystemHooks.h"
 
+// Varables used in hooked modules
+bool LoadingMemoryModule = false;
 HMODULE moduleHandle = nullptr;
-
 char ConfigPathA[MAX_PATH];
 wchar_t ConfigPathW[MAX_PATH];
-char ModulePathA[MAX_PATH];
-wchar_t ModulePathW[MAX_PATH];
-wchar_t ProcNameW[MAX_PATH];
+std::wstring wstrModulePath;
 DWORD nPathSize = 0;
 
+// List of hardcoded config file names from memory modules
 wchar_t *ConfigFileList[] =
 {
-	L"sh2fog.ini",
-	ProcNameW
+	L"sh2fog.ini"
 };
+
+template<typename T>
+bool CheckConfigPath(T& str)
+{
+	if (LoadingMemoryModule)
+	{
+		for (wchar_t *it : ConfigFileList)
+		{
+			if (wcsstr(std::wstring(str.begin(), str.end()).c_str(), it))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
 
 LPCSTR GetFileName(LPCSTR lpFileName)
 {
-	for (wchar_t *it : ConfigFileList)
-	{
-		std::wstring ws(it);
-		if (strstr(lpFileName, std::string(ws.begin(), ws.end()).c_str()))
-		{
-			return ConfigPathA;
-		}
-	}
-	return lpFileName;
+	return (CheckConfigPath(std::string(lpFileName))) ? ConfigPathA : lpFileName;
 }
 
 LPCWSTR GetFileName(LPCWSTR lpFileName)
 {
-	for (wchar_t *it : ConfigFileList)
-	{
-		if (wcsstr(lpFileName, it))
-		{
-			return ConfigPathW;
-		}
-	}
-	return lpFileName;
+	return (CheckConfigPath(std::wstring(lpFileName))) ? ConfigPathW : lpFileName;
+}
+
+template<typename T>
+bool NotValidFileNamePath(T& lpFilename, DWORD nSize)
+{
+	return ((nSize < 3 && lpFilename[0] != '\\' &&
+		!(lpFilename[0] >= 'A' && lpFilename[0] <= 'Z' &&
+			lpFilename[0] >= 'a' && lpFilename[0] <= 'z')) ||
+		(nSize < 4 && lpFilename[0] != '\\' &&
+			!(lpFilename[0] >= 'A' && lpFilename[0] <= 'Z' &&
+				lpFilename[0] >= 'a' && lpFilename[0] <= 'z') &&
+			lpFilename[1] != '\\' && lpFilename[1] != ':') ||
+		(nSize < 5 && lpFilename[0] != '\\' &&
+			!(lpFilename[0] >= 'A' && lpFilename[0] <= 'Z' &&
+				lpFilename[0] >= 'a' && lpFilename[0] <= 'z') &&
+			lpFilename[1] != '\\' && lpFilename[1] != ':' &&
+			lpFilename[2] != '\\' && lpFilename[2] != ':') ||
+		(nSize >= 5 && lpFilename[0] != '\\' &&
+			!(lpFilename[0] >= 'A' && lpFilename[0] <= 'Z' &&
+				lpFilename[0] >= 'a' && lpFilename[0] <= 'z') &&
+			lpFilename[1] != '\\' && lpFilename[1] != ':' &&
+			lpFilename[2] != '\\' && lpFilename[2] != ':' &&
+			lpFilename[3] != '\\' && lpFilename[3] != ':'));
 }
 
 // API typedef
@@ -89,7 +112,7 @@ BOOL WINAPI GetModuleHandleExAHandler(DWORD dwFlags, LPCSTR lpModuleName, HMODUL
 	if (org_GetModuleHandleEx)
 	{
 		BOOL ret = org_GetModuleHandleEx(dwFlags, lpModuleName, phModule);
-		if ((dwFlags & GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS) && !*phModule && moduleHandle)
+		if (LoadingMemoryModule && (dwFlags & GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS) && !*phModule && moduleHandle)
 		{
 			*phModule = moduleHandle;
 			ret = TRUE;
@@ -110,7 +133,7 @@ BOOL WINAPI GetModuleHandleExWHandler(DWORD dwFlags, LPCWSTR lpModuleName, HMODU
 	if (org_GetModuleHandleEx)
 	{
 		BOOL ret = org_GetModuleHandleEx(dwFlags, lpModuleName, phModule);
-		if ((dwFlags & GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS) && !*phModule && moduleHandle)
+		if (LoadingMemoryModule && (dwFlags & GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS) && !*phModule && moduleHandle)
 		{
 			*phModule = moduleHandle;
 			ret = TRUE;
@@ -131,15 +154,13 @@ DWORD WINAPI GetModuleFileNameAHandler(HMODULE hModule, LPSTR lpFilename, DWORD 
 	if (org_GetModuleFileName)
 	{
 		DWORD ret = org_GetModuleFileName(hModule, lpFilename, nSize);
-
-		if (lpFilename[0] != '\\' && lpFilename[1] != '\\' && lpFilename[2] != '\\' && lpFilename[3] != '\\' &&
-			lpFilename[0] != ':' && lpFilename[1] != ':' && lpFilename[2] != ':' && lpFilename[3] != ':')
+		if (NotValidFileNamePath(lpFilename, nSize) && nSize > 1)
 		{
-			ZeroMemory(lpFilename, nSize * sizeof(char));
-			memcpy(lpFilename, ModulePathA, (nSize - 1) * sizeof(char));
 			ret = min(nPathSize, nSize);
+			lpFilename[ret] = (char)'/0';
+			ret--;	// for null terminator
+			memcpy(lpFilename, std::string(wstrModulePath.begin(), wstrModulePath.end()).c_str(), ret * sizeof(char));
 		}
-
 		return ret;
 	}
 
@@ -156,15 +177,13 @@ DWORD WINAPI GetModuleFileNameWHandler(HMODULE hModule, LPWSTR lpFilename, DWORD
 	if (org_GetModuleFileName)
 	{
 		DWORD ret = org_GetModuleFileName(hModule, lpFilename, nSize);
-
-		if (lpFilename[0] != '\\' && lpFilename[1] != '\\' && lpFilename[2] != '\\' && lpFilename[3] != '\\' &&
-			lpFilename[0] != ':' && lpFilename[1] != ':' && lpFilename[2] != ':' && lpFilename[3] != ':')
+		if (NotValidFileNamePath(lpFilename, nSize))
 		{
-			ZeroMemory(lpFilename, nSize * sizeof(wchar_t));
-			memcpy(lpFilename, ModulePathW, (nSize - 1) * sizeof(wchar_t));
-			ret = (nPathSize, nSize);
+			ret = min(nPathSize, nSize);
+			lpFilename[ret] = '/0';
+			ret--;	// for null terminator
+			memcpy(lpFilename, wstrModulePath.c_str(), ret * sizeof(wchar_t));
 		}
-
 		return ret;
 	}
 
@@ -235,29 +254,24 @@ DWORD WINAPI GetPrivateProfileStringWHandler(LPCWSTR lpAppName, LPCWSTR lpKeyNam
 
 void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 {
+	// Store handle
 	moduleHandle = hModule;
 
-	// Get module path
-	GetModuleFileName(hModule, ModulePathW, MAX_PATH);
-	std::wstring ws(ModulePathW);
-	strcpy_s(ModulePathA, MAX_PATH, std::string(ws.begin(), ws.end()).c_str());
-	nPathSize = strlen(ModulePathA);
-
-	// Get proc name as ini
-	wchar_t PathW[MAX_PATH];
-	GetModuleFileName(nullptr, PathW, MAX_PATH);
-	wcscpy_s(wcsrchr(PathW, '.'), MAX_PATH, L".ini");
-	wcscpy_s(ProcNameW, MAX_PATH, wcsrchr(PathW, '\\') + 1);
-
 	// Store config path
-	wcscpy_s(ConfigPathW, MAX_PATH , ConfigPath);
-	ws.assign(ConfigPath);
+	wcscpy_s(ConfigPathW, MAX_PATH, ConfigPath);
+	std::wstring ws(ConfigPath);
 	strcpy_s(ConfigPathA, MAX_PATH, std::string(ws.begin(), ws.end()).c_str());
+
+	// Get module path
+	wchar_t Path[MAX_PATH];
+	GetModuleFileName(hModule, Path, MAX_PATH);
+	wstrModulePath.assign(Path);
+	nPathSize = wstrModulePath.size() + 1; // Include a null terminator
 
 	// Logging
 	Log() << "Hooking the FileSystem APIs...";
 
-	// Hook GetModuleFileName to fix module name in modules loaded from memory
+	// Hook GetModuleFileName and GetModuleHandleEx to fix module name in modules loaded from memory
 	InterlockedExchangePointer((PVOID*)&p_GetModuleHandleExA, Hook::HookAPI(GetModuleHandle(L"kernel32"), "kernel32.dll", Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "GetModuleHandleExA"), "GetModuleHandleExA", GetModuleHandleExAHandler));
 	InterlockedExchangePointer((PVOID*)&p_GetModuleHandleExW, Hook::HookAPI(GetModuleHandle(L"kernel32"), "kernel32.dll", Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "GetModuleHandleExW"), "GetModuleHandleExW", GetModuleHandleExWHandler));
 	InterlockedExchangePointer((PVOID*)&p_GetModuleFileNameA, Hook::HookAPI(GetModuleHandle(L"kernel32"), "kernel32.dll", Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "GetModuleFileNameA"), "GetModuleFileNameA", GetModuleFileNameAHandler));

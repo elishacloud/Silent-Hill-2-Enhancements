@@ -42,7 +42,7 @@ This project uses code from several other projects. Below is a list of locations
  * [GetFunctionAddress](http://www.rohitab.com/discuss/topic/40594-parsing-pe-export-table/): Includes code from rohitab.com to parse the PE export table.
  * [MemoryModule](https://github.com/fancycode/MemoryModule): Includes code for loading libraries from memory.
  * [Nemesis2000 Fog Fix](http://ps2wide.net/pc.html#sh2): Includes the full binary file for fog fix by Nemesis2000.
- * [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader): Includes code for loading ASI plugins.
+ * [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader): Includes code for loading ASI plugins and code for loading modules from a module resource.
  * [Widescreen Fix](https://github.com/ThirteenAG/WidescreenFixesPack/releases/tag/sh2): Includes the full binary file for the Widescreen Fix by [ThirteenAG](https://github.com/ThirteenAG) and [AeroWidescreen](https://github.com/AeroWidescreen).
 
 ### Development

@@ -30,9 +30,6 @@
 #include "Common\Settings.h"
 #include "Common\Logging.h"
 
-#define IDR_SH2FOG   101
-#define IDR_SH2WID   102
-
 // Basic logging
 std::ofstream LOG;
 wchar_t LogPath[MAX_PATH];
@@ -65,6 +62,39 @@ void __stdcall ParseCallback(char* name, char* value)
 	if (!_strcmpi(name, "LoadPlugins")) LoadPlugins = SetValue(value);
 	if (!_strcmpi(name, "ResetScreenRes")) ResetScreenRes = SetValue(value);
 	if (!_strcmpi(name, "WidescreenFix")) WidescreenFix = SetValue(value);
+}
+
+// Load memory module from resource
+void LoadModuleFromResource(HMODULE hModule, DWORD ResourceNum, LPCSTR lpName)
+{
+	HRSRC hResource = FindResource(hModule, MAKEINTRESOURCE(ResourceNum), RT_RCDATA);
+	if (hResource)
+	{
+		HGLOBAL hLoadedResource = LoadResource(hModule, hResource);
+		if (hLoadedResource)
+		{
+			LPVOID pLockedResource = LockResource(hLoadedResource);
+			if (pLockedResource)
+			{
+				DWORD dwResourceSize = SizeofResource(hModule, hResource);
+				if (dwResourceSize != 0)
+				{
+					Log() << "Loading the " << lpName << " module...";
+					LoadingMemoryModule = true;
+					HMEMORYMODULE hModule = MemoryLoadLibrary((const void*)pLockedResource, dwResourceSize);
+					LoadingMemoryModule = false;
+					if (hModule)
+					{
+						HMModules.push_back(hModule);
+					}
+					else
+					{
+						Log() << "Error: " << lpName << " module could not be loaded!";
+					}
+				}
+			}
+		}
+	}
 }
 
 // Dll main function
@@ -187,63 +217,13 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		// Load Nemesis2000's Fog Fix
 		if (Nemesis2000FogFix)
 		{
-			HRSRC hResource = FindResource(hModule, MAKEINTRESOURCE(IDR_SH2FOG), RT_RCDATA);
-			if (hResource)
-			{
-				HGLOBAL hLoadedResource = LoadResource(hModule, hResource);
-				if (hLoadedResource)
-				{
-					LPVOID pLockedResource = LockResource(hLoadedResource);
-					if (pLockedResource)
-					{
-						DWORD dwResourceSize = SizeofResource(hModule, hResource);
-						if (dwResourceSize != 0)
-						{
-							Log() << "Loading the Nemesis2000 Fog Fix module...";
-							HMEMORYMODULE hModule = MemoryLoadLibrary((const void*)pLockedResource, dwResourceSize);
-							if (hModule)
-							{
-								HMModules.push_back(hModule);
-							}
-							else
-							{
-								Log() << "Error: Nemesis2000 Fog Fix Module could not be loaded!";
-							}
-						}
-					}
-				}
-			}
+			LoadModuleFromResource(hModule, IDR_SH2FOG, "Nemesis2000 Fog Fix");
 		}
 
 		// Widescreen Fix
 		if (WidescreenFix)
 		{
-			HRSRC hResource = FindResource(hModule, MAKEINTRESOURCE(IDR_SH2WID), RT_RCDATA);
-			if (hResource)
-			{
-				HGLOBAL hLoadedResource = LoadResource(hModule, hResource);
-				if (hLoadedResource)
-				{
-					LPVOID pLockedResource = LockResource(hLoadedResource);
-					if (pLockedResource)
-					{
-						DWORD dwResourceSize = SizeofResource(hModule, hResource);
-						if (dwResourceSize != 0)
-						{
-							Log() << "Loading the WidescreenFixesPack and sh2proxy module...";
-							HMEMORYMODULE hModule = MemoryLoadLibrary((const void*)pLockedResource, dwResourceSize);
-							if (hModule)
-							{
-								HMModules.push_back(hModule);
-							}
-							else
-							{
-								Log() << "Error: WidescreenFixesPack Module could not be loaded!";
-							}
-						}
-					}
-				}
-			}
+			LoadModuleFromResource(hModule, IDR_SH2WID, "WidescreenFixesPack and sh2proxy");
 		}
 
 		// Resetting thread priority

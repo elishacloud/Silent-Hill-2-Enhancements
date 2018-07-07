@@ -5,6 +5,7 @@
 // Included resource files
 #define IDR_SH2FOG   101
 #define IDR_SH2WID   102
+#define IDR_SH2WND   103
 
 // Main resource file details
 #define APP_NAME				"Silent Hill 2 Enhancement Module"

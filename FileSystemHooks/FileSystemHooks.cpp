@@ -29,23 +29,14 @@ wchar_t ConfigPathW[MAX_PATH];
 std::wstring wstrModulePath;
 DWORD nPathSize = 0;
 
-// List of hardcoded config file names from memory modules
-wchar_t *ConfigFileList[] =
-{
-	L"sh2fog.ini"
-};
-
 template<typename T>
 bool CheckConfigPath(T& str)
 {
-	if (LoadingMemoryModule)
+	for (MODULECONFIG it : ConfigList)
 	{
-		for (wchar_t *it : ConfigFileList)
+		if (*(it.Enabled) && wcsstr(std::wstring(str.begin(), str.end()).c_str(), it.ConfigFileList))
 		{
-			if (wcsstr(std::wstring(str.begin(), str.end()).c_str(), it))
-			{
-				return true;
-			}
+			return true;
 		}
 	}
 	return false;
@@ -91,6 +82,8 @@ typedef DWORD(WINAPI *PFN_GetModuleFileNameA)(HMODULE, LPSTR, DWORD);
 typedef DWORD(WINAPI *PFN_GetModuleFileNameW)(HMODULE, LPWSTR, DWORD);
 typedef HANDLE(WINAPI *PFN_CreateFileA)(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile);
 typedef HANDLE(WINAPI *PFN_CreateFileW)(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile);
+typedef HANDLE(WINAPI *PFN_FindFirstFileExA)(LPCSTR lpFileName, FINDEX_INFO_LEVELS fInfoLevelId, LPVOID lpFindFileData, FINDEX_SEARCH_OPS fSearchOp, LPVOID lpSearchFilter, DWORD dwAdditionalFlags);
+typedef HANDLE(WINAPI *PFN_FindFirstFileExW)(LPCWSTR lpFileName, FINDEX_INFO_LEVELS fInfoLevelId, LPVOID lpFindFileData, FINDEX_SEARCH_OPS fSearchOp, LPVOID lpSearchFilter, DWORD dwAdditionalFlags);
 typedef DWORD(WINAPI *PFN_GetPrivateProfileStringA)(LPCSTR lpAppName, LPCSTR lpKeyName, LPCSTR lpDefault, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName);
 typedef DWORD(WINAPI *PFN_GetPrivateProfileStringW)(LPCWSTR lpAppName, LPCWSTR lpKeyName, LPCWSTR lpDefault, LPWSTR lpReturnedString, DWORD nSize, LPCWSTR lpFileName);
 
@@ -101,6 +94,8 @@ FARPROC p_GetModuleFileNameA = nullptr;
 FARPROC p_GetModuleFileNameW = nullptr;
 FARPROC p_CreateFileA = nullptr;
 FARPROC p_CreateFileW = nullptr;
+FARPROC p_FindFirstFileExA = nullptr;
+FARPROC p_FindFirstFileExW = nullptr;
 FARPROC p_GetPrivateProfileStringA = nullptr;
 FARPROC p_GetPrivateProfileStringW = nullptr;
 
@@ -222,6 +217,36 @@ HANDLE WINAPI CreateFileWHandler(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWOR
 	return nullptr;
 }
 
+// FindFirstFileExA wrapper function
+HANDLE WINAPI FindFirstFileExAHandler(LPCSTR lpFileName, FINDEX_INFO_LEVELS fInfoLevelId, LPVOID lpFindFileData, FINDEX_SEARCH_OPS fSearchOp, LPVOID lpSearchFilter, DWORD dwAdditionalFlags)
+{
+	PFN_FindFirstFileExA org_FindFirstFileEx = (PFN_FindFirstFileExA)InterlockedCompareExchangePointer((PVOID*)&p_FindFirstFileExA, nullptr, nullptr);
+
+	if (org_FindFirstFileEx)
+	{
+		return org_FindFirstFileEx(GetFileName(lpFileName), fInfoLevelId, lpFindFileData, fSearchOp, lpSearchFilter, dwAdditionalFlags);
+	}
+
+	Log() << __FUNCTION__ << " Error: invalid proc address!";
+	SetLastError(127);
+	return nullptr;
+}
+
+// FindFirstFileExW wrapper function
+HANDLE WINAPI FindFirstFileExWHandler(LPCWSTR lpFileName, FINDEX_INFO_LEVELS fInfoLevelId, LPVOID lpFindFileData, FINDEX_SEARCH_OPS fSearchOp, LPVOID lpSearchFilter, DWORD dwAdditionalFlags)
+{
+	PFN_FindFirstFileExW org_FindFirstFileEx = (PFN_FindFirstFileExW)InterlockedCompareExchangePointer((PVOID*)&p_FindFirstFileExW, nullptr, nullptr);
+
+	if (org_FindFirstFileEx)
+	{
+		return org_FindFirstFileEx(GetFileName(lpFileName), fInfoLevelId, lpFindFileData, fSearchOp, lpSearchFilter, dwAdditionalFlags);
+	}
+
+	Log() << __FUNCTION__ << " Error: invalid proc address!";
+	SetLastError(127);
+	return nullptr;
+}
+
 // GetPrivateProfileStringA wrapper function
 DWORD WINAPI GetPrivateProfileStringAHandler(LPCSTR lpAppName, LPCSTR lpKeyName, LPCSTR lpDefault, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName)
 {
@@ -280,6 +305,8 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	// Hook FileSystem APIs
 	InterlockedExchangePointer((PVOID*)&p_CreateFileA, Hook::HotPatch(Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "CreateFileA"), "CreateFileA", *CreateFileAHandler));
 	InterlockedExchangePointer((PVOID*)&p_CreateFileW, Hook::HotPatch(Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "CreateFileW"), "CreateFileW", *CreateFileWHandler));
+	InterlockedExchangePointer((PVOID*)&p_FindFirstFileExA, Hook::HotPatch(Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "FindFirstFileExA"), "FindFirstFileExA", *FindFirstFileExAHandler));
+	InterlockedExchangePointer((PVOID*)&p_FindFirstFileExW, Hook::HotPatch(Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "FindFirstFileExW"), "FindFirstFileExW", *FindFirstFileExWHandler));
 	InterlockedExchangePointer((PVOID*)&p_GetPrivateProfileStringA, Hook::HotPatch(Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "GetPrivateProfileStringA"), "GetPrivateProfileStringA", *GetPrivateProfileStringAHandler));
 	InterlockedExchangePointer((PVOID*)&p_GetPrivateProfileStringW, Hook::HotPatch(Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "GetPrivateProfileStringW"), "GetPrivateProfileStringW", *GetPrivateProfileStringWHandler));
 }

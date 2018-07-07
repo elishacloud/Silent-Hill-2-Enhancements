@@ -40,6 +40,7 @@ std::vector<HMEMORYMODULE> HMModules;
 // Configurable settings
 bool d3d8to9 = true;
 bool EnableSFXAddrHack = true;
+bool EnableWndMode = false;
 bool Nemesis2000FogFix = true;
 bool NoCDPatch = true;
 bool LoadFromScriptsOnly = false;
@@ -56,6 +57,7 @@ void __stdcall ParseCallback(char* name, char* value)
 	// Check settings
 	if (!_strcmpi(name, "d3d8to9")) d3d8to9 = SetValue(value);
 	if (!_strcmpi(name, "EnableSFXAddrHack")) EnableSFXAddrHack = SetValue(value);
+	if (!_strcmpi(name, "EnableWndMode")) EnableWndMode = SetValue(value);
 	if (!_strcmpi(name, "Nemesis2000FogFix")) Nemesis2000FogFix = SetValue(value);
 	if (!_strcmpi(name, "NoCDPatch")) NoCDPatch = SetValue(value);
 	if (!_strcmpi(name, "LoadFromScriptsOnly")) LoadFromScriptsOnly = SetValue(value);
@@ -206,6 +208,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		if (EnableSFXAddrHack)
 		{
 			UpdateSFXAddr();
+		}
+
+		// Load forced windowed mode
+		if (EnableWndMode)
+		{
+			LoadModuleFromResource(hModule, IDR_SH2WND, "WndMode");			
 		}
 
 		// Load ASI pluggins

@@ -266,7 +266,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		// Unhook memory module handles
 		for (HMEMORYMODULE it : HMModules)
 		{
-			MemoryFreeLibrary(it);
+			//MemoryFreeLibrary(it);	// For now don't free any of these libraries as some modules don't exit properly
 		}
 
 		// Unloading all modules
@@ -277,7 +277,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			{
 				if (it)
 				{
-					FreeLibrary(it);
+					//FreeLibrary(it);	  // For now don't free any of these libraries as some modules don't exit properly
 				}
 			}
 		}

@@ -17,6 +17,12 @@ Below is a list of features:
 ### Silent Hill 2 Enhanced Edition Installation Guide
 To learn more, check out the [Silent Hill 2 Enhanced Edition Installation Guide](http://www.enhanced.townofsilenthill.com/SH2/) webpage.
 
+### Donations
+
+All my work here is free and can be freely used.  For more details on how you can use this module see the [license](#license) section below.  However, if you would like to donate to me then check out my [donations page](https://PayPal.me/elishacloud).  All donations are for work already completed!  Please don't donate for future work or to try and increase my development speed.  Thanks!
+
+Note: these donation only go to me, not to anyone else who helped with this project.  To donate to others check out the [credits page](http://www.enhanced.townofsilenthill.com/SH2/credit.htm).
+
 ### License
 Copyright (C) 2018 Elisha Riedlinger
 

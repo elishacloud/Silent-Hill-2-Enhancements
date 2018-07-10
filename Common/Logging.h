@@ -7,12 +7,6 @@ void LogOSVersion();
 void LogComputerManufacturer();
 void LogVideoCard();
 
-static std::ostream& operator<<(std::ostream& os, const wchar_t* wchr)
-{
-	std::wstring ws(wchr);
-	return os << std::string(ws.begin(), ws.end()).c_str();
-}
-
 extern std::ofstream LOG;
 
 class Log
@@ -47,6 +41,14 @@ public:
 	}
 };
 
+#pragma warning(suppress: 4505)
+static std::ostream& operator<<(std::ostream& os, const wchar_t* wchr)
+{
+	std::wstring ws(wchr);
+	return os << std::string(ws.begin(), ws.end()).c_str();
+}
+
+#pragma warning(suppress: 4505)
 static void logf(char * fmt, ...)
 {
 	va_list ap;

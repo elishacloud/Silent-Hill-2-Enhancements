@@ -37,6 +37,9 @@ wchar_t LogPath[MAX_PATH];
 // Memory modules
 std::vector<HMEMORYMODULE> HMModules;
 
+// Screen settings
+std::string lpRamp((3 * 256 * 2), '\0');
+
 // Configurable settings
 bool d3d8to9 = true;
 bool EnableSFXAddrHack = true;
@@ -83,11 +86,11 @@ void LoadModuleFromResource(HMODULE hModule, DWORD ResourceNum, LPCSTR lpName)
 				{
 					Log() << "Loading the " << lpName << " module...";
 					LoadingMemoryModule = true;
-					HMEMORYMODULE hModule = MemoryLoadLibrary((const void*)pLockedResource, dwResourceSize);
+					HMEMORYMODULE hMModule = MemoryLoadLibrary((const void*)pLockedResource, dwResourceSize);
 					LoadingMemoryModule = false;
-					if (hModule)
+					if (hMModule)
 					{
-						HMModules.push_back(hModule);
+						HMModules.push_back(hMModule);
 					}
 					else
 					{
@@ -169,6 +172,15 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			Log() << "Error: could not create wrapper!";
 		}
 
+		// Store screen settings
+		if (ResetScreenRes)
+		{
+			// Reset screen settings
+			HDC hDC = GetDC(nullptr);
+			GetDeviceGammaRamp(hDC, &lpRamp[0]);
+			ReleaseDC(nullptr, hDC);
+		}
+
 		// Enable d3d8to9
 		if (d3d8to9)
 		{
@@ -210,18 +222,6 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			UpdateSFXAddr();
 		}
 
-		// Load forced windowed mode
-		if (EnableWndMode)
-		{
-			LoadModuleFromResource(hModule, IDR_SH2WND, "WndMode");			
-		}
-
-		// Load ASI pluggins
-		if (LoadPlugins && Wrapper::dtype != DTYPE_ASI)
-		{
-			LoadASIPlugins(LoadFromScriptsOnly);
-		}
-
 		// Load Nemesis2000's Fog Fix
 		if (Nemesis2000FogFix)
 		{
@@ -234,6 +234,18 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			LoadModuleFromResource(hModule, IDR_SH2WID, "WidescreenFixesPack and sh2proxy");
 		}
 
+		// Load forced windowed mode
+		if (EnableWndMode)
+		{
+			LoadModuleFromResource(hModule, IDR_SH2WND, "WndMode");
+		}
+
+		// Load ASI pluggins
+		if (LoadPlugins && Wrapper::dtype != DTYPE_ASI)
+		{
+			LoadASIPlugins(LoadFromScriptsOnly);
+		}
+
 		// Resetting thread priority
 		SetThreadPriority(hCurrentThread, dwPriorityClass);
 
@@ -243,32 +255,10 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 	break;
 	case DLL_THREAD_ATTACH:
 		break;
+	case DLL_THREAD_DETACH:
+		break;
 	case DLL_PROCESS_DETACH:
-
-		// Reset screen back to original Windows settings to fix some display errors on exit
-		if (ResetScreenRes)
-		{
-			// Reset screen settings
-			Log() << "Reseting screen resolution";
-			std::string lpRamp((3 * 256 * 2), '\0');
-			HDC hDC = GetDC(nullptr);
-			GetDeviceGammaRamp(hDC, &lpRamp[0]);
-			Sleep(0);
-			SetDeviceGammaRamp(hDC, &lpRamp[0]);
-			ReleaseDC(nullptr, hDC);
-			Sleep(0);
-			ChangeDisplaySettings(nullptr, 0);
-		}
-
-		// Unhook APIs
-		Hook::UnhookAll();
-
-		// Unhook memory module handles
-		for (HMEMORYMODULE it : HMModules)
-		{
-			//MemoryFreeLibrary(it);	// For now don't free any of these libraries as some modules don't exit properly
-		}
-
+	{
 		// Unloading all modules
 		if (custom_dll.size())
 		{
@@ -277,15 +267,35 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			{
 				if (it)
 				{
-					//FreeLibrary(it);	  // For now don't free any of these libraries as some modules don't exit properly
+					FreeLibrary(it);
 				}
 			}
 		}
 
+		// Unhook memory module handles
+		for (HMEMORYMODULE it : HMModules)
+		{
+			MemoryFreeLibrary(it);
+		}
+
+		// Unhook APIs
+		Hook::UnhookAll();
+
+		// Reset screen back to original Windows settings to fix some display errors on exit
+		if (ResetScreenRes)
+		{
+			// Reset screen settings
+			Log() << "Reseting screen resolution";
+			HDC hDC = GetDC(nullptr);
+			SetDeviceGammaRamp(hDC, &lpRamp[0]);
+			ReleaseDC(nullptr, hDC);
+			ChangeDisplaySettingsEx(nullptr, nullptr, nullptr, CDS_RESET, nullptr);
+		}
+
 		// Quiting
 		Log() << "Unloading Silent Hill 2 Enhancements!";
-
-		break;
+	}
+	break;
 	}
 
 	return true;

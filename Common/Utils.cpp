@@ -24,7 +24,7 @@ std::vector<HMODULE> custom_dll;		// Used for custom dll's and asi plugins
 // Search memory for byte array
 void *GetAddressOfData(const void *data, size_t len, DWORD step)
 {
-	return GetAddressOfData(data, len, 1, 0);
+	return GetAddressOfData(data, len, step, 0);
 }
 
 // Search memory for byte array

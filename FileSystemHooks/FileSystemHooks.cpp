@@ -30,7 +30,7 @@ std::wstring wstrModulePath;
 DWORD nPathSize = 0;
 
 template<typename T>
-bool CheckConfigPath(T& str)
+bool CheckConfigPath(T str)
 {
 	for (MODULECONFIG it : ConfigList)
 	{
@@ -152,7 +152,7 @@ DWORD WINAPI GetModuleFileNameAHandler(HMODULE hModule, LPSTR lpFilename, DWORD 
 		if (NotValidFileNamePath(lpFilename, nSize) && nSize > 1)
 		{
 			ret = min(nPathSize, nSize);
-			lpFilename[ret] = (char)'/0';
+			lpFilename[ret] = '\0';
 			ret--;	// for null terminator
 			memcpy(lpFilename, std::string(wstrModulePath.begin(), wstrModulePath.end()).c_str(), ret * sizeof(char));
 		}
@@ -175,7 +175,7 @@ DWORD WINAPI GetModuleFileNameWHandler(HMODULE hModule, LPWSTR lpFilename, DWORD
 		if (NotValidFileNamePath(lpFilename, nSize))
 		{
 			ret = min(nPathSize, nSize);
-			lpFilename[ret] = '/0';
+			lpFilename[ret] = '\0';
 			ret--;	// for null terminator
 			memcpy(lpFilename, wstrModulePath.c_str(), ret * sizeof(wchar_t));
 		}

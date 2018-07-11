@@ -22,7 +22,7 @@
 
 BYTE tmpAddr;
 DWORD tmpVar;
-constexpr float BrightnessControl = 4.7f;
+constexpr float BrightnessControl = 7.4f;
 
 #pragma warning(suppress: 4725)
 __declspec(naked) void __stdcall PS2NoiseFilter_vDC()

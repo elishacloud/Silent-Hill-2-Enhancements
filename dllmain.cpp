@@ -234,7 +234,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		// PS2 Noise Filter
 		if (PS2StyleNoiseFilter)
 		{
-			UpdatePS2Filter();
+			UpdatePS2NoiseFilter();
 		}
 
 		// Load Nemesis2000's Fog Fix

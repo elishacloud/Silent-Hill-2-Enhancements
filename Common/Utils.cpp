@@ -85,7 +85,7 @@ bool CheckMemoryAddress(void *dataAddr, void *dataBytes, DWORD dataSize)
 
 	// VirtualProtect first to make sure patch_address is readable
 	DWORD dwPrevProtect;
-	if (!VirtualProtect(dataAddr, dataSize, PAGE_EXECUTE_READ, &dwPrevProtect))
+	if (!VirtualProtect(dataAddr, dataSize, PAGE_READONLY, &dwPrevProtect))
 	{
 		Log() << "Error: could not read memory address";
 		return false;
@@ -111,7 +111,7 @@ bool UpdateMemoryAddress(void *dataAddr, void *dataBytes, DWORD dataSize)
 
 	// VirtualProtect first to make sure patch_address is readable
 	DWORD dwPrevProtect;
-	if (!VirtualProtect(dataAddr, dataSize, PAGE_EXECUTE_WRITECOPY, &dwPrevProtect))
+	if (!VirtualProtect(dataAddr, dataSize, PAGE_WRITECOPY, &dwPrevProtect))
 	{
 		Log() << "Error: could not write to memory address";
 		return false;

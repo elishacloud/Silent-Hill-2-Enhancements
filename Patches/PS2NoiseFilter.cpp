@@ -20,12 +20,24 @@
 #include "..\Common\Utils.h"
 #include "..\Common\Logging.h"
 
+// Predefined addresses
+constexpr BYTE FilterByteEDX[2][5] = {
+	{ 0xBA, 0xFF, 0x00, 0x00, 0x00 },
+	{ 0xBA, 0xD7, 0x01, 0x00, 0x00 } };
+constexpr BYTE FilterByteMOV[2][1] = { { 0xFF },{ 0x22 } };
+constexpr BYTE FilterByteJMP[] = { 0xA2, 0xC5 };
+constexpr BYTE FilterFunctionBtyes[] = { 0x3E, 0xA2, 0x67, 0x45, 0x23, 0x01 };
+constexpr BYTE NOP[] = { 0x90 };
+
+// Varables for ASM
 BYTE tmpAddr;
 DWORD tmpVar;
+void *jmpAddr;
 constexpr float BrightnessControl = 7.4f;
 
+// ASM function to update PS2NoiseFilter dynamically
 #pragma warning(suppress: 4725)
-__declspec(naked) void __stdcall PS2NoiseFilter_vDC()
+__declspec(naked) void __stdcall PS2NoiseFilter()
 {
 	__asm
 	{
@@ -34,84 +46,53 @@ __declspec(naked) void __stdcall PS2NoiseFilter_vDC()
 		fdiv dword ptr BrightnessControl
 		fistp dword ptr tmpVar
 		mov eax, tmpVar
-		MOV BYTE PTR DS : [0x009458C5], AL
-		jmp jmpAddr_vDC
-	}
-}
-#pragma warning(suppress: 4725)
-__declspec(naked) void __stdcall PS2NoiseFilter_v10()
-{
-	__asm
-	{
-		mov tmpAddr, al
-		fild dword ptr tmpAddr
-		fdiv dword ptr BrightnessControl
-		fistp dword ptr tmpVar
-		mov eax, tmpVar
-		MOV BYTE PTR DS : [0x00942CC5], AL
-		jmp jmpAddr_v10
+		MOV BYTE PTR DS : [0x01234567], AL
+		jmp jmpAddr
 	}
 }
 
-#pragma warning(suppress: 4725)
-__declspec(naked) void __stdcall PS2NoiseFilter_v11()
+// Update SH2 code for PS2 Style Noise Filter
+void UpdatePS2NoiseFilter()
 {
-	__asm
+	// Get PS2 filter memory address
+	DWORD SH2AddrEDX = (DWORD)GetAddressOfData(FilterByteEDX[0], sizeof(FilterByteEDX[0]), 1, 0x0477C1D, 1800);
+	if (!SH2AddrEDX)
 	{
-		mov tmpAddr, al
-		fild dword ptr tmpAddr
-		fdiv dword ptr BrightnessControl
-		fistp dword ptr tmpVar
-		mov eax, tmpVar
-		MOV BYTE PTR DS : [0x009468C5], AL
-		jmp jmpAddr_v11
-	}
-}
-
-void UpdatePS2Filter()
-{
-	// For version DC
-	if (CheckMemoryAddress((void*)p_NoiseFilterEDX_vDC, (void*)NoiseFilterEDX[0], sizeof(NoiseFilterEDX[0])) &&
-		CheckMemoryAddress((void*)p_NoiseFilterMOV_vDC, (void*)NoiseFilterMOV_vDC[0], sizeof(NoiseFilterMOV_vDC[0])) &&
-		CheckMemoryAddress((void*)p_NoiseFilterJMP_vDC, (void*)NoiseFilterJMP_vDC, sizeof(NoiseFilterJMP_vDC)))
-	{
-		Log() << "Updating for PS2 Noise Filter DC...";
-
-		// Update EDX, MOV and JMP
-		UpdateMemoryAddress((void*)p_NoiseFilterEDX_vDC, (void*)NoiseFilterEDX[1], sizeof(NoiseFilterEDX[1]));
-		UpdateMemoryAddress((void*)p_NoiseFilterMOV_vDC, (void*)NoiseFilterMOV_vDC[1], sizeof(NoiseFilterMOV_vDC[1]));
-		WriteJMPtoMemory((BYTE*)p_NoiseFilterJMP_vDC, *PS2NoiseFilter_vDC);
+		Log() << "Error: failed to find memory address for PS2 Noise Filter!";
+		return;
 	}
 
-	// For version v1.0
-	else if (CheckMemoryAddress((void*)p_NoiseFilterEDX_v10, (void*)NoiseFilterEDX[0], sizeof(NoiseFilterEDX[0])) &&
-		CheckMemoryAddress((void*)p_NoiseFilterMOV_v10, (void*)NoiseFilterMOV_v10[0], sizeof(NoiseFilterMOV_v10[0])) &&
-		CheckMemoryAddress((void*)p_NoiseFilterJMP_v10, (void*)NoiseFilterJMP_v10, sizeof(NoiseFilterJMP_v10)))
-	{
-		Log() << "Updating for PS2 Noise Filter v1.0...";
+	// Get reletave addresses
+	DWORD SH2AddrMOV = SH2AddrEDX + 0x4862;
+	DWORD SH2AddrJMP = SH2AddrEDX + 0x483D;
+	jmpAddr = (void*)(SH2AddrJMP + 5);
 
-		// Update EDX, MOV and JMP
-		UpdateMemoryAddress((void*)p_NoiseFilterEDX_v10, (void*)NoiseFilterEDX[1], sizeof(NoiseFilterEDX[1]));
-		UpdateMemoryAddress((void*)p_NoiseFilterMOV_v10, (void*)NoiseFilterMOV_v10[1], sizeof(NoiseFilterMOV_v10[1]));
-		WriteJMPtoMemory((BYTE*)p_NoiseFilterJMP_v10, *PS2NoiseFilter_v10);
+	// Check for valid code before updating
+	if (!CheckMemoryAddress((void*)SH2AddrEDX, (void*)FilterByteEDX[0], 5) ||
+		!CheckMemoryAddress((BYTE*)SH2AddrMOV, (void*)FilterByteMOV[0], 1) ||
+		!CheckMemoryAddress((void*)SH2AddrJMP, (void*)FilterByteJMP, 2))
+	{
+		Log() << "Error: memory addresses don't match for PS2 Noise Filter!";
+		return;
 	}
 
-	// For version v1.1
-	else if (CheckMemoryAddress((void*)p_NoiseFilterEDX_v11, (void*)NoiseFilterEDX[0], sizeof(NoiseFilterEDX[0])) &&
-		CheckMemoryAddress((void*)p_NoiseFilterMOV_v11, (void*)NoiseFilterMOV_v11[0], sizeof(NoiseFilterMOV_v11[0])) &&
-		CheckMemoryAddress((void*)p_NoiseFilterJMP_v11, (void*)NoiseFilterJMP_v11, sizeof(NoiseFilterJMP_v11)))
-	{
-		Log() << "Updating for PS2 Noise Filter v1.1...";
+	// Get function address
+	DWORD relFunctAddr;
+	memcpy(&relFunctAddr, ((BYTE*)*PS2NoiseFilter + 1), sizeof(DWORD));
+	void *PS2NoiseFilterAddr = (void*)((BYTE*)*PS2NoiseFilter + relFunctAddr + 5);
 
-		// Update EDX, MOV and JMP
-		UpdateMemoryAddress((void*)p_NoiseFilterEDX_v11, (void*)NoiseFilterEDX[1], sizeof(NoiseFilterEDX[1]));
-		UpdateMemoryAddress((void*)p_NoiseFilterMOV_v11, (void*)NoiseFilterMOV_v11[1], sizeof(NoiseFilterMOV_v11[1]));
-		WriteJMPtoMemory((BYTE*)p_NoiseFilterJMP_v11, *PS2NoiseFilter_v11);
+	// Find code in fucntion to update
+	DWORD fltFunctAddrJMP = (DWORD)GetAddressOfData(FilterFunctionBtyes, 6, 1, (DWORD)PS2NoiseFilterAddr, 50);
+	if (!SH2AddrEDX)
+	{
+		Log() << "Error: failed to find function address for PS2 Noise Filter!";
+		return;
 	}
 
-	// Failed
-	else
-	{
-		Log() << "Error: failed to find address for PS2 Noise Filter!";
-	}
+	// Update SH2 code
+	Log() << "Updating for PS2 Noise Filter Addr...";
+	UpdateMemoryAddress((void*)SH2AddrEDX, (void*)FilterByteEDX[1], 5);
+	UpdateMemoryAddress((void*)SH2AddrMOV, (void*)FilterByteMOV[1], 1);
+	UpdateMemoryAddress((void*)(fltFunctAddrJMP + 2), (void*)(SH2AddrJMP + 1), 4);
+	WriteJMPtoMemory((BYTE*)SH2AddrJMP, PS2NoiseFilterAddr);
 }

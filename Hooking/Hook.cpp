@@ -31,27 +31,27 @@
 void *Hook::HookAPI(HMODULE module, const char *dll, void *apiproc, const char *apiname, void *hookproc)
 {
 #ifdef _DEBUG
-	Log() << "HookAPI: module=" << module << " dll=" << dll << " apiproc=" << apiproc << " apiname=" << apiname << " hookproc=" << hookproc;
+	Log() << __FUNCTION__ << ": module=" << module << " dll=" << dll << " apiproc=" << apiproc << " apiname=" << apiname << " hookproc=" << hookproc;
 #endif
 
 	// Check if API name is blank
 	if (!apiname)
 	{
-		Log() << "HookAPI: NULL api name";
+		Log() << __FUNCTION__ << " Error: NULL api name";
 		return apiproc;
 	}
 
 	// Check API address
 	if (!apiproc)
 	{
-		Log() << "HookAPI: Failed to find '" << apiname << "' api";
+		Log() << __FUNCTION__ << " Error: Failed to find '" << apiname << "' api";
 		return apiproc;
 	}
 
 	// Check hook address
 	if (!hookproc)
 	{
-		Log() << "HookAPI: Invalid hook address for '" << apiname << "'";
+		Log() << __FUNCTION__ << " Error: Invalid hook address for '" << apiname << "'";
 		return apiproc;
 	}
 
@@ -66,14 +66,14 @@ void *Hook::HookAPI(HMODULE module, const char *dll, void *apiproc, const char *
 	// Check if dll name is blank
 	if (!dll)
 	{
-		Log() << "HookAPI: NULL dll name";
+		Log() << __FUNCTION__ << " Error: NULL dll name";
 		return apiproc;
 	}
 
 	// Check module addresses
 	if (!module)
 	{
-		Log() << "HookAPI: NULL api module address for '" << dll << "'";
+		Log() << __FUNCTION__ << " Error: NULL api module address for '" << dll << "'";
 		return apiproc;
 	}
 
@@ -92,27 +92,27 @@ void *Hook::HookAPI(HMODULE module, const char *dll, void *apiproc, const char *
 void Hook::UnhookAPI(HMODULE module, const char *dll, void *apiproc, const char *apiname, void *hookproc)
 {
 #ifdef _DEBUG
-	Log() << "HookAPI: module=" << module << " dll=" << dll << " apiproc=" << apiproc << " apiname=" << apiname << " hookproc=" << hookproc;
+	Log() << __FUNCTION__ << ": module=" << module << " dll=" << dll << " apiproc=" << apiproc << " apiname=" << apiname << " hookproc=" << hookproc;
 #endif
 
 	// Check if API name is blank
 	if (!apiname)
 	{
-		Log() << "UnhookAPI: NULL api name";
+		Log() << __FUNCTION__ << " Error: NULL api name";
 		return;
 	}
 
 	// Check API address
 	if (!apiproc)
 	{
-		Log() << "UnhookAPI: Failed to find '" << apiname << "' api";
+		Log() << __FUNCTION__ << " Error: Failed to find '" << apiname << "' api";
 		return;
 	}
 
 	// Check hook address
 	if (!hookproc)
 	{
-		Log() << "UnhookAPI: Invalid hook address for '" << apiname << "'";
+		Log() << __FUNCTION__ << " Error: Invalid hook address for '" << apiname << "'";
 		return;
 	}
 
@@ -122,14 +122,14 @@ void Hook::UnhookAPI(HMODULE module, const char *dll, void *apiproc, const char 
 	// Check if dll name is blank
 	if (!dll)
 	{
-		Log() << "UnhookAPI: NULL dll name";
+		Log() << __FUNCTION__ << " Error: NULL dll name";
 		return;
 	}
 
 	// Check module addresses
 	if (!module)
 	{
-		Log() << "UnhookAPI: NULL api module address for '" << dll << "'";
+		Log() << __FUNCTION__ << " Error: NULL api module address for '" << dll << "'";
 		return;
 	}
 
@@ -148,12 +148,12 @@ FARPROC Hook::GetProcAddress(HMODULE hModule, LPCSTR FunctionName)
 
 	if (!FunctionName || !hModule)
 	{
-		logf("GetModuleHandle: NULL module or function name.");
+		logf(__FUNCTION__ ": NULL module or function name.");
 		return nullptr;
 	}
 
 #ifdef _DEBUG
-	logf("GetProcAddress: Searching for %s.", FunctionName);
+	logf(__FUNCTION__ ": Searching for %s.", FunctionName);
 #endif
 
 	__try {
@@ -161,7 +161,7 @@ FARPROC Hook::GetProcAddress(HMODULE hModule, LPCSTR FunctionName)
 
 		if (pIDH->e_magic != IMAGE_DOS_SIGNATURE)
 		{
-			logf("GetProcAddress: %s is not IMAGE_DOS_SIGNATURE.", FunctionName);
+			logf(__FUNCTION__ " Error: %s is not IMAGE_DOS_SIGNATURE.", FunctionName);
 			return nullptr;
 		}
 
@@ -169,13 +169,13 @@ FARPROC Hook::GetProcAddress(HMODULE hModule, LPCSTR FunctionName)
 
 		if (pINH->Signature != IMAGE_NT_SIGNATURE)
 		{
-			logf("GetProcAddress: %s is not IMAGE_NT_SIGNATURE.", FunctionName);
+			logf(__FUNCTION__ " Error: %s is not IMAGE_NT_SIGNATURE.", FunctionName);
 			return nullptr;
 		}
 
 		if (pINH->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress == 0)
 		{
-			logf("GetProcAddress: Could not get VirtualAddress in %s.", FunctionName);
+			logf(__FUNCTION__ " Error: Could not get VirtualAddress in %s.", FunctionName);
 			return nullptr;
 		}
 
@@ -196,11 +196,11 @@ FARPROC Hook::GetProcAddress(HMODULE hModule, LPCSTR FunctionName)
 	__except (EXCEPTION_EXECUTE_HANDLER)
 	{
 		DWORD ErrorCode = GetExceptionCode();
-		logf("GetProcAddress: EXCEPTION module=%s Failed to get address. Code=%x", FunctionName, ErrorCode);
+		logf(__FUNCTION__ " Error: EXCEPTION module=%s Failed to get address. Code=%x", FunctionName, ErrorCode);
 	}
 
 	// Exit function
-	logf("GetProcAddress: Could not find %s.", FunctionName);
+	logf(__FUNCTION__ " Error: Could not find %s.", FunctionName);
 	return nullptr;
 }
 
@@ -220,19 +220,19 @@ HMODULE Hook::GetModuleHandle(char* ProcName)
 
 	if (!ProcName)
 	{
-		Log() << "GetModuleHandle: NULL process name.";
+		Log() << __FUNCTION__ << " Error: NULL process name.";
 		return nullptr;
 	}
 
 #ifdef _DEBUG
-	Log() << "GetModuleHandle: Searching for " << ProcName << ".";
+	Log() << __FUNCTION__ << ": Searching for " << ProcName << ".";
 #endif
 
 	// Get a handle to the process.
 	hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processID);
 	if (!hProcess)
 	{
-		Log() << "GetModuleHandle: Could not open process.";
+		Log() << __FUNCTION__ << " Error: Could not open process.";
 		return nullptr;
 	}
 
@@ -264,6 +264,6 @@ HMODULE Hook::GetModuleHandle(char* ProcName)
 	CloseHandle(hProcess);
 
 	// Exit function
-	Log() << "GetModuleHandle: Could not file module " << ProcName << ".";
+	Log() << __FUNCTION__ << " Error: Could not file module " << ProcName << ".";
 	return nullptr;
 }

@@ -48,11 +48,11 @@ void DisableCDCheck()
 		}
 		else
 		{
-			Log() << "Could not write to memory!";
+			Log() << "Error: Could not write to memory!";
 		}
 	}
 	else
 	{
-		Log() << "Could not find CD check function address in memory!";
+		Log() << "Error: Could not find CD check function address in memory!";
 	}
 }

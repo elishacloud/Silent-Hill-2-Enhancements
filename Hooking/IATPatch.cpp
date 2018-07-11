@@ -68,7 +68,7 @@ void *Hook::IATPatch(HMODULE module, DWORD ordinal, const char *dll, void *apipr
 	void *org;
 
 #ifdef _DEBUG
-	logf("IATPatch: module=%p ordinal=%x name=%s dll=%s", module, ordinal, apiname, dll);	
+	logf(__FUNCTION__ ": module=%p ordinal=%x name=%s dll=%s", module, ordinal, apiname, dll);	
 #endif
 
 	base = (DWORD)module;
@@ -79,13 +79,13 @@ void *Hook::IATPatch(HMODULE module, DWORD ordinal, const char *dll, void *apipr
 		pnth = PIMAGE_NT_HEADERS(PBYTE(base) + PIMAGE_DOS_HEADER(base)->e_lfanew);
 		if (!pnth)
 		{
-			logf("IATPatch: ERROR no PNTH at %d", __LINE__);
+			logf(__FUNCTION__ ": ERROR no PNTH at %d", __LINE__);
 			return 0;
 		}
 		rva = pnth->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress;
 		if (!rva)
 		{
-			logf("IATPatch: ERROR no RVA at %d", __LINE__);
+			logf(__FUNCTION__ ": ERROR no RVA at %d", __LINE__);
 			return 0;
 		}
 		pidesc = (PIMAGE_IMPORT_DESCRIPTOR)(base + rva);
@@ -94,7 +94,7 @@ void *Hook::IATPatch(HMODULE module, DWORD ordinal, const char *dll, void *apipr
 		{
 			impmodule = (PSTR)(base + pidesc->Name);
 #ifdef _DEBUG
-			//logf("IATPatch: analyze impmodule=%s", impmodule);
+			//logf(__FUNCTION__ ": analyze impmodule=%s", impmodule);
 #endif
 			char *fname = impmodule;
 			for (; *fname; fname++); for (; !*fname; fname++);
@@ -102,7 +102,7 @@ void *Hook::IATPatch(HMODULE module, DWORD ordinal, const char *dll, void *apipr
 			if (!lstrcmpiA(dll, impmodule))
 			{
 #ifdef _DEBUG
-				logf("IATPatch: dll=%s found at %p", dll, impmodule);				
+				logf(__FUNCTION__ ": dll=%s found at %p", dll, impmodule);				
 #endif
 
 				ptaddr = (PIMAGE_THUNK_DATA)(base + (DWORD)pidesc->FirstThunk);
@@ -111,7 +111,7 @@ void *Hook::IATPatch(HMODULE module, DWORD ordinal, const char *dll, void *apipr
 				while (ptaddr->u1.Function)
 				{
 #ifdef _DEBUG
-					//logf("IATPatch: address=%x ptname=%x", ptaddr->u1.AddressOfData, ptname);
+					//logf(__FUNCTION__ ": address=%x ptname=%x", ptaddr->u1.AddressOfData, ptname);
 #endif
 
 					if (ptname)
@@ -121,7 +121,7 @@ void *Hook::IATPatch(HMODULE module, DWORD ordinal, const char *dll, void *apipr
 						{
 							piname = (PIMAGE_IMPORT_BY_NAME)(base + (DWORD)ptname->u1.AddressOfData);
 #ifdef _DEBUG
-							logf("IATPatch: BYNAME ordinal=%x address=%x name=%s hint=%x", ptaddr->u1.Ordinal, ptaddr->u1.AddressOfData, (char *)piname->Name, piname->Hint);							
+							logf(__FUNCTION__ ": BYNAME ordinal=%x address=%x name=%s hint=%x", ptaddr->u1.Ordinal, ptaddr->u1.AddressOfData, (char *)piname->Name, piname->Hint);							
 #endif
 							if (!lstrcmpiA(apiname, (char *)piname->Name))
 							{
@@ -131,14 +131,14 @@ void *Hook::IATPatch(HMODULE module, DWORD ordinal, const char *dll, void *apipr
 						else
 						{
 #ifdef _DEBUG
-							//logf("IATPatch: BYORD target=%x ord=%x", ordinal, IMAGE_ORDINAL32(ptname->u1.Ordinal));
+							//logf(__FUNCTION__ ": BYORD target=%x ord=%x", ordinal, IMAGE_ORDINAL32(ptname->u1.Ordinal));
 #endif
 							// skip unknow ordinal 0
 							if (ordinal && (IMAGE_ORDINAL32(ptname->u1.Ordinal) == ordinal))
 							{
 #ifdef _DEBUG
-								logf("IATPatch: BYORD ordinal=%x addr=%x", ptname->u1.Ordinal, ptaddr->u1.Function);
-								//logf("IATPatch: BYORD GetProcAddress=%x", GetProcAddress(GetModuleHandle(dll), MAKEINTRESOURCE(IMAGE_ORDINAL32(ptname->u1.Ordinal))));									
+								logf(__FUNCTION__ ": BYORD ordinal=%x addr=%x", ptname->u1.Ordinal, ptaddr->u1.Function);
+								//logf(__FUNCTION__ ": BYORD GetProcAddress=%x", GetProcAddress(GetModuleHandle(dll), MAKEINTRESOURCE(IMAGE_ORDINAL32(ptname->u1.Ordinal))));									
 #endif
 								break;
 							}
@@ -148,13 +148,13 @@ void *Hook::IATPatch(HMODULE module, DWORD ordinal, const char *dll, void *apipr
 					else
 					{
 #ifdef _DEBUG
-						//logf("IATPatch: fname=%s", fname);
+						//logf(__FUNCTION__ ": fname=%s", fname);
 						//LogText(buffer);
 #endif
 						if (!lstrcmpiA(apiname, fname))
 						{
 #ifdef _DEBUG
-							logf("IATPatch: BYSCAN ordinal=%x address=%x name=%s", ptaddr->u1.Ordinal, ptaddr->u1.AddressOfData, fname);							
+							logf(__FUNCTION__ ": BYSCAN ordinal=%x address=%x name=%s", ptaddr->u1.Ordinal, ptaddr->u1.AddressOfData, fname);							
 #endif
 							break;
 						}
@@ -181,7 +181,7 @@ void *Hook::IATPatch(HMODULE module, DWORD ordinal, const char *dll, void *apipr
 					if (!VirtualProtect(&ptaddr->u1.Function, 4, PAGE_EXECUTE_READWRITE, &oldprotect))
 					{
 #ifdef _DEBUG
-						logf("IATPatch: VirtualProtect error %d at %d", GetLastError(), __LINE__);						
+						logf(__FUNCTION__ ": VirtualProtect error %d at %d", GetLastError(), __LINE__);						
 #endif
 						return 0;
 					}
@@ -189,19 +189,19 @@ void *Hook::IATPatch(HMODULE module, DWORD ordinal, const char *dll, void *apipr
 					if (!VirtualProtect(&ptaddr->u1.Function, 4, oldprotect, &oldprotect))
 					{
 #ifdef _DEBUG
-						logf("IATPatch: VirtualProtect error %d at %d", GetLastError(), __LINE__);						
+						logf(__FUNCTION__ ": VirtualProtect error %d at %d", GetLastError(), __LINE__);						
 #endif
 						return 0;
 					}
 					if (!FlushInstructionCache(GetCurrentProcess(), &ptaddr->u1.Function, 4))
 					{
 #ifdef _DEBUG
-						logf("IATPatch: FlushInstructionCache error %d at %d", GetLastError(), __LINE__);						
+						logf(__FUNCTION__ ": FlushInstructionCache error %d at %d", GetLastError(), __LINE__);						
 #endif
 						return 0;
 					}
 #ifdef _DEBUG
-					logf("IATPatch hook=%s address=%p->%p", apiname, org, hookproc);					
+					logf(__FUNCTION__ " hook=%s address=%p->%p", apiname, org, hookproc);					
 #endif
 					// Record hook
 					StoreIATRecord(module, ordinal, dll, apiproc, apiname, hookproc);
@@ -215,7 +215,7 @@ void *Hook::IATPatch(HMODULE module, DWORD ordinal, const char *dll, void *apipr
 		if (!pidesc->FirstThunk)
 		{
 #ifdef _DEBUG
-			logf("IATPatch: PE unreferenced function %s:%s", dll, apiname);			
+			logf(__FUNCTION__ ": PE unreferenced function %s:%s", dll, apiname);			
 #endif
 			return 0;
 		}
@@ -223,7 +223,7 @@ void *Hook::IATPatch(HMODULE module, DWORD ordinal, const char *dll, void *apipr
 	}
 	__except (EXCEPTION_EXECUTE_HANDLER)
 	{
-		logf("IATPatchEx: EXCEPTION hook=%s:%s Hook Failed.", dll, apiname);
+		logf(__FUNCTION__ "Ex: EXCEPTION hook=%s:%s Hook Failed.", dll, apiname);
 	}
 	return org;
 }
@@ -238,7 +238,7 @@ bool Hook::UnIATPatchAll()
 		{
 			// Failed to retore address
 			flag = false;
-			logf("UnIATPatchAll: failed to restore address. procaddr: %p", IATPatchProcs.back().apiproc);
+			logf(__FUNCTION__ ": failed to restore address. procaddr: %p", IATPatchProcs.back().apiproc);
 		}
 		IATPatchProcs.pop_back();
 	}
@@ -260,7 +260,7 @@ bool Hook::UnhookIATPatch(HMODULE module, DWORD ordinal, const char *dll, void *
 	void *org;
 
 #ifdef _DEBUG
-	logf("IATPatch: module=%p ordinal=%x name=%s dll=%s", module, ordinal, apiname, dll);	
+	logf(__FUNCTION__ ": module=%p ordinal=%x name=%s dll=%s", module, ordinal, apiname, dll);	
 #endif
 
 	base = (DWORD)module;
@@ -271,13 +271,13 @@ bool Hook::UnhookIATPatch(HMODULE module, DWORD ordinal, const char *dll, void *
 		pnth = PIMAGE_NT_HEADERS(PBYTE(base) + PIMAGE_DOS_HEADER(base)->e_lfanew);
 		if (!pnth)
 		{
-			logf("IATPatch: ERROR no PNTH at %d", __LINE__);
+			logf(__FUNCTION__ ": ERROR no PNTH at %d", __LINE__);
 			return false;
 		}
 		rva = pnth->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress;
 		if (!rva)
 		{
-			logf("IATPatch: ERROR no RVA at %d", __LINE__);
+			logf(__FUNCTION__ ": ERROR no RVA at %d", __LINE__);
 			return false;
 		}
 		pidesc = (PIMAGE_IMPORT_DESCRIPTOR)(base + rva);
@@ -286,7 +286,7 @@ bool Hook::UnhookIATPatch(HMODULE module, DWORD ordinal, const char *dll, void *
 		{
 			impmodule = (PSTR)(base + pidesc->Name);
 #ifdef _DEBUG
-			//logf("IATPatch: analyze impmodule=%s", impmodule);
+			//logf(__FUNCTION__ ": analyze impmodule=%s", impmodule);
 #endif
 			char *fname = impmodule;
 			for (; *fname; fname++); for (; !*fname; fname++);
@@ -294,7 +294,7 @@ bool Hook::UnhookIATPatch(HMODULE module, DWORD ordinal, const char *dll, void *
 			if (!lstrcmpiA(dll, impmodule))
 			{
 #ifdef _DEBUG
-				logf("IATPatch: dll=%s found at %p", dll, impmodule);				
+				logf(__FUNCTION__ ": dll=%s found at %p", dll, impmodule);				
 #endif
 
 				ptaddr = (PIMAGE_THUNK_DATA)(base + (DWORD)pidesc->FirstThunk);
@@ -303,7 +303,7 @@ bool Hook::UnhookIATPatch(HMODULE module, DWORD ordinal, const char *dll, void *
 				while (ptaddr->u1.Function)
 				{
 #ifdef _DEBUG
-					//logf("IATPatch: address=%x ptname=%x", ptaddr->u1.AddressOfData, ptname);
+					//logf(__FUNCTION__ ": address=%x ptname=%x", ptaddr->u1.AddressOfData, ptname);
 #endif
 
 					if (ptname)
@@ -313,7 +313,7 @@ bool Hook::UnhookIATPatch(HMODULE module, DWORD ordinal, const char *dll, void *
 						{
 							piname = (PIMAGE_IMPORT_BY_NAME)(base + (DWORD)ptname->u1.AddressOfData);
 #ifdef _DEBUG
-							logf("IATPatch: BYNAME ordinal=%x address=%x name=%s hint=%x", ptaddr->u1.Ordinal, ptaddr->u1.AddressOfData, (char *)piname->Name, piname->Hint);							
+							logf(__FUNCTION__ ": BYNAME ordinal=%x address=%x name=%s hint=%x", ptaddr->u1.Ordinal, ptaddr->u1.AddressOfData, (char *)piname->Name, piname->Hint);							
 #endif
 							if (!lstrcmpiA(apiname, (char *)piname->Name))
 							{
@@ -323,14 +323,14 @@ bool Hook::UnhookIATPatch(HMODULE module, DWORD ordinal, const char *dll, void *
 						else
 						{
 #ifdef _DEBUG
-							//logf("IATPatch: BYORD target=%x ord=%x", ordinal, IMAGE_ORDINAL32(ptname->u1.Ordinal));
+							//logf(__FUNCTION__ ": BYORD target=%x ord=%x", ordinal, IMAGE_ORDINAL32(ptname->u1.Ordinal));
 #endif
 							// skip unknow ordinal 0
 							if (ordinal && (IMAGE_ORDINAL32(ptname->u1.Ordinal) == ordinal))
 							{
 #ifdef _DEBUG
-								logf("IATPatch: BYORD ordinal=%x addr=%x", ptname->u1.Ordinal, ptaddr->u1.Function);
-								//logf("IATPatch: BYORD GetProcAddress=%x", GetProcAddress(GetModuleHandle(dll), MAKEINTRESOURCE(IMAGE_ORDINAL32(ptname->u1.Ordinal))));									
+								logf(__FUNCTION__ ": BYORD ordinal=%x addr=%x", ptname->u1.Ordinal, ptaddr->u1.Function);
+								//logf(__FUNCTION__ ": BYORD GetProcAddress=%x", GetProcAddress(GetModuleHandle(dll), MAKEINTRESOURCE(IMAGE_ORDINAL32(ptname->u1.Ordinal))));									
 #endif
 								break;
 							}
@@ -340,12 +340,12 @@ bool Hook::UnhookIATPatch(HMODULE module, DWORD ordinal, const char *dll, void *
 					else
 					{
 #ifdef _DEBUG
-						//logf("IATPatch: fname=%s", fname);
+						//logf(__FUNCTION__ ": fname=%s", fname);
 #endif
 						if (!lstrcmpiA(apiname, fname))
 						{
 #ifdef _DEBUG
-							logf("IATPatch: BYSCAN ordinal=%x address=%x name=%s", ptaddr->u1.Ordinal, ptaddr->u1.AddressOfData, fname);							
+							logf(__FUNCTION__ ": BYSCAN ordinal=%x address=%x name=%s", ptaddr->u1.Ordinal, ptaddr->u1.AddressOfData, fname);							
 #endif
 							break;
 						}
@@ -375,7 +375,7 @@ bool Hook::UnhookIATPatch(HMODULE module, DWORD ordinal, const char *dll, void *
 						if (!VirtualProtect(&ptaddr->u1.Function, 4, PAGE_EXECUTE_READWRITE, &oldprotect))
 						{
 #ifdef _DEBUG
-							logf("IATPatch: VirtualProtect error %d at %d", GetLastError(), __LINE__);							
+							logf(__FUNCTION__ ": VirtualProtect error %d at %d", GetLastError(), __LINE__);							
 #endif
 							return false;
 						}
@@ -383,19 +383,19 @@ bool Hook::UnhookIATPatch(HMODULE module, DWORD ordinal, const char *dll, void *
 						if (!VirtualProtect(&ptaddr->u1.Function, 4, oldprotect, &oldprotect))
 						{
 #ifdef _DEBUG
-							logf("IATPatch: VirtualProtect error %d at %d", GetLastError(), __LINE__);							
+							logf(__FUNCTION__ ": VirtualProtect error %d at %d", GetLastError(), __LINE__);							
 #endif
 							return false;
 						}
 						if (!FlushInstructionCache(GetCurrentProcess(), &ptaddr->u1.Function, 4))
 						{
 #ifdef _DEBUG
-							logf("IATPatch: FlushInstructionCache error %d at %d", GetLastError(), __LINE__);							
+							logf(__FUNCTION__ ": FlushInstructionCache error %d at %d", GetLastError(), __LINE__);							
 #endif
 							return false;
 						}
 #ifdef _DEBUG
-						logf("IATPatch hook=%s address=%p->%p", apiname, org, hookproc);						
+						logf(__FUNCTION__ " hook=%s address=%p->%p", apiname, org, hookproc);						
 #endif
 
 						return true;
@@ -408,7 +408,7 @@ bool Hook::UnhookIATPatch(HMODULE module, DWORD ordinal, const char *dll, void *
 		if (!pidesc->FirstThunk)
 		{
 #ifdef _DEBUG
-			logf("IATPatch: PE unreferenced function %s:%s", dll, apiname);			
+			logf(__FUNCTION__ ": PE unreferenced function %s:%s", dll, apiname);			
 #endif
 			return false;
 		}
@@ -416,7 +416,7 @@ bool Hook::UnhookIATPatch(HMODULE module, DWORD ordinal, const char *dll, void *
 	}
 	__except (EXCEPTION_EXECUTE_HANDLER)
 	{
-		logf("IATPatchEx: EXCEPTION hook=%s:%s Hook Failed.", dll, apiname);
+		logf(__FUNCTION__ "Ex: EXCEPTION hook=%s:%s Hook Failed.", dll, apiname);
 	}
 	return false;
 }

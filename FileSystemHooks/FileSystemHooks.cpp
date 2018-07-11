@@ -21,6 +21,30 @@
 #include "Common\Logging.h"
 #include "FileSystemHooks.h"
 
+// API typedef
+typedef BOOL(WINAPI *PFN_GetModuleHandleExA)(DWORD dwFlags, LPCSTR lpModuleName, HMODULE *phModule);
+typedef BOOL(WINAPI *PFN_GetModuleHandleExW)(DWORD dwFlags, LPCWSTR lpModuleName, HMODULE *phModule);
+typedef DWORD(WINAPI *PFN_GetModuleFileNameA)(HMODULE, LPSTR, DWORD);
+typedef DWORD(WINAPI *PFN_GetModuleFileNameW)(HMODULE, LPWSTR, DWORD);
+typedef HANDLE(WINAPI *PFN_CreateFileA)(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile);
+typedef HANDLE(WINAPI *PFN_CreateFileW)(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile);
+typedef HANDLE(WINAPI *PFN_FindFirstFileExA)(LPCSTR lpFileName, FINDEX_INFO_LEVELS fInfoLevelId, LPVOID lpFindFileData, FINDEX_SEARCH_OPS fSearchOp, LPVOID lpSearchFilter, DWORD dwAdditionalFlags);
+typedef HANDLE(WINAPI *PFN_FindFirstFileExW)(LPCWSTR lpFileName, FINDEX_INFO_LEVELS fInfoLevelId, LPVOID lpFindFileData, FINDEX_SEARCH_OPS fSearchOp, LPVOID lpSearchFilter, DWORD dwAdditionalFlags);
+typedef DWORD(WINAPI *PFN_GetPrivateProfileStringA)(LPCSTR lpAppName, LPCSTR lpKeyName, LPCSTR lpDefault, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName);
+typedef DWORD(WINAPI *PFN_GetPrivateProfileStringW)(LPCWSTR lpAppName, LPCWSTR lpKeyName, LPCWSTR lpDefault, LPWSTR lpReturnedString, DWORD nSize, LPCWSTR lpFileName);
+
+// Proc addresses
+FARPROC p_GetModuleHandleExA = nullptr;
+FARPROC p_GetModuleHandleExW = nullptr;
+FARPROC p_GetModuleFileNameA = nullptr;
+FARPROC p_GetModuleFileNameW = nullptr;
+FARPROC p_CreateFileA = nullptr;
+FARPROC p_CreateFileW = nullptr;
+FARPROC p_FindFirstFileExA = nullptr;
+FARPROC p_FindFirstFileExW = nullptr;
+FARPROC p_GetPrivateProfileStringA = nullptr;
+FARPROC p_GetPrivateProfileStringW = nullptr;
+
 // Varables used in hooked modules
 bool LoadingMemoryModule = false;
 HMODULE moduleHandle = nullptr;
@@ -75,30 +99,6 @@ bool NotValidFileNamePath(T& lpFilename, DWORD nSize)
 			lpFilename[3] != '\\' && lpFilename[3] != ':'));
 }
 
-// API typedef
-typedef BOOL(WINAPI *PFN_GetModuleHandleExA)(DWORD dwFlags, LPCSTR lpModuleName, HMODULE *phModule);
-typedef BOOL(WINAPI *PFN_GetModuleHandleExW)(DWORD dwFlags, LPCWSTR lpModuleName, HMODULE *phModule);
-typedef DWORD(WINAPI *PFN_GetModuleFileNameA)(HMODULE, LPSTR, DWORD);
-typedef DWORD(WINAPI *PFN_GetModuleFileNameW)(HMODULE, LPWSTR, DWORD);
-typedef HANDLE(WINAPI *PFN_CreateFileA)(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile);
-typedef HANDLE(WINAPI *PFN_CreateFileW)(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile);
-typedef HANDLE(WINAPI *PFN_FindFirstFileExA)(LPCSTR lpFileName, FINDEX_INFO_LEVELS fInfoLevelId, LPVOID lpFindFileData, FINDEX_SEARCH_OPS fSearchOp, LPVOID lpSearchFilter, DWORD dwAdditionalFlags);
-typedef HANDLE(WINAPI *PFN_FindFirstFileExW)(LPCWSTR lpFileName, FINDEX_INFO_LEVELS fInfoLevelId, LPVOID lpFindFileData, FINDEX_SEARCH_OPS fSearchOp, LPVOID lpSearchFilter, DWORD dwAdditionalFlags);
-typedef DWORD(WINAPI *PFN_GetPrivateProfileStringA)(LPCSTR lpAppName, LPCSTR lpKeyName, LPCSTR lpDefault, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName);
-typedef DWORD(WINAPI *PFN_GetPrivateProfileStringW)(LPCWSTR lpAppName, LPCWSTR lpKeyName, LPCWSTR lpDefault, LPWSTR lpReturnedString, DWORD nSize, LPCWSTR lpFileName);
-
-// Proc addresses
-FARPROC p_GetModuleHandleExA = nullptr;
-FARPROC p_GetModuleHandleExW = nullptr;
-FARPROC p_GetModuleFileNameA = nullptr;
-FARPROC p_GetModuleFileNameW = nullptr;
-FARPROC p_CreateFileA = nullptr;
-FARPROC p_CreateFileW = nullptr;
-FARPROC p_FindFirstFileExA = nullptr;
-FARPROC p_FindFirstFileExW = nullptr;
-FARPROC p_GetPrivateProfileStringA = nullptr;
-FARPROC p_GetPrivateProfileStringW = nullptr;
-
 // Update GetModuleHandleExA to fix module handle
 BOOL WINAPI GetModuleHandleExAHandler(DWORD dwFlags, LPCSTR lpModuleName, HMODULE *phModule)
 {
@@ -151,10 +151,9 @@ DWORD WINAPI GetModuleFileNameAHandler(HMODULE hModule, LPSTR lpFilename, DWORD 
 		DWORD ret = org_GetModuleFileName(hModule, lpFilename, nSize);
 		if (NotValidFileNamePath(lpFilename, nSize) && nSize > 1)
 		{
-			ret = min(nPathSize, nSize);
-			lpFilename[ret] = '\0';
-			ret--;	// for null terminator
+			ret = min(nPathSize, nSize) - 1;
 			memcpy(lpFilename, std::string(wstrModulePath.begin(), wstrModulePath.end()).c_str(), ret * sizeof(char));
+			lpFilename[ret] = '\0';
 		}
 		return ret;
 	}
@@ -174,10 +173,9 @@ DWORD WINAPI GetModuleFileNameWHandler(HMODULE hModule, LPWSTR lpFilename, DWORD
 		DWORD ret = org_GetModuleFileName(hModule, lpFilename, nSize);
 		if (NotValidFileNamePath(lpFilename, nSize))
 		{
-			ret = min(nPathSize, nSize);
-			lpFilename[ret] = '\0';
-			ret--;	// for null terminator
+			ret = min(nPathSize, nSize) - 1;
 			memcpy(lpFilename, wstrModulePath.c_str(), ret * sizeof(wchar_t));
+			lpFilename[ret] = '\0';
 		}
 		return ret;
 	}

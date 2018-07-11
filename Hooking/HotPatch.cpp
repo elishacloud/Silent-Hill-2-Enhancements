@@ -47,7 +47,7 @@ void *Hook::HotPatch(void *apiproc, const char *apiname, void *hookproc, bool fo
 	void *orig_address;
 
 #ifdef _DEBUG
-	logf("HotPatch: api=%s addr=%p hook=%p", apiname, apiproc, hookproc);
+	logf(__FUNCTION__ ": api=%s addr=%p hook=%p", apiname, apiproc, hookproc);
 #endif
 
 	if (!strcmp(apiname, "GetProcAddress"))
@@ -61,7 +61,7 @@ void *Hook::HotPatch(void *apiproc, const char *apiname, void *hookproc, bool fo
 	// Entry point could be at the top of a page? so VirtualProtect first to make sure patch_address is readable
 	if (!VirtualProtect(patch_address, 12, PAGE_EXECUTE_WRITECOPY, &dwPrevProtect))
 	{
-		logf("HotPatch: access denied.  Cannot hook api=%s at addr=%p err=%x", apiname, apiproc, GetLastError());
+		logf(__FUNCTION__ " Error: access denied.  Cannot hook api=%s at addr=%p err=%x", apiname, apiproc, GetLastError());
 		return 0; // access denied
 	}
 
@@ -94,7 +94,7 @@ void *Hook::HotPatch(void *apiproc, const char *apiname, void *hookproc, bool fo
 		// Flush cache
 		FlushInstructionCache(GetCurrentProcess(), patch_address, 12);
 #ifdef _DEBUG
-		logf("HotPatch: api=%s addr=%p->%p hook=%p", apiname, apiproc, orig_address, hookproc);
+		logf(__FUNCTION__ ": api=%s addr=%p->%p hook=%p", apiname, apiproc, orig_address, hookproc);
 #endif
 		return orig_address;
 	}
@@ -112,7 +112,7 @@ void *Hook::HotPatch(void *apiproc, const char *apiname, void *hookproc, bool fo
 		// Flush cache
 		FlushInstructionCache(GetCurrentProcess(), patch_address, 12);
 #ifdef _DEBUG
-		logf("HotPatch: api=%s addr=%p->%p hook=%p", apiname, apiproc, orig_address, hookproc);
+		logf(__FUNCTION__ ": api=%s addr=%p->%p hook=%p", apiname, apiproc, orig_address, hookproc);
 #endif
 
 		return HotPatch((void*)(*patchAddr), apiname, hookproc);
@@ -127,12 +127,12 @@ void *Hook::HotPatch(void *apiproc, const char *apiname, void *hookproc, bool fo
 		if ((*patch_address == 0xE9) && (*(WORD *)apiproc == 0xF9EB))
 		{
 			// should never go through here ...
-			logf("HotPatch: '%s' patched already at addr=%p", apiname, apiproc);
+			logf(__FUNCTION__ " Error: '%s' patched already at addr=%p", apiname, apiproc);
 			return (void *)1;
 		}
 		else
 		{
-			logf("HotPatch: '%s' is not patch aware at addr=%p", apiname, apiproc);
+			logf(__FUNCTION__ " Error: '%s' is not patch aware at addr=%p", apiname, apiproc);
 
 			// Log memory
 			BYTE lpBuffer[12];
@@ -175,14 +175,14 @@ bool Hook::UnHotPatchAll()
 				{
 					// Memory different than expected
 					flag = false;
-					logf("UnHotPatchAll: Memory different than expected procaddr: %p", HotPatchProcs.back().procaddr);
+					logf(__FUNCTION__ " Error: Memory different than expected procaddr: %p", HotPatchProcs.back().procaddr);
 				}
 			}
 			else
 			{
 				// Failed to read memory
 				flag = false;
-				logf("UnHotPatchAll: Failed to read memory procaddr: %p", HotPatchProcs.back().procaddr);
+				logf(__FUNCTION__ " Error: Failed to read memory procaddr: %p", HotPatchProcs.back().procaddr);
 			}
 
 			// Restore protection
@@ -195,7 +195,7 @@ bool Hook::UnHotPatchAll()
 		{
 			// Access denied
 			flag = false;
-			logf("UnHotPatchAll: access denied. procaddr: %p", HotPatchProcs.back().procaddr);
+			logf(__FUNCTION__ " Error: access denied. procaddr: %p", HotPatchProcs.back().procaddr);
 		}
 		HotPatchProcs.pop_back();
 	}
@@ -211,7 +211,7 @@ bool Hook::UnhookHotPatch(void *apiproc, const char *apiname, void *hookproc)
 	void *orig_address;
 
 #ifdef _DEBUG
-	logf("UnhookHotPatch: api=%s addr=%p hook=%p", apiname, apiproc, hookproc);
+	logf(__FUNCTION__ ": api=%s addr=%p hook=%p", apiname, apiproc, hookproc);
 #endif
 
 	if (!strcmp(apiname, "GetProcAddress"))
@@ -270,7 +270,7 @@ bool Hook::UnhookHotPatch(void *apiproc, const char *apiname, void *hookproc)
 	// Entry point could be at the top of a page? so VirtualProtect first to make sure patch_address is readable
 	if (!VirtualProtect(patch_address, 12, PAGE_EXECUTE_WRITECOPY, &dwPrevProtect))
 	{
-		logf("UnhookHotPatch: access denied.  Cannot hook api=%s at addr=%p err=%x", apiname, apiproc, GetLastError());
+		logf(__FUNCTION__ " Error: access denied.  Cannot hook api=%s at addr=%p err=%x", apiname, apiproc, GetLastError());
 		return false; // access denied
 	}
 
@@ -288,17 +288,17 @@ bool Hook::UnhookHotPatch(void *apiproc, const char *apiname, void *hookproc)
 		// Flush cache
 		FlushInstructionCache(GetCurrentProcess(), patch_address, 12);
 #ifdef _DEBUG
-		logf("UnhookHotPatch: api=%s addr=%p->%p hook=%p", apiname, apiproc, orig_address, hookproc);
+		logf(__FUNCTION__ ": api=%s addr=%p->%p hook=%p", apiname, apiproc, orig_address, hookproc);
 #endif
 		return true;
 	}
 
-	logf("HotPatch: failed to unhook '%s' at addr=%p", apiname, apiproc);
+	logf(__FUNCTION__ " Error: failed to unhook '%s' at addr=%p", apiname, apiproc);
 
 	// Restore protection
 	VirtualProtect(patch_address, 12, dwPrevProtect, &dwPrevProtect);
 #ifdef _DEBUG
-	logf("UnhookHotPatch: api=%s addr=%p->%p hook=%p", apiname, apiproc, orig_address, hookproc);
+	logf(__FUNCTION__ ": api=%s addr=%p->%p hook=%p", apiname, apiproc, orig_address, hookproc);
 #endif
 	return false;
 }

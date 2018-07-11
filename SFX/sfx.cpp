@@ -45,7 +45,7 @@ void UpdateSFXAddr()
 		infile.open(myPath, std::ios::binary | std::ios::in | std::ios::ate);
 		if (!infile.is_open())
 		{
-			Log() << "Could not open sddata.bin file!";
+			Log() << "Error: Could not open sddata.bin file!";
 
 			// Exiting
 			return;
@@ -100,7 +100,7 @@ void UpdateSFXAddr()
 		}
 		else
 		{
-			Log() << "Could not find all the indexes in sddata.bin!  Found " << IndexCount;
+			Log() << "Error: Could not find all the indexes in sddata.bin!  Found " << IndexCount;
 		}
 
 		// Update SFX address array
@@ -120,7 +120,7 @@ void UpdateSFXAddr()
 		}
 		else
 		{
-			Log() << "Could not write to memory!";
+			Log() << "Error: Could not write to memory!";
 		}
 
 		// Find address for sddata.bin file pointer
@@ -153,16 +153,16 @@ void UpdateSFXAddr()
 			}
 			else
 			{
-				Log() << "Could not write to memory!";
+				Log() << "Error: Could not write to memory!";
 			}
 		}
 		else
 		{
-			Log() << "Could not find sddata.bin pointer address in memory!";
+			Log() << "Error: Could not find sddata.bin pointer address in memory!";
 		}
 	}
 	else
 	{
-		Log() << "Could not find SFX pointer address in memory!";
+		Log() << "Error: Could not find SFX pointer address in memory!";
 	}
 }

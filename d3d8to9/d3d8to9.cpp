@@ -35,7 +35,7 @@ Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 	static PFN_Direct3DCreate9 Direct3DCreate9 = reinterpret_cast<PFN_Direct3DCreate9>(p_Direct3DCreate9);
 	if (!Direct3DCreate9)
 	{
-		Log() << "Failed to get 'Direct3DCreate9' ProcAddress of d3d9.dll!";
+		Log() << "Error: Failed to get 'Direct3DCreate9' ProcAddress of d3d9.dll!";
 		return nullptr;
 	}
 
@@ -43,6 +43,7 @@ Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 
 	if (d3d == nullptr)
 	{
+		Log() << "Error: Failed to create 'Direct3DCreate9'!";
 		return nullptr;
 	}
 

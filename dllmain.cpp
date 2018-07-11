@@ -35,7 +35,12 @@ std::ofstream LOG;
 wchar_t LogPath[MAX_PATH];
 
 // Memory modules
-std::vector<HMEMORYMODULE> HMModules;
+struct MMODULE
+{
+	HMEMORYMODULE handle;		// Module handle
+	DWORD ResID;				// Resource ID
+};
+std::vector<MMODULE> HMModules;
 
 // Screen settings
 std::string lpRamp((3 * 256 * 2), '\0');
@@ -70,9 +75,9 @@ void __stdcall ParseCallback(char* name, char* value)
 }
 
 // Load memory module from resource
-void LoadModuleFromResource(HMODULE hModule, DWORD ResourceNum, LPCSTR lpName)
+void LoadModuleFromResource(HMODULE hModule, DWORD ResID, LPCSTR lpName)
 {
-	HRSRC hResource = FindResource(hModule, MAKEINTRESOURCE(ResourceNum), RT_RCDATA);
+	HRSRC hResource = FindResource(hModule, MAKEINTRESOURCE(ResID), RT_RCDATA);
 	if (hResource)
 	{
 		HGLOBAL hLoadedResource = LoadResource(hModule, hResource);
@@ -90,7 +95,8 @@ void LoadModuleFromResource(HMODULE hModule, DWORD ResourceNum, LPCSTR lpName)
 					LoadingMemoryModule = false;
 					if (hMModule)
 					{
-						HMModules.push_back(hMModule);
+						MMODULE MMItem = { hMModule , ResID };
+						HMModules.push_back(MMItem);
 					}
 					else
 					{
@@ -259,26 +265,28 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		break;
 	case DLL_PROCESS_DETACH:
 	{
+#ifdef _DEBUG
 		// Unloading all modules
-		if (custom_dll.size())
+		Log() << "Unloading all loaded modules";
+
+		// Unload standard modules
+		for (HMODULE it : custom_dll)
 		{
-			Log() << "Unloading all loaded modules";
-			for (HMODULE it : custom_dll)
+			if (it)
 			{
-				if (it)
-				{
-					FreeLibrary(it);
-				}
+				FreeLibrary(it);
 			}
 		}
 
-		// Unhook memory module handles
-		for (HMEMORYMODULE it : HMModules)
+		// Unload memory modules
+		for (MMODULE it : HMModules)
 		{
-			MemoryFreeLibrary(it);
+			MemoryFreeLibrary(it.handle);
 		}
+#endif
 
 		// Unhook APIs
+		Log() << "Unhooking library functions";
 		Hook::UnhookAll();
 
 		// Reset screen back to original Windows settings to fix some display errors on exit

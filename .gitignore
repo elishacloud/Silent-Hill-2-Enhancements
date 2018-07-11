@@ -28,7 +28,6 @@
 *.la
 *.a
 *.lib
-*.dll
 *.drv
 
 # Other Visual Studio files

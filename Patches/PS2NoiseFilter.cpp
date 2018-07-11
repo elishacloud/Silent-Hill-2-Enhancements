@@ -71,8 +71,8 @@ __declspec(naked) void __stdcall PS2NoiseFilter_v11()
 void UpdatePS2Filter()
 {
 	// For version DC
-	if (CheckMemoryAddress((void*)p_NoiseFilterEDX_vDC, (void*)NoiseFilterEDX[0], sizeof(NoiseFilterEDX[0])) ||
-		CheckMemoryAddress((void*)p_NoiseFilterMOV_vDC, (void*)NoiseFilterMOV_vDC[0], sizeof(NoiseFilterMOV_vDC[0])) ||
+	if (CheckMemoryAddress((void*)p_NoiseFilterEDX_vDC, (void*)NoiseFilterEDX[0], sizeof(NoiseFilterEDX[0])) &&
+		CheckMemoryAddress((void*)p_NoiseFilterMOV_vDC, (void*)NoiseFilterMOV_vDC[0], sizeof(NoiseFilterMOV_vDC[0])) &&
 		CheckMemoryAddress((void*)p_NoiseFilterJMP_vDC, (void*)NoiseFilterJMP_vDC, sizeof(NoiseFilterJMP_vDC)))
 	{
 		Log() << "Updating for PS2 Noise Filter DC...";
@@ -84,8 +84,8 @@ void UpdatePS2Filter()
 	}
 
 	// For version v1.0
-	else if (CheckMemoryAddress((void*)p_NoiseFilterEDX_v10, (void*)NoiseFilterEDX[0], sizeof(NoiseFilterEDX[0])) ||
-		CheckMemoryAddress((void*)p_NoiseFilterMOV_v10, (void*)NoiseFilterMOV_v10[0], sizeof(NoiseFilterMOV_v10[0])) ||
+	else if (CheckMemoryAddress((void*)p_NoiseFilterEDX_v10, (void*)NoiseFilterEDX[0], sizeof(NoiseFilterEDX[0])) &&
+		CheckMemoryAddress((void*)p_NoiseFilterMOV_v10, (void*)NoiseFilterMOV_v10[0], sizeof(NoiseFilterMOV_v10[0])) &&
 		CheckMemoryAddress((void*)p_NoiseFilterJMP_v10, (void*)NoiseFilterJMP_v10, sizeof(NoiseFilterJMP_v10)))
 	{
 		Log() << "Updating for PS2 Noise Filter v1.0...";
@@ -97,8 +97,8 @@ void UpdatePS2Filter()
 	}
 
 	// For version v1.1
-	else if (CheckMemoryAddress((void*)p_NoiseFilterEDX_v11, (void*)NoiseFilterEDX[0], sizeof(NoiseFilterEDX[0])) ||
-		CheckMemoryAddress((void*)p_NoiseFilterMOV_v11, (void*)NoiseFilterMOV_v11[0], sizeof(NoiseFilterMOV_v11[0])) ||
+	else if (CheckMemoryAddress((void*)p_NoiseFilterEDX_v11, (void*)NoiseFilterEDX[0], sizeof(NoiseFilterEDX[0])) &&
+		CheckMemoryAddress((void*)p_NoiseFilterMOV_v11, (void*)NoiseFilterMOV_v11[0], sizeof(NoiseFilterMOV_v11[0])) &&
 		CheckMemoryAddress((void*)p_NoiseFilterJMP_v11, (void*)NoiseFilterJMP_v11, sizeof(NoiseFilterJMP_v11)))
 	{
 		Log() << "Updating for PS2 Noise Filter v1.1...";

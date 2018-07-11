@@ -126,9 +126,9 @@ void UpdateSFXAddr()
 		// Find address for sddata.bin file pointer
 		const DWORD start = 0x00401000;
 		const DWORD distance = 0x00127FFF;
-		sfxAddr = GetAddressOfData(sfxPtrvDC, 5, 1, start, distance);																		// Directors Cut
-		sfxAddr = ((DWORD)sfxAddr < start || (DWORD)sfxAddr > start + distance) ? GetAddressOfData(sfxPtrv10, 5, 1, start, distance) : sfxAddr;	// v1.0
-		sfxAddr = ((DWORD)sfxAddr < start || (DWORD)sfxAddr > start + distance) ? GetAddressOfData(sfxPtrv11, 5, 1, start, distance) : sfxAddr;	// v1.1
+		sfxAddr = GetAddressOfData(sfxPtr_vDC, 5, 1, start, distance);																				// Directors Cut
+		sfxAddr = ((DWORD)sfxAddr < start || (DWORD)sfxAddr > start + distance) ? GetAddressOfData(sfxPtr_v10, 5, 1, start, distance) : sfxAddr;	// v1.0
+		sfxAddr = ((DWORD)sfxAddr < start || (DWORD)sfxAddr > start + distance) ? GetAddressOfData(sfxPtr_v11, 5, 1, start, distance) : sfxAddr;	// v1.1
 		sfxAddr = ((DWORD)sfxAddr < start || (DWORD)sfxAddr > start + distance) ? nullptr : sfxAddr;
 
 		if (sfxAddr)

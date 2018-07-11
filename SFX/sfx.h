@@ -2,13 +2,13 @@
 
 void UpdateSFXAddr();
 
-constexpr BYTE sfxPtrvDC[] = {
+constexpr BYTE sfxPtr_vDC[] = {
 	0x68, 0x40, 0x09, 0xBE, 0x00 };
 
-constexpr BYTE sfxPtrv10[] = {
+constexpr BYTE sfxPtr_v10[] = {
 	0x68, 0x40, 0xDD, 0xBD, 0x00 };
 
-constexpr BYTE sfxPtrv11[] = {
+constexpr BYTE sfxPtr_v11[] = {
 	0x68, 0x40, 0x19, 0xBE, 0x00 };
 
 constexpr BYTE sfxBlock[] = {

@@ -71,6 +71,9 @@
     <ClCompile Include="Common\Logging.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\PS2NoiseFilter.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SFX\sfx.h">
@@ -130,6 +133,9 @@
     <ClInclude Include="External\MemoryModule\MemoryModule.h">
       <Filter>External\MemoryModule</Filter>
     </ClInclude>
+    <ClInclude Include="Patches\PS2NoiseFilter.h">
+      <Filter>Patches</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\sh2-enhce.rc">
@@ -183,6 +189,9 @@
     </Filter>
     <Filter Include="External\MemoryModule">
       <UniqueIdentifier>{25ae67b5-cfe4-4166-9701-53e48a1cb574}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Patches">
+      <UniqueIdentifier>{7d0dc3ce-9a23-4da8-bfa7-b04883141415}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

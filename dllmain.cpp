@@ -20,6 +20,7 @@
 #include "Resources\sh2-enhce.h"
 #include "NoCDPatch\nocd.h"
 #include "SFX\sfx.h"
+#include "Patches\PS2NoiseFilter.h"
 #include "d3d8to9\d3d8to9.h"
 #include "Hooking\Hook.h"
 #include "FileSystemHooks\FileSystemHooks.h"
@@ -53,6 +54,7 @@ bool Nemesis2000FogFix = true;
 bool NoCDPatch = true;
 bool LoadFromScriptsOnly = false;
 bool LoadPlugins = false;
+bool PS2StyleNoiseFilter = true;
 bool ResetScreenRes = true;
 bool WidescreenFix = true;
 
@@ -70,6 +72,7 @@ void __stdcall ParseCallback(char* name, char* value)
 	if (!_strcmpi(name, "NoCDPatch")) NoCDPatch = SetValue(value);
 	if (!_strcmpi(name, "LoadFromScriptsOnly")) LoadFromScriptsOnly = SetValue(value);
 	if (!_strcmpi(name, "LoadPlugins")) LoadPlugins = SetValue(value);
+	if (!_strcmpi(name, "PS2StyleNoiseFilter")) PS2StyleNoiseFilter = SetValue(value);
 	if (!_strcmpi(name, "ResetScreenRes")) ResetScreenRes = SetValue(value);
 	if (!_strcmpi(name, "WidescreenFix")) WidescreenFix = SetValue(value);
 }
@@ -226,6 +229,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		if (EnableSFXAddrHack)
 		{
 			UpdateSFXAddr();
+		}
+
+		// PS2 Noise Filter
+		if (PS2StyleNoiseFilter)
+		{
+			UpdatePS2Filter();
 		}
 
 		// Load Nemesis2000's Fog Fix

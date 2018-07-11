@@ -74,6 +74,94 @@ void *GetAddressOfData(const void *data, size_t len, DWORD step, DWORD start, DW
 	return nullptr;
 }
 
+// Checks the value of two data segments
+bool CheckMemoryAddress(void *dataAddr, void *dataBytes, DWORD dataSize)
+{
+	if (!dataAddr || !dataBytes || !dataSize)
+	{
+		Log() << "Error: invalid memory data";
+		return false;
+	}
+
+	// VirtualProtect first to make sure patch_address is readable
+	DWORD dwPrevProtect;
+	if (!VirtualProtect(dataAddr, dataSize, PAGE_EXECUTE_READ, &dwPrevProtect))
+	{
+		Log() << "Error: could not read memory address";
+		return false;
+	}
+
+	bool flag = (memcmp(dataAddr, dataBytes, dataSize) == 0);
+
+	// Restore protection
+	VirtualProtect(dataAddr, dataSize, dwPrevProtect, &dwPrevProtect);
+
+	// Return results
+	return flag;
+}
+
+// Update memory
+bool UpdateMemoryAddress(void *dataAddr, void *dataBytes, DWORD dataSize)
+{
+	if (!dataAddr || !dataBytes || !dataSize)
+	{
+		Log() << "Error: invalid memory data";
+		return false;
+	}
+
+	// VirtualProtect first to make sure patch_address is readable
+	DWORD dwPrevProtect;
+	if (!VirtualProtect(dataAddr, dataSize, PAGE_EXECUTE_WRITECOPY, &dwPrevProtect))
+	{
+		Log() << "Error: could not write to memory address";
+		return false;
+	}
+
+	// Update memory
+	memcpy(dataAddr, dataBytes, dataSize);
+
+	// Restore protection
+	VirtualProtect(dataAddr, dataSize, dwPrevProtect, &dwPrevProtect);
+
+	// Flush cache
+	FlushInstructionCache(GetCurrentProcess(), dataAddr, dataSize);
+
+	// Return
+	return true;
+}
+
+// Write a jmp to memory
+bool WriteJMPtoMemory(BYTE *dataAddr, void *JMPAddr)
+{
+	if (!dataAddr || !JMPAddr)
+	{
+		Log() << "Error: invalid memory data";
+		return false;
+	}
+
+	// VirtualProtect first to make sure patch_address is readable
+	DWORD dwPrevProtect;
+	if (!VirtualProtect(dataAddr, 5, PAGE_EXECUTE_WRITECOPY, &dwPrevProtect))
+	{
+		Log() << "Error: Updating JMP address for PS2 Noise Filter";
+		return false; // access denied
+	}
+
+	// jmp (4-byte relative)
+	*dataAddr = 0xE9;
+	// relative jmp address
+	*((DWORD *)(dataAddr + 1)) = (DWORD)JMPAddr - (DWORD)dataAddr - 5;
+
+	// Restore protection
+	VirtualProtect(dataAddr, 5, dwPrevProtect, &dwPrevProtect);
+
+	// Flush cache
+	FlushInstructionCache(GetCurrentProcess(), dataAddr, 5);
+
+	// Return
+	return true;
+}
+
 // Add HMODULE to vector
 void AddHandleToVector(HMODULE dll)
 {

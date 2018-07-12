@@ -16,7 +16,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include "nocd.h"
+#include "NoCDPatch.h"
 #include "..\Common\Utils.h"
 #include "..\Common\Logging.h"
 

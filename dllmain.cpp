@@ -18,14 +18,14 @@
 #include <Windows.h>
 #include <vector>
 #include "Resources\sh2-enhce.h"
-#include "NoCDPatch\nocd.h"
-#include "SFX\sfx.h"
+#include "Patches\NoCDPatch.h"
+#include "Patches\SfxPatch.h"
 #include "Patches\PS2NoiseFilter.h"
-#include "d3d8to9\d3d8to9.h"
 #include "Hooking\Hook.h"
-#include "FileSystemHooks\FileSystemHooks.h"
+#include "Hooking\FileSystemHooks.h"
 #include "External\MemoryModule\MemoryModule.h"
 #include "Wrappers\wrapper.h"
+#include "Wrappers\d3d8to9.h"
 #include "Common\LoadASI.h"
 #include "Common\Utils.h"
 #include "Common\Settings.h"
@@ -95,6 +95,7 @@ void LoadModuleFromResource(HMODULE hModule, DWORD ResID, LPCSTR lpName)
 					Log() << "Loading the " << lpName << " module...";
 					LoadingMemoryModule = true;
 					HMEMORYMODULE hMModule = MemoryLoadLibrary((const void*)pLockedResource, dwResourceSize);
+					FlushInstructionCache(GetCurrentProcess(), nullptr, 0);
 					LoadingMemoryModule = false;
 					if (hMModule)
 					{
@@ -193,30 +194,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		// Enable d3d8to9
 		if (d3d8to9)
 		{
-			HMODULE d3d9_dll = LoadLibrary(L"d3d9.dll");
-			if (d3d9_dll)
-			{
-				AddHandleToVector(d3d9_dll);
-				p_Direct3DCreate9 = GetProcAddress(d3d9_dll, "Direct3DCreate9");
-				if (Wrapper::dtype == DTYPE_D3D8)
-				{
-					d3d8::Direct3DCreate8_var = p_Direct3DCreate8to9;
-				}
-				else
-				{
-					// Load d3d8 procs
-					HMODULE d3d8_dll = LoadLibrary(L"d3d8.dll");
-					AddHandleToVector(d3d8_dll);
-
-					// Hook d3d8.dll -> D3d8to9
-					Log() << "Hooking d3d8.dll APIs...";
-					Hook::HotPatch(Hook::GetProcAddress(d3d8_dll, "Direct3DCreate8"), "Direct3DCreate8", p_Direct3DCreate8to9, true);
-				}
-			}
-			else
-			{
-				Log() << "Error: could not load d3d9.dll!";
-			}
+			EnableD3d8to9();
 		}
 
 		// Enable No-CD Patch

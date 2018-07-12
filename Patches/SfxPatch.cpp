@@ -18,7 +18,7 @@
 #include <Windows.h>
 #include <fstream>
 #include <string>
-#include "sfx.h"
+#include "SfxPatch.h"
 #include "..\Common\Utils.h"
 #include "..\Common\Logging.h"
 

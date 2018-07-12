@@ -16,17 +16,50 @@
 
 #include "External\d3d8to9\source\d3d8to9.hpp"
 #include "External\d3d8to9\source\d3dx9.hpp"
+#include "Hooking\Hook.h"
+#include "Common\Utils.h"
+#include "Wrappers\wrapper.h"
 #include "d3d8to9.h"
 #include "Common\Logging.h"
+
+typedef LPDIRECT3D9(WINAPI *PFN_Direct3DCreate9)(UINT SDKVersion);
+
+FARPROC p_Direct3DCreate9 = nullptr;
 
 PFN_D3DXAssembleShader D3DXAssembleShader = nullptr;
 PFN_D3DXDisassembleShader D3DXDisassembleShader = nullptr;
 PFN_D3DXLoadSurfaceFromSurface D3DXLoadSurfaceFromSurface = nullptr;
 
-FARPROC p_Direct3DCreate9 = nullptr;
+// Redirects or hooks 'Direct3DCreate8' to go to d3d8to9
+void EnableD3d8to9()
+{
+	HMODULE d3d9_dll = LoadLibrary(L"d3d9.dll");
+	if (d3d9_dll)
+	{
+		AddHandleToVector(d3d9_dll);
+		p_Direct3DCreate9 = GetProcAddress(d3d9_dll, "Direct3DCreate9");
+		if (Wrapper::dtype == DTYPE_D3D8)
+		{
+			d3d8::Direct3DCreate8_var = p_Direct3DCreate8to9;
+		}
+		else
+		{
+			// Load d3d8 procs
+			HMODULE d3d8_dll = LoadLibrary(L"d3d8.dll");
+			AddHandleToVector(d3d8_dll);
 
-typedef LPDIRECT3D9(WINAPI *PFN_Direct3DCreate9)(UINT SDKVersion);
+			// Hook d3d8.dll -> D3d8to9
+			Log() << "Hooking d3d8.dll APIs...";
+			Hook::HotPatch(Hook::GetProcAddress(d3d8_dll, "Direct3DCreate8"), "Direct3DCreate8", p_Direct3DCreate8to9, true);
+		}
+	}
+	else
+	{
+		Log() << "Error: could not load d3d9.dll!";
+	}
+}
 
+// Handles calls to 'Direct3DCreate8' for d3d8to9
 Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 {
 	Log() << "Redirecting '" << "Direct3DCreate8" << "(" << SDKVersion << ")' ---> Passing on to 'Direct3DCreate9'";

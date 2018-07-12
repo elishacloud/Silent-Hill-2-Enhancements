@@ -69,7 +69,7 @@ void UpdatePS2NoiseFilter()
 
 	// Check for valid code before updating
 	if (!CheckMemoryAddress((void*)SH2AddrEDX, (void*)FilterByteEDX[0], 5) ||
-		!CheckMemoryAddress((BYTE*)SH2AddrMOV, (void*)FilterByteMOV[0], 1) ||
+		!CheckMemoryAddress((void*)SH2AddrMOV, (void*)FilterByteMOV[0], 1) ||
 		!CheckMemoryAddress((void*)SH2AddrJMP, (void*)FilterByteJMP, 2))
 	{
 		Log() << "Error: memory addresses don't match for PS2 Noise Filter!";
@@ -83,14 +83,14 @@ void UpdatePS2NoiseFilter()
 
 	// Find code in fucntion to update
 	DWORD fltFunctAddrJMP = (DWORD)GetAddressOfData(FilterFunctionBtyes, 6, 1, (DWORD)PS2NoiseFilterAddr, 50);
-	if (!SH2AddrEDX)
+	if (!fltFunctAddrJMP)
 	{
 		Log() << "Error: failed to find function address for PS2 Noise Filter!";
 		return;
 	}
 
 	// Update SH2 code
-	Log() << "Updating for PS2 Noise Filter Addr...";
+	Log() << "Updating code for PS2 Style Noise Filter...";
 	UpdateMemoryAddress((void*)SH2AddrEDX, (void*)FilterByteEDX[1], 5);
 	UpdateMemoryAddress((void*)SH2AddrMOV, (void*)FilterByteMOV[1], 1);
 	UpdateMemoryAddress((void*)(fltFunctAddrJMP + 2), (void*)(SH2AddrJMP + 1), 4);

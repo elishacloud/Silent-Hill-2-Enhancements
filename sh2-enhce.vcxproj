@@ -20,7 +20,6 @@
     <ClCompile Include="Common\Logging.cpp" />
     <ClCompile Include="Common\Settings.cpp" />
     <ClCompile Include="Common\Utils.cpp" />
-    <ClCompile Include="d3d8to9\d3d8to9.cpp" />
     <ClCompile Include="External\d3d8to9\source\d3d8to9_base.cpp" />
     <ClCompile Include="External\d3d8to9\source\d3d8to9_device.cpp" />
     <ClCompile Include="External\d3d8to9\source\d3d8to9_index_buffer.cpp" />
@@ -32,14 +31,15 @@
     <ClCompile Include="External\d3d8to9\source\d3d8types.cpp" />
     <ClCompile Include="External\d3d8to9\source\lookup_table.cpp" />
     <ClCompile Include="External\MemoryModule\MemoryModule.c" />
-    <ClCompile Include="FileSystemHooks\FileSystemHooks.cpp" />
+    <ClCompile Include="Hooking\FileSystemHooks.cpp" />
     <ClCompile Include="Hooking\Hook.cpp" />
     <ClCompile Include="Hooking\HotPatch.cpp" />
     <ClCompile Include="Hooking\IATPatch.cpp" />
-    <ClCompile Include="NoCDPatch\nocd.cpp" />
+    <ClCompile Include="Patches\NoCDPatch.cpp" />
     <ClCompile Include="Patches\PS2NoiseFilter.cpp" />
-    <ClCompile Include="SFX\sfx.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Patches\SfxPatch.cpp" />
+    <ClCompile Include="Wrappers\d3d8to9.cpp" />
     <ClCompile Include="Wrappers\wrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -47,19 +47,19 @@
     <ClInclude Include="Common\Logging.h" />
     <ClInclude Include="Common\Settings.h" />
     <ClInclude Include="Common\Utils.h" />
-    <ClInclude Include="d3d8to9\d3d8to9.h" />
     <ClInclude Include="External\d3d8to9\source\d3d8to9.hpp" />
     <ClInclude Include="External\d3d8to9\source\d3d8types.hpp" />
     <ClInclude Include="External\d3d8to9\source\d3dx9.hpp" />
     <ClInclude Include="External\d3d8to9\source\lookup_table.hpp" />
     <ClInclude Include="External\MemoryModule\MemoryModule.h" />
-    <ClInclude Include="FileSystemHooks\FileSystemHooks.h" />
+    <ClInclude Include="Hooking\FileSystemHooks.h" />
     <ClInclude Include="Hooking\Hook.h" />
-    <ClInclude Include="NoCDPatch\nocd.h" />
+    <ClInclude Include="Patches\NoCDPatch.h" />
     <ClInclude Include="Patches\PS2NoiseFilter.h" />
+    <ClInclude Include="Patches\SfxPatch.h" />
     <ClInclude Include="Resources\sh2-enhce.h" />
-    <ClInclude Include="SFX\sfx.h" />
     <ClInclude Include="Wrappers\d3d8.h" />
+    <ClInclude Include="Wrappers\d3d8to9.h" />
     <ClInclude Include="Wrappers\dinput8.h" />
     <ClInclude Include="Wrappers\dsound.h" />
     <ClInclude Include="Wrappers\wrapper.h" />
@@ -114,7 +114,6 @@
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>Wrappers\wrapper.def</ModuleDefinitionFile>
@@ -129,7 +128,6 @@
       <PrecompiledHeader>
       </PrecompiledHeader>
       <PreprocessorDefinitions>D3D8TO9NOLOG;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>Wrappers\wrapper.def</ModuleDefinitionFile>

@@ -1,24 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="SFX\sfx.cpp">
-      <Filter>SFX</Filter>
-    </ClCompile>
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Common\Settings.cpp">
       <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="NoCDPatch\nocd.cpp">
-      <Filter>NoCDPatch</Filter>
     </ClCompile>
     <ClCompile Include="Common\Utils.cpp">
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="Wrappers\wrapper.cpp">
       <Filter>Wrappers</Filter>
-    </ClCompile>
-    <ClCompile Include="d3d8to9\d3d8to9.cpp">
-      <Filter>d3d8to9</Filter>
     </ClCompile>
     <ClCompile Include="Hooking\Hook.cpp">
       <Filter>Hooking</Filter>
@@ -62,9 +53,6 @@
     <ClCompile Include="Common\LoadASI.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="FileSystemHooks\FileSystemHooks.cpp">
-      <Filter>FileSystemHooks</Filter>
-    </ClCompile>
     <ClCompile Include="External\MemoryModule\MemoryModule.c">
       <Filter>External\MemoryModule</Filter>
     </ClCompile>
@@ -74,19 +62,25 @@
     <ClCompile Include="Patches\PS2NoiseFilter.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\NoCDPatch.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\SfxPatch.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrappers\d3d8to9.cpp">
+      <Filter>Wrappers</Filter>
+    </ClCompile>
+    <ClCompile Include="Hooking\FileSystemHooks.cpp">
+      <Filter>Hooking</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SFX\sfx.h">
-      <Filter>SFX</Filter>
-    </ClInclude>
     <ClInclude Include="Common\Logging.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="Common\Settings.h">
       <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="NoCDPatch\nocd.h">
-      <Filter>NoCDPatch</Filter>
     </ClInclude>
     <ClInclude Include="Common\Utils.h">
       <Filter>Common</Filter>
@@ -121,12 +115,6 @@
     <ClInclude Include="Common\LoadASI.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="d3d8to9\d3d8to9.h">
-      <Filter>d3d8to9</Filter>
-    </ClInclude>
-    <ClInclude Include="FileSystemHooks\FileSystemHooks.h">
-      <Filter>FileSystemHooks</Filter>
-    </ClInclude>
     <ClInclude Include="Resources\sh2-enhce.h">
       <Filter>Resources</Filter>
     </ClInclude>
@@ -135,6 +123,18 @@
     </ClInclude>
     <ClInclude Include="Patches\PS2NoiseFilter.h">
       <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Patches\NoCDPatch.h">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Patches\SfxPatch.h">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\d3d8to9.h">
+      <Filter>Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="Hooking\FileSystemHooks.h">
+      <Filter>Hooking</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -157,20 +157,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="SFX">
-      <UniqueIdentifier>{3797826a-64b4-49e4-a37e-a220325cda64}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Common">
       <UniqueIdentifier>{11a991a1-b0f8-43df-a3c8-3107c47f5b8c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NoCDPatch">
-      <UniqueIdentifier>{a3887a48-2290-4d36-b519-0b39258252f0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Wrappers">
       <UniqueIdentifier>{b4119dde-0573-429b-9f66-93d73e31189c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="d3d8to9">
-      <UniqueIdentifier>{fef3e004-d4b3-462a-bdb7-a504eef37587}</UniqueIdentifier>
     </Filter>
     <Filter Include="Hooking">
       <UniqueIdentifier>{f3bc2c9d-3d63-4e99-b24a-29cb21ee295c}</UniqueIdentifier>
@@ -180,9 +171,6 @@
     </Filter>
     <Filter Include="External\d3d8to9">
       <UniqueIdentifier>{56cc2b13-4905-4fb2-96b0-6d4d8af0a885}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="FileSystemHooks">
-      <UniqueIdentifier>{e1efbab0-570e-45c6-a23d-2ab4275931a7}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resources">
       <UniqueIdentifier>{9530d5d6-2e97-44ac-bf25-78f74779f6d0}</UniqueIdentifier>

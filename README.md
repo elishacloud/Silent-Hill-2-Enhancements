@@ -5,17 +5,17 @@ A project designed to enhance Silent Hill 2 (SH2) graphics and audio for the PC.
 ### Features
 Below is a list of features:
 
- * [Widescreen Fix](https://github.com/ThirteenAG/WidescreenFixesPack/releases/tag/sh2) - to allow the game to fit any sized monitor appropriately and fixes other inherit game bugs.
- * [Nemesis2000 Fog Fix](http://ps2wide.net/pc.html#sh2) - which makes the game's fog closer resemble the PlayStation 2's version which is considered the best.
+ * [**Widescreen Fix**](https://github.com/ThirteenAG/WidescreenFixesPack/releases/tag/sh2) - to allow the game to fit any sized monitor appropriately and fixes other inherit game bugs.
+ * [**Nemesis2000 Fog Fix**](http://ps2wide.net/pc.html#sh2) - which makes the game's fog closer resemble the PlayStation 2's version which is considered the best.
  * **PS2 Style Noise Filter** - to make the noise filter resemble the PlayStation 2's noise filter.
  * **Increase Draw Distance** - to fix distant hallway walls (such as those in the Woodside Apartments) from suddenly appearing.  This makes them appear gradually, more naturally.
  * **SFX Address Fix** - to dynamically update SH2 memory with correct index locations for the SFX from the `sddata.bin` file (required if you are using a modified version of the `sddata.bin` audio file).
  * **ASI Loader** - to load custom libraries with the file extension .asi into the game using [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader).
  * **WndMode** - to run the game in windowed mode.
- * [d3d8to9](https://github.com/crosire/d3d8to9) - to convert Direct3D 8 (d3d8.dll) to Direct3D 9 (d3d9.dll).
+ * [**d3d8to9**](https://github.com/crosire/d3d8to9) - to convert Direct3D 8 (d3d8.dll) to Direct3D 9 (d3d9.dll).
  * **NoCD Patch** - to disable the CD check.
  * **Reset Screen Res** - to resets the display adapter on exit which fixes an issue when using WineD3D casing the screen to go dark.
- * [Audio Script Builder](AudioScripts) - to allow you to create or update the SH2 audio files.
+ * [**Audio Script Builder**](AudioScripts) - to allow you to create or update the SH2 audio files.
 
 ### Silent Hill 2 Enhanced Edition Installation Guide
 To learn more, check out the [Silent Hill 2 Enhanced Edition Installation Guide](http://www.enhanced.townofsilenthill.com/SH2/) webpage.

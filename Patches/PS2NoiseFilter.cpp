@@ -75,13 +75,8 @@ void UpdatePS2NoiseFilter()
 		return;
 	}
 
-	// Get function address
-	DWORD relFunctAddr;
-	memcpy(&relFunctAddr, ((BYTE*)*PS2NoiseFilterASM + 1), sizeof(DWORD));
-	void *PS2NoiseFilterAddr = (void*)((BYTE*)*PS2NoiseFilterASM + relFunctAddr + 5);
-
 	// Find code in fucntion to update
-	DWORD fltFunctAddrJMP = (DWORD)PS2NoiseFilterAddr + 0x1C;
+	DWORD fltFunctAddrJMP = (DWORD)*PS2NoiseFilterASM + 0x1C;
 	if (!CheckMemoryAddress((void*)fltFunctAddrJMP, (void*)FilterFunctionBtyes, 6))
 	{
 		Log() << __FUNCTION__ << " Error: failed to find function address!";
@@ -93,5 +88,5 @@ void UpdatePS2NoiseFilter()
 	UpdateMemoryAddress((void*)SH2AddrEDX, (void*)FilterByteEDX[1], 5);
 	UpdateMemoryAddress((void*)SH2AddrMOV, (void*)FilterByteMOV[1], 1);
 	UpdateMemoryAddress((void*)(fltFunctAddrJMP + 2), (void*)(SH2AddrJMP + 1), 4);
-	WriteJMPtoMemory((BYTE*)SH2AddrJMP, PS2NoiseFilterAddr);
+	WriteJMPtoMemory((BYTE*)SH2AddrJMP, *PS2NoiseFilterASM);
 }

@@ -8,6 +8,7 @@ Below is a list of features:
  * [Widescreen Fix](https://github.com/ThirteenAG/WidescreenFixesPack/releases/tag/sh2) - to allow the game to fit any sized monitor appropriately and fixes other inherit game bugs.
  * [Nemesis2000 Fog Fix](http://ps2wide.net/pc.html#sh2) - which makes the game's fog closer resemble the PlayStation 2's version which is considered the best.
  * **PS2 Style Noise Filter** - to make the noise filter resemble the PlayStation 2's noise filter.
+ * **Increase Draw Distance** - to fix distant hallway walls (such as those in the Woodside Apartments) from suddenly appearing.  This makes them appear gradually, more naturally.
  * **SFX Address Fix** - to dynamically update SH2 memory with correct index locations for the SFX from the `sddata.bin` file (required if you are using a modified version of the `sddata.bin` audio file).
  * **ASI Loader** - to load custom libraries with the file extension .asi into the game using [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader).
  * **WndMode** - to run the game in windowed mode.

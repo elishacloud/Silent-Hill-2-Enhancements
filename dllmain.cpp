@@ -48,6 +48,7 @@ std::string lpRamp((3 * 256 * 2), '\0');
 bool d3d8to9 = true;
 bool EnableSFXAddrHack = true;
 bool EnableWndMode = false;
+bool IncreaseDrawDistance = true;
 bool LoadFromScriptsOnly = false;
 bool LoadPlugins = false;
 bool Nemesis2000FogFix = true;
@@ -66,6 +67,7 @@ void __stdcall ParseCallback(char* name, char* value)
 	if (!_strcmpi(name, "d3d8to9")) d3d8to9 = SetValue(value);
 	if (!_strcmpi(name, "EnableSFXAddrHack")) EnableSFXAddrHack = SetValue(value);
 	if (!_strcmpi(name, "EnableWndMode")) EnableWndMode = SetValue(value);
+	if (!_strcmpi(name, "IncreaseDrawDistance")) IncreaseDrawDistance = SetValue(value);
 	if (!_strcmpi(name, "LoadFromScriptsOnly")) LoadFromScriptsOnly = SetValue(value);
 	if (!_strcmpi(name, "LoadPlugins")) LoadPlugins = SetValue(value);
 	if (!_strcmpi(name, "Nemesis2000FogFix")) Nemesis2000FogFix = SetValue(value);
@@ -210,6 +212,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		if (PS2StyleNoiseFilter)
 		{
 			UpdatePS2NoiseFilter();
+		}
+
+		// Draw Distance
+		if (IncreaseDrawDistance)
+		{
+			UpdateDrawDistance();
 		}
 
 		// Load Nemesis2000's Fog Fix

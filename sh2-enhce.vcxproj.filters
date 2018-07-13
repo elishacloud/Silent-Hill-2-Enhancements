@@ -74,6 +74,9 @@
     <ClCompile Include="Hooking\FileSystemHooks.cpp">
       <Filter>Hooking</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\DrawDistance.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Logging.h">

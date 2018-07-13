@@ -28,141 +28,121 @@ void UpdateSFXAddr()
 	void *sfxAddr = GetAddressOfData(sfxBlock, 24, 4);
 
 	// Address found
-	if (sfxAddr)
+	if (!sfxAddr)
 	{
-		// Log message
-		Log() << "Found SFX pointer address at: " << sfxAddr;
+		Log() << __FUNCTION__ << "Error: Could not find SFX pointer address in memory!";
+		return;
+	}
 
-		// Get sddata.bin file path
-		char myPath[MAX_PATH];
-		GetModuleFileNameA(nullptr, myPath, MAX_PATH);
-		char* p_pName = strrchr(myPath, '\\') + 1;
-		strcpy_s(p_pName, MAX_PATH - strlen(myPath), "data\\sound\\sddata.bin");
+	// Get sddata.bin file path
+	char myPath[MAX_PATH];
+	GetModuleFileNameA(nullptr, myPath, MAX_PATH);
+	char* p_pName = strrchr(myPath, '\\') + 1;
+	strcpy_s(p_pName, MAX_PATH - strlen(myPath), "data\\sound\\sddata.bin");
 
-		// Open sddata.bin file
-		Log() << "Opening " << myPath;
-		std::ifstream infile;
-		infile.open(myPath, std::ios::binary | std::ios::in | std::ios::ate);
-		if (!infile.is_open())
+	// Open sddata.bin file
+	std::ifstream infile;
+	infile.open(myPath, std::ios::binary | std::ios::in | std::ios::ate);
+	if (!infile.is_open())
+	{
+		Log() << __FUNCTION__ << "Error: Could not open sddata.bin file! " << myPath;
+		return;
+	}
+
+	// Define vars
+	UINT IndexCount = 0;
+	DWORD NewSFXAddr[417] = { 0 };
+	const DWORD BlockSize = 8192;
+	std::string chunk;
+	DWORD size = (DWORD)infile.tellg();
+	chunk.resize(BlockSize + 5);
+
+	// Loop through sddata.bin
+	DWORD x = 0;
+	while (x < size - 5 && IndexCount != 417)
+	{
+		// Read a chunk of bytes (extra 5 bytes in case the "RIFF" string spans multiple chunks)
+		infile.seekg(x);
+		if (size > x + BlockSize + 5)
 		{
-			Log() << "Error: Could not open sddata.bin file!";
-
-			// Exiting
-			return;
-		}
-		DWORD size = (DWORD)infile.tellg();
-
-		// Define vars
-		UINT IndexCount = 0;
-		DWORD NewSFXAddr[417] = { 0 };
-		const DWORD BlockSize = 8192;
-		std::string chunk;
-		chunk.resize(BlockSize + 5);
-
-		// Loop through sddata.bin
-		DWORD x = 0;
-		while (x < size - 5 && IndexCount != 417)
-		{
-			// Read a chunk of bytes (extra 5 bytes in case the "RIFF" string spans multiple chunks)
-			infile.seekg(x);
-			if (size > x + BlockSize + 5)
-			{
-				infile.read(&chunk[0], BlockSize + 5);
-			}
-			else
-			{
-				chunk.resize(size - x);
-				infile.read(&chunk[0], size - x);
-			}
-
-			// Search for "RIFF" the magic number for a WAV file
-			size_t Position = chunk.find("RIFF");
-			if (Position != std::string::npos)
-			{
-				// If found add to array
-				NewSFXAddr[IndexCount] = x + Position;
-				IndexCount++;
-				x += Position + 5;
-			}
-			else
-			{
-				x += BlockSize;
-			}
-		}
-
-		// Close file
-		infile.close();
-
-		// Log results
-		if (IndexCount == 417)
-		{
-			Log() << "Found all WAV file indexes in sddata.bin";
+			infile.read(&chunk[0], BlockSize + 5);
 		}
 		else
 		{
-			Log() << "Error: Could not find all the indexes in sddata.bin!  Found " << IndexCount;
+			chunk.resize(size - x);
+			infile.read(&chunk[0], size - x);
 		}
 
-		// Update SFX address array
-		DWORD oldProtect;
-		if (VirtualProtect(sfxAddr, 700 * sizeof(DWORD), PAGE_EXECUTE_READWRITE, &oldProtect))
+		// Search for "RIFF" the magic number for a WAV file
+		size_t Position = chunk.find("RIFF");
+		if (Position != std::string::npos)
 		{
-			Log() << "Updating SFX memory addresses...";
-
-			// Write to memory
-			for (x = 0; x < 700; x++)
-			{
-				*((DWORD *)((DWORD)sfxAddr + x * sizeof(DWORD))) = NewSFXAddr[SFXAddrMapping[x]];
-			}
-
-			// Restore protection
-			VirtualProtect(sfxAddr, 700 * sizeof(DWORD), oldProtect, &oldProtect);
+			// If found add to array
+			NewSFXAddr[IndexCount] = x + Position;
+			IndexCount++;
+			x += Position + 5;
 		}
 		else
 		{
-			Log() << "Error: Could not write to memory!";
-		}
-
-		// Find address for sddata.bin file pointer
-		const DWORD start = 0x00401000;
-		const DWORD distance = 0x00127FFF;
-		sfxAddr = GetAddressOfData(sfxPtr_vDC, 5, 1, start, distance);																				// Directors Cut
-		sfxAddr = ((DWORD)sfxAddr < start || (DWORD)sfxAddr > start + distance) ? GetAddressOfData(sfxPtr_v10, 5, 1, start, distance) : sfxAddr;	// v1.0
-		sfxAddr = ((DWORD)sfxAddr < start || (DWORD)sfxAddr > start + distance) ? GetAddressOfData(sfxPtr_v11, 5, 1, start, distance) : sfxAddr;	// v1.1
-		sfxAddr = ((DWORD)sfxAddr < start || (DWORD)sfxAddr > start + distance) ? nullptr : sfxAddr;
-
-		if (sfxAddr)
-		{
-			// Log message
-			Log() << "Found sddata.bin pointer at address: " << sfxAddr;
-
-			// Alocate memory
-			char *PtrBytes;
-			PtrBytes = new char[size + 1];
-
-			// Update sddata.bin pointer address
-			if (VirtualProtect(sfxAddr, 5, PAGE_EXECUTE_READWRITE, &oldProtect))
-			{
-				Log() << "Updating sddata.bin pointer memory addresses...";
-
-				// Write to memory
-				*((DWORD *)((DWORD)sfxAddr + 1)) = (DWORD)PtrBytes;
-
-				// Restore protection
-				VirtualProtect(sfxAddr, 5, oldProtect, &oldProtect);
-			}
-			else
-			{
-				Log() << "Error: Could not write to memory!";
-			}
-		}
-		else
-		{
-			Log() << "Error: Could not find sddata.bin pointer address in memory!";
+			x += BlockSize;
 		}
 	}
-	else
+
+	// Close file
+	infile.close();
+
+	// Log results
+	if (IndexCount != 417)
 	{
-		Log() << "Error: Could not find SFX pointer address in memory!";
+		Log() << __FUNCTION__ << "Error: Could not find all the indexes in sddata.bin!  Found: " << IndexCount;
 	}
+
+	// Update SFX address array
+	DWORD oldProtect;
+	if (!VirtualProtect(sfxAddr, 700 * sizeof(DWORD), PAGE_EXECUTE_READWRITE, &oldProtect))
+	{
+		Log() << __FUNCTION__ << "Error: Could not write to memory!";
+		return;
+	}
+
+	Log() << "Updating SFX memory addresses...";
+
+	// Write to memory
+	for (x = 0; x < 700; x++)
+	{
+		*((DWORD *)((DWORD)sfxAddr + x * sizeof(DWORD))) = NewSFXAddr[SFXAddrMapping[x]];
+	}
+
+	// Restore protection
+	VirtualProtect(sfxAddr, 700 * sizeof(DWORD), oldProtect, &oldProtect);
+
+	// Find address for sddata.bin file pointer function
+	sfxAddr = GetAddressOfData(sfxPtr, sizeof(sfxPtr), 1, 0x00401000, 0x00127FFF);
+	if (!sfxAddr)
+	{
+		Log() << __FUNCTION__ << "Error: Could not find sddata.bin pointer address in memory!";
+		return;
+	}
+
+	// Get reletave address
+	sfxAddr = (void*)((DWORD)sfxAddr + 0x53);
+
+	// Alocate memory
+	char *PtrBytes;
+	PtrBytes = new char[size + 1];
+
+	// Update sddata.bin pointer address
+	if (!VirtualProtect(sfxAddr, 5, PAGE_EXECUTE_READWRITE, &oldProtect))
+	{
+		Log() << __FUNCTION__ << "Error: Could not write to memory!";
+		return;
+	}
+
+	Log() << "Updating sddata.bin pointer memory addresses...";
+
+	// Write to memory
+	*((DWORD *)((DWORD)sfxAddr + 1)) = (DWORD)PtrBytes;
+
+	// Restore protection
+	VirtualProtect(sfxAddr, 5, oldProtect, &oldProtect);
 }

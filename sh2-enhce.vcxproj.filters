@@ -121,12 +121,6 @@
     <ClInclude Include="External\MemoryModule\MemoryModule.h">
       <Filter>External\MemoryModule</Filter>
     </ClInclude>
-    <ClInclude Include="Patches\PS2NoiseFilter.h">
-      <Filter>Patches</Filter>
-    </ClInclude>
-    <ClInclude Include="Patches\NoCDPatch.h">
-      <Filter>Patches</Filter>
-    </ClInclude>
     <ClInclude Include="Patches\SfxPatch.h">
       <Filter>Patches</Filter>
     </ClInclude>
@@ -135,6 +129,9 @@
     </ClInclude>
     <ClInclude Include="Hooking\FileSystemHooks.h">
       <Filter>Hooking</Filter>
+    </ClInclude>
+    <ClInclude Include="Patches\Patches.h">
+      <Filter>Patches</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -34,41 +34,42 @@ PFN_D3DXLoadSurfaceFromSurface D3DXLoadSurfaceFromSurface = nullptr;
 void EnableD3d8to9()
 {
 	HMODULE d3d9_dll = LoadLibrary(L"d3d9.dll");
-	if (d3d9_dll)
+	if (!d3d9_dll)
 	{
-		AddHandleToVector(d3d9_dll);
-		p_Direct3DCreate9 = GetProcAddress(d3d9_dll, "Direct3DCreate9");
-		if (Wrapper::dtype == DTYPE_D3D8)
-		{
-			d3d8::Direct3DCreate8_var = p_Direct3DCreate8to9;
-		}
-		else
-		{
-			// Load d3d8 procs
-			HMODULE d3d8_dll = LoadLibrary(L"d3d8.dll");
-			AddHandleToVector(d3d8_dll);
+		Log() << __FUNCTION__ << "Error: could not load d3d9.dll!";
+		return;
+	}
 
-			// Hook d3d8.dll -> D3d8to9
-			Log() << "Hooking d3d8.dll APIs...";
-			Hook::HotPatch(Hook::GetProcAddress(d3d8_dll, "Direct3DCreate8"), "Direct3DCreate8", p_Direct3DCreate8to9, true);
-		}
+	AddHandleToVector(d3d9_dll);
+	p_Direct3DCreate9 = GetProcAddress(d3d9_dll, "Direct3DCreate9");
+	if (Wrapper::dtype == DTYPE_D3D8)
+	{
+		d3d8::Direct3DCreate8_var = p_Direct3DCreate8to9;
 	}
 	else
 	{
-		Log() << "Error: could not load d3d9.dll!";
+		// Load d3d8 procs
+		HMODULE d3d8_dll = LoadLibrary(L"d3d8.dll");
+		AddHandleToVector(d3d8_dll);
+
+		// Hook d3d8.dll -> D3d8to9
+		Log() << "Hooking d3d8.dll APIs...";
+		Hook::HotPatch(Hook::GetProcAddress(d3d8_dll, "Direct3DCreate8"), "Direct3DCreate8", p_Direct3DCreate8to9, true);
 	}
 }
 
 // Handles calls to 'Direct3DCreate8' for d3d8to9
 Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 {
-	Log() << "Redirecting '" << "Direct3DCreate8" << "(" << SDKVersion << ")' ---> Passing on to 'Direct3DCreate9'";
+	UNREFERENCED_PARAMETER(SDKVersion);
+
+	Log() << "Redirecting 'Direct3DCreate8' ---> Passing on to 'Direct3DCreate9'";
 
 	// Declare Direct3DCreate9
 	static PFN_Direct3DCreate9 Direct3DCreate9 = reinterpret_cast<PFN_Direct3DCreate9>(p_Direct3DCreate9);
 	if (!Direct3DCreate9)
 	{
-		Log() << "Error: Failed to get 'Direct3DCreate9' ProcAddress of d3d9.dll!";
+		Log() << __FUNCTION__ << "Error: Failed to get 'Direct3DCreate9' ProcAddress of d3d9.dll!";
 		return nullptr;
 	}
 
@@ -76,7 +77,7 @@ Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 
 	if (d3d == nullptr)
 	{
-		Log() << "Error: Failed to create 'Direct3DCreate9'!";
+		Log() << __FUNCTION__ << "Error: Failed to create 'Direct3DCreate9'!";
 		return nullptr;
 	}
 
@@ -90,7 +91,6 @@ Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 		static wchar_t d3dx9name[MAX_PATH];
 		if (!d3dx9Module)
 		{
-			Log() << "Loading d3dx9_xx.dll";
 			// Declare d3dx9_xx.dll version
 			for (int x = 99; x > 9 && d3dx9Module == nullptr; x--)
 			{
@@ -103,14 +103,13 @@ Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 
 		if (d3dx9Module != nullptr)
 		{
-			Log() << "Loaded " << d3dx9name;
 			D3DXAssembleShader = reinterpret_cast<PFN_D3DXAssembleShader>(GetProcAddress(d3dx9Module, "D3DXAssembleShader"));
 			D3DXDisassembleShader = reinterpret_cast<PFN_D3DXDisassembleShader>(GetProcAddress(d3dx9Module, "D3DXDisassembleShader"));
 			D3DXLoadSurfaceFromSurface = reinterpret_cast<PFN_D3DXLoadSurfaceFromSurface>(GetProcAddress(d3dx9Module, "D3DXLoadSurfaceFromSurface"));
 		}
 		else
 		{
-			Log() << "Error: Failed to load d3dx9_xx.dll! Some features will not work correctly.";
+			Log() << __FUNCTION__ << "Error: Failed to load d3dx9_xx.dll! Some features will not work correctly.";
 		}
 	}
 

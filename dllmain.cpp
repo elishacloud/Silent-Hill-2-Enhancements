@@ -18,9 +18,7 @@
 #include <Windows.h>
 #include <vector>
 #include "Resources\sh2-enhce.h"
-#include "Patches\NoCDPatch.h"
-#include "Patches\SfxPatch.h"
-#include "Patches\PS2NoiseFilter.h"
+#include "Patches\Patches.h"
 #include "Hooking\Hook.h"
 #include "Hooking\FileSystemHooks.h"
 #include "External\MemoryModule\MemoryModule.h"
@@ -95,7 +93,6 @@ void LoadModuleFromResource(HMODULE hModule, DWORD ResID, LPCSTR lpName)
 					Log() << "Loading the " << lpName << " module...";
 					LoadingMemoryModule = true;
 					HMEMORYMODULE hMModule = MemoryLoadLibrary((const void*)pLockedResource, dwResourceSize);
-					FlushInstructionCache(GetCurrentProcess(), nullptr, 0);
 					LoadingMemoryModule = false;
 					if (hMModule)
 					{

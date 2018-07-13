@@ -16,7 +16,6 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include "PS2NoiseFilter.h"
 #include "..\Common\Utils.h"
 #include "..\Common\Logging.h"
 
@@ -58,7 +57,7 @@ void UpdatePS2NoiseFilter()
 	DWORD SH2AddrEDX = (DWORD)GetAddressOfData(FilterByteEDX[0], sizeof(FilterByteEDX[0]), 1, 0x0477C1D, 1800);
 	if (!SH2AddrEDX)
 	{
-		Log() << "Error: failed to find memory address for PS2 Noise Filter!";
+		Log() << __FUNCTION__ << "Error: failed to find memory address!";
 		return;
 	}
 
@@ -72,7 +71,7 @@ void UpdatePS2NoiseFilter()
 		!CheckMemoryAddress((void*)SH2AddrMOV, (void*)FilterByteMOV[0], 1) ||
 		!CheckMemoryAddress((void*)SH2AddrJMP, (void*)FilterByteJMP, 2))
 	{
-		Log() << "Error: memory addresses don't match for PS2 Noise Filter!";
+		Log() << __FUNCTION__ << "Error: memory addresses don't match!";
 		return;
 	}
 
@@ -82,15 +81,15 @@ void UpdatePS2NoiseFilter()
 	void *PS2NoiseFilterAddr = (void*)((BYTE*)*PS2NoiseFilter + relFunctAddr + 5);
 
 	// Find code in fucntion to update
-	DWORD fltFunctAddrJMP = (DWORD)GetAddressOfData(FilterFunctionBtyes, 6, 1, (DWORD)PS2NoiseFilterAddr, 50);
-	if (!fltFunctAddrJMP)
+	DWORD fltFunctAddrJMP = (DWORD)PS2NoiseFilterAddr + 0x1C;
+	if (!CheckMemoryAddress((void*)fltFunctAddrJMP, (void*)FilterFunctionBtyes, 6))
 	{
-		Log() << "Error: failed to find function address for PS2 Noise Filter!";
+		Log() << __FUNCTION__ << "Error: failed to find function address!";
 		return;
 	}
 
 	// Update SH2 code
-	Log() << "Updating code for PS2 Style Noise Filter...";
+	Log() << "Setting PS2 Style Noise Filter...";
 	UpdateMemoryAddress((void*)SH2AddrEDX, (void*)FilterByteEDX[1], 5);
 	UpdateMemoryAddress((void*)SH2AddrMOV, (void*)FilterByteMOV[1], 1);
 	UpdateMemoryAddress((void*)(fltFunctAddrJMP + 2), (void*)(SH2AddrJMP + 1), 4);

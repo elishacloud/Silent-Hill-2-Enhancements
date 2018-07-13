@@ -16,43 +16,45 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include "NoCDPatch.h"
 #include "..\Common\Utils.h"
 #include "..\Common\Logging.h"
+
+constexpr BYTE CDFuncBlock[] = {
+	0x81, 0xEC, 0x08, 0x04,
+	0x00, 0x00, 0xA1 };
+
+constexpr BYTE CDBlockTest[] = {
+	0x33, 0x84, 0x24, 0x08,
+	0x04, 0x00, 0x00, 0x53 };
 
 void DisableCDCheck()
 {
 	// Find address for CD check
-	void *CDCheckAddr = GetAddressOfData(CDFuncBlock, 7, 4, 0x00401000, 0x00010000);
+	void *CDCheckAddr = GetAddressOfData(CDFuncBlock, 7, 4, 0x00407DE0, 1800);
 
 	// Address found
-	if ((CDCheckAddr) ? (memcmp(CDBlockTest, ((DWORD *)((DWORD)CDCheckAddr + 11)), 8) == 0) : false)
+	if ((CDCheckAddr) ? (memcmp(CDBlockTest, (void*)((DWORD)CDCheckAddr + 11), 8) != 0) : true)
 	{
-		// Log message
-		Log() << "Found CD check function at address: " << CDCheckAddr;
-
-		// Make memory writeable
-		DWORD oldProtect;
-		if (VirtualProtect(CDCheckAddr, 2, PAGE_EXECUTE_READWRITE, &oldProtect))
-		{
-			Log() << "Bypassing CD check...";
-
-			// Write to memory
-			*((DWORD *)((DWORD)CDCheckAddr)) = 0xC3;
-
-			// Restore protection
-			VirtualProtect(CDCheckAddr, 2, oldProtect, &oldProtect);
-
-			// Flush cache
-			FlushInstructionCache(GetCurrentProcess(), CDCheckAddr, 2);
-		}
-		else
-		{
-			Log() << "Error: Could not write to memory!";
-		}
+		Log() << __FUNCTION__ << "Error: Could not find CD check function address in memory!";
+		return;
 	}
-	else
+
+	// Make memory writeable
+	DWORD oldProtect;
+	if (!VirtualProtect(CDCheckAddr, 1, PAGE_EXECUTE_READWRITE, &oldProtect))
 	{
-		Log() << "Error: Could not find CD check function address in memory!";
+		Log() << __FUNCTION__ << "Error: Could not write to memory!";
+		return;
 	}
+
+	Log() << "Bypassing CD check...";
+
+	// Write to memory
+	*((BYTE*)((DWORD)CDCheckAddr)) = 0xC3;
+
+	// Restore protection
+	VirtualProtect(CDCheckAddr, 1, oldProtect, &oldProtect);
+
+	// Flush cache
+	FlushInstructionCache(GetCurrentProcess(), CDCheckAddr, 1);
 }

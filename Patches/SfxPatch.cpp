@@ -30,7 +30,7 @@ void UpdateSFXAddr()
 	// Address found
 	if (!sfxAddr)
 	{
-		Log() << __FUNCTION__ << "Error: Could not find SFX pointer address in memory!";
+		Log() << __FUNCTION__ << " Error: Could not find SFX pointer address in memory!";
 		return;
 	}
 
@@ -45,7 +45,7 @@ void UpdateSFXAddr()
 	infile.open(myPath, std::ios::binary | std::ios::in | std::ios::ate);
 	if (!infile.is_open())
 	{
-		Log() << __FUNCTION__ << "Error: Could not open sddata.bin file! " << myPath;
+		Log() << __FUNCTION__ << " Error: Could not open sddata.bin file! " << myPath;
 		return;
 	}
 
@@ -94,14 +94,14 @@ void UpdateSFXAddr()
 	// Log results
 	if (IndexCount != 417)
 	{
-		Log() << __FUNCTION__ << "Error: Could not find all the indexes in sddata.bin!  Found: " << IndexCount;
+		Log() << __FUNCTION__ << " Error: Could not find all the indexes in sddata.bin!  Found: " << IndexCount;
 	}
 
 	// Update SFX address array
 	DWORD oldProtect;
 	if (!VirtualProtect(sfxAddr, 700 * sizeof(DWORD), PAGE_EXECUTE_READWRITE, &oldProtect))
 	{
-		Log() << __FUNCTION__ << "Error: Could not write to memory!";
+		Log() << __FUNCTION__ << " Error: Could not write to memory!";
 		return;
 	}
 
@@ -120,7 +120,7 @@ void UpdateSFXAddr()
 	sfxAddr = GetAddressOfData(sfxPtr, sizeof(sfxPtr), 1, 0x00401000, 0x00127FFF);
 	if (!sfxAddr)
 	{
-		Log() << __FUNCTION__ << "Error: Could not find sddata.bin pointer address in memory!";
+		Log() << __FUNCTION__ << " Error: Could not find sddata.bin pointer address in memory!";
 		return;
 	}
 
@@ -134,7 +134,7 @@ void UpdateSFXAddr()
 	// Update sddata.bin pointer address
 	if (!VirtualProtect(sfxAddr, 5, PAGE_EXECUTE_READWRITE, &oldProtect))
 	{
-		Log() << __FUNCTION__ << "Error: Could not write to memory!";
+		Log() << __FUNCTION__ << " Error: Could not write to memory!";
 		return;
 	}
 

@@ -79,7 +79,7 @@ bool CheckMemoryAddress(void *dataAddr, void *dataBytes, DWORD dataSize)
 {
 	if (!dataAddr || !dataBytes || !dataSize)
 	{
-		Log() << "Error: invalid memory data";
+		Log() << __FUNCTION__ << " Error: invalid memory data";
 		return false;
 	}
 
@@ -87,7 +87,7 @@ bool CheckMemoryAddress(void *dataAddr, void *dataBytes, DWORD dataSize)
 	DWORD dwPrevProtect;
 	if (!VirtualProtect(dataAddr, dataSize, PAGE_READONLY, &dwPrevProtect))
 	{
-		Log() << "Error: could not read memory address";
+		Log() << __FUNCTION__ << " Error: could not read memory address";
 		return false;
 	}
 
@@ -105,7 +105,7 @@ bool UpdateMemoryAddress(void *dataAddr, void *dataBytes, DWORD dataSize)
 {
 	if (!dataAddr || !dataBytes || !dataSize)
 	{
-		Log() << "Error: invalid memory data";
+		Log() << __FUNCTION__ << " Error: invalid memory data";
 		return false;
 	}
 
@@ -113,7 +113,7 @@ bool UpdateMemoryAddress(void *dataAddr, void *dataBytes, DWORD dataSize)
 	DWORD dwPrevProtect;
 	if (!VirtualProtect(dataAddr, dataSize, PAGE_WRITECOPY, &dwPrevProtect))
 	{
-		Log() << "Error: could not write to memory address";
+		Log() << __FUNCTION__ << " Error: could not write to memory address";
 		return false;
 	}
 
@@ -135,7 +135,7 @@ bool WriteJMPtoMemory(BYTE *dataAddr, void *JMPAddr)
 {
 	if (!dataAddr || !JMPAddr)
 	{
-		Log() << "Error: invalid memory data";
+		Log() << __FUNCTION__ << " Error: invalid memory data";
 		return false;
 	}
 
@@ -143,7 +143,7 @@ bool WriteJMPtoMemory(BYTE *dataAddr, void *JMPAddr)
 	DWORD dwPrevProtect;
 	if (!VirtualProtect(dataAddr, 5, PAGE_EXECUTE_WRITECOPY, &dwPrevProtect))
 	{
-		Log() << "Error: Updating JMP address for PS2 Noise Filter";
+		Log() << __FUNCTION__ << " Error: Updating JMP address for PS2 Noise Filter";
 		return false; // access denied
 	}
 

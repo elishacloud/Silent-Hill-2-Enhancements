@@ -54,7 +54,7 @@ void FindFiles(WIN32_FIND_DATA* fd)
 					}
 					else
 					{
-						Log() << "Error: Unable to load '" << fd->cFileName << "'. Error: " << GetLastError();
+						Log() << __FUNCTION__ << " Error: Unable to load '" << fd->cFileName << "'. Error: " << GetLastError();
 					}
 				}
 			}

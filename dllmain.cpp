@@ -44,14 +44,14 @@ std::vector<MMODULE> HMModules;
 // Screen settings
 std::string lpRamp((3 * 256 * 2), '\0');
 
-// Configurable settings
+// Configurable setting defaults
 bool d3d8to9 = true;
 bool EnableSFXAddrHack = true;
 bool EnableWndMode = false;
-bool Nemesis2000FogFix = true;
-bool NoCDPatch = true;
 bool LoadFromScriptsOnly = false;
 bool LoadPlugins = false;
+bool Nemesis2000FogFix = true;
+bool NoCDPatch = true;
 bool PS2StyleNoiseFilter = true;
 bool ResetScreenRes = true;
 bool WidescreenFix = true;
@@ -66,10 +66,10 @@ void __stdcall ParseCallback(char* name, char* value)
 	if (!_strcmpi(name, "d3d8to9")) d3d8to9 = SetValue(value);
 	if (!_strcmpi(name, "EnableSFXAddrHack")) EnableSFXAddrHack = SetValue(value);
 	if (!_strcmpi(name, "EnableWndMode")) EnableWndMode = SetValue(value);
-	if (!_strcmpi(name, "Nemesis2000FogFix")) Nemesis2000FogFix = SetValue(value);
-	if (!_strcmpi(name, "NoCDPatch")) NoCDPatch = SetValue(value);
 	if (!_strcmpi(name, "LoadFromScriptsOnly")) LoadFromScriptsOnly = SetValue(value);
 	if (!_strcmpi(name, "LoadPlugins")) LoadPlugins = SetValue(value);
+	if (!_strcmpi(name, "Nemesis2000FogFix")) Nemesis2000FogFix = SetValue(value);
+	if (!_strcmpi(name, "NoCDPatch")) NoCDPatch = SetValue(value);
 	if (!_strcmpi(name, "PS2StyleNoiseFilter")) PS2StyleNoiseFilter = SetValue(value);
 	if (!_strcmpi(name, "ResetScreenRes")) ResetScreenRes = SetValue(value);
 	if (!_strcmpi(name, "WidescreenFix")) WidescreenFix = SetValue(value);
@@ -101,7 +101,7 @@ void LoadModuleFromResource(HMODULE hModule, DWORD ResID, LPCSTR lpName)
 					}
 					else
 					{
-						Log() << "Error: " << lpName << " module could not be loaded!";
+						Log() << __FUNCTION__ << " Error: " << lpName << " module could not be loaded!";
 					}
 				}
 			}
@@ -158,7 +158,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		}
 		else
 		{
-			Log() << "Error: Config file not found, using defaults";
+			Log() << __FUNCTION__ << " Error: Config file not found, using defaults";
 		}
 
 		// Hook CreateFile API, only needed for external modules
@@ -176,7 +176,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		}
 		else if (Wrapper::dtype != DTYPE_ASI)
 		{
-			Log() << "Error: could not create wrapper!";
+			Log() << __FUNCTION__ << " Error: could not create wrapper!";
 		}
 
 		// Store screen settings

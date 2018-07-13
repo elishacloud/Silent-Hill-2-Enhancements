@@ -36,7 +36,7 @@ void EnableD3d8to9()
 	HMODULE d3d9_dll = LoadLibrary(L"d3d9.dll");
 	if (!d3d9_dll)
 	{
-		Log() << __FUNCTION__ << "Error: could not load d3d9.dll!";
+		Log() << __FUNCTION__ << " Error: could not load d3d9.dll!";
 		return;
 	}
 
@@ -69,7 +69,7 @@ Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 	static PFN_Direct3DCreate9 Direct3DCreate9 = reinterpret_cast<PFN_Direct3DCreate9>(p_Direct3DCreate9);
 	if (!Direct3DCreate9)
 	{
-		Log() << __FUNCTION__ << "Error: Failed to get 'Direct3DCreate9' ProcAddress of d3d9.dll!";
+		Log() << __FUNCTION__ << " Error: Failed to get 'Direct3DCreate9' ProcAddress of d3d9.dll!";
 		return nullptr;
 	}
 
@@ -77,7 +77,7 @@ Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 
 	if (d3d == nullptr)
 	{
-		Log() << __FUNCTION__ << "Error: Failed to create 'Direct3DCreate9'!";
+		Log() << __FUNCTION__ << " Error: Failed to create 'Direct3DCreate9'!";
 		return nullptr;
 	}
 
@@ -109,7 +109,7 @@ Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 		}
 		else
 		{
-			Log() << __FUNCTION__ << "Error: Failed to load d3dx9_xx.dll! Some features will not work correctly.";
+			Log() << __FUNCTION__ << " Error: Failed to load d3dx9_xx.dll! Some features will not work correctly.";
 		}
 	}
 

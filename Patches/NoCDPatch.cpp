@@ -35,7 +35,7 @@ void DisableCDCheck()
 	// Address found
 	if ((CDCheckAddr) ? (memcmp(CDBlockTest, (void*)((DWORD)CDCheckAddr + 11), 8) != 0) : true)
 	{
-		Log() << __FUNCTION__ << "Error: Could not find CD check function address in memory!";
+		Log() << __FUNCTION__ << " Error: Could not find CD check function address in memory!";
 		return;
 	}
 
@@ -43,7 +43,7 @@ void DisableCDCheck()
 	DWORD oldProtect;
 	if (!VirtualProtect(CDCheckAddr, 1, PAGE_EXECUTE_READWRITE, &oldProtect))
 	{
-		Log() << __FUNCTION__ << "Error: Could not write to memory!";
+		Log() << __FUNCTION__ << " Error: Could not write to memory!";
 		return;
 	}
 

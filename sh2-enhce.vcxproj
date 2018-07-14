@@ -35,6 +35,7 @@
     <ClCompile Include="Hooking\Hook.cpp" />
     <ClCompile Include="Hooking\HotPatch.cpp" />
     <ClCompile Include="Hooking\IATPatch.cpp" />
+    <ClCompile Include="Patches\CemeteryLightingPatch.cpp" />
     <ClCompile Include="Patches\DrawDistance.cpp" />
     <ClCompile Include="Patches\NoCDPatch.cpp" />
     <ClCompile Include="Patches\PS2NoiseFilter.cpp" />

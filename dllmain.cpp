@@ -46,6 +46,7 @@ std::string lpRamp((3 * 256 * 2), '\0');
 
 // Configurable setting defaults
 bool d3d8to9 = true;
+bool CemeteryLightingFix = true;
 bool EnableSFXAddrHack = true;
 bool EnableWndMode = false;
 bool IncreaseDrawDistance = true;
@@ -65,6 +66,7 @@ void __stdcall ParseCallback(char* name, char* value)
 
 	// Check settings
 	if (!_strcmpi(name, "d3d8to9")) d3d8to9 = SetValue(value);
+	if (!_strcmpi(name, "CemeteryLightingFix")) CemeteryLightingFix = SetValue(value);
 	if (!_strcmpi(name, "EnableSFXAddrHack")) EnableSFXAddrHack = SetValue(value);
 	if (!_strcmpi(name, "EnableWndMode")) EnableWndMode = SetValue(value);
 	if (!_strcmpi(name, "IncreaseDrawDistance")) IncreaseDrawDistance = SetValue(value);
@@ -218,6 +220,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		if (IncreaseDrawDistance)
 		{
 			UpdateDrawDistance();
+		}
+
+		// Cemetery Lighting Fix
+		if (CemeteryLightingFix)
+		{
+			UpdateCemeteryLighting();
 		}
 
 		// Load Nemesis2000's Fog Fix

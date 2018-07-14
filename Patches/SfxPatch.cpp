@@ -25,7 +25,7 @@
 void UpdateSFXAddr()
 {
 	// Find address for SFX indexes
-	void *sfxAddr = GetAddressOfData(sfxBlock, 24, 4);
+	void *sfxAddr = GetAddressOfData(sfxBlock, sizeof(sfxBlock), 4);
 
 	// Address found
 	if (!sfxAddr)
@@ -51,7 +51,7 @@ void UpdateSFXAddr()
 
 	// Define vars
 	UINT IndexCount = 0;
-	DWORD NewSFXAddr[417] = { 0 };
+	DWORD NewSFXAddr[ARRAYSIZE(DefaultSFXAddrList)] = { 0 };
 	DWORD size = (DWORD)infile.tellg();
 	const DWORD BlockSize = 8192;
 	std::string chunk;
@@ -59,7 +59,7 @@ void UpdateSFXAddr()
 
 	// Loop through sddata.bin
 	DWORD x = 0;
-	while (x < size - 5 && IndexCount != 417)
+	while (x < size - 5 && IndexCount != ARRAYSIZE(DefaultSFXAddrList))
 	{
 		// Read a chunk of bytes (extra 5 bytes in case the "RIFF" string spans multiple chunks)
 		infile.seekg(x);
@@ -92,14 +92,14 @@ void UpdateSFXAddr()
 	infile.close();
 
 	// Log results
-	if (IndexCount != 417)
+	if (IndexCount != ARRAYSIZE(DefaultSFXAddrList))
 	{
 		Log() << __FUNCTION__ << " Error: Could not find all the indexes in sddata.bin!  Found: " << IndexCount;
 	}
 
 	// Update SFX address array
 	DWORD oldProtect;
-	if (!VirtualProtect(sfxAddr, 700 * sizeof(DWORD), PAGE_EXECUTE_READWRITE, &oldProtect))
+	if (!VirtualProtect(sfxAddr, ARRAYSIZE(SFXAddrMap) * sizeof(DWORD), PAGE_EXECUTE_READWRITE, &oldProtect))
 	{
 		Log() << __FUNCTION__ << " Error: Could not write to memory!";
 		return;
@@ -108,13 +108,13 @@ void UpdateSFXAddr()
 	Log() << "Updating SFX memory addresses...";
 
 	// Write to memory
-	for (x = 0; x < 700; x++)
+	for (x = 0; x < ARRAYSIZE(SFXAddrMap); x++)
 	{
-		*((DWORD *)((DWORD)sfxAddr + x * sizeof(DWORD))) = NewSFXAddr[SFXAddrMapping[x]];
+		*((DWORD *)((DWORD)sfxAddr + x * sizeof(DWORD))) = NewSFXAddr[SFXAddrMap[x]];
 	}
 
 	// Restore protection
-	VirtualProtect(sfxAddr, 700 * sizeof(DWORD), oldProtect, &oldProtect);
+	VirtualProtect(sfxAddr, ARRAYSIZE(SFXAddrMap) * sizeof(DWORD), oldProtect, &oldProtect);
 
 	// Find address for sddata.bin file pointer function
 	sfxAddr = GetAddressOfData(sfxPtr, sizeof(sfxPtr), 1, 0x00401000, 0x00127FFF);

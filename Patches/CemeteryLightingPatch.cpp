@@ -76,8 +76,8 @@ void UpdateCemeteryLighting()
 	CemeteryAddr += 0x41;
 
 	// Check for valid code before updating
-	if (!CheckMemoryAddress((void*)CemeteryAddr, (void*)CemeteryMOVBytes, 2) ||
-		!CheckMemoryAddress((void*)*CemeteryLightingExitASM, (void*)CemeteryFunctionBtyes, 7))
+	if (!CheckMemoryAddress((void*)CemeteryAddr, (void*)CemeteryMOVBytes, sizeof(CemeteryMOVBytes)) ||
+		!CheckMemoryAddress((void*)*CemeteryLightingExitASM, (void*)CemeteryFunctionBtyes, sizeof(CemeteryFunctionBtyes)))
 	{
 		Log() << __FUNCTION__ << " Error: memory addresses don't match!";
 		return;
@@ -87,7 +87,7 @@ void UpdateCemeteryLighting()
 
 	// Update SH2 code
 	jmpCemeteryAddr = (void*)(CemeteryAddr + 6);
-	UpdateMemoryAddress((void*)((DWORD)*CemeteryLightingExitASM + 3), (void*)(CemeteryAddr + 2), 4);
-	UpdateMemoryAddress((void*)CemeteryAddr, (void*)CemeteryNOP, 6);
+	UpdateMemoryAddress((void*)((DWORD)*CemeteryLightingExitASM + 3), (void*)(CemeteryAddr + 2), sizeof(DWORD));
+	UpdateMemoryAddress((void*)CemeteryAddr, (void*)CemeteryNOP, sizeof(CemeteryNOP));
 	WriteJMPtoMemory((BYTE*)CemeteryAddr, *CemeteryLightingEntryASM);
 }

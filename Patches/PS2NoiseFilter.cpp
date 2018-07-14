@@ -31,7 +31,7 @@ constexpr BYTE NOP[] = { 0x90 };
 // Variables for ASM
 BYTE tmpAddr;
 DWORD tmpVar;
-void *jmpAddr;
+void *jmpFilterAddr;
 constexpr float BrightnessControl = 7.4f;
 
 // ASM function to update PS2NoiseFilter dynamically
@@ -46,7 +46,7 @@ __declspec(naked) void __stdcall PS2NoiseFilterASM()
 		fistp dword ptr tmpVar
 		mov eax, tmpVar
 		MOV BYTE PTR DS : [0x01234567], AL
-		jmp jmpAddr
+		jmp jmpFilterAddr
 	}
 }
 
@@ -64,19 +64,19 @@ void UpdatePS2NoiseFilter()
 	// Get relative addresses
 	DWORD SH2AddrMOV = SH2AddrEDX + 0x4862;
 	DWORD SH2AddrJMP = SH2AddrEDX + 0x483D;
-	jmpAddr = (void*)(SH2AddrJMP + 5);
+	jmpFilterAddr = (void*)(SH2AddrJMP + 5);
 
 	// Check for valid code before updating
-	if (!CheckMemoryAddress((void*)SH2AddrEDX, (void*)FilterByteEDX[0], 5) ||
-		!CheckMemoryAddress((void*)SH2AddrMOV, (void*)FilterByteMOV[0], 1) ||
-		!CheckMemoryAddress((void*)SH2AddrJMP, (void*)FilterByteJMP, 2))
+	if (!CheckMemoryAddress((void*)SH2AddrEDX, (void*)FilterByteEDX[0], sizeof(FilterByteEDX[0])) ||
+		!CheckMemoryAddress((void*)SH2AddrMOV, (void*)FilterByteMOV[0], sizeof(FilterByteMOV[0])) ||
+		!CheckMemoryAddress((void*)SH2AddrJMP, (void*)FilterByteJMP, sizeof(FilterByteJMP)))
 	{
 		Log() << __FUNCTION__ << " Error: memory addresses don't match!";
 		return;
 	}
 
 	// Find code in fucntion to update
-	DWORD fltFunctAddrJMP = (DWORD)GetAddressOfData(FilterFunctionBtyes, 6, 1, (DWORD)*PS2NoiseFilterASM, 50);
+	DWORD fltFunctAddrJMP = (DWORD)GetAddressOfData(FilterFunctionBtyes, sizeof(FilterFunctionBtyes), 1, (DWORD)*PS2NoiseFilterASM, 50);
 	if (!fltFunctAddrJMP)
 	{
 		Log() << __FUNCTION__ << " Error: failed to find function address!";
@@ -85,8 +85,8 @@ void UpdatePS2NoiseFilter()
 
 	// Update SH2 code
 	Log() << "Setting PS2 Style Noise Filter...";
-	UpdateMemoryAddress((void*)SH2AddrEDX, (void*)FilterByteEDX[1], 5);
-	UpdateMemoryAddress((void*)SH2AddrMOV, (void*)FilterByteMOV[1], 1);
-	UpdateMemoryAddress((void*)(fltFunctAddrJMP + 2), (void*)(SH2AddrJMP + 1), 4);
+	UpdateMemoryAddress((void*)SH2AddrEDX, (void*)FilterByteEDX[1], sizeof(FilterByteEDX[1]));
+	UpdateMemoryAddress((void*)SH2AddrMOV, (void*)FilterByteMOV[1], sizeof(FilterByteMOV[1]));
+	UpdateMemoryAddress((void*)(fltFunctAddrJMP + 2), (void*)(SH2AddrJMP + 1), sizeof(DWORD));
 	WriteJMPtoMemory((BYTE*)SH2AddrJMP, *PS2NoiseFilterASM);
 }

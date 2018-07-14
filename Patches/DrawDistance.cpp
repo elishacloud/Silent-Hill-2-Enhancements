@@ -33,7 +33,7 @@ void UpdateDrawDistance()
 	// Loop variables
 	bool ExitFlag = false;
 	BYTE SH2ByteData[SizeOfBytes] = { NULL };
-	DWORD StartAddr = 0x00471000;
+	DWORD StartAddr = 0x0047C000;
 	DWORD EndAddr = 0x004FFFFF;
 
 	// Get data bytes from code
@@ -68,7 +68,7 @@ void UpdateDrawDistance()
 	Log() << "Increasing the Draw Distance...";
 
 	// Reset variables for next loop
-	StartAddr = 0x00471000;
+	StartAddr = 0x0047C000;
 	EndAddr = 0x005FFFFF;
 
 	// Update Draw Distance

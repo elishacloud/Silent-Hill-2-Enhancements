@@ -11,7 +11,7 @@ constexpr BYTE sfxBlock[] = {
 	0x5E, 0x4B, 0x00, 0x00,
 	0xAC, 0xE8, 0x00, 0x00 };
 
-constexpr DWORD BaseSFXAddr[] = {
+constexpr DWORD DefaultSFXAddrList[] = {
 	0,
 	5644,
 	12816,
@@ -431,7 +431,7 @@ constexpr DWORD BaseSFXAddr[] = {
 	17130304
 };
 
-constexpr WORD SFXAddrMapping[] = {
+constexpr WORD SFXAddrMap[] = {
 	0,
 	0,
 	1,

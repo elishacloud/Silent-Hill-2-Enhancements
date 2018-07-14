@@ -29,10 +29,10 @@ constexpr BYTE CDBlockTest[] = {
 void DisableCDCheck()
 {
 	// Find address for CD check
-	void *CDCheckAddr = GetAddressOfData(CDFuncBlock, 7, 4, 0x00407DE0, 1800);
+	void *CDCheckAddr = GetAddressOfData(CDFuncBlock, sizeof(CDFuncBlock), 4, 0x00407DE0, 1800);
 
 	// Address found
-	if ((CDCheckAddr) ? (memcmp(CDBlockTest, (void*)((DWORD)CDCheckAddr + 11), 8) != 0) : true)
+	if ((CDCheckAddr) ? (memcmp((void*)((DWORD)CDCheckAddr + 11), CDBlockTest, sizeof(CDBlockTest)) != 0) : true)
 	{
 		Log() << __FUNCTION__ << " Error: Could not find CD check function address in memory!";
 		return;

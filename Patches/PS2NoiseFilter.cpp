@@ -19,25 +19,22 @@
 #include "..\Common\Utils.h"
 #include "..\Common\Logging.h"
 
-// Predefined addresses
-constexpr BYTE FilterByteEDX[2][5] = {
-	{ 0xBA, 0xFF, 0x00, 0x00, 0x00 },
-	{ 0xBA, 0xD7, 0x01, 0x00, 0x00 } };
+// Predefined code bytes
+constexpr BYTE FilterByteEDX[2][5] = { { 0xBA, 0xFF, 0x00, 0x00, 0x00 }, { 0xBA, 0xD7, 0x01, 0x00, 0x00 } };
 constexpr BYTE FilterByteMOV[2][1] = { { 0xFF },{ 0x22 } };
 constexpr BYTE FilterByteJMP[] = { 0xA2, 0xC5 };
-constexpr BYTE FilterFunctionBtyes[] = { 0x3E, 0xA2, 0x67, 0x45, 0x23, 0x01 };
-constexpr BYTE NOP[] = { 0x90 };
+constexpr BYTE FilterUpdateBtyes[] = { 0x3E, 0xA2, 0x67, 0x45, 0x23, 0x01 };
 
 // Variables for ASM
-BYTE tmpAddr;
-DWORD tmpVar;
 void *jmpFilterAddr;
 constexpr float BrightnessControl = 7.4f;
 
 // ASM function to update PS2NoiseFilter dynamically
 #pragma warning(suppress: 4725)
-__declspec(naked) void __stdcall PS2NoiseFilterASM()
+__declspec(naked) void __stdcall NoiseFilterASM()
 {
+	static BYTE tmpAddr;
+	static DWORD tmpVar;
 	__asm
 	{
 		mov tmpAddr, al
@@ -54,29 +51,29 @@ __declspec(naked) void __stdcall PS2NoiseFilterASM()
 void UpdatePS2NoiseFilter()
 {
 	// Get PS2 filter memory address
-	DWORD SH2AddrEDX = (DWORD)GetAddressOfData(FilterByteEDX[0], sizeof(FilterByteEDX[0]), 1, 0x0477C1D, 1800);
-	if (!SH2AddrEDX)
+	DWORD FilterAddrEDX = (DWORD)GetAddressOfData(FilterByteEDX[0], sizeof(FilterByteEDX[0]), 1, 0x0477C1D, 1800);
+	if (!FilterAddrEDX)
 	{
 		Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
 
 	// Get relative addresses
-	DWORD SH2AddrMOV = SH2AddrEDX + 0x4862;
-	DWORD SH2AddrJMP = SH2AddrEDX + 0x483D;
-	jmpFilterAddr = (void*)(SH2AddrJMP + 5);
+	DWORD FilterAddrMOV = FilterAddrEDX + 0x4862;
+	DWORD FilterAddrJMP = FilterAddrEDX + 0x483D;
+	jmpFilterAddr = (void*)(FilterAddrJMP + 5);
 
 	// Check for valid code before updating
-	if (!CheckMemoryAddress((void*)SH2AddrEDX, (void*)FilterByteEDX[0], sizeof(FilterByteEDX[0])) ||
-		!CheckMemoryAddress((void*)SH2AddrMOV, (void*)FilterByteMOV[0], sizeof(FilterByteMOV[0])) ||
-		!CheckMemoryAddress((void*)SH2AddrJMP, (void*)FilterByteJMP, sizeof(FilterByteJMP)))
+	if (!CheckMemoryAddress((void*)FilterAddrEDX, (void*)FilterByteEDX[0], sizeof(FilterByteEDX[0])) ||
+		!CheckMemoryAddress((void*)FilterAddrMOV, (void*)FilterByteMOV[0], sizeof(FilterByteMOV[0])) ||
+		!CheckMemoryAddress((void*)FilterAddrJMP, (void*)FilterByteJMP, sizeof(FilterByteJMP)))
 	{
 		Log() << __FUNCTION__ << " Error: memory addresses don't match!";
 		return;
 	}
 
 	// Find code in fucntion to update
-	DWORD fltFunctAddrJMP = (DWORD)GetAddressOfData(FilterFunctionBtyes, sizeof(FilterFunctionBtyes), 1, (DWORD)*PS2NoiseFilterASM, 50);
+	DWORD fltFunctAddrJMP = (DWORD)GetAddressOfData(FilterUpdateBtyes, sizeof(FilterUpdateBtyes), 1, (DWORD)*NoiseFilterASM, 50);
 	if (!fltFunctAddrJMP)
 	{
 		Log() << __FUNCTION__ << " Error: failed to find function address!";
@@ -85,8 +82,8 @@ void UpdatePS2NoiseFilter()
 
 	// Update SH2 code
 	Log() << "Setting PS2 Style Noise Filter...";
-	UpdateMemoryAddress((void*)SH2AddrEDX, (void*)FilterByteEDX[1], sizeof(FilterByteEDX[1]));
-	UpdateMemoryAddress((void*)SH2AddrMOV, (void*)FilterByteMOV[1], sizeof(FilterByteMOV[1]));
-	UpdateMemoryAddress((void*)(fltFunctAddrJMP + 2), (void*)(SH2AddrJMP + 1), sizeof(DWORD));
-	WriteJMPtoMemory((BYTE*)SH2AddrJMP, *PS2NoiseFilterASM);
+	UpdateMemoryAddress((void*)FilterAddrEDX, (void*)FilterByteEDX[1], sizeof(FilterByteEDX[1]));
+	UpdateMemoryAddress((void*)FilterAddrMOV, (void*)FilterByteMOV[1], sizeof(FilterByteMOV[1]));
+	UpdateMemoryAddress((void*)(fltFunctAddrJMP + 2), (void*)(FilterAddrJMP + 1), sizeof(DWORD));
+	WriteJMPtoMemory((BYTE*)FilterAddrJMP, *NoiseFilterASM);
 }

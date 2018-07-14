@@ -19,48 +19,48 @@
 #include "..\Common\Utils.h"
 #include "..\Common\Logging.h"
 
-constexpr BYTE DDStartAddr[] = {
-	0xC7, 0x05, 0x58 };
-constexpr BYTE DDSearchAddr[] = {
-	0x94, 0x00, 0x00, 0x60, 0xEA, 0x45 };
-constexpr DWORD SizeOfBytes = 10;
+// Predefined code bytes
+constexpr BYTE DDStartAddr[] = { 0xC7, 0x05, 0x58 };
+constexpr BYTE DDSearchAddr[] = { 0x94, 0x00, 0x00, 0x60, 0xEA, 0x45 };
 
+// New draw distance
 constexpr float DrawDistance = 8500.0f;
 
 // Update SH2 code for Draw Distance
 void UpdateDrawDistance()
 {
 	// Loop variables
-	bool ExitFlag = false;
-	BYTE SH2ByteData[SizeOfBytes] = { NULL };
+	const DWORD SizeOfBytes = 10;
+	BYTE ByteData[SizeOfBytes] = { NULL };
 	DWORD StartAddr = 0x0047C000;
 	DWORD EndAddr = 0x004FFFFF;
+	bool ExitFlag = false;
 
 	// Get data bytes from code
 	while (!ExitFlag && StartAddr < EndAddr)
 	{
 		// Get next address
-		void *NewAddr = GetAddressOfData(DDSearchAddr, sizeof(DDSearchAddr), 1, StartAddr, EndAddr - StartAddr);
-		if (!NewAddr)
+		void *NextAddr = GetAddressOfData(DDSearchAddr, sizeof(DDSearchAddr), 1, StartAddr, EndAddr - StartAddr);
+		if (!NextAddr)
 		{
 			Log() << __FUNCTION__ << " Error: could not find binary data!";
 			return;
 		}
-		StartAddr = (DWORD)NewAddr + SizeOfBytes;
-		NewAddr = (void*)((DWORD)NewAddr - 4);
+		StartAddr = (DWORD)NextAddr + SizeOfBytes;
+		NextAddr = (void*)((DWORD)NextAddr - 4);
 
 		// Check if this is the correct address and store bytes
-		if (CheckMemoryAddress(NewAddr, (void*)DDStartAddr, sizeof(DDStartAddr)))
+		if (CheckMemoryAddress(NextAddr, (void*)DDStartAddr, sizeof(DDStartAddr)))
 		{
 			ExitFlag = true;
-			memcpy(SH2ByteData, NewAddr, SizeOfBytes);
+			memcpy(ByteData, NextAddr, SizeOfBytes);
 		}
 	}
 
 	// Check if data bytes are found
-	if (SH2ByteData[0] != DDStartAddr[0])
+	if (ByteData[0] != DDStartAddr[0] || ByteData[1] != DDStartAddr[1] || ByteData[2] != DDStartAddr[2])
 	{
-		Log() << __FUNCTION__ << " Error: could not find binary data!";
+		Log() << __FUNCTION__ << " Error: binary data does not match!";
 		return;
 	}
 
@@ -75,14 +75,14 @@ void UpdateDrawDistance()
 	while (StartAddr < EndAddr)
 	{
 		// Get next address
-		void *NewAddr = GetAddressOfData(SH2ByteData, SizeOfBytes, 1, StartAddr, EndAddr - StartAddr);
-		if (!NewAddr)
+		void *NextAddr = GetAddressOfData(ByteData, SizeOfBytes, 1, StartAddr, EndAddr - StartAddr);
+		if (!NextAddr)
 		{
 			return;
 		}
-		StartAddr = (DWORD)NewAddr + SizeOfBytes;
+		StartAddr = (DWORD)NextAddr + SizeOfBytes;
 
 		// Write new Draw Distance
-		UpdateMemoryAddress((void*)((DWORD)NewAddr + 6), (void*)&DrawDistance, sizeof(float));
+		UpdateMemoryAddress((void*)((DWORD)NextAddr + 6), (void*)&DrawDistance, sizeof(float));
 	}
 }

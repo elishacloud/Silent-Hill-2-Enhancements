@@ -9,7 +9,7 @@ Below is a list of features:
  * [**Nemesis2000 Fog Fix**](http://ps2wide.net/pc.html#sh2) - Makes the game's fog closer resemble the PlayStation 2's version which is considered the best.
  * **PS2 Style Noise Filter** - Makes the noise filter resemble the PlayStation 2's noise filter.
  * **Increase Draw Distance** - Fixes distant hallway walls (such as those in the Woodside Apartments) from suddenly appearing.  This makes them appear gradually, more naturally.
- * **Cemetery Lighting Fix** - Dixes an issue where wrong data is used when saving the game in the cemetery, which can corrupt fog effects.
+ * **Cemetery Lighting Fix** - Fixes an issue where wrong data is used when saving the game in the cemetery, which can corrupt fog effects.
  * **SFX Address Fix** - Dynamically updates SH2 memory with correct index locations for the SFX from the `sddata.bin` file (required if you are using a modified version of the `sddata.bin` audio file).
  * **ASI Loader** - Loads custom libraries with the file extension .asi into the game using [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader).
  * **WndMode** - Runs the game in windowed mode.

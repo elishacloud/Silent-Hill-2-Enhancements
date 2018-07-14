@@ -38,10 +38,10 @@ namespace Wrapper
 #define DECLARE_FORWARD_FUNCTIONS(procName, unused) \
 	extern "C" void __stdcall procName();
 
-#define DECLARE_PROC_VARABLES(procName, unused) \
+#define DECLARE_PROC_VARIABLES(procName, unused) \
 	extern FARPROC procName ## _var;
 
 namespace d3d8
 {
-	VISIT_PROCS_D3D8(DECLARE_PROC_VARABLES);
+	VISIT_PROCS_D3D8(DECLARE_PROC_VARIABLES);
 }

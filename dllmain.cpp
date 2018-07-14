@@ -292,7 +292,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			ChangeDisplaySettingsEx(nullptr, nullptr, nullptr, CDS_RESET, nullptr);
 		}
 
-		// Quiting
+		// Quitting
 		Log() << "Unloading Silent Hill 2 Enhancements!";
 	}
 	break;

@@ -45,7 +45,7 @@ FARPROC p_FindFirstFileExW = nullptr;
 FARPROC p_GetPrivateProfileStringA = nullptr;
 FARPROC p_GetPrivateProfileStringW = nullptr;
 
-// Varables used in hooked modules
+// Variable used in hooked modules
 bool LoadingMemoryModule = false;
 HMODULE moduleHandle = nullptr;
 char ConfigPathA[MAX_PATH];

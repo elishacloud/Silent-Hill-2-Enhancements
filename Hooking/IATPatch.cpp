@@ -236,7 +236,7 @@ bool Hook::UnIATPatchAll()
 	{
 		if (!UnhookIATPatch(IATPatchProcs.back().module, IATPatchProcs.back().ordinal, IATPatchProcs.back().dll.c_str(), IATPatchProcs.back().apiproc, IATPatchProcs.back().apiname.c_str(), IATPatchProcs.back().hookproc))
 		{
-			// Failed to retore address
+			// Failed to restore address
 			flag = false;
 			logf(__FUNCTION__ ": failed to restore address. procaddr: %p", IATPatchProcs.back().apiproc);
 		}
@@ -325,7 +325,7 @@ bool Hook::UnhookIATPatch(HMODULE module, DWORD ordinal, const char *dll, void *
 #ifdef _DEBUG
 							//logf(__FUNCTION__ ": BYORD target=%x ord=%x", ordinal, IMAGE_ORDINAL32(ptname->u1.Ordinal));
 #endif
-							// skip unknow ordinal 0
+							// skip unknown ordinal 0
 							if (ordinal && (IMAGE_ORDINAL32(ptname->u1.Ordinal) == ordinal))
 							{
 #ifdef _DEBUG

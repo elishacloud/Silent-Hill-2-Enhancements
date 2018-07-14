@@ -52,9 +52,9 @@ void UpdateSFXAddr()
 	// Define vars
 	UINT IndexCount = 0;
 	DWORD NewSFXAddr[417] = { 0 };
+	DWORD size = (DWORD)infile.tellg();
 	const DWORD BlockSize = 8192;
 	std::string chunk;
-	DWORD size = (DWORD)infile.tellg();
 	chunk.resize(BlockSize + 5);
 
 	// Loop through sddata.bin
@@ -124,12 +124,11 @@ void UpdateSFXAddr()
 		return;
 	}
 
-	// Get reletave address
+	// Get relative address
 	sfxAddr = (void*)((DWORD)sfxAddr + 0x53);
 
-	// Alocate memory
-	char *PtrBytes;
-	PtrBytes = new char[size + 1];
+	// Allocate memory
+	char *PtrBytes = new char[size + 1];
 
 	// Update sddata.bin pointer address
 	if (!VirtualProtect(sfxAddr, 5, PAGE_EXECUTE_READWRITE, &oldProtect))

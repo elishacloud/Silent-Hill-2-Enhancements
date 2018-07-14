@@ -19,32 +19,31 @@
 #include "..\Common\Utils.h"
 #include "..\Common\Logging.h"
 
-constexpr float DrawDistance = 8500.0f;
-
-constexpr DWORD SizeOfBytes = 10;
-
 constexpr BYTE DDStartAddr[] = {
 	0xC7, 0x05, 0x58 };
-
 constexpr BYTE DDSearchAddr[] = {
 	0x94, 0x00, 0x00, 0x60, 0xEA, 0x45 };
+constexpr DWORD SizeOfBytes = 10;
 
-// Update SH2 code for PS2 Style Noise Filter
+constexpr float DrawDistance = 8500.0f;
+
+// Update SH2 code for Draw Distance
 void UpdateDrawDistance()
 {
-	// Loop varbales
+	// Loop variables
 	bool ExitFlag = false;
 	BYTE SH2ByteData[SizeOfBytes] = { NULL };
 	DWORD StartAddr = 0x00471000;
 	DWORD EndAddr = 0x004FFFFF;
 
 	// Get data bytes from code
-	do
+	while (!ExitFlag && StartAddr < EndAddr)
 	{
 		// Get next address
 		void *NewAddr = GetAddressOfData(DDSearchAddr, sizeof(DDSearchAddr), 1, StartAddr, EndAddr - StartAddr);
 		if (!NewAddr)
 		{
+			Log() << __FUNCTION__ << " Error: could not find binary data!";
 			return;
 		}
 		StartAddr = (DWORD)NewAddr + SizeOfBytes;
@@ -56,8 +55,7 @@ void UpdateDrawDistance()
 			ExitFlag = true;
 			memcpy(SH2ByteData, NewAddr, SizeOfBytes);
 		}
-
-	} while (!ExitFlag && StartAddr < EndAddr);
+	}
 
 	// Check if data bytes are found
 	if (SH2ByteData[0] != DDStartAddr[0])
@@ -69,12 +67,12 @@ void UpdateDrawDistance()
 	// Logging
 	Log() << "Increasing the Draw Distance...";
 
-	// Reset varables for next loop
+	// Reset variables for next loop
 	StartAddr = 0x00471000;
 	EndAddr = 0x005FFFFF;
 
 	// Update Draw Distance
-	do
+	while (StartAddr < EndAddr)
 	{
 		// Get next address
 		void *NewAddr = GetAddressOfData(SH2ByteData, SizeOfBytes, 1, StartAddr, EndAddr - StartAddr);
@@ -86,6 +84,5 @@ void UpdateDrawDistance()
 
 		// Write new Draw Distance
 		UpdateMemoryAddress((void*)((DWORD)NewAddr + 6), (void*)&DrawDistance, sizeof(float));
-
-	} while (StartAddr < EndAddr);
+	}
 }

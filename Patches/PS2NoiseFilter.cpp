@@ -28,7 +28,7 @@ constexpr BYTE FilterByteJMP[] = { 0xA2, 0xC5 };
 constexpr BYTE FilterFunctionBtyes[] = { 0x3E, 0xA2, 0x67, 0x45, 0x23, 0x01 };
 constexpr BYTE NOP[] = { 0x90 };
 
-// Varables for ASM
+// Variables for ASM
 BYTE tmpAddr;
 DWORD tmpVar;
 void *jmpAddr;
@@ -61,7 +61,7 @@ void UpdatePS2NoiseFilter()
 		return;
 	}
 
-	// Get reletave addresses
+	// Get relative addresses
 	DWORD SH2AddrMOV = SH2AddrEDX + 0x4862;
 	DWORD SH2AddrJMP = SH2AddrEDX + 0x483D;
 	jmpAddr = (void*)(SH2AddrJMP + 5);
@@ -76,8 +76,8 @@ void UpdatePS2NoiseFilter()
 	}
 
 	// Find code in fucntion to update
-	DWORD fltFunctAddrJMP = (DWORD)*PS2NoiseFilterASM + 0x1C;
-	if (!CheckMemoryAddress((void*)fltFunctAddrJMP, (void*)FilterFunctionBtyes, 6))
+	DWORD fltFunctAddrJMP = (DWORD)GetAddressOfData(FilterFunctionBtyes, 6, 1, (DWORD)*PS2NoiseFilterASM, 50);
+	if (!fltFunctAddrJMP)
 	{
 		Log() << __FUNCTION__ << " Error: failed to find function address!";
 		return;

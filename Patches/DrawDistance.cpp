@@ -31,7 +31,8 @@ void UpdateDrawDistance()
 {
 	// Loop variables
 	const DWORD SizeOfBytes = 10;
-	BYTE ByteData[SizeOfBytes] = { NULL };
+	BYTE SrcByteData[SizeOfBytes] = { NULL };
+	BYTE DestByteData[SizeOfBytes] = { NULL };
 	DWORD StartAddr = 0x0047C000;
 	DWORD EndAddr = 0x004FFFFF;
 	bool ExitFlag = false;
@@ -53,12 +54,14 @@ void UpdateDrawDistance()
 		if (CheckMemoryAddress(NextAddr, (void*)DDStartAddr, sizeof(DDStartAddr)))
 		{
 			ExitFlag = true;
-			memcpy(ByteData, NextAddr, SizeOfBytes);
+			memcpy(SrcByteData, NextAddr, SizeOfBytes);
+			memcpy(DestByteData, NextAddr, SizeOfBytes);
+			memcpy(DestByteData + 6, (void*)&DrawDistance, sizeof(float));
 		}
 	}
 
 	// Check if data bytes are found
-	if (ByteData[0] != DDStartAddr[0] || ByteData[1] != DDStartAddr[1] || ByteData[2] != DDStartAddr[2])
+	if (SrcByteData[0] != DDStartAddr[0] || SrcByteData[1] != DDStartAddr[1] || SrcByteData[2] != DDStartAddr[2])
 	{
 		Log() << __FUNCTION__ << " Error: binary data does not match!";
 		return;
@@ -67,22 +70,10 @@ void UpdateDrawDistance()
 	// Logging
 	Log() << "Increasing the Draw Distance...";
 
-	// Reset variables for next loop
-	StartAddr = 0x0047C000;
-	EndAddr = 0x005FFFFF;
-
-	// Update Draw Distance
-	while (StartAddr < EndAddr)
+	// Update 0x0123456 pointer in ASM code with the real pointer
+	if (!ReplaceMemoryBytes(SrcByteData, DestByteData, SizeOfBytes, 0x0047C000, 0x005FFFFF))
 	{
-		// Get next address
-		void *NextAddr = GetAddressOfData(ByteData, SizeOfBytes, 1, StartAddr, EndAddr - StartAddr);
-		if (!NextAddr)
-		{
-			return;
-		}
-		StartAddr = (DWORD)NextAddr + SizeOfBytes;
-
-		// Write new Draw Distance
-		UpdateMemoryAddress((void*)((DWORD)NextAddr + 6), (void*)&DrawDistance, sizeof(float));
+		Log() << __FUNCTION__ << " Error: replacing pointer in ASM!";
+		return;
 	}
 }

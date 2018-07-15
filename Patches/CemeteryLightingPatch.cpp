@@ -62,8 +62,8 @@ void UpdateCemeteryLighting()
 		return;
 	}
 
-	// Update pointer in ASM code
-	if (!ReplaceMemoryBytes((void*)CemeteryPointerBytes, (void*)(CemeteryAddr + 2), sizeof(DWORD), (DWORD)*CemeteryLightingASM, 50, 1))
+	// Update 0x0123456 pointer in ASM code with the real pointer
+	if (!ReplaceMemoryBytes((void*)CemeteryPointerBytes, (void*)(CemeteryAddr + 2), sizeof(DWORD), (DWORD)*CemeteryLightingASM, 0x10, 1))
 	{
 		Log() << __FUNCTION__ << " Error: replacing pointer in ASM!";
 		return;

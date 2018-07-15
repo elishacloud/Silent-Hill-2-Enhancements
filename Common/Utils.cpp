@@ -174,9 +174,8 @@ bool WriteJMPtoMemory(BYTE *dataAddr, void *JMPAddr, DWORD count)
 }
 
 // Replace memory
-bool ReplaceMemoryBytes(void *dataSrc, void *dataDest, size_t size, DWORD start, DWORD distance, DWORD count)
+DWORD ReplaceMemoryBytes(void *dataSrc, void *dataDest, size_t size, DWORD start, DWORD distance, DWORD count)
 {
-	bool flag = false;
 	DWORD counter = 0;
 	DWORD StartAddr = start;
 	DWORD EndAddr = start + distance;
@@ -188,20 +187,19 @@ bool ReplaceMemoryBytes(void *dataSrc, void *dataDest, size_t size, DWORD start,
 		void *NextAddr = GetAddressOfData(dataSrc, size, 1, start, EndAddr - StartAddr);
 		if (!NextAddr)
 		{
-			return flag;
+			return counter;
 		}
 		StartAddr = (DWORD)NextAddr + size;
 
 		// Write to memory
 		UpdateMemoryAddress(NextAddr, dataDest, size);
-		flag = true;
 		counter++;
 		if (count && count == counter)
 		{
-			return flag;
+			return counter;
 		}
 	}
-	return flag;
+	return counter;
 }
 
 // Add HMODULE to vector

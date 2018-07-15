@@ -1,6 +1,5 @@
 #pragma once
 
-extern bool LoadingMemoryModule;
 extern bool EnableWndMode;
 extern bool Nemesis2000FogFix;
 

@@ -69,8 +69,8 @@ void UpdateRowboatAnimation()
 		return;
 	}
 
-	// Update pointer in ASM code
-	if (!ReplaceMemoryBytes((void*)RowboatPointerBytes, (void*)(RowboatMemoryPtr + 2), sizeof(DWORD), (DWORD)*RowboatAnimationASM, 50, 1))
+	// Update 0x0123456 pointer in ASM code with the real pointer
+	if (!ReplaceMemoryBytes((void*)RowboatPointerBytes, (void*)(RowboatMemoryPtr + 2), sizeof(DWORD), (DWORD)*RowboatAnimationASM, 0x10, 1))
 	{
 		Log() << __FUNCTION__ << " Error: replacing pointer in ASM!";
 		return;

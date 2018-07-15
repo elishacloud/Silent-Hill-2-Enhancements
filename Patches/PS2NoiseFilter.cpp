@@ -72,8 +72,8 @@ void UpdatePS2NoiseFilter()
 		return;
 	}
 
-	// Update pointer in ASM code
-	if (!ReplaceMemoryBytes((void*)FilterPointerBtyes, (void*)(FilterAddrJMP + 1), sizeof(DWORD), (DWORD)*NoiseFilterASM, 50, 1))
+	// Update 0x0123456 pointer in ASM code with the real pointer
+	if (!ReplaceMemoryBytes((void*)FilterPointerBtyes, (void*)(FilterAddrJMP + 1), sizeof(DWORD), (DWORD)*NoiseFilterASM, 0x20, 1))
 	{
 		Log() << __FUNCTION__ << " Error: replacing pointer in ASM!";
 		return;

@@ -46,7 +46,6 @@ FARPROC p_GetPrivateProfileStringA = nullptr;
 FARPROC p_GetPrivateProfileStringW = nullptr;
 
 // Variable used in hooked modules
-bool LoadingMemoryModule = false;
 HMODULE moduleHandle = nullptr;
 char ConfigPathA[MAX_PATH];
 wchar_t ConfigPathW[MAX_PATH];
@@ -107,7 +106,7 @@ BOOL WINAPI GetModuleHandleExAHandler(DWORD dwFlags, LPCSTR lpModuleName, HMODUL
 	if (org_GetModuleHandleEx)
 	{
 		BOOL ret = org_GetModuleHandleEx(dwFlags, lpModuleName, phModule);
-		if (LoadingMemoryModule && (dwFlags & GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS) && !*phModule && moduleHandle)
+		if ((dwFlags & GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS) && !*phModule && moduleHandle)
 		{
 			*phModule = moduleHandle;
 			ret = TRUE;
@@ -128,7 +127,7 @@ BOOL WINAPI GetModuleHandleExWHandler(DWORD dwFlags, LPCWSTR lpModuleName, HMODU
 	if (org_GetModuleHandleEx)
 	{
 		BOOL ret = org_GetModuleHandleEx(dwFlags, lpModuleName, phModule);
-		if (LoadingMemoryModule && (dwFlags & GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS) && !*phModule && moduleHandle)
+		if ((dwFlags & GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS) && !*phModule && moduleHandle)
 		{
 			*phModule = moduleHandle;
 			ret = TRUE;

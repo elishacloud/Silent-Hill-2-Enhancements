@@ -97,9 +97,7 @@ void LoadModuleFromResource(HMODULE hModule, DWORD ResID, LPCSTR lpName)
 				if (dwResourceSize != 0)
 				{
 					Log() << "Loading the " << lpName << " module...";
-					LoadingMemoryModule = true;
 					HMEMORYMODULE hMModule = MemoryLoadLibrary((const void*)pLockedResource, dwResourceSize);
-					LoadingMemoryModule = false;
 					if (hMModule)
 					{
 						MMODULE MMItem = { hMModule , ResID };

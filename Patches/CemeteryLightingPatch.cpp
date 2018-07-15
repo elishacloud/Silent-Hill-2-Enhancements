@@ -33,9 +33,7 @@ __declspec(naked) void __stdcall CemeteryLightingASM()
 	__asm
 	{
 		cmp ecx, 0x0001000E
-		je near CemeteryUpdate
-		jmp CemeteryExit
-		CemeteryUpdate:
+		jne near CemeteryExit
 		mov ecx, 0x0001000D
 		CemeteryExit:
 		mov dword ptr ds : [0x01234567], ecx

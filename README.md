@@ -16,6 +16,7 @@ Below is a list of features:
  * [**d3d8to9**](https://github.com/crosire/d3d8to9) - Converts Silent Hill 2 to use Direct3D9 (d3d9.dll) rather than Direct3D8.
  * **NoCD Patch** - Disables the CD check.
  * **Reset Screen Res** - Resets the display adapter on exit which fixes an issue when using WineD3D casing the screen to go dark.
+ * **Rowboat Animation Fix** - Fixes an issue with rowboat animation if you exit to the main menu and reload the game.
  * [**Audio Script Builder**](AudioScripts) - Allows you to create or update the SH2 audio files.
 
 ### Silent Hill 2 Enhanced Edition Installation Guide

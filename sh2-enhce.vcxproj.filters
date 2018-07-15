@@ -80,6 +80,9 @@
     <ClCompile Include="Patches\CemeteryLightingPatch.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\RowboatAnimation.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Logging.h">

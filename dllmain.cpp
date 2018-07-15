@@ -56,6 +56,7 @@ bool Nemesis2000FogFix = true;
 bool NoCDPatch = true;
 bool PS2StyleNoiseFilter = true;
 bool ResetScreenRes = true;
+bool RowboatAnimationFix = true;
 bool WidescreenFix = true;
 
 // Get config settings from string (file)
@@ -76,6 +77,7 @@ void __stdcall ParseCallback(char* name, char* value)
 	if (!_strcmpi(name, "NoCDPatch")) NoCDPatch = SetValue(value);
 	if (!_strcmpi(name, "PS2StyleNoiseFilter")) PS2StyleNoiseFilter = SetValue(value);
 	if (!_strcmpi(name, "ResetScreenRes")) ResetScreenRes = SetValue(value);
+	if (!_strcmpi(name, "RowboatAnimationFix")) RowboatAnimationFix = SetValue(value);
 	if (!_strcmpi(name, "WidescreenFix")) WidescreenFix = SetValue(value);
 }
 
@@ -226,6 +228,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		if (CemeteryLightingFix)
 		{
 			UpdateCemeteryLighting();
+		}
+
+		// Rowboat Animation Fix
+		if (RowboatAnimationFix)
+		{
+			UpdateRowboatAnimation();
 		}
 
 		// Load Nemesis2000's Fog Fix

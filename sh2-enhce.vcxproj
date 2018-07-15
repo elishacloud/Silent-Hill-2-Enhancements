@@ -40,6 +40,7 @@
     <ClCompile Include="Patches\NoCDPatch.cpp" />
     <ClCompile Include="Patches\PS2NoiseFilter.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Patches\RowboatAnimation.cpp" />
     <ClCompile Include="Patches\SfxPatch.cpp" />
     <ClCompile Include="Wrappers\d3d8to9.cpp" />
     <ClCompile Include="Wrappers\wrapper.cpp" />

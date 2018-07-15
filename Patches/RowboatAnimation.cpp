@@ -24,29 +24,20 @@ constexpr BYTE RowboatSearchBytes[]{ 0x8B, 0x56, 0x08, 0x89, 0x10, 0x5F, 0x5E, 0
 constexpr BYTE RowboatRETNBytes[]{ 0xC3 };
 constexpr BYTE RowboatSearchPtrBytes[] = { 0x56, 0x6A, 0x0A, 0x6A, 0x00, 0x50, 0xE8 };
 constexpr BYTE RowboatCMPBytes[] = { 0x3B, 0x05 };
-
-// Forward function declaration
-void __stdcall RowboatUpdateASM();
-
-// Variables for ASM
-DWORD *CemeteryDataPtr;
+constexpr BYTE RowboatPointerBytes[] = { 0x67, 0x45, 0x23, 0x01 };
 
 // ASM functions to update Rowboat Animation
-#pragma warning(disable: 4414)
-__declspec(naked) void __stdcall RowboatEntryASM()
+__declspec(naked) void __stdcall RowboatAnimationASM()
 {
 	__asm
 	{
 		cmp eax, 0x4C
-		je near RowboatUpdateASM
+		je near RowboatUpdate
+		retn
+		RowboatUpdate:
+		mov dword ptr ds : [0x01234567], 0xFFFFFFFF
 		retn
 	}
-}
-#pragma warning(default: 4414)
-__declspec(naked) void __stdcall RowboatUpdateASM()
-{
-	*CemeteryDataPtr = 0xFFFFFFFF;
-	__asm retn
 }
 
 // Update SH2 code to Fix Rowboat Animation
@@ -78,9 +69,14 @@ void UpdateRowboatAnimation()
 		return;
 	}
 
-	Log() << "Setting Rowboat Animation Fix...";
+	// Update pointer in ASM code
+	if (!ReplaceMemoryBytes((void*)RowboatPointerBytes, (void*)(RowboatMemoryPtr + 2), sizeof(DWORD), (DWORD)*RowboatAnimationASM, 50, 1))
+	{
+		Log() << __FUNCTION__ << " Error: replacing pointer in ASM!";
+		return;
+	}
 
 	// Update SH2 code
-	memcpy(&CemeteryDataPtr, (void*)(RowboatMemoryPtr + 2), sizeof(DWORD));
-	WriteJMPtoMemory((BYTE*)RowboatAddr, *RowboatEntryASM);
+	Log() << "Setting Rowboat Animation Fix...";
+	WriteJMPtoMemory((BYTE*)RowboatAddr, *RowboatAnimationASM);
 }

@@ -23,7 +23,7 @@
 constexpr BYTE FilterByteEDX[2][5] = { { 0xBA, 0xFF, 0x00, 0x00, 0x00 }, { 0xBA, 0xD7, 0x01, 0x00, 0x00 } };
 constexpr BYTE FilterByteMOV[2][1] = { { 0xFF },{ 0x22 } };
 constexpr BYTE FilterByteJMP[] = { 0xA2, 0xC5 };
-constexpr BYTE FilterUpdateBtyes[] = { 0x3E, 0xA2, 0x67, 0x45, 0x23, 0x01 };
+constexpr BYTE FilterPointerBtyes[] = { 0x67, 0x45, 0x23, 0x01 };
 
 // Variables for ASM
 void *jmpFilterAddr;
@@ -42,7 +42,7 @@ __declspec(naked) void __stdcall NoiseFilterASM()
 		fdiv dword ptr BrightnessControl
 		fistp dword ptr tmpVar
 		mov eax, tmpVar
-		MOV BYTE PTR DS : [0x01234567], AL
+		mov byte ptr ds : [0x01234567], al
 		jmp jmpFilterAddr
 	}
 }
@@ -72,11 +72,10 @@ void UpdatePS2NoiseFilter()
 		return;
 	}
 
-	// Find code in fucntion to update
-	DWORD fltFunctAddrJMP = (DWORD)GetAddressOfData(FilterUpdateBtyes, sizeof(FilterUpdateBtyes), 1, (DWORD)*NoiseFilterASM, 50);
-	if (!fltFunctAddrJMP)
+	// Update pointer in ASM code
+	if (!ReplaceMemoryBytes((void*)FilterPointerBtyes, (void*)(FilterAddrJMP + 1), sizeof(DWORD), (DWORD)*NoiseFilterASM, 50, 1))
 	{
-		Log() << __FUNCTION__ << " Error: failed to find function address!";
+		Log() << __FUNCTION__ << " Error: replacing pointer in ASM!";
 		return;
 	}
 
@@ -84,6 +83,5 @@ void UpdatePS2NoiseFilter()
 	Log() << "Setting PS2 Style Noise Filter...";
 	UpdateMemoryAddress((void*)FilterAddrEDX, (void*)FilterByteEDX[1], sizeof(FilterByteEDX[1]));
 	UpdateMemoryAddress((void*)FilterAddrMOV, (void*)FilterByteMOV[1], sizeof(FilterByteMOV[1]));
-	UpdateMemoryAddress((void*)(fltFunctAddrJMP + 2), (void*)(FilterAddrJMP + 1), sizeof(DWORD));
 	WriteJMPtoMemory((BYTE*)FilterAddrJMP, *NoiseFilterASM);
 }

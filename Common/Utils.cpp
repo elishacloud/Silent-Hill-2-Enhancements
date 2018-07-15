@@ -131,7 +131,7 @@ bool UpdateMemoryAddress(void *dataAddr, void *dataBytes, DWORD dataSize)
 }
 
 // Write a jmp to memory
-bool WriteJMPtoMemory(BYTE *dataAddr, void *JMPAddr)
+bool WriteJMPtoMemory(BYTE *dataAddr, void *JMPAddr, DWORD count)
 {
 	if (!dataAddr || !JMPAddr)
 	{
@@ -139,9 +139,15 @@ bool WriteJMPtoMemory(BYTE *dataAddr, void *JMPAddr)
 		return false;
 	}
 
+	if (count < 5)
+	{
+		Log() << __FUNCTION__ << " Error: invalid count";
+		return false;
+	}
+
 	// VirtualProtect first to make sure patch_address is readable
 	DWORD dwPrevProtect;
-	if (!VirtualProtect(dataAddr, 5, PAGE_EXECUTE_WRITECOPY, &dwPrevProtect))
+	if (!VirtualProtect(dataAddr, count, PAGE_EXECUTE_WRITECOPY, &dwPrevProtect))
 	{
 		Log() << __FUNCTION__ << " Error: Updating JMP address for PS2 Noise Filter";
 		return false; // access denied
@@ -150,16 +156,52 @@ bool WriteJMPtoMemory(BYTE *dataAddr, void *JMPAddr)
 	// jmp (4-byte relative)
 	*dataAddr = 0xE9;
 	// relative jmp address
-	*((DWORD *)(dataAddr + 1)) = (DWORD)JMPAddr - (DWORD)dataAddr - 5;
+	*((DWORD*)(dataAddr + 1)) = (DWORD)JMPAddr - (DWORD)dataAddr - 5;
+
+	for (DWORD x = 5; x < count; x++)
+	{
+		*((BYTE*)(dataAddr + x)) = 0x90;
+	}
 
 	// Restore protection
-	VirtualProtect(dataAddr, 5, dwPrevProtect, &dwPrevProtect);
+	VirtualProtect(dataAddr, count, dwPrevProtect, &dwPrevProtect);
 
 	// Flush cache
-	FlushInstructionCache(GetCurrentProcess(), dataAddr, 5);
+	FlushInstructionCache(GetCurrentProcess(), dataAddr, count);
 
 	// Return
 	return true;
+}
+
+// Replace memory
+bool ReplaceMemoryBytes(void *dataSrc, void *dataDest, size_t size, DWORD start, DWORD distance, DWORD count)
+{
+	bool flag = false;
+	DWORD counter = 0;
+	DWORD StartAddr = start;
+	DWORD EndAddr = start + distance;
+
+	// Update memory
+	while (StartAddr < EndAddr)
+	{
+		// Get next address
+		void *NextAddr = GetAddressOfData(dataSrc, size, 1, start, EndAddr - StartAddr);
+		if (!NextAddr)
+		{
+			return flag;
+		}
+		StartAddr = (DWORD)NextAddr + size;
+
+		// Write to memory
+		UpdateMemoryAddress(NextAddr, dataDest, size);
+		flag = true;
+		counter++;
+		if (count && count == counter)
+		{
+			return flag;
+		}
+	}
+	return flag;
 }
 
 // Add HMODULE to vector

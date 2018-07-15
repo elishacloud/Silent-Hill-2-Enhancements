@@ -22,41 +22,23 @@
 // Predefined code bytes
 constexpr BYTE CemeterySearchBytes[]{ 0x83, 0xEC, 0x10, 0x55, 0x56, 0x57, 0x50, 0x51, 0x8D, 0x54, 0x24, 0x14, 0x6A, 0x00, 0x52 };
 constexpr BYTE CemeteryMOVBytes[]{ 0x89, 0x0D };
-constexpr BYTE CemeteryUpdateBytes[] = { 0x3E, 0x89, 0x0D, 0x67, 0x45, 0x23, 0x01 };
-constexpr BYTE CemeteryNOP[] = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
-
-// Forward function declaration
-void __stdcall CemeteryUpdateASM();
-void __stdcall CemeteryExitASM();
+constexpr BYTE CemeteryPointerBytes[] = { 0x67, 0x45, 0x23, 0x01 };
 
 // Variables for ASM
 void *jmpCemeteryAddr;
 
 // ASM functions to update Cemetery Lighting dynamically
-#pragma warning(disable: 4414)
-__declspec(naked) void __stdcall CemeteryEntryASM()
+__declspec(naked) void __stdcall CemeteryLightingASM()
 {
 	__asm
 	{
 		cmp ecx, 0x0001000E
-		je near CemeteryUpdateASM
-		jmp CemeteryExitASM
-	}
-}
-#pragma warning(default: 4414)
-__declspec(naked) void __stdcall CemeteryUpdateASM()
-{
-	__asm
-	{
+		je near CemeteryUpdate
+		jmp CemeteryExit
+		CemeteryUpdate:
 		mov ecx, 0x0001000D
-		jmp CemeteryExitASM
-	}
-}
-__declspec(naked) void __stdcall CemeteryExitASM()
-{
-	__asm
-	{
-		MOV DWORD PTR DS : [0x01234567], ECX
+		CemeteryExit:
+		mov dword ptr ds : [0x01234567], ecx
 		cmp ebp, 02
 		jmp jmpCemeteryAddr
 	}
@@ -73,20 +55,23 @@ void UpdateCemeteryLighting()
 		return;
 	}
 	CemeteryAddr += 0x41;
+	jmpCemeteryAddr = (void*)(CemeteryAddr + 6);
 
 	// Check for valid code before updating
-	if (!CheckMemoryAddress((void*)CemeteryAddr, (void*)CemeteryMOVBytes, sizeof(CemeteryMOVBytes)) ||
-		!CheckMemoryAddress((void*)*CemeteryExitASM, (void*)CemeteryUpdateBytes, sizeof(CemeteryUpdateBytes)))
+	if (!CheckMemoryAddress((void*)CemeteryAddr, (void*)CemeteryMOVBytes, sizeof(CemeteryMOVBytes)))
 	{
 		Log() << __FUNCTION__ << " Error: memory addresses don't match!";
 		return;
 	}
 
-	Log() << "Setting Cemetery Lighting Fix...";
+	// Update pointer in ASM code
+	if (!ReplaceMemoryBytes((void*)CemeteryPointerBytes, (void*)(CemeteryAddr + 2), sizeof(DWORD), (DWORD)*CemeteryLightingASM, 50, 1))
+	{
+		Log() << __FUNCTION__ << " Error: replacing pointer in ASM!";
+		return;
+	}
 
 	// Update SH2 code
-	jmpCemeteryAddr = (void*)(CemeteryAddr + 6);
-	UpdateMemoryAddress((void*)((DWORD)*CemeteryExitASM + 3), (void*)(CemeteryAddr + 2), sizeof(DWORD));
-	UpdateMemoryAddress((void*)CemeteryAddr, (void*)CemeteryNOP, sizeof(CemeteryNOP));
-	WriteJMPtoMemory((BYTE*)CemeteryAddr, *CemeteryEntryASM);
+	Log() << "Setting Cemetery Lighting Fix...";
+	WriteJMPtoMemory((BYTE*)CemeteryAddr, *CemeteryLightingASM, 6);
 }

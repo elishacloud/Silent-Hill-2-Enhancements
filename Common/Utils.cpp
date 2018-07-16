@@ -149,7 +149,7 @@ bool WriteJMPtoMemory(BYTE *dataAddr, void *JMPAddr, DWORD count)
 	DWORD dwPrevProtect;
 	if (!VirtualProtect(dataAddr, count, PAGE_EXECUTE_WRITECOPY, &dwPrevProtect))
 	{
-		Log() << __FUNCTION__ << " Error: Updating JMP address for PS2 Noise Filter";
+		Log() << __FUNCTION__ << " Error: could not read memory address";
 		return false; // access denied
 	}
 

@@ -109,8 +109,6 @@ void *Hook::HotPatch(void *apiproc, const char *apiname, void *hookproc, bool fo
 		// Restore protection
 		VirtualProtect(patch_address, 12, dwPrevProtect, &dwPrevProtect);
 
-		// Flush cache
-		FlushInstructionCache(GetCurrentProcess(), patch_address, 12);
 #ifdef _DEBUG
 		logf(__FUNCTION__ ": api=%s addr=%p->%p hook=%p", apiname, apiproc, orig_address, hookproc);
 #endif

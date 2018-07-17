@@ -51,6 +51,8 @@ char ConfigPathA[MAX_PATH];
 wchar_t ConfigPathW[MAX_PATH];
 std::wstring wstrModulePath;
 DWORD nPathSize = 0;
+wchar_t ConfigName[MAX_PATH] = { '\0' };
+bool FileEnabled = true;
 
 template<typename T>
 bool CheckConfigPath(T str)
@@ -148,7 +150,7 @@ DWORD WINAPI GetModuleFileNameAHandler(HMODULE hModule, LPSTR lpFilename, DWORD 
 	if (org_GetModuleFileName)
 	{
 		DWORD ret = org_GetModuleFileName(hModule, lpFilename, nSize);
-		if (NotValidFileNamePath(lpFilename, nSize) && nSize > 1)
+		if ((NotValidFileNamePath(lpFilename, nSize) && nSize > 1) || (moduleHandle && hModule == moduleHandle))
 		{
 			ret = min(nPathSize, nSize) - 1;
 			memcpy(lpFilename, std::string(wstrModulePath.begin(), wstrModulePath.end()).c_str(), ret * sizeof(char));
@@ -170,7 +172,7 @@ DWORD WINAPI GetModuleFileNameWHandler(HMODULE hModule, LPWSTR lpFilename, DWORD
 	if (org_GetModuleFileName)
 	{
 		DWORD ret = org_GetModuleFileName(hModule, lpFilename, nSize);
-		if (NotValidFileNamePath(lpFilename, nSize))
+		if ((NotValidFileNamePath(lpFilename, nSize) && nSize > 1) || (moduleHandle && hModule == moduleHandle))
 		{
 			ret = min(nPathSize, nSize) - 1;
 			memcpy(lpFilename, wstrModulePath.c_str(), ret * sizeof(wchar_t));
@@ -283,6 +285,9 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	wcscpy_s(ConfigPathW, MAX_PATH, ConfigPath);
 	std::wstring ws(ConfigPath);
 	strcpy_s(ConfigPathA, MAX_PATH, std::string(ws.begin(), ws.end()).c_str());
+
+	// Store config name
+	wcscpy_s(ConfigName, MAX_PATH, wcsrchr(ConfigPath, '\\'));
 
 	// Get module path
 	wchar_t Path[MAX_PATH];

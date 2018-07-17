@@ -83,6 +83,9 @@
     <ClCompile Include="Patches\RowboatAnimation.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Common\LoadModule.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Logging.h">
@@ -141,6 +144,9 @@
     </ClInclude>
     <ClInclude Include="Patches\Patches.h">
       <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\LoadModule.h">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

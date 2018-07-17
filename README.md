@@ -17,6 +17,7 @@ Below is a list of features:
  * [**d3d8to9**](https://github.com/crosire/d3d8to9) - Converts Silent Hill 2 to use Direct3D9 (d3d9.dll) rather than Direct3D8.
  * **NoCD Patch** - Disables the CD check.
  * **Reset Screen Res** - Resets the display adapter on exit which fixes an issue when using WineD3D casing the screen to go dark.
+ * [**modupdater**](https://github.com/ThirteenAG/modupdater) - Automatically updates the module when new versions comes out.
  * [**Audio Script Builder**](AudioScripts) - Allows you to create or update the SH2 audio files.
 
 ### Silent Hill 2 Enhanced Edition Installation Guide
@@ -52,6 +53,7 @@ This project uses code from several other projects. Below is a list of locations
  * [GetFileVersionInfo ](https://stackoverflow.com/a/940743): Includes code from stackoverflow.com for getting the version of a PE file.
  * [GetFunctionAddress](http://www.rohitab.com/discuss/topic/40594-parsing-pe-export-table/): Includes code from rohitab.com to parse the PE export table.
  * [MemoryModule](https://github.com/fancycode/MemoryModule): Includes code for loading libraries from memory.
+ * [modupdater](https://github.com/ThirteenAG/modupdater): Includes the full binary file for the modupdater.
  * [Nemesis2000 Fog Fix](http://ps2wide.net/pc.html#sh2): Includes the full binary file for fog fix by Nemesis2000.
  * [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader): Includes code for loading ASI plugins and code for loading modules from a module resource.
  * [Widescreen Fix](https://github.com/ThirteenAG/WidescreenFixesPack/releases/tag/sh2): Includes the full binary file for the Widescreen Fix by [ThirteenAG](https://github.com/ThirteenAG) and [AeroWidescreen](https://github.com/AeroWidescreen).

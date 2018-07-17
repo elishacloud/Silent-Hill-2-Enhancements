@@ -21,9 +21,9 @@
 #include "Patches\Patches.h"
 #include "Hooking\Hook.h"
 #include "Hooking\FileSystemHooks.h"
-#include "External\MemoryModule\MemoryModule.h"
 #include "Wrappers\wrapper.h"
 #include "Wrappers\d3d8to9.h"
+#include "Common\LoadModule.h"
 #include "Common\LoadASI.h"
 #include "Common\Utils.h"
 #include "Common\Settings.h"
@@ -33,18 +33,11 @@
 std::ofstream LOG;
 wchar_t LogPath[MAX_PATH];
 
-// Memory modules
-struct MMODULE
-{
-	HMEMORYMODULE handle;		// Module handle
-	DWORD ResID;				// Resource ID
-};
-std::vector<MMODULE> HMModules;
-
 // Screen settings
 std::string lpRamp((3 * 256 * 2), '\0');
 
 // Configurable setting defaults
+bool AutoUpdateModule = true;
 bool d3d8to9 = true;
 bool CemeteryLightingFix = true;
 bool EnableSFXAddrHack = true;
@@ -66,6 +59,7 @@ void __stdcall ParseCallback(char* name, char* value)
 	if (!IsValidSettings(name, value)) return;
 
 	// Check settings
+	if (!_strcmpi(name, "AutoUpdateModule")) AutoUpdateModule = SetValue(value);
 	if (!_strcmpi(name, "d3d8to9")) d3d8to9 = SetValue(value);
 	if (!_strcmpi(name, "CemeteryLightingFix")) CemeteryLightingFix = SetValue(value);
 	if (!_strcmpi(name, "EnableSFXAddrHack")) EnableSFXAddrHack = SetValue(value);
@@ -79,38 +73,6 @@ void __stdcall ParseCallback(char* name, char* value)
 	if (!_strcmpi(name, "ResetScreenRes")) ResetScreenRes = SetValue(value);
 	if (!_strcmpi(name, "RowboatAnimationFix")) RowboatAnimationFix = SetValue(value);
 	if (!_strcmpi(name, "WidescreenFix")) WidescreenFix = SetValue(value);
-}
-
-// Load memory module from resource
-void LoadModuleFromResource(HMODULE hModule, DWORD ResID, LPCSTR lpName)
-{
-	HRSRC hResource = FindResource(hModule, MAKEINTRESOURCE(ResID), RT_RCDATA);
-	if (hResource)
-	{
-		HGLOBAL hLoadedResource = LoadResource(hModule, hResource);
-		if (hLoadedResource)
-		{
-			LPVOID pLockedResource = LockResource(hLoadedResource);
-			if (pLockedResource)
-			{
-				DWORD dwResourceSize = SizeofResource(hModule, hResource);
-				if (dwResourceSize != 0)
-				{
-					Log() << "Loading the " << lpName << " module...";
-					HMEMORYMODULE hMModule = MemoryLoadLibrary((const void*)pLockedResource, dwResourceSize);
-					if (hMModule)
-					{
-						MMODULE MMItem = { hMModule , ResID };
-						HMModules.push_back(MMItem);
-					}
-					else
-					{
-						Log() << __FUNCTION__ << " Error: " << lpName << " module could not be loaded!";
-					}
-				}
-			}
-		}
-	}
 }
 
 // Dll main function
@@ -192,6 +154,33 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			ReleaseDC(nullptr, hDC);
 		}
 
+		// Load modupdater
+		if (AutoUpdateModule)
+		{
+			// Get module name
+			wchar_t Path[MAX_PATH], Name[MAX_PATH];
+			GetModuleFileName(hModule, Path, MAX_PATH);
+			wcscpy_s(Name, MAX_PATH, wcsrchr(Path, '\\'));
+
+			// Get 'temp' path
+			GetTempPath(MAX_PATH, Path);
+			wcscat_s(Path, MAX_PATH, L"~tmp_sh2_enhce");
+			CreateDirectory(Path, nullptr);
+
+			// Update path with module name
+			wcscat_s(Path, MAX_PATH, Name);
+			wcscpy_s(wcsrchr(Path, '.'), MAX_PATH, L".tmp");
+
+			// Load module
+			LoadModuleFromResourceToFile(hModule, IDR_SH2UPD, L"modupdater", Path);
+		}
+
+		// Load forced windowed mode
+		if (EnableWndMode)
+		{
+			LoadModuleFromResource(hModule, IDR_SH2WND, L"WndMode");
+		}
+
 		// Enable d3d8to9
 		if (d3d8to9)
 		{
@@ -237,19 +226,13 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		// Load Nemesis2000's Fog Fix
 		if (Nemesis2000FogFix)
 		{
-			LoadModuleFromResource(hModule, IDR_SH2FOG, "Nemesis2000 Fog Fix");
+			LoadModuleFromResource(hModule, IDR_SH2FOG, L"Nemesis2000 Fog Fix");
 		}
 
 		// Widescreen Fix
 		if (WidescreenFix)
 		{
-			LoadModuleFromResource(hModule, IDR_SH2WID, "WidescreenFixesPack and sh2proxy");
-		}
-
-		// Load forced windowed mode
-		if (EnableWndMode)
-		{
-			LoadModuleFromResource(hModule, IDR_SH2WND, "WndMode");
+			LoadModuleFromResource(hModule, IDR_SH2WID, L"WidescreenFixesPack and sh2proxy");
 		}
 
 		// Load ASI pluggins
@@ -271,7 +254,6 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		break;
 	case DLL_PROCESS_DETACH:
 	{
-#ifdef _DEBUG
 		// Unloading all modules
 		Log() << "Unloading all loaded modules";
 
@@ -285,11 +267,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		}
 
 		// Unload memory modules
-		for (MMODULE it : HMModules)
-		{
-			MemoryFreeLibrary(it.handle);
-		}
-#endif
+		UnloadResourceModules();
 
 		// Unhook APIs
 		Log() << "Unhooking library functions";

@@ -22,9 +22,9 @@
 // Predefined code bytes
 constexpr BYTE CemeterySearchBytes[]{ 0x83, 0xEC, 0x10, 0x55, 0x56, 0x57, 0x50, 0x51, 0x8D, 0x54, 0x24, 0x14, 0x6A, 0x00, 0x52 };
 constexpr BYTE CemeteryMOVBytes[]{ 0x89, 0x0D };
-constexpr BYTE CemeteryPointerBytes[] = { 0x67, 0x45, 0x23, 0x01 };
 
 // Variables for ASM
+DWORD *CemeteryPointer;
 void *jmpCemeteryAddr;
 
 // ASM functions to update Cemetery Lighting dynamically
@@ -36,7 +36,8 @@ __declspec(naked) void __stdcall CemeteryLightingASM()
 		jne near CemeteryExit
 		mov ecx, 0x0001000D
 		CemeteryExit:
-		mov dword ptr ds : [0x01234567], ecx
+		mov eax, dword ptr ds : [CemeteryPointer]
+		mov dword ptr ds : [eax], ecx
 		cmp ebp, 02
 		jmp jmpCemeteryAddr
 	}
@@ -53,19 +54,13 @@ void UpdateCemeteryLighting()
 		return;
 	}
 	CemeteryAddr += 0x41;
+	memcpy(&CemeteryPointer, (void*)(CemeteryAddr + 2), sizeof(DWORD));
 	jmpCemeteryAddr = (void*)(CemeteryAddr + 6);
 
 	// Check for valid code before updating
 	if (!CheckMemoryAddress((void*)CemeteryAddr, (void*)CemeteryMOVBytes, sizeof(CemeteryMOVBytes)))
 	{
 		Log() << __FUNCTION__ << " Error: memory addresses don't match!";
-		return;
-	}
-
-	// Update 0x0123456 pointer in ASM code with the real pointer
-	if (!ReplaceMemoryBytes((void*)CemeteryPointerBytes, (void*)(CemeteryAddr + 2), sizeof(DWORD), (DWORD)*CemeteryLightingASM, 0x10, 1))
-	{
-		Log() << __FUNCTION__ << " Error: replacing pointer in ASM!";
 		return;
 	}
 

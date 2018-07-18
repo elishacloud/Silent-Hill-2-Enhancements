@@ -50,9 +50,6 @@
     <ClCompile Include="External\d3d8to9\source\lookup_table.cpp">
       <Filter>External\d3d8to9</Filter>
     </ClCompile>
-    <ClCompile Include="Common\LoadASI.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClCompile Include="External\MemoryModule\MemoryModule.c">
       <Filter>External\MemoryModule</Filter>
     </ClCompile>
@@ -83,7 +80,7 @@
     <ClCompile Include="Patches\RowboatAnimation.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
-    <ClCompile Include="Common\LoadModule.cpp">
+    <ClCompile Include="Common\LoadModules.cpp">
       <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>
@@ -124,9 +121,6 @@
     <ClInclude Include="External\d3d8to9\source\lookup_table.hpp">
       <Filter>External\d3d8to9</Filter>
     </ClInclude>
-    <ClInclude Include="Common\LoadASI.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="Resources\sh2-enhce.h">
       <Filter>Resources</Filter>
     </ClInclude>
@@ -145,7 +139,7 @@
     <ClInclude Include="Patches\Patches.h">
       <Filter>Patches</Filter>
     </ClInclude>
-    <ClInclude Include="Common\LoadModule.h">
+    <ClInclude Include="Common\LoadModules.h">
       <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>

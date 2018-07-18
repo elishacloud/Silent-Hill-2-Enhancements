@@ -1,8 +1,8 @@
 #pragma once
 
+#include "Common\Settings.h"
+
 extern bool FileEnabled;
-extern bool EnableWndMode;
-extern bool Nemesis2000FogFix;
 extern wchar_t ConfigName[MAX_PATH];
 
 struct MODULECONFIG

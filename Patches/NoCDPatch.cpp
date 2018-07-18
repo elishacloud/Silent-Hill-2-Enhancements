@@ -22,6 +22,7 @@
 // Predefined code bytes
 constexpr BYTE CDFuncBlock[] = { 0x81, 0xEC, 0x08, 0x04, 0x00, 0x00, 0xA1 };
 constexpr BYTE CDBlockTest[] = { 0x33, 0x84, 0x24, 0x08, 0x04, 0x00, 0x00, 0x53 };
+constexpr BYTE CDBypass[] = { 0xC3 };
 
 void DisableCDCheck()
 {
@@ -29,28 +30,13 @@ void DisableCDCheck()
 	void *CDCheckAddr = GetAddressOfData(CDFuncBlock, sizeof(CDFuncBlock), 4, 0x00407DE0, 1800);
 
 	// Address found
-	if ((CDCheckAddr) ? (memcmp((void*)((DWORD)CDCheckAddr + 11), CDBlockTest, sizeof(CDBlockTest)) != 0) : true)
+	if ((CDCheckAddr) ? !CheckMemoryAddress((void*)((DWORD)CDCheckAddr + 11), (void*)CDBlockTest, sizeof(CDBlockTest)) : true)
 	{
 		Log() << __FUNCTION__ << " Error: Could not find CD check function address in memory!";
 		return;
 	}
 
-	// Make memory writeable
-	DWORD oldProtect;
-	if (!VirtualProtect(CDCheckAddr, 1, PAGE_EXECUTE_READWRITE, &oldProtect))
-	{
-		Log() << __FUNCTION__ << " Error: Could not write to memory!";
-		return;
-	}
-
+	// Update SH2 code
 	Log() << "Bypassing CD check...";
-
-	// Write to memory
-	*((BYTE*)((DWORD)CDCheckAddr)) = 0xC3;
-
-	// Restore protection
-	VirtualProtect(CDCheckAddr, 1, oldProtect, &oldProtect);
-
-	// Flush cache
-	FlushInstructionCache(GetCurrentProcess(), CDCheckAddr, 1);
+	UpdateMemoryAddress(CDCheckAddr, (void*)CDBypass, 1);
 }

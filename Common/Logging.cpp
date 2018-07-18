@@ -28,6 +28,10 @@
 #include <VersionHelpers.h>
 #include "Logging.h"
 
+// Basic logging
+std::ofstream LOG;
+wchar_t LogPath[MAX_PATH];
+
 // Get Windows Operating System version number from RtlGetVersion
 void GetOsVersion(RTL_OSVERSIONINFOEXW* pk_OsVer)
 {

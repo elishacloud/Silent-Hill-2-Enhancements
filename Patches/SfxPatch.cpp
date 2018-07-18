@@ -131,7 +131,7 @@ void UpdateSFXAddr()
 	char *PtrBytes = new char[size + 1];
 
 	// Update sddata.bin pointer address
-	if (!VirtualProtect(sfxAddr, 5, PAGE_EXECUTE_READWRITE, &oldProtect))
+	if (!VirtualProtect(sfxAddr, sizeof(DWORD), PAGE_EXECUTE_READWRITE, &oldProtect))
 	{
 		Log() << __FUNCTION__ << " Error: Could not write to memory!";
 		return;
@@ -143,5 +143,8 @@ void UpdateSFXAddr()
 	*((DWORD *)((DWORD)sfxAddr + 1)) = (DWORD)PtrBytes;
 
 	// Restore protection
-	VirtualProtect(sfxAddr, 5, oldProtect, &oldProtect);
+	VirtualProtect(sfxAddr, sizeof(DWORD), oldProtect, &oldProtect);
+
+	// Flush cache
+	FlushInstructionCache(GetCurrentProcess(), sfxAddr, sizeof(DWORD));
 }

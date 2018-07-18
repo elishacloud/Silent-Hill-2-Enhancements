@@ -70,7 +70,7 @@ void UpdateDrawDistance()
 	// Logging
 	Log() << "Increasing the Draw Distance...";
 
-	// Update 0x0123456 pointer in ASM code with the real pointer
+	// Update all SH2 code with new DrawDistance values
 	if (!ReplaceMemoryBytes(SrcByteData, DestByteData, SizeOfBytes, 0x0047C000, 0x005FFFFF))
 	{
 		Log() << __FUNCTION__ << " Error: replacing pointer in ASM!";

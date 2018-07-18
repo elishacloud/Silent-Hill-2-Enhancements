@@ -12,12 +12,14 @@
 *   2. Altered source versions must  be plainly  marked as such, and  must not be  misrepresented  as
 *      being the original software.
 *   3. This notice may not be removed or altered from any source distribution.
+*
+* ASI plugin loader taken from source code found in Ultimate ASI Loader
+* https://github.com/ThirteenAG/Ultimate-ASI-Loader
 */
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <vector>
-#include "LoadModule.h"
 #include "External\MemoryModule\MemoryModule.h"
 #include "Common\Utils.h"
 #include "Common\Logging.h"
@@ -30,13 +32,83 @@ struct MMODULE
 };
 std::vector<MMODULE> HMModules;
 
-// Unload resource memory modules
-void UnloadResourceModules()
+// Find asi plugins to load
+void FindFiles(WIN32_FIND_DATA* fd)
 {
-	for (MMODULE it : HMModules)
+	wchar_t dir[MAX_PATH] = { 0 };
+	GetCurrentDirectory(MAX_PATH, dir);
+
+	HANDLE asiFile = FindFirstFile(L"*.asi", fd);
+	if (asiFile != INVALID_HANDLE_VALUE)
 	{
-		MemoryFreeLibrary(it.handle);
+		do {
+			if (!(fd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+			{
+				auto pos = wcslen(fd->cFileName);
+
+				if (fd->cFileName[pos - 4] == '.' &&
+					(fd->cFileName[pos - 3] == 'a' || fd->cFileName[pos - 3] == 'A') &&
+					(fd->cFileName[pos - 2] == 's' || fd->cFileName[pos - 2] == 'S') &&
+					(fd->cFileName[pos - 1] == 'i' || fd->cFileName[pos - 1] == 'I'))
+				{
+					wchar_t path[MAX_PATH] = { 0 };
+					swprintf_s(path, L"%s\\%s", dir, fd->cFileName);
+
+					auto h = LoadLibrary(path);
+					SetCurrentDirectory(dir); //in case asi switched it
+
+					if (h)
+					{
+						AddHandleToVector(h);
+						Log() << "Loaded '" << fd->cFileName << "'";
+					}
+					else
+					{
+						Log() << __FUNCTION__ << " Error: Unable to load '" << fd->cFileName << "'. Error: " << GetLastError();
+					}
+				}
+			}
+		} while (FindNextFile(asiFile, fd));
+		FindClose(asiFile);
 	}
+}
+
+// Load asi plugins
+void LoadASIPlugins(bool LoadFromScriptsOnly)
+{
+	Log() << "Loading ASI Plugins";
+
+	wchar_t oldDir[MAX_PATH] = { 0 }; // store the current directory
+	GetCurrentDirectory(MAX_PATH, oldDir);
+
+	wchar_t selfPath[MAX_PATH] = { 0 };
+	HMODULE hModule = NULL;
+	GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCTSTR)LoadASIPlugins, &hModule);
+	GetModuleFileName(hModule, selfPath, MAX_PATH);
+	*wcsrchr(selfPath, '\\') = '\0';
+	SetCurrentDirectory(selfPath);
+
+	WIN32_FIND_DATA fd;
+	if (!LoadFromScriptsOnly)
+	{
+		FindFiles(&fd);
+	}
+
+	SetCurrentDirectory(selfPath);
+
+	if (SetCurrentDirectory(L"scripts\\"))
+	{
+		FindFiles(&fd);
+	}
+
+	SetCurrentDirectory(selfPath);
+
+	if (SetCurrentDirectory(L"plugins\\"))
+	{
+		FindFiles(&fd);
+	}
+
+	SetCurrentDirectory(oldDir); // Reset the current directory
 }
 
 // Load memory module from resource
@@ -110,5 +182,14 @@ void LoadModuleFromResourceToFile(HMODULE hModule, DWORD ResID, LPCWSTR lpName, 
 				}
 			}
 		}
+	}
+}
+
+// Unload resource memory modules
+void UnloadResourceModules()
+{
+	for (MMODULE it : HMModules)
+	{
+		MemoryFreeLibrary(it.handle);
 	}
 }

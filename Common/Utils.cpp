@@ -210,3 +210,15 @@ void AddHandleToVector(HMODULE dll)
 		custom_dll.push_back(dll);
 	}
 }
+
+// Unload standard modules
+void UnloadAllModules()
+{
+	for (HMODULE it : custom_dll)
+	{
+		if (it)
+		{
+			FreeLibrary(it);
+		}
+	}
+}

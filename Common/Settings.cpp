@@ -22,6 +22,29 @@
 #include <string>
 #include "Settings.h"
 
+// Configurable setting defaults
+#define SET_BOOL_DEFAULTS(name, value) \
+	bool name = value;
+
+VISIT_BOOL_SETTINGS(SET_BOOL_DEFAULTS);
+
+// Forward declarations
+bool SetValue(char* name);
+bool IsValidSettings(char* name, char* value);
+
+// Get config settings from string (file)
+void __stdcall ParseCallback(char* lpName, char* lpValue)
+{
+	// Check for valid entries
+	if (!IsValidSettings(lpName, lpValue)) return;
+
+	// Check settings
+#define GET_BOOL_VALUES(name, unused) \
+	if (!_strcmpi(lpName, #name)) name = SetValue(lpValue);
+
+	VISIT_BOOL_SETTINGS(GET_BOOL_VALUES);
+}
+
 // Set booloean value from string (file)
 bool SetValue(char* name)
 {
@@ -167,4 +190,3 @@ void Parse(char* str, NV NameValueCallback)
 		}
 	}
 }
-

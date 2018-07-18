@@ -23,57 +23,14 @@
 #include "Hooking\FileSystemHooks.h"
 #include "Wrappers\wrapper.h"
 #include "Wrappers\d3d8to9.h"
-#include "Common\LoadModule.h"
-#include "Common\LoadASI.h"
+#include "Common\LoadModules.h"
 #include "Common\Utils.h"
 #include "Common\Settings.h"
 #include "Common\Logging.h"
 
-// Basic logging
-std::ofstream LOG;
-wchar_t LogPath[MAX_PATH];
-
 // Screen settings
+HDC hDC;
 std::string lpRamp((3 * 256 * 2), '\0');
-
-// Configurable setting defaults
-bool AutoUpdateModule = true;
-bool d3d8to9 = true;
-bool CemeteryLightingFix = true;
-bool EnableSFXAddrHack = true;
-bool EnableWndMode = false;
-bool IncreaseDrawDistance = true;
-bool LoadFromScriptsOnly = false;
-bool LoadPlugins = false;
-bool Nemesis2000FogFix = true;
-bool NoCDPatch = true;
-bool PS2StyleNoiseFilter = true;
-bool ResetScreenRes = true;
-bool RowboatAnimationFix = true;
-bool WidescreenFix = true;
-
-// Get config settings from string (file)
-void __stdcall ParseCallback(char* name, char* value)
-{
-	// Check for valid entries
-	if (!IsValidSettings(name, value)) return;
-
-	// Check settings
-	if (!_strcmpi(name, "AutoUpdateModule")) AutoUpdateModule = SetValue(value);
-	if (!_strcmpi(name, "d3d8to9")) d3d8to9 = SetValue(value);
-	if (!_strcmpi(name, "CemeteryLightingFix")) CemeteryLightingFix = SetValue(value);
-	if (!_strcmpi(name, "EnableSFXAddrHack")) EnableSFXAddrHack = SetValue(value);
-	if (!_strcmpi(name, "EnableWndMode")) EnableWndMode = SetValue(value);
-	if (!_strcmpi(name, "IncreaseDrawDistance")) IncreaseDrawDistance = SetValue(value);
-	if (!_strcmpi(name, "LoadFromScriptsOnly")) LoadFromScriptsOnly = SetValue(value);
-	if (!_strcmpi(name, "LoadPlugins")) LoadPlugins = SetValue(value);
-	if (!_strcmpi(name, "Nemesis2000FogFix")) Nemesis2000FogFix = SetValue(value);
-	if (!_strcmpi(name, "NoCDPatch")) NoCDPatch = SetValue(value);
-	if (!_strcmpi(name, "PS2StyleNoiseFilter")) PS2StyleNoiseFilter = SetValue(value);
-	if (!_strcmpi(name, "ResetScreenRes")) ResetScreenRes = SetValue(value);
-	if (!_strcmpi(name, "RowboatAnimationFix")) RowboatAnimationFix = SetValue(value);
-	if (!_strcmpi(name, "WidescreenFix")) WidescreenFix = SetValue(value);
-}
 
 // Dll main function
 bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
@@ -149,9 +106,8 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		if (ResetScreenRes)
 		{
 			// Reset screen settings
-			HDC hDC = GetDC(nullptr);
+			hDC = GetDC(nullptr);
 			GetDeviceGammaRamp(hDC, &lpRamp[0]);
-			ReleaseDC(nullptr, hDC);
 		}
 
 		// Load modupdater
@@ -173,12 +129,6 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 
 			// Load module
 			LoadModuleFromResourceToFile(hModule, IDR_SH2UPD, L"modupdater", Path);
-		}
-
-		// Load forced windowed mode
-		if (EnableWndMode)
-		{
-			LoadModuleFromResource(hModule, IDR_SH2WND, L"WndMode");
 		}
 
 		// Enable d3d8to9
@@ -241,6 +191,20 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			LoadASIPlugins(LoadFromScriptsOnly);
 		}
 
+		// Load forced windowed mode
+		if (EnableWndMode)
+		{
+			// Get 'temp' path
+			wchar_t Path[MAX_PATH];
+			GetTempPath(MAX_PATH, Path);
+			wcscat_s(Path, MAX_PATH, L"~tmp_sh2_enhce");
+			CreateDirectory(Path, nullptr);
+			wcscat_s(Path, MAX_PATH, L"\\wndmode.tmp");
+
+			// Load module
+			LoadModuleFromResourceToFile(hModule, IDR_SH2WND, L"WndMode", Path);
+		}
+
 		// Resetting thread priority
 		SetThreadPriority(hCurrentThread, dwPriorityClass);
 
@@ -254,20 +218,17 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		break;
 	case DLL_PROCESS_DETACH:
 	{
+		// Set thread priority a trick to reduce concurrency problems
+		SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
+
 		// Unloading all modules
 		Log() << "Unloading all loaded modules";
 
-		// Unload standard modules
-		for (HMODULE it : custom_dll)
-		{
-			if (it)
-			{
-				FreeLibrary(it);
-			}
-		}
-
 		// Unload memory modules
 		UnloadResourceModules();
+
+		// Unload standard modules
+		UnloadAllModules();
 
 		// Unhook APIs
 		Log() << "Unhooking library functions";
@@ -278,9 +239,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		{
 			// Reset screen settings
 			Log() << "Reseting screen resolution";
-			HDC hDC = GetDC(nullptr);
 			SetDeviceGammaRamp(hDC, &lpRamp[0]);
-			ReleaseDC(nullptr, hDC);
 			ChangeDisplaySettingsEx(nullptr, nullptr, nullptr, CDS_RESET, nullptr);
 		}
 

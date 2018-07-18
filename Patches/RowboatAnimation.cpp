@@ -24,7 +24,9 @@ constexpr BYTE RowboatSearchBytes[]{ 0x8B, 0x56, 0x08, 0x89, 0x10, 0x5F, 0x5E, 0
 constexpr BYTE RowboatRETNBytes[]{ 0xC3 };
 constexpr BYTE RowboatSearchPtrBytes[] = { 0x56, 0x6A, 0x0A, 0x6A, 0x00, 0x50, 0xE8 };
 constexpr BYTE RowboatCMPBytes[] = { 0x3B, 0x05 };
-constexpr BYTE RowboatPointerBytes[] = { 0x67, 0x45, 0x23, 0x01 };
+
+// Variables for ASM
+DWORD *RowboatPointer;
 
 // ASM functions to update Rowboat Animation
 __declspec(naked) void __stdcall RowboatAnimationASM()
@@ -35,7 +37,8 @@ __declspec(naked) void __stdcall RowboatAnimationASM()
 		je near RowboatUpdate
 		retn
 		RowboatUpdate:
-		mov dword ptr ds : [0x01234567], 0xFFFFFFFF
+		mov eax, dword ptr ds : [RowboatPointer]
+		mov dword ptr ds : [eax], 0xFFFFFFFF
 		retn
 	}
 }
@@ -60,19 +63,13 @@ void UpdateRowboatAnimation()
 		return;
 	}
 	RowboatMemoryPtr -= 0x3D;
+	memcpy(&RowboatPointer, (void*)(RowboatMemoryPtr + 2), sizeof(DWORD));
 
 	// Check for valid code before updating
 	if (!CheckMemoryAddress((void*)RowboatAddr, (void*)RowboatRETNBytes, sizeof(RowboatRETNBytes)) ||
 		!CheckMemoryAddress((void*)RowboatMemoryPtr, (void*)RowboatCMPBytes, sizeof(RowboatCMPBytes)))
 	{
 		Log() << __FUNCTION__ << " Error: memory addresses don't match!";
-		return;
-	}
-
-	// Update 0x0123456 pointer in ASM code with the real pointer
-	if (!ReplaceMemoryBytes((void*)RowboatPointerBytes, (void*)(RowboatMemoryPtr + 2), sizeof(DWORD), (DWORD)*RowboatAnimationASM, 0x10, 1))
-	{
-		Log() << __FUNCTION__ << " Error: replacing pointer in ASM!";
 		return;
 	}
 

@@ -16,9 +16,8 @@
     <ResourceCompile Include="Resources\UALx86.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Common\LoadASI.cpp" />
     <ClCompile Include="Common\Logging.cpp" />
-    <ClCompile Include="Common\LoadModule.cpp" />
+    <ClCompile Include="Common\LoadModules.cpp" />
     <ClCompile Include="Common\Settings.cpp" />
     <ClCompile Include="Common\Utils.cpp" />
     <ClCompile Include="External\d3d8to9\source\d3d8to9_base.cpp" />
@@ -47,8 +46,7 @@
     <ClCompile Include="Wrappers\wrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Common\LoadModule.h" />
-    <ClInclude Include="Common\LoadASI.h" />
+    <ClInclude Include="Common\LoadModules.h" />
     <ClInclude Include="Common\Logging.h" />
     <ClInclude Include="Common\Settings.h" />
     <ClInclude Include="Common\Utils.h" />

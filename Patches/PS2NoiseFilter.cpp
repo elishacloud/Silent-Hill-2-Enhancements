@@ -23,9 +23,9 @@
 constexpr BYTE FilterByteEDX[2][5] = { { 0xBA, 0xFF, 0x00, 0x00, 0x00 }, { 0xBA, 0xD7, 0x01, 0x00, 0x00 } };
 constexpr BYTE FilterByteMOV[2][1] = { { 0xFF },{ 0x22 } };
 constexpr BYTE FilterByteJMP[] = { 0xA2, 0xC5 };
-constexpr BYTE FilterPointerBtyes[] = { 0x67, 0x45, 0x23, 0x01 };
 
 // Variables for ASM
+DWORD *FilterPointer;
 void *jmpFilterAddr;
 constexpr float BrightnessControl = 7.4f;
 
@@ -42,7 +42,10 @@ __declspec(naked) void __stdcall NoiseFilterASM()
 		fdiv dword ptr BrightnessControl
 		fistp dword ptr tmpVar
 		mov eax, tmpVar
-		mov byte ptr ds : [0x01234567], al
+		push ecx
+		mov ecx, dword ptr ds : [FilterPointer]
+		mov byte ptr ds : [ecx], al
+		pop ecx
 		jmp jmpFilterAddr
 	}
 }
@@ -61,6 +64,7 @@ void UpdatePS2NoiseFilter()
 	// Get relative addresses
 	DWORD FilterAddrMOV = FilterAddrEDX + 0x4862;
 	DWORD FilterAddrJMP = FilterAddrEDX + 0x483D;
+	memcpy(&FilterPointer, (void*)(FilterAddrJMP + 1), sizeof(DWORD));
 	jmpFilterAddr = (void*)(FilterAddrJMP + 5);
 
 	// Check for valid code before updating
@@ -69,13 +73,6 @@ void UpdatePS2NoiseFilter()
 		!CheckMemoryAddress((void*)FilterAddrJMP, (void*)FilterByteJMP, sizeof(FilterByteJMP)))
 	{
 		Log() << __FUNCTION__ << " Error: memory addresses don't match!";
-		return;
-	}
-
-	// Update 0x0123456 pointer in ASM code with the real pointer
-	if (!ReplaceMemoryBytes((void*)FilterPointerBtyes, (void*)(FilterAddrJMP + 1), sizeof(DWORD), (DWORD)*NoiseFilterASM, 0x20, 1))
-	{
-		Log() << __FUNCTION__ << " Error: replacing pointer in ASM!";
 		return;
 	}
 

@@ -28,6 +28,16 @@ wchar_t *ConstStr(LPCWSTR str)
 	return (wchar_t*)str;
 }
 
+size_t length(LPCSTR str)
+{
+	return strlen(str);
+}
+
+size_t length(LPCWSTR str)
+{
+	return wcslen(str);
+}
+
 std::wstring toWString(LPCSTR str)
 {
 	std::string mystring(str);

@@ -6,6 +6,8 @@
 
 char *ConstStr(LPCSTR str);
 wchar_t *ConstStr(LPCWSTR str);
+size_t length(LPCSTR str);
+size_t length(LPCWSTR str);
 std::wstring toWString(LPCSTR str);
 std::wstring toWString(LPCWSTR str);
 char *GetStringType(LPCSTR, char *strA, wchar_t *strW);

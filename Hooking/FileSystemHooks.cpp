@@ -30,9 +30,7 @@ typedef BOOL(WINAPI *PFN_GetModuleHandleExA)(DWORD dwFlags, LPCSTR lpModuleName,
 typedef BOOL(WINAPI *PFN_GetModuleHandleExW)(DWORD dwFlags, LPCWSTR lpModuleName, HMODULE *phModule);
 typedef DWORD(WINAPI *PFN_GetModuleFileNameA)(HMODULE, LPSTR, DWORD);
 typedef DWORD(WINAPI *PFN_GetModuleFileNameW)(HMODULE, LPWSTR, DWORD);
-typedef HANDLE(WINAPI *PFN_CreateFileA)(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile);
 typedef HANDLE(WINAPI *PFN_CreateFileW)(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile);
-typedef HANDLE(WINAPI *PFN_FindFirstFileExA)(LPCSTR lpFileName, FINDEX_INFO_LEVELS fInfoLevelId, LPVOID lpFindFileData, FINDEX_SEARCH_OPS fSearchOp, LPVOID lpSearchFilter, DWORD dwAdditionalFlags);
 typedef HANDLE(WINAPI *PFN_FindFirstFileExW)(LPCWSTR lpFileName, FINDEX_INFO_LEVELS fInfoLevelId, LPVOID lpFindFileData, FINDEX_SEARCH_OPS fSearchOp, LPVOID lpSearchFilter, DWORD dwAdditionalFlags);
 typedef DWORD(WINAPI *PFN_GetPrivateProfileStringA)(LPCSTR lpAppName, LPCSTR lpKeyName, LPCSTR lpDefault, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName);
 typedef DWORD(WINAPI *PFN_GetPrivateProfileStringW)(LPCWSTR lpAppName, LPCWSTR lpKeyName, LPCWSTR lpDefault, LPWSTR lpReturnedString, DWORD nSize, LPCWSTR lpFileName);
@@ -42,9 +40,7 @@ FARPROC p_GetModuleHandleExA = nullptr;
 FARPROC p_GetModuleHandleExW = nullptr;
 FARPROC p_GetModuleFileNameA = nullptr;
 FARPROC p_GetModuleFileNameW = nullptr;
-FARPROC p_CreateFileA = nullptr;
 FARPROC p_CreateFileW = nullptr;
-FARPROC p_FindFirstFileExA = nullptr;
 FARPROC p_FindFirstFileExW = nullptr;
 FARPROC p_GetPrivateProfileStringA = nullptr;
 FARPROC p_GetPrivateProfileStringW = nullptr;
@@ -77,25 +73,27 @@ bool CheckConfigPath(T str)
 }
 
 template<typename T>
-void ReplaceModPath(T lpFileName, DWORD start, std::wstring FileName)
+void ReplaceWithModPath(T lpFileName, DWORD start)
 {
-	if (FileName.size() < start + 4)
+	if (length(lpFileName) > start + 3 &&
+		(lpFileName[start] == 'd' || lpFileName[start] == 'D') &&
+		(lpFileName[start + 1] == 'a' || lpFileName[start + 1] == 'A') &&
+		(lpFileName[start + 2] == 't' || lpFileName[start + 2] == 'T') &&
+		(lpFileName[start + 3] == 'a' || lpFileName[start + 3] == 'A'))
 	{
-		return;
-	}
-
-	wchar_t tmpPath[MAX_PATH];
-	wcscpy_s(tmpPath, MAX_PATH, FileName.c_str());
-	for (int x = 0; x < 4; x++)
-	{
-		tmpPath[start + x] = ModPathW[x];
-	}
-
-	if (PathFileExists(tmpPath))
-	{
+		wchar_t tmpPath[MAX_PATH];
+		wcscpy_s(tmpPath, MAX_PATH, toWString(lpFileName).c_str());
 		for (int x = 0; x < 4; x++)
 		{
-			ConstStr(lpFileName)[start + x] = GetStringType(lpFileName, ModPathA, ModPathW)[x];
+			tmpPath[start + x] = ModPathW[x];
+		}
+
+		if (PathFileExists(tmpPath))
+		{
+			for (int x = 0; x < 4; x++)
+			{
+				ConstStr(lpFileName)[start + x] = GetStringType(lpFileName, ModPathA, ModPathW)[x];
+			}
 		}
 	}
 }
@@ -104,25 +102,14 @@ template<typename T>
 T CheckForModPath(T lpFileName)
 {
 	// Verify mod location and data path
-	if (!UseCustomModFolder ||!modLoc || modLoc + 3 > wstrDataPath.size())
+	if (!UseCustomModFolder || !modLoc || modLoc + 3 > wstrDataPath.size())
 	{
 		return lpFileName;
 	}
 
-	// Convert string to lower case
-	std::wstring FileName(toWString(lpFileName));
-	std::transform(FileName.begin(), FileName.end(), FileName.begin(), ::tolower);
-
 	// Check if string is in the data folder
-	if (FileName.find(wstrDataPath) == 0)
-	{
-		ReplaceModPath(lpFileName, modLoc, FileName);
-	}
-	// Check for relative path
-	else if (FileName.find(L"data") == 0)
-	{
-		ReplaceModPath(lpFileName, 0, FileName);
-	}
+	ReplaceWithModPath(lpFileName, 0);
+	ReplaceWithModPath(lpFileName, modLoc);
 
 	return lpFileName;
 }
@@ -242,20 +229,6 @@ DWORD WINAPI GetModuleFileNameWHandler(HMODULE hModule, LPWSTR lpFilename, DWORD
 	return 0;
 }
 
-// CreateFileA wrapper function
-HANDLE WINAPI CreateFileAHandler(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile)
-{
-	PFN_CreateFileA org_CreateFile = (PFN_CreateFileA)InterlockedCompareExchangePointer((PVOID*)&p_CreateFileA, nullptr, nullptr);
-
-	if (org_CreateFile)
-	{
-		return org_CreateFile(GetFileName(lpFileName), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
-	}
-
-	Log() << __FUNCTION__ << " Error: invalid proc address!";
-	SetLastError(127);
-	return nullptr;
-}
 
 // CreateFileW wrapper function
 HANDLE WINAPI CreateFileWHandler(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile)
@@ -265,21 +238,6 @@ HANDLE WINAPI CreateFileWHandler(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWOR
 	if (org_CreateFile)
 	{
 		return org_CreateFile(GetFileName(lpFileName), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
-	}
-
-	Log() << __FUNCTION__ << " Error: invalid proc address!";
-	SetLastError(127);
-	return nullptr;
-}
-
-// FindFirstFileExA wrapper function
-HANDLE WINAPI FindFirstFileExAHandler(LPCSTR lpFileName, FINDEX_INFO_LEVELS fInfoLevelId, LPVOID lpFindFileData, FINDEX_SEARCH_OPS fSearchOp, LPVOID lpSearchFilter, DWORD dwAdditionalFlags)
-{
-	PFN_FindFirstFileExA org_FindFirstFileEx = (PFN_FindFirstFileExA)InterlockedCompareExchangePointer((PVOID*)&p_FindFirstFileExA, nullptr, nullptr);
-
-	if (org_FindFirstFileEx)
-	{
-		return org_FindFirstFileEx(GetFileName(lpFileName), fInfoLevelId, lpFindFileData, fSearchOp, lpSearchFilter, dwAdditionalFlags);
 	}
 
 	Log() << __FUNCTION__ << " Error: invalid proc address!";
@@ -369,9 +327,7 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	InterlockedExchangePointer((PVOID*)&p_GetModuleFileNameW, Hook::HookAPI(GetModuleHandle(L"kernel32"), "kernel32.dll", Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "GetModuleFileNameW"), "GetModuleFileNameW", GetModuleFileNameWHandler));
 
 	// Hook FileSystem APIs
-	InterlockedExchangePointer((PVOID*)&p_CreateFileA, Hook::HotPatch(Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "CreateFileA"), "CreateFileA", *CreateFileAHandler));
 	InterlockedExchangePointer((PVOID*)&p_CreateFileW, Hook::HotPatch(Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "CreateFileW"), "CreateFileW", *CreateFileWHandler));
-	InterlockedExchangePointer((PVOID*)&p_FindFirstFileExA, Hook::HotPatch(Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "FindFirstFileExA"), "FindFirstFileExA", *FindFirstFileExAHandler));
 	InterlockedExchangePointer((PVOID*)&p_FindFirstFileExW, Hook::HotPatch(Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "FindFirstFileExW"), "FindFirstFileExW", *FindFirstFileExWHandler));
 	InterlockedExchangePointer((PVOID*)&p_GetPrivateProfileStringA, Hook::HotPatch(Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "GetPrivateProfileStringA"), "GetPrivateProfileStringA", *GetPrivateProfileStringAHandler));
 	InterlockedExchangePointer((PVOID*)&p_GetPrivateProfileStringW, Hook::HotPatch(Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "GetPrivateProfileStringW"), "GetPrivateProfileStringW", *GetPrivateProfileStringWHandler));

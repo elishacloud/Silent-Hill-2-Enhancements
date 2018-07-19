@@ -17,9 +17,13 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <algorithm>
-#include "Hooking\Hook.h"
-#include "Common\Logging.h"
+#include <Shlwapi.h>
 #include "FileSystemHooks.h"
+#include "Hooking\Hook.h"
+#include "Common\MyStrings.h"
+#include "Common\Logging.h"
+
+#pragma comment(lib, "Shlwapi.lib")
 
 // API typedef
 typedef BOOL(WINAPI *PFN_GetModuleHandleExA)(DWORD dwFlags, LPCSTR lpModuleName, HMODULE *phModule);
@@ -49,6 +53,10 @@ FARPROC p_GetPrivateProfileStringW = nullptr;
 HMODULE moduleHandle = nullptr;
 char ConfigPathA[MAX_PATH];
 wchar_t ConfigPathW[MAX_PATH];
+char ModPathA[MAX_PATH] = "sh2e";
+wchar_t ModPathW[MAX_PATH] = L"sh2e";
+std::wstring wstrDataPath;
+DWORD modLoc = 0;
 std::wstring wstrModulePath;
 DWORD nPathSize = 0;
 wchar_t ConfigName[MAX_PATH] = { '\0' };
@@ -57,9 +65,10 @@ bool FileEnabled = true;
 template<typename T>
 bool CheckConfigPath(T str)
 {
+	std::wstring ws(toWString(str));
 	for (MODULECONFIG it : ConfigList)
 	{
-		if (*(it.Enabled) && wcsstr(std::wstring(str.begin(), str.end()).c_str(), it.ConfigFileList))
+		if (*(it.Enabled) && wcsstr(ws.c_str(), it.ConfigFileList))
 		{
 			return true;
 		}
@@ -67,14 +76,61 @@ bool CheckConfigPath(T str)
 	return false;
 }
 
-LPCSTR GetFileName(LPCSTR lpFileName)
+template<typename T>
+void ReplaceModPath(T lpFileName, DWORD start, std::wstring FileName)
 {
-	return (CheckConfigPath(std::string(lpFileName))) ? ConfigPathA : lpFileName;
+	if (FileName.size() < start + 4)
+	{
+		return;
+	}
+
+	wchar_t tmpPath[MAX_PATH];
+	wcscpy_s(tmpPath, MAX_PATH, FileName.c_str());
+	for (int x = 0; x < 4; x++)
+	{
+		tmpPath[start + x] = ModPathW[x];
+	}
+
+	if (PathFileExists(tmpPath))
+	{
+		for (int x = 0; x < 4; x++)
+		{
+			ConstStr(lpFileName)[start + x] = GetStringType(lpFileName, ModPathA, ModPathW)[x];
+		}
+	}
 }
 
-LPCWSTR GetFileName(LPCWSTR lpFileName)
+template<typename T>
+T CheckForModPath(T lpFileName)
 {
-	return (CheckConfigPath(std::wstring(lpFileName))) ? ConfigPathW : lpFileName;
+	// Verify mod location and data path
+	if (!UseCustomModFolder ||!modLoc || modLoc + 3 > wstrDataPath.size())
+	{
+		return lpFileName;
+	}
+
+	// Convert string to lower case
+	std::wstring FileName(toWString(lpFileName));
+	std::transform(FileName.begin(), FileName.end(), FileName.begin(), ::tolower);
+
+	// Check if string is in the data folder
+	if (FileName.find(wstrDataPath) == 0)
+	{
+		ReplaceModPath(lpFileName, modLoc, FileName);
+	}
+	// Check for relative path
+	else if (FileName.find(L"data") == 0)
+	{
+		ReplaceModPath(lpFileName, 0, FileName);
+	}
+
+	return lpFileName;
+}
+
+template<typename T>
+T GetFileName(T lpFileName)
+{
+	return (CheckConfigPath(lpFileName)) ? GetStringType(lpFileName, ConfigPathA, ConfigPathW) : CheckForModPath(lpFileName);
 }
 
 template<typename T>
@@ -294,6 +350,14 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	GetModuleFileName(hModule, Path, MAX_PATH);
 	wstrModulePath.assign(Path);
 	nPathSize = wstrModulePath.size() + 1; // Include a null terminator
+
+	// Get data path
+	GetModuleFileName(hModule, Path, MAX_PATH);
+	wcscpy_s(wcsrchr(Path, '\\'), MAX_PATH - wcslen(Path), L"\0");
+	modLoc = wcslen(Path) + 1;
+	wcscat_s(Path, MAX_PATH, L"\\data\\");
+	wstrDataPath.assign(Path);
+	std::transform(wstrDataPath.begin(), wstrDataPath.end(), wstrDataPath.begin(), ::tolower);
 
 	// Logging
 	Log() << "Hooking the FileSystem APIs...";

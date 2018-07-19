@@ -14,6 +14,7 @@
 	visit(PS2StyleNoiseFilter, true) \
 	visit(ResetScreenRes, true) \
 	visit(RowboatAnimationFix, true) \
+	visit(UseCustomModFolder, true) \
 	visit(WidescreenFix, true)
 
 // Configurable setting defaults

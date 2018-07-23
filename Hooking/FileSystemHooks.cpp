@@ -73,7 +73,7 @@ bool CheckConfigPath(T str)
 }
 
 template<typename T>
-void ReplaceWithModPath(T lpFileName, DWORD start)
+bool ReplaceWithModPath(T lpFileName, DWORD start)
 {
 	if (length(lpFileName) > start + 3 &&
 		(lpFileName[start] == 'd' || lpFileName[start] == 'D') &&
@@ -88,14 +88,24 @@ void ReplaceWithModPath(T lpFileName, DWORD start)
 			tmpPath[start + x] = ModPathW[x];
 		}
 
-		if (PathFileExists(tmpPath))
+		wchar_t tmpPath2[MAX_PATH];
+		wcscpy_s(tmpPath2, MAX_PATH, tmpPath);
+		size_t Size = wcslen(tmpPath2);
+		if (Size > 4)
+		{
+			tmpPath2[Size - 1] = '\0';
+		}
+
+		if (PathFileExists(tmpPath) || PathFileExists(tmpPath2))
 		{
 			for (int x = 0; x < 4; x++)
 			{
 				ConstStr(lpFileName)[start + x] = GetStringType(lpFileName, ModPathA, ModPathW)[x];
 			}
+			return true;
 		}
 	}
+	return false;
 }
 
 template<typename T>
@@ -204,7 +214,7 @@ DWORD WINAPI GetModuleFileNameAHandler(HMODULE hModule, LPSTR lpFilename, DWORD 
 
 	Log() << __FUNCTION__ << " Error: invalid proc address!";
 	SetLastError(5);
-	return 0;
+	return NULL;
 }
 
 // Update GetModuleFileNameW to fix module name
@@ -226,9 +236,8 @@ DWORD WINAPI GetModuleFileNameWHandler(HMODULE hModule, LPWSTR lpFilename, DWORD
 
 	Log() << __FUNCTION__ << " Error: invalid proc address!";
 	SetLastError(5);
-	return 0;
+	return NULL;
 }
-
 
 // CreateFileW wrapper function
 HANDLE WINAPI CreateFileWHandler(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile)
@@ -237,12 +246,12 @@ HANDLE WINAPI CreateFileWHandler(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWOR
 
 	if (org_CreateFile)
 	{
-		return org_CreateFile(GetFileName(lpFileName), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+		return org_CreateFile(GetFileName(std::wstring(lpFileName).c_str()), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 	}
 
 	Log() << __FUNCTION__ << " Error: invalid proc address!";
 	SetLastError(127);
-	return nullptr;
+	return INVALID_HANDLE_VALUE;
 }
 
 // FindFirstFileExW wrapper function
@@ -252,12 +261,12 @@ HANDLE WINAPI FindFirstFileExWHandler(LPCWSTR lpFileName, FINDEX_INFO_LEVELS fIn
 
 	if (org_FindFirstFileEx)
 	{
-		return org_FindFirstFileEx(GetFileName(lpFileName), fInfoLevelId, lpFindFileData, fSearchOp, lpSearchFilter, dwAdditionalFlags);
+		return org_FindFirstFileEx(GetFileName(std::wstring(lpFileName).c_str()), fInfoLevelId, lpFindFileData, fSearchOp, lpSearchFilter, dwAdditionalFlags);
 	}
 
 	Log() << __FUNCTION__ << " Error: invalid proc address!";
 	SetLastError(127);
-	return nullptr;
+	return INVALID_HANDLE_VALUE;
 }
 
 // GetPrivateProfileStringA wrapper function
@@ -267,12 +276,12 @@ DWORD WINAPI GetPrivateProfileStringAHandler(LPCSTR lpAppName, LPCSTR lpKeyName,
 
 	if (org_GetPrivateProfileString)
 	{
-		return org_GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, GetFileName(lpFileName));
+		return org_GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, GetFileName(std::string(lpFileName).c_str()));
 	}
 
 	Log() << __FUNCTION__ << " Error: invalid proc address!";
 	SetLastError(2);
-	return 0;
+	return NULL;
 }
 
 // GetPrivateProfileStringW wrapper function
@@ -282,12 +291,12 @@ DWORD WINAPI GetPrivateProfileStringWHandler(LPCWSTR lpAppName, LPCWSTR lpKeyNam
 
 	if (org_GetPrivateProfileString)
 	{
-		return org_GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, GetFileName(lpFileName));
+		return org_GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, GetFileName(std::wstring(lpFileName).c_str()));
 	}
 
 	Log() << __FUNCTION__ << " Error: invalid proc address!";
 	SetLastError(2);
-	return 0;
+	return NULL;
 }
 
 void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)

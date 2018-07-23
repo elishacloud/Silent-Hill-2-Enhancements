@@ -37,9 +37,9 @@ __declspec(naked) void __stdcall RowboatAnimationASM()
 		cmp eax, 0x4C
 		jne near RowboatExit
 		push ecx
+		push eax
 		xor ecx, ecx
 		dec ecx
-		push eax
 		mov eax, dword ptr ds : [RowboatPointer]
 		mov dword ptr ds : [eax], ecx
 		pop eax

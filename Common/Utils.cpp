@@ -17,7 +17,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include "Utils.h"
-#include "..\Common\Logging.h"
+#include "Logging.h"
 
 std::vector<HMODULE> custom_dll;		// Used for custom dll's and asi plugins
 

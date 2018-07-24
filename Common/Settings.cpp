@@ -28,6 +28,8 @@
 
 VISIT_BOOL_SETTINGS(SET_BOOL_DEFAULTS);
 
+WNDMODESTRUCT WndModeConfig;
+
 // Forward declarations
 bool SetValue(char* name);
 bool IsValidSettings(char* name, char* value);
@@ -46,13 +48,13 @@ void __stdcall ParseCallback(char* lpName, char* lpValue)
 }
 
 // Set booloean value from string (file)
-bool SetValue(char* name)
+bool SetValue(char* value)
 {
-	return (atoi(name) > 0 ||
-		_strcmpi("on", name) == 0 ||
-		_strcmpi("yes", name) == 0 ||
-		_strcmpi("true", name) == 0 ||
-		_strcmpi("enabled", name) == 0);
+	return (atoi(value) > 0 ||
+		_strcmpi("on", value) == 0 ||
+		_strcmpi("yes", value) == 0 ||
+		_strcmpi("true", value) == 0 ||
+		_strcmpi("enabled", value) == 0);
 }
 
 // Check if the values are valid

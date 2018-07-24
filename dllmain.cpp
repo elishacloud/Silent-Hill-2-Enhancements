@@ -113,22 +113,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		// Load modupdater
 		if (AutoUpdateModule)
 		{
-			// Get module name
-			wchar_t Path[MAX_PATH], Name[MAX_PATH];
-			GetModuleFileName(hModule, Path, MAX_PATH);
-			wcscpy_s(Name, MAX_PATH, wcsrchr(Path, '\\'));
-
-			// Get 'temp' path
-			GetTempPath(MAX_PATH, Path);
-			wcscat_s(Path, MAX_PATH, L"~tmp_sh2_enhce");
-			CreateDirectory(Path, nullptr);
-
-			// Update path with module name
-			wcscat_s(Path, MAX_PATH, Name);
-			wcscpy_s(wcsrchr(Path, '.'), MAX_PATH, L".tmp");
-
-			// Load module
-			LoadModuleFromResourceToFile(hModule, IDR_SH2UPD, L"modupdater", Path);
+			LoadModUpdater(hModule, IDR_SH2UPD);
 		}
 
 		// Enable d3d8to9
@@ -194,15 +179,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		// Load forced windowed mode
 		if (EnableWndMode)
 		{
-			// Get 'temp' path
-			wchar_t Path[MAX_PATH];
-			GetTempPath(MAX_PATH, Path);
-			wcscat_s(Path, MAX_PATH, L"~tmp_sh2_enhce");
-			CreateDirectory(Path, nullptr);
-			wcscat_s(Path, MAX_PATH, L"\\wndmode.tmp");
-
-			// Load module
-			LoadModuleFromResourceToFile(hModule, IDR_SH2WND, L"WndMode", Path);
+			LoadWndMode(hModule, IDR_SH2WND);
 		}
 
 		// Resetting thread priority

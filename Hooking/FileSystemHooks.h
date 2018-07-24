@@ -15,8 +15,7 @@ struct MODULECONFIG
 static MODULECONFIG ConfigList[] =
 {
 	{ ConfigName, &FileEnabled },
-	{ L"sh2fog.ini", &Nemesis2000FogFix },
-	{ L"wndmode.ini", &EnableWndMode }
+	{ L"sh2fog.ini", &Nemesis2000FogFix }
 };
 
 void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath);

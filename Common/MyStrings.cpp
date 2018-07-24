@@ -16,6 +16,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <algorithm>
 #include <fstream>
 
 char *ConstStr(LPCSTR str)
@@ -36,6 +37,12 @@ size_t length(LPCSTR str)
 size_t length(LPCWSTR str)
 {
 	return wcslen(str);
+}
+
+std::wstring toLower(std::wstring str)
+{
+	std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+	return str;
 }
 
 std::wstring toWString(LPCSTR str)

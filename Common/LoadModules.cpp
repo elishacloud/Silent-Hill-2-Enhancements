@@ -21,8 +21,9 @@
 #include <Windows.h>
 #include <vector>
 #include "External\MemoryModule\MemoryModule.h"
-#include "Common\Utils.h"
-#include "Common\Logging.h"
+#include "Settings.h"
+#include "Utils.h"
+#include "Logging.h"
 
 // Memory modules
 struct MMODULE
@@ -74,7 +75,7 @@ void FindFiles(WIN32_FIND_DATA* fd)
 }
 
 // Load asi plugins
-void LoadASIPlugins(bool LoadFromScriptsOnly)
+void LoadASIPlugins(bool LoadFromScriptsOnlyFlag)
 {
 	Log() << "Loading ASI Plugins";
 
@@ -89,7 +90,7 @@ void LoadASIPlugins(bool LoadFromScriptsOnly)
 	SetCurrentDirectory(selfPath);
 
 	WIN32_FIND_DATA fd;
-	if (!LoadFromScriptsOnly)
+	if (!LoadFromScriptsOnlyFlag)
 	{
 		FindFiles(&fd);
 	}
@@ -132,6 +133,7 @@ void LoadModuleFromResource(HMODULE hModule, DWORD ResID, LPCWSTR lpName)
 					{
 						MMODULE MMItem = { hMModule , ResID };
 						HMModules.push_back(MMItem);
+						return;
 					}
 					else
 					{
@@ -141,6 +143,7 @@ void LoadModuleFromResource(HMODULE hModule, DWORD ResID, LPCWSTR lpName)
 			}
 		}
 	}
+	Log() << __FUNCTION__ << " Error: failed to load " << lpName << " module!";
 }
 
 // Load memory module from resource
@@ -169,6 +172,7 @@ void LoadModuleFromResourceToFile(HMODULE hModule, DWORD ResID, LPCWSTR lpName, 
 						if (h_Module)
 						{
 							AddHandleToVector(h_Module);
+							return;
 						}
 						else
 						{
@@ -183,6 +187,96 @@ void LoadModuleFromResourceToFile(HMODULE hModule, DWORD ResID, LPCWSTR lpName, 
 			}
 		}
 	}
+	Log() << __FUNCTION__ << " Error: failed to load " << lpName << " module!";
+}
+
+// Load modupdater
+void LoadModUpdater(HMODULE hModule, DWORD ResID)
+{
+	// Get module name
+	wchar_t Path[MAX_PATH], Name[MAX_PATH];
+	GetModuleFileName(hModule, Path, MAX_PATH);
+	wcscpy_s(Name, MAX_PATH, wcsrchr(Path, '\\'));
+
+	// Get 'temp' path
+	GetTempPath(MAX_PATH, Path);
+	wcscat_s(Path, MAX_PATH, L"~tmp_sh2_enhce");
+	CreateDirectory(Path, nullptr);
+
+	// Update path with module name
+	wcscat_s(Path, MAX_PATH, Name);
+	wcscpy_s(wcsrchr(Path, '.'), MAX_PATH, L".tmp");
+
+	// Load module
+	LoadModuleFromResourceToFile(hModule, ResID, L"modupdater", Path);
+}
+
+// Get config settings from string (file)
+void __stdcall ParseWndCallback(char* lpName, char* lpValue)
+{
+	// Check settings
+#define GET_WNDMODE_VALUES(name) \
+	if (!_strcmpi(lpName, #name)) WndModeConfig.name = atoi(lpValue);
+
+	VISIT_WNDMODE_SETTINGS(GET_WNDMODE_VALUES);
+}
+
+// Load WndMode
+void LoadWndMode(HMODULE hModule, DWORD ResID)
+{
+	// Get 'temp' path
+	wchar_t wndPath[MAX_PATH];
+	GetTempPath(MAX_PATH, wndPath);
+	wcscat_s(wndPath, MAX_PATH, L"~tmp_sh2_enhce");
+	CreateDirectory(wndPath, nullptr);
+	wcscat_s(wndPath, MAX_PATH, L"\\wndmode.ini");
+
+	// Get wndmode config settings
+	wchar_t configPath[MAX_PATH];
+	GetModuleFileName(hModule, configPath, MAX_PATH);
+	wcscpy_s(wcsrchr(configPath, '.'), MAX_PATH - wcslen(configPath), L".ini");
+	char* szCfg = Read(configPath);
+
+	// Parce config file
+	if (szCfg)
+	{
+		// Store settings
+		Parse(szCfg, ParseWndCallback);
+		free(szCfg);
+
+		// Open ini file
+		std::ofstream WndMode_ini;
+		WndMode_ini.open(wndPath, std::ios::trunc);
+
+		// Write to ini file
+		if (WndMode_ini.is_open())
+		{
+			WndMode_ini << "[WINDOWMODE]\n";
+
+			// Write settings
+#define SET_WNDMODE_VALUES(name) \
+	WndMode_ini << #name << "=" << WndModeConfig.name << "\n";
+
+			VISIT_WNDMODE_SETTINGS(SET_WNDMODE_VALUES);
+
+			// Close file
+			WndMode_ini.close();
+		}
+		else
+		{
+			Log() << __FUNCTION__ << " Error: Could not write WndMode settings!";
+		}
+	}
+	else
+	{
+		Log() << __FUNCTION__ << " Error: Could not read WndMode settings!";
+	}
+
+	// Set WndMode path
+	wcscpy_s(wcsrchr(wndPath, '.'), MAX_PATH - wcslen(wndPath), L".tmp");
+
+	// Load module
+	LoadModuleFromResourceToFile(hModule, ResID, L"WndMode", wndPath);
 }
 
 // Unload resource memory modules

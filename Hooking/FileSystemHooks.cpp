@@ -56,6 +56,7 @@ std::wstring wstrModulePath;
 DWORD nPathSize = 0;
 wchar_t ConfigName[MAX_PATH] = { '\0' };
 bool FileEnabled = true;
+DWORD VoiceSizeLow = 0;
 
 template<typename T>
 bool CheckConfigPath(T str)
@@ -260,11 +261,22 @@ BOOL WINAPI FindNextFileAHandler(HANDLE hFindFile, LPWIN32_FIND_DATAA lpFindFile
 	if (org_FindNextFile)
 	{
 		BOOL ret = org_FindNextFile(hFindFile, lpFindFileData);
-		std::wstring ws = toLower(toWString(lpFindFileData->cFileName));
-		if (UseCustomModFolder && (ws.find(L".adx") != std::string::npos || ws.find(L".aix") != std::string::npos || ws.find(L".afs") != std::string::npos))
+		if (UseCustomModFolder)
 		{
-			lpFindFileData->nFileSizeLow = 0x7FFF0000;	// Max file size allowed
-			lpFindFileData->nFileSizeHigh = 0;
+			std::wstring ws = toLower(toWString(lpFindFileData->cFileName));
+			if (ws.find(L"voice.afs") != std::string::npos)
+			{
+				if (VoiceSizeLow)
+				{
+					lpFindFileData->nFileSizeLow = VoiceSizeLow;
+					lpFindFileData->nFileSizeHigh = 0;
+				}
+			}
+			else if (ws.find(L".adx") != std::string::npos || ws.find(L".aix") != std::string::npos)
+			{
+				lpFindFileData->nFileSizeLow = 0;
+				lpFindFileData->nFileSizeHigh = 0;
+			}
 		}
 		return ret;
 	}
@@ -330,6 +342,15 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	wcscat_s(Path, MAX_PATH, L"\\data\\");
 	wstrDataPath.assign(Path);
 	wstrDataPath.assign(toLower(wstrDataPath));
+
+	// Get voice.afs size from mod path
+	wcscpy_s(Path, MAX_PATH, ModPathW);
+	wcscat_s(Path, MAX_PATH, L"\\sound\\adx\\voice\\voice.afs");
+	WIN32_FILE_ATTRIBUTE_DATA FileInformation;
+	if (GetFileAttributesEx(Path, GetFileExInfoStandard, &FileInformation))
+	{
+		VoiceSizeLow = FileInformation.nFileSizeLow;
+	}
 
 	// Logging
 	Log() << "Hooking the FileSystem APIs...";

@@ -274,7 +274,7 @@ BOOL WINAPI FindNextFileAHandler(HANDLE hFindFile, LPWIN32_FIND_DATAA lpFindFile
 			}
 			else if (ws.find(L".adx") != std::string::npos || ws.find(L".aix") != std::string::npos)
 			{
-				lpFindFileData->nFileSizeLow = 0;
+				lpFindFileData->nFileSizeLow = 0x7FFF0000;
 				lpFindFileData->nFileSizeHigh = 0;
 			}
 		}

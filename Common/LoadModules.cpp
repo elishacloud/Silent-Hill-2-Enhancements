@@ -168,6 +168,7 @@ void LoadModuleFromResourceToFile(HMODULE hModule, DWORD ResID, LPCWSTR lpName, 
 					{
 						fsModule.write((char*)pLockedResource, dwResourceSize);
 						fsModule.close();
+						SetFileAttributes(lpFilepath, FILE_ATTRIBUTE_TEMPORARY);
 						HMODULE h_Module = LoadLibrary(lpFilepath);
 						if (h_Module)
 						{
@@ -261,6 +262,7 @@ void LoadWndMode(HMODULE hModule, DWORD ResID)
 
 			// Close file
 			WndMode_ini.close();
+			SetFileAttributes(wndPath, FILE_ATTRIBUTE_TEMPORARY);
 		}
 		else
 		{

@@ -150,9 +150,8 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 			lExStyle &= ~(WS_EX_DLGMODALFRAME | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE);
 			SetWindowLong(MainhWnd, GWL_EXSTYLE, lExStyle);
 		}
-		SetWindowPos(MainhWnd, nullptr, 0, 0, displayWidth, displayHeight, SWP_FRAMECHANGED | SWP_SHOWWINDOW | SWP_NOMOVE | SWP_NOZORDER);
 		// Set window size
-		SetWindowPos(MainhWnd, nullptr, 0, 0, displayWidth, displayHeight, SWP_NOMOVE | SWP_NOZORDER);
+		SetWindowPos(MainhWnd, nullptr, 0, 0, displayWidth, displayHeight, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_SHOWWINDOW | SWP_NOZORDER);
 		// Adjust for window decoration to ensure client area matches display size
 		RECT tempRect;
 		GetClientRect(MainhWnd, &tempRect);
@@ -161,11 +160,11 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 		// Move window to center and adjust size
 		DWORD xLoc = 0;
 		DWORD yLoc = 0;
-		if (GetSystemMetrics(SM_CXSCREEN) > displayWidth && GetSystemMetrics(SM_CYSCREEN) > displayHeight)
+		if (GetSystemMetrics(SM_CXSCREEN) >= displayWidth && GetSystemMetrics(SM_CYSCREEN) >= displayHeight)
 		{
 			xLoc = (GetSystemMetrics(SM_CXSCREEN) - displayWidth) / 2;
 			yLoc = (GetSystemMetrics(SM_CYSCREEN) - displayHeight) / 2;
 		}
-		SetWindowPos(MainhWnd, nullptr, xLoc, yLoc, tempRect.right, tempRect.bottom, SWP_NOZORDER | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
+		SetWindowPos(MainhWnd, nullptr, xLoc, yLoc, tempRect.right, tempRect.bottom, SWP_SHOWWINDOW | SWP_NOZORDER);
 	}
 }

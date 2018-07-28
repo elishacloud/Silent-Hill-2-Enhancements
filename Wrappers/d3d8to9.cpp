@@ -42,20 +42,7 @@ void EnableD3d8to9()
 
 	AddHandleToVector(d3d9_dll);
 	p_Direct3DCreate9 = GetProcAddress(d3d9_dll, "Direct3DCreate9");
-	if (Wrapper::dtype == DTYPE_D3D8)
-	{
-		d3d8::Direct3DCreate8_var = p_Direct3DCreate8to9;
-	}
-	else
-	{
-		// Load d3d8 procs
-		HMODULE d3d8_dll = LoadLibrary(L"d3d8.dll");
-		AddHandleToVector(d3d8_dll);
-
-		// Hook d3d8.dll -> D3d8to9
-		Log() << "Hooking d3d8.dll APIs...";
-		Hook::HotPatch(Hook::GetProcAddress(d3d8_dll, "Direct3DCreate8"), "Direct3DCreate8", p_Direct3DCreate8to9, true);
-	}
+	d3d8::Direct3DCreate8_var = p_Direct3DCreate8to9;
 }
 
 // Handles calls to 'Direct3DCreate8' for d3d8to9

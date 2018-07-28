@@ -5,5 +5,5 @@
 void EnableD3d8to9();
 Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion);
 
-static FARPROC p_Direct3DCreate8to9 = (FARPROC)*Direct3DCreate8to9;
+constexpr FARPROC p_Direct3DCreate8to9 = (FARPROC)*Direct3DCreate8to9;
 extern FARPROC p_Direct3DCreate9;

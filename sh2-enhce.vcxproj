@@ -44,6 +44,17 @@
     <ClCompile Include="Patches\RowboatAnimation.cpp" />
     <ClCompile Include="Patches\SfxPatch.cpp" />
     <ClCompile Include="Wrappers\d3d8to9.cpp" />
+    <ClCompile Include="Wrappers\d3d8\d3d8wrapper.cpp" />
+    <ClCompile Include="Wrappers\d3d8\IDirect3D8.cpp" />
+    <ClCompile Include="Wrappers\d3d8\IDirect3DCubeTexture8.cpp" />
+    <ClCompile Include="Wrappers\d3d8\IDirect3DDevice8.cpp" />
+    <ClCompile Include="Wrappers\d3d8\IDirect3DIndexBuffer8.cpp" />
+    <ClCompile Include="Wrappers\d3d8\IDirect3DSurface8.cpp" />
+    <ClCompile Include="Wrappers\d3d8\IDirect3DSwapChain8.cpp" />
+    <ClCompile Include="Wrappers\d3d8\IDirect3DTexture8.cpp" />
+    <ClCompile Include="Wrappers\d3d8\IDirect3DVertexBuffer8.cpp" />
+    <ClCompile Include="Wrappers\d3d8\IDirect3DVolume8.cpp" />
+    <ClCompile Include="Wrappers\d3d8\IDirect3DVolumeTexture8.cpp" />
     <ClCompile Include="Wrappers\wrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -64,6 +75,18 @@
     <ClInclude Include="Resources\sh2-enhce.h" />
     <ClInclude Include="Wrappers\d3d8.h" />
     <ClInclude Include="Wrappers\d3d8to9.h" />
+    <ClInclude Include="Wrappers\d3d8\d3d8wrapper.h" />
+    <ClInclude Include="Wrappers\d3d8\IDirect3D8.h" />
+    <ClInclude Include="Wrappers\d3d8\IDirect3DCubeTexture8.h" />
+    <ClInclude Include="Wrappers\d3d8\IDirect3DDevice8.h" />
+    <ClInclude Include="Wrappers\d3d8\IDirect3DIndexBuffer8.h" />
+    <ClInclude Include="Wrappers\d3d8\IDirect3DSurface8.h" />
+    <ClInclude Include="Wrappers\d3d8\IDirect3DSwapChain8.h" />
+    <ClInclude Include="Wrappers\d3d8\IDirect3DTexture8.h" />
+    <ClInclude Include="Wrappers\d3d8\IDirect3DVertexBuffer8.h" />
+    <ClInclude Include="Wrappers\d3d8\IDirect3DVolume8.h" />
+    <ClInclude Include="Wrappers\d3d8\IDirect3DVolumeTexture8.h" />
+    <ClInclude Include="Wrappers\d3d8\LookupTable.h" />
     <ClInclude Include="Wrappers\dinput8.h" />
     <ClInclude Include="Wrappers\dsound.h" />
     <ClInclude Include="Wrappers\wrapper.h" />

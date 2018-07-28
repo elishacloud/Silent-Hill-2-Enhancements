@@ -86,6 +86,39 @@
     <ClCompile Include="Common\MyStrings.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="Wrappers\d3d8\IDirect3D8.cpp">
+      <Filter>Wrappers\d3d8</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrappers\d3d8\IDirect3DCubeTexture8.cpp">
+      <Filter>Wrappers\d3d8</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrappers\d3d8\IDirect3DDevice8.cpp">
+      <Filter>Wrappers\d3d8</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrappers\d3d8\IDirect3DIndexBuffer8.cpp">
+      <Filter>Wrappers\d3d8</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrappers\d3d8\IDirect3DSurface8.cpp">
+      <Filter>Wrappers\d3d8</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrappers\d3d8\IDirect3DSwapChain8.cpp">
+      <Filter>Wrappers\d3d8</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrappers\d3d8\IDirect3DTexture8.cpp">
+      <Filter>Wrappers\d3d8</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrappers\d3d8\IDirect3DVertexBuffer8.cpp">
+      <Filter>Wrappers\d3d8</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrappers\d3d8\IDirect3DVolume8.cpp">
+      <Filter>Wrappers\d3d8</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrappers\d3d8\IDirect3DVolumeTexture8.cpp">
+      <Filter>Wrappers\d3d8</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrappers\d3d8\d3d8wrapper.cpp">
+      <Filter>Wrappers\d3d8</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Logging.h">
@@ -148,6 +181,42 @@
     <ClInclude Include="Common\MyStrings.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="Wrappers\d3d8\IDirect3D8.h">
+      <Filter>Wrappers\d3d8</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\d3d8\IDirect3DCubeTexture8.h">
+      <Filter>Wrappers\d3d8</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\d3d8\IDirect3DDevice8.h">
+      <Filter>Wrappers\d3d8</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\d3d8\IDirect3DIndexBuffer8.h">
+      <Filter>Wrappers\d3d8</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\d3d8\IDirect3DSurface8.h">
+      <Filter>Wrappers\d3d8</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\d3d8\IDirect3DSwapChain8.h">
+      <Filter>Wrappers\d3d8</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\d3d8\IDirect3DTexture8.h">
+      <Filter>Wrappers\d3d8</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\d3d8\IDirect3DVertexBuffer8.h">
+      <Filter>Wrappers\d3d8</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\d3d8\IDirect3DVolume8.h">
+      <Filter>Wrappers\d3d8</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\d3d8\IDirect3DVolumeTexture8.h">
+      <Filter>Wrappers\d3d8</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\d3d8\d3d8wrapper.h">
+      <Filter>Wrappers\d3d8</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\d3d8\LookupTable.h">
+      <Filter>Wrappers\d3d8</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\sh2-enhce.rc">
@@ -192,6 +261,9 @@
     </Filter>
     <Filter Include="Patches">
       <UniqueIdentifier>{7d0dc3ce-9a23-4da8-bfa7-b04883141415}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Wrappers\d3d8">
+      <UniqueIdentifier>{c24898f3-72bd-4aaf-94c8-e5dc929e7809}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

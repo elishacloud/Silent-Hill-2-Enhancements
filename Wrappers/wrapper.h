@@ -45,3 +45,5 @@ namespace d3d8
 {
 	VISIT_PROCS_D3D8(DECLARE_PROC_VARIABLES);
 }
+
+extern FARPROC p_Direct3DCreate8Wrapper;

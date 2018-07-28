@@ -28,8 +28,6 @@
 
 VISIT_BOOL_SETTINGS(SET_BOOL_DEFAULTS);
 
-WNDMODESTRUCT WndModeConfig;
-
 // Forward declarations
 bool SetValue(char* name);
 bool IsValidSettings(char* name, char* value);

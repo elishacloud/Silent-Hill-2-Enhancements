@@ -6,6 +6,7 @@
 	visit(CemeteryLightingFix, true) \
 	visit(EnableSFXAddrHack, true) \
 	visit(EnableWndMode, false) \
+	visit(WndModeBorder, true) \
 	visit(IncreaseDrawDistance, true) \
 	visit(LoadFromScriptsOnly, false) \
 	visit(LoadPlugins, false) \
@@ -22,38 +23,6 @@
 	extern bool name;
 
 VISIT_BOOL_SETTINGS(DECLARE_BOOL_SETTINGS);
-
-#define VISIT_WNDMODE_SETTINGS(visit) \
-	visit(UseWindowMode) \
-	visit(UseGDI) \
-	visit(UseDirect3D) \
-	visit(UseDirectInput) \
-	visit(UseCursorMsg) \
-	visit(UseCursorSet) \
-	visit(UseCursorGet) \
-	visit(UseSpeedHack) \
-	visit(SpeedHackMultiple) \
-	visit(UseBackgroundResize) \
-	visit(UseForegroundControl) \
-	visit(UseFGCGetActiveWindow) \
-	visit(UseFGCGetForegroundWindow) \
-	visit(UseFGCFixedWindowPosition) \
-	visit(EnableExtraKey) \
-	visit(ShowFps) \
-	visit(UseCursorClip) \
-	visit(UseBackgroundPriority) \
-	visit(Border)
-
-// Configurable setting defaults
-struct WNDMODESTRUCT
-{
-#define DECLARE_WNDMODE_SETTINGS(name) \
-	DWORD name;
-
-	VISIT_WNDMODE_SETTINGS(DECLARE_WNDMODE_SETTINGS);
-};
-
-extern WNDMODESTRUCT WndModeConfig;
 
 typedef void(__stdcall* NV)(char* name, char* value);
 

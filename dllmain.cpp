@@ -84,12 +84,6 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			Log() << __FUNCTION__ << " Error: Config file not found, using defaults";
 		}
 
-		// Hook CreateFile API, only needed for external modules
-		if (Nemesis2000FogFix || WidescreenFix)
-		{
-			InstallFileSystemHooks(hModule, pathname);
-		}
-
 		// Create wrapper
 		HMODULE dll = Wrapper::CreateWrapper();
 		if (dll)
@@ -110,16 +104,34 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			GetDeviceGammaRamp(hDC, &lpRamp[0]);
 		}
 
-		// Load modupdater
-		if (AutoUpdateModule)
+		// Hook d3d8.dll
+		if (Wrapper::dtype != DTYPE_D3D8 && (d3d8to9 || EnableWndMode))
 		{
-			LoadModUpdater(hModule, IDR_SH2UPD);
+			// Load d3d8 procs
+			HMODULE d3d8_dll = LoadLibrary(L"d3d8.dll");
+			AddHandleToVector(d3d8_dll);
+
+			// Hook d3d8.dll -> d3d8wrapper
+			Log() << "Hooking d3d8.dll APIs...";
+			d3d8::Direct3DCreate8_var = (FARPROC)Hook::HotPatch(Hook::GetProcAddress(d3d8_dll, "Direct3DCreate8"), "Direct3DCreate8", p_Direct3DCreate8Wrapper, true);
 		}
 
 		// Enable d3d8to9
 		if (d3d8to9)
 		{
 			EnableD3d8to9();
+		}
+
+		// Hook CreateFile API, only needed for external modules
+		if (Nemesis2000FogFix || WidescreenFix)
+		{
+			InstallFileSystemHooks(hModule, pathname);
+		}
+
+		// Load modupdater
+		if (AutoUpdateModule)
+		{
+			LoadModUpdater(hModule, IDR_SH2UPD);
 		}
 
 		// Enable No-CD Patch
@@ -174,12 +186,6 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		if (LoadPlugins && Wrapper::dtype != DTYPE_ASI)
 		{
 			LoadASIPlugins(LoadFromScriptsOnly);
-		}
-
-		// Load forced windowed mode
-		if (EnableWndMode)
-		{
-			LoadWndMode(hModule, IDR_SH2WND);
 		}
 
 		// Resetting thread priority

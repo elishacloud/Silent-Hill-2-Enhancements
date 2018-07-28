@@ -272,7 +272,10 @@ void m_IDirect3DDevice8::GetGammaRamp(THIS_ D3DGAMMARAMP* pRamp)
 
 void m_IDirect3DDevice8::SetGammaRamp(THIS_ DWORD Flags, CONST D3DGAMMARAMP* pRamp)
 {
-	ProxyInterface->SetGammaRamp(Flags, pRamp);
+	if (!EnableWndMode)
+	{
+		ProxyInterface->SetGammaRamp(Flags, pRamp);
+	}
 }
 
 HRESULT m_IDirect3DDevice8::DeletePatch(UINT Handle)

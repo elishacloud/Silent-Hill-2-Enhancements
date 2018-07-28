@@ -122,8 +122,8 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			EnableD3d8to9();
 		}
 
-		// Hook CreateFile API, only needed for external modules
-		if (Nemesis2000FogFix || WidescreenFix)
+		// Hook CreateFile API, only needed for external modules and CustomModFolder
+		if (Nemesis2000FogFix || WidescreenFix || UseCustomModFolder)
 		{
 			InstallFileSystemHooks(hModule, pathname);
 		}

@@ -4,6 +4,7 @@
 	visit(AutoUpdateModule, true) \
 	visit(d3d8to9, true) \
 	visit(CemeteryLightingFix, true) \
+	visit(EddieBossRoomsFix, true) \
 	visit(EnableSFXAddrHack, true) \
 	visit(EnableWndMode, false) \
 	visit(WndModeBorder, true) \

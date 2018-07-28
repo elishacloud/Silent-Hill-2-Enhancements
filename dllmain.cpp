@@ -170,6 +170,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			UpdateRowboatAnimation();
 		}
 
+		// Eddie Boss Rooms
+		if (EddieBossRoomsFix)
+		{
+			UpdateEddieBossRooms();
+		}
+
 		// Load Nemesis2000's Fog Fix
 		if (Nemesis2000FogFix)
 		{

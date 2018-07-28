@@ -119,6 +119,9 @@
     <ClCompile Include="Wrappers\d3d8\d3d8wrapper.cpp">
       <Filter>Wrappers\d3d8</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\EddieBossRooms.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Logging.h">

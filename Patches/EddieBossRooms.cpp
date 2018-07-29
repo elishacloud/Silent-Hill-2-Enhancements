@@ -44,7 +44,7 @@ constexpr float EddiesLargeRoomFloorB = -0.1f; // "Large Room" Floor Blue
 // Update SH2 code to Fix Cemetery Lighting
 void UpdateEddieBossRooms()
 {
-	// Check that 
+	// Check that UseCustomModFolder is enabled
 	if (!UseCustomModFolder)
 	{
 		Log() << __FUNCTION__ << " Could not load fix.  This fix requires 'UseCustomModFolder' to be enabled!";

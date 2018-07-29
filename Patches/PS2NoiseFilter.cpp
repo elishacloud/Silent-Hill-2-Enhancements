@@ -16,8 +16,8 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include "..\Common\Utils.h"
-#include "..\Common\Logging.h"
+#include "Common\Utils.h"
+#include "Common\Logging.h"
 
 // Predefined code bytes
 constexpr BYTE FilterByteEDX[2][5] = { { 0xBA, 0xFF, 0x00, 0x00, 0x00 }, { 0xBA, 0xD7, 0x01, 0x00, 0x00 } };

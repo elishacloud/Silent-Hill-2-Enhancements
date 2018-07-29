@@ -16,8 +16,8 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include "..\Common\Utils.h"
-#include "..\Common\Logging.h"
+#include "Common\Utils.h"
+#include "Common\Logging.h"
 
 // Predefined code bytes
 constexpr BYTE CDFuncBlock[] = { 0x81, 0xEC, 0x08, 0x04, 0x00, 0x00, 0xA1 };

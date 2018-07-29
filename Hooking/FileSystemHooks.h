@@ -54,6 +54,9 @@
 extern bool FileEnabled;
 extern wchar_t ConfigName[MAX_PATH];
 
+extern char ModPathA[MAX_PATH];
+extern wchar_t ModPathW[MAX_PATH];
+
 struct MODULECONFIG
 {
 	wchar_t *ConfigFileList;		// Module config name

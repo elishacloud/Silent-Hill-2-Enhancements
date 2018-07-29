@@ -16,8 +16,8 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include "..\Common\Utils.h"
-#include "..\Common\Logging.h"
+#include "Common\Utils.h"
+#include "Common\Logging.h"
 
 // Predefined code bytes
 constexpr BYTE CemeterySearchBytes[]{ 0x83, 0xEC, 0x10, 0x55, 0x56, 0x57, 0x50, 0x51, 0x8D, 0x54, 0x24, 0x14, 0x6A, 0x00, 0x52 };

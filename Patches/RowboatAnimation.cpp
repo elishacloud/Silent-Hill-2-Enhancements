@@ -16,8 +16,8 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include "..\Common\Utils.h"
-#include "..\Common\Logging.h"
+#include "Common\Utils.h"
+#include "Common\Logging.h"
 
 // Predefined code bytes
 constexpr BYTE RowboatSearchBytes[]{ 0x8B, 0x56, 0x08, 0x89, 0x10, 0x5F, 0x5E, 0x5D, 0x83, 0xC4, 0x50, 0xC3 };

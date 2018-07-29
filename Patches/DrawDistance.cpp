@@ -16,8 +16,8 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include "..\Common\Utils.h"
-#include "..\Common\Logging.h"
+#include "Common\Utils.h"
+#include "Common\Logging.h"
 
 // Predefined code bytes
 constexpr BYTE DDStartAddr[] = { 0xC7, 0x05, 0x58 };

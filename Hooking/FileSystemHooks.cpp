@@ -116,7 +116,11 @@ template<typename T>
 T CheckForModPath(T lpFileName)
 {
 	// Verify mod location and data path
-	if (!UseCustomModFolder || !modLoc || modLoc + 3 > wstrDataPath.size() || toLower(toWString(lpFileName)).find(L"data\\save") != std::string::npos)
+	std::wstring ws = toLower(toWString(lpFileName));
+	if (!UseCustomModFolder ||													// Verify UseCustomModFolder is enabled
+		!modLoc || modLoc + 3 > wstrDataPath.size() ||							// Verify modLoc is correct and string is large enough
+		ws.find(L"data\\save") != std::string::npos ||							// Ignore files in the 'data\save' folder
+		(ws.find(L"sddata.bin") != std::string::npos && !EnableSFXAddrHack))	// Ignore 'sddata.bin' if EnableSFXAddrHack is disabled
 	{
 		return lpFileName;
 	}

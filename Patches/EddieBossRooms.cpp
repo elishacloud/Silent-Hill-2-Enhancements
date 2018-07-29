@@ -16,8 +16,11 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include "..\Common\Utils.h"
-#include "..\Common\Logging.h"
+#include <Shlwapi.h>
+#include "Hooking\FileSystemHooks.h"
+#include "Common\Utils.h"
+#include "Common\Settings.h"
+#include "Common\Logging.h"
 
 // Predefined code bytes
 constexpr BYTE EddieSearchBytes[]{ 0x00, 0xFE, 0x42, 0x00, 0x00, 0x31, 0x43, 0x00, 0x00, 0xFE, 0x42, 0x00, 0x00, 0xFE, 0x42, 0x9A, 0x99, 0x19, 0x3E, 0x9A, 0x99, 0x19, 0x3E, 0x9A, 0x99, 0x19 };
@@ -41,6 +44,28 @@ constexpr float EddiesLargeRoomFloorB = -0.1f; // "Large Room" Floor Blue
 // Update SH2 code to Fix Cemetery Lighting
 void UpdateEddieBossRooms()
 {
+	// Check that 
+	if (!UseCustomModFolder)
+	{
+		Log() << __FUNCTION__ << " Could not load fix.  This fix requires 'UseCustomModFolder' to be enabled!";
+		return;
+	}
+
+	// Get required map file paths
+	wchar_t Map189[MAX_PATH];
+	wcscpy_s(Map189, MAX_PATH, ModPathW);
+	wcscat_s(Map189, MAX_PATH, L"\\bg\\ps\\ps189.map");
+	wchar_t Map193[MAX_PATH];
+	wcscpy_s(Map193, MAX_PATH, ModPathW);
+	wcscat_s(Map193, MAX_PATH, L"\\bg\\ps\\ps193.map");
+
+	// Check for required map files
+	if (!PathFileExists(Map189) || !PathFileExists(Map193))
+	{
+		Log() << __FUNCTION__ << " Could not load fix, required map files 'ps189.map' and 'ps193.map' missing!";
+		return;
+	}
+
 	// Get Cemetery Lighting address
 	DWORD EddiesSmallRoomTexAddr = (DWORD)GetAddressOfData(EddieSearchBytes, sizeof(EddieSearchBytes), 1, 0x007FB950, 1800);
 	if (!EddiesSmallRoomTexAddr)

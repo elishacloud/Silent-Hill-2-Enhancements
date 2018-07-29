@@ -19,8 +19,8 @@
 #include <fstream>
 #include <string>
 #include "SfxPatch.h"
-#include "..\Common\Utils.h"
-#include "..\Common\Logging.h"
+#include "Common\Utils.h"
+#include "Common\Logging.h"
 
 void UpdateSFXAddr()
 {

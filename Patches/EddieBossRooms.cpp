@@ -20,34 +20,35 @@
 #include "..\Common\Logging.h"
 
 // Predefined code bytes
+constexpr BYTE EddieSearchBytes[]{ 0x00, 0xFE, 0x42, 0x00, 0x00, 0x31, 0x43, 0x00, 0x00, 0xFE, 0x42, 0x00, 0x00, 0xFE, 0x42, 0x9A, 0x99, 0x19, 0x3E, 0x9A, 0x99, 0x19, 0x3E, 0x9A, 0x99, 0x19 };
 constexpr BYTE EddieTexBytes[]{ 0x00, 0x00, 0x80, 0x40, 0x00, 0x00, 0x80, 0x40, 0x00, 0x00, 0x80, 0x40 };
 constexpr BYTE EddieFloorBytes[]{ 0xCD, 0xCC, 0xCC, 0x3D, 0xCD, 0xCC, 0xCC, 0x3D, 0xCD, 0xCC, 0xCC, 0x3D };
 
 // Small Room (ps189)
-constexpr float EddiesSmallRoomTexR = 2.5f; // "Small Room" Location Texture Red; 2.5 float
-constexpr float EddiesSmallRoomTexG = 2.0f; // "Small Room" Location Texture Green; 2.0 float
-constexpr float EddiesSmallRoomTexB = 2.0f; // "Small Room" Location Texture Blue; 2.0 float
+constexpr float EddiesSmallRoomTexR = 2.5f; // "Small Room" Location Texture Red
+constexpr float EddiesSmallRoomTexG = 2.0f; // "Small Room" Location Texture Green
+constexpr float EddiesSmallRoomTexB = 2.0f; // "Small Room" Location Texture Blue
 
 // Large Room (ps193)
-constexpr float EddiesLargeRoomTexR = 3.15f; // "Large Room" Location Texture Red; 3.15 float
-constexpr float EddiesLargeRoomTexG = 2.8f; // "Large Room" Location Texture Green; 2.8 float
-constexpr float EddiesLargeRoomTexB = 2.8f; // "Large Room" Location Texture Blue; 2.8 float
+constexpr float EddiesLargeRoomTexR = 3.15f; // "Large Room" Location Texture Red
+constexpr float EddiesLargeRoomTexG = 2.8f; // "Large Room" Location Texture Green
+constexpr float EddiesLargeRoomTexB = 2.8f; // "Large Room" Location Texture Blue
 
-constexpr float EddiesLargeRoomFloorR = 0.0f; // "Large Room" Floor Red; 0.0 float
-constexpr float EddiesLargeRoomFloorG = -0.1f; // "Large Room" Floor Green; -0.1 float
-constexpr float EddiesLargeRoomFloorB = -0.1f; // "Large Room" Floor Blue; -0.1 float
+constexpr float EddiesLargeRoomFloorR = 0.0f; // "Large Room" Floor Red
+constexpr float EddiesLargeRoomFloorG = -0.1f; // "Large Room" Floor Green
+constexpr float EddiesLargeRoomFloorB = -0.1f; // "Large Room" Floor Blue
 
 // Update SH2 code to Fix Cemetery Lighting
 void UpdateEddieBossRooms()
 {
 	// Get Cemetery Lighting address
-	DWORD EddiesSmallRoomTexAddr = (DWORD)GetAddressOfData(EddieTexBytes, sizeof(EddieTexBytes), 1, 0x007FB950, 1800);
+	DWORD EddiesSmallRoomTexAddr = (DWORD)GetAddressOfData(EddieSearchBytes, sizeof(EddieSearchBytes), 1, 0x007FB950, 1800);
 	if (!EddiesSmallRoomTexAddr)
 	{
 		Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
-	EddiesSmallRoomTexAddr += 0x1F0;
+	EddiesSmallRoomTexAddr += 0x3F;
 	DWORD EddiesLargeRoomTexAddr = EddiesSmallRoomTexAddr + 0x1F0;
 	DWORD EddiesLargeRoomFloorAddr = EddiesSmallRoomTexAddr + 0x30;
 

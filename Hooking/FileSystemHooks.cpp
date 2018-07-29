@@ -56,7 +56,11 @@ std::wstring wstrModulePath;
 DWORD nPathSize = 0;
 wchar_t ConfigName[MAX_PATH] = { '\0' };
 bool FileEnabled = true;
-DWORD VoiceSizeLow = 0;
+
+#define DEFINE_BGM_FILES(name, unused, unused2) \
+	DWORD name ## SizeLow = 0;
+
+VISIT_BGM_FILES(DEFINE_BGM_FILES);
 
 template<typename T>
 bool CheckConfigPath(T str)
@@ -264,19 +268,18 @@ BOOL WINAPI FindNextFileAHandler(HANDLE hFindFile, LPWIN32_FIND_DATAA lpFindFile
 		if (UseCustomModFolder)
 		{
 			std::wstring ws = toLower(toWString(lpFindFileData->cFileName));
-			if (ws.find(L"voice.afs") != std::string::npos)
-			{
-				if (VoiceSizeLow)
-				{
-					lpFindFileData->nFileSizeLow = VoiceSizeLow;
-					lpFindFileData->nFileSizeHigh = 0;
-				}
+
+#define CHECK_BGM_FILES(name, ext, unused) \
+			if (ws.find(L## #name ## "." ## # ext) != std::string::npos) \
+			{ \
+				if (name ## SizeLow) \
+				{ \
+					lpFindFileData->nFileSizeLow = name ## SizeLow; \
+					lpFindFileData->nFileSizeHigh = 0; \
+				} \
 			}
-			else if (ws.find(L".adx") != std::string::npos || ws.find(L".aix") != std::string::npos)
-			{
-				lpFindFileData->nFileSizeLow = 0x7FFF0000;
-				lpFindFileData->nFileSizeHigh = 0;
-			}
+
+			VISIT_BGM_FILES(CHECK_BGM_FILES);
 		}
 		return ret;
 	}
@@ -343,14 +346,19 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	wstrDataPath.assign(Path);
 	wstrDataPath.assign(toLower(wstrDataPath));
 
-	// Get voice.afs size from mod path
-	wcscpy_s(Path, MAX_PATH, ModPathW);
-	wcscat_s(Path, MAX_PATH, L"\\sound\\adx\\voice\\voice.afs");
+	// Get size of files from mod path
 	WIN32_FILE_ATTRIBUTE_DATA FileInformation;
-	if (GetFileAttributesEx(Path, GetFileExInfoStandard, &FileInformation))
-	{
-		VoiceSizeLow = FileInformation.nFileSizeLow;
+
+#define GET_BGM_FILES(name, ext, path) \
+	wcscpy_s(Path, MAX_PATH, ModPathW); \
+	wcscat_s(Path, MAX_PATH, path); \
+	wcscat_s(Path, MAX_PATH, L"\\" ## #name ## "." ## # ext); \
+	if (GetFileAttributesEx(Path, GetFileExInfoStandard, &FileInformation)) \
+	{ \
+		name ## SizeLow = FileInformation.nFileSizeLow; \
 	}
+
+	VISIT_BGM_FILES(GET_BGM_FILES);
 
 	// Logging
 	Log() << "Hooking the FileSystem APIs...";

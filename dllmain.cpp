@@ -84,6 +84,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			Log() << __FUNCTION__ << " Error: Config file not found, using defaults";
 		}
 
+		// Hook CreateFile API, only needed for external modules and CustomModFolder
+		if (Nemesis2000FogFix || WidescreenFix || UseCustomModFolder)
+		{
+			InstallFileSystemHooks(hModule, pathname);
+		}
+
 		// Create wrapper
 		HMODULE dll = Wrapper::CreateWrapper();
 		if (dll)
@@ -104,6 +110,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			GetDeviceGammaRamp(hDC, &lpRamp[0]);
 		}
 
+		// Load modupdater
+		if (AutoUpdateModule)
+		{
+			LoadModUpdater(hModule, IDR_SH2UPD);
+		}
+
 		// Hook d3d8.dll
 		if (Wrapper::dtype != DTYPE_D3D8 && (d3d8to9 || EnableWndMode))
 		{
@@ -120,18 +132,6 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		if (d3d8to9)
 		{
 			EnableD3d8to9();
-		}
-
-		// Hook CreateFile API, only needed for external modules and CustomModFolder
-		if (Nemesis2000FogFix || WidescreenFix || UseCustomModFolder)
-		{
-			InstallFileSystemHooks(hModule, pathname);
-		}
-
-		// Load modupdater
-		if (AutoUpdateModule)
-		{
-			LoadModUpdater(hModule, IDR_SH2UPD);
 		}
 
 		// Enable No-CD Patch

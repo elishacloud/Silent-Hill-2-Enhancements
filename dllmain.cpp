@@ -32,6 +32,9 @@
 HDC hDC;
 std::string lpRamp((3 * 256 * 2), '\0');
 
+// Variables
+HMODULE wrapper_dll = nullptr;
+
 // Dll main function
 bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 {
@@ -84,24 +87,6 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			Log() << __FUNCTION__ << " Error: Config file not found, using defaults";
 		}
 
-		// Hook CreateFile API, only needed for external modules and CustomModFolder
-		if (Nemesis2000FogFix || WidescreenFix || UseCustomModFolder)
-		{
-			InstallFileSystemHooks(hModule, pathname);
-		}
-
-		// Create wrapper
-		HMODULE dll = Wrapper::CreateWrapper();
-		if (dll)
-		{
-			AddHandleToVector(dll);
-			Log() << "Wrapper created for " << dtypename[Wrapper::dtype];
-		}
-		else if (Wrapper::dtype != DTYPE_ASI)
-		{
-			Log() << __FUNCTION__ << " Error: could not create wrapper!";
-		}
-
 		// Store screen settings
 		if (ResetScreenRes)
 		{
@@ -110,10 +95,15 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			GetDeviceGammaRamp(hDC, &lpRamp[0]);
 		}
 
-		// Load modupdater
-		if (AutoUpdateModule)
+		// Create wrapper
+		wrapper_dll = Wrapper::CreateWrapper();
+		if (wrapper_dll)
 		{
-			LoadModUpdater(hModule, IDR_SH2UPD);
+			Log() << "Wrapper created for " << dtypename[Wrapper::dtype];
+		}
+		else if (Wrapper::dtype != DTYPE_ASI)
+		{
+			Log() << __FUNCTION__ << " Error: could not create wrapper!";
 		}
 
 		// Hook d3d8.dll
@@ -132,6 +122,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		if (d3d8to9)
 		{
 			EnableD3d8to9();
+		}
+
+		// Hook CreateFile API, only needed for external modules and UseCustomModFolder
+		if (Nemesis2000FogFix || WidescreenFix || UseCustomModFolder)
+		{
+			InstallFileSystemHooks(hModule, pathname);
 		}
 
 		// Enable No-CD Patch
@@ -188,6 +184,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			LoadModuleFromResource(hModule, IDR_SH2WID, L"WidescreenFixesPack and sh2proxy");
 		}
 
+		// Load modupdater
+		if (AutoUpdateModule)
+		{
+			LoadModUpdater(hModule, IDR_SH2UPD);
+		}
+
 		// Load ASI pluggins
 		if (LoadPlugins && Wrapper::dtype != DTYPE_ASI)
 		{
@@ -207,9 +209,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		break;
 	case DLL_PROCESS_DETACH:
 	{
-		// Set thread priority a trick to reduce concurrency problems
-		SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
-
+#ifdef DEBUG
 		// Unloading all modules
 		Log() << "Unloading all loaded modules";
 
@@ -218,6 +218,13 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 
 		// Unload standard modules
 		UnloadAllModules();
+
+		// Unload wrapped dll file
+		if (wrapper_dll)
+		{
+			FreeModule(wrapper_dll);
+		}
+#endif // DEBUG
 
 		// Unhook APIs
 		Log() << "Unhooking library functions";

@@ -20,6 +20,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <vector>
+#include "Hooking\FileSystemHooks.h"
 #include "External\MemoryModule\MemoryModule.h"
 #include "Settings.h"
 #include "Utils.h"
@@ -200,13 +201,22 @@ void LoadModUpdater(HMODULE hModule, DWORD ResID)
 	wcscpy_s(Name, MAX_PATH, wcsrchr(Path, '\\'));
 
 	// Get 'temp' path
-	GetTempPath(MAX_PATH, Path);
+	if (!GetTempPath(MAX_PATH, Path))
+	{
+		Log() << __FUNCTION__ << " Error: failed to get temp path!";
+		return;
+	}
 	wcscat_s(Path, MAX_PATH, L"~tmp_sh2_enhce");
 	CreateDirectory(Path, nullptr);
+	if (!PathFileExists(Path))
+	{
+		Log() << __FUNCTION__ << " Error: failed to create temp folder!";
+		return;
+	}
 
 	// Update path with module name
 	wcscat_s(Path, MAX_PATH, Name);
-	wcscpy_s(wcsrchr(Path, '.'), MAX_PATH, L".tmp");
+	wcscpy_s(wcsrchr(Path, '.'), MAX_PATH - wcslen(Path), L".tmp");
 
 	// Load module
 	LoadModuleFromResourceToFile(hModule, ResID, L"modupdater", Path);

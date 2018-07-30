@@ -16,13 +16,10 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include <Shlwapi.h>
 #include "FileSystemHooks.h"
-#include "Hooking\Hook.h"
+#include "Hook.h"
 #include "Common\MyStrings.h"
 #include "Common\Logging.h"
-
-#pragma comment(lib, "Shlwapi.lib")
 
 // API typedef
 typedef BOOL(WINAPI *PFN_GetModuleHandleExA)(DWORD dwFlags, LPCSTR lpModuleName, HMODULE *phModule);
@@ -48,8 +45,8 @@ FARPROC p_GetPrivateProfileStringW = nullptr;
 HMODULE moduleHandle = nullptr;
 char ConfigPathA[MAX_PATH];
 wchar_t ConfigPathW[MAX_PATH];
-char ModPathA[MAX_PATH] = "sh2e";
-wchar_t ModPathW[MAX_PATH] = L"sh2e";
+char ModPathA[5] = "sh2e";
+wchar_t ModPathW[5] = L"sh2e";
 std::wstring wstrDataPath;
 DWORD modLoc = 0;
 std::wstring wstrModulePath;
@@ -337,27 +334,26 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	wcscpy_s(ConfigName, MAX_PATH, wcsrchr(ConfigPath, '\\'));
 
 	// Get module path
-	wchar_t Path[MAX_PATH];
-	GetModuleFileName(hModule, Path, MAX_PATH);
-	wstrModulePath.assign(Path);
+	wchar_t tmpPath[MAX_PATH];
+	GetModuleFileName(hModule, tmpPath, MAX_PATH);
+	wstrModulePath.assign(tmpPath);
 	nPathSize = wstrModulePath.size() + 1; // Include a null terminator
 
 	// Get data path
-	GetModuleFileName(hModule, Path, MAX_PATH);
-	wcscpy_s(wcsrchr(Path, '\\'), MAX_PATH - wcslen(Path), L"\0");
-	modLoc = wcslen(Path) + 1;
-	wcscat_s(Path, MAX_PATH, L"\\data\\");
-	wstrDataPath.assign(Path);
-	wstrDataPath.assign(toLower(wstrDataPath));
+	GetModuleFileName(hModule, tmpPath, MAX_PATH);
+	wcscpy_s(wcsrchr(tmpPath, '\\'), MAX_PATH - wcslen(tmpPath), L"\0");
+	modLoc = wcslen(tmpPath) + 1;
+	wcscat_s(tmpPath, MAX_PATH, L"\\data\\");
+	wstrDataPath.assign(toLower(std::wstring(tmpPath)));
 
 	// Get size of files from mod path
 	WIN32_FILE_ATTRIBUTE_DATA FileInformation;
 
 #define GET_BGM_FILES(name, ext, path) \
-	wcscpy_s(Path, MAX_PATH, ModPathW); \
-	wcscat_s(Path, MAX_PATH, path); \
-	wcscat_s(Path, MAX_PATH, L"\\" ## #name ## "." ## # ext); \
-	if (GetFileAttributesEx(Path, GetFileExInfoStandard, &FileInformation)) \
+	wcscpy_s(tmpPath, MAX_PATH, ModPathW); \
+	wcscat_s(tmpPath, MAX_PATH, path); \
+	wcscat_s(tmpPath, MAX_PATH, L"\\" ## #name ## "." ## # ext); \
+	if (GetFileAttributesEx(tmpPath, GetFileExInfoStandard, &FileInformation)) \
 	{ \
 		name ## SizeLow = FileInformation.nFileSizeLow; \
 	}

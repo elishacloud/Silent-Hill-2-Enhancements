@@ -1,6 +1,9 @@
 #pragma once
 
+#include <Shlwapi.h>
 #include "Common\Settings.h"
+
+#pragma comment(lib, "Shlwapi.lib")
 
 #define VISIT_BGM_FILES(visit) \
 	visit(bgm_001, adx, L"\\sound\\adx\\apart") \
@@ -54,8 +57,8 @@
 extern bool FileEnabled;
 extern wchar_t ConfigName[MAX_PATH];
 
-extern char ModPathA[MAX_PATH];
-extern wchar_t ModPathW[MAX_PATH];
+extern char ModPathA[5];
+extern wchar_t ModPathW[5];
 
 struct MODULECONFIG
 {

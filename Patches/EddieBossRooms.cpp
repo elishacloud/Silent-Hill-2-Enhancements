@@ -16,7 +16,6 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include <Shlwapi.h>
 #include "Hooking\FileSystemHooks.h"
 #include "Common\Utils.h"
 #include "Common\Settings.h"
@@ -44,25 +43,12 @@ constexpr float EddiesLargeRoomFloorB = -0.1f; // "Large Room" Floor Blue
 // Update SH2 code to Fix Cemetery Lighting
 void UpdateEddieBossRooms()
 {
-	// Check that UseCustomModFolder is enabled
-	if (!UseCustomModFolder)
-	{
-		Log() << __FUNCTION__ << " Could not load fix.  This fix requires 'UseCustomModFolder' to be enabled!";
-		return;
-	}
-
-	// Get required map file paths
-	wchar_t Map189[MAX_PATH];
-	wcscpy_s(Map189, MAX_PATH, ModPathW);
-	wcscat_s(Map189, MAX_PATH, L"\\bg\\ps\\ps189.map");
-	wchar_t Map193[MAX_PATH];
-	wcscpy_s(Map193, MAX_PATH, ModPathW);
-	wcscat_s(Map193, MAX_PATH, L"\\bg\\ps\\ps193.map");
-
 	// Check for required map files
-	if (!PathFileExists(Map189) || !PathFileExists(Map193))
+	if (!UseCustomModFolder ||
+		!PathFileExists(std::wstring(std::wstring(ModPathW) + L"\\bg\\ps\\ps189.map").c_str()) ||
+		!PathFileExists(std::wstring(std::wstring(ModPathW) + L"\\bg\\ps\\ps193.map").c_str()))
 	{
-		Log() << __FUNCTION__ << " Could not load fix, required map files 'ps189.map' and 'ps193.map' missing!";
+		Log() << __FUNCTION__ << " Could not load fix.  This fix requires 'UseCustomModFolder' enabled and custom map files 'ps189.map' and 'ps193.map'.";
 		return;
 	}
 

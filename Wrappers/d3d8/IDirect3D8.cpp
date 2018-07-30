@@ -111,13 +111,13 @@ HRESULT m_IDirect3D8::CheckDeviceType(UINT Adapter, D3DDEVTYPE CheckType, D3DFOR
 
 HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS *pPresentationParameters, IDirect3DDevice8 **ppReturnedDeviceInterface)
 {
-	pPresentationParameters->Windowed = EnableWndMode;
-	HRESULT hr = ProxyInterface->CreateDevice(Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface);
-
 	if (EnableWndMode)
 	{
+		pPresentationParameters->Windowed = true;
 		AdjustWindow((hFocusWindow) ? hFocusWindow : pPresentationParameters->hDeviceWindow, pPresentationParameters->BackBufferWidth, pPresentationParameters->BackBufferHeight);
 	}
+
+	HRESULT hr = ProxyInterface->CreateDevice(Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface);
 
 	if (SUCCEEDED(hr))
 	{
@@ -131,8 +131,11 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 {
 	if (MainhWnd)
 	{
+		// Get screen width
+		LONG screenWidth = GetSystemMetrics(SM_CXSCREEN);
+		LONG screenHeight = GetSystemMetrics(SM_CYSCREEN);
 		// Update window border
-		if (WndModeBorder && GetSystemMetrics(SM_CYSCREEN) > displayHeight + 32)
+		if (WndModeBorder && screenHeight > displayHeight + 32)
 		{
 			LONG lStyle = GetWindowLong(MainhWnd, GWL_STYLE);
 			lStyle |= (WS_CAPTION | WS_THICKFRAME | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX);
@@ -150,7 +153,8 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 			lExStyle &= ~(WS_EX_DLGMODALFRAME | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE);
 			SetWindowLong(MainhWnd, GWL_EXSTYLE, lExStyle);
 		}
-		SetWindowPos(MainhWnd, nullptr, 0, 0, displayWidth, displayHeight, SWP_FRAMECHANGED | SWP_SHOWWINDOW | SWP_NOMOVE | SWP_NOZORDER);
+		// Set window border
+		SetWindowPos(MainhWnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 		// Set window size
 		SetWindowPos(MainhWnd, nullptr, 0, 0, displayWidth, displayHeight, SWP_NOMOVE | SWP_NOZORDER);
 		// Adjust for window decoration to ensure client area matches display size
@@ -159,13 +163,13 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 		tempRect.right = (displayWidth - tempRect.right) + displayWidth;
 		tempRect.bottom = (displayHeight - tempRect.bottom) + displayHeight;
 		// Move window to center and adjust size
-		DWORD xLoc = 0;
-		DWORD yLoc = 0;
-		if (GetSystemMetrics(SM_CXSCREEN) >= displayWidth && GetSystemMetrics(SM_CYSCREEN) >= displayHeight)
+		LONG xLoc = 0;
+		LONG yLoc = 0;
+		if (screenWidth >= displayWidth && screenHeight >= displayHeight)
 		{
-			xLoc = (GetSystemMetrics(SM_CXSCREEN) - displayWidth) / 2;
-			yLoc = (GetSystemMetrics(SM_CYSCREEN) - displayHeight) / 2;
+			xLoc = (screenWidth - displayWidth) / 2;
+			yLoc = (screenHeight - displayHeight) / 2;
 		}
-		SetWindowPos(MainhWnd, nullptr, xLoc, yLoc, tempRect.right, tempRect.bottom, SWP_FRAMECHANGED | SWP_SHOWWINDOW | SWP_NOZORDER);
+		SetWindowPos(MainhWnd, nullptr, xLoc, yLoc, tempRect.right, tempRect.bottom, SWP_NOZORDER);
 	}
 }

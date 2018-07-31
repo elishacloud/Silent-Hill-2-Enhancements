@@ -6,4 +6,4 @@ void UpdatePS2NoiseFilter();
 void UpdateDrawDistance();
 void UpdateCemeteryLighting();
 void UpdateRowboatAnimation();
-void UpdateEddieBossRooms();
+void UpdateCatacombsMeatRoom();

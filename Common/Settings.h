@@ -3,8 +3,8 @@
 #define VISIT_BOOL_SETTINGS(visit) \
 	visit(AutoUpdateModule, true) \
 	visit(d3d8to9, true) \
+	visit(CatacombsMeatRoomFix, true) \
 	visit(CemeteryLightingFix, true) \
-	visit(EddieBossRoomsFix, true) \
 	visit(EnableSFXAddrHack, true) \
 	visit(EnableWndMode, false) \
 	visit(WndModeBorder, true) \

@@ -18,7 +18,7 @@
 #include "External\d3d8to9\source\d3dx9.hpp"
 #include "Hooking\Hook.h"
 #include "Common\Utils.h"
-#include "Wrappers\wrapper.h"
+#include "wrapper.h"
 #include "d3d8to9.h"
 #include "Common\Logging.h"
 

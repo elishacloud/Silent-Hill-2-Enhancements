@@ -340,7 +340,7 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	nPathSize = wstrModulePath.size() + 1; // Include a null terminator
 
 	// Get data path
-	GetModuleFileName(hModule, tmpPath, MAX_PATH);
+	GetModuleFileName(nullptr, tmpPath, MAX_PATH);
 	wcscpy_s(wcsrchr(tmpPath, '\\'), MAX_PATH - wcslen(tmpPath), L"\0");
 	modLoc = wcslen(tmpPath) + 1;
 	wcscat_s(tmpPath, MAX_PATH, L"\\data\\");
@@ -350,10 +350,7 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	WIN32_FILE_ATTRIBUTE_DATA FileInformation;
 
 #define GET_BGM_FILES(name, ext, path) \
-	wcscpy_s(tmpPath, MAX_PATH, ModPathW); \
-	wcscat_s(tmpPath, MAX_PATH, path); \
-	wcscat_s(tmpPath, MAX_PATH, L"\\" ## #name ## "." ## # ext); \
-	if (GetFileAttributesEx(tmpPath, GetFileExInfoStandard, &FileInformation)) \
+	if (GetFileAttributesEx(std::wstring(std::wstring(ModPathW) + path ## "\\" ## #name ## "." ## # ext).c_str(), GetFileExInfoStandard, &FileInformation)) \
 	{ \
 		name ## SizeLow = FileInformation.nFileSizeLow; \
 	}

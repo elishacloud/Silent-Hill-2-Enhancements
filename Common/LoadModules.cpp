@@ -20,11 +20,14 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <vector>
+#include "LoadModules.h"
+#include "Hooking\Hook.h"
 #include "Hooking\FileSystemHooks.h"
-#include "External\MemoryModule\MemoryModule.h"
 #include "Settings.h"
 #include "Utils.h"
 #include "Logging.h"
+
+typedef void(WINAPI *PFN_InitializeASI)(void);
 
 // Memory modules
 struct MMODULE
@@ -62,6 +65,7 @@ void FindFiles(WIN32_FIND_DATA* fd)
 					if (h)
 					{
 						AddHandleToVector(h);
+						InitializeASI(h);
 						Log() << "Loaded '" << fd->cFileName << "'";
 					}
 					else
@@ -114,7 +118,7 @@ void LoadASIPlugins(bool LoadFromScriptsOnlyFlag)
 }
 
 // Load memory module from resource
-void LoadModuleFromResource(HMODULE hModule, DWORD ResID, LPCWSTR lpName)
+HMEMORYMODULE LoadModuleFromResource(HMODULE hModule, DWORD ResID, LPCWSTR lpName)
 {
 	HRSRC hResource = FindResource(hModule, MAKEINTRESOURCE(ResID), RT_RCDATA);
 	if (hResource)
@@ -134,7 +138,8 @@ void LoadModuleFromResource(HMODULE hModule, DWORD ResID, LPCWSTR lpName)
 					{
 						MMODULE MMItem = { hMModule , ResID };
 						HMModules.push_back(MMItem);
-						return;
+						InitializeASI(hMModule);
+						return (HMODULE)hMModule;
 					}
 					else
 					{
@@ -145,10 +150,12 @@ void LoadModuleFromResource(HMODULE hModule, DWORD ResID, LPCWSTR lpName)
 		}
 	}
 	Log() << __FUNCTION__ << " Error: failed to load " << lpName << " module!";
+
+	return nullptr;
 }
 
 // Load memory module from resource
-void LoadModuleFromResourceToFile(HMODULE hModule, DWORD ResID, LPCWSTR lpName, LPCWSTR lpFilepath)
+HMODULE LoadModuleFromResourceToFile(HMODULE hModule, DWORD ResID, LPCWSTR lpName, LPCWSTR lpFilepath)
 {
 	HRSRC hResource = FindResource(hModule, MAKEINTRESOURCE(ResID), RT_RCDATA);
 	if (hResource)
@@ -174,7 +181,7 @@ void LoadModuleFromResourceToFile(HMODULE hModule, DWORD ResID, LPCWSTR lpName, 
 						if (h_Module)
 						{
 							AddHandleToVector(h_Module);
-							return;
+							return h_Module;
 						}
 						else
 						{
@@ -190,6 +197,44 @@ void LoadModuleFromResourceToFile(HMODULE hModule, DWORD ResID, LPCWSTR lpName, 
 		}
 	}
 	Log() << __FUNCTION__ << " Error: failed to load " << lpName << " module!";
+
+	return nullptr;
+}
+
+// Initialize ASI module
+void InitializeASI(HMODULE hModule)
+{
+	if (!hModule)
+	{
+		return;
+	}
+
+	PFN_InitializeASI p_InitializeASI = (PFN_InitializeASI)Hook::GetProcAddress(hModule, "InitializeASI");
+
+	if (!p_InitializeASI)
+	{
+		return;
+	}
+
+	p_InitializeASI();
+}
+
+// Initialize ASI module
+void InitializeASI(HMEMORYMODULE hModule)
+{
+	if (!hModule)
+	{
+		return;
+	}
+
+	PFN_InitializeASI p_InitializeASI = (PFN_InitializeASI)MemoryGetProcAddress(hModule, "InitializeASI");
+
+	if (!p_InitializeASI)
+	{
+		return;
+	}
+
+	p_InitializeASI();
 }
 
 // Load modupdater
@@ -216,7 +261,7 @@ void LoadModUpdater(HMODULE hModule, DWORD ResID)
 
 	// Update path with module name
 	wcscat_s(Path, MAX_PATH, Name);
-	wcscpy_s(wcsrchr(Path, '.'), MAX_PATH - wcslen(Path), L".tmp");
+	wcscpy_s(wcsrchr(Path, '.'), MAX_PATH - wcslen(Path), L".asi");
 
 	// Load module
 	LoadModuleFromResourceToFile(hModule, ResID, L"modupdater", Path);

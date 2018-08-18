@@ -16,7 +16,8 @@
 
 #include "d3d8wrapper.h"
 
-void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight);
+HWND DeviceWindow = nullptr;
+extern UINT BufferWidth = 0, BufferHeight = 0;
 
 HRESULT m_IDirect3D8::QueryInterface(REFIID riid, LPVOID *ppvObj)
 {
@@ -101,75 +102,100 @@ HRESULT m_IDirect3D8::CheckDeviceFormat(UINT Adapter, D3DDEVTYPE DeviceType, D3D
 
 HRESULT m_IDirect3D8::CheckDeviceMultiSampleType(THIS_ UINT Adapter, D3DDEVTYPE DeviceType, D3DFORMAT SurfaceFormat, BOOL Windowed, D3DMULTISAMPLE_TYPE MultiSampleType)
 {
+	if (EnableWndMode)
+	{
+		Windowed = true;
+	}
+
 	return ProxyInterface->CheckDeviceMultiSampleType(Adapter, DeviceType, SurfaceFormat, Windowed, MultiSampleType);
 }
 
 HRESULT m_IDirect3D8::CheckDeviceType(UINT Adapter, D3DDEVTYPE CheckType, D3DFORMAT DisplayFormat, D3DFORMAT BackBufferFormat, BOOL Windowed)
 {
+	if (EnableWndMode)
+	{
+		Windowed = true;
+	}
+
 	return ProxyInterface->CheckDeviceType(Adapter, CheckType, DisplayFormat, BackBufferFormat, Windowed);
 }
 
 HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS *pPresentationParameters, IDirect3DDevice8 **ppReturnedDeviceInterface)
 {
-	if (EnableWndMode)
+	if (EnableWndMode && pPresentationParameters &&
+		pPresentationParameters->BackBufferWidth && pPresentationParameters->BackBufferHeight &&
+		(pPresentationParameters->hDeviceWindow || hFocusWindow))
 	{
 		pPresentationParameters->Windowed = true;
-		AdjustWindow((hFocusWindow) ? hFocusWindow : pPresentationParameters->hDeviceWindow, pPresentationParameters->BackBufferWidth, pPresentationParameters->BackBufferHeight);
+		pPresentationParameters->FullScreen_RefreshRateInHz = 0;
+		pPresentationParameters->FullScreen_PresentationInterval = 0;
+		BufferWidth = pPresentationParameters->BackBufferWidth;
+		BufferHeight = pPresentationParameters->BackBufferHeight;
+		DeviceWindow = (pPresentationParameters->hDeviceWindow) ? pPresentationParameters->hDeviceWindow : hFocusWindow;
+		AdjustWindow(DeviceWindow, BufferWidth, BufferHeight);
 	}
+
+	BehaviorFlags |= D3DCREATE_MULTITHREADED;
 
 	HRESULT hr = ProxyInterface->CreateDevice(Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface);
 
-	if (SUCCEEDED(hr))
+	if (SUCCEEDED(hr) && ppReturnedDeviceInterface)
 	{
 		*ppReturnedDeviceInterface = new m_IDirect3DDevice8(*ppReturnedDeviceInterface, this);
 	}
+
 	return hr;
 }
 
 // Adjusting the window position for SetDisplayMode()
 void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 {
-	if (MainhWnd)
+	if (!MainhWnd || !displayWidth || !displayHeight)
 	{
-		// Get screen width
-		LONG screenWidth = GetSystemMetrics(SM_CXSCREEN);
-		LONG screenHeight = GetSystemMetrics(SM_CYSCREEN);
-		// Update window border
-		if (WndModeBorder && screenHeight > displayHeight + 32)
-		{
-			LONG lStyle = GetWindowLong(MainhWnd, GWL_STYLE);
-			lStyle |= (WS_CAPTION | WS_THICKFRAME | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX);
-			SetWindowLong(MainhWnd, GWL_STYLE, lStyle);
-			LONG lExStyle = GetWindowLong(MainhWnd, GWL_EXSTYLE);
-			lExStyle |= (WS_EX_DLGMODALFRAME | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE);
-			SetWindowLong(MainhWnd, GWL_EXSTYLE, lExStyle);
-		}
-		else
-		{
-			LONG lStyle = GetWindowLong(MainhWnd, GWL_STYLE);
-			lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZE | WS_MAXIMIZE | WS_SYSMENU);
-			SetWindowLong(MainhWnd, GWL_STYLE, lStyle);
-			LONG lExStyle = GetWindowLong(MainhWnd, GWL_EXSTYLE);
-			lExStyle &= ~(WS_EX_DLGMODALFRAME | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE);
-			SetWindowLong(MainhWnd, GWL_EXSTYLE, lExStyle);
-		}
-		// Set window border
-		SetWindowPos(MainhWnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
-		// Set window size
-		SetWindowPos(MainhWnd, nullptr, 0, 0, displayWidth, displayHeight, SWP_NOMOVE | SWP_NOZORDER);
-		// Adjust for window decoration to ensure client area matches display size
-		RECT tempRect;
-		GetClientRect(MainhWnd, &tempRect);
-		tempRect.right = (displayWidth - tempRect.right) + displayWidth;
-		tempRect.bottom = (displayHeight - tempRect.bottom) + displayHeight;
-		// Move window to center and adjust size
-		LONG xLoc = 0;
-		LONG yLoc = 0;
-		if (screenWidth >= displayWidth && screenHeight >= displayHeight)
-		{
-			xLoc = (screenWidth - displayWidth) / 2;
-			yLoc = (screenHeight - displayHeight) / 2;
-		}
-		SetWindowPos(MainhWnd, nullptr, xLoc, yLoc, tempRect.right, tempRect.bottom, SWP_NOZORDER);
+		return;
 	}
+
+	// Get screen width
+	LONG screenWidth = GetSystemMetrics(SM_CXSCREEN);
+	LONG screenHeight = GetSystemMetrics(SM_CYSCREEN);
+	// Update window border
+	if (WndModeBorder && screenHeight > displayHeight + 32)
+	{
+		LONG lStyle = GetWindowLong(MainhWnd, GWL_STYLE);
+		lStyle |= (WS_CAPTION | WS_THICKFRAME | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX);
+		SetWindowLong(MainhWnd, GWL_STYLE, lStyle);
+		LONG lExStyle = GetWindowLong(MainhWnd, GWL_EXSTYLE);
+		lExStyle |= (WS_EX_DLGMODALFRAME | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE);
+		SetWindowLong(MainhWnd, GWL_EXSTYLE, lExStyle);
+	}
+	else
+	{
+		LONG lStyle = GetWindowLong(MainhWnd, GWL_STYLE);
+		lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZE | WS_MAXIMIZE | WS_SYSMENU);
+		SetWindowLong(MainhWnd, GWL_STYLE, lStyle);
+		LONG lExStyle = GetWindowLong(MainhWnd, GWL_EXSTYLE);
+		lExStyle &= ~(WS_EX_DLGMODALFRAME | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE);
+		SetWindowLong(MainhWnd, GWL_EXSTYLE, lExStyle);
+	}
+	// Set window border
+	SetWindowPos(MainhWnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+	Sleep(0);
+	// Set window size
+	SetWindowPos(MainhWnd, nullptr, 0, 0, displayWidth, displayHeight, SWP_NOMOVE | SWP_NOZORDER);
+	Sleep(0);
+	// Adjust for window decoration to ensure client area matches display size
+	RECT tempRect;
+	GetClientRect(MainhWnd, &tempRect);
+	displayWidth = (displayWidth - tempRect.right) + displayWidth;
+	displayHeight = (displayHeight - tempRect.bottom) + displayHeight;
+	// Move window to center and adjust size
+	LONG xLoc = 0;
+	LONG yLoc = 0;
+	if (screenWidth >= displayWidth && screenHeight >= displayHeight)
+	{
+		xLoc = (screenWidth - displayWidth) / 2;
+		yLoc = (screenHeight - displayHeight) / 2;
+	}
+	SetWindowPos(MainhWnd, nullptr, xLoc, yLoc, displayWidth, displayHeight, SWP_NOZORDER);
+	Sleep(0);
 }

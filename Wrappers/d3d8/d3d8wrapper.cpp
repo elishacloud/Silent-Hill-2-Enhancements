@@ -20,7 +20,15 @@
 IDirect3D8 *WINAPI Direct3DCreate8Wrapper(UINT SDKVersion)
 {
 	static Direct3DCreate8Proc m_pDirect3DCreate8 = (Direct3DCreate8Proc)d3d8::Direct3DCreate8_var;
-	return new m_IDirect3D8(m_pDirect3DCreate8(SDKVersion));
+
+	LPDIRECT3D8 pD3D8 = m_pDirect3DCreate8(SDKVersion);
+
+	if (pD3D8)
+	{
+		return new m_IDirect3D8(pD3D8);
+	}
+
+	return nullptr;
 }
 
 FARPROC p_Direct3DCreate8Wrapper = (FARPROC)*Direct3DCreate8Wrapper;

@@ -237,6 +237,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			Log() << "Reseting screen resolution";
 			SetDeviceGammaRamp(hDC, &lpRamp[0]);
 			ChangeDisplaySettingsEx(nullptr, nullptr, nullptr, CDS_RESET, nullptr);
+			ReleaseDC(nullptr, hDC);
 		}
 
 		// Quitting

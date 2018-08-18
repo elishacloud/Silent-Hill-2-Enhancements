@@ -209,7 +209,7 @@ void InitializeASI(HMODULE hModule)
 		return;
 	}
 
-	PFN_InitializeASI p_InitializeASI = (PFN_InitializeASI)Hook::GetProcAddress(hModule, "InitializeASI");
+	PFN_InitializeASI p_InitializeASI = (PFN_InitializeASI)GetProcAddress(hModule, "InitializeASI");
 
 	if (!p_InitializeASI)
 	{

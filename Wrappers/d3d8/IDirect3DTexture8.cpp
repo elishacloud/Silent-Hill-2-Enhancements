@@ -113,7 +113,7 @@ HRESULT m_IDirect3DTexture8::GetSurfaceLevel(THIS_ UINT Level, IDirect3DSurface8
 {
 	HRESULT hr = ProxyInterface->GetSurfaceLevel(Level, ppSurfaceLevel);
 
-	if (SUCCEEDED(hr))
+	if (SUCCEEDED(hr) && ppSurfaceLevel)
 	{
 		*ppSurfaceLevel = m_pDevice->ProxyAddressLookupTable->FindAddress<m_IDirect3DSurface8>(*ppSurfaceLevel);
 	}

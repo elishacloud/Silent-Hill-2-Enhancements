@@ -11,6 +11,11 @@
 
 typedef IDirect3D8 *(WINAPI *Direct3DCreate8Proc)(UINT);
 
+void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight);
+
+extern HWND DeviceWindow;
+extern UINT BufferWidth, BufferHeight;
+
 #include "IDirect3D8.h"
 #include "IDirect3DDevice8.h"
 #include "IDirect3DCubeTexture8.h"

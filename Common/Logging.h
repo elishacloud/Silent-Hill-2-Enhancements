@@ -59,3 +59,16 @@ static void logf(char * fmt, ...)
 	Log() << output.c_str();
 	va_end(ap);
 }
+
+#pragma warning(suppress: 4505)
+static void logf(wchar_t * fmt, ...)
+{
+	va_list ap;
+	va_start(ap, fmt);
+#pragma warning(suppress: 4996)
+	auto size = _vsnwprintf(nullptr, 0, fmt, ap);
+	std::wstring output(size + 1, '\0');
+	vswprintf_s(&output[0], size + 1, fmt, ap);
+	Log() << output.c_str();
+	va_end(ap);
+}

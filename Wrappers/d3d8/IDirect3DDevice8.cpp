@@ -93,7 +93,7 @@ BOOL m_IDirect3DDevice8::ShowCursor(BOOL bShow)
 
 HRESULT m_IDirect3DDevice8::CreateAdditionalSwapChain(D3DPRESENT_PARAMETERS *pPresentationParameters, IDirect3DSwapChain8 **ppSwapChain)
 {
-	if (EnableWndMode && pPresentationParameters)
+	if (EnableWndMode && pPresentationParameters && DeviceWindow && BufferWidth && BufferHeight)
 	{
 		pPresentationParameters->Windowed = true;
 		pPresentationParameters->FullScreen_RefreshRateInHz = 0;
@@ -757,6 +757,62 @@ HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface
 	if (pDestSurface)
 	{
 		pDestSurface = static_cast<m_IDirect3DSurface8 *>(pDestSurface)->GetProxyInterface();
+	}
+
+	if (EnableWndMode && DeviceWindow && BufferWidth && BufferHeight)
+	{
+		// Get surface desc
+		D3DSURFACE_DESC Desc;
+		if (FAILED(pDestSurface->GetDesc(&Desc)))
+		{
+			return D3DERR_INVALIDCALL;
+		}
+
+		// Create new surface to hold data
+		IDirect3DSurface8 *pSrcSurface = nullptr;
+		if (FAILED(ProxyInterface->CreateImageSurface(GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), Desc.Format, &pSrcSurface)))
+		{
+			return D3DERR_INVALIDCALL;
+		}
+
+		// Get FrontBuffer data to new surface
+		if (FAILED(ProxyInterface->GetFrontBuffer(pSrcSurface)))
+		{
+			pSrcSurface->Release();
+			return D3DERR_INVALIDCALL;
+		}
+
+		// Get location of client window
+		RECT RectSrc = { NULL };
+		if (FAILED(GetWindowRect(DeviceWindow, &RectSrc)))
+		{
+			pSrcSurface->Release();
+			return D3DERR_INVALIDCALL;
+		}
+		RECT rcClient = { NULL };
+		if (FAILED(GetClientRect(DeviceWindow, &rcClient)))
+		{
+			pSrcSurface->Release();
+			return D3DERR_INVALIDCALL;
+		}
+		int border_thickness = ((RectSrc.right - RectSrc.left) - rcClient.right) / 2;
+		int top_border = (RectSrc.bottom - RectSrc.top) - rcClient.bottom - border_thickness;
+		RectSrc.top += top_border;
+		RectSrc.left += border_thickness;
+		RectSrc.bottom = RectSrc.top + BufferHeight;
+		RectSrc.right = RectSrc.left + BufferWidth;
+
+		// Copy data to DestSurface
+		POINT PointDest = { 0, 0 };
+		if (FAILED(ProxyInterface->CopyRects(pSrcSurface, &RectSrc, 1, pDestSurface, &PointDest)))
+		{
+			pSrcSurface->Release();
+			return D3DERR_INVALIDCALL;
+		}
+
+		// Release surface
+		pSrcSurface->Release();
+		return D3D_OK;
 	}
 
 	return ProxyInterface->GetFrontBuffer(pDestSurface);

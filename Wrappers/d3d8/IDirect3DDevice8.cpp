@@ -752,6 +752,89 @@ HRESULT m_IDirect3DDevice8::CopyRects(THIS_ IDirect3DSurface8* pSourceSurface, C
 	return ProxyInterface->CopyRects(pSourceSurface, pSourceRectsArray, cRects, pDestinationSurface, pDestPointsArray);
 }
 
+// Stretch source rect to destination rect
+HRESULT m_IDirect3DDevice8::StretchRect(THIS_ IDirect3DSurface8* pSrcSurface, CONST RECT* pSrcRect, IDirect3DSurface8* pDestSurface, CONST RECT* pDestRect)
+{
+	// Check destination parameters
+	if (!pSrcSurface || !pSrcRect || !pDestSurface || !pDestRect)
+	{
+		return D3DERR_INVALIDCALL;
+	}
+
+	// Get surface desc
+	D3DSURFACE_DESC SrcDesc, DestDesc;
+	if (FAILED(pSrcSurface->GetDesc(&SrcDesc)))
+	{
+		return D3DERR_INVALIDCALL;
+	}
+	if (FAILED(pDestSurface->GetDesc(&DestDesc)))
+	{
+		return D3DERR_INVALIDCALL;
+	}
+
+	// Check if source and destination formats are the same
+	if (SrcDesc.Format != DestDesc.Format)
+	{
+		return D3DERR_INVALIDCALL;
+	}
+
+	// Lock surface
+	D3DLOCKED_RECT SrcLockRect, DestLockRect;
+	if (FAILED(pSrcSurface->LockRect(&SrcLockRect, nullptr, D3DLOCK_NOSYSLOCK | D3DLOCK_READONLY)))
+	{
+		return D3DERR_INVALIDCALL;
+	}
+	if (FAILED(pDestSurface->LockRect(&DestLockRect, nullptr, D3DLOCK_NOSYSLOCK)))
+	{
+		pSrcSurface->UnlockRect();
+		return D3DERR_INVALIDCALL;
+	}
+
+	// Get bit count
+	DWORD ByteCount = SrcLockRect.Pitch / SrcDesc.Width;
+
+	// Get width and height of rect
+	LONG DestRectWidth = pDestRect->right - pDestRect->left;
+	LONG DestRectHeight = pDestRect->bottom - pDestRect->top;
+	LONG SrcRectWidth = pSrcRect->right - pSrcRect->left;
+	LONG SrcRectHeight = pSrcRect->bottom - pSrcRect->top;
+
+	// Get ratio
+	float WidthRatio = (float)SrcRectWidth / (float)DestRectWidth;
+	float HeightRatio = (float)SrcRectHeight / (float)DestRectHeight;
+
+	// Copy memory using color key
+	switch (ByteCount)
+	{
+	case 1: // 8-bit surfaces
+	case 2: // 16-bit surfaces
+	case 3: // 24-bit surfaces
+	case 4: // 32-bit surfaces
+	{
+		for (LONG y = 0; y < DestRectHeight; y++)
+		{
+			DWORD StartDestLoc = ((y + pDestRect->top) * DestLockRect.Pitch) + (pDestRect->left * ByteCount);
+			DWORD StartSrcLoc = ((((DWORD)((float)y * HeightRatio)) + pSrcRect->top) * SrcLockRect.Pitch) + (pSrcRect->left * ByteCount);
+
+			for (LONG x = 0; x < DestRectWidth; x++)
+			{
+				memcpy((BYTE*)DestLockRect.pBits + StartDestLoc + x * ByteCount, (BYTE*)((BYTE*)SrcLockRect.pBits + StartSrcLoc + ((DWORD)((float)x * WidthRatio)) * ByteCount), ByteCount);
+			}
+		}
+		break;
+	}
+	default: // Unsupported surface bit count
+		pSrcSurface->UnlockRect();
+		pDestSurface->UnlockRect();
+		return D3DERR_INVALIDCALL;
+	}
+
+	// Unlock rect and return
+	pSrcSurface->UnlockRect();
+	pDestSurface->UnlockRect();
+	return D3D_OK;
+}
+
 HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface)
 {
 	if (pDestSurface)
@@ -770,7 +853,9 @@ HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface
 
 		// Create new surface to hold data
 		IDirect3DSurface8 *pSrcSurface = nullptr;
-		if (FAILED(ProxyInterface->CreateImageSurface(GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), Desc.Format, &pSrcSurface)))
+		int ScreenWidth = GetSystemMetrics(SM_CXSCREEN);
+		int ScreenHeight = GetSystemMetrics(SM_CYSCREEN);
+		if (FAILED(ProxyInterface->CreateImageSurface(ScreenWidth, ScreenHeight, Desc.Format, &pSrcSurface)))
 		{
 			return D3DERR_INVALIDCALL;
 		}
@@ -797,17 +882,29 @@ HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface
 		}
 		int border_thickness = ((RectSrc.right - RectSrc.left) - rcClient.right) / 2;
 		int top_border = (RectSrc.bottom - RectSrc.top) - rcClient.bottom - border_thickness;
-		RectSrc.top += top_border;
 		RectSrc.left += border_thickness;
-		RectSrc.bottom = RectSrc.top + BufferHeight;
-		RectSrc.right = RectSrc.left + BufferWidth;
+		RectSrc.top += top_border;
+		RectSrc.right = min(RectSrc.left + rcClient.right, ScreenWidth);
+		RectSrc.bottom = min(RectSrc.top + rcClient.bottom, ScreenHeight);
 
 		// Copy data to DestSurface
-		POINT PointDest = { 0, 0 };
-		if (FAILED(ProxyInterface->CopyRects(pSrcSurface, &RectSrc, 1, pDestSurface, &PointDest)))
+		if ((LONG)BufferWidth == rcClient.right && (LONG)BufferHeight == rcClient.bottom)
 		{
-			pSrcSurface->Release();
-			return D3DERR_INVALIDCALL;
+			POINT PointDest = { 0, 0 };
+			if (FAILED(ProxyInterface->CopyRects(pSrcSurface, &RectSrc, 1, pDestSurface, &PointDest)))
+			{
+				pSrcSurface->Release();
+				return D3DERR_INVALIDCALL;
+			}
+		}
+		else
+		{
+			RECT RectDest = { 0, 0, (LONG)min(BufferWidth, (UINT)ScreenWidth), (LONG)min(BufferHeight, (UINT)ScreenHeight) };
+			if (FAILED(StretchRect(pSrcSurface, &RectSrc, pDestSurface, &RectDest)))
+			{
+				pSrcSurface->Release();
+				return D3DERR_INVALIDCALL;
+			}
 		}
 
 		// Release surface

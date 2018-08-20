@@ -37,6 +37,7 @@
     <ClCompile Include="Hooking\HotPatch.cpp" />
     <ClCompile Include="Hooking\IATPatch.cpp" />
     <ClCompile Include="Patches\CemeteryLightingPatch.cpp" />
+    <ClCompile Include="Patches\DisableRedCrossDuringCutscenes.cpp" />
     <ClCompile Include="Patches\DrawDistance.cpp" />
     <ClCompile Include="Patches\CatacombsMeatRoom.cpp" />
     <ClCompile Include="Patches\NoCDPatch.cpp" />

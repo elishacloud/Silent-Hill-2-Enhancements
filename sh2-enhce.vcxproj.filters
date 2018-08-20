@@ -122,6 +122,9 @@
     <ClCompile Include="Patches\CatacombsMeatRoom.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\DisableRedCrossDuringCutscenes.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Logging.h">

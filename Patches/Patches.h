@@ -7,3 +7,4 @@ void UpdateDrawDistance();
 void UpdateCemeteryLighting();
 void UpdateRowboatAnimation();
 void UpdateCatacombsMeatRoom();
+void UpdateRedCrossInCutscene();

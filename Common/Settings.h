@@ -5,6 +5,7 @@
 	visit(d3d8to9, true) \
 	visit(CatacombsMeatRoomFix, true) \
 	visit(CemeteryLightingFix, true) \
+	visit(DisableRedCrossInCutScenes, true) \
 	visit(EnableSFXAddrHack, true) \
 	visit(EnableWndMode, false) \
 	visit(WndModeBorder, true) \

@@ -172,6 +172,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			UpdateCatacombsMeatRoom();
 		}
 
+		// Red Cross health indicator in cutscene
+		if (DisableRedCrossInCutScenes)
+		{
+			UpdateRedCrossInCutscene();
+		}
+
 		// Load Nemesis2000's Fog Fix
 		if (Nemesis2000FogFix)
 		{

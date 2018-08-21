@@ -150,7 +150,8 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)d3d8.ini" &gt;nul</Command>
+      <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul
+copy /Y "$(ProjectDir)Resources\SilentHill2.WidescreenFix.dat" "$(TargetDir)$(TargetName).dat" &gt;nul</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -176,7 +177,8 @@ cmd /c "@echo off &amp;&amp; cd /D ""$(ProjectDir)"" &amp;&amp; del Build.txt"
 cmd /c "@echo off &amp;&amp; cd /D ""$(ProjectDir)"" &amp;&amp; type Resources\BuildNo.rc"</Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)d3d8.ini" &gt;nul</Command>
+      <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul
+copy /Y "$(ProjectDir)Resources\SilentHill2.WidescreenFix.dat" "$(TargetDir)$(TargetName).dat" &gt;nul</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

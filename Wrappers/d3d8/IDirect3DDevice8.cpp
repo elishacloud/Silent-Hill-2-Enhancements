@@ -756,7 +756,7 @@ HRESULT m_IDirect3DDevice8::CopyRects(THIS_ IDirect3DSurface8* pSourceSurface, C
 HRESULT m_IDirect3DDevice8::StretchRect(THIS_ IDirect3DSurface8* pSrcSurface, CONST RECT* pSrcRect, IDirect3DSurface8* pDestSurface, CONST RECT* pDestRect)
 {
 	// Check destination parameters
-	if (!pSrcSurface || !pSrcRect || !pDestSurface || !pDestRect)
+	if (!pSrcSurface || !pDestSurface)
 	{
 		return D3DERR_INVALIDCALL;
 	}
@@ -770,6 +770,31 @@ HRESULT m_IDirect3DDevice8::StretchRect(THIS_ IDirect3DSurface8* pSrcSurface, CO
 	if (FAILED(pDestSurface->GetDesc(&DestDesc)))
 	{
 		return D3DERR_INVALIDCALL;
+	}
+
+	// Check rects
+	RECT SrcRect, DestRect;
+	if (!pSrcRect)
+	{
+		SrcRect.left = 0;
+		SrcRect.top = 0;
+		SrcRect.right = SrcDesc.Width;
+		SrcRect.bottom = SrcDesc.Height;
+	}
+	else
+	{
+		memcpy(&SrcRect, pSrcRect, sizeof(RECT));
+	}
+	if (!pDestRect)
+	{
+		DestRect.left = 0;
+		DestRect.top = 0;
+		DestRect.right = DestDesc.Width;
+		DestRect.bottom = DestDesc.Height;
+	}
+	else
+	{
+		memcpy(&DestRect, pDestRect, sizeof(RECT));
 	}
 
 	// Check if source and destination formats are the same
@@ -794,10 +819,10 @@ HRESULT m_IDirect3DDevice8::StretchRect(THIS_ IDirect3DSurface8* pSrcSurface, CO
 	DWORD ByteCount = SrcLockRect.Pitch / SrcDesc.Width;
 
 	// Get width and height of rect
-	LONG DestRectWidth = pDestRect->right - pDestRect->left;
-	LONG DestRectHeight = pDestRect->bottom - pDestRect->top;
-	LONG SrcRectWidth = pSrcRect->right - pSrcRect->left;
-	LONG SrcRectHeight = pSrcRect->bottom - pSrcRect->top;
+	LONG DestRectWidth = DestRect.right - DestRect.left;
+	LONG DestRectHeight = DestRect.bottom - DestRect.top;
+	LONG SrcRectWidth = SrcRect.right - SrcRect.left;
+	LONG SrcRectHeight = SrcRect.bottom - SrcRect.top;
 
 	// Get ratio
 	float WidthRatio = (float)SrcRectWidth / (float)DestRectWidth;
@@ -813,8 +838,8 @@ HRESULT m_IDirect3DDevice8::StretchRect(THIS_ IDirect3DSurface8* pSrcSurface, CO
 	{
 		for (LONG y = 0; y < DestRectHeight; y++)
 		{
-			DWORD StartDestLoc = ((y + pDestRect->top) * DestLockRect.Pitch) + (pDestRect->left * ByteCount);
-			DWORD StartSrcLoc = ((((DWORD)((float)y * HeightRatio)) + pSrcRect->top) * SrcLockRect.Pitch) + (pSrcRect->left * ByteCount);
+			DWORD StartDestLoc = ((y + DestRect.top) * DestLockRect.Pitch) + (DestRect.left * ByteCount);
+			DWORD StartSrcLoc = ((((DWORD)((float)y * HeightRatio)) + SrcRect.top) * SrcLockRect.Pitch) + (SrcRect.left * ByteCount);
 
 			for (LONG x = 0; x < DestRectWidth; x++)
 			{

@@ -147,7 +147,7 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	return hr;
 }
 
-// Adjusting the window position for SetDisplayMode()
+// Adjusting the window position for WndMode
 void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 {
 	if (!MainhWnd || !displayWidth || !displayHeight)

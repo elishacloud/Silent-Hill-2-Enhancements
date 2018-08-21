@@ -44,7 +44,8 @@ __declspec(naked) void __stdcall RowboatAnimationASM()
 		mov dword ptr ds : [eax], ecx
 		pop eax
 		pop ecx
-		RowboatExit:
+
+	RowboatExit:
 		popf
 		retn
 	}

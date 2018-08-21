@@ -36,7 +36,8 @@ __declspec(naked) void __stdcall CemeteryLightingASM()
 		cmp ecx, 0x0001000E
 		jne near CemeteryExit
 		mov ecx, 0x0001000D
-		CemeteryExit:
+
+	CemeteryExit:
 		push eax
 		mov eax, dword ptr ds : [CemeteryPointer]
 		mov dword ptr ds : [eax], ecx

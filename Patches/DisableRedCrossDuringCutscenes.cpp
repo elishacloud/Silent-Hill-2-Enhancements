@@ -37,26 +37,23 @@ __declspec(naked) void __stdcall RedCrossCutscenesASM()
 {
 	__asm
 	{
-		pushf
 		push eax
-		push ebx
-		mov bl, byte ptr ds : [RedCrossPointer]
-		cmp bl, 0x00
+		mov eax, RedCrossPointer
+		cmp byte ptr [eax], 0x00
 		jg near DisableHealthIndicator
+
 		call callCutsceneAddr
 		cmp eax, 0x24
 		je near EnableHealthIndicator
 		cmp eax, 0x00
 		je near EnableHealthIndicator
-		DisableHealthIndicator:
-		pop ebx
+
+	DisableHealthIndicator:
 		pop eax
-		popf
 		jmp jmpDisableAddr
-		EnableHealthIndicator:
-		pop ebx
+
+	EnableHealthIndicator:
 		pop eax
-		popf
 		fld dword ptr[ecx + 0x00000140]
 		jmp jmpEnableAddr
 	}

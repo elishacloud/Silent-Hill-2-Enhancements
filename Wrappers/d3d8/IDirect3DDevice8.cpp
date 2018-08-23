@@ -753,17 +753,19 @@ HRESULT m_IDirect3DDevice8::CopyRects(THIS_ IDirect3DSurface8* pSourceSurface, C
 }
 
 // Stretch source rect to destination rect
-HRESULT m_IDirect3DDevice8::StretchRect(THIS_ IDirect3DSurface8* pSrcSurface, CONST RECT* pSrcRect, IDirect3DSurface8* pDestSurface, CONST RECT* pDestRect)
+HRESULT m_IDirect3DDevice8::StretchRect(THIS_ IDirect3DSurface8* pSourceSurface, CONST RECT* pSourceRect, IDirect3DSurface8* pDestSurface, CONST RECT* pDestRect, D3DTEXTUREFILTERTYPE Filter)
 {
+	UNREFERENCED_PARAMETER(Filter);
+
 	// Check destination parameters
-	if (!pSrcSurface || !pDestSurface)
+	if (!pSourceSurface || !pDestSurface)
 	{
 		return D3DERR_INVALIDCALL;
 	}
 
 	// Get surface desc
 	D3DSURFACE_DESC SrcDesc, DestDesc;
-	if (FAILED(pSrcSurface->GetDesc(&SrcDesc)))
+	if (FAILED(pSourceSurface->GetDesc(&SrcDesc)))
 	{
 		return D3DERR_INVALIDCALL;
 	}
@@ -774,7 +776,7 @@ HRESULT m_IDirect3DDevice8::StretchRect(THIS_ IDirect3DSurface8* pSrcSurface, CO
 
 	// Check rects
 	RECT SrcRect, DestRect;
-	if (!pSrcRect)
+	if (!pSourceRect)
 	{
 		SrcRect.left = 0;
 		SrcRect.top = 0;
@@ -783,7 +785,7 @@ HRESULT m_IDirect3DDevice8::StretchRect(THIS_ IDirect3DSurface8* pSrcSurface, CO
 	}
 	else
 	{
-		memcpy(&SrcRect, pSrcRect, sizeof(RECT));
+		memcpy(&SrcRect, pSourceRect, sizeof(RECT));
 	}
 	if (!pDestRect)
 	{
@@ -805,13 +807,13 @@ HRESULT m_IDirect3DDevice8::StretchRect(THIS_ IDirect3DSurface8* pSrcSurface, CO
 
 	// Lock surface
 	D3DLOCKED_RECT SrcLockRect, DestLockRect;
-	if (FAILED(pSrcSurface->LockRect(&SrcLockRect, nullptr, D3DLOCK_NOSYSLOCK | D3DLOCK_READONLY)))
+	if (FAILED(pSourceSurface->LockRect(&SrcLockRect, nullptr, D3DLOCK_NOSYSLOCK | D3DLOCK_READONLY)))
 	{
 		return D3DERR_INVALIDCALL;
 	}
 	if (FAILED(pDestSurface->LockRect(&DestLockRect, nullptr, D3DLOCK_NOSYSLOCK)))
 	{
-		pSrcSurface->UnlockRect();
+		pSourceSurface->UnlockRect();
 		return D3DERR_INVALIDCALL;
 	}
 
@@ -849,13 +851,13 @@ HRESULT m_IDirect3DDevice8::StretchRect(THIS_ IDirect3DSurface8* pSrcSurface, CO
 		break;
 	}
 	default: // Unsupported surface bit count
-		pSrcSurface->UnlockRect();
+		pSourceSurface->UnlockRect();
 		pDestSurface->UnlockRect();
 		return D3DERR_INVALIDCALL;
 	}
 
 	// Unlock rect and return
-	pSrcSurface->UnlockRect();
+	pSourceSurface->UnlockRect();
 	pDestSurface->UnlockRect();
 	return D3D_OK;
 }
@@ -925,7 +927,7 @@ HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface
 		else
 		{
 			RECT RectDest = { 0, 0, (LONG)min(BufferWidth, (UINT)ScreenWidth), (LONG)min(BufferHeight, (UINT)ScreenHeight) };
-			if (FAILED(StretchRect(pSrcSurface, &RectSrc, pDestSurface, &RectDest)))
+			if (FAILED(StretchRect(pSrcSurface, &RectSrc, pDestSurface, &RectDest, D3DTEXF_NONE)))
 			{
 				pSrcSurface->Release();
 				return D3DERR_INVALIDCALL;

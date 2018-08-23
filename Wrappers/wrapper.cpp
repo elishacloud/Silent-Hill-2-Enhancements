@@ -56,7 +56,7 @@
 			HMODULE dll = nullptr; \
 			if (strName && _wcsicmp(strName, Name) != 0) \
 			{ \
-				dll = LoadLibrary(strName); \
+				dll = LoadLibrary(Name); \
 			} \
 			if (!dll) \
 			{ \

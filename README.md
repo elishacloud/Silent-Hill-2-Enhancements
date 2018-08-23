@@ -10,7 +10,7 @@ Below is a list of features:
  * **Catacomb's Meat Cold Room Fix** - Updates the color and lighting of the catacomb's meat cold rooms to be more like the PS2 version of the game.
  * **Cemetery Lighting Fix** - Fixes an issue where wrong data is used when saving the game in the cemetery, which can corrupt fog effects.
  * [**d3d8to9**](https://github.com/crosire/d3d8to9) - Converts Silent Hill 2 to use Direct3D9 (d3d9.dll) rather than Direct3D8.
- * **DisableRedCrossInCutscenes** Hides the low health (red cross) indicator during in-game cutscenes.
+ * **DisableRedCrossInCutscenes** - Hides the low health (red cross) indicator during in-game cutscenes.
  * **Increase Draw Distance** - Fixes distant hallway walls (such as those in the Woodside Apartments) from suddenly appearing.  This makes them appear gradually, more naturally.
  * [**modupdater**](https://github.com/ThirteenAG/modupdater) - Automatically updates the module when new versions comes out.
  * [**Nemesis2000 Fog Fix**](http://ps2wide.net/pc.html#sh2) - Makes the game's fog closer resemble the PlayStation 2's version which is considered the best.
@@ -50,14 +50,14 @@ This project uses code from several other projects. Below is a list of locations
  * **adx2aix**: Used to multiplex multiple ADX files into a single AIX file.
  * **adxencd**: Used to encode ADX files from raw WAV files.
  * **aix2adx**: Used to convert the AIX files into ADX format.
- * [AFS Packer](https://www.romhacking.net/utilities/843/) By PacoChan: Used to create the 'voice.afs' file.
+ * [AFS Packer](https://www.romhacking.net/utilities/843/): By PacoChan. Used to create the 'voice.afs' file.
  * [Aqrit's ddwrapper](http://bitpatch.com/ddwrapper.html): Includes code to read the ini config file.
  * [d3d8to9](https://github.com/crosire/d3d8to9): Includes the full Direct3D 8 to Direct3D 9 code.
  * [DSoundCtrl](https://github.com/nRaecheR/DirectSoundControl): Includes code from DirectSoundControl for GetOSVersion and GetVersionReg functions.
  * [DxWnd](https://sourceforge.net/projects/dxwnd/): Includes code from DxWnd for API hooking, DxWnd proxy loading (init.cpp) and exception handling.
  * [DxWrapper](https://github.com/elishacloud/dxwrapper): Includes code to create wrapper dlls and resets the display adapter.
  * [GetComputerManufacturer](http://www.rohitab.com/discuss/topic/35915-win32-api-to-get-system-information/): Includes code from rohitab.com to get the computer vendor and model.
- * [GetFileVersionInfo ](https://stackoverflow.com/a/940743): Includes code from stackoverflow.com for getting the version of a PE file.
+ * [GetFileVersionInfo](https://stackoverflow.com/a/940743): Includes code from stackoverflow.com for getting the version of a PE file.
  * [GetFunctionAddress](http://www.rohitab.com/discuss/topic/40594-parsing-pe-export-table/): Includes code from rohitab.com to parse the PE export table.
  * [MemoryModule](https://github.com/fancycode/MemoryModule): Includes code for loading libraries from memory.
  * [modupdater](https://github.com/ThirteenAG/modupdater): Includes the full binary file for the modupdater.

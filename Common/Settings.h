@@ -2,13 +2,13 @@
 
 #define VISIT_BOOL_SETTINGS(visit) \
 	visit(AutoUpdateModule, true) \
-	visit(d3d8to9, true) \
 	visit(CatacombsMeatRoomFix, true) \
 	visit(CemeteryLightingFix, true) \
+	visit(d3d8to9, true) \
 	visit(DisableRedCrossInCutScenes, true) \
 	visit(EnableSFXAddrHack, true) \
 	visit(EnableWndMode, false) \
-	visit(WndModeBorder, true) \
+	visit(FullscreenWndMode, false) \
 	visit(IncreaseDrawDistance, true) \
 	visit(LoadFromScriptsOnly, false) \
 	visit(LoadPlugins, false) \
@@ -17,8 +17,10 @@
 	visit(PS2StyleNoiseFilter, true) \
 	visit(ResetScreenRes, true) \
 	visit(RowboatAnimationFix, true) \
+	visit(SingleCoreAffinity, true) \
 	visit(UseCustomModFolder, true) \
-	visit(WidescreenFix, true)
+	visit(WidescreenFix, true) \
+	visit(WndModeBorder, true)
 
 // Configurable setting defaults
 #define DECLARE_BOOL_SETTINGS(name, unused) \

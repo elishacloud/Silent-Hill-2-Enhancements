@@ -49,19 +49,8 @@ ULONG m_IDirect3DDevice8::Release()
 
 HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters)
 {
-	if (EnableWndMode && pPresentationParameters &&
-		(pPresentationParameters->hDeviceWindow || DeviceWindow) &&
-		(pPresentationParameters->BackBufferWidth || BufferWidth) &&
-		(pPresentationParameters->BackBufferHeight || BufferHeight))
-	{
-		pPresentationParameters->Windowed = true;
-		pPresentationParameters->FullScreen_RefreshRateInHz = 0;
-		pPresentationParameters->FullScreen_PresentationInterval = 0;
-		DeviceWindow = (pPresentationParameters->hDeviceWindow) ? pPresentationParameters->hDeviceWindow : DeviceWindow;
-		BufferWidth = (pPresentationParameters->BackBufferWidth) ? pPresentationParameters->BackBufferWidth : BufferWidth;
-		BufferHeight = (pPresentationParameters->BackBufferHeight) ? pPresentationParameters->BackBufferHeight : BufferHeight;
-		AdjustWindow(DeviceWindow, BufferWidth, BufferHeight);
-	}
+	// Update presentation parameters
+	UpdatePresentParameter(pPresentationParameters, nullptr, true);
 
 	return ProxyInterface->Reset(pPresentationParameters);
 }
@@ -93,12 +82,8 @@ BOOL m_IDirect3DDevice8::ShowCursor(BOOL bShow)
 
 HRESULT m_IDirect3DDevice8::CreateAdditionalSwapChain(D3DPRESENT_PARAMETERS *pPresentationParameters, IDirect3DSwapChain8 **ppSwapChain)
 {
-	if (EnableWndMode && pPresentationParameters && DeviceWindow && BufferWidth && BufferHeight)
-	{
-		pPresentationParameters->Windowed = true;
-		pPresentationParameters->FullScreen_RefreshRateInHz = 0;
-		pPresentationParameters->FullScreen_PresentationInterval = 0;
-	}
+	// Update presentation parameters
+	UpdatePresentParameter(pPresentationParameters, nullptr, false);
 
 	HRESULT hr = ProxyInterface->CreateAdditionalSwapChain(pPresentationParameters, ppSwapChain);
 

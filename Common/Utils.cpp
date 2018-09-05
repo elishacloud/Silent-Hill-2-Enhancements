@@ -202,6 +202,15 @@ DWORD ReplaceMemoryBytes(void *dataSrc, void *dataDest, size_t size, DWORD start
 	return counter;
 }
 
+// Set Single Core Affinity
+void SetSingleCoreAffinity()
+{
+	Log() << "Setting SingleCoreAffinity...";
+	HANDLE hCurrentProcess = GetCurrentProcess();
+	SetProcessAffinityMask(hCurrentProcess, 1);
+	CloseHandle(hCurrentProcess);
+}
+
 // Add HMODULE to vector
 void AddHandleToVector(HMODULE dll)
 {

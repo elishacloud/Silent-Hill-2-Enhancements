@@ -11,6 +11,7 @@
 
 typedef IDirect3D8 *(WINAPI *Direct3DCreate8Proc)(UINT);
 
+void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND hFocusWindow, bool SetWindow);
 void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight);
 
 extern HWND DeviceWindow;

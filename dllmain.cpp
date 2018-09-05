@@ -130,6 +130,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			InstallFileSystemHooks(hModule, pathname);
 		}
 
+		// Set single core affinity
+		if (SingleCoreAffinity)
+		{
+			SetSingleCoreAffinity();
+		}
+
 		// Enable No-CD Patch
 		if (NoCDPatch)
 		{

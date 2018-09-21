@@ -67,7 +67,7 @@ This project uses code from several other projects. Below is a list of locations
  * [Widescreen Fix](https://github.com/ThirteenAG/WidescreenFixesPack/releases/tag/sh2): Includes the full binary file for the Widescreen Fix by [ThirteenAG](https://github.com/ThirteenAG) and [AeroWidescreen](https://github.com/AeroWidescreen).
 
 ### Development
-This project is written in C++ using Microsoft Visual Studio Community 2015.
+This project is written in C++ using Microsoft Visual Studio Community 2017.
 
 The project uses the Windows 10 SDK and WDK. The exact version required can be seen in the project properties in Visual Studio.
 

@@ -41,7 +41,7 @@ size_t length(LPCWSTR str)
 
 std::wstring toLower(std::wstring str)
 {
-	std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+	std::transform(str.begin(), str.end(), str.begin(), ::towlower);
 	return str;
 }
 

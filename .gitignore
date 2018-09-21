@@ -31,7 +31,10 @@
 *.drv
 
 # Other Visual Studio files
+.vs/*
+RC*
 ipch/*
+*.ipch
 *.user
 *.suo
 *.aps
@@ -48,6 +51,5 @@ ipch/*
 *.pdb
 *.db
 .opendb
-RC*
 *.opendb
 *.TMP

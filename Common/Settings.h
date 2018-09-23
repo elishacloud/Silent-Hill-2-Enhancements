@@ -19,6 +19,7 @@
 	visit(RowboatAnimationFix, true) \
 	visit(SingleCoreAffinity, true) \
 	visit(UseCustomModFolder, true) \
+	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, true)
 

@@ -944,7 +944,7 @@ void m_IDirect3DDevice8::CreateBlankTexture()
 	}
 
 	// Create texture
-	HRESULT hr = ProxyInterface->CreateTexture(16, 16, 1, NULL, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &BlankTexture);
+	HRESULT hr = ProxyInterface->CreateTexture(16, 16, 1, NULL, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED, &BlankTexture);
 	if (FAILED(hr))
 	{
 		BlankTexture = nullptr;

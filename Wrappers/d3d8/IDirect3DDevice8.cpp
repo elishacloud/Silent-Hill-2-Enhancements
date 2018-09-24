@@ -866,18 +866,11 @@ HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface
 
 	if (EnableWndMode && DeviceWindow && BufferWidth && BufferHeight)
 	{
-		// Get surface desc
-		D3DSURFACE_DESC Desc;
-		if (FAILED(pDestSurface->GetDesc(&Desc)))
-		{
-			return D3DERR_INVALIDCALL;
-		}
-
 		// Create new surface to hold data
 		IDirect3DSurface8 *pSrcSurface = nullptr;
 		int ScreenWidth = GetSystemMetrics(SM_CXSCREEN);
 		int ScreenHeight = GetSystemMetrics(SM_CYSCREEN);
-		if (FAILED(ProxyInterface->CreateImageSurface(ScreenWidth, ScreenHeight, Desc.Format, &pSrcSurface)))
+		if (FAILED(ProxyInterface->CreateImageSurface(ScreenWidth, ScreenHeight, D3DFMT_A8R8G8B8, &pSrcSurface)))
 		{
 			return D3DERR_INVALIDCALL;
 		}
@@ -951,7 +944,7 @@ void m_IDirect3DDevice8::CreateBlankTexture()
 	}
 
 	// Create texture
-	HRESULT hr = ProxyInterface->CreateTexture(16, 16, 1, NULL, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED, &BlankTexture);
+	HRESULT hr = ProxyInterface->CreateTexture(16, 16, 1, NULL, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &BlankTexture);
 	if (FAILED(hr))
 	{
 		BlankTexture = nullptr;

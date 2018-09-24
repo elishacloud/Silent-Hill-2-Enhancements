@@ -6,7 +6,8 @@ private:
 	LPDIRECT3D8 ProxyInterface;
 
 public:
-	m_IDirect3D8(LPDIRECT3D8 pD3D) : ProxyInterface(pD3D) { }
+	m_IDirect3D8(LPDIRECT3D8 pD3D) : ProxyInterface(pD3D) {}
+	~m_IDirect3D8() {}
 
 	/*** IUnknown methods ***/
 	STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID * ppvObj);

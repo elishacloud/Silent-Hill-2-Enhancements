@@ -103,7 +103,7 @@ void UpdateSFXAddr()
 	// Log results
 	if (IndexCount != ARRAYSIZE(DefaultSFXAddrList))
 	{
-		Log() << __FUNCTION__ << " Error: Could not find all 417 indexes in sddata.bin!  Found: " << IndexCount;
+		Log() << __FUNCTION__ << " Error: Could not find all " << ARRAYSIZE(DefaultSFXAddrList) << " indexes in sddata.bin!  Found: " << IndexCount;
 	}
 
 	Log() << "Updating SFX memory address locations...";

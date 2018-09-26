@@ -7,22 +7,25 @@ Below is a list of features:
 
  * [**Audio Script Builder**](AudioScripts) - Allows you to create or update the SH2 audio files.
  * **ASI Loader** - Loads custom libraries with the file extension .asi into the game using [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader).
+ * **Borderless Windowed Mode** - Enable or disable windows border. Requires Windowed Mode to be enabled (WndMode = 1).
  * **Catacomb's Meat Cold Room Fix** - Updates the color and lighting of the catacomb's meat cold rooms to be more like the PS2 version of the game.
  * **Cemetery Lighting Fix** - Fixes an issue where wrong data is used when saving the game in the cemetery, which can corrupt fog effects.
  * **Custom Mod Folder Support** - Enables a custom mod folder `sh2e` to store modified game files so as to not overwrite native Silent Hill 2 files.
  * [**d3d8to9**](https://github.com/crosire/d3d8to9) - Converts Silent Hill 2 to use Direct3D9 (d3d9.dll) rather than Direct3D8.
- * **DisableRedCrossInCutscenes** - Hides the low health (red cross) indicator during in-game cutscenes.
+ * **Disable Red Cross** - Disables the low health (red cross) indicator completely. It is recommended to only enable if you are using a controller with vibration enabled.
+ * **Disable Red Cross In Cutscenes** - Hides the low health (red cross) indicator during in-game cutscenes.
+ * **Fullscreen Windowed Mode** - Enables fullscreen windowed mode. Requires Windowed Mode to be enabled (WndMode = 1).
  * **Increase Draw Distance** - Fixes distant hallway walls (such as those in the Woodside Apartments) from suddenly appearing.  This makes them appear gradually, more naturally.
  * [**modupdater**](https://github.com/ThirteenAG/modupdater) - Automatically updates the module when new versions comes out.
  * [**Nemesis2000 Fog Fix**](http://ps2wide.net/pc.html#sh2) - Makes the game's fog closer resemble the PlayStation 2's version which is considered the best.
- * **NoCD Patch** - Disables the CD check.
+ * **NoCD Patch** - Disables the CD check. _Note: not yet supported in all game versions._
  * **PS2 Style Noise Filter** - Makes the noise filter resemble the PlayStation 2's noise filter.
  * **Reset Screen Res** - Resets the display adapter on exit which fixes an issue when using WineD3D casing the screen to go dark.
  * **Rowboat Animation Fix** - Fixes an issue with rowboat animation if you exit to the main menu and reload the game.
  * **SFX Address Fix** - Dynamically updates SH2 memory with correct index locations for the SFX from the `sddata.bin` file (required if you are using a modified version of the `sddata.bin` audio file).
- * **WhiteShaderFix** - Fixes an issue on Nvidia graphics cards where certain textures would appear as white when they should be black.
+ * **White Shader Fix** - Fixes an issue on Nvidia graphics cards where certain textures would appear as white when they should be black.
  * [**Widescreen Fix**](https://github.com/ThirteenAG/WidescreenFixesPack/releases/tag/sh2) - Allows the game to fit any sized monitor appropriately and fixes other inherit game bugs.
- * **WndMode** - Runs the game in windowed mode.
+ * **Windowed Mode** - Runs the game in windowed mode.
 
 ### Configuration
 To view an ini example see the [settings.ini](https://github.com/elishacloud/Silent-Hill-2-Enhancements/blob/master/Common/Settings.ini) file.

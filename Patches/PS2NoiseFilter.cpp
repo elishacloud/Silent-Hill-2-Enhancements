@@ -56,7 +56,16 @@ __declspec(naked) void __stdcall NoiseFilterASM()
 void UpdatePS2NoiseFilter()
 {
 	// Get PS2 filter memory address
-	DWORD FilterAddrEDX = (DWORD)GetAddressOfData(FilterByteEDX[0], sizeof(FilterByteEDX[0]), 1, 0x0477C1D, 1800);
+	DWORD FilterAddrEDX = (DWORD)CheckMultiMemoryAddress((void*)0x00477E9D, (void*)0x0047813D, (void*)0x0047834D, (void*)FilterByteEDX[0], sizeof(FilterByteEDX[0]));
+
+	// Search for address
+	if (!FilterAddrEDX)
+	{
+		Log() << __FUNCTION__ << " searching for memory address!";
+		FilterAddrEDX = (DWORD)GetAddressOfData(FilterByteEDX[0], sizeof(FilterByteEDX[0]), 1, 0x0477C1D, 1800);
+	}
+
+	// Checking address pointer
 	if (!FilterAddrEDX)
 	{
 		Log() << __FUNCTION__ << " Error: failed to find memory address!";

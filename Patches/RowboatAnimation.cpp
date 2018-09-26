@@ -55,7 +55,16 @@ __declspec(naked) void __stdcall RowboatAnimationASM()
 void UpdateRowboatAnimation()
 {
 	// Get Rowboat Animation address
-	DWORD RowboatAddr = (DWORD)GetAddressOfData(RowboatSearchBytes, sizeof(RowboatSearchBytes), 1, 0x000049FBA5, 2600);
+	DWORD RowboatAddr = (DWORD)CheckMultiMemoryAddress((void*)0x004A0293, (void*)0x004A0543, (void*)0x0049FE03, (void*)RowboatSearchBytes, sizeof(RowboatSearchBytes));
+
+	// Search for address
+	if (!RowboatAddr)
+	{
+		Log() << __FUNCTION__ << " searching for memory address!";
+		RowboatAddr = (DWORD)GetAddressOfData(RowboatSearchBytes, sizeof(RowboatSearchBytes), 1, 0x000049FBA5, 2600);
+	}
+
+	// Checking address pointer
 	if (!RowboatAddr)
 	{
 		Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -64,7 +73,16 @@ void UpdateRowboatAnimation()
 	RowboatAddr += 0x22;
 
 	// Get memory pointer for Rowboat Animation
-	DWORD RowboatMemoryPtr = (DWORD)GetAddressOfData(RowboatSearchPtrBytes, sizeof(RowboatSearchPtrBytes), 1, 0x000053F356, 2600);
+	DWORD RowboatMemoryPtr = (DWORD)CheckMultiMemoryAddress((void*)0x0053F9C3, (void*)0x0053FCF3, (void*)0x0053F613, (void*)RowboatSearchPtrBytes, sizeof(RowboatSearchPtrBytes));
+
+	// Search for address
+	if (!RowboatMemoryPtr)
+	{
+		Log() << __FUNCTION__ << " searching for memory address!";
+		RowboatMemoryPtr = (DWORD)GetAddressOfData(RowboatSearchPtrBytes, sizeof(RowboatSearchPtrBytes), 1, 0x000053F356, 2600);
+	}
+
+	// Checking address pointer
 	if (!RowboatMemoryPtr)
 	{
 		Log() << __FUNCTION__ << " Error: failed to find pointer address!";

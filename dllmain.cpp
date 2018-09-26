@@ -66,14 +66,14 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 
 		// Get Silent Hill 2 file path
 		GetModuleFileName(nullptr, pathname, MAX_PATH);
-		Log() << "Running from:  " << pathname;
+		Log() << "Running from: " << pathname;
 
 		// Get config file path
 		GetModuleFileName(hModule, pathname, MAX_PATH);
 		wcscpy_s(wcsrchr(pathname, '.'), MAX_PATH - wcslen(pathname), L".ini");
 
 		// Read config file
-		Log() << "Reading config file:  " << pathname;
+		Log() << "Reading config file: " << pathname;
 		char* szCfg = Read(pathname);
 
 		// Parce config file

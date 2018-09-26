@@ -100,6 +100,29 @@ bool CheckMemoryAddress(void *dataAddr, void *dataBytes, DWORD dataSize)
 	return flag;
 }
 
+// Checks mulitple memory addresses
+void *CheckMultiMemoryAddress(void *dataAddr10, void *dataAddr11, void *dataAddrDC, void *dataBytes, DWORD dataSize)
+{
+	void *MemAddress = nullptr;
+	// v1.0
+	if (!MemAddress)
+	{
+		MemAddress = (CheckMemoryAddress(dataAddr10, dataBytes, dataSize)) ? dataAddr10 : nullptr;
+	}
+	// v1.1
+	if (!MemAddress)
+	{
+		MemAddress = (CheckMemoryAddress(dataAddr11, dataBytes, dataSize)) ? dataAddr11 : nullptr;
+	}
+	// vDC
+	if (!MemAddress)
+	{
+		MemAddress = (CheckMemoryAddress(dataAddrDC, dataBytes, dataSize)) ? dataAddrDC : nullptr;
+	}
+	// Return address
+	return MemAddress;
+}
+
 // Update memory
 bool UpdateMemoryAddress(void *dataAddr, void *dataBytes, DWORD dataSize)
 {

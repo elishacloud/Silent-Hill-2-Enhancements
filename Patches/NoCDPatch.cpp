@@ -27,7 +27,14 @@ constexpr BYTE CDBypass[] = { 0xC3 };
 void DisableCDCheck()
 {
 	// Find address for CD check
-	void *CDCheckAddr = GetAddressOfData(CDFuncBlock, sizeof(CDFuncBlock), 4, 0x00407DE0, 1800);
+	void *CDCheckAddr = CheckMultiMemoryAddress((void*)0x00408760, (void*)0x004088C0, (void*)0x004088D0, (void*)CDFuncBlock, sizeof(CDFuncBlock));
+
+	// Search for address
+	if (!CDCheckAddr)
+	{
+		Log() << __FUNCTION__ << " searching for memory address!";
+		CDCheckAddr = GetAddressOfData(CDFuncBlock, sizeof(CDFuncBlock), 4, 0x00407DE0, 1800);
+	}
 
 	// Address found
 	if ((CDCheckAddr) ? !CheckMemoryAddress((void*)((DWORD)CDCheckAddr + 11), (void*)CDBlockTest, sizeof(CDBlockTest)) : true)

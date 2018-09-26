@@ -53,7 +53,16 @@ void UpdateCatacombsMeatRoom()
 	}
 
 	// Get Cemetery Lighting address
-	DWORD CatacombSmallRoomTexAddr = (DWORD)GetAddressOfData(CatacombSearchBytes, sizeof(CatacombSearchBytes), 1, 0x007FB950, 1800);
+	DWORD CatacombSmallRoomTexAddr = (DWORD)CheckMultiMemoryAddress((void*)0x007FBB91, (void*)0x007FF779, (void*)0x007FE779, (void*)CatacombSearchBytes, sizeof(CatacombSearchBytes));
+
+	// Search for address
+	if (!CatacombSmallRoomTexAddr)
+	{
+		Log() << __FUNCTION__ << " searching for memory address!";
+		CatacombSmallRoomTexAddr = (DWORD)GetAddressOfData(CatacombSearchBytes, sizeof(CatacombSearchBytes), 1, 0x007FB950, 1800);
+	}
+
+	// Checking address pointer
 	if (!CatacombSmallRoomTexAddr)
 	{
 		Log() << __FUNCTION__ << " Error: failed to find memory address!";

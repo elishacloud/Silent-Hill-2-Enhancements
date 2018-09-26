@@ -51,7 +51,16 @@ __declspec(naked) void __stdcall CemeteryLightingASM()
 void UpdateCemeteryLighting()
 {
 	// Get Cemetery Lighting address
-	DWORD CemeteryAddr = (DWORD)GetAddressOfData(CemeterySearchBytes, sizeof(CemeterySearchBytes), 1, 0x0047C09C, 1800);
+	DWORD CemeteryAddr = (DWORD)CheckMultiMemoryAddress((void*)0x0047C2DB, (void*)0x0047C57B, (void*)0x0047C78B, (void*)CemeterySearchBytes, sizeof(CemeterySearchBytes));
+
+	// Search for address
+	if (!CemeteryAddr)
+	{
+		Log() << __FUNCTION__ << " searching for memory address!";
+		CemeteryAddr = (DWORD)GetAddressOfData(CemeterySearchBytes, sizeof(CemeterySearchBytes), 1, 0x0047C09C, 1800);
+	}
+
+	// Checking address pointer
 	if (!CemeteryAddr)
 	{
 		Log() << __FUNCTION__ << " Error: failed to find memory address!";

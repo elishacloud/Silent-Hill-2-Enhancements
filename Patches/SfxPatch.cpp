@@ -25,7 +25,14 @@
 void UpdateSFXAddr()
 {
 	// Find address for SFX indexes
-	void *sfxAddr = GetAddressOfData(sfxBlock, sizeof(sfxBlock), 4);
+	void *sfxAddr = CheckMultiMemoryAddress((void*)0x008A67DC, (void*)0x008AA3C4, (void*)0x008A93C4, (void*)sfxBlock, sizeof(sfxBlock));
+
+	// Search for address
+	if (!sfxAddr)
+	{
+		Log() << __FUNCTION__ << " searching for memory address!";
+		sfxAddr = GetAddressOfData(sfxBlock, sizeof(sfxBlock), 4);
+	}
 
 	// Address found
 	if (!sfxAddr)
@@ -33,6 +40,8 @@ void UpdateSFXAddr()
 		Log() << __FUNCTION__ << " Error: Could not find SFX pointer address in memory!";
 		return;
 	}
+
+	Log() << "Finding SFX file locations...";
 
 	// Get sddata.bin file path
 	char myPath[MAX_PATH];
@@ -94,8 +103,10 @@ void UpdateSFXAddr()
 	// Log results
 	if (IndexCount != ARRAYSIZE(DefaultSFXAddrList))
 	{
-		Log() << __FUNCTION__ << " Error: Could not find all the indexes in sddata.bin!  Found: " << IndexCount;
+		Log() << __FUNCTION__ << " Error: Could not find all 417 indexes in sddata.bin!  Found: " << IndexCount;
 	}
+
+	Log() << "Updating SFX memory address locations...";
 
 	// Update SFX address array
 	DWORD oldProtect;
@@ -104,8 +115,6 @@ void UpdateSFXAddr()
 		Log() << __FUNCTION__ << " Error: Could not write to memory!";
 		return;
 	}
-
-	Log() << "Updating SFX memory addresses...";
 
 	// Write to memory
 	for (x = 0; x < ARRAYSIZE(SFXAddrMap); x++)
@@ -117,7 +126,16 @@ void UpdateSFXAddr()
 	VirtualProtect(sfxAddr, ARRAYSIZE(SFXAddrMap) * sizeof(DWORD), oldProtect, &oldProtect);
 
 	// Find address for sddata.bin file pointer function
-	sfxAddr = GetAddressOfData(sfxPtr, sizeof(sfxPtr), 1, 0x00401000, 0x00127FFF);
+	sfxAddr = CheckMultiMemoryAddress((void*)0x00515110, (void*)0x00515440, (void*)0x00514D60, (void*)sfxPtr, sizeof(sfxPtr));
+
+	// Search for address
+	if (!sfxAddr)
+	{
+		Log() << __FUNCTION__ << " searching for memory address!";
+		sfxAddr = GetAddressOfData(sfxPtr, sizeof(sfxPtr), 1, 0x00401000, 0x00127FFF);
+	}
+
+	// Address found
 	if (!sfxAddr)
 	{
 		Log() << __FUNCTION__ << " Error: Could not find sddata.bin pointer address in memory!";
@@ -126,6 +144,8 @@ void UpdateSFXAddr()
 
 	// Get relative address
 	sfxAddr = (void*)((DWORD)sfxAddr + 0x53);
+
+	Log() << "Allocating memory buffer for sddata.bin file...";
 
 	// Allocate memory
 	char *PtrBytes = new char[size + 1];
@@ -136,8 +156,6 @@ void UpdateSFXAddr()
 		Log() << __FUNCTION__ << " Error: Could not write to memory!";
 		return;
 	}
-
-	Log() << "Updating sddata.bin pointer memory addresses...";
 
 	// Write to memory
 	*((DWORD *)((DWORD)sfxAddr + 1)) = (DWORD)PtrBytes;

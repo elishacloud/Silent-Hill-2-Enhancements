@@ -30,6 +30,7 @@ constexpr float DrawDistance = 8500.0f;
 void UpdateDrawDistance()
 {
 	// Loop variables
+	DWORD LoopCounter = 0;
 	const DWORD SizeOfBytes = 10;
 	BYTE SrcByteData[SizeOfBytes] = { NULL };
 	BYTE DestByteData[SizeOfBytes] = { NULL };
@@ -38,10 +39,21 @@ void UpdateDrawDistance()
 	bool ExitFlag = false;
 
 	// Get data bytes from code
-	while (!ExitFlag && StartAddr < EndAddr)
+	while (!ExitFlag && StartAddr < EndAddr && LoopCounter < 10)
 	{
+		LoopCounter++;
+
 		// Get next address
-		void *NextAddr = GetAddressOfData(DDSearchAddr, sizeof(DDSearchAddr), 1, StartAddr, EndAddr - StartAddr);
+		void *NextAddr = CheckMultiMemoryAddress((void*)0x0047C19D, (void*)0x0047C43D, (void*)0x0047C64D, (void*)DDSearchAddr, sizeof(DDSearchAddr));
+
+		// Search for address
+		if (!NextAddr)
+		{
+			Log() << __FUNCTION__ << " searching for memory address!";
+			NextAddr = GetAddressOfData(DDSearchAddr, sizeof(DDSearchAddr), 1, StartAddr, EndAddr - StartAddr);
+		}
+
+		// Checking address pointer
 		if (!NextAddr)
 		{
 			Log() << __FUNCTION__ << " Error: could not find binary data!";

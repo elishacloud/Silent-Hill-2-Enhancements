@@ -19,6 +19,9 @@
 #include "Common\Utils.h"
 #include "Common\Logging.h"
 
+// Forward declaration
+DWORD CheckUpdateMemory(void *dataSrc, void *dataDest, size_t size, bool SearchMemory);
+
 // Predefined code bytes
 constexpr BYTE DDStartAddr[] = { 0xC7, 0x05, 0x58 };
 constexpr BYTE DDSearchAddr[] = { 0x94, 0x00, 0x00, 0x60, 0xEA, 0x45 };
@@ -82,10 +85,53 @@ void UpdateDrawDistance()
 	// Logging
 	Log() << "Increasing the Draw Distance...";
 
+	bool SearchMemoryFlag = false;
+	void *NextAddr = nullptr;
+
+	// Address 1
+	NextAddr = CheckMultiMemoryAddress((void*)0x0047C199, (void*)0x0047C439, (void*)0x0047C649, (void*)SrcByteData, SizeOfBytes);
+	SearchMemoryFlag = CheckUpdateMemory(NextAddr, DestByteData, SizeOfBytes, SearchMemoryFlag);
+
+	// Address 2
+	NextAddr = CheckMultiMemoryAddress((void*)0x0057E7C5, (void*)0x0057F075, (void*)0x0057E995, (void*)SrcByteData, SizeOfBytes);
+	SearchMemoryFlag = CheckUpdateMemory(NextAddr, DestByteData, SizeOfBytes, SearchMemoryFlag);
+
+	// Address 3
+	NextAddr = CheckMultiMemoryAddress((void*)0x00587F77, (void*)0x00588827, (void*)0x00588147, (void*)SrcByteData, SizeOfBytes);
+	SearchMemoryFlag = CheckUpdateMemory(NextAddr, DestByteData, SizeOfBytes, SearchMemoryFlag);
+
+	// Address 4
+	NextAddr = CheckMultiMemoryAddress((void*)0x00587FB7, (void*)0x00588867, (void*)0x00588187, (void*)SrcByteData, SizeOfBytes);
+	SearchMemoryFlag = CheckUpdateMemory(NextAddr, DestByteData, SizeOfBytes, SearchMemoryFlag);
+
+	// Address 5
+	NextAddr = CheckMultiMemoryAddress((void*)0x00594FE6, (void*)0x00595896, (void*)0x005951B6, (void*)SrcByteData, SizeOfBytes);
+	SearchMemoryFlag = CheckUpdateMemory(NextAddr, DestByteData, SizeOfBytes, SearchMemoryFlag);
+
+	// Address 6
+	NextAddr = CheckMultiMemoryAddress((void*)0x0059EC1B, (void*)0x0059F4CB, (void*)0x0059EDEB, (void*)SrcByteData, SizeOfBytes);
+	SearchMemoryFlag = CheckUpdateMemory(NextAddr, DestByteData, SizeOfBytes, SearchMemoryFlag);
+
 	// Update all SH2 code with new DrawDistance values
-	if (!ReplaceMemoryBytes(SrcByteData, DestByteData, SizeOfBytes, 0x0047C000, 0x005FFFFF))
+	if (SearchMemoryFlag)
 	{
-		Log() << __FUNCTION__ << " Error: replacing pointer in ASM!";
-		return;
+		Log() << __FUNCTION__ << " searching for memory address!";
+		if (!ReplaceMemoryBytes(SrcByteData, DestByteData, SizeOfBytes, 0x0047C000, 0x005FFFFF))
+		{
+			Log() << __FUNCTION__ << " Error: replacing pointer!";
+		}
 	}
+}
+
+DWORD CheckUpdateMemory(void *dataSrc, void *dataDest, size_t size, bool SearchMemoryFlag)
+{
+	if (dataSrc)
+	{
+		UpdateMemoryAddress(dataSrc, dataDest, size);
+	}
+	else
+	{
+		SearchMemoryFlag = true;
+	}
+	return SearchMemoryFlag;
 }

@@ -473,6 +473,19 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 
 HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, CONST void *pVertexStreamZeroData, UINT VertexStreamZeroStride)
 {
+	// Fix for 2D Fog Fix
+	if (Fog2DFix && PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 28 &&
+		((float*)pVertexStreamZeroData)[0] == 0.0f && ((float*)pVertexStreamZeroData)[1] == 0.0f && ((float*)pVertexStreamZeroData)[2] == 0.0f && ((float*)pVertexStreamZeroData)[3] == 1.0f &&
+		((float*)pVertexStreamZeroData)[7] == BufferWidth && ((float*)pVertexStreamZeroData)[8] == 0.0f && ((float*)pVertexStreamZeroData)[9] == 0.0f && ((float*)pVertexStreamZeroData)[10] == 1.0f &&
+		((float*)pVertexStreamZeroData)[14] == 0.0f && ((float*)pVertexStreamZeroData)[15] == BufferHeight && ((float*)pVertexStreamZeroData)[16] == 0.0f && ((float*)pVertexStreamZeroData)[17] == 1.0f &&
+		((float*)pVertexStreamZeroData)[21] == BufferWidth && ((float*)pVertexStreamZeroData)[22] == BufferHeight && ((float*)pVertexStreamZeroData)[23] == 0.0f && ((float*)pVertexStreamZeroData)[24] == 1.0f)
+	{
+		((float*)pVertexStreamZeroData)[2] = 0.00005f;
+		((float*)pVertexStreamZeroData)[9] = 0.00005f;
+		((float*)pVertexStreamZeroData)[16] = 0.00005f;
+		((float*)pVertexStreamZeroData)[23] = 0.00005f;
+	}
+
 	return ProxyInterface->DrawPrimitiveUP(PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride);
 }
 

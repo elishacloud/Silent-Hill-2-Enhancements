@@ -9,6 +9,7 @@
 	visit(DisableRedCrossInCutScenes, true) \
 	visit(EnableSFXAddrHack, true) \
 	visit(EnableWndMode, false) \
+	visit(Fog2DFix, true) \
 	visit(FullscreenWndMode, false) \
 	visit(IncreaseDrawDistance, true) \
 	visit(LoadFromScriptsOnly, false) \

@@ -143,6 +143,9 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 		return;
 	}
 
+	BufferWidth = (pPresentationParameters->BackBufferWidth) ? pPresentationParameters->BackBufferWidth : BufferWidth;
+	BufferHeight = (pPresentationParameters->BackBufferHeight) ? pPresentationParameters->BackBufferHeight : BufferHeight;
+
 	// Set window size if window mode is enabled
 	if (EnableWndMode && (pPresentationParameters->hDeviceWindow || DeviceWindow || hFocusWindow))
 	{
@@ -150,8 +153,6 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 		pPresentationParameters->FullScreen_RefreshRateInHz = 0;
 		if (SetWindow)
 		{
-			BufferWidth = (pPresentationParameters->BackBufferWidth) ? pPresentationParameters->BackBufferWidth : BufferWidth;
-			BufferHeight = (pPresentationParameters->BackBufferHeight) ? pPresentationParameters->BackBufferHeight : BufferHeight;
 			DeviceWindow = (pPresentationParameters->hDeviceWindow) ? pPresentationParameters->hDeviceWindow :
 				(hFocusWindow) ? hFocusWindow : DeviceWindow;
 			if (!BufferWidth || !BufferHeight)

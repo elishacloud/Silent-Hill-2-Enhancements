@@ -473,7 +473,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 
 HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, CONST void *pVertexStreamZeroData, UINT VertexStreamZeroStride)
 {
-	// Fix for 2D Fog Fix
+	// Fix for 2D Fog
 	if (Fog2DFix && PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 28 &&
 		((float*)pVertexStreamZeroData)[0] == 0.0f && ((float*)pVertexStreamZeroData)[1] == 0.0f && ((float*)pVertexStreamZeroData)[2] == 0.0f && ((float*)pVertexStreamZeroData)[3] == 1.0f &&
 		((float*)pVertexStreamZeroData)[7] == BufferWidth && ((float*)pVertexStreamZeroData)[8] == 0.0f && ((float*)pVertexStreamZeroData)[9] == 0.0f && ((float*)pVertexStreamZeroData)[10] == 1.0f &&

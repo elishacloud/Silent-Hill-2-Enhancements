@@ -13,7 +13,11 @@ public:
 	{
 		ProxyAddressLookupTable = new AddressLookupTable<m_IDirect3DDevice8>(this);
 
-		CreateBlankTexture();
+		// Create blank texture for white shader fix
+		if (FAILED(ProxyInterface->CreateTexture(1, 1, 1, NULL, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED, &BlankTexture)))
+		{
+			BlankTexture = nullptr;
+		}
 	}
 	~m_IDirect3DDevice8()
 	{
@@ -124,7 +128,4 @@ public:
 	STDMETHOD(DrawRectPatch)(THIS_ UINT Handle, CONST float* pNumSegs, CONST D3DRECTPATCH_INFO* pRectPatchInfo);
 	STDMETHOD(DrawTriPatch)(THIS_ UINT Handle, CONST float* pNumSegs, CONST D3DTRIPATCH_INFO* pTriPatchInfo);
 	STDMETHOD(DeletePatch)(THIS_ UINT Handle);
-
-	// Helper functions
-	void m_IDirect3DDevice8::CreateBlankTexture();
 };

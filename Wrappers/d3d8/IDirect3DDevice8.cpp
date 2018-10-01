@@ -593,10 +593,6 @@ HRESULT m_IDirect3DDevice8::SetTexture(DWORD Stage, IDirect3DBaseTexture8 *pText
 	// Fix for the white shader issue
 	if (WhiteShaderFix && Stage == 0 && !pTexture)
 	{
-		if (!BlankTexture)
-		{
-			CreateBlankTexture();
-		}
 		pTexture = BlankTexture;
 	}
 
@@ -946,43 +942,4 @@ HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface
 HRESULT m_IDirect3DDevice8::GetInfo(THIS_ DWORD DevInfoID, void* pDevInfoStruct, DWORD DevInfoStructSize)
 {
 	return ProxyInterface->GetInfo(DevInfoID, pDevInfoStruct, DevInfoStructSize);
-}
-
-// Used to fix the white shader issue
-void m_IDirect3DDevice8::CreateBlankTexture()
-{
-	if (BlankTexture)
-	{
-		return;
-	}
-
-	// Create texture
-	HRESULT hr = ProxyInterface->CreateTexture(16, 16, 1, NULL, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED, &BlankTexture);
-	if (FAILED(hr))
-	{
-		BlankTexture = nullptr;
-	}
-	if (!BlankTexture)
-	{
-		return;
-	}
-
-	// Lock texture
-	D3DLOCKED_RECT LockedRect = { NULL };
-	hr = BlankTexture->LockRect(0, &LockedRect, nullptr, 0);
-	if (FAILED(hr))
-	{
-		BlankTexture->Release();
-		BlankTexture = nullptr;
-		return;
-	}
-	else if (!LockedRect.pBits)
-	{
-		BlankTexture->UnlockRect(0);
-		return;
-	}
-
-	// Write to texture and unlock
-	ZeroMemory(LockedRect.pBits, LockedRect.Pitch * 16);
-	BlankTexture->UnlockRect(0);
 }

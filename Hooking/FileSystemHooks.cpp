@@ -61,6 +61,16 @@ bool FileEnabled = true;
 
 VISIT_BGM_FILES(DEFINE_BGM_FILES);
 
+bool PathExists(LPCSTR str)
+{
+	return PathFileExistsA(str);
+}
+
+bool PathExists(LPCWSTR str)
+{
+	return PathFileExistsW(str);
+}
+
 template<typename T>
 bool CheckConfigPath(T str)
 {

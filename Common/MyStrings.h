@@ -12,5 +12,3 @@ char *GetStringType(LPCSTR, char *strA, wchar_t *strW);
 wchar_t *GetStringType(LPCWSTR, char *strA, wchar_t *strW);
 bool IsInString(LPCSTR strCheck, LPCSTR strA, LPCWSTR);
 bool IsInString(LPCWSTR strCheck, LPCSTR, LPCWSTR strW);
-bool PathExists(LPCSTR str);
-bool PathExists(LPCWSTR str);

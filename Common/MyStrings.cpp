@@ -18,7 +18,6 @@
 #include <Windows.h>
 #include <algorithm>
 #include <fstream>
-#include "Shlwapi.h"
 
 size_t length(LPCSTR str)
 {
@@ -111,14 +110,4 @@ bool IsInString(LPCSTR strCheck, LPCSTR strA, LPCWSTR)
 bool IsInString(LPCWSTR strCheck, LPCSTR, LPCWSTR strW)
 {
 	return IsInString(strCheck, strW);
-}
-
-bool PathExists(LPCSTR str)
-{
-	return PathFileExistsA(str);
-}
-
-bool PathExists(LPCWSTR str)
-{
-	return PathFileExistsW(str);
 }

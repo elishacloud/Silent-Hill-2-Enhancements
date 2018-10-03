@@ -47,11 +47,13 @@ char ConfigPathA[MAX_PATH];
 wchar_t ConfigPathW[MAX_PATH];
 char ModPathA[5] = "sh2e";
 wchar_t ModPathW[5] = L"sh2e";
-std::wstring wstrDataPath;
+std::wstring strDataPathW;
 DWORD modLoc = 0;
-std::wstring wstrModulePath;
+std::string strModulePathA;
+std::wstring strModulePathW;
 DWORD nPathSize = 0;
-wchar_t ConfigName[MAX_PATH] = { '\0' };
+char ConfigNameA[MAX_PATH];
+wchar_t ConfigNameW[MAX_PATH];
 bool FileEnabled = true;
 
 #define DEFINE_BGM_FILES(name, unused, unused2) \
@@ -62,10 +64,9 @@ VISIT_BGM_FILES(DEFINE_BGM_FILES);
 template<typename T>
 bool CheckConfigPath(T str)
 {
-	std::wstring ws(toLower(toWString(str)));
 	for (MODULECONFIG it : ConfigList)
 	{
-		if (*(it.Enabled) && wcsstr(ws.c_str(), it.ConfigFileList))
+		if (*(it.Enabled) && IsInString(str, it.ConfigFileListA, it.ConfigFileListW))
 		{
 			return true;
 		}
@@ -74,59 +75,52 @@ bool CheckConfigPath(T str)
 }
 
 template<typename T>
-bool ReplaceWithModPath(T lpFileName, DWORD start)
+T *ReplaceWithModPath(T *lpFileName, DWORD start)
 {
-	if (length(lpFileName) > start + 3 &&
+	size_t Size = length(lpFileName);
+	if (Size > start + 3 &&
 		(lpFileName[start] == 'd' || lpFileName[start] == 'D') &&
 		(lpFileName[start + 1] == 'a' || lpFileName[start + 1] == 'A') &&
 		(lpFileName[start + 2] == 't' || lpFileName[start + 2] == 'T') &&
 		(lpFileName[start + 3] == 'a' || lpFileName[start + 3] == 'A'))
 	{
-		wchar_t tmpPath[MAX_PATH];
-		wcscpy_s(tmpPath, MAX_PATH, toWString(lpFileName).c_str());
+		T tmpPath[MAX_PATH];
+		CopyString(tmpPath, MAX_PATH, lpFileName);
 		for (int x = 0; x < 4; x++)
 		{
-			tmpPath[start + x] = ModPathW[x];
+			tmpPath[start + x] = GetStringType(lpFileName, ModPathA, ModPathW)[x];
 		}
 
-		wchar_t tmpPath2[MAX_PATH];
-		wcscpy_s(tmpPath2, MAX_PATH, tmpPath);
-		size_t Size = wcslen(tmpPath2);
-		if (Size > 4)
+		if (tmpPath[Size - 1] == '*')
 		{
-			tmpPath2[Size - 1] = '\0';
+			tmpPath[Size - 1] = '\0';
 		}
 
-		if (PathFileExists(tmpPath) || PathFileExists(tmpPath2))
+		if (PathExists(tmpPath))
 		{
 			for (int x = 0; x < 4; x++)
 			{
-				ConstStr(lpFileName)[start + x] = GetStringType(lpFileName, ModPathA, ModPathW)[x];
+				lpFileName[start + x] = GetStringType(lpFileName, ModPathA, ModPathW)[x];
 			}
-			return true;
 		}
 	}
-	return false;
+	return lpFileName;
 }
 
 template<typename T>
 T CheckForModPath(T lpFileName)
 {
 	// Verify mod location and data path
-	std::wstring ws = toLower(toWString(lpFileName));
-	if (!UseCustomModFolder ||													// Verify UseCustomModFolder is enabled
-		!modLoc || modLoc + 3 > wstrDataPath.size() ||							// Verify modLoc is correct and string is large enough
-		ws.find(L"data\\save") != std::string::npos ||							// Ignore files in the 'data\save' folder
-		(ws.find(L"sddata.bin") != std::string::npos && !EnableSFXAddrHack))	// Ignore 'sddata.bin' if EnableSFXAddrHack is disabled
+	if (!UseCustomModFolder ||															// Verify UseCustomModFolder is enabled
+		!modLoc || modLoc + 3 > strDataPathW.size() ||									// Verify modLoc is correct and string is large enough
+		IsInString(lpFileName, "data\\save", L"data\\save") ||							// Ignore files in the 'data\save' folder
+		(IsInString(lpFileName, "sddata.bin", L"sddata.bin") && !EnableSFXAddrHack))	// Ignore 'sddata.bin' if EnableSFXAddrHack is disabled
 	{
 		return lpFileName;
 	}
 
 	// Check if string is in the data folder
-	ReplaceWithModPath(lpFileName, 0);
-	ReplaceWithModPath(lpFileName, modLoc);
-
-	return lpFileName;
+	return ReplaceWithModPath(ReplaceWithModPath(lpFileName, 0), modLoc);
 }
 
 template<typename T>
@@ -211,7 +205,7 @@ DWORD WINAPI GetModuleFileNameAHandler(HMODULE hModule, LPSTR lpFilename, DWORD 
 		if ((NotValidFileNamePath(lpFilename, nSize) && nSize > 1) || (moduleHandle && hModule == moduleHandle))
 		{
 			ret = min(nPathSize, nSize) - 1;
-			memcpy(lpFilename, std::string(wstrModulePath.begin(), wstrModulePath.end()).c_str(), ret * sizeof(char));
+			memcpy(lpFilename, strModulePathA.c_str(), ret * sizeof(char));
 			lpFilename[ret] = '\0';
 		}
 		return ret;
@@ -233,7 +227,7 @@ DWORD WINAPI GetModuleFileNameWHandler(HMODULE hModule, LPWSTR lpFilename, DWORD
 		if ((NotValidFileNamePath(lpFilename, nSize) && nSize > 1) || (moduleHandle && hModule == moduleHandle))
 		{
 			ret = min(nPathSize, nSize) - 1;
-			memcpy(lpFilename, wstrModulePath.c_str(), ret * sizeof(wchar_t));
+			memcpy(lpFilename, strModulePathW.c_str(), ret * sizeof(wchar_t));
 			lpFilename[ret] = '\0';
 		}
 		return ret;
@@ -251,7 +245,9 @@ HANDLE WINAPI CreateFileWHandler(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWOR
 
 	if (org_CreateFile)
 	{
-		return org_CreateFile(GetFileName(std::wstring(lpFileName).c_str()), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+		wchar_t Filename[MAX_PATH];
+		wcscpy_s(Filename, MAX_PATH, lpFileName);
+		return org_CreateFile(GetFileName(Filename), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 	}
 
 	Log() << __FUNCTION__ << " Error: invalid proc address!";
@@ -268,10 +264,9 @@ BOOL WINAPI FindNextFileAHandler(HANDLE hFindFile, LPWIN32_FIND_DATAA lpFindFile
 		BOOL ret = org_FindNextFile(hFindFile, lpFindFileData);
 		if (UseCustomModFolder)
 		{
-			std::wstring ws = toLower(toWString(lpFindFileData->cFileName));
 
 #define CHECK_BGM_FILES(name, ext, unused) \
-			if (ws.find(L## #name ## "." ## # ext) != std::string::npos) \
+			if (IsInString(lpFindFileData->cFileName, ## #name ## "." ## # ext, L## #name ## "." ## # ext)) \
 			{ \
 				if (name ## SizeLow) \
 				{ \
@@ -297,7 +292,9 @@ DWORD WINAPI GetPrivateProfileStringAHandler(LPCSTR lpAppName, LPCSTR lpKeyName,
 
 	if (org_GetPrivateProfileString)
 	{
-		return org_GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, GetFileName(std::string(lpFileName).c_str()));
+		char Filename[MAX_PATH];
+		strcpy_s(Filename, MAX_PATH, lpFileName);
+		return org_GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, GetFileName(Filename));
 	}
 
 	Log() << __FUNCTION__ << " Error: invalid proc address!";
@@ -312,7 +309,9 @@ DWORD WINAPI GetPrivateProfileStringWHandler(LPCWSTR lpAppName, LPCWSTR lpKeyNam
 
 	if (org_GetPrivateProfileString)
 	{
-		return org_GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, GetFileName(std::wstring(lpFileName).c_str()));
+		wchar_t Filename[MAX_PATH];
+		wcscpy_s(Filename, MAX_PATH, lpFileName);
+		return org_GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, GetFileName(Filename));
 	}
 
 	Log() << __FUNCTION__ << " Error: invalid proc address!";
@@ -326,25 +325,27 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	moduleHandle = hModule;
 
 	// Store config path
-	wcscpy_s(ConfigPathW, MAX_PATH, ConfigPath);
 	std::wstring ws(ConfigPath);
 	strcpy_s(ConfigPathA, MAX_PATH, std::string(ws.begin(), ws.end()).c_str());
+	wcscpy_s(ConfigPathW, MAX_PATH, ConfigPath);
 
 	// Store config name
-	wcscpy_s(ConfigName, MAX_PATH, wcsrchr(ConfigPath, '\\'));
+	strcpy_s(ConfigNameA, MAX_PATH, strrchr(ConfigPathA, '\\'));
+	wcscpy_s(ConfigNameW, MAX_PATH, wcsrchr(ConfigPathW, '\\'));
 
 	// Get module path
 	wchar_t tmpPath[MAX_PATH];
 	GetModuleFileName(hModule, tmpPath, MAX_PATH);
-	wstrModulePath.assign(tmpPath);
-	nPathSize = wstrModulePath.size() + 1; // Include a null terminator
+	strModulePathW.assign(tmpPath);
+	strModulePathA.assign(strModulePathW.begin(), strModulePathW.end());
+	nPathSize = strModulePathA.size() + 1; // Include a null terminator
 
 	// Get data path
 	GetModuleFileName(nullptr, tmpPath, MAX_PATH);
 	wcscpy_s(wcsrchr(tmpPath, '\\'), MAX_PATH - wcslen(tmpPath), L"\0");
 	modLoc = wcslen(tmpPath) + 1;
 	wcscat_s(tmpPath, MAX_PATH, L"\\data\\");
-	wstrDataPath.assign(toLower(std::wstring(tmpPath)));
+	strDataPathW.assign(tmpPath);
 
 	// Get size of files from mod path
 	WIN32_FILE_ATTRIBUTE_DATA FileInformation;

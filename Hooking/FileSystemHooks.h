@@ -55,22 +55,24 @@
 	visit(voice, afs, L"\\sound\\adx\\voice")
 
 extern bool FileEnabled;
-extern wchar_t ConfigName[MAX_PATH];
+extern char ConfigNameA[MAX_PATH];
+extern wchar_t ConfigNameW[MAX_PATH];
 
 extern char ModPathA[5];
 extern wchar_t ModPathW[5];
 
 struct MODULECONFIG
 {
-	wchar_t *ConfigFileList;		// Module config name
+	char *ConfigFileListA;			// Module config name
+	wchar_t *ConfigFileListW;		// Module config name
 	bool *Enabled;					// Is module enabled
 };
 
 // List of hardcoded config file names from memory modules
 static MODULECONFIG ConfigList[] =
 {
-	{ ConfigName, &FileEnabled },
-	{ L"sh2fog.ini", &Nemesis2000FogFix }
+	{ ConfigNameA, ConfigNameW, &FileEnabled },
+	{ "sh2fog.ini", L"sh2fog.ini", &Nemesis2000FogFix }
 };
 
 void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath);

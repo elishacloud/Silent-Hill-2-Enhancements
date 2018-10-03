@@ -4,12 +4,13 @@
 #include <Windows.h>
 #include <fstream>
 
-char *ConstStr(LPCSTR str);
-wchar_t *ConstStr(LPCWSTR str);
 size_t length(LPCSTR str);
 size_t length(LPCWSTR str);
-std::wstring toLower(std::wstring str);
-std::wstring toWString(LPCSTR str);
-std::wstring toWString(LPCWSTR str);
+void CopyString(char *strA, size_t size, LPCSTR str);
+void CopyString(wchar_t *strW, size_t size, LPCWSTR str);
 char *GetStringType(LPCSTR, char *strA, wchar_t *strW);
 wchar_t *GetStringType(LPCWSTR, char *strA, wchar_t *strW);
+bool IsInString(LPCSTR strCheck, LPCSTR strA, LPCWSTR);
+bool IsInString(LPCWSTR strCheck, LPCSTR, LPCWSTR strW);
+bool PathExists(LPCSTR str);
+bool PathExists(LPCWSTR str);

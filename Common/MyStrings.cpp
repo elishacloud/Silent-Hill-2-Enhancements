@@ -18,16 +18,7 @@
 #include <Windows.h>
 #include <algorithm>
 #include <fstream>
-
-char *ConstStr(LPCSTR str)
-{
-	return (char*)str;
-}
-
-wchar_t *ConstStr(LPCWSTR str)
-{
-	return (wchar_t*)str;
-}
+#include "Shlwapi.h"
 
 size_t length(LPCSTR str)
 {
@@ -39,23 +30,14 @@ size_t length(LPCWSTR str)
 	return wcslen(str);
 }
 
-std::wstring toLower(std::wstring str)
+void CopyString(char *strA, size_t size, LPCSTR str)
 {
-	std::transform(str.begin(), str.end(), str.begin(), ::towlower);
-	return str;
+	strcpy_s(strA, size, str);
 }
 
-std::wstring toWString(LPCSTR str)
+void CopyString(wchar_t *strW, size_t size, LPCWSTR str)
 {
-	std::string mystring(str);
-	std::wstring wstring(mystring.begin(), mystring.end());
-	return wstring;
-}
-
-std::wstring toWString(LPCWSTR str)
-{
-	std::wstring wstring(str);
-	return wstring;
+	wcscpy_s(strW, size, str);
 }
 
 char *GetStringType(LPCSTR, char *strA, wchar_t *)
@@ -66,4 +48,77 @@ char *GetStringType(LPCSTR, char *strA, wchar_t *)
 wchar_t *GetStringType(LPCWSTR, char *, wchar_t *strW)
 {
 	return strW;
+}
+
+int mytolower(const char chr)
+{
+	return tolower((unsigned char)chr);
+}
+
+wint_t mytolower(const wchar_t chr)
+{
+	return towlower(chr);
+}
+
+template<typename T>
+bool IsInString(T strCheck, T str)
+{
+	T p1 = strCheck;
+	T p2 = str;
+	T r = *p2 == 0 ? strCheck : 0;
+
+	while (*p1 != 0 && *p2 != 0)
+	{
+		if (mytolower(*p1) == mytolower(*p2))
+		{
+			if (r == 0)
+			{
+				r = p1;
+			}
+
+			p2++;
+		}
+		else
+		{
+			p2 = str;
+			if (r != 0)
+			{
+				p1 = r + 1;
+			}
+
+			if (mytolower(*p1) == mytolower(*p2))
+			{
+				r = p1;
+				p2++;
+			}
+			else
+			{
+				r = 0;
+			}
+		}
+
+		p1++;
+	}
+
+	return (*p2 == 0) ? true : false;
+}
+
+bool IsInString(LPCSTR strCheck, LPCSTR strA, LPCWSTR)
+{
+	return IsInString(strCheck, strA);
+}
+
+bool IsInString(LPCWSTR strCheck, LPCSTR, LPCWSTR strW)
+{
+	return IsInString(strCheck, strW);
+}
+
+bool PathExists(LPCSTR str)
+{
+	return PathFileExistsA(str);
+}
+
+bool PathExists(LPCWSTR str)
+{
+	return PathFileExistsW(str);
 }

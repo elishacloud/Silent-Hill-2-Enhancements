@@ -12,7 +12,7 @@ Below is a list of features:
  * **Cemetery Lighting Fix** - Fixes an issue where wrong data is used when saving the game in the cemetery, which can corrupt fog effects.
  * **Custom Mod Folder Support** - Enables a custom mod folder `sh2e` to store modified game files so as to not overwrite native Silent Hill 2 files.
  * [**d3d8to9**](https://github.com/crosire/d3d8to9) - Converts Silent Hill 2 to use Direct3D9 (d3d9.dll) rather than Direct3D8.
- * **Disable Red Cross** - Disables the low health (red cross) indicator completely. It is recommended to only enable if you are using a controller with vibration enabled.
+ * **Disable Red Cross** - Disables the low health (red cross) indicator completely. This option is recommended only if you are using a controller with vibration enabled.
  * **Disable Red Cross In Cutscenes** - Hides the low health (red cross) indicator during in-game cutscenes.
  * **Fog 2D Fix** - Fixes an issue on Nvidia graphics cards where the 2D fog is missing.
  * **Fullscreen Windowed Mode** - Enables fullscreen windowed mode. Requires Windowed Mode to be enabled (WndMode = 1).

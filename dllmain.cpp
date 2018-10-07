@@ -208,6 +208,9 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			LoadASIPlugins(LoadFromScriptsOnly);
 		}
 
+		// Loaded
+		Log() << "Silent Hill 2 Enhancements module loaded!";
+
 		// Resetting thread priority
 		SetThreadPriority(hCurrentThread, dwPriorityClass);
 

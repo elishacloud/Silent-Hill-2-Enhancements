@@ -19,7 +19,7 @@
 #include <vector>
 #include <algorithm>
 #include <fstream>
-#include "Common\Logging.h"
+#include "Logging\Logging.h"
 
 #define ADD_FARPROC_MEMBER(procName, unused) \
 	FARPROC procName ## _var = jmpaddr;
@@ -164,7 +164,7 @@ HMODULE Wrapper::CreateWrapper()
 	GetModuleFileName(hModule, WrapperName, MAX_PATH);
 	wchar_t* WrapperMode = wcsrchr(WrapperName, '\\') + 1;
 
-	Log() << "Loading as dll: " << WrapperMode;
+	Logging::Log() << "Loading as dll: " << WrapperMode;
 
 	// Save wrapper mode
 	if (_wcsicmp(WrapperMode, dtypename[DTYPE_D3D8]) == 0)

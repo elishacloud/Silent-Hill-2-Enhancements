@@ -21,11 +21,11 @@
 #include <Windows.h>
 #include <vector>
 #include "LoadModules.h"
-#include "Hooking\Hook.h"
-#include "Hooking\FileSystemHooks.h"
+#include "External\Hooking\Hook.h"
+#include "FileSystemHooks.h"
 #include "Settings.h"
 #include "Utils.h"
-#include "Logging.h"
+#include "Logging\Logging.h"
 
 typedef void(WINAPI *PFN_InitializeASI)(void);
 
@@ -66,11 +66,11 @@ void FindFiles(WIN32_FIND_DATA* fd)
 					{
 						AddHandleToVector(h);
 						InitializeASI(h);
-						Log() << "Loaded '" << fd->cFileName << "'";
+						Logging::Log() << "Loaded '" << fd->cFileName << "'";
 					}
 					else
 					{
-						Log() << __FUNCTION__ << " Error: Unable to load '" << fd->cFileName << "'. Error: " << GetLastError();
+						Logging::Log() << __FUNCTION__ << " Error: Unable to load '" << fd->cFileName << "'. Error: " << GetLastError();
 					}
 				}
 			}
@@ -82,7 +82,7 @@ void FindFiles(WIN32_FIND_DATA* fd)
 // Load asi plugins
 void LoadASIPlugins(bool LoadFromScriptsOnlyFlag)
 {
-	Log() << "Loading ASI Plugins";
+	Logging::Log() << "Loading ASI Plugins";
 
 	wchar_t oldDir[MAX_PATH] = { 0 }; // store the current directory
 	GetCurrentDirectory(MAX_PATH, oldDir);
@@ -132,7 +132,7 @@ HMEMORYMODULE LoadModuleFromResource(HMODULE hModule, DWORD ResID, LPCWSTR lpNam
 				DWORD dwResourceSize = SizeofResource(hModule, hResource);
 				if (dwResourceSize != 0)
 				{
-					Log() << "Loading the " << lpName << " module...";
+					Logging::Log() << "Loading the " << lpName << " module...";
 					HMEMORYMODULE hMModule = MemoryLoadLibrary((const void*)pLockedResource, dwResourceSize);
 					if (hMModule)
 					{
@@ -143,13 +143,13 @@ HMEMORYMODULE LoadModuleFromResource(HMODULE hModule, DWORD ResID, LPCWSTR lpNam
 					}
 					else
 					{
-						Log() << __FUNCTION__ << " Error: " << lpName << " module could not be loaded!";
+						Logging::Log() << __FUNCTION__ << " Error: " << lpName << " module could not be loaded!";
 					}
 				}
 			}
 		}
 	}
-	Log() << __FUNCTION__ << " Error: failed to load " << lpName << " module!";
+	Logging::Log() << __FUNCTION__ << " Error: failed to load " << lpName << " module!";
 
 	return nullptr;
 }
@@ -169,7 +169,7 @@ HMODULE LoadModuleFromResourceToFile(HMODULE hModule, DWORD ResID, LPCWSTR lpNam
 				DWORD dwResourceSize = SizeofResource(hModule, hResource);
 				if (dwResourceSize != 0)
 				{
-					Log() << "Loading the " << lpName << " module...";
+					Logging::Log() << "Loading the " << lpName << " module...";
 					std::fstream fsModule;
 					fsModule.open(lpFilepath, std::ios_base::out | std::ios_base::binary);
 					if (fsModule.is_open())
@@ -185,18 +185,18 @@ HMODULE LoadModuleFromResourceToFile(HMODULE hModule, DWORD ResID, LPCWSTR lpNam
 						}
 						else
 						{
-							Log() << __FUNCTION__ << " Error: " << lpName << " module could not be loaded!";
+							Logging::Log() << __FUNCTION__ << " Error: " << lpName << " module could not be loaded!";
 						}
 					}
 					else
 					{
-						Log() << __FUNCTION__ << " Error: " << lpName << " module could not be written!";
+						Logging::Log() << __FUNCTION__ << " Error: " << lpName << " module could not be written!";
 					}
 				}
 			}
 		}
 	}
-	Log() << __FUNCTION__ << " Error: failed to load " << lpName << " module!";
+	Logging::Log() << __FUNCTION__ << " Error: failed to load " << lpName << " module!";
 
 	return nullptr;
 }
@@ -248,14 +248,14 @@ void LoadModUpdater(HMODULE hModule, DWORD ResID)
 	// Get 'temp' path
 	if (!GetTempPath(MAX_PATH, Path))
 	{
-		Log() << __FUNCTION__ << " Error: failed to get temp path!";
+		Logging::Log() << __FUNCTION__ << " Error: failed to get temp path!";
 		return;
 	}
 	wcscat_s(Path, MAX_PATH, L"~tmp_sh2_enhce");
 	CreateDirectory(Path, nullptr);
 	if (!PathFileExists(Path))
 	{
-		Log() << __FUNCTION__ << " Error: failed to create temp folder!";
+		Logging::Log() << __FUNCTION__ << " Error: failed to create temp folder!";
 		return;
 	}
 

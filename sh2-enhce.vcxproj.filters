@@ -11,15 +11,6 @@
     <ClCompile Include="Wrappers\wrapper.cpp">
       <Filter>Wrappers</Filter>
     </ClCompile>
-    <ClCompile Include="Hooking\Hook.cpp">
-      <Filter>Hooking</Filter>
-    </ClCompile>
-    <ClCompile Include="Hooking\HotPatch.cpp">
-      <Filter>Hooking</Filter>
-    </ClCompile>
-    <ClCompile Include="Hooking\IATPatch.cpp">
-      <Filter>Hooking</Filter>
-    </ClCompile>
     <ClCompile Include="External\d3d8to9\source\d3d8to9_base.cpp">
       <Filter>External\d3d8to9</Filter>
     </ClCompile>
@@ -53,9 +44,6 @@
     <ClCompile Include="External\MemoryModule\MemoryModule.c">
       <Filter>External\MemoryModule</Filter>
     </ClCompile>
-    <ClCompile Include="Common\Logging.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClCompile Include="Patches\PS2NoiseFilter.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
@@ -67,9 +55,6 @@
     </ClCompile>
     <ClCompile Include="Wrappers\d3d8to9.cpp">
       <Filter>Wrappers</Filter>
-    </ClCompile>
-    <ClCompile Include="Hooking\FileSystemHooks.cpp">
-      <Filter>Hooking</Filter>
     </ClCompile>
     <ClCompile Include="Patches\DrawDistance.cpp">
       <Filter>Patches</Filter>
@@ -125,11 +110,23 @@
     <ClCompile Include="Patches\DisableRedCrossDuringCutscenes.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="External\Logging\Logging.cpp">
+      <Filter>External\Logging</Filter>
+    </ClCompile>
+    <ClCompile Include="External\Hooking\Hook.cpp">
+      <Filter>External\Hooking</Filter>
+    </ClCompile>
+    <ClCompile Include="External\Hooking\HotPatch.cpp">
+      <Filter>External\Hooking</Filter>
+    </ClCompile>
+    <ClCompile Include="External\Hooking\IATPatch.cpp">
+      <Filter>External\Hooking</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\FileSystemHooks.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Common\Logging.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="Common\Settings.h">
       <Filter>Common</Filter>
     </ClInclude>
@@ -147,9 +144,6 @@
     </ClInclude>
     <ClInclude Include="Wrappers\wrapper.h">
       <Filter>Wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="Hooking\Hook.h">
-      <Filter>Hooking</Filter>
     </ClInclude>
     <ClInclude Include="External\d3d8to9\source\d3d8to9.hpp">
       <Filter>External\d3d8to9</Filter>
@@ -174,9 +168,6 @@
     </ClInclude>
     <ClInclude Include="Wrappers\d3d8to9.h">
       <Filter>Wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="Hooking\FileSystemHooks.h">
-      <Filter>Hooking</Filter>
     </ClInclude>
     <ClInclude Include="Patches\Patches.h">
       <Filter>Patches</Filter>
@@ -223,6 +214,18 @@
     <ClInclude Include="Wrappers\d3d8\LookupTable.h">
       <Filter>Wrappers\d3d8</Filter>
     </ClInclude>
+    <ClInclude Include="External\Logging\Logging.h">
+      <Filter>External\Logging</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Hooking\Hook.h">
+      <Filter>External\Hooking</Filter>
+    </ClInclude>
+    <ClInclude Include="Logging\Logging.h">
+      <Filter>Logging</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\FileSystemHooks.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\sh2-enhce.rc">
@@ -250,9 +253,6 @@
     <Filter Include="Wrappers">
       <UniqueIdentifier>{b4119dde-0573-429b-9f66-93d73e31189c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Hooking">
-      <UniqueIdentifier>{f3bc2c9d-3d63-4e99-b24a-29cb21ee295c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="External">
       <UniqueIdentifier>{a9ab4474-9fe4-4399-8354-0036db96b13a}</UniqueIdentifier>
     </Filter>
@@ -270,6 +270,15 @@
     </Filter>
     <Filter Include="Wrappers\d3d8">
       <UniqueIdentifier>{c24898f3-72bd-4aaf-94c8-e5dc929e7809}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\Logging">
+      <UniqueIdentifier>{75123a76-1940-4f91-b791-ec217e3d068e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\Hooking">
+      <UniqueIdentifier>{b0b8ed4e-c188-4d67-938d-2a52bff06ac4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Logging">
+      <UniqueIdentifier>{adfe37d6-2b91-42d1-b181-899b9df11dc5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

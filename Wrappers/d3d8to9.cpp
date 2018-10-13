@@ -16,11 +16,11 @@
 
 #include "External\d3d8to9\source\d3d8to9.hpp"
 #include "External\d3d8to9\source\d3dx9.hpp"
-#include "Hooking\Hook.h"
+#include "External\Hooking\Hook.h"
 #include "Common\Utils.h"
 #include "wrapper.h"
 #include "d3d8to9.h"
-#include "Common\Logging.h"
+#include "Logging\Logging.h"
 
 typedef LPDIRECT3D9(WINAPI *PFN_Direct3DCreate9)(UINT SDKVersion);
 
@@ -36,7 +36,7 @@ void EnableD3d8to9()
 	HMODULE d3d9_dll = LoadLibrary(L"d3d9.dll");
 	if (!d3d9_dll)
 	{
-		Log() << __FUNCTION__ << " Error: could not load d3d9.dll!";
+		Logging::Log() << __FUNCTION__ << " Error: could not load d3d9.dll!";
 		return;
 	}
 
@@ -50,13 +50,13 @@ Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 {
 	UNREFERENCED_PARAMETER(SDKVersion);
 
-	Log() << "Redirecting 'Direct3DCreate8' ---> Passing on to 'Direct3DCreate9'";
+	Logging::Log() << "Redirecting 'Direct3DCreate8' ---> Passing on to 'Direct3DCreate9'";
 
 	// Declare Direct3DCreate9
 	static PFN_Direct3DCreate9 Direct3DCreate9 = reinterpret_cast<PFN_Direct3DCreate9>(p_Direct3DCreate9);
 	if (!Direct3DCreate9)
 	{
-		Log() << __FUNCTION__ << " Error: Failed to get 'Direct3DCreate9' ProcAddress of d3d9.dll!";
+		Logging::Log() << __FUNCTION__ << " Error: Failed to get 'Direct3DCreate9' ProcAddress of d3d9.dll!";
 		return nullptr;
 	}
 
@@ -64,7 +64,7 @@ Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 
 	if (d3d == nullptr)
 	{
-		Log() << __FUNCTION__ << " Error: Failed to create 'Direct3DCreate9'!";
+		Logging::Log() << __FUNCTION__ << " Error: Failed to create 'Direct3DCreate9'!";
 		return nullptr;
 	}
 
@@ -96,7 +96,7 @@ Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 		}
 		else
 		{
-			Log() << __FUNCTION__ << " Error: Failed to load d3dx9_xx.dll! Some features will not work correctly.";
+			Logging::Log() << __FUNCTION__ << " Error: Failed to load d3dx9_xx.dll! Some features will not work correctly.";
 		}
 	}
 

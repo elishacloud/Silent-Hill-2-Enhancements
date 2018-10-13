@@ -7,7 +7,7 @@
 #include "d3d8caps.h"
 #include "LookupTable.h"
 #include "Common\Settings.h"
-#include "Common\Logging.h"
+#include "Logging\Logging.h"
 
 typedef IDirect3D8 *(WINAPI *Direct3DCreate8Proc)(UINT);
 

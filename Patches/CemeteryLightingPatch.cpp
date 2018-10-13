@@ -17,7 +17,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include "Common\Utils.h"
-#include "Common\Logging.h"
+#include "Logging\Logging.h"
 
 // Predefined code bytes
 constexpr BYTE CemeterySearchBytes[]{ 0x83, 0xEC, 0x10, 0x55, 0x56, 0x57, 0x50, 0x51, 0x8D, 0x54, 0x24, 0x14, 0x6A, 0x00, 0x52 };
@@ -56,14 +56,14 @@ void UpdateCemeteryLighting()
 	// Search for address
 	if (!CemeteryAddr)
 	{
-		Log() << __FUNCTION__ << " searching for memory address!";
+		Logging::Log() << __FUNCTION__ << " searching for memory address!";
 		CemeteryAddr = (DWORD)GetAddressOfData(CemeterySearchBytes, sizeof(CemeterySearchBytes), 1, 0x0047C09C, 1800);
 	}
 
 	// Checking address pointer
 	if (!CemeteryAddr)
 	{
-		Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
 	CemeteryAddr += 0x41;
@@ -73,11 +73,11 @@ void UpdateCemeteryLighting()
 	// Check for valid code before updating
 	if (!CheckMemoryAddress((void*)CemeteryAddr, (void*)CemeteryMOVBytes, sizeof(CemeteryMOVBytes)))
 	{
-		Log() << __FUNCTION__ << " Error: memory addresses don't match!";
+		Logging::Log() << __FUNCTION__ << " Error: memory addresses don't match!";
 		return;
 	}
 
 	// Update SH2 code
-	Log() << "Setting Cemetery Lighting Fix...";
+	Logging::Log() << "Setting Cemetery Lighting Fix...";
 	WriteJMPtoMemory((BYTE*)CemeteryAddr, *CemeteryLightingASM, 6);
 }

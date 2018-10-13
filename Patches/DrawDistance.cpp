@@ -17,7 +17,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include "Common\Utils.h"
-#include "Common\Logging.h"
+#include "Logging\Logging.h"
 
 // Forward declaration
 DWORD CheckUpdateMemory(void *dataSrc, void *dataDest, size_t size, bool SearchMemory);
@@ -52,14 +52,14 @@ void UpdateDrawDistance()
 		// Search for address
 		if (!NextAddr)
 		{
-			Log() << __FUNCTION__ << " searching for memory address!";
+			Logging::Log() << __FUNCTION__ << " searching for memory address!";
 			NextAddr = GetAddressOfData(DDSearchAddr, sizeof(DDSearchAddr), 1, StartAddr, EndAddr - StartAddr);
 		}
 
 		// Checking address pointer
 		if (!NextAddr)
 		{
-			Log() << __FUNCTION__ << " Error: could not find binary data!";
+			Logging::Log() << __FUNCTION__ << " Error: could not find binary data!";
 			return;
 		}
 		StartAddr = (DWORD)NextAddr + SizeOfBytes;
@@ -78,12 +78,12 @@ void UpdateDrawDistance()
 	// Check if data bytes are found
 	if (SrcByteData[0] != DDStartAddr[0] || SrcByteData[1] != DDStartAddr[1] || SrcByteData[2] != DDStartAddr[2])
 	{
-		Log() << __FUNCTION__ << " Error: binary data does not match!";
+		Logging::Log() << __FUNCTION__ << " Error: binary data does not match!";
 		return;
 	}
 
 	// Logging
-	Log() << "Increasing the Draw Distance...";
+	Logging::Log() << "Increasing the Draw Distance...";
 
 	bool SearchMemoryFlag = false;
 	void *NextAddr = nullptr;
@@ -115,10 +115,10 @@ void UpdateDrawDistance()
 	// Update all SH2 code with new DrawDistance values
 	if (SearchMemoryFlag)
 	{
-		Log() << __FUNCTION__ << " searching for memory address!";
+		Logging::Log() << __FUNCTION__ << " searching for memory address!";
 		if (!ReplaceMemoryBytes(SrcByteData, DestByteData, SizeOfBytes, 0x0047C000, 0x005FFFFF))
 		{
-			Log() << __FUNCTION__ << " Error: replacing pointer!";
+			Logging::Log() << __FUNCTION__ << " Error: replacing pointer!";
 		}
 	}
 }

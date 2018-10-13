@@ -17,7 +17,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include "Common\Utils.h"
-#include "Common\Logging.h"
+#include "Logging\Logging.h"
 
 // Predefined code bytes
 constexpr BYTE FilterByteEDX[2][5] = { { 0xBA, 0xFF, 0x00, 0x00, 0x00 }, { 0xBA, 0xD7, 0x01, 0x00, 0x00 } };
@@ -61,14 +61,14 @@ void UpdatePS2NoiseFilter()
 	// Search for address
 	if (!FilterAddrEDX)
 	{
-		Log() << __FUNCTION__ << " searching for memory address!";
+		Logging::Log() << __FUNCTION__ << " searching for memory address!";
 		FilterAddrEDX = (DWORD)GetAddressOfData(FilterByteEDX[0], sizeof(FilterByteEDX[0]), 1, 0x0477C1D, 1800);
 	}
 
 	// Checking address pointer
 	if (!FilterAddrEDX)
 	{
-		Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
 
@@ -83,12 +83,12 @@ void UpdatePS2NoiseFilter()
 		!CheckMemoryAddress((void*)FilterAddrMOV, (void*)FilterByteMOV[0], sizeof(FilterByteMOV[0])) ||
 		!CheckMemoryAddress((void*)FilterAddrJMP, (void*)FilterByteJMP, sizeof(FilterByteJMP)))
 	{
-		Log() << __FUNCTION__ << " Error: memory addresses don't match!";
+		Logging::Log() << __FUNCTION__ << " Error: memory addresses don't match!";
 		return;
 	}
 
 	// Update SH2 code
-	Log() << "Setting PS2 Style Noise Filter...";
+	Logging::Log() << "Setting PS2 Style Noise Filter...";
 	UpdateMemoryAddress((void*)FilterAddrEDX, (void*)FilterByteEDX[1], sizeof(FilterByteEDX[1]));
 	UpdateMemoryAddress((void*)FilterAddrMOV, (void*)FilterByteMOV[1], sizeof(FilterByteMOV[1]));
 	WriteJMPtoMemory((BYTE*)FilterAddrJMP, *NoiseFilterASM);

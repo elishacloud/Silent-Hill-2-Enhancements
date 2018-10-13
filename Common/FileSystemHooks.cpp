@@ -17,9 +17,9 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include "FileSystemHooks.h"
-#include "Hook.h"
-#include "Common\MyStrings.h"
-#include "Common\Logging.h"
+#include "External\Hooking\Hook.h"
+#include "MyStrings.h"
+#include "Logging\Logging.h"
 
 // API typedef
 typedef BOOL(WINAPI *PFN_GetModuleHandleExA)(DWORD dwFlags, LPCSTR lpModuleName, HMODULE *phModule);
@@ -178,7 +178,7 @@ BOOL WINAPI GetModuleHandleExAHandler(DWORD dwFlags, LPCSTR lpModuleName, HMODUL
 		return ret;
 	}
 
-	Log() << __FUNCTION__ << " Error: invalid proc address!";
+	Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
 	SetLastError(5);
 	return FALSE;
 }
@@ -199,7 +199,7 @@ BOOL WINAPI GetModuleHandleExWHandler(DWORD dwFlags, LPCWSTR lpModuleName, HMODU
 		return ret;
 	}
 
-	Log() << __FUNCTION__ << " Error: invalid proc address!";
+	Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
 	SetLastError(5);
 	return FALSE;
 }
@@ -221,7 +221,7 @@ DWORD WINAPI GetModuleFileNameAHandler(HMODULE hModule, LPSTR lpFilename, DWORD 
 		return ret;
 	}
 
-	Log() << __FUNCTION__ << " Error: invalid proc address!";
+	Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
 	SetLastError(5);
 	return NULL;
 }
@@ -243,7 +243,7 @@ DWORD WINAPI GetModuleFileNameWHandler(HMODULE hModule, LPWSTR lpFilename, DWORD
 		return ret;
 	}
 
-	Log() << __FUNCTION__ << " Error: invalid proc address!";
+	Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
 	SetLastError(5);
 	return NULL;
 }
@@ -260,7 +260,7 @@ HANDLE WINAPI CreateFileWHandler(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWOR
 		return org_CreateFile(GetFileName(Filename), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 	}
 
-	Log() << __FUNCTION__ << " Error: invalid proc address!";
+	Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
 	SetLastError(127);
 	return INVALID_HANDLE_VALUE;
 }
@@ -290,7 +290,7 @@ BOOL WINAPI FindNextFileAHandler(HANDLE hFindFile, LPWIN32_FIND_DATAA lpFindFile
 		return ret;
 	}
 
-	Log() << __FUNCTION__ << " Error: invalid proc address!";
+	Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
 	SetLastError(127);
 	return FALSE;
 }
@@ -307,7 +307,7 @@ DWORD WINAPI GetPrivateProfileStringAHandler(LPCSTR lpAppName, LPCSTR lpKeyName,
 		return org_GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, GetFileName(Filename));
 	}
 
-	Log() << __FUNCTION__ << " Error: invalid proc address!";
+	Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
 	SetLastError(2);
 	return NULL;
 }
@@ -324,7 +324,7 @@ DWORD WINAPI GetPrivateProfileStringWHandler(LPCWSTR lpAppName, LPCWSTR lpKeyNam
 		return org_GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, GetFileName(Filename));
 	}
 
-	Log() << __FUNCTION__ << " Error: invalid proc address!";
+	Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
 	SetLastError(2);
 	return NULL;
 }
@@ -369,7 +369,7 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	VISIT_BGM_FILES(GET_BGM_FILES);
 
 	// Logging
-	Log() << "Hooking the FileSystem APIs...";
+	Logging::Log() << "Hooking the FileSystem APIs...";
 
 	// Hook GetModuleFileName and GetModuleHandleEx to fix module name in modules loaded from memory
 	InterlockedExchangePointer((PVOID*)&p_GetModuleHandleExA, Hook::HookAPI(GetModuleHandle(L"kernel32"), "kernel32.dll", Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "GetModuleHandleExA"), "GetModuleHandleExA", GetModuleHandleExAHandler));

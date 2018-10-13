@@ -17,7 +17,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include "Common\Utils.h"
-#include "Common\Logging.h"
+#include "Logging\Logging.h"
 
 // Predefined code bytes
 constexpr BYTE RowboatSearchBytes[]{ 0x8B, 0x56, 0x08, 0x89, 0x10, 0x5F, 0x5E, 0x5D, 0x83, 0xC4, 0x50, 0xC3 };
@@ -60,14 +60,14 @@ void UpdateRowboatAnimation()
 	// Search for address
 	if (!RowboatAddr)
 	{
-		Log() << __FUNCTION__ << " searching for memory address!";
+		Logging::Log() << __FUNCTION__ << " searching for memory address!";
 		RowboatAddr = (DWORD)GetAddressOfData(RowboatSearchBytes, sizeof(RowboatSearchBytes), 1, 0x000049FBA5, 2600);
 	}
 
 	// Checking address pointer
 	if (!RowboatAddr)
 	{
-		Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
 	RowboatAddr += 0x22;
@@ -78,14 +78,14 @@ void UpdateRowboatAnimation()
 	// Search for address
 	if (!RowboatMemoryPtr)
 	{
-		Log() << __FUNCTION__ << " searching for memory address!";
+		Logging::Log() << __FUNCTION__ << " searching for memory address!";
 		RowboatMemoryPtr = (DWORD)GetAddressOfData(RowboatSearchPtrBytes, sizeof(RowboatSearchPtrBytes), 1, 0x000053F356, 2600);
 	}
 
 	// Checking address pointer
 	if (!RowboatMemoryPtr)
 	{
-		Log() << __FUNCTION__ << " Error: failed to find pointer address!";
+		Logging::Log() << __FUNCTION__ << " Error: failed to find pointer address!";
 		return;
 	}
 	RowboatMemoryPtr -= 0x3D;
@@ -95,11 +95,11 @@ void UpdateRowboatAnimation()
 	if (!CheckMemoryAddress((void*)RowboatAddr, (void*)RowboatRETNBytes, sizeof(RowboatRETNBytes)) ||
 		!CheckMemoryAddress((void*)RowboatMemoryPtr, (void*)RowboatCMPBytes, sizeof(RowboatCMPBytes)))
 	{
-		Log() << __FUNCTION__ << " Error: memory addresses don't match!";
+		Logging::Log() << __FUNCTION__ << " Error: memory addresses don't match!";
 		return;
 	}
 
 	// Update SH2 code
-	Log() << "Setting Rowboat Animation Fix...";
+	Logging::Log() << "Setting Rowboat Animation Fix...";
 	WriteJMPtoMemory((BYTE*)RowboatAddr, *RowboatAnimationASM);
 }

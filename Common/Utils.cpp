@@ -17,7 +17,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include "Utils.h"
-#include "Logging.h"
+#include "Logging\Logging.h"
 
 std::vector<HMODULE> custom_dll;		// Used for custom dll's and asi plugins
 
@@ -79,7 +79,7 @@ bool CheckMemoryAddress(void *dataAddr, void *dataBytes, DWORD dataSize)
 {
 	if (!dataAddr || !dataBytes || !dataSize)
 	{
-		Log() << __FUNCTION__ << " Error: invalid memory data";
+		Logging::Log() << __FUNCTION__ << " Error: invalid memory data";
 		return false;
 	}
 
@@ -87,7 +87,7 @@ bool CheckMemoryAddress(void *dataAddr, void *dataBytes, DWORD dataSize)
 	DWORD dwPrevProtect;
 	if (!VirtualProtect(dataAddr, dataSize, PAGE_READONLY, &dwPrevProtect))
 	{
-		Log() << __FUNCTION__ << " Error: could not read memory address";
+		Logging::Log() << __FUNCTION__ << " Error: could not read memory address";
 		return false;
 	}
 
@@ -128,7 +128,7 @@ bool UpdateMemoryAddress(void *dataAddr, void *dataBytes, DWORD dataSize)
 {
 	if (!dataAddr || !dataBytes || !dataSize)
 	{
-		Log() << __FUNCTION__ << " Error: invalid memory data";
+		Logging::Log() << __FUNCTION__ << " Error: invalid memory data";
 		return false;
 	}
 
@@ -136,7 +136,7 @@ bool UpdateMemoryAddress(void *dataAddr, void *dataBytes, DWORD dataSize)
 	DWORD dwPrevProtect;
 	if (!VirtualProtect(dataAddr, dataSize, PAGE_WRITECOPY, &dwPrevProtect))
 	{
-		Log() << __FUNCTION__ << " Error: could not write to memory address";
+		Logging::Log() << __FUNCTION__ << " Error: could not write to memory address";
 		return false;
 	}
 
@@ -158,13 +158,13 @@ bool WriteJMPtoMemory(BYTE *dataAddr, void *JMPAddr, DWORD count)
 {
 	if (!dataAddr || !JMPAddr)
 	{
-		Log() << __FUNCTION__ << " Error: invalid memory data";
+		Logging::Log() << __FUNCTION__ << " Error: invalid memory data";
 		return false;
 	}
 
 	if (count < 5)
 	{
-		Log() << __FUNCTION__ << " Error: invalid count";
+		Logging::Log() << __FUNCTION__ << " Error: invalid count";
 		return false;
 	}
 
@@ -172,7 +172,7 @@ bool WriteJMPtoMemory(BYTE *dataAddr, void *JMPAddr, DWORD count)
 	DWORD dwPrevProtect;
 	if (!VirtualProtect(dataAddr, count, PAGE_EXECUTE_WRITECOPY, &dwPrevProtect))
 	{
-		Log() << __FUNCTION__ << " Error: could not read memory address";
+		Logging::Log() << __FUNCTION__ << " Error: could not read memory address";
 		return false; // access denied
 	}
 
@@ -228,7 +228,7 @@ DWORD ReplaceMemoryBytes(void *dataSrc, void *dataDest, size_t size, DWORD start
 // Set Single Core Affinity
 void SetSingleCoreAffinity()
 {
-	Log() << "Setting SingleCoreAffinity...";
+	Logging::Log() << "Setting SingleCoreAffinity...";
 	HANDLE hCurrentProcess = GetCurrentProcess();
 	SetProcessAffinityMask(hCurrentProcess, 1);
 	CloseHandle(hCurrentProcess);

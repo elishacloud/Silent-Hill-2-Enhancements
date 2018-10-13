@@ -17,7 +17,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include "Common\Utils.h"
-#include "Common\Logging.h"
+#include "Logging\Logging.h"
 
 // Predefined code bytes
 constexpr BYTE CDFuncBlock[] = { 0x81, 0xEC, 0x08, 0x04, 0x00, 0x00, 0xA1 };
@@ -32,18 +32,18 @@ void DisableCDCheck()
 	// Search for address
 	if (!CDCheckAddr)
 	{
-		Log() << __FUNCTION__ << " searching for memory address!";
+		Logging::Log() << __FUNCTION__ << " searching for memory address!";
 		CDCheckAddr = GetAddressOfData(CDFuncBlock, sizeof(CDFuncBlock), 4, 0x00407DE0, 1800);
 	}
 
 	// Address found
 	if ((CDCheckAddr) ? !CheckMemoryAddress((void*)((DWORD)CDCheckAddr + 11), (void*)CDBlockTest, sizeof(CDBlockTest)) : true)
 	{
-		Log() << __FUNCTION__ << " Error: Could not find CD check function address in memory!";
+		Logging::Log() << __FUNCTION__ << " Error: Could not find CD check function address in memory!";
 		return;
 	}
 
 	// Update SH2 code
-	Log() << "Bypassing CD check...";
+	Logging::Log() << "Bypassing CD check...";
 	UpdateMemoryAddress(CDCheckAddr, (void*)CDBypass, 1);
 }

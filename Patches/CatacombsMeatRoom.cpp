@@ -16,10 +16,10 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include "Hooking\FileSystemHooks.h"
+#include "Common\FileSystemHooks.h"
 #include "Common\Utils.h"
 #include "Common\Settings.h"
-#include "Common\Logging.h"
+#include "Logging\Logging.h"
 
 // Predefined code bytes
 constexpr BYTE CatacombSearchBytes[]{ 0x00, 0xFE, 0x42, 0x00, 0x00, 0x31, 0x43, 0x00, 0x00, 0xFE, 0x42, 0x00, 0x00, 0xFE, 0x42, 0x9A, 0x99, 0x19, 0x3E, 0x9A, 0x99, 0x19, 0x3E, 0x9A, 0x99, 0x19 };
@@ -48,7 +48,7 @@ void UpdateCatacombsMeatRoom()
 		!PathFileExists(std::wstring(std::wstring(ModPathW) + L"\\bg\\ps\\ps189.map").c_str()) ||
 		!PathFileExists(std::wstring(std::wstring(ModPathW) + L"\\bg\\ps\\ps193.map").c_str()))
 	{
-		Log() << __FUNCTION__ << " Could not load fix.  This fix requires 'UseCustomModFolder' enabled and custom map files 'ps189.map' and 'ps193.map'.";
+		Logging::Log() << __FUNCTION__ << " Could not load fix.  This fix requires 'UseCustomModFolder' enabled and custom map files 'ps189.map' and 'ps193.map'.";
 		return;
 	}
 
@@ -58,14 +58,14 @@ void UpdateCatacombsMeatRoom()
 	// Search for address
 	if (!CatacombSmallRoomTexAddr)
 	{
-		Log() << __FUNCTION__ << " searching for memory address!";
+		Logging::Log() << __FUNCTION__ << " searching for memory address!";
 		CatacombSmallRoomTexAddr = (DWORD)GetAddressOfData(CatacombSearchBytes, sizeof(CatacombSearchBytes), 1, 0x007FB950, 1800);
 	}
 
 	// Checking address pointer
 	if (!CatacombSmallRoomTexAddr)
 	{
-		Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
 	CatacombSmallRoomTexAddr += 0x3F;
@@ -77,12 +77,12 @@ void UpdateCatacombsMeatRoom()
 		!CheckMemoryAddress((void*)CatacombLargeRoomTexAddr, (void*)CatacombTexBytes, sizeof(CatacombTexBytes)) ||
 		!CheckMemoryAddress((void*)CatacombLargeRoomFloorAddr, (void*)CatacombFloorBytes, sizeof(CatacombFloorBytes)))
 	{
-		Log() << __FUNCTION__ << " Error: memory addresses don't match!";
+		Logging::Log() << __FUNCTION__ << " Error: memory addresses don't match!";
 		return;
 	}
 
 	// Update SH2 code
-	Log() << "Updating the Catacomb Meat Cold Rooms color...";
+	Logging::Log() << "Updating the Catacomb Meat Cold Rooms color...";
 
 	// Small Room (ps189)
 	UpdateMemoryAddress((void*)CatacombSmallRoomTexAddr, (void*)&CatacombSmallRoomTexR, sizeof(DWORD));

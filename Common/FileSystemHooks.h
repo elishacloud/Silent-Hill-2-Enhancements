@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Shlwapi.h>
-#include "Common\Settings.h"
+#include "Settings.h"
 
 #pragma comment(lib, "Shlwapi.lib")
 

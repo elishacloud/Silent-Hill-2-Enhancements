@@ -19,14 +19,17 @@
 #include <vector>
 #include "Resources\sh2-enhce.h"
 #include "Patches\Patches.h"
-#include "Hooking\Hook.h"
-#include "Hooking\FileSystemHooks.h"
+#include "External\Hooking\Hook.h"
+#include "Common\FileSystemHooks.h"
 #include "Wrappers\wrapper.h"
 #include "Wrappers\d3d8to9.h"
 #include "Common\LoadModules.h"
 #include "Common\Utils.h"
 #include "Common\Settings.h"
-#include "Common\Logging.h"
+#include "Logging\Logging.h"
+
+// For Logging
+std::ofstream LOG;
 
 // Screen settings
 HDC hDC;
@@ -57,23 +60,23 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		LOG.open(pathname);
 
 		// Starting
-		Log() << "Starting Silent Hill 2 Enhancements! v" << APP_VERSION;
+		Logging::Log() << "Starting Silent Hill 2 Enhancements! v" << APP_VERSION;
 
 		// Init Logs
-		LogComputerManufacturer();
-		LogVideoCard();
-		LogOSVersion();
+		Logging::LogComputerManufacturer();
+		Logging::LogVideoCard();
+		Logging::LogOSVersion();
 
 		// Get Silent Hill 2 file path
 		GetModuleFileName(nullptr, pathname, MAX_PATH);
-		Log() << "Running from: " << pathname;
+		Logging::Log() << "Running from: " << pathname;
 
 		// Get config file path
 		GetModuleFileName(hModule, pathname, MAX_PATH);
 		wcscpy_s(wcsrchr(pathname, '.'), MAX_PATH - wcslen(pathname), L".ini");
 
 		// Read config file
-		Log() << "Reading config file: " << pathname;
+		Logging::Log() << "Reading config file: " << pathname;
 		char* szCfg = Read(pathname);
 
 		// Parce config file
@@ -84,7 +87,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		}
 		else
 		{
-			Log() << __FUNCTION__ << " Error: Config file not found, using defaults";
+			Logging::Log() << __FUNCTION__ << " Error: Config file not found, using defaults";
 		}
 
 		// Store screen settings
@@ -99,11 +102,11 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		wrapper_dll = Wrapper::CreateWrapper();
 		if (wrapper_dll)
 		{
-			Log() << "Wrapper created for " << dtypename[Wrapper::dtype];
+			Logging::Log() << "Wrapper created for " << dtypename[Wrapper::dtype];
 		}
 		else if (Wrapper::dtype != DTYPE_ASI)
 		{
-			Log() << __FUNCTION__ << " Error: could not create wrapper!";
+			Logging::Log() << __FUNCTION__ << " Error: could not create wrapper!";
 		}
 
 		// Hook d3d8.dll
@@ -114,7 +117,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			AddHandleToVector(d3d8_dll);
 
 			// Hook d3d8.dll -> d3d8wrapper
-			Log() << "Hooking d3d8.dll APIs...";
+			Logging::Log() << "Hooking d3d8.dll APIs...";
 			d3d8::Direct3DCreate8_var = (FARPROC)Hook::HotPatch(Hook::GetProcAddress(d3d8_dll, "Direct3DCreate8"), "Direct3DCreate8", p_Direct3DCreate8Wrapper, d3d8to9);
 		}
 
@@ -209,7 +212,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		}
 
 		// Loaded
-		Log() << "Silent Hill 2 Enhancements module loaded!";
+		Logging::Log() << "Silent Hill 2 Enhancements module loaded!";
 
 		// Resetting thread priority
 		SetThreadPriority(hCurrentThread, dwPriorityClass);
@@ -226,7 +229,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 	{
 #ifdef DEBUG
 		// Unloading all modules
-		Log() << "Unloading all loaded modules";
+		Logging::Log() << "Unloading all loaded modules";
 
 		// Unload memory modules
 		UnloadResourceModules();
@@ -242,21 +245,21 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 #endif // DEBUG
 
 		// Unhook APIs
-		Log() << "Unhooking library functions";
+		Logging::Log() << "Unhooking library functions";
 		Hook::UnhookAll();
 
 		// Reset screen back to original Windows settings to fix some display errors on exit
 		if (ResetScreenRes)
 		{
 			// Reset screen settings
-			Log() << "Reseting screen resolution";
+			Logging::Log() << "Reseting screen resolution";
 			SetDeviceGammaRamp(hDC, &lpRamp[0]);
 			ChangeDisplaySettingsEx(nullptr, nullptr, nullptr, CDS_RESET, nullptr);
 			ReleaseDC(nullptr, hDC);
 		}
 
 		// Quitting
-		Log() << "Unloading Silent Hill 2 Enhancements!";
+		Logging::Log() << "Unloading Silent Hill 2 Enhancements!";
 	}
 	break;
 	}

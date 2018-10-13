@@ -184,7 +184,7 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 {
 	if (!MainhWnd || !displayWidth || !displayHeight)
 	{
-		Log() << __FUNCTION__ << " Error: could not set window size, nullptr.";
+		Logging::Log() << __FUNCTION__ << " Error: could not set window size, nullptr.";
 		return;
 	}
 

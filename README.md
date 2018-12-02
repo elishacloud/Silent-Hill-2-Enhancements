@@ -14,7 +14,7 @@ Below is a list of features:
  * [**d3d8to9**](https://github.com/crosire/d3d8to9) - Converts Silent Hill 2 to use Direct3D9 (d3d9.dll) rather than Direct3D8.
  * **Disable Red Cross** - Disables the low health (red cross) indicator completely. This option is recommended only if you are using a controller with vibration enabled.
  * **Disable Red Cross In Cutscenes** - Hides the low health (red cross) indicator during in-game cutscenes.
- * **Fix Missing Wall Chunks** Fixes an issue on Nvidia graphics cards where wall chunks are missing in some locations.
+ * **Fix Missing Wall Chunks** - Fixes an issue on Nvidia graphics cards where wall chunks are missing in some locations.
  * **Fog 2D Fix** - Fixes an issue on Nvidia graphics cards where the 2D fog is missing.
  * **Fullscreen Windowed Mode** - Enables fullscreen windowed mode. Requires Windowed Mode to be enabled (WndMode = 1).
  * **Increase Draw Distance** - Fixes distant hallway walls (such as those in the Woodside Apartments) from suddenly appearing.  This makes them appear gradually, more naturally.

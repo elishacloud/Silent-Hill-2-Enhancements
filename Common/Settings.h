@@ -9,6 +9,7 @@
 	visit(DisableRedCrossInCutScenes, true) \
 	visit(EnableSFXAddrHack, true) \
 	visit(EnableWndMode, false) \
+	visit(FixMissingWallChunks, true) \
 	visit(Fog2DFix, true) \
 	visit(FullscreenWndMode, false) \
 	visit(IncreaseDrawDistance, true) \

@@ -116,7 +116,7 @@ void UpdateDrawDistance()
 	if (SearchMemoryFlag)
 	{
 		Logging::Log() << __FUNCTION__ << " searching for memory address!";
-		if (!ReplaceMemoryBytes(SrcByteData, DestByteData, SizeOfBytes, 0x0047C000, 0x005FFFFF))
+		if (!ReplaceMemoryBytes(SrcByteData, DestByteData, SizeOfBytes, 0x0047C000, 0x005FFFFF - 0x0047C000))
 		{
 			Logging::Log() << __FUNCTION__ << " Error: replacing pointer!";
 		}

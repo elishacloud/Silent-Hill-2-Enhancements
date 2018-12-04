@@ -110,7 +110,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		}
 
 		// Hook d3d8.dll
-		if (Wrapper::dtype != DTYPE_D3D8 && (d3d8to9 || EnableWndMode || Fog2DFix || WhiteShaderFix))
+		if (Wrapper::dtype != DTYPE_D3D8 && (d3d8to9 || EnableWndMode || FixMissingWallChunks || Fog2DFix || WhiteShaderFix))
 		{
 			// Load d3d8 procs
 			HMODULE d3d8_dll = LoadLibrary(L"d3d8.dll");

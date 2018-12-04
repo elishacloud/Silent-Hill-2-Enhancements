@@ -72,23 +72,21 @@ Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 	if (!D3DXAssembleShader || !D3DXDisassembleShader || !D3DXLoadSurfaceFromSurface)
 	{
 		// Declare module vars
-		HMODULE d3dx9Module = nullptr;
+		static HMODULE d3dx9Module = nullptr;
 
 		// Declare d3dx9_xx.dll name
-		static wchar_t d3dx9name[MAX_PATH];
-		if (!d3dx9Module)
+		wchar_t d3dx9name[MAX_PATH] = { 0 };
+
+		// Declare d3dx9_xx.dll version
+		for (int x = 99; x > 9 && !d3dx9Module; x--)
 		{
-			// Declare d3dx9_xx.dll version
-			for (int x = 99; x > 9 && d3dx9Module == nullptr; x--)
-			{
-				// Get dll name
-				swprintf_s(d3dx9name, L"d3dx9_%d.dll", x);
-				// Load dll
-				d3dx9Module = LoadLibrary(d3dx9name);
-			}
+			// Get dll name
+			swprintf_s(d3dx9name, L"d3dx9_%d.dll", x);
+			// Load dll
+			d3dx9Module = LoadLibrary(d3dx9name);
 		}
 
-		if (d3dx9Module != nullptr)
+		if (d3dx9Module)
 		{
 			D3DXAssembleShader = reinterpret_cast<PFN_D3DXAssembleShader>(GetProcAddress(d3dx9Module, "D3DXAssembleShader"));
 			D3DXDisassembleShader = reinterpret_cast<PFN_D3DXDisassembleShader>(GetProcAddress(d3dx9Module, "D3DXDisassembleShader"));
@@ -98,6 +96,12 @@ Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 		{
 			Logging::Log() << __FUNCTION__ << " Error: Failed to load d3dx9_xx.dll! Some features will not work correctly.";
 		}
+	}
+
+	// Check if WineD3D is loaded
+	if (GetModuleHandle(L"libwine.dll") || GetModuleHandle(L"wined3d.dll"))
+	{
+		Logging::Log() << __FUNCTION__ << " Warning: WineD3D detected!  It is not recommended to use WineD3D with Silent Hill 2 Enhancements.";
 	}
 
 	return new Direct3D8(d3d);

@@ -130,6 +130,8 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	if (SUCCEEDED(hr) && ppReturnedDeviceInterface)
 	{
 		*ppReturnedDeviceInterface = new m_IDirect3DDevice8(*ppReturnedDeviceInterface, this);
+
+		AdjustWindow(DeviceWindow, BufferWidth, BufferHeight);
 	}
 
 	return hr;
@@ -191,6 +193,10 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	// Get screen width and height
 	LONG screenWidth = GetSystemMetrics(SM_CXSCREEN);
 	LONG screenHeight = GetSystemMetrics(SM_CYSCREEN);
+
+	// Set window active and focus
+	SetActiveWindow(MainhWnd);
+	SetFocus(MainhWnd);
 
 	// Get window border
 	LONG lStyle = GetWindowLong(MainhWnd, GWL_STYLE) | WS_VISIBLE;

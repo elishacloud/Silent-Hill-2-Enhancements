@@ -12,6 +12,7 @@
 	visit(FixMissingWallChunks, true) \
 	visit(Fog2DFix, true) \
 	visit(FullscreenWndMode, false) \
+	visit(HalogenLightFix, true) \
 	visit(IncreaseDrawDistance, true) \
 	visit(LoadFromScriptsOnly, false) \
 	visit(LoadPlugins, false) \

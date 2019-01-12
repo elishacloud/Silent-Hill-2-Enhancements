@@ -1,5 +1,12 @@
 #pragma once
 
+typedef enum _STENCILSTATECHECK
+{
+	GSC_STENCIL_IGNORE = NULL,
+	GSC_STENCIL_KEEP = D3DSTENCILOP_KEEP,
+	GSC_STENCIL_REPLACE = D3DSTENCILOP_REPLACE
+} STENCILSTATECHECK;
+
 class m_IDirect3DDevice8 : public IDirect3DDevice8
 {
 private:
@@ -8,10 +15,18 @@ private:
 
 	LPDIRECT3DTEXTURE8 BlankTexture = nullptr;
 
+	DWORD *SH2_RoomID = nullptr;
+	DWORD *SH2_CutsceneID = nullptr;
+	float *SH2_CutsceneCameraPos = nullptr;
+
 public:
 	m_IDirect3DDevice8(LPDIRECT3DDEVICE8 pDevice, m_IDirect3D8* pD3D) : ProxyInterface(pDevice), m_pD3D(pD3D)
 	{
 		ProxyAddressLookupTable = new AddressLookupTable<m_IDirect3DDevice8>(this);
+
+		SH2_RoomID = (DWORD*)0x01FB7DAC;
+		SH2_CutsceneID = (DWORD*)0x01F7A7C4;
+		SH2_CutsceneCameraPos = (float*)0x0094E064;
 
 		// Create blank texture for white shader fix
 		if (FAILED(ProxyInterface->CreateTexture(1, 1, 1, NULL, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED, &BlankTexture)))
@@ -128,4 +143,7 @@ public:
 	STDMETHOD(DrawRectPatch)(THIS_ UINT Handle, CONST float* pNumSegs, CONST D3DRECTPATCH_INFO* pRectPatchInfo);
 	STDMETHOD(DrawTriPatch)(THIS_ UINT Handle, CONST float* pNumSegs, CONST D3DTRIPATCH_INFO* pTriPatchInfo);
 	STDMETHOD(DeletePatch)(THIS_ UINT Handle);
+
+	// Extra functions
+	STENCILSTATECHECK GetStencilType();
 };

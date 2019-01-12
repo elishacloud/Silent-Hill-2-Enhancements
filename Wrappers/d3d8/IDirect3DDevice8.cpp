@@ -247,12 +247,99 @@ HRESULT m_IDirect3DDevice8::SetClipStatus(CONST D3DCLIPSTATUS8 *pClipStatus)
 	return ProxyInterface->SetClipStatus(pClipStatus);
 }
 
+// Enables self shadows by checking if the stencil should be kept or replaced
+STENCILSTATECHECK m_IDirect3DDevice8::GetStencilType()
+{
+	if (!SH2_RoomID || !SH2_CutsceneID || !SH2_CutsceneCameraPos)
+	{
+		return GSC_STENCIL_IGNORE;
+	}
+
+	struct CUTSCENEPOS
+	{
+		DWORD ID;
+		float Pos;
+	};
+
+	const CUTSCENEPOS ReplacedCutscenes[] = { { 0x28, -142102.8125f } , { 0x54, -19418.82617f }, { 0x59, 0.0f }, { 0x45, 0.0f }, { 0x3F, 0.0f }, { 0x62, 0.0f } };
+	const CUTSCENEPOS EnabledCutscenes[] = { { 0x5F, -19443.98438f } };
+	const CUTSCENEPOS ExcludedCutscenes[] = { { 0x52, 61455.5f } };
+	const DWORD ReplacedRoomIDs[] = { 0x89 };
+	const DWORD ExcludedRoomIDs[] = { 0x99, 0x92, 0xB2, 0xB1, 0xB4, 0xB3 };
+
+	// Check cutscene ID
+	if (*SH2_CutsceneID != 0x00)
+	{
+		for (auto ReplacedCutscene : ReplacedCutscenes)
+		{
+			if (*SH2_CutsceneID == ReplacedCutscene.ID &&
+				(*SH2_CutsceneCameraPos == ReplacedCutscene.Pos || ReplacedCutscene.Pos == 0.0f))
+			{
+				return GSC_STENCIL_REPLACE;
+			}
+		}
+		for (auto EnabledCutscene : EnabledCutscenes)
+		{
+			if (*SH2_CutsceneID == EnabledCutscene.ID)
+			{
+				if (*SH2_CutsceneCameraPos != EnabledCutscene.Pos)
+				{
+					return GSC_STENCIL_IGNORE;
+				}
+			}
+		}
+		for (auto ExcludedCutscene : ExcludedCutscenes)
+		{
+			if (*SH2_CutsceneID == ExcludedCutscene.ID &&
+				(*SH2_CutsceneCameraPos == ExcludedCutscene.Pos || ExcludedCutscene.Pos == 0.0f))
+			{
+				return GSC_STENCIL_IGNORE;
+			}
+		}
+
+		return GSC_STENCIL_KEEP;
+	}
+
+	// Check room ID
+	if (*SH2_RoomID != 0x00)
+	{
+		for (auto &ReplacedRoomID : ReplacedRoomIDs)
+		{
+			if (*SH2_RoomID == ReplacedRoomID)
+			{
+				return GSC_STENCIL_REPLACE;
+			}
+		}
+		for (auto &ExcludedRoomID : ExcludedRoomIDs)
+		{
+			if (*SH2_RoomID == ExcludedRoomID)
+			{
+				return GSC_STENCIL_IGNORE;
+			}
+		}
+
+		return GSC_STENCIL_KEEP;
+	}
+
+	return GSC_STENCIL_IGNORE;
+}
+
 HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value)
 {
 	// Fix for 2D Fog and glow around the flashlight lens for Nvidia cards
 	if (Fog2DFix && State == D3DRS_ZBIAS)
 	{
 		Value = (Value * 15) / 16;
+	}
+	
+	// Restores self shadows
+	if (EnableSelfShadows && State == D3DRS_STENCILPASS && (Value == D3DSTENCILOP_ZERO || Value == D3DSTENCILOP_REPLACE))
+	{
+		STENCILSTATECHECK StencilType = GetStencilType();
+		if (StencilType != GSC_STENCIL_IGNORE)
+		{
+			Value = StencilType;
+		}
 	}
 
 	return ProxyInterface->SetRenderState(State, Value);

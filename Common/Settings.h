@@ -8,6 +8,7 @@
 	visit(DisableRedCross, false) \
 	visit(DisableRedCrossInCutScenes, true) \
 	visit(EnableSFXAddrHack, true) \
+	visit(EnableSelfShadows, false) \
 	visit(EnableWndMode, false) \
 	visit(FixMissingWallChunks, true) \
 	visit(Fog2DFix, true) \

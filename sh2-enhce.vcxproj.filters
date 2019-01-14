@@ -125,6 +125,9 @@
     <ClCompile Include="Common\FileSystemHooks.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\Common.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">

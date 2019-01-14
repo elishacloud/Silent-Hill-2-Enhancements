@@ -1,5 +1,8 @@
 #pragma once
 
+void *GetRoomIDPointer();
+void *GetCutsceneIDPointer();
+void *GetCutscenePosPointer();
 void DisableCDCheck();
 void UpdateSFXAddr();
 void UpdatePS2NoiseFilter();

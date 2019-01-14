@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Patches\Patches.h"
+
 typedef enum _STENCILSTATECHECK
 {
 	GSC_STENCIL_IGNORE = NULL,
@@ -24,9 +26,9 @@ public:
 	{
 		ProxyAddressLookupTable = new AddressLookupTable<m_IDirect3DDevice8>(this);
 
-		SH2_RoomID = (DWORD*)0x01FB7DAC;
-		SH2_CutsceneID = (DWORD*)0x01F7A7C4;
-		SH2_CutsceneCameraPos = (float*)0x0094E064;
+		SH2_RoomID = (DWORD*)GetRoomIDPointer();
+		SH2_CutsceneID = (DWORD*)GetCutsceneIDPointer();
+		SH2_CutsceneCameraPos = (float*)GetCutscenePosPointer();
 
 		// Create blank texture for white shader fix
 		if (FAILED(ProxyInterface->CreateTexture(1, 1, 1, NULL, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED, &BlankTexture)))

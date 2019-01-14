@@ -37,6 +37,7 @@
     <ClCompile Include="External\Logging\Logging.cpp" />
     <ClCompile Include="External\MemoryModule\MemoryModule.c" />
     <ClCompile Include="Patches\CemeteryLightingPatch.cpp" />
+    <ClCompile Include="Patches\Common.cpp" />
     <ClCompile Include="Patches\DisableRedCrossDuringCutscenes.cpp" />
     <ClCompile Include="Patches\DrawDistance.cpp" />
     <ClCompile Include="Patches\CatacombsMeatRoom.cpp" />

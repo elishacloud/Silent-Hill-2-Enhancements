@@ -16,13 +16,13 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include "Patches.h"
 #include "Common\Utils.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
 
 // Predefined code bytes
 constexpr BYTE RedCrossSearchBytes[]{ 0xD9, 0x81, 0x40, 0x01, 0x00, 0x00, 0xD8, 0xA1, 0x3C, 0x01, 0x00, 0x00, 0xD8, 0xB1, 0x40, 0x01, 0x00, 0x00 };
-constexpr BYTE CutsceneIDSearchBytes[]{ 0x8B, 0x56, 0x08, 0x89, 0x10, 0x5F, 0x5E, 0x5D, 0x83, 0xC4, 0x50, 0xC3 };
 constexpr BYTE RedCrossPtrSearchBytes[]{ 0x84, 0xC0, 0x74, 0x1B, 0x8B, 0x44, 0x24, 0x04, 0x8B, 0x4C, 0x24, 0x08, 0xA3 };
 constexpr BYTE RedCrossCallBytes[]{ 0xA1 };
 constexpr BYTE RedCrossDisableBytes[]{ 0xC7, 0x05 };
@@ -31,7 +31,7 @@ constexpr BYTE RedCrossDisableBytes[]{ 0xC7, 0x05 };
 BYTE RedCrossFlag;
 BYTE *RedCrossFlagPointer = &RedCrossFlag;
 BYTE *RedCrossPointer;
-void *callCutsceneAddr;
+void *CutscenePointer;
 void *jmpEnableAddr;
 void *jmpDisableAddr;
 
@@ -42,14 +42,14 @@ __declspec(naked) void __stdcall RedCrossCutscenesASM()
 	{
 		push eax
 		mov eax, RedCrossFlagPointer
-		cmp byte ptr[eax], 0x00
+		cmp byte ptr ds : [eax], 0x00
 		jg near DisableHealthIndicator
 
 		mov eax, RedCrossPointer
-		cmp byte ptr [eax], 0x00
+		cmp byte ptr ds : [eax], 0x00
 		jg near DisableHealthIndicator
 
-		call callCutsceneAddr
+		mov eax, dword ptr ds : [CutscenePointer]
 		cmp eax, 0x24
 		je near EnableHealthIndicator
 		cmp eax, 0x00
@@ -61,7 +61,7 @@ __declspec(naked) void __stdcall RedCrossCutscenesASM()
 
 	EnableHealthIndicator:
 		pop eax
-		fld dword ptr[ecx + 0x00000140]
+		fld dword ptr ds : [ecx + 0x00000140]
 		jmp jmpEnableAddr
 	}
 }
@@ -89,22 +89,14 @@ void UpdateRedCrossInCutscene()
 	jmpDisableAddr = (void*)(RedCrossAddr + 0xC2);
 
 	// Get cutscene ID address
-	DWORD CutsceneFunctAddr = (DWORD)CheckMultiMemoryAddress((void*)0x004A0293, (void*)0x004A0543, (void*)0x0049FE03, (void*)CutsceneIDSearchBytes, sizeof(CutsceneIDSearchBytes));
-
-	// Search for address
-	if (!CutsceneFunctAddr)
-	{
-		Logging::Log() << __FUNCTION__ << " searching for memory address!";
-		CutsceneFunctAddr = (DWORD)GetAddressOfData(CutsceneIDSearchBytes, sizeof(CutsceneIDSearchBytes), 1, 0x000049FBA5, 2600);
-	}
+	CutscenePointer = GetCutsceneIDPointer();
 
 	// Checking address pointer
-	if (!CutsceneFunctAddr)
+	if (!CutscenePointer)
 	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find cutscene ID function address!";
+		Logging::Log() << __FUNCTION__ << " Error: failed to get cutscene ID address!";
 		return;
 	}
-	callCutsceneAddr = (void*)(CutsceneFunctAddr + 0x1D);
 
 	// Get memory pointer for RedCross Animation
 	DWORD RedCrossMemoryPtr = (DWORD)CheckMultiMemoryAddress((void*)0x004EEACE, (void*)0x004EED7E, (void*)0x004EE63E, (void*)RedCrossPtrSearchBytes, sizeof(RedCrossPtrSearchBytes));
@@ -113,7 +105,7 @@ void UpdateRedCrossInCutscene()
 	if (!RedCrossMemoryPtr)
 	{
 		Logging::Log() << __FUNCTION__ << " searching for memory address!";
-		RedCrossMemoryPtr = (DWORD)GetAddressOfData(RedCrossPtrSearchBytes, sizeof(RedCrossPtrSearchBytes), 1, 0x00004EE5A0, 2600);
+		RedCrossMemoryPtr = (DWORD)GetAddressOfData(RedCrossPtrSearchBytes, sizeof(RedCrossPtrSearchBytes), 1, 0x004EE5A0, 2600);
 	}
 
 	// Checking address pointer
@@ -126,8 +118,7 @@ void UpdateRedCrossInCutscene()
 	memcpy(&RedCrossPointer, (void*)(RedCrossMemoryPtr + 1), sizeof(DWORD));
 
 	// Check for valid code before updating
-	if (!CheckMemoryAddress(callCutsceneAddr, (void*)RedCrossCallBytes, sizeof(RedCrossCallBytes)) ||
-		!CheckMemoryAddress(jmpDisableAddr, (void*)RedCrossDisableBytes, sizeof(RedCrossDisableBytes)) ||
+	if (!CheckMemoryAddress(jmpDisableAddr, (void*)RedCrossDisableBytes, sizeof(RedCrossDisableBytes)) ||
 		!CheckMemoryAddress((void*)RedCrossMemoryPtr, (void*)RedCrossCallBytes, sizeof(RedCrossCallBytes)))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: memory addresses don't match!";

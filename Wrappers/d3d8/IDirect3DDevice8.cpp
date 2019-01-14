@@ -261,7 +261,7 @@ STENCILSTATECHECK m_IDirect3DDevice8::GetStencilType()
 		float Pos;
 	};
 
-	const CUTSCENEPOS ReplacedCutscenes[] = { { 0x28, -142102.8125f } , { 0x54, -19418.82617f }, { 0x59, 0.0f }, { 0x45, 0.0f }, { 0x3F, 0.0f }, { 0x62, 0.0f } };
+	const CUTSCENEPOS ReplacedCutscenes[] = { { 0x28, -142102.8125f }, { 0x54, -19418.82617f }, { 0x59, 0.0f }, { 0x45, 0.0f }, { 0x3F, 0.0f }, { 0x62, 0.0f } };
 	const CUTSCENEPOS EnabledCutscenes[] = { { 0x5F, -19443.98438f } };
 	const CUTSCENEPOS ExcludedCutscenes[] = { { 0x52, 61455.5f } };
 	const DWORD ReplacedRoomIDs[] = { 0x89 };
@@ -303,14 +303,14 @@ STENCILSTATECHECK m_IDirect3DDevice8::GetStencilType()
 	// Check room ID
 	if (*SH2_RoomID != 0x00)
 	{
-		for (auto &ReplacedRoomID : ReplacedRoomIDs)
+		for (auto ReplacedRoomID : ReplacedRoomIDs)
 		{
 			if (*SH2_RoomID == ReplacedRoomID)
 			{
 				return GSC_STENCIL_REPLACE;
 			}
 		}
-		for (auto &ExcludedRoomID : ExcludedRoomIDs)
+		for (auto ExcludedRoomID : ExcludedRoomIDs)
 		{
 			if (*SH2_RoomID == ExcludedRoomID)
 			{

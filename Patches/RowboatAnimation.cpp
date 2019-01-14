@@ -61,7 +61,7 @@ void UpdateRowboatAnimation()
 	if (!RowboatAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " searching for memory address!";
-		RowboatAddr = (DWORD)GetAddressOfData(RowboatSearchBytes, sizeof(RowboatSearchBytes), 1, 0x000049FBA5, 2600);
+		RowboatAddr = (DWORD)GetAddressOfData(RowboatSearchBytes, sizeof(RowboatSearchBytes), 1, 0x0049FBA5, 2600);
 	}
 
 	// Checking address pointer
@@ -79,7 +79,7 @@ void UpdateRowboatAnimation()
 	if (!RowboatMemoryPtr)
 	{
 		Logging::Log() << __FUNCTION__ << " searching for memory address!";
-		RowboatMemoryPtr = (DWORD)GetAddressOfData(RowboatSearchPtrBytes, sizeof(RowboatSearchPtrBytes), 1, 0x000053F356, 2600);
+		RowboatMemoryPtr = (DWORD)GetAddressOfData(RowboatSearchPtrBytes, sizeof(RowboatSearchPtrBytes), 1, 0x0053F356, 2600);
 	}
 
 	// Checking address pointer

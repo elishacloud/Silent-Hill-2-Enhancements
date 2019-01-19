@@ -12,6 +12,7 @@
 	visit(EnableWndMode, false) \
 	visit(FixMissingWallChunks, true) \
 	visit(Fog2DFix, true) \
+	visit(FogParameterFix, true) \
 	visit(FullscreenWndMode, false) \
 	visit(HalogenLightFix, true) \
 	visit(IncreaseDrawDistance, true) \

@@ -41,6 +41,7 @@
     <ClCompile Include="Patches\DisableRedCrossDuringCutscenes.cpp" />
     <ClCompile Include="Patches\DrawDistance.cpp" />
     <ClCompile Include="Patches\CatacombsMeatRoom.cpp" />
+    <ClCompile Include="Patches\FogAdjustments.cpp" />
     <ClCompile Include="Patches\NoCDPatch.cpp" />
     <ClCompile Include="Patches\PS2NoiseFilter.cpp" />
     <ClCompile Include="dllmain.cpp" />

@@ -77,7 +77,7 @@ void UpdateRedCrossInCutscene()
 	if (!RedCrossAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " searching for memory address!";
-		RedCrossAddr = (DWORD)GetAddressOfData(RedCrossSearchBytes, sizeof(RedCrossSearchBytes), 1, 0x000047604A, 2600);
+		RedCrossAddr = (DWORD)GetAddressOfData(RedCrossSearchBytes, sizeof(RedCrossSearchBytes), 1, 0x0047604A, 2600);
 	}
 
 	// Checking address pointer

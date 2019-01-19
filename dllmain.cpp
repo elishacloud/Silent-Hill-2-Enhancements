@@ -181,6 +181,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			UpdateCatacombsMeatRoom();
 		}
 
+		// Fog adjustment fixes
+		if (FogParameterFix)
+		{
+			UpdateFogParameters();
+		}
+
 		// Red Cross health indicator in cutscene
 		if (DisableRedCrossInCutScenes)
 		{

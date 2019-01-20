@@ -28,6 +28,11 @@
 
 VISIT_BOOL_SETTINGS(SET_BOOL_DEFAULTS);
 
+#define SET_INT_DEFAULTS(name, value) \
+	int name = value;
+
+VISIT_INT_SETTINGS(SET_INT_DEFAULTS);
+
 // Forward declarations
 bool SetValue(char* name);
 bool IsValidSettings(char* name, char* value);
@@ -43,6 +48,11 @@ void __stdcall ParseCallback(char* lpName, char* lpValue)
 	if (!_strcmpi(lpName, #name)) name = SetValue(lpValue);
 
 	VISIT_BOOL_SETTINGS(GET_BOOL_VALUES);
+
+#define GET_INT_VALUES(name, unused) \
+	if (!_strcmpi(lpName, #name)) name = atoi(lpValue);
+
+	VISIT_INT_SETTINGS(GET_INT_VALUES);
 }
 
 // Set booloean value from string (file)

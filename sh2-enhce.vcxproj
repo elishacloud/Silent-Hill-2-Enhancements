@@ -42,6 +42,7 @@
     <ClCompile Include="Patches\DrawDistance.cpp" />
     <ClCompile Include="Patches\CatacombsMeatRoom.cpp" />
     <ClCompile Include="Patches\FogAdjustments.cpp" />
+    <ClCompile Include="Patches\Fonts.cpp" />
     <ClCompile Include="Patches\NoCDPatch.cpp" />
     <ClCompile Include="Patches\PS2NoiseFilter.cpp" />
     <ClCompile Include="dllmain.cpp" />
@@ -170,6 +171,7 @@ copy /Y "$(ProjectDir)Resources\SilentHill2.WidescreenFix.dat" "$(TargetDir)$(Ta
       <ModuleDefinitionFile>Wrappers\wrapper.def</ModuleDefinitionFile>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\lib\x86;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\atlmfc\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
       <Command>cmd /c "@echo off &amp;&amp; cd /D ""$(ProjectDir)"" &amp;&amp; if not exist Resources\BuildNo.rc echo #define BUILD_NUMBER 0 &gt;Resources\BuildNo.rc"

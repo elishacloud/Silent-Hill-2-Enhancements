@@ -27,13 +27,30 @@
 	visit(UseCustomModFolder, true) \
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
-	visit(WndModeBorder, true)
+	visit(WndModeBorder, true) \
+	visit(UseCustomFonts, false) \
+	visit(DisableEnlargedText, false)
+
+#define VISIT_INT_SETTINGS(visit) \
+	visit(CustomFontCol, 100) \
+	visit(CustomFontRow, 14) \
+	visit(CustomFontCharWidth, 20) \
+	visit(CustomFontCharHeight, 32) \
+	visit(NormalFontWidth, 20) \
+	visit(NormalFontHeight, 30) \
+	visit(SmallFontWidth, 14) \
+	visit(SmallFontHeight, 24)
 
 // Configurable setting defaults
 #define DECLARE_BOOL_SETTINGS(name, unused) \
 	extern bool name;
 
 VISIT_BOOL_SETTINGS(DECLARE_BOOL_SETTINGS);
+
+#define DECLARE_INT_SETTINGS(name, unused) \
+	extern int name;
+
+VISIT_INT_SETTINGS(DECLARE_INT_SETTINGS);
 
 typedef void(__stdcall* NV)(char* name, char* value);
 

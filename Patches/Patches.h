@@ -12,3 +12,4 @@ void UpdateRowboatAnimation();
 void UpdateCatacombsMeatRoom();
 void UpdateRedCrossInCutscene();
 void UpdateFogParameters();
+void UpdateCustomFonts();

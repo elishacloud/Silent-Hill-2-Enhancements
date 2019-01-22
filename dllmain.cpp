@@ -193,6 +193,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			UpdateRedCrossInCutscene();
 		}
 
+		// Loads font texture form tga file
+		if (UseCustomFonts)
+		{
+			UpdateCustomFonts();
+		}
+
 		// Load Nemesis2000's Fog Fix
 		if (Nemesis2000FogFix)
 		{

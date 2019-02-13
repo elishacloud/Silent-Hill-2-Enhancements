@@ -5,6 +5,7 @@
 	visit(CatacombsMeatRoomFix, true) \
 	visit(CemeteryLightingFix, true) \
 	visit(d3d8to9, true) \
+	visit(DisableLogging, false) \
 	visit(DisableRedCross, false) \
 	visit(DisableRedCrossInCutScenes, true) \
 	visit(EnableSFXAddrHack, true) \

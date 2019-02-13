@@ -53,11 +53,29 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		dwPriorityClass = (GetLastError() == THREAD_PRIORITY_ERROR_RETURN) ? THREAD_PRIORITY_NORMAL : dwPriorityClass;
 		SetThreadPriority(hCurrentThread, THREAD_PRIORITY_HIGHEST);
 
+		// Get config file path
+		wchar_t configpath[MAX_PATH];
+		GetModuleFileName(hModule, configpath, MAX_PATH);
+		wcscpy_s(wcsrchr(configpath, '.'), MAX_PATH - wcslen(configpath), L".ini");
+
+		// Read config file
+		char* szCfg = Read(configpath);
+
+		// Parce config file
+		bool IsLoadConfig = false;
+		if (szCfg)
+		{
+			IsLoadConfig = true;
+			Parse(szCfg, ParseCallback);
+			free(szCfg);
+		}
+
 		// Get log file path and open log file
 		wchar_t pathname[MAX_PATH];
 		GetModuleFileName(hModule, pathname, MAX_PATH);
 		wcscpy_s(wcsrchr(pathname, '.'), MAX_PATH - wcslen(pathname), L".log");
-		LOG.open(pathname);
+		Logging::EnableLogging = !DisableLogging;
+		Logging::Open(pathname);
 
 		// Starting
 		Logging::Log() << "Starting Silent Hill 2 Enhancements! v" << APP_VERSION;
@@ -71,19 +89,9 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		GetModuleFileName(nullptr, pathname, MAX_PATH);
 		Logging::Log() << "Running from: " << pathname;
 
-		// Get config file path
-		GetModuleFileName(hModule, pathname, MAX_PATH);
-		wcscpy_s(wcsrchr(pathname, '.'), MAX_PATH - wcslen(pathname), L".ini");
-
-		// Read config file
-		Logging::Log() << "Reading config file: " << pathname;
-		char* szCfg = Read(pathname);
-
-		// Parce config file
-		if (szCfg)
+		if (IsLoadConfig)
 		{
-			Parse(szCfg, ParseCallback);
-			free(szCfg);
+			Logging::Log() << "Config file: " << configpath;
 		}
 		else
 		{
@@ -130,7 +138,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		// Hook CreateFile API, only needed for external modules and UseCustomModFolder
 		if (Nemesis2000FogFix || WidescreenFix || UseCustomModFolder)
 		{
-			InstallFileSystemHooks(hModule, pathname);
+			InstallFileSystemHooks(hModule, configpath);
 		}
 
 		// Set single core affinity

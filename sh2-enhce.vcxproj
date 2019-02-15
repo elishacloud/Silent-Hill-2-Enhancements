@@ -92,7 +92,7 @@
     <ClInclude Include="Wrappers\d3d8\IDirect3DVertexBuffer8.h" />
     <ClInclude Include="Wrappers\d3d8\IDirect3DVolume8.h" />
     <ClInclude Include="Wrappers\d3d8\IDirect3DVolumeTexture8.h" />
-    <ClInclude Include="Wrappers\d3d8\LookupTable.h" />
+    <ClInclude Include="Wrappers\d3d8\AddressLookupTable.h" />
     <ClInclude Include="Wrappers\dinput8.h" />
     <ClInclude Include="Wrappers\dsound.h" />
     <ClInclude Include="Wrappers\wrapper.h" />

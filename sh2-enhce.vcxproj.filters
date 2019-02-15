@@ -220,9 +220,6 @@
     <ClInclude Include="Wrappers\d3d8\d3d8wrapper.h">
       <Filter>Wrappers\d3d8</Filter>
     </ClInclude>
-    <ClInclude Include="Wrappers\d3d8\LookupTable.h">
-      <Filter>Wrappers\d3d8</Filter>
-    </ClInclude>
     <ClInclude Include="External\Logging\Logging.h">
       <Filter>External\Logging</Filter>
     </ClInclude>
@@ -234,6 +231,9 @@
     </ClInclude>
     <ClInclude Include="Common\FileSystemHooks.h">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\d3d8\AddressLookupTable.h">
+      <Filter>Wrappers\d3d8</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

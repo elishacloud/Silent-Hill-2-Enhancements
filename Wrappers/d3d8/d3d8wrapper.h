@@ -5,7 +5,19 @@
 #include "d3d8.h"
 #include "d3d8types.h"
 #include "d3d8caps.h"
-#include "LookupTable.h"
+
+class m_IDirect3D8;
+class m_IDirect3DDevice8;
+class m_IDirect3DCubeTexture8;
+class m_IDirect3DIndexBuffer8;
+class m_IDirect3DSurface8;
+class m_IDirect3DSwapChain8;
+class m_IDirect3DTexture8;
+class m_IDirect3DVertexBuffer8;
+class m_IDirect3DVolume8;
+class m_IDirect3DVolumeTexture8;
+
+#include "AddressLookupTable.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
 

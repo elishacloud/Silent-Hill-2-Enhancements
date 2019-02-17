@@ -2,9 +2,9 @@
 
 #define INITGUID
 
-#include "d3d8.h"
-#include "d3d8types.h"
-#include "d3d8caps.h"
+#include "DirectX81SDK\include\d3d8.h"
+#include "DirectX81SDK\include\d3d8types.h"
+#include "DirectX81SDK\include\d3d8caps.h"
 
 class m_IDirect3D8;
 class m_IDirect3DDevice8;

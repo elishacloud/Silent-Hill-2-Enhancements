@@ -131,7 +131,10 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	{
 		*ppReturnedDeviceInterface = new m_IDirect3DDevice8(*ppReturnedDeviceInterface, this);
 
-		AdjustWindow(DeviceWindow, BufferWidth, BufferHeight);
+		if (EnableWndMode)
+		{
+			AdjustWindow(DeviceWindow, BufferWidth, BufferHeight);
+		}
 	}
 
 	return hr;

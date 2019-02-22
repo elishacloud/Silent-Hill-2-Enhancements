@@ -4,6 +4,7 @@
 	visit(AutoUpdateModule, true) \
 	visit(CatacombsMeatRoomFix, true) \
 	visit(CemeteryLightingFix, true) \
+	visit(ClosetCutsceneFix, true) \
 	visit(d3d8to9, true) \
 	visit(DisableLogging, false) \
 	visit(DisableRedCross, false) \
@@ -16,13 +17,17 @@
 	visit(FogParameterFix, true) \
 	visit(FullscreenWndMode, false) \
 	visit(HalogenLightFix, true) \
+	visit(HospitalChaseFix, true) \
+	visit(HotelWaterFix, true) \
 	visit(IncreaseDrawDistance, true) \
 	visit(LoadFromScriptsOnly, false) \
 	visit(LoadPlugins, false) \
 	visit(Nemesis2000FogFix, true) \
 	visit(NoCDPatch, true) \
+	visit(PistonRoomFix, true) \
 	visit(PS2StyleNoiseFilter, true) \
 	visit(ResetScreenRes, true) \
+	visit(Room312ShadowFix, true) \
 	visit(RowboatAnimationFix, true) \
 	visit(SingleCoreAffinity, true) \
 	visit(UseCustomModFolder, true) \

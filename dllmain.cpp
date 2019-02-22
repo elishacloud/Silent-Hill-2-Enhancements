@@ -195,6 +195,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			UpdateFogParameters();
 		}
 
+		// Piston room fix
+		if (PistonRoomFix)
+		{
+			UpdatePistonRoom();
+		}
+
 		// Red Cross health indicator in cutscene
 		if (DisableRedCrossInCutScenes)
 		{

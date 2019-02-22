@@ -572,6 +572,30 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 
 HRESULT m_IDirect3DDevice8::BeginScene()
 {
+	// Hotel Water Visual Fixes
+	if (HotelWaterFix && SH2_RoomID)
+	{
+		UpdateHotelWater(SH2_RoomID);
+	}
+
+	// Hotel Room 312 Shadow Flicker Fix
+	if (Room312ShadowFix && SH2_RoomID)
+	{
+		UpdateRoom312ShadowFix(SH2_RoomID);
+	}
+
+	// RPT Apartment Closet Cutscene Fix
+	if (ClosetCutsceneFix && SH2_CutsceneID && SH2_CutsceneCameraPos)
+	{
+		UpdateClosetCutscene(SH2_CutsceneID, SH2_CutsceneCameraPos);
+	}
+
+	// RPT Hospital Elevator Stabbing Animation Fix
+	if (HospitalChaseFix && SH2_RoomID)
+	{
+		UpdateHospitalChase(SH2_RoomID);
+	}
+
 	return ProxyInterface->BeginScene();
 }
 

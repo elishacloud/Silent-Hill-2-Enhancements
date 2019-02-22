@@ -254,3 +254,8 @@ void UnloadAllModules()
 		}
 	}
 }
+
+DWORD ConvertFloat(float num)
+{
+	return *((DWORD*)&num);
+}

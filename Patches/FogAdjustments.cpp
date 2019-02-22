@@ -28,9 +28,6 @@ constexpr BYTE BlueCreekFogCheckBytes[]{ 0xC7, 0x05 };
 
 // Variables for ASM
 DWORD CameraConditionFlag = 0x00;
-void *RoomIDPtr;
-void *CutsceneIDPtr;
-void *CameraPosPtr;
 void *FogFrontPointer;
 void *FogBackPointer;
 void *jmpFogReturnAddr;
@@ -53,12 +50,12 @@ __declspec(naked) void __stdcall FogAdjustmentASM()
 		push ecx
 		cmp CameraConditionFlag, 0x01
 		je near CheckCutsceneID								// jumps to check cutscene ID if camera conditions were already met
-		mov eax, dword ptr ds : [CameraPosPtr]
+		mov eax, dword ptr ds : [CutscenePosAddr]
 		cmp dword ptr ds : [eax], 0x4767DA5D
 		jne near ConditionsNotMet							// jumps if camera is not facing the door
 
 	CheckCutsceneID:
-		mov eax, dword ptr ds : [CutsceneIDPtr]
+		mov eax, dword ptr ds : [CutsceneIDAddr]
 		cmp dword ptr ds : [eax], 0x12
 		jne near ConditionsNotMet							// jumps if not angela mirror cutscene
 
@@ -106,7 +103,7 @@ __declspec(naked) void __stdcall BlueCreekFogAdjustmentASM()
 		pushf
 		push eax
 		push ecx
-		mov eax, dword ptr ds : [RoomIDPtr]
+		mov eax, dword ptr ds : [RoomIDAddr]
 		cmp dword ptr ds : [eax], 0x28
 		jne near ConditionsNotMet						// jumps if not Blue Creek Apt Room 209
 		mov ecx, BlueCreekNewFog
@@ -178,16 +175,16 @@ void UpdateFogParameters()
 	FogBackPointer = (void*)((DWORD)FogFrontPointer - 4);
 
 	// Get room ID address
-	RoomIDPtr = GetRoomIDPointer();
+	RoomIDAddr = GetRoomIDPointer();
 
 	// Get cutscene ID address
-	CutsceneIDPtr = GetCutsceneIDPointer();
+	CutsceneIDAddr = GetCutsceneIDPointer();
 
 	// Get cutscene camera position address
-	CameraPosPtr = GetCutscenePosPointer();
+	CutscenePosAddr = GetCutscenePosPointer();
 
 	// Checking address pointers
-	if (!RoomIDPtr || !CutsceneIDPtr || !CameraPosPtr)
+	if (!RoomIDAddr || !CutsceneIDAddr || !CutscenePosAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to get cutscene ID or position address!";
 		return;

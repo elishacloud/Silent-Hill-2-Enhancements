@@ -12,3 +12,4 @@ DWORD ReplaceMemoryBytes(void *dataSrc, void *dataDest, size_t size, DWORD start
 void SetSingleCoreAffinity();
 void AddHandleToVector(HMODULE dll);
 void UnloadAllModules();
+DWORD ConvertFloat(float num);

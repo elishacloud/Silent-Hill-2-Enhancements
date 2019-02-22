@@ -31,7 +31,6 @@ constexpr BYTE RedCrossDisableBytes[]{ 0xC7, 0x05 };
 BYTE RedCrossFlag;
 BYTE *RedCrossFlagPointer = &RedCrossFlag;
 BYTE *RedCrossPointer;
-void *CutscenePointer;
 void *jmpEnableAddr;
 void *jmpDisableAddr;
 
@@ -41,7 +40,7 @@ __declspec(naked) void __stdcall RedCrossCutscenesASM()
 	__asm
 	{
 		push eax
-		mov eax, RedCrossFlagPointer
+		mov eax, dword ptr ds : [RedCrossFlagPointer]
 		cmp byte ptr ds : [eax], 0x00
 		jg near DisableHealthIndicator
 
@@ -49,7 +48,7 @@ __declspec(naked) void __stdcall RedCrossCutscenesASM()
 		cmp byte ptr ds : [eax], 0x00
 		jg near DisableHealthIndicator
 
-		mov eax, dword ptr ds : [CutscenePointer]
+		mov eax, dword ptr ds : [CutsceneIDAddr]
 		mov eax, dword ptr ds : [eax]
 		cmp eax, 0x24
 		je near EnableHealthIndicator
@@ -90,10 +89,10 @@ void UpdateRedCrossInCutscene()
 	jmpDisableAddr = (void*)(RedCrossAddr + 0xC2);
 
 	// Get cutscene ID address
-	CutscenePointer = GetCutsceneIDPointer();
+	CutsceneIDAddr = GetCutsceneIDPointer();
 
 	// Checking address pointer
-	if (!CutscenePointer)
+	if (!CutsceneIDAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to get cutscene ID address!";
 		return;

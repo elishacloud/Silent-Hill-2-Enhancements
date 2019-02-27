@@ -135,6 +135,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			EnableD3d8to9();
 		}
 
+		// Fix issue with saving the gome on a drive that is larger than 2TBs
+		if (ImproveStorageSupport)
+		{
+			Update2TBHardDriveFix();
+		}
+
 		// Hook CreateFile API, only needed for external modules and UseCustomModFolder
 		if (Nemesis2000FogFix || WidescreenFix || UseCustomModFolder)
 		{

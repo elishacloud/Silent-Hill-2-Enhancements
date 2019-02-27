@@ -19,6 +19,7 @@
 	visit(HalogenLightFix, true) \
 	visit(HospitalChaseFix, true) \
 	visit(HotelWaterFix, true) \
+	visit(ImproveStorageSupport, true) \
 	visit(IncreaseDrawDistance, true) \
 	visit(LoadFromScriptsOnly, false) \
 	visit(LoadPlugins, false) \

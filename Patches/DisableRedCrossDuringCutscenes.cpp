@@ -49,10 +49,9 @@ __declspec(naked) void __stdcall RedCrossCutscenesASM()
 		jg near DisableHealthIndicator
 
 		mov eax, dword ptr ds : [CutsceneIDAddr]
-		mov eax, dword ptr ds : [eax]
-		cmp eax, 0x24
+		cmp dword ptr ds : [eax], 0x24
 		je near EnableHealthIndicator
-		cmp eax, 0x00
+		cmp dword ptr ds : [eax], 0x00
 		je near EnableHealthIndicator
 
 	DisableHealthIndicator:

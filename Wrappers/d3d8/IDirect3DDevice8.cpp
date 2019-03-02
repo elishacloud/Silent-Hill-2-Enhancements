@@ -590,12 +590,6 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		UpdateClosetCutscene(SH2_CutsceneID, SH2_CutsceneCameraPos);
 	}
 
-	// RPT Hospital Elevator Stabbing Animation Fix
-	if (HospitalChaseFix && SH2_RoomID)
-	{
-		UpdateHospitalChase(SH2_RoomID);
-	}
-
 	return ProxyInterface->BeginScene();
 }
 

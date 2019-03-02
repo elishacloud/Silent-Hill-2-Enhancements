@@ -71,7 +71,7 @@ BYTE *fontData;
 
 void UpdateFontTex(BYTE *ptr, int size)
 {
-	Logging::Log() << __FUNCTION__ << " - address: " << (DWORD)ptr << ", size: " << size;
+	Logging::LogDebug() << __FUNCTION__ << " - address: " << (DWORD)ptr << ", size: " << size;
 
 	if (fontData)
 		memcpy(ptr, fontData, size);
@@ -92,7 +92,7 @@ int ReturnFontIdx(int fontSize, WORD charID)
 void UpdateCustomFonts()
 {
 	// Find address for font decode function
-	void *DFontAddrA = CheckMultiMemoryAddress((void*)0x004809F4, (void*)0x00480C90, (void*)0x00480EA4, (void*)DFontFuncBlockA, sizeof(DFontFuncBlockA));
+	void *DFontAddrA = CheckMultiMemoryAddress((void*)0x004809F4, (void*)0x00480C94, (void*)0x00480EA4, (void*)DFontFuncBlockA, sizeof(DFontFuncBlockA));
 	void *DFontAddrB = CheckMultiMemoryAddress((void*)0x0047E270, (void*)0x0047E510, (void*)0x0047E720, (void*)DFontFuncBlockB, sizeof(DFontFuncBlockB));
 
 	// Search for address
@@ -146,6 +146,7 @@ void UpdateCustomFonts()
 		return;
 	}
 
+	Logging::Log() << "Enabling Custom Fonts...";
 	fontTexScaleW = 550.0f / (float)(charIX * charW);
 	fontTexScaleH = 544.0f / (float)(charIY * charH);
 

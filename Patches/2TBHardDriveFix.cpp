@@ -38,7 +38,7 @@ __declspec(naked) void __stdcall HardDriveASM()
 		push ebx
 		push ecx
 		call GetDiskSpace
-		cmp eax, 0x08
+		cmp eax, 0x20		// Require at least 32KBs of disk space
 		pop ecx
 		pop ebx
 		pop eax
@@ -72,7 +72,7 @@ __declspec(naked) void __stdcall DisplayASM()
 	}
 }
 
-// Get amount of free disk space in KBs, greather than 0x7FFFFFFF will simply return 0x7FFFFFFF
+// Get amount of free disk space in KBs, greater than 0x7FFFFFFF will simply return 0x7FFFFFFF
 DWORD GetDiskSpace()
 {
 	static wchar_t DirectoryName[MAX_PATH] = { '\0' };

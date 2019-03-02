@@ -17,7 +17,6 @@
 	visit(FogParameterFix, true) \
 	visit(FullscreenWndMode, false) \
 	visit(HalogenLightFix, true) \
-	visit(HospitalChaseFix, true) \
 	visit(HotelWaterFix, true) \
 	visit(ImproveStorageSupport, true) \
 	visit(IncreaseDrawDistance, true) \
@@ -26,6 +25,7 @@
 	visit(Nemesis2000FogFix, true) \
 	visit(NoCDPatch, true) \
 	visit(PistonRoomFix, true) \
+	visit(PS2FlashlightBrightness, true) \
 	visit(PS2StyleNoiseFilter, true) \
 	visit(ResetScreenRes, true) \
 	visit(Room312ShadowFix, true) \

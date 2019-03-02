@@ -123,6 +123,63 @@ void *CheckMultiMemoryAddress(void *dataAddr10, void *dataAddr11, void *dataAddr
 	return MemAddress;
 }
 
+// Search for memory addresses
+DWORD SearchAndGetAddresses(DWORD dataAddr10, DWORD dataAddr11, DWORD dataAddrDC, const BYTE *dataBytes, DWORD dataSize, int ByteDelta)
+{
+	// Get address
+	DWORD MemoryAddr = (DWORD)CheckMultiMemoryAddress((void*)dataAddr10, (void*)dataAddr11, (void*)dataAddrDC, (void*)dataBytes, dataSize);
+
+	// Search for address
+	if (!MemoryAddr)
+	{
+		MemoryAddr = (DWORD)GetAddressOfData(dataBytes, dataSize, 1, dataAddr10 - 0x500, 2600);
+		Logging::Log() << __FUNCTION__ << " searching for memory address! Found = " << (void*)MemoryAddr;
+	}
+
+	// Checking address pointer
+	if (!MemoryAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return NULL;
+	}
+	MemoryAddr = MemoryAddr + ByteDelta;
+
+	// Return address found
+	return MemoryAddr;
+}
+
+// Search for memory addresses
+DWORD ReadSearchedAddresses(DWORD dataAddr10, DWORD dataAddr11, DWORD dataAddrDC, const BYTE *dataBytes, DWORD dataSize, int ByteDelta)
+{
+	// Search for address
+	DWORD MemoryAddr = SearchAndGetAddresses(dataAddr10, dataAddr11, dataAddrDC, dataBytes, dataSize, ByteDelta);
+
+	// If address exists then read memory and return address
+	if (MemoryAddr)
+	{
+		DWORD Address;
+		memcpy(&Address, (void*)MemoryAddr, sizeof(DWORD));
+		return Address;
+	}
+
+	// Return NULL
+	return NULL;
+}
+
+// Search and log address
+void SearchAndLogAddress(DWORD FindAddress)
+{
+	void *Address = (void*)0x00410000;
+	for (int x = -3; x < 4; x++)
+	{
+		do {
+			DWORD SearchAddress = FindAddress + x;
+			Address = GetAddressOfData(&SearchAddress, sizeof(DWORD), 1, (DWORD)Address, 0x005F0000 - (DWORD)Address);
+			Logging::Log() << "Address found: " << Address;
+		} while (Address);
+	}
+}
+
 // Update memory
 bool UpdateMemoryAddress(void *dataAddr, void *dataBytes, DWORD dataSize)
 {

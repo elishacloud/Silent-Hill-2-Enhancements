@@ -135,12 +135,6 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			EnableD3d8to9();
 		}
 
-		// Fix issue with saving the gome on a drive that is larger than 2TBs
-		if (ImproveStorageSupport)
-		{
-			Update2TBHardDriveFix();
-		}
-
 		// Hook CreateFile API, only needed for external modules and UseCustomModFolder
 		if (Nemesis2000FogFix || WidescreenFix || UseCustomModFolder)
 		{
@@ -163,6 +157,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		if (EnableSFXAddrHack)
 		{
 			UpdateSFXAddr();
+		}
+
+		// Fix issue with saving the gome on a drive that is larger than 2TBs
+		if (ImproveStorageSupport)
+		{
+			Update2TBHardDriveFix();
 		}
 
 		// PS2 Noise Filter
@@ -211,6 +211,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		if (DisableRedCrossInCutScenes)
 		{
 			UpdateRedCrossInCutscene();
+		}
+
+		// Adjusts flashlight brightness
+		if (PS2FlashlightBrightness)
+		{
+			UpdatePS2Flashlight();
 		}
 
 		// Loads font texture form tga file

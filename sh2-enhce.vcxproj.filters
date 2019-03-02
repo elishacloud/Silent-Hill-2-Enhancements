@@ -143,13 +143,13 @@
     <ClCompile Include="Patches\ClosetCutscene.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
-    <ClCompile Include="Patches\HospitalChase.cpp">
-      <Filter>Patches</Filter>
-    </ClCompile>
     <ClCompile Include="Patches\PistonRoom.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
     <ClCompile Include="Patches\2TBHardDriveFix.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\EnhancedFlashlight.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
   </ItemGroup>

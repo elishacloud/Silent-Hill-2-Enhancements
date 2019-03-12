@@ -54,6 +54,7 @@
     <ClCompile Include="Patches\Room312Shadow.cpp" />
     <ClCompile Include="Patches\RowboatAnimation.cpp" />
     <ClCompile Include="Patches\SfxPatch.cpp" />
+    <ClCompile Include="Patches\XInputVibration.cpp" />
     <ClCompile Include="Wrappers\d3d8to9.cpp" />
     <ClCompile Include="Wrappers\d3d8\d3d8wrapper.cpp" />
     <ClCompile Include="Wrappers\d3d8\IDirect3D8.cpp" />

@@ -15,7 +15,7 @@
 	visit(FixMissingWallChunks, true) \
 	visit(Fog2DFix, true) \
 	visit(FogParameterFix, true) \
-	visit(FullscreenWndMode, false) \
+	visit(FullscreenWndMode, true) \
 	visit(HalogenLightFix, true) \
 	visit(HotelWaterFix, true) \
 	visit(ImproveStorageSupport, true) \

@@ -167,10 +167,6 @@ void UpdateXInputVibration()
 	int32_t jmpAddress = 0;
 	memcpy( &jmpAddress, (void*)(CreateDIGamepadAddr + 1), sizeof(jmpAddress) );
 
-	orgCreateDirectInputGamepad = decltype(orgCreateDirectInputGamepad)(jmpAddress + CreateDIGamepadAddr + 5);
-	WriteJMPtoMemory( (BYTE*)CreateDIGamepadAddr, CreateDirectInputGamepad_Hook );
-
-
 	constexpr BYTE SetVibrationParametersSearchBytes[] { 0x83, 0xEC, 0x38, 0x83, 0xF8, 0x02, 0x75, 0x39 };
 	const DWORD SetVibrationParametersAddr = SearchAndGetAddresses(0x458005, 0x458265, 0x458265, SetVibrationParametersSearchBytes, sizeof(SetVibrationParametersSearchBytes), -0x5);
 	if (SetVibrationParametersAddr == 0)
@@ -178,6 +174,11 @@ void UpdateXInputVibration()
 		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
 		return;
 	}
+
+	// Update SH2 code
+	Logging::Log() << "Enabling XInput Vibration Fix...";
+	orgCreateDirectInputGamepad = decltype(orgCreateDirectInputGamepad)(jmpAddress + CreateDIGamepadAddr + 5);
+	WriteJMPtoMemory((BYTE*)CreateDIGamepadAddr, CreateDirectInputGamepad_Hook);
 
 	DInputGamepadType = *(int32_t**)(SetVibrationParametersAddr + 1);
 	directInputEffect = *(LPDIRECTINPUTEFFECT**)(SetVibrationParametersAddr + 0x34 + 1);

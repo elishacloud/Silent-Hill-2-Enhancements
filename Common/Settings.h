@@ -35,9 +35,9 @@
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, true) \
-	visit(UseCustomFonts, false) \
-	visit(DisableEnlargedText, false) \
-	visit(XInputVibration, false)
+	visit(UseCustomFonts, true) \
+	visit(DisableEnlargedText, true) \
+	visit(XInputVibration, true)
 
 #define VISIT_INT_SETTINGS(visit) \
 	visit(CustomFontCol, 100) \

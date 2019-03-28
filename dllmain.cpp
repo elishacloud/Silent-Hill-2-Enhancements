@@ -219,6 +219,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			UpdatePS2Flashlight();
 		}
 
+		// XInput based vibration
+		if (XInputVibration)
+		{
+			UpdateXInputVibration();
+		}
+
 		// Loads font texture form tga file
 		if (UseCustomFonts)
 		{

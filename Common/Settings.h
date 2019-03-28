@@ -36,7 +36,8 @@
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, true) \
 	visit(UseCustomFonts, false) \
-	visit(DisableEnlargedText, false)
+	visit(DisableEnlargedText, false) \
+	visit(XInputVibration, false)
 
 #define VISIT_INT_SETTINGS(visit) \
 	visit(CustomFontCol, 100) \
@@ -46,7 +47,8 @@
 	visit(NormalFontWidth, 20) \
 	visit(NormalFontHeight, 30) \
 	visit(SmallFontWidth, 14) \
-	visit(SmallFontHeight, 24)
+	visit(SmallFontHeight, 24) \
+	visit(PadNumber, 0)
 
 // Configurable setting defaults
 #define DECLARE_BOOL_SETTINGS(name, unused) \

@@ -135,6 +135,17 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			EnableD3d8to9();
 		}
 
+		// Check for required DirectX 9 runtime files
+		wchar_t d3dx9_path[MAX_PATH], xaudio2_path[MAX_PATH];
+		GetSystemDirectory(d3dx9_path, MAX_PATH);
+		wcscat_s(d3dx9_path, L"\\d3dx9_43.dll");
+		GetSystemDirectory(xaudio2_path, MAX_PATH);
+		wcscat_s(xaudio2_path, L"\\xaudio2_7.dll");
+		if (!PathExists(d3dx9_path) || !PathExists(xaudio2_path))
+		{
+			Logging::Log() << "Warning: Could not find expected DirectX 9.0c End-User Runtime files.  Try installing from: https://www.microsoft.com/download/details.aspx?id=35";
+		}
+
 		// Hook CreateFile API, only needed for external modules and UseCustomModFolder
 		if (Nemesis2000FogFix || WidescreenFix || UseCustomModFolder)
 		{

@@ -75,4 +75,6 @@ static MODULECONFIG ConfigList[] =
 	{ "sh2fog.ini", L"sh2fog.ini", &Nemesis2000FogFix }
 };
 
+bool PathExists(LPCSTR str);
+bool PathExists(LPCWSTR str);
 void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath);

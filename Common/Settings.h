@@ -18,6 +18,7 @@
 	visit(FogParameterFix, true) \
 	visit(FullscreenWndMode, true) \
 	visit(HalogenLightFix, true) \
+	visit(HospitalChaseFix, true) \
 	visit(HotelWaterFix, true) \
 	visit(ImproveStorageSupport, true) \
 	visit(IncreaseDrawDistance, true) \

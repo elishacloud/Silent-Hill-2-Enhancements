@@ -47,6 +47,7 @@
     <ClCompile Include="Patches\FogAdjustments.cpp" />
     <ClCompile Include="Patches\Fonts.cpp" />
     <ClCompile Include="Patches\HangOnEsc.cpp" />
+    <ClCompile Include="Patches\HospitalChase.cpp" />
     <ClCompile Include="Patches\HotelWater.cpp" />
     <ClCompile Include="Patches\LightingTransition.cpp" />
     <ClCompile Include="Patches\NoCDPatch.cpp" />

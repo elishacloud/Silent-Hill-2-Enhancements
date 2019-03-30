@@ -81,8 +81,8 @@ __declspec(naked) void __stdcall LightingTransitionASM()
 void UpdateLightingTransition()
 {
 	// Get Lighting Transition address
-	constexpr BYTE SearchBytesLightingTransition[]{ 0x53, 0x8B, 0x5C, 0x24, 0x08, 0x8B, 0xD3, 0x69, 0xD2, 0x98, 0x00, 0x00, 0x00, 0x56, 0x8D, 0xB2 };
-	DWORD LightingTransitionAddr = SearchAndGetAddresses(0x0050D6C0, 0x0050D6D0, 0x0050D230, SearchBytesLightingTransition, sizeof(SearchBytesLightingTransition), 0x24);
+	constexpr BYTE SearchBytesLightingTransition[]{ 0x8B, 0x11, 0x89, 0x10, 0x8B, 0x51, 0x04, 0x89, 0x50, 0x04, 0x8B, 0x51, 0x08, 0x89, 0x50, 0x08, 0x8B, 0x54, 0x24, 0x18, 0x8B, 0x49, 0x0C, 0x52, 0x53, 0x89, 0x48, 0x0C, 0xE8, 0xFF, 0xEF, 0xFF, 0xFF };
+	DWORD LightingTransitionAddr = SearchAndGetAddresses(0x0050D6F0, 0x0050DA20, 0x0050D340, SearchBytesLightingTransition, sizeof(SearchBytesLightingTransition), -0x0C);
 	if (!LightingTransitionAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -91,7 +91,7 @@ void UpdateLightingTransition()
 	jmpLightingTransitionReturnAddr = (void*)(LightingTransitionAddr + 0x06);
 
 	// Get Object address
-	LightingTransitionObject = ReadSearchedAddresses(0x0050D6C0, 0x0050D6D0, 0x0050D230, SearchBytesLightingTransition, sizeof(SearchBytesLightingTransition), 0x10);
+	LightingTransitionObject = ReadSearchedAddresses(0x0050D6F0, 0x0050DA20, 0x0050D340, SearchBytesLightingTransition, sizeof(SearchBytesLightingTransition), -0x20);
 	if (!LightingTransitionObject)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";

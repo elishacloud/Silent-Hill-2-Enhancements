@@ -20,6 +20,7 @@
 	visit(HotelWaterFix, true) \
 	visit(ImproveStorageSupport, true) \
 	visit(IncreaseDrawDistance, true) \
+	visit(LightingTransitionFix, true) \
 	visit(LoadFromScriptsOnly, false) \
 	visit(LoadPlugins, false) \
 	visit(Nemesis2000FogFix, true) \

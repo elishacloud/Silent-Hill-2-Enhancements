@@ -236,19 +236,14 @@ void UpdatePS2Flashlight()
 	}
 
 	// Get address for the brightness of movable objects for specific rooms 1
-	DWORD Address1 = 0x007F72F0;
+	DWORD Address1;
 	memcpy(&Address1, (void*)(SpecificRoomsAddr + 0x24), sizeof(DWORD));
 	Address1 = Address1 + 0x680;
 
 	// Get address for the brightness of movable objects for specific rooms 2
-	DWORD Address2 = 0x007FEB10;
+	DWORD Address2;
 	memcpy(&Address2, (void*)(SpecificRoomsAddr + 0x34), sizeof(DWORD));
 	Address2 = Address2 + 0x2A0;
-
-	// Get address for the brightness of movable objects for specific rooms 3
-	DWORD Address3 = 0x007FED00;
-	memcpy(&Address3, (void*)(SpecificRoomsAddr + 0x34), sizeof(DWORD));
-	Address3 = Address3 + 0x490;
 
 	// Get room ID address
 	RoomIDAddr = GetRoomIDPointer();
@@ -279,12 +274,6 @@ void UpdatePS2Flashlight()
 	UpdateMemoryAddress((void*)(Address2 + 0x00), &Value, sizeof(float));		// Movable Object Brightness (Red)
 	UpdateMemoryAddress((void*)(Address2 + 0x04), &Value, sizeof(float));		// Movable Object Brightness (Green)
 	UpdateMemoryAddress((void*)(Address2 + 0x08), &Value, sizeof(float));		// Movable Object Brightness (Blue)
-
-	// Otherworld Hotel Stairwell
-	Value = -25.0f;
-	UpdateMemoryAddress((void*)(Address3 + 0x00), &Value, sizeof(float));		// Movable Object Brightness (Red)
-	UpdateMemoryAddress((void*)(Address3 + 0x04), &Value, sizeof(float));		// Movable Object Brightness (Green)
-	UpdateMemoryAddress((void*)(Address3 + 0x08), &Value, sizeof(float));		// Movable Object Brightness (Blue)
 
 	// Update SH2 code
 	Logging::Log() << "Enabling PS2 Flashlight Fix...";

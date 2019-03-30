@@ -230,6 +230,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			UpdatePS2Flashlight();
 		}
 
+		// Lighting Transition fix
+		if (LightingTransitionFix)
+		{
+			UpdateLightingTransition();
+		}
+
 		// XInput based vibration
 		if (XInputVibration)
 		{

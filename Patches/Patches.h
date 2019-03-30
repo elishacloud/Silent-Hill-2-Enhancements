@@ -17,6 +17,7 @@ void UpdateCustomFonts();
 void UpdatePistonRoom();
 void Update2TBHardDriveFix();
 void UpdatePS2Flashlight();
+void UpdateLightingTransition();
 void UpdateHotelWater(DWORD *SH2_RoomID);
 void UpdateRoom312ShadowFix(DWORD *SH2_RoomID);
 void UpdateClosetCutscene(DWORD *SH2_CutsceneID, float *SH2_CutsceneCameraPos);

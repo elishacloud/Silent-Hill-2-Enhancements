@@ -12,6 +12,7 @@
 	visit(EnableSFXAddrHack, true) \
 	visit(EnableSelfShadows, false) \
 	visit(EnableWndMode, true) \
+	visit(FixHangOnEsc, true) \
 	visit(FixMissingWallChunks, true) \
 	visit(Fog2DFix, true) \
 	visit(FogParameterFix, true) \

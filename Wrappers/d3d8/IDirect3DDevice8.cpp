@@ -590,6 +590,12 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		UpdateClosetCutscene(SH2_CutsceneID, SH2_CutsceneCameraPos);
 	}
 
+	// Hang on Esc Fix
+	if (FixHangOnEsc)
+	{
+		UpdateHangOnEsc();
+	}
+
 	return ProxyInterface->BeginScene();
 }
 

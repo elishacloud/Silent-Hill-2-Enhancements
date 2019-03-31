@@ -161,7 +161,6 @@
     <Link>
       <ModuleDefinitionFile>Wrappers\wrapper.def</ModuleDefinitionFile>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\lib\x86;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\atlmfc\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul

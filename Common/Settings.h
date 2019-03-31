@@ -39,7 +39,9 @@
 	visit(WndModeBorder, true) \
 	visit(UseCustomFonts, true) \
 	visit(DisableEnlargedText, true) \
-	visit(XInputVibration, true)
+	visit(XInputVibration, true) \
+	visit(UseCustomExeStr, true) \
+	visit(UnlockJapLang, false)
 
 #define VISIT_INT_SETTINGS(visit) \
 	visit(CustomFontCol, 100) \

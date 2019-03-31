@@ -23,6 +23,7 @@ void UpdateRoom312ShadowFix(DWORD *SH2_RoomID);
 void UpdateClosetCutscene(DWORD *SH2_CutsceneID, float *SH2_CutsceneCameraPos);
 void UpdateHangOnEsc();
 void UpdateXInputVibration();
+void UpdateCustomExeStr();
 
 // Varable forward declaration
 extern void *RoomIDAddr;

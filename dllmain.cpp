@@ -248,6 +248,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			UpdateCustomFonts();
 		}
 
+		// Load exe's strings from txt file
+		if (UseCustomExeStr)
+		{
+			UpdateCustomExeStr();
+		}
+
 		// Load Nemesis2000's Fog Fix
 		if (Nemesis2000FogFix)
 		{

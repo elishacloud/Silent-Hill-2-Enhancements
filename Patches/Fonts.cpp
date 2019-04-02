@@ -16,6 +16,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include "Common\FileSystemHooks.h"
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 #include "Common\Settings.h"
@@ -121,7 +122,7 @@ void UpdateCustomFonts()
 	sFontW = (WORD)SmallFontWidth;
 	sFontH = (WORD)SmallFontHeight;
 
-	ifstream file("sh2e/font/font000.tga", ios::in | ios::binary | ios::ate);
+	ifstream file(std::string(std::string(ModPathA) + "\\font\\font000.tga").c_str(), ios::in | ios::binary | ios::ate);
 
 	if (file.is_open()) {
 		file.seekg(0, ios::beg);
@@ -209,7 +210,7 @@ void UpdateCustomFonts()
 		UpdateMemoryAddress((void *)((BYTE*)DFontAddrE - 0x10 + 4), (void *)&sFontW, 2);
 		UpdateMemoryAddress((void *)((BYTE*)DFontAddrE - 0x10 + 6), (void *)&sFontH, 2);
 			
-		ifstream wfile("sh2e/font/fontwdata.bin", ios::in | ios::binary | ios::ate);
+		ifstream wfile(std::string(std::string(ModPathA) + "\\font\\fontwdata.bin").c_str(), ios::in | ios::binary | ios::ate);
 
 		if (wfile.is_open()) {
 			BYTE *fwidth = new BYTE[0xE0];

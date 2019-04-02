@@ -16,6 +16,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include "Common\FileSystemHooks.h"
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 #include "Common\Settings.h"
@@ -436,16 +437,17 @@ void UpdateCustomExeStr()
 	langMin = (UnlockJapLang == false);
 	gLangID = (BYTE *)*(DWORD *)((BYTE*)DSpecAddrA - 2);
 
-	ifstream file("sh2e/text/exe_str.txt");
+	ifstream file(std::string(std::string(ModPathA) + "\\text\\exe_str.txt").c_str());
 
 	if (file.is_open()) {
+		Logging::Log() << "Enabling Custom Exe Strings...";
 		string line;
 		int i = 0;
 		while (getline(file, line)) {
 			if (!line.empty() && !((*(char *)line.c_str() == '/') && (*(char *)(line.c_str() + 1) == '/'))) {
 				str_ptr[i] = (char *)malloc(line.length() + 10);
 				if (str_ptr[i])
-					strcpy(str_ptr[i], line.c_str());
+					strcpy_s(str_ptr[i], line.length() + 10, line.c_str());
 				i++;
 			}
 		}

@@ -49,6 +49,7 @@
     <ClCompile Include="Patches\HangOnEsc.cpp" />
     <ClCompile Include="Patches\HospitalChase.cpp" />
     <ClCompile Include="Patches\HotelWater.cpp" />
+    <ClCompile Include="Patches\Langs.cpp" />
     <ClCompile Include="Patches\LightingTransition.cpp" />
     <ClCompile Include="Patches\NoCDPatch.cpp" />
     <ClCompile Include="Patches\PistonRoom.cpp" />

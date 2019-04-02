@@ -29,7 +29,7 @@
 #pragma comment(lib, "dxguid.lib")
 
 #include <Xinput.h>
-#pragma comment(lib, "xinput.lib")
+#pragma comment(lib, "Xinput9_1_0.lib")
 
 static LPDIRECTINPUTEFFECT originalDInputEffect = nullptr;
 

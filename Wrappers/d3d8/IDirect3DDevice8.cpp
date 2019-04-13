@@ -602,6 +602,12 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		UpdateHangOnEsc();
 	}
 
+	// Fix infinite rumble in pause menu
+	if (XInputVibration && SH2_RoomID)
+	{
+		UpdateInfiniteRumble(SH2_RoomID);
+	}
+
 	return ProxyInterface->BeginScene();
 }
 

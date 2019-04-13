@@ -132,7 +132,7 @@ DWORD SearchAndGetAddresses(DWORD dataAddr10, DWORD dataAddr11, DWORD dataAddrDC
 	// Search for address
 	if (!MemoryAddr)
 	{
-		MemoryAddr = (DWORD)GetAddressOfData(dataBytes, dataSize, 1, dataAddr10 - 0x500, 2600);
+		MemoryAddr = (DWORD)GetAddressOfData(dataBytes, dataSize, 1, dataAddr10 - 0x800, 2600);
 		Logging::Log() << __FUNCTION__ << " searching for memory address! Found = " << (void*)MemoryAddr;
 	}
 

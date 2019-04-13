@@ -311,6 +311,9 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		}
 #endif // DEBUG
 
+		// Unhook window handle
+		void UnhookWindowHandle();
+
 		// Unhook APIs
 		Logging::Log() << "Unhooking library functions";
 		Hook::UnhookAll();

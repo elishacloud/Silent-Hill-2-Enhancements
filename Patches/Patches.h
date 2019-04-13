@@ -24,6 +24,9 @@ void UpdateClosetCutscene(DWORD *SH2_CutsceneID, float *SH2_CutsceneCameraPos);
 void UpdateHospitalChase(DWORD *SH2_RoomID);
 void UpdateHangOnEsc();
 void UpdateXInputVibration();
+void UpdateInfiniteRumble(DWORD *SH2_RoomID);
+void SetWindowHandle(HWND WindowHandle);
+void UnhookWindowHandle();
 void UpdateCustomExeStr();
 
 // Varable forward declaration

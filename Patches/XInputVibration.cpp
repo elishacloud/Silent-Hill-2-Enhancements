@@ -31,6 +31,9 @@
 #include <Xinput.h>
 #pragma comment(lib, "Xinput9_1_0.lib")
 
+bool LostWindowFocus = false;
+HWND SH2WindowHandle = nullptr;
+HWINEVENTHOOK hEventHook = nullptr;
 static LPDIRECTINPUTEFFECT originalDInputEffect = nullptr;
 
 // XInput -> DirectInput vibration effect wrapper
@@ -175,6 +178,15 @@ void UpdateXInputVibration()
 		return;
 	}
 
+	// Get address for the main menu function that enables rumble
+	constexpr BYTE SearchBytesMenuRumble[]{ 0x53, 0x53, 0x53, 0x68, 0x10, 0x27, 0x00, 0x00, 0xC7, 0x05 };
+	DWORD MenuRumbleAddr = SearchAndGetAddresses(0x00497DD3, 0x00498083, 0x00497713, SearchBytesMenuRumble, sizeof(SearchBytesMenuRumble), -0x62);
+	if (!MenuRumbleAddr)
+	{
+		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+		return;
+	}
+
 	// Update SH2 code
 	Logging::Log() << "Enabling XInput Vibration Fix...";
 	orgCreateDirectInputGamepad = decltype(orgCreateDirectInputGamepad)(jmpAddress + CreateDIGamepadAddr + 5);
@@ -182,4 +194,128 @@ void UpdateXInputVibration()
 
 	DInputGamepadType = *(int32_t**)(SetVibrationParametersAddr + 1);
 	directInputEffect = *(LPDIRECTINPUTEFFECT**)(SetVibrationParametersAddr + 0x34 + 1);
+
+	// Fix infinite rumble
+	BYTE NOP[] = { 0x90, 0x90, 0x90, 0x90, 0x90 };
+	UpdateMemoryAddress((void*)MenuRumbleAddr, &NOP, sizeof(NOP));
+}
+
+void CALLBACK windowChangeHook(HWINEVENTHOOK hWinEventHook, DWORD event, HWND hwnd, LONG idObject, LONG idChild, DWORD dwEventThread, DWORD dwmsEventTime)
+{
+	UNREFERENCED_PARAMETER(hWinEventHook);
+	UNREFERENCED_PARAMETER(event);
+	UNREFERENCED_PARAMETER(idObject);
+	UNREFERENCED_PARAMETER(idChild);
+	UNREFERENCED_PARAMETER(dwEventThread);
+	UNREFERENCED_PARAMETER(dwmsEventTime);
+
+	if (!SH2WindowHandle)
+	{
+		return;
+	}
+
+	// Check window focus
+	if (SH2WindowHandle == hwnd)
+	{
+		LostWindowFocus = false;
+	}
+	else
+	{
+		LostWindowFocus = true;
+	}
+}
+
+void SetWindowHandle(HWND WindowHandle)
+{
+	SH2WindowHandle = WindowHandle;
+}
+
+void UnhookWindowHandle()
+{
+	if (hEventHook)
+	{
+		Logging::Log() << "Unhooking window hook";
+		UnhookWinEvent(hEventHook);
+	}
+}
+
+void UpdateInfiniteRumble(DWORD *SH2_RoomID)
+{
+	// Get rumble address
+	static BYTE *RumbleAddress = nullptr;
+	if (!RumbleAddress)
+	{
+		static bool RunOnce = false;
+		if (RunOnce)
+		{
+			return;
+		}
+		RunOnce = true;
+
+		// Get address for the rumble flag
+		constexpr BYTE SearchBytes[]{ 0x68, 0x10, 0x01, 0x00, 0x00, 0x50, 0xFF, 0x52, 0x24, 0x33, 0xD2, 0xB9 };
+		RumbleAddress = (BYTE*)ReadSearchedAddresses(0x004589C1, 0x00458C21, 0x00458C21, SearchBytes, sizeof(SearchBytes), 0x0C);
+		if (!RumbleAddress)
+		{
+			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+			return;
+		}
+		RumbleAddress -= 0x02;
+	}
+
+	// Get pause menu address
+	static BYTE *PauseAddress = nullptr;
+	if (!PauseAddress)
+	{
+		static bool RunOnce = false;
+		if (RunOnce)
+		{
+			return;
+		}
+		RunOnce = true;
+
+		// Get address for the pause menu
+		constexpr BYTE SearchBytes[]{ 0x74, 0x0F, 0x66, 0x3D, 0x04, 0x00, 0x66, 0xC7, 0x05 };
+		PauseAddress = (BYTE*)ReadSearchedAddresses(0x004553A4, 0x00455604, 0x00455604, SearchBytes, sizeof(SearchBytes), 0x09);
+		if (!PauseAddress)
+		{
+			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+			return;
+		}
+		PauseAddress += 0x04;
+	}
+
+	// Set window hook to check when SH2 loses focus
+	static bool FirstRun = true;
+	if (FirstRun)
+	{
+		Logging::Log() << "Setting infinite rumble window hook...";
+
+		hEventHook = SetWinEventHook(EVENT_OBJECT_FOCUS, EVENT_OBJECT_FOCUS, NULL, &windowChangeHook, 0, 0, WINEVENT_OUTOFCONTEXT);
+
+		// Reset FirstRun
+		FirstRun = false;
+	}
+
+	// Disable rumble
+	static bool ValueSet = false;
+	if (*PauseAddress == 0x01 || *SH2_RoomID == 0x00 || LostWindowFocus)
+	{
+		if (!ValueSet)
+		{
+			BYTE Value = 0x00;
+			UpdateMemoryAddress((void*)RumbleAddress, &Value, sizeof(BYTE));
+			ValueSet = true;
+			if (LostWindowFocus)
+			{
+				StubXInputEffect.Stop();
+			}
+		}
+	}
+	else if (ValueSet)
+	{
+		BYTE Value = 0x01;
+		UpdateMemoryAddress((void*)RumbleAddress, &Value, sizeof(BYTE));
+		ValueSet = false;
+	}
 }

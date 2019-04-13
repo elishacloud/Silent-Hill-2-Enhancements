@@ -210,8 +210,8 @@ bool UpdateMemoryAddress(void *dataAddr, void *dataBytes, DWORD dataSize)
 	return true;
 }
 
-// Write a jmp to memory
-bool WriteJMPtoMemory(BYTE *dataAddr, void *JMPAddr, DWORD count)
+// Write a address to memory
+bool WriteAddresstoMemory(BYTE *dataAddr, void *JMPAddr, DWORD count, BYTE command)
 {
 	if (!dataAddr || !JMPAddr)
 	{
@@ -233,8 +233,8 @@ bool WriteJMPtoMemory(BYTE *dataAddr, void *JMPAddr, DWORD count)
 		return false; // access denied
 	}
 
-	// jmp (4-byte relative)
-	*dataAddr = 0xE9;
+	// command (4-byte relative)
+	*dataAddr = command;
 	// relative jmp address
 	*((DWORD*)(dataAddr + 1)) = (DWORD)JMPAddr - (DWORD)dataAddr - 5;
 
@@ -251,6 +251,20 @@ bool WriteJMPtoMemory(BYTE *dataAddr, void *JMPAddr, DWORD count)
 
 	// Return
 	return true;
+}
+
+// Write a call to memory
+bool WriteCalltoMemory(BYTE *dataAddr, void *JMPAddr, DWORD count)
+{
+	// 0xE8 call (4-byte relative)
+	return WriteAddresstoMemory(dataAddr, JMPAddr, count, 0xE8);
+}
+
+// Write a jmp to memory
+bool WriteJMPtoMemory(BYTE *dataAddr, void *JMPAddr, DWORD count)
+{
+	// 0xE9 jmp (4-byte relative)
+	return WriteAddresstoMemory(dataAddr, JMPAddr, count, 0xE9);
 }
 
 // Replace memory

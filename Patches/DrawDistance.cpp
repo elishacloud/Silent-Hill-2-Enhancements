@@ -29,6 +29,24 @@ constexpr BYTE DDSearchAddr[] = { 0x94, 0x00, 0x00, 0x60, 0xEA, 0x45 };
 // New draw distance
 constexpr float DrawDistance = 8500.0f;
 
+// ASM functions to fix an issue with a certain water-filled hallway
+__declspec(naked) void __stdcall DrawDistanceASM()
+{
+	__asm
+	{
+		mov ecx, dword ptr ds : [esp + 0x08]
+		test ecx, ecx
+		jna near Exit
+		push edi
+		mov edi, dword ptr ds : [esp + 0x08]
+		mov eax, 0x00000001
+		repe stosd
+		pop edi
+	Exit:
+		ret
+	}
+}
+
 // Update SH2 code for Draw Distance
 void UpdateDrawDistance()
 {
@@ -121,6 +139,16 @@ void UpdateDrawDistance()
 			Logging::Log() << __FUNCTION__ << " Error: replacing pointer!";
 		}
 	}
+
+	// Fix draw distance in water-filled hallway
+	constexpr BYTE DrawFunctionSearchBytes[]{ 0x8D, 0x9E, 0xA0, 0x1A, 0x00, 0x00, 0x6A, 0x07, 0x53, 0x8B, 0xF8, 0xE8 };
+	DWORD DrawFunctionAddr = SearchAndGetAddresses(0x004E6C42, 0x004E6EF2, 0x004E67B2, DrawFunctionSearchBytes, sizeof(DrawFunctionSearchBytes), 0x0B);
+	if (!DrawFunctionAddr)
+	{
+		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+		return;
+	}
+	WriteCalltoMemory((BYTE*)DrawFunctionAddr, DrawDistanceASM);
 }
 
 DWORD CheckUpdateMemory(void *dataSrc, void *dataDest, size_t size, bool SearchMemoryFlag)
@@ -134,4 +162,56 @@ DWORD CheckUpdateMemory(void *dataSrc, void *dataDest, size_t size, bool SearchM
 		SearchMemoryFlag = true;
 	}
 	return SearchMemoryFlag;
+}
+
+void UpdateDynamicDrawDistance(DWORD *SH2_RoomID)
+{
+	// Get dynamic draw distance address
+	static float *Address = nullptr;
+	if (!Address)
+	{
+		static bool RunOnce = false;
+		if (RunOnce)
+		{
+			return;
+		}
+		RunOnce = true;
+
+		// Get address for dynamic draw distance
+		constexpr BYTE SearchBytes[]{ 0xFF, 0xFF, 0x8D, 0x44, 0x24, 0x0C, 0x50, 0x68 };
+		Address = (float*)ReadSearchedAddresses(0x0047D824, 0x0047DAC4, 0x0047DCD4, SearchBytes, sizeof(SearchBytes), 0x08);
+		if (!Address)
+		{
+			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+			return;
+		}
+		Address += 0x02;
+	}
+
+	// Set dynamic draw distance
+	static bool ValueSet = false;
+	if (*SH2_RoomID == 0x03)
+	{
+		if (!ValueSet)
+		{
+			float Value = 44.0f;
+			UpdateMemoryAddress(Address, &Value, sizeof(float));
+			ValueSet = true;
+		}
+	}
+	else if (*SH2_RoomID == 0x90)
+	{
+		if (!ValueSet)
+		{
+			float Value = 2.0f;
+			UpdateMemoryAddress(Address, &Value, sizeof(float));
+			ValueSet = true;
+		}
+	}
+	else if (ValueSet)
+	{
+		float Value = 1.0f;
+		UpdateMemoryAddress(Address, &Value, sizeof(float));
+		ValueSet = false;
+	}
 }

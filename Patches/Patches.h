@@ -22,6 +22,7 @@ void UpdateHotelWater(DWORD *SH2_RoomID);
 void UpdateRoom312ShadowFix(DWORD *SH2_RoomID);
 void UpdateClosetCutscene(DWORD *SH2_CutsceneID, float *SH2_CutsceneCameraPos);
 void UpdateHospitalChase(DWORD *SH2_RoomID);
+void UpdateDynamicDrawDistance(DWORD *SH2_RoomID);
 void UpdateHangOnEsc();
 void UpdateXInputVibration();
 void UpdateInfiniteRumble(DWORD *SH2_RoomID);

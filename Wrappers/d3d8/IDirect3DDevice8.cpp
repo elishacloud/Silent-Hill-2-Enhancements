@@ -608,6 +608,12 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		UpdateInfiniteRumble(SH2_RoomID);
 	}
 
+	// Fix draw distance in forest with chainsaw logs and Eddie boss meat cold room
+	if (IncreaseDrawDistance && SH2_RoomID)
+	{
+		UpdateDynamicDrawDistance(SH2_RoomID);
+	}
+
 	return ProxyInterface->BeginScene();
 }
 

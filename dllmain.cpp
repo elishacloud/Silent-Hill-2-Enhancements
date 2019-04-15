@@ -31,10 +31,6 @@
 // For Logging
 std::ofstream LOG;
 
-// Screen settings
-HDC hDC;
-std::string lpRamp((3 * 256 * 2), '\0');
-
 // Variables
 HMODULE wrapper_dll = nullptr;
 
@@ -96,14 +92,6 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		else
 		{
 			Logging::Log() << __FUNCTION__ << " Error: Config file not found, using defaults";
-		}
-
-		// Store screen settings
-		if (ResetScreenRes)
-		{
-			// Reset screen settings
-			hDC = GetDC(nullptr);
-			GetDeviceGammaRamp(hDC, &lpRamp[0]);
 		}
 
 		// Create wrapper
@@ -317,16 +305,6 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		// Unhook APIs
 		Logging::Log() << "Unhooking library functions";
 		Hook::UnhookAll();
-
-		// Reset screen back to original Windows settings to fix some display errors on exit
-		if (ResetScreenRes)
-		{
-			// Reset screen settings
-			Logging::Log() << "Reseting screen resolution";
-			SetDeviceGammaRamp(hDC, &lpRamp[0]);
-			ChangeDisplaySettingsEx(nullptr, nullptr, nullptr, CDS_RESET, nullptr);
-			ReleaseDC(nullptr, hDC);
-		}
 
 		// Quitting
 		Logging::Log() << "Unloading Silent Hill 2 Enhancements!";

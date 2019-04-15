@@ -30,7 +30,6 @@
 	visit(PistonRoomFix, true) \
 	visit(PS2FlashlightBrightness, true) \
 	visit(PS2StyleNoiseFilter, true) \
-	visit(ResetScreenRes, true) \
 	visit(Room312ShadowFix, true) \
 	visit(RowboatAnimationFix, true) \
 	visit(SingleCoreAffinity, true) \

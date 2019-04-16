@@ -41,6 +41,7 @@
     <ClCompile Include="Patches\ClosetCutscene.cpp" />
     <ClCompile Include="Patches\Common.cpp" />
     <ClCompile Include="Patches\DisableRedCrossDuringCutscenes.cpp" />
+    <ClCompile Include="Patches\DPadMovement.cpp" />
     <ClCompile Include="Patches\DrawDistance.cpp" />
     <ClCompile Include="Patches\CatacombsMeatRoom.cpp" />
     <ClCompile Include="Patches\EnhancedFlashlight.cpp" />

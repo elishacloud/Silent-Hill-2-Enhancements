@@ -25,6 +25,7 @@ void UpdateHospitalChase(DWORD *SH2_RoomID);
 void UpdateDynamicDrawDistance(DWORD *SH2_RoomID);
 void UpdateHangOnEsc();
 void UpdateXInputVibration();
+void UpdateDPadMovement();
 void UpdateInfiniteRumble(DWORD *SH2_RoomID);
 void SetWindowHandle(HWND WindowHandle);
 void UnhookWindowHandle();

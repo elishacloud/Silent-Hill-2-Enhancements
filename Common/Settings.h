@@ -40,6 +40,7 @@
 	visit(UseCustomFonts, true) \
 	visit(DisableEnlargedText, true) \
 	visit(XInputVibration, true) \
+	visit(DPadMovementFix, true) \
 	visit(UseCustomExeStr, true) \
 	visit(UnlockJapLang, false)
 

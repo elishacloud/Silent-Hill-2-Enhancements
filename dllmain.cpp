@@ -230,6 +230,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			UpdateXInputVibration();
 		}
 
+		// DPad movement
+		if (DPadMovementFix)
+		{
+			UpdateDPadMovement();
+		}
+
 		// Loads font texture form tga file
 		if (UseCustomFonts)
 		{

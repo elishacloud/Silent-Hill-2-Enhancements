@@ -16,6 +16,7 @@ Below is a list of features:
  * [**d3d8to9**](https://github.com/crosire/d3d8to9) - Converts Silent Hill 2 to use Direct3D9 (d3d9.dll) rather than Direct3D8.
  * **Disable Red Cross** - Disables the low health (red cross) indicator completely. This option is recommended only if you are using a controller with vibration enabled.
  * **Disable Red Cross In Cutscenes** - Hides the low health (red cross) indicator during in-game cutscenes.
+ * **DPad Movement Fix** - Allows movement with D-pad on DirectInput and XInput gamepads.
  * **Fix Missing Wall Chunks** - Fixes an issue on Nvidia graphics cards where wall chunks are missing in some locations.
  * **Fix Hang On Pause** - Fixes an issue where the game will hang when Esc is pressed while transition is active.
  * **Fog 2D Fix** - Fixes an issue on Nvidia graphics cards where the 2D fog is missing.

@@ -48,6 +48,7 @@ wchar_t ConfigPathW[MAX_PATH];
 char ModPathA[MAX_PATH];
 wchar_t ModPathW[MAX_PATH];
 DWORD modLoc = 0;
+DWORD MaxModFileLen = 0;
 std::string strModulePathA;
 std::wstring strModulePathW;
 DWORD nPathSize = 0;
@@ -61,7 +62,7 @@ bool FileEnabled = true;
 VISIT_BGM_FILES(DEFINE_BGM_FILES);
 
 template<typename T>
-bool isInString(T strCheck, T str);
+bool isInString(T strCheck, T str, size_t size);
 
 inline LPCSTR ModPath(LPCSTR)
 {
@@ -103,14 +104,14 @@ inline bool PathExists(LPCWSTR str)
 	return PathFileExistsW(str);
 }
 
-inline bool isInString(LPCSTR strCheck, LPCSTR strA, LPCWSTR)
+inline bool isInString(LPCSTR strCheck, LPCSTR strA, LPCWSTR, size_t size)
 {
-	return isInString(strCheck, strA);
+	return isInString(strCheck, strA, size);
 }
 
-inline bool isInString(LPCWSTR strCheck, LPCSTR, LPCWSTR strW)
+inline bool isInString(LPCWSTR strCheck, LPCSTR, LPCWSTR strW, size_t size)
 {
-	return isInString(strCheck, strW);
+	return isInString(strCheck, strW, size);
 }
 
 inline int mytolower(const char chr)
@@ -124,7 +125,7 @@ inline wint_t mytolower(const wchar_t chr)
 }
 
 template<typename T>
-bool isInString(T strCheck, T str)
+bool isInString(T strCheck, T str, size_t size)
 {
 	if (!strCheck || !str)
 	{
@@ -134,9 +135,8 @@ bool isInString(T strCheck, T str)
 	T p1 = strCheck;
 	T p2 = str;
 	T r = *p2 == 0 ? strCheck : 0;
-	DWORD count = 0;
 
-	while (*p1 != 0 && *p2 != 0 && ++count < MAX_PATH)
+	while (*p1 != 0 && *p2 != 0 && (size_t)(p1 - strCheck) < size)
 	{		
 		if (mytolower(*p1) == mytolower(*p2))
 		{
@@ -214,7 +214,7 @@ bool CheckConfigPath(T str)
 {
 	for (MODULECONFIG it : ConfigList)
 	{
-		if (*(it.Enabled) && isInString(str, it.ConfigFileListA, it.ConfigFileListW))
+		if (*(it.Enabled) && isInString(str, it.ConfigFileListA, it.ConfigFileListW, MAX_PATH))
 		{
 			return true;
 		}
@@ -382,7 +382,7 @@ BOOL WINAPI FindNextFileAHandler(HANDLE hFindFile, LPWIN32_FIND_DATAA lpFindFile
 		{
 
 #define CHECK_BGM_FILES(name, ext, unused) \
-			if (isInString(lpFindFileData->cFileName, ## #name ## "." ## # ext, L## #name ## "." ## # ext)) \
+			if (isInString(lpFindFileData->cFileName, ## #name ## "." ## # ext, L## #name ## "." ## # ext, MaxModFileLen)) \
 			{ \
 				if (name ## SizeLow) \
 				{ \
@@ -467,7 +467,11 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	WIN32_FILE_ATTRIBUTE_DATA FileInformation;
 
 #define GET_BGM_FILES(name, ext, path) \
-	if (GetFileAttributesEx(std::wstring(std::wstring(ModPathW) + path ## "\\" ## #name ## "." ## # ext).c_str(), GetFileExInfoStandard, &FileInformation)) \
+	if (MaxModFileLen < strlen(#name ## "." ## #ext) + 1) \
+	{ \
+		MaxModFileLen = strlen(#name ## "." ## #ext) + 1; \
+	} \
+	if (GetFileAttributesEx(std::wstring(std::wstring(ModPathW) + path ## "\\" ## #name ## "." ## #ext).c_str(), GetFileExInfoStandard, &FileInformation)) \
 	{ \
 		name ## SizeLow = FileInformation.nFileSizeLow; \
 	}

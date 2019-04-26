@@ -18,7 +18,6 @@
   <ItemGroup>
     <ClCompile Include="Common\FileSystemHooks.cpp" />
     <ClCompile Include="Common\LoadModules.cpp" />
-    <ClCompile Include="Common\MyStrings.cpp" />
     <ClCompile Include="Common\Settings.cpp" />
     <ClCompile Include="Common\Utils.cpp" />
     <ClCompile Include="External\d3d8to9\source\d3d8to9_base.cpp" />
@@ -76,7 +75,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\FileSystemHooks.h" />
-    <ClInclude Include="Common\MyStrings.h" />
     <ClInclude Include="Common\LoadModules.h" />
     <ClInclude Include="Common\Settings.h" />
     <ClInclude Include="Common\Utils.h" />
@@ -163,6 +161,7 @@
     <Link>
       <ModuleDefinitionFile>Wrappers\wrapper.def</ModuleDefinitionFile>
       <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul
@@ -185,11 +184,19 @@ copy /Y "$(ProjectDir)Resources\SilentHill2.WidescreenFix.dat" "$(TargetDir)$(Ta
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PreBuildEvent>
-      <Command>cmd /c "@echo off &amp;&amp; cd /D ""$(ProjectDir)"" &amp;&amp; if not exist Resources\BuildNo.rc echo #define BUILD_NUMBER 0 &gt;Resources\BuildNo.rc"
-cmd /c "@echo off &amp;&amp; cd /D ""$(ProjectDir)"" &amp;&amp; FOR /F "tokens=3" %%i IN (Resources\BuildNo.rc) DO set /a var=%%i+1 &gt;Build.txt"
-cmd /c "@echo off &amp;&amp; cd /D ""$(ProjectDir)"" &amp;&amp; FOR /F %%i IN (Build.txt) DO echo #define BUILD_NUMBER %%i &gt;Resources\BuildNo.rc"
-cmd /c "@echo off &amp;&amp; cd /D ""$(ProjectDir)"" &amp;&amp; del Build.txt"
-cmd /c "@echo off &amp;&amp; cd /D ""$(ProjectDir)"" &amp;&amp; type Resources\BuildNo.rc"</Command>
+      <Command>cmd /q /c "cd /D ""$(ProjectDir)"" &amp;&amp; if not exist Resources\BuildNo.rc echo #define BUILD_NUMBER 0 &gt;Resources\BuildNo.rc"
+cmd /q /c "cd /D ""$(ProjectDir)"" &amp;&amp; FOR /F "tokens=3" %%i IN (Resources\BuildNo.rc) DO set /a var=%%i+1 &gt;Build.txt"
+cmd /q /c "cd /D ""$(ProjectDir)"" &amp;&amp; FOR /F %%i IN (Build.txt) DO echo #define BUILD_NUMBER %%i &gt;Resources\BuildNo.rc"
+cmd /q /c "cd /D ""$(ProjectDir)"" &amp;&amp; del Build.txt"
+cmd /q /c "cd /D ""$(ProjectDir)"" &amp;&amp; type Resources\BuildNo.rc"
+cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del BuildNo.rc &gt; nul 2&gt;&amp;1"
+cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; echo echo^|set /p="#define " ^&gt; BuildNo.rc &gt; build.bat"
+cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; echo type "$(ProjectDir)External\d3d8to9\res\d3d8to9.rc" ^| find "FILEVERSION" ^&gt;^&gt; BuildNo.rc &gt;&gt; build.bat"
+cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; echo set /p build=^&lt;BuildNo.rc &gt;&gt; build.bat"
+cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; echo set modified=%%build:,=.%% &gt;&gt; build.bat"
+cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; echo echo %%modified%% ^&gt; BuildNo.rc &gt;&gt; build.bat"
+cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; call build.bat"
+cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul

@@ -1,9 +1,6 @@
 #pragma once
 
-#include <Shlwapi.h>
 #include "Settings.h"
-
-#pragma comment(lib, "Shlwapi.lib")
 
 #define VISIT_BGM_FILES(visit) \
 	visit(bgm_001, adx, L"\\sound\\adx\\apart") \
@@ -58,8 +55,8 @@ extern bool FileEnabled;
 extern char ConfigNameA[MAX_PATH];
 extern wchar_t ConfigNameW[MAX_PATH];
 
-extern char ModPathA[5];
-extern wchar_t ModPathW[5];
+extern char ModPathA[MAX_PATH];
+extern wchar_t ModPathW[MAX_PATH];
 
 struct MODULECONFIG
 {
@@ -75,6 +72,4 @@ static MODULECONFIG ConfigList[] =
 	{ "sh2fog.ini", L"sh2fog.ini", &Nemesis2000FogFix }
 };
 
-bool PathExists(LPCSTR str);
-bool PathExists(LPCWSTR str);
 void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath);

@@ -21,6 +21,11 @@
 #include "wrapper.h"
 #include "d3d8to9.h"
 #include "Logging\Logging.h"
+#include "BuildNo.rc"
+
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+#define APP_VERSION TOSTRING(FILEVERSION)
 
 typedef LPDIRECT3D9(WINAPI *PFN_Direct3DCreate9)(UINT SDKVersion);
 
@@ -50,7 +55,9 @@ Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 {
 	UNREFERENCED_PARAMETER(SDKVersion);
 
-	Logging::Log() << "Redirecting 'Direct3DCreate8' ---> Passing on to 'Direct3DCreate9'";
+	LOG_ONCE("Starting D3d8to9 v" << APP_VERSION);
+
+	Logging::Log() << "Redirecting 'Direct3DCreate8' to --> 'Direct3DCreate9' (" << SDKVersion << ")";
 
 	// Declare Direct3DCreate9
 	static PFN_Direct3DCreate9 Direct3DCreate9 = reinterpret_cast<PFN_Direct3DCreate9>(p_Direct3DCreate9);

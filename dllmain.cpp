@@ -16,6 +16,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <Shlwapi.h>
 #include <vector>
 #include "Resources\sh2-enhce.h"
 #include "Patches\Patches.h"
@@ -27,6 +28,8 @@
 #include "Common\Utils.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
+
+#pragma comment(lib, "Shlwapi.lib")
 
 // For Logging
 std::ofstream LOG;
@@ -80,6 +83,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		Logging::LogComputerManufacturer();
 		Logging::LogVideoCard();
 		Logging::LogOSVersion();
+		Logging::LogProcessNameAndPID();
 
 		// Get Silent Hill 2 file path
 		GetModuleFileName(nullptr, pathname, MAX_PATH);
@@ -129,7 +133,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		wcscat_s(d3dx9_path, L"\\d3dx9_43.dll");
 		GetSystemDirectory(xaudio2_path, MAX_PATH);
 		wcscat_s(xaudio2_path, L"\\xaudio2_7.dll");
-		if (!PathExists(d3dx9_path) || !PathExists(xaudio2_path))
+		if (!PathFileExists(d3dx9_path) || !PathFileExists(xaudio2_path))
 		{
 			Logging::Log() << "Warning: Could not find expected DirectX 9.0c End-User Runtime files.  Try installing from: https://www.microsoft.com/download/details.aspx?id=35";
 		}

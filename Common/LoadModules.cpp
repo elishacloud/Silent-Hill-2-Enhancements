@@ -19,6 +19,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <Shlwapi.h>
 #include <vector>
 #include "LoadModules.h"
 #include "External\Hooking\Hook.h"

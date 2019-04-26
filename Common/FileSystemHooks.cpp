@@ -16,9 +16,9 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <Shlwapi.h>
 #include "FileSystemHooks.h"
 #include "External\Hooking\Hook.h"
-#include "MyStrings.h"
 #include "Logging\Logging.h"
 
 // API typedef
@@ -45,9 +45,8 @@ FARPROC p_GetPrivateProfileStringW = nullptr;
 HMODULE moduleHandle = nullptr;
 char ConfigPathA[MAX_PATH];
 wchar_t ConfigPathW[MAX_PATH];
-char ModPathA[5] = "sh2e";
-wchar_t ModPathW[5] = L"sh2e";
-std::wstring strDataPathW;
+char ModPathA[MAX_PATH];
+wchar_t ModPathW[MAX_PATH];
 DWORD modLoc = 0;
 std::string strModulePathA;
 std::wstring strModulePathW;
@@ -61,14 +60,153 @@ bool FileEnabled = true;
 
 VISIT_BGM_FILES(DEFINE_BGM_FILES);
 
-bool PathExists(LPCSTR str)
+template<typename T>
+bool isInString(T strCheck, T str);
+
+inline LPCSTR ModPath(LPCSTR)
+{
+	return ModPathA;
+}
+
+inline LPCWSTR ModPath(LPCWSTR)
+{
+	return ModPathW;
+}
+
+inline LPCSTR ConfigPath(LPCSTR)
+{
+	return ConfigPathA;
+}
+
+inline LPCWSTR ConfigPath(LPCWSTR)
+{
+	return ConfigPathW;
+}
+
+inline void strcpy_s(wchar_t *dest, size_t size, LPCWSTR src)
+{
+	wcscpy_s(dest, size, src);
+}
+
+inline void strcat_s(wchar_t *dest, size_t size, LPCWSTR src)
+{
+	wcscat_s(dest, size, src);
+}
+
+inline bool PathExists(LPCSTR str)
 {
 	return PathFileExistsA(str);
 }
 
-bool PathExists(LPCWSTR str)
+inline bool PathExists(LPCWSTR str)
 {
 	return PathFileExistsW(str);
+}
+
+inline bool isInString(LPCSTR strCheck, LPCSTR strA, LPCWSTR)
+{
+	return isInString(strCheck, strA);
+}
+
+inline bool isInString(LPCWSTR strCheck, LPCSTR, LPCWSTR strW)
+{
+	return isInString(strCheck, strW);
+}
+
+inline int mytolower(const char chr)
+{
+	return tolower((unsigned char)chr);
+}
+
+inline wint_t mytolower(const wchar_t chr)
+{
+	return towlower(chr);
+}
+
+template<typename T>
+bool isInString(T strCheck, T str)
+{
+	if (!strCheck || !str)
+	{
+		return false;
+	}
+
+	T p1 = strCheck;
+	T p2 = str;
+	T r = *p2 == 0 ? strCheck : 0;
+	DWORD count = 0;
+
+	while (*p1 != 0 && *p2 != 0 && ++count < MAX_PATH)
+	{		
+		if (mytolower(*p1) == mytolower(*p2))
+		{
+			if (r == 0)
+			{
+				r = p1;
+			}
+
+			p2++;
+		}
+		else
+		{
+			p2 = str;
+			if (r != 0)
+			{
+				p1 = r + 1;
+			}
+
+			if (mytolower(*p1) == mytolower(*p2))
+			{
+				r = p1;
+				p2++;
+			}
+			else
+			{
+				r = 0;
+			}
+		}
+
+		p1++;
+	}
+
+	return (*p2 == 0) ? true : false;
+}
+
+template<typename T>
+bool notValidFileNamePath(T& lpFileName, DWORD nSize)
+{
+	return ((nSize < 3 && lpFileName[0] != '\\' &&
+		!(lpFileName[0] >= 'A' && lpFileName[0] <= 'Z' &&
+			lpFileName[0] >= 'a' && lpFileName[0] <= 'z')) ||
+		(nSize < 4 && lpFileName[0] != '\\' &&
+			!(lpFileName[0] >= 'A' && lpFileName[0] <= 'Z' &&
+				lpFileName[0] >= 'a' && lpFileName[0] <= 'z') &&
+			lpFileName[1] != '\\' && lpFileName[1] != ':') ||
+		(nSize < 5 && lpFileName[0] != '\\' &&
+			!(lpFileName[0] >= 'A' && lpFileName[0] <= 'Z' &&
+				lpFileName[0] >= 'a' && lpFileName[0] <= 'z') &&
+			lpFileName[1] != '\\' && lpFileName[1] != ':' &&
+			lpFileName[2] != '\\' && lpFileName[2] != ':') ||
+		(nSize >= 5 && lpFileName[0] != '\\' &&
+			!(lpFileName[0] >= 'A' && lpFileName[0] <= 'Z' &&
+				lpFileName[0] >= 'a' && lpFileName[0] <= 'z') &&
+			lpFileName[1] != '\\' && lpFileName[1] != ':' &&
+			lpFileName[2] != '\\' && lpFileName[2] != ':' &&
+			lpFileName[3] != '\\' && lpFileName[3] != ':'));
+}
+
+template<typename T>
+inline bool isDataPath(T sh2)
+{
+	if ((sh2[0] == 'd' || sh2[0] == 'D') &&
+		(sh2[1] == 'a' || sh2[1] == 'A') &&
+		(sh2[2] == 't' || sh2[2] == 'T') &&
+		(sh2[3] == 'a' || sh2[3] == 'A') &&
+		sh2[4] == '\\')
+	{
+		return true;
+	}
+	return false;
 }
 
 template<typename T>
@@ -76,7 +214,7 @@ bool CheckConfigPath(T str)
 {
 	for (MODULECONFIG it : ConfigList)
 	{
-		if (*(it.Enabled) && IsInString(str, it.ConfigFileListA, it.ConfigFileListW))
+		if (*(it.Enabled) && isInString(str, it.ConfigFileListA, it.ConfigFileListW))
 		{
 			return true;
 		}
@@ -84,82 +222,50 @@ bool CheckConfigPath(T str)
 	return false;
 }
 
-template<typename T>
-T *ReplaceWithModPath(T *lpFileName, DWORD start)
+template<typename T, typename D>
+T UpdateModPath(T sh2, D str)
 {
-	size_t Size = length(lpFileName);
-	if (Size > start + 3 &&
-		(lpFileName[start] == 'd' || lpFileName[start] == 'D') &&
-		(lpFileName[start + 1] == 'a' || lpFileName[start + 1] == 'A') &&
-		(lpFileName[start + 2] == 't' || lpFileName[start + 2] == 'T') &&
-		(lpFileName[start + 3] == 'a' || lpFileName[start + 3] == 'A'))
+	if (!sh2 || !str)
 	{
-		T tmpPath[MAX_PATH];
-		CopyString(tmpPath, MAX_PATH, lpFileName);
-		for (int x = 0; x < 4; x++)
-		{
-			tmpPath[start + x] = GetStringType(lpFileName, ModPathA, ModPathW)[x];
-		}
-
-		if (tmpPath[Size - 1] == '*')
-		{
-			tmpPath[Size - 1] = '\0';
-		}
-
-		if (PathExists(tmpPath))
-		{
-			for (int x = 0; x < 4; x++)
-			{
-				lpFileName[start + x] = GetStringType(lpFileName, ModPathA, ModPathW)[x];
-			}
-		}
-	}
-	return lpFileName;
-}
-
-template<typename T>
-T CheckForModPath(T lpFileName)
-{
-	// Verify mod location and data path
-	if (!UseCustomModFolder ||															// Verify UseCustomModFolder is enabled
-		!modLoc || modLoc + 3 > strDataPathW.size() ||									// Verify modLoc is correct and string is large enough
-		IsInString(lpFileName, "data\\save", L"data\\save") ||							// Ignore files in the 'data\save' folder
-		(IsInString(lpFileName, "sddata.bin", L"sddata.bin") && !EnableSFXAddrHack))	// Ignore 'sddata.bin' if EnableSFXAddrHack is disabled
-	{
-		return lpFileName;
+		return sh2;
 	}
 
-	// Check if string is in the data folder
-	return ReplaceWithModPath(ReplaceWithModPath(lpFileName, 0), modLoc);
-}
+	// Check if this is a config file
+	if (CheckConfigPath(sh2))
+	{
+		return ConfigPath(sh2);
+	}
 
-template<typename T>
-T GetFileName(T lpFileName)
-{
-	return (CheckConfigPath(lpFileName)) ? GetStringType(lpFileName, ConfigPathA, ConfigPathW) : CheckForModPath(lpFileName);
-}
+	T sh2_data = sh2 + modLoc;
 
-template<typename T>
-bool NotValidFileNamePath(T& lpFilename, DWORD nSize)
-{
-	return ((nSize < 3 && lpFilename[0] != '\\' &&
-		!(lpFilename[0] >= 'A' && lpFilename[0] <= 'Z' &&
-			lpFilename[0] >= 'a' && lpFilename[0] <= 'z')) ||
-		(nSize < 4 && lpFilename[0] != '\\' &&
-			!(lpFilename[0] >= 'A' && lpFilename[0] <= 'Z' &&
-				lpFilename[0] >= 'a' && lpFilename[0] <= 'z') &&
-			lpFilename[1] != '\\' && lpFilename[1] != ':') ||
-		(nSize < 5 && lpFilename[0] != '\\' &&
-			!(lpFilename[0] >= 'A' && lpFilename[0] <= 'Z' &&
-				lpFilename[0] >= 'a' && lpFilename[0] <= 'z') &&
-			lpFilename[1] != '\\' && lpFilename[1] != ':' &&
-			lpFilename[2] != '\\' && lpFilename[2] != ':') ||
-		(nSize >= 5 && lpFilename[0] != '\\' &&
-			!(lpFilename[0] >= 'A' && lpFilename[0] <= 'Z' &&
-				lpFilename[0] >= 'a' && lpFilename[0] <= 'z') &&
-			lpFilename[1] != '\\' && lpFilename[1] != ':' &&
-			lpFilename[2] != '\\' && lpFilename[2] != ':' &&
-			lpFilename[3] != '\\' && lpFilename[3] != ':'));
+	// Check relative path
+	if (isDataPath(sh2))
+	{
+		strcpy_s(str, MAX_PATH, ModPath(sh2));
+		strcat_s(str, MAX_PATH, sh2 + 4);
+		if (PathExists(str))
+		{
+			return str;
+		}
+
+		return sh2;
+	}
+
+	// Check full path
+	if (isDataPath(sh2_data))
+	{
+		strcpy_s(str, MAX_PATH, sh2);
+		strcpy_s(str + modLoc, MAX_PATH - modLoc, ModPath(sh2));
+		strcat_s(str, MAX_PATH - modLoc - 4, sh2_data + 4);
+		if (PathExists(str))
+		{
+			return str;
+		}
+
+		return sh2;
+	}
+
+	return sh2;
 }
 
 // Update GetModuleHandleExA to fix module handle
@@ -205,18 +311,18 @@ BOOL WINAPI GetModuleHandleExWHandler(DWORD dwFlags, LPCWSTR lpModuleName, HMODU
 }
 
 // Update GetModuleFileNameA to fix module name
-DWORD WINAPI GetModuleFileNameAHandler(HMODULE hModule, LPSTR lpFilename, DWORD nSize)
+DWORD WINAPI GetModuleFileNameAHandler(HMODULE hModule, LPSTR lpFileName, DWORD nSize)
 {
 	PFN_GetModuleFileNameA org_GetModuleFileName = (PFN_GetModuleFileNameA)InterlockedCompareExchangePointer((PVOID*)&p_GetModuleFileNameA, nullptr, nullptr);
 
 	if (org_GetModuleFileName)
 	{
-		DWORD ret = org_GetModuleFileName(hModule, lpFilename, nSize);
-		if ((NotValidFileNamePath(lpFilename, nSize) && nSize > 1) || (moduleHandle && hModule == moduleHandle))
+		DWORD ret = org_GetModuleFileName(hModule, lpFileName, nSize);
+		if ((notValidFileNamePath(lpFileName, nSize) && nSize > 1) || (moduleHandle && hModule == moduleHandle))
 		{
 			ret = min(nPathSize, nSize) - 1;
-			memcpy(lpFilename, strModulePathA.c_str(), ret * sizeof(char));
-			lpFilename[ret] = '\0';
+			memcpy(lpFileName, strModulePathA.c_str(), ret * sizeof(char));
+			lpFileName[ret] = '\0';
 		}
 		return ret;
 	}
@@ -227,18 +333,18 @@ DWORD WINAPI GetModuleFileNameAHandler(HMODULE hModule, LPSTR lpFilename, DWORD 
 }
 
 // Update GetModuleFileNameW to fix module name
-DWORD WINAPI GetModuleFileNameWHandler(HMODULE hModule, LPWSTR lpFilename, DWORD nSize)
+DWORD WINAPI GetModuleFileNameWHandler(HMODULE hModule, LPWSTR lpFileName, DWORD nSize)
 {
 	PFN_GetModuleFileNameW org_GetModuleFileName = (PFN_GetModuleFileNameW)InterlockedCompareExchangePointer((PVOID*)&p_GetModuleFileNameW, nullptr, nullptr);
 
 	if (org_GetModuleFileName)
 	{
-		DWORD ret = org_GetModuleFileName(hModule, lpFilename, nSize);
-		if ((NotValidFileNamePath(lpFilename, nSize) && nSize > 1) || (moduleHandle && hModule == moduleHandle))
+		DWORD ret = org_GetModuleFileName(hModule, lpFileName, nSize);
+		if ((notValidFileNamePath(lpFileName, nSize) && nSize > 1) || (moduleHandle && hModule == moduleHandle))
 		{
 			ret = min(nPathSize, nSize) - 1;
-			memcpy(lpFilename, strModulePathW.c_str(), ret * sizeof(wchar_t));
-			lpFilename[ret] = '\0';
+			memcpy(lpFileName, strModulePathW.c_str(), ret * sizeof(wchar_t));
+			lpFileName[ret] = '\0';
 		}
 		return ret;
 	}
@@ -256,8 +362,7 @@ HANDLE WINAPI CreateFileWHandler(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWOR
 	if (org_CreateFile)
 	{
 		wchar_t Filename[MAX_PATH];
-		wcscpy_s(Filename, MAX_PATH, lpFileName);
-		return org_CreateFile(GetFileName(Filename), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+		return org_CreateFile(UpdateModPath(lpFileName, Filename), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 	}
 
 	Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
@@ -265,6 +370,7 @@ HANDLE WINAPI CreateFileWHandler(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWOR
 	return INVALID_HANDLE_VALUE;
 }
 
+// FindNextFileA wrapper function
 BOOL WINAPI FindNextFileAHandler(HANDLE hFindFile, LPWIN32_FIND_DATAA lpFindFileData)
 {
 	PFN_FindNextFileA org_FindNextFile = (PFN_FindNextFileA)InterlockedCompareExchangePointer((PVOID*)&p_FindNextFileA, nullptr, nullptr);
@@ -272,11 +378,11 @@ BOOL WINAPI FindNextFileAHandler(HANDLE hFindFile, LPWIN32_FIND_DATAA lpFindFile
 	if (org_FindNextFile)
 	{
 		BOOL ret = org_FindNextFile(hFindFile, lpFindFileData);
-		if (UseCustomModFolder)
+		if (UseCustomModFolder && lpFindFileData)
 		{
 
 #define CHECK_BGM_FILES(name, ext, unused) \
-			if (IsInString(lpFindFileData->cFileName, ## #name ## "." ## # ext, L## #name ## "." ## # ext)) \
+			if (isInString(lpFindFileData->cFileName, ## #name ## "." ## # ext, L## #name ## "." ## # ext)) \
 			{ \
 				if (name ## SizeLow) \
 				{ \
@@ -303,8 +409,7 @@ DWORD WINAPI GetPrivateProfileStringAHandler(LPCSTR lpAppName, LPCSTR lpKeyName,
 	if (org_GetPrivateProfileString)
 	{
 		char Filename[MAX_PATH];
-		strcpy_s(Filename, MAX_PATH, lpFileName);
-		return org_GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, GetFileName(Filename));
+		return org_GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, UpdateModPath(lpFileName, Filename));
 	}
 
 	Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
@@ -320,8 +425,7 @@ DWORD WINAPI GetPrivateProfileStringWHandler(LPCWSTR lpAppName, LPCWSTR lpKeyNam
 	if (org_GetPrivateProfileString)
 	{
 		wchar_t Filename[MAX_PATH];
-		wcscpy_s(Filename, MAX_PATH, lpFileName);
-		return org_GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, GetFileName(Filename));
+		return org_GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, UpdateModPath(lpFileName, Filename));
 	}
 
 	Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
@@ -343,6 +447,10 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	strcpy_s(ConfigNameA, MAX_PATH, strrchr(ConfigPathA, '\\'));
 	wcscpy_s(ConfigNameW, MAX_PATH, wcsrchr(ConfigPathW, '\\'));
 
+	// Set module name
+	strcpy_s(ModPathA, MAX_PATH, "sh2e");
+	wcscpy_s(ModPathW, MAX_PATH, L"sh2e");
+
 	// Get module path
 	wchar_t tmpPath[MAX_PATH];
 	GetModuleFileName(hModule, tmpPath, MAX_PATH);
@@ -354,8 +462,6 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	GetModuleFileName(nullptr, tmpPath, MAX_PATH);
 	wcscpy_s(wcsrchr(tmpPath, '\\'), MAX_PATH - wcslen(tmpPath), L"\0");
 	modLoc = wcslen(tmpPath) + 1;
-	wcscat_s(tmpPath, MAX_PATH, L"\\data\\");
-	strDataPathW.assign(tmpPath);
 
 	// Get size of files from mod path
 	WIN32_FILE_ATTRIBUTE_DATA FileInformation;

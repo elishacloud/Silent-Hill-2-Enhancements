@@ -19,6 +19,7 @@
 #include <Shlwapi.h>
 #include "FileSystemHooks.h"
 #include "External\Hooking\Hook.h"
+#include "Settings.h"
 #include "Logging\Logging.h"
 
 // API typedef
@@ -448,8 +449,17 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	wcscpy_s(ConfigNameW, MAX_PATH, wcsrchr(ConfigPathW, '\\'));
 
 	// Set module name
-	strcpy_s(ModPathA, MAX_PATH, "sh2e");
-	wcscpy_s(ModPathW, MAX_PATH, L"sh2e");
+	if (CustomModFolder.size())
+	{
+		strcpy_s(ModPathA, MAX_PATH, CustomModFolder.c_str());
+		wcscpy_s(ModPathW, MAX_PATH, std::wstring(CustomModFolder.begin(), CustomModFolder.end()).c_str());
+		Logging::Log() << "Using mod path: " << ModPathW;
+	}
+	else
+	{
+		strcpy_s(ModPathA, MAX_PATH, "sh2e");
+		wcscpy_s(ModPathW, MAX_PATH, L"sh2e");
+	}
 
 	// Get module path
 	wchar_t tmpPath[MAX_PATH];

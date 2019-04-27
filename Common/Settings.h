@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #define VISIT_BOOL_SETTINGS(visit) \
 	visit(AutoUpdateModule, true) \
 	visit(CatacombsMeatRoomFix, true) \
@@ -55,6 +57,9 @@
 	visit(SmallFontHeight, 24) \
 	visit(PadNumber, 0)
 
+#define VISIT_STR_SETTINGS(visit) \
+	visit(CustomModFolder, "")
+
 // Configurable setting defaults
 #define DECLARE_BOOL_SETTINGS(name, unused) \
 	extern bool name;
@@ -65,6 +70,11 @@ VISIT_BOOL_SETTINGS(DECLARE_BOOL_SETTINGS);
 	extern int name;
 
 VISIT_INT_SETTINGS(DECLARE_INT_SETTINGS);
+
+#define DECLARE_STR_SETTINGS(name, unused) \
+	extern std::string name;
+
+VISIT_STR_SETTINGS(DECLARE_STR_SETTINGS);
 
 typedef void(__stdcall* NV)(char* name, char* value);
 

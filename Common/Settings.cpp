@@ -19,7 +19,6 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include <string>
 #include "Settings.h"
 
 // Configurable setting defaults
@@ -32,6 +31,11 @@ VISIT_BOOL_SETTINGS(SET_BOOL_DEFAULTS);
 	int name = value;
 
 VISIT_INT_SETTINGS(SET_INT_DEFAULTS);
+
+#define SET_STR_DEFAULTS(name, value) \
+	std::string name;
+
+VISIT_STR_SETTINGS(SET_STR_DEFAULTS);
 
 // Forward declarations
 bool SetValue(char* name);
@@ -53,6 +57,11 @@ void __stdcall ParseCallback(char* lpName, char* lpValue)
 	if (!_strcmpi(lpName, #name)) name = atoi(lpValue);
 
 	VISIT_INT_SETTINGS(GET_INT_VALUES);
+
+#define GET_STR_VALUES(name, unused) \
+	if (!_strcmpi(lpName, #name)) name.assign(lpValue);
+
+	VISIT_STR_SETTINGS(GET_STR_VALUES);
 }
 
 // Set booloean value from string (file)

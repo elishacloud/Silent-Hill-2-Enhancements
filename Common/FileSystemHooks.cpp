@@ -174,29 +174,6 @@ bool isInString(T strCheck, T str, size_t size)
 }
 
 template<typename T>
-bool notValidFileNamePath(T& lpFileName, DWORD nSize)
-{
-	return ((nSize < 3 && lpFileName[0] != '\\' &&
-		!(lpFileName[0] >= 'A' && lpFileName[0] <= 'Z' &&
-			lpFileName[0] >= 'a' && lpFileName[0] <= 'z')) ||
-		(nSize < 4 && lpFileName[0] != '\\' &&
-			!(lpFileName[0] >= 'A' && lpFileName[0] <= 'Z' &&
-				lpFileName[0] >= 'a' && lpFileName[0] <= 'z') &&
-			lpFileName[1] != '\\' && lpFileName[1] != ':') ||
-		(nSize < 5 && lpFileName[0] != '\\' &&
-			!(lpFileName[0] >= 'A' && lpFileName[0] <= 'Z' &&
-				lpFileName[0] >= 'a' && lpFileName[0] <= 'z') &&
-			lpFileName[1] != '\\' && lpFileName[1] != ':' &&
-			lpFileName[2] != '\\' && lpFileName[2] != ':') ||
-		(nSize >= 5 && lpFileName[0] != '\\' &&
-			!(lpFileName[0] >= 'A' && lpFileName[0] <= 'Z' &&
-				lpFileName[0] >= 'a' && lpFileName[0] <= 'z') &&
-			lpFileName[1] != '\\' && lpFileName[1] != ':' &&
-			lpFileName[2] != '\\' && lpFileName[2] != ':' &&
-			lpFileName[3] != '\\' && lpFileName[3] != ':'));
-}
-
-template<typename T>
 inline bool isDataPath(T sh2)
 {
 	if ((sh2[0] == 'd' || sh2[0] == 'D') &&
@@ -319,7 +296,7 @@ DWORD WINAPI GetModuleFileNameAHandler(HMODULE hModule, LPSTR lpFileName, DWORD 
 	if (org_GetModuleFileName)
 	{
 		DWORD ret = org_GetModuleFileName(hModule, lpFileName, nSize);
-		if ((notValidFileNamePath(lpFileName, nSize) && nSize > 1) || (moduleHandle && hModule == moduleHandle))
+		if (lpFileName && nSize && ((moduleHandle && hModule == moduleHandle) || !PathExists(lpFileName)))
 		{
 			ret = min(nPathSize, nSize) - 1;
 			memcpy(lpFileName, strModulePathA.c_str(), ret * sizeof(char));
@@ -341,7 +318,7 @@ DWORD WINAPI GetModuleFileNameWHandler(HMODULE hModule, LPWSTR lpFileName, DWORD
 	if (org_GetModuleFileName)
 	{
 		DWORD ret = org_GetModuleFileName(hModule, lpFileName, nSize);
-		if ((notValidFileNamePath(lpFileName, nSize) && nSize > 1) || (moduleHandle && hModule == moduleHandle))
+		if (lpFileName && nSize && ((moduleHandle && hModule == moduleHandle) || !PathExists(lpFileName)))
 		{
 			ret = min(nPathSize, nSize) - 1;
 			memcpy(lpFileName, strModulePathW.c_str(), ret * sizeof(wchar_t));

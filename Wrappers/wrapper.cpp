@@ -50,11 +50,11 @@
 		wchar_t *Name = L ## #className ## "." ## #Extension; \
 		VISIT_PROCS(ADD_FARPROC_MEMBER); \
 		VISIT_PROCS(CREATE_PROC_STUB); \
-		HMODULE Load(const wchar_t *strName) \
+		HMODULE Load(const wchar_t *strName, const HMODULE hWrapper) \
 		{ \
 			wchar_t path[MAX_PATH]; \
-			HMODULE dll = nullptr; \
-			if (strName && _wcsicmp(strName, Name) != 0) \
+			HMODULE dll = hWrapper; \
+			if (!dll && strName && _wcsicmp(strName, Name) != 0) \
 			{ \
 				dll = LoadLibrary(Name); \
 			} \
@@ -100,7 +100,7 @@ namespace Wrapper
 
 namespace Wrapper
 {
-	DLLTYPE dtype;
+	DLLTYPE dtype = DTYPE_ASI;
 }
 
 __declspec(naked) HRESULT __stdcall Wrapper::_jmpaddrvoid()
@@ -150,21 +150,18 @@ void Wrapper::ShimProc(FARPROC &var, FARPROC in, FARPROC &out)
 	dllName::AddToArray();
 
 #define CHECK_FOR_WRAPPER(dllName) \
-	{ using namespace dllName; if (_wcsicmp(WrapperMode, Name) == 0) { dll = Load(ProxyDll); return dll; }}
+	{ using namespace dllName; if (_wcsicmp(WrapperMode, Name) == 0) { dll = Load(ProxyDll, hWrapper); return dll; }}
 
-HMODULE Wrapper::CreateWrapper()
+void Wrapper::GetWrapperMode()
 {
-
 	// Get module handle
 	HMODULE hModule = NULL;
-	GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCTSTR)Wrapper::CreateWrapper, &hModule);
+	GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCTSTR)Wrapper::GetWrapperMode, &hModule);
 
 	// Get module name
 	wchar_t WrapperName[MAX_PATH] = { 0 };
 	GetModuleFileName(hModule, WrapperName, MAX_PATH);
 	wchar_t* WrapperMode = wcsrchr(WrapperName, '\\') + 1;
-
-	Logging::Log() << "Loading as dll: " << WrapperMode;
 
 	// Save wrapper mode
 	if (_wcsicmp(WrapperMode, dtypename[DTYPE_D3D8]) == 0)
@@ -182,6 +179,17 @@ HMODULE Wrapper::CreateWrapper()
 	else
 	{
 		dtype = DTYPE_ASI;
+	}
+}
+
+HMODULE Wrapper::CreateWrapper(HMODULE hWrapper)
+{
+	wchar_t *WrapperMode = dtypename[dtype];
+
+	Logging::Log() << "Loading as dll: " << WrapperMode;
+
+	if (dtype == DTYPE_ASI)
+	{
 		return nullptr;
 	}
 

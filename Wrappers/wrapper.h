@@ -22,7 +22,8 @@ namespace Wrapper
 	extern DLLTYPE dtype;
 	bool ValidProcAddress(FARPROC ProcAddress);
 	void ShimProc(FARPROC &var, FARPROC in, FARPROC &out);
-	HMODULE CreateWrapper();
+	void GetWrapperMode();
+	HMODULE CreateWrapper(HMODULE hWrapper);
 }
 
 #define VISIT_DLLS(visit) \

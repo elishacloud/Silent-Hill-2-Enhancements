@@ -25,6 +25,7 @@
 	visit(ImproveStorageSupport, true) \
 	visit(IncreaseDrawDistance, true) \
 	visit(LightingTransitionFix, true) \
+	visit(LoadD3d8FromScriptsFolder, false) \
 	visit(LoadFromScriptsOnly, false) \
 	visit(LoadPlugins, false) \
 	visit(Nemesis2000FogFix, true) \

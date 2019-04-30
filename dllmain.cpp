@@ -98,8 +98,52 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			Logging::Log() << __FUNCTION__ << " Error: Config file not found, using defaults";
 		}
 
+		// Get wrapper mode
+		Wrapper::GetWrapperMode();
+
+		// Load wrapper d3d8 from scripts or plugins folder
+		HMODULE script_d3d8_dll = nullptr;
+		if (LoadD3d8FromScriptsFolder && Wrapper::dtype == DTYPE_D3D8)
+		{
+			// Get script paths
+			wchar_t path[MAX_PATH];
+			wcscpy_s(path, MAX_PATH, pathname);
+			wcscpy_s(wcsrchr(path, '\\'), MAX_PATH - wcslen(path), L"\0");
+			std::wstring separator = L"\\";
+			std::wstring script_path(path + separator + L"scripts");
+			std::wstring script_path_dll(script_path + L"\\d3d8.dll");
+			std::wstring plugin_path(path + separator + L"plugins");
+			std::wstring plugin_path_dll(plugin_path + L"\\d3d8.dll");
+
+			// Store the current folder
+			wchar_t oldDir[MAX_PATH] = { 0 };
+			GetCurrentDirectory(MAX_PATH, oldDir);
+
+			// Load d3d8.dll from 'scripts' folder
+			SetCurrentDirectory(script_path.c_str());
+			script_d3d8_dll = LoadLibrary(script_path_dll.c_str());
+			if (script_d3d8_dll)
+			{
+				Logging::Log() << "Loaded d3d8.dll from: " << script_path_dll.c_str();
+			}
+
+			// Load d3d8.dll from 'plugins' folder
+			if (!script_d3d8_dll && Wrapper::dtype == DTYPE_D3D8)
+			{
+				SetCurrentDirectory(plugin_path.c_str());
+				script_d3d8_dll = LoadLibrary(plugin_path_dll.c_str());
+				if (script_d3d8_dll)
+				{
+					Logging::Log() << "Loaded d3d8.dll from: " << plugin_path_dll.c_str();
+				}
+			}
+
+			// Set current folder back
+			SetCurrentDirectory(oldDir);
+		}
+
 		// Create wrapper
-		wrapper_dll = Wrapper::CreateWrapper();
+		wrapper_dll = Wrapper::CreateWrapper((Wrapper::dtype == DTYPE_D3D8) ? script_d3d8_dll : nullptr);
 		if (wrapper_dll)
 		{
 			Logging::Log() << "Wrapper created for " << dtypename[Wrapper::dtype];

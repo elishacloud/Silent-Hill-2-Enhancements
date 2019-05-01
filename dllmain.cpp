@@ -37,6 +37,10 @@ std::ofstream LOG;
 // Variables
 HMODULE wrapper_dll = nullptr;
 
+// Forces Nvidia and AMD high performance graphics
+extern "C" { _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001; }
+extern "C" { _declspec(dllexport) DWORD AmdPowerXpressRequestHighPerformance = 0x00000001; }
+
 // Dll main function
 bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 {

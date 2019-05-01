@@ -27,7 +27,7 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight);
 
 extern HWND DeviceWindow;
-extern UINT BufferWidth, BufferHeight;
+extern LONG BufferWidth, BufferHeight;
 
 #include "IDirect3D8.h"
 #include "IDirect3DDevice8.h"

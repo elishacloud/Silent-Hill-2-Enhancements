@@ -17,7 +17,7 @@
 #include "d3d8wrapper.h"
 
 HWND DeviceWindow = nullptr;
-UINT BufferWidth = 0, BufferHeight = 0;
+LONG BufferWidth = 0, BufferHeight = 0;
 
 HRESULT m_IDirect3D8::QueryInterface(REFIID riid, LPVOID *ppvObj)
 {

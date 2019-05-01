@@ -1038,20 +1038,21 @@ HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface
 		}
 
 		// Get FrontBuffer data to new surface
-		if (FAILED(ProxyInterface->GetFrontBuffer(pSrcSurface)))
+		HRESULT hr = ProxyInterface->GetFrontBuffer(pSrcSurface);
+		if (FAILED(hr))
 		{
 			pSrcSurface->Release();
-			return D3DERR_INVALIDCALL;
+			return hr;
 		}
 
 		// Get location of client window
-		RECT RectSrc = { NULL };
+		RECT RectSrc;
 		if (!GetWindowRect(DeviceWindow, &RectSrc))
 		{
 			pSrcSurface->Release();
 			return D3DERR_INVALIDCALL;
 		}
-		RECT rcClient = { NULL };
+		RECT rcClient;
 		if (!GetClientRect(DeviceWindow, &rcClient))
 		{
 			pSrcSurface->Release();
@@ -1065,28 +1066,23 @@ HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface
 		RectSrc.bottom = min(RectSrc.top + rcClient.bottom, ScreenHeight);
 
 		// Copy data to DestSurface
-		if ((LONG)BufferWidth == rcClient.right && (LONG)BufferHeight == rcClient.bottom)
+		hr = D3DERR_INVALIDCALL;
+		if (BufferWidth == rcClient.right && BufferHeight == rcClient.bottom)
 		{
 			POINT PointDest = { 0, 0 };
-			if (FAILED(ProxyInterface->CopyRects(pSrcSurface, &RectSrc, 1, pDestSurface, &PointDest)))
-			{
-				pSrcSurface->Release();
-				return D3DERR_INVALIDCALL;
-			}
+			hr = ProxyInterface->CopyRects(pSrcSurface, &RectSrc, 1, pDestSurface, &PointDest);
 		}
-		else
+
+		// Try using StretchRect
+		if (FAILED(hr))
 		{
-			RECT RectDest = { 0, 0, (LONG)min(BufferWidth, (UINT)ScreenWidth), (LONG)min(BufferHeight, (UINT)ScreenHeight) };
-			if (FAILED(StretchRect(pSrcSurface, &RectSrc, pDestSurface, &RectDest, D3DTEXF_NONE)))
-			{
-				pSrcSurface->Release();
-				return D3DERR_INVALIDCALL;
-			}
+			RECT RectDest = { 0, 0, min(BufferWidth, ScreenWidth), min(BufferHeight, ScreenHeight) };
+			hr = StretchRect(pSrcSurface, &RectSrc, pDestSurface, &RectDest, D3DTEXF_NONE);
 		}
 
 		// Release surface
 		pSrcSurface->Release();
-		return D3D_OK;
+		return hr;
 	}
 
 	return ProxyInterface->GetFrontBuffer(pDestSurface);

@@ -49,6 +49,7 @@ wchar_t ConfigPathW[MAX_PATH];
 char ModPathA[MAX_PATH];
 wchar_t ModPathW[MAX_PATH];
 DWORD modLoc = 0;
+DWORD modLen = 0;
 DWORD MaxModFileLen = 0;
 std::string strModulePathA;
 std::wstring strModulePathW;
@@ -220,7 +221,7 @@ T UpdateModPath(T sh2, D str)
 	if (isDataPath(sh2))
 	{
 		strcpy_s(str, MAX_PATH, ModPath(sh2));
-		strcat_s(str, MAX_PATH, sh2 + 4);
+		strcpy_s(str + modLen, MAX_PATH - modLen, sh2 + 4);
 		if (PathExists(str))
 		{
 			return str;
@@ -234,7 +235,7 @@ T UpdateModPath(T sh2, D str)
 	{
 		strcpy_s(str, MAX_PATH, sh2);
 		strcpy_s(str + modLoc, MAX_PATH - modLoc, ModPath(sh2));
-		strcat_s(str, MAX_PATH - modLoc - 4, sh2_data + 4);
+		strcpy_s(str + modLoc + modLen, MAX_PATH - modLoc - modLen, sh2_data + 4);
 		if (PathExists(str))
 		{
 			return str;
@@ -420,6 +421,11 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	std::wstring ws(ConfigPath);
 	strcpy_s(ConfigPathA, MAX_PATH, std::string(ws.begin(), ws.end()).c_str());
 	wcscpy_s(ConfigPathW, MAX_PATH, ConfigPath);
+	if (!PathExists(ConfigPathA) || !PathExists(ConfigPathW))
+	{
+		Logging::Log() << __FUNCTION__ " Error: 'ConfigPath' incorrect! " << ConfigPathA;
+		return;
+	}
 
 	// Store config name
 	strcpy_s(ConfigNameA, MAX_PATH, strrchr(ConfigPathA, '\\'));
@@ -444,11 +450,22 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	strModulePathW.assign(tmpPath);
 	strModulePathA.assign(strModulePathW.begin(), strModulePathW.end());
 	nPathSize = strModulePathA.size() + 1; // Include a null terminator
+	if (!PathExists(strModulePathA.c_str()) || !PathExists(strModulePathW.c_str()))
+	{
+		Logging::Log() << __FUNCTION__ " Error: 'strModulePath' incorrect! " << strModulePathA.c_str();
+		return;
+	}
 
 	// Get data path
 	GetModuleFileName(nullptr, tmpPath, MAX_PATH);
 	wcscpy_s(wcsrchr(tmpPath, '\\'), MAX_PATH - wcslen(tmpPath), L"\0");
 	modLoc = wcslen(tmpPath) + 1;
+	modLen = strlen(ModPathA);
+	if (modLoc + modLen > MAX_PATH)
+	{
+		Logging::Log() << __FUNCTION__ " Error: custom mod path length is too long! " << modLoc + modLen;
+		return;
+	}
 
 	// Get size of files from mod path
 	WIN32_FILE_ATTRIBUTE_DATA FileInformation;

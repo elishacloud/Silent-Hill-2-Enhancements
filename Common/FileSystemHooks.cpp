@@ -215,6 +215,12 @@ T UpdateModPath(T sh2, D str)
 		return ConfigPath(sh2);
 	}
 
+	// Check if CustomModFolder is enabled
+	if (!UseCustomModFolder)
+	{
+		return sh2;
+	}
+
 	T sh2_data = sh2 + modLoc;
 
 	// Check relative path
@@ -424,7 +430,7 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	if (!PathExists(ConfigPathA) || !PathExists(ConfigPathW))
 	{
 		Logging::Log() << __FUNCTION__ " Error: 'ConfigPath' incorrect! " << ConfigPathA;
-		return;
+		Nemesis2000FogFix = false;
 	}
 
 	// Store config name
@@ -453,7 +459,7 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	if (!PathExists(strModulePathA.c_str()) || !PathExists(strModulePathW.c_str()))
 	{
 		Logging::Log() << __FUNCTION__ " Error: 'strModulePath' incorrect! " << strModulePathA.c_str();
-		return;
+		Nemesis2000FogFix = false;
 	}
 
 	// Get data path
@@ -464,7 +470,7 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	if (modLoc + modLen > MAX_PATH)
 	{
 		Logging::Log() << __FUNCTION__ " Error: custom mod path length is too long! " << modLoc + modLen;
-		return;
+		UseCustomModFolder = false;
 	}
 
 	// Get size of files from mod path

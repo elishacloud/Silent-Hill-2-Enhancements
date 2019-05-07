@@ -152,12 +152,8 @@ void Wrapper::ShimProc(FARPROC &var, FARPROC in, FARPROC &out)
 #define CHECK_FOR_WRAPPER(dllName) \
 	{ using namespace dllName; if (_wcsicmp(WrapperMode, Name) == 0) { dll = Load(ProxyDll, hWrapper); return dll; }}
 
-void Wrapper::GetWrapperMode()
+void Wrapper::GetWrapperMode(HMODULE hModule)
 {
-	// Get module handle
-	HMODULE hModule = NULL;
-	GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCTSTR)Wrapper::GetWrapperMode, &hModule);
-
 	// Get module name
 	wchar_t WrapperName[MAX_PATH] = { 0 };
 	GetModuleFileName(hModule, WrapperName, MAX_PATH);

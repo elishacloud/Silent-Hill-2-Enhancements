@@ -22,7 +22,7 @@ namespace Wrapper
 	extern DLLTYPE dtype;
 	bool ValidProcAddress(FARPROC ProcAddress);
 	void ShimProc(FARPROC &var, FARPROC in, FARPROC &out);
-	void GetWrapperMode();
+	void GetWrapperMode(HMODULE hModule);
 	HMODULE CreateWrapper(HMODULE hWrapper);
 }
 

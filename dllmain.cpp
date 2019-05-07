@@ -103,7 +103,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		}
 
 		// Get wrapper mode
-		Wrapper::GetWrapperMode();
+		Wrapper::GetWrapperMode(hModule);
 
 		// Load wrapper d3d8 from scripts or plugins folder
 		HMODULE script_d3d8_dll = nullptr;

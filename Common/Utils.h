@@ -13,7 +13,7 @@ bool UpdateMemoryAddress(void *dataAddr, void *dataBytes, DWORD dataSize);
 bool WriteCalltoMemory(BYTE *dataAddr, void *JMPAddr, DWORD count = 5);
 bool WriteJMPtoMemory(BYTE *dataAddr, void *JMPAddr, DWORD count = 5);
 DWORD ReplaceMemoryBytes(void *dataSrc, void *dataDest, size_t size, DWORD start, DWORD distance, DWORD count = 0);
-void SetSingleCoreAffinity();
+DWORD WINAPI SetSingleCoreAffinity(LPVOID pvParam = nullptr);
 void AddHandleToVector(HMODULE dll);
 void UnloadAllModules();
 DWORD ConvertFloat(float num);

@@ -7,5 +7,6 @@ HMEMORYMODULE LoadModuleFromResource(HMODULE hModule, DWORD ResID, LPCWSTR lpNam
 HMODULE LoadModuleFromResourceToFile(HMODULE hModule, DWORD ResID, LPCWSTR lpName, LPCWSTR lpFilepath);
 void InitializeASI(HMODULE hModule);
 void InitializeASI(HMEMORYMODULE hModule);
-void LoadModUpdater(HMODULE hModule, DWORD ResID);
+void LoadModuleFromFile(HMODULE hModule, DWORD ResID, LPCWSTR lpConfigName, LPCWSTR lpConfigPath, LPCWSTR lpName);
+void RemoveTempFolders();
 void UnloadResourceModules();

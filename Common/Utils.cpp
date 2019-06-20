@@ -17,6 +17,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include "Utils.h"
+#include "Common\Settings.h"
 #include "Logging\Logging.h"
 
 std::vector<HMODULE> custom_dll;		// Used for custom dll's and asi plugins
@@ -297,12 +298,31 @@ DWORD ReplaceMemoryBytes(void *dataSrc, void *dataDest, size_t size, DWORD start
 }
 
 // Set Single Core Affinity
-void SetSingleCoreAffinity()
+DWORD WINAPI SetSingleCoreAffinity(LPVOID pvParam)
 {
+	if (pvParam)
+	{
+		Sleep(*(DWORD*)pvParam);
+	}
+
 	Logging::Log() << "Setting SingleCoreAffinity...";
+	DWORD_PTR ProcessAffinityMask, SystemAffinityMask;
 	HANDLE hCurrentProcess = GetCurrentProcess();
-	SetProcessAffinityMask(hCurrentProcess, 1);
+	if (GetProcessAffinityMask(hCurrentProcess, &ProcessAffinityMask, &SystemAffinityMask))
+	{
+		DWORD_PTR AffinityMask = 1;
+		while (AffinityMask && (AffinityMask & ProcessAffinityMask) == 0)
+		{
+			AffinityMask <<= 1;
+		}
+		if (AffinityMask)
+		{
+			SetProcessAffinityMask(hCurrentProcess, ((AffinityMask << (SingleCoreAffinity - 1)) & ProcessAffinityMask) ? (AffinityMask << (SingleCoreAffinity - 1)) : AffinityMask);
+		}
+	}
 	CloseHandle(hCurrentProcess);
+
+	return S_OK;
 }
 
 // Add HMODULE to vector

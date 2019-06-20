@@ -27,6 +27,7 @@
 	visit(LightingTransitionFix, true) \
 	visit(LoadD3d8FromScriptsFolder, false) \
 	visit(LoadFromScriptsOnly, false) \
+	visit(LoadModulesFromMemory, false) \
 	visit(LoadPlugins, false) \
 	visit(Nemesis2000FogFix, true) \
 	visit(NoCDPatch, true) \
@@ -35,7 +36,6 @@
 	visit(PS2StyleNoiseFilter, true) \
 	visit(Room312ShadowFix, true) \
 	visit(RowboatAnimationFix, true) \
-	visit(SingleCoreAffinity, true) \
 	visit(UseCustomModFolder, true) \
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
@@ -54,6 +54,7 @@
 	visit(CustomFontCharHeight, 32) \
 	visit(NormalFontWidth, 20) \
 	visit(NormalFontHeight, 30) \
+	visit(SingleCoreAffinity, 1) \
 	visit(SmallFontWidth, 14) \
 	visit(SmallFontHeight, 24) \
 	visit(PadNumber, 0)

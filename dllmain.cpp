@@ -192,12 +192,6 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			InstallFileSystemHooks(hModule, configpath);
 		}
 
-		// Set single core affinity
-		if (SingleCoreAffinity)
-		{
-			SetSingleCoreAffinity();
-		}
-
 		// Enable No-CD Patch
 		if (NoCDPatch)
 		{
@@ -303,25 +297,62 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		// Load Nemesis2000's Fog Fix
 		if (Nemesis2000FogFix)
 		{
-			LoadModuleFromResource(hModule, IDR_SH2FOG, L"Nemesis2000 Fog Fix");
+			if (LoadModulesFromMemory)
+			{
+				LoadModuleFromResource(hModule, IDR_SH2FOG, L"Nemesis2000 Fog Fix");
+			}
+			else
+			{
+				LoadModuleFromFile(hModule, IDR_SH2FOG, L"sh2fog.ini", configpath, L"Nemesis2000 Fog Fix");
+			}
 		}
 
 		// Widescreen Fix
 		if (WidescreenFix)
 		{
-			LoadModuleFromResource(hModule, IDR_SH2WID, L"WidescreenFixesPack and sh2proxy");
+			DWORD_PTR ProcessAffinityMask, SystemAffinityMask;
+			HANDLE hCurrentProcess = GetCurrentProcess();
+			bool Flag = GetProcessAffinityMask(hCurrentProcess, &ProcessAffinityMask, &SystemAffinityMask);
+			if (LoadModulesFromMemory)
+			{
+				LoadModuleFromResource(hModule, IDR_SH2WID, L"WidescreenFixesPack and sh2proxy");
+			}
+			else
+			{
+				LoadModuleFromFile(hModule, IDR_SH2WID, nullptr, configpath, L"WidescreenFixesPack and sh2proxy");
+			}
+			if (Flag)
+			{
+				SetProcessAffinityMask(hCurrentProcess, ProcessAffinityMask);
+			}
+			CloseHandle(hCurrentProcess);
 		}
 
 		// Load modupdater
 		if (AutoUpdateModule)
 		{
-			LoadModUpdater(hModule, IDR_SH2UPD);
+			if (LoadModulesFromMemory)
+			{
+				LoadModuleFromResource(hModule, IDR_SH2UPD, L"modupdater");
+			}
+			else
+			{
+				LoadModuleFromFile(hModule, IDR_SH2UPD, nullptr, configpath, L"modupdater");
+			}
 		}
 
 		// Load ASI pluggins
 		if (LoadPlugins && Wrapper::dtype != DTYPE_ASI)
 		{
 			LoadASIPlugins(LoadFromScriptsOnly);
+		}
+
+		// Set single core affinity
+		if (SingleCoreAffinity)
+		{
+			DWORD ThreadID = 0;
+			static DWORD SleepTime = 5000;
+			CreateThread(nullptr, 0, SetSingleCoreAffinity, &SleepTime, 0, &ThreadID);
 		}
 
 		// Loaded
@@ -340,15 +371,22 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		break;
 	case DLL_PROCESS_DETACH:
 	{
+		// Unhook window handle
+		void UnhookWindowHandle();
+
+		// Unhook APIs
+		Logging::Log() << "Unhooking library functions";
+		Hook::UnhookAll();
+
 #ifdef DEBUG
 		// Unloading all modules
 		Logging::Log() << "Unloading all loaded modules";
 
-		// Unload memory modules
-		UnloadResourceModules();
-
 		// Unload standard modules
 		UnloadAllModules();
+
+		// Unload memory modules
+		UnloadResourceModules();
 
 		// Unload wrapped dll file
 		if (wrapper_dll)
@@ -357,12 +395,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		}
 #endif // DEBUG
 
-		// Unhook window handle
-		void UnhookWindowHandle();
-
-		// Unhook APIs
-		Logging::Log() << "Unhooking library functions";
-		Hook::UnhookAll();
+		// Delete temp directories
+		if (!LoadModulesFromMemory)
+		{
+			Logging::Log() << "Removing temp folders";
+			RemoveTempFolders();
+		}
 
 		// Quitting
 		Logging::Log() << "Unloading Silent Hill 2 Enhancements!";

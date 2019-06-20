@@ -28,6 +28,9 @@
 #include "Utils.h"
 #include "Logging\Logging.h"
 
+int n = 0;
+LPCWSTR exTempPath = L"~tmp_sh2_enhce";
+
 typedef void(WINAPI *PFN_InitializeASI)(void);
 
 // Memory modules
@@ -238,11 +241,36 @@ void InitializeASI(HMEMORYMODULE hModule)
 	p_InitializeASI();
 }
 
-// Load modupdater
-void LoadModUpdater(HMODULE hModule, DWORD ResID)
+HRESULT DeleteAllfiles(LPCWSTR lpFolder)
+{
+	WIN32_FIND_DATA FindFileData;
+	HANDLE hFind = INVALID_HANDLE_VALUE;
+	DWORD dwError;
+
+	std::wstring FilePath(lpFolder);
+	FilePath.append(L"\\");
+
+	hFind = FindFirstFile(std::wstring(FilePath + L"*.*").c_str(), &FindFileData);
+
+	do {
+		DeleteFile(std::wstring(FilePath + FindFileData.cFileName).c_str());
+	} while (FindNextFile(hFind, &FindFileData) != 0);
+
+	dwError = GetLastError();
+	FindClose(hFind);
+	if (dwError != ERROR_NO_MORE_FILES)
+	{
+		return dwError;
+	}
+
+	return S_OK;
+}
+
+// Load mod from file
+void LoadModuleFromFile(HMODULE hModule, DWORD ResID, LPCWSTR lpConfigName, LPCWSTR lpConfigPath, LPCWSTR lpName)
 {
 	// Get module name
-	wchar_t Path[MAX_PATH], Name[MAX_PATH];
+	wchar_t Name[MAX_PATH], Path[MAX_PATH], Config[MAX_PATH];
 	GetModuleFileName(hModule, Path, MAX_PATH);
 	wcscpy_s(Name, MAX_PATH, wcsrchr(Path, '\\'));
 
@@ -252,7 +280,15 @@ void LoadModUpdater(HMODULE hModule, DWORD ResID)
 		Logging::Log() << __FUNCTION__ << " Error: failed to get temp path!";
 		return;
 	}
-	wcscat_s(Path, MAX_PATH, L"~tmp_sh2_enhce");
+	wcscat_s(Path, MAX_PATH, exTempPath);
+
+	// Use unique folder path
+	wcscat_s(Path, MAX_PATH, std::to_wstring(++n).c_str());
+
+	// Remove all files from directory
+	DeleteAllfiles(Path);
+
+	// Create folder if does not exist
 	CreateDirectory(Path, nullptr);
 	if (!PathFileExists(Path))
 	{
@@ -260,12 +296,51 @@ void LoadModUpdater(HMODULE hModule, DWORD ResID)
 		return;
 	}
 
+	// Get config path name
+	wcscpy_s(Config, MAX_PATH, Path);
+	if (lpConfigName)
+	{
+		wcscat_s(Config, MAX_PATH, L"\\");
+		wcscat_s(Config, MAX_PATH, lpConfigName);
+	}
+	else
+	{
+		wcscat_s(Config, MAX_PATH, Name);
+		wcscpy_s(wcsrchr(Config, '.'), MAX_PATH - wcslen(Config), L".ini");
+	}
+	CopyFile(lpConfigPath, Config, FALSE);
+
 	// Update path with module name
 	wcscat_s(Path, MAX_PATH, Name);
 	wcscpy_s(wcsrchr(Path, '.'), MAX_PATH - wcslen(Path), L".asi");
 
 	// Load module
-	LoadModuleFromResourceToFile(hModule, ResID, L"modupdater", Path);
+	LoadModuleFromResourceToFile(hModule, ResID, lpName, Path);
+}
+
+// Delete temp folders
+void RemoveTempFolders()
+{
+	// Get 'temp' path
+	wchar_t Path[MAX_PATH], TempPath[MAX_PATH];
+	if (!GetTempPath(MAX_PATH, TempPath))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to get temp path!";
+		return;
+	}
+	wcscat_s(TempPath, MAX_PATH, exTempPath);
+
+	// Delete folder path
+	for (int x = 0; x <= n; x++)
+	{
+		wcscpy_s(Path, MAX_PATH, TempPath);
+		if (x)
+		{
+			wcscat_s(Path, MAX_PATH, std::to_wstring(x).c_str());
+		}
+		DeleteAllfiles(Path);
+		RemoveDirectory(Path);
+	}
 }
 
 // Unload resource memory modules

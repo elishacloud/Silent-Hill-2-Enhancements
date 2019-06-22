@@ -267,7 +267,7 @@ HRESULT DeleteAllfiles(LPCWSTR lpFolder)
 }
 
 // Load mod from file
-void LoadModuleFromFile(HMODULE hModule, DWORD ResID, LPCWSTR lpConfigName, LPCWSTR lpConfigPath, LPCWSTR lpName)
+void LoadModuleFromFile(HMODULE hModule, DWORD ResID, LPCWSTR lpConfigName, LPCWSTR lpConfigPath, LPCWSTR lpName, bool CopyDatFile)
 {
 	// Get module name
 	wchar_t Name[MAX_PATH], Path[MAX_PATH], Config[MAX_PATH];
@@ -296,7 +296,7 @@ void LoadModuleFromFile(HMODULE hModule, DWORD ResID, LPCWSTR lpConfigName, LPCW
 		return;
 	}
 
-	// Get config path name
+	// Copy config file to temp folder
 	wcscpy_s(Config, MAX_PATH, Path);
 	if (lpConfigName)
 	{
@@ -309,6 +309,16 @@ void LoadModuleFromFile(HMODULE hModule, DWORD ResID, LPCWSTR lpConfigName, LPCW
 		wcscpy_s(wcsrchr(Config, '.'), MAX_PATH - wcslen(Config), L".ini");
 	}
 	CopyFile(lpConfigPath, Config, FALSE);
+
+	// Copy dat file to temp folder
+	if (CopyDatFile)
+	{
+		wchar_t DatFile[MAX_PATH];
+		wcscpy_s(DatFile, MAX_PATH, lpConfigPath);
+		wcscpy_s(wcsrchr(DatFile, '.'), MAX_PATH - wcslen(DatFile), L".dat");
+		wcscpy_s(wcsrchr(Config, '.'), MAX_PATH - wcslen(Config), L".dat");
+		CopyFile(DatFile, Config, FALSE);
+	}
 
 	// Update path with module name
 	wcscat_s(Path, MAX_PATH, Name);

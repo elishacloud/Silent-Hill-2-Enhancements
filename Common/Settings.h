@@ -8,6 +8,7 @@
 	visit(CemeteryLightingFix, true) \
 	visit(ClosetCutsceneFix, true) \
 	visit(d3d8to9, true) \
+	visit(DisableGameUX, true) \
 	visit(DisableLogging, false) \
 	visit(DisableRedCross, false) \
 	visit(DisableRedCrossInCutScenes, true) \
@@ -55,6 +56,7 @@
 	visit(NormalFontWidth, 20) \
 	visit(NormalFontHeight, 30) \
 	visit(SingleCoreAffinity, 1) \
+	visit(SingleCoreAffinityTimer, 5000) \
 	visit(SmallFontWidth, 14) \
 	visit(SmallFontHeight, 24) \
 	visit(PadNumber, 0)

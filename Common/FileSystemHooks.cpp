@@ -31,6 +31,10 @@ typedef HANDLE(WINAPI *PFN_CreateFileW)(LPCWSTR lpFileName, DWORD dwDesiredAcces
 typedef BOOL(WINAPI *PFN_FindNextFileA)(HANDLE hFindFile, LPWIN32_FIND_DATAA lpFindFileData);
 typedef DWORD(WINAPI *PFN_GetPrivateProfileStringA)(LPCSTR lpAppName, LPCSTR lpKeyName, LPCSTR lpDefault, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName);
 typedef DWORD(WINAPI *PFN_GetPrivateProfileStringW)(LPCWSTR lpAppName, LPCWSTR lpKeyName, LPCWSTR lpDefault, LPWSTR lpReturnedString, DWORD nSize, LPCWSTR lpFileName);
+typedef BOOL(WINAPI *PFN_CreateProcessA)(LPCSTR lpApplicationName, LPSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags,
+	LPVOID lpEnvironment, LPCSTR lpCurrentDirectory, LPSTARTUPINFOA lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation);
+typedef BOOL(WINAPI *PFN_CreateProcessW)(LPCWSTR lpApplicationName, LPWSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags,
+	LPVOID lpEnvironment, LPCWSTR lpCurrentDirectory, LPSTARTUPINFOW lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation);
 
 // Proc addresses
 FARPROC p_GetModuleHandleExA = nullptr;
@@ -41,6 +45,8 @@ FARPROC p_CreateFileW = nullptr;
 FARPROC p_FindNextFileA = nullptr;
 FARPROC p_GetPrivateProfileStringA = nullptr;
 FARPROC p_GetPrivateProfileStringW = nullptr;
+FARPROC p_CreateProcessA = nullptr;
+FARPROC p_CreateProcessW = nullptr;
 
 // Variable used in hooked modules
 HMODULE moduleHandle = nullptr;
@@ -256,166 +262,252 @@ T UpdateModPath(T sh2, D str)
 // Update GetModuleHandleExA to fix module handle
 BOOL WINAPI GetModuleHandleExAHandler(DWORD dwFlags, LPCSTR lpModuleName, HMODULE *phModule)
 {
-	PFN_GetModuleHandleExA org_GetModuleHandleEx = (PFN_GetModuleHandleExA)InterlockedCompareExchangePointer((PVOID*)&p_GetModuleHandleExA, nullptr, nullptr);
+	static PFN_GetModuleHandleExA org_GetModuleHandleEx = (PFN_GetModuleHandleExA)InterlockedCompareExchangePointer((PVOID*)&p_GetModuleHandleExA, nullptr, nullptr);
 
-	if (org_GetModuleHandleEx)
+	if (!org_GetModuleHandleEx)
 	{
-		BOOL ret = org_GetModuleHandleEx(dwFlags, lpModuleName, phModule);
-		if ((dwFlags & GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS) && !*phModule && moduleHandle)
+		Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
+		if (phModule)
 		{
-			*phModule = moduleHandle;
-			ret = TRUE;
+			*phModule = nullptr;
 		}
-		return ret;
+		SetLastError(5);
+		return FALSE;
 	}
 
-	Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
-	SetLastError(5);
-	return FALSE;
+	BOOL ret = org_GetModuleHandleEx(dwFlags, lpModuleName, phModule);
+	if ((dwFlags & GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS) && !*phModule && moduleHandle)
+	{
+		*phModule = moduleHandle;
+		ret = TRUE;
+	}
+	return ret;
 }
 
 // Update GetModuleHandleExW to fix module handle
 BOOL WINAPI GetModuleHandleExWHandler(DWORD dwFlags, LPCWSTR lpModuleName, HMODULE *phModule)
 {
-	PFN_GetModuleHandleExW org_GetModuleHandleEx = (PFN_GetModuleHandleExW)InterlockedCompareExchangePointer((PVOID*)&p_GetModuleHandleExW, nullptr, nullptr);
+	static PFN_GetModuleHandleExW org_GetModuleHandleEx = (PFN_GetModuleHandleExW)InterlockedCompareExchangePointer((PVOID*)&p_GetModuleHandleExW, nullptr, nullptr);
 
-	if (org_GetModuleHandleEx)
+	if (!org_GetModuleHandleEx)
 	{
-		BOOL ret = org_GetModuleHandleEx(dwFlags, lpModuleName, phModule);
-		if ((dwFlags & GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS) && !*phModule && moduleHandle)
+		Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
+		if (phModule)
 		{
-			*phModule = moduleHandle;
-			ret = TRUE;
+			*phModule = nullptr;
 		}
-		return ret;
+		SetLastError(5);
+		return FALSE;
 	}
 
-	Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
-	SetLastError(5);
-	return FALSE;
+	BOOL ret = org_GetModuleHandleEx(dwFlags, lpModuleName, phModule);
+	if ((dwFlags & GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS) && !*phModule && moduleHandle)
+	{
+		*phModule = moduleHandle;
+		ret = TRUE;
+	}
+	return ret;
 }
 
 // Update GetModuleFileNameA to fix module name
 DWORD WINAPI GetModuleFileNameAHandler(HMODULE hModule, LPSTR lpFileName, DWORD nSize)
 {
-	PFN_GetModuleFileNameA org_GetModuleFileName = (PFN_GetModuleFileNameA)InterlockedCompareExchangePointer((PVOID*)&p_GetModuleFileNameA, nullptr, nullptr);
+	static PFN_GetModuleFileNameA org_GetModuleFileName = (PFN_GetModuleFileNameA)InterlockedCompareExchangePointer((PVOID*)&p_GetModuleFileNameA, nullptr, nullptr);
 
-	if (org_GetModuleFileName)
+	if (!org_GetModuleFileName)
 	{
-		DWORD ret = org_GetModuleFileName(hModule, lpFileName, nSize);
-		if (lpFileName && nSize && ((moduleHandle && hModule == moduleHandle) || !PathExists(lpFileName)))
-		{
-			ret = min(nPathSize, nSize) - 1;
-			memcpy(lpFileName, strModulePathA.c_str(), ret * sizeof(char));
-			lpFileName[ret] = '\0';
-		}
-		return ret;
+		Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
+		SetLastError(5);
+		return NULL;
 	}
 
-	Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
-	SetLastError(5);
-	return NULL;
+	DWORD ret = org_GetModuleFileName(hModule, lpFileName, nSize);
+	if (lpFileName && nSize && ((moduleHandle && hModule == moduleHandle) || !PathExists(lpFileName)))
+	{
+		ret = min(nPathSize, nSize) - 1;
+		memcpy(lpFileName, strModulePathA.c_str(), ret * sizeof(char));
+		lpFileName[ret] = '\0';
+	}
+	return ret;
 }
 
 // Update GetModuleFileNameW to fix module name
 DWORD WINAPI GetModuleFileNameWHandler(HMODULE hModule, LPWSTR lpFileName, DWORD nSize)
 {
-	PFN_GetModuleFileNameW org_GetModuleFileName = (PFN_GetModuleFileNameW)InterlockedCompareExchangePointer((PVOID*)&p_GetModuleFileNameW, nullptr, nullptr);
+	static PFN_GetModuleFileNameW org_GetModuleFileName = (PFN_GetModuleFileNameW)InterlockedCompareExchangePointer((PVOID*)&p_GetModuleFileNameW, nullptr, nullptr);
 
-	if (org_GetModuleFileName)
+	if (!org_GetModuleFileName)
 	{
-		DWORD ret = org_GetModuleFileName(hModule, lpFileName, nSize);
-		if (lpFileName && nSize && ((moduleHandle && hModule == moduleHandle) || !PathExists(lpFileName)))
-		{
-			ret = min(nPathSize, nSize) - 1;
-			memcpy(lpFileName, strModulePathW.c_str(), ret * sizeof(wchar_t));
-			lpFileName[ret] = '\0';
-		}
-		return ret;
+		Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
+		SetLastError(5);
+		return NULL;
 	}
 
-	Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
-	SetLastError(5);
-	return NULL;
+	DWORD ret = org_GetModuleFileName(hModule, lpFileName, nSize);
+	if (lpFileName && nSize && ((moduleHandle && hModule == moduleHandle) || !PathExists(lpFileName)))
+	{
+		ret = min(nPathSize, nSize) - 1;
+		memcpy(lpFileName, strModulePathW.c_str(), ret * sizeof(wchar_t));
+		lpFileName[ret] = '\0';
+	}
+	return ret;
 }
 
 // CreateFileW wrapper function
 HANDLE WINAPI CreateFileWHandler(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile)
 {
-	PFN_CreateFileW org_CreateFile = (PFN_CreateFileW)InterlockedCompareExchangePointer((PVOID*)&p_CreateFileW, nullptr, nullptr);
+	static PFN_CreateFileW org_CreateFile = (PFN_CreateFileW)InterlockedCompareExchangePointer((PVOID*)&p_CreateFileW, nullptr, nullptr);
 
-	if (org_CreateFile)
+	if (!org_CreateFile)
 	{
-		wchar_t Filename[MAX_PATH];
-		return org_CreateFile(UpdateModPath(lpFileName, Filename), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+		Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
+		SetLastError(127);
+		return INVALID_HANDLE_VALUE;
 	}
 
-	Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
-	SetLastError(127);
-	return INVALID_HANDLE_VALUE;
+	wchar_t Filename[MAX_PATH];
+	return org_CreateFile(UpdateModPath(lpFileName, Filename), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 }
 
 // FindNextFileA wrapper function
 BOOL WINAPI FindNextFileAHandler(HANDLE hFindFile, LPWIN32_FIND_DATAA lpFindFileData)
 {
-	PFN_FindNextFileA org_FindNextFile = (PFN_FindNextFileA)InterlockedCompareExchangePointer((PVOID*)&p_FindNextFileA, nullptr, nullptr);
+	static PFN_FindNextFileA org_FindNextFile = (PFN_FindNextFileA)InterlockedCompareExchangePointer((PVOID*)&p_FindNextFileA, nullptr, nullptr);
 
-	if (org_FindNextFile)
+	if (!org_FindNextFile)
 	{
-		BOOL ret = org_FindNextFile(hFindFile, lpFindFileData);
-		if (UseCustomModFolder && lpFindFileData)
-		{
-
-#define CHECK_BGM_FILES(name, ext, unused) \
-			if (isInString(lpFindFileData->cFileName, ## #name ## "." ## # ext, L## #name ## "." ## # ext, MaxModFileLen)) \
-			{ \
-				if (name ## SizeLow) \
-				{ \
-					lpFindFileData->nFileSizeLow = name ## SizeLow; \
-					lpFindFileData->nFileSizeHigh = 0; \
-				} \
-			}
-
-			VISIT_BGM_FILES(CHECK_BGM_FILES);
-		}
-		return ret;
+		Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
+		SetLastError(127);
+		return FALSE;
 	}
 
-	Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
-	SetLastError(127);
-	return FALSE;
+	BOOL ret = org_FindNextFile(hFindFile, lpFindFileData);
+	if (UseCustomModFolder && lpFindFileData)
+	{
+
+#define CHECK_BGM_FILES(name, ext, unused) \
+		if (isInString(lpFindFileData->cFileName, ## #name ## "." ## # ext, L## #name ## "." ## # ext, MaxModFileLen)) \
+		{ \
+			if (name ## SizeLow) \
+			{ \
+				lpFindFileData->nFileSizeLow = name ## SizeLow; \
+				lpFindFileData->nFileSizeHigh = 0; \
+			} \
+		}
+
+		VISIT_BGM_FILES(CHECK_BGM_FILES);
+	}
+	return ret;
 }
 
 // GetPrivateProfileStringA wrapper function
 DWORD WINAPI GetPrivateProfileStringAHandler(LPCSTR lpAppName, LPCSTR lpKeyName, LPCSTR lpDefault, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName)
 {
-	PFN_GetPrivateProfileStringA org_GetPrivateProfileString = (PFN_GetPrivateProfileStringA)InterlockedCompareExchangePointer((PVOID*)&p_GetPrivateProfileStringA, nullptr, nullptr);
+	static PFN_GetPrivateProfileStringA org_GetPrivateProfileString = (PFN_GetPrivateProfileStringA)InterlockedCompareExchangePointer((PVOID*)&p_GetPrivateProfileStringA, nullptr, nullptr);
 
-	if (org_GetPrivateProfileString)
+	if (!org_GetPrivateProfileString)
 	{
-		char Filename[MAX_PATH];
-		return org_GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, UpdateModPath(lpFileName, Filename));
+		Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
+		SetLastError(2);
+		return NULL;
 	}
 
-	Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
-	SetLastError(2);
-	return NULL;
+	char Filename[MAX_PATH];
+	return org_GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, UpdateModPath(lpFileName, Filename));
 }
 
 // GetPrivateProfileStringW wrapper function
 DWORD WINAPI GetPrivateProfileStringWHandler(LPCWSTR lpAppName, LPCWSTR lpKeyName, LPCWSTR lpDefault, LPWSTR lpReturnedString, DWORD nSize, LPCWSTR lpFileName)
 {
-	PFN_GetPrivateProfileStringW org_GetPrivateProfileString = (PFN_GetPrivateProfileStringW)InterlockedCompareExchangePointer((PVOID*)&p_GetPrivateProfileStringW, nullptr, nullptr);
+	static PFN_GetPrivateProfileStringW org_GetPrivateProfileString = (PFN_GetPrivateProfileStringW)InterlockedCompareExchangePointer((PVOID*)&p_GetPrivateProfileStringW, nullptr, nullptr);
 
-	if (org_GetPrivateProfileString)
+	if (!org_GetPrivateProfileString)
 	{
-		wchar_t Filename[MAX_PATH];
-		return org_GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, UpdateModPath(lpFileName, Filename));
+		Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
+		SetLastError(2);
+		return NULL;
 	}
 
-	Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
-	SetLastError(2);
-	return NULL;
+	wchar_t Filename[MAX_PATH];
+	return org_GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, UpdateModPath(lpFileName, Filename));
+}
+
+BOOL WINAPI CreateProcessAHandler(LPCSTR lpApplicationName, LPSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags,
+	LPVOID lpEnvironment, LPCSTR lpCurrentDirectory, LPSTARTUPINFOA lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation)
+{
+	static PFN_CreateProcessA org_CreateProcess = (PFN_CreateProcessA)InterlockedCompareExchangePointer((PVOID*)&p_CreateProcessA, nullptr, nullptr);
+
+	if (!org_CreateProcess)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
+
+		if (lpProcessInformation)
+		{
+			lpProcessInformation->dwProcessId = 0;
+			lpProcessInformation->dwThreadId = 0;
+			lpProcessInformation->hProcess = nullptr;
+			lpProcessInformation->hThread = nullptr;
+		}
+		SetLastError(ERROR_ACCESS_DENIED);
+		return FALSE;
+	}
+
+	if (isInString(lpCommandLine, "gameux.dll,GameUXShim", L"gameux.dll,GameUXShim", MAX_PATH))
+	{
+		Logging::Log() << __FUNCTION__ << " " << lpCommandLine;
+
+		char CommandLine[MAX_PATH] = { '\0' };
+
+		for (int x = 0; x < MAX_PATH && lpCommandLine && lpCommandLine[x] != ',' && lpCommandLine[x] != '\0'; x++)
+		{
+			CommandLine[x] = lpCommandLine[x];
+		}
+
+		return org_CreateProcess(lpApplicationName, CommandLine, lpProcessAttributes, lpThreadAttributes, bInheritHandles, dwCreationFlags,
+			lpEnvironment, lpCurrentDirectory, lpStartupInfo, lpProcessInformation);
+	}
+
+	return org_CreateProcess(lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes, bInheritHandles, dwCreationFlags,
+		lpEnvironment, lpCurrentDirectory, lpStartupInfo, lpProcessInformation);
+}
+
+BOOL WINAPI CreateProcessWHandler(LPCWSTR lpApplicationName, LPWSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags,
+	LPVOID lpEnvironment, LPCWSTR lpCurrentDirectory, LPSTARTUPINFOW lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation)
+{
+	static PFN_CreateProcessW org_CreateProcess = (PFN_CreateProcessW)InterlockedCompareExchangePointer((PVOID*)&p_CreateProcessW, nullptr, nullptr);
+
+	if (!org_CreateProcess)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
+
+		if (lpProcessInformation)
+		{
+			lpProcessInformation->dwProcessId = 0;
+			lpProcessInformation->dwThreadId = 0;
+			lpProcessInformation->hProcess = nullptr;
+			lpProcessInformation->hThread = nullptr;
+		}
+		SetLastError(ERROR_ACCESS_DENIED);
+		return FALSE;
+	}
+
+	if (isInString(lpCommandLine, "gameux.dll,GameUXShim", L"gameux.dll,GameUXShim", MAX_PATH))
+	{
+		Logging::Log() << __FUNCTION__ << " " << lpCommandLine;
+
+		wchar_t CommandLine[MAX_PATH] = { '\0' };
+
+		for (int x = 0; x < MAX_PATH && lpCommandLine && lpCommandLine[x] != ',' && lpCommandLine[x] != '\0'; x++)
+		{
+			CommandLine[x] = lpCommandLine[x];
+		}
+
+		return org_CreateProcess(lpApplicationName, CommandLine, lpProcessAttributes, lpThreadAttributes, bInheritHandles, dwCreationFlags,
+			lpEnvironment, lpCurrentDirectory, lpStartupInfo, lpProcessInformation);
+	}
+
+	return org_CreateProcess(lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes, bInheritHandles, dwCreationFlags,
+		lpEnvironment, lpCurrentDirectory, lpStartupInfo, lpProcessInformation);
 }
 
 void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
@@ -492,14 +584,27 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	Logging::Log() << "Hooking the FileSystem APIs...";
 
 	// Hook GetModuleFileName and GetModuleHandleEx to fix module name in modules loaded from memory
-	InterlockedExchangePointer((PVOID*)&p_GetModuleHandleExA, Hook::HookAPI(GetModuleHandle(L"kernel32"), "kernel32.dll", Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "GetModuleHandleExA"), "GetModuleHandleExA", GetModuleHandleExAHandler));
-	InterlockedExchangePointer((PVOID*)&p_GetModuleHandleExW, Hook::HookAPI(GetModuleHandle(L"kernel32"), "kernel32.dll", Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "GetModuleHandleExW"), "GetModuleHandleExW", GetModuleHandleExWHandler));
-	InterlockedExchangePointer((PVOID*)&p_GetModuleFileNameA, Hook::HookAPI(GetModuleHandle(L"kernel32"), "kernel32.dll", Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "GetModuleFileNameA"), "GetModuleFileNameA", GetModuleFileNameAHandler));
-	InterlockedExchangePointer((PVOID*)&p_GetModuleFileNameW, Hook::HookAPI(GetModuleHandle(L"kernel32"), "kernel32.dll", Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "GetModuleFileNameW"), "GetModuleFileNameW", GetModuleFileNameWHandler));
+	HMODULE h_kernel32 = GetModuleHandle(L"kernel32");
+	InterlockedExchangePointer((PVOID*)&p_GetModuleHandleExA, Hook::HookAPI(h_kernel32, "kernel32.dll", Hook::GetProcAddress(h_kernel32, "GetModuleHandleExA"), "GetModuleHandleExA", GetModuleHandleExAHandler));
+	InterlockedExchangePointer((PVOID*)&p_GetModuleHandleExW, Hook::HookAPI(h_kernel32, "kernel32.dll", Hook::GetProcAddress(h_kernel32, "GetModuleHandleExW"), "GetModuleHandleExW", GetModuleHandleExWHandler));
+	InterlockedExchangePointer((PVOID*)&p_GetModuleFileNameA, Hook::HookAPI(h_kernel32, "kernel32.dll", Hook::GetProcAddress(h_kernel32, "GetModuleFileNameA"), "GetModuleFileNameA", GetModuleFileNameAHandler));
+	InterlockedExchangePointer((PVOID*)&p_GetModuleFileNameW, Hook::HookAPI(h_kernel32, "kernel32.dll", Hook::GetProcAddress(h_kernel32, "GetModuleFileNameW"), "GetModuleFileNameW", GetModuleFileNameWHandler));
 
 	// Hook FileSystem APIs
-	InterlockedExchangePointer((PVOID*)&p_CreateFileW, Hook::HotPatch(Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "CreateFileW"), "CreateFileW", *CreateFileWHandler));
-	InterlockedExchangePointer((PVOID*)&p_FindNextFileA, Hook::HotPatch(Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "FindNextFileA"), "FindNextFileA", *FindNextFileAHandler));
-	InterlockedExchangePointer((PVOID*)&p_GetPrivateProfileStringA, Hook::HotPatch(Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "GetPrivateProfileStringA"), "GetPrivateProfileStringA", *GetPrivateProfileStringAHandler));
-	InterlockedExchangePointer((PVOID*)&p_GetPrivateProfileStringW, Hook::HotPatch(Hook::GetProcAddress(GetModuleHandle(L"kernel32"), "GetPrivateProfileStringW"), "GetPrivateProfileStringW", *GetPrivateProfileStringWHandler));
+	InterlockedExchangePointer((PVOID*)&p_CreateFileW, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "CreateFileW"), "CreateFileW", *CreateFileWHandler));
+	InterlockedExchangePointer((PVOID*)&p_FindNextFileA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "FindNextFileA"), "FindNextFileA", *FindNextFileAHandler));
+	InterlockedExchangePointer((PVOID*)&p_GetPrivateProfileStringA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "GetPrivateProfileStringA"), "GetPrivateProfileStringA", *GetPrivateProfileStringAHandler));
+	InterlockedExchangePointer((PVOID*)&p_GetPrivateProfileStringW, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "GetPrivateProfileStringW"), "GetPrivateProfileStringW", *GetPrivateProfileStringWHandler));
+
+}
+
+void InstallCreateProcessHooks()
+{
+	// Logging
+	Logging::Log() << "Hooking the CreateProcess APIs...";
+
+	// Hook CreateProcess APIs
+	HMODULE h_kernel32 = GetModuleHandle(L"kernel32");
+	InterlockedExchangePointer((PVOID*)&p_CreateProcessA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "CreateProcessA"), "CreateProcessA", *CreateProcessAHandler));
+	InterlockedExchangePointer((PVOID*)&p_CreateProcessW, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "CreateProcessW"), "CreateProcessW", *CreateProcessWHandler));
 }

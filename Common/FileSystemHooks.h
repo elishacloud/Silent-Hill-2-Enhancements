@@ -73,3 +73,4 @@ static MODULECONFIG ConfigList[] =
 };
 
 void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath);
+void InstallCreateProcessHooks();

@@ -192,6 +192,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			InstallFileSystemHooks(hModule, configpath);
 		}
 
+		// Fix Windows Game Explorer issue
+		if (DisableGameUX)
+		{
+			InstallCreateProcessHooks();
+		}
+
 		// Enable No-CD Patch
 		if (NoCDPatch)
 		{
@@ -303,7 +309,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			}
 			else
 			{
-				LoadModuleFromFile(hModule, IDR_SH2FOG, L"sh2fog.ini", configpath, L"Nemesis2000 Fog Fix");
+				LoadModuleFromFile(hModule, IDR_SH2FOG, L"sh2fog.ini", configpath, L"Nemesis2000 Fog Fix", false);
 			}
 		}
 
@@ -319,7 +325,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			}
 			else
 			{
-				LoadModuleFromFile(hModule, IDR_SH2WID, nullptr, configpath, L"WidescreenFixesPack and sh2proxy");
+				LoadModuleFromFile(hModule, IDR_SH2WID, nullptr, configpath, L"WidescreenFixesPack and sh2proxy", true);
 			}
 			if (Flag)
 			{
@@ -337,7 +343,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			}
 			else
 			{
-				LoadModuleFromFile(hModule, IDR_SH2UPD, nullptr, configpath, L"modupdater");
+				LoadModuleFromFile(hModule, IDR_SH2UPD, nullptr, configpath, L"modupdater", false);
 			}
 		}
 
@@ -350,9 +356,16 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		// Set single core affinity
 		if (SingleCoreAffinity)
 		{
-			DWORD ThreadID = 0;
-			static DWORD SleepTime = 5000;
-			CreateThread(nullptr, 0, SetSingleCoreAffinity, &SleepTime, 0, &ThreadID);
+			if (SingleCoreAffinityTimer)
+			{
+				DWORD ThreadID = 0;
+				static DWORD SleepTime = SingleCoreAffinityTimer;
+				CreateThread(nullptr, 0, SetSingleCoreAffinity, &SleepTime, 0, &ThreadID);
+			}
+			else
+			{
+				SetSingleCoreAffinity();
+			}
 		}
 
 		// Loaded

@@ -21,6 +21,8 @@ LONG BufferWidth = 0, BufferHeight = 0;
 
 HRESULT m_IDirect3D8::QueryInterface(REFIID riid, LPVOID *ppvObj)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	if ((riid == IID_IDirect3D8 || riid == IID_IUnknown) && ppvObj)
 	{
 		AddRef();
@@ -35,11 +37,15 @@ HRESULT m_IDirect3D8::QueryInterface(REFIID riid, LPVOID *ppvObj)
 
 ULONG m_IDirect3D8::AddRef()
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->AddRef();
 }
 
 ULONG m_IDirect3D8::Release()
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	ULONG count = ProxyInterface->Release();
 
 	if (count == 0)
@@ -52,56 +58,78 @@ ULONG m_IDirect3D8::Release()
 
 HRESULT m_IDirect3D8::EnumAdapterModes(THIS_ UINT Adapter, UINT Mode, D3DDISPLAYMODE* pMode)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->EnumAdapterModes(Adapter, Mode, pMode);
 }
 
 UINT m_IDirect3D8::GetAdapterCount()
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetAdapterCount();
 }
 
 HRESULT m_IDirect3D8::GetAdapterDisplayMode(UINT Adapter, D3DDISPLAYMODE *pMode)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetAdapterDisplayMode(Adapter, pMode);
 }
 
 HRESULT m_IDirect3D8::GetAdapterIdentifier(UINT Adapter, DWORD Flags, D3DADAPTER_IDENTIFIER8 *pIdentifier)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetAdapterIdentifier(Adapter, Flags, pIdentifier);
 }
 
 UINT m_IDirect3D8::GetAdapterModeCount(THIS_ UINT Adapter)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetAdapterModeCount(Adapter);
 }
 
 HMONITOR m_IDirect3D8::GetAdapterMonitor(UINT Adapter)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetAdapterMonitor(Adapter);
 }
 
 HRESULT m_IDirect3D8::GetDeviceCaps(UINT Adapter, D3DDEVTYPE DeviceType, D3DCAPS8 *pCaps)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetDeviceCaps(Adapter, DeviceType, pCaps);
 }
 
 HRESULT m_IDirect3D8::RegisterSoftwareDevice(void *pInitializeFunction)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->RegisterSoftwareDevice(pInitializeFunction);
 }
 
 HRESULT m_IDirect3D8::CheckDepthStencilMatch(UINT Adapter, D3DDEVTYPE DeviceType, D3DFORMAT AdapterFormat, D3DFORMAT RenderTargetFormat, D3DFORMAT DepthStencilFormat)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->CheckDepthStencilMatch(Adapter, DeviceType, AdapterFormat, RenderTargetFormat, DepthStencilFormat);
 }
 
 HRESULT m_IDirect3D8::CheckDeviceFormat(UINT Adapter, D3DDEVTYPE DeviceType, D3DFORMAT AdapterFormat, DWORD Usage, D3DRESOURCETYPE RType, D3DFORMAT CheckFormat)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->CheckDeviceFormat(Adapter, DeviceType, AdapterFormat, Usage, RType, CheckFormat);
 }
 
 HRESULT m_IDirect3D8::CheckDeviceMultiSampleType(THIS_ UINT Adapter, D3DDEVTYPE DeviceType, D3DFORMAT SurfaceFormat, BOOL Windowed, D3DMULTISAMPLE_TYPE MultiSampleType)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	if (EnableWndMode)
 	{
 		Windowed = true;
@@ -112,6 +140,8 @@ HRESULT m_IDirect3D8::CheckDeviceMultiSampleType(THIS_ UINT Adapter, D3DDEVTYPE 
 
 HRESULT m_IDirect3D8::CheckDeviceType(UINT Adapter, D3DDEVTYPE CheckType, D3DFORMAT DisplayFormat, D3DFORMAT BackBufferFormat, BOOL Windowed)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	if (EnableWndMode)
 	{
 		Windowed = true;
@@ -122,6 +152,8 @@ HRESULT m_IDirect3D8::CheckDeviceType(UINT Adapter, D3DDEVTYPE CheckType, D3DFOR
 
 HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFocusWindow, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS *pPresentationParameters, IDirect3DDevice8 **ppReturnedDeviceInterface)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	// Update presentation parameters
 	UpdatePresentParameter(pPresentationParameters, hFocusWindow, true);
 

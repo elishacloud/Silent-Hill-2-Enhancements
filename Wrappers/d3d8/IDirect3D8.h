@@ -6,8 +6,14 @@ private:
 	LPDIRECT3D8 ProxyInterface;
 
 public:
-	m_IDirect3D8(LPDIRECT3D8 pD3D) : ProxyInterface(pD3D) {}
-	~m_IDirect3D8() {}
+	m_IDirect3D8(LPDIRECT3D8 pD3D) : ProxyInterface(pD3D)
+	{
+		Logging::LogDebug() << "Creating device " << __FUNCTION__ << "(" << this << ")";
+	}
+	~m_IDirect3D8()
+	{
+		Logging::LogDebug() << __FUNCTION__ << "(" << this << ")" << " deleting device!";
+	}
 
 	/*** IUnknown methods ***/
 	STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID * ppvObj);

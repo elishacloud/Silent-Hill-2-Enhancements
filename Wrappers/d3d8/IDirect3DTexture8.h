@@ -9,9 +9,14 @@ private:
 public:
 	m_IDirect3DTexture8(LPDIRECT3DTEXTURE8 pTexture8, m_IDirect3DDevice8* pDevice) : ProxyInterface(pTexture8), m_pDevice(pDevice)
 	{
+		Logging::LogDebug() << "Creating device " << __FUNCTION__ << "(" << this << ")";
+
 		m_pDevice->ProxyAddressLookupTable->SaveAddress(this, ProxyInterface);
 	}
-	~m_IDirect3DTexture8() {}
+	~m_IDirect3DTexture8()
+	{
+		Logging::LogDebug() << __FUNCTION__ << "(" << this << ")" << " deleting device!";
+	}
 
 	LPDIRECT3DTEXTURE8 GetProxyInterface() { return ProxyInterface; }
 

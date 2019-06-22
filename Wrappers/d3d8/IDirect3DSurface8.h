@@ -9,9 +9,14 @@ private:
 public:
 	m_IDirect3DSurface8(LPDIRECT3DSURFACE8 pSurface8, m_IDirect3DDevice8* pDevice) : ProxyInterface(pSurface8), m_pDevice(pDevice)
 	{
+		Logging::LogDebug() << "Creating device " << __FUNCTION__ << "(" << this << ")";
+
 		m_pDevice->ProxyAddressLookupTable->SaveAddress(this, ProxyInterface);
 	}
-	~m_IDirect3DSurface8() {}
+	~m_IDirect3DSurface8()
+	{
+		Logging::LogDebug() << __FUNCTION__ << "(" << this << ")" << " deleting device!";
+	}
 
 	LPDIRECT3DSURFACE8 GetProxyInterface() { return ProxyInterface; }
 

@@ -19,6 +19,8 @@
 
 HRESULT m_IDirect3DDevice8::QueryInterface(REFIID riid, LPVOID *ppvObj)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	if ((riid == IID_IDirect3DDevice8 || riid == IID_IUnknown) && ppvObj)
 	{
 		AddRef();
@@ -28,16 +30,27 @@ HRESULT m_IDirect3DDevice8::QueryInterface(REFIID riid, LPVOID *ppvObj)
 		return S_OK;
 	}
 
-	return ProxyInterface->QueryInterface(riid, ppvObj);
+	HRESULT hr = ProxyInterface->QueryInterface(riid, ppvObj);
+
+	if (SUCCEEDED(hr))
+	{
+		genericQueryInterface(riid, ppvObj, this);
+	}
+
+	return hr;
 }
 
 ULONG m_IDirect3DDevice8::AddRef()
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->AddRef();
 }
 
 ULONG m_IDirect3DDevice8::Release()
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	ULONG count = ProxyInterface->Release();
 
 	if (count == 0)
@@ -50,6 +63,8 @@ ULONG m_IDirect3DDevice8::Release()
 
 HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	// Update presentation parameters
 	UpdatePresentParameter(pPresentationParameters, nullptr, true);
 
@@ -58,16 +73,22 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 
 HRESULT m_IDirect3DDevice8::EndScene()
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->EndScene();
 }
 
 void m_IDirect3DDevice8::SetCursorPosition(THIS_ UINT XScreenSpace, UINT YScreenSpace, DWORD Flags)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->SetCursorPosition(XScreenSpace, YScreenSpace, Flags);
 }
 
 HRESULT m_IDirect3DDevice8::SetCursorProperties(UINT XHotSpot, UINT YHotSpot, IDirect3DSurface8 *pCursorBitmap)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	if (pCursorBitmap)
 	{
 		pCursorBitmap = static_cast<m_IDirect3DSurface8 *>(pCursorBitmap)->GetProxyInterface();
@@ -78,11 +99,15 @@ HRESULT m_IDirect3DDevice8::SetCursorProperties(UINT XHotSpot, UINT YHotSpot, ID
 
 BOOL m_IDirect3DDevice8::ShowCursor(BOOL bShow)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->ShowCursor(bShow);
 }
 
 HRESULT m_IDirect3DDevice8::CreateAdditionalSwapChain(D3DPRESENT_PARAMETERS *pPresentationParameters, IDirect3DSwapChain8 **ppSwapChain)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	// Update presentation parameters
 	UpdatePresentParameter(pPresentationParameters, nullptr, false);
 
@@ -98,6 +123,8 @@ HRESULT m_IDirect3DDevice8::CreateAdditionalSwapChain(D3DPRESENT_PARAMETERS *pPr
 
 HRESULT m_IDirect3DDevice8::CreateCubeTexture(THIS_ UINT EdgeLength, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, IDirect3DCubeTexture8** ppCubeTexture)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	HRESULT hr = ProxyInterface->CreateCubeTexture(EdgeLength, Levels, Usage, Format, Pool, ppCubeTexture);
 
 	if (SUCCEEDED(hr) && ppCubeTexture)
@@ -110,6 +137,8 @@ HRESULT m_IDirect3DDevice8::CreateCubeTexture(THIS_ UINT EdgeLength, UINT Levels
 
 HRESULT m_IDirect3DDevice8::CreateDepthStencilSurface(THIS_ UINT Width, UINT Height, D3DFORMAT Format, D3DMULTISAMPLE_TYPE MultiSample, IDirect3DSurface8** ppSurface)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	HRESULT hr = ProxyInterface->CreateDepthStencilSurface(Width, Height, Format, MultiSample, ppSurface);
 
 	if (SUCCEEDED(hr) && ppSurface)
@@ -122,6 +151,8 @@ HRESULT m_IDirect3DDevice8::CreateDepthStencilSurface(THIS_ UINT Width, UINT Hei
 
 HRESULT m_IDirect3DDevice8::CreateIndexBuffer(THIS_ UINT Length, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, IDirect3DIndexBuffer8** ppIndexBuffer)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	HRESULT hr = ProxyInterface->CreateIndexBuffer(Length, Usage, Format, Pool, ppIndexBuffer);
 
 	if (SUCCEEDED(hr) && ppIndexBuffer)
@@ -134,6 +165,8 @@ HRESULT m_IDirect3DDevice8::CreateIndexBuffer(THIS_ UINT Length, DWORD Usage, D3
 
 HRESULT m_IDirect3DDevice8::CreateRenderTarget(THIS_ UINT Width, UINT Height, D3DFORMAT Format, D3DMULTISAMPLE_TYPE MultiSample, BOOL Lockable, IDirect3DSurface8** ppSurface)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	HRESULT hr = ProxyInterface->CreateRenderTarget(Width, Height, Format, MultiSample, Lockable, ppSurface);
 
 	if (SUCCEEDED(hr) && ppSurface)
@@ -146,6 +179,8 @@ HRESULT m_IDirect3DDevice8::CreateRenderTarget(THIS_ UINT Width, UINT Height, D3
 
 HRESULT m_IDirect3DDevice8::CreateTexture(THIS_ UINT Width, UINT Height, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, IDirect3DTexture8** ppTexture)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	HRESULT hr = ProxyInterface->CreateTexture(Width, Height, Levels, Usage, Format, Pool, ppTexture);
 
 	if (SUCCEEDED(hr) && ppTexture)
@@ -158,6 +193,8 @@ HRESULT m_IDirect3DDevice8::CreateTexture(THIS_ UINT Width, UINT Height, UINT Le
 
 HRESULT m_IDirect3DDevice8::CreateVertexBuffer(THIS_ UINT Length, DWORD Usage, DWORD FVF, D3DPOOL Pool, IDirect3DVertexBuffer8** ppVertexBuffer)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	HRESULT hr = ProxyInterface->CreateVertexBuffer(Length, Usage, FVF, Pool, ppVertexBuffer);
 
 	if (SUCCEEDED(hr) && ppVertexBuffer)
@@ -170,6 +207,8 @@ HRESULT m_IDirect3DDevice8::CreateVertexBuffer(THIS_ UINT Length, DWORD Usage, D
 
 HRESULT m_IDirect3DDevice8::CreateVolumeTexture(THIS_ UINT Width, UINT Height, UINT Depth, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, IDirect3DVolumeTexture8** ppVolumeTexture)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	HRESULT hr = ProxyInterface->CreateVolumeTexture(Width, Height, Depth, Levels, Usage, Format, Pool, ppVolumeTexture);
 
 	if (SUCCEEDED(hr) && ppVolumeTexture)
@@ -182,51 +221,71 @@ HRESULT m_IDirect3DDevice8::CreateVolumeTexture(THIS_ UINT Width, UINT Height, U
 
 HRESULT m_IDirect3DDevice8::BeginStateBlock()
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->BeginStateBlock();
 }
 
 HRESULT m_IDirect3DDevice8::CreateStateBlock(THIS_ D3DSTATEBLOCKTYPE Type, DWORD* pToken)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->CreateStateBlock(Type, pToken);
 }
 
 HRESULT m_IDirect3DDevice8::ApplyStateBlock(THIS_ DWORD Token)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->ApplyStateBlock(Token);
 }
 
 HRESULT m_IDirect3DDevice8::CaptureStateBlock(THIS_ DWORD Token)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->CaptureStateBlock(Token);
 }
 
 HRESULT m_IDirect3DDevice8::DeleteStateBlock(THIS_ DWORD Token)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->DeleteStateBlock(Token);
 }
 
 HRESULT m_IDirect3DDevice8::EndStateBlock(THIS_ DWORD* pToken)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->EndStateBlock(pToken);
 }
 
 HRESULT m_IDirect3DDevice8::GetClipStatus(D3DCLIPSTATUS8 *pClipStatus)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetClipStatus(pClipStatus);
 }
 
 HRESULT m_IDirect3DDevice8::GetDisplayMode(THIS_ D3DDISPLAYMODE* pMode)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetDisplayMode(pMode);
 }
 
 HRESULT m_IDirect3DDevice8::GetRenderState(D3DRENDERSTATETYPE State, DWORD *pValue)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetRenderState(State, pValue);
 }
 
 HRESULT m_IDirect3DDevice8::GetRenderTarget(THIS_ IDirect3DSurface8** ppRenderTarget)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	HRESULT hr = ProxyInterface->GetRenderTarget(ppRenderTarget);
 
 	if (SUCCEEDED(hr) && ppRenderTarget)
@@ -239,17 +298,23 @@ HRESULT m_IDirect3DDevice8::GetRenderTarget(THIS_ IDirect3DSurface8** ppRenderTa
 
 HRESULT m_IDirect3DDevice8::GetTransform(D3DTRANSFORMSTATETYPE State, D3DMATRIX *pMatrix)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetTransform(State, pMatrix);
 }
 
 HRESULT m_IDirect3DDevice8::SetClipStatus(CONST D3DCLIPSTATUS8 *pClipStatus)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->SetClipStatus(pClipStatus);
 }
 
 // Enables self shadows by checking if the stencil should be kept or replaced
 STENCILSTATECHECK m_IDirect3DDevice8::GetStencilType()
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	if (!SH2_RoomID || !SH2_CutsceneID || !SH2_CutsceneCameraPos)
 	{
 		return GSC_STENCIL_IGNORE;
@@ -326,6 +391,8 @@ STENCILSTATECHECK m_IDirect3DDevice8::GetStencilType()
 
 HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	// Fix for 2D Fog and glow around the flashlight lens for Nvidia cards
 	if (Fog2DFix && State == D3DRS_ZBIAS)
 	{
@@ -347,6 +414,8 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 
 HRESULT m_IDirect3DDevice8::SetRenderTarget(THIS_ IDirect3DSurface8* pRenderTarget, IDirect3DSurface8* pNewZStencil)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	if (pRenderTarget)
 	{
 		pRenderTarget = static_cast<m_IDirect3DSurface8 *>(pRenderTarget)->GetProxyInterface();
@@ -362,16 +431,22 @@ HRESULT m_IDirect3DDevice8::SetRenderTarget(THIS_ IDirect3DSurface8* pRenderTarg
 
 HRESULT m_IDirect3DDevice8::SetTransform(D3DTRANSFORMSTATETYPE State, CONST D3DMATRIX *pMatrix)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->SetTransform(State, pMatrix);
 }
 
 void m_IDirect3DDevice8::GetGammaRamp(THIS_ D3DGAMMARAMP* pRamp)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	ProxyInterface->GetGammaRamp(pRamp);
 }
 
 void m_IDirect3DDevice8::SetGammaRamp(THIS_ DWORD Flags, CONST D3DGAMMARAMP* pRamp)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	if (!EnableWndMode || FullscreenWndMode)
 	{
 		ProxyInterface->SetGammaRamp(Flags, pRamp);
@@ -380,21 +455,29 @@ void m_IDirect3DDevice8::SetGammaRamp(THIS_ DWORD Flags, CONST D3DGAMMARAMP* pRa
 
 HRESULT m_IDirect3DDevice8::DeletePatch(UINT Handle)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->DeletePatch(Handle);
 }
 
 HRESULT m_IDirect3DDevice8::DrawRectPatch(UINT Handle, CONST float *pNumSegs, CONST D3DRECTPATCH_INFO *pRectPatchInfo)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->DrawRectPatch(Handle, pNumSegs, pRectPatchInfo);
 }
 
 HRESULT m_IDirect3DDevice8::DrawTriPatch(UINT Handle, CONST float *pNumSegs, CONST D3DTRIPATCH_INFO *pTriPatchInfo)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->DrawTriPatch(Handle, pNumSegs, pTriPatchInfo);
 }
 
 HRESULT m_IDirect3DDevice8::GetIndices(THIS_ IDirect3DIndexBuffer8** ppIndexData, UINT* pBaseVertexIndex)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	HRESULT hr = ProxyInterface->GetIndices(ppIndexData, pBaseVertexIndex);
 
 	if (SUCCEEDED(hr) && ppIndexData)
@@ -407,6 +490,8 @@ HRESULT m_IDirect3DDevice8::GetIndices(THIS_ IDirect3DIndexBuffer8** ppIndexData
 
 HRESULT m_IDirect3DDevice8::SetIndices(THIS_ IDirect3DIndexBuffer8* pIndexData, UINT BaseVertexIndex)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	if (pIndexData)
 	{
 		pIndexData = static_cast<m_IDirect3DIndexBuffer8 *>(pIndexData)->GetProxyInterface();
@@ -417,21 +502,29 @@ HRESULT m_IDirect3DDevice8::SetIndices(THIS_ IDirect3DIndexBuffer8* pIndexData, 
 
 UINT m_IDirect3DDevice8::GetAvailableTextureMem()
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetAvailableTextureMem();
 }
 
 HRESULT m_IDirect3DDevice8::GetCreationParameters(D3DDEVICE_CREATION_PARAMETERS *pParameters)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetCreationParameters(pParameters);
 }
 
 HRESULT m_IDirect3DDevice8::GetDeviceCaps(D3DCAPS8 *pCaps)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetDeviceCaps(pCaps);
 }
 
 HRESULT m_IDirect3DDevice8::GetDirect3D(IDirect3D8 **ppD3D9)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	if (!ppD3D9)
 	{
 		return D3DERR_INVALIDCALL;
@@ -446,47 +539,64 @@ HRESULT m_IDirect3DDevice8::GetDirect3D(IDirect3D8 **ppD3D9)
 
 HRESULT m_IDirect3DDevice8::GetRasterStatus(THIS_ D3DRASTER_STATUS* pRasterStatus)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetRasterStatus(pRasterStatus);
 }
 
 HRESULT m_IDirect3DDevice8::GetLight(DWORD Index, D3DLIGHT8 *pLight)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetLight(Index, pLight);
 }
 
 HRESULT m_IDirect3DDevice8::GetLightEnable(DWORD Index, BOOL *pEnable)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetLightEnable(Index, pEnable);
 }
 
 HRESULT m_IDirect3DDevice8::GetMaterial(D3DMATERIAL8 *pMaterial)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetMaterial(pMaterial);
 }
 
 HRESULT m_IDirect3DDevice8::LightEnable(DWORD LightIndex, BOOL bEnable)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->LightEnable(LightIndex, bEnable);
 }
 
 HRESULT m_IDirect3DDevice8::SetLight(DWORD Index, CONST D3DLIGHT8 *pLight)
 {
+	Logging::LogDebug() << __FUNCTION__;
 
 	return ProxyInterface->SetLight(Index, pLight);
 }
 
 HRESULT m_IDirect3DDevice8::SetMaterial(CONST D3DMATERIAL8 *pMaterial)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->SetMaterial(pMaterial);
 }
 
 HRESULT m_IDirect3DDevice8::MultiplyTransform(D3DTRANSFORMSTATETYPE State, CONST D3DMATRIX *pMatrix)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->MultiplyTransform(State, pMatrix);
 }
 
 HRESULT m_IDirect3DDevice8::ProcessVertices(THIS_ UINT SrcStartIndex, UINT DestIndex, UINT VertexCount, IDirect3DVertexBuffer8* pDestBuffer, DWORD Flags)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	if (pDestBuffer)
 	{
 		pDestBuffer = static_cast<m_IDirect3DVertexBuffer8 *>(pDestBuffer)->GetProxyInterface();
@@ -497,71 +607,99 @@ HRESULT m_IDirect3DDevice8::ProcessVertices(THIS_ UINT SrcStartIndex, UINT DestI
 
 HRESULT m_IDirect3DDevice8::TestCooperativeLevel()
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->TestCooperativeLevel();
 }
 
 HRESULT m_IDirect3DDevice8::GetCurrentTexturePalette(UINT *pPaletteNumber)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetCurrentTexturePalette(pPaletteNumber);
 }
 
 HRESULT m_IDirect3DDevice8::GetPaletteEntries(UINT PaletteNumber, PALETTEENTRY *pEntries)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetPaletteEntries(PaletteNumber, pEntries);
 }
 
 HRESULT m_IDirect3DDevice8::SetCurrentTexturePalette(UINT PaletteNumber)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->SetCurrentTexturePalette(PaletteNumber);
 }
 
 HRESULT m_IDirect3DDevice8::SetPaletteEntries(UINT PaletteNumber, CONST PALETTEENTRY *pEntries)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->SetPaletteEntries(PaletteNumber, pEntries);
 }
 
 HRESULT m_IDirect3DDevice8::CreatePixelShader(THIS_ CONST DWORD* pFunction, DWORD* pHandle)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->CreatePixelShader(pFunction, pHandle);
 }
 
 HRESULT m_IDirect3DDevice8::GetPixelShader(THIS_ DWORD* pHandle)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetPixelShader(pHandle);
 }
 
 HRESULT m_IDirect3DDevice8::SetPixelShader(THIS_ DWORD Handle)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->SetPixelShader(Handle);
 }
 
 HRESULT m_IDirect3DDevice8::DeletePixelShader(THIS_ DWORD Handle)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->DeletePixelShader(Handle);
 }
 
 HRESULT m_IDirect3DDevice8::GetPixelShaderFunction(THIS_ DWORD Handle, void* pData, DWORD* pSizeOfData)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetPixelShaderFunction(Handle, pData, pSizeOfData);
 }
 
 HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRect, HWND hDestWindowOverride, CONST RGNDATA *pDirtyRegion)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 }
 
 HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
 }
 
 HRESULT m_IDirect3DDevice8::DrawIndexedPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT MinIndex, UINT NumVertices, UINT PrimitiveCount, CONST void *pIndexData, D3DFORMAT IndexDataFormat, CONST void *pVertexStreamZeroData, UINT VertexStreamZeroStride)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->DrawIndexedPrimitiveUP(PrimitiveType, MinIndex, NumVertices, PrimitiveCount, pIndexData, IndexDataFormat, pVertexStreamZeroData, VertexStreamZeroStride);
 }
 
 HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, UINT PrimitiveCount)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->DrawPrimitive(PrimitiveType, StartVertex, PrimitiveCount);
 }
 
@@ -572,6 +710,8 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 
 HRESULT m_IDirect3DDevice8::BeginScene()
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	// Hotel Water Visual Fixes
 	if (HotelWaterFix && SH2_RoomID)
 	{
@@ -619,6 +759,8 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 
 HRESULT m_IDirect3DDevice8::GetStreamSource(THIS_ UINT StreamNumber, IDirect3DVertexBuffer8** ppStreamData, UINT* pStride)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	HRESULT hr = ProxyInterface->GetStreamSource(StreamNumber, ppStreamData, pStride);
 
 	if (SUCCEEDED(hr) && ppStreamData)
@@ -631,6 +773,8 @@ HRESULT m_IDirect3DDevice8::GetStreamSource(THIS_ UINT StreamNumber, IDirect3DVe
 
 HRESULT m_IDirect3DDevice8::SetStreamSource(THIS_ UINT StreamNumber, IDirect3DVertexBuffer8* pStreamData, UINT Stride)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	if (pStreamData)
 	{
 		pStreamData = static_cast<m_IDirect3DVertexBuffer8 *>(pStreamData)->GetProxyInterface();
@@ -641,6 +785,8 @@ HRESULT m_IDirect3DDevice8::SetStreamSource(THIS_ UINT StreamNumber, IDirect3DVe
 
 HRESULT m_IDirect3DDevice8::GetBackBuffer(THIS_ UINT iBackBuffer, D3DBACKBUFFER_TYPE Type, IDirect3DSurface8** ppBackBuffer)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	HRESULT hr = ProxyInterface->GetBackBuffer(iBackBuffer, Type, ppBackBuffer);
 
 	if (SUCCEEDED(hr) && ppBackBuffer)
@@ -653,6 +799,8 @@ HRESULT m_IDirect3DDevice8::GetBackBuffer(THIS_ UINT iBackBuffer, D3DBACKBUFFER_
 
 HRESULT m_IDirect3DDevice8::GetDepthStencilSurface(IDirect3DSurface8 **ppZStencilSurface)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	HRESULT hr = ProxyInterface->GetDepthStencilSurface(ppZStencilSurface);
 
 	if (SUCCEEDED(hr) && ppZStencilSurface)
@@ -665,6 +813,8 @@ HRESULT m_IDirect3DDevice8::GetDepthStencilSurface(IDirect3DSurface8 **ppZStenci
 
 HRESULT m_IDirect3DDevice8::GetTexture(DWORD Stage, IDirect3DBaseTexture8 **ppTexture)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	HRESULT hr = ProxyInterface->GetTexture(Stage, ppTexture);
 
 	if (SUCCEEDED(hr) && ppTexture && *ppTexture)
@@ -690,11 +840,15 @@ HRESULT m_IDirect3DDevice8::GetTexture(DWORD Stage, IDirect3DBaseTexture8 **ppTe
 
 HRESULT m_IDirect3DDevice8::GetTextureStageState(DWORD Stage, D3DTEXTURESTAGESTATETYPE Type, DWORD *pValue)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetTextureStageState(Stage, Type, pValue);
 }
 
 HRESULT m_IDirect3DDevice8::SetTexture(DWORD Stage, IDirect3DBaseTexture8 *pTexture)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	if (pTexture)
 	{
 		switch (pTexture->GetType())
@@ -724,11 +878,15 @@ HRESULT m_IDirect3DDevice8::SetTexture(DWORD Stage, IDirect3DBaseTexture8 *pText
 
 HRESULT m_IDirect3DDevice8::SetTextureStageState(DWORD Stage, D3DTEXTURESTAGESTATETYPE Type, DWORD Value)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->SetTextureStageState(Stage, Type, Value);
 }
 
 HRESULT m_IDirect3DDevice8::UpdateTexture(IDirect3DBaseTexture8 *pSourceTexture, IDirect3DBaseTexture8 *pDestinationTexture)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	if (pSourceTexture)
 	{
 		switch (pSourceTexture->GetType())
@@ -769,36 +927,50 @@ HRESULT m_IDirect3DDevice8::UpdateTexture(IDirect3DBaseTexture8 *pSourceTexture,
 
 HRESULT m_IDirect3DDevice8::ValidateDevice(DWORD *pNumPasses)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->ValidateDevice(pNumPasses);
 }
 
 HRESULT m_IDirect3DDevice8::GetClipPlane(DWORD Index, float *pPlane)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetClipPlane(Index, pPlane);
 }
 
 HRESULT m_IDirect3DDevice8::SetClipPlane(DWORD Index, CONST float *pPlane)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->SetClipPlane(Index, pPlane);
 }
 
 HRESULT m_IDirect3DDevice8::Clear(DWORD Count, CONST D3DRECT *pRects, DWORD Flags, D3DCOLOR Color, float Z, DWORD Stencil)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->Clear(Count, pRects, Flags, Color, Z, Stencil);
 }
 
 HRESULT m_IDirect3DDevice8::GetViewport(D3DVIEWPORT8 *pViewport)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetViewport(pViewport);
 }
 
 HRESULT m_IDirect3DDevice8::SetViewport(CONST D3DVIEWPORT8 *pViewport)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->SetViewport(pViewport);
 }
 
 HRESULT m_IDirect3DDevice8::CreateVertexShader(THIS_ CONST DWORD* pDeclaration, CONST DWORD* pFunction, DWORD* pHandle, DWORD Usage)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	constexpr BYTE WallFixShaderCode[4][13] = {
 		{ 0x0b, 0x00, 0x08, 0x80, 0x01, 0x00, 0xff, 0x80, 0x0e, 0x00, 0x00, 0xa0, 0x06 },		// Shader code:  max r11.w, r1.w, c14.x
 		{ 0x0b, 0x00, 0x08, 0x80, 0x01, 0x00, 0xff, 0x80, 0x0e, 0x00, 0xff, 0xa0, 0x06 },		// Shader code:  max r11.w, r1.w, c14.w
@@ -834,56 +1006,78 @@ HRESULT m_IDirect3DDevice8::CreateVertexShader(THIS_ CONST DWORD* pDeclaration, 
 
 HRESULT m_IDirect3DDevice8::GetVertexShader(THIS_ DWORD* pHandle)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetVertexShader(pHandle);
 }
 
 HRESULT m_IDirect3DDevice8::SetVertexShader(THIS_ DWORD Handle)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->SetVertexShader(Handle);
 }
 
 HRESULT m_IDirect3DDevice8::DeleteVertexShader(THIS_ DWORD Handle)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->DeleteVertexShader(Handle);
 }
 
 HRESULT m_IDirect3DDevice8::GetVertexShaderDeclaration(THIS_ DWORD Handle, void* pData, DWORD* pSizeOfData)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetVertexShaderDeclaration(Handle, pData, pSizeOfData);
 }
 
 HRESULT m_IDirect3DDevice8::GetVertexShaderFunction(THIS_ DWORD Handle, void* pData, DWORD* pSizeOfData)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetVertexShaderFunction(Handle, pData, pSizeOfData);
 }
 
 HRESULT m_IDirect3DDevice8::SetPixelShaderConstant(THIS_ DWORD Register, CONST void* pConstantData, DWORD ConstantCount)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->SetPixelShaderConstant(Register, pConstantData, ConstantCount);
 }
 
 HRESULT m_IDirect3DDevice8::GetPixelShaderConstant(THIS_ DWORD Register, void* pConstantData, DWORD ConstantCount)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetPixelShaderConstant(Register, pConstantData, ConstantCount);
 }
 
 HRESULT m_IDirect3DDevice8::SetVertexShaderConstant(THIS_ DWORD Register, CONST void* pConstantData, DWORD ConstantCount)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->SetVertexShaderConstant(Register, pConstantData, ConstantCount);
 }
 
 HRESULT m_IDirect3DDevice8::GetVertexShaderConstant(THIS_ DWORD Register, void* pConstantData, DWORD ConstantCount)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetVertexShaderConstant(Register, pConstantData, ConstantCount);
 }
 
 HRESULT m_IDirect3DDevice8::ResourceManagerDiscardBytes(THIS_ DWORD Bytes)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->ResourceManagerDiscardBytes(Bytes);
 }
 
 HRESULT m_IDirect3DDevice8::CreateImageSurface(THIS_ UINT Width, UINT Height, D3DFORMAT Format, IDirect3DSurface8** ppSurface)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	HRESULT hr = ProxyInterface->CreateImageSurface(Width, Height, Format, ppSurface);
 
 	if (SUCCEEDED(hr) && ppSurface)
@@ -896,6 +1090,8 @@ HRESULT m_IDirect3DDevice8::CreateImageSurface(THIS_ UINT Width, UINT Height, D3
 
 HRESULT m_IDirect3DDevice8::CopyRects(THIS_ IDirect3DSurface8* pSourceSurface, CONST RECT* pSourceRectsArray, UINT cRects, IDirect3DSurface8* pDestinationSurface, CONST POINT* pDestPointsArray)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	if (pSourceSurface)
 	{
 		pSourceSurface = static_cast<m_IDirect3DSurface8 *>(pSourceSurface)->GetProxyInterface();
@@ -912,6 +1108,8 @@ HRESULT m_IDirect3DDevice8::CopyRects(THIS_ IDirect3DSurface8* pSourceSurface, C
 // Stretch source rect to destination rect
 HRESULT m_IDirect3DDevice8::StretchRect(THIS_ IDirect3DSurface8* pSourceSurface, CONST RECT* pSourceRect, IDirect3DSurface8* pDestSurface, CONST RECT* pDestRect, D3DTEXTUREFILTERTYPE Filter)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	UNREFERENCED_PARAMETER(Filter);
 
 	// Check destination parameters
@@ -1021,6 +1219,8 @@ HRESULT m_IDirect3DDevice8::StretchRect(THIS_ IDirect3DSurface8* pSourceSurface,
 
 HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	if (pDestSurface)
 	{
 		pDestSurface = static_cast<m_IDirect3DSurface8 *>(pDestSurface)->GetProxyInterface();
@@ -1090,5 +1290,7 @@ HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface
 
 HRESULT m_IDirect3DDevice8::GetInfo(THIS_ DWORD DevInfoID, void* pDevInfoStruct, DWORD DevInfoStructSize)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetInfo(DevInfoID, pDevInfoStruct, DevInfoStructSize);
 }

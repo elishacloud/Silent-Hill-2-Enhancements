@@ -23,6 +23,8 @@ class m_IDirect3DVolumeTexture8;
 
 typedef IDirect3D8 *(WINAPI *Direct3DCreate8Proc)(UINT);
 
+void genericQueryInterface(REFIID riid, LPVOID *ppvObj, m_IDirect3DDevice8* m_pDevice);
+
 void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND hFocusWindow, bool SetWindow);
 void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight);
 

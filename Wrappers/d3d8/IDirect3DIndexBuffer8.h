@@ -9,9 +9,14 @@ private:
 public:
 	m_IDirect3DIndexBuffer8(LPDIRECT3DINDEXBUFFER8 pBuffer8, m_IDirect3DDevice8* pDevice) : ProxyInterface(pBuffer8), m_pDevice(pDevice)
 	{
+		Logging::LogDebug() << "Creating device " << __FUNCTION__ << "(" << this << ")";
+
 		m_pDevice->ProxyAddressLookupTable->SaveAddress(this, ProxyInterface);
 	}
-	~m_IDirect3DIndexBuffer8() {}
+	~m_IDirect3DIndexBuffer8()
+	{
+		Logging::LogDebug() << __FUNCTION__ << "(" << this << ")" << " deleting device!";
+	}
 
 	LPDIRECT3DINDEXBUFFER8 GetProxyInterface() { return ProxyInterface; }
 

@@ -18,6 +18,8 @@
 
 HRESULT m_IDirect3DVolume8::QueryInterface(THIS_ REFIID riid, void** ppvObj)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	if ((riid == IID_IDirect3DVolume8 || riid == IID_IUnknown) && ppvObj)
 	{
 		AddRef();
@@ -27,21 +29,34 @@ HRESULT m_IDirect3DVolume8::QueryInterface(THIS_ REFIID riid, void** ppvObj)
 		return S_OK;
 	}
 
-	return ProxyInterface->QueryInterface(riid, ppvObj);
+	HRESULT hr = ProxyInterface->QueryInterface(riid, ppvObj);
+
+	if (SUCCEEDED(hr))
+	{
+		genericQueryInterface(riid, ppvObj, m_pDevice);
+	}
+
+	return hr;
 }
 
 ULONG m_IDirect3DVolume8::AddRef(THIS)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->AddRef();
 }
 
 ULONG m_IDirect3DVolume8::Release(THIS)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->Release();
 }
 
 HRESULT m_IDirect3DVolume8::GetDevice(THIS_ IDirect3DDevice8** ppDevice)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	if (!ppDevice)
 	{
 		return D3DERR_INVALIDCALL;
@@ -56,35 +71,56 @@ HRESULT m_IDirect3DVolume8::GetDevice(THIS_ IDirect3DDevice8** ppDevice)
 
 HRESULT m_IDirect3DVolume8::SetPrivateData(THIS_ REFGUID refguid, CONST void* pData, DWORD SizeOfData, DWORD Flags)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->SetPrivateData(refguid, pData, SizeOfData, Flags);
 }
 
 HRESULT m_IDirect3DVolume8::GetPrivateData(THIS_ REFGUID refguid, void* pData, DWORD* pSizeOfData)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetPrivateData(refguid, pData, pSizeOfData);
 }
 
 HRESULT m_IDirect3DVolume8::FreePrivateData(THIS_ REFGUID refguid)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->FreePrivateData(refguid);
 }
 
 HRESULT m_IDirect3DVolume8::GetContainer(THIS_ REFIID riid, void** ppContainer)
 {
-	return ProxyInterface->GetContainer(riid, ppContainer);
+	Logging::LogDebug() << __FUNCTION__;
+
+	HRESULT hr = ProxyInterface->GetContainer(riid, ppContainer);
+
+	if (SUCCEEDED(hr))
+	{
+		genericQueryInterface(riid, ppContainer, m_pDevice);
+	}
+
+	return hr;
 }
 
 HRESULT m_IDirect3DVolume8::GetDesc(THIS_ D3DVOLUME_DESC *pDesc)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->GetDesc(pDesc);
 }
 
 HRESULT m_IDirect3DVolume8::LockBox(THIS_ D3DLOCKED_BOX * pLockedVolume, CONST D3DBOX* pBox, DWORD Flags)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->LockBox(pLockedVolume, pBox, Flags);
 }
 
 HRESULT m_IDirect3DVolume8::UnlockBox(THIS)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->UnlockBox();
 }

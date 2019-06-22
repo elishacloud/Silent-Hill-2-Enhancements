@@ -18,6 +18,8 @@
 
 HRESULT m_IDirect3DSwapChain8::QueryInterface(THIS_ REFIID riid, void** ppvObj)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	if ((riid == IID_IDirect3DSwapChain8 || riid == IID_IUnknown) && ppvObj)
 	{
 		AddRef();
@@ -27,26 +29,41 @@ HRESULT m_IDirect3DSwapChain8::QueryInterface(THIS_ REFIID riid, void** ppvObj)
 		return S_OK;
 	}
 
-	return ProxyInterface->QueryInterface(riid, ppvObj);
+	HRESULT hr = ProxyInterface->QueryInterface(riid, ppvObj);
+
+	if (SUCCEEDED(hr))
+	{
+		genericQueryInterface(riid, ppvObj, m_pDevice);
+	}
+
+	return hr;
 }
 
 ULONG m_IDirect3DSwapChain8::AddRef(THIS)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->AddRef();
 }
 
 ULONG m_IDirect3DSwapChain8::Release(THIS)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->Release();
 }
 
 HRESULT m_IDirect3DSwapChain8::Present(THIS_ CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	return ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 }
 
 HRESULT m_IDirect3DSwapChain8::GetBackBuffer(THIS_ UINT BackBuffer, D3DBACKBUFFER_TYPE Type, IDirect3DSurface8** ppBackBuffer)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	HRESULT hr = ProxyInterface->GetBackBuffer(BackBuffer, Type, ppBackBuffer);
 
 	if (SUCCEEDED(hr) && ppBackBuffer)

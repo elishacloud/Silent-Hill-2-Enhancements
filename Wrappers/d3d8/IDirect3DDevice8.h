@@ -24,6 +24,8 @@ private:
 public:
 	m_IDirect3DDevice8(LPDIRECT3DDEVICE8 pDevice, m_IDirect3D8* pD3D) : ProxyInterface(pDevice), m_pD3D(pD3D)
 	{
+		Logging::LogDebug() << "Creating device " << __FUNCTION__ << "(" << this << ")";
+
 		ProxyAddressLookupTable = new AddressLookupTable<m_IDirect3DDevice8>(this);
 
 		SH2_RoomID = (DWORD*)GetRoomIDPointer();
@@ -38,6 +40,8 @@ public:
 	}
 	~m_IDirect3DDevice8()
 	{
+		Logging::LogDebug() << __FUNCTION__ << "(" << this << ")" << " deleting device!";
+
 		delete ProxyAddressLookupTable;
 	}
 

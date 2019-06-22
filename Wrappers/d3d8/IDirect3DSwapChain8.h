@@ -9,9 +9,14 @@ private:
 public:
 	m_IDirect3DSwapChain8(LPDIRECT3DSWAPCHAIN8 pSwapChain8, m_IDirect3DDevice8* pDevice) : ProxyInterface(pSwapChain8), m_pDevice(pDevice)
 	{
+		Logging::LogDebug() << "Creating device " << __FUNCTION__ << "(" << this << ")";
+
 		m_pDevice->ProxyAddressLookupTable->SaveAddress(this, ProxyInterface);
 	}
-	~m_IDirect3DSwapChain8() {}
+	~m_IDirect3DSwapChain8()
+	{
+		Logging::LogDebug() << __FUNCTION__ << "(" << this << ")" << " deleting device!";
+	}
 
 	LPDIRECT3DSWAPCHAIN8 GetProxyInterface() { return ProxyInterface; }
 

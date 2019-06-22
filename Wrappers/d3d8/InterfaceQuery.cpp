@@ -15,22 +15,44 @@
 */
 
 #include "d3d8wrapper.h"
-#include "Wrappers\wrapper.h"
 
-IDirect3D8 *WINAPI Direct3DCreate8Wrapper(UINT SDKVersion)
+void genericQueryInterface(REFIID riid, LPVOID *ppvObj, m_IDirect3DDevice8* m_pDevice)
 {
-	Logging::LogDebug() << __FUNCTION__;
-
-	static Direct3DCreate8Proc m_pDirect3DCreate8 = (Direct3DCreate8Proc)d3d8::Direct3DCreate8_var;
-
-	LPDIRECT3D8 pD3D8 = m_pDirect3DCreate8(SDKVersion);
-
-	if (pD3D8)
+	if (!ppvObj || !*ppvObj || !m_pDevice)
 	{
-		return new m_IDirect3D8(pD3D8);
+		return;
 	}
 
-	return nullptr;
-}
+	if (riid == IID_IDirect3D8)
+	{
+		IDirect3D8 *pD3D8 = nullptr;
+		if (SUCCEEDED(m_pDevice->GetDirect3D(&pD3D8)) && pD3D8)
+		{
+			*ppvObj = pD3D8;
+			pD3D8->Release();
+			return;
+		}
+	}
 
-FARPROC p_Direct3DCreate8Wrapper = (FARPROC)*Direct3DCreate8Wrapper;
+	if (riid == IID_IDirect3DDevice8)
+	{
+		*ppvObj = m_pDevice;
+		return;
+	}
+
+#define QUERYINTERFACE(x) \
+	if (riid == IID_ ## x) \
+		{ \
+			*ppvObj = m_pDevice->ProxyAddressLookupTable->FindAddress<m_ ## x>(*ppvObj); \
+			return; \
+		}
+
+	QUERYINTERFACE(IDirect3DTexture8);
+	QUERYINTERFACE(IDirect3DCubeTexture8);
+	QUERYINTERFACE(IDirect3DVolumeTexture8);
+	QUERYINTERFACE(IDirect3DVertexBuffer8);
+	QUERYINTERFACE(IDirect3DIndexBuffer8);
+	QUERYINTERFACE(IDirect3DSurface8);
+	QUERYINTERFACE(IDirect3DVolume8);
+	QUERYINTERFACE(IDirect3DSwapChain8);
+}

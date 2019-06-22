@@ -167,6 +167,9 @@
     <ClCompile Include="Patches\DPadMovement.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Wrappers\d3d8\InterfaceQuery.cpp">
+      <Filter>Wrappers\d3d8</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">

@@ -34,11 +34,12 @@ constexpr BYTE LangSearchBytesG[] = { 0x6A, 0x04, 0xE8, 0xB2, 0x28, 0xFE, 0xFF, 
 constexpr BYTE LangSearchBytesH[] = { 0xA3, 0x00, 0x8B, 0x51, 0x08, 0x83, 0xC0, 0x08, 0x3B, 0xC2, 0x75, 0xEA, 0x5E, 0xC3, 0x90, 0x90 };
 constexpr BYTE LangSearchBytesI[] = { 0x01, 0x00, 0x00, 0x6B, 0xC0, 0x1B, 0x2D, 0x8C, 0x00, 0x00, 0x00, 0x50, 0x6A, 0xFB, 0xE8, 0xCD, 0xCC, 0xFF, 0xFF, 0x0F };
 constexpr BYTE LangSearchBytesJ[] = { 0x03, 0x00, 0x00, 0x6B, 0xC0, 0x1B, 0x2D, 0x8C, 0x00, 0x00, 0x00, 0x50, 0x6A, 0xFB, 0xE8, 0x37, 0xCE, 0xFF, 0xFF, 0x0F };
+constexpr BYTE LangSearchBytesK[] = { 0x75, 0x0E, 0x68, 0xD0, 0x00, 0x00, 0x00, 0x68, 0x0E, 0x01, 0x00, 0x00, 0x6A, 0x46, 0xEB, 0x42, 0x3C };
 
-#define STR_PER_LANG 25
+#define STR_PER_LANG 26
 
 BYTE langMin = 1;
-char *str_ptr[STR_PER_LANG * 6];
+char *exeStrPtr[STR_PER_LANG * 6];
 BYTE *gLangID;
 
 void *LangsPauseRetAddr;
@@ -48,7 +49,7 @@ BYTE LangsPauseLangID = 255;
 void LangsPauseHelper()
 {
 	if (LangsPauseLangID != *gLangID) {
-		LangsPauseStrPtr = (void *)&str_ptr[STR_PER_LANG * (int)*gLangID];
+		LangsPauseStrPtr = (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID];
 		UpdateMemoryAddress((void *)((BYTE*)LangsPauseRetAddr + 6), (void *)&LangsPauseStrPtr, 4);
 		LangsPauseLangID = *gLangID;
 	}
@@ -73,39 +74,39 @@ void LangsErrorsHelper()
 {
 	if (LangsErrorsLangID != *gLangID) {
 		if (isMultiLang) {
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x01CF), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 9], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x01F7), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 9], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x022F), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 9], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x017B), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 10], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x0185), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 10], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x018F), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 10], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x0239), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 11], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x0249), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 12], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x0201), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 13], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x01D9), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 14], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x01B1), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 15], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x01A7), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 16], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x0211), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 17], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x01CF), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 9], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x01F7), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 9], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x022F), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 9], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x017B), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 10], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x0185), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 10], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x018F), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 10], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x0239), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 11], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x0249), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 12], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x0201), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 13], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x01D9), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 14], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x01B1), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 15], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x01A7), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 16], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x0211), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 17], 4);
 		} else {
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x00D5), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 9], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x00F6), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 9], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x0124), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 9], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x0086), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 10], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x0090), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 10], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x009A), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 10], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x012B), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 11], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x0138), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 12], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x00FD), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 13], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x00DC), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 14], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x00BB), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 15], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x00B1), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 16], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x010A), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 17], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x0069), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 18], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x01B5), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 19], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x01E5), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 19], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x0207), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 19], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x0193), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 20], 4);
-			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x0237), (void *)&str_ptr[STR_PER_LANG * (int)*gLangID + 20], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x00D5), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 9], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x00F6), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 9], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x0124), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 9], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x0086), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 10], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x0090), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 10], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x009A), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 10], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x012B), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 11], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x0138), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 12], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x00FD), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 13], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x00DC), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 14], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x00BB), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 15], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x00B1), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 16], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x010A), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 17], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x0069), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 18], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x01B5), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 19], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x01E5), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 19], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x0207), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 19], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x0193), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 20], 4);
+			UpdateMemoryAddress((void *)((BYTE*)LangsErrorsRetAddr + 0x0237), (void *)&exeStrPtr[STR_PER_LANG * (int)*gLangID + 20], 4);
 		}
 		LangsErrorsLangID = *gLangID;
 	}
@@ -139,7 +140,7 @@ __declspec(naked) void __stdcall LangsButtonASM()
 		mov		edx, gLangID
 		movzx	eax, [edx]
 		imul	eax, STR_PER_LANG
-		mov		edx, [str_ptr + 21 * 4 + eax * 4]
+		mov		edx, [exeStrPtr + 21 * 4 + eax * 4]
 		push	edx
 		jmp		LangsButtonRetAddr
 	}
@@ -156,7 +157,7 @@ __declspec(naked) void __stdcall LangsGameSavedASM()
 		mov		edx, gLangID
 		movzx	eax, [edx]
 		imul	eax, STR_PER_LANG
-		mov		edx, [str_ptr + 22 * 4 + eax * 4]
+		mov		edx, [exeStrPtr + 22 * 4 + eax * 4]
 		pop		ecx
 		pop		eax
 		push	edx
@@ -175,7 +176,7 @@ __declspec(naked) void __stdcall LangsCantSaveASM()
 		mov		edx, gLangID
 		movzx	eax, [edx]
 		imul	eax, STR_PER_LANG
-		mov		edx, [str_ptr + 23 * 4 + eax * 4]
+		mov		edx, [exeStrPtr + 23 * 4 + eax * 4]
 		pop		ecx
 		pop		eax
 		push	edx
@@ -194,7 +195,7 @@ __declspec(naked) void __stdcall LangsNoQuickSaveASM()
 		mov		edx, gLangID
 		movzx	eax, [edx]
 		imul	eax, STR_PER_LANG
-		mov		edx, [str_ptr + 24 * 4 + eax * 4]
+		mov		edx, [exeStrPtr + 24 * 4 + eax * 4]
 		pop		ecx
 		pop		eax
 		push	edx
@@ -212,7 +213,7 @@ __declspec(naked) void __stdcall LangsGameSavedASM2()
 		mov		edx, gLangID
 		movzx	eax, [edx]
 		imul	eax, STR_PER_LANG
-		mov		esi, [str_ptr + 22 * 4 + eax * 4]
+		mov		esi, [exeStrPtr + 22 * 4 + eax * 4]
 		pop		eax
 		jmp		LangsGameSavedRetAddr2
 	}
@@ -228,7 +229,7 @@ __declspec(naked) void __stdcall LangsCantSaveASM2()
 		mov		edx, gLangID
 		movzx	eax, [edx]
 		imul	eax, STR_PER_LANG
-		mov		esi, [str_ptr + 23 * 4 + eax * 4]
+		mov		esi, [exeStrPtr + 23 * 4 + eax * 4]
 		pop		eax
 		jmp		LangsCantSaveRetAddr2
 	}
@@ -244,7 +245,7 @@ __declspec(naked) void __stdcall LangsNoQuickSaveASM2()
 		mov		edx, gLangID
 		movzx	eax, [edx]
 		imul	eax, STR_PER_LANG
-		mov		esi, [str_ptr + 24 * 4 + eax * 4]
+		mov		esi, [exeStrPtr + 24 * 4 + eax * 4]
 		pop		eax
 		jmp		LangsNoQuickSaveRetAddr2
 	}
@@ -418,144 +419,471 @@ __declspec(naked) void __stdcall LangsSelectorASM()
 	}
 }
 
+void *BloodArrowFixRetAddr;
+int *PosByLang;
+
+__declspec(naked) void __stdcall BloodArrowFixASM()
+{
+	__asm
+	{
+		mov		eax, PosByLang
+		mov		eax, [eax]
+		add     eax, 0FFFFFFFBh
+		push    0FFFFFFE0h
+		push	eax
+		jmp BloodArrowFixRetAddr
+	}
+}
+
+void *BloodArrowFixRetAddr2;
+
+__declspec(naked) void __stdcall BloodArrowFixASM2()
+{
+	__asm
+	{
+		push    ecx
+		add     edx, 1Eh
+		mov		ecx, PosByLang
+		mov		ecx, [ecx]
+		add     edx, ecx
+		push	edx
+		jmp BloodArrowFixRetAddr2
+	}
+}
+
+BYTE *MFSomeByte;
+BYTE *MFMenuYPos;
+void *MouseFixRetAddr;
+
+DWORD (*RetMouseB)(int a);
+DWORD (*RetMouseX)(int a);
+DWORD (*RetMouseY)(int a);
+
+__declspec(naked) void __stdcall MouseFixASM()
+{
+	__asm
+	{
+		mov		ecx, MFSomeByte
+		mov		al, [ecx]
+		cmp		al, 0
+		jz		MFExit
+		mov     ebp, 0
+		push	1
+		call	RetMouseB
+		add		esp, 4
+		test	eax, eax
+		jz		MFNext
+		call	RetMouseX
+		mov		ecx, PosByLang
+		mov		ecx, [ecx]
+		add		ecx, 0F0h
+		cmp     eax, ecx
+		jle     MFNext
+		call	RetMouseX
+		mov		ecx, PosByLang
+		mov		ecx, [ecx]
+		add		ecx, 10Bh
+		cmp     eax, ecx
+		jge     MFNext
+		call    RetMouseY
+		mov		ecx, MFMenuYPos
+		movsx   ecx, [ecx]
+		imul    ecx, 1Bh
+		add     ecx, 53h
+		cmp     eax, ecx
+		jle     MFNext
+		call    RetMouseY
+		mov		edx, MFMenuYPos
+		movsx   edx, [edx]
+		imul    edx, 1Bh
+		add     edx, 6Eh
+		cmp     eax, edx
+		jge     MFNext
+		mov     ebp, 1
+		jmp     MFExit
+	MFNext:
+		push    1
+		call    RetMouseB
+		add     esp, 4
+		test    eax, eax
+		jz      MFExit
+		call    RetMouseX
+		mov		edx, MFMenuYPos
+		movsx   edx, [edx]
+		mov		ecx, PosByLang
+		mov		ecx, [ecx]
+		add     ecx, [esp + edx * 4 + 3Ch]
+		cmp     eax, ecx
+		jle     MFExit
+		call    RetMouseX
+		mov		ecx, MFMenuYPos
+		movsx   ecx, [ecx]
+		mov     edx, [esp + ecx * 4 + 3Ch]
+		add     edx, 1Bh
+		mov		ecx, PosByLang
+		mov		ecx, [ecx]
+		add     edx, ecx
+		cmp     eax, edx
+		jge     MFExit
+		call    RetMouseY
+		mov		ecx, MFMenuYPos
+		movsx   ecx, [ecx]
+		imul    ecx, 1Bh
+		add     ecx, 53h
+		cmp     eax, ecx
+		jle     MFExit
+		call    RetMouseY
+		mov		edx, MFMenuYPos
+		movsx   edx, [edx]
+		imul    edx, 1Bh
+		add     edx, 6Eh
+		cmp     eax, edx
+		jge     MFExit
+		mov     ebp, 2
+	MFExit:
+		mov		ecx, MFSomeByte
+		mov		al, [ecx]
+		jmp		MouseFixRetAddr
+	}
+}
+
+__declspec(naked) void __stdcall MouseFixASM2()
+{
+	__asm
+	{
+		mov		ecx, MFSomeByte
+		mov		al, [ecx]
+		cmp		al, 0
+		jz		MFExit
+		mov     esi, 0
+		push	1
+		call	RetMouseB
+		add		esp, 4
+		test	eax, eax
+		jz		MFNext
+		call	RetMouseX
+		mov		ecx, PosByLang
+		mov		ecx, [ecx]
+		add		ecx, 0F0h
+		cmp     eax, ecx
+		jle     MFNext
+		call	RetMouseX
+		mov		ecx, PosByLang
+		mov		ecx, [ecx]
+		add		ecx, 10Bh
+		cmp     eax, ecx
+		jge     MFNext
+		call    RetMouseY
+		mov		ecx, MFMenuYPos
+		movsx   ecx, [ecx]
+		imul    ecx, 1Bh
+		add     ecx, 53h
+		cmp     eax, ecx
+		jle     MFNext
+		call    RetMouseY
+		mov		edx, MFMenuYPos
+		movsx   edx, [edx]
+		imul    edx, 1Bh
+		add     edx, 6Eh
+		cmp     eax, edx
+		jge     MFNext
+		mov     esi, 1
+		jmp     MFExit
+	MFNext :
+		push    1
+		call    RetMouseB
+		add     esp, 4
+		test    eax, eax
+		jz      MFExit
+		call    RetMouseX
+		mov		edx, MFMenuYPos
+		movsx   edx, [edx]
+		mov		ecx, PosByLang
+		mov		ecx, [ecx]
+		add     ecx, [esp + edx * 4 + 3Ch]
+		cmp     eax, ecx
+		jle     MFExit
+		call    RetMouseX
+		mov		ecx, MFMenuYPos
+		movsx   ecx, [ecx]
+		mov     edx, [esp + ecx * 4 + 3Ch]
+		add     edx, 1Bh
+		mov		ecx, PosByLang
+		mov		ecx, [ecx]
+		add     edx, ecx
+		cmp     eax, edx
+		jge     MFExit
+		call    RetMouseY
+		mov		ecx, MFMenuYPos
+		movsx   ecx, [ecx]
+		imul    ecx, 1Bh
+		add     ecx, 53h
+		cmp     eax, ecx
+		jle     MFExit
+		call    RetMouseY
+		mov		edx, MFMenuYPos
+		movsx   edx, [edx]
+		imul    edx, 1Bh
+		add     edx, 6Eh
+		cmp     eax, edx
+		jge     MFExit
+		mov     esi, 2
+	MFExit:
+		mov		[esp + 08h], esi
+		mov		ecx, MFSomeByte
+		mov		al, [ecx]
+		jmp		MouseFixRetAddr
+	}
+}
+
+void *BloodStrFixRetAddr;
+
+__declspec(naked) void __stdcall BloodStrFixASM()
+{
+	__asm
+	{
+		add     edi, 10Ch
+		push    edi
+		jmp		BloodStrFixRetAddr
+	}
+}
+
+void *BloodStrFixRetAddr2;
+
+__declspec(naked) void __stdcall BloodStrFixASM2()
+{
+	__asm
+	{
+		add     edi, 10Ch
+		push    edi
+		jmp		BloodStrFixRetAddr2
+	}
+}
+
+void *BloodStrFixRetAddr3;
+
+__declspec(naked) void __stdcall BloodStrFixASM3()
+{
+	__asm
+	{
+		add     edi, 10Ch
+		push    edi
+		jmp		BloodStrFixRetAddr3
+	}
+}
+
+void *BloodStrFixRetAddr4;
+
+__declspec(naked) void __stdcall BloodStrFixASM4()
+{
+	__asm
+	{
+		add     edi, 10Ch
+		push    edi
+		jmp		BloodStrFixRetAddr4
+	}
+}
+
 void UpdateCustomExeStr()
 {
-	void *DSpecAddrA = CheckMultiMemoryAddress((void*)0x0040730A, (void*)0x0040730A, (void*)0x0040731A, (void*)LangSearchBytesA, sizeof(LangSearchBytesA));
+	void *DLangAddrA = CheckMultiMemoryAddress((void*)0x0040730A, (void*)0x0040730A, (void*)0x0040731A, (void*)LangSearchBytesA, sizeof(LangSearchBytesA));
 	
 	// Search for address
-	if (!DSpecAddrA) {
+	if (!DLangAddrA) {
 		Logging::Log() << __FUNCTION__ << " searching for memory address!";
-		DSpecAddrA = GetAddressOfData(LangSearchBytesA, sizeof(LangSearchBytesA), 1, 0x00407000, 1800);
+		DLangAddrA = GetAddressOfData(LangSearchBytesA, sizeof(LangSearchBytesA), 1, 0x00407000, 1800);
 	}
 
 	// Checking address pointer
-	if (!DSpecAddrA) {
+	if (!DLangAddrA) {
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
 
 	langMin = (UnlockJapLang == false);
-	gLangID = (BYTE *)*(DWORD *)((BYTE*)DSpecAddrA - 2);
+	gLangID = (BYTE *)*(DWORD *)((BYTE*)DLangAddrA - 2);
 
 	ifstream file(std::string(std::string(ModPathA) + "\\text\\exe_str.txt").c_str());
 
 	if (file.is_open()) {
-		Logging::Log() << "Enabling Custom Exe Strings...";
 		string line;
 		int i = 0;
-		while (getline(file, line)) {
+		while (getline(file, line) && i < (STR_PER_LANG * 6)) {
 			if (!line.empty() && !((*(char *)line.c_str() == '/') && (*(char *)(line.c_str() + 1) == '/'))) {
-				str_ptr[i] = (char *)malloc(line.length() + 10);
-				if (str_ptr[i])
-					strcpy_s(str_ptr[i], line.length() + 10, line.c_str());
+				exeStrPtr[i] = (char *)malloc(line.length() + 10);
+				if (exeStrPtr[i])
+					strcpy_s(exeStrPtr[i], line.length() + 10, line.c_str());
 				i++;
 			}
 		}
 		file.close();
 
+		if (i != (STR_PER_LANG * 6)) {
+			Logging::Log() << __FUNCTION__ << " Error: Wrong text file!";
+			return;
+		}
+
+		Logging::Log() << "Enabling Custom Exe Strings...";
+
 		// Pause menu
-		LangsPauseRetAddr = (void *)((BYTE*)DSpecAddrA + 0x0F);
-		WriteJMPtoMemory((BYTE*)DSpecAddrA + 6, *LangsPauseASM, 9);
+		LangsPauseRetAddr = (void *)((BYTE*)DLangAddrA + 0x0F);
+		WriteJMPtoMemory((BYTE*)DLangAddrA + 6, *LangsPauseASM, 9);
 
 		// Errors
-		void *DSpecAddrB = CheckMultiMemoryAddress((void*)0x00407629, (void*)0x00407629, (void*)0x00407639, (void*)LangSearchBytesB, sizeof(LangSearchBytesB));
-		if (!DSpecAddrB) {
-			DSpecAddrB = GetAddressOfData(LangSearchBytesB, sizeof(LangSearchBytesB), 4, 0x00508000, 1800);
+		void *DLangAddrB = CheckMultiMemoryAddress((void*)0x00407629, (void*)0x00407629, (void*)0x00407639, (void*)LangSearchBytesB, sizeof(LangSearchBytesB));
+		if (!DLangAddrB) {
+			DLangAddrB = GetAddressOfData(LangSearchBytesB, sizeof(LangSearchBytesB), 4, 0x00508000, 1800);
 		}
-		if (DSpecAddrB) {
-			LangsErrorsRetAddr = (void *)((BYTE*)DSpecAddrB + 9);
+		if (DLangAddrB) {
+			LangsErrorsRetAddr = (void *)((BYTE*)DLangAddrB + 9);
 			isMultiLang = *(WORD *)((BYTE*)LangsErrorsRetAddr + 0x70) == 0xF685;
-			WriteJMPtoMemory((BYTE*)DSpecAddrB, *LangsErrorsASM, 9);
+			WriteJMPtoMemory((BYTE*)DLangAddrB, *LangsErrorsASM, 9);
 		}
 
 		// Button
 		BYTE codeA[] = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
-		void *DSpecAddrC = GetAddressOfData(LangSearchBytesC, sizeof(LangSearchBytesC), 1, 0x005AEE90, 1800);
-		if (DSpecAddrC) {
-			WriteJMPtoMemory((BYTE*)DSpecAddrC + 0x10, *LangsButtonASM, 5);
-			LangsButtonRetAddr = (void *)((BYTE*)DSpecAddrC + 0x15);
+		void *DLangAddrC = GetAddressOfData(LangSearchBytesC, sizeof(LangSearchBytesC), 1, 0x005AEE90, 1800);
+		if (DLangAddrC) {
+			WriteJMPtoMemory((BYTE*)DLangAddrC + 0x10, *LangsButtonASM, 5);
+			LangsButtonRetAddr = (void *)((BYTE*)DLangAddrC + 0x15);
 		} else {
-			void *DSpecAddrD = GetAddressOfData(LangSearchBytesD, sizeof(LangSearchBytesD), 1, 0x005AF000, 1800);
-			if (DSpecAddrD) {
-				UpdateMemoryAddress((void *)((BYTE*)DSpecAddrD + 0x0C), (void *)codeA, 9);
-				WriteJMPtoMemory((BYTE*)DSpecAddrD + 0x1B, *LangsButtonASM, 5);
-				LangsButtonRetAddr = (void *)((BYTE*)DSpecAddrD + 0x20);
+			void *DLangAddrD = GetAddressOfData(LangSearchBytesD, sizeof(LangSearchBytesD), 1, 0x005AF000, 1800);
+			if (DLangAddrD) {
+				UpdateMemoryAddress((void *)((BYTE*)DLangAddrD + 0x0C), (void *)codeA, 9);
+				WriteJMPtoMemory((BYTE*)DLangAddrD + 0x1B, *LangsButtonASM, 5);
+				LangsButtonRetAddr = (void *)((BYTE*)DLangAddrD + 0x20);
 			}
 		}
 
 		// Quick save
-		void *DSpecAddrE = GetAddressOfData(LangSearchBytesE, sizeof(LangSearchBytesE), 1, 0x0044C680, 1800);
-		if (DSpecAddrE) {
-			WriteJMPtoMemory((BYTE*)DSpecAddrE + 0x28, *LangsGameSavedASM, 5);
-			LangsGameSavedRetAddr = (void *)((BYTE*)DSpecAddrE + 0x2D);
-			DSpecAddrE = GetAddressOfData(LangSearchBytesE, sizeof(LangSearchBytesE), 1, (DWORD)DSpecAddrE, 1800);
-			if (DSpecAddrE) {
-				WriteJMPtoMemory((BYTE*)DSpecAddrE + 0x28, *LangsCantSaveASM, 5);
-				LangsCantSaveRetAddr = (void *)((BYTE*)DSpecAddrE + 0x2D);
-				DSpecAddrE = GetAddressOfData(LangSearchBytesE, sizeof(LangSearchBytesE), 1, (DWORD)DSpecAddrE, 1800);
-				if (DSpecAddrE) {
-					WriteJMPtoMemory((BYTE*)DSpecAddrE + 0x28, *LangsNoQuickSaveASM, 5);
-					LangsNoQuickSaveRetAddr = (void *)((BYTE*)DSpecAddrE + 0x2D);
+		void *DLangAddrE = GetAddressOfData(LangSearchBytesE, sizeof(LangSearchBytesE), 1, 0x0044C680, 1800);
+		if (DLangAddrE) {
+			WriteJMPtoMemory((BYTE*)DLangAddrE + 0x28, *LangsGameSavedASM, 5);
+			LangsGameSavedRetAddr = (void *)((BYTE*)DLangAddrE + 0x2D);
+			DLangAddrE = GetAddressOfData(LangSearchBytesE, sizeof(LangSearchBytesE), 1, (DWORD)DLangAddrE, 1800);
+			if (DLangAddrE) {
+				WriteJMPtoMemory((BYTE*)DLangAddrE + 0x28, *LangsCantSaveASM, 5);
+				LangsCantSaveRetAddr = (void *)((BYTE*)DLangAddrE + 0x2D);
+				DLangAddrE = GetAddressOfData(LangSearchBytesE, sizeof(LangSearchBytesE), 1, (DWORD)DLangAddrE, 1800);
+				if (DLangAddrE) {
+					WriteJMPtoMemory((BYTE*)DLangAddrE + 0x28, *LangsNoQuickSaveASM, 5);
+					LangsNoQuickSaveRetAddr = (void *)((BYTE*)DLangAddrE + 0x2D);
 				}
 			}
 		} else {
-			void *DSpecAddrF = GetAddressOfData(LangSearchBytesF, sizeof(LangSearchBytesF), 1, 0x0044C800, 1800);
-			if (DSpecAddrF) {
-				UpdateMemoryAddress((void *)((BYTE*)DSpecAddrF + 5), (void *)codeA, 9);
-				WriteJMPtoMemory((BYTE*)DSpecAddrF + 0x0E, *LangsGameSavedASM2, 5);
-				LangsGameSavedRetAddr2 = (void *)((BYTE*)DSpecAddrF + 0x13);
-				DSpecAddrF = (void *)((BYTE*)DSpecAddrF + 0x90);
-				UpdateMemoryAddress((void *)((BYTE*)DSpecAddrF + 5), (void *)codeA, 9);
-				WriteJMPtoMemory((BYTE*)DSpecAddrF + 0x0E, *LangsCantSaveASM2, 5);
-				LangsCantSaveRetAddr2 = (void *)((BYTE*)DSpecAddrF + 0x13);
-				DSpecAddrF = (void *)((BYTE*)DSpecAddrF + 0x90);
-				UpdateMemoryAddress((void *)((BYTE*)DSpecAddrF + 5), (void *)codeA, 9);
-				WriteJMPtoMemory((BYTE*)DSpecAddrF + 0x0E, *LangsNoQuickSaveASM2, 5);
-				LangsNoQuickSaveRetAddr2 = (void *)((BYTE*)DSpecAddrF + 0x13);
+			void *DLangAddrF = GetAddressOfData(LangSearchBytesF, sizeof(LangSearchBytesF), 1, 0x0044C800, 1800);
+			if (DLangAddrF) {
+				UpdateMemoryAddress((void *)((BYTE*)DLangAddrF + 5), (void *)codeA, 9);
+				WriteJMPtoMemory((BYTE*)DLangAddrF + 0x0E, *LangsGameSavedASM2, 5);
+				LangsGameSavedRetAddr2 = (void *)((BYTE*)DLangAddrF + 0x13);
+				DLangAddrF = (void *)((BYTE*)DLangAddrF + 0x90);
+				UpdateMemoryAddress((void *)((BYTE*)DLangAddrF + 5), (void *)codeA, 9);
+				WriteJMPtoMemory((BYTE*)DLangAddrF + 0x0E, *LangsCantSaveASM2, 5);
+				LangsCantSaveRetAddr2 = (void *)((BYTE*)DLangAddrF + 0x13);
+				DLangAddrF = (void *)((BYTE*)DLangAddrF + 0x90);
+				UpdateMemoryAddress((void *)((BYTE*)DLangAddrF + 5), (void *)codeA, 9);
+				WriteJMPtoMemory((BYTE*)DLangAddrF + 0x0E, *LangsNoQuickSaveASM2, 5);
+				LangsNoQuickSaveRetAddr2 = (void *)((BYTE*)DLangAddrF + 0x13);
 			}
 		}
 
 		// Unlock language selector
-		void *DSpecAddrG = GetAddressOfData(LangSearchBytesG, sizeof(LangSearchBytesG), 1, 0x00463F70, 1800);
-		if (DSpecAddrG) {
-			UpdateMemoryAddress((void *)((BYTE*)DSpecAddrG + 0x19), (void *)&langMin, 1);
-			UpdateMemoryAddress((void *)((BYTE*)DSpecAddrG + 0x5F), (void *)&langMin, 1);
+		void *DLangAddrG = GetAddressOfData(LangSearchBytesG, sizeof(LangSearchBytesG), 1, 0x00463F70, 1800); //00463F77
+		if (DLangAddrG) {
+			UpdateMemoryAddress((void *)((BYTE*)DLangAddrG + 0x19), (void *)&langMin, 1);
+			UpdateMemoryAddress((void *)((BYTE*)DLangAddrG + 0x5F), (void *)&langMin, 1);
+			// Fix mouse hitboxes for arrows in Game Options menu
+			PosByLang = (int *)*(DWORD *)((BYTE*)DLangAddrG + 0x0702);
+			MFSomeByte = (BYTE *)*(DWORD *)((BYTE*)DLangAddrG - 0x0C78);
+			MFMenuYPos = (BYTE *)*(DWORD *)((BYTE*)DLangAddrG - 0x0C90);
+			RetMouseB = (DWORD(*)(int a))(((BYTE*)DLangAddrG - 0x0CDE) + *(int *)((BYTE*)DLangAddrG - 0x0CE2));
+			RetMouseX = (DWORD(*)(int a))(((BYTE*)DLangAddrG - 0x0CD2) + *(int *)((BYTE*)DLangAddrG - 0x0CD6));
+			RetMouseY = (DWORD(*)(int a))(((BYTE*)DLangAddrG - 0x0CA9) + *(int *)((BYTE*)DLangAddrG - 0x0CAD));
+			MouseFixRetAddr = (void *)((BYTE*)DLangAddrG - 0x0C74);
+			WriteJMPtoMemory((BYTE*)DLangAddrG - 0x0C79, *MouseFixASM2, 5);
 		} else {
-			void *DSpecAddrH = GetAddressOfData(LangSearchBytesH, sizeof(LangSearchBytesH), 1, 0x004F7100, 1800);
-			if (DSpecAddrH) {
-				gLangID_S = (DWORD *)*(DWORD *)((BYTE*)DSpecAddrH + 0x32);
-				void *DSpecAddrI = GetAddressOfData(LangSearchBytesI, sizeof(LangSearchBytesI), 1, 0x00463D00, 1800);  //00463D20
-				if (DSpecAddrI) {
-					SomeWord = (WORD *)*(DWORD *)((BYTE*)DSpecAddrI + 0xBF);
-					SomeByte = (BYTE *)*(DWORD *)((BYTE*)DSpecAddrI + 0xCB);
-					SomeDataA = (DWORD *)*(DWORD *)((BYTE*)DSpecAddrI + 0xFC);
-					SomeDataB = (DWORD *)*(DWORD *)((BYTE*)DSpecAddrI + 0xD7);
-					FunctionA = (DWORD(*)(int a, int b, int c))(((BYTE*)DSpecAddrI + 0xE1) + *(int *)((BYTE*)DSpecAddrI + 0xDD));
-					FunctionB = (DWORD(*)(int a))(((BYTE*)DSpecAddrI + 0xEF) + *(int *)((BYTE*)DSpecAddrI + 0xEB));
-					FunctionC = (DWORD(*)(int a))(((BYTE*)DSpecAddrI - 0x0548) + *(int *)((BYTE*)DSpecAddrI - 0x054C));
-					FunctionD = (DWORD(*)(int a, int b))(((BYTE*)DSpecAddrI - 0x540) + *(int *)((BYTE*)DSpecAddrI - 0x0544));
-					LabelA = (DWORD *)(((BYTE*)DSpecAddrI + 0xD5) + *(int *)((BYTE*)DSpecAddrI + 0xD1));
-					LabelB = (DWORD *)(((BYTE*)DSpecAddrI + 0x03) + *(int *)((BYTE*)DSpecAddrI - 0x01));
-					WriteJMPtoMemory((BYTE*)DSpecAddrI - 0xE8, *LangsSelectorASM, 5);
+			void *DLangAddrH = GetAddressOfData(LangSearchBytesH, sizeof(LangSearchBytesH), 1, 0x004F7100, 1800);
+			if (DLangAddrH) {
+				gLangID_S = (DWORD *)*(DWORD *)((BYTE*)DLangAddrH + 0x32);
+				void *DLangAddrI = GetAddressOfData(LangSearchBytesI, sizeof(LangSearchBytesI), 1, 0x00463D00, 1800);  //00463D20
+				if (DLangAddrI) {
+					SomeWord = (WORD *)*(DWORD *)((BYTE*)DLangAddrI + 0xBF);
+					SomeByte = (BYTE *)*(DWORD *)((BYTE*)DLangAddrI + 0xCB);
+					SomeDataA = (DWORD *)*(DWORD *)((BYTE*)DLangAddrI + 0xFC);
+					SomeDataB = (DWORD *)*(DWORD *)((BYTE*)DLangAddrI + 0xD7);
+					FunctionA = (DWORD(*)(int a, int b, int c))(((BYTE*)DLangAddrI + 0xE1) + *(int *)((BYTE*)DLangAddrI + 0xDD));
+					FunctionB = (DWORD(*)(int a))(((BYTE*)DLangAddrI + 0xEF) + *(int *)((BYTE*)DLangAddrI + 0xEB));
+					FunctionC = (DWORD(*)(int a))(((BYTE*)DLangAddrI - 0x0548) + *(int *)((BYTE*)DLangAddrI - 0x054C));
+					FunctionD = (DWORD(*)(int a, int b))(((BYTE*)DLangAddrI - 0x540) + *(int *)((BYTE*)DLangAddrI - 0x0544));
+					LabelA = (DWORD *)(((BYTE*)DLangAddrI + 0xD5) + *(int *)((BYTE*)DLangAddrI + 0xD1));
+					LabelB = (DWORD *)(((BYTE*)DLangAddrI + 0x03) + *(int *)((BYTE*)DLangAddrI - 0x01));
+					WriteJMPtoMemory((BYTE*)DLangAddrI - 0xE8, *LangsSelectorASM, 5);
+					// Fix blood setting arrows position in Game Options menu
+					PosByLang = (int *)*(DWORD *)((BYTE*)DLangAddrI - 0x0456);
+					BloodArrowFixRetAddr = (void *)((BYTE*)DLangAddrI + 0x095D);
+					DWORD BloodArrowFixAddr = (DWORD)*BloodArrowFixASM;
+					UpdateMemoryAddress((void *)((BYTE*)DLangAddrI + 0x0CD8), (void *)&BloodArrowFixAddr, 4);
+					BloodArrowFixRetAddr2 = (void *)((BYTE*)DLangAddrI + 0x09C8);
+					WriteJMPtoMemory((BYTE*)DLangAddrI + 0x09C3, *BloodArrowFixASM2, 5);
+					// Fix mouse hitboxes for arrows in Game Options menu
+					MFSomeByte = (BYTE *)*(DWORD *)((BYTE*)DLangAddrI - 0x0C9E);
+					MFMenuYPos = (BYTE *)*(DWORD *)((BYTE*)DLangAddrI - 0x0CB2);
+					RetMouseB = (DWORD(*)(int a))(((BYTE*)DLangAddrI - 0x0D00) + *(int *)((BYTE*)DLangAddrI - 0x0D04));
+					RetMouseX = (DWORD(*)(int a))(((BYTE*)DLangAddrI - 0x0CF4) + *(int *)((BYTE*)DLangAddrI - 0x0CF8));
+					RetMouseY = (DWORD(*)(int a))(((BYTE*)DLangAddrI - 0x0CCB) + *(int *)((BYTE*)DLangAddrI - 0x0CCF));
+					MouseFixRetAddr = (void *)((BYTE*)DLangAddrI - 0x0C9A);
+					WriteJMPtoMemory((BYTE*)DLangAddrI - 0x0C9F, *MouseFixASM, 5);
 				} else {
-					void *DSpecAddrJ = GetAddressOfData(LangSearchBytesJ, sizeof(LangSearchBytesJ), 1, 0x00463E00, 1800); //00463E16
-					if (DSpecAddrJ) {
-						SomeWord = (WORD *)*(DWORD *)((BYTE*)DSpecAddrJ + 0x010D);
-						SomeByte = (BYTE *)*(DWORD *)((BYTE*)DSpecAddrJ + 0x0119);
-						SomeDataA = (DWORD *)*(DWORD *)((BYTE*)DSpecAddrJ + 0x0138);
-						SomeDataB = (DWORD *)*(DWORD *)((BYTE*)DSpecAddrJ + 0x0125);
-						FunctionA = (DWORD(*)(int a, int b, int c))(((BYTE*)DSpecAddrJ + 0x012F) + *(int *)((BYTE*)DSpecAddrJ + 0x012B));
-						FunctionB = (DWORD(*)(int a))(((BYTE*)DSpecAddrJ + 0x0150) + *(int *)((BYTE*)DSpecAddrJ + 0x014C));
-						FunctionC = (DWORD(*)(int a))(((BYTE*)DSpecAddrJ - 0x03CE) + *(int *)((BYTE*)DSpecAddrJ - 0x03D2));
-						FunctionD = (DWORD(*)(int a, int b))(((BYTE*)DSpecAddrJ - 0x3C6) + *(int *)((BYTE*)DSpecAddrJ - 0x03CA));
-						LabelA = (DWORD *)(((BYTE*)DSpecAddrJ + 0x9A) + *(int *)((BYTE*)DSpecAddrJ + 0x96));
-						LabelB = (DWORD *)(((BYTE*)DSpecAddrJ + 0x0186) + *(int *)((BYTE*)DSpecAddrJ + 0x0182));
-						WriteJMPtoMemory((BYTE*)DSpecAddrJ + 0x95, *LangsSelectorASM, 5);
+					void *DLangAddrJ = GetAddressOfData(LangSearchBytesJ, sizeof(LangSearchBytesJ), 1, 0x00463E00, 1800); //00463E16
+					if (DLangAddrJ) {
+						SomeWord = (WORD *)*(DWORD *)((BYTE*)DLangAddrJ + 0x010D);
+						SomeByte = (BYTE *)*(DWORD *)((BYTE*)DLangAddrJ + 0x0119);
+						SomeDataA = (DWORD *)*(DWORD *)((BYTE*)DLangAddrJ + 0x0138);
+						SomeDataB = (DWORD *)*(DWORD *)((BYTE*)DLangAddrJ + 0x0125);
+						FunctionA = (DWORD(*)(int a, int b, int c))(((BYTE*)DLangAddrJ + 0x012F) + *(int *)((BYTE*)DLangAddrJ + 0x012B));
+						FunctionB = (DWORD(*)(int a))(((BYTE*)DLangAddrJ + 0x0150) + *(int *)((BYTE*)DLangAddrJ + 0x014C));
+						FunctionC = (DWORD(*)(int a))(((BYTE*)DLangAddrJ - 0x03CE) + *(int *)((BYTE*)DLangAddrJ - 0x03D2));
+						FunctionD = (DWORD(*)(int a, int b))(((BYTE*)DLangAddrJ - 0x3C6) + *(int *)((BYTE*)DLangAddrJ - 0x03CA));
+						LabelA = (DWORD *)(((BYTE*)DLangAddrJ + 0x9A) + *(int *)((BYTE*)DLangAddrJ + 0x96));
+						LabelB = (DWORD *)(((BYTE*)DLangAddrJ + 0x0186) + *(int *)((BYTE*)DLangAddrJ + 0x0182));
+						WriteJMPtoMemory((BYTE*)DLangAddrJ + 0x95, *LangsSelectorASM, 5);
+						// Fix mouse points for arrows in Game Options menu
+						PosByLang = (int *)*(DWORD *)((BYTE*)DLangAddrJ + 0x0660);
+						MFSomeByte = (BYTE *)*(DWORD *)((BYTE*)DLangAddrJ - 0x0B24);
+						MFMenuYPos = (BYTE *)*(DWORD *)((BYTE*)DLangAddrJ - 0x0B38);
+						RetMouseB = (DWORD(*)(int a))(((BYTE*)DLangAddrJ - 0x0B86) + *(int *)((BYTE*)DLangAddrJ - 0x0B8A));
+						RetMouseX = (DWORD(*)(int a))(((BYTE*)DLangAddrJ - 0x0B7A) + *(int *)((BYTE*)DLangAddrJ - 0x0B7E));
+						RetMouseY = (DWORD(*)(int a))(((BYTE*)DLangAddrJ - 0x0B51) + *(int *)((BYTE*)DLangAddrJ - 0x0B55));
+						MouseFixRetAddr = (void *)((BYTE*)DLangAddrJ - 0x0B20);
+						WriteJMPtoMemory((BYTE*)DLangAddrJ - 0x0B25, *MouseFixASM, 5);
 					}
 				}
 			}
 		}
+		
+		// Fix blood setting string position in Game Options menu
+		void *DLangAddrK = GetAddressOfData(LangSearchBytesK, sizeof(LangSearchBytesK), 1, 0x00461FF0, 1800); //0x00461FFB
+		if (DLangAddrK) {
+			BYTE codeB[] = { 0x56, 0x90, 0x90, 0x90, 0x90 };
+			UpdateMemoryAddress((void *)((BYTE*)DLangAddrK + 0x07), (void *)&codeB, 5);
+			UpdateMemoryAddress((void *)((BYTE*)DLangAddrK + 0x1F), (void *)&codeB, 5);
+			UpdateMemoryAddress((void *)((BYTE*)DLangAddrK + 0x38), (void *)&codeB, 5);
+			UpdateMemoryAddress((void *)((BYTE*)DLangAddrK + 0x4B), (void *)&codeB, 5);
+			WriteJMPtoMemory((BYTE*)DLangAddrK + 0x028D, *BloodStrFixASM, 5);
+			BloodStrFixRetAddr = (void *)((BYTE*)DLangAddrK + 0x028D + 5);
+			WriteJMPtoMemory((BYTE*)DLangAddrK + 0x02B1, *BloodStrFixASM2, 5);
+			BloodStrFixRetAddr2 = (void *)((BYTE*)DLangAddrK + 0x02B1 + 5);
+			WriteJMPtoMemory((BYTE*)DLangAddrK + 0x02D5, *BloodStrFixASM3, 5);
+			BloodStrFixRetAddr3 = (void *)((BYTE*)DLangAddrK + 0x02D5 + 5);
+			WriteJMPtoMemory((BYTE*)DLangAddrK + 0x02F5, *BloodStrFixASM4, 5);
+			BloodStrFixRetAddr4 = (void *)((BYTE*)DLangAddrK + 0x02F5 + 5);
+		}
 	} else {
 		Logging::Log() << __FUNCTION__ << " Error: Could not find text file";
 	}
+}
+
+char *getResolutionDescStr()
+{
+	return exeStrPtr[STR_PER_LANG * (int)*gLangID + 25];
 }

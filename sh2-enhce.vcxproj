@@ -51,10 +51,12 @@
     <ClCompile Include="Patches\HotelWater.cpp" />
     <ClCompile Include="Patches\Langs.cpp" />
     <ClCompile Include="Patches\LightingTransition.cpp" />
+    <ClCompile Include="Patches\MainMenu.cpp" />
     <ClCompile Include="Patches\NoCDPatch.cpp" />
     <ClCompile Include="Patches\PistonRoom.cpp" />
     <ClCompile Include="Patches\PS2NoiseFilter.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Patches\Resolution.cpp" />
     <ClCompile Include="Patches\Room312Shadow.cpp" />
     <ClCompile Include="Patches\RowboatAnimation.cpp" />
     <ClCompile Include="Patches\SfxPatch.cpp" />

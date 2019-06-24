@@ -46,7 +46,10 @@
 	visit(XInputVibration, true) \
 	visit(DPadMovementFix, true) \
 	visit(UseCustomExeStr, true) \
-	visit(UnlockJapLang, false)
+	visit(UnlockJapLang, false) \
+	visit(LockResolution, true) \
+	visit(MainMenuFix, true) \
+	visit(MainMenuTitlePerLang, true)
 
 #define VISIT_INT_SETTINGS(visit) \
 	visit(CustomFontCol, 100) \
@@ -59,7 +62,9 @@
 	visit(SingleCoreAffinityTimer, 5000) \
 	visit(SmallFontWidth, 14) \
 	visit(SmallFontHeight, 24) \
-	visit(PadNumber, 0)
+	visit(PadNumber, 0) \
+	visit(ResX, 0) \
+	visit(ResY, 0)
 
 #define VISIT_STR_SETTINGS(visit) \
 	visit(CustomModFolder, "")

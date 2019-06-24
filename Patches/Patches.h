@@ -30,6 +30,9 @@ void UpdateInfiniteRumble(DWORD *SH2_RoomID);
 void SetWindowHandle(HWND WindowHandle);
 void UnhookWindowHandle();
 void UpdateCustomExeStr();
+void UpdateResolutionLock();
+void UpdateMainMenuFix();
+void UpdateMainMenuTitlePerLang();
 
 // Varable forward declaration
 extern void *RoomIDAddr;

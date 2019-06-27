@@ -32,8 +32,8 @@ __declspec(naked) void __stdcall MainMenuFixASM()
 {
 	__asm
 	{
-		mov     edi, 12Ch
-		mov     esi, 16h
+		mov		edi, 12Ch
+		mov		esi, 16h
 		jmp		MainMenuFixRetAddr
 	}
 }
@@ -48,7 +48,9 @@ void UpdateMainMenuFix()
 		return;
 	}
 
-	char BreakOffset = 0x55;
+	Logging::Log() << "Enabling Main Menu fix...";
+
+	BYTE BreakOffset = 0x55;
 	UpdateMemoryAddress((void *)((BYTE*)DMenuAddrA + 0x1F), (void *)&BreakOffset, 1);
 	MainMenuFixRetAddr = (void *)((BYTE*)DMenuAddrA + 0x14);
 	WriteJMPtoMemory((BYTE*)DMenuAddrA + 0x0F, *MainMenuFixASM, 5);
@@ -57,13 +59,10 @@ void UpdateMainMenuFix()
 	UpdateMemoryAddress((void *)((BYTE*)DMenuAddrA + 0x21), (void *)&UpdateVal, 4);
 	UpdateVal = 0x1E;
 	UpdateMemoryAddress((void *)((BYTE*)DMenuAddrA + 0x26), (void *)&UpdateVal, 4);
-
 	UpdateVal = 0x014A;
 	UpdateMemoryAddress((void *)((BYTE*)DMenuAddrA + 0x3E), (void *)&UpdateVal, 4);
-
 	UpdateVal = 0x014A;
 	UpdateMemoryAddress((void *)((BYTE*)DMenuAddrA + 0x62), (void *)&UpdateVal, 4);
-
 	UpdateVal = 0x12;
 	UpdateMemoryAddress((void *)((BYTE*)DMenuAddrA + 0x71), (void *)&UpdateVal, 4);
 }
@@ -78,6 +77,7 @@ typedef struct {
 constexpr BYTE MenuSearchBytesB[] = { 0x00, 0x00, 0x68, 0xC4, 0xD5, 0x94, 0x00, 0xE8, 0xD0, 0x7F, 0x00, 0x00, 0x33, 0xF6, 0x83, 0xC8, 0xFF };
 constexpr BYTE MenuSearchBytesC[] = { 0x00, 0x00, 0x68, 0xC4, 0x11, 0x95, 0x00, 0xE8, 0xD6, 0x7F, 0x00, 0x00, 0x33, 0xF6, 0x83, 0xC8, 0xFF };
 constexpr BYTE MenuSearchBytesD[] = { 0x07, 0x68, 0x4C, 0xFF, 0xFF, 0xFF, 0xBF, 0x13, 0x00, 0x00, 0x00, 0xBB, 0x3B, 0x00, 0x00, 0x00, 0xE8 };
+constexpr BYTE MenuSearchBytesE[] = { 0x8B, 0x4C, 0x24, 0x04, 0x83, 0xF9, 0x0D, 0xB8, 0xFE, 0xFF, 0xFF, 0xFF, 0x0F, 0x87, 0x41, 0x03, 0x00, 0x00 };
 
 extern BYTE *gLangID;
 
@@ -126,13 +126,17 @@ void UpdateTitlePath()
 }
 
 void *MainMenuTitleRetAddr;
+DWORD (*LoadMes)(int pos);
 
 __declspec(naked) void __stdcall MainMenuTitleASM()
 {
 	__asm
 	{
 		call	UpdateTitlePath
-		xor     esi, esi
+		push	0
+		call	LoadMes
+		add		esp, 4
+		xor		esi, esi
 		or		eax, 0FFFFFFFFh
 		jmp		MainMenuTitleRetAddr
 	}
@@ -152,18 +156,19 @@ void UpdateMainMenuTitlePerLang()
 	}
 
 	start00Offset.pathPtr = (char *)start00CustomPath;
-	start00Offset.size = 0xFFFFFFFF;
-	start00Offset.unk2 = 0x00000000;
-	start00Offset.unk3 = 0x00000001;
+	start00Offset.size = -1;
+	start00Offset.unk2 = 0;
+	start00Offset.unk3 = 1;
 	
 	start01Offset.pathPtr = (char *)start01CustomPath;
-	start01Offset.size = 0xFFFFFFFF;
-	start01Offset.unk2 = 0x00000000;
-	start01Offset.unk3 = 0x00000001;
+	start01Offset.size = -1;
+	start01Offset.unk2 = 0;
+	start01Offset.unk3 = 1;
 
 	int UpdateVal;
 
 	if (DMenuAddrB && UseCustomExeStr) {
+		Logging::Log() << "Enabling Main Menu title selection by language...";
 		MainMenuTitleRetAddr = (void *)((BYTE*)DMenuAddrB + 0x11);
 		WriteJMPtoMemory((BYTE*)DMenuAddrB + 0x0C, *MainMenuTitleASM, 5);
 #if 0
@@ -176,8 +181,8 @@ void UpdateMainMenuTitlePerLang()
 		UpdateMemoryAddress((void *)((BYTE*)DMenuAddrB + 0x014E), (void *)&UpdateVal, 4);
 	}
 
+	//Make "Born From a Wish" horizontal position the same as "Letter From Silent Heaven"
 	void *DMenuAddrC = GetAddressOfData(MenuSearchBytesD, sizeof(MenuSearchBytesD), 1, 0x00497A00, 1800); //00497A08 00497CB8
-
 	if (DMenuAddrC) {
 		UpdateVal = -244;
 		UpdateMemoryAddress((void *)((BYTE*)DMenuAddrC - 0x25), (void *)&UpdateVal, 4);
@@ -185,5 +190,13 @@ void UpdateMainMenuTitlePerLang()
 		UpdateMemoryAddress((void *)((BYTE*)DMenuAddrC - 0x1A), (void *)&UpdateVal, 2);
 		UpdateVal = -180;
 		UpdateMemoryAddress((void *)((BYTE*)DMenuAddrC + 0x16), (void *)&UpdateVal, 4);
+	}
+
+	//Function to update "Now loading" text in Main Menu
+	void *DMenuAddrD = GetAddressOfData(MenuSearchBytesE, sizeof(MenuSearchBytesE), 1, 0x004457B0, 1800); //004457C0
+	if (DMenuAddrD) {
+		LoadMes = (DWORD(*)(int pos))DMenuAddrD;
+	} else {
+		LoadMes = (DWORD(*)(int pos))(((BYTE*)DMenuAddrB - 0x21) + *(int *)((BYTE*)DMenuAddrB - 0x25));
 	}
 }

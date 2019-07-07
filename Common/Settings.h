@@ -35,6 +35,7 @@
 	visit(PistonRoomFix, true) \
 	visit(PS2FlashlightBrightness, true) \
 	visit(PS2StyleNoiseFilter, true) \
+	visit(RemoveEffectsFlicker, false) \
 	visit(Room312ShadowFix, true) \
 	visit(RowboatAnimationFix, true) \
 	visit(UseCustomModFolder, true) \

@@ -17,6 +17,10 @@
 #include "d3d8wrapper.h"
 #include "Common\Utils.h"
 
+DWORD FrameCounter = 0;
+DWORD EndSceneCounter = 0;
+IDirect3DTexture8 *OverrideTexture = nullptr;
+
 HRESULT m_IDirect3DDevice8::QueryInterface(REFIID riid, LPVOID *ppvObj)
 {
 	Logging::LogDebug() << __FUNCTION__;
@@ -74,6 +78,8 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 HRESULT m_IDirect3DDevice8::EndScene()
 {
 	Logging::LogDebug() << __FUNCTION__;
+
+	EndSceneCounter++;
 
 	return ProxyInterface->EndScene();
 }
@@ -679,6 +685,14 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	if (EndSceneCounter == 1)
+	{
+		OverrideTexture = nullptr;
+	}
+
+	EndSceneCounter = 0;
+	FrameCounter++;
+
 	return ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 }
 
@@ -855,6 +869,26 @@ HRESULT m_IDirect3DDevice8::SetTexture(DWORD Stage, IDirect3DBaseTexture8 *pText
 		{
 		case D3DRTYPE_TEXTURE:
 			pTexture = static_cast<m_IDirect3DTexture8 *>(pTexture)->GetProxyInterface();
+			if (Stage == 0 && RemoveEffectsFlicker)
+			{
+				static IDirect3DTexture8 *LastTexture = nullptr;
+				IDirect3DTexture8 *NewTexture = (IDirect3DTexture8*)pTexture;
+
+				D3DSURFACE_DESC Desc;
+				if (NewTexture != LastTexture && SUCCEEDED(NewTexture->GetLevelDesc(0, &Desc)) && Desc.Usage == D3DUSAGE_RENDERTARGET)
+				{
+					if (!OverrideTexture && EndSceneCounter != 0)
+					{
+						OverrideTexture = NewTexture;
+						FrameCounter = 0;
+					}
+					if (OverrideTexture && FrameCounter < 10)
+					{
+						pTexture = OverrideTexture;
+					}
+					LastTexture = NewTexture;
+				}
+			}
 			break;
 		case D3DRTYPE_VOLUMETEXTURE:
 			pTexture = static_cast<m_IDirect3DVolumeTexture8 *>(pTexture)->GetProxyInterface();

@@ -74,23 +74,7 @@ __declspec(naked) void __stdcall ResArrowASM()
 	}
 }
 
-unsigned int getScreenWidth()
-{
-	RECT desktop;
-	const HWND hDesktop = GetDesktopWindow();
-	GetWindowRect(hDesktop, &desktop);
-	return desktop.right;
-}
-
-unsigned int getScreenHeight()
-{
-	RECT desktop;
-	const HWND hDesktop = GetDesktopWindow();
-	GetWindowRect(hDesktop, &desktop);
-	return desktop.bottom;
-}
-
-void UpdateResolutionLock()
+void UpdateResolutionLock(DWORD ResX, DWORD ResY)
 {
 	void *DResAddrA = CheckMultiMemoryAddress((void*)0x0046565C, (void*)0x004658F8, (void*)0x00465B08, (void*)ResSearchBytesA, sizeof(ResSearchBytesA));
 
@@ -116,12 +100,6 @@ void UpdateResolutionLock()
 
 	gWidth = ResX;
 	gHeight = ResY;
-
-	if (ResX == 0)
-		gWidth = getScreenWidth();
-
-	if (ResY == 0)
-		gHeight = getScreenHeight();
 
 	unsigned int *ResSelectorAddr = (unsigned int *)((BYTE*)DResAddrA + 0x879);
 	int exitOffset = 0x2ED;

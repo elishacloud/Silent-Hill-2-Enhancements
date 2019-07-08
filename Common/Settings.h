@@ -9,9 +9,11 @@
 	visit(ClosetCutsceneFix, true) \
 	visit(d3d8to9, true) \
 	visit(DisableGameUX, true) \
+	visit(DisableEnlargedText, true) \
 	visit(DisableLogging, false) \
 	visit(DisableRedCross, false) \
 	visit(DisableRedCrossInCutScenes, true) \
+	visit(DPadMovementFix, true) \
 	visit(EnableSFXAddrHack, true) \
 	visit(EnableSelfShadows, false) \
 	visit(EnableWndMode, true) \
@@ -30,6 +32,9 @@
 	visit(LoadFromScriptsOnly, false) \
 	visit(LoadModulesFromMemory, false) \
 	visit(LoadPlugins, false) \
+	visit(LockResolution, true) \
+	visit(MainMenuFix, true) \
+	visit(MainMenuTitlePerLang, true) \
 	visit(Nemesis2000FogFix, true) \
 	visit(NoCDPatch, true) \
 	visit(PistonRoomFix, true) \
@@ -38,19 +43,14 @@
 	visit(RemoveEffectsFlicker, false) \
 	visit(Room312ShadowFix, true) \
 	visit(RowboatAnimationFix, true) \
+	visit(UnlockJapLang, false) \
+	visit(UseCustomExeStr, true) \
+	visit(UseCustomFonts, true) \
 	visit(UseCustomModFolder, true) \
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, true) \
-	visit(UseCustomFonts, true) \
-	visit(DisableEnlargedText, true) \
-	visit(XInputVibration, true) \
-	visit(DPadMovementFix, true) \
-	visit(UseCustomExeStr, true) \
-	visit(UnlockJapLang, false) \
-	visit(LockResolution, true) \
-	visit(MainMenuFix, true) \
-	visit(MainMenuTitlePerLang, true)
+	visit(XInputVibration, true)
 
 #define VISIT_INT_SETTINGS(visit) \
 	visit(CustomFontCol, 100) \
@@ -59,13 +59,11 @@
 	visit(CustomFontCharHeight, 32) \
 	visit(NormalFontWidth, 20) \
 	visit(NormalFontHeight, 30) \
+	visit(PadNumber, 0) \
 	visit(SingleCoreAffinity, 1) \
 	visit(SingleCoreAffinityTimer, 5000) \
 	visit(SmallFontWidth, 14) \
-	visit(SmallFontHeight, 24) \
-	visit(PadNumber, 0) \
-	visit(ResX, 0) \
-	visit(ResY, 0)
+	visit(SmallFontHeight, 24)
 
 #define VISIT_STR_SETTINGS(visit) \
 	visit(CustomModFolder, "")
@@ -85,6 +83,8 @@ VISIT_INT_SETTINGS(DECLARE_INT_SETTINGS);
 	extern std::string name;
 
 VISIT_STR_SETTINGS(DECLARE_STR_SETTINGS);
+
+extern bool WidescreenFixLoaded;
 
 typedef void(__stdcall* NV)(char* name, char* value);
 

@@ -36,6 +36,7 @@ std::ofstream LOG;
 
 // Variables
 HMODULE wrapper_dll = nullptr;
+bool WidescreenFixLoaded = false;
 
 // Forces Nvidia and AMD high performance graphics
 extern "C" { _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001; }
@@ -300,12 +301,6 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			UpdateCustomExeStr();
 		}
 
-		// Disables the ability to change resolution, displays currently used
-		if (LockResolution)
-		{
-			UpdateResolutionLock();
-		}
-
 		// Fixes mouse hitboxes in Main Menu (for 1.1 version)
 		if (MainMenuFix)
 		{
@@ -337,19 +332,22 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			DWORD_PTR ProcessAffinityMask, SystemAffinityMask;
 			HANDLE hCurrentProcess = GetCurrentProcess();
 			bool Flag = GetProcessAffinityMask(hCurrentProcess, &ProcessAffinityMask, &SystemAffinityMask);
+			HMODULE WidescreenModule = nullptr;
 			if (LoadModulesFromMemory)
 			{
-				LoadModuleFromResource(hModule, IDR_SH2WID, L"WidescreenFixesPack and sh2proxy");
+				WidescreenModule = (HMODULE)LoadModuleFromResource(hModule, IDR_SH2WID, L"WidescreenFixesPack and sh2proxy");
 			}
 			else
 			{
-				LoadModuleFromFile(hModule, IDR_SH2WID, nullptr, configpath, L"WidescreenFixesPack and sh2proxy", true);
+				WidescreenModule = LoadModuleFromFile(hModule, IDR_SH2WID, nullptr, configpath, L"WidescreenFixesPack and sh2proxy", true);
 			}
 			if (Flag)
 			{
 				SetProcessAffinityMask(hCurrentProcess, ProcessAffinityMask);
 			}
 			CloseHandle(hCurrentProcess);
+			// Check if widescreen is loaded
+			WidescreenFixLoaded = ((DWORD)WidescreenModule > 0xFFFF);
 		}
 
 		// Load modupdater

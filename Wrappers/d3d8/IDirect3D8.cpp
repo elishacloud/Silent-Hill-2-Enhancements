@@ -169,6 +169,16 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 		}
 
 		SetWindowHandle(DeviceWindow);
+
+		static bool RunOnce = true;
+
+		// Disables the ability to change resolution, displays currently used
+		if (RunOnce && LockResolution && WidescreenFixLoaded)
+		{
+			UpdateResolutionLock(BufferWidth, BufferHeight);
+
+			RunOnce = false;
+		}
 	}
 
 	return hr;

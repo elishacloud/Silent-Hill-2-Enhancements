@@ -30,7 +30,7 @@ void UpdateInfiniteRumble(DWORD *SH2_RoomID);
 void SetWindowHandle(HWND WindowHandle);
 void UnhookWindowHandle();
 void UpdateCustomExeStr();
-void UpdateResolutionLock();
+void UpdateResolutionLock(DWORD ResX, DWORD ResY);
 void UpdateMainMenuFix();
 void UpdateMainMenuTitlePerLang();
 

@@ -267,7 +267,7 @@ HRESULT DeleteAllfiles(LPCWSTR lpFolder)
 }
 
 // Load mod from file
-void LoadModuleFromFile(HMODULE hModule, DWORD ResID, LPCWSTR lpConfigName, LPCWSTR lpConfigPath, LPCWSTR lpName, bool CopyDatFile)
+HMODULE LoadModuleFromFile(HMODULE hModule, DWORD ResID, LPCWSTR lpConfigName, LPCWSTR lpConfigPath, LPCWSTR lpName, bool CopyDatFile)
 {
 	// Get module name
 	wchar_t Name[MAX_PATH], Path[MAX_PATH], Config[MAX_PATH];
@@ -278,7 +278,7 @@ void LoadModuleFromFile(HMODULE hModule, DWORD ResID, LPCWSTR lpConfigName, LPCW
 	if (!GetTempPath(MAX_PATH, Path))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to get temp path!";
-		return;
+		return nullptr;
 	}
 	wcscat_s(Path, MAX_PATH, exTempPath);
 
@@ -293,7 +293,7 @@ void LoadModuleFromFile(HMODULE hModule, DWORD ResID, LPCWSTR lpConfigName, LPCW
 	if (!PathFileExists(Path))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to create temp folder!";
-		return;
+		return nullptr;
 	}
 
 	// Copy config file to temp folder
@@ -325,7 +325,7 @@ void LoadModuleFromFile(HMODULE hModule, DWORD ResID, LPCWSTR lpConfigName, LPCW
 	wcscpy_s(wcsrchr(Path, '.'), MAX_PATH - wcslen(Path), L".asi");
 
 	// Load module
-	LoadModuleFromResourceToFile(hModule, ResID, lpName, Path);
+	return LoadModuleFromResourceToFile(hModule, ResID, lpName, Path);
 }
 
 // Delete temp folders

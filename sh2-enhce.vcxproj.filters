@@ -170,6 +170,12 @@
     <ClCompile Include="Wrappers\d3d8\InterfaceQuery.cpp">
       <Filter>Wrappers\d3d8</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\MainMenu.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\Resolution.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">

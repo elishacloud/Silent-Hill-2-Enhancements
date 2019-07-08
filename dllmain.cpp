@@ -300,6 +300,24 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			UpdateCustomExeStr();
 		}
 
+		// Disables the ability to change resolution, displays currently used
+		if (LockResolution)
+		{
+			UpdateResolutionLock();
+		}
+
+		// Fixes mouse hitboxes in Main Menu (for 1.1 version)
+		if (MainMenuFix)
+		{
+			UpdateMainMenuFix();
+		}
+
+		// Loads 'start01.tex' (graphic Main Menu) according to the selected language
+		if (MainMenuTitlePerLang)
+		{
+			UpdateMainMenuTitlePerLang();
+		}
+
 		// Load Nemesis2000's Fog Fix
 		if (Nemesis2000FogFix)
 		{

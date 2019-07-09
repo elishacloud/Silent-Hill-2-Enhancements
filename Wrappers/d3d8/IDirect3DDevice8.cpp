@@ -17,9 +17,9 @@
 #include "d3d8wrapper.h"
 #include "Common\Utils.h"
 
-DWORD FrameCounter = 0;
 DWORD EndSceneCounter = 0;
-IDirect3DTexture8 *OverrideTexture = nullptr;
+bool OverrideTextureLoop = false;
+bool PresentFlag = false;
 
 HRESULT m_IDirect3DDevice8::QueryInterface(REFIID riid, LPVOID *ppvObj)
 {
@@ -415,6 +415,21 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 		}
 	}
 
+	if (RemoveEffectsFlicker && State == D3DRS_TEXTUREFACTOR)
+	{
+		if (!OverrideTextureLoop && EndSceneCounter != 0)
+		{
+			OverrideTextureLoop = true;
+			PresentFlag = true;
+		}
+		// Known values to exclude: 0x11000000, 0xFF000000, 0xBA1E1E1E, 0xC31E1E1E
+		if (OverrideTextureLoop && PresentFlag && (Value & 0x00FFFFFF) != 0x00000000 && (Value & 0x00FFFFFF) != 0x001E1E1E)
+		{
+			Logging::Log() << __FUNCTION__ << " Overriding D3DRS_TEXTUREFACTOR " << (void*)Value;
+			Value = 0xFFFFFFFF;
+		}
+	}
+
 	return ProxyInterface->SetRenderState(State, Value);
 }
 
@@ -687,11 +702,11 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 
 	if (EndSceneCounter == 1)
 	{
-		OverrideTexture = nullptr;
+		OverrideTextureLoop = false;
 	}
 
 	EndSceneCounter = 0;
-	FrameCounter++;
+	PresentFlag = false;
 
 	return ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 }
@@ -869,26 +884,6 @@ HRESULT m_IDirect3DDevice8::SetTexture(DWORD Stage, IDirect3DBaseTexture8 *pText
 		{
 		case D3DRTYPE_TEXTURE:
 			pTexture = static_cast<m_IDirect3DTexture8 *>(pTexture)->GetProxyInterface();
-			if (Stage == 0 && RemoveEffectsFlicker)
-			{
-				static IDirect3DTexture8 *LastTexture = nullptr;
-				IDirect3DTexture8 *NewTexture = (IDirect3DTexture8*)pTexture;
-
-				D3DSURFACE_DESC Desc;
-				if (NewTexture != LastTexture && SUCCEEDED(NewTexture->GetLevelDesc(0, &Desc)) && Desc.Usage == D3DUSAGE_RENDERTARGET)
-				{
-					if (!OverrideTexture && EndSceneCounter != 0)
-					{
-						OverrideTexture = NewTexture;
-						FrameCounter = 0;
-					}
-					if (OverrideTexture && FrameCounter < 10)
-					{
-						pTexture = OverrideTexture;
-					}
-					LastTexture = NewTexture;
-				}
-			}
 			break;
 		case D3DRTYPE_VOLUMETEXTURE:
 			pTexture = static_cast<m_IDirect3DVolumeTexture8 *>(pTexture)->GetProxyInterface();

@@ -40,7 +40,7 @@
 	visit(PistonRoomFix, true) \
 	visit(PS2FlashlightBrightness, true) \
 	visit(PS2StyleNoiseFilter, true) \
-	visit(RemoveEffectsFlicker, false) \
+	visit(RemoveEffectsFlicker, true) \
 	visit(Room312ShadowFix, true) \
 	visit(RowboatAnimationFix, true) \
 	visit(UnlockJapLang, false) \

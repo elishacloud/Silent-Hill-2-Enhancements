@@ -422,10 +422,9 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 			OverrideTextureLoop = true;
 			PresentFlag = true;
 		}
-		// Known values to exclude: 0x11000000, 0xFF000000, 0xBA1E1E1E, 0xC31E1E1E
-		if (OverrideTextureLoop && PresentFlag && (Value & 0x00FFFFFF) != 0x00000000 && (Value & 0x00FFFFFF) != 0x001E1E1E)
+		// Known values to exclude: 0x11000000, 0xFF000000, 0xC31E1E1E, B7222222, B9222222, BA202020, BA1E1E1E, BA1C1C1C, BA1A1A1A, BA171717, BA121212
+		if (OverrideTextureLoop && PresentFlag && !((Value & 0xFF) == ((Value >> 8) & 0xFF) && ((Value >> 8) & 0xFF) == ((Value >> 16) & 0xFF)))
 		{
-			Logging::Log() << __FUNCTION__ << " Overriding D3DRS_TEXTUREFACTOR " << (void*)Value;
 			Value = 0xFFFFFFFF;
 		}
 	}

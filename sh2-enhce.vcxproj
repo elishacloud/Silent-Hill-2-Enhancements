@@ -61,6 +61,7 @@
     <ClCompile Include="Patches\RowboatAnimation.cpp" />
     <ClCompile Include="Patches\SfxPatch.cpp" />
     <ClCompile Include="Patches\XInputVibration.cpp" />
+    <ClCompile Include="replacementFunctions.cpp" />
     <ClCompile Include="Wrappers\d3d8to9.cpp" />
     <ClCompile Include="Wrappers\d3d8\d3d8wrapper.cpp" />
     <ClCompile Include="Wrappers\d3d8\IDirect3D8.cpp" />
@@ -91,6 +92,7 @@
     <ClInclude Include="Logging\Logging.h" />
     <ClInclude Include="Patches\Patches.h" />
     <ClInclude Include="Patches\SfxPatch.h" />
+    <ClInclude Include="replacementFunctions.h" />
     <ClInclude Include="Resources\sh2-enhce.h" />
     <ClInclude Include="Wrappers\d3d8.h" />
     <ClInclude Include="Wrappers\d3d8to9.h" />

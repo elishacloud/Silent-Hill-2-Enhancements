@@ -28,6 +28,7 @@
 #include "Common\Utils.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
+#include "replacementFunctions.h"
 
 #pragma comment(lib, "Shlwapi.lib")
 
@@ -51,6 +52,15 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 	{
 	case DLL_PROCESS_ATTACH:
 	{
+		void *address = (void *)0x4454F0; // drawDynamicShadows() (NA v1.0 only)
+
+		DWORD oldProtect;
+		if (VirtualProtect(address, 4, PAGE_EXECUTE_READWRITE, &oldProtect))
+		{
+			*(DWORD*)address = (int)&drawDynamicShadows - 0x4454F4;
+			VirtualProtect(address, 1, oldProtect, &oldProtect);
+		}
+
 		// Set thread priority a trick to reduce concurrency problems at program startup
 		HANDLE hCurrentThread = GetCurrentThread();
 		int dwPriorityClass = GetThreadPriority(hCurrentThread);

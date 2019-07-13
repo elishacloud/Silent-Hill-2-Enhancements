@@ -21,6 +21,38 @@ private:
 	DWORD *SH2_CutsceneID = nullptr;
 	float *SH2_CutsceneCameraPos = nullptr;
 
+	IDirect3DTexture8 *pInTexture = NULL;
+	IDirect3DSurface8 *pInSurface = NULL, *pBackBuffer = NULL, *pStencilBuffer = NULL;
+
+	IDirect3DTexture8 *pOutTexture = NULL;
+	IDirect3DSurface8 *pOutSurface = NULL;
+
+	struct CUSTOMVERTEX
+	{
+		FLOAT x, y, z, rhw;
+		DWORD color;
+	};
+
+	struct CUSTOMVERTEX_UV
+	{
+		FLOAT x, y, z, rhw;
+		FLOAT u, v;
+	};
+
+	struct D3DSTATE
+	{
+		DWORD magFilter;
+		DWORD minFilter;
+		DWORD colorArg1;
+		DWORD alphaArg1;
+		DWORD alphaBlendEnable;
+		DWORD alphaTestEnable;
+		DWORD srcBlend;
+		DWORD destBlend;
+		IDirect3DBaseTexture8 *stage0;
+		DWORD vertexShader;
+	};
+
 public:
 	m_IDirect3DDevice8(LPDIRECT3DDEVICE8 pDevice, m_IDirect3D8* pD3D) : ProxyInterface(pDevice), m_pD3D(pD3D)
 	{
@@ -152,4 +184,7 @@ public:
 
 	// Extra functions
 	STENCILSTATECHECK GetStencilType();
+	HRESULT DrawSoftShadows();
+	void BackupState(D3DSTATE *state);
+	void RestoreState(D3DSTATE *state);
 };

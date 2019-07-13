@@ -16,6 +16,7 @@
 	visit(DPadMovementFix, true) \
 	visit(EnableSFXAddrHack, true) \
 	visit(EnableSelfShadows, false) \
+	visit(EnableSoftShadows, false) \
 	visit(EnableWndMode, true) \
 	visit(FixHangOnEsc, true) \
 	visit(FixMissingWallChunks, true) \

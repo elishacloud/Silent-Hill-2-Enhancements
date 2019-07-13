@@ -176,9 +176,6 @@
     <ClCompile Include="Patches\Resolution.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
-    <ClCompile Include="replacementFunctions.cpp">
-      <Filter>Wrappers</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">
@@ -276,9 +273,6 @@
     </ClInclude>
     <ClInclude Include="Wrappers\d3d8\AddressLookupTable.h">
       <Filter>Wrappers\d3d8</Filter>
-    </ClInclude>
-    <ClInclude Include="replacementFunctions.h">
-      <Filter>Wrappers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

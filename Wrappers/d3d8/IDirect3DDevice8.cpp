@@ -1340,7 +1340,7 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 {
 	// Variables for soft shadows
 	DWORD SHADOW_OPACITY = 128;
-	int SHADOW_DIVISOR = 2;
+	float SHADOW_DIVISOR = 2;
 	int BLUR_PASSES = 4;
 
 	float screenW = (float)BufferWidth;

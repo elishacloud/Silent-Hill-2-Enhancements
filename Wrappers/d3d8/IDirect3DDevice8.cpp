@@ -1338,11 +1338,16 @@ HRESULT m_IDirect3DDevice8::GetInfo(THIS_ DWORD DevInfoID, void* pDevInfoStruct,
 
 HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 {
+	// Variables for soft shadows
+	DWORD SHADOW_OPACITY = 128;
+	int SHADOW_DIVISOR = 2;
+	int BLUR_PASSES = 4;
+
 	float screenW = (float)BufferWidth;
 	float screenH = (float)BufferHeight;
 
-	// Varables for soft shadows
-	DWORD SHADOW_OPACITY = 128;
+	float screenWs = (float)BufferWidth / SHADOW_DIVISOR;
+	float screenHs = (float)BufferHeight / SHADOW_DIVISOR;
 
 	// Original geometry vanilla game uses
 	CUSTOMVERTEX shadowRectDiffuse[] =
@@ -1354,6 +1359,21 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 	};
 
 	// No need for diffuse color, used to render from texture, requires texture coords
+	CUSTOMVERTEX_UV shadowRectUV_Small[] =
+	{
+		{0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f},
+		{0.0f, screenHs, 0.0f, 1.0f, 0.0f, 1.0f},
+		{screenWs, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f},
+		{screenWs, screenHs, 0.0f, 1.0f, 1.0f, 1.0f}
+	};
+
+	// Bias coords to align correctly to screen space
+	for (int i = 0; i < 4; i++)
+	{
+		shadowRectUV_Small[i].x -= 0.5f;
+		shadowRectUV_Small[i].y -= 0.5f;
+	}
+
 	CUSTOMVERTEX_UV shadowRectUV[] =
 	{
 		{0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f},
@@ -1364,12 +1384,17 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 
 	// Create our intermediate render targets/textures only once
 	if (!pInTexture) {
-		ProxyInterface->CreateTexture((UINT)BufferWidth, (UINT)BufferHeight, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &pInTexture);
+		ProxyInterface->CreateTexture((UINT)screenW, (UINT)screenH, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &pInTexture);
 		pInTexture->GetSurfaceLevel(0, &pInSurface);
 	}
 
+	if (!pShrunkTexture) {
+		ProxyInterface->CreateTexture((UINT)screenWs, (UINT)screenHs, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &pShrunkTexture);
+		pShrunkTexture->GetSurfaceLevel(0, &pShrunkSurface);
+	}
+
 	if (!pOutTexture) {
-		ProxyInterface->CreateTexture((UINT)BufferWidth, (UINT)BufferHeight, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &pOutTexture);
+		ProxyInterface->CreateTexture((UINT)screenWs, (UINT)screenHs, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &pOutTexture);
 		pOutTexture->GetSurfaceLevel(0, &pOutSurface);
 	}
 
@@ -1395,43 +1420,48 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 
 	HRESULT hr = ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, shadowRectDiffuse, 20);
 
-	// TODO: Would be more efficient to draw to a scaled down buffer here first and blur that
-
+	// Draw to a scaled down buffer first
 	ProxyInterface->SetVertexShader(D3DFVF_XYZRHW | D3DFVF_TEX1);
 	ProxyInterface->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
 	ProxyInterface->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
 
+	ProxyInterface->SetRenderTarget(pShrunkSurface, NULL);
+	ProxyInterface->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 0);
+	ProxyInterface->SetTexture(0, pInTexture);
+
+	ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, shadowRectUV_Small, 24);
+
 	// Create 4 full-screen quads, each offset a tiny amount diagonally in each direction
 	CUSTOMVERTEX_UV blurUpLeft[] =
 	{
-		{   0.0f,    0.0f, 0.0f, 1.0f,    0.0f - (0.5f / screenW), 0.0f - (0.5f / screenH)},
-		{   0.0f, screenH, 0.0f, 1.0f,    0.0f - (0.5f / screenW), 1.0f - (0.5f / screenH)},
-		{screenW,    0.0f, 0.0f, 1.0f,    1.0f - (0.5f / screenW), 0.0f - (0.5f / screenH)},
-		{screenW, screenH, 0.0f, 1.0f,    1.0f - (0.5f / screenW), 1.0f - (0.5f / screenH)}
+		{    0.0f,     0.0f, 0.0f, 1.0f,    0.0f - (0.5f / screenWs), 0.0f - (0.5f / screenHs)},
+		{    0.0f, screenHs, 0.0f, 1.0f,    0.0f - (0.5f / screenWs), 1.0f - (0.5f / screenHs)},
+		{screenWs,     0.0f, 0.0f, 1.0f,    1.0f - (0.5f / screenWs), 0.0f - (0.5f / screenHs)},
+		{screenWs, screenHs, 0.0f, 1.0f,    1.0f - (0.5f / screenWs), 1.0f - (0.5f / screenHs)}
 	};
 
 	CUSTOMVERTEX_UV blurDownLeft[] =
 	{
-		{   0.0f,    0.0f, 0.0f, 1.0f,    0.0f - (0.5f / screenW), 0.0f + (0.5f / screenH)},
-		{   0.0f, screenH, 0.0f, 1.0f,    0.0f - (0.5f / screenW), 1.0f + (0.5f / screenH)},
-		{screenW,    0.0f, 0.0f, 1.0f,    1.0f - (0.5f / screenW), 0.0f + (0.5f / screenH)},
-		{screenW, screenH, 0.0f, 1.0f,    1.0f - (0.5f / screenW), 1.0f + (0.5f / screenH)}
+		{    0.0f,     0.0f, 0.0f, 1.0f,    0.0f - (0.5f / screenWs), 0.0f + (0.5f / screenHs)},
+		{    0.0f, screenHs, 0.0f, 1.0f,    0.0f - (0.5f / screenWs), 1.0f + (0.5f / screenHs)},
+		{screenWs,     0.0f, 0.0f, 1.0f,    1.0f - (0.5f / screenWs), 0.0f + (0.5f / screenHs)},
+		{screenWs, screenHs, 0.0f, 1.0f,    1.0f - (0.5f / screenWs), 1.0f + (0.5f / screenHs)}
 	};
 
 	CUSTOMVERTEX_UV blurUpRight[] =
 	{
-		{   0.0f,    0.0f, 0.0f, 1.0f,    0.0f + (0.5f / screenW), 0.0f - (0.5f / screenH)},
-		{   0.0f, screenH, 0.0f, 1.0f,    0.0f + (0.5f / screenW), 1.0f - (0.5f / screenH)},
-		{screenW,    0.0f, 0.0f, 1.0f,    1.0f + (0.5f / screenW), 0.0f - (0.5f / screenH)},
-		{screenW, screenH, 0.0f, 1.0f,    1.0f + (0.5f / screenW), 1.0f - (0.5f / screenH)}
+		{    0.0f,     0.0f, 0.0f, 1.0f,    0.0f + (0.5f / screenWs), 0.0f - (0.5f / screenHs)},
+		{    0.0f, screenHs, 0.0f, 1.0f,    0.0f + (0.5f / screenWs), 1.0f - (0.5f / screenHs)},
+		{screenWs,     0.0f, 0.0f, 1.0f,    1.0f + (0.5f / screenWs), 0.0f - (0.5f / screenHs)},
+		{screenWs, screenHs, 0.0f, 1.0f,    1.0f + (0.5f / screenWs), 1.0f - (0.5f / screenHs)}
 	};
 
 	CUSTOMVERTEX_UV blurDownRight[] =
 	{
-		{   0.0f,    0.0f, 0.0f, 1.0f,    0.0f + (0.5f / screenW), 0.0f + (0.5f / screenH)},
-		{   0.0f, screenH, 0.0f, 1.0f,    0.0f + (0.5f / screenW), 1.0f + (0.5f / screenH)},
-		{screenW,    0.0f, 0.0f, 1.0f,    1.0f + (0.5f / screenW), 0.0f + (0.5f / screenH)},
-		{screenW, screenH, 0.0f, 1.0f,    1.0f + (0.5f / screenW), 1.0f + (0.5f / screenH)}
+		{    0.0f,     0.0f, 0.0f, 1.0f,    0.0f + (0.5f / screenWs), 0.0f + (0.5f / screenHs)},
+		{    0.0f, screenHs, 0.0f, 1.0f,    0.0f + (0.5f / screenWs), 1.0f + (0.5f / screenHs)},
+		{screenWs,     0.0f, 0.0f, 1.0f,    1.0f + (0.5f / screenWs), 0.0f + (0.5f / screenHs)},
+		{screenWs, screenHs, 0.0f, 1.0f,    1.0f + (0.5f / screenWs), 1.0f + (0.5f / screenHs)}
 	};
 
 	// Bias coords to align correctly to screen space
@@ -1448,15 +1478,18 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 
 		blurDownRight[j].x -= 0.5f;
 		blurDownRight[j].y -= 0.5f;
+
+		// Undo biasing for blur step
+		shadowRectUV_Small[j].x += 0.5f;
+		shadowRectUV_Small[j].y += 0.5f;
 	}
 
-	// Peform fixed function blur
-	int PASSES = 16;
-	for (int i = 0; i < PASSES; i++)
+	// Perform fixed function blur
+	for (int i = 0; i < BLUR_PASSES; i++)
 	{
 		ProxyInterface->SetRenderTarget(pOutSurface, NULL);
 		ProxyInterface->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 0);
-		ProxyInterface->SetTexture(0, pInTexture);
+		ProxyInterface->SetTexture(0, pShrunkTexture);
 
 		// Should probably be combined into one
 		ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, blurUpLeft, 24);
@@ -1464,16 +1497,16 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 		ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, blurUpRight, 24);
 		ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, blurDownRight, 24);
 
-		ProxyInterface->SetRenderTarget(pInSurface, NULL);
+		ProxyInterface->SetRenderTarget(pShrunkSurface, NULL);
 		ProxyInterface->SetTexture(0, pOutTexture);
 
 		ProxyInterface->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 0);
-		ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, shadowRectUV, 24);
+		ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, shadowRectUV_Small, 24);
 	}
 
 	// Return to backbuffer but without stencil buffer
 	ProxyInterface->SetRenderTarget(pBackBuffer, NULL);
-	ProxyInterface->SetTexture(0, pInTexture);
+	ProxyInterface->SetTexture(0, pShrunkTexture);
 
 	// Set up alpha-blending for final draw back to scene
 	ProxyInterface->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);

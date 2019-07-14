@@ -21,9 +21,6 @@ DWORD EndSceneCounter = 0;
 bool OverrideTextureLoop = false;
 bool PresentFlag = false;
 
-// Varables for soft shadows
-constexpr int SHADOW_OPACITY = 128;
-
 HRESULT m_IDirect3DDevice8::QueryInterface(REFIID riid, LPVOID *ppvObj)
 {
 	Logging::LogDebug() << __FUNCTION__;
@@ -736,6 +733,8 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 
 HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, CONST void *pVertexStreamZeroData, UINT VertexStreamZeroStride)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	// Draw Soft Shadows
 	if (EnableSoftShadows)
 	{
@@ -1342,7 +1341,10 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 	float screenW = (float)BufferWidth;
 	float screenH = (float)BufferHeight;
 
-	//Original geometry vanilla game uses
+	// Varables for soft shadows
+	DWORD SHADOW_OPACITY = 128;
+
+	// Original geometry vanilla game uses
 	CUSTOMVERTEX shadowRectDiffuse[] =
 	{
 		{0.0f, 0.0f, 0.0f, 1.0f, D3DCOLOR_ARGB(SHADOW_OPACITY, 0, 0, 0)},
@@ -1351,7 +1353,7 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 		{screenW, screenH, 0.0f, 1.0f, D3DCOLOR_ARGB(SHADOW_OPACITY, 0, 0, 0)}
 	};
 
-	//No need for diffuse color, used to render from texture, requires texture coords
+	// No need for diffuse color, used to render from texture, requires texture coords
 	CUSTOMVERTEX_UV shadowRectUV[] =
 	{
 		{0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f},
@@ -1360,7 +1362,7 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 		{screenW, screenH, 0.0f, 1.0f, 1.0f, 1.0f}
 	};
 
-	//Create our intermediate render targets/textures only once
+	// Create our intermediate render targets/textures only once
 	if (!pInTexture) {
 		ProxyInterface->CreateTexture((UINT)BufferWidth, (UINT)BufferHeight, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &pInTexture);
 		pInTexture->GetSurfaceLevel(0, &pInSurface);
@@ -1371,35 +1373,35 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 		pOutTexture->GetSurfaceLevel(0, &pOutSurface);
 	}
 
-	//Backup current state
+	// Backup current state
 	D3DSTATE state;
 	BackupState(&state);
 
-	//Textures will be scaled bi-linearly
+	// Textures will be scaled bi-linearly
 	ProxyInterface->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
 	ProxyInterface->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
 
-	//Turn off alpha blending
+	// Turn off alpha blending
 	ProxyInterface->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	ProxyInterface->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
 
-	//Back up current render target (backbuffer) and stencil buffer
+	// Back up current render target (backbuffer) and stencil buffer
 	ProxyInterface->GetRenderTarget(&pBackBuffer);
 	ProxyInterface->GetDepthStencilSurface(&pStencilBuffer);
 
-	//Swap to new render target, maintain old stencil buffer and draw shadows
+	// Swap to new render target, maintain old stencil buffer and draw shadows
 	ProxyInterface->SetRenderTarget(pInSurface, pStencilBuffer);
 	ProxyInterface->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 0);
 
 	HRESULT hr = ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, shadowRectDiffuse, 20);
 
-	//TODO: Would be more efficient to draw to a scaled down buffer here first and blur that
+	// TODO: Would be more efficient to draw to a scaled down buffer here first and blur that
 
 	ProxyInterface->SetVertexShader(D3DFVF_XYZRHW | D3DFVF_TEX1);
 	ProxyInterface->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
 	ProxyInterface->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
 
-	//Create 4 full-screen quads, each offset a tiny amount diagonally in each direction
+	// Create 4 full-screen quads, each offset a tiny amount diagonally in each direction
 	CUSTOMVERTEX_UV blurUpLeft[] =
 	{
 		{   0.0f,    0.0f, 0.0f, 1.0f,    0.0f - (0.5f / screenW), 0.0f - (0.5f / screenH)},
@@ -1432,7 +1434,7 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 		{screenW, screenH, 0.0f, 1.0f,    1.0f + (0.5f / screenW), 1.0f + (0.5f / screenH)}
 	};
 
-	//Bias coords to align correctly to screen space
+	// Bias coords to align correctly to screen space
 	for (int j = 0; j < 4; j++)
 	{
 		blurUpLeft[j].x -= 0.5f;
@@ -1448,7 +1450,7 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 		blurDownRight[j].y -= 0.5f;
 	}
 
-	//Peform fixed function blur
+	// Peform fixed function blur
 	int PASSES = 16;
 	for (int i = 0; i < PASSES; i++)
 	{
@@ -1456,7 +1458,7 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 		ProxyInterface->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 0);
 		ProxyInterface->SetTexture(0, pInTexture);
 
-		//Should probably be combined into one
+		// Should probably be combined into one
 		ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, blurUpLeft, 24);
 		ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, blurDownLeft, 24);
 		ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, blurUpRight, 24);
@@ -1469,16 +1471,16 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 		ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, shadowRectUV, 24);
 	}
 
-	//Return to backbuffer but without stencil buffer
+	// Return to backbuffer but without stencil buffer
 	ProxyInterface->SetRenderTarget(pBackBuffer, NULL);
 	ProxyInterface->SetTexture(0, pInTexture);
 
-	//Set up alpha-blending for final draw back to scene
+	// Set up alpha-blending for final draw back to scene
 	ProxyInterface->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 	ProxyInterface->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 	ProxyInterface->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
-	//Bias coords to align correctly to screen space
+	// Bias coords to align correctly to screen space
 	for (int i = 0; i < 4; i++)
 	{
 		shadowRectUV[i].x -= 0.5f;
@@ -1487,7 +1489,7 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 
 	ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, shadowRectUV, 24);
 
-	//Return to original render target and stencil buffer
+	// Return to original render target and stencil buffer
 	ProxyInterface->SetRenderTarget(pBackBuffer, pStencilBuffer);
 
 	RestoreState(&state);
@@ -1502,12 +1504,12 @@ void m_IDirect3DDevice8::BackupState(D3DSTATE *state)
 	ProxyInterface->GetTextureStageState(0, D3DTSS_COLORARG1, &state->colorArg1);
 	ProxyInterface->GetTextureStageState(0, D3DTSS_ALPHAARG1, &state->alphaArg1);
 
-	ProxyInterface->GetRenderState(D3DRS_ALPHABLENDENABLE, &state->alphaBlendEnable); //Doesn't really need to be backed up
+	ProxyInterface->GetRenderState(D3DRS_ALPHABLENDENABLE, &state->alphaBlendEnable); // Doesn't really need to be backed up
 	ProxyInterface->GetRenderState(D3DRS_ALPHATESTENABLE, &state->alphaTestEnable);
 	ProxyInterface->GetRenderState(D3DRS_SRCBLEND, &state->srcBlend);
 	ProxyInterface->GetRenderState(D3DRS_DESTBLEND, &state->destBlend);
 
-	ProxyInterface->GetTexture(0, &state->stage0); //Could use a later stage instead of backing up
+	ProxyInterface->GetTexture(0, &state->stage0); // Could use a later stage instead of backing up
 
 	ProxyInterface->GetVertexShader(&state->vertexShader);
 }

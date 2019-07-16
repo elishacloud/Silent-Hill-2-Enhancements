@@ -21,14 +21,14 @@ private:
 	DWORD *SH2_CutsceneID = nullptr;
 	float *SH2_CutsceneCameraPos = nullptr;
 
-	IDirect3DTexture8 *pInTexture = NULL;
-	IDirect3DSurface8 *pInSurface = NULL, *pBackBuffer = NULL, *pStencilBuffer = NULL;
+	IDirect3DTexture8 *pInTexture = nullptr;
+	IDirect3DSurface8 *pInSurface = nullptr;
 
-	IDirect3DTexture8 *pShrunkTexture = NULL;
-	IDirect3DSurface8 *pShrunkSurface = NULL;
+	IDirect3DTexture8 *pShrunkTexture = nullptr;
+	IDirect3DSurface8 *pShrunkSurface = nullptr;
 
-	IDirect3DTexture8 *pOutTexture = NULL;
-	IDirect3DSurface8 *pOutSurface = NULL;
+	IDirect3DTexture8 *pOutTexture = nullptr;
+	IDirect3DSurface8 *pOutSurface = nullptr;
 
 	struct CUSTOMVERTEX
 	{
@@ -190,4 +190,6 @@ public:
 	HRESULT DrawSoftShadows();
 	void BackupState(D3DSTATE *state);
 	void RestoreState(D3DSTATE *state);
+	template <typename T>
+	void ReleaseInterface(T **ppInterface);
 };

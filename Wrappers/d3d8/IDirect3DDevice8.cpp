@@ -69,6 +69,36 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	if (pInSurface)
+	{
+		ReleaseInterface(&pInSurface);
+	}
+
+	if (pInTexture)
+	{
+		ReleaseInterface(&pInTexture);
+	}
+
+	if (pShrunkSurface)
+	{
+		ReleaseInterface(&pShrunkSurface);
+	}
+
+	if (pShrunkTexture)
+	{
+		ReleaseInterface(&pShrunkTexture);
+	}
+
+	if (pOutSurface)
+	{
+		ReleaseInterface(&pOutSurface);
+	}
+
+	if (pOutTexture)
+	{
+		ReleaseInterface(&pOutTexture);
+	}
+
 	// Update presentation parameters
 	UpdatePresentParameter(pPresentationParameters, nullptr, true);
 
@@ -1343,6 +1373,8 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 	float SHADOW_DIVISOR = 2;
 	int BLUR_PASSES = 4;
 
+	IDirect3DSurface8 *pBackBuffer = nullptr, *pStencilBuffer = nullptr;
+
 	float screenW = (float)BufferWidth;
 	float screenH = (float)BufferHeight;
 
@@ -1384,18 +1416,30 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 
 	// Create our intermediate render targets/textures only once
 	if (!pInTexture) {
-		ProxyInterface->CreateTexture((UINT)screenW, (UINT)screenH, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &pInTexture);
-		pInTexture->GetSurfaceLevel(0, &pInSurface);
+		if (SUCCEEDED(ProxyInterface->CreateTexture((UINT)screenW, (UINT)screenH, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &pInTexture)))
+		{
+			pInTexture->GetSurfaceLevel(0, &pInSurface);
+		}
 	}
 
 	if (!pShrunkTexture) {
-		ProxyInterface->CreateTexture((UINT)screenWs, (UINT)screenHs, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &pShrunkTexture);
-		pShrunkTexture->GetSurfaceLevel(0, &pShrunkSurface);
+		if (SUCCEEDED(ProxyInterface->CreateTexture((UINT)screenWs, (UINT)screenHs, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &pShrunkTexture)))
+		{
+			pShrunkTexture->GetSurfaceLevel(0, &pShrunkSurface);
+		}
 	}
 
 	if (!pOutTexture) {
-		ProxyInterface->CreateTexture((UINT)screenWs, (UINT)screenHs, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &pOutTexture);
-		pOutTexture->GetSurfaceLevel(0, &pOutSurface);
+		if (SUCCEEDED(ProxyInterface->CreateTexture((UINT)screenWs, (UINT)screenHs, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &pOutTexture)))
+		{
+			pOutTexture->GetSurfaceLevel(0, &pOutSurface);
+		}
+	}
+
+	if (!pInTexture || !pShrunkTexture || !pOutTexture ||
+		!pInSurface || !pShrunkSurface || !pOutSurface)
+	{
+		return D3DERR_INVALIDCALL;
 	}
 
 	// Backup current state
@@ -1411,8 +1455,14 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 	ProxyInterface->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
 
 	// Back up current render target (backbuffer) and stencil buffer
-	ProxyInterface->GetRenderTarget(&pBackBuffer);
-	ProxyInterface->GetDepthStencilSurface(&pStencilBuffer);
+	if (SUCCEEDED(ProxyInterface->GetRenderTarget(&pBackBuffer)))
+	{
+		pBackBuffer->Release();
+	}
+	if (SUCCEEDED(ProxyInterface->GetDepthStencilSurface(&pStencilBuffer)))
+	{
+		pStencilBuffer->Release();
+	}
 
 	// Swap to new render target, maintain old stencil buffer and draw shadows
 	ProxyInterface->SetRenderTarget(pInSurface, pStencilBuffer);
@@ -1542,7 +1592,10 @@ void m_IDirect3DDevice8::BackupState(D3DSTATE *state)
 	ProxyInterface->GetRenderState(D3DRS_SRCBLEND, &state->srcBlend);
 	ProxyInterface->GetRenderState(D3DRS_DESTBLEND, &state->destBlend);
 
-	ProxyInterface->GetTexture(0, &state->stage0); // Could use a later stage instead of backing up
+	if (SUCCEEDED(ProxyInterface->GetTexture(0, &state->stage0)))		// Could use a later stage instead of backing up
+	{
+		state->stage0->Release();
+	}
 
 	ProxyInterface->GetVertexShader(&state->vertexShader);
 }
@@ -1562,4 +1615,25 @@ void m_IDirect3DDevice8::RestoreState(D3DSTATE *state)
 	ProxyInterface->SetTexture(0, state->stage0);
 
 	ProxyInterface->SetVertexShader(state->vertexShader);
+}
+
+template <typename T>
+void m_IDirect3DDevice8::ReleaseInterface(T **ppInterface)
+{
+	if (ppInterface && *ppInterface)
+	{
+		DWORD x = 0, z = 0;
+		do
+		{
+			z = (*ppInterface)->Release();
+		} while (z != 0 && ++x < 100);
+
+		// Add Error: checking
+		if (z != 0)
+		{
+			LOG_LIMIT(100, __FUNCTION__ << " Error: failed to release interface!");
+		}
+
+		(*ppInterface) = nullptr;
+	}
 }

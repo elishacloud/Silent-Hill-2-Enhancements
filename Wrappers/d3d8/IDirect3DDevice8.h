@@ -24,6 +24,9 @@ private:
 	IDirect3DTexture8 *pInTexture = NULL;
 	IDirect3DSurface8 *pInSurface = NULL, *pBackBuffer = NULL, *pStencilBuffer = NULL;
 
+	IDirect3DTexture8 *pShrunkTexture = NULL;
+	IDirect3DSurface8 *pShrunkSurface = NULL;
+
 	IDirect3DTexture8 *pOutTexture = NULL;
 	IDirect3DSurface8 *pOutSurface = NULL;
 

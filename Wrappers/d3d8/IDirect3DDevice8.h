@@ -20,6 +20,7 @@ private:
 	DWORD *SH2_RoomID = nullptr;
 	DWORD *SH2_CutsceneID = nullptr;
 	float *SH2_CutsceneCameraPos = nullptr;
+	float *SH2_JamesPos = nullptr;
 
 	IDirect3DTexture8 *pInTexture = nullptr;
 	IDirect3DSurface8 *pInSurface = nullptr;
@@ -66,6 +67,7 @@ public:
 		SH2_RoomID = (DWORD*)GetRoomIDPointer();
 		SH2_CutsceneID = (DWORD*)GetCutsceneIDPointer();
 		SH2_CutsceneCameraPos = (float*)GetCutscenePosPointer();
+		SH2_JamesPos = (float*)GetJamesPosPointer();
 
 		// Create blank texture for white shader fix
 		if (FAILED(ProxyInterface->CreateTexture(1, 1, 1, NULL, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED, &BlankTexture)))

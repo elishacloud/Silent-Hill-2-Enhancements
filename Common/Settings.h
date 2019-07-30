@@ -23,10 +23,12 @@
 	visit(Fog2DFix, true) \
 	visit(FogParameterFix, true) \
 	visit(FullscreenWndMode, true) \
+	visit(GameLoadFix, true) \
 	visit(HalogenLightFix, true) \
 	visit(HospitalChaseFix, true) \
 	visit(HotelWaterFix, true) \
 	visit(ImproveStorageSupport, true) \
+	visit(IncreaseBlood, true) \
 	visit(IncreaseDrawDistance, true) \
 	visit(LightingTransitionFix, true) \
 	visit(LoadD3d8FromScriptsFolder, false) \

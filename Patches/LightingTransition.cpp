@@ -78,7 +78,7 @@ __declspec(naked) void __stdcall LightingTransitionASM()
 }
 
 // Update SH2 code to enable Lighting Transition fix
-void UpdateLightingTransition()
+void SetLightingTransition()
 {
 	// Get Lighting Transition address
 	constexpr BYTE SearchBytesLightingTransition[]{ 0x8B, 0x11, 0x89, 0x10, 0x8B, 0x51, 0x04, 0x89, 0x50, 0x04, 0x8B, 0x51, 0x08, 0x89, 0x50, 0x08, 0x8B, 0x54, 0x24, 0x18, 0x8B, 0x49, 0x0C, 0x52, 0x53, 0x89, 0x48, 0x0C, 0xE8, 0xFF, 0xEF, 0xFF, 0xFF };
@@ -130,6 +130,7 @@ void UpdateLightingTransition()
 	// Get address for the brightness of movable objects for specific rooms 3
 	DWORD Address3;
 	memcpy(&Address3, (void*)(SpecificRoomsAddr + 0x30), sizeof(DWORD));
+	DWORD Address4 = Address3 + 0x2390;
 	Address3 = Address3 + 0x2A0;
 
 	// Blue Creek Apt Room 203
@@ -150,7 +151,73 @@ void UpdateLightingTransition()
 	UpdateMemoryAddress((void*)(Address3 + 0x04), &Value, sizeof(float));		// Movable Object Brightness (Green)
 	UpdateMemoryAddress((void*)(Address3 + 0x08), &Value, sizeof(float));		// Movable Object Brightness (Blue)
 
+	// Hotel 202/204
+	Value = 1.0f;
+	UpdateMemoryAddress((void*)(Address4 + 0x00), &Value, sizeof(float));
+	UpdateMemoryAddress((void*)(Address4 + 0x04), &Value, sizeof(float));
+	UpdateMemoryAddress((void*)(Address4 + 0x08), &Value, sizeof(float));
+	Value = 500.0f;
+	UpdateMemoryAddress((void*)(Address4 + 0x18), &Value, sizeof(float));
+	UpdateMemoryAddress((void*)(Address4 + 0x1C), &Value, sizeof(float));
+
 	// Update SH2 code
 	Logging::Log() << "Enabling Lighting Transition Fix...";
 	WriteJMPtoMemory((BYTE*)LightingTransitionAddr, *LightingTransitionASM, 6);
+}
+
+void UpdateLightingTransition(DWORD *SH2_CutsceneID)
+{
+	// Update SH2 code to enable Lighting Transition fix
+	static bool RunFixOnce = true;
+	if (RunFixOnce)
+	{
+		RunFixOnce = false;
+		SetLightingTransition();
+	}
+
+	// Get flashlight render address
+	static BYTE *Address = nullptr;
+	if (!Address)
+	{
+		static bool RunOnce = false;
+		if (RunOnce)
+		{
+			return;
+		}
+		RunOnce = true;
+
+		// Get address for flashlight render
+		constexpr BYTE SearchBytes[]{ 0xC3, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x33, 0xC0, 0x66, 0xA3 };
+		Address = (BYTE*)ReadSearchedAddresses(0x0050A1D6, 0x0050A506, 0x00509E26, SearchBytes, sizeof(SearchBytes), 0x14);
+		if (!Address)
+		{
+			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+			return;
+		}
+	}
+
+	// Set flashlight render
+	static bool ValueSet = false;
+	static DWORD Counter = 0;
+	if (*SH2_CutsceneID == 0x5C)
+	{
+		if (*Address != 0 && ++Counter < 3)
+		{
+			*Address = 0;
+			ValueSet = true;
+		}
+	}
+	else if (*SH2_CutsceneID == 0x19)
+	{
+		if (!ValueSet)
+		{
+			*Address = 0;
+			ValueSet = true;
+		}
+	}
+	else if (ValueSet)
+	{
+		ValueSet = false;
+		Counter = 0;
+	}
 }

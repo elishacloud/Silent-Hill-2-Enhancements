@@ -194,7 +194,7 @@ void UpdateHotelWater(DWORD *SH2_RoomID)
 
 	// Strange Area 2 and Labyrinth
 	{
-		const DWORD RoomIDs[] = { 0x63, 0x82, 0x80, 0x7E, 0x7C, 0x7A };
+		const DWORD RoomIDs[] = { 0x63, 0x7A, 0x7C, 0x7E, 0x80, 0x82, 0x85 };
 		bool RoomsMatch = false;
 		for (auto const &RoomID : RoomIDs)
 		{

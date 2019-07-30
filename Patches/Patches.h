@@ -4,6 +4,7 @@
 void *GetRoomIDPointer();
 void *GetCutsceneIDPointer();
 void *GetCutscenePosPointer();
+void *GetJamesPosPointer();
 void DisableCDCheck();
 void UpdateSFXAddr();
 void UpdatePS2NoiseFilter();
@@ -17,11 +18,11 @@ void UpdateCustomFonts();
 void UpdatePistonRoom();
 void Update2TBHardDriveFix();
 void UpdatePS2Flashlight();
-void UpdateLightingTransition();
+void UpdateLightingTransition(DWORD *SH2_CutsceneID);
 void UpdateHotelWater(DWORD *SH2_RoomID);
 void UpdateRoom312ShadowFix(DWORD *SH2_RoomID);
 void UpdateClosetCutscene(DWORD *SH2_CutsceneID, float *SH2_CutsceneCameraPos);
-void UpdateHospitalChase(DWORD *SH2_RoomID);
+void UpdateHospitalChase(DWORD *SH2_RoomID, float *SH2_JamesPos);
 void UpdateDynamicDrawDistance(DWORD *SH2_RoomID);
 void UpdateHangOnEsc();
 void UpdateXInputVibration();
@@ -33,8 +34,11 @@ void UpdateCustomExeStr();
 void UpdateResolutionLock(DWORD ResX, DWORD ResY);
 void UpdateMainMenuFix();
 void UpdateMainMenuTitlePerLang();
+void UpdateGameLoad(DWORD *SH2_RoomID, float *SH2_JamesPos);
+void UpdateBloodSize(DWORD *SH2_RoomID);
 
 // Varable forward declaration
 extern void *RoomIDAddr;
 extern void *CutsceneIDAddr;
 extern void *CutscenePosAddr;
+extern void *JamesPosAddr;

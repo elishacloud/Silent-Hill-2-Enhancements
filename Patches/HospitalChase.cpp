@@ -20,29 +20,8 @@
 #include "Logging\Logging.h"
 
 // Update SH2 code to Fix RPT Hospital Elevator Stabbing Animation
-void UpdateHospitalChase(DWORD *SH2_RoomID)
+void UpdateHospitalChase(DWORD *SH2_RoomID, float *SH2_JamesPos)
 {
-	static float *JamesPosition = nullptr;
-	if (!JamesPosition)
-	{
-		static bool RunOnce = false;
-		if (RunOnce)
-		{
-			return;
-		}
-		RunOnce = true;
-
-		// Get James Position address
-		constexpr BYTE SearchBytes[]{ 0x4A, 0x8D, 0x88, 0xCC, 0x02, 0x00, 0x00, 0x89, 0x88, 0x94, 0x01, 0x00, 0x00, 0x8B, 0xC1, 0x75, 0xEF, 0x33, 0xC9, 0x89, 0x88, 0x94, 0x01, 0x00, 0x00, 0xB8 };
-		JamesPosition = (float*)ReadSearchedAddresses(0x00538070, 0x005383A0, 0x00537CC0, SearchBytes, sizeof(SearchBytes), -0x10);
-		if (!JamesPosition)
-		{
-			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
-			return;
-		}
-		JamesPosition = (float*)((DWORD)JamesPosition + 0x1C);
-	}
-
 	static DWORD Address = NULL;
 	if (!Address)
 	{
@@ -79,7 +58,7 @@ void UpdateHospitalChase(DWORD *SH2_RoomID)
 	if (*SH2_RoomID == 0x5B)
 	{
 
-		if (!ValueSet && *JamesPosition > 33185.0f)
+		if (!ValueSet && *SH2_JamesPos > 33185.0f)
 		{
 			BYTE Value = 5;
 			UpdateMemoryAddress((void*)Address, &Value, sizeof(BYTE));

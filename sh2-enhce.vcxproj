@@ -36,6 +36,7 @@
     <ClCompile Include="External\Logging\Logging.cpp" />
     <ClCompile Include="External\MemoryModule\MemoryModule.c" />
     <ClCompile Include="Patches\2TBHardDriveFix.cpp" />
+    <ClCompile Include="Patches\BloodSize.cpp" />
     <ClCompile Include="Patches\CemeteryLightingPatch.cpp" />
     <ClCompile Include="Patches\ClosetCutscene.cpp" />
     <ClCompile Include="Patches\Common.cpp" />
@@ -46,6 +47,7 @@
     <ClCompile Include="Patches\EnhancedFlashlight.cpp" />
     <ClCompile Include="Patches\FogAdjustments.cpp" />
     <ClCompile Include="Patches\Fonts.cpp" />
+    <ClCompile Include="Patches\GameLoad.cpp" />
     <ClCompile Include="Patches\HangOnEsc.cpp" />
     <ClCompile Include="Patches\HospitalChase.cpp" />
     <ClCompile Include="Patches\HotelWater.cpp" />

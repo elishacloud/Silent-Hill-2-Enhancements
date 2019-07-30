@@ -26,11 +26,13 @@ constexpr BYTE RoomCallBytes[]{ 0x83, 0x3D };
 constexpr BYTE CutsceneIDSearchBytes[]{ 0x8B, 0x56, 0x08, 0x89, 0x10, 0x5F, 0x5E, 0x5D, 0x83, 0xC4, 0x50, 0xC3 };
 constexpr BYTE CutsceneCallBytes[]{ 0xA1 };
 constexpr BYTE CutscenePosSearchBytes[]{ 0x40, 0x88, 0x54, 0x24, 0x0B, 0x88, 0x4C, 0x24, 0x0A, 0x8B, 0x4C, 0x24, 0x08, 0x8B, 0xD1, 0x89, 0x0D };
+constexpr BYTE JamesPosSearchBytes[]{ 0x4A, 0x8D, 0x88, 0xCC, 0x02, 0x00, 0x00, 0x89, 0x88, 0x94, 0x01, 0x00, 0x00, 0x8B, 0xC1, 0x75, 0xEF, 0x33, 0xC9, 0x89, 0x88, 0x94, 0x01, 0x00, 0x00, 0xB8 };
 
 // Variables
 void *RoomIDAddr = nullptr;
 void *CutsceneIDAddr = nullptr;
 void *CutscenePosAddr = nullptr;
+void *JamesPosAddr = nullptr;
 
 void *GetRoomIDPointer()
 {
@@ -136,4 +138,25 @@ void *GetCutscenePosPointer()
 	memcpy(&CutscenePosAddr, CutsceneFunctAddr, sizeof(DWORD));
 
 	return CutscenePosAddr;
+}
+
+void *GetJamesPosPointer()
+{
+	if (JamesPosAddr)
+	{
+		return JamesPosAddr;
+	}
+
+	// Get James Pos address
+	void *JamesPosition = (float*)ReadSearchedAddresses(0x00538070, 0x005383A0, 0x00537CC0, JamesPosSearchBytes, sizeof(JamesPosSearchBytes), -0x10);
+
+	// Checking address pointer
+	if (!JamesPosition)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find James Pos function address!";
+		return nullptr;
+	}
+	JamesPosAddr = (float*)((DWORD)JamesPosition + 0x1C);
+
+	return JamesPosAddr;
 }

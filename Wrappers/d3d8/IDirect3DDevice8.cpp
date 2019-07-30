@@ -802,9 +802,9 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 	}
 
 	// RPT Hospital Elevator Stabbing Animation Fix
-	if (HospitalChaseFix && SH2_RoomID)
+	if (HospitalChaseFix && SH2_RoomID && SH2_JamesPos)
 	{
-		UpdateHospitalChase(SH2_RoomID);
+		UpdateHospitalChase(SH2_RoomID, SH2_JamesPos);
 	}
 
 	// Hang on Esc Fix
@@ -823,6 +823,24 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 	if (IncreaseDrawDistance && SH2_RoomID)
 	{
 		UpdateDynamicDrawDistance(SH2_RoomID);
+	}
+
+	// Lighting Transition fix
+	if (LightingTransitionFix && SH2_CutsceneID)
+	{
+		UpdateLightingTransition(SH2_CutsceneID);
+	}
+
+	// Game save fix
+	if (GameLoadFix && SH2_RoomID && SH2_JamesPos)
+	{
+		UpdateGameLoad(SH2_RoomID, SH2_JamesPos);
+	}
+
+	// Increase blood size
+	if (IncreaseBlood && SH2_RoomID)
+	{
+		UpdateBloodSize(SH2_RoomID);
 	}
 
 	return ProxyInterface->BeginScene();

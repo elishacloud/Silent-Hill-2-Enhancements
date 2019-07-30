@@ -16,75 +16,150 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include "Patches.h"
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
-// Update SH2 code to Fix Hotel Room 312 Shadow Flicker
-void UpdateRoom312ShadowFix(DWORD *SH2_RoomID)
+// Variables for ASM
+void *jmpHotel312ReturnAddr;
+DWORD HotelRoomObject;
+void *jmpChairShadow1ReturnAddr;
+void *jmpChairShadow2ReturnAddr;
+void *jmpRoom312BloomReturnAddr;
+DWORD Room312BloomObject;
+
+// ASM function to update to Fix Hotel Room 312 Shadow Flicker
+__declspec(naked) void __stdcall HotelRoom312ASM()
 {
-	// Get Address
-	static DWORD Address = NULL;
-	if (!Address)
+	__asm
 	{
-		static bool RunOnce = false;
-		if (RunOnce)
-		{
-			return;
-		}
-		RunOnce = true;
+		push eax
+		mov eax, dword ptr ds : [RoomIDAddr]		// moves room ID pointer to eax
+		cmp dword ptr ds : [eax], 0xA2				// Hotel Room 312
+		je near InHotelRoom
 
-		constexpr BYTE SearchBytes[]{ 0xC1, 0xEA, 0x11, 0xC1, 0xE9, 0x1D, 0xC1, 0xE8, 0x0A, 0xC1, 0xEF, 0x03, 0x23, 0xD3, 0x23, 0xCB, 0x23, 0xC3, 0x23, 0xFB };
+	// NotInHotelRoom
+		mov eax, dword ptr ds : [HotelRoomObject]
+		mov edx, [edx + eax]
+		jmp near ExitASM
 
-		// Get Room 312 Shadow address
-		DWORD SearchAddress = (DWORD)CheckMultiMemoryAddress((void*)0x004F727D, (void*)0x004F75AD, (void*)0x004F6ECC, (void*)SearchBytes, sizeof(SearchBytes));
+	InHotelRoom:
+		mov edx, 0x00000000
 
-		// Search for address
-		if (!SearchAddress)
-		{
-			Logging::Log() << __FUNCTION__ << " searching for memory address!";
-			SearchAddress = (DWORD)GetAddressOfData(SearchBytes, sizeof(SearchBytes), 1, 0x004F6D7D, 2600);
-		}
+	ExitASM:
+		pop eax
+		jmp jmpHotel312ReturnAddr
+	}
+}
 
-		// Checking address pointer
-		if (!SearchAddress)
-		{
-			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
-			return;
-		}
+// ASM function to update to Fix the Chair Shadow 1 in Room 312
+__declspec(naked) void __stdcall ChairShadow1ASM()
+{
+	__asm
+	{
+		push eax
+		mov eax, dword ptr ds : [CutsceneIDAddr] 	// moves cutscene ID pointer to eax
+		cmp dword ptr ds : [eax], 0x52
+		pop eax
+		je near IsHotelCutscene
+		fstp dword ptr ds : [eax + 0x14]
 
-		// Get address pointer
-		SearchAddress = SearchAddress + 0x21;
-		memcpy(&Address, (void*)(SearchAddress), sizeof(DWORD));
-		Address = Address + 0x05;
+	IsHotelCutscene:
+		mov eax, [edi]
+		jmp jmpChairShadow1ReturnAddr
+	}
+}
+
+// ASM function to update to Fix the Chair Shadow 2 in Room 312
+__declspec(naked) void __stdcall ChairShadow2ASM()
+{
+	__asm
+	{
+		push eax
+		mov eax, dword ptr ds : [CutsceneIDAddr] 	// moves cutscene ID pointer to eax
+		cmp dword ptr ds : [eax], 0x52
+		pop eax
+		je near IsHotelCutscene
+		fstp dword ptr ds : [eax + 0x14]
+
+	IsHotelCutscene:
+		lea eax, [esp + 0x90]
+		jmp jmpChairShadow2ReturnAddr
+	}
+}
+
+// ASM function to update to Fix the Room 312 Bloom Effect
+__declspec(naked) void __stdcall Room312BloomASM()
+{
+	__asm
+	{
+		push eax
+		mov eax, dword ptr ds : [RoomIDAddr]		// moves room ID pointer to eax
+		cmp dword ptr ds : [eax], 0xA2				// Hotel Room 312
+		je near InHotelRoom
+		mov eax, dword ptr ds : [Room312BloomObject]
+		mov dword ptr ds : [eax], edi
+
+	InHotelRoom:
+		pop eax
+		jmp jmpRoom312BloomReturnAddr
+	}
+}
+
+// Update SH2 code to Fix Hotel Room 312 Shadow Flicker
+void UpdateRoom312ShadowFix()
+{
+	// Get Hotel Room 312 address
+	constexpr BYTE SearchBytesHotelRoom312[]{ 0x8B, 0x08, 0x6A, 0x01, 0x6A, 0x0F, 0x50, 0xBB, 0x08, 0x00, 0x00, 0x00, 0xFF, 0x91, 0xC8, 0x00, 0x00, 0x00, 0xA1 };
+	DWORD HotelRoom312Addr = SearchAndGetAddresses(0x005B018B, 0x005B0ABB, 0x005B03DB, SearchBytesHotelRoom312, sizeof(SearchBytesHotelRoom312), 0x34);
+	if (!HotelRoom312Addr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+	jmpHotel312ReturnAddr = (void*)(HotelRoom312Addr + 0x06);
+	memcpy(&HotelRoomObject, (void*)(HotelRoom312Addr + 0x02), sizeof(DWORD));
+
+	// Get Chair Shadow address
+	constexpr BYTE SearchBytesChairShadow[]{ 0xD9, 0x58, 0x14, 0x8B, 0x07, 0x8B, 0x48, 0x3C, 0xD9, 0x41, 0x30, 0x83, 0xC1, 0x30 };
+	DWORD ChairShadowAddr1 = SearchAndGetAddresses(0x005A7483, 0x005A7D33, 0x005A7653, SearchBytesChairShadow, sizeof(SearchBytesChairShadow), 0x00);
+	if (!ChairShadowAddr1)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+	jmpChairShadow1ReturnAddr = (void*)(ChairShadowAddr1 + 0x05);
+	DWORD ChairShadowAddr2 = ChairShadowAddr1 + 0x30;
+	jmpChairShadow2ReturnAddr = (void*)(ChairShadowAddr2 + 0x0A);
+
+	// Get Room 312 Bloom Effect address
+	constexpr BYTE SearchBytesRoom312Bloom[]{ 0xC6, 0x46, 0x10, 0x03, 0xC6, 0x46, 0x11, 0x19, 0xC6, 0x46, 0x12, 0xD8, 0xC6, 0x46, 0x14, 0x0C };
+	DWORD Room312BloomAddr = SearchAndGetAddresses(0x00579011, 0x005798C1, 0x005791E1, SearchBytesRoom312Bloom, sizeof(SearchBytesRoom312Bloom), -0x10);
+	if (!Room312BloomAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+	jmpRoom312BloomReturnAddr = (void*)(Room312BloomAddr + 0x06);
+	memcpy(&Room312BloomObject, (void*)(Room312BloomAddr + 0x02), sizeof(DWORD));
+
+	// Get room ID address
+	RoomIDAddr = GetRoomIDPointer();
+
+	// Get cutscene ID address
+	CutsceneIDAddr = GetCutsceneIDPointer();
+
+	// Checking address pointer
+	if (!RoomIDAddr || !CutsceneIDAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to get room ID or cutscene ID address!";
+		return;
 	}
 
-	// Log update
-	static bool FirstRun = true;
-	if (FirstRun)
-	{
-		Logging::Log() << "Setting Hotel Room 312 Shadow Flicker Fix...";
-
-		// Reset FirstRun
-		FirstRun = false;
-	}
-
-	// Set value for Room 312 Shadow fix
-	static bool ValueSet = false;
-	if (*SH2_RoomID == 0xA2 && !ValueSet)
-	{
-		BYTE Value = 3;
-		if (Address == 0x00A333C5)
-		{
-			Value = 7;
-		}
-
-		UpdateMemoryAddress((void*)Address, &Value, sizeof(BYTE));
-		ValueSet = true;
-	}
-	else if (*SH2_RoomID != 0xA2 && ValueSet)
-	{
-		BYTE Value = 0;
-		UpdateMemoryAddress((void*)Address, &Value, sizeof(BYTE));
-		ValueSet = false;
-	}
+	// Update SH2 code
+	Logging::Log() << "Setting Hotel Room 312 Shadow Flicker Fix...";
+	WriteJMPtoMemory((BYTE*)HotelRoom312Addr, *HotelRoom312ASM, 0x06);
+	WriteJMPtoMemory((BYTE*)ChairShadowAddr1, *ChairShadow1ASM, 0x05);
+	WriteJMPtoMemory((BYTE*)ChairShadowAddr2, *ChairShadow2ASM, 0x0A);
+	WriteJMPtoMemory((BYTE*)Room312BloomAddr, *Room312BloomASM, 0x06);
 }

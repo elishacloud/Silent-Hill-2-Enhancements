@@ -259,6 +259,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			UpdatePistonRoom();
 		}
 
+		// Hotel Room 312 Shadow Flicker Fix
+		if (Room312ShadowFix)
+		{
+			UpdateRoom312ShadowFix();
+		}
+
 		// Red Cross health indicator in cutscene
 		if (DisableRedCrossInCutScenes)
 		{

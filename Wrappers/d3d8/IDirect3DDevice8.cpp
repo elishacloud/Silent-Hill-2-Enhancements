@@ -789,12 +789,6 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		UpdateHotelWater(SH2_RoomID);
 	}
 
-	// Hotel Room 312 Shadow Flicker Fix
-	if (Room312ShadowFix && SH2_RoomID)
-	{
-		UpdateRoom312ShadowFix(SH2_RoomID);
-	}
-
 	// RPT Apartment Closet Cutscene Fix
 	if (ClosetCutsceneFix && SH2_CutsceneID && SH2_CutsceneCameraPos)
 	{

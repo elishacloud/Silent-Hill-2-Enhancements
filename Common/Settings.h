@@ -18,6 +18,7 @@
 	visit(EnableSelfShadows, false) \
 	visit(EnableSoftShadows, false) \
 	visit(EnableWndMode, true) \
+	visit(FixDrawingTextLine, true) \
 	visit(FixHangOnEsc, true) \
 	visit(FixMissingWallChunks, true) \
 	visit(Fog2DFix, true) \
@@ -60,6 +61,7 @@
 	visit(CustomFontRow, 14) \
 	visit(CustomFontCharWidth, 20) \
 	visit(CustomFontCharHeight, 32) \
+	visit(LetterSpacing, 2) \
 	visit(NormalFontWidth, 20) \
 	visit(NormalFontHeight, 30) \
 	visit(PadNumber, 0) \

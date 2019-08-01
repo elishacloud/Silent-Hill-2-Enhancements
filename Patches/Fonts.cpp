@@ -53,6 +53,8 @@ constexpr BYTE DFontFuncBlockA[] = { 0x00, 0x83, 0xEC, 0x24, 0x85, 0xC0, 0x56, 0
 constexpr BYTE DFontFuncBlockB[] = { 0x19, 0x00, 0x00, 0x00, 0xF7, 0xFE, 0xC1, 0xE7, 0x04, 0x66, 0x89, 0x79, 0x02, 0xC1, 0xE3, 0x04 };
 constexpr BYTE DFontFuncBlockC[] = { 0xBE, 0x19, 0x00, 0x00, 0x00, 0xF7, 0xFE, 0x83, 0xC4, 0x04, 0x6B, 0xD2, 0x16, 0x66, 0x89, 0x51, 0x08, 0xC1, 0xE0, 0x05 };
 constexpr BYTE DFontFuncBlockD[] = { 0x00, 0x5F, 0x7F, 0x9F, 0xBF, 0xDF, 0xFF, 0x1F, 0x00, 0x00, 0x00, 0x00 };
+constexpr BYTE DFontFuncBlockE[] = { 0x8B, 0x44, 0x24, 0x08, 0x81, 0xEC, 0x80, 0x00, 0x00, 0x00, 0x53, 0x55, 0x56, 0x57, 0x33, 0xFF, 0x83, 0xC9, 0xFF };
+constexpr BYTE DFontFuncBlockF[] = { 0x83, 0xEC, 0x0C, 0x55, 0x8B, 0x6C, 0x24, 0x18, 0x33, 0xD2, 0x3B, 0xEA, 0x75, 0x07, 0x33, 0xC0, 0x5D, 0x83, 0xC4 };
 
 unsigned int fontTexWidth = 550;
 unsigned int fontTexHeight = 544;
@@ -66,6 +68,7 @@ WORD nFontW = 20;
 WORD nFontH = 30;
 WORD sFontW = 16;
 WORD sFontH = 24;
+BYTE letterSpc = 2;
 
 TGA_FILEHEADER tga;
 BYTE *fontData;
@@ -121,6 +124,7 @@ void UpdateCustomFonts()
 	nFontH = (WORD)NormalFontHeight;
 	sFontW = (WORD)SmallFontWidth;
 	sFontH = (WORD)SmallFontHeight;
+	letterSpc = (BYTE)LetterSpacing;
 
 	ifstream file(std::string(std::string(ModPathA) + "\\font\\font000.tga").c_str(), ios::in | ios::binary | ios::ate);
 
@@ -224,5 +228,31 @@ void UpdateCustomFonts()
 		} else {
 			Logging::Log() << __FUNCTION__ << " Could not find font width data file";
 		}
+	}
+
+	void *DFontAddrF = CheckMultiMemoryAddress((void*)0x0047FAA0, (void*)0x0047FD40, (void*)0x0047FF50, (void*)DFontFuncBlockE, sizeof(DFontFuncBlockE));
+	void *DFontAddrG = CheckMultiMemoryAddress((void*)0x0047E5A0, (void*)0x0047E840, (void*)0x0047EA50, (void*)DFontFuncBlockF, sizeof(DFontFuncBlockF));
+
+	if (!DFontAddrF) {
+		Logging::Log() << __FUNCTION__ << " searching for memory address DFontAddrF!";
+		DFontAddrF = GetAddressOfData(DFontFuncBlockE, sizeof(DFontFuncBlockE), 4, 0x0047F000, 1800);
+	}
+
+	if (!DFontAddrG) {
+		Logging::Log() << __FUNCTION__ << " searching for memory address DFontAddrG!";
+		DFontAddrG = GetAddressOfData(DFontFuncBlockF, sizeof(DFontFuncBlockF), 4, 0x0047E000, 1800);
+	}
+
+	if (DFontAddrF && DFontAddrG) {
+		UpdateMemoryAddress((void *)((BYTE*)DFontAddrF + 0x0142), (void *)&letterSpc, 1);
+		UpdateMemoryAddress((void *)((BYTE*)DFontAddrF + 0x0155), (void *)&letterSpc, 1);
+		UpdateMemoryAddress((void *)((BYTE*)DFontAddrF + 0x0183), (void *)&letterSpc, 1);
+		UpdateMemoryAddress((void *)((BYTE*)DFontAddrF + 0x04FB), (void *)&letterSpc, 1);
+		UpdateMemoryAddress((void *)((BYTE*)DFontAddrF + 0x0521), (void *)&letterSpc, 1);
+		UpdateMemoryAddress((void *)((BYTE*)DFontAddrF + 0x0552), (void *)&letterSpc, 1);
+		UpdateMemoryAddress((void *)((BYTE*)DFontAddrF + 0x06C2), (void *)&letterSpc, 1);
+		UpdateMemoryAddress((void *)((BYTE*)DFontAddrG + 0x008E), (void *)&letterSpc, 1);
+		UpdateMemoryAddress((void *)((BYTE*)DFontAddrG + 0x00A1), (void *)&letterSpc, 1);
+		UpdateMemoryAddress((void *)((BYTE*)DFontAddrG + 0x00CF), (void *)&letterSpc, 1);
 	}
 }

@@ -20,19 +20,12 @@
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
 
-// Predefined code bytes
-constexpr BYTE RoomIDSearchBytes[]{ 0x83, 0xF8, 0x04, 0x0F, 0x87, 0xCE, 0x00, 0x00, 0x00 };
-constexpr BYTE RoomCallBytes[]{ 0x83, 0x3D };
-constexpr BYTE CutsceneIDSearchBytes[]{ 0x8B, 0x56, 0x08, 0x89, 0x10, 0x5F, 0x5E, 0x5D, 0x83, 0xC4, 0x50, 0xC3 };
-constexpr BYTE CutsceneCallBytes[]{ 0xA1 };
-constexpr BYTE CutscenePosSearchBytes[]{ 0x40, 0x88, 0x54, 0x24, 0x0B, 0x88, 0x4C, 0x24, 0x0A, 0x8B, 0x4C, 0x24, 0x08, 0x8B, 0xD1, 0x89, 0x0D };
-constexpr BYTE JamesPosSearchBytes[]{ 0x4A, 0x8D, 0x88, 0xCC, 0x02, 0x00, 0x00, 0x89, 0x88, 0x94, 0x01, 0x00, 0x00, 0x8B, 0xC1, 0x75, 0xEF, 0x33, 0xC9, 0x89, 0x88, 0x94, 0x01, 0x00, 0x00, 0xB8 };
-
 // Variables
 void *RoomIDAddr = nullptr;
 void *CutsceneIDAddr = nullptr;
 void *CutscenePosAddr = nullptr;
 void *JamesPosAddr = nullptr;
+BYTE *FlashLightRenderAddr = nullptr;
 
 void *GetRoomIDPointer()
 {
@@ -40,6 +33,10 @@ void *GetRoomIDPointer()
 	{
 		return RoomIDAddr;
 	}
+
+	// Predefined code bytes
+	constexpr BYTE RoomIDSearchBytes[]{ 0x83, 0xF8, 0x04, 0x0F, 0x87, 0xCE, 0x00, 0x00, 0x00 };
+	constexpr BYTE RoomCallBytes[]{ 0x83, 0x3D };
 
 	// Get room ID address
 	void *RoomFunctAddr = CheckMultiMemoryAddress((void*)0x0052A4A0, (void*)0x0052A7D0, (void*)0x0052A0F0, (void*)RoomIDSearchBytes, sizeof(RoomIDSearchBytes));
@@ -79,6 +76,10 @@ void *GetCutsceneIDPointer()
 		return CutsceneIDAddr;
 	}
 
+	// Predefined code bytes
+	constexpr BYTE CutsceneIDSearchBytes[]{ 0x8B, 0x56, 0x08, 0x89, 0x10, 0x5F, 0x5E, 0x5D, 0x83, 0xC4, 0x50, 0xC3 };
+	constexpr BYTE CutsceneCallBytes[]{ 0xA1 };
+
 	// Get cutscene ID address
 	void *CutsceneFunctAddr = CheckMultiMemoryAddress((void*)0x004A0293, (void*)0x004A0543, (void*)0x0049FE03, (void*)CutsceneIDSearchBytes, sizeof(CutsceneIDSearchBytes));
 
@@ -117,6 +118,9 @@ void *GetCutscenePosPointer()
 		return CutscenePosAddr;
 	}
 
+	// Predefined code bytes
+	constexpr BYTE CutscenePosSearchBytes[]{ 0x40, 0x88, 0x54, 0x24, 0x0B, 0x88, 0x4C, 0x24, 0x0A, 0x8B, 0x4C, 0x24, 0x08, 0x8B, 0xD1, 0x89, 0x0D };
+
 	// Get cutscene Pos address
 	void *CutsceneFunctAddr = CheckMultiMemoryAddress((void*)0x004A04DB, (void*)0x004A078B, (void*)0x004A004B, (void*)CutscenePosSearchBytes, sizeof(CutscenePosSearchBytes));
 
@@ -147,6 +151,9 @@ void *GetJamesPosPointer()
 		return JamesPosAddr;
 	}
 
+	// Predefined code bytes
+	constexpr BYTE JamesPosSearchBytes[]{ 0x4A, 0x8D, 0x88, 0xCC, 0x02, 0x00, 0x00, 0x89, 0x88, 0x94, 0x01, 0x00, 0x00, 0x8B, 0xC1, 0x75, 0xEF, 0x33, 0xC9, 0x89, 0x88, 0x94, 0x01, 0x00, 0x00, 0xB8 };
+
 	// Get James Pos address
 	void *JamesPosition = (float*)ReadSearchedAddresses(0x00538070, 0x005383A0, 0x00537CC0, JamesPosSearchBytes, sizeof(JamesPosSearchBytes), -0x10);
 
@@ -159,4 +166,27 @@ void *GetJamesPosPointer()
 	JamesPosAddr = (float*)((DWORD)JamesPosition + 0x1C);
 
 	return JamesPosAddr;
+}
+
+BYTE *GetFlashLightRenderPointer()
+{
+	if (FlashLightRenderAddr)
+	{
+		return FlashLightRenderAddr;
+	}
+
+	// Predefined code bytes
+	constexpr BYTE FlashLightRenderSearchBytes[]{ 0xC3, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x33, 0xC0, 0x66, 0xA3 };
+
+	// Get address for flashlight render
+	FlashLightRenderAddr = (BYTE*)ReadSearchedAddresses(0x0050A1D6, 0x0050A506, 0x00509E26, FlashLightRenderSearchBytes, sizeof(FlashLightRenderSearchBytes), 0x14);
+
+	// Checking address pointer
+	if (!FlashLightRenderAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find James Pos function address!";
+		return nullptr;
+	}
+
+	return FlashLightRenderAddr;
 }

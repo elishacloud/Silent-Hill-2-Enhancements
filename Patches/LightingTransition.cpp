@@ -176,24 +176,13 @@ void UpdateLightingTransition(DWORD *SH2_CutsceneID)
 	}
 
 	// Get flashlight render address
-	static BYTE *Address = nullptr;
-	if (!Address)
-	{
-		static bool RunOnce = false;
-		if (RunOnce)
-		{
-			return;
-		}
-		RunOnce = true;
+	FlashLightRenderAddr = GetFlashLightRenderPointer();
 
-		// Get address for flashlight render
-		constexpr BYTE SearchBytes[]{ 0xC3, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x33, 0xC0, 0x66, 0xA3 };
-		Address = (BYTE*)ReadSearchedAddresses(0x0050A1D6, 0x0050A506, 0x00509E26, SearchBytes, sizeof(SearchBytes), 0x14);
-		if (!Address)
-		{
-			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
-			return;
-		}
+	// Checking address pointer
+	if (!FlashLightRenderAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to get flashlight render address!";
+		return;
 	}
 
 	// Set flashlight render
@@ -201,9 +190,9 @@ void UpdateLightingTransition(DWORD *SH2_CutsceneID)
 	static DWORD Counter = 0;
 	if (*SH2_CutsceneID == 0x5C)
 	{
-		if (*Address != 0 && ++Counter < 3)
+		if (*FlashLightRenderAddr != 0 && ++Counter < 3)
 		{
-			*Address = 0;
+			*FlashLightRenderAddr = 0;
 			ValueSet = true;
 		}
 	}
@@ -211,7 +200,7 @@ void UpdateLightingTransition(DWORD *SH2_CutsceneID)
 	{
 		if (!ValueSet)
 		{
-			*Address = 0;
+			*FlashLightRenderAddr = 0;
 			ValueSet = true;
 		}
 	}

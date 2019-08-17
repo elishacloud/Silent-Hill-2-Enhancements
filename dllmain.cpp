@@ -400,6 +400,9 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		break;
 	case DLL_PROCESS_DETACH:
 	{
+		// Stop thread
+		m_StopThreadFlag = true;
+
 		// Unhook window handle
 		void UnhookWindowHandle();
 

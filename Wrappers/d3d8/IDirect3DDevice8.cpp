@@ -445,6 +445,7 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 		}
 	}
 
+	// For blur frame flicker fix
 	if (RemoveEffectsFlicker && State == D3DRS_TEXTUREFACTOR)
 	{
 		if (!OverrideTextureLoop && EndSceneCounter != 0)
@@ -729,6 +730,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	// For blur frame flicker fix
 	if (EndSceneCounter == 1)
 	{
 		OverrideTextureLoop = false;

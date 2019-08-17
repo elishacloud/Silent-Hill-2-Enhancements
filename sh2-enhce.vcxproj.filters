@@ -182,6 +182,9 @@
     <ClCompile Include="Patches\BloodSize.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="External\d3d8to9\source\interface_query.cpp">
+      <Filter>External\d3d8to9</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">

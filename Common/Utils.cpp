@@ -20,6 +20,7 @@
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
 
+bool m_StopThreadFlag = false;			// Used for SetSingleCoreAffinity function
 std::vector<HMODULE> custom_dll;		// Used for custom dll's and asi plugins
 
 // Search memory for byte array
@@ -76,7 +77,7 @@ void *GetAddressOfData(const void *data, size_t len, DWORD step, DWORD start, DW
 }
 
 // Checks the value of two data segments
-bool CheckMemoryAddress(void *dataAddr, void *dataBytes, DWORD dataSize)
+bool CheckMemoryAddress(void *dataAddr, void *dataBytes, size_t dataSize)
 {
 	if (!dataAddr || !dataBytes || !dataSize)
 	{
@@ -102,7 +103,7 @@ bool CheckMemoryAddress(void *dataAddr, void *dataBytes, DWORD dataSize)
 }
 
 // Checks mulitple memory addresses
-void *CheckMultiMemoryAddress(void *dataAddr10, void *dataAddr11, void *dataAddrDC, void *dataBytes, DWORD dataSize)
+void *CheckMultiMemoryAddress(void *dataAddr10, void *dataAddr11, void *dataAddrDC, void *dataBytes, size_t dataSize)
 {
 	void *MemAddress = nullptr;
 	// v1.0
@@ -125,7 +126,7 @@ void *CheckMultiMemoryAddress(void *dataAddr10, void *dataAddr11, void *dataAddr
 }
 
 // Search for memory addresses
-DWORD SearchAndGetAddresses(DWORD dataAddr10, DWORD dataAddr11, DWORD dataAddrDC, const BYTE *dataBytes, DWORD dataSize, int ByteDelta)
+DWORD SearchAndGetAddresses(DWORD dataAddr10, DWORD dataAddr11, DWORD dataAddrDC, const BYTE *dataBytes, size_t dataSize, int ByteDelta)
 {
 	// Get address
 	DWORD MemoryAddr = (DWORD)CheckMultiMemoryAddress((void*)dataAddr10, (void*)dataAddr11, (void*)dataAddrDC, (void*)dataBytes, dataSize);
@@ -150,7 +151,7 @@ DWORD SearchAndGetAddresses(DWORD dataAddr10, DWORD dataAddr11, DWORD dataAddrDC
 }
 
 // Search for memory addresses
-DWORD ReadSearchedAddresses(DWORD dataAddr10, DWORD dataAddr11, DWORD dataAddrDC, const BYTE *dataBytes, DWORD dataSize, int ByteDelta)
+DWORD ReadSearchedAddresses(DWORD dataAddr10, DWORD dataAddr11, DWORD dataAddrDC, const BYTE *dataBytes, size_t dataSize, int ByteDelta)
 {
 	// Search for address
 	DWORD MemoryAddr = SearchAndGetAddresses(dataAddr10, dataAddr11, dataAddrDC, dataBytes, dataSize, ByteDelta);
@@ -182,7 +183,7 @@ void SearchAndLogAddress(DWORD FindAddress)
 }
 
 // Update memory
-bool UpdateMemoryAddress(void *dataAddr, void *dataBytes, DWORD dataSize)
+bool UpdateMemoryAddress(void *dataAddr, void *dataBytes, size_t dataSize)
 {
 	if (!dataAddr || !dataBytes || !dataSize)
 	{
@@ -192,7 +193,7 @@ bool UpdateMemoryAddress(void *dataAddr, void *dataBytes, DWORD dataSize)
 
 	// VirtualProtect first to make sure patch_address is readable
 	DWORD dwPrevProtect;
-	if (!VirtualProtect(dataAddr, dataSize, PAGE_WRITECOPY, &dwPrevProtect))
+	if (!VirtualProtect(dataAddr, dataSize, PAGE_READWRITE, &dwPrevProtect))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: could not write to memory address";
 		return false;
@@ -228,7 +229,7 @@ bool WriteAddresstoMemory(BYTE *dataAddr, void *JMPAddr, DWORD count, BYTE comma
 
 	// VirtualProtect first to make sure patch_address is readable
 	DWORD dwPrevProtect;
-	if (!VirtualProtect(dataAddr, count, PAGE_EXECUTE_WRITECOPY, &dwPrevProtect))
+	if (!VirtualProtect(dataAddr, count, PAGE_READWRITE, &dwPrevProtect))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: could not read memory address";
 		return false; // access denied
@@ -300,10 +301,20 @@ DWORD ReplaceMemoryBytes(void *dataSrc, void *dataDest, size_t size, DWORD start
 // Set Single Core Affinity
 DWORD WINAPI SetSingleCoreAffinity(LPVOID pvParam)
 {
+	// Get sleep time
+	DWORD SleepTime = 0;
 	if (pvParam)
 	{
-		Sleep(*(DWORD*)pvParam);
+		SleepTime = *(DWORD*)pvParam;
 	}
+
+	// Sleep for a while
+	DWORD timer = 0;
+	while (!m_StopThreadFlag && timer < SleepTime)
+	{
+		Sleep(120);
+		timer += 120;
+	};
 
 	Logging::Log() << "Setting SingleCoreAffinity...";
 	DWORD_PTR ProcessAffinityMask, SystemAffinityMask;

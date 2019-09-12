@@ -29,8 +29,6 @@
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
 
-#pragma comment(lib, "Shlwapi.lib")
-
 // For Logging
 std::ofstream LOG;
 

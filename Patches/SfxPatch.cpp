@@ -110,7 +110,7 @@ void UpdateSFXAddr()
 
 	// Update SFX address array
 	DWORD oldProtect;
-	if (!VirtualProtect(sfxAddr, ARRAYSIZE(SFXAddrMap) * sizeof(DWORD), PAGE_EXECUTE_READWRITE, &oldProtect))
+	if (!VirtualProtect(sfxAddr, ARRAYSIZE(SFXAddrMap) * sizeof(DWORD), PAGE_READWRITE, &oldProtect))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: Could not write to memory!";
 		return;
@@ -151,7 +151,7 @@ void UpdateSFXAddr()
 	char *PtrBytes = new char[size + 1];
 
 	// Update sddata.bin pointer address
-	if (!VirtualProtect(sfxAddr, sizeof(DWORD), PAGE_EXECUTE_READWRITE, &oldProtect))
+	if (!VirtualProtect(sfxAddr, sizeof(DWORD), PAGE_READWRITE, &oldProtect))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: Could not write to memory!";
 		return;

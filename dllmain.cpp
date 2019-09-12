@@ -275,6 +275,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			UpdatePS2Flashlight();
 		}
 
+		// Fixes Lying Figure's behavior
+		if (FixCreatureVehicleSpawn)
+		{
+			UpdateCreatureVehicleSpawn();
+		}
+
 		// XInput based vibration
 		if (XInputVibration)
 		{

@@ -18,6 +18,7 @@
 	visit(EnableSelfShadows, false) \
 	visit(EnableSoftShadows, false) \
 	visit(EnableWndMode, true) \
+	visit(FixCreatureVehicleSpawn, true) \
 	visit(FixDrawingTextLine, true) \
 	visit(FixHangOnEsc, true) \
 	visit(FixMissingWallChunks, true) \

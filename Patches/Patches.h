@@ -15,6 +15,7 @@ void UpdateBloodSize(DWORD *SH2_RoomID);
 void UpdateCatacombsMeatRoom();
 void UpdateCemeteryLighting();
 void UpdateClosetCutscene(DWORD *SH2_CutsceneID, float *SH2_CutsceneCameraPos);
+void UpdateCreatureVehicleSpawn();
 void UpdateCustomExeStr();
 void UpdateCustomFonts();
 void UpdateDPadMovement();

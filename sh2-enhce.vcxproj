@@ -181,7 +181,6 @@ copy /Y "$(ProjectDir)Resources\SilentHill2.WidescreenFix.dat" "$(TargetDir)$(Ta
       </PrecompiledHeader>
       <PreprocessorDefinitions>D3D8TO9NOLOG;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ControlFlowGuard>false</ControlFlowGuard>

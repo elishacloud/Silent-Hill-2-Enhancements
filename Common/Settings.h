@@ -15,6 +15,7 @@
 	visit(DisableRedCrossInCutScenes, true) \
 	visit(DPadMovementFix, true) \
 	visit(EnableSFXAddrHack, true) \
+	visit(EnableTexAddrHack, false) \
 	visit(EnableSelfShadows, false) \
 	visit(EnableSoftShadows, false) \
 	visit(EnableWndMode, true) \

@@ -47,6 +47,7 @@
     <ClCompile Include="Patches\DrawDistance.cpp" />
     <ClCompile Include="Patches\CatacombsMeatRoom.cpp" />
     <ClCompile Include="Patches\EnhancedFlashlight.cpp" />
+    <ClCompile Include="Patches\TexPatch.cpp" />
     <ClCompile Include="Patches\FogAdjustments.cpp" />
     <ClCompile Include="Patches\Fonts.cpp" />
     <ClCompile Include="Patches\GameLoad.cpp" />

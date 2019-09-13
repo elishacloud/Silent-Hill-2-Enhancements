@@ -209,6 +209,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			UpdateSFXAddr();
 		}
 
+		// Update Texture addresses
+		if (EnableTexAddrHack)
+		{
+			UpdateTexAddr();
+		}
+
 		// Fix issue with saving the gome on a drive that is larger than 2TBs
 		if (ImproveStorageSupport)
 		{

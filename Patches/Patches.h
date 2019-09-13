@@ -38,6 +38,7 @@ void UpdateResolutionLock(DWORD ResX, DWORD ResY);
 void UpdateRoom312ShadowFix();
 void UpdateRowboatAnimation();
 void UpdateSFXAddr();
+void UpdateTexAddr();
 void UnhookWindowHandle();
 void UpdateXInputVibration();
 

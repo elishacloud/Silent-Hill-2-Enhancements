@@ -49,6 +49,7 @@ FARPROC p_CreateProcessA = nullptr;
 FARPROC p_CreateProcessW = nullptr;
 
 // Variable used in hooked modules
+bool IsFileSystemHooking = false;
 HMODULE moduleHandle = nullptr;
 char ConfigPathA[MAX_PATH];
 wchar_t ConfigPathW[MAX_PATH];
@@ -275,6 +276,11 @@ BOOL WINAPI GetModuleHandleExAHandler(DWORD dwFlags, LPCSTR lpModuleName, HMODUL
 		return FALSE;
 	}
 
+	if (!IsFileSystemHooking)
+	{
+		return org_GetModuleHandleEx(dwFlags, lpModuleName, phModule);
+	}
+
 	BOOL ret = org_GetModuleHandleEx(dwFlags, lpModuleName, phModule);
 	if ((dwFlags & GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS) && !*phModule && moduleHandle)
 	{
@@ -300,6 +306,11 @@ BOOL WINAPI GetModuleHandleExWHandler(DWORD dwFlags, LPCWSTR lpModuleName, HMODU
 		return FALSE;
 	}
 
+	if (!IsFileSystemHooking)
+	{
+		return org_GetModuleHandleEx(dwFlags, lpModuleName, phModule);
+	}
+
 	BOOL ret = org_GetModuleHandleEx(dwFlags, lpModuleName, phModule);
 	if ((dwFlags & GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS) && !*phModule && moduleHandle)
 	{
@@ -319,6 +330,11 @@ DWORD WINAPI GetModuleFileNameAHandler(HMODULE hModule, LPSTR lpFileName, DWORD 
 		Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
 		SetLastError(5);
 		return NULL;
+	}
+
+	if (!IsFileSystemHooking)
+	{
+		return org_GetModuleFileName(hModule, lpFileName, nSize);
 	}
 
 	DWORD ret = org_GetModuleFileName(hModule, lpFileName, nSize);
@@ -343,6 +359,11 @@ DWORD WINAPI GetModuleFileNameWHandler(HMODULE hModule, LPWSTR lpFileName, DWORD
 		return NULL;
 	}
 
+	if (!IsFileSystemHooking)
+	{
+		return org_GetModuleFileName(hModule, lpFileName, nSize);
+	}
+
 	DWORD ret = org_GetModuleFileName(hModule, lpFileName, nSize);
 	if (lpFileName && nSize && ((moduleHandle && hModule == moduleHandle) || !PathExists(lpFileName)))
 	{
@@ -365,6 +386,11 @@ HANDLE WINAPI CreateFileWHandler(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWOR
 		return INVALID_HANDLE_VALUE;
 	}
 
+	if (!IsFileSystemHooking)
+	{
+		return org_CreateFile(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+	}
+
 	wchar_t Filename[MAX_PATH];
 	return org_CreateFile(UpdateModPath(lpFileName, Filename), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 }
@@ -379,6 +405,11 @@ BOOL WINAPI FindNextFileAHandler(HANDLE hFindFile, LPWIN32_FIND_DATAA lpFindFile
 		Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
 		SetLastError(127);
 		return FALSE;
+	}
+
+	if (!IsFileSystemHooking)
+	{
+		return org_FindNextFile(hFindFile, lpFindFileData);
 	}
 
 	BOOL ret = org_FindNextFile(hFindFile, lpFindFileData);
@@ -412,6 +443,11 @@ DWORD WINAPI GetPrivateProfileStringAHandler(LPCSTR lpAppName, LPCSTR lpKeyName,
 		return NULL;
 	}
 
+	if (!IsFileSystemHooking)
+	{
+		return org_GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, lpFileName);
+	}
+
 	char Filename[MAX_PATH];
 	return org_GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, UpdateModPath(lpFileName, Filename));
 }
@@ -426,6 +462,11 @@ DWORD WINAPI GetPrivateProfileStringWHandler(LPCWSTR lpAppName, LPCWSTR lpKeyNam
 		Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
 		SetLastError(2);
 		return NULL;
+	}
+
+	if (!IsFileSystemHooking)
+	{
+		return org_GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, lpFileName);
 	}
 
 	wchar_t Filename[MAX_PATH];
@@ -510,10 +551,52 @@ BOOL WINAPI CreateProcessWHandler(LPCWSTR lpApplicationName, LPWSTR lpCommandLin
 		lpEnvironment, lpCurrentDirectory, lpStartupInfo, lpProcessInformation);
 }
 
+FARPROC getProcAddress(HMODULE hModule, LPCSTR FunctionName)
+{
+	FARPROC addr = Hook::GetProcAddress(hModule, FunctionName);
+	return (addr) ? addr : GetProcAddress(hModule, FunctionName);
+}
+
+void DisableFileSystemHooking()
+{
+	IsFileSystemHooking = false;
+	strcpy_s(ModPathA, MAX_PATH, "data");
+	wcscpy_s(ModPathW, MAX_PATH, L"data");
+	if (LoadModulesFromMemory)
+	{
+		Nemesis2000FogFix = false;
+	}
+}
+
 void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 {
+	// Logging
+	Logging::Log() << "Hooking the FileSystem APIs...";
+
 	// Store handle
 	moduleHandle = hModule;
+
+	// Hook GetModuleFileName and GetModuleHandleEx to fix module name in modules loaded from memory
+	HMODULE h_kernel32 = GetModuleHandle(L"kernel32");
+	InterlockedExchangePointer((PVOID*)&p_GetModuleHandleExA, Hook::HotPatch(getProcAddress(h_kernel32, "GetModuleHandleExA"), "GetModuleHandleExA", GetModuleHandleExAHandler));
+	InterlockedExchangePointer((PVOID*)&p_GetModuleHandleExW, Hook::HotPatch(getProcAddress(h_kernel32, "GetModuleHandleExW"), "GetModuleHandleExW", GetModuleHandleExWHandler));
+	InterlockedExchangePointer((PVOID*)&p_GetModuleFileNameA, Hook::HotPatch(getProcAddress(h_kernel32, "GetModuleFileNameA"), "GetModuleFileNameA", GetModuleFileNameAHandler));
+	InterlockedExchangePointer((PVOID*)&p_GetModuleFileNameW, Hook::HotPatch(getProcAddress(h_kernel32, "GetModuleFileNameW"), "GetModuleFileNameW", GetModuleFileNameWHandler));
+
+	// Hook FileSystem APIs
+	InterlockedExchangePointer((PVOID*)&p_CreateFileW, Hook::HotPatch(getProcAddress(h_kernel32, "CreateFileW"), "CreateFileW", *CreateFileWHandler));
+	InterlockedExchangePointer((PVOID*)&p_FindNextFileA, Hook::HotPatch(getProcAddress(h_kernel32, "FindNextFileA"), "FindNextFileA", *FindNextFileAHandler));
+	InterlockedExchangePointer((PVOID*)&p_GetPrivateProfileStringA, Hook::HotPatch(getProcAddress(h_kernel32, "GetPrivateProfileStringA"), "GetPrivateProfileStringA", *GetPrivateProfileStringAHandler));
+	InterlockedExchangePointer((PVOID*)&p_GetPrivateProfileStringW, Hook::HotPatch(getProcAddress(h_kernel32, "GetPrivateProfileStringW"), "GetPrivateProfileStringW", *GetPrivateProfileStringWHandler));
+
+	// Check for hook failures
+	if (!p_GetModuleHandleExA || !p_GetModuleHandleExW || !p_GetModuleFileNameA || !p_GetModuleFileNameW ||
+		!p_CreateFileW || !p_FindNextFileA || !p_GetPrivateProfileStringA || !p_GetPrivateProfileStringW)
+	{
+		Logging::Log() << "FAILED to hook the FileSystem APIs, disabling 'UseCustomModFolder'!";
+		DisableFileSystemHooking();
+		return;
+	}
 
 	// Store config path
 	std::wstring ws(ConfigPath);
@@ -522,7 +605,10 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	if (!PathExists(ConfigPathA) || !PathExists(ConfigPathW))
 	{
 		Logging::Log() << __FUNCTION__ " Error: 'ConfigPath' incorrect! " << ConfigPathA;
-		Nemesis2000FogFix = false;
+		if (LoadModulesFromMemory)
+		{
+			Nemesis2000FogFix = false;
+		}
 	}
 
 	// Store config name
@@ -551,7 +637,10 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	if (!PathExists(strModulePathA.c_str()) || !PathExists(strModulePathW.c_str()))
 	{
 		Logging::Log() << __FUNCTION__ " Error: 'strModulePath' incorrect! " << strModulePathA.c_str();
-		Nemesis2000FogFix = false;
+		if (LoadModulesFromMemory)
+		{
+			Nemesis2000FogFix = false;
+		}
 	}
 
 	// Get data path
@@ -562,7 +651,8 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	if (modLoc + modLen > MAX_PATH)
 	{
 		Logging::Log() << __FUNCTION__ " Error: custom mod path length is too long! " << modLoc + modLen;
-		UseCustomModFolder = false;
+		DisableFileSystemHooking();
+		return;
 	}
 
 	// Get size of files from mod path
@@ -580,22 +670,8 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 
 	VISIT_BGM_FILES(GET_BGM_FILES);
 
-	// Logging
-	Logging::Log() << "Hooking the FileSystem APIs...";
-
-	// Hook GetModuleFileName and GetModuleHandleEx to fix module name in modules loaded from memory
-	HMODULE h_kernel32 = GetModuleHandle(L"kernel32");
-	InterlockedExchangePointer((PVOID*)&p_GetModuleHandleExA, Hook::HookAPI(h_kernel32, "kernel32.dll", Hook::GetProcAddress(h_kernel32, "GetModuleHandleExA"), "GetModuleHandleExA", GetModuleHandleExAHandler));
-	InterlockedExchangePointer((PVOID*)&p_GetModuleHandleExW, Hook::HookAPI(h_kernel32, "kernel32.dll", Hook::GetProcAddress(h_kernel32, "GetModuleHandleExW"), "GetModuleHandleExW", GetModuleHandleExWHandler));
-	InterlockedExchangePointer((PVOID*)&p_GetModuleFileNameA, Hook::HookAPI(h_kernel32, "kernel32.dll", Hook::GetProcAddress(h_kernel32, "GetModuleFileNameA"), "GetModuleFileNameA", GetModuleFileNameAHandler));
-	InterlockedExchangePointer((PVOID*)&p_GetModuleFileNameW, Hook::HookAPI(h_kernel32, "kernel32.dll", Hook::GetProcAddress(h_kernel32, "GetModuleFileNameW"), "GetModuleFileNameW", GetModuleFileNameWHandler));
-
-	// Hook FileSystem APIs
-	InterlockedExchangePointer((PVOID*)&p_CreateFileW, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "CreateFileW"), "CreateFileW", *CreateFileWHandler));
-	InterlockedExchangePointer((PVOID*)&p_FindNextFileA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "FindNextFileA"), "FindNextFileA", *FindNextFileAHandler));
-	InterlockedExchangePointer((PVOID*)&p_GetPrivateProfileStringA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "GetPrivateProfileStringA"), "GetPrivateProfileStringA", *GetPrivateProfileStringAHandler));
-	InterlockedExchangePointer((PVOID*)&p_GetPrivateProfileStringW, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "GetPrivateProfileStringW"), "GetPrivateProfileStringW", *GetPrivateProfileStringWHandler));
-
+	// Enable file system hooking flag
+	IsFileSystemHooking = true;
 }
 
 void InstallCreateProcessHooks()
@@ -605,6 +681,6 @@ void InstallCreateProcessHooks()
 
 	// Hook CreateProcess APIs
 	HMODULE h_kernel32 = GetModuleHandle(L"kernel32");
-	InterlockedExchangePointer((PVOID*)&p_CreateProcessA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "CreateProcessA"), "CreateProcessA", *CreateProcessAHandler));
-	InterlockedExchangePointer((PVOID*)&p_CreateProcessW, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "CreateProcessW"), "CreateProcessW", *CreateProcessWHandler));
+	InterlockedExchangePointer((PVOID*)&p_CreateProcessA, Hook::HotPatch(getProcAddress(h_kernel32, "CreateProcessA"), "CreateProcessA", *CreateProcessAHandler));
+	InterlockedExchangePointer((PVOID*)&p_CreateProcessW, Hook::HotPatch(getProcAddress(h_kernel32, "CreateProcessW"), "CreateProcessW", *CreateProcessWHandler));
 }

@@ -551,12 +551,6 @@ BOOL WINAPI CreateProcessWHandler(LPCWSTR lpApplicationName, LPWSTR lpCommandLin
 		lpEnvironment, lpCurrentDirectory, lpStartupInfo, lpProcessInformation);
 }
 
-FARPROC getProcAddress(HMODULE hModule, LPCSTR FunctionName)
-{
-	FARPROC addr = Hook::GetProcAddress(hModule, FunctionName);
-	return (addr) ? addr : GetProcAddress(hModule, FunctionName);
-}
-
 void DisableFileSystemHooking()
 {
 	IsFileSystemHooking = false;
@@ -578,16 +572,16 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 
 	// Hook GetModuleFileName and GetModuleHandleEx to fix module name in modules loaded from memory
 	HMODULE h_kernel32 = GetModuleHandle(L"kernel32");
-	InterlockedExchangePointer((PVOID*)&p_GetModuleHandleExA, Hook::HotPatch(getProcAddress(h_kernel32, "GetModuleHandleExA"), "GetModuleHandleExA", GetModuleHandleExAHandler));
-	InterlockedExchangePointer((PVOID*)&p_GetModuleHandleExW, Hook::HotPatch(getProcAddress(h_kernel32, "GetModuleHandleExW"), "GetModuleHandleExW", GetModuleHandleExWHandler));
-	InterlockedExchangePointer((PVOID*)&p_GetModuleFileNameA, Hook::HotPatch(getProcAddress(h_kernel32, "GetModuleFileNameA"), "GetModuleFileNameA", GetModuleFileNameAHandler));
-	InterlockedExchangePointer((PVOID*)&p_GetModuleFileNameW, Hook::HotPatch(getProcAddress(h_kernel32, "GetModuleFileNameW"), "GetModuleFileNameW", GetModuleFileNameWHandler));
+	InterlockedExchangePointer((PVOID*)&p_GetModuleHandleExA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "GetModuleHandleExA"), "GetModuleHandleExA", GetModuleHandleExAHandler));
+	InterlockedExchangePointer((PVOID*)&p_GetModuleHandleExW, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "GetModuleHandleExW"), "GetModuleHandleExW", GetModuleHandleExWHandler));
+	InterlockedExchangePointer((PVOID*)&p_GetModuleFileNameA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "GetModuleFileNameA"), "GetModuleFileNameA", GetModuleFileNameAHandler));
+	InterlockedExchangePointer((PVOID*)&p_GetModuleFileNameW, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "GetModuleFileNameW"), "GetModuleFileNameW", GetModuleFileNameWHandler));
 
 	// Hook FileSystem APIs
-	InterlockedExchangePointer((PVOID*)&p_CreateFileW, Hook::HotPatch(getProcAddress(h_kernel32, "CreateFileW"), "CreateFileW", *CreateFileWHandler));
-	InterlockedExchangePointer((PVOID*)&p_FindNextFileA, Hook::HotPatch(getProcAddress(h_kernel32, "FindNextFileA"), "FindNextFileA", *FindNextFileAHandler));
-	InterlockedExchangePointer((PVOID*)&p_GetPrivateProfileStringA, Hook::HotPatch(getProcAddress(h_kernel32, "GetPrivateProfileStringA"), "GetPrivateProfileStringA", *GetPrivateProfileStringAHandler));
-	InterlockedExchangePointer((PVOID*)&p_GetPrivateProfileStringW, Hook::HotPatch(getProcAddress(h_kernel32, "GetPrivateProfileStringW"), "GetPrivateProfileStringW", *GetPrivateProfileStringWHandler));
+	InterlockedExchangePointer((PVOID*)&p_CreateFileW, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "CreateFileW"), "CreateFileW", *CreateFileWHandler));
+	InterlockedExchangePointer((PVOID*)&p_FindNextFileA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "FindNextFileA"), "FindNextFileA", *FindNextFileAHandler));
+	InterlockedExchangePointer((PVOID*)&p_GetPrivateProfileStringA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "GetPrivateProfileStringA"), "GetPrivateProfileStringA", *GetPrivateProfileStringAHandler));
+	InterlockedExchangePointer((PVOID*)&p_GetPrivateProfileStringW, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "GetPrivateProfileStringW"), "GetPrivateProfileStringW", *GetPrivateProfileStringWHandler));
 
 	// Check for hook failures
 	if (!p_GetModuleHandleExA || !p_GetModuleHandleExW || !p_GetModuleFileNameA || !p_GetModuleFileNameW ||
@@ -681,6 +675,6 @@ void InstallCreateProcessHooks()
 
 	// Hook CreateProcess APIs
 	HMODULE h_kernel32 = GetModuleHandle(L"kernel32");
-	InterlockedExchangePointer((PVOID*)&p_CreateProcessA, Hook::HotPatch(getProcAddress(h_kernel32, "CreateProcessA"), "CreateProcessA", *CreateProcessAHandler));
-	InterlockedExchangePointer((PVOID*)&p_CreateProcessW, Hook::HotPatch(getProcAddress(h_kernel32, "CreateProcessW"), "CreateProcessW", *CreateProcessWHandler));
+	InterlockedExchangePointer((PVOID*)&p_CreateProcessA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "CreateProcessA"), "CreateProcessA", *CreateProcessAHandler));
+	InterlockedExchangePointer((PVOID*)&p_CreateProcessW, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "CreateProcessW"), "CreateProcessW", *CreateProcessWHandler));
 }

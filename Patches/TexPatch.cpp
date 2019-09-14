@@ -96,7 +96,7 @@ void UpdateTexAddr()
 
 			// Update sddata.bin pointer address
 			DWORD oldProtect;
-			if (!VirtualProtect(TexAddr, 5, PAGE_EXECUTE_READWRITE, &oldProtect))
+			if (!VirtualProtect(TexAddr, 5, PAGE_READWRITE, &oldProtect))
 			{
 				Logging::Log() << "Could not write to memory!";
 				break;

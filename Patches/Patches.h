@@ -31,6 +31,7 @@ void UpdateLightingTransition(DWORD *SH2_CutsceneID);
 void UpdateMainMenuFix();
 void UpdateMainMenuTitlePerLang();
 void UpdatePistonRoom();
+void UpdatePreventChainsawSpawn();
 void UpdatePS2Flashlight();
 void UpdatePS2NoiseFilter();
 void UpdateRedCrossInCutscene();

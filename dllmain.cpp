@@ -287,6 +287,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			UpdateCreatureVehicleSpawn();
 		}
 
+		// Prevent chainsaw spawn on first playthrough
+		if (FixChainsawSpawn)
+		{
+			UpdatePreventChainsawSpawn();
+		}
+
 		// XInput based vibration
 		if (XInputVibration)
 		{

@@ -16,11 +16,12 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include "Patches.h"
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
 // Update SH2 code to Fix an issue where the game will hang when Esc is pressed while transition is active
-void UpdateHangOnEsc()
+void UpdateHangOnEsc(DWORD *SH2_RoomID)
 {
 	static DWORD *ScreenEvent = nullptr;
 	if (!ScreenEvent)
@@ -73,7 +74,7 @@ void UpdateHangOnEsc()
 	}
 
 	// Prevent player from pressing Esc while transition is active
-	if (*ScreenEvent == 0x03)
+	if (*ScreenEvent == 0x03 || (IsInBloomEffect && *SH2_RoomID == 0x90))
 	{
 		DWORD Value = 3;
 		UpdateMemoryAddress((void*)Address, &Value, sizeof(DWORD));

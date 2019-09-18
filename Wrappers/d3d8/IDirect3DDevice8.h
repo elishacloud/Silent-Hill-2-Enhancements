@@ -22,6 +22,10 @@ private:
 	float *SH2_CutsceneCameraPos = nullptr;
 	float *SH2_JamesPos = nullptr;
 
+	DWORD EndSceneCounter = 0;
+	bool OverrideTextureLoop = false;
+	bool PresentFlag = false;
+
 	IDirect3DTexture8 *pInTexture = nullptr;
 	IDirect3DSurface8 *pInSurface = nullptr;
 

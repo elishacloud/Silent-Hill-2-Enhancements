@@ -47,6 +47,7 @@
 	visit(PistonRoomFix, true) \
 	visit(PS2FlashlightBrightness, true) \
 	visit(PS2StyleNoiseFilter, true) \
+	visit(RestoreSpecialFX, true) \
 	visit(RemoveEffectsFlicker, true) \
 	visit(Room312ShadowFix, true) \
 	visit(RowboatAnimationFix, true) \

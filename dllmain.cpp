@@ -329,6 +329,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			UpdateMainMenuTitlePerLang();
 		}
 
+		// Reenable game's special FX
+		if (RestoreSpecialFX)
+		{
+			UpdateSpecialFX();
+		}
+
 		// Load Nemesis2000's Fog Fix
 		if (Nemesis2000FogFix)
 		{

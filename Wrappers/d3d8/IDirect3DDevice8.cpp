@@ -17,9 +17,7 @@
 #include "d3d8wrapper.h"
 #include "Common\Utils.h"
 
-DWORD EndSceneCounter = 0;
-bool OverrideTextureLoop = false;
-bool PresentFlag = false;
+bool IsInBloomEffect = false;
 
 HRESULT m_IDirect3DDevice8::QueryInterface(REFIID riid, LPVOID *ppvObj)
 {
@@ -457,6 +455,7 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 		if (OverrideTextureLoop && PresentFlag && !((Value & 0xFF) == ((Value >> 8) & 0xFF) && ((Value >> 8) & 0xFF) == ((Value >> 16) & 0xFF)))
 		{
 			Value = 0xFFFFFFFF;
+			IsInBloomEffect = true;
 		}
 	}
 
@@ -734,6 +733,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	if (EndSceneCounter == 1)
 	{
 		OverrideTextureLoop = false;
+		IsInBloomEffect = false;
 	}
 
 	EndSceneCounter = 0;
@@ -815,9 +815,9 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 	}
 
 	// Hang on Esc Fix
-	if (FixHangOnEsc)
+	if (FixHangOnEsc && SH2_RoomID)
 	{
-		UpdateHangOnEsc();
+		UpdateHangOnEsc(SH2_RoomID);
 	}
 
 	// Fix infinite rumble in pause menu
@@ -848,6 +848,12 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 	if (IncreaseBlood && SH2_RoomID)
 	{
 		UpdateBloodSize(SH2_RoomID);
+	}
+
+	// Fix Fog volume in Hotel Room 312
+	if (RestoreSpecialFX && SH2_RoomID)
+	{
+		UpdateHotelRoom312FogVolumeFix(SH2_RoomID);
 	}
 
 	return ProxyInterface->BeginScene();

@@ -187,8 +187,7 @@ inline bool isDataPath(T sh2)
 	if ((sh2[0] == 'd' || sh2[0] == 'D') &&
 		(sh2[1] == 'a' || sh2[1] == 'A') &&
 		(sh2[2] == 't' || sh2[2] == 'T') &&
-		(sh2[3] == 'a' || sh2[3] == 'A') &&
-		sh2[4] == '\\')
+		(sh2[3] == 'a' || sh2[3] == 'A'))
 	{
 		return true;
 	}
@@ -338,11 +337,10 @@ DWORD WINAPI GetModuleFileNameAHandler(HMODULE hModule, LPSTR lpFileName, DWORD 
 	}
 
 	DWORD ret = org_GetModuleFileName(hModule, lpFileName, nSize);
-	if (lpFileName && nSize && ((moduleHandle && hModule == moduleHandle) || !PathExists(lpFileName)))
+	if (lpFileName && ret && nSize > nPathSize && ((moduleHandle && hModule == moduleHandle) || !PathExists(lpFileName)))
 	{
-		ret = min(nPathSize, nSize) - 1;
-		memcpy(lpFileName, strModulePathA.c_str(), ret * sizeof(char));
-		lpFileName[ret] = '\0';
+		ret = nPathSize;
+		strcpy_s(lpFileName, nSize, strModulePathA.c_str());
 	}
 	return ret;
 }
@@ -365,11 +363,10 @@ DWORD WINAPI GetModuleFileNameWHandler(HMODULE hModule, LPWSTR lpFileName, DWORD
 	}
 
 	DWORD ret = org_GetModuleFileName(hModule, lpFileName, nSize);
-	if (lpFileName && nSize && ((moduleHandle && hModule == moduleHandle) || !PathExists(lpFileName)))
+	if (lpFileName && ret && nSize > nPathSize && ((moduleHandle && hModule == moduleHandle) || !PathExists(lpFileName)))
 	{
-		ret = min(nPathSize, nSize) - 1;
-		memcpy(lpFileName, strModulePathW.c_str(), ret * sizeof(wchar_t));
-		lpFileName[ret] = '\0';
+		ret = nPathSize;
+		wcscpy_s(lpFileName, nSize, strModulePathW.c_str());
 	}
 	return ret;
 }

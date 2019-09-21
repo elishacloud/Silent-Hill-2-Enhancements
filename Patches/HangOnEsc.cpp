@@ -50,9 +50,9 @@ void UpdateHangOnEsc(DWORD *SH2_RoomID)
 			return;
 		}
 		Address += 0x04;
-
-		Logging::Log() << "Fixing Esc while transition is active...";
 	}
+
+	RUNCODEONCE(Logging::Log() << "Fixing Esc while transition is active...");
 
 	// Prevent player from pressing Esc while transition is active
 	if (*ScreenEvent == 0x03 || (IsInBloomEffect && *SH2_RoomID == 0x90))

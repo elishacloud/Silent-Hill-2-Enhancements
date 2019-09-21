@@ -40,12 +40,7 @@ void SetGameLoad()
 void UpdateGameLoad(DWORD *SH2_RoomID, float *SH2_JamesPos)
 {
 	// Update save code elevator room
-	static bool RunFixOnce = true;
-	if (RunFixOnce)
-	{
-		RunFixOnce = false;
-		SetGameLoad();
-	}
+	RUNCODEONCE(SetGameLoad());
 
 	// Get game save address
 	static BYTE *Address = nullptr;

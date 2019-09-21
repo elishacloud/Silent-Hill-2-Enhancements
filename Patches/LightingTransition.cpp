@@ -168,12 +168,7 @@ void SetLightingTransition()
 void UpdateLightingTransition(DWORD *SH2_CutsceneID)
 {
 	// Update SH2 code to enable Lighting Transition fix
-	static bool RunFixOnce = true;
-	if (RunFixOnce)
-	{
-		RunFixOnce = false;
-		SetLightingTransition();
-	}
+	RUNCODEONCE(SetLightingTransition());
 
 	// Get flashlight render address
 	FlashLightRenderAddr = GetFlashLightRenderPointer();

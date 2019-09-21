@@ -36,9 +36,9 @@ void UpdateHospitalChase(DWORD *SH2_RoomID, float *SH2_JamesPos)
 			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 			return;
 		}
-
-		Logging::Log() << "Setting RPT Hospital Elevator Animation Fix...";
 	}
+
+	RUNCODEONCE(Logging::Log() << "Setting RPT Hospital Elevator Animation Fix...");
 
 	// Fix Animation
 	static bool ValueSet = false;

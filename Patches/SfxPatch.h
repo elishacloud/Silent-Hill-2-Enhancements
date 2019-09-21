@@ -431,7 +431,7 @@ constexpr DWORD DefaultSFXAddrList[] = {
 	17130304
 };
 
-constexpr WORD SFXAddrMap[] = {
+constexpr DWORD SFXAddrMap[] = {
 	0,
 	0,
 	1,

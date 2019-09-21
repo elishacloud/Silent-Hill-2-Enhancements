@@ -91,27 +91,17 @@ void UpdateTexAddr()
 				break;
 			}
 
+			// Get relative address
+			TexAddr = (void*)((DWORD)TexAddr + 0x01);
+
 			// Log message
-			Logging::Log() << "Found '" << TexAddrList[x].name << "' pointer at address: " << TexAddr;
-
-			// Update sddata.bin pointer address
-			DWORD oldProtect;
-			if (!VirtualProtect(TexAddr, 5, PAGE_READWRITE, &oldProtect))
-			{
-				Logging::Log() << "Could not write to memory!";
-				break;
-			}
-
-			Logging::Log() << "Updating '" << TexAddrList[x].name << "' pointer memory addresses";
+			Logging::Log() << "Found '" << TexAddrList[x].name << "' pointer at address: " << TexAddr << " Updating...";
 
 			// Alocate memory
 			char *PtrBytes = new char[size * 8 + 1];
 
-			// Write to memory
-			*((DWORD *)((DWORD)TexAddr + 1)) = (DWORD)PtrBytes + 140;
-
-			// Restore protection
-			VirtualProtect(TexAddr, 5, oldProtect, &oldProtect);
+			// Write new memory address
+			UpdateMemoryAddress(TexAddr, &PtrBytes, sizeof(void*));
 
 		} while (false);
 	}

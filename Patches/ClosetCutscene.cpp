@@ -88,12 +88,7 @@ void SetClosetCutscene()
 void UpdateClosetCutscene(DWORD *SH2_CutsceneID, float *SH2_CutsceneCameraPos)
 {
 	// Update SH2 code to enable Lighting Transition fix
-	static bool RunFixOnce = true;
-	if (RunFixOnce)
-	{
-		RunFixOnce = false;
-		SetClosetCutscene();
-	}
+	RUNCODEONCE(SetClosetCutscene());
 
 	// Get Address1
 	static DWORD Address1 = NULL;

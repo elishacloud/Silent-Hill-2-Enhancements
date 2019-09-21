@@ -64,10 +64,20 @@ extern void *RoomIDAddr;
 // Run code only once
 #define RUNONCE() \
 	{ \
-		static bool RunOnce = false; \
-		if (RunOnce) \
+		static bool RunOnce = true; \
+		if (!RunOnce) \
 		{ \
 			return; \
 		} \
-		RunOnce = true; \
+		RunOnce = false; \
+	} \
+
+#define RUNCODEONCE(funct) \
+	{ \
+		static bool RunFixOnce = true; \
+		if (RunFixOnce) \
+		{ \
+			funct; \
+		} \
+		RunFixOnce = false; \
 	} \

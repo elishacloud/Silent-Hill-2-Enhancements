@@ -101,25 +101,20 @@ void UpdateSFXAddr()
 
 	Logging::Log() << "Updating SFX memory address locations...";
 
-	// Update SFX address array
-	DWORD oldProtect;
-	if (!VirtualProtect(sfxAddr, ARRAYSIZE(SFXAddrMap) * sizeof(DWORD), PAGE_READWRITE, &oldProtect))
-	{
-		Logging::Log() << __FUNCTION__ << " Error: Could not write to memory!";
-		return;
-	}
+	// Create address array
+	DWORD sfxArray[ARRAYSIZE(SFXAddrMap)];
 
-	// Write to memory
+	// Write to array
 	for (x = 0; x < ARRAYSIZE(SFXAddrMap); x++)
 	{
-		*((DWORD *)((DWORD)sfxAddr + x * sizeof(DWORD))) = NewSFXAddr[SFXAddrMap[x]];
+		*((DWORD *)((DWORD)sfxArray + x * sizeof(DWORD))) = NewSFXAddr[SFXAddrMap[x]];
 	}
 
-	// Restore protection
-	VirtualProtect(sfxAddr, ARRAYSIZE(SFXAddrMap) * sizeof(DWORD), oldProtect, &oldProtect);
+	// Write array to memory
+	UpdateMemoryAddress(sfxAddr, sfxArray, ARRAYSIZE(SFXAddrMap) * sizeof(DWORD));
 
 	// Find address for sddata.bin file pointer function
-	sfxAddr = (void*)SearchAndGetAddresses(0x00515110, 0x00515440, 0x00514D60, sfxPtr, sizeof(sfxPtr), 0x00);
+	sfxAddr = (void*)SearchAndGetAddresses(0x00515110, 0x00515440, 0x00514D60, sfxPtr, sizeof(sfxPtr), 0x54);
 
 	// Address found
 	if (!sfxAddr)
@@ -128,27 +123,11 @@ void UpdateSFXAddr()
 		return;
 	}
 
-	// Get relative address
-	sfxAddr = (void*)((DWORD)sfxAddr + 0x53);
-
 	Logging::Log() << "Allocating memory buffer for sddata.bin file...";
 
 	// Allocate memory
 	char *PtrBytes = new char[size + 1];
 
-	// Update sddata.bin pointer address
-	if (!VirtualProtect(sfxAddr, sizeof(DWORD), PAGE_READWRITE, &oldProtect))
-	{
-		Logging::Log() << __FUNCTION__ << " Error: Could not write to memory!";
-		return;
-	}
-
-	// Write to memory
-	*((DWORD *)((DWORD)sfxAddr + 1)) = (DWORD)PtrBytes;
-
-	// Restore protection
-	VirtualProtect(sfxAddr, sizeof(DWORD), oldProtect, &oldProtect);
-
-	// Flush cache
-	FlushInstructionCache(GetCurrentProcess(), sfxAddr, sizeof(DWORD));
+	// Write new memory address
+	UpdateMemoryAddress(sfxAddr, &PtrBytes, sizeof(void*));
 }

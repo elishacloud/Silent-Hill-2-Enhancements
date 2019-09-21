@@ -41,12 +41,7 @@ void SetBloodSize()
 void UpdateBloodSize(DWORD *SH2_RoomID)
 {
 	// Update SH2 code to enable blood position fix
-	static bool RunFixOnce = true;
-	if (RunFixOnce)
-	{
-		RunFixOnce = false;
-		SetBloodSize();
-	}
+	RUNCODEONCE(SetBloodSize());
 
 	// Get blood position address for Apartment Mannequin/Flashlight Room
 	static float *Address1 = nullptr;

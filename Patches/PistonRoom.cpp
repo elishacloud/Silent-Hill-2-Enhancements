@@ -68,17 +68,9 @@ __declspec(naked) void __stdcall PistonRoomASM()
 // Update SH2 code to Fix Piston Position
 void UpdatePistonRoom()
 {
-	constexpr BYTE SearchBytesPiston[]{ 0x52, 0x8D, 0x44, 0x24, 0x10, 0x50, 0x56, 0x57, 0xE8 };
-
 	// Get Piston address
-	DWORD PistonAddr = (DWORD)CheckMultiMemoryAddress((void*)0x005814BA, (void*)0x00581D6A, (void*)0x0058168A, (void*)SearchBytesPiston, sizeof(SearchBytesPiston));
-
-	// Search for address
-	if (!PistonAddr)
-	{
-		Logging::Log() << __FUNCTION__ << " searching for memory address!";
-		PistonAddr = (DWORD)GetAddressOfData(SearchBytesPiston, sizeof(SearchBytesPiston), 1, 0x0058123A, 2600);
-	}
+	constexpr BYTE SearchBytesPiston[]{ 0x52, 0x8D, 0x44, 0x24, 0x10, 0x50, 0x56, 0x57, 0xE8 };
+	DWORD PistonAddr = SearchAndGetAddresses(0x005814BA, 0x00581D6A, 0x0058168A, SearchBytesPiston, sizeof(SearchBytesPiston), 0x1F);
 
 	// Checking address pointer
 	if (!PistonAddr)
@@ -86,19 +78,10 @@ void UpdatePistonRoom()
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
-	PistonAddr = PistonAddr + 0x1F;
-
-	constexpr BYTE SearchBytesPistonList[]{ 0x3D, 0x8A, 0x00, 0x00, 0x00, 0x75, 0x2B, 0xBE, 0x70 };
 
 	// Get Piston list address
-	DWORD SearchAddress = (DWORD)CheckMultiMemoryAddress((void*)0x00581326, (void*)0x00581BD6, (void*)0x005814F6, (void*)SearchBytesPistonList, sizeof(SearchBytesPistonList));
-
-	// Search for address
-	if (!SearchAddress)
-	{
-		Logging::Log() << __FUNCTION__ << " searching for memory address!";
-		SearchAddress = (DWORD)GetAddressOfData(SearchBytesPistonList, sizeof(SearchBytesPistonList), 1, 0x005810A6, 2600);
-	}
+	constexpr BYTE SearchBytesPistonList[]{ 0x3D, 0x8A, 0x00, 0x00, 0x00, 0x75, 0x2B, 0xBE, 0x70 };
+	DWORD SearchAddress = SearchAndGetAddresses(0x00581326, 0x00581BD6, 0x005814F6, SearchBytesPistonList, sizeof(SearchBytesPistonList), 0x08);
 
 	// Checking address pointer
 	if (!SearchAddress)
@@ -106,7 +89,6 @@ void UpdatePistonRoom()
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
-	SearchAddress = SearchAddress + 0x08;
 	memcpy(&PistonList, (void*)(SearchAddress), sizeof(DWORD));
 
 	// Get addresses

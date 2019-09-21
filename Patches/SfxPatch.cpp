@@ -25,14 +25,7 @@
 void UpdateSFXAddr()
 {
 	// Find address for SFX indexes
-	void *sfxAddr = CheckMultiMemoryAddress((void*)0x008A67DC, (void*)0x008AA3C4, (void*)0x008A93C4, (void*)sfxBlock, sizeof(sfxBlock));
-
-	// Search for address
-	if (!sfxAddr)
-	{
-		Logging::Log() << __FUNCTION__ << " searching for memory address!";
-		sfxAddr = GetAddressOfData(sfxBlock, sizeof(sfxBlock), 4);
-	}
+	void *sfxAddr = (void*)SearchAndGetAddresses(0x008A67DC, 0x008AA3C4, 0x008A93C4, sfxBlock, sizeof(sfxBlock), 0x00);
 
 	// Address found
 	if (!sfxAddr)
@@ -126,14 +119,7 @@ void UpdateSFXAddr()
 	VirtualProtect(sfxAddr, ARRAYSIZE(SFXAddrMap) * sizeof(DWORD), oldProtect, &oldProtect);
 
 	// Find address for sddata.bin file pointer function
-	sfxAddr = CheckMultiMemoryAddress((void*)0x00515110, (void*)0x00515440, (void*)0x00514D60, (void*)sfxPtr, sizeof(sfxPtr));
-
-	// Search for address
-	if (!sfxAddr)
-	{
-		Logging::Log() << __FUNCTION__ << " searching for memory address!";
-		sfxAddr = GetAddressOfData(sfxPtr, sizeof(sfxPtr), 1, 0x00401000, 0x00127FFF);
-	}
+	sfxAddr = (void*)SearchAndGetAddresses(0x00515110, 0x00515440, 0x00514D60, sfxPtr, sizeof(sfxPtr), 0x00);
 
 	// Address found
 	if (!sfxAddr)

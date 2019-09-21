@@ -1,5 +1,12 @@
 #pragma once
 
+typedef enum _SH2VERSION {
+	SH2V_UNKNOWN = 0,
+	SH2V_10 = 1,
+	SH2V_11 = 2,
+	SH2V_DC = 3,
+} SH2VERSION;
+
 // Shared Function declarations
 void *GetCutsceneIDPointer();
 void *GetCutscenePosPointer();
@@ -46,9 +53,21 @@ void UnhookWindowHandle();
 void UpdateXInputVibration();
 
 // Varable forward declaration
+extern SH2VERSION GameVersion;
 extern void *CutsceneIDAddr;
 extern void *CutscenePosAddr;
 extern BYTE *FlashLightRenderAddr;
 extern bool IsInBloomEffect;
 extern void *JamesPosAddr;
 extern void *RoomIDAddr;
+
+// Run code only once
+#define RUNONCE() \
+	{ \
+		static bool RunOnce = false; \
+		if (RunOnce) \
+		{ \
+			return; \
+		} \
+		RunOnce = true; \
+	} \

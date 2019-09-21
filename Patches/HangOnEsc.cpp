@@ -26,12 +26,7 @@ void UpdateHangOnEsc(DWORD *SH2_RoomID)
 	static DWORD *ScreenEvent = nullptr;
 	if (!ScreenEvent)
 	{
-		static bool RunOnce = false;
-		if (RunOnce)
-		{
-			return;
-		}
-		RunOnce = true;
+		RUNONCE();
 
 		constexpr BYTE SearchBytesScreenEvent[]{ 0x83, 0xF8, 0x19, 0x7E, 0x72, 0x83, 0xF8, 0x1A, 0x75, 0x05, 0xBF, 0x01, 0x00, 0x00, 0x00, 0x39, 0x1D };
 		ScreenEvent = (DWORD*)ReadSearchedAddresses(0x0048E87B, 0x0048EB1B, 0x0048ED2B, SearchBytesScreenEvent, sizeof(SearchBytesScreenEvent), 0x2A);
@@ -45,14 +40,8 @@ void UpdateHangOnEsc(DWORD *SH2_RoomID)
 	static DWORD Address = NULL;
 	if (!Address)
 	{
-		static bool RunOnce = false;
-		if (RunOnce)
-		{
-			return;
-		}
-		RunOnce = true;
+		RUNONCE();
 
-		Address = 0x0079B834;
 		constexpr BYTE SearchBytes[]{ 0x8B, 0x10, 0x6A, 0x00, 0x6A, 0x1B, 0x50, 0xFF, 0x92, 0xC8, 0x00, 0x00, 0x00, 0x81, 0xC4, 0x68, 0x01, 0x00, 0x00, 0xC3 };
 		Address = ReadSearchedAddresses(0x0044C615, 0x0044C7B5, 0x0044C7B5, SearchBytes, sizeof(SearchBytes), 0x26);
 		if (!Address)
@@ -61,16 +50,8 @@ void UpdateHangOnEsc(DWORD *SH2_RoomID)
 			return;
 		}
 		Address += 0x04;
-	}
 
-	// Log update
-	static bool FirstRun = true;
-	if (FirstRun)
-	{
 		Logging::Log() << "Fixing Esc while transition is active...";
-
-		// Reset FirstRun
-		FirstRun = false;
 	}
 
 	// Prevent player from pressing Esc while transition is active

@@ -17,6 +17,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include "Utils.h"
+#include "Patches\Patches.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
 
@@ -81,7 +82,6 @@ bool CheckMemoryAddress(void *dataAddr, void *dataBytes, size_t dataSize)
 {
 	if (!dataAddr || !dataBytes || !dataSize)
 	{
-		Logging::Log() << __FUNCTION__ << " Error: invalid memory data";
 		return false;
 	}
 
@@ -98,6 +98,11 @@ bool CheckMemoryAddress(void *dataAddr, void *dataBytes, size_t dataSize)
 	// Restore protection
 	VirtualProtect(dataAddr, dataSize, dwPrevProtect, &dwPrevProtect);
 
+	if (!flag)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: memory address not found!";
+	}
+
 	// Return results
 	return flag;
 }
@@ -107,17 +112,17 @@ void *CheckMultiMemoryAddress(void *dataAddr10, void *dataAddr11, void *dataAddr
 {
 	void *MemAddress = nullptr;
 	// v1.0
-	if (!MemAddress)
+	if (!MemAddress && (GameVersion == SH2V_10 || GameVersion == SH2V_UNKNOWN))
 	{
 		MemAddress = (CheckMemoryAddress(dataAddr10, dataBytes, dataSize)) ? dataAddr10 : nullptr;
 	}
 	// v1.1
-	if (!MemAddress)
+	if (!MemAddress && (GameVersion == SH2V_11 || GameVersion == SH2V_UNKNOWN))
 	{
 		MemAddress = (CheckMemoryAddress(dataAddr11, dataBytes, dataSize)) ? dataAddr11 : nullptr;
 	}
 	// vDC
-	if (!MemAddress)
+	if (!MemAddress && (GameVersion == SH2V_DC || GameVersion == SH2V_UNKNOWN))
 	{
 		MemAddress = (CheckMemoryAddress(dataAddrDC, dataBytes, dataSize)) ? dataAddrDC : nullptr;
 	}
@@ -134,7 +139,8 @@ DWORD SearchAndGetAddresses(DWORD dataAddr10, DWORD dataAddr11, DWORD dataAddrDC
 	// Search for address
 	if (!MemoryAddr)
 	{
-		MemoryAddr = (DWORD)GetAddressOfData(dataBytes, dataSize, 1, dataAddr10 - 0x800, 2600);
+		DWORD SearchAddr = (GameVersion == SH2V_10) ? dataAddr10 : (GameVersion == SH2V_11) ? dataAddr11 : (GameVersion == SH2V_DC) ? dataAddrDC : dataAddr10;
+		MemoryAddr = (DWORD)GetAddressOfData(dataBytes, dataSize, 1, SearchAddr - 0x800, 2600);
 		Logging::Log() << __FUNCTION__ << " searching for memory address! Found = " << (void*)MemoryAddr;
 	}
 

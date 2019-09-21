@@ -23,9 +23,6 @@
 
 using namespace std;
 
-constexpr BYTE ResSearchBytesA[] = { 0x94, 0x00, 0x68, 0xB3, 0x00, 0x00, 0x00, 0x05, 0xB0, 0x00, 0x00, 0x00, 0xE9, 0xCD, 0x02, 0x00, 0x00, 0xA0, 0x1C };
-constexpr BYTE ResSearchBytesB[] = { 0x8B, 0x08, 0x83, 0xC4, 0x10, 0x68, 0xA4, 0x00, 0x00, 0x00, 0x68, 0x00, 0x01, 0x00, 0x00, 0x51, 0xE8 };
-
 unsigned int gWidth;
 unsigned int gHeight;
 
@@ -76,24 +73,14 @@ __declspec(naked) void __stdcall ResArrowASM()
 
 void UpdateResolutionLock(DWORD ResX, DWORD ResY)
 {
-	void *DResAddrA = CheckMultiMemoryAddress((void*)0x0046565C, (void*)0x004658F8, (void*)0x00465B08, (void*)ResSearchBytesA, sizeof(ResSearchBytesA));
-
-	// Search for address
-	if (!DResAddrA) {
-		Logging::Log() << __FUNCTION__ << " searching for memory address!";
-		DResAddrA = GetAddressOfData(ResSearchBytesA, sizeof(ResSearchBytesA), 1, 0x00465000, 1800);
-	}
-
-	void *DResAddrB = CheckMultiMemoryAddress((void*)0x00407368, (void*)0x00407368, (void*)0x00407378, (void*)ResSearchBytesB, sizeof(ResSearchBytesB));
-
-	// Search for address
-	if (!DResAddrB) {
-		Logging::Log() << __FUNCTION__ << " searching for memory address!";
-		DResAddrB = GetAddressOfData(ResSearchBytesB, sizeof(ResSearchBytesB), 1, 0x00407000, 1800);
-	}
+	constexpr BYTE ResSearchBytesA[] = { 0x94, 0x00, 0x68, 0xB3, 0x00, 0x00, 0x00, 0x05, 0xB0, 0x00, 0x00, 0x00, 0xE9, 0xCD, 0x02, 0x00, 0x00, 0xA0, 0x1C };
+	void *DResAddrA = (void*)SearchAndGetAddresses(0x0046565C, 0x004658F8, 0x00465B08, ResSearchBytesA, sizeof(ResSearchBytesA), 0x00);
+	constexpr BYTE ResSearchBytesB[] = { 0x8B, 0x08, 0x83, 0xC4, 0x10, 0x68, 0xA4, 0x00, 0x00, 0x00, 0x68, 0x00, 0x01, 0x00, 0x00, 0x51, 0xE8 };
+	void *DResAddrB = (void*)SearchAndGetAddresses(0x00407368, 0x00407368, 0x00407378, ResSearchBytesB, sizeof(ResSearchBytesB), 0x00);
 
 	// Checking address pointer
-	if (!DResAddrA || !DResAddrB) {
+	if (!DResAddrA || !DResAddrB)
+	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
@@ -106,10 +93,13 @@ void UpdateResolutionLock(DWORD ResX, DWORD ResY)
 	int prtStrOffset = 0x3B0;
 	int arrowOffset = 0x35F;
 
-	if (*ResSelectorAddr != 0x00046855) {
+	if (*ResSelectorAddr != 0x00046855)
+	{
 		ResSelectorAddr = (unsigned int *)((BYTE*)DResAddrA + 0x87F);
 		if (*ResSelectorAddr != 0x00046855)
+		{
 			return;
+		}
 		exitOffset = 0x2EB;
 		prtStrOffset = 0x3B6;
 		arrowOffset = 0x365;
@@ -137,7 +127,8 @@ void UpdateResolutionLock(DWORD ResX, DWORD ResY)
 	WriteJMPtoMemory(((BYTE*)DResAddrA + arrowOffset + 0x22), *ResArrowASM, 5);
 
 	// Update resolution description string
-	if (UseCustomExeStr) {
+	if (UseCustomExeStr)
+	{
 		WriteCalltoMemory(((BYTE*)DResAddrA + 0x55), *printResDescStr, 5);
 	}
 }

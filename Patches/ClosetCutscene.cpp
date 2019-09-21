@@ -99,70 +99,36 @@ void UpdateClosetCutscene(DWORD *SH2_CutsceneID, float *SH2_CutsceneCameraPos)
 	static DWORD Address1 = NULL;
 	if (!Address1)
 	{
-		static bool RunOnce = false;
-		if (RunOnce)
-		{
-			return;
-		}
-		RunOnce = true;
-
-		constexpr BYTE SearchBytes[]{ 0x7C, 0xDC, 0xB0, 0x0C, 0x5F, 0xC6, 0x05 };
+		RUNONCE();
 
 		// Get Room 312 Shadow address
-		DWORD SearchAddress = (DWORD)CheckMultiMemoryAddress((void*)0x004799D4, (void*)0x00479C74, (void*)0x00479E84, (void*)SearchBytes, sizeof(SearchBytes));
-
-		// Search for address
-		if (!SearchAddress)
-		{
-			Logging::Log() << __FUNCTION__ << " searching for memory address!";
-			SearchAddress = (DWORD)GetAddressOfData(SearchBytes, sizeof(SearchBytes), 1, 0x004794D4, 2600);
-		}
+		constexpr BYTE SearchBytes[]{ 0x7C, 0xDC, 0xB0, 0x0C, 0x5F, 0xC6, 0x05 };
+		Address1 = ReadSearchedAddresses(0x004799D4, 0x00479C74, 0x00479E84, SearchBytes, sizeof(SearchBytes), 0x07);
 
 		// Checking address pointer
-		if (!SearchAddress)
+		if (!Address1)
 		{
 			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 			return;
 		}
-
-		// Get address pointer
-		SearchAddress = SearchAddress + 0x07;
-		memcpy(&Address1, (void*)(SearchAddress), sizeof(DWORD));
 	}
 
 	// Get Address3
 	static DWORD Address3 = NULL;
 	if (!Address3)
 	{
-		static bool RunOnce = false;
-		if (RunOnce)
-		{
-			return;
-		}
-		RunOnce = true;
-
-		constexpr BYTE SearchBytes[]{ 0x5E, 0x83, 0xC4, 0x10, 0xC3, 0xC6, 0x46, 0x07, 0x00, 0x8B, 0x15 };
+		RUNONCE();
 
 		// Get Room 312 Shadow address
-		DWORD SearchAddress = (DWORD)CheckMultiMemoryAddress((void*)0x0043F9BF, (void*)0x0043FB7F, (void*)0x0043FB7F, (void*)SearchBytes, sizeof(SearchBytes));
-
-		// Search for address
-		if (!SearchAddress)
-		{
-			Logging::Log() << __FUNCTION__ << " searching for memory address!";
-			SearchAddress = (DWORD)GetAddressOfData(SearchBytes, sizeof(SearchBytes), 1, 0x0043F4BF, 2600);
-		}
+		constexpr BYTE SearchBytes[]{ 0x5E, 0x83, 0xC4, 0x10, 0xC3, 0xC6, 0x46, 0x07, 0x00, 0x8B, 0x15 };
+		Address3 = ReadSearchedAddresses(0x0043F9BF, 0x0043FB7F, 0x0043FB7F, SearchBytes, sizeof(SearchBytes), -0x1B);
 
 		// Checking address pointer
-		if (!SearchAddress)
+		if (!Address3)
 		{
 			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 			return;
 		}
-
-		// Get address pointer
-		SearchAddress = SearchAddress - 0x1B;
-		memcpy(&Address3, (void*)(SearchAddress), sizeof(DWORD));
 	}
 
 	// Get flashlight render address

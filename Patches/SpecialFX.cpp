@@ -405,12 +405,7 @@ void UpdateHotelRoom312FogVolumeFix(DWORD *SH2_RoomID)
 	static BYTE *Address1 = nullptr;
 	if (!Address1)
 	{
-		static bool RunOnce = false;
-		if (RunOnce)
-		{
-			return;
-		}
-		RunOnce = true;
+		RUNONCE();
 
 		// Get address for blood position
 		constexpr BYTE SearchBytes[]{ 0xD9, 0x5E, 0x04, 0x89, 0x5E, 0x30, 0x89, 0x5E, 0x34, 0x89, 0x5E, 0x38, 0x89, 0x5E, 0x3C, 0xC7, 0x46, 0x38 };

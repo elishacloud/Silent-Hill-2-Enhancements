@@ -96,22 +96,12 @@ int ReturnFontIdx(int fontSize, WORD charID)
 void UpdateCustomFonts()
 {
 	// Find address for font decode function
-	void *DFontAddrA = CheckMultiMemoryAddress((void*)0x004809F4, (void*)0x00480C94, (void*)0x00480EA4, (void*)DFontFuncBlockA, sizeof(DFontFuncBlockA));
-	void *DFontAddrB = CheckMultiMemoryAddress((void*)0x0047E270, (void*)0x0047E510, (void*)0x0047E720, (void*)DFontFuncBlockB, sizeof(DFontFuncBlockB));
-
-	// Search for address
-	if (!DFontAddrA) {
-		Logging::Log() << __FUNCTION__ << " searching for memory address DFontAddrA!";
-		DFontAddrA = GetAddressOfData(DFontFuncBlockA, sizeof(DFontFuncBlockA), 4, 0x00480000, 1800);
-	}
-
-	if (!DFontAddrB) {
-		Logging::Log() << __FUNCTION__ << " searching for memory address DFontAddrB!";
-		DFontAddrB = GetAddressOfData(DFontFuncBlockB, sizeof(DFontFuncBlockB), 4, 0x00470000, 1800);
-	}
+	void *DFontAddrA = (void*)SearchAndGetAddresses(0x004809F4, 0x00480C94, 0x00480EA4, DFontFuncBlockA, sizeof(DFontFuncBlockA), 0x00);
+	void *DFontAddrB = (void*)SearchAndGetAddresses(0x0047E270, 0x0047E510, 0x0047E720, DFontFuncBlockB, sizeof(DFontFuncBlockB), 0x00);
 
 	// Address found
-	if (!DFontAddrA || !DFontAddrB) {
+	if (!DFontAddrA || !DFontAddrB)
+	{
 		Logging::Log() << __FUNCTION__ << " Error: Could not find font decode function address in memory!";
 		return;
 	}
@@ -128,11 +118,13 @@ void UpdateCustomFonts()
 
 	ifstream file(std::string(std::string(ModPathA) + "\\font\\font000.tga").c_str(), ios::in | ios::binary | ios::ate);
 
-	if (file.is_open()) {
+	if (file.is_open())
+	{
 		file.seekg(0, ios::beg);
 		file.read((char *)&tga, sizeof(TGA_FILEHEADER));
 
-		if (tga.image_type != RGBA || tga.pixel_depth != 32 || tga.image_desc != 40) {
+		if (tga.image_type != RGBA || tga.pixel_depth != 32 || tga.image_desc != 40)
+		{
 			Logging::Log() << __FUNCTION__ << " Error: Unsupported tga format!";
 			file.close();
 			return;
@@ -146,7 +138,9 @@ void UpdateCustomFonts()
 		file.seekg(sizeof(TGA_FILEHEADER) + tga.cm_length * 4, ios::beg);
 		file.read((char *)fontData, texSize);
 		file.close();
-	} else {
+	}
+	else
+	{
 		Logging::Log() << __FUNCTION__ << " Error: Could not find font file";
 		return;
 	}
@@ -179,36 +173,42 @@ void UpdateCustomFonts()
 	
 	UpdateMemoryAddress((void *)((BYTE*)DFontAddrB), (void *)&charIX, 1);
 	BYTE codeD[] = { 0x6B, 0xC0, 0x05 };
-	if (DisableEnlargedText) {
+	if (DisableEnlargedText)
+	{
 		codeD[2] = 0;
 		UpdateMemoryAddress((void *)((BYTE*)DFontAddrB + 0x15), (void *)&codeD[2], 1);
 		UpdateMemoryAddress((void *)((BYTE*)DFontAddrB + 0x16), (void *)&codeD, sizeof(codeD));
-	} else {
+	}
+	else
+	{
 		codeD[2] = (BYTE)charH;
 		UpdateMemoryAddress((void *)((BYTE*)DFontAddrB + 0x15), (void *)&charW, 1);
 		UpdateMemoryAddress((void *)((BYTE*)DFontAddrB + 0x16), (void *)&codeD, sizeof(codeD));
 	}
 	codeD[2] = (BYTE)charH;
 
-	void *DFontAddrC = GetAddressOfData(DFontFuncBlockC, sizeof(DFontFuncBlockC), 1, 0x0047E000, 2000);
+	void *DFontAddrC = (void*)SearchAndGetAddresses(0x0047E048, 0x0047E2E8, 0x0047E4F8, DFontFuncBlockC, sizeof(DFontFuncBlockC), 0x00);
 
-	if (DFontAddrC) {
+	if (DFontAddrC)
+	{
 		UpdateMemoryAddress((void *)((BYTE*)DFontAddrC + 1), (void *)&charIX, 1);
 		UpdateMemoryAddress((void *)((BYTE*)DFontAddrC + 12), (void *)&charW, 1);
 		UpdateMemoryAddress((void *)((BYTE*)DFontAddrC + 17), (void *)&codeD, sizeof(codeD));
 
-		void *DFontAddrD = GetAddressOfData(DFontFuncBlockC, sizeof(DFontFuncBlockC), 1, (DWORD)DFontAddrC + sizeof(DFontFuncBlockC), 2000);
+		void *DFontAddrD = (void*)SearchAndGetAddresses(0x0047E11F, 0x0047E3BF, 0x0047E5CF, DFontFuncBlockC, sizeof(DFontFuncBlockC), 0x00);
 
-		if (DFontAddrD) {
+		if (DFontAddrD)
+		{
 			UpdateMemoryAddress((void *)((BYTE*)DFontAddrD + 1), (void *)&charIX, 1);
 			UpdateMemoryAddress((void *)((BYTE*)DFontAddrD + 12), (void *)&charW, 1);
 			UpdateMemoryAddress((void *)((BYTE*)DFontAddrD + 17), (void *)&codeD, sizeof(codeD));
 		}
 	}
 
-	void *DFontAddrE = CheckMultiMemoryAddress((void*)0x008038A8, (void*)0x00807490, (void*)0x00806490, (void*)DFontFuncBlockD, sizeof(DFontFuncBlockD));
+	void *DFontAddrE = (void*)SearchAndGetAddresses(0x008038A8, 0x00807490, 0x00806490, DFontFuncBlockD, sizeof(DFontFuncBlockD), 0x00);
 
-	if (DFontAddrE) {
+	if (DFontAddrE)
+	{
 		UpdateMemoryAddress((void *)((BYTE*)DFontAddrE - 0x10), (void *)&nFontW, 2);
 		UpdateMemoryAddress((void *)((BYTE*)DFontAddrE - 0x10 + 2), (void *)&nFontH, 2);
 		UpdateMemoryAddress((void *)((BYTE*)DFontAddrE - 0x10 + 4), (void *)&sFontW, 2);
@@ -216,7 +216,8 @@ void UpdateCustomFonts()
 			
 		ifstream wfile(std::string(std::string(ModPathA) + "\\font\\fontwdata.bin").c_str(), ios::in | ios::binary | ios::ate);
 
-		if (wfile.is_open()) {
+		if (wfile.is_open())
+		{
 			BYTE *fwidth = new BYTE[0xE0];
 			wfile.seekg(0, ios::beg);
 			wfile.read((char *)fwidth, 0xE0);
@@ -225,25 +226,18 @@ void UpdateCustomFonts()
 			UpdateMemoryAddress((void *)(*(DWORD *)((BYTE*)DFontAddrE - 4) + 16), (void *)fwidth, 0xE0);
 			wfile.close();
 			delete[] fwidth;
-		} else {
+		}
+		else
+		{
 			Logging::Log() << __FUNCTION__ << " Could not find font width data file";
 		}
 	}
 
-	void *DFontAddrF = CheckMultiMemoryAddress((void*)0x0047FAA0, (void*)0x0047FD40, (void*)0x0047FF50, (void*)DFontFuncBlockE, sizeof(DFontFuncBlockE));
-	void *DFontAddrG = CheckMultiMemoryAddress((void*)0x0047E5A0, (void*)0x0047E840, (void*)0x0047EA50, (void*)DFontFuncBlockF, sizeof(DFontFuncBlockF));
+	void *DFontAddrF = (void*)SearchAndGetAddresses(0x0047FAA0, 0x0047FD40, 0x0047FF50, DFontFuncBlockE, sizeof(DFontFuncBlockE), 0x00);
+	void *DFontAddrG = (void*)SearchAndGetAddresses(0x0047E5A0, 0x0047E840, 0x0047EA50, DFontFuncBlockF, sizeof(DFontFuncBlockF), 0x00);
 
-	if (!DFontAddrF) {
-		Logging::Log() << __FUNCTION__ << " searching for memory address DFontAddrF!";
-		DFontAddrF = GetAddressOfData(DFontFuncBlockE, sizeof(DFontFuncBlockE), 4, 0x0047F000, 1800);
-	}
-
-	if (!DFontAddrG) {
-		Logging::Log() << __FUNCTION__ << " searching for memory address DFontAddrG!";
-		DFontAddrG = GetAddressOfData(DFontFuncBlockF, sizeof(DFontFuncBlockF), 4, 0x0047E000, 1800);
-	}
-
-	if (DFontAddrF && DFontAddrG) {
+	if (DFontAddrF && DFontAddrG)
+	{
 		UpdateMemoryAddress((void *)((BYTE*)DFontAddrF + 0x0142), (void *)&letterSpc, 1);
 		UpdateMemoryAddress((void *)((BYTE*)DFontAddrF + 0x0155), (void *)&letterSpc, 1);
 		UpdateMemoryAddress((void *)((BYTE*)DFontAddrF + 0x0183), (void *)&letterSpc, 1);

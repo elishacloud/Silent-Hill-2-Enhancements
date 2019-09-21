@@ -33,6 +33,7 @@
 std::ofstream LOG;
 
 // Variables
+SH2VERSION GameVersion = SH2V_UNKNOWN;
 HMODULE wrapper_dll = nullptr;
 bool WidescreenFixLoaded = false;
 
@@ -87,6 +88,27 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		Logging::LogVideoCard();
 		Logging::LogOSVersion();
 		Logging::LogProcessNameAndPID();
+
+		// Game version
+		if (memcmp((void*)0x00401005, "\xE9\x56\x25\x00\x00\xE9\x71\x25\x00\x00\xE9\xFC\x69\x00\x00\xE9\x77\x06\x00\x00", 0x14) == 0)
+		{
+			GameVersion = SH2V_10;
+			Logging::Log() << "Game binary version: v1.0";
+		}
+		else if (memcmp((void*)0x00401005, "\xE9\x56\x25\x00\x00\xE9\x71\x25\x00\x00\xE9\x9C\x6A\x00\x00\xE9\x77\x06\x00\x00", 0x14) == 0)
+		{
+			GameVersion = SH2V_11;
+			Logging::Log() << "Game binary version: v1.1";
+		}
+		else if (memcmp((void*)0x00401005, "\xE9\x66\x25\x00\x00\xE9\x81\x25\x00\x00\xE9\xAC\x6A\x00\x00\xE9\x77\x06\x00\x00", 0x14) == 0)
+		{
+			GameVersion = SH2V_DC;
+			Logging::Log() << "Game binary version: Director's Cut";
+		}
+		else
+		{
+			Logging::Log() << "Warning: Unknown game binary version!";
+		}
 
 		// Get Silent Hill 2 file path
 		GetModuleFileName(nullptr, pathname, MAX_PATH);

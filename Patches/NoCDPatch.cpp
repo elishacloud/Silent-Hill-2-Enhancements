@@ -19,24 +19,14 @@
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
-// Predefined code bytes
-constexpr BYTE CDFuncBlock[] = { 0x81, 0xEC, 0x08, 0x04, 0x00, 0x00, 0xA1 };
-constexpr BYTE CDBlockTest[] = { 0x33, 0x84, 0x24, 0x08, 0x04, 0x00, 0x00, 0x53 };
-constexpr BYTE CDBypass[] = { 0xC3 };
-
 void DisableCDCheck()
 {
 	// Find address for CD check
-	void *CDCheckAddr = CheckMultiMemoryAddress((void*)0x00408760, (void*)0x004088C0, (void*)0x004088D0, (void*)CDFuncBlock, sizeof(CDFuncBlock));
-
-	// Search for address
-	if (!CDCheckAddr)
-	{
-		Logging::Log() << __FUNCTION__ << " searching for memory address!";
-		CDCheckAddr = GetAddressOfData(CDFuncBlock, sizeof(CDFuncBlock), 4, 0x00407DE0, 1800);
-	}
+	constexpr BYTE CDFuncBlock[] = { 0x81, 0xEC, 0x08, 0x04, 0x00, 0x00, 0xA1 };
+	void *CDCheckAddr = (void*)SearchAndGetAddresses(0x00408760, 0x004088C0, 0x004088D0, CDFuncBlock, sizeof(CDFuncBlock), 0x00);
 
 	// Address found
+	constexpr BYTE CDBlockTest[] = { 0x33, 0x84, 0x24, 0x08, 0x04, 0x00, 0x00, 0x53 };
 	if ((CDCheckAddr) ? !CheckMemoryAddress((void*)((DWORD)CDCheckAddr + 11), (void*)CDBlockTest, sizeof(CDBlockTest)) : true)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: Could not find CD check function address in memory!";
@@ -45,5 +35,5 @@ void DisableCDCheck()
 
 	// Update SH2 code
 	Logging::Log() << "Bypassing CD check...";
-	UpdateMemoryAddress(CDCheckAddr, (void*)CDBypass, 1);
+	UpdateMemoryAddress(CDCheckAddr, "\xC3", 1);
 }

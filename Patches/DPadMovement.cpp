@@ -68,7 +68,7 @@ void __stdcall GetDeviceState_Hook(IDirectInputDevice8A* device)
 void UpdateDPadMovement()
 {
 	constexpr BYTE PollDInputDevicesSearchBytes[] { 0x33, 0xDB, 0x3B, 0xC3, 0x74, 0x33, 0x8B, 0x08 };
-	const DWORD PollDInputDevicesAddr = SearchAndGetAddresses(0x45893B, 0x458B9B, 0x458B9B, PollDInputDevicesSearchBytes, sizeof(PollDInputDevicesSearchBytes), -0xB);
+	const DWORD PollDInputDevicesAddr = SearchAndGetAddresses(0x0045893B, 0x00458B9B, 0x00458B9B, PollDInputDevicesSearchBytes, sizeof(PollDInputDevicesSearchBytes), -0xB);
 	if (PollDInputDevicesAddr == 0)
 	{
 		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";

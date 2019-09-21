@@ -16,6 +16,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include "Patches.h"
 #include "Common\FileSystemHooks.h"
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
@@ -23,8 +24,6 @@
 #include <string>
 
 using namespace std;
-
-constexpr BYTE MenuSearchBytesA[] = { 0x24, 0x14, 0xFF, 0xFF, 0xFF, 0xFF, 0x77, 0x6D, 0xFF, 0x24, 0x85, 0x3C, 0x5D, 0x49, 0x00, 0xBF };
 
 void *MainMenuFixRetAddr;
 
@@ -40,10 +39,18 @@ __declspec(naked) void __stdcall MainMenuFixASM()
 
 void UpdateMainMenuFix()
 {
-	void *DMenuAddrA = GetAddressOfData(MenuSearchBytesA, sizeof(MenuSearchBytesA), 1, 0x00495A90, 1800); //00495AA0
+	// Check for game versions that don't need to be patched
+	if (GameVersion == SH2V_10 || GameVersion == SH2V_DC)
+	{
+		return;
+	}
+
+	constexpr BYTE MenuSearchBytesA[] = { 0x24, 0x14, 0xFF, 0xFF, 0xFF, 0xFF, 0x77, 0x6D, 0xFF, 0x24, 0x85, 0x3C, 0x5D, 0x49, 0x00, 0xBF };
+	void *DMenuAddrA = CheckMultiMemoryAddress(0x00000000, (void*)0x00495AA0, 0x00000000, (void*)MenuSearchBytesA, sizeof(MenuSearchBytesA));
 
 	// Checking address pointer
-	if (!DMenuAddrA) {
+	if (!DMenuAddrA)
+	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
@@ -67,7 +74,8 @@ void UpdateMainMenuFix()
 	UpdateMemoryAddress((void *)((BYTE*)DMenuAddrA + 0x71), (void *)&UpdateVal, 4);
 }
 
-typedef struct {
+typedef struct
+{
 	char *pathPtr;
 	int size;
 	int unk2;
@@ -105,10 +113,12 @@ void UpdateTitlePath()
 	start00Offset.unk1 = -1;
 	start00Offset.unk3 = 0;
 	ifstream file(std::string(std::string(ModPathA) + "\\pic\\etc\\start00" + lang + ".tex").c_str());
-	if (!file.is_open()) {
+	if (!file.is_open())
+	{
 		start00Offset.pathPtr = "data/pic/etc/start00.tex";
 	}
-	else {
+	else
+	{
 		start00Offset.pathPtr = (char *)start00CustomPath;
 		file.close();
 	}
@@ -117,9 +127,12 @@ void UpdateTitlePath()
 	start01Offset.size = -1;
 	start01Offset.unk3 = 0;
 	ifstream file(std::string(std::string(ModPathA) + "\\pic\\etc\\start01" + lang + ".tex").c_str());
-	if (!file.is_open()) {
+	if (!file.is_open())
+	{
 		start01Offset.pathPtr = "data/pic/etc/start01.tex";
-	} else {
+	}
+	else
+	{
 		start01Offset.pathPtr = (char *)start01CustomPath;
 		file.close();
 	}
@@ -144,12 +157,20 @@ __declspec(naked) void __stdcall MainMenuTitleASM()
 
 void UpdateMainMenuTitlePerLang()
 {
-	void *DMenuAddrB = GetAddressOfData(MenuSearchBytesB, sizeof(MenuSearchBytesB), 1, 0x00496F00, 1800); //00496F24
+	// Check for game versions that don't need to be patched
+	if (GameVersion == SH2V_DC)
+	{
+		return;
+	}
+
+	void *DMenuAddrB = CheckMultiMemoryAddress((void*)0x00496F24, 0x00000000, 0x00000000, (void*)MenuSearchBytesB, sizeof(MenuSearchBytesB));
 
 	// Checking address pointer
-	if (!DMenuAddrB) {
-		DMenuAddrB = GetAddressOfData(MenuSearchBytesC, sizeof(MenuSearchBytesC), 1, 0x004971C0, 1800); //004971CE
-		if (!DMenuAddrB) {
+	if (!DMenuAddrB)
+	{
+		DMenuAddrB = CheckMultiMemoryAddress(0x00000000, (void*)0x004971CE, 0x00000000, (void*)MenuSearchBytesC, sizeof(MenuSearchBytesC));
+		if (!DMenuAddrB)
+		{
 			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 			return;
 		}
@@ -167,7 +188,8 @@ void UpdateMainMenuTitlePerLang()
 
 	int UpdateVal;
 
-	if (DMenuAddrB && UseCustomExeStr) {
+	if (DMenuAddrB && UseCustomExeStr)
+	{
 		Logging::Log() << "Enabling Main Menu title selection by language...";
 		MainMenuTitleRetAddr = (void *)((BYTE*)DMenuAddrB + 0x11);
 		WriteJMPtoMemory((BYTE*)DMenuAddrB + 0x0C, *MainMenuTitleASM, 5);
@@ -182,8 +204,9 @@ void UpdateMainMenuTitlePerLang()
 	}
 
 	//Make "Born From a Wish" horizontal position the same as "Letter From Silent Heaven"
-	void *DMenuAddrC = GetAddressOfData(MenuSearchBytesD, sizeof(MenuSearchBytesD), 1, 0x00497A00, 1800); //00497A08 00497CB8
-	if (DMenuAddrC) {
+	void *DMenuAddrC = (void*)SearchAndGetAddresses(0x00497A08, 0x00497CB8, 0x00000000, MenuSearchBytesD, sizeof(MenuSearchBytesD), 0x00);
+	if (DMenuAddrC)
+	{
 		UpdateVal = -244;
 		UpdateMemoryAddress((void *)((BYTE*)DMenuAddrC - 0x25), (void *)&UpdateVal, 4);
 		UpdateVal = 508;
@@ -193,10 +216,13 @@ void UpdateMainMenuTitlePerLang()
 	}
 
 	//Function to update "Now loading" text in Main Menu
-	void *DMenuAddrD = GetAddressOfData(MenuSearchBytesE, sizeof(MenuSearchBytesE), 1, 0x004457B0, 1800); //004457C0
-	if (DMenuAddrD) {
+	void *DMenuAddrD = CheckMultiMemoryAddress((void*)0x004457C0, 0x00000000, 0x00000000, (void*)MenuSearchBytesE, sizeof(MenuSearchBytesE));
+	if (DMenuAddrD)
+	{
 		LoadMes = (DWORD(*)(int pos))DMenuAddrD;
-	} else {
+	}
+	else
+	{
 		LoadMes = (DWORD(*)(int pos))(((BYTE*)DMenuAddrB - 0x21) + *(int *)((BYTE*)DMenuAddrB - 0x25));
 	}
 }

@@ -52,12 +52,7 @@ void UpdateBloodSize(DWORD *SH2_RoomID)
 	static float *Address1 = nullptr;
 	if (!Address1)
 	{
-		static bool RunOnce = false;
-		if (RunOnce)
-		{
-			return;
-		}
-		RunOnce = true;
+		RUNONCE();
 
 		// Get address for blood position
 		constexpr BYTE SearchBytes[]{ 0x83, 0xC4, 0x08, 0x83, 0xC6, 0x08, 0x81, 0xFE, 0xC8, 0x00, 0x00, 0x00, 0x72, 0xC9, 0x5F, 0x5E, 0x5B, 0x83, 0xC4, 0x40, 0xC3, 0x90, 0x68 };
@@ -78,12 +73,7 @@ void UpdateBloodSize(DWORD *SH2_RoomID)
 	static float *Address2 = nullptr;
 	if (!Address2)
 	{
-		static bool RunOnce = false;
-		if (RunOnce)
-		{
-			return;
-		}
-		RunOnce = true;
+		RUNONCE();
 
 		// Get address for blood position
 		constexpr BYTE SearchBytes[]{ 0x5D, 0x33, 0xC0, 0x5B, 0x81, 0xC4, 0x10, 0x01, 0x00, 0x00, 0xC3, 0x90, 0x90, 0x56, 0x6A, 0x00, 0x8B, 0xF0 };

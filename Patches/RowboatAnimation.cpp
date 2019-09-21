@@ -19,12 +19,6 @@
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
-// Predefined code bytes
-constexpr BYTE RowboatSearchBytes[]{ 0x8B, 0x56, 0x08, 0x89, 0x10, 0x5F, 0x5E, 0x5D, 0x83, 0xC4, 0x50, 0xC3 };
-constexpr BYTE RowboatRETNBytes[]{ 0xC3 };
-constexpr BYTE RowboatSearchPtrBytes[] = { 0x56, 0x6A, 0x0A, 0x6A, 0x00, 0x50, 0xE8 };
-constexpr BYTE RowboatCMPBytes[] = { 0x3B, 0x05 };
-
 // Variables for ASM
 DWORD *RowboatPointer;
 
@@ -55,45 +49,24 @@ __declspec(naked) void __stdcall RowboatAnimationASM()
 void UpdateRowboatAnimation()
 {
 	// Get Rowboat Animation address
-	DWORD RowboatAddr = (DWORD)CheckMultiMemoryAddress((void*)0x004A0293, (void*)0x004A0543, (void*)0x0049FE03, (void*)RowboatSearchBytes, sizeof(RowboatSearchBytes));
-
-	// Search for address
-	if (!RowboatAddr)
-	{
-		Logging::Log() << __FUNCTION__ << " searching for memory address!";
-		RowboatAddr = (DWORD)GetAddressOfData(RowboatSearchBytes, sizeof(RowboatSearchBytes), 1, 0x0049FBA5, 2600);
-	}
-
-	// Checking address pointer
-	if (!RowboatAddr)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
-		return;
-	}
-	RowboatAddr += 0x22;
+	constexpr BYTE RowboatSearchBytes[]{ 0x8B, 0x56, 0x08, 0x89, 0x10, 0x5F, 0x5E, 0x5D, 0x83, 0xC4, 0x50, 0xC3 };
+	DWORD RowboatAddr = SearchAndGetAddresses(0x004A0293, 0x004A0543, 0x0049FE03, RowboatSearchBytes, sizeof(RowboatSearchBytes), 0x22);
 
 	// Get memory pointer for Rowboat Animation
-	DWORD RowboatMemoryPtr = (DWORD)CheckMultiMemoryAddress((void*)0x0053F9C3, (void*)0x0053FCF3, (void*)0x0053F613, (void*)RowboatSearchPtrBytes, sizeof(RowboatSearchPtrBytes));
-
-	// Search for address
-	if (!RowboatMemoryPtr)
-	{
-		Logging::Log() << __FUNCTION__ << " searching for memory address!";
-		RowboatMemoryPtr = (DWORD)GetAddressOfData(RowboatSearchPtrBytes, sizeof(RowboatSearchPtrBytes), 1, 0x0053F356, 2600);
-	}
+	constexpr BYTE RowboatSearchPtrBytes[] = { 0x56, 0x6A, 0x0A, 0x6A, 0x00, 0x50, 0xE8 };
+	DWORD RowboatMemoryPtr = SearchAndGetAddresses(0x0053F9C3, 0x0053FCF3, 0x0053F613, RowboatSearchPtrBytes, sizeof(RowboatSearchPtrBytes), -0x3D);
 
 	// Checking address pointer
-	if (!RowboatMemoryPtr)
+	if (!RowboatMemoryPtr || !RowboatAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find pointer address!";
 		return;
 	}
-	RowboatMemoryPtr -= 0x3D;
 	memcpy(&RowboatPointer, (void*)(RowboatMemoryPtr + 2), sizeof(DWORD));
 
 	// Check for valid code before updating
-	if (!CheckMemoryAddress((void*)RowboatAddr, (void*)RowboatRETNBytes, sizeof(RowboatRETNBytes)) ||
-		!CheckMemoryAddress((void*)RowboatMemoryPtr, (void*)RowboatCMPBytes, sizeof(RowboatCMPBytes)))
+	if (!CheckMemoryAddress((void*)RowboatAddr, "\xC3", 1) ||
+		!CheckMemoryAddress((void*)RowboatMemoryPtr, "\x3B\x05", 2))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: memory addresses don't match!";
 		return;

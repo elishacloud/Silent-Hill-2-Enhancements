@@ -102,17 +102,9 @@ DWORD GetDiskSpace()
 // Update SH2 code to Fix 2TB disk limit
 void Update2TBHardDriveFix()
 {
-	constexpr BYTE HardDriveSearchBytes[]{ 0x75, 0x08, 0x5F, 0xB8, 0x02, 0x00, 0x00, 0x00, 0x5E, 0xC3, 0x84, 0xDB, 0x75, 0x14, 0x83, 0xFE, 0x20, 0x7C, 0x0F };
-
 	// 2TB disk check fix
-	DWORD HardDriveAddr = (DWORD)CheckMultiMemoryAddress((void*)0x0044B86E, (void*)0x0044BA0E, (void*)0x0044BA0E, (void*)HardDriveSearchBytes, sizeof(HardDriveSearchBytes));
-
-	// Search for address
-	if (!HardDriveAddr)
-	{
-		Logging::Log() << __FUNCTION__ << " searching for memory address!";
-		HardDriveAddr = (DWORD)GetAddressOfData(HardDriveSearchBytes, sizeof(HardDriveSearchBytes), 1, 0x0044B36E, 2600);
-	}
+	constexpr BYTE HardDriveSearchBytes[]{ 0x75, 0x08, 0x5F, 0xB8, 0x02, 0x00, 0x00, 0x00, 0x5E, 0xC3, 0x84, 0xDB, 0x75, 0x14, 0x83, 0xFE, 0x20, 0x7C, 0x0F };
+	DWORD HardDriveAddr = SearchAndGetAddresses(0x0044B86E, 0x0044BA0E, 0x0044BA0E, HardDriveSearchBytes, sizeof(HardDriveSearchBytes), 0x22);
 
 	// Checking address pointer
 	if (!HardDriveAddr)
@@ -120,21 +112,12 @@ void Update2TBHardDriveFix()
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
-	HardDriveAddr = HardDriveAddr + 0x22;
 	jmpSkipDisk = (void*)(HardDriveAddr + 0x1A);
 	jmpHardDriveReturnAddr = (void*)(HardDriveAddr + 0x05);
 
-	constexpr BYTE DisplaySearchBytes[]{ 0x8B, 0xF0, 0x83, 0xC4, 0x04, 0x85, 0xF6, 0x7D, 0x02, 0x33, 0xF6, 0x6A, 0x00 };
-
 	// Disk display fix
-	DWORD DisplayFix = (DWORD)CheckMultiMemoryAddress((void*)0x0044FB54, (void*)0x0044FDB4, (void*)0x0044FDB4, (void*)DisplaySearchBytes, sizeof(DisplaySearchBytes));
-
-	// Search for address
-	if (!DisplayFix)
-	{
-		Logging::Log() << __FUNCTION__ << " searching for memory address!";
-		DisplayFix = (DWORD)GetAddressOfData(DisplaySearchBytes, sizeof(DisplaySearchBytes), 1, 0x0044F654, 2600);
-	}
+	constexpr BYTE DisplaySearchBytes[]{ 0x8B, 0xF0, 0x83, 0xC4, 0x04, 0x85, 0xF6, 0x7D, 0x02, 0x33, 0xF6, 0x6A, 0x00 };
+	DWORD DisplayFix = SearchAndGetAddresses(0x0044FB54, 0x0044FDB4, 0x0044FDB4, DisplaySearchBytes, sizeof(DisplaySearchBytes), 0x1A);
 
 	// Checking address pointer
 	if (!DisplayFix)
@@ -142,7 +125,6 @@ void Update2TBHardDriveFix()
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
-	DisplayFix = DisplayFix + 0x1A;
 	jmpSkipDisplay = (void*)(DisplayFix + 0x08);
 	jmpDisplayReturnAddr = (void*)(DisplayFix + 0x06);
 

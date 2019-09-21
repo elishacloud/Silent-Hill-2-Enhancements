@@ -19,11 +19,6 @@
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
-// Predefined code bytes
-constexpr BYTE FilterByteEDX[2][5] = { { 0xBA, 0xFF, 0x00, 0x00, 0x00 }, { 0xBA, 0xD7, 0x01, 0x00, 0x00 } };
-constexpr BYTE FilterByteMOV[2][1] = { { 0xFF },{ 0x22 } };
-constexpr BYTE FilterByteJMP[] = { 0xA2, 0xC5 };
-
 // Variables for ASM
 DWORD *FilterPointer;
 void *jmpFilterAddr;
@@ -56,14 +51,8 @@ __declspec(naked) void __stdcall NoiseFilterASM()
 void UpdatePS2NoiseFilter()
 {
 	// Get PS2 filter memory address
-	DWORD FilterAddrEDX = (DWORD)CheckMultiMemoryAddress((void*)0x00477E9D, (void*)0x0047813D, (void*)0x0047834D, (void*)FilterByteEDX[0], sizeof(FilterByteEDX[0]));
-
-	// Search for address
-	if (!FilterAddrEDX)
-	{
-		Logging::Log() << __FUNCTION__ << " searching for memory address!";
-		FilterAddrEDX = (DWORD)GetAddressOfData(FilterByteEDX[0], sizeof(FilterByteEDX[0]), 1, 0x0477C1D, 1800);
-	}
+	constexpr BYTE FilterByteEDX[2][5] = { { 0xBA, 0xFF, 0x00, 0x00, 0x00 }, { 0xBA, 0xD7, 0x01, 0x00, 0x00 } };
+	DWORD FilterAddrEDX = SearchAndGetAddresses(0x00477E9D, 0x0047813D, 0x0047834D, FilterByteEDX[0], sizeof(FilterByteEDX[0]), 0x00);
 
 	// Checking address pointer
 	if (!FilterAddrEDX)
@@ -79,6 +68,8 @@ void UpdatePS2NoiseFilter()
 	jmpFilterAddr = (void*)(FilterAddrJMP + 5);
 
 	// Check for valid code before updating
+	constexpr BYTE FilterByteMOV[2][1] = { { 0xFF },{ 0x22 } };
+	constexpr BYTE FilterByteJMP[] = { 0xA2, 0xC5 };
 	if (!CheckMemoryAddress((void*)FilterAddrEDX, (void*)FilterByteEDX[0], sizeof(FilterByteEDX[0])) ||
 		!CheckMemoryAddress((void*)FilterAddrMOV, (void*)FilterByteMOV[0], sizeof(FilterByteMOV[0])) ||
 		!CheckMemoryAddress((void*)FilterAddrJMP, (void*)FilterByteJMP, sizeof(FilterByteJMP)))

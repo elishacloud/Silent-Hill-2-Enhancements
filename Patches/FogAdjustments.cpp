@@ -20,12 +20,6 @@
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
-// Predefined code bytes
-constexpr BYTE FogSearchBytes[]{ 0x8B, 0xF8, 0x81, 0xE7, 0xFF, 0x00, 0x00, 0x00, 0xC1, 0xE7, 0x10, 0x25, 0x00, 0xFF, 0x00, 0xFF, 0x0B, 0xF7, 0x0B, 0xF0, 0x56 };
-constexpr BYTE FogCheckBytes[]{ 0x8B, 0x0D };
-constexpr BYTE BlueCreekFogSearchBytes[]{ 0x85, 0xC0, 0xDF, 0xE0, 0x0F, 0x84, 0x90, 0x01, 0x00, 0x00, 0xF6, 0xC4, 0x44, 0x7A, 0x2A };
-constexpr BYTE BlueCreekFogCheckBytes[]{ 0xC7, 0x05 };
-
 // Variables for ASM
 DWORD CameraConditionFlag = 0x00;
 void *FogFrontPointer;
@@ -127,14 +121,8 @@ __declspec(naked) void __stdcall BlueCreekFogAdjustmentASM()
 void UpdateFogParameters()
 {
 	// Get Fog address
-	DWORD FogAddr = (DWORD)CheckMultiMemoryAddress((void*)0x00479E71, (void*)0x0047A111, (void*)0x0047A321, (void*)FogSearchBytes, sizeof(FogSearchBytes));
-
-	// Search for address
-	if (!FogAddr)
-	{
-		Logging::Log() << __FUNCTION__ << " searching for memory address!";
-		FogAddr = (DWORD)GetAddressOfData(FogSearchBytes, sizeof(FogSearchBytes), 1, 0x00479831, 1800);
-	}
+	constexpr BYTE FogSearchBytes[]{ 0x8B, 0xF8, 0x81, 0xE7, 0xFF, 0x00, 0x00, 0x00, 0xC1, 0xE7, 0x10, 0x25, 0x00, 0xFF, 0x00, 0xFF, 0x0B, 0xF7, 0x0B, 0xF0, 0x56 };
+	DWORD FogAddr = SearchAndGetAddresses(0x00479E71, 0x0047A111, 0x0047A321, FogSearchBytes, sizeof(FogSearchBytes), 0x00);
 
 	// Checking address pointer
 	if (!FogAddr)
@@ -145,14 +133,8 @@ void UpdateFogParameters()
 	jmpFogReturnAddr = (void*)(FogAddr - 0x1A);
 
 	// Get Blue Creek return address
-	FogAddr = (DWORD)CheckMultiMemoryAddress((void*)0x0047BE75, (void*)0x0047C115, (void*)0x0047C325, (void*)BlueCreekFogSearchBytes, sizeof(BlueCreekFogSearchBytes));
-
-	// Search for address
-	if (!FogAddr)
-	{
-		Logging::Log() << __FUNCTION__ << " searching for memory address!";
-		FogAddr = (DWORD)GetAddressOfData(BlueCreekFogSearchBytes, sizeof(BlueCreekFogSearchBytes), 1, 0x0047B835, 1800);
-	}
+	constexpr BYTE BlueCreekFogSearchBytes[]{ 0x85, 0xC0, 0xDF, 0xE0, 0x0F, 0x84, 0x90, 0x01, 0x00, 0x00, 0xF6, 0xC4, 0x44, 0x7A, 0x2A };
+	FogAddr = SearchAndGetAddresses(0x0047BE75, 0x0047C115, 0x0047C325, BlueCreekFogSearchBytes, sizeof(BlueCreekFogSearchBytes), 0x00);
 
 	// Checking address pointer
 	if (!FogAddr)
@@ -163,8 +145,8 @@ void UpdateFogParameters()
 	jmpBlueCreekFogReturnAddr = (void*)(FogAddr + 0x23);
 
 	// Check for valid code before updating
-	if (!CheckMemoryAddress(jmpFogReturnAddr, (void*)FogCheckBytes, sizeof(FogCheckBytes)) ||
-		!CheckMemoryAddress(jmpBlueCreekFogReturnAddr, (void*)BlueCreekFogCheckBytes, sizeof(BlueCreekFogCheckBytes)))
+	if (!CheckMemoryAddress(jmpFogReturnAddr, "\x8B\x0D", 2) ||
+		!CheckMemoryAddress(jmpBlueCreekFogReturnAddr, "\xC7\x05", 2))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: memory addresses don't match!";
 		return;

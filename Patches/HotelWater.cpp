@@ -16,6 +16,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include "patches.h"
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
@@ -26,24 +27,11 @@ void UpdateHotelWater(DWORD *SH2_RoomID)
 	static DWORD Address1 = NULL;
 	if (!Address1)
 	{
-		static bool RunOnce = false;
-		if (RunOnce)
-		{
-			return;
-		}
-		RunOnce = true;
-
-		constexpr BYTE SearchBytes[]{ 0x00, 0x00, 0x20, 0x40, 0xC7, 0x44, 0x24, 0x64, 0x00, 0x00, 0x20, 0x40, 0xE8, 0xCE };
+		RUNONCE();
 
 		// Get Room 312 Shadow address
-		Address1 = (DWORD)CheckMultiMemoryAddress((void*)0x004E34F1, (void*)0x004E37A1, (void*)0x00004E3061, (void*)SearchBytes, sizeof(SearchBytes));
-
-		// Search for address
-		if (!Address1)
-		{
-			Logging::Log() << __FUNCTION__ << " searching for memory address!";
-			Address1 = (DWORD)GetAddressOfData(SearchBytes, sizeof(SearchBytes), 1, 0x004E2FF1, 2600);
-		}
+		constexpr BYTE SearchBytes[]{ 0x00, 0x00, 0x20, 0x40, 0xC7, 0x44, 0x24, 0x64, 0x00, 0x00, 0x20, 0x40, 0xE8, 0xCE };
+		Address1 = SearchAndGetAddresses(0x004E34F1, 0x004E37A1, 0x00004E3061, SearchBytes, sizeof(SearchBytes), 0x00);
 
 		// Checking address pointer
 		if (!Address1)
@@ -57,105 +45,55 @@ void UpdateHotelWater(DWORD *SH2_RoomID)
 	static DWORD Address2 = NULL;
 	if (!Address2)
 	{
-		static bool RunOnce = false;
-		if (RunOnce)
-		{
-			return;
-		}
-		RunOnce = true;
-
-		constexpr BYTE SearchBytes[]{ 0xFF, 0xFF, 0xD9, 0x44, 0x24, 0x50, 0x8B, 0x15 };
+		RUNONCE();
 
 		// Get Room 312 Shadow address
-		DWORD SearchAddress = (DWORD)CheckMultiMemoryAddress((void*)0x004D87AF, (void*)0x004D8A5F, (void*)0x004D831F, (void*)SearchBytes, sizeof(SearchBytes));
-
-		// Search for address
-		if (!SearchAddress)
-		{
-			Logging::Log() << __FUNCTION__ << " searching for memory address!";
-			SearchAddress = (DWORD)GetAddressOfData(SearchBytes, sizeof(SearchBytes), 1, 0x004D82AF, 2600);
-		}
+		constexpr BYTE SearchBytes[]{ 0xFF, 0xFF, 0xD9, 0x44, 0x24, 0x50, 0x8B, 0x15 };
+		Address2 = ReadSearchedAddresses(0x004D87AF, 0x004D8A5F, 0x004D831F, SearchBytes, sizeof(SearchBytes), 0x0E);
 
 		// Checking address pointer
-		if (!SearchAddress)
+		if (!Address2)
 		{
 			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 			return;
 		}
-
-		// Get address pointer
-		SearchAddress = SearchAddress + 0x0E;
-		memcpy(&Address2, (void*)(SearchAddress), sizeof(DWORD));
 	}
 
 	// Get Address3
 	static DWORD Address3 = NULL;
 	if (!Address3)
 	{
-		static bool RunOnce = false;
-		if (RunOnce)
-		{
-			return;
-		}
-		RunOnce = true;
-
-		constexpr BYTE SearchBytes[]{ 0xFF, 0xFF, 0xFF, 0xDD, 0xD8, 0xD9, 0x05 };
+		RUNONCE();
 
 		// Get Room 312 Shadow address
-		DWORD SearchAddress = (DWORD)CheckMultiMemoryAddress((void*)0x004D767A, (void*)0x004D792A, (void*)0x004D71EA, (void*)SearchBytes, sizeof(SearchBytes));
-
-		// Search for address
-		if (!SearchAddress)
-		{
-			Logging::Log() << __FUNCTION__ << " searching for memory address!";
-			SearchAddress = (DWORD)GetAddressOfData(SearchBytes, sizeof(SearchBytes), 1, 0x004D717A, 2600);
-		}
+		constexpr BYTE SearchBytes[]{ 0xFF, 0xFF, 0xFF, 0xDD, 0xD8, 0xD9, 0x05 };
+		Address3 = ReadSearchedAddresses(0x004D767A, 0x004D792A, 0x004D71EA, SearchBytes, sizeof(SearchBytes), 0x07);
 
 		// Checking address pointer
-		if (!SearchAddress)
+		if (!Address3)
 		{
 			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 			return;
 		}
-
-		// Get address pointer
-		SearchAddress = SearchAddress + 0x07;
-		memcpy(&Address3, (void*)(SearchAddress), sizeof(DWORD));
 	}
 
 	// Get Address4
 	static DWORD Address4 = NULL;
 	if (!Address4)
 	{
-		static bool RunOnce = false;
-		if (RunOnce)
-		{
-			return;
-		}
-		RunOnce = true;
+		RUNONCE();
 
 		constexpr BYTE SearchBytes[]{ 0xFF, 0xFF, 0xFF, 0xDD, 0xD8, 0xD9, 0x05 };
 
 		// Get Room 312 Shadow address
-		DWORD SearchAddress = (DWORD)CheckMultiMemoryAddress((void*)0x004D25CC, (void*)0x004D287C, (void*)0x004D213C, (void*)SearchBytes, sizeof(SearchBytes));
-
-		// Search for address
-		if (!SearchAddress)
-		{
-			Logging::Log() << __FUNCTION__ << " searching for memory address!";
-			SearchAddress = (DWORD)GetAddressOfData(SearchBytes, sizeof(SearchBytes), 1, 0x004D20CC, 2600);
-		}
+		Address4 = ReadSearchedAddresses(0x004D25CC, 0x004D287C, 0x004D213C, SearchBytes, sizeof(SearchBytes), 0x07);
 
 		// Checking address pointer
-		if (!SearchAddress)
+		if (!Address4)
 		{
 			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 			return;
 		}
-
-		// Get address pointer
-		SearchAddress = SearchAddress + 0x07;
-		memcpy(&Address4, (void*)(SearchAddress), sizeof(DWORD));
 	}
 
 	// Static updates

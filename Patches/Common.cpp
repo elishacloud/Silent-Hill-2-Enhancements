@@ -34,19 +34,9 @@ void *GetRoomIDPointer()
 		return RoomIDAddr;
 	}
 
-	// Predefined code bytes
-	constexpr BYTE RoomIDSearchBytes[]{ 0x83, 0xF8, 0x04, 0x0F, 0x87, 0xCE, 0x00, 0x00, 0x00 };
-	constexpr BYTE RoomCallBytes[]{ 0x83, 0x3D };
-
 	// Get room ID address
-	void *RoomFunctAddr = CheckMultiMemoryAddress((void*)0x0052A4A0, (void*)0x0052A7D0, (void*)0x0052A0F0, (void*)RoomIDSearchBytes, sizeof(RoomIDSearchBytes));
-
-	// Search for address
-	if (!RoomFunctAddr)
-	{
-		Logging::Log() << __FUNCTION__ << " searching for memory address!";
-		RoomFunctAddr = GetAddressOfData(RoomIDSearchBytes, sizeof(DWORD), 1, 0x00529F39, 1800);
-	}
+	constexpr BYTE RoomIDSearchBytes[]{ 0x83, 0xF8, 0x04, 0x0F, 0x87, 0xCE, 0x00, 0x00, 0x00 };
+	void *RoomFunctAddr = (void*)SearchAndGetAddresses(0x0052A4A0, 0x0052A7D0, 0x0052A0F0, RoomIDSearchBytes, sizeof(RoomIDSearchBytes), 0xD7);
 
 	// Checking address pointer
 	if (!RoomFunctAddr)
@@ -54,10 +44,9 @@ void *GetRoomIDPointer()
 		Logging::Log() << __FUNCTION__ << " Error: failed to find room ID function address!";
 		return nullptr;
 	}
-	RoomFunctAddr = (void*)((DWORD)RoomFunctAddr + 0xD7);
 
 	// Check address
-	if (!CheckMemoryAddress(RoomFunctAddr, (void*)RoomCallBytes, sizeof(RoomCallBytes)))
+	if (!CheckMemoryAddress(RoomFunctAddr, "\x83\x3D", 2))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: memory addresses don't match!";
 		return nullptr;
@@ -76,19 +65,9 @@ void *GetCutsceneIDPointer()
 		return CutsceneIDAddr;
 	}
 
-	// Predefined code bytes
-	constexpr BYTE CutsceneIDSearchBytes[]{ 0x8B, 0x56, 0x08, 0x89, 0x10, 0x5F, 0x5E, 0x5D, 0x83, 0xC4, 0x50, 0xC3 };
-	constexpr BYTE CutsceneCallBytes[]{ 0xA1 };
-
 	// Get cutscene ID address
-	void *CutsceneFunctAddr = CheckMultiMemoryAddress((void*)0x004A0293, (void*)0x004A0543, (void*)0x0049FE03, (void*)CutsceneIDSearchBytes, sizeof(CutsceneIDSearchBytes));
-
-	// Search for address
-	if (!CutsceneFunctAddr)
-	{
-		Logging::Log() << __FUNCTION__ << " searching for memory address!";
-		CutsceneFunctAddr = GetAddressOfData(CutsceneIDSearchBytes, sizeof(CutsceneIDSearchBytes), 1, 0x0049FBA5, 2600);
-	}
+	constexpr BYTE CutsceneIDSearchBytes[]{ 0x8B, 0x56, 0x08, 0x89, 0x10, 0x5F, 0x5E, 0x5D, 0x83, 0xC4, 0x50, 0xC3 };
+	void *CutsceneFunctAddr = (void*)SearchAndGetAddresses(0x004A0293, 0x004A0543, 0x0049FE03, CutsceneIDSearchBytes, sizeof(CutsceneIDSearchBytes), 0x1D);
 
 	// Checking address pointer
 	if (!CutsceneFunctAddr)
@@ -96,10 +75,9 @@ void *GetCutsceneIDPointer()
 		Logging::Log() << __FUNCTION__ << " Error: failed to find cutscene ID function address!";
 		return nullptr;
 	}
-	CutsceneFunctAddr = (void*)((DWORD)CutsceneFunctAddr + 0x1D);
 
 	// Check address
-	if (!CheckMemoryAddress(CutsceneFunctAddr, (void*)CutsceneCallBytes, sizeof(CutsceneCallBytes)))
+	if (!CheckMemoryAddress(CutsceneFunctAddr, "\xA1", 1))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: memory addresses don't match!";
 		return nullptr;
@@ -118,28 +96,16 @@ void *GetCutscenePosPointer()
 		return CutscenePosAddr;
 	}
 
-	// Predefined code bytes
-	constexpr BYTE CutscenePosSearchBytes[]{ 0x40, 0x88, 0x54, 0x24, 0x0B, 0x88, 0x4C, 0x24, 0x0A, 0x8B, 0x4C, 0x24, 0x08, 0x8B, 0xD1, 0x89, 0x0D };
-
 	// Get cutscene Pos address
-	void *CutsceneFunctAddr = CheckMultiMemoryAddress((void*)0x004A04DB, (void*)0x004A078B, (void*)0x004A004B, (void*)CutscenePosSearchBytes, sizeof(CutscenePosSearchBytes));
-
-	// Search for address
-	if (!CutsceneFunctAddr)
-	{
-		Logging::Log() << __FUNCTION__ << " searching for memory address!";
-		CutsceneFunctAddr = GetAddressOfData(CutscenePosSearchBytes, sizeof(CutscenePosSearchBytes), 1, 0x0049FEAA, 1800);
-	}
+	constexpr BYTE CutscenePosSearchBytes[]{ 0x40, 0x88, 0x54, 0x24, 0x0B, 0x88, 0x4C, 0x24, 0x0A, 0x8B, 0x4C, 0x24, 0x08, 0x8B, 0xD1, 0x89, 0x0D };
+	CutscenePosAddr = (void*)ReadSearchedAddresses(0x004A04DB, 0x004A078B, 0x004A004B, CutscenePosSearchBytes, sizeof(CutscenePosSearchBytes), 0x11);
 
 	// Checking address pointer
-	if (!CutsceneFunctAddr)
+	if (!CutscenePosAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find cutscene Pos function address!";
 		return nullptr;
 	}
-	CutsceneFunctAddr = (void*)((DWORD)CutsceneFunctAddr + 0x11);
-
-	memcpy(&CutscenePosAddr, CutsceneFunctAddr, sizeof(DWORD));
 
 	return CutscenePosAddr;
 }
@@ -151,10 +117,8 @@ void *GetJamesPosPointer()
 		return JamesPosAddr;
 	}
 
-	// Predefined code bytes
-	constexpr BYTE JamesPosSearchBytes[]{ 0x4A, 0x8D, 0x88, 0xCC, 0x02, 0x00, 0x00, 0x89, 0x88, 0x94, 0x01, 0x00, 0x00, 0x8B, 0xC1, 0x75, 0xEF, 0x33, 0xC9, 0x89, 0x88, 0x94, 0x01, 0x00, 0x00, 0xB8 };
-
 	// Get James Pos address
+	constexpr BYTE JamesPosSearchBytes[]{ 0x4A, 0x8D, 0x88, 0xCC, 0x02, 0x00, 0x00, 0x89, 0x88, 0x94, 0x01, 0x00, 0x00, 0x8B, 0xC1, 0x75, 0xEF, 0x33, 0xC9, 0x89, 0x88, 0x94, 0x01, 0x00, 0x00, 0xB8 };
 	void *JamesPosition = (float*)ReadSearchedAddresses(0x00538070, 0x005383A0, 0x00537CC0, JamesPosSearchBytes, sizeof(JamesPosSearchBytes), -0x10);
 
 	// Checking address pointer
@@ -175,10 +139,8 @@ BYTE *GetFlashLightRenderPointer()
 		return FlashLightRenderAddr;
 	}
 
-	// Predefined code bytes
-	constexpr BYTE FlashLightRenderSearchBytes[]{ 0xC3, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x33, 0xC0, 0x66, 0xA3 };
-
 	// Get address for flashlight render
+	constexpr BYTE FlashLightRenderSearchBytes[]{ 0xC3, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x33, 0xC0, 0x66, 0xA3 };
 	FlashLightRenderAddr = (BYTE*)ReadSearchedAddresses(0x0050A1D6, 0x0050A506, 0x00509E26, FlashLightRenderSearchBytes, sizeof(FlashLightRenderSearchBytes), 0x14);
 
 	// Checking address pointer

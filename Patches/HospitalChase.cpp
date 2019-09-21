@@ -16,6 +16,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include "patches.h"
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
@@ -25,14 +26,8 @@ void UpdateHospitalChase(DWORD *SH2_RoomID, float *SH2_JamesPos)
 	static DWORD Address = NULL;
 	if (!Address)
 	{
-		static bool RunOnce = false;
-		if (RunOnce)
-		{
-			return;
-		}
-		RunOnce = true;
+		RUNONCE();
 
-		Address = 0x01F7AEA1;
 		// Get address
 		constexpr BYTE SearchBytes[]{ 0x8B, 0xC2, 0x83, 0xC4, 0x18, 0xC3, 0x90, 0x90, 0x8B, 0x44, 0x24, 0x04, 0x83, 0xF8, 0x04, 0x0F, 0x87, 0x0D, 0x01, 0x00, 0x00, 0x53, 0xFF, 0x24, 0x85 };
 		Address = ReadSearchedAddresses(0x004A8BD8, 0x004A8E88, 0x004A8748, SearchBytes, sizeof(SearchBytes), 0x1E);
@@ -41,16 +36,8 @@ void UpdateHospitalChase(DWORD *SH2_RoomID, float *SH2_JamesPos)
 			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 			return;
 		}
-	}
 
-	// Log update
-	static bool FirstRun = true;
-	if (FirstRun)
-	{
 		Logging::Log() << "Setting RPT Hospital Elevator Animation Fix...";
-
-		// Reset FirstRun
-		FirstRun = false;
 	}
 
 	// Fix Animation

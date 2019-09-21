@@ -20,6 +20,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include "patches.h"
 #include "Common\Utils.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
@@ -158,9 +159,9 @@ void CreateDirectInputGamepad_Hook()
 
 void UpdateXInputVibration()
 {
-	constexpr BYTE XIVibrationSearchBytes[] { 0x57, 0x33, 0xC0, 0xB9, 0x9F, 0x01, 0x00, 0x00 };
+	constexpr BYTE XIVibrationSearchBytes[]{ 0x57, 0x33, 0xC0, 0xB9, 0x9F, 0x01, 0x00, 0x00 };
 	const DWORD CreateDIGamepadAddr = SearchAndGetAddresses(0x458B30, 0x458D90, 0x458D90, XIVibrationSearchBytes, sizeof(XIVibrationSearchBytes), 0x24);
-	if (CreateDIGamepadAddr == 0)
+	if (!CreateDIGamepadAddr)
 	{
 		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
 		return;
@@ -170,17 +171,17 @@ void UpdateXInputVibration()
 	int32_t jmpAddress = 0;
 	memcpy( &jmpAddress, (void*)(CreateDIGamepadAddr + 1), sizeof(jmpAddress) );
 
-	constexpr BYTE SetVibrationParametersSearchBytes[] { 0x83, 0xEC, 0x38, 0x83, 0xF8, 0x02, 0x75, 0x39 };
+	constexpr BYTE SetVibrationParametersSearchBytes[]{ 0x83, 0xEC, 0x38, 0x83, 0xF8, 0x02, 0x75, 0x39 };
 	const DWORD SetVibrationParametersAddr = SearchAndGetAddresses(0x458005, 0x458265, 0x458265, SetVibrationParametersSearchBytes, sizeof(SetVibrationParametersSearchBytes), -0x5);
-	if (SetVibrationParametersAddr == 0)
+	if (!SetVibrationParametersAddr)
 	{
 		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
 		return;
 	}
 
 	// Get address for the main menu function that enables rumble
-	constexpr BYTE SearchBytesMenuRumble[]{ 0x53, 0x53, 0x53, 0x68, 0x10, 0x27, 0x00, 0x00, 0xC7, 0x05 };
-	DWORD MenuRumbleAddr = SearchAndGetAddresses(0x00497DD3, 0x00498083, 0x00497713, SearchBytesMenuRumble, sizeof(SearchBytesMenuRumble), -0x62);
+	constexpr BYTE MenuRumbleSearchBytes[]{ 0x53, 0x53, 0x53, 0x68, 0x10, 0x27, 0x00, 0x00, 0xC7, 0x05 };
+	DWORD MenuRumbleAddr = SearchAndGetAddresses(0x00497DD3, 0x00498083, 0x00497713, MenuRumbleSearchBytes, sizeof(MenuRumbleSearchBytes), -0x62);
 	if (!MenuRumbleAddr)
 	{
 		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
@@ -245,16 +246,11 @@ void UpdateInfiniteRumble(DWORD *SH2_RoomID)
 	static BYTE *RumbleAddress = nullptr;
 	if (!RumbleAddress)
 	{
-		static bool RunOnce = false;
-		if (RunOnce)
-		{
-			return;
-		}
-		RunOnce = true;
+		RUNONCE();
 
 		// Get address for the rumble flag
-		constexpr BYTE SearchBytes[]{ 0x68, 0x10, 0x01, 0x00, 0x00, 0x50, 0xFF, 0x52, 0x24, 0x33, 0xD2, 0xB9 };
-		RumbleAddress = (BYTE*)ReadSearchedAddresses(0x004589C1, 0x00458C21, 0x00458C21, SearchBytes, sizeof(SearchBytes), 0x0C);
+		constexpr BYTE RumbleSearchBytes[]{ 0x68, 0x10, 0x01, 0x00, 0x00, 0x50, 0xFF, 0x52, 0x24, 0x33, 0xD2, 0xB9 };
+		RumbleAddress = (BYTE*)ReadSearchedAddresses(0x004589C1, 0x00458C21, 0x00458C21, RumbleSearchBytes, sizeof(RumbleSearchBytes), 0x0C);
 		if (!RumbleAddress)
 		{
 			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
@@ -267,16 +263,11 @@ void UpdateInfiniteRumble(DWORD *SH2_RoomID)
 	static BYTE *PauseAddress = nullptr;
 	if (!PauseAddress)
 	{
-		static bool RunOnce = false;
-		if (RunOnce)
-		{
-			return;
-		}
-		RunOnce = true;
+		RUNONCE();
 
 		// Get address for the pause menu
-		constexpr BYTE SearchBytes[]{ 0x74, 0x0F, 0x66, 0x3D, 0x04, 0x00, 0x66, 0xC7, 0x05 };
-		PauseAddress = (BYTE*)ReadSearchedAddresses(0x004553A4, 0x00455604, 0x00455604, SearchBytes, sizeof(SearchBytes), 0x09);
+		constexpr BYTE PauseMenuSearchBytes[]{ 0x74, 0x0F, 0x66, 0x3D, 0x04, 0x00, 0x66, 0xC7, 0x05 };
+		PauseAddress = (BYTE*)ReadSearchedAddresses(0x004553A4, 0x00455604, 0x00455604, PauseMenuSearchBytes, sizeof(PauseMenuSearchBytes), 0x09);
 		if (!PauseAddress)
 		{
 			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";

@@ -16,18 +16,12 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include "patches.h"
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
 // Forward declaration
 DWORD CheckUpdateMemory(void *dataSrc, void *dataDest, size_t size, bool SearchMemory);
-
-// Predefined code bytes
-constexpr BYTE DDStartAddr[] = { 0xC7, 0x05, 0x58 };
-constexpr BYTE DDSearchAddr[] = { 0x94, 0x00, 0x00, 0x60, 0xEA, 0x45 };
-
-// New draw distance
-constexpr float DrawDistance = 8500.0f;
 
 // ASM functions to fix an issue with a certain water-filled hallway
 __declspec(naked) void __stdcall DrawDistanceASM()
@@ -59,6 +53,10 @@ void UpdateDrawDistance()
 	DWORD EndAddr = 0x004FFFFF;
 	bool ExitFlag = false;
 
+	// Predefined code bytes
+	constexpr BYTE DDStartAddr[] = { 0xC7, 0x05, 0x58 };
+	constexpr BYTE DDSearchAddr[] = { 0x94, 0x00, 0x00, 0x60, 0xEA, 0x45 };
+
 	// Get data bytes from code
 	while (!ExitFlag && StartAddr < EndAddr && LoopCounter < 10)
 	{
@@ -89,6 +87,7 @@ void UpdateDrawDistance()
 			ExitFlag = true;
 			memcpy(SrcByteData, NextAddr, SizeOfBytes);
 			memcpy(DestByteData, NextAddr, SizeOfBytes);
+			float DrawDistance = 8500.0f;
 			memcpy(DestByteData + 6, (void*)&DrawDistance, sizeof(float));
 		}
 	}
@@ -170,12 +169,7 @@ void UpdateDynamicDrawDistance(DWORD *SH2_RoomID)
 	static float *Address = nullptr;
 	if (!Address)
 	{
-		static bool RunOnce = false;
-		if (RunOnce)
-		{
-			return;
-		}
-		RunOnce = true;
+		RUNONCE();
 
 		// Get address for dynamic draw distance
 		constexpr BYTE SearchBytes[]{ 0xFF, 0xFF, 0x8D, 0x44, 0x24, 0x0C, 0x50, 0x68 };

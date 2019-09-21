@@ -21,12 +21,6 @@
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
 
-// Predefined code bytes
-constexpr BYTE RedCrossSearchBytes[]{ 0xD9, 0x81, 0x40, 0x01, 0x00, 0x00, 0xD8, 0xA1, 0x3C, 0x01, 0x00, 0x00, 0xD8, 0xB1, 0x40, 0x01, 0x00, 0x00 };
-constexpr BYTE RedCrossPtrSearchBytes[]{ 0x84, 0xC0, 0x74, 0x1B, 0x8B, 0x44, 0x24, 0x04, 0x8B, 0x4C, 0x24, 0x08, 0xA3 };
-constexpr BYTE RedCrossCallBytes[]{ 0xA1 };
-constexpr BYTE RedCrossDisableBytes[]{ 0xC7, 0x05 };
-
 // Variables for ASM
 BYTE RedCrossFlag;
 BYTE *RedCrossFlagPointer = &RedCrossFlag;
@@ -69,14 +63,8 @@ __declspec(naked) void __stdcall RedCrossCutscenesASM()
 void UpdateRedCrossInCutscene()
 {
 	// Get RedCross address
-	DWORD RedCrossAddr = (DWORD)CheckMultiMemoryAddress((void*)0x004762D0, (void*)0x00476570, (void*)0x00476780, (void*)RedCrossSearchBytes, sizeof(RedCrossSearchBytes));
-
-	// Search for address
-	if (!RedCrossAddr)
-	{
-		Logging::Log() << __FUNCTION__ << " searching for memory address!";
-		RedCrossAddr = (DWORD)GetAddressOfData(RedCrossSearchBytes, sizeof(RedCrossSearchBytes), 1, 0x0047604A, 2600);
-	}
+	constexpr BYTE RedCrossSearchBytes[]{ 0xD9, 0x81, 0x40, 0x01, 0x00, 0x00, 0xD8, 0xA1, 0x3C, 0x01, 0x00, 0x00, 0xD8, 0xB1, 0x40, 0x01, 0x00, 0x00 };
+	DWORD RedCrossAddr = SearchAndGetAddresses(0x004762D0, 0x00476570, 0x00476780, RedCrossSearchBytes, sizeof(RedCrossSearchBytes), 0x00);
 
 	// Checking address pointer
 	if (!RedCrossAddr)
@@ -98,14 +86,8 @@ void UpdateRedCrossInCutscene()
 	}
 
 	// Get memory pointer for RedCross Animation
-	DWORD RedCrossMemoryPtr = (DWORD)CheckMultiMemoryAddress((void*)0x004EEACE, (void*)0x004EED7E, (void*)0x004EE63E, (void*)RedCrossPtrSearchBytes, sizeof(RedCrossPtrSearchBytes));
-
-	// Search for address
-	if (!RedCrossMemoryPtr)
-	{
-		Logging::Log() << __FUNCTION__ << " searching for memory address!";
-		RedCrossMemoryPtr = (DWORD)GetAddressOfData(RedCrossPtrSearchBytes, sizeof(RedCrossPtrSearchBytes), 1, 0x004EE5A0, 2600);
-	}
+	constexpr BYTE RedCrossPtrSearchBytes[]{ 0x84, 0xC0, 0x74, 0x1B, 0x8B, 0x44, 0x24, 0x04, 0x8B, 0x4C, 0x24, 0x08, 0xA3 };
+	DWORD RedCrossMemoryPtr = SearchAndGetAddresses(0x004EEACE, 0x004EED7E, 0x004EE63E, RedCrossPtrSearchBytes, sizeof(RedCrossPtrSearchBytes), 0x1E2);
 
 	// Checking address pointer
 	if (!RedCrossMemoryPtr)
@@ -113,12 +95,11 @@ void UpdateRedCrossInCutscene()
 		Logging::Log() << __FUNCTION__ << " Error: failed to find pointer address!";
 		return;
 	}
-	RedCrossMemoryPtr += 0x1E2;
 	memcpy(&RedCrossPointer, (void*)(RedCrossMemoryPtr + 1), sizeof(DWORD));
 
 	// Check for valid code before updating
-	if (!CheckMemoryAddress(jmpDisableAddr, (void*)RedCrossDisableBytes, sizeof(RedCrossDisableBytes)) ||
-		!CheckMemoryAddress((void*)RedCrossMemoryPtr, (void*)RedCrossCallBytes, sizeof(RedCrossCallBytes)))
+	if (!CheckMemoryAddress(jmpDisableAddr, "\xC7\x05", 2) ||
+		!CheckMemoryAddress((void*)RedCrossMemoryPtr, "\xA1", 1))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: memory addresses don't match!";
 		return;

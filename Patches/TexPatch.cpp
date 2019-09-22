@@ -19,6 +19,7 @@
 #include <Shlwapi.h>
 #include <fstream>
 #include <string>
+#include "Patches.h"
 #include "Common\FileSystemHooks.h"
 #include "Common\Utils.h"
 #include "Common\Settings.h"
@@ -38,6 +39,8 @@ constexpr TexAddrStruct TexAddrList[] = {
 
 // Get number of textures in array
 constexpr DWORD TexNum = (sizeof(TexAddrList) / sizeof(*TexAddrList));
+
+void TextureScaling();
 
 void UpdateTexAddr()
 {
@@ -105,4 +108,40 @@ void UpdateTexAddr()
 
 		} while (false);
 	}
+
+	TextureScaling();
+}
+
+void TextureScaling()
+{
+	if (GameVersion != SH2V_10)
+	{
+		Logging::Log() << __FUNCTION__ << " Disabling 'TextureScaling' Silent Hill 2 binary v1.0 not detected!";
+		return;
+	}
+
+	RUNONCE();
+
+	// Get addresses
+	float *XScaleAddress = (float*)0x004969C8;
+	float *YScaleAddress = (float*)0x004969D2;
+	WORD *WidthAddress = (WORD*)0x004969A3;
+	WORD *XPosAddress = (WORD*)0x00496991;
+
+	// Compute new scale
+	float XScale = (float)(TextureXRes * 16);
+	float YScale = (float)(TextureYRes * 16);
+	Logging::Log() << __FUNCTION__ << " Setting XYScale: " << XScale << "x" << YScale;
+	UpdateMemoryAddress(XScaleAddress, &XScale, sizeof(float));
+	UpdateMemoryAddress(YScaleAddress, &YScale, sizeof(float));
+
+	// Aspect ratio
+	float AspectRatio = (float)TextureYRes / (float)TextureXRes;
+
+	// Set new width and XPos
+	WORD Width = (WORD)(4096 / AspectRatio);
+	WORD XPos = (WORD)(61440 - (Width - 4096));
+	Logging::Log() << __FUNCTION__ << " Setting Width: " << Width << " XPos: " << XPos;
+	UpdateMemoryAddress(WidthAddress, &Width, sizeof(WORD));
+	UpdateMemoryAddress(XPosAddress, &XPos, sizeof(WORD));
 }

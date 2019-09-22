@@ -703,7 +703,7 @@ void UpdateCustomExeStr()
 	langMin = (UnlockJapLang == false);
 	gLangID = (BYTE *)*(DWORD *)((BYTE*)DLangAddrA - 2);
 
-	ifstream file(std::string(std::string(ModPathA) + "\\text\\exe_str.txt").c_str());
+	ifstream file("data\\text\\exe_str.txt");
 
 	if (file.is_open())
 	{

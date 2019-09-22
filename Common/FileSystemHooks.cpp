@@ -283,7 +283,7 @@ BOOL WINAPI GetModuleHandleExAHandler(DWORD dwFlags, LPCSTR lpModuleName, HMODUL
 	}
 
 	BOOL ret = org_GetModuleHandleEx(dwFlags, lpModuleName, phModule);
-	if ((dwFlags & GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS) && !*phModule && moduleHandle)
+	if ((dwFlags & GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS) && phModule && !*phModule && moduleHandle)
 	{
 		*phModule = moduleHandle;
 		ret = TRUE;
@@ -313,7 +313,7 @@ BOOL WINAPI GetModuleHandleExWHandler(DWORD dwFlags, LPCWSTR lpModuleName, HMODU
 	}
 
 	BOOL ret = org_GetModuleHandleEx(dwFlags, lpModuleName, phModule);
-	if ((dwFlags & GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS) && !*phModule && moduleHandle)
+	if ((dwFlags & GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS) && phModule && !*phModule && moduleHandle)
 	{
 		*phModule = moduleHandle;
 		ret = TRUE;

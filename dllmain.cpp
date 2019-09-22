@@ -197,12 +197,14 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		}
 
 		// Check for required DirectX 9 runtime files
-		wchar_t d3dx9_path[MAX_PATH], xaudio2_path[MAX_PATH];
+		wchar_t d3dx9_path[MAX_PATH], d3dcompiler_path[MAX_PATH], xaudio2_path[MAX_PATH];
 		GetSystemDirectory(d3dx9_path, MAX_PATH);
 		wcscat_s(d3dx9_path, L"\\d3dx9_43.dll");
+		GetSystemDirectory(d3dcompiler_path, MAX_PATH);
+		wcscat_s(d3dcompiler_path, L"\\d3dcompiler_43.dll");
 		GetSystemDirectory(xaudio2_path, MAX_PATH);
 		wcscat_s(xaudio2_path, L"\\xaudio2_7.dll");
-		if (!PathFileExists(d3dx9_path) || !PathFileExists(xaudio2_path))
+		if (!PathFileExists(d3dx9_path) || !PathFileExists(d3dcompiler_path) || !PathFileExists(xaudio2_path))
 		{
 			Logging::Log() << "Warning: Could not find expected DirectX 9.0c End-User Runtime files.  Try installing from: https://www.microsoft.com/download/details.aspx?id=35";
 		}

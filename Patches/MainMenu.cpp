@@ -92,8 +92,8 @@ extern BYTE *gLangID;
 TexPath start00Offset;
 TexPath start01Offset;
 
-char start00CustomPath[255];
-char start01CustomPath[255];
+char start00CustomPath[MAX_PATH];
+char start01CustomPath[MAX_PATH];
 
 void UpdateTitlePath()
 {
@@ -109,13 +109,13 @@ void UpdateTitlePath()
 		default: lang = 'e'; break;
 	}
 #if 0
-	sprintf_s((char *)start00CustomPath, sizeof(start00CustomPath), "data/pic/etc/start00%c.tex", lang);
+	sprintf_s((char *)start00CustomPath, sizeof(start00CustomPath), "data\\pic\\etc\\start00%c.tex", lang);
 	start00Offset.unk1 = -1;
 	start00Offset.unk3 = 0;
-	ifstream file(std::string(std::string(ModPathA) + "\\pic\\etc\\start00" + lang + ".tex").c_str());
+	ifstream file(start00CustomPath);
 	if (!file.is_open())
 	{
-		start00Offset.pathPtr = "data/pic/etc/start00.tex";
+		start00Offset.pathPtr = "data\\pic\\etc\\start00.tex";
 	}
 	else
 	{
@@ -123,13 +123,13 @@ void UpdateTitlePath()
 		file.close();
 	}
 #endif
-	sprintf_s((char *)start01CustomPath, sizeof(start01CustomPath), "data/pic/etc/start01%c.tex", lang);
+	sprintf_s((char *)start01CustomPath, sizeof(start01CustomPath), "data\\pic\\etc\\start01%c.tex", lang);
 	start01Offset.size = -1;
 	start01Offset.unk3 = 0;
-	ifstream file(std::string(std::string(ModPathA) + "\\pic\\etc\\start01" + lang + ".tex").c_str());
+	ifstream file(start01CustomPath);
 	if (!file.is_open())
 	{
-		start01Offset.pathPtr = "data/pic/etc/start01.tex";
+		start01Offset.pathPtr = "data\\pic\\etc\\start01.tex";
 	}
 	else
 	{

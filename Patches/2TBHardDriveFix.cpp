@@ -86,17 +86,23 @@ DWORD GetDiskSpace()
 		GetFolder = false;
 	}
 
-	ULARGE_INTEGER FreeBytesAvailableToCaller = { NULL };
-	if (GetDiskFreeSpaceEx(DirectoryName, &FreeBytesAvailableToCaller, nullptr, nullptr) != 0)
+	ULARGE_INTEGER TotalNumberOfFreeBytes = { NULL };
+	if (!GetDiskFreeSpaceEx(DirectoryName, nullptr, nullptr, &TotalNumberOfFreeBytes))
 	{
-		if (FreeBytesAvailableToCaller.QuadPart / 1024 > 0x7FFFFFFF)
-		{
-			return 0x7FFFFFFF;	// Largest unsigned number
-		}
-		return (DWORD)(FreeBytesAvailableToCaller.QuadPart / 1024);
+		RUNCODEONCE(Logging::Log() << __FUNCTION__ << " Error: failed to get available disk space!");
+
+		return NULL;
 	}
 
-	return NULL;
+	ULONGLONG FreeSpace = TotalNumberOfFreeBytes.QuadPart / 1024;
+	if (FreeSpace > 0x7FFFFFFF)
+	{
+		RUNCODEONCE(Logging::Log() << __FUNCTION__ << " Available disk space larger than 2TBs: " << FreeSpace);
+		return 0x7FFFFFFF;	// Largest unsigned number
+	}
+
+	RUNCODEONCE(Logging::Log() << __FUNCTION__ << " Available disk space smaller than 2TBs: " << FreeSpace);
+	return (DWORD)(FreeSpace);
 }
 
 // Update SH2 code to Fix 2TB disk limit

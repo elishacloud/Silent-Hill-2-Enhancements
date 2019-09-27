@@ -2,13 +2,6 @@
 
 #include "Patches\Patches.h"
 
-typedef enum _STENCILSTATECHECK
-{
-	GSC_STENCIL_IGNORE = NULL,
-	GSC_STENCIL_KEEP = D3DSTENCILOP_KEEP,
-	GSC_STENCIL_REPLACE = D3DSTENCILOP_REPLACE
-} STENCILSTATECHECK;
-
 class m_IDirect3DDevice8 : public IDirect3DDevice8
 {
 private:
@@ -17,6 +10,7 @@ private:
 
 	LPDIRECT3DTEXTURE8 BlankTexture = nullptr;
 
+	BYTE *SH2_ChapterID = nullptr;
 	DWORD *SH2_RoomID = nullptr;
 	DWORD *SH2_CutsceneID = nullptr;
 	float *SH2_CutsceneCameraPos = nullptr;
@@ -68,6 +62,7 @@ public:
 
 		ProxyAddressLookupTable = new AddressLookupTable<m_IDirect3DDevice8>(this);
 
+		SH2_ChapterID = GetChapterIDPointer();
 		SH2_RoomID = (DWORD*)GetRoomIDPointer();
 		SH2_CutsceneID = (DWORD*)GetCutsceneIDPointer();
 		SH2_CutsceneCameraPos = (float*)GetCutscenePosPointer();
@@ -192,7 +187,6 @@ public:
 	STDMETHOD(DeletePatch)(THIS_ UINT Handle);
 
 	// Extra functions
-	STENCILSTATECHECK GetStencilType();
 	HRESULT DrawSoftShadows();
 	void BackupState(D3DSTATE *state);
 	void RestoreState(D3DSTATE *state);

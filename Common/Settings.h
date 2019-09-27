@@ -29,7 +29,9 @@
 	visit(FullscreenWndMode, true) \
 	visit(GameLoadFix, true) \
 	visit(HalogenLightFix, true) \
+	visit(HeavensNightWindows, false) \
 	visit(HospitalChaseFix, true) \
+	visit(HotelHallwayWindow, false) \
 	visit(HotelWaterFix, true) \
 	visit(ImproveStorageSupport, true) \
 	visit(IncreaseBlood, true) \
@@ -51,11 +53,15 @@
 	visit(RemoveEffectsFlicker, true) \
 	visit(Room312ShadowFix, true) \
 	visit(RowboatAnimationFix, true) \
+	visit(SelfShadowTweaks, false) \
+	visit(ShadowIntensity, false) \
+	visit(TopDownShadow, false) \
 	visit(UnlockJapLang, false) \
 	visit(UseCustomExeStr, true) \
 	visit(UseCustomFonts, true) \
 	visit(UseCustomModFolder, true) \
 	visit(WhiteShaderFix, true) \
+	visit(WoodsideRoom208TV, false) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, true) \
 	visit(XInputVibration, true)

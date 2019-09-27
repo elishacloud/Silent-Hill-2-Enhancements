@@ -344,85 +344,6 @@ HRESULT m_IDirect3DDevice8::SetClipStatus(CONST D3DCLIPSTATUS8 *pClipStatus)
 	return ProxyInterface->SetClipStatus(pClipStatus);
 }
 
-// Enables self shadows by checking if the stencil should be kept or replaced
-STENCILSTATECHECK m_IDirect3DDevice8::GetStencilType()
-{
-	Logging::LogDebug() << __FUNCTION__;
-
-	if (!SH2_RoomID || !SH2_CutsceneID || !SH2_CutsceneCameraPos)
-	{
-		return GSC_STENCIL_IGNORE;
-	}
-
-	struct CUTSCENEPOS
-	{
-		DWORD ID;
-		float Pos;
-	};
-
-	const CUTSCENEPOS ReplacedCutscenes[] = { { 0x28, -142102.8125f }, { 0x54, -19418.82617f }, { 0x59, 0.0f }, { 0x45, 0.0f }, { 0x3F, 0.0f }, { 0x62, 0.0f }, { 0x40, 0.0f }, { 0x47, 0.0f } };
-	const CUTSCENEPOS EnabledCutscenes[] = { { 0x5F, -19443.98438f } };
-	const CUTSCENEPOS ExcludedCutscenes[] = { { 0x52, 61455.5f } };
-	const DWORD ReplacedRoomIDs[] = { 0x89 };
-	const DWORD ExcludedRoomIDs[] = { 0x99, 0x92, 0xB2, 0xB1, 0xB4, 0xB3 };
-
-	// Check cutscene ID
-	if (*SH2_CutsceneID != 0x00)
-	{
-		for (auto const &ReplacedCutscene : ReplacedCutscenes)
-		{
-			if (*SH2_CutsceneID == ReplacedCutscene.ID &&
-				(*SH2_CutsceneCameraPos == ReplacedCutscene.Pos || ReplacedCutscene.Pos == 0.0f))
-			{
-				return GSC_STENCIL_REPLACE;
-			}
-		}
-		for (auto const &EnabledCutscene : EnabledCutscenes)
-		{
-			if (*SH2_CutsceneID == EnabledCutscene.ID)
-			{
-				if (*SH2_CutsceneCameraPos != EnabledCutscene.Pos)
-				{
-					return GSC_STENCIL_IGNORE;
-				}
-			}
-		}
-		for (auto const &ExcludedCutscene : ExcludedCutscenes)
-		{
-			if (*SH2_CutsceneID == ExcludedCutscene.ID &&
-				(*SH2_CutsceneCameraPos == ExcludedCutscene.Pos || ExcludedCutscene.Pos == 0.0f))
-			{
-				return GSC_STENCIL_IGNORE;
-			}
-		}
-
-		return GSC_STENCIL_KEEP;
-	}
-
-	// Check room ID
-	if (*SH2_RoomID != 0x00)
-	{
-		for (auto const &ReplacedRoomID : ReplacedRoomIDs)
-		{
-			if (*SH2_RoomID == ReplacedRoomID)
-			{
-				return GSC_STENCIL_REPLACE;
-			}
-		}
-		for (auto const &ExcludedRoomID : ExcludedRoomIDs)
-		{
-			if (*SH2_RoomID == ExcludedRoomID)
-			{
-				return GSC_STENCIL_IGNORE;
-			}
-		}
-
-		return GSC_STENCIL_KEEP;
-	}
-
-	return GSC_STENCIL_IGNORE;
-}
-
 HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value)
 {
 	Logging::LogDebug() << __FUNCTION__;
@@ -436,10 +357,13 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 	// Restores self shadows
 	if (EnableSelfShadows && State == D3DRS_STENCILPASS && (Value == D3DSTENCILOP_ZERO || Value == D3DSTENCILOP_REPLACE))
 	{
-		STENCILSTATECHECK StencilType = GetStencilType();
-		if (StencilType != GSC_STENCIL_IGNORE)
+		if (SelfShadowTweaks &&	((SH2_RoomID && SH2_CutsceneID && (*SH2_RoomID == 0xAC && *SH2_CutsceneID == 0x54)) || (SH2_CutsceneID && *SH2_CutsceneID == 0x5F)))
 		{
-			Value = StencilType;
+			Value = D3DSTENCILOP_REPLACE;
+		}
+		else
+		{
+			Value = D3DSTENCILOP_KEEP;
 		}
 	}
 
@@ -746,6 +670,65 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	// Exclude Woodside Room 208 TV static geometry from receiving shadows
+	if (WoodsideRoom208TV && SH2_RoomID && *SH2_RoomID == 0x18 && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 4 && startIndex == 0 && primCount == 2)
+	{
+		LPDIRECT3DTEXTURE8 texture = nullptr;
+		D3DSURFACE_DESC desc = { D3DFMT_UNKNOWN, D3DRTYPE_TEXTURE, 0, D3DPOOL_DEFAULT, 0, D3DMULTISAMPLE_NONE, 0, 0 };
+
+		HRESULT hr = ProxyInterface->GetTexture(0, (LPDIRECT3DBASETEXTURE8 *)&texture);
+		if (SUCCEEDED(hr) && texture)
+		{
+			hr = texture->GetLevelDesc(0, &desc);
+
+			texture->Release();
+		}
+		if (SUCCEEDED(hr) && desc.Width == 684 && desc.Height == 512)
+		{
+			DWORD stencilPass = 0;
+			ProxyInterface->GetRenderState(D3DRS_STENCILPASS, &stencilPass);
+
+			ProxyInterface->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_ZERO);
+
+			hr = ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
+
+			ProxyInterface->SetRenderState(D3DRS_STENCILPASS, stencilPass);
+
+			return hr;
+		}
+	}
+	// Exclude windows in Heaven's Night and Hotel 2F Room Hallway from receiving shadows
+	else if ((HeavensNightWindows && SH2_RoomID && *SH2_RoomID == 0x0C && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 18 && startIndex == 0 && primCount == 21) ||
+		(HotelHallwayWindow && SH2_RoomID && *SH2_RoomID == 0x53 && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 10 && startIndex == 0 && primCount == 10))
+	{
+		DWORD stencilEnable = 0;
+		DWORD stencilFunc = 0;
+		DWORD stencilPass = 0;
+		DWORD stencilWriteMask = 0;
+
+		// Backup renderstates
+		ProxyInterface->GetRenderState(D3DRS_STENCILENABLE, &stencilEnable);
+		ProxyInterface->GetRenderState(D3DRS_STENCILFUNC, &stencilFunc);
+		ProxyInterface->GetRenderState(D3DRS_STENCILPASS, &stencilPass);
+		ProxyInterface->GetRenderState(D3DRS_STENCILWRITEMASK, &stencilWriteMask);
+
+		// Set states so we don't receive shadows
+		ProxyInterface->SetRenderState(D3DRS_STENCILENABLE, TRUE);
+		ProxyInterface->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_ALWAYS);
+		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_ZERO);
+		ProxyInterface->SetRenderState(D3DRS_STENCILWRITEMASK, 0xFFFFFFFF);
+
+		HRESULT hr = ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
+
+		// Restore renderstates
+		ProxyInterface->SetRenderState(D3DRS_STENCILENABLE, stencilEnable);
+		ProxyInterface->SetRenderState(D3DRS_STENCILFUNC, stencilFunc);
+		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, stencilPass);
+		ProxyInterface->SetRenderState(D3DRS_STENCILWRITEMASK, stencilWriteMask);
+
+		return hr;
+	}
+
 	return ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
 }
 
@@ -759,6 +742,29 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitiveUP(D3DPRIMITIVETYPE PrimitiveTyp
 HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, UINT PrimitiveCount)
 {
 	Logging::LogDebug() << __FUNCTION__;
+
+	if (TopDownShadow && ((SH2_RoomID && (*SH2_RoomID == 0x02 || *SH2_RoomID == 0x24 || *SH2_RoomID == 0x8F || *SH2_RoomID == 0x90)) ||
+		(SH2_CutsceneID && *SH2_CutsceneID == 0x5A)))
+	{
+		DWORD stencilPass = 0;
+		ProxyInterface->GetRenderState(D3DRS_STENCILPASS, &stencilPass);
+
+		if (stencilPass == D3DSTENCILOP_INCR)
+		{
+			DWORD stencilFunc = 0;
+			ProxyInterface->GetRenderState(D3DRS_STENCILFUNC, &stencilFunc);
+
+			ProxyInterface->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);
+			ProxyInterface->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_LESS);
+
+			HRESULT hr = ProxyInterface->DrawPrimitive(PrimitiveType, StartVertex, PrimitiveCount);
+
+			ProxyInterface->SetRenderState(D3DRS_STENCILPASS, stencilPass);
+			ProxyInterface->SetRenderState(D3DRS_STENCILFUNC, stencilFunc);
+
+			return hr;
+		}
+	}
 
 	return ProxyInterface->DrawPrimitive(PrimitiveType, StartVertex, PrimitiveCount);
 }
@@ -1400,9 +1406,78 @@ HRESULT m_IDirect3DDevice8::GetInfo(THIS_ DWORD DevInfoID, void* pDevInfoStruct,
 HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 {
 	// Variables for soft shadows
-	DWORD SHADOW_OPACITY = 128;
+	DWORD SHADOW_OPACITY = 170;
 	float SHADOW_DIVISOR = 2;
 	int BLUR_PASSES = 4;
+
+	// Get shadow intensity
+	if (ShadowIntensity && SH2_RoomID && SH2_ChapterID)
+	{
+		// Main scenario
+		if (*SH2_ChapterID == 0x00)
+		{
+			switch (*SH2_RoomID)
+			{
+			case 0xA2:
+			case 0xBD:
+				SHADOW_OPACITY = 50;
+				break;
+			case 0x21:
+			case 0x89:
+				SHADOW_OPACITY = 70;
+				break;
+			case 0x0B:
+			case 0xBF:
+				SHADOW_OPACITY = 128;
+				break;
+			}
+			if (SH2_CutsceneID && *SH2_CutsceneID == 0x2E)
+			{
+				SHADOW_OPACITY = 0;
+			}
+		}
+		// Born From a Wish chapter
+		else if (*SH2_ChapterID == 0x01)
+		{
+			switch (*SH2_RoomID)
+			{
+			case 0x27:
+				SHADOW_OPACITY = 30;
+				break;
+			case 0xC2:
+				SHADOW_OPACITY = 60;
+				break;
+			case 0xC7:
+				SHADOW_OPACITY = 128;
+				break;
+			case 0x0C:
+			case 0x20:
+			case 0x21:
+			case 0x25:
+			case 0x26:
+			case 0xC0:
+			case 0xC1:
+			case 0xC3:
+			case 0xC4:
+			case 0xC5:
+			case 0xC6:
+			case 0xC8:
+			case 0xC9:
+			case 0xCA:
+			case 0xCB:
+			case 0xCC:
+			case 0xCD:
+			case 0xCE:
+			case 0xCF:
+			case 0xD0:
+			case 0xD1:
+			case 0xD2:
+			case 0xD5:
+				SHADOW_OPACITY = 100;
+				break;
+			}
+		}
+	}
 
 	IDirect3DSurface8 *pBackBuffer = nullptr, *pStencilBuffer = nullptr;
 

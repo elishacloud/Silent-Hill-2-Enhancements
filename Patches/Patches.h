@@ -8,6 +8,7 @@ typedef enum _SH2VERSION {
 } SH2VERSION;
 
 // Shared Function declarations
+BYTE *GetChapterIDPointer();
 void *GetCutsceneIDPointer();
 void *GetCutscenePosPointer();
 BYTE *GetFlashLightRenderPointer();
@@ -54,6 +55,7 @@ void UpdateXInputVibration();
 
 // Varable forward declaration
 extern SH2VERSION GameVersion;
+extern void *ChapterIDAddr;
 extern void *CutsceneIDAddr;
 extern void *CutscenePosAddr;
 extern BYTE *FlashLightRenderAddr;

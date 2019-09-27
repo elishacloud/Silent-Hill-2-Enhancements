@@ -21,11 +21,12 @@
 #include "Logging\Logging.h"
 
 // Variables
-void *RoomIDAddr = nullptr;
+BYTE *ChapterIDAddr = nullptr;
 void *CutsceneIDAddr = nullptr;
 void *CutscenePosAddr = nullptr;
-void *JamesPosAddr = nullptr;
 BYTE *FlashLightRenderAddr = nullptr;
+void *JamesPosAddr = nullptr;
+void *RoomIDAddr = nullptr;
 
 void *GetRoomIDPointer()
 {
@@ -151,4 +152,25 @@ BYTE *GetFlashLightRenderPointer()
 	}
 
 	return FlashLightRenderAddr;
+}
+
+BYTE *GetChapterIDPointer()
+{
+	if (ChapterIDAddr)
+	{
+		return ChapterIDAddr;
+	}
+
+	// Get address for flashlight render
+	constexpr BYTE ChapterIDSearchBytes[]{ 0x00, 0x83, 0xC4, 0x04, 0xC3, 0x6A, 0x04, 0xE8 };
+	ChapterIDAddr = (BYTE*)ReadSearchedAddresses(0x00446A5F, 0x00446BFF, 0x00446BFF, ChapterIDSearchBytes, sizeof(ChapterIDSearchBytes), -0x0D);
+
+	// Checking address pointer
+	if (!ChapterIDAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find James Pos function address!";
+		return nullptr;
+	}
+
+	return ChapterIDAddr;
 }

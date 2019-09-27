@@ -69,6 +69,7 @@ WORD nFontH = 30;
 WORD sFontW = 16;
 WORD sFontH = 24;
 BYTE letterSpc = 2;
+BYTE spaceSize = 7;
 
 TGA_FILEHEADER tga;
 BYTE *fontData;
@@ -93,6 +94,54 @@ int ReturnFontIdx(int fontSize, WORD charID)
 	return charID + fontSize * charMax;
 }
 
+void* SpaceSizeRetAddr;
+
+__declspec(naked) void __stdcall SpaceSizeASM()
+{
+	__asm
+	{
+		push	esi
+		movsx   esi, spaceSize
+		imul	eax, esi
+		pop		esi
+		cdq
+		idiv    ecx
+		jmp		SpaceSizeRetAddr
+	}
+}
+
+void* SpaceSizeRetAddr2;
+
+__declspec(naked) void __stdcall SpaceSizeASM2()
+{
+	__asm
+	{
+		push	esi
+		movsx   esi, spaceSize
+		imul	eax, esi
+		pop		esi
+		cdq
+		idiv    ecx
+		jmp		SpaceSizeRetAddr2
+	}
+}
+
+void* SpaceSizeRetAddr3;
+
+__declspec(naked) void __stdcall SpaceSizeASM3()
+{
+	__asm
+	{
+		push	esi
+		movsx   esi, spaceSize
+		imul	eax, esi
+		pop		esi
+		cdq
+		idiv    esi
+		jmp		SpaceSizeRetAddr3
+	}
+}
+
 void UpdateCustomFonts()
 {
 	// Find address for font decode function
@@ -115,6 +164,7 @@ void UpdateCustomFonts()
 	sFontW = (WORD)SmallFontWidth;
 	sFontH = (WORD)SmallFontHeight;
 	letterSpc = (BYTE)LetterSpacing;
+	spaceSize = (BYTE)SpaceSize;
 
 	ifstream file("data\\font\\font000.tga", ios::in | ios::binary | ios::ate);
 
@@ -135,7 +185,7 @@ void UpdateCustomFonts()
 		int texSize = fontTexWidth * fontTexHeight * 4;
 		fontData = new BYTE[texSize];
 
-		file.seekg(sizeof(TGA_FILEHEADER) + tga.cm_length * 4, ios::beg);
+		file.seekg((std::streamoff)sizeof(TGA_FILEHEADER) + (std::streamoff)tga.cm_length * 4, ios::beg);
 		file.read((char *)fontData, texSize);
 		file.close();
 	}
@@ -238,15 +288,34 @@ void UpdateCustomFonts()
 
 	if (DFontAddrF && DFontAddrG)
 	{
-		UpdateMemoryAddress((void *)((BYTE*)DFontAddrF + 0x0142), (void *)&letterSpc, 1);
-		UpdateMemoryAddress((void *)((BYTE*)DFontAddrF + 0x0155), (void *)&letterSpc, 1);
-		UpdateMemoryAddress((void *)((BYTE*)DFontAddrF + 0x0183), (void *)&letterSpc, 1);
-		UpdateMemoryAddress((void *)((BYTE*)DFontAddrF + 0x04FB), (void *)&letterSpc, 1);
-		UpdateMemoryAddress((void *)((BYTE*)DFontAddrF + 0x0521), (void *)&letterSpc, 1);
-		UpdateMemoryAddress((void *)((BYTE*)DFontAddrF + 0x0552), (void *)&letterSpc, 1);
-		UpdateMemoryAddress((void *)((BYTE*)DFontAddrF + 0x06C2), (void *)&letterSpc, 1);
-		UpdateMemoryAddress((void *)((BYTE*)DFontAddrG + 0x008E), (void *)&letterSpc, 1);
-		UpdateMemoryAddress((void *)((BYTE*)DFontAddrG + 0x00A1), (void *)&letterSpc, 1);
-		UpdateMemoryAddress((void *)((BYTE*)DFontAddrG + 0x00CF), (void *)&letterSpc, 1);
+		UpdateMemoryAddress((void*)((BYTE*)DFontAddrF + 0x0155), (void*)& letterSpc, 1);
+		UpdateMemoryAddress((void*)((BYTE*)DFontAddrF + 0x0183), (void*)& letterSpc, 1);
+		UpdateMemoryAddress((void*)((BYTE*)DFontAddrF + 0x0521), (void*)& letterSpc, 1);
+		UpdateMemoryAddress((void*)((BYTE*)DFontAddrF + 0x0552), (void*)& letterSpc, 1);
+		UpdateMemoryAddress((void*)((BYTE*)DFontAddrF + 0x06C2), (void*)& letterSpc, 1);
+		UpdateMemoryAddress((void*)((BYTE*)DFontAddrG + 0x00A1), (void*)& letterSpc, 1);
+		UpdateMemoryAddress((void*)((BYTE*)DFontAddrG + 0x00CF), (void*)& letterSpc, 1);
+
+		if (spaceSize < 2)
+		{
+			letterSpc = 0;
+		}
+		else
+		{
+			letterSpc = 2;
+			spaceSize -= 2;
+		}
+
+		UpdateMemoryAddress((void*)((BYTE*)DFontAddrF + 0x0142), (void*)& letterSpc, 1);
+		UpdateMemoryAddress((void*)((BYTE*)DFontAddrF + 0x04FB), (void*)& letterSpc, 1);
+		UpdateMemoryAddress((void*)((BYTE*)DFontAddrG + 0x008E), (void*)& letterSpc, 1);
+
+		SpaceSizeRetAddr = (void*)((BYTE*)DFontAddrF + 0x013F);
+		SpaceSizeRetAddr2 = (void*)((BYTE*)DFontAddrF + 0x04F8);
+		SpaceSizeRetAddr3 = (void*)((BYTE*)DFontAddrG + 0x8B);
+
+		WriteJMPtoMemory((BYTE*)DFontAddrF + 0x0139, *SpaceSizeASM, 6);
+		WriteJMPtoMemory((BYTE*)DFontAddrF + 0x04F2, *SpaceSizeASM2, 6);
+		WriteJMPtoMemory((BYTE*)DFontAddrG + 0x85, *SpaceSizeASM3, 6);
 	}
 }

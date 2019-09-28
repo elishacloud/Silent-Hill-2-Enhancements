@@ -743,7 +743,11 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	if (TopDownShadow && ((SH2_RoomID && (*SH2_RoomID == 0x02 || *SH2_RoomID == 0x24 || *SH2_RoomID == 0x8F || *SH2_RoomID == 0x90)) ||
+	if (LabyrinthValveTurn && SH2_CutsceneID && *SH2_CutsceneID == 0x46 && PrimitiveType == D3DPT_TRIANGLELIST && PrimitiveCount > 496 && PrimitiveCount < 536)
+	{
+		return D3D_OK;
+	}
+	else if (TopDownShadow && ((SH2_RoomID && (*SH2_RoomID == 0x02 || *SH2_RoomID == 0x24 || *SH2_RoomID == 0x8F || *SH2_RoomID == 0x90)) ||
 		(SH2_CutsceneID && *SH2_CutsceneID == 0x5A)))
 	{
 		DWORD stencilPass = 0;
@@ -1425,7 +1429,7 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 			switch (*SH2_RoomID)
 			{
 			case 0x0F:
-				SHADOW_OPACITY = 20;
+				SHADOW_OPACITY = 40;
 				break;
 			case 0xA2:
 			case 0xBD:

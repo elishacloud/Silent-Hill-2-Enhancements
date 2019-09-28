@@ -40,19 +40,23 @@ void UpdateShadowCutscene(DWORD *SH2_CutsceneID)
 
 	// Set shadow
 	static bool ValueSet = false;
+	static BYTE LastValue = 0x01;
 	if (*SH2_CutsceneID == 0x03 || *SH2_CutsceneID == 0x2E)
 	{
 		if (!ValueSet)
 		{
-			BYTE Value = 0x00;
-			UpdateMemoryAddress(Address, &Value, sizeof(BYTE));
+			// Store current shadow value
+			UpdateMemoryAddress(&LastValue, Address, sizeof(BYTE));
+
+			// Disable shadows
+			UpdateMemoryAddress(Address, "\x00", sizeof(BYTE));
 			ValueSet = true;
 		}
 	}
 	else if (ValueSet)
 	{
-		BYTE Value = 0x01;
-		UpdateMemoryAddress(Address, &Value, sizeof(BYTE));
+		// Restore shadow value
+		UpdateMemoryAddress(Address, &LastValue, sizeof(BYTE));
 		ValueSet = false;
 	}
 }

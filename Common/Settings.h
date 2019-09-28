@@ -36,6 +36,7 @@
 	visit(ImproveStorageSupport, true) \
 	visit(IncreaseBlood, true) \
 	visit(IncreaseDrawDistance, true) \
+	visit(LabyrinthValveTurn, false) \
 	visit(LightingTransitionFix, true) \
 	visit(LoadD3d8FromScriptsFolder, false) \
 	visit(LoadFromScriptsOnly, false) \

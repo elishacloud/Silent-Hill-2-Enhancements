@@ -47,6 +47,7 @@ void UpdateRedCrossInCutscene();
 void UpdateResolutionLock(DWORD ResX, DWORD ResY);
 void UpdateRoom312ShadowFix();
 void UpdateRowboatAnimation();
+void UpdateShadowCutscene(DWORD *SH2_CutsceneID);
 void UpdateSpecialFX();
 void UpdateSFXAddr();
 void UpdateTexAddr();

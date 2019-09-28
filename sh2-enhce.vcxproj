@@ -43,6 +43,7 @@
     <ClCompile Include="Patches\Common.cpp" />
     <ClCompile Include="Patches\CreatureVehicleSpawn.cpp" />
     <ClCompile Include="Patches\DisableRedCrossDuringCutscenes.cpp" />
+    <ClCompile Include="Patches\DisableShadowCutscene.cpp" />
     <ClCompile Include="Patches\DPadMovement.cpp" />
     <ClCompile Include="Patches\DrawDistance.cpp" />
     <ClCompile Include="Patches\CatacombsMeatRoom.cpp" />

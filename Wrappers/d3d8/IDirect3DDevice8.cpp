@@ -699,7 +699,7 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 	}
 	// Exclude windows in Heaven's Night and Hotel 2F Room Hallway from receiving shadows
 	else if ((HeavensNightWindows && SH2_RoomID && *SH2_RoomID == 0x0C && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 18 && startIndex == 0 && primCount == 21) ||
-		(HotelHallwayWindow && SH2_RoomID && *SH2_RoomID == 0x53 && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 10 && startIndex == 0 && primCount == 10))
+		(HotelHallwayWindow && SH2_RoomID && *SH2_RoomID == 0x9F && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 10 && startIndex == 0 && primCount == 10))
 	{
 		DWORD stencilEnable = 0;
 		DWORD stencilFunc = 0;
@@ -860,6 +860,12 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 	if (RestoreSpecialFX && SH2_RoomID)
 	{
 		UpdateHotelRoom312FogVolumeFix(SH2_RoomID);
+	}
+
+	// Disable shadow in specific cutscenes
+	if (ShadowIntensity && SH2_CutsceneID)
+	{
+		UpdateShadowCutscene(SH2_CutsceneID);
 	}
 
 	return ProxyInterface->BeginScene();
@@ -1418,22 +1424,23 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 		{
 			switch (*SH2_RoomID)
 			{
+			case 0x0F:
+				SHADOW_OPACITY = 20;
+				break;
 			case 0xA2:
 			case 0xBD:
 				SHADOW_OPACITY = 50;
 				break;
-			case 0x21:
 			case 0x89:
 				SHADOW_OPACITY = 70;
+				break;
+			case 0x21:
+				SHADOW_OPACITY = 110;
 				break;
 			case 0x0B:
 			case 0xBF:
 				SHADOW_OPACITY = 128;
 				break;
-			}
-			if (SH2_CutsceneID && *SH2_CutsceneID == 0x2E)
-			{
-				SHADOW_OPACITY = 0;
 			}
 		}
 		// Born From a Wish chapter
@@ -1451,6 +1458,7 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 				SHADOW_OPACITY = 128;
 				break;
 			case 0x0C:
+			case 0x0D:
 			case 0x20:
 			case 0x21:
 			case 0x25:
@@ -1473,7 +1481,7 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 			case 0xD1:
 			case 0xD2:
 			case 0xD5:
-				SHADOW_OPACITY = 100;
+				SHADOW_OPACITY = 90;
 				break;
 			}
 		}

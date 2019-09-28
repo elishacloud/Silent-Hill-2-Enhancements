@@ -17,7 +17,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <Shlwapi.h>
-#include <vector>
 #include "Resources\sh2-enhce.h"
 #include "Patches\Patches.h"
 #include "External\Hooking\Hook.h"
@@ -109,6 +108,9 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		{
 			Logging::Log() << "Warning: Unknown game binary version!";
 		}
+
+		// Validate binary version
+		ValidateBinary();
 
 		// Get Silent Hill 2 file path
 		GetModuleFileName(nullptr, pathname, MAX_PATH);
@@ -226,6 +228,9 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		{
 			DisableCDCheck();
 		}
+
+		// Patch binray
+		PatchBinary();
 
 		// Update SFX addresses
 		if (EnableSFXAddrHack)

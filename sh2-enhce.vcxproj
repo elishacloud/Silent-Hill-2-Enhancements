@@ -18,6 +18,7 @@
   <ItemGroup>
     <ClCompile Include="Common\FileSystemHooks.cpp" />
     <ClCompile Include="Common\LoadModules.cpp" />
+    <ClCompile Include="Common\md5.cpp" />
     <ClCompile Include="Common\Settings.cpp" />
     <ClCompile Include="Common\Utils.cpp" />
     <ClCompile Include="External\d3d8to9\source\d3d8to9_base.cpp" />
@@ -37,6 +38,7 @@
     <ClCompile Include="External\Logging\Logging.cpp" />
     <ClCompile Include="External\MemoryModule\MemoryModule.c" />
     <ClCompile Include="Patches\2TBHardDriveFix.cpp" />
+    <ClCompile Include="Patches\PatchBinary.cpp" />
     <ClCompile Include="Patches\BloodSize.cpp" />
     <ClCompile Include="Patches\CemeteryLightingPatch.cpp" />
     <ClCompile Include="Patches\ClosetCutscene.cpp" />
@@ -68,6 +70,7 @@
     <ClCompile Include="Patches\Room312Shadow.cpp" />
     <ClCompile Include="Patches\RowboatAnimation.cpp" />
     <ClCompile Include="Patches\SfxPatch.cpp" />
+    <ClCompile Include="Patches\ValidateBinary.cpp" />
     <ClCompile Include="Patches\XInputVibration.cpp" />
     <ClCompile Include="Wrappers\d3d8to9.cpp" />
     <ClCompile Include="Wrappers\d3d8\d3d8wrapper.cpp" />
@@ -87,6 +90,7 @@
   <ItemGroup>
     <ClInclude Include="Common\FileSystemHooks.h" />
     <ClInclude Include="Common\LoadModules.h" />
+    <ClInclude Include="Common\md5.h" />
     <ClInclude Include="Common\Settings.h" />
     <ClInclude Include="Common\Utils.h" />
     <ClInclude Include="External\d3d8to9\source\d3d8to9.hpp" />

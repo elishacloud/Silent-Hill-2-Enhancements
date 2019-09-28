@@ -78,7 +78,7 @@ void *GetAddressOfData(const void *data, size_t len, DWORD step, DWORD start, DW
 }
 
 // Checks the value of two data segments
-bool CheckMemoryAddress(void *dataAddr, void *dataBytes, size_t dataSize)
+bool CheckMemoryAddress(void *dataAddr, void *dataBytes, size_t dataSize, bool WriteLog)
 {
 	if (!dataAddr || !dataBytes || !dataSize)
 	{
@@ -98,7 +98,7 @@ bool CheckMemoryAddress(void *dataAddr, void *dataBytes, size_t dataSize)
 	// Restore protection
 	VirtualProtect(dataAddr, dataSize, dwPrevProtect, &dwPrevProtect);
 
-	if (!flag)
+	if (!flag && WriteLog)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: memory address not found!";
 	}

@@ -200,6 +200,15 @@
     <ClCompile Include="Patches\DisableShadowCutscene.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\PatchBinary.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\ValidateBinary.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\md5.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">
@@ -297,6 +306,9 @@
     </ClInclude>
     <ClInclude Include="Wrappers\d3d8\AddressLookupTable.h">
       <Filter>Wrappers\d3d8</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\md5.h">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

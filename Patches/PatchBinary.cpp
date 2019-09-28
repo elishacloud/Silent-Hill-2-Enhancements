@@ -19,27 +19,19 @@
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
-void DisableCDCheck()
+void PatchBinary()
 {
-	// Check for CD patch
-	constexpr BYTE CDCheckAddredBlock[] = { 0xEC, 0x08, 0x04, 0x00, 0x00, 0xA1 };
-	void *CDCheckAddr = CheckMultiMemoryAddress((void*)0x00408761, (void*)0x004088C1, (void*)0x004088D1, (void*)CDCheckAddredBlock, sizeof(CDCheckAddredBlock));
-	if (CDCheckAddr && !CheckMemoryAddress((void*)((DWORD)CDCheckAddr - 1), "\x81", 0x01, false))
-	{
-		Logging::Log() << "CD patch already set!";
-		return;
-	}
+	// Find address for call code
+	constexpr BYTE DCCallSearchBytes[] = { 0x00, 0x6A, 0x00, 0x6A, 0x00, 0x6A, 0x00, 0x68, 0xE8, 0x03, 0x00, 0x00, 0xE8 };
+	void *DCCallPatchAddr = (void*)SearchAndGetAddresses(0x00408A29, 0x00408BD9, 0x00408BE9, DCCallSearchBytes, sizeof(DCCallSearchBytes), 0x32);
 
 	// Address found
-	constexpr BYTE CDBlockTest[] = { 0x33, 0x84, 0x24, 0x08, 0x04, 0x00, 0x00, 0x53 };
-	if (!CDCheckAddr || !CheckMemoryAddress((void*)((DWORD)CDCheckAddr + 10), (void*)CDBlockTest, sizeof(CDCheckAddr)))
+	if (!DCCallPatchAddr || !(CheckMemoryAddress(DCCallPatchAddr, "\xE8", 0x01) || CheckMemoryAddress(DCCallPatchAddr, "\xB8", 0x01)))
 	{
-		Logging::Log() << __FUNCTION__ << " Error: Could not find CD check function address in memory!";
 		return;
 	}
-	CDCheckAddr = (void*)((DWORD)CDCheckAddr - 1);
 
 	// Update SH2 code
-	Logging::Log() << "Bypassing CD check...";
-	UpdateMemoryAddress(CDCheckAddr, "\xC3", 1);
+	Logging::Log() << "Patching binary...";
+	UpdateMemoryAddress(DCCallPatchAddr, "\xB8", 1);
 }

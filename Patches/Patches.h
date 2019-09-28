@@ -17,6 +17,7 @@ void *GetRoomIDPointer();
 
 // Function forward declaration
 void DisableCDCheck();
+void PatchBinary();
 void SetWindowHandle(HWND WindowHandle);
 void Update2TBHardDriveFix();
 void UpdateBloodSize(DWORD *SH2_RoomID);
@@ -53,6 +54,7 @@ void UpdateSFXAddr();
 void UpdateTexAddr();
 void UnhookWindowHandle();
 void UpdateXInputVibration();
+void ValidateBinary();
 
 // Varable forward declaration
 extern SH2VERSION GameVersion;

@@ -12,7 +12,7 @@ Below is a list of features:
  * **Cemetery Lighting Fix** - Fixes an issue where wrong data is used when saving the game in the cemetery, which can corrupt fog effects.
  * **Chainsaw Spawn Fix** - Prevents the chainsaw from spawning on a first playthrough, which is a developer-intended design choice.
  * **Closet Cutscene Fix** - Adjusts visuals during the apartment closet cutscene to resemble the PS2 version.
- * **Creature Vehicle Spawn Fix** - Fixes an issue where creatures would erratically exit from underneath a vehicle.
+ * **Creature Vehicle Spawn Fix** - Fixes an issue where creatures would incorrectly exit from underneath a vehicle.
  * **Custom Hi-Res Font** - Loads custom font texture `font000.tga` and `fontwdata.bin` as width data for the first 224 chars.
  * **Custom Mod Folder Support** - Enables a custom mod folder `sh2e` to store modified game files so as to not overwrite native Silent Hill 2 files.
  * [**d3d8to9**](https://github.com/crosire/d3d8to9) - Converts Silent Hill 2 to use Direct3D9 (d3d9.dll) rather than Direct3D8.

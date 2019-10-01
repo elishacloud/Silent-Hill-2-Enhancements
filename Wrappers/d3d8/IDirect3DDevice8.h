@@ -15,6 +15,7 @@ private:
 	DWORD *SH2_CutsceneID = nullptr;
 	float *SH2_CutsceneCameraPos = nullptr;
 	float *SH2_JamesPos = nullptr;
+	BYTE *SH2_SpecializedLight = nullptr;
 
 	DWORD EndSceneCounter = 0;
 	bool OverrideTextureLoop = false;
@@ -67,6 +68,7 @@ public:
 		SH2_CutsceneID = (DWORD*)GetCutsceneIDPointer();
 		SH2_CutsceneCameraPos = (float*)GetCutscenePosPointer();
 		SH2_JamesPos = (float*)GetJamesPosPointer();
+		SH2_SpecializedLight = GetSpecializedLightPointer();
 
 		// Create blank texture for white shader fix
 		if (FAILED(ProxyInterface->CreateTexture(1, 1, 1, NULL, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED, &BlankTexture)))

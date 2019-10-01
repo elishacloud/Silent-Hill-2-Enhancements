@@ -27,6 +27,7 @@ void *CutscenePosAddr = nullptr;
 BYTE *FlashLightRenderAddr = nullptr;
 void *JamesPosAddr = nullptr;
 void *RoomIDAddr = nullptr;
+BYTE *SpecializedLightAddr = nullptr;
 
 void *GetRoomIDPointer()
 {
@@ -173,4 +174,25 @@ BYTE *GetChapterIDPointer()
 	}
 
 	return ChapterIDAddr;
+}
+
+BYTE *GetSpecializedLightPointer()
+{
+	if (SpecializedLightAddr)
+	{
+		return SpecializedLightAddr;
+	}
+
+	// Get address for flashlight render
+	constexpr BYTE SpecializedLightSearchBytes[]{ 0x8B, 0x44, 0x24, 0x04, 0x8B, 0x4C, 0x24, 0x08, 0xA3 };
+	SpecializedLightAddr = (BYTE*)ReadSearchedAddresses(0x00445630, 0x004457F0, 0x004457F0, SpecializedLightSearchBytes, sizeof(SpecializedLightSearchBytes), 0x09);
+
+	// Checking address pointer
+	if (!SpecializedLightAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find James Pos function address!";
+		return nullptr;
+	}
+
+	return SpecializedLightAddr;
 }

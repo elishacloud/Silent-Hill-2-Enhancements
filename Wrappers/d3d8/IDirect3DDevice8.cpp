@@ -357,7 +357,7 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 	// Restores self shadows
 	if (EnableSelfShadows && State == D3DRS_STENCILPASS && (Value == D3DSTENCILOP_ZERO || Value == D3DSTENCILOP_REPLACE))
 	{
-		if (SelfShadowTweaks &&	((SH2_RoomID && SH2_CutsceneID && (*SH2_RoomID == 0xAC && *SH2_CutsceneID == 0x54)) || (SH2_CutsceneID && *SH2_CutsceneID == 0x5F)))
+		if (SelfShadowTweaks &&	SH2_SpecializedLight && *SH2_SpecializedLight == 0x01)
 		{
 			Value = D3DSTENCILOP_REPLACE;
 		}

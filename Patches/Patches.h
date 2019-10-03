@@ -51,6 +51,7 @@ void UpdateRoom312ShadowFix();
 void UpdateRowboatAnimation();
 void UpdateShadowCutscene(DWORD *SH2_CutsceneID);
 void UpdateSpecialFX();
+void UpdateSpecialFXScale(DWORD Height);
 void UpdateSFXAddr();
 void UpdateTexAddr();
 void UnhookWindowHandle();

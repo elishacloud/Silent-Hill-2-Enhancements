@@ -24,15 +24,15 @@
 constexpr float CustomAddress1Value = 0.04f;
 constexpr float PointThreeBarValue = 0.3333333333f;
 constexpr float PointSixBarValue = 0.6666666666f;
-constexpr float IntroCutsceneValue1 = -3.0f;
-constexpr float IntroCutsceneValue2 = -1.5f;
-constexpr float PyramidHeadCutsceneValue1 = 1.5f;
-constexpr float PyramidHeadCutsceneValue2 = -1.5f;
-constexpr float LyingFigureTunnelCutsceneValue1 = -3.0f;
-constexpr float LyingFigureTunnelCutsceneValue2 = -1.0f;
-constexpr float HotelRoom312Value1 = -8.0f;
-constexpr float HotelRoom312Value2 = -4.0f;
 constexpr float MotionBlurValue = 0.25f;
+float IntroCutsceneValue1 = 0;
+float IntroCutsceneValue2 = 0;
+float PyramidHeadCutsceneValue1 = 0;
+float PyramidHeadCutsceneValue2 = 0;
+float LyingFigureTunnelCutsceneValue1 = 0;
+float LyingFigureTunnelCutsceneValue2 = 0;
+float HotelRoom312Value1 = 0;
+float HotelRoom312Value2 = 0;
 void *jmpCustomAddress2Addr;
 void *jmpCustomAddress3Addr;
 void *jmpMotionBlurAddr;
@@ -397,6 +397,27 @@ void UpdateSpecialFX()
 
 	// Write Bloom Color address
 	WriteJMPtoMemory((BYTE*)BloomColorPtr, *BloomColorASM, 6);
+}
+
+void UpdateSpecialFXScale(DWORD Height)
+{
+	static DWORD LastHeight = 0;
+	if (LastHeight == Height)
+	{
+		return;
+	}
+	LastHeight = Height;
+
+	float DisplayRatio = (float)LastHeight / 1080.0f;
+
+	IntroCutsceneValue1 = -3.0f * DisplayRatio;
+	IntroCutsceneValue2 = -1.5f * DisplayRatio;
+	PyramidHeadCutsceneValue1 = 1.5f * DisplayRatio;
+	PyramidHeadCutsceneValue2 = -1.5f * DisplayRatio;
+	LyingFigureTunnelCutsceneValue1 = -3.0f * DisplayRatio;
+	LyingFigureTunnelCutsceneValue2 = -1.0f * DisplayRatio;
+	HotelRoom312Value1 = -8.0f * DisplayRatio;
+	HotelRoom312Value2 = -4.0f * DisplayRatio;
 }
 
 void UpdateHotelRoom312FogVolumeFix(DWORD *SH2_RoomID)

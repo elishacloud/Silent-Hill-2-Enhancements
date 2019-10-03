@@ -872,6 +872,12 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		UpdateShadowCutscene(SH2_CutsceneID);
 	}
 
+	// Scale special FX based on resolution
+	if (RestoreSpecialFX)
+	{
+		UpdateSpecialFXScale(BufferHeight);
+	}
+
 	return ProxyInterface->BeginScene();
 }
 
@@ -1417,7 +1423,7 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 {
 	// Variables for soft shadows
 	DWORD SHADOW_OPACITY = 170;
-	float SHADOW_DIVISOR = 2;
+	float SHADOW_DIVISOR = 2 * ((float)BufferHeight / 720.0f);
 	int BLUR_PASSES = 4;
 
 	// Get shadow intensity

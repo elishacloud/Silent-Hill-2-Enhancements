@@ -50,6 +50,8 @@ ULONG m_IDirect3DVertexBuffer8::Release(THIS)
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	ClassReleaseFlag = true;
+
 	return ProxyInterface->Release();
 }
 

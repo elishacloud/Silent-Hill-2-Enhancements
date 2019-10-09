@@ -18,6 +18,7 @@
 #include "Common\Utils.h"
 
 bool IsInBloomEffect = false;
+bool ClassReleaseFlag = false;
 
 HRESULT m_IDirect3DDevice8::QueryInterface(REFIID riid, LPVOID *ppvObj)
 {
@@ -106,6 +107,34 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 HRESULT m_IDirect3DDevice8::EndScene()
 {
 	Logging::LogDebug() << __FUNCTION__;
+
+	// Skip frames in specific cutscenes to prevent flickering
+	if (RemoveEnvironmentFlicker && SH2_CutsceneID && SH2_CutsceneCameraPos && SH2_JamesPos)
+	{
+		if ((LastCutsceneID == 0x01 && SkipSceneCounter < 4 && (SkipSceneCounter || *SH2_JamesPos != LastJamesPos)) ||
+			(LastCutsceneID == 0x03 && SkipSceneCounter < 1 && (SkipSceneCounter || *SH2_JamesPos == 330.845f)) ||
+			((LastCutsceneID == 0x15 || LastCutsceneID == 0x16) && SkipSceneCounter < 1 && (SkipSceneCounter || *SH2_CutsceneID != LastCutsceneID || (ClassReleaseFlag && !(*SH2_CutsceneCameraPos == *(float*)"\xAE\x01\x31\x46" && LastCameraPos == 0))) && !(*SH2_CutsceneID == 0x16 && LastCutsceneID == 0x15)) ||
+			(LastCutsceneID == 0x16 && SkipSceneCounter < 4 && (SkipSceneCounter || (*SH2_CutsceneCameraPos != LastCameraPos && *SH2_CutsceneCameraPos == *(float*)"\x40\xA1\xA8\x45")) && *SH2_CutsceneID == 0x16) ||
+			(LastCutsceneID == 0x4C && SkipSceneCounter < 1 && (SkipSceneCounter || *SH2_CutsceneID != LastCutsceneID)) ||
+			(LastCutsceneID == 0x4D && SkipSceneCounter < 2 && (SkipSceneCounter || *SH2_CutsceneID != LastCutsceneID || ClassReleaseFlag)) ||
+			(LastCutsceneID == 0x4D && SkipSceneCounter < 3 && (SkipSceneCounter || *SH2_CutsceneCameraPos != LastCameraPos) && *SH2_CutsceneCameraPos == *(float*)"\x59\xCC\x06\xC6" && *SH2_CutsceneID == 0x4D))
+		{
+			LOG_LIMIT(1, "Skipping frame during cutscene!");
+			Logging::LogDebug() << __FUNCTION__ " frame - Counter " << SkipSceneCounter << " Release: " << ClassReleaseFlag << " CutsceneID: " << *SH2_CutsceneID << " LastCutsceneID: " << LastCutsceneID <<
+				" CutsceneCameraPos: " << *SH2_CutsceneCameraPos << " LastCameraPos: " << LastCameraPos << " JamesPos: " << *SH2_JamesPos << " LastJamesPos: " << LastJamesPos;
+
+			SkipSceneFlag = true;
+			SkipSceneCounter++;
+
+			return D3D_OK;
+		}
+
+		SkipSceneFlag = false;
+		SkipSceneCounter = 0;
+		LastCutsceneID = *SH2_CutsceneID;
+		LastCameraPos = *SH2_CutsceneCameraPos;
+		LastJamesPos = *SH2_JamesPos;
+	}
 
 	EndSceneCounter++;
 
@@ -653,6 +682,12 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	// Skip frames in specific cutscenes to prevent flickering
+	if (SkipSceneFlag)
+	{
+		return D3D_OK;
+	}
+
 	// For blur frame flicker fix
 	if (EndSceneCounter == 1)
 	{
@@ -805,6 +840,14 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 HRESULT m_IDirect3DDevice8::BeginScene()
 {
 	Logging::LogDebug() << __FUNCTION__;
+
+	// Skip frames in specific cutscenes to prevent flickering
+	if (SkipSceneFlag == true)
+	{
+		return D3D_OK;
+	}
+
+	ClassReleaseFlag = false;
 
 	// Hotel Water Visual Fixes
 	if (HotelWaterFix && SH2_RoomID)

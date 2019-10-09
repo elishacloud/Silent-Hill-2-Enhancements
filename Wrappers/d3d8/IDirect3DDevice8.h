@@ -17,6 +17,12 @@ private:
 	float *SH2_JamesPos = nullptr;
 	BYTE *SH2_SpecializedLight = nullptr;
 
+	bool SkipSceneFlag = false;
+	DWORD LastCutsceneID = 0;
+	float LastCameraPos = 0;
+	float LastJamesPos = 0;
+	DWORD SkipSceneCounter = 0;
+
 	DWORD EndSceneCounter = 0;
 	bool OverrideTextureLoop = false;
 	bool PresentFlag = false;
@@ -188,6 +194,7 @@ public:
 	STDMETHOD(DrawTriPatch)(THIS_ UINT Handle, CONST float* pNumSegs, CONST D3DTRIPATCH_INFO* pTriPatchInfo);
 	STDMETHOD(DeletePatch)(THIS_ UINT Handle);
 
+private:
 	// Extra functions
 	HRESULT DrawSoftShadows();
 	void BackupState(D3DSTATE *state);

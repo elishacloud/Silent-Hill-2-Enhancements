@@ -28,6 +28,7 @@ void genericQueryInterface(REFIID riid, LPVOID *ppvObj, m_IDirect3DDevice8* m_pD
 void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND hFocusWindow, bool SetWindow);
 void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight);
 
+extern bool ClassReleaseFlag;
 extern HWND DeviceWindow;
 extern LONG BufferWidth, BufferHeight;
 

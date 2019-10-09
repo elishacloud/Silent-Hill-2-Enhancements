@@ -52,6 +52,7 @@
 	visit(PS2StyleNoiseFilter, true) \
 	visit(RestoreSpecialFX, true) \
 	visit(RemoveEffectsFlicker, true) \
+	visit(RemoveEnvironmentFlicker, true) \
 	visit(Room312ShadowFix, true) \
 	visit(RowboatAnimationFix, true) \
 	visit(SelfShadowTweaks, false) \

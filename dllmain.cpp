@@ -364,6 +364,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			UpdateSpecialFX();
 		}
 
+		// Changes the event at the gate near Heaven's Night to that when trying to re-enter the door to Blue Creek Apartments
+		if (FixTownWestGateEvent)
+		{
+			UpdateTownWestGateEventFix();
+		}
+
 		// Load Nemesis2000's Fog Fix
 		if (Nemesis2000FogFix)
 		{

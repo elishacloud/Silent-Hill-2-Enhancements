@@ -912,3 +912,21 @@ char *getResolutionDescStr()
 {
 	return exeStrPtr[STR_PER_LANG * (int)*gLangID + 25];
 }
+
+constexpr BYTE TownWestGateEventSearchBytes[] = { 0x00, 0x00, 0x00, 0x90, 0x00, 0xC0, 0x3F, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x60, 0x6E, 0x20 };
+constexpr BYTE TownWestGateEventUpdateVal[] = { 0x00, 0x00, 0x00, 0x60, 0x00, 0x80, 0x13, 0x00 };
+
+void UpdateTownWestGateEventFix()
+{
+	void* DTownWestGateEventAddr = (void*)SearchAndGetAddresses(0x008DB440, 0x008DF110, 0x008DE110, TownWestGateEventSearchBytes, sizeof(TownWestGateEventSearchBytes), 0x00);
+
+	// Checking address pointer
+	if (!DTownWestGateEventAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+
+	Logging::Log() << "Enabling Town West Gate Event Fix...";
+	UpdateMemoryAddress(DTownWestGateEventAddr, (void*)TownWestGateEventUpdateVal, sizeof(TownWestGateEventUpdateVal));
+}

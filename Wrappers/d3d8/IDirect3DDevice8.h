@@ -8,8 +8,6 @@ private:
 	LPDIRECT3DDEVICE8 ProxyInterface;
 	m_IDirect3D8* m_pD3D;
 
-	LPDIRECT3DTEXTURE8 BlankTexture = nullptr;
-
 	BYTE *SH2_ChapterID = nullptr;
 	DWORD *SH2_RoomID = nullptr;
 	DWORD *SH2_CutsceneID = nullptr;
@@ -35,6 +33,8 @@ private:
 
 	IDirect3DTexture8 *pOutTexture = nullptr;
 	IDirect3DSurface8 *pOutSurface = nullptr;
+
+	IDirect3DTexture8 *BlankTexture = nullptr;
 
 	struct CUSTOMVERTEX
 	{
@@ -85,6 +85,38 @@ public:
 	~m_IDirect3DDevice8()
 	{
 		Logging::LogDebug() << __FUNCTION__ << "(" << this << ")" << " deleting device!";
+
+		if (pInSurface)
+		{
+			ReleaseInterface(&pInSurface, 2);
+		}
+
+		if (pInTexture)
+		{
+			ReleaseInterface(&pInTexture);
+		}
+
+		if (pShrunkSurface)
+		{
+			ReleaseInterface(&pShrunkSurface, 2);
+		}
+
+		if (pShrunkTexture)
+		{
+			ReleaseInterface(&pShrunkTexture);
+		}
+
+		if (pOutSurface)
+		{
+			ReleaseInterface(&pOutSurface, 2);
+		}
+
+		if (pOutTexture)
+		{
+			ReleaseInterface(&pOutTexture);
+		}
+
+		while (BlankTexture->Release()) {}
 
 		delete ProxyAddressLookupTable;
 	}
@@ -200,5 +232,5 @@ private:
 	void BackupState(D3DSTATE *state);
 	void RestoreState(D3DSTATE *state);
 	template <typename T>
-	void ReleaseInterface(T **ppInterface);
+	void ReleaseInterface(T **ppInterface, UINT ReleaseRefNum = 1);
 };

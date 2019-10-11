@@ -70,7 +70,7 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 
 	if (pInSurface)
 	{
-		ReleaseInterface(&pInSurface);
+		ReleaseInterface(&pInSurface, 2);
 	}
 
 	if (pInTexture)
@@ -80,7 +80,7 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 
 	if (pShrunkSurface)
 	{
-		ReleaseInterface(&pShrunkSurface);
+		ReleaseInterface(&pShrunkSurface, 2);
 	}
 
 	if (pShrunkTexture)
@@ -90,7 +90,7 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 
 	if (pOutSurface)
 	{
-		ReleaseInterface(&pOutSurface);
+		ReleaseInterface(&pOutSurface, 2);
 	}
 
 	if (pOutTexture)
@@ -1035,7 +1035,7 @@ HRESULT m_IDirect3DDevice8::SetTexture(DWORD Stage, IDirect3DBaseTexture8 *pText
 	}
 
 	// Fix for the white shader issue
-	if (WhiteShaderFix && Stage == 0 && !pTexture)
+	if (WhiteShaderFix && Stage == 0 && !pTexture && BlankTexture)
 	{
 		pTexture = BlankTexture;
 	}
@@ -1582,22 +1582,25 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 	};
 
 	// Create our intermediate render targets/textures only once
-	if (!pInTexture) {
-		if (SUCCEEDED(ProxyInterface->CreateTexture((UINT)screenW, (UINT)screenH, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &pInTexture)))
+	if (!pInTexture)
+	{
+		if (SUCCEEDED(ProxyInterface->CreateTexture((UINT)screenW, (UINT)screenH, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &pInTexture)) && pInTexture)
 		{
 			pInTexture->GetSurfaceLevel(0, &pInSurface);
 		}
 	}
 
-	if (!pShrunkTexture) {
-		if (SUCCEEDED(ProxyInterface->CreateTexture((UINT)screenWs, (UINT)screenHs, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &pShrunkTexture)))
+	if (!pShrunkTexture)
+	{
+		if (SUCCEEDED(ProxyInterface->CreateTexture((UINT)screenWs, (UINT)screenHs, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &pShrunkTexture)) && pShrunkTexture)
 		{
 			pShrunkTexture->GetSurfaceLevel(0, &pShrunkSurface);
 		}
 	}
 
-	if (!pOutTexture) {
-		if (SUCCEEDED(ProxyInterface->CreateTexture((UINT)screenWs, (UINT)screenHs, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &pOutTexture)))
+	if (!pOutTexture)
+	{
+		if (SUCCEEDED(ProxyInterface->CreateTexture((UINT)screenWs, (UINT)screenHs, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &pOutTexture)) && pOutTexture)
 		{
 			pOutTexture->GetSurfaceLevel(0, &pOutSurface);
 		}
@@ -1622,11 +1625,11 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 	ProxyInterface->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
 
 	// Back up current render target (backbuffer) and stencil buffer
-	if (SUCCEEDED(ProxyInterface->GetRenderTarget(&pBackBuffer)))
+	if (SUCCEEDED(ProxyInterface->GetRenderTarget(&pBackBuffer)) && pBackBuffer)
 	{
 		pBackBuffer->Release();
 	}
-	if (SUCCEEDED(ProxyInterface->GetDepthStencilSurface(&pStencilBuffer)))
+	if (SUCCEEDED(ProxyInterface->GetDepthStencilSurface(&pStencilBuffer)) && pStencilBuffer)
 	{
 		pStencilBuffer->Release();
 	}
@@ -1759,7 +1762,7 @@ void m_IDirect3DDevice8::BackupState(D3DSTATE *state)
 	ProxyInterface->GetRenderState(D3DRS_SRCBLEND, &state->srcBlend);
 	ProxyInterface->GetRenderState(D3DRS_DESTBLEND, &state->destBlend);
 
-	if (SUCCEEDED(ProxyInterface->GetTexture(0, &state->stage0)))		// Could use a later stage instead of backing up
+	if (SUCCEEDED(ProxyInterface->GetTexture(0, &state->stage0)) && state->stage0)		// Could use a later stage instead of backing up
 	{
 		state->stage0->Release();
 	}
@@ -1785,22 +1788,21 @@ void m_IDirect3DDevice8::RestoreState(D3DSTATE *state)
 }
 
 template <typename T>
-void m_IDirect3DDevice8::ReleaseInterface(T **ppInterface)
+void m_IDirect3DDevice8::ReleaseInterface(T **ppInterface, UINT ReleaseRefNum)
 {
-	if (ppInterface && *ppInterface)
+	if (ppInterface && *ppInterface && ReleaseRefNum)
 	{
-		DWORD x = 0, z = 0;
-		do
-		{
-			z = (*ppInterface)->Release();
-		} while (z != 0 && ++x < 100);
+		UINT ref = 0;
+		do {
+			ref = (*ppInterface)->Release();
+		} while (--ReleaseRefNum && ref);
 
 		// Add Error: checking
-		if (z != 0)
+		if (ref || ReleaseRefNum)
 		{
-			LOG_LIMIT(100, __FUNCTION__ << " Error: failed to release interface!");
+			LOG_LIMIT(100, __FUNCTION__ << " Error: failed to release interface! " << ref);
 		}
 
-		(*ppInterface) = nullptr;
+		*ppInterface = nullptr;
 	}
 }

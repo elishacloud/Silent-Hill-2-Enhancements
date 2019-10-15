@@ -24,6 +24,7 @@
 	visit(FixDrawingTextLine, true) \
 	visit(FixHangOnEsc, true) \
 	visit(FixMissingWallChunks, true) \
+	visit(FixTownWestGateEvent, true) \
 	visit(Fog2DFix, true) \
 	visit(FogParameterFix, true) \
 	visit(FullscreenWndMode, true) \

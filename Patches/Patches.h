@@ -54,6 +54,7 @@ void UpdateSpecialFX();
 void UpdateSpecialFXScale(DWORD Height);
 void UpdateSFXAddr();
 void UpdateTexAddr();
+void UpdateTownWestGateEventFix();
 void UnhookWindowHandle();
 void UpdateXInputVibration();
 void ValidateBinary();

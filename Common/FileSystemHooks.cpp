@@ -613,9 +613,15 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 		return;
 	}
 
+	// Get config file path
+	char tmpPathA[MAX_PATH];
+	wchar_t tmpPathW[MAX_PATH];
+	GetModuleFileNameA(hModule, tmpPathA, MAX_PATH);
+	GetModuleFileNameW(hModule, tmpPathW, MAX_PATH);
+
 	// Store config path
-	std::wstring ws(ConfigPath);
-	strcpy_s(ConfigPathA, MAX_PATH, std::string(ws.begin(), ws.end()).c_str());
+	strcpy_s(ConfigPathA, MAX_PATH, tmpPathA);
+	strcpy_s(strrchr(ConfigPathA, '.'), MAX_PATH - strlen(ConfigPathA), ".ini");
 	wcscpy_s(ConfigPathW, MAX_PATH, ConfigPath);
 	if (!PathExists(ConfigPathA) || !PathExists(ConfigPathW))
 	{
@@ -644,10 +650,8 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	}
 
 	// Get module path
-	wchar_t tmpPath[MAX_PATH];
-	GetModuleFileName(hModule, tmpPath, MAX_PATH);
-	strModulePathW.assign(tmpPath);
-	strModulePathA.assign(strModulePathW.begin(), strModulePathW.end());
+	strModulePathA.assign(tmpPathA);
+	strModulePathW.assign(tmpPathW);
 	nPathSize = strModulePathA.size() + 1; // Include a null terminator
 	if (!PathExists(strModulePathA.c_str()) || !PathExists(strModulePathW.c_str()))
 	{
@@ -659,7 +663,8 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	}
 
 	// Get data path
-	GetModuleFileName(nullptr, tmpPath, MAX_PATH);
+	wchar_t tmpPath[MAX_PATH];
+	wcscpy_s(tmpPath, MAX_PATH, tmpPathW);
 	wcscpy_s(wcsrchr(tmpPath, '\\'), MAX_PATH - wcslen(tmpPath), L"\0");
 	modLoc = wcslen(tmpPath) + 1;
 	modLen = strlen(ModPathA);

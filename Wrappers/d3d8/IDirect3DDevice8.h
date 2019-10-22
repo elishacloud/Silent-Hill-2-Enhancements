@@ -86,38 +86,6 @@ public:
 	{
 		Logging::LogDebug() << __FUNCTION__ << "(" << this << ")" << " deleting device!";
 
-		if (pInSurface)
-		{
-			ReleaseInterface(&pInSurface, 2);
-		}
-
-		if (pInTexture)
-		{
-			ReleaseInterface(&pInTexture);
-		}
-
-		if (pShrunkSurface)
-		{
-			ReleaseInterface(&pShrunkSurface, 2);
-		}
-
-		if (pShrunkTexture)
-		{
-			ReleaseInterface(&pShrunkTexture);
-		}
-
-		if (pOutSurface)
-		{
-			ReleaseInterface(&pOutSurface, 2);
-		}
-
-		if (pOutTexture)
-		{
-			ReleaseInterface(&pOutTexture);
-		}
-
-		while (BlankTexture->Release()) {}
-
 		delete ProxyAddressLookupTable;
 	}
 

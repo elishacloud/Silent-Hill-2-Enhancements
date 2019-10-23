@@ -382,19 +382,6 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 	{
 		Value = (Value * 15) / 16;
 	}
-	
-	// Restores self shadows
-	if (EnableSelfShadows && State == D3DRS_STENCILPASS && (Value == D3DSTENCILOP_ZERO || Value == D3DSTENCILOP_REPLACE))
-	{
-		if (SelfShadowTweaks &&	SH2_SpecializedLight && *SH2_SpecializedLight == 0x01)
-		{
-			Value = D3DSTENCILOP_REPLACE;
-		}
-		else
-		{
-			Value = D3DSTENCILOP_KEEP;
-		}
-	}
 
 	// For blur frame flicker fix
 	if (RemoveEffectsFlicker && State == D3DRS_TEXTUREFACTOR)
@@ -705,6 +692,26 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	if (!shadowVolumeFlag)
+	{
+		// We're drawing opaque map geometry and dynamic objects
+
+		// Change default states to be more like Xbox version
+		ProxyInterface->SetRenderState(D3DRS_STENCILMASK, 0xFFFFFFFF);
+		ProxyInterface->SetRenderState(D3DRS_STENCILWRITEMASK, 0xFF);
+
+		DWORD stencilRef = 0;
+		if (SUCCEEDED(ProxyInterface->GetRenderState(D3DRS_STENCILREF, &stencilRef)) && stencilRef == 0)
+		{
+			// We're drawing just opaque map geometry
+
+			// Change default states to be more like Xbox version
+			ProxyInterface->SetRenderState(D3DRS_STENCILENABLE, TRUE);
+			ProxyInterface->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_ALWAYS);
+			ProxyInterface->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_ZERO);
+		}
+	}
+
 	// Exclude Woodside Room 208 TV static geometry from receiving shadows
 	if (WoodsideRoom208TV && SH2_RoomID && *SH2_RoomID == 0x18 && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 4 && startIndex == 0 && primCount == 2)
 	{
@@ -723,7 +730,7 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 			DWORD stencilPass = 0;
 			ProxyInterface->GetRenderState(D3DRS_STENCILPASS, &stencilPass);
 
-			ProxyInterface->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_ZERO);
+			ProxyInterface->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);
 
 			hr = ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
 
@@ -736,30 +743,39 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 	else if ((HeavensNightWindows && SH2_RoomID && *SH2_RoomID == 0x0C && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 18 && startIndex == 0 && primCount == 21) ||
 		(HotelHallwayWindow && SH2_RoomID && *SH2_RoomID == 0x9F && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 10 && startIndex == 0 && primCount == 10))
 	{
-		DWORD stencilEnable = 0;
-		DWORD stencilFunc = 0;
-		DWORD stencilPass = 0;
-		DWORD stencilWriteMask = 0;
+		DWORD stencilPass, stencilRef = 0;
 
 		// Backup renderstates
-		ProxyInterface->GetRenderState(D3DRS_STENCILENABLE, &stencilEnable);
-		ProxyInterface->GetRenderState(D3DRS_STENCILFUNC, &stencilFunc);
 		ProxyInterface->GetRenderState(D3DRS_STENCILPASS, &stencilPass);
-		ProxyInterface->GetRenderState(D3DRS_STENCILWRITEMASK, &stencilWriteMask);
+		ProxyInterface->GetRenderState(D3DRS_STENCILREF, &stencilRef);
 
 		// Set states so we don't receive shadows
-		ProxyInterface->SetRenderState(D3DRS_STENCILENABLE, TRUE);
-		ProxyInterface->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_ALWAYS);
-		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_ZERO);
-		ProxyInterface->SetRenderState(D3DRS_STENCILWRITEMASK, 0xFFFFFFFF);
+		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);
+		ProxyInterface->SetRenderState(D3DRS_STENCILREF, 1);
 
 		HRESULT hr = ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
 
 		// Restore renderstates
-		ProxyInterface->SetRenderState(D3DRS_STENCILENABLE, stencilEnable);
-		ProxyInterface->SetRenderState(D3DRS_STENCILFUNC, stencilFunc);
 		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, stencilPass);
-		ProxyInterface->SetRenderState(D3DRS_STENCILWRITEMASK, stencilWriteMask);
+		ProxyInterface->SetRenderState(D3DRS_STENCILREF, stencilRef);
+
+		return hr;
+	}
+	// Exclude refrigerator interior in hospital from receiving shadows
+	else if (/*room ID check here*/ Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 1037 && startIndex == 0 && primCount == 1580)
+	{
+		DWORD stencilPass = 0;
+
+		// Backup renderstates
+		ProxyInterface->GetRenderState(D3DRS_STENCILPASS, &stencilPass);
+
+		// Set states so we don't receive shadows
+		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);
+
+		HRESULT hr = ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
+
+		// Restore renderstates
+		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, stencilPass);
 
 		return hr;
 	}
@@ -777,6 +793,15 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitiveUP(D3DPRIMITIVETYPE PrimitiveTyp
 HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, UINT PrimitiveCount)
 {
 	Logging::LogDebug() << __FUNCTION__;
+
+	if (!shadowVolumeFlag)
+	{
+		// We're drawing transparent dynamic objects (Character hair etc.)
+
+		// Change default states to be more like Xbox version
+		ProxyInterface->SetRenderState(D3DRS_STENCILMASK, 0xFFFFFFFF);
+		ProxyInterface->SetRenderState(D3DRS_STENCILWRITEMASK, 0xFF);
+	}
 
 	if (LabyrinthValveTurn && SH2_CutsceneID && *SH2_CutsceneID == 0x46 && PrimitiveType == D3DPT_TRIANGLELIST && PrimitiveCount > 496 && PrimitiveCount < 536)
 	{
@@ -805,6 +830,98 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 		}
 	}
 
+	DWORD stencilPass = 0;
+	ProxyInterface->GetRenderState(D3DRS_STENCILPASS, &stencilPass);
+
+	if (stencilPass == D3DSTENCILOP_INCR && !shadowVolumeFlag)
+	{
+		// We're drawing shadow volumes, toggle flag on
+		shadowVolumeFlag = true;
+
+		IDirect3DSurface8 *backbufferColor, *backbufferDepthStencil = nullptr;
+
+		// Backup backbuffer and depth/stencil buffer
+		if (SUCCEEDED(ProxyInterface->GetRenderTarget(&backbufferColor)) && backbufferColor)
+		{
+			backbufferColor->Release();
+		}
+		if (SUCCEEDED(ProxyInterface->GetDepthStencilSurface(&backbufferDepthStencil)) && backbufferDepthStencil)
+		{
+			backbufferDepthStencil->Release(); // Is releasing this necessary when we set it again immediately?
+		}
+
+		// Create texture for James' silhouette if it doesn't exist
+		if (!silhouetteTexture)
+		{
+			if (SUCCEEDED(ProxyInterface->CreateTexture(BufferWidth, BufferHeight, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &silhouetteTexture)) && silhouetteTexture)
+			{
+				silhouetteTexture->GetSurfaceLevel(0, &silhouetteSurface);
+			}
+		}
+
+		// Temporarily swap to new color buffer (keep original depth/stencil)
+		ProxyInterface->SetRenderTarget(silhouetteSurface, backbufferDepthStencil);
+		ProxyInterface->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 0);
+
+		CUSTOMVERTEX fullscreenQuad[] =
+		{
+			{0.0f, 0.0f, 0.0f, 1.0f, D3DCOLOR_ARGB(255, 255, 255, 255)},
+			{0.0f, (float)BufferHeight, 0.0f, 1.0f, D3DCOLOR_ARGB(255, 255, 255, 255)},
+			{(float)BufferWidth, 0.0f, 0.0f, 1.0f, D3DCOLOR_ARGB(255, 255, 255, 255)},
+			{(float)BufferWidth, (float)BufferHeight, 0.0f, 1.0f, D3DCOLOR_ARGB(255, 255, 255, 255)}
+		};
+
+		// Bias coords to align correctly to screen space
+		for (int i = 0; i < 4; i++)
+		{
+			fullscreenQuad[i].x -= 0.5f;
+			fullscreenQuad[i].y -= 0.5f;
+		}
+
+		// Backup alpha blend and alpha test enable, disable both
+		DWORD alphaBlend, alphaTest = 0;
+		ProxyInterface->GetRenderState(D3DRS_ALPHABLENDENABLE, &alphaBlend);
+		ProxyInterface->GetRenderState(D3DRS_ALPHATESTENABLE, &alphaTest);
+		ProxyInterface->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+		ProxyInterface->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
+
+		// DrawPrimitiveUP trashes vertex buffer stream 0, back it up
+		// TODO: Should the soft shadow code do this too?
+		IDirect3DVertexBuffer8 *pStream0;
+		UINT stream0Stride = 0;
+		ProxyInterface->GetStreamSource(0, &pStream0, &stream0Stride);
+
+		// Discard all pixels but James' silhouette
+		DWORD stencilFunc = 0;
+		ProxyInterface->GetRenderState(D3DRS_STENCILFUNC, &stencilFunc);
+		ProxyInterface->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_LESSEQUAL);
+
+		// Backup FVF, use pre-transformed vertices and diffuse color
+		DWORD vshader = 0;
+		ProxyInterface->GetVertexShader(&vshader);
+		ProxyInterface->SetVertexShader(D3DFVF_XYZRHW | D3DFVF_DIFFUSE);
+
+		// Backup cullmode, disable culling so we don't have to worry about winding order
+		DWORD cullMode = 0;
+		ProxyInterface->GetRenderState(D3DRS_CULLMODE, &cullMode);
+		ProxyInterface->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+
+		// Draw James' silhouette to our texture
+		ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, fullscreenQuad, 20);
+
+		// Restore state
+		ProxyInterface->SetRenderState(D3DRS_ALPHABLENDENABLE, alphaBlend);
+		ProxyInterface->SetRenderState(D3DRS_ALPHATESTENABLE, alphaTest);
+		ProxyInterface->SetStreamSource(0, pStream0, stream0Stride);
+		ProxyInterface->SetRenderState(D3DRS_STENCILFUNC, stencilFunc);
+		ProxyInterface->SetVertexShader(vshader);
+		ProxyInterface->SetRenderState(D3DRS_CULLMODE, cullMode);
+
+		// Bring back our original color buffer, clear stencil buffer like Xbox
+		ProxyInterface->SetRenderTarget(backbufferColor, backbufferDepthStencil);
+		ProxyInterface->Clear(0, NULL, D3DCLEAR_STENCIL, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 128);
+	}
+
 	return ProxyInterface->DrawPrimitive(PrimitiveType, StartVertex, PrimitiveCount);
 }
 
@@ -812,12 +929,97 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	// Draw Soft Shadows
-	if (EnableSoftShadows)
+	// Draw Self/Soft Shadows
+	DWORD stencilRef;
+	GetRenderState(D3DRS_STENCILREF, &stencilRef);
+
+	if (stencilRef == 129)
 	{
-		DWORD stencilRef;
-		GetRenderState(D3DRS_STENCILREF, &stencilRef);
-		if (PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 20 && stencilRef == 129)
+		// We're done drawing shadow volumes, toggle flag off
+		shadowVolumeFlag = false;
+
+		// Bind our texture of James' silhouette
+		ProxyInterface->SetTexture(0, silhouetteTexture);
+
+		CUSTOMVERTEX_UV fullscreenQuad[] =
+		{
+			{0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f},
+			{0.0f, (float)BufferHeight, 0.0f, 1.0f, 0.0f, 1.0f},
+			{(float)BufferWidth, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f},
+			{(float)BufferWidth, (float)BufferHeight, 0.0f, 1.0f, 1.0f, 1.0f}
+		};
+
+		// Bias coords to align correctly to screen space
+		for (int i = 0; i < 4; i++)
+		{
+			fullscreenQuad[i].x -= 0.5f;
+			fullscreenQuad[i].y -= 0.5f;
+		}
+
+		// Backup alpha blend and alpha test enable, disable alpha blend, enable alpha test
+		DWORD alphaBlend, alphaTest = 0;
+		ProxyInterface->GetRenderState(D3DRS_ALPHABLENDENABLE, &alphaBlend);
+		ProxyInterface->GetRenderState(D3DRS_ALPHATESTENABLE, &alphaTest);
+		ProxyInterface->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+		ProxyInterface->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
+
+		// DrawPrimitiveUP trashes vertex buffer stream 0, back it up
+		// TODO: Should the soft shadow code do this too?
+		IDirect3DVertexBuffer8 *pStream0;
+		UINT stream0Stride = 0;
+		ProxyInterface->GetStreamSource(0, &pStream0, &stream0Stride);
+
+		// Backup FVF, use pre-transformed vertices and texture coords
+		DWORD vshader = 0;
+		ProxyInterface->GetVertexShader(&vshader);
+		ProxyInterface->SetVertexShader(D3DFVF_XYZRHW | D3DFVF_TEX1);
+
+		// Backup cullmode, disable culling so we don't have to worry about winding order
+		DWORD cullMode = 0;
+		ProxyInterface->GetRenderState(D3DRS_CULLMODE, &cullMode);
+		ProxyInterface->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+
+		// Backup stencil func, use D3DCMP_ALWAYS to stop stencil interfering with alpha test
+		DWORD stencilFunc = 0;
+		ProxyInterface->GetRenderState(D3DRS_STENCILFUNC, &stencilFunc);
+		ProxyInterface->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_ALWAYS);
+
+		// Backup stencil pass, so that James' silhouette clears that portion of the stencil buffer
+		DWORD stencilPass = 0;
+		ProxyInterface->GetRenderState(D3DRS_STENCILPASS, &stencilPass);
+		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_ZERO);
+
+		// Backup color write value, we only want to touch the stencil buffer
+		DWORD colorWrite = 0;
+		ProxyInterface->GetRenderState(D3DRS_COLORWRITEENABLE, &colorWrite);
+		ProxyInterface->SetRenderState(D3DRS_COLORWRITEENABLE, 0); // Comment me for debug fun
+
+		// Use texture color and alpha
+		DWORD colorArg1, alphaArg1 = 0;
+		ProxyInterface->GetTextureStageState(0, D3DTSS_COLORARG1, &colorArg1);
+		ProxyInterface->GetTextureStageState(0, D3DTSS_ALPHAARG1, &alphaArg1);
+		ProxyInterface->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+		ProxyInterface->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+
+		// Clear James' silhouette from the stencil buffer
+		ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, fullscreenQuad, 24);
+
+		// Backup alpha blend and alpha test enable, disable alpha blend, enable alpha test
+		ProxyInterface->SetRenderState(D3DRS_ALPHABLENDENABLE, alphaBlend);
+		ProxyInterface->SetRenderState(D3DRS_ALPHATESTENABLE, alphaTest);
+		ProxyInterface->SetStreamSource(0, pStream0, stream0Stride);
+		ProxyInterface->SetVertexShader(vshader);
+		ProxyInterface->SetRenderState(D3DRS_CULLMODE, cullMode);
+		ProxyInterface->SetRenderState(D3DRS_STENCILFUNC, stencilFunc);
+		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, stencilPass);
+		ProxyInterface->SetRenderState(D3DRS_COLORWRITEENABLE, colorWrite);
+		ProxyInterface->SetTextureStageState(0, D3DTSS_COLORARG1, colorArg1);
+		ProxyInterface->SetTextureStageState(0, D3DTSS_ALPHAARG1, alphaArg1);
+
+		// Unbind silhouette texture, just to be safe
+		ProxyInterface->SetTexture(0, NULL);
+
+		if (EnableSoftShadows)
 		{
 			return DrawSoftShadows();
 		}
@@ -1116,6 +1318,12 @@ HRESULT m_IDirect3DDevice8::SetClipPlane(DWORD Index, CONST float *pPlane)
 HRESULT m_IDirect3DDevice8::Clear(DWORD Count, CONST D3DRECT *pRects, DWORD Flags, D3DCOLOR Color, float Z, DWORD Stencil)
 {
 	Logging::LogDebug() << __FUNCTION__;
+
+	// Change first Clear call to match Xbox version
+	if (Flags == (D3DCLEAR_TARGET | D3DCLEAR_STENCIL | D3DCLEAR_ZBUFFER) && Color == D3DCOLOR_ARGB(124, 0, 0, 0))
+	{
+		return ProxyInterface->Clear(Count, pRects, Flags, Color, Z, 0);
+	}
 
 	return ProxyInterface->Clear(Count, pRects, Flags, Color, Z, Stencil);
 }

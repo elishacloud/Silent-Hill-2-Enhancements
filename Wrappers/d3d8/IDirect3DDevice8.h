@@ -36,6 +36,11 @@ private:
 
 	IDirect3DTexture8 *BlankTexture = nullptr;
 
+	IDirect3DTexture8 *silhouetteTexture = nullptr;
+	IDirect3DSurface8 *silhouetteSurface = nullptr;
+
+	bool shadowVolumeFlag = false;
+
 	struct CUSTOMVERTEX
 	{
 		FLOAT x, y, z, rhw;

@@ -32,6 +32,7 @@
 	visit(HalogenLightFix, true) \
 	visit(HeavensNightWindows, false) \
 	visit(HospitalChaseFix, true) \
+	visit(HospitalRefrigerator, false) \
 	visit(HotelHallwayWindow, false) \
 	visit(HotelWaterFix, true) \
 	visit(ImproveStorageSupport, true) \

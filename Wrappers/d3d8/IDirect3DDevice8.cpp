@@ -383,6 +383,15 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 		Value = (Value * 15) / 16;
 	}
 
+	// Restores self shadows
+	if (EnableSelfShadows && State == D3DRS_STENCILPASS && Value == D3DSTENCILOP_REPLACE)
+	{
+		if (/*SelfShadowTweaks &&*/	!SH2_SpecializedLight || *SH2_SpecializedLight != 0x01)
+		{
+			Value = D3DSTENCILOP_ZERO;
+		}
+	}
+
 	// For blur frame flicker fix
 	if (RemoveEffectsFlicker && State == D3DRS_TEXTUREFACTOR)
 	{
@@ -762,7 +771,7 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 		return hr;
 	}
 	// Exclude refrigerator interior in hospital from receiving shadows
-	else if (/*room ID check here*/ Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 1037 && startIndex == 0 && primCount == 1580)
+	else if (HospitalRefrigerator && SH2_RoomID && *SH2_RoomID == 0x53 && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 1037 && startIndex == 0 && primCount == 1580)
 	{
 		DWORD stencilPass = 0;
 

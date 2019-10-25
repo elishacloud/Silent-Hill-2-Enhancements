@@ -34,6 +34,7 @@
 	visit(HospitalChaseFix, true) \
 	visit(HospitalRefrigerator, false) \
 	visit(HotelHallwayWindow, false) \
+	visit(HotelStoreroomWindow, false) \
 	visit(HotelWaterFix, true) \
 	visit(ImproveStorageSupport, true) \
 	visit(IncreaseBlood, true) \

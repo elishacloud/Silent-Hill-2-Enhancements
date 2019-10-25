@@ -386,7 +386,7 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 	// Restores self shadows
 	if (EnableSelfShadows && State == D3DRS_STENCILPASS && Value == D3DSTENCILOP_REPLACE)
 	{
-		if (/*SelfShadowTweaks &&*/	!SH2_SpecializedLight || *SH2_SpecializedLight != 0x01)
+		if (/*SelfShadowTweaks &&*/ !SH2_SpecializedLight || *SH2_SpecializedLight != 0x01)
 		{
 			Value = D3DSTENCILOP_ZERO;
 		}
@@ -748,9 +748,10 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 			return hr;
 		}
 	}
-	// Exclude windows in Heaven's Night and Hotel 2F Room Hallway from receiving shadows
+	// Exclude windows in Heaven's Night, Hotel 2F Room Hallway and Hotel Storeroom from receiving shadows
 	else if ((HeavensNightWindows && SH2_RoomID && *SH2_RoomID == 0x0C && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 18 && startIndex == 0 && primCount == 21) ||
-		(HotelHallwayWindow && SH2_RoomID && *SH2_RoomID == 0x9F && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 10 && startIndex == 0 && primCount == 10))
+		(HotelHallwayWindow && SH2_RoomID && *SH2_RoomID == 0x9F && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 10 && startIndex == 0 && primCount == 10) ||
+		(HotelStoreroomWindow && SH2_RoomID && *SH2_RoomID == 0x94 && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 8 && startIndex == 0 && primCount == 8))
 	{
 		DWORD stencilPass, stencilRef = 0;
 

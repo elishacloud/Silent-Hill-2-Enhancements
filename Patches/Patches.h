@@ -14,7 +14,7 @@ void *GetCutscenePosPointer();
 BYTE *GetFlashLightRenderPointer();
 void *GetJamesPosPointer();
 void *GetRoomIDPointer();
-BYTE *GetSpecializedLightPointer();
+DWORD *GetSpecializedLightPointer();
 
 // Function forward declaration
 void DisableCDCheck();

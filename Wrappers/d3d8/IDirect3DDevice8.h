@@ -13,7 +13,7 @@ private:
 	DWORD *SH2_CutsceneID = nullptr;
 	float *SH2_CutsceneCameraPos = nullptr;
 	float *SH2_JamesPos = nullptr;
-	BYTE *SH2_SpecializedLight = nullptr;
+	DWORD *SH2_SpecializedLight = nullptr;
 
 	bool SkipSceneFlag = false;
 	DWORD LastCutsceneID = 0;

@@ -98,6 +98,16 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 		ReleaseInterface(&pOutTexture);
 	}
 
+	if (silhouetteSurface)
+	{
+		ReleaseInterface(&silhouetteSurface, 2);
+	}
+
+	if (silhouetteTexture)
+	{
+		ReleaseInterface(&silhouetteTexture);
+	}
+
 	// Update presentation parameters
 	UpdatePresentParameter(pPresentationParameters, nullptr, true);
 
@@ -386,7 +396,7 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 	// Restores self shadows
 	if (EnableSelfShadows && State == D3DRS_STENCILPASS && Value == D3DSTENCILOP_REPLACE)
 	{
-		if (/*SelfShadowTweaks &&*/ !SH2_SpecializedLight || *SH2_SpecializedLight != 0x01)
+		if (/*SelfShadowTweaks &&*/ SH2_SpecializedLight && *SH2_SpecializedLight != 0x01)
 		{
 			Value = D3DSTENCILOP_ZERO;
 		}

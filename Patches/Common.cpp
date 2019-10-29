@@ -183,7 +183,9 @@ DWORD *GetSpecializedLightPointer()
 		return SpecializedLightAddr;
 	}
 
+	// Get address for flashlight render
 	constexpr BYTE SpecializedLightSearchBytes[]{ 0x00, 0x00, 0x00, 0x52, 0x6A, 0x22, 0x50, 0x89, 0x1D };
+
 	SpecializedLightAddr = (DWORD*)ReadSearchedAddresses(0x004FFA1B, 0x004FFD4B, 0x004FF66B, SpecializedLightSearchBytes, sizeof(SpecializedLightSearchBytes), 0x09);
 
 	// Checking address pointer

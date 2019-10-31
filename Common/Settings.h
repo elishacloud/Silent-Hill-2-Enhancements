@@ -69,6 +69,7 @@
 	visit(WoodsideRoom208TV, false) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, true) \
+	visit(XboxShadows, false) \
 	visit(XInputVibration, true)
 
 #define VISIT_INT_SETTINGS(visit) \

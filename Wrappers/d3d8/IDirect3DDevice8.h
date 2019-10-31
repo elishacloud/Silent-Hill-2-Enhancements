@@ -13,7 +13,8 @@ private:
 	DWORD *SH2_CutsceneID = nullptr;
 	float *SH2_CutsceneCameraPos = nullptr;
 	float *SH2_JamesPos = nullptr;
-	DWORD *SH2_SpecializedLight = nullptr;
+	DWORD *SH2_SpecializedLight1 = nullptr;
+	DWORD *SH2_SpecializedLight2 = nullptr;
 
 	bool SkipSceneFlag = false;
 	DWORD LastCutsceneID = 0;
@@ -79,7 +80,8 @@ public:
 		SH2_CutsceneID = (DWORD*)GetCutsceneIDPointer();
 		SH2_CutsceneCameraPos = (float*)GetCutscenePosPointer();
 		SH2_JamesPos = (float*)GetJamesPosPointer();
-		SH2_SpecializedLight = GetSpecializedLightPointer();
+		SH2_SpecializedLight1 = GetSpecializedLightPointer1();
+		SH2_SpecializedLight2 = GetSpecializedLightPointer2();
 
 		// Create blank texture for white shader fix
 		if (FAILED(ProxyInterface->CreateTexture(1, 1, 1, NULL, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED, &BlankTexture)))
@@ -206,4 +208,5 @@ private:
 	void RestoreState(D3DSTATE *state);
 	template <typename T>
 	void ReleaseInterface(T **ppInterface, UINT ReleaseRefNum = 1);
+	bool EnableXboxShadows();
 };

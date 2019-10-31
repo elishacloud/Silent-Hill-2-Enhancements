@@ -883,7 +883,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 		}
 		if (SUCCEEDED(ProxyInterface->GetDepthStencilSurface(&backbufferDepthStencil)) && backbufferDepthStencil)
 		{
-			backbufferDepthStencil->Release(); // Is releasing this necessary when we set it again immediately?
+			backbufferDepthStencil->Release();
 		}
 
 		// Create texture for James' silhouette if it doesn't exist
@@ -1358,7 +1358,7 @@ HRESULT m_IDirect3DDevice8::Clear(DWORD Count, CONST D3DRECT *pRects, DWORD Flag
 	Logging::LogDebug() << __FUNCTION__;
 
 	// Change first Clear call to match Xbox version
-	if (Flags == (D3DCLEAR_TARGET | D3DCLEAR_STENCIL | D3DCLEAR_ZBUFFER) && Color == D3DCOLOR_ARGB(124, 0, 0, 0))
+	if (EnableXboxShadows() && Flags == (D3DCLEAR_TARGET | D3DCLEAR_STENCIL | D3DCLEAR_ZBUFFER) && Color == D3DCOLOR_ARGB(124, 0, 0, 0))
 	{
 		return ProxyInterface->Clear(Count, pRects, Flags, Color, Z, 0);
 	}

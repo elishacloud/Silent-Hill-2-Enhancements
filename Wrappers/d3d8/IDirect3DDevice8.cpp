@@ -400,7 +400,7 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 		{
 			if (SH2_SpecializedLight1 && *SH2_SpecializedLight1 != 0x01) // In a specialized lighting zone
 			{
-				if (SH2_RoomID && (*SH2_RoomID != 0x20 || *SH2_RoomID != 0x25 || *SH2_RoomID != 0x26)) // Exclude Blue Creek hallways/staircase
+				if (SH2_RoomID && *SH2_RoomID != 0x20 && *SH2_RoomID != 0x25 && *SH2_RoomID != 0x26) // Exclude Blue Creek hallways/staircase
 				{
 					Value = D3DSTENCILOP_ZERO;
 				}

@@ -895,6 +895,11 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 			}
 		}
 
+		if (!silhouetteSurface)
+		{
+			return D3DERR_INVALIDCALL;
+		}
+
 		// Temporarily swap to new color buffer (keep original depth/stencil)
 		ProxyInterface->SetRenderTarget(silhouetteSurface, backbufferDepthStencil);
 		ProxyInterface->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 0);
@@ -925,7 +930,10 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 		// TODO: Should the soft shadow code do this too?
 		IDirect3DVertexBuffer8 *pStream0;
 		UINT stream0Stride = 0;
-		ProxyInterface->GetStreamSource(0, &pStream0, &stream0Stride);
+		if (SUCCEEDED(ProxyInterface->GetStreamSource(0, &pStream0, &stream0Stride)) && pStream0)
+		{
+			pStream0->Release();
+		}
 
 		// Discard all pixels but James' silhouette
 		DWORD stencilFunc = 0;
@@ -975,6 +983,11 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 			// We're done drawing shadow volumes, toggle flag off
 			shadowVolumeFlag = false;
 
+			if (!silhouetteTexture)
+			{
+				return D3DERR_INVALIDCALL;
+			}
+
 			// Bind our texture of James' silhouette
 			ProxyInterface->SetTexture(0, silhouetteTexture);
 
@@ -1004,7 +1017,10 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 			// TODO: Should the soft shadow code do this too?
 			IDirect3DVertexBuffer8 *pStream0;
 			UINT stream0Stride = 0;
-			ProxyInterface->GetStreamSource(0, &pStream0, &stream0Stride);
+			if (SUCCEEDED(ProxyInterface->GetStreamSource(0, &pStream0, &stream0Stride)) && pStream0)
+			{
+				pStream0->Release();
+			}
 
 			// Backup FVF, use pre-transformed vertices and texture coords
 			DWORD vshader = 0;

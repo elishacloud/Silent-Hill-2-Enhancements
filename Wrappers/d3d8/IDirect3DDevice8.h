@@ -78,10 +78,10 @@ public:
 		ProxyAddressLookupTable = new AddressLookupTable<m_IDirect3DDevice8>(this);
 
 		SH2_ChapterID = GetChapterIDPointer();
-		SH2_RoomID = (DWORD*)GetRoomIDPointer();
-		SH2_CutsceneID = (DWORD*)GetCutsceneIDPointer();
-		SH2_CutsceneCameraPos = (float*)GetCutscenePosPointer();
-		SH2_JamesPos = (float*)GetJamesPosPointer();
+		SH2_RoomID = GetRoomIDPointer();
+		SH2_CutsceneID = GetCutsceneIDPointer();
+		SH2_CutsceneCameraPos = GetCutscenePosPointer();
+		SH2_JamesPos = GetJamesPosPointer();
 		SH2_SpecializedLight1 = GetSpecializedLightPointer1();
 		SH2_SpecializedLight2 = GetSpecializedLightPointer2();
 

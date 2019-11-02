@@ -58,7 +58,7 @@ void UpdateGameLoad(DWORD *SH2_RoomID, float *SH2_JamesPos)
 		}
 	}
 
-	// Set static varables
+	// Set static variables
 	static bool ValueSet = false;
 	static bool ValueUnSet = false;
 
@@ -75,7 +75,7 @@ void UpdateGameLoad(DWORD *SH2_RoomID, float *SH2_JamesPos)
 		*Address = 0;
 		ValueUnSet = true;
 	}
-	// Reset static varables
+	// Reset static variables
 	else
 	{
 		if (ValueSet)

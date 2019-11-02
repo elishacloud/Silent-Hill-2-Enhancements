@@ -9,11 +9,11 @@ typedef enum _SH2VERSION {
 
 // Shared Function declarations
 BYTE *GetChapterIDPointer();
-void *GetCutsceneIDPointer();
-void *GetCutscenePosPointer();
+DWORD *GetCutsceneIDPointer();
+float *GetCutscenePosPointer();
 BYTE *GetFlashLightRenderPointer();
-void *GetJamesPosPointer();
-void *GetRoomIDPointer();
+float *GetJamesPosPointer();
+DWORD *GetRoomIDPointer();
 DWORD *GetSpecializedLightPointer1();
 DWORD *GetSpecializedLightPointer2();
 
@@ -60,15 +60,15 @@ void UnhookWindowHandle();
 void UpdateXInputVibration();
 void ValidateBinary();
 
-// Varable forward declaration
+// Variable forward declaration
 extern SH2VERSION GameVersion;
-extern void *ChapterIDAddr;
-extern void *CutsceneIDAddr;
-extern void *CutscenePosAddr;
+extern BYTE *ChapterIDAddr;
+extern DWORD *CutsceneIDAddr;
+extern float *CutscenePosAddr;
 extern BYTE *FlashLightRenderAddr;
 extern bool IsInBloomEffect;
-extern void *JamesPosAddr;
-extern void *RoomIDAddr;
+extern float *JamesPosAddr;
+extern DWORD *RoomIDAddr;
 extern DWORD *SpecializedLightAddr1;
 extern DWORD *SpecializedLightAddr2;
 

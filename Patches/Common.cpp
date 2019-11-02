@@ -22,15 +22,15 @@
 
 // Variables
 BYTE *ChapterIDAddr = nullptr;
-void *CutsceneIDAddr = nullptr;
-void *CutscenePosAddr = nullptr;
+DWORD *CutsceneIDAddr = nullptr;
+float *CutscenePosAddr = nullptr;
 BYTE *FlashLightRenderAddr = nullptr;
-void *JamesPosAddr = nullptr;
-void *RoomIDAddr = nullptr;
+float *JamesPosAddr = nullptr;
+DWORD *RoomIDAddr = nullptr;
 DWORD *SpecializedLightAddr1 = nullptr;
 DWORD *SpecializedLightAddr2 = nullptr;
 
-void *GetRoomIDPointer()
+DWORD *GetRoomIDPointer()
 {
 	if (RoomIDAddr)
 	{
@@ -61,7 +61,7 @@ void *GetRoomIDPointer()
 	return RoomIDAddr;
 }
 
-void *GetCutsceneIDPointer()
+DWORD *GetCutsceneIDPointer()
 {
 	if (CutsceneIDAddr)
 	{
@@ -92,7 +92,7 @@ void *GetCutsceneIDPointer()
 	return CutsceneIDAddr;
 }
 
-void *GetCutscenePosPointer()
+float *GetCutscenePosPointer()
 {
 	if (CutscenePosAddr)
 	{
@@ -101,7 +101,7 @@ void *GetCutscenePosPointer()
 
 	// Get cutscene Pos address
 	constexpr BYTE CutscenePosSearchBytes[]{ 0x40, 0x88, 0x54, 0x24, 0x0B, 0x88, 0x4C, 0x24, 0x0A, 0x8B, 0x4C, 0x24, 0x08, 0x8B, 0xD1, 0x89, 0x0D };
-	CutscenePosAddr = (void*)ReadSearchedAddresses(0x004A04DB, 0x004A078B, 0x004A004B, CutscenePosSearchBytes, sizeof(CutscenePosSearchBytes), 0x11);
+	CutscenePosAddr = (float*)ReadSearchedAddresses(0x004A04DB, 0x004A078B, 0x004A004B, CutscenePosSearchBytes, sizeof(CutscenePosSearchBytes), 0x11);
 
 	// Checking address pointer
 	if (!CutscenePosAddr)
@@ -113,7 +113,7 @@ void *GetCutscenePosPointer()
 	return CutscenePosAddr;
 }
 
-void *GetJamesPosPointer()
+float *GetJamesPosPointer()
 {
 	if (JamesPosAddr)
 	{

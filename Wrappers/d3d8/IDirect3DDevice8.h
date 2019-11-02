@@ -64,8 +64,10 @@ private:
 		DWORD alphaTestEnable;
 		DWORD srcBlend;
 		DWORD destBlend;
-		IDirect3DBaseTexture8 *stage0;
+		IDirect3DBaseTexture8 *stage0 = nullptr;
 		DWORD vertexShader;
+		IDirect3DVertexBuffer8 *pStream0 = nullptr;
+		UINT stream0Stride;
 	};
 
 public:

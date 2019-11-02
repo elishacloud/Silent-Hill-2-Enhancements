@@ -394,7 +394,7 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 	}
 
 	// Restores self shadows
-	if (EnableSelfShadows && EnableXboxShadows() && State == D3DRS_STENCILPASS && Value == D3DSTENCILOP_REPLACE)
+	if (EnableSoftShadows && EnableXboxShadows() && State == D3DRS_STENCILPASS && Value == D3DSTENCILOP_REPLACE)
 	{
 		if (SH2_ChapterID && *SH2_ChapterID == 0x01) // Born From a Wish
 		{
@@ -727,19 +727,17 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	// Drawing opaque map geometry and dynamic objects
 	if (EnableXboxShadows() && !shadowVolumeFlag)
 	{
-		// We're drawing opaque map geometry and dynamic objects
-
 		// Change default states to be more like Xbox version
 		ProxyInterface->SetRenderState(D3DRS_STENCILMASK, 0xFFFFFFFF);
 		ProxyInterface->SetRenderState(D3DRS_STENCILWRITEMASK, 0xFF);
 
+		// Drawing just opaque map geometry
 		DWORD stencilRef = 0;
 		if (SUCCEEDED(ProxyInterface->GetRenderState(D3DRS_STENCILREF, &stencilRef)) && stencilRef == 0)
 		{
-			// We're drawing just opaque map geometry
-
 			// Change default states to be more like Xbox version
 			ProxyInterface->SetRenderState(D3DRS_STENCILENABLE, TRUE);
 			ProxyInterface->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_ALWAYS);
@@ -748,7 +746,7 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 	}
 
 	// Exclude Woodside Room 208 TV static geometry from receiving shadows
-	if (WoodsideRoom208TV && SH2_RoomID && *SH2_RoomID == 0x18 && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 4 && startIndex == 0 && primCount == 2)
+	if (EnableSoftShadows && SH2_RoomID && *SH2_RoomID == 0x18 && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 4 && startIndex == 0 && primCount == 2)
 	{
 		LPDIRECT3DTEXTURE8 texture = nullptr;
 		D3DSURFACE_DESC desc = { D3DFMT_UNKNOWN, D3DRTYPE_TEXTURE, 0, D3DPOOL_DEFAULT, 0, D3DMULTISAMPLE_NONE, 0, 0 };
@@ -775,9 +773,10 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 		}
 	}
 	// Exclude windows in Heaven's Night, Hotel 2F Room Hallway and Hotel Storeroom from receiving shadows
-	else if ((HeavensNightWindows && SH2_RoomID && *SH2_RoomID == 0x0C && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 18 && startIndex == 0 && primCount == 21) ||
-		(HotelHallwayWindow && SH2_RoomID && *SH2_RoomID == 0x9F && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 10 && startIndex == 0 && primCount == 10) ||
-		(HotelStoreroomWindow && SH2_RoomID && *SH2_RoomID == 0x94 && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 8 && startIndex == 0 && primCount == 8))
+	else if (EnableSoftShadows &&
+		((SH2_RoomID && *SH2_RoomID == 0x0C && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 18 && startIndex == 0 && primCount == 21) ||
+		(SH2_RoomID && *SH2_RoomID == 0x9F && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 10 && startIndex == 0 && primCount == 10) ||
+		(SH2_RoomID && *SH2_RoomID == 0x94 && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 8 && startIndex == 0 && primCount == 8)))
 	{
 		DWORD stencilPass, stencilRef = 0;
 
@@ -798,7 +797,7 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 		return hr;
 	}
 	// Exclude refrigerator interior in hospital from receiving shadows
-	else if (HospitalRefrigerator && SH2_RoomID && *SH2_RoomID == 0x53 && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 1037 && startIndex == 0 && primCount == 1580)
+	else if (EnableSoftShadows && SH2_RoomID && *SH2_RoomID == 0x53 && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 1037 && startIndex == 0 && primCount == 1580)
 	{
 		DWORD stencilPass = 0;
 
@@ -830,20 +829,19 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	// Drawing transparent dynamic objects (Character hair etc.)
 	if (EnableXboxShadows() && !shadowVolumeFlag)
 	{
-		// We're drawing transparent dynamic objects (Character hair etc.)
-
 		// Change default states to be more like Xbox version
 		ProxyInterface->SetRenderState(D3DRS_STENCILMASK, 0xFFFFFFFF);
 		ProxyInterface->SetRenderState(D3DRS_STENCILWRITEMASK, 0xFF);
 	}
 
-	if (LabyrinthValveTurn && SH2_CutsceneID && *SH2_CutsceneID == 0x46 && PrimitiveType == D3DPT_TRIANGLELIST && PrimitiveCount > 496 && PrimitiveCount < 536)
+	if (EnableSoftShadows && SH2_CutsceneID && *SH2_CutsceneID == 0x46 && PrimitiveType == D3DPT_TRIANGLELIST && PrimitiveCount > 496 && PrimitiveCount < 536)
 	{
 		return D3D_OK;
 	}
-	else if (TopDownShadow && ((SH2_RoomID && (*SH2_RoomID == 0x02 || *SH2_RoomID == 0x24 || *SH2_RoomID == 0x8F || *SH2_RoomID == 0x90)) ||
+	else if (EnableSoftShadows && ((SH2_RoomID && (*SH2_RoomID == 0x02 || *SH2_RoomID == 0x24 || *SH2_RoomID == 0x8F || *SH2_RoomID == 0x90)) ||
 		(SH2_CutsceneID && *SH2_CutsceneID == 0x5A)))
 	{
 		DWORD stencilPass = 0;
@@ -871,7 +869,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 
 	if (EnableXboxShadows() && stencilPass == D3DSTENCILOP_INCR && !shadowVolumeFlag)
 	{
-		// We're drawing shadow volumes, toggle flag on
+		// Drawing shadow volumes, toggle flag on
 		shadowVolumeFlag = true;
 
 		IDirect3DSurface8 *backbufferColor, *backbufferDepthStencil = nullptr;
@@ -895,7 +893,16 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 			}
 		}
 
-		if (!silhouetteSurface)
+		// DrawPrimitiveUP trashes vertex buffer stream 0, back it up
+		IDirect3DVertexBuffer8 *pStream0;
+		UINT stream0Stride = 0;
+		if (SUCCEEDED(ProxyInterface->GetStreamSource(0, &pStream0, &stream0Stride)) && pStream0)
+		{
+			pStream0->Release();
+		}
+
+		// Error checking
+		if (!silhouetteTexture || !silhouetteSurface || !backbufferColor || !backbufferDepthStencil || !pStream0)
 		{
 			return D3DERR_INVALIDCALL;
 		}
@@ -925,15 +932,6 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 		ProxyInterface->GetRenderState(D3DRS_ALPHATESTENABLE, &alphaTest);
 		ProxyInterface->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 		ProxyInterface->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
-
-		// DrawPrimitiveUP trashes vertex buffer stream 0, back it up
-		// TODO: Should the soft shadow code do this too?
-		IDirect3DVertexBuffer8 *pStream0;
-		UINT stream0Stride = 0;
-		if (SUCCEEDED(ProxyInterface->GetStreamSource(0, &pStream0, &stream0Stride)) && pStream0)
-		{
-			pStream0->Release();
-		}
 
 		// Discard all pixels but James' silhouette
 		DWORD stencilFunc = 0;
@@ -979,11 +977,21 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 
 	if (stencilRef == 129)
 	{
-		if (EnableXboxShadows()) {
-			// We're done drawing shadow volumes, toggle flag off
+		if (EnableXboxShadows())
+		{
+			// Done drawing shadow volumes, toggle flag off
 			shadowVolumeFlag = false;
 
-			if (!silhouetteTexture)
+			// DrawPrimitiveUP trashes vertex buffer stream 0, back it up
+			IDirect3DVertexBuffer8 *pStream0;
+			UINT stream0Stride = 0;
+			if (SUCCEEDED(ProxyInterface->GetStreamSource(0, &pStream0, &stream0Stride)) && pStream0)
+			{
+				pStream0->Release();
+			}
+
+			// Error checking
+			if (!silhouetteTexture || !pStream0)
 			{
 				return D3DERR_INVALIDCALL;
 			}
@@ -1012,15 +1020,6 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 			ProxyInterface->GetRenderState(D3DRS_ALPHATESTENABLE, &alphaTest);
 			ProxyInterface->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 			ProxyInterface->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
-
-			// DrawPrimitiveUP trashes vertex buffer stream 0, back it up
-			// TODO: Should the soft shadow code do this too?
-			IDirect3DVertexBuffer8 *pStream0;
-			UINT stream0Stride = 0;
-			if (SUCCEEDED(ProxyInterface->GetStreamSource(0, &pStream0, &stream0Stride)) && pStream0)
-			{
-				pStream0->Release();
-			}
 
 			// Backup FVF, use pre-transformed vertices and texture coords
 			DWORD vshader = 0;
@@ -1166,7 +1165,7 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 	}
 
 	// Disable shadow in specific cutscenes
-	if (ShadowIntensity && SH2_CutsceneID)
+	if (EnableSoftShadows && SH2_CutsceneID)
 	{
 		UpdateShadowCutscene(SH2_CutsceneID);
 	}
@@ -1732,7 +1731,7 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 	int BLUR_PASSES = 4;
 
 	// Get shadow intensity
-	if (ShadowIntensity && SH2_RoomID && SH2_ChapterID)
+	if (EnableSoftShadows && SH2_RoomID && SH2_ChapterID)
 	{
 		// Main scenario
 		if (*SH2_ChapterID == 0x00)
@@ -2019,7 +2018,7 @@ void m_IDirect3DDevice8::BackupState(D3DSTATE *state)
 	ProxyInterface->GetTextureStageState(0, D3DTSS_COLORARG1, &state->colorArg1);
 	ProxyInterface->GetTextureStageState(0, D3DTSS_ALPHAARG1, &state->alphaArg1);
 
-	ProxyInterface->GetRenderState(D3DRS_ALPHABLENDENABLE, &state->alphaBlendEnable); // Doesn't really need to be backed up
+	ProxyInterface->GetRenderState(D3DRS_ALPHABLENDENABLE, &state->alphaBlendEnable);	// Doesn't really need to be backed up
 	ProxyInterface->GetRenderState(D3DRS_ALPHATESTENABLE, &state->alphaTestEnable);
 	ProxyInterface->GetRenderState(D3DRS_SRCBLEND, &state->srcBlend);
 	ProxyInterface->GetRenderState(D3DRS_DESTBLEND, &state->destBlend);
@@ -2030,6 +2029,11 @@ void m_IDirect3DDevice8::BackupState(D3DSTATE *state)
 	}
 
 	ProxyInterface->GetVertexShader(&state->vertexShader);
+
+	if (SUCCEEDED(ProxyInterface->GetStreamSource(0, &state->pStream0, &state->stream0Stride)) && state->pStream0)
+	{
+		state->pStream0->Release();
+	}
 }
 
 void m_IDirect3DDevice8::RestoreState(D3DSTATE *state)
@@ -2041,10 +2045,17 @@ void m_IDirect3DDevice8::RestoreState(D3DSTATE *state)
 
 	ProxyInterface->SetRenderState(D3DRS_ALPHABLENDENABLE, state->alphaBlendEnable);
 	ProxyInterface->SetRenderState(D3DRS_ALPHATESTENABLE, state->alphaTestEnable);
+	if (state->pStream0)
+	{
+		ProxyInterface->SetStreamSource(0, state->pStream0, state->stream0Stride);
+	}
 	ProxyInterface->SetRenderState(D3DRS_SRCBLEND, state->srcBlend);
 	ProxyInterface->SetRenderState(D3DRS_DESTBLEND, state->destBlend);
 
-	ProxyInterface->SetTexture(0, state->stage0);
+	if (state->stage0)
+	{
+		ProxyInterface->SetTexture(0, state->stage0);
+	}
 
 	ProxyInterface->SetVertexShader(state->vertexShader);
 }
@@ -2071,12 +2082,12 @@ void m_IDirect3DDevice8::ReleaseInterface(T **ppInterface, UINT ReleaseRefNum)
 
 bool m_IDirect3DDevice8::EnableXboxShadows()
 {
-	if (!XboxShadows)
-		return false;
-
-	if ((SH2_RoomID && (*SH2_RoomID == 0x02 || *SH2_RoomID == 0x24 || *SH2_RoomID == 0x8F || *SH2_RoomID == 0x90)) ||
+	if (!EnableSoftShadows ||
+		(SH2_RoomID && (*SH2_RoomID == 0x02 || *SH2_RoomID == 0x24 || *SH2_RoomID == 0x8F || *SH2_RoomID == 0x90)) ||
 		(SH2_CutsceneID && *SH2_CutsceneID == 0x5A))
+	{
 		return false;
+	}
 
 	return true;
 }

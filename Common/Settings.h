@@ -32,7 +32,9 @@
 	visit(HalogenLightFix, true) \
 	visit(HeavensNightWindows, false) \
 	visit(HospitalChaseFix, true) \
+	visit(HospitalRefrigerator, false) \
 	visit(HotelHallwayWindow, false) \
+	visit(HotelStoreroomWindow, false) \
 	visit(HotelWaterFix, true) \
 	visit(ImproveStorageSupport, true) \
 	visit(IncreaseBlood, true) \
@@ -67,6 +69,7 @@
 	visit(WoodsideRoom208TV, false) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, true) \
+	visit(XboxShadows, false) \
 	visit(XInputVibration, true)
 
 #define VISIT_INT_SETTINGS(visit) \

@@ -27,7 +27,8 @@ void *CutscenePosAddr = nullptr;
 BYTE *FlashLightRenderAddr = nullptr;
 void *JamesPosAddr = nullptr;
 void *RoomIDAddr = nullptr;
-BYTE *SpecializedLightAddr = nullptr;
+DWORD *SpecializedLightAddr1 = nullptr;
+DWORD *SpecializedLightAddr2 = nullptr;
 
 void *GetRoomIDPointer()
 {
@@ -176,23 +177,44 @@ BYTE *GetChapterIDPointer()
 	return ChapterIDAddr;
 }
 
-BYTE *GetSpecializedLightPointer()
+DWORD *GetSpecializedLightPointer1()
 {
-	if (SpecializedLightAddr)
+	if (SpecializedLightAddr1)
 	{
-		return SpecializedLightAddr;
+		return SpecializedLightAddr1;
 	}
 
 	// Get address for flashlight render
 	constexpr BYTE SpecializedLightSearchBytes[]{ 0x8B, 0x44, 0x24, 0x04, 0x8B, 0x4C, 0x24, 0x08, 0xA3 };
-	SpecializedLightAddr = (BYTE*)ReadSearchedAddresses(0x00445630, 0x004457F0, 0x004457F0, SpecializedLightSearchBytes, sizeof(SpecializedLightSearchBytes), 0x09);
+	SpecializedLightAddr1 = (DWORD*)ReadSearchedAddresses(0x00445630, 0x004457F0, 0x004457F0, SpecializedLightSearchBytes, sizeof(SpecializedLightSearchBytes), 0x09);
 
 	// Checking address pointer
-	if (!SpecializedLightAddr)
+	if (!SpecializedLightAddr1)
 	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find James Pos function address!";
+		Logging::Log() << __FUNCTION__ << " Error: failed to find James Pos function address 1!";
 		return nullptr;
 	}
 
-	return SpecializedLightAddr;
+	return SpecializedLightAddr1;
+}
+
+DWORD *GetSpecializedLightPointer2()
+{
+	if (SpecializedLightAddr2)
+	{
+		return SpecializedLightAddr2;
+	}
+
+	// Get address for flashlight render
+	constexpr BYTE SpecializedLightSearchBytes[]{ 0x00, 0x00, 0x00, 0x52, 0x6A, 0x22, 0x50, 0x89, 0x1D };
+	SpecializedLightAddr2 = (DWORD*)ReadSearchedAddresses(0x004FFA1B, 0x004FFD4B, 0x004FF66B, SpecializedLightSearchBytes, sizeof(SpecializedLightSearchBytes), 0x09);
+
+	// Checking address pointer
+	if (!SpecializedLightAddr2)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find James Pos function address 2!";
+		return nullptr;
+	}
+
+	return SpecializedLightAddr2;
 }

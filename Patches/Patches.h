@@ -14,7 +14,8 @@ void *GetCutscenePosPointer();
 BYTE *GetFlashLightRenderPointer();
 void *GetJamesPosPointer();
 void *GetRoomIDPointer();
-BYTE *GetSpecializedLightPointer();
+DWORD *GetSpecializedLightPointer1();
+DWORD *GetSpecializedLightPointer2();
 
 // Function forward declaration
 void DisableCDCheck();
@@ -68,7 +69,8 @@ extern BYTE *FlashLightRenderAddr;
 extern bool IsInBloomEffect;
 extern void *JamesPosAddr;
 extern void *RoomIDAddr;
-extern BYTE *SpecializedLightAddr;
+extern DWORD *SpecializedLightAddr1;
+extern DWORD *SpecializedLightAddr2;
 
 // Run code only once
 #define RUNONCE() \

@@ -1825,14 +1825,14 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 
 	if (EnableShadowFading)
 	{
-		// Hide shadows if flashlight beam is turned off before fade out is complete ot turned on while refading other shadows in
+		// Hide shadows if flashlight beam is turned off before fade out is complete or turned on while refading other shadows in
 		if (SH2_FlashlightBeam && ((*SH2_FlashlightBeam == 0x00 && ShadowMode == SHADOW_FADING_OUT) ||
 			(*SH2_FlashlightBeam == 0x01 && ShadowMode == SHADOW_REFADING)))
 		{
 			SHADOW_OPACITY = 0;
 		}
 		// Shadow fading
-		else if (IsShadowFading || (SH2_FlashlightSwitch && *SH2_FlashlightSwitch != LastFlashlightSwitch))
+		else if (ShadowMode != SHADOW_FADING_NONE || (SH2_FlashlightSwitch && *SH2_FlashlightSwitch != LastFlashlightSwitch))
 		{
 			SHADOW_OPACITY = (SHADOW_OPACITY * ShadowFadingIntensity) / 100;
 		}
@@ -2143,7 +2143,6 @@ void m_IDirect3DDevice8::SetShadowFading()
 		{
 			ShadowFadingCounter = 0;
 		}
-		IsShadowFading = true;
 		ShadowMode = SHADOW_FADING_IN;
 		ShadowFadingIntensity = GetShadowIntensity();	// Intesity is increased by around 3 each frame
 		if (ShadowFadingIntensity == 100)				// Exit once intensity reaches 100
@@ -2159,7 +2158,6 @@ void m_IDirect3DDevice8::SetShadowFading()
 		{
 			ShadowFadingCounter = 0;
 		}
-		IsShadowFading = true;
 		ShadowMode = SHADOW_FADING_OUT;
 		ShadowFadingIntensity = GetShadowIntensity();	// Intesity is decreased by around 15 each frame
 	}
@@ -2171,7 +2169,6 @@ void m_IDirect3DDevice8::SetShadowFading()
 			ShadowFadingCounter = 0;
 			ShadowFadingIntensity = 0;
 		}
-		IsShadowFading = true;
 		ShadowMode = SHADOW_REFADING;
 		DWORD FadeStep = (ShadowFadingCounter % 2);		// Intesity is increased by 1 every other frame
 		ShadowFadingIntensity = (ShadowFadingIntensity < 100 - FadeStep) ? ShadowFadingIntensity + FadeStep : 100;
@@ -2184,9 +2181,8 @@ void m_IDirect3DDevice8::SetShadowFading()
 	// No shadow fading effects
 	else
 	{
-		IsShadowFading = false;
+		ShadowMode = SHADOW_FADING_NONE;
 		LastFlashlightSwitch = *SH2_FlashlightSwitch;
 		ShadowFadingIntensity = LastFlashlightSwitch * 100;
-		ShadowMode = SHADOW_FADING_NONE;
 	}
 }

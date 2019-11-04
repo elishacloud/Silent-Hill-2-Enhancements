@@ -30,7 +30,6 @@ private:
 	} FLDIMMODE;
 
 	bool EnableShadowFading = false;
-	bool IsShadowFading = false;
 	bool DrawingShadowsFlag = false;
 	FLDIMMODE ShadowMode = SHADOW_FADING_NONE;
 	BYTE LastFlashlightSwitch = 0;

@@ -394,7 +394,7 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 	}
 
 	// Restores self shadows
-	if (EnableSoftShadows && EnableXboxShadows() && State == D3DRS_STENCILPASS && Value == D3DSTENCILOP_REPLACE)
+	if (EnableXboxShadows && State == D3DRS_STENCILPASS && Value == D3DSTENCILOP_REPLACE)
 	{
 		if (SH2_ChapterID && *SH2_ChapterID == 0x01) // Born From a Wish
 		{
@@ -710,6 +710,12 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 		return D3D_OK;
 	}
 
+	// Shadow fading counter
+	if (DrawingShadowsFlag)
+	{
+		ShadowFadingCounter++;
+	}
+
 	// For blur frame flicker fix
 	if (EndSceneCounter == 1)
 	{
@@ -728,7 +734,7 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 	Logging::LogDebug() << __FUNCTION__;
 
 	// Drawing opaque map geometry and dynamic objects
-	if (EnableXboxShadows() && !shadowVolumeFlag)
+	if (EnableXboxShadows && !shadowVolumeFlag)
 	{
 		// Change default states to be more like Xbox version
 		ProxyInterface->SetRenderState(D3DRS_STENCILMASK, 0xFFFFFFFF);
@@ -830,7 +836,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 	Logging::LogDebug() << __FUNCTION__;
 
 	// Drawing transparent dynamic objects (Character hair etc.)
-	if (EnableXboxShadows() && !shadowVolumeFlag)
+	if (EnableXboxShadows && !shadowVolumeFlag)
 	{
 		// Change default states to be more like Xbox version
 		ProxyInterface->SetRenderState(D3DRS_STENCILMASK, 0xFFFFFFFF);
@@ -867,7 +873,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 	DWORD stencilPass = 0;
 	ProxyInterface->GetRenderState(D3DRS_STENCILPASS, &stencilPass);
 
-	if (EnableXboxShadows() && stencilPass == D3DSTENCILOP_INCR && !shadowVolumeFlag)
+	if (EnableXboxShadows && stencilPass == D3DSTENCILOP_INCR && !shadowVolumeFlag)
 	{
 		// Drawing shadow volumes, toggle flag on
 		shadowVolumeFlag = true;
@@ -977,7 +983,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 
 	if (stencilRef == 129)
 	{
-		if (EnableXboxShadows())
+		if (EnableXboxShadows)
 		{
 			// Done drawing shadow volumes, toggle flag off
 			shadowVolumeFlag = false;
@@ -1103,6 +1109,21 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 	}
 
 	ClassReleaseFlag = false;
+
+	// Get shadow fading intensity
+	if (EnableSoftShadows && DrawingShadowsFlag && SH2_FlashlightBeam && SH2_FlashlightSwitch)
+	{
+		SetShadowFading();
+	}
+
+	DrawingShadowsFlag = false;
+
+	// Enable Xbox shadows
+	if (EnableSoftShadows)
+	{
+		EnableXboxShadows = !((SH2_RoomID && (*SH2_RoomID == 0x02 || *SH2_RoomID == 0x24 || *SH2_RoomID == 0x8F || *SH2_RoomID == 0x90)) ||
+			(SH2_CutsceneID && *SH2_CutsceneID == 0x5A));
+	}
 
 	// Hotel Water Visual Fixes
 	if (HotelWaterFix && SH2_RoomID)
@@ -1373,7 +1394,7 @@ HRESULT m_IDirect3DDevice8::Clear(DWORD Count, CONST D3DRECT *pRects, DWORD Flag
 	Logging::LogDebug() << __FUNCTION__;
 
 	// Change first Clear call to match Xbox version
-	if (EnableXboxShadows() && Flags == (D3DCLEAR_TARGET | D3DCLEAR_STENCIL | D3DCLEAR_ZBUFFER) && Color == D3DCOLOR_ARGB(124, 0, 0, 0))
+	if (EnableXboxShadows && Flags == (D3DCLEAR_TARGET | D3DCLEAR_STENCIL | D3DCLEAR_ZBUFFER) && Color == D3DCOLOR_ARGB(124, 0, 0, 0))
 	{
 		return ProxyInterface->Clear(Count, pRects, Flags, Color, Z, 0);
 	}
@@ -1726,6 +1747,7 @@ HRESULT m_IDirect3DDevice8::GetInfo(THIS_ DWORD DevInfoID, void* pDevInfoStruct,
 HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 {
 	// Variables for soft shadows
+	DrawingShadowsFlag = true;
 	DWORD SHADOW_OPACITY = 170;
 	float SHADOW_DIVISOR = 2 * ((float)BufferHeight / 720.0f);
 	int BLUR_PASSES = 4;
@@ -1798,6 +1820,21 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 				SHADOW_OPACITY = 90;
 				break;
 			}
+		}
+	}
+
+	if (EnableShadowFading)
+	{
+		// Hide shadows if flashlight beam is turned off before fade out is complete ot turned on while refading other shadows in
+		if (SH2_FlashlightBeam && ((*SH2_FlashlightBeam == 0x00 && ShadowMode == SHADOW_FADING_OUT) ||
+			(*SH2_FlashlightBeam == 0x01 && ShadowMode == SHADOW_REFADING)))
+		{
+			SHADOW_OPACITY = 0;
+		}
+		// Shadow fading
+		else if (IsShadowFading || (SH2_FlashlightSwitch && *SH2_FlashlightSwitch != LastFlashlightSwitch))
+		{
+			SHADOW_OPACITY = (SHADOW_OPACITY * ShadowFadingIntensity) / 100;
 		}
 	}
 
@@ -2080,14 +2117,76 @@ void m_IDirect3DDevice8::ReleaseInterface(T **ppInterface, UINT ReleaseRefNum)
 	}
 }
 
-bool m_IDirect3DDevice8::EnableXboxShadows()
+DWORD m_IDirect3DDevice8::GetShadowIntensity()
 {
-	if (!EnableSoftShadows ||
-		(SH2_RoomID && (*SH2_RoomID == 0x02 || *SH2_RoomID == 0x24 || *SH2_RoomID == 0x8F || *SH2_RoomID == 0x90)) ||
-		(SH2_CutsceneID && *SH2_CutsceneID == 0x5A))
+	return (!SH2_FlashlightRed || !SH2_FlashlightGreen || !SH2_FlashlightBlue) ? 100 :
+		(DWORD)(((*SH2_FlashlightRed + *SH2_FlashlightGreen + *SH2_FlashlightBlue) * 33.3333333f) / 7.0f);
+}
+
+void m_IDirect3DDevice8::SetShadowFading()
+{
+	// Check room ID to see if shadow fading should be enabled
+	EnableShadowFading = true;
+	for (const DWORD &Room : { 0xA2, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBD })
 	{
-		return false;
+		if (SH2_RoomID && *SH2_RoomID == Room)
+		{
+			EnableShadowFading = false;
+			break;
+		}
 	}
 
-	return true;
+	// Fade shadows in after turning flashlight on
+	if (EnableShadowFading && (LastFlashlightSwitch == 0x00 || ShadowMode != SHADOW_FADING_NONE) && *SH2_FlashlightSwitch == 0x01)
+	{
+		if (ShadowMode != SHADOW_FADING_IN)
+		{
+			ShadowFadingCounter = 0;
+		}
+		IsShadowFading = true;
+		ShadowMode = SHADOW_FADING_IN;
+		ShadowFadingIntensity = GetShadowIntensity();	// Intesity is increased by around 3 each frame
+		if (ShadowFadingIntensity == 100)				// Exit once intensity reaches 100
+		{
+			LastFlashlightSwitch = *SH2_FlashlightSwitch;
+			ShadowMode = SHADOW_FADING_NONE;
+		}
+	}
+	// Fade shadows out after turning flashlight off
+	else if (EnableShadowFading && *SH2_FlashlightSwitch == 0x00 && *SH2_FlashlightBeam == 0x01)
+	{
+		if (ShadowMode != SHADOW_FADING_OUT)
+		{
+			ShadowFadingCounter = 0;
+		}
+		IsShadowFading = true;
+		ShadowMode = SHADOW_FADING_OUT;
+		ShadowFadingIntensity = GetShadowIntensity();	// Intesity is decreased by around 15 each frame
+	}
+	// Refade in other shadows after turning flashlight off
+	else if (EnableShadowFading && ((SH2_FlashlightSwitch && *SH2_FlashlightSwitch != LastFlashlightSwitch) || ShadowMode == SHADOW_FADING_OUT || ShadowMode == SHADOW_REFADING))
+	{
+		if (ShadowMode != SHADOW_REFADING)
+		{
+			ShadowFadingCounter = 0;
+			ShadowFadingIntensity = 0;
+		}
+		IsShadowFading = true;
+		ShadowMode = SHADOW_REFADING;
+		DWORD FadeStep = (ShadowFadingCounter % 2);		// Intesity is increased by 1 every other frame
+		ShadowFadingIntensity = (ShadowFadingIntensity < 100 - FadeStep) ? ShadowFadingIntensity + FadeStep : 100;
+		if (ShadowFadingIntensity == 100)				// Exit once intensity reaches 100
+		{
+			LastFlashlightSwitch = *SH2_FlashlightSwitch;
+			ShadowMode = SHADOW_FADING_NONE;
+		}
+	}
+	// No shadow fading effects
+	else
+	{
+		IsShadowFading = false;
+		LastFlashlightSwitch = *SH2_FlashlightSwitch;
+		ShadowFadingIntensity = LastFlashlightSwitch * 100;
+		ShadowMode = SHADOW_FADING_NONE;
+	}
 }

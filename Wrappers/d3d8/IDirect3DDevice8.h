@@ -16,6 +16,29 @@ private:
 	DWORD *SH2_SpecializedLight1 = nullptr;
 	DWORD *SH2_SpecializedLight2 = nullptr;
 
+	BYTE *SH2_FlashlightBeam = nullptr;
+	BYTE *SH2_FlashlightSwitch = nullptr;
+	float *SH2_FlashlightRed = nullptr;
+	float *SH2_FlashlightGreen = nullptr;
+	float *SH2_FlashlightBlue = nullptr;
+
+	typedef enum _FLDIMMODE {
+		SHADOW_FADING_NONE = 0,
+		SHADOW_FADING_IN = 1,
+		SHADOW_FADING_OUT = 2,
+		SHADOW_REFADING = 3,
+	} FLDIMMODE;
+
+	bool EnableShadowFading = false;
+	bool IsShadowFading = false;
+	bool DrawingShadowsFlag = false;
+	FLDIMMODE ShadowMode = SHADOW_FADING_NONE;
+	BYTE LastFlashlightSwitch = 0;
+	DWORD ShadowFadingCounter = 0;
+	DWORD ShadowFadingIntensity = 0;	// 0 to 100
+
+	bool EnableXboxShadows = false;
+
 	bool SkipSceneFlag = false;
 	DWORD LastCutsceneID = 0;
 	float LastCameraPos = 0;
@@ -84,6 +107,15 @@ public:
 		SH2_JamesPos = GetJamesPosPointer();
 		SH2_SpecializedLight1 = GetSpecializedLightPointer1();
 		SH2_SpecializedLight2 = GetSpecializedLightPointer2();
+
+		SH2_FlashlightBeam = GetFlashLightRenderPointer();
+		SH2_FlashlightSwitch = GetFlashlightSwitchPointer();
+		SH2_FlashlightRed = GetFlashlightBrightnessPointer();
+		if (SH2_FlashlightRed)
+		{
+			SH2_FlashlightGreen = (float*)((DWORD)SH2_FlashlightRed + 4);
+			SH2_FlashlightBlue = (float*)((DWORD)SH2_FlashlightRed + 8);
+		}
 
 		// Create blank texture for white shader fix
 		if (FAILED(ProxyInterface->CreateTexture(1, 1, 1, NULL, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED, &BlankTexture)))
@@ -210,5 +242,6 @@ private:
 	void RestoreState(D3DSTATE *state);
 	template <typename T>
 	void ReleaseInterface(T **ppInterface, UINT ReleaseRefNum = 1);
-	bool EnableXboxShadows();
+	DWORD GetShadowIntensity();
+	void SetShadowFading();
 };

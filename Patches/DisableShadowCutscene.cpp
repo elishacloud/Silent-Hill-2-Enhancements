@@ -41,7 +41,7 @@ void UpdateShadowCutscene(DWORD *SH2_CutsceneID)
 	// Set shadow
 	static bool ValueSet = false;
 	static BYTE LastValue = 0x01;
-	if (*SH2_CutsceneID == 0x03 || *SH2_CutsceneID == 0x2E)
+	if (*SH2_CutsceneID == 0x03 || *SH2_CutsceneID == 0x2E || *SH2_CutsceneID == 0x5C)
 	{
 		if (!ValueSet)
 		{

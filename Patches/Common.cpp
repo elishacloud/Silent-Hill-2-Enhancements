@@ -24,7 +24,9 @@
 BYTE *ChapterIDAddr = nullptr;
 DWORD *CutsceneIDAddr = nullptr;
 float *CutscenePosAddr = nullptr;
+float *FlashlightBrightnessAddr = nullptr;
 BYTE *FlashLightRenderAddr = nullptr;
+BYTE *FlashlightSwitchAddr = nullptr;
 float *JamesPosAddr = nullptr;
 DWORD *RoomIDAddr = nullptr;
 DWORD *SpecializedLightAddr1 = nullptr;
@@ -149,7 +151,7 @@ BYTE *GetFlashLightRenderPointer()
 	// Checking address pointer
 	if (!FlashLightRenderAddr)
 	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find James Pos function address!";
+		Logging::Log() << __FUNCTION__ << " Error: failed to find flashlight render address!";
 		return nullptr;
 	}
 
@@ -170,7 +172,7 @@ BYTE *GetChapterIDPointer()
 	// Checking address pointer
 	if (!ChapterIDAddr)
 	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find James Pos function address!";
+		Logging::Log() << __FUNCTION__ << " Error: failed to find chapter ID address!";
 		return nullptr;
 	}
 
@@ -191,7 +193,7 @@ DWORD *GetSpecializedLightPointer1()
 	// Checking address pointer
 	if (!SpecializedLightAddr1)
 	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find James Pos function address 1!";
+		Logging::Log() << __FUNCTION__ << " Error: failed to find specialized light address 1!";
 		return nullptr;
 	}
 
@@ -212,9 +214,51 @@ DWORD *GetSpecializedLightPointer2()
 	// Checking address pointer
 	if (!SpecializedLightAddr2)
 	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find James Pos function address 2!";
+		Logging::Log() << __FUNCTION__ << " Error: failed to find specialized light address 2!";
 		return nullptr;
 	}
 
 	return SpecializedLightAddr2;
+}
+
+BYTE *GetFlashlightSwitchPointer()
+{
+	if (FlashlightSwitchAddr)
+	{
+		return FlashlightSwitchAddr;
+	}
+
+	// Get address for flashlight on/off switch address
+	constexpr BYTE FlashlightSwitchSearchBytes[]{ 0x83, 0xF8, 0x33, 0x53, 0x56, 0x0F, 0x87 };
+	FlashlightSwitchAddr = (BYTE*)ReadSearchedAddresses(0x0043ED25, 0x0043EEE5, 0x0043EEE5, FlashlightSwitchSearchBytes, sizeof(FlashlightSwitchSearchBytes), 0x29);
+
+	// Checking address pointer
+	if (!FlashlightSwitchAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find flashlight on/off switch address!";
+		return nullptr;
+	}
+
+	return FlashlightSwitchAddr;
+}
+
+float *GetFlashlightBrightnessPointer()
+{
+	if (FlashlightBrightnessAddr)
+	{
+		return FlashlightBrightnessAddr;
+	}
+
+	// Get address for flashlight brightness address
+	constexpr BYTE FlashlightBrightnessSearchBytes[]{ 0x8D, 0x54, 0x24, 0x2C, 0x52, 0x8D, 0x44, 0x24, 0x40, 0x50, 0x8D, 0x4C, 0x24, 0x54, 0x51, 0x68 };
+	FlashlightBrightnessAddr = (float*)ReadSearchedAddresses(0x0047B4A5, 0x0047B745, 0x0047B955, FlashlightBrightnessSearchBytes, sizeof(FlashlightBrightnessSearchBytes), 0x10);
+
+	// Checking address pointer
+	if (!FlashlightBrightnessAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find flashlight brightness address!";
+		return nullptr;
+	}
+
+	return FlashlightBrightnessAddr;
 }

@@ -29,21 +29,25 @@ private:
 		SHADOW_REFADING = 3,
 	} FLDIMMODE;
 
-	bool EnableShadowFading = false;
+	// Shadow fading when using soft shadows
 	bool DrawingShadowsFlag = false;
 	FLDIMMODE ShadowMode = SHADOW_FADING_NONE;
 	BYTE LastFlashlightSwitch = 0;
 	DWORD ShadowFadingCounter = 0;
 	DWORD ShadowFadingIntensity = 0;	// 0 to 100
 
+	// Xbox shadows to help remove self shadows in certian locations
 	bool EnableXboxShadows = false;
+	bool shadowVolumeFlag = false;
 
+	// Remove Environment Flicker by skipping frames in certian cutscenes
 	bool SkipSceneFlag = false;
 	DWORD LastCutsceneID = 0;
 	float LastCameraPos = 0;
 	float LastJamesPos = 0;
 	DWORD SkipSceneCounter = 0;
 
+	// Remove Effects Flicker by resetting texture on first frame
 	DWORD EndSceneCounter = 0;
 	bool OverrideTextureLoop = false;
 	bool PresentFlag = false;
@@ -61,8 +65,6 @@ private:
 
 	IDirect3DTexture8 *silhouetteTexture = nullptr;
 	IDirect3DSurface8 *silhouetteSurface = nullptr;
-
-	bool shadowVolumeFlag = false;
 
 	struct CUSTOMVERTEX
 	{

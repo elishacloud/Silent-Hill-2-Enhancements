@@ -716,6 +716,8 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 		ShadowFadingCounter++;
 	}
 
+	DrawingShadowsFlag = false;
+
 	// For blur frame flicker fix
 	if (EndSceneCounter == 1)
 	{
@@ -843,10 +845,12 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 		ProxyInterface->SetRenderState(D3DRS_STENCILWRITEMASK, 0xFF);
 	}
 
+	// Disable shadow on the Labyrinth Valve
 	if (EnableSoftShadows && SH2_CutsceneID && *SH2_CutsceneID == 0x46 && PrimitiveType == D3DPT_TRIANGLELIST && PrimitiveCount > 496 && PrimitiveCount < 536)
 	{
 		return D3D_OK;
 	}
+	// Top Down Shadow
 	else if (EnableSoftShadows && ((SH2_RoomID && (*SH2_RoomID == 0x02 || *SH2_RoomID == 0x24 || *SH2_RoomID == 0x8F || *SH2_RoomID == 0x90)) ||
 		(SH2_CutsceneID && *SH2_CutsceneID == 0x5A)))
 	{
@@ -1109,14 +1113,6 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 	}
 
 	ClassReleaseFlag = false;
-
-	// Get shadow fading intensity
-	if (EnableSoftShadows && DrawingShadowsFlag && SH2_FlashlightBeam && SH2_FlashlightSwitch)
-	{
-		SetShadowFading();
-	}
-
-	DrawingShadowsFlag = false;
 
 	// Enable Xbox shadows
 	if (EnableSoftShadows)
@@ -1823,19 +1819,10 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 		}
 	}
 
-	if (EnableShadowFading)
+	SetShadowFading();
+	if (ShadowMode != SHADOW_FADING_NONE)
 	{
-		// Hide shadows if flashlight beam is turned off before fade out is complete or turned on while refading other shadows in
-		if (SH2_FlashlightBeam && ((*SH2_FlashlightBeam == 0x00 && ShadowMode == SHADOW_FADING_OUT) ||
-			(*SH2_FlashlightBeam == 0x01 && ShadowMode == SHADOW_REFADING)))
-		{
-			SHADOW_OPACITY = 0;
-		}
-		// Shadow fading
-		else if (ShadowMode != SHADOW_FADING_NONE || (SH2_FlashlightSwitch && *SH2_FlashlightSwitch != LastFlashlightSwitch))
-		{
-			SHADOW_OPACITY = (SHADOW_OPACITY * ShadowFadingIntensity) / 100;
-		}
+		SHADOW_OPACITY = (SHADOW_OPACITY * ShadowFadingIntensity) / 100;
 	}
 
 	IDirect3DSurface8 *pBackBuffer = nullptr, *pStencilBuffer = nullptr;
@@ -2125,8 +2112,14 @@ DWORD m_IDirect3DDevice8::GetShadowIntensity()
 
 void m_IDirect3DDevice8::SetShadowFading()
 {
+	// Get shadow fading intensity
+	if (!SH2_FlashlightBeam || !SH2_FlashlightSwitch)
+	{
+		return;
+	}
+
 	// Check room ID to see if shadow fading should be enabled
-	EnableShadowFading = true;
+	bool EnableShadowFading = true;
 	for (const DWORD &Room : { 0xA2, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBD })
 	{
 		if (SH2_RoomID && *SH2_RoomID == Room)
@@ -2170,9 +2163,8 @@ void m_IDirect3DDevice8::SetShadowFading()
 			ShadowFadingIntensity = 0;
 		}
 		ShadowMode = SHADOW_REFADING;
-		DWORD FadeStep = (ShadowFadingCounter % 2);		// Intesity is increased by 1 every other frame
-		ShadowFadingIntensity = (ShadowFadingIntensity < 100 - FadeStep) ? ShadowFadingIntensity + FadeStep : 100;
-		if (ShadowFadingIntensity == 100)				// Exit once intensity reaches 100
+		ShadowFadingIntensity = min(100, ShadowFadingCounter / 2);	// Intesity is increased by 1 every other frame
+		if (ShadowFadingIntensity == 100)							// Exit once intensity reaches 100
 		{
 			LastFlashlightSwitch = *SH2_FlashlightSwitch;
 			ShadowMode = SHADOW_FADING_NONE;

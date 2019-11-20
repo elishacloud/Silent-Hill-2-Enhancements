@@ -339,9 +339,9 @@ DWORD WINAPI GetModuleFileNameAHandler(HMODULE hModule, LPSTR lpFileName, DWORD 
 	}
 
 	DWORD ret = org_GetModuleFileName(hModule, lpFileName, nSize);
-	if (lpFileName && ret && nSize > nPathSize && ((moduleHandle && hModule == moduleHandle) || !PathExists(lpFileName)))
+	if (lpFileName && (ret && nSize > nPathSize && ((moduleHandle && hModule == moduleHandle)) || !PathExists(lpFileName)))
 	{
-		ret = nPathSize;
+		ret = min(nSize, nPathSize);
 		strcpy_s(lpFileName, nSize, strModulePathA.c_str());
 	}
 	return ret;
@@ -365,9 +365,9 @@ DWORD WINAPI GetModuleFileNameWHandler(HMODULE hModule, LPWSTR lpFileName, DWORD
 	}
 
 	DWORD ret = org_GetModuleFileName(hModule, lpFileName, nSize);
-	if (lpFileName && ret && nSize > nPathSize && ((moduleHandle && hModule == moduleHandle) || !PathExists(lpFileName)))
+	if (lpFileName && (ret && nSize > nPathSize && ((moduleHandle && hModule == moduleHandle)) || !PathExists(lpFileName)))
 	{
-		ret = nPathSize;
+		ret = min(nSize, nPathSize);
 		wcscpy_s(lpFileName, nSize, strModulePathW.c_str());
 	}
 	return ret;

@@ -323,7 +323,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		}
 
 		// XInput based vibration
-		if (XInputVibration)
+		if (RestoreVibration)
 		{
 			UpdateXInputVibration();
 		}

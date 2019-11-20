@@ -47,7 +47,7 @@ Below is a list of features:
  * **SFX Address Fix** - Dynamically updates SH2 memory with correct index locations for the SFX from the `sddata.bin` file (required if you are using a modified version of the `sddata.bin` audio file).
  * **Soft Shadow Support** - Adds soft shadows, shadow level intensities, shadow fading on flashlight toggles, and self shadows.
  * **Special FX Fix** - Restores post-processing effects, which includes depth-of-field, motion blur, and pseudo blooms.
- * **Town West Gate Event Fix** - Fixes an issue on Nvidia graphics cards where the 2D fog is missing and restores James' flashlight lens glow.
+ * **Town West Gate Event Fix** - Changes James' commentary about the back alley Heaven's Night gate at night to properly reflect the gate's status.
  * **Vibration Support** - Enables force feedback vibration support for XInput and DirectInput gamepads.
  * **White Shader Fix** - Fixes an issue on Nvidia graphics cards where certain textures would appear as white when they should be black.
  * [**Widescreen Fix**](https://github.com/ThirteenAG/WidescreenFixesPack/releases/tag/sh2) - Allows the game to fit any sized monitor appropriately and fixes other inherit game bugs.

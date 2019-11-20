@@ -1146,7 +1146,7 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 	}
 
 	// Fix infinite rumble in pause menu
-	if (XInputVibration && SH2_RoomID)
+	if (RestoreVibration && SH2_RoomID)
 	{
 		UpdateInfiniteRumble(SH2_RoomID);
 	}
@@ -2104,15 +2104,16 @@ void m_IDirect3DDevice8::ReleaseInterface(T **ppInterface, UINT ReleaseRefNum)
 	}
 }
 
+// Get shadow fading intensity
 DWORD m_IDirect3DDevice8::GetShadowIntensity()
 {
 	return (!SH2_FlashlightRed || !SH2_FlashlightGreen || !SH2_FlashlightBlue) ? 100 :
 		(DWORD)(((*SH2_FlashlightRed + *SH2_FlashlightGreen + *SH2_FlashlightBlue) * 33.3333333f) / 7.0f);
 }
 
+// Check if shadow fading needs to be done and set the shadow intensity
 void m_IDirect3DDevice8::SetShadowFading()
 {
-	// Get shadow fading intensity
 	if (!SH2_FlashlightBeam || !SH2_FlashlightSwitch)
 	{
 		return;

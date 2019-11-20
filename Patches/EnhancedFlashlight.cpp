@@ -174,14 +174,14 @@ __declspec(naked) void __stdcall FlashlightReachASM()
 void UpdatePS2Flashlight()
 {
 	// Get address for Flashlight Brightness ASM
-	constexpr BYTE SearchBytesFlashlightBrightness[]{ 0x8B, 0xC1, 0x89, 0x4C, 0x24, 0x2C, 0x8B, 0x4C, 0x24, 0x24, 0x89, 0x54, 0x24, 0x30 };
-	DWORD FlashlightBrightnessAddr = SearchAndGetAddresses(0x0047A50B, 0x0047A7AB, 0x0047A9BB, SearchBytesFlashlightBrightness, sizeof(SearchBytesFlashlightBrightness), 0x33);
-	if (!FlashlightBrightnessAddr)
+	constexpr BYTE SearchBytesFlashlight[]{ 0x8B, 0xC1, 0x89, 0x4C, 0x24, 0x2C, 0x8B, 0x4C, 0x24, 0x24, 0x89, 0x54, 0x24, 0x30 };
+	DWORD FlashlightAddr = SearchAndGetAddresses(0x0047A50B, 0x0047A7AB, 0x0047A9BB, SearchBytesFlashlight, sizeof(SearchBytesFlashlight), 0x33);
+	if (!FlashlightAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
-	jmpFlashlightBrightnessReturnAddr = (void*)(FlashlightBrightnessAddr + 0x2D);
+	jmpFlashlightBrightnessReturnAddr = (void*)(FlashlightAddr + 0x2D);
 
 	// Get address being excluded from Flashlight Brightness ASM
 	constexpr BYTE SearchBytesExcluded[]{ 0x8B, 0x44, 0x24, 0x04, 0x8B, 0x4C, 0x24, 0x08, 0x8B, 0x54, 0x24, 0x0C, 0xA3 };
@@ -277,7 +277,7 @@ void UpdatePS2Flashlight()
 
 	// Update SH2 code
 	Logging::Log() << "Enabling PS2 Flashlight Fix...";
-	WriteJMPtoMemory((BYTE*)FlashlightBrightnessAddr, *FlashlightBrightnessASM, 6);
+	WriteJMPtoMemory((BYTE*)FlashlightAddr, *FlashlightBrightnessASM, 6);
 	WriteJMPtoMemory((BYTE*)MovableObject1Addr, *MovableObject1ASM, 10);
 	WriteJMPtoMemory((BYTE*)MovableObject2Addr, *MovableObject2ASM, 10);
 	WriteJMPtoMemory((BYTE*)FlashlightReachAddr, *FlashlightReachASM, 6);

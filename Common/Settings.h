@@ -59,7 +59,7 @@
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, true) \
-	visit(XInputVibration, true)
+	visit(RestoreVibration, true)
 
 #define VISIT_INT_SETTINGS(visit) \
 	visit(CustomFontCol, 100) \

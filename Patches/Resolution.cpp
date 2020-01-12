@@ -71,7 +71,7 @@ __declspec(naked) void __stdcall ResArrowASM()
 	}
 }
 
-void UpdateResolutionLock(DWORD ResX, DWORD ResY)
+void UpdateResolutionLock(DWORD Width, DWORD Height)
 {
 	constexpr BYTE ResSearchBytesA[] = { 0x94, 0x00, 0x68, 0xB3, 0x00, 0x00, 0x00, 0x05, 0xB0, 0x00, 0x00, 0x00, 0xE9, 0xCD, 0x02, 0x00, 0x00, 0xA0, 0x1C };
 	void *DResAddrA = (void*)SearchAndGetAddresses(0x0046565C, 0x004658F8, 0x00465B08, ResSearchBytesA, sizeof(ResSearchBytesA), 0x00);
@@ -85,8 +85,8 @@ void UpdateResolutionLock(DWORD ResX, DWORD ResY)
 		return;
 	}
 
-	gWidth = ResX;
-	gHeight = ResY;
+	gWidth = Width;
+	gHeight = Height;
 
 	unsigned int *ResSelectorAddr = (unsigned int *)((BYTE*)DResAddrA + 0x879);
 	int exitOffset = 0x2ED;

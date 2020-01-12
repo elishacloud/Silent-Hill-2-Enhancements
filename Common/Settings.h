@@ -7,26 +7,35 @@
 	visit(CatacombsMeatRoomFix, true) \
 	visit(CemeteryLightingFix, true) \
 	visit(ClosetCutsceneFix, true) \
+	visit(CreateLocalFix, true) \
 	visit(d3d8to9, true) \
+	visit(DisableCutsceneBorders, true) \
 	visit(DisableGameUX, true) \
 	visit(DisableEnlargedText, true) \
 	visit(DisableLogging, false) \
 	visit(DisableRedCross, false) \
 	visit(DisableRedCrossInCutScenes, true) \
+	visit(DisableSafeMode, true) \
 	visit(DPadMovementFix, true) \
 	visit(EnableSFXAddrHack, true) \
 	visit(EnableTexAddrHack, false) \
 	visit(EnableSoftShadows, true) \
 	visit(EnableWndMode, true) \
+	visit(FastTransitions, true) \
+	visit(Fix2D, true) \
 	visit(FixChainsawSpawn, true) \
 	visit(FixCreatureVehicleSpawn, true) \
 	visit(FixDrawingTextLine, true) \
 	visit(FixHangOnEsc, true) \
 	visit(FixMissingWallChunks, true) \
 	visit(FixTownWestGateEvent, true) \
+	visit(FMVWidescreenMode, true) \
+	visit(FMVWidescreenEnhancementPackCompatibility, true) \
 	visit(Fog2DFix, true) \
 	visit(FogParameterFix, true) \
+	visit(FullscreenImages, true) \
 	visit(FullscreenWndMode, true) \
+	visit(GamepadControlsFix, true) \
 	visit(GameLoadFix, true) \
 	visit(HalogenLightFix, true) \
 	visit(HospitalChaseFix, true) \
@@ -34,6 +43,7 @@
 	visit(ImproveStorageSupport, true) \
 	visit(IncreaseBlood, true) \
 	visit(IncreaseDrawDistance, true) \
+	visit(LightingFix, true) \
 	visit(LightingTransitionFix, true) \
 	visit(LoadD3d8FromScriptsFolder, false) \
 	visit(LoadFromScriptsOnly, false) \
@@ -45,13 +55,16 @@
 	visit(Nemesis2000FogFix, true) \
 	visit(NoCDPatch, true) \
 	visit(PistonRoomFix, true) \
+	visit(PS2CameraSpeed, true) \
 	visit(PS2FlashlightBrightness, true) \
 	visit(PS2StyleNoiseFilter, true) \
-	visit(RestoreSpecialFX, true) \
+	visit(ReduceCutsceneFOV, true) \
 	visit(RemoveEffectsFlicker, true) \
 	visit(RemoveEnvironmentFlicker, true) \
+	visit(RestoreSpecialFX, true) \
 	visit(Room312ShadowFix, true) \
 	visit(RowboatAnimationFix, true) \
+	visit(SteamCrashFix, true) \
 	visit(UnlockJapLang, false) \
 	visit(UseCustomExeStr, true) \
 	visit(UseCustomFonts, true) \
@@ -70,6 +83,10 @@
 	visit(NormalFontWidth, 20) \
 	visit(NormalFontHeight, 30) \
 	visit(PadNumber, 0) \
+	visit(ResX, 0) \
+	visit(ResY, 0) \
+	visit(FPSLimit, 30) \
+	visit(IncreaseNoiseEffectRes, 512) \
 	visit(SingleCoreAffinity, 1) \
 	visit(SingleCoreAffinityTimer, 5000) \
 	visit(SmallFontWidth, 14) \

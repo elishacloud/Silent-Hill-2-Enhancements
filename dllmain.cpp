@@ -19,6 +19,8 @@
 #include <Shlwapi.h>
 #include "Resources\sh2-enhce.h"
 #include "Patches\Patches.h"
+#include "WidescreenFixesPack\wsfExternal.h"
+#include "WidescreenFixesPack\IniReader.h"
 #include "External\Hooking\Hook.h"
 #include "Common\FileSystemHooks.h"
 #include "Wrappers\wrapper.h"
@@ -32,13 +34,10 @@
 std::ofstream LOG;
 
 // Variables
+HMODULE m_hModule = nullptr;
 SH2VERSION GameVersion = SH2V_UNKNOWN;
 HMODULE wrapper_dll = nullptr;
 bool WidescreenFixLoaded = false;
-
-// Forces Nvidia and AMD high performance graphics
-extern "C" { _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001; }
-extern "C" { _declspec(dllexport) DWORD AmdPowerXpressRequestHighPerformance = 0x00000001; }
 
 // Dll main function
 bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
@@ -54,6 +53,9 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		int dwPriorityClass = GetThreadPriority(hCurrentThread);
 		dwPriorityClass = (GetLastError() == THREAD_PRIORITY_ERROR_RETURN) ? THREAD_PRIORITY_NORMAL : dwPriorityClass;
 		SetThreadPriority(hCurrentThread, THREAD_PRIORITY_HIGHEST);
+
+		// Module
+		m_hModule = hModule;
 
 		// Get config file path
 		wchar_t configpath[MAX_PATH];
@@ -386,25 +388,8 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		// Widescreen Fix
 		if (WidescreenFix)
 		{
-			DWORD_PTR ProcessAffinityMask, SystemAffinityMask;
-			HANDLE hCurrentProcess = GetCurrentProcess();
-			bool Flag = GetProcessAffinityMask(hCurrentProcess, &ProcessAffinityMask, &SystemAffinityMask);
-			HMODULE WidescreenModule = nullptr;
-			if (LoadModulesFromMemory)
-			{
-				WidescreenModule = (HMODULE)LoadModuleFromResource(hModule, IDR_SH2WID, L"WidescreenFixesPack and sh2proxy");
-			}
-			else
-			{
-				WidescreenModule = LoadModuleFromFile(hModule, IDR_SH2WID, nullptr, configpath, L"WidescreenFixesPack and sh2proxy", true);
-			}
-			if (Flag)
-			{
-				SetProcessAffinityMask(hCurrentProcess, ProcessAffinityMask);
-			}
-			CloseHandle(hCurrentProcess);
-			// Check if widescreen is loaded
-			WidescreenFixLoaded = ((DWORD)WidescreenModule > 0xFFFF);
+			Logging::Log() << "Loading the \"WidescreenFixesPack\" module...";
+			WSFInit();
 		}
 
 		// Load modupdater

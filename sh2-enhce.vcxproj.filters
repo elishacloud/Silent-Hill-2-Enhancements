@@ -209,6 +209,15 @@
     <ClCompile Include="Common\md5.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="External\WidescreenFixesPack\source\SilentHill2.WidescreenFix\dllmain.cpp">
+      <Filter>External\WidescreenFixesPack\source\SilentHill2.WidescreenFix</Filter>
+    </ClCompile>
+    <ClCompile Include="WidescreenFixesPack\WidescreenFixesPack.cpp">
+      <Filter>WidescreenFixesPack</Filter>
+    </ClCompile>
+    <ClCompile Include="External\Hooking.Patterns\Hooking.Patterns.cpp">
+      <Filter>External\Hooking.Patterns</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">
@@ -310,6 +319,21 @@
     <ClInclude Include="Common\md5.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="WidescreenFixesPack\GTA\CFileMgr.h">
+      <Filter>WidescreenFixesPack\GTA</Filter>
+    </ClInclude>
+    <ClInclude Include="WidescreenFixesPack\stdafx.h">
+      <Filter>WidescreenFixesPack</Filter>
+    </ClInclude>
+    <ClInclude Include="WidescreenFixesPack\IniReader.h">
+      <Filter>WidescreenFixesPack</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Hooking.Patterns\Hooking.Patterns.h">
+      <Filter>External\Hooking.Patterns</Filter>
+    </ClInclude>
+    <ClInclude Include="WidescreenFixesPack\wsfExternal.h">
+      <Filter>WidescreenFixesPack</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\sh2-enhce.rc">
@@ -363,6 +387,24 @@
     </Filter>
     <Filter Include="Logging">
       <UniqueIdentifier>{adfe37d6-2b91-42d1-b181-899b9df11dc5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\WidescreenFixesPack">
+      <UniqueIdentifier>{cd55cab1-6bae-4543-a4e7-3cd4543f21c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\WidescreenFixesPack\source">
+      <UniqueIdentifier>{da0c172d-fa5c-4430-88cc-728106cff1f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\WidescreenFixesPack\source\SilentHill2.WidescreenFix">
+      <UniqueIdentifier>{550fcc27-e91b-4c88-a6a1-e4d5c1d146ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WidescreenFixesPack">
+      <UniqueIdentifier>{04cb4080-6f33-4dc8-8e02-163c1b2b8c3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WidescreenFixesPack\GTA">
+      <UniqueIdentifier>{2970e5cc-a92f-4d88-9f49-b05ca98ac9e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\Hooking.Patterns">
+      <UniqueIdentifier>{24414d08-98ad-470d-af59-17ec916750ca}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

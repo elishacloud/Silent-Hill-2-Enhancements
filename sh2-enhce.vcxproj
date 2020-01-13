@@ -104,14 +104,14 @@
     <ClInclude Include="External\Hooking\Hook.h" />
     <ClInclude Include="External\Logging\Logging.h" />
     <ClInclude Include="External\MemoryModule\MemoryModule.h" />
+    <ClInclude Include="Include\GTA\CFileMgr.h" />
+    <ClInclude Include="Include\GTA\WSF.h" />
+    <ClInclude Include="Include\stdafx.h" />
     <ClInclude Include="Logging\Logging.h" />
     <ClInclude Include="Patches\Patches.h" />
     <ClInclude Include="Patches\SfxPatch.h" />
     <ClInclude Include="Resources\sh2-enhce.h" />
-    <ClInclude Include="WidescreenFixesPack\GTA\CFileMgr.h" />
-    <ClInclude Include="WidescreenFixesPack\IniReader.h" />
-    <ClInclude Include="WidescreenFixesPack\stdafx.h" />
-    <ClInclude Include="WidescreenFixesPack\wsfExternal.h" />
+    <ClInclude Include="WidescreenFixesPack\WidescreenFixesPack.h" />
     <ClInclude Include="Wrappers\d3d8.h" />
     <ClInclude Include="Wrappers\d3d8to9.h" />
     <ClInclude Include="Wrappers\d3d8\d3d8wrapper.h" />
@@ -178,7 +178,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\WidescreenFixesPack;$(WindowsSDK80Path)Include\um;$(WindowsSDK80Path)Include\shared</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);Include;$(WindowsSDK80Path)Include\um;$(WindowsSDK80Path)Include\shared</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <FloatingPointModel>Fast</FloatingPointModel>
       <ObjectFileName>$(SolutionDir)bin\Intermediate\$(Configuration)\Object\%(RelativeDir)</ObjectFileName>
@@ -204,7 +204,7 @@ copy /Y "$(ProjectDir)External\WidescreenFixesPack\data\SilentHill2.WidescreenFi
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <FloatingPointModel>Fast</FloatingPointModel>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)\WidescreenFixesPack;$(WindowsSDK80Path)Include\um;$(WindowsSDK80Path)Include\shared</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);Include;$(WindowsSDK80Path)Include\um;$(WindowsSDK80Path)Include\shared</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ObjectFileName>$(SolutionDir)bin\Intermediate\$(Configuration)\Object\%(RelativeDir)</ObjectFileName>
     </ClCompile>

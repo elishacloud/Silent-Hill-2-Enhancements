@@ -319,20 +319,20 @@
     <ClInclude Include="Common\md5.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="WidescreenFixesPack\GTA\CFileMgr.h">
-      <Filter>WidescreenFixesPack\GTA</Filter>
-    </ClInclude>
-    <ClInclude Include="WidescreenFixesPack\stdafx.h">
-      <Filter>WidescreenFixesPack</Filter>
-    </ClInclude>
-    <ClInclude Include="WidescreenFixesPack\IniReader.h">
-      <Filter>WidescreenFixesPack</Filter>
-    </ClInclude>
     <ClInclude Include="External\Hooking.Patterns\Hooking.Patterns.h">
       <Filter>External\Hooking.Patterns</Filter>
     </ClInclude>
-    <ClInclude Include="WidescreenFixesPack\wsfExternal.h">
+    <ClInclude Include="WidescreenFixesPack\WidescreenFixesPack.h">
       <Filter>WidescreenFixesPack</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\stdafx.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\GTA\CFileMgr.h">
+      <Filter>Include\GTA</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\GTA\WSF.h">
+      <Filter>Include\GTA</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -400,11 +400,14 @@
     <Filter Include="WidescreenFixesPack">
       <UniqueIdentifier>{04cb4080-6f33-4dc8-8e02-163c1b2b8c3e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="WidescreenFixesPack\GTA">
-      <UniqueIdentifier>{2970e5cc-a92f-4d88-9f49-b05ca98ac9e8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="External\Hooking.Patterns">
       <UniqueIdentifier>{24414d08-98ad-470d-af59-17ec916750ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include">
+      <UniqueIdentifier>{681e098b-edbf-40c3-866a-f75074bd5c78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\GTA">
+      <UniqueIdentifier>{69a3da45-728e-4ff1-868c-43782034326f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -1,8 +1,14 @@
+#pragma warning(push)
+#pragma warning(disable: 4178 4201 4305 4309 4458 4510 4996)
+#include "WSF.h"
+#pragma warning(pop)
+
 class CFileMgr
 {
 public:
 	static inline FILE*  OpenFile(const char* path, const char* mode)
 	{
+#pragma warning(suppress: 4996)
 		return fopen(path, mode);
 	};
 	static inline  int  CloseFile(FILE* stream)

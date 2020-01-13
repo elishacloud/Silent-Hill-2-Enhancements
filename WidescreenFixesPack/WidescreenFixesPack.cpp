@@ -1,4 +1,4 @@
-#include "IniReader.h"
+#include "WidescreenFixesPack.h"
 #include <vector>
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
@@ -37,16 +37,20 @@ std::string format(const char *fmt, ...)
 		}
 		size_t size;
 		if (res < 0)
+		{
 			size = v.size() * 2;
+		}
 		else
+		{
 			size = static_cast<size_t>(res) + 1;
+		}
 		v.clear();
 		v.resize(size);
 		va_end(args2);
 	}
 }
 
-int CIniReader::ReadInteger(std::string_view, std::string_view szKey, int)
+int GetValue(std::string_view, std::string_view szKey, int)
 {
 	int ret = 0;
 

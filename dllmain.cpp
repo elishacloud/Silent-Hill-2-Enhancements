@@ -36,7 +36,6 @@ std::ofstream LOG;
 HMODULE m_hModule = nullptr;
 SH2VERSION GameVersion = SH2V_UNKNOWN;
 HMODULE wrapper_dll = nullptr;
-bool WidescreenFixLoaded = false;
 
 // Dll main function
 bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
@@ -213,7 +212,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		}
 
 		// Hook CreateFile API, only needed for external modules and UseCustomModFolder
-		if (Nemesis2000FogFix || WidescreenFix || UseCustomModFolder)
+		if (Nemesis2000FogFix || UseCustomModFolder)
 		{
 			InstallFileSystemHooks(hModule, configpath);
 		}

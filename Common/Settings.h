@@ -114,8 +114,6 @@ VISIT_INT_SETTINGS(DECLARE_INT_SETTINGS);
 
 VISIT_STR_SETTINGS(DECLARE_STR_SETTINGS);
 
-extern bool WidescreenFixLoaded;
-
 typedef void(__stdcall* NV)(char* name, char* value);
 
 char* Read(wchar_t* szFileName);

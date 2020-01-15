@@ -68,7 +68,7 @@ All my work here is free and can be freely used.  For more details on how you ca
 Note: these donation only go to me, not to anyone else who helped with this project.  To donate to others check out the [credits page](http://www.enhanced.townofsilenthill.com/SH2/credit.htm).
 
 ### License
-Copyright (C) 2019 Elisha Riedlinger
+Copyright (C) 2020 Elisha Riedlinger
 
 This software is provided 'as-is', without any express or implied warranty. In no event will the author(s) be held liable for any damages arising from the use of this software. Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
 
@@ -94,7 +94,7 @@ This project uses code from several other projects. Below is a list of locations
  * [modupdater](https://github.com/ThirteenAG/modupdater): Includes the full binary file for the modupdater.
  * [Nemesis2000 Fog Fix](http://ps2wide.net/pc.html#sh2): Includes the full binary file for fog fix by Nemesis2000.
  * [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader): Includes code for loading ASI plugins and code for loading modules from a module resource.
- * [Widescreen Fix](https://github.com/ThirteenAG/WidescreenFixesPack/releases/tag/sh2): Includes the full binary file for the Widescreen Fix by [ThirteenAG](https://github.com/ThirteenAG) and [AeroWidescreen](https://github.com/AeroWidescreen).
+ * [Widescreen Fix](https://github.com/ThirteenAG/WidescreenFixesPack/releases/tag/sh2): Includes code from the Widescreen Fix by [ThirteenAG](https://github.com/ThirteenAG) and [AeroWidescreen](https://github.com/AeroWidescreen).
 
 ### Development
 This project is written in C++ using Microsoft Visual Studio Community 2017.

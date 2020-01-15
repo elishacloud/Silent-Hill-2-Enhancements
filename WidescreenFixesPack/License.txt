@@ -12,26 +12,7 @@
 *   2. Altered source versions must  be plainly  marked as such, and  must not be  misrepresented  as
 *      being the original software.
 *   3. This notice may not be removed or altered from any source distribution.
+*
+* Includes source code from WidescreenFixes Pack
+* https://github.com/ThirteenAG/WidescreenFixesPack
 */
-
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include "Common\Utils.h"
-#include "Logging\Logging.h"
-
-void PatchBinary()
-{
-	// Find address for call code
-	constexpr BYTE DCCallSearchBytes[] = { 0x00, 0x6A, 0x00, 0x6A, 0x00, 0x6A, 0x00, 0x68, 0xE8, 0x03, 0x00, 0x00, 0xE8 };
-	void *DCCallPatchAddr = (void*)SearchAndGetAddresses(0x00408A29, 0x00408BD9, 0x00408BE9, DCCallSearchBytes, sizeof(DCCallSearchBytes), 0x32);
-
-	// Address found
-	if (!DCCallPatchAddr || !(CheckMemoryAddress(DCCallPatchAddr, "\xE8", 0x01) || CheckMemoryAddress(DCCallPatchAddr, "\xB8", 0x01)))
-	{
-		return;
-	}
-
-	// Update SH2 code
-	Logging::Log() << "Patching binary...";
-	UpdateMemoryAddress(DCCallPatchAddr, "\xB8", 1);
-}

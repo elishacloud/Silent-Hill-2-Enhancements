@@ -126,7 +126,7 @@ void UpdateSFXAddr()
 	Logging::Log() << "Allocating memory buffer for sddata.bin file...";
 
 	// Allocate memory
-	char *PtrBytes = new char[size + 1];
+	BYTE *PtrBytes = new BYTE[size + 1];
 
 	// Write new memory address
 	UpdateMemoryAddress(sfxAddr, &PtrBytes, sizeof(void*));

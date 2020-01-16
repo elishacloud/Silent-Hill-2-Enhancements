@@ -16,100 +16,34 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include <Shlwapi.h>
-#include <fstream>
-#include <string>
 #include "Patches.h"
-#include "Common\FileSystemHooks.h"
 #include "Common\Utils.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
 
-struct TexAddrStruct
+void ScaleTexture(wchar_t *TexName, float *XScaleAddress, float *YScaleAddress, WORD *WidthAddress, WORD *XPosAddress)
 {
-	char *name;
-	BYTE vDC[5];
-	BYTE v10[5];
-	BYTE v11[5];
-};
+	// Texture name and size
+	Logging::Log() << __FUNCTION__ << " Scaling texture: " << TexName;
+	int TexXRes = TextureXRes;
+	int TexYRes = TextureYRes;
 
-constexpr TexAddrStruct TexAddrList[] = {
-	"\\pic\\etc\\start00.tex",  { 0xB8, 0x40, 0xEC, 0xDB, 0x01 }, { 0xB8, 0x40, 0xC0, 0xDB, 0x01 }, { 0xB8, 0x40, 0xFC, 0xDB, 0x01 }
-};
+	// Compute new scale
+	float XScale = (float)(TexXRes * 16);
+	float YScale = (float)(TexYRes * 16);
+	Logging::Log() << __FUNCTION__ << " Setting XYScale: " << XScale << "x" << YScale;
+	UpdateMemoryAddress(XScaleAddress, &XScale, sizeof(float));
+	UpdateMemoryAddress(YScaleAddress, &YScale, sizeof(float));
 
-// Get number of textures in array
-constexpr DWORD TexNum = (sizeof(TexAddrList) / sizeof(*TexAddrList));
+	// Aspect ratio
+	float AspectRatio = (float)TexYRes / (float)TexXRes;
 
-void TextureScaling();
-
-void UpdateTexAddr()
-{
-	// Get file path
-	char modPath[MAX_PATH];
-	char dataPath[MAX_PATH];
-	GetModuleFileNameA(nullptr, dataPath, MAX_PATH);
-	strcpy_s(modPath, MAX_PATH, dataPath);
-	char* p_modName = strrchr(modPath, '\\');
-	char* p_dataName = strrchr(dataPath, '\\');
-	strcpy_s(p_modName, MAX_PATH - strlen(modPath), std::string("\\" + std::string(ModPathA) + "\\").c_str());
-	strcpy_s(p_dataName, MAX_PATH - strlen(dataPath), "\\data\\");
-	p_modName = strrchr(modPath, '\\');
-	p_dataName = strrchr(dataPath, '\\');
-
-	// Loop through each texture
-	for (size_t x = 0; x < TexNum; x++)
-	{
-		do {
-			// Get texture path
-			strcpy_s(p_modName, MAX_PATH - strlen(modPath), TexAddrList[x].name);
-			strcpy_s(p_dataName, MAX_PATH - strlen(dataPath), TexAddrList[x].name);
-
-			// Get file size
-			char* p_pPath = (PathFileExistsA(modPath)) ? modPath : dataPath;
-			Logging::Log() << "Opening " << p_pPath;
-			std::ifstream infile;
-			infile.open(p_pPath, std::ios::binary | std::ios::in | std::ios::ate);
-			DWORD size = (DWORD)infile.tellg() + 1024;
-			infile.close();
-
-			// For now just ensure that the size is at least 16 MBs
-			if (size < 16777296)
-			{
-				size = 16777296;
-			}
-
-			void *TexAddr;
-
-			// Find address for texture file pointer
-			const DWORD start = 0x00401000;
-			const DWORD distance = 0x00227FFF;
-			TexAddr = GetAddressOfData(TexAddrList[x].vDC, 5, 1, start, distance);																				// Directors Cut
-			TexAddr = ((DWORD)TexAddr < start || (DWORD)TexAddr > start + distance) ? GetAddressOfData(TexAddrList[x].v10, 5, 1, start, distance) : TexAddr;	// v1.0
-			TexAddr = ((DWORD)TexAddr < start || (DWORD)TexAddr > start + distance) ? GetAddressOfData(TexAddrList[x].v11, 5, 1, start, distance) : TexAddr;	// v1.1
-			TexAddr = ((DWORD)TexAddr < start || (DWORD)TexAddr > start + distance) ? nullptr : TexAddr;
-
-			if (!TexAddr)
-			{
-				Logging::Log() << "Could not find '" << TexAddrList[x].name << "' pointer address in memory!";
-				break;
-			}
-
-			// Get relative address
-			TexAddr = (void*)((DWORD)TexAddr + 0x01);
-
-			// Log message
-			Logging::Log() << "Found '" << TexAddrList[x].name << "' pointer at address: " << TexAddr << " Updating...";
-
-			// Alocate memory
-			char *PtrBytes = new char[size * 8 + 1];
-
-			// Write new memory address
-			UpdateMemoryAddress(TexAddr, &PtrBytes, sizeof(void*));
-
-		} while (false);
-	}
-
-	TextureScaling();
+	// Set new width and XPos
+	WORD Width = (WORD)(4096 / AspectRatio);
+	WORD XPos = (WORD)(61440 - (Width - 4096));
+	Logging::Log() << __FUNCTION__ << " Setting Width: " << Width << " XPos: " << XPos;
+	UpdateMemoryAddress(WidthAddress, &Width, sizeof(WORD));
+	UpdateMemoryAddress(XPosAddress, &XPos, sizeof(WORD));
 }
 
 void TextureScaling()
@@ -120,28 +54,55 @@ void TextureScaling()
 		return;
 	}
 
-	RUNONCE();
+	// start00.tex
+	DWORD BaseAddress = 0x00496990;
+	ScaleTexture(L"start00.tex", (float*)(BaseAddress + 0x38), (float*)(BaseAddress + 0x42), (WORD*)(BaseAddress + 0x13), (WORD*)(BaseAddress + 0x01));
+}
 
+void UpdateTexAddr()
+{
 	// Get addresses
-	float *XScaleAddress = (float*)0x004969C8;
-	float *YScaleAddress = (float*)0x004969D2;
-	WORD *WidthAddress = (WORD*)0x004969A3;
-	WORD *XPosAddress = (WORD*)0x00496991;
+	const DWORD StaticAddr = 0x00401CC1;		// Address is the same on all binaries
+	BYTE SearchBytes1[]{ 0x68, 0x00, 0x00, 0x08, 0x00 };
+	memcpy((SearchBytes1 + 1), (void*)StaticAddr, sizeof(DWORD));
+	const DWORD Addr1 = SearchAndGetAddresses(0x0044B99D, 0x0044BB3D, 0x0044BB3D, SearchBytes1, sizeof(SearchBytes1), 0x01);
+	constexpr BYTE SearchBytes2[]{ 0x05, 0x00, 0x00, 0x08, 0x00 };
+	const DWORD Addr2 = SearchAndGetAddresses(0x00496F87, 0x00497231, 0x00497331, SearchBytes2, sizeof(SearchBytes2), 0x00);
+	constexpr BYTE SearchBytes3[]{ 0x05, 0x00, 0x48, 0x10, 0x00 };
+	const DWORD Addr3 = SearchAndGetAddresses(0x0049B40A, 0x0049B6BA, 0x0049AF7A, SearchBytes3, sizeof(SearchBytes3), 0x00);
 
-	// Compute new scale
-	float XScale = (float)(TextureXRes * 16);
-	float YScale = (float)(TextureYRes * 16);
-	Logging::Log() << __FUNCTION__ << " Setting XYScale: " << XScale << "x" << YScale;
-	UpdateMemoryAddress(XScaleAddress, &XScale, sizeof(float));
-	UpdateMemoryAddress(YScaleAddress, &YScale, sizeof(float));
+	// Checking address pointer
+	if (!Addr1 || !Addr2 || !Addr3)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
 
-	// Aspect ratio
-	float AspectRatio = (float)TextureYRes / (float)TextureXRes;
+	// Get size of textures
+	const DWORD size = 0x01400000;		// Just hard code to 20 MBs
 
-	// Set new width and XPos
-	WORD Width = (WORD)(4096 / AspectRatio);
-	WORD XPos = (WORD)(61440 - (Width - 4096));
-	Logging::Log() << __FUNCTION__ << " Setting Width: " << Width << " XPos: " << XPos;
-	UpdateMemoryAddress(WidthAddress, &Width, sizeof(WORD));
-	UpdateMemoryAddress(XPosAddress, &XPos, sizeof(WORD));
+	// Alocate dynamic memory for loading textures
+	BYTE *PtrBytes1 = new BYTE[size];
+	BYTE *PtrBytes2 = new BYTE[size];
+
+	// Write new memory static address
+	UpdateMemoryAddress((void*)StaticAddr, &PtrBytes1, sizeof(void*));
+
+	// Write new memory address 1
+	UpdateMemoryAddress((void*)Addr1, &PtrBytes1, sizeof(void*));
+
+	// Write new memory address 2
+	BYTE NewByte = 0xB8;
+	UpdateMemoryAddress((void*)Addr2, &NewByte, sizeof(BYTE));
+	UpdateMemoryAddress((void*)(Addr2 + 1), &PtrBytes2, sizeof(void*));
+
+	// Write new memory address 3
+	UpdateMemoryAddress((void*)Addr3, &NewByte, sizeof(BYTE));
+	UpdateMemoryAddress((void*)(Addr3 + 1), &PtrBytes2, sizeof(void*));
+
+	// Update the scaling of the textures
+	if (TextureXRes && TextureYRes)
+	{
+		TextureScaling();
+	}
 }

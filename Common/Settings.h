@@ -91,9 +91,7 @@
 	visit(SingleCoreAffinityTimer, 5000) \
 	visit(SmallFontWidth, 14) \
 	visit(SmallFontHeight, 24) \
-	visit(SpaceSize, 7) \
-	visit(TextureXRes, 512) \
-	visit(TextureYRes, 512)
+	visit(SpaceSize, 7)
 
 #define VISIT_STR_SETTINGS(visit) \
 	visit(CustomModFolder, "")

@@ -16,6 +16,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <fstream>
 #include "Patches.h"
 #include "Common\Utils.h"
 #include "Common\Settings.h"
@@ -23,47 +24,61 @@
 
 void ScaleTexture(wchar_t *TexName, float *XScaleAddress, float *YScaleAddress, WORD *WidthAddress, WORD *XPosAddress)
 {
-	// Texture name and size
-	Logging::Log() << __FUNCTION__ << " Scaling texture: " << TexName;
-	int TexXRes = TextureXRes;
-	int TexYRes = TextureYRes;
-
-	// Compute new scale
-	float XScale = (float)(TexXRes * 16);
-	float YScale = (float)(TexYRes * 16);
-	Logging::Log() << __FUNCTION__ << " Setting XYScale: " << XScale << "x" << YScale;
-	UpdateMemoryAddress(XScaleAddress, &XScale, sizeof(float));
-	UpdateMemoryAddress(YScaleAddress, &YScale, sizeof(float));
-
-	// Aspect ratio
-	float AspectRatio = (float)TexYRes / (float)TexXRes;
-
-	// Set new width and XPos
-	WORD Width = (WORD)(4096 / AspectRatio);
-	WORD XPos = (WORD)(61440 - (Width - 4096));
-	Logging::Log() << __FUNCTION__ << " Setting Width: " << Width << " XPos: " << XPos;
-	UpdateMemoryAddress(WidthAddress, &Width, sizeof(WORD));
-	UpdateMemoryAddress(XPosAddress, &XPos, sizeof(WORD));
-}
-
-void TextureScaling()
-{
-	if (GameVersion != SH2V_10)
+	// Get texture resolution
+	std::ifstream in(TexName, std::ifstream::ate | std::ifstream::binary);
+	if (!in.is_open() || in.tellg() < 128)
 	{
-		Logging::Log() << __FUNCTION__ << " Disabling 'TextureScaling' Silent Hill 2 binary v1.0 not detected!";
+		Logging::Log() << __FUNCTION__ << " Error: failed to read texture '" << TexName << "'!";
+		if (in.is_open())
+		{
+			in.close();
+		}
+		return;
+	}
+	WORD TextureXRes = 0, TextureYRes = 0;
+	for (auto& num : { 20, 24, 56 })
+	{
+		in.seekg(num);
+		in.read((char*)&TextureXRes, 2);
+		in.read((char*)&TextureYRes, 2);
+		if (TextureXRes && TextureYRes)
+		{
+			break;
+		}
+	}
+	in.close();
+
+	// Check texture resolution
+	if (!TextureXRes || !TextureYRes)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to get texture resolution for " << TexName << "!";
 		return;
 	}
 
-	// start00.tex
-	DWORD BaseAddress = 0x00496990;
-	ScaleTexture(L"start00.tex", (float*)(BaseAddress + 0x38), (float*)(BaseAddress + 0x42), (WORD*)(BaseAddress + 0x13), (WORD*)(BaseAddress + 0x01));
+	// Compute new scale
+	float XScale = (float)(TextureXRes * 16);
+	float YScale = (float)(TextureYRes * 16);
+
+	// Aspect ratio
+	float AspectRatio = (float)TextureYRes / (float)TextureXRes;
+
+	// Compute width and XPos
+	WORD Width = (WORD)(4096 / AspectRatio);
+	WORD XPos = (WORD)(61440 - (Width - 4096));
+
+	// Update memory
+	Logging::Log() << __FUNCTION__ << " Scaling texture: " << TexName << " Resolution: " << TextureXRes << "x" << TextureYRes << " XYScale: " << XScale << "x" << YScale << " Width: " << Width << " XPos: " << XPos;
+	UpdateMemoryAddress(XScaleAddress, &XScale, sizeof(float));
+	UpdateMemoryAddress(YScaleAddress, &YScale, sizeof(float));
+	UpdateMemoryAddress(WidthAddress, &Width, sizeof(WORD));
+	UpdateMemoryAddress(XPosAddress, &XPos, sizeof(WORD));
 }
 
 void UpdateTexAddr()
 {
 	// Get addresses
 	const DWORD StaticAddr = 0x00401CC1;		// Address is the same on all binaries
-	BYTE SearchBytes1[]{ 0x68, 0x00, 0x00, 0x08, 0x00 };
+	BYTE SearchBytes1[]{ 0x68, 0x00, 0x00, 0x00, 0x00 };
 	memcpy((SearchBytes1 + 1), (void*)StaticAddr, sizeof(DWORD));
 	const DWORD Addr1 = SearchAndGetAddresses(0x0044B99D, 0x0044BB3D, 0x0044BB3D, SearchBytes1, sizeof(SearchBytes1), 0x01);
 	constexpr BYTE SearchBytes2[]{ 0x05, 0x00, 0x00, 0x08, 0x00 };
@@ -81,7 +96,7 @@ void UpdateTexAddr()
 	// Get size of textures
 	const DWORD size = 0x01400000;		// Just hard code to 20 MBs
 
-	// Alocate dynamic memory for loading textures
+	// Allocate dynamic memory for loading textures
 	BYTE *PtrBytes1 = new BYTE[size];
 	BYTE *PtrBytes2 = new BYTE[size];
 
@@ -100,9 +115,25 @@ void UpdateTexAddr()
 	UpdateMemoryAddress((void*)Addr3, &NewByte, sizeof(BYTE));
 	UpdateMemoryAddress((void*)(Addr3 + 1), &PtrBytes2, sizeof(void*));
 
-	// Update the scaling of the textures
-	if (TextureXRes && TextureYRes)
-	{
-		TextureScaling();
+	{// start00.tex
+		constexpr BYTE SearchBytes[]{ 0x66, 0x0D, 0x02, 0x00, 0x66, 0x0D, 0x04, 0x00, 0x68 };
+		const DWORD BaseAddress = SearchAndGetAddresses(0x00496974, 0x00496C14, 0x00496DF4, SearchBytes, sizeof(SearchBytes), 0x1C);
+		if (BaseAddress)
+		{
+			ScaleTexture(L"data\\pic\\etc\\start00.tex", (float*)(BaseAddress + 0x38), (float*)(BaseAddress + 0x42), (WORD*)(BaseAddress + 0x13), (WORD*)(BaseAddress + 0x01));
+		}
+	}
+
+	{// savebg.tbn2
+		constexpr BYTE SearchBytes[]{ 0x66, 0x0D, 0x02, 0x00, 0x66, 0x0D, 0x04, 0x00, 0x66, 0xA3 };
+		const DWORD BaseAddress = SearchAndGetAddresses(0x0044B4B8, 0x0044B658, 0x0044B658, SearchBytes, sizeof(SearchBytes), -0x28);
+		if (BaseAddress)
+		{
+			const DWORD BaseAddress2 = *(DWORD*)(BaseAddress + 0x07);
+			ScaleTexture(L"data\\menu\\mc\\savebg.tbn2", (float*)(BaseAddress + 0x64), (float*)(BaseAddress + 0x6E), (WORD*)(BaseAddress2 + 0x00), (WORD*)(BaseAddress2 + 0x04));
+			constexpr BYTE nop6[]{ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
+			UpdateMemoryAddress((void*)(BaseAddress + 0x05), (void*)nop6, sizeof(nop6));
+			UpdateMemoryAddress((void*)(BaseAddress + 0x16), (void*)nop6, sizeof(nop6));
+		}
 	}
 }

@@ -32,6 +32,7 @@
 #include <Xinput.h>
 #pragma comment(lib, "Xinput9_1_0.lib")
 
+BYTE *IntensityAddr = nullptr;
 bool LostWindowFocus = false;
 HWND SH2WindowHandle = nullptr;
 HWINEVENTHOOK hEventHook = nullptr;
@@ -91,8 +92,24 @@ public:
 	{
 		if ( !m_vibrating )
 		{
-			XINPUT_VIBRATION vib = { FixedVibrationIntensity, 0 };
+			WORD XIntensity = MaxVibrationIntensity;
+			WORD DIntensity = DI_FFNOMINALMAX;
+			// IntensityAddr (0 = Off, 1 = Soft, 2 = Normal, 3 = Hard)
+			if (IntensityAddr && *IntensityAddr < 3)
+			{
+				XIntensity = (WORD)(MaxVibrationIntensity * (*IntensityAddr * (100.0f / 3.0f)));
+				DIntensity = (WORD)(DI_FFNOMINALMAX * (*IntensityAddr * (100.0f / 3.0f)));
+			}
+			XINPUT_VIBRATION vib = { XIntensity, XIntensity };
 			XInputSetState( PadNumber, &vib );
+			if (originalDInputEffect)
+			{
+				DIEFFECT diEffect;
+				ZeroMemory(&diEffect, sizeof(DIEFFECT));
+				diEffect.dwSize = sizeof(DIEFFECT);
+				diEffect.dwGain = DIntensity;
+				originalDInputEffect->SetParameters(&diEffect, DIEP_GAIN);
+			}
 			m_vibrating = true;
 		}
 		return originalDInputEffect != nullptr ? originalDInputEffect->Start( dwIterations, dwFlags ) : DI_OK;
@@ -135,7 +152,7 @@ public:
 	}
 
 private:
-	static constexpr WORD FixedVibrationIntensity = 65535;
+	static constexpr WORD MaxVibrationIntensity = 65535;
 	bool m_vibrating = false;
 } StubXInputEffect;
 
@@ -187,6 +204,10 @@ void UpdateXInputVibration()
 		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
 		return;
 	}
+
+	// Get vibration intensity
+	constexpr BYTE IntensitySearchBytes[]{ 0x6A, 0x60, 0x75, 0x04, 0x6A, 0x3F, 0xEB, 0x02, 0x6A, 0x1F, 0x6A, 0x3F, 0x6A, 0x3F, 0xE8 };
+	IntensityAddr = (BYTE*)ReadSearchedAddresses(0x00461735, 0x00461995, 0x00461995, IntensitySearchBytes, sizeof(IntensitySearchBytes), -0x04);
 
 	// Update SH2 code
 	Logging::Log() << "Enabling XInput Vibration Fix...";

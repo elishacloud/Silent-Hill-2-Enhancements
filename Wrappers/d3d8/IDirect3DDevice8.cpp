@@ -1193,6 +1193,12 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		UpdateSpecialFXScale(BufferHeight);
 	}
 
+	// Scale the inner glow of the flashlight
+	if (PS2FlashlightBrightness)
+	{
+		UpdateInnerFlashlightGlow(BufferHeight);
+	}
+
 	return ProxyInterface->BeginScene();
 }
 

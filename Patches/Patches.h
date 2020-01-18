@@ -41,6 +41,7 @@ void UpdateHospitalChase(DWORD *SH2_RoomID, float *SH2_JamesPos);
 void UpdateHotelWater(DWORD *SH2_RoomID);
 void UpdateHotelRoom312FogVolumeFix(DWORD *SH2_RoomID);
 void UpdateInfiniteRumble(DWORD *SH2_RoomID);
+void UpdateInnerFlashlightGlow(DWORD Height);
 void UpdateLightingTransition(DWORD *SH2_CutsceneID);
 void UpdateMainMenuFix();
 void UpdateMainMenuTitlePerLang();

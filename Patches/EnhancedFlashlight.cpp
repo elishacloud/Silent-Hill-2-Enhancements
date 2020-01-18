@@ -30,6 +30,8 @@ void *jmpMovableObject1Addr;
 void *jmpMovableObject2Addr;
 void *FlashlightValue;
 void *jmpFlashlightReachAddr;
+void *FlashlightHallwayAddr;
+void *jmpFlashlightHallwayReturnAddr;
 float ObjectBrightnessValue = 0.7f;
 
 // ASM function to update Flashlight Brightness
@@ -170,6 +172,63 @@ __declspec(naked) void __stdcall FlashlightReachASM()
 	}
 }
 
+// Flashlight Hallway
+__declspec(naked) void __stdcall FlashlightHallwayASM()
+{
+	__asm
+	{
+		push ecx
+		mov ecx, dword ptr ds : [RoomIDAddr]	 	// moves room ID pointer to ecx
+		cmp dword ptr ds : [ecx], 0x0C
+		pop ecx
+		je near HeavensNightHallway
+
+	// if not Heaven's Night hallway
+		cmp eax, 0x02
+		jmp near ExitASM1
+
+	// if Heaven's Night hallway
+	HeavensNightHallway:
+		cmp eax, 0x03
+
+	ExitASM1:
+		jg near ExitASM2
+		jmp jmpFlashlightHallwayReturnAddr
+
+	ExitASM2:
+		jmp FlashlightHallwayAddr
+	}
+}
+
+// Scale the inner glow of the flashlight
+void UpdateInnerFlashlightGlow(DWORD Height)
+{
+	static DWORD LastHeight = 0;
+	if (LastHeight == Height)
+	{
+		return;
+	}
+	LastHeight = Height;
+
+	static void *Addr1 = nullptr;
+	if (!Addr1)
+	{
+		RUNONCE();
+
+		constexpr BYTE SearchBytes[]{ 0x8D, 0x44, 0x24, 0x28, 0x6A, 0x20, 0x50, 0xE8 };
+		Addr1 = (void*)ReadSearchedAddresses(0x00510693, 0x005109C3, 0x005102E3, SearchBytes, sizeof(SearchBytes), 0x11);
+		if (!Addr1)
+		{
+			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+			return;
+		}
+	}
+
+	float InnerGlowSize = (Height / 480.0f) * 11.0f;
+
+	UpdateMemoryAddress(Addr1, &InnerGlowSize, sizeof(float));
+}
+
 // Update SH2 code to enable PS2 flashlight
 void UpdatePS2Flashlight()
 {
@@ -258,6 +317,17 @@ void UpdatePS2Flashlight()
 		return;
 	}
 
+	// Fix Heaven's Night hallway
+	constexpr BYTE SearchBytesHallway[]{ 0x75, 0x0F, 0x3B, 0xCD, 0x75, 0x14, 0x8B, 0x0D };
+	DWORD HeavensNightHallwayAddr = SearchAndGetAddresses(0x004FFCBB, 0x004FFFEB, 0x004FF90B, SearchBytesHallway, sizeof(SearchBytesHallway), 0x11);
+	if (!HeavensNightHallwayAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+	FlashlightHallwayAddr = (void*)(HeavensNightHallwayAddr + 0xB0);
+	jmpFlashlightHallwayReturnAddr = (void*)(HeavensNightHallwayAddr + 0x09);
+
 	// Maximum Movable Object Brightness
 	void *ValueAddr = &ObjectBrightnessValue;
 	UpdateMemoryAddress((void*)(ObjectBrightness1Addr + 0x02), &ValueAddr, sizeof(void*));
@@ -281,4 +351,5 @@ void UpdatePS2Flashlight()
 	WriteJMPtoMemory((BYTE*)MovableObject1Addr, *MovableObject1ASM, 10);
 	WriteJMPtoMemory((BYTE*)MovableObject2Addr, *MovableObject2ASM, 10);
 	WriteJMPtoMemory((BYTE*)FlashlightReachAddr, *FlashlightReachASM, 6);
+	WriteJMPtoMemory((BYTE*)HeavensNightHallwayAddr, *FlashlightHallwayASM, 9);
 }

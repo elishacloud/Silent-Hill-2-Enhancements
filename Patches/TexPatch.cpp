@@ -22,7 +22,7 @@
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
 
-void ScaleTexture(wchar_t *TexName, float *XScaleAddress, float *YScaleAddress, WORD *WidthAddress, WORD *XPosAddress)
+void ScaleTexture(wchar_t *TexName, float *XScaleAddress, float *YScaleAddress, WORD *WidthAddress, WORD *XPosAddress, DWORD ScaleType)
 {
 	// Get texture resolution
 	std::ifstream in(TexName, std::ifstream::ate | std::ifstream::binary);
@@ -63,8 +63,23 @@ void ScaleTexture(wchar_t *TexName, float *XScaleAddress, float *YScaleAddress, 
 	float AspectRatio = (float)TextureYRes / (float)TextureXRes;
 
 	// Compute width and XPos
-	WORD Width = (WORD)(4096 / AspectRatio);
-	WORD XPos = (WORD)(61440 - (Width - 4096));
+	WORD Width = 0, XPos = 0;
+	switch (ScaleType)
+	{
+	case 1:
+		Width = (WORD)(4096 / AspectRatio);
+		XPos = (WORD)(61440 - (Width - 4096));
+		break;
+	case 2:
+		XPos = (WORD)(4096 / AspectRatio);
+		Width = (WORD)(61440 - (XPos - 4096));
+		break;
+	}
+	if (!Width || !XPos)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to get texture 'Width' and 'XPos' for " << TexName << "!";
+		return;
+	}
 
 	// Update memory
 	Logging::Log() << __FUNCTION__ << " Scaling texture: " << TexName << " Resolution: " << TextureXRes << "x" << TextureYRes << " XYScale: " << XScale << "x" << YScale << " Width: " << Width << " XPos: " << XPos;
@@ -120,7 +135,7 @@ void UpdateTexAddr()
 		const DWORD BaseAddress = SearchAndGetAddresses(0x00496974, 0x00496C14, 0x00496DF4, SearchBytes, sizeof(SearchBytes), 0x1C);
 		if (BaseAddress)
 		{
-			ScaleTexture(L"data\\pic\\etc\\start00.tex", (float*)(BaseAddress + 0x38), (float*)(BaseAddress + 0x42), (WORD*)(BaseAddress + 0x13), (WORD*)(BaseAddress + 0x01));
+			ScaleTexture(L"data\\pic\\etc\\start00.tex", (float*)(BaseAddress + 0x38), (float*)(BaseAddress + 0x42), (WORD*)(BaseAddress + 0x13), (WORD*)(BaseAddress + 0x01), 1);
 		}
 	}
 
@@ -130,7 +145,7 @@ void UpdateTexAddr()
 		if (BaseAddress)
 		{
 			const DWORD BaseAddress2 = *(DWORD*)(BaseAddress + 0x07);
-			ScaleTexture(L"data\\menu\\mc\\savebg.tbn2", (float*)(BaseAddress + 0x64), (float*)(BaseAddress + 0x6E), (WORD*)(BaseAddress2 + 0x00), (WORD*)(BaseAddress2 + 0x04));
+			ScaleTexture(L"data\\menu\\mc\\savebg.tbn2", (float*)(BaseAddress + 0x64), (float*)(BaseAddress + 0x6E), (WORD*)(BaseAddress2 + 0x00), (WORD*)(BaseAddress2 + 0x04), 2);
 			constexpr BYTE nop6[]{ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
 			UpdateMemoryAddress((void*)(BaseAddress + 0x05), (void*)nop6, sizeof(nop6));
 			UpdateMemoryAddress((void*)(BaseAddress + 0x16), (void*)nop6, sizeof(nop6));

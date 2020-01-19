@@ -22,20 +22,89 @@
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
 
-void ScaleTexture(wchar_t *TexName, float *XScaleAddress, float *YScaleAddress, WORD *WidthAddress, WORD *XPosAddress, DWORD ScaleType)
+// Variables for ASM
+WORD Start01TempASM;
+float Start01XScale;
+float Start01YScale;
+DWORD Start01Addr2;
+void *jmpStart01X1Addr;
+void *jmpStart01X2Addr;
+void *jmpStart01Y1Addr;
+void *jmpStart01Y2Addr;
+
+// ASM functions for Start01 Scale X-1
+__declspec(naked) void __stdcall Start01ScaleX1ASM()
 {
-	// Get texture resolution
-	std::ifstream in(TexName, std::ifstream::ate | std::ifstream::binary);
-	if (!in.is_open() || in.tellg() < 128)
+	__asm
 	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to read texture '" << TexName << "'!";
-		if (in.is_open())
-		{
-			in.close();
-		}
-		return;
+		mov edx, dword ptr ds : [Start01Addr2]
+		sub edx, 0x08
+		fild word ptr ds : [esi + edx]
+		fmul dword ptr ds : [Start01XScale]
+		fistp word ptr ds : [Start01TempASM]
+		movsx edx, word ptr ds : [Start01TempASM]
+		jmp jmpStart01X1Addr
 	}
-	WORD TextureXRes = 0, TextureYRes = 0;
+}
+
+// ASM functions for Start01 Scale X-2
+__declspec(naked) void __stdcall Start01ScaleX2ASM()
+{
+	__asm
+	{
+		mov ecx, dword ptr ds : [Start01Addr2]
+		sub ecx, 0x06
+		fild word ptr ds : [esi + ecx]
+		fmul dword ptr ds : [Start01XScale]
+		fistp word ptr ds : [Start01TempASM]
+		movsx ecx, word ptr ds : [Start01TempASM]
+		jmp jmpStart01X2Addr
+	}
+}
+
+// ASM functions for Start01 Scale Y-1
+__declspec(naked) void __stdcall Start01ScaleY1ASM()
+{
+	__asm
+	{
+		mov ecx, dword ptr ds : [Start01Addr2]
+		sub ecx, 0x0A
+		fild word ptr ds : [esi + ecx]
+		fmul dword ptr ds : [Start01XScale]
+		fistp word ptr ds : [Start01TempASM]
+		movsx ecx, word ptr ds : [Start01TempASM]
+		jmp jmpStart01Y1Addr
+	}
+}
+
+// ASM functions for Start01 Scale Y-2
+__declspec(naked) void __stdcall Start01ScaleY2ASM()
+{
+	__asm
+	{
+		mov edx, dword ptr ds : [Start01Addr2]
+		sub edx, 0x04
+		fild word ptr ds : [esi + edx]
+		fmul dword ptr ds : [Start01XScale]
+		fistp word ptr ds : [Start01TempASM]
+		movsx edx, word ptr ds : [Start01TempASM]
+		jmp jmpStart01Y2Addr
+	}
+}
+
+// Get texture resolution
+bool GetTextureRes(wchar_t *TexName, WORD &TextureXRes, WORD &TextureYRes)
+{
+	std::ifstream in(TexName, std::ifstream::ate | std::ifstream::binary);
+	if (!in.is_open())
+	{
+		return false;
+	}
+	if (in.tellg() < 128)
+	{
+		in.close();
+		return false;
+	}
 	for (auto& num : { 20, 24, 56 })
 	{
 		in.seekg(num);
@@ -43,13 +112,18 @@ void ScaleTexture(wchar_t *TexName, float *XScaleAddress, float *YScaleAddress, 
 		in.read((char*)&TextureYRes, 2);
 		if (TextureXRes && TextureYRes)
 		{
-			break;
+			in.close();
+			return true;
 		}
 	}
 	in.close();
+	return false;
+}
 
-	// Check texture resolution
-	if (!TextureXRes || !TextureYRes)
+void ScaleTexture(wchar_t *TexName, float *XScaleAddress, float *YScaleAddress, WORD *WidthAddress, WORD *XPosAddress, DWORD ScaleType)
+{
+	WORD TextureXRes, TextureYRes;
+	if (!GetTextureRes(TexName, TextureXRes, TextureYRes))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to get texture resolution for " << TexName << "!";
 		return;
@@ -63,7 +137,7 @@ void ScaleTexture(wchar_t *TexName, float *XScaleAddress, float *YScaleAddress, 
 	float AspectRatio = (float)TextureYRes / (float)TextureXRes;
 
 	// Compute width and XPos
-	WORD Width = 0, XPos = 0;
+	WORD Width, XPos;
 	switch (ScaleType)
 	{
 	case 1:
@@ -74,9 +148,7 @@ void ScaleTexture(wchar_t *TexName, float *XScaleAddress, float *YScaleAddress, 
 		XPos = (WORD)(4096 / AspectRatio);
 		Width = (WORD)(61440 - (XPos - 4096));
 		break;
-	}
-	if (!Width || !XPos)
-	{
+	default:
 		Logging::Log() << __FUNCTION__ << " Error: failed to get texture 'Width' and 'XPos' for " << TexName << "!";
 		return;
 	}
@@ -87,6 +159,43 @@ void ScaleTexture(wchar_t *TexName, float *XScaleAddress, float *YScaleAddress, 
 	UpdateMemoryAddress(YScaleAddress, &YScale, sizeof(float));
 	UpdateMemoryAddress(WidthAddress, &Width, sizeof(WORD));
 	UpdateMemoryAddress(XPosAddress, &XPos, sizeof(WORD));
+}
+
+void ScaleStart01Texture(wchar_t *TexName)
+{
+	WORD TextureXRes, TextureYRes;
+	if (!GetTextureRes(TexName, TextureXRes, TextureYRes))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to get texture resolution for " << TexName << "!";
+		return;
+	}
+
+	// Compute new scale
+	Start01XScale = (float)TextureXRes / 512.0f;
+	Start01YScale = (float)TextureYRes / 512.0f;
+
+	// Get addresses
+	constexpr BYTE SearchBytes1[]{ 0x33, 0xC9, 0x83, 0xC4, 0x1C, 0x66, 0x83, 0xFF, 0x0B, 0x0F, 0x95, 0xC1, 0x8B, 0xD5, 0xC1, 0xE2, 0x04, 0x66, 0x89, 0x15 };
+	DWORD Start01Addr1 = SearchAndGetAddresses(0x00495CEA, 0x00495F8A, 0x0049619A, SearchBytes1, sizeof(SearchBytes1), 0x16);
+	if (!Start01Addr1)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+	Start01Addr2 = *(DWORD*)(Start01Addr1 + 0x07);
+
+	// jmp addresses
+	jmpStart01X1Addr = (void*)(Start01Addr1 + 0x38);
+	jmpStart01X2Addr = (void*)(Start01Addr1 + 0x57);
+	jmpStart01Y1Addr = (void*)(Start01Addr1 + 0x49);
+	jmpStart01Y2Addr = (void*)(Start01Addr1 + 0x69);
+
+	// Update memory
+	Logging::Log() << __FUNCTION__ << " Scaling texture: " << TexName << " Resolution: " << TextureXRes << "x" << TextureYRes << " XYScale: " << Start01XScale << "x" << Start01YScale;
+	WriteJMPtoMemory((BYTE*)(Start01Addr1 + 0x31), *Start01ScaleX1ASM, 7);
+	WriteJMPtoMemory((BYTE*)(Start01Addr1 + 0x50), *Start01ScaleX2ASM, 7);
+	WriteJMPtoMemory((BYTE*)(Start01Addr1 + 0x42), *Start01ScaleY1ASM, 7);
+	WriteJMPtoMemory((BYTE*)(Start01Addr1 + 0x62), *Start01ScaleY2ASM, 7);
 }
 
 void UpdateTexAddr()
@@ -122,12 +231,11 @@ void UpdateTexAddr()
 	UpdateMemoryAddress((void*)Addr1, &PtrBytes1, sizeof(void*));
 
 	// Write new memory address 2
-	BYTE NewByte = 0xB8;
-	UpdateMemoryAddress((void*)Addr2, &NewByte, sizeof(BYTE));
+	UpdateMemoryAddress((void*)Addr2, "\xB8", sizeof(BYTE));
 	UpdateMemoryAddress((void*)(Addr2 + 1), &PtrBytes2, sizeof(void*));
 
 	// Write new memory address 3
-	UpdateMemoryAddress((void*)Addr3, &NewByte, sizeof(BYTE));
+	UpdateMemoryAddress((void*)Addr3, "\xB8", sizeof(BYTE));
 	UpdateMemoryAddress((void*)(Addr3 + 1), &PtrBytes2, sizeof(void*));
 
 	{// start00.tex
@@ -138,6 +246,9 @@ void UpdateTexAddr()
 			ScaleTexture(L"data\\pic\\etc\\start00.tex", (float*)(BaseAddress + 0x38), (float*)(BaseAddress + 0x42), (WORD*)(BaseAddress + 0x13), (WORD*)(BaseAddress + 0x01), 1);
 		}
 	}
+
+	// start01.tex
+	ScaleStart01Texture(L"data\\pic\\etc\\start01.tex");
 
 	{// savebg.tbn2
 		constexpr BYTE SearchBytes[]{ 0x66, 0x0D, 0x02, 0x00, 0x66, 0x0D, 0x04, 0x00, 0x66, 0xA3 };

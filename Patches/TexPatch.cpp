@@ -163,18 +163,48 @@ void ScaleTexture(wchar_t *TexName, float *XScaleAddress, float *YScaleAddress, 
 	UpdateMemoryAddress(XPosAddress, &XPos, sizeof(WORD));
 }
 
-void ScaleStart01Texture(wchar_t *TexName)
+bool GetStart01Addresses()
 {
-	if (!Start01Addr1 || !Start01Addr2 || !Start01Addr3)
+	// Get addresses
+	constexpr BYTE SearchBytes1[]{ 0x33, 0xC9, 0x83, 0xC4, 0x1C, 0x66, 0x83, 0xFF, 0x0B, 0x0F, 0x95, 0xC1, 0x8B, 0xD5, 0xC1, 0xE2, 0x04, 0x66, 0x89, 0x15 };
+	Start01Addr1 = SearchAndGetAddresses(0x00495CEA, 0x00495F8A, 0x0049619A, SearchBytes1, sizeof(SearchBytes1), 0x16);
+	if (Start01Addr1)
+	{
+		Start01Addr2 = *(DWORD*)(Start01Addr1 + 0x07);
+	}
+	constexpr BYTE SearchBytes3[]{ 0x66, 0x0D, 0x02, 0x00, 0x66, 0x0D, 0x04, 0x00, 0x68 };
+	Start01Addr3 = SearchAndGetAddresses(0x00496974, 0x00496C14, 0x00496DF4, SearchBytes3, sizeof(SearchBytes3), 0x26);
+
+	return (Start01Addr1 && Start01Addr2 && Start01Addr3);
+}
+
+void SetDefaultFullscreenBackground()
+{
+	if (!Start01Addr2 && !Start01Addr3 && !GetStart01Addresses())
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
 
+	// Fullscreen Start Background
+	UpdateMemoryAddress((void*)Start01Addr3, "\x02\xF1", sizeof(WORD));						// Start Background Top: 61698 (int16)
+	UpdateMemoryAddress((void*)(Start01Addr3 + 0x12), "\xFE\x0E", sizeof(WORD));			// Start Background Bottom: 3838 (int16)
+	UpdateMemoryAddress((void*)Start01Addr2, "\x59\x00", sizeof(WORD));						// Logo Highlight Height: 89 (int16)
+	UpdateMemoryAddress((void*)(Start01Addr3 + 0xAC), "\x92\xFF\xFF\xFF", sizeof(DWORD));	// Logo Highlight Y Pos: -110 (int32)
+}
+
+void ScaleStart01Texture(wchar_t *TexName)
+{
 	WORD TextureXRes, TextureYRes;
 	if (!GetTextureRes(TexName, TextureXRes, TextureYRes))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to get texture resolution for " << TexName << "!";
+		return;
+	}
+
+	if (!GetStart01Addresses())
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
 
@@ -196,13 +226,20 @@ void ScaleStart01Texture(wchar_t *TexName)
 	WriteJMPtoMemory((BYTE*)(Start01Addr1 + 0x62), *Start01ScaleY2ASM, 7);
 
 	// Fullscreen Start Background
-	UpdateMemoryAddress((void*)Start01Addr3, "\x02\xF1", sizeof(WORD));						// Start Background Top: 61698 (int16)
-	UpdateMemoryAddress((void*)(Start01Addr3 + 0x12), "\xFE\x0E", sizeof(WORD));			// Start Background Bottom: 3838 (int16)
-	UpdateMemoryAddress((void*)Start01Addr2, "\x7E\x00", sizeof(WORD));						// Logo Highlight Height: 126 (int16)
-	UpdateMemoryAddress((void*)(Start01Addr3 + 0xAC), "\x95\xFF\xFF\xFF", sizeof(DWORD));	// Logo Highlight Y Pos: -107 (int32)
+	if (TextureXRes > 512 && TextureYRes > 512)
+	{
+		UpdateMemoryAddress((void*)Start01Addr3, "\x02\xF1", sizeof(WORD));						// Start Background Top: 61698 (int16)
+		UpdateMemoryAddress((void*)(Start01Addr3 + 0x12), "\xFE\x0E", sizeof(WORD));			// Start Background Bottom: 3838 (int16)
+		UpdateMemoryAddress((void*)Start01Addr2, "\x7E\x00", sizeof(WORD));						// Logo Highlight Height: 126 (int16)
+		UpdateMemoryAddress((void*)(Start01Addr3 + 0xAC), "\x95\xFF\xFF\xFF", sizeof(DWORD));	// Logo Highlight Y Pos: -107 (int32)
+	}
+	else
+	{
+		SetDefaultFullscreenBackground();
+	}
 }
 
-void UpdateTextures()
+void UpdateTexAddr()
 {
 	// Get addresses
 	const DWORD StaticAddr = 0x00401CC1;		// Address is the same on all binaries
@@ -265,35 +302,5 @@ void UpdateTextures()
 			UpdateMemoryAddress((void*)(BaseAddress + 0x05), (void*)nop6, sizeof(nop6));
 			UpdateMemoryAddress((void*)(BaseAddress + 0x16), (void*)nop6, sizeof(nop6));
 		}
-	}
-}
-
-void UpdateTexAddr()
-{
-	// Get addresses
-	constexpr BYTE SearchBytes1[]{ 0x33, 0xC9, 0x83, 0xC4, 0x1C, 0x66, 0x83, 0xFF, 0x0B, 0x0F, 0x95, 0xC1, 0x8B, 0xD5, 0xC1, 0xE2, 0x04, 0x66, 0x89, 0x15 };
-	Start01Addr1 = SearchAndGetAddresses(0x00495CEA, 0x00495F8A, 0x0049619A, SearchBytes1, sizeof(SearchBytes1), 0x16);
-	if (Start01Addr1)
-	{
-		Start01Addr2 = *(DWORD*)(Start01Addr1 + 0x07);
-	}
-	constexpr BYTE SearchBytes3[]{ 0x66, 0x0D, 0x02, 0x00, 0x66, 0x0D, 0x04, 0x00, 0x68 };
-	Start01Addr3 = SearchAndGetAddresses(0x00496974, 0x00496C14, 0x00496DF4, SearchBytes3, sizeof(SearchBytes3), 0x26);
-
-	if (EnableTexAddrHack)
-	{
-		UpdateTextures();
-	}
-	else if (Start01Addr2 && Start01Addr3)
-	{
-		// Fullscreen Start Background
-		UpdateMemoryAddress((void*)Start01Addr3, "\x02\xF1", sizeof(WORD));						// Start Background Top: 61698 (int16)
-		UpdateMemoryAddress((void*)(Start01Addr3 + 0x12), "\xFE\x0E", sizeof(WORD));			// Start Background Bottom: 3838 (int16)
-		UpdateMemoryAddress((void*)Start01Addr2, "\x59\x00", sizeof(WORD));						// Logo Highlight Height: 89 (int16)
-		UpdateMemoryAddress((void*)(Start01Addr3 + 0xAC), "\x92\xFF\xFF\xFF", sizeof(DWORD));	// Logo Highlight Y Pos: -110 (int32)
-	}
-	else
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 	}
 }

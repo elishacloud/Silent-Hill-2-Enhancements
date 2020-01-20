@@ -22,6 +22,7 @@ DWORD *GetSpecializedLightPointer2();
 // Function forward declaration
 void DisableCDCheck();
 void PatchBinary();
+void SetDefaultFullscreenBackground();
 void SetWindowHandle(HWND WindowHandle);
 void Update2TBHardDriveFix();
 void UpdateBloodSize(DWORD *SH2_RoomID);

@@ -272,6 +272,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			UpdateCemeteryLighting();
 		}
 
+		// Tree Lighting fix
+		if (LightingFix && WidescreenFix)
+		{
+			UpdateTreeLighting();
+		}
+
 		// Rowboat Animation Fix
 		if (RowboatAnimationFix)
 		{

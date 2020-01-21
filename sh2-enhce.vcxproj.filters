@@ -218,6 +218,12 @@
     <ClCompile Include="External\Hooking.Patterns\Hooking.Patterns.cpp">
       <Filter>External\Hooking.Patterns</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\RotatingMannequinGlitch.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\TreeLighting.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">

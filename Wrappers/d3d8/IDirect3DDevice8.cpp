@@ -1199,6 +1199,18 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		UpdateInnerFlashlightGlow(BufferHeight);
 	}
 
+	// Tree Lighting fix
+	if (LightingFix && WidescreenFix && SH2_CutsceneID)
+	{
+		UpdateTreeColor(SH2_CutsceneID);
+	}
+
+	// Fix rotating Mannequin glitch
+	if (WoodsideRoom205Fix && SH2_RoomID)
+	{
+		UpdateRotatingMannequin(SH2_RoomID);
+	}
+
 	return ProxyInterface->BeginScene();
 }
 
@@ -1748,96 +1760,21 @@ HRESULT m_IDirect3DDevice8::GetInfo(THIS_ DWORD DevInfoID, void* pDevInfoStruct,
 
 HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 {
-	// Variables for soft shadows
 	DrawingShadowsFlag = true;
-	DWORD SHADOW_OPACITY = 170;
-	float SHADOW_DIVISOR = 2 * ((float)BufferHeight / 720.0f);
-	int BLUR_PASSES = 4;
-
-	// Get shadow intensity
-	if (EnableSoftShadows && SH2_RoomID && SH2_ChapterID)
-	{
-		// Main scenario
-		if (*SH2_ChapterID == 0x00)
-		{
-			switch (*SH2_RoomID)
-			{
-			case 0x0F:
-				SHADOW_OPACITY = 40;
-				break;
-			case 0xA2:
-			case 0xBD:
-				SHADOW_OPACITY = 50;
-				break;
-			case 0x89:
-				SHADOW_OPACITY = 70;
-				break;
-			case 0x0B:
-			case 0x21:
-				SHADOW_OPACITY = 110;
-				break;
-			case 0xBF:
-				SHADOW_OPACITY = 128;
-				break;
-			}
-		}
-		// Born From a Wish chapter
-		else if (*SH2_ChapterID == 0x01)
-		{
-			switch (*SH2_RoomID)
-			{
-			case 0x27:
-				SHADOW_OPACITY = 30;
-				break;
-			case 0xC2:
-				SHADOW_OPACITY = 60;
-				break;
-			case 0xC7:
-				SHADOW_OPACITY = 128;
-				break;
-			case 0x0C:
-			case 0x0D:
-			case 0x20:
-			case 0x21:
-			case 0x25:
-			case 0x26:
-			case 0xC0:
-			case 0xC1:
-			case 0xC3:
-			case 0xC4:
-			case 0xC5:
-			case 0xC6:
-			case 0xC8:
-			case 0xC9:
-			case 0xCA:
-			case 0xCB:
-			case 0xCC:
-			case 0xCD:
-			case 0xCE:
-			case 0xCF:
-			case 0xD0:
-			case 0xD1:
-			case 0xD2:
-			case 0xD5:
-				SHADOW_OPACITY = 90;
-				break;
-			}
-		}
-	}
-
 	SetShadowFading();
-	if (ShadowMode != SHADOW_FADING_NONE)
-	{
-		SHADOW_OPACITY = (SHADOW_OPACITY * ShadowFadingIntensity) / 100;
-	}
+
+	// Variables for soft shadows
+	const DWORD SHADOW_OPACITY = (ShadowMode == SHADOW_FADING_NONE) ? GetShadowOpacity() : (GetShadowOpacity() * ShadowFadingIntensity) / 100;
+	const float SHADOW_DIVISOR = 2.0f * ((float)BufferHeight / 720.0f);
+	const int BLUR_PASSES = 4;
 
 	IDirect3DSurface8 *pBackBuffer = nullptr, *pStencilBuffer = nullptr;
 
-	float screenW = (float)BufferWidth;
-	float screenH = (float)BufferHeight;
+	const float screenW = (float)BufferWidth;
+	const float screenH = (float)BufferHeight;
 
-	float screenWs = (float)BufferWidth / SHADOW_DIVISOR;
-	float screenHs = (float)BufferHeight / SHADOW_DIVISOR;
+	const float screenWs = (float)BufferWidth / SHADOW_DIVISOR;
+	const float screenHs = (float)BufferHeight / SHADOW_DIVISOR;
 
 	// Original geometry vanilla game uses
 	CUSTOMVERTEX shadowRectDiffuse[] =
@@ -2108,6 +2045,74 @@ void m_IDirect3DDevice8::ReleaseInterface(T **ppInterface, UINT ReleaseRefNum)
 
 		*ppInterface = nullptr;
 	}
+}
+
+// Get shadow opacity
+DWORD m_IDirect3DDevice8::GetShadowOpacity()
+{
+	if (SH2_RoomID && SH2_ChapterID)
+	{
+		// Main scenario
+		if (*SH2_ChapterID == 0x00)
+		{
+			switch (*SH2_RoomID)
+			{
+			case 0x0F:
+				return 40;
+			case 0xA2:
+			case 0xBD:
+				return 50;
+			case 0x89:
+				return 70;
+			case 0x0B:
+			case 0x21:
+				return 110;
+			case 0xBF:
+				return 128;
+			}
+		}
+		// Born From a Wish chapter
+		else if (*SH2_ChapterID == 0x01)
+		{
+			switch (*SH2_RoomID)
+			{
+			case 0x27:
+				return 30;
+			case 0xC2:
+				return 60;
+			case 0x0C:
+			case 0x0D:
+			case 0x20:
+			case 0x21:
+			case 0x25:
+			case 0x26:
+			case 0xC0:
+			case 0xC1:
+			case 0xC3:
+			case 0xC4:
+			case 0xC5:
+			case 0xC6:
+			case 0xC8:
+			case 0xC9:
+			case 0xCA:
+			case 0xCB:
+			case 0xCC:
+			case 0xCD:
+			case 0xCE:
+			case 0xCF:
+			case 0xD0:
+			case 0xD1:
+			case 0xD2:
+			case 0xD5:
+				return 90;
+			case 0xC7:
+				return 128;
+			}
+		}
+	}
+
+	// Default opacity
+	return 170;
 }
 
 // Get shadow fading intensity

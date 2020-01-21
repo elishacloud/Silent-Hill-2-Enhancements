@@ -62,6 +62,7 @@
 	visit(RemoveEffectsFlicker, true) \
 	visit(RemoveEnvironmentFlicker, true) \
 	visit(RestoreSpecialFX, true) \
+	visit(RestoreVibration, true) \
 	visit(Room312ShadowFix, true) \
 	visit(RowboatAnimationFix, true) \
 	visit(SteamCrashFix, true) \
@@ -72,7 +73,7 @@
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, true) \
-	visit(RestoreVibration, true)
+	visit(WoodsideRoom205Fix, true)
 
 #define VISIT_INT_SETTINGS(visit) \
 	visit(CustomFontCol, 100) \

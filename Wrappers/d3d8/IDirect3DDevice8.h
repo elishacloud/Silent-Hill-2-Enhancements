@@ -243,6 +243,7 @@ private:
 	void RestoreState(D3DSTATE *state);
 	template <typename T>
 	void ReleaseInterface(T **ppInterface, UINT ReleaseRefNum = 1);
+	DWORD GetShadowOpacity();
 	DWORD GetShadowIntensity();
 	void SetShadowFading();
 };

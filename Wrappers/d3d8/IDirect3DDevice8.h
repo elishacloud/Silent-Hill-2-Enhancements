@@ -78,6 +78,23 @@ private:
 		FLOAT u, v;
 	};
 
+	struct CUSTOMVERTEX_UV_F
+	{
+		FLOAT x, y, z, rhw;
+		DWORD color;
+		FLOAT u, v;
+	};
+
+	CUSTOMVERTEX_UV_F FullScreenFadeout[6]
+	{
+		{    -0.5f,  -36.5f, 0.01f, 1.0f, 0, 0.0f, 0.0f },
+		{ -1919.5f,  -36.5f, 0.01f, 1.0f, 0, 1.0f, 0.0f },
+		{ -1919.5f, 1115.5f, 0.01f, 1.0f, 0, 1.0f, 1.0f },
+		{    -0.5f,  -36.5f, 0.01f, 1.0f, 0, 0.0f, 0.0f },
+		{ -1919.5f, 1115.5f, 0.01f, 1.0f, 0, 1.0f, 1.0f },
+		{    -0.5f, 1115.5f, 0.01f, 1.0f, 0, 0.0f, 1.0f }
+	};
+
 	struct D3DSTATE
 	{
 		DWORD magFilter;

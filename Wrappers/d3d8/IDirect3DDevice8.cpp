@@ -985,6 +985,24 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 	DWORD stencilRef;
 	GetRenderState(D3DRS_STENCILREF, &stencilRef);
 
+	// Fix bowling cutscene fading
+	if (WidescreenFix && SH2_CutsceneID && *SH2_CutsceneID == 0x19 && PrimitiveType == D3DPT_TRIANGLELIST && PrimitiveCount == 2 && VertexStreamZeroStride == 28 &&
+		((CUSTOMVERTEX_UV_F*)pVertexStreamZeroData)[0].z == 0.01f && ((CUSTOMVERTEX_UV_F*)pVertexStreamZeroData)[1].z == 0.01f && ((CUSTOMVERTEX_UV_F*)pVertexStreamZeroData)[2].z == 0.01f)
+	{
+		for (const DWORD &x : { 1, 2, 4 })
+		{
+			FullScreenFadeout[x].x = (float)BufferWidth - 0.5f;
+		}
+
+		for (int x = 0; x < 6; x++)
+		{
+			FullScreenFadeout[x].y = ((CUSTOMVERTEX_UV_F*)pVertexStreamZeroData)[x].y;
+			FullScreenFadeout[x].color = ((CUSTOMVERTEX_UV_F*)pVertexStreamZeroData)[x].color;
+		}
+
+		pVertexStreamZeroData = FullScreenFadeout;
+	}
+
 	if (stencilRef == 129)
 	{
 		if (EnableXboxShadows)

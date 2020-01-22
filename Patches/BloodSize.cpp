@@ -65,25 +65,25 @@ void UpdateBloodSize(DWORD *SH2_RoomID)
 	static float *Address1_d = (float*)((DWORD)Address1 + 0x4D0);
 
 	// Get blood position address for Flesh Room
-	static float *Address2 = nullptr;
+	static DWORD Address2 = NULL;
 	if (!Address2)
 	{
 		RUNONCE();
 
 		// Get address for blood position
 		constexpr BYTE SearchBytes[]{ 0x5D, 0x33, 0xC0, 0x5B, 0x81, 0xC4, 0x10, 0x01, 0x00, 0x00, 0xC3, 0x90, 0x90, 0x56, 0x6A, 0x00, 0x8B, 0xF0 };
-		Address2 = (float*)ReadSearchedAddresses(0x004CE5C3, 0x004CE873, 0x004CE133, SearchBytes, sizeof(SearchBytes), 0x96);
+		Address2 = ReadSearchedAddresses(0x004CE5C3, 0x004CE873, 0x004CE133, SearchBytes, sizeof(SearchBytes), 0x96);
 		if (!Address2)
 		{
 			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
 			return;
 		}
-		Address2 = (float*)((DWORD)Address2 + 0x20);
+		Address2 = Address2 + 0x20;
 	}
-	//static float *Address2_a = (float*)((DWORD)Address2 + 0x00);		// Not currently used
-	static float *Address2_b = (float*)((DWORD)Address2 + 0x08);
-	static float *Address2_c = (float*)((DWORD)Address2 + 0x18);
-	static float *Address2_d = (float*)((DWORD)Address2 + 0x20);
+	//static float *Address2_a = (float*)(Address2 + 0x00);		// Not currently used
+	static float *Address2_b = (float*)(Address2 + 0x08);
+	static float *Address2_c = (float*)(Address2 + 0x18);
+	static float *Address2_d = (float*)(Address2 + 0x20);
 
 	// Set blood position for Apartment Mannequin/Flashlight Room
 	static bool ValueSet1 = false;

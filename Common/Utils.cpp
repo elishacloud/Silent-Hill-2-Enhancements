@@ -189,7 +189,7 @@ void SearchAndLogAddress(DWORD FindAddress)
 }
 
 // Update memory
-bool UpdateMemoryAddress(void *dataAddr, void *dataBytes, size_t dataSize)
+bool UpdateMemoryAddress(void *dataAddr, const void *dataBytes, size_t dataSize)
 {
 	if (!dataAddr || !dataBytes || !dataSize)
 	{
@@ -219,7 +219,7 @@ bool UpdateMemoryAddress(void *dataAddr, void *dataBytes, size_t dataSize)
 }
 
 // Write a address to memory
-bool WriteAddresstoMemory(BYTE *dataAddr, void *JMPAddr, DWORD count, BYTE command)
+bool WriteAddresstoMemory(BYTE *dataAddr, const void *JMPAddr, DWORD count, BYTE command)
 {
 	if (!dataAddr || !JMPAddr)
 	{
@@ -262,14 +262,14 @@ bool WriteAddresstoMemory(BYTE *dataAddr, void *JMPAddr, DWORD count, BYTE comma
 }
 
 // Write a call to memory
-bool WriteCalltoMemory(BYTE *dataAddr, void *JMPAddr, DWORD count)
+bool WriteCalltoMemory(BYTE *dataAddr, const void *JMPAddr, DWORD count)
 {
 	// 0xE8 call (4-byte relative)
 	return WriteAddresstoMemory(dataAddr, JMPAddr, count, 0xE8);
 }
 
 // Write a jmp to memory
-bool WriteJMPtoMemory(BYTE *dataAddr, void *JMPAddr, DWORD count)
+bool WriteJMPtoMemory(BYTE *dataAddr, const void *JMPAddr, DWORD count)
 {
 	// 0xE9 jmp (4-byte relative)
 	return WriteAddresstoMemory(dataAddr, JMPAddr, count, 0xE9);

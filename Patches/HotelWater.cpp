@@ -95,6 +95,10 @@ void UpdateHotelWater(DWORD *SH2_RoomID)
 			return;
 		}
 	}
+	static float *Address4_a = (float*)(Address4 + 0x00);
+	static float *Address4_b = (float*)(Address4 + 0x08);
+	static float *Address4_c = (float*)(Address4 + 0x08);
+	static float *Address4_d = (float*)(Address4 + 0x0C);
 
 	// Static updates
 	static bool FirstRun = true;
@@ -142,14 +146,14 @@ void UpdateHotelWater(DWORD *SH2_RoomID)
 			}
 		}
 
-		if (RoomsMatch)
+		const float Value1 = 19.0f;
+		const float Value2 = 128.0f;
+		if (RoomsMatch && (*Address4_a != Value1 || *Address4_b != Value1 || *Address4_c != Value1 || *Address4_d != Value2))
 		{
-			float Value = 19.0f;
-			UpdateMemoryAddress((void*)(Address4 + 0x00), &Value, sizeof(float));	// Water color (flashlight off) - R
-			UpdateMemoryAddress((void*)(Address4 + 0x04), &Value, sizeof(float));	// Water color (flashlight off) - G
-			UpdateMemoryAddress((void*)(Address4 + 0x08), &Value, sizeof(float));	// Water color (flashlight off) - B
-			Value = 128.0f;
-			UpdateMemoryAddress((void*)(Address4 + 0x0C), &Value, sizeof(float));	// Water intensity (flashlight off)
+			UpdateMemoryAddress(Address4_a, &Value1, sizeof(float));	// Water color (flashlight off) - R
+			UpdateMemoryAddress(Address4_b, &Value1, sizeof(float));	// Water color (flashlight off) - G
+			UpdateMemoryAddress(Address4_c, &Value1, sizeof(float));	// Water color (flashlight off) - B
+			UpdateMemoryAddress(Address4_d, &Value2, sizeof(float));	// Water intensity (flashlight off)
 		}
 	}
 	// Alternate Hotel Bar Water and Elevator, Hallway After Alternate Hotel Kitchen Water, Final Boss Metal Staircase Water
@@ -164,14 +168,14 @@ void UpdateHotelWater(DWORD *SH2_RoomID)
 			}
 		}
 
-		if (RoomsMatch)
+		const float Value1 = 100.0f;
+		const float Value2 = 255.0f;
+		if (RoomsMatch && (*Address4_a != Value1 || *Address4_b != Value1 || *Address4_c != Value1 || *Address4_d != Value2))
 		{
-			float Value = 100.0f;
-			UpdateMemoryAddress((void*)(Address4 + 0x00), &Value, sizeof(float));	// Water color (flashlight off) - R
-			UpdateMemoryAddress((void*)(Address4 + 0x04), &Value, sizeof(float));	// Water color (flashlight off) - G
-			UpdateMemoryAddress((void*)(Address4 + 0x08), &Value, sizeof(float));	// Water color (flashlight off) - B
-			Value = 255.0f;
-			UpdateMemoryAddress((void*)(Address4 + 0x0C), &Value, sizeof(float));	// Water intensity (flashlight off)
+			UpdateMemoryAddress(Address4_a, &Value1, sizeof(float));	// Water color (flashlight off) - R
+			UpdateMemoryAddress(Address4_b, &Value1, sizeof(float));	// Water color (flashlight off) - G
+			UpdateMemoryAddress(Address4_c, &Value1, sizeof(float));	// Water color (flashlight off) - B
+			UpdateMemoryAddress(Address4_d, &Value2, sizeof(float));	// Water intensity (flashlight off)
 		}
 	}
 }

@@ -37,13 +37,13 @@ void UpdateHangOnEsc(DWORD *SH2_RoomID)
 		}
 	}
 
-	static DWORD Address = NULL;
+	static DWORD *Address = NULL;
 	if (!Address)
 	{
 		RUNONCE();
 
 		constexpr BYTE SearchBytes[]{ 0x8B, 0x10, 0x6A, 0x00, 0x6A, 0x1B, 0x50, 0xFF, 0x92, 0xC8, 0x00, 0x00, 0x00, 0x81, 0xC4, 0x68, 0x01, 0x00, 0x00, 0xC3 };
-		Address = ReadSearchedAddresses(0x0044C615, 0x0044C7B5, 0x0044C7B5, SearchBytes, sizeof(SearchBytes), 0x26);
+		Address = (DWORD*)ReadSearchedAddresses(0x0044C615, 0x0044C7B5, 0x0044C7B5, SearchBytes, sizeof(SearchBytes), 0x26);
 		if (!Address)
 		{
 			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -55,9 +55,8 @@ void UpdateHangOnEsc(DWORD *SH2_RoomID)
 	RUNCODEONCE(Logging::Log() << "Fixing Esc while transition is active...");
 
 	// Prevent player from pressing Esc while transition is active
-	if (*ScreenEvent == 0x03 || (IsInBloomEffect && *SH2_RoomID == 0x90))
+	if (*Address != 3 && (*ScreenEvent == 0x03 || (IsInBloomEffect && *SH2_RoomID == 0x90)))
 	{
-		DWORD Value = 3;
-		UpdateMemoryAddress((void*)Address, &Value, sizeof(DWORD));
+		*Address = 3;
 	}
 }

@@ -96,7 +96,7 @@ void UpdateHotelWater(DWORD *SH2_RoomID)
 		}
 	}
 	static float *Address4_a = (float*)(Address4 + 0x00);
-	static float *Address4_b = (float*)(Address4 + 0x08);
+	static float *Address4_b = (float*)(Address4 + 0x04);
 	static float *Address4_c = (float*)(Address4 + 0x08);
 	static float *Address4_d = (float*)(Address4 + 0x0C);
 

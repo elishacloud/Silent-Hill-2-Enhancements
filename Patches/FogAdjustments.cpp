@@ -26,6 +26,12 @@ void *FogFrontPointer;
 void *FogBackPointer;
 void *jmpFogReturnAddr;
 void *jmpBlueCreekFogReturnAddr;
+void *NewEnvFogRGB;
+void *OriginalEnvFogRGB;
+void *InGameCameraYOrientation;
+void *jmpFinalAreaBossAddr1;
+void *jmpFinalAreaBossAddr2;
+
 
 // Fog values
 constexpr float NewFrontFog = 2200.0f;
@@ -34,6 +40,7 @@ constexpr float OriginalFrontFog = 8000.0f;
 constexpr float OriginalBackFog = 12000.0f;
 constexpr float BlueCreekNewFog = 4200.0f;
 constexpr float BlueCreekOriginalFog = 3000.0f;
+constexpr float FinalAreaCameraYOrientation = -15750.0f;
 
 // ASM functions to adjust fog values for Angela cutscene
 __declspec(naked) void __stdcall FogAdjustmentASM()
@@ -118,6 +125,58 @@ __declspec(naked) void __stdcall BlueCreekFogAdjustmentASM()
 	}
 }
 
+// ASM final boss area 1
+__declspec(naked) void __stdcall FinalAreaBoss1ASM()
+{
+	__asm
+	{
+		mov eax, dword ptr ds : [RoomIDAddr]
+		cmp dword ptr ds : [eax], 0xBB
+		jne near NotFinalBoss
+		mov eax, dword ptr ds : [InGameCameraYOrientation]
+		movss xmm0, dword ptr ds : [FinalAreaCameraYOrientation]
+		comiss xmm0, dword ptr ds : [eax]
+		jbe near NotFinalBoss
+		mov eax, dword ptr ds : [NewEnvFogRGB]
+		jmp near ExitASM
+
+	NotFinalBoss:
+		mov eax, dword ptr ds : [OriginalEnvFogRGB]
+
+	ExitASM:
+		mov eax, dword ptr ds : [eax]
+		jmp jmpFinalAreaBossAddr1
+	}
+}
+
+// ASM final boss area 2
+__declspec(naked) void __stdcall FinalAreaBoss2ASM()
+{
+	__asm
+	{
+		push eax
+		mov eax, dword ptr ds : [RoomIDAddr]
+		cmp dword ptr ds : [eax], 0xBB
+		jne near NotFinalBoss
+		mov eax, dword ptr ds : [InGameCameraYOrientation]
+		movss xmm0, dword ptr ds : [FinalAreaCameraYOrientation]
+		comiss xmm0, dword ptr ds : [eax]
+		jbe near NotFinalBoss
+		pop eax
+		push 0
+		jmp near ExitASM
+
+	NotFinalBoss:
+		pop eax
+		push 1
+
+	ExitASM:
+		push 0x1C
+		push eax
+		jmp jmpFinalAreaBossAddr2
+	}
+}
+
 void UpdateFogParameters()
 {
 	// Get Fog address
@@ -156,6 +215,53 @@ void UpdateFogParameters()
 	memcpy(&FogFrontPointer, (void*)((DWORD)jmpFogReturnAddr - 4), sizeof(DWORD));
 	FogBackPointer = (void*)((DWORD)FogFrontPointer - 4);
 
+	// In-game camera Y
+	constexpr BYTE InGameCameraYSearchBytes[]{ 0x8B, 0x08, 0x8B, 0x50, 0x04, 0x8B, 0x40, 0x08, 0x89, 0x44, 0x24, 0x0C, 0xA1 };
+	InGameCameraYOrientation = (void*)ReadSearchedAddresses(0x005155ED, 0x0051591D, 0x0051523D, InGameCameraYSearchBytes, sizeof(InGameCameraYSearchBytes), 0x17);
+
+	// Checking address pointer
+	if (!InGameCameraYOrientation)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+
+	// New environment fog RGB
+	constexpr BYTE NewEnvFogSearchBytes[]{ 0x90, 0x90, 0x90, 0x8B, 0x44, 0x24, 0x04, 0x8B, 0x0D };
+	NewEnvFogRGB = (void*)ReadSearchedAddresses(0x004798ED, 0x00479B8D, 0x00479D9D, NewEnvFogSearchBytes, sizeof(NewEnvFogSearchBytes), 0x09);
+
+	// Checking address pointer
+	if (!NewEnvFogRGB)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+
+	// Fog parameters for final boss area address 1
+	constexpr BYTE FinalBossAddr1SearchBytes[]{ 0x90, 0x90, 0x90, 0x81, 0xEC, 0xB4, 0x02, 0x00, 0x00, 0xA1 };
+	DWORD FinalBossAddr1 = SearchAndGetAddresses(0x0050221D, 0x0050254D, 0x00501E6D, FinalBossAddr1SearchBytes, sizeof(FinalBossAddr1SearchBytes), 0x09);
+
+	// Checking address pointer
+	if (!FinalBossAddr1)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+	OriginalEnvFogRGB = (void*)*(DWORD*)(FinalBossAddr1 + 1);
+	jmpFinalAreaBossAddr1 = (void*)(FinalBossAddr1 + 5);
+
+	// Fog parameters for final boss area address 2
+	constexpr BYTE FinalBossAddr2SearchBytes[]{ 0x8B, 0x08, 0x6A, 0x01, 0x6A, 0x1C, 0x50, 0xFF, 0x91, 0xC8, 0x00, 0x00, 0x00, 0xA1 };
+	DWORD FinalBossAddr2 = SearchAndGetAddresses(0x005038B5, 0x00503BE5, 0x00503505, FinalBossAddr2SearchBytes, sizeof(FinalBossAddr2SearchBytes), 0x02);
+
+	// Checking address pointer
+	if (!FinalBossAddr2)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+	jmpFinalAreaBossAddr2 = (void*)(FinalBossAddr2 + 5);
+
 	// Get room ID address
 	RoomIDAddr = GetRoomIDPointer();
 
@@ -176,4 +282,6 @@ void UpdateFogParameters()
 	Logging::Log() << "Updating Fog Parameters...";
 	WriteJMPtoMemory((BYTE*)((DWORD)jmpFogReturnAddr - 5), *FogAdjustmentASM);
 	WriteJMPtoMemory((BYTE*)((DWORD)jmpBlueCreekFogReturnAddr - 10), *BlueCreekFogAdjustmentASM, 10);
+	WriteJMPtoMemory((BYTE*)FinalBossAddr1, FinalAreaBoss1ASM);
+	WriteJMPtoMemory((BYTE*)FinalBossAddr2, FinalAreaBoss2ASM);
 }

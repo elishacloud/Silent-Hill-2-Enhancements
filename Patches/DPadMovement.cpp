@@ -119,4 +119,15 @@ void UpdateDPadMovement()
 
 	BYTE jmpLoc[] = { 0xEB, 0x13 };
 	UpdateMemoryAddress((void*)GetDeviceState_Addr, jmpLoc, sizeof(jmpLoc));
+
+
+	// Map right stick to search camera
+	float* rightStickXFloat = *(float**)(0x52E93B+2);
+	float* rightStickYFloat = *(float**)(0x52E9DD+2);
+
+	UpdateMemoryAddress((void*)(0x535CCF + 2), &rightStickXFloat, sizeof(rightStickXFloat) );
+	UpdateMemoryAddress((void*)(0x535D51 + 2), &rightStickXFloat, sizeof(rightStickXFloat) );
+
+	UpdateMemoryAddress((void*)(0x535CE2 + 2), &rightStickYFloat, sizeof(rightStickYFloat) );
+	UpdateMemoryAddress((void*)(0x535D69 + 2), &rightStickYFloat, sizeof(rightStickYFloat) );
 }

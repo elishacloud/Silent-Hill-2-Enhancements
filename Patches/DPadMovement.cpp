@@ -25,10 +25,24 @@
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 
+struct AnalogState
+{
+	short X, Y;
+	float angle, length;
+};
+
+struct GamePadState // Very incomplete
+{
+	AnalogState m_leftStick;
+	AnalogState m_rightStick;
+};
+
+static_assert( sizeof(AnalogState) == 0xC, "Wrong size: AnalogState" );
+
 DIJOYSTATE2* dinputJoyState;
 
-static void (*orgProcessDInputData)(short*);
-void ProcessDInputData_Hook(short* out)
+static void (*orgProcessDInputData)(GamePadState*);
+void ProcessDInputData_Hook(GamePadState* state)
 {
 	DIJOYSTATE2& joystickState = *dinputJoyState;
 
@@ -43,7 +57,11 @@ void ProcessDInputData_Hook(short* out)
 		joystickState.lY = static_cast<LONG>(std::cos(angleRadians) * -32767.0);
 	}
 
-	orgProcessDInputData(out);
+	// Populate right stick with data
+	state->m_rightStick.X = joystickState.lRx;
+	state->m_rightStick.Y = joystickState.lRy;
+
+	orgProcessDInputData(state);
 }
 
 void __stdcall GetDeviceState_Hook(IDirectInputDevice8A* device)

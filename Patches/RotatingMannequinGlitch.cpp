@@ -64,7 +64,7 @@ void UpdateRotatingMannequin(DWORD *SH2_RoomID)
 
 	// Static updates
 	static bool ValueSet = false;
-	if (*SH2_RoomID == 0x15 && *MannequinStateAddr != 0x00 && (*FlashlightAcquiredAddr == 0x00340000 || *FlashlightAcquiredAddr == 0x003D2006))
+	if (*SH2_RoomID == 0x15 && *MannequinStateAddr != 0x00 && (*FlashlightAcquiredAddr & 0x40000))
 	{
 		if (!ValueSet && *MannequinStateAddr == 0x206)
 		{

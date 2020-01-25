@@ -18,6 +18,7 @@
 #include "Common\Utils.h"
 
 bool IsInBloomEffect = false;
+bool IsInFakeFadeout = false;
 bool ClassReleaseFlag = false;
 
 HRESULT m_IDirect3DDevice8::QueryInterface(REFIID riid, LPVOID *ppvObj)
@@ -986,9 +987,11 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 	GetRenderState(D3DRS_STENCILREF, &stencilRef);
 
 	// Fix bowling cutscene fading
-	if (WidescreenFix && SH2_CutsceneID && *SH2_CutsceneID == 0x19 && PrimitiveType == D3DPT_TRIANGLELIST && PrimitiveCount == 2 && VertexStreamZeroStride == 28 &&
+	if (WidescreenFix && SH2_CutsceneID && *SH2_CutsceneID == 0x19 && PrimitiveType == D3DPT_TRIANGLELIST && PrimitiveCount == 2 && VertexStreamZeroStride == 28 && pVertexStreamZeroData &&
 		((CUSTOMVERTEX_UV_F*)pVertexStreamZeroData)[0].z == 0.01f && ((CUSTOMVERTEX_UV_F*)pVertexStreamZeroData)[1].z == 0.01f && ((CUSTOMVERTEX_UV_F*)pVertexStreamZeroData)[2].z == 0.01f)
 	{
+		IsInFakeFadeout = true;
+
 		for (const DWORD &x : { 1, 2, 4 })
 		{
 			FullScreenFadeout[x].x = (float)BufferWidth - 0.5f;
@@ -1227,6 +1230,12 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 	if (WoodsideRoom205Fix && SH2_RoomID)
 	{
 		UpdateRotatingMannequin(SH2_RoomID);
+	}
+
+	// Bowling cutscene fading
+	if (IsInFakeFadeout && SH2_CutsceneID && *SH2_CutsceneID != 0x19)
+	{
+		IsInFakeFadeout = false;
 	}
 
 	return ProxyInterface->BeginScene();

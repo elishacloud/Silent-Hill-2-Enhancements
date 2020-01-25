@@ -76,6 +76,7 @@ extern float *FlashlightBrightnessAddr;
 extern BYTE *FlashLightRenderAddr;
 extern BYTE *FlashlightSwitchAddr;
 extern bool IsInBloomEffect;
+extern bool IsInFakeFadeout;
 extern float *JamesPosAddr;
 extern DWORD *RoomIDAddr;
 extern DWORD *SpecializedLightAddr1;

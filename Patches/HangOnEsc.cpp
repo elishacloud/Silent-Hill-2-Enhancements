@@ -20,9 +20,81 @@
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
+// Variables for ASM
+DWORD EscPressAddress;
+void *jmpCutsceneEscReturnAddr;
+void *jmpCutsceneKeyPressReturnAddr;
+
+// ASM function to disables Esc key during in-game cutscenes
+__declspec(naked) void __stdcall CutsceneEscASM()
+{
+	__asm
+	{
+		push eax
+		movzx eax, byte ptr ds : [IsInFakeFadeout]
+		test eax, eax
+		pop eax
+		jnz near ExitAsm
+		mov eax, dword ptr ds : [EscPressAddress]
+		mov eax, dword ptr ds : [eax]
+
+	ExitAsm:
+		jmp dword ptr ds : [jmpCutsceneEscReturnAddr]
+	}
+}
+
+// ASM function to disables key press during in-game cutscenes
+__declspec(naked) void __stdcall CutsceneKeyPressASM()
+{
+	__asm
+	{
+		add esp, 8
+		push eax
+		movzx eax, byte ptr ds : [IsInFakeFadeout]
+		test eax, eax
+		pop eax
+		jnz near ExitAsm
+		mov [esi + ebx * 0x02], ax
+
+	ExitAsm:
+		jmp dword ptr ds : [jmpCutsceneKeyPressReturnAddr]
+	}
+}
+
 // Update SH2 code to Fix an issue where the game will hang when Esc is pressed while transition is active
 void UpdateHangOnEsc(DWORD *SH2_RoomID)
 {
+	static bool RunOnlyOnce = true;
+	if (RunOnlyOnce)
+	{
+		RunOnlyOnce = false;
+
+		// Get Esc address
+		constexpr BYTE EscSearchBytes[]{ 0x8B, 0x44, 0x24, 0x04, 0x8D, 0x04, 0x40, 0xC1, 0xE0, 0x05, 0x0F, 0xBF, 0x80 };
+		DWORD EscAddress = SearchAndGetAddresses(0x00457B90, 0x00457DF0, 0x00457DF0, EscSearchBytes, sizeof(EscSearchBytes), -0x30);
+		if (!EscAddress)
+		{
+			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+			return;
+		}
+		jmpCutsceneEscReturnAddr = (void*)(EscAddress + 0x05);
+		EscPressAddress = *(DWORD*)(EscAddress + 0x01);
+
+		// Get key press address
+		constexpr BYTE KeyPressSearchBytes[]{ 0x57, 0x8B, 0xF8, 0x03, 0xF7, 0x6B, 0xF6, 0x54, 0x81, 0xC6 };
+		DWORD KeyPressAddress = SearchAndGetAddresses(0x00446149, 0x004462E9, 0x004462E9, KeyPressSearchBytes, sizeof(KeyPressSearchBytes), 0x2A);
+		if (!KeyPressAddress)
+		{
+			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+			return;
+		}
+		jmpCutsceneKeyPressReturnAddr = (void*)(KeyPressAddress + 0x07);
+
+		// Update SH2 code
+		WriteJMPtoMemory((BYTE*)EscAddress, *CutsceneEscASM, 5);
+		WriteJMPtoMemory((BYTE*)KeyPressAddress, *CutsceneKeyPressASM, 7);
+	}
+
 	static DWORD *ScreenEvent = nullptr;
 	if (!ScreenEvent)
 	{
@@ -55,7 +127,7 @@ void UpdateHangOnEsc(DWORD *SH2_RoomID)
 	RUNCODEONCE(Logging::Log() << "Fixing Esc while transition is active...");
 
 	// Prevent player from pressing Esc while transition is active
-	if (*(DWORD*)Address != 0x03 && (*ScreenEvent == 0x03 || (IsInBloomEffect && *SH2_RoomID == 0x90)))
+	if (*(DWORD*)Address != 0x03 && (*ScreenEvent == 0x03 || (IsInBloomEffect && *SH2_RoomID == 0x90) || IsInFakeFadeout))
 	{
 		DWORD Value = 3;
 		UpdateMemoryAddress((void*)Address, &Value, sizeof(DWORD));

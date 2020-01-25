@@ -83,6 +83,12 @@ void __stdcall GetDeviceState_Hook(IDirectInputDevice8A* device)
 	}
 }
 
+BOOL UsingSearchCamera_SeparateAnalogs()
+{
+	// TODO: Return false only if using gamepad, call stock function otherwise
+	return FALSE;
+}
+
 void UpdateDPadMovement()
 {
 	constexpr BYTE PollDInputDevicesSearchBytes[] { 0x33, 0xDB, 0x3B, 0xC3, 0x74, 0x33, 0x8B, 0x08 };
@@ -130,4 +136,23 @@ void UpdateDPadMovement()
 
 	UpdateMemoryAddress((void*)(0x535CE2 + 2), &rightStickYFloat, sizeof(rightStickYFloat) );
 	UpdateMemoryAddress((void*)(0x535D69 + 2), &rightStickYFloat, sizeof(rightStickYFloat) );
+
+	// Allow for simultaneous walking and moving camera
+
+	// Rotational walk
+	WriteCalltoMemory((BYTE*)0x54E4B2, UsingSearchCamera_SeparateAnalogs);
+	WriteCalltoMemory((BYTE*)0x54F13F, UsingSearchCamera_SeparateAnalogs);
+	WriteCalltoMemory((BYTE*)0x54F209, UsingSearchCamera_SeparateAnalogs);
+
+	// Directional walk
+	WriteCalltoMemory((BYTE*)0x547FBB, UsingSearchCamera_SeparateAnalogs);
+	WriteCalltoMemory((BYTE*)0x547FFA, UsingSearchCamera_SeparateAnalogs);
+	WriteCalltoMemory((BYTE*)0x54807A, UsingSearchCamera_SeparateAnalogs);
+	WriteCalltoMemory((BYTE*)0x548D70, UsingSearchCamera_SeparateAnalogs);
+	WriteCalltoMemory((BYTE*)0x548DB2, UsingSearchCamera_SeparateAnalogs);
+	WriteCalltoMemory((BYTE*)0x548DF7, UsingSearchCamera_SeparateAnalogs);
+	WriteCalltoMemory((BYTE*)0x548EC6, UsingSearchCamera_SeparateAnalogs);
+
+	const BYTE jmp[] = { 0xEB };
+	UpdateMemoryAddress((void*)0x535CC4, jmp, sizeof(jmp));
 }

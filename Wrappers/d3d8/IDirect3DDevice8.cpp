@@ -147,6 +147,12 @@ HRESULT m_IDirect3DDevice8::EndScene()
 		LastJamesPos = *SH2_JamesPos;
 	}
 
+	// Reset flag for black pillar boxes
+	if (!LastFrameFullscreenImage && !IsInFullscreenImage)
+	{
+		DontModifyClear = false;
+	}
+
 	EndSceneCounter++;
 
 	return ProxyInterface->EndScene();
@@ -838,6 +844,21 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	// Set pillar boxes to black (removes game images from pillars)
+	if (LastFrameFullscreenImage && !IsInFullscreenImage && SH2_RoomID && *SH2_RoomID && SH2_CutsceneID && !*SH2_CutsceneID)
+	{
+		if (SH2_RoomID && *SH2_RoomID == 0x08)
+		{
+			DontModifyClear = true;
+		}
+		return ProxyInterface->Clear(0x00, nullptr, D3DCLEAR_TARGET | D3DCLEAR_STENCIL | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0xFF, 0x00, 0x00, 0x00), 1.0f, 0x80);
+	}
+	// Set pillar boxes to black (removes street decals from West Town fullscreen images)
+	else if (IsInFullscreenImage && PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && SH2_RoomID && *SH2_RoomID == 0x08)
+	{
+		return D3D_OK;
+	}
+
 	// Drawing transparent dynamic objects (Character hair etc.)
 	if (EnableXboxShadows && !shadowVolumeFlag)
 	{
@@ -1005,6 +1026,23 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 
 		pVertexStreamZeroData = FullScreenFadeout;
 	}
+	// Detect fullscreen images for fixing pillar box color
+	else if (SetBlackPillarBoxes && PrimitiveType == D3DPT_TRIANGLELIST && PrimitiveCount == 2 && VertexStreamZeroStride == 28 && pVertexStreamZeroData &&
+		((CUSTOMVERTEX_UV_F*)pVertexStreamZeroData)[0].z == 0.01f && ((CUSTOMVERTEX_UV_F*)pVertexStreamZeroData)[1].z == 0.01f && ((CUSTOMVERTEX_UV_F*)pVertexStreamZeroData)[2].z == 0.01f)
+	{
+		IsInFullscreenImage = true;
+	}
+	// Set pillar boxes to black (removes noise filter from fullscreen images)
+	else if (IsInFullscreenImage && PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 24 && pVertexStreamZeroData &&
+		((CUSTOMVERTEX_UV*)pVertexStreamZeroData)[0].z == 0.0f && ((CUSTOMVERTEX_UV*)pVertexStreamZeroData)[1].z == 0.0f)
+	{
+		return D3D_OK;
+	}
+	// Set pillar boxes to black (removes fog from West Town fullscreen images)
+	else if (IsInFullscreenImage && PrimitiveType == D3DPT_TRIANGLEFAN && PrimitiveCount == 4 && VertexStreamZeroStride == 24 && SH2_RoomID && *SH2_RoomID == 0x08)
+	{
+		return D3D_OK;
+	}
 
 	if (stencilRef == 129)
 	{
@@ -1134,6 +1172,8 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 	}
 
 	ClassReleaseFlag = false;
+	LastFrameFullscreenImage = IsInFullscreenImage;
+	IsInFullscreenImage = false;
 
 	// Enable Xbox shadows
 	if (EnableSoftShadows)
@@ -1438,6 +1478,12 @@ HRESULT m_IDirect3DDevice8::Clear(DWORD Count, CONST D3DRECT *pRects, DWORD Flag
 	if (EnableXboxShadows && Flags == (D3DCLEAR_TARGET | D3DCLEAR_STENCIL | D3DCLEAR_ZBUFFER) && Color == D3DCOLOR_ARGB(124, 0, 0, 0))
 	{
 		return ProxyInterface->Clear(Count, pRects, Flags, Color, Z, 0);
+	}
+
+	// Set pillar boxes to black
+	if (LastFrameFullscreenImage && !DontModifyClear && Count == 0x00 && pRects == nullptr && Flags == (D3DCLEAR_TARGET | D3DCLEAR_STENCIL | D3DCLEAR_ZBUFFER) && Z == 1.0f && Stencil == 0x80)
+	{
+		Color = D3DCOLOR_ARGB(0xFF, 0x00, 0x00, 0x00);
 	}
 
 	return ProxyInterface->Clear(Count, pRects, Flags, Color, Z, Stencil);

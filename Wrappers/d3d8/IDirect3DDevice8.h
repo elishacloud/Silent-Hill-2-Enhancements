@@ -22,6 +22,11 @@ private:
 	float *SH2_FlashlightGreen = nullptr;
 	float *SH2_FlashlightBlue = nullptr;
 
+	// For detecting fullscreen images and turning pillar boxes to black
+	bool IsInFullscreenImage = false;
+	bool LastFrameFullscreenImage = false;
+	bool DontModifyClear = false;
+	
 	typedef enum _FLDIMMODE {
 		SHADOW_FADING_NONE = 0,
 		SHADOW_FADING_IN = 1,

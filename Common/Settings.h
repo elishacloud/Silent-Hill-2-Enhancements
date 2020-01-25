@@ -65,6 +65,7 @@
 	visit(RestoreVibration, true) \
 	visit(Room312ShadowFix, true) \
 	visit(RowboatAnimationFix, true) \
+	visit(SetBlackPillarBoxes, true) \
 	visit(SteamCrashFix, true) \
 	visit(UnlockJapLang, false) \
 	visit(UseCustomExeStr, true) \

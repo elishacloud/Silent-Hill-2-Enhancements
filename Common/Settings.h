@@ -18,7 +18,7 @@
 	visit(DisableSafeMode, true) \
 	visit(DPadMovementFix, true) \
 	visit(EnableSFXAddrHack, true) \
-	visit(EnableTexAddrHack, false) \
+	visit(EnableTexAddrHack, true) \
 	visit(EnableSoftShadows, true) \
 	visit(EnableWndMode, true) \
 	visit(FastTransitions, true) \

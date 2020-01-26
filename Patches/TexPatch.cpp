@@ -156,7 +156,7 @@ void ScaleTexture(wchar_t *TexName, float *XScaleAddress, float *YScaleAddress, 
 	}
 
 	// Update memory
-	Logging::Log() << __FUNCTION__ << " Scaling texture: " << TexName << " Resolution: " << TextureXRes << "x" << TextureYRes << " XYScale: " << XScale << "x" << YScale << " Width: " << Width << " XPos: " << XPos;
+	Logging::LogDebug() << __FUNCTION__ << " Scaling texture: " << TexName << " Resolution: " << TextureXRes << "x" << TextureYRes << " XYScale: " << XScale << "x" << YScale << " Width: " << Width << " XPos: " << XPos;
 	UpdateMemoryAddress(XScaleAddress, &XScale, sizeof(float));
 	UpdateMemoryAddress(YScaleAddress, &YScale, sizeof(float));
 	UpdateMemoryAddress(WidthAddress, &Width, sizeof(WORD));
@@ -219,7 +219,7 @@ void ScaleStart01Texture(wchar_t *TexName)
 	jmpStart01Y2Addr = (void*)(Start01Addr1 + 0x69);
 
 	// Update memory
-	Logging::Log() << __FUNCTION__ << " Scaling texture: " << TexName << " Resolution: " << TextureXRes << "x" << TextureYRes << " XYScale: " << Start01XScale << "x" << Start01YScale;
+	Logging::LogDebug() << __FUNCTION__ << " Scaling texture: " << TexName << " Resolution: " << TextureXRes << "x" << TextureYRes << " XYScale: " << Start01XScale << "x" << Start01YScale;
 	WriteJMPtoMemory((BYTE*)(Start01Addr1 + 0x31), *Start01ScaleX1ASM, 7);
 	WriteJMPtoMemory((BYTE*)(Start01Addr1 + 0x50), *Start01ScaleX2ASM, 7);
 	WriteJMPtoMemory((BYTE*)(Start01Addr1 + 0x42), *Start01ScaleY1ASM, 7);
@@ -264,6 +264,9 @@ void UpdateTexAddr()
 	// Allocate dynamic memory for loading textures
 	BYTE *PtrBytes1 = new BYTE[size];
 	BYTE *PtrBytes2 = new BYTE[size];
+
+	// Logging update
+	Logging::Log() << "Updating Texture memory address locations...";
 
 	// Write new memory static address
 	UpdateMemoryAddress((void*)StaticAddr, &PtrBytes1, sizeof(void*));

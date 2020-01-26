@@ -63,6 +63,7 @@
 	visit(RemoveEnvironmentFlicker, true) \
 	visit(RestoreSpecialFX, true) \
 	visit(RestoreVibration, true) \
+	visit(Room312PauseScreenFix, true) \
 	visit(Room312ShadowFix, true) \
 	visit(RowboatAnimationFix, true) \
 	visit(SetBlackPillarBoxes, true) \

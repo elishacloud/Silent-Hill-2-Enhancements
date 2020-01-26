@@ -13,6 +13,7 @@ private:
 	DWORD *SH2_CutsceneID = nullptr;
 	float *SH2_CutsceneCameraPos = nullptr;
 	float *SH2_JamesPos = nullptr;
+	BYTE *SH2_PauseMenu = nullptr;
 	DWORD *SH2_SpecializedLight1 = nullptr;
 	DWORD *SH2_SpecializedLight2 = nullptr;
 
@@ -27,6 +28,9 @@ private:
 	bool LastFrameFullscreenImage = false;
 	bool DontModifyClear = false;
 	
+	// Fix for Room 312 pause screen
+	bool InPauseMenu = false;
+
 	typedef enum _FLDIMMODE {
 		SHADOW_FADING_NONE = 0,
 		SHADOW_FADING_IN = 1,
@@ -70,6 +74,8 @@ private:
 
 	IDirect3DTexture8 *silhouetteTexture = nullptr;
 	IDirect3DSurface8 *silhouetteSurface = nullptr;
+
+	IDirect3DTexture8 *pCurrentRenderTexture = nullptr;
 
 	struct CUSTOMVERTEX
 	{
@@ -128,6 +134,7 @@ public:
 		SH2_CutsceneID = GetCutsceneIDPointer();
 		SH2_CutsceneCameraPos = GetCutscenePosPointer();
 		SH2_JamesPos = GetJamesPosPointer();
+		SH2_PauseMenu = GetPauseMenuPointer();
 		SH2_SpecializedLight1 = GetSpecializedLightPointer1();
 		SH2_SpecializedLight2 = GetSpecializedLightPointer2();
 

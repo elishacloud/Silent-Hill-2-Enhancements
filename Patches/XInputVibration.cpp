@@ -281,20 +281,11 @@ void UpdateInfiniteRumble(DWORD *SH2_RoomID)
 	}
 
 	// Get pause menu address
-	static BYTE *PauseAddress = nullptr;
+	static BYTE *PauseAddress = GetPauseMenuPointer();
 	if (!PauseAddress)
 	{
-		RUNONCE();
-
-		// Get address for the pause menu
-		constexpr BYTE PauseMenuSearchBytes[]{ 0x74, 0x0F, 0x66, 0x3D, 0x04, 0x00, 0x66, 0xC7, 0x05 };
-		PauseAddress = (BYTE*)ReadSearchedAddresses(0x004553A4, 0x00455604, 0x00455604, PauseMenuSearchBytes, sizeof(PauseMenuSearchBytes), 0x09);
-		if (!PauseAddress)
-		{
-			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
-			return;
-		}
-		PauseAddress += 0x04;
+		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+		return;
 	}
 
 	// Set window hook to check when SH2 loses focus

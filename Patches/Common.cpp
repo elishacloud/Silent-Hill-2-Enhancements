@@ -28,6 +28,7 @@ float *FlashlightBrightnessAddr = nullptr;
 BYTE *FlashLightRenderAddr = nullptr;
 BYTE *FlashlightSwitchAddr = nullptr;
 float *JamesPosAddr = nullptr;
+BYTE *PauseMenuAddr = nullptr;
 DWORD *RoomIDAddr = nullptr;
 DWORD *SpecializedLightAddr1 = nullptr;
 DWORD *SpecializedLightAddr2 = nullptr;
@@ -261,4 +262,26 @@ float *GetFlashlightBrightnessPointer()
 	}
 
 	return FlashlightBrightnessAddr;
+}
+
+BYTE *GetPauseMenuPointer()
+{
+	if (PauseMenuAddr)
+	{
+		return PauseMenuAddr;
+	}
+
+	// Get address for pause menu
+	constexpr BYTE PauseMenuSearchBytes[]{ 0x74, 0x0F, 0x66, 0x3D, 0x04, 0x00, 0x66, 0xC7, 0x05 };
+	PauseMenuAddr = (BYTE*)ReadSearchedAddresses(0x004553A4, 0x00455604, 0x00455604, PauseMenuSearchBytes, sizeof(PauseMenuSearchBytes), 0x09);
+
+	// Checking address pointer
+	if (!PauseMenuAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find flashlight render address!";
+		return nullptr;
+	}
+	PauseMenuAddr = (BYTE*)((DWORD)PauseMenuAddr + 0x04);
+
+	return PauseMenuAddr;
 }

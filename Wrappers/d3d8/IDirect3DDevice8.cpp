@@ -155,7 +155,29 @@ HRESULT m_IDirect3DDevice8::EndScene()
 
 	EndSceneCounter++;
 
-	return ProxyInterface->EndScene();
+	HRESULT hr = ProxyInterface->EndScene();
+
+	// Fix pause menu in Room 312
+	if (SH2_PauseMenu && *SH2_PauseMenu)
+	{
+		if (Room312PauseScreenFix && !InPauseMenu && SH2_RoomID && *SH2_RoomID == 0xA2 && pCurrentRenderTexture)
+		{
+			ProxyInterface->BeginScene();
+			IDirect3DSurface8 *pCurrentRenderSurface = nullptr;
+			if (SUCCEEDED(pCurrentRenderTexture->GetSurfaceLevel(0, &pCurrentRenderSurface)))
+			{
+				GetFrontBuffer(pCurrentRenderSurface);
+				pCurrentRenderSurface->Release();
+			}
+		}
+		InPauseMenu = true;
+	}
+	else
+	{
+		InPauseMenu = false;
+	}
+
+	return hr;
 }
 
 void m_IDirect3DDevice8::SetCursorPosition(THIS_ UINT XScreenSpace, UINT YScreenSpace, DWORD Flags)
@@ -1378,6 +1400,11 @@ HRESULT m_IDirect3DDevice8::SetTexture(DWORD Stage, IDirect3DBaseTexture8 *pText
 		switch (pTexture->GetType())
 		{
 		case D3DRTYPE_TEXTURE:
+			D3DSURFACE_DESC Desc;
+			if (Room312PauseScreenFix && SUCCEEDED(static_cast<m_IDirect3DTexture8 *>(pTexture)->GetLevelDesc(0, &Desc)) && Desc.Usage == D3DUSAGE_RENDERTARGET)
+			{
+				pCurrentRenderTexture = static_cast<m_IDirect3DTexture8 *>(pTexture);
+			}
 			pTexture = static_cast<m_IDirect3DTexture8 *>(pTexture)->GetProxyInterface();
 			break;
 		case D3DRTYPE_VOLUMETEXTURE:
@@ -1762,7 +1789,14 @@ HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface
 		pDestSurface = static_cast<m_IDirect3DSurface8 *>(pDestSurface)->GetProxyInterface();
 	}
 
-	if (EnableWndMode && DeviceWindow && BufferWidth && BufferHeight)
+	HRESULT hr = D3DERR_INVALIDCALL;
+
+	if (!EnableWndMode)
+	{
+		hr = ProxyInterface->GetFrontBuffer(pDestSurface);
+	}
+
+	if (FAILED(hr))
 	{
 		// Create new surface to hold data
 		IDirect3DSurface8 *pSrcSurface = nullptr;
@@ -1774,25 +1808,37 @@ HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface
 		}
 
 		// Get FrontBuffer data to new surface
-		HRESULT hr = ProxyInterface->GetFrontBuffer(pSrcSurface);
+		hr = ProxyInterface->GetFrontBuffer(pSrcSurface);
 		if (FAILED(hr))
 		{
 			pSrcSurface->Release();
 			return hr;
 		}
 
+		// Get dest surface size
+		D3DSURFACE_DESC Desc;
+		pDestSurface->GetDesc(&Desc);
+
 		// Get location of client window
-		RECT RectSrc;
-		if (!GetWindowRect(DeviceWindow, &RectSrc))
+		RECT RectSrc, rcClient;
+		if (EnableWndMode && DeviceWindow)
 		{
-			pSrcSurface->Release();
-			return D3DERR_INVALIDCALL;
+			if (!GetWindowRect(DeviceWindow, &RectSrc) || !GetClientRect(DeviceWindow, &rcClient))
+			{
+				pSrcSurface->Release();
+				return D3DERR_INVALIDCALL;
+			}
 		}
-		RECT rcClient;
-		if (!GetClientRect(DeviceWindow, &rcClient))
+		else
 		{
-			pSrcSurface->Release();
-			return D3DERR_INVALIDCALL;
+			RectSrc.left = 0;
+			RectSrc.right = BufferWidth;
+			RectSrc.top = 0;
+			RectSrc.bottom = BufferHeight;
+			rcClient.left = RectSrc.left;
+			rcClient.right = RectSrc.right;
+			rcClient.top = RectSrc.top;
+			rcClient.bottom = RectSrc.bottom;
 		}
 		int border_thickness = ((RectSrc.right - RectSrc.left) - rcClient.right) / 2;
 		int top_border = (RectSrc.bottom - RectSrc.top) - rcClient.bottom - border_thickness;
@@ -1803,7 +1849,7 @@ HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface
 
 		// Copy data to DestSurface
 		hr = D3DERR_INVALIDCALL;
-		if (BufferWidth == rcClient.right && BufferHeight == rcClient.bottom)
+		if ((LONG)Desc.Width == rcClient.right && (LONG)Desc.Height == rcClient.bottom)
 		{
 			POINT PointDest = { 0, 0 };
 			hr = ProxyInterface->CopyRects(pSrcSurface, &RectSrc, 1, pDestSurface, &PointDest);
@@ -1812,8 +1858,17 @@ HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface
 		// Try using StretchRect
 		if (FAILED(hr))
 		{
-			RECT RectDest = { 0, 0, min(BufferWidth, ScreenWidth), min(BufferHeight, ScreenHeight) };
-			hr = StretchRect(pSrcSurface, &RectSrc, pDestSurface, &RectDest, D3DTEXF_NONE);
+			IDirect3DSurface8 *pTmpSurface = nullptr;
+			if (SUCCEEDED(ProxyInterface->CreateImageSurface(Desc.Width, Desc.Height, D3DFMT_A8R8G8B8, &pTmpSurface)))
+			{
+				if (SUCCEEDED(StretchRect(pSrcSurface, &RectSrc, pTmpSurface, nullptr, D3DTEXF_NONE)))
+				{
+					POINT PointDest = { 0, 0 };
+					RECT Rect = { 0, 0, (LONG)Desc.Width, (LONG)Desc.Height };
+					hr = ProxyInterface->CopyRects(pTmpSurface, &Rect, 1, pDestSurface, &PointDest);
+				}
+				pTmpSurface->Release();
+			}
 		}
 
 		// Release surface
@@ -1821,7 +1876,7 @@ HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface
 		return hr;
 	}
 
-	return ProxyInterface->GetFrontBuffer(pDestSurface);
+	return hr;
 }
 
 HRESULT m_IDirect3DDevice8::GetInfo(THIS_ DWORD DevInfoID, void* pDevInfoStruct, DWORD DevInfoStructSize)

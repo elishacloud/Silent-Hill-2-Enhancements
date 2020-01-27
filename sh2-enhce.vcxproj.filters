@@ -164,9 +164,6 @@
     <ClCompile Include="Patches\Langs.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
-    <ClCompile Include="Patches\DPadMovement.cpp">
-      <Filter>Patches</Filter>
-    </ClCompile>
     <ClCompile Include="Wrappers\d3d8\InterfaceQuery.cpp">
       <Filter>Wrappers\d3d8</Filter>
     </ClCompile>
@@ -222,6 +219,9 @@
       <Filter>Patches</Filter>
     </ClCompile>
     <ClCompile Include="Patches\TreeLighting.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\ControllerTweaks.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
   </ItemGroup>

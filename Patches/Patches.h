@@ -35,7 +35,7 @@ void UpdateClosetCutscene(DWORD *SH2_CutsceneID, float *SH2_CutsceneCameraPos);
 void UpdateCreatureVehicleSpawn();
 void UpdateCustomExeStr();
 void UpdateCustomFonts();
-void UpdateDPadMovement();
+void UpdateControllerTweaks();
 void UpdateDrawDistance();
 void UpdateDynamicDrawDistance(DWORD *SH2_RoomID);
 void UpdateFogParameters();

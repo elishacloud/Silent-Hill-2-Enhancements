@@ -101,7 +101,7 @@ BOOL StartSearchCamera_Hook()
 	return *moveDirection2 != 0 && *moveDirection2 != 3;
 }
 
-void UpdateDPadMovement()
+void UpdateControllerTweaks()
 {
 	constexpr BYTE PollDInputDevicesSearchBytes[] { 0x33, 0xDB, 0x3B, 0xC3, 0x74, 0x33, 0x8B, 0x08 };
 	const DWORD PollDInputDevicesAddr = SearchAndGetAddresses(0x0045893B, 0x00458B9B, 0x00458B9B, PollDInputDevicesSearchBytes, sizeof(PollDInputDevicesSearchBytes), -0xB);

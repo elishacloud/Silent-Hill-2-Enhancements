@@ -341,7 +341,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		// DPad movement
 		if (DPadMovementFix)
 		{
-			UpdateDPadMovement();
+			UpdateControllerTweaks();
 		}
 
 		// Loads font texture form tga file

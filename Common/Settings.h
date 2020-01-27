@@ -90,6 +90,7 @@
 	visit(ResY, 0) \
 	visit(FPSLimit, 30) \
 	visit(IncreaseNoiseEffectRes, 512) \
+	visit(RestoreSearchCamMovement, 1) \
 	visit(SingleCoreAffinity, 1) \
 	visit(SingleCoreAffinityTimer, 5000) \
 	visit(SmallFontWidth, 14) \

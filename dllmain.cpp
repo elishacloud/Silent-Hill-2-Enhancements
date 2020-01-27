@@ -339,7 +339,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		}
 
 		// DPad movement
-		if (DPadMovementFix)
+		if (DPadMovementFix || RestoreSearchCamMovement != 0)
 		{
 			UpdateControllerTweaks();
 		}

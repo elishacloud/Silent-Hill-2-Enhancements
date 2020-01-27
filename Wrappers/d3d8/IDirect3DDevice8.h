@@ -13,6 +13,7 @@ private:
 	DWORD *SH2_CutsceneID = nullptr;
 	float *SH2_CutsceneCameraPos = nullptr;
 	float *SH2_JamesPos = nullptr;
+	DWORD *SH2_OnScreen = nullptr;
 	BYTE *SH2_PauseMenu = nullptr;
 	DWORD *SH2_SpecializedLight1 = nullptr;
 	DWORD *SH2_SpecializedLight2 = nullptr;
@@ -27,7 +28,9 @@ private:
 	bool IsInFullscreenImage = false;
 	bool LastFrameFullscreenImage = false;
 	bool DontModifyClear = false;
-	
+	float PillarBoxLeft = 0.0f;
+	float PillarBoxRight = 0.0f;
+
 	// Fix for Room 312 pause screen
 	bool InPauseMenu = false;
 
@@ -89,14 +92,14 @@ private:
 		FLOAT u, v;
 	};
 
-	struct CUSTOMVERTEX_UV_F
+	struct CUSTOMVERTEX_DIF_TEX1
 	{
 		FLOAT x, y, z, rhw;
 		DWORD color;
-		FLOAT u, v;
+		FLOAT tex_x, tex_y;
 	};
 
-	CUSTOMVERTEX_UV_F FullScreenFadeout[6]
+	CUSTOMVERTEX_DIF_TEX1 FullScreenFadeout[6]
 	{
 		{    -0.5f,  -36.5f, 0.01f, 1.0f, 0, 0.0f, 0.0f },
 		{ -1919.5f,  -36.5f, 0.01f, 1.0f, 0, 1.0f, 0.0f },
@@ -105,6 +108,8 @@ private:
 		{ -1919.5f, 1115.5f, 0.01f, 1.0f, 0, 1.0f, 1.0f },
 		{    -0.5f, 1115.5f, 0.01f, 1.0f, 0, 0.0f, 1.0f }
 	};
+
+	CUSTOMVERTEX_DIF_TEX1 FullScreenArtifact[6];
 
 	struct D3DSTATE
 	{
@@ -134,6 +139,7 @@ public:
 		SH2_CutsceneID = GetCutsceneIDPointer();
 		SH2_CutsceneCameraPos = GetCutscenePosPointer();
 		SH2_JamesPos = GetJamesPosPointer();
+		SH2_OnScreen = GetOnScreenPointer();
 		SH2_PauseMenu = GetPauseMenuPointer();
 		SH2_SpecializedLight1 = GetSpecializedLightPointer1();
 		SH2_SpecializedLight2 = GetSpecializedLightPointer2();

@@ -754,6 +754,10 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 		IsInBloomEffect = false;
 	}
 
+	// Reset pillarbox values
+	PillarBoxLeft = 0.0f;
+	PillarBoxRight = 0.0f;
+
 	EndSceneCounter = 0;
 	PresentFlag = false;
 
@@ -1031,7 +1035,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 
 	// Fix bowling cutscene fading
 	if (WidescreenFix && SH2_CutsceneID && *SH2_CutsceneID == 0x19 && PrimitiveType == D3DPT_TRIANGLELIST && PrimitiveCount == 2 && VertexStreamZeroStride == 28 && pVertexStreamZeroData &&
-		((CUSTOMVERTEX_UV_F*)pVertexStreamZeroData)[0].z == 0.01f && ((CUSTOMVERTEX_UV_F*)pVertexStreamZeroData)[1].z == 0.01f && ((CUSTOMVERTEX_UV_F*)pVertexStreamZeroData)[2].z == 0.01f)
+		((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[0].z == 0.01f && ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[1].z == 0.01f && ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[2].z == 0.01f)
 	{
 		IsInFakeFadeout = true;
 
@@ -1042,16 +1046,81 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 
 		for (int x = 0; x < 6; x++)
 		{
-			FullScreenFadeout[x].y = ((CUSTOMVERTEX_UV_F*)pVertexStreamZeroData)[x].y;
-			FullScreenFadeout[x].color = ((CUSTOMVERTEX_UV_F*)pVertexStreamZeroData)[x].color;
+			FullScreenFadeout[x].y = ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[x].y;
+			FullScreenFadeout[x].color = ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[x].color;
 		}
 
 		pVertexStreamZeroData = FullScreenFadeout;
 	}
 	// Detect fullscreen images for fixing pillar box color
 	else if (SetBlackPillarBoxes && PrimitiveType == D3DPT_TRIANGLELIST && PrimitiveCount == 2 && VertexStreamZeroStride == 28 && pVertexStreamZeroData &&
-		((CUSTOMVERTEX_UV_F*)pVertexStreamZeroData)[0].z == 0.01f && ((CUSTOMVERTEX_UV_F*)pVertexStreamZeroData)[1].z == 0.01f && ((CUSTOMVERTEX_UV_F*)pVertexStreamZeroData)[2].z == 0.01f)
+		((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[0].z == 0.01f && ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[1].z == 0.01f && ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[2].z == 0.01f)
 	{
+		// Get fullscreen image left and right values
+		if (!IsInFullscreenImage)
+		{
+			PillarBoxLeft = ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[0].x;
+			PillarBoxRight = ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[1].x;
+		}
+		// Clip artifacts that protrude into pillarbox
+		else if (PillarBoxLeft && PillarBoxRight && SH2_RoomID && *SH2_RoomID && SH2_CutsceneID && !*SH2_CutsceneID && SH2_OnScreen && (*SH2_OnScreen == 4 || *SH2_OnScreen == 5))
+		{
+			// Check if green player marker is on the edge of the pillar box
+			bool Flag = false;
+			if ((((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[1].x != ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[2].x ||
+				((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[3].x != ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[5].x))
+			{
+				for (int x = 0; x < 6; x++)
+				{
+					if (((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[x].x < PillarBoxLeft || ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[x].x > PillarBoxRight)
+					{
+						Flag = true;
+						break;
+					}
+				}
+			}
+
+			// Artifact is completely in the pillarbox so don't draw it
+			if (((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[1].x < PillarBoxLeft || ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[0].x > PillarBoxRight || Flag)
+			{
+				return D3D_OK;
+			}
+
+			// Copy vertex
+			memcpy(FullScreenArtifact, pVertexStreamZeroData, sizeof(FullScreenArtifact));
+			pVertexStreamZeroData = FullScreenArtifact;
+
+			// Update vertex left
+			if (FullScreenArtifact[0].x < PillarBoxLeft)
+			{
+				float TexWidth = FullScreenArtifact[1].tex_x - FullScreenArtifact[0].tex_x;
+				float VertexWidth = FullScreenArtifact[1].x - FullScreenArtifact[0].x;
+				float NewVertexWidth = FullScreenArtifact[1].x - PillarBoxLeft;
+
+				float TextLeft = FullScreenArtifact[0].tex_x + (TexWidth * (1.0f - (NewVertexWidth / VertexWidth)));
+				for (const DWORD &x : { 0, 3, 5 })
+				{
+					FullScreenArtifact[x].x = PillarBoxLeft;
+					FullScreenArtifact[x].tex_x = TextLeft;
+				}
+			}
+
+			// Update vertex right
+			if (FullScreenArtifact[1].x > PillarBoxRight)
+			{
+				float TexWidth = FullScreenArtifact[1].tex_x - FullScreenArtifact[0].tex_x;
+				float VertexWidth = FullScreenArtifact[1].x - FullScreenArtifact[0].x;
+				float NewVertexWidth = PillarBoxRight - FullScreenArtifact[0].x;
+
+				float TextRight = FullScreenArtifact[1].tex_x - (TexWidth * (1.0f - (NewVertexWidth / VertexWidth)));
+				for (const DWORD &x : { 1, 2, 4 })
+				{
+					FullScreenArtifact[x].x = PillarBoxRight;
+					FullScreenArtifact[x].tex_x = TextRight;
+				}
+			}
+		}
+
 		IsInFullscreenImage = true;
 	}
 	// Set pillar boxes to black (removes noise filter from fullscreen images)

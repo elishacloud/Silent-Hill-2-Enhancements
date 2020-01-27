@@ -15,6 +15,7 @@ float *GetFlashlightBrightnessPointer();
 BYTE *GetFlashLightRenderPointer();
 BYTE *GetFlashlightSwitchPointer();
 float *GetJamesPosPointer();
+DWORD *GetOnScreenPointer();
 BYTE *GetPauseMenuPointer();
 DWORD *GetRoomIDPointer();
 DWORD *GetSpecializedLightPointer1();
@@ -80,6 +81,7 @@ extern BYTE *FlashlightSwitchAddr;
 extern bool IsInBloomEffect;
 extern bool IsInFakeFadeout;
 extern float *JamesPosAddr;
+extern DWORD *OnScreenAddr;		// 0 = load screen, 4 = normal in-game, 5 = maps, 6 = inventory screen, 9 = save screen
 extern BYTE *PauseMenuAddr;
 extern DWORD *RoomIDAddr;
 extern DWORD *SpecializedLightAddr1;

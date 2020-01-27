@@ -83,10 +83,22 @@ void __stdcall GetDeviceState_Hook(IDirectInputDevice8A* device)
 	}
 }
 
+bool* usingGamepad = *(bool**)(0x52EA69+2);
+int* moveDirection2 = *(int**)(0x51F1E2+1);
+
+static BOOL (*orgUsingSearchCamera)();
 BOOL UsingSearchCamera_SeparateAnalogs()
 {
-	// TODO: Return false only if using gamepad, call stock function otherwise
-	return FALSE;
+	return *usingGamepad ? FALSE : orgUsingSearchCamera();
+}
+
+// FALSE - allow search camera
+// TRUE - do not allow
+BOOL StartSearchCamera_Hook()
+{
+	if ( *usingGamepad ) return FALSE;
+
+	return *moveDirection2 != 0 && *moveDirection2 != 3;
 }
 
 void UpdateDPadMovement()
@@ -138,6 +150,8 @@ void UpdateDPadMovement()
 	UpdateMemoryAddress((void*)(0x535D69 + 2), &rightStickYFloat, sizeof(rightStickYFloat) );
 
 	// Allow for simultaneous walking and moving camera
+	memcpy( &jmpAddress, (void*)(0x54E4B2 + 1), sizeof(jmpAddress) );
+	orgUsingSearchCamera = decltype(orgUsingSearchCamera)(jmpAddress + 0x54E4B2 + 5);
 
 	// Rotational walk
 	WriteCalltoMemory((BYTE*)0x54E4B2, UsingSearchCamera_SeparateAnalogs);
@@ -153,6 +167,7 @@ void UpdateDPadMovement()
 	WriteCalltoMemory((BYTE*)0x548DF7, UsingSearchCamera_SeparateAnalogs);
 	WriteCalltoMemory((BYTE*)0x548EC6, UsingSearchCamera_SeparateAnalogs);
 
-	const BYTE jmp[] = { 0xEB };
-	UpdateMemoryAddress((void*)0x535CC4, jmp, sizeof(jmp));
+	const BYTE nops[] = { 0x90, 0x90, 0x90, 0x90, 0x90 };
+	WriteCalltoMemory((BYTE*)0x535CBD, StartSearchCamera_Hook);
+	UpdateMemoryAddress((BYTE*)(0x535CBD + 5 + 2), nops, sizeof(nops) );
 }

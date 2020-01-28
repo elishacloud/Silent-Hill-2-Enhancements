@@ -20,6 +20,7 @@
 #include "Common\Utils.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
+#include "External/Hooking.Patterns/Hooking.Patterns.h"
 
 
 #define DIRECTINPUT_VERSION 0x0800
@@ -101,8 +102,8 @@ void __stdcall GetDeviceState_Hook(IDirectInputDevice8A* device)
 	}
 }
 
-bool* usingGamepad = *(bool**)(0x52EA69+2);
-int* moveDirection2 = *(int**)(0x51F1E2+1);
+bool* usingGamepad;
+int* moveDirection2;
 
 static BOOL (*orgUsingSearchCamera)();
 BOOL UsingSearchCamera_SeparateAnalogs()
@@ -121,12 +122,17 @@ BOOL StartSearchCamera_Hook()
 
 void UpdateControllerTweaks()
 {
-	constexpr BYTE PollDInputDevicesSearchBytes[] { 0x33, 0xDB, 0x3B, 0xC3, 0x74, 0x33, 0x8B, 0x08 };
-	const DWORD PollDInputDevicesAddr = SearchAndGetAddresses(0x0045893B, 0x00458B9B, 0x00458B9B, PollDInputDevicesSearchBytes, sizeof(PollDInputDevicesSearchBytes), -0xB);
-	if (PollDInputDevicesAddr == 0)
+	using namespace hook;
+
+	DWORD PollDInputDevicesAddr;
 	{
-		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
-		return;
+		auto PollDInputDevicesPattern = pattern( "33 DB 3B C3 74 33" ).count(1); // 0x45893B
+		if (PollDInputDevicesPattern.size() != 1)
+		{
+			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+			return;
+		}
+		PollDInputDevicesAddr = reinterpret_cast<DWORD>(PollDInputDevicesPattern.get_first( -0xB ));
 	}
 
 	dinputJoyState = *(DIJOYSTATE2**)(PollDInputDevicesAddr + 0x5A + 1);
@@ -162,35 +168,113 @@ void UpdateControllerTweaks()
 	if (RestoreSearchCamMovement != 0)
 	{
 		// Map right stick to search camera
-		float* rightStickXFloat = *(float**)(0x52E93B+2);
-		float* rightStickYFloat = *(float**)(0x52E9DD+2);
+		{
+			auto UsingGamepadPattern = pattern( "88 15 ? ? ? ? 75 09" ).count(1); // 0x52EA69
+			if (UsingGamepadPattern.size() != 1)
+			{
+				Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+				return;
+			}
+			usingGamepad = *UsingGamepadPattern.get_first<bool*>( 2 );
+		}
+		
+		{
+			auto MoveDirectionPattern = pattern( "A1 ? ? ? ? 83 F8 08 7C 27" ).count(1); // 0x5568C5
+			if (MoveDirectionPattern.size() != 1)
+			{
+				Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+				return;
+			}	
+			moveDirection2 = *MoveDirectionPattern.get_first<int*>( 1 );
+		}
 
-		UpdateMemoryAddress((void*)(0x535CCF + 2), &rightStickXFloat, sizeof(rightStickXFloat) );
-		UpdateMemoryAddress((void*)(0x535D51 + 2), &rightStickXFloat, sizeof(rightStickXFloat) );
+		{
+			auto RightStickXPattern = pattern( "84 C0 7C 51 0F BE C8" ).count(1); // 0x52E93B
+			auto RightStickYPattern = pattern( "D9 1D ? ? ? ? 6A 01 6A 00" ).count(1); // 0x52E9DD
+			if (RightStickXPattern.size() != 1 || RightStickYPattern.size() != 1)
+			{
+				Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+				return;
+			}
 
-		UpdateMemoryAddress((void*)(0x535CE2 + 2), &rightStickYFloat, sizeof(rightStickYFloat) );
-		UpdateMemoryAddress((void*)(0x535D69 + 2), &rightStickYFloat, sizeof(rightStickYFloat) );
+			float* rightStickXFloat = *RightStickXPattern.get_first<float*>( -6 + 2 );
+			float* rightStickYFloat = *RightStickYPattern.get_first<float*>( 2 );
+
+			auto StickPattern1 = pattern( "D8 1D ? ? ? ? DF E0 F6 C4 44 7A 6F" ).count(1); // 0x535CD5
+			auto StickPattern2 = pattern( "D9 05 ? ? ? ? DF E0 F6 C4 05 7A 0E" ).count(1); // 0x535D69
+			if (StickPattern1.size() != 1 || StickPattern2.size() != 1)
+			{
+				Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+				return;
+			}
+
+			auto StickPattern1Match = StickPattern1.get_one();
+			auto StickPattern2Match = StickPattern2.get_one();
+
+			UpdateMemoryAddress(StickPattern1Match.get<void>( -0x6 + 2 ), &rightStickXFloat, sizeof(rightStickXFloat) );
+			UpdateMemoryAddress(StickPattern2Match.get<void>( -0x18 + 2 ), &rightStickXFloat, sizeof(rightStickXFloat) );
+
+			UpdateMemoryAddress(StickPattern1Match.get<void>( 0xD + 2 ), &rightStickYFloat, sizeof(rightStickYFloat) );
+			UpdateMemoryAddress(StickPattern2Match.get<void>( 2 ), &rightStickYFloat, sizeof(rightStickYFloat) );
+		}
 
 		// Allow for simultaneous walking and moving camera
-		memcpy( &jmpAddress, (void*)(0x54E4B2 + 1), sizeof(jmpAddress) );
-		orgUsingSearchCamera = decltype(orgUsingSearchCamera)(jmpAddress + 0x54E4B2 + 5);
+		{
+			// Rotational walk
+			auto RotationalWalk1 = pattern( "85 C0 74 16 A1 ? ? ? ? 85 C0 0F 84 ? ? ? ? 83 F8 03 0F 84 ? ? ? ? 68" ).count(1); // 0x54E4B7 (-5)
+			auto RotationalWalk2 = pattern( "74 35 E8 ? ? ? ? 85 C0" ).count(1); // 0x54F13D (+2)
+			auto RotationalWalk3 = pattern( "75 7A E8 ? ? ? ? 85 C0" ).count(1); // 0x54F207 (+2)
+			if (RotationalWalk1.size() != 1 || RotationalWalk2.size() != 1 || RotationalWalk3.size() != 1)
+			{
+				Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+				return;
+			}
 
-		// Rotational walk
-		WriteCalltoMemory((BYTE*)0x54E4B2, UsingSearchCamera_SeparateAnalogs);
-		WriteCalltoMemory((BYTE*)0x54F13F, UsingSearchCamera_SeparateAnalogs);
-		WriteCalltoMemory((BYTE*)0x54F209, UsingSearchCamera_SeparateAnalogs);
+			const DWORD srcAddr = reinterpret_cast<DWORD>( RotationalWalk1.get_first( -5 ));
+			memcpy( &jmpAddress, (void*)(srcAddr + 1), sizeof(jmpAddress) );
+			orgUsingSearchCamera = decltype(orgUsingSearchCamera)(jmpAddress + srcAddr + 5);
 
-		// Directional walk
-		WriteCalltoMemory((BYTE*)0x547FBB, UsingSearchCamera_SeparateAnalogs);
-		WriteCalltoMemory((BYTE*)0x547FFA, UsingSearchCamera_SeparateAnalogs);
-		WriteCalltoMemory((BYTE*)0x54807A, UsingSearchCamera_SeparateAnalogs);
-		WriteCalltoMemory((BYTE*)0x548D70, UsingSearchCamera_SeparateAnalogs);
-		WriteCalltoMemory((BYTE*)0x548DB2, UsingSearchCamera_SeparateAnalogs);
-		WriteCalltoMemory((BYTE*)0x548DF7, UsingSearchCamera_SeparateAnalogs);
-		WriteCalltoMemory((BYTE*)0x548EC6, UsingSearchCamera_SeparateAnalogs);
+			
+			WriteCalltoMemory((BYTE*)srcAddr, UsingSearchCamera_SeparateAnalogs);
+			WriteCalltoMemory(RotationalWalk2.get_first<BYTE>( 2 ), UsingSearchCamera_SeparateAnalogs);
+			WriteCalltoMemory(RotationalWalk3.get_first<BYTE>( 2 ), UsingSearchCamera_SeparateAnalogs);
 
-		const BYTE nops[] = { 0x90, 0x90, 0x90, 0x90, 0x90 };
-		WriteCalltoMemory((BYTE*)0x535CBD, StartSearchCamera_Hook);
-		UpdateMemoryAddress((BYTE*)(0x535CBD + 5 + 2), nops, sizeof(nops) );
+			// Directional walk
+			auto DirectionalWalk1 = pattern( "85 C0 74 16 A1 ? ? ? ? 85 C0 0F 84 ? ? ? ? 83 F8 03 0F 84 ? ? ? ? 8D 44 24 18" ).count(1); // 0x547FC0 (-5)
+			auto DirectionalWalk2 = pattern( "E8 ? ? ? ? 85 C0 75 2B 39 35" ).count(1); // 0x548D70
+			auto DirectionalWalk3 = pattern( "75 7B E8" ).count(1); // 0x548EC4 (+2)
+			if (DirectionalWalk1.size() != 1 || DirectionalWalk2.size() != 1)
+			{
+				Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+				return;
+			}
+
+			auto DirectionalWalk1Match = DirectionalWalk1.get_one();
+			auto DirectionalWalk2Match = DirectionalWalk2.get_one();
+			auto DirectionalWalk3Match = DirectionalWalk3.get_one();
+			
+			WriteCalltoMemory(DirectionalWalk1Match.get<BYTE>( -5 ), UsingSearchCamera_SeparateAnalogs);
+			WriteCalltoMemory(DirectionalWalk1Match.get<BYTE>( 0x3A ), UsingSearchCamera_SeparateAnalogs);
+			WriteCalltoMemory(DirectionalWalk1Match.get<BYTE>( 0xBA ), UsingSearchCamera_SeparateAnalogs);
+			WriteCalltoMemory(DirectionalWalk2Match.get<BYTE>( 0 ), UsingSearchCamera_SeparateAnalogs);
+			WriteCalltoMemory(DirectionalWalk2Match.get<BYTE>( 0x42 ), UsingSearchCamera_SeparateAnalogs);
+			WriteCalltoMemory(DirectionalWalk2Match.get<BYTE>( 0x87 ), UsingSearchCamera_SeparateAnalogs);
+			WriteCalltoMemory(DirectionalWalk3Match.get<BYTE>( 2 ), UsingSearchCamera_SeparateAnalogs);
+		}
+
+		{
+			auto UpdateSearchCameraPattern = pattern( "A1 ? ? ? ? 85 C0 74 09 83 F8 03" ).count(1); // 0x535CBD
+			if (UpdateSearchCameraPattern.size() != 1)
+			{
+				Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+				return;
+			}
+
+			auto UpdateSearchCameraMatch = UpdateSearchCameraPattern.get_first<BYTE>();
+
+			const BYTE nops[] = { 0x90, 0x90, 0x90, 0x90, 0x90 };
+			WriteCalltoMemory(UpdateSearchCameraMatch, StartSearchCamera_Hook);
+			UpdateMemoryAddress(UpdateSearchCameraMatch + 5 + 2, nops, sizeof(nops) );
+		}
 	}
 }

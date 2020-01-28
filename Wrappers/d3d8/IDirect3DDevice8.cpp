@@ -1035,7 +1035,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 
 	// Fix bowling cutscene fading
 	if (WidescreenFix && SH2_CutsceneID && *SH2_CutsceneID == 0x19 && PrimitiveType == D3DPT_TRIANGLELIST && PrimitiveCount == 2 && VertexStreamZeroStride == 28 && pVertexStreamZeroData &&
-		((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[0].z == 0.01f && ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[1].z == 0.01f && ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[2].z == 0.01f)
+		((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[0].z == 0.01f && ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[1].z == 0.01f && ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[2].z == 0.01f)
 	{
 		IsInFakeFadeout = true;
 
@@ -1046,77 +1046,132 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 
 		for (int x = 0; x < 6; x++)
 		{
-			FullScreenFadeout[x].y = ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[x].y;
-			FullScreenFadeout[x].color = ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[x].color;
+			FullScreenFadeout[x].y = ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[x].y;
+			FullScreenFadeout[x].color = ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[x].color;
 		}
 
 		pVertexStreamZeroData = FullScreenFadeout;
 	}
 	// Detect fullscreen images for fixing pillar box color
 	else if (SetBlackPillarBoxes && PrimitiveType == D3DPT_TRIANGLELIST && PrimitiveCount == 2 && VertexStreamZeroStride == 28 && pVertexStreamZeroData &&
-		((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[0].z == 0.01f && ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[1].z == 0.01f && ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[2].z == 0.01f)
+		((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[0].z == 0.01f && ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[1].z == 0.01f && ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[2].z == 0.01f)
 	{
 		// Get fullscreen image left and right values
 		if (!IsInFullscreenImage)
 		{
-			PillarBoxLeft = ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[0].x;
-			PillarBoxRight = ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[1].x;
+			PillarBoxLeft = ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[0].x;
+			PillarBoxRight = ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[1].x;
+			PillarBoxTop = ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[1].y;
+			PillarBoxBottom = ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[2].y;
 		}
 		// Clip artifacts that protrude into pillarbox
 		else if (PillarBoxLeft && PillarBoxRight && SH2_RoomID && *SH2_RoomID && SH2_CutsceneID && !*SH2_CutsceneID && SH2_OnScreen && (*SH2_OnScreen == 4 || *SH2_OnScreen == 5))
 		{
-			// Check if green player marker is on the edge of the pillar box
-			bool Flag = false;
-			if ((((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[1].x != ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[2].x ||
-				((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[3].x != ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[5].x))
+			// Clip green player marker
+			if ((((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[1].x != ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[2].x ||
+				((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[3].x != ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[5].x))
 			{
+				bool SkipDrawing = true;
+				bool DrawPillarBoxes = false;
 				for (int x = 0; x < 6; x++)
 				{
-					if (((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[x].x < PillarBoxLeft || ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[x].x > PillarBoxRight)
+					if (((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[x].x > PillarBoxLeft && ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[x].x < PillarBoxRight)
 					{
-						Flag = true;
-						break;
+						SkipDrawing = false;
+					}
+					if (((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[x].x < PillarBoxLeft || ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[x].x > PillarBoxRight)
+					{
+						DrawPillarBoxes = true;
 					}
 				}
-			}
-
-			// Artifact is completely in the pillarbox so don't draw it
-			if (((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[1].x < PillarBoxLeft || ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[0].x > PillarBoxRight || Flag)
-			{
-				return D3D_OK;
-			}
-
-			// Copy vertex
-			memcpy(FullScreenArtifact, pVertexStreamZeroData, sizeof(FullScreenArtifact));
-			pVertexStreamZeroData = FullScreenArtifact;
-
-			// Update vertex left
-			if (FullScreenArtifact[0].x < PillarBoxLeft)
-			{
-				float TexWidth = FullScreenArtifact[1].tex_x - FullScreenArtifact[0].tex_x;
-				float VertexWidth = FullScreenArtifact[1].x - FullScreenArtifact[0].x;
-				float NewVertexWidth = FullScreenArtifact[1].x - PillarBoxLeft;
-
-				float TextLeft = FullScreenArtifact[0].tex_x + (TexWidth * (1.0f - (NewVertexWidth / VertexWidth)));
-				for (const DWORD &x : { 0, 3, 5 })
+				if (SkipDrawing)
 				{
-					FullScreenArtifact[x].x = PillarBoxLeft;
-					FullScreenArtifact[x].tex_x = TextLeft;
+					return D3D_OK;
+				}
+				// Add vertex to cover green marker that protrudes into the pillar box
+				if (BlankTexture && DrawPillarBoxes)
+				{
+					// Draw green marker
+					ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLELIST, 2, pVertexStreamZeroData, 28);
+
+					// Add left and right black pillar boxes
+					ProxyInterface->SetTexture(0, BlankTexture);
+					ProxyInterface->SetVertexShader(D3DFVF_XYZRHW | D3DFVF_TEX1);
+
+					// Set top and bottom vertex
+					for (const DWORD &x : { 0, 1, 3 })
+					{
+						PillarBoxVertex[x].y = PillarBoxTop;
+					}
+					for (const DWORD &x : { 2, 4, 5 })
+					{
+						PillarBoxVertex[x].y = PillarBoxBottom;
+					}
+
+					// Set vertex for right pillar box and draw primitive
+					for (const DWORD &x : { 0, 3, 5 })
+					{
+						PillarBoxVertex[x].x = PillarBoxRight;
+					}
+					for (const DWORD &x : { 1, 2, 4 })
+					{
+						PillarBoxVertex[x].x = (float)BufferWidth;
+					}
+					ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLELIST, 2, PillarBoxVertex, 24);
+
+					// Set vertex for left pillar box and draw primitive
+					for (const DWORD &x : { 0, 3, 5 })
+					{
+						PillarBoxVertex[x].x = 0.0f;
+					}
+					for (const DWORD &x : { 1, 2, 4 })
+					{
+						PillarBoxVertex[x].x = PillarBoxLeft;
+					}
+					return ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLELIST, 2, PillarBoxVertex, 24);
 				}
 			}
-
-			// Update vertex right
-			if (FullScreenArtifact[1].x > PillarBoxRight)
+			// Clip other artifacts
+			else
 			{
-				float TexWidth = FullScreenArtifact[1].tex_x - FullScreenArtifact[0].tex_x;
-				float VertexWidth = FullScreenArtifact[1].x - FullScreenArtifact[0].x;
-				float NewVertexWidth = PillarBoxRight - FullScreenArtifact[0].x;
-
-				float TextRight = FullScreenArtifact[1].tex_x - (TexWidth * (1.0f - (NewVertexWidth / VertexWidth)));
-				for (const DWORD &x : { 1, 2, 4 })
+				// Artifact is completely in the pillarbox so don't draw it
+				if (((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[1].x < PillarBoxLeft || ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[0].x > PillarBoxRight)
 				{
-					FullScreenArtifact[x].x = PillarBoxRight;
-					FullScreenArtifact[x].tex_x = TextRight;
+					return D3D_OK;
+				}
+
+				// Copy vertex
+				memcpy(FullScreenArtifact, pVertexStreamZeroData, sizeof(FullScreenArtifact));
+				pVertexStreamZeroData = FullScreenArtifact;
+
+				// Update vertex left
+				if (FullScreenArtifact[0].x < PillarBoxLeft)
+				{
+					float TexWidth = FullScreenArtifact[1].u - FullScreenArtifact[0].u;
+					float VertexWidth = FullScreenArtifact[1].x - FullScreenArtifact[0].x;
+					float NewVertexWidth = FullScreenArtifact[1].x - PillarBoxLeft;
+
+					float TextLeft = FullScreenArtifact[0].u + (TexWidth * (1.0f - (NewVertexWidth / VertexWidth)));
+					for (const DWORD &x : { 0, 3, 5 })
+					{
+						FullScreenArtifact[x].x = PillarBoxLeft;
+						FullScreenArtifact[x].u = TextLeft;
+					}
+				}
+
+				// Update vertex right
+				if (FullScreenArtifact[1].x > PillarBoxRight)
+				{
+					float TexWidth = FullScreenArtifact[1].u - FullScreenArtifact[0].u;
+					float VertexWidth = FullScreenArtifact[1].x - FullScreenArtifact[0].x;
+					float NewVertexWidth = PillarBoxRight - FullScreenArtifact[0].x;
+
+					float TextRight = FullScreenArtifact[1].u - (TexWidth * (1.0f - (NewVertexWidth / VertexWidth)));
+					for (const DWORD &x : { 1, 2, 4 })
+					{
+						FullScreenArtifact[x].x = PillarBoxRight;
+						FullScreenArtifact[x].u = TextRight;
+					}
 				}
 			}
 		}

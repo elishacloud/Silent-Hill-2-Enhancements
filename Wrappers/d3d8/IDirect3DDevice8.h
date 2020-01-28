@@ -8,6 +8,9 @@ private:
 	LPDIRECT3DDEVICE8 ProxyInterface;
 	m_IDirect3D8* m_pD3D;
 
+	bool GammaSet = false;
+	D3DGAMMARAMP Ramp;
+
 	BYTE *SH2_ChapterID = nullptr;
 	DWORD *SH2_RoomID = nullptr;
 	DWORD *SH2_CutsceneID = nullptr;
@@ -30,6 +33,8 @@ private:
 	bool DontModifyClear = false;
 	float PillarBoxLeft = 0.0f;
 	float PillarBoxRight = 0.0f;
+	float PillarBoxTop = 0.0f;
+	float PillarBoxBottom = 0.0f;
 
 	// Fix for Room 312 pause screen
 	bool InPauseMenu = false;
@@ -92,14 +97,16 @@ private:
 		FLOAT u, v;
 	};
 
-	struct CUSTOMVERTEX_DIF_TEX1
+	struct CUSTOMVERTEX_DIF_UV
 	{
 		FLOAT x, y, z, rhw;
 		DWORD color;
-		FLOAT tex_x, tex_y;
+		FLOAT u, v;
 	};
 
-	CUSTOMVERTEX_DIF_TEX1 FullScreenFadeout[6]
+	CUSTOMVERTEX_DIF_UV FullScreenArtifact[6];
+
+	CUSTOMVERTEX_DIF_UV FullScreenFadeout[6]
 	{
 		{    -0.5f,  -36.5f, 0.01f, 1.0f, 0, 0.0f, 0.0f },
 		{ -1919.5f,  -36.5f, 0.01f, 1.0f, 0, 1.0f, 0.0f },
@@ -109,7 +116,15 @@ private:
 		{    -0.5f, 1115.5f, 0.01f, 1.0f, 0, 0.0f, 1.0f }
 	};
 
-	CUSTOMVERTEX_DIF_TEX1 FullScreenArtifact[6];
+	CUSTOMVERTEX_UV PillarBoxVertex[6]
+	{
+		{    0.5f,  -36.5f, 0.01f, 1.0f, 0.0f, 0.0f },
+		{ 1919.5f,  -36.5f, 0.01f, 1.0f, 1.0f, 0.0f },
+		{ 1919.5f, 1115.5f, 0.01f, 1.0f, 1.0f, 1.0f },
+		{    0.5f,  -36.5f, 0.01f, 1.0f, 0.0f, 0.0f },
+		{ 1919.5f, 1115.5f, 0.01f, 1.0f, 1.0f, 1.0f },
+		{    0.5f, 1115.5f, 0.01f, 1.0f, 0.0f, 1.0f }
+	};
 
 	struct D3DSTATE
 	{

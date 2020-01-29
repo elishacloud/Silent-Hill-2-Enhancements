@@ -104,18 +104,25 @@ void __stdcall GetDeviceState_Hook(IDirectInputDevice8A* device)
 
 bool* usingGamepad;
 int* moveDirection2;
+bool* strafingLeft;
+bool* strafingRight;
+
+bool isMovingAround()
+{
+	return *usingGamepad || *strafingLeft || *strafingRight;
+}
 
 static BOOL (*orgUsingSearchCamera)();
 BOOL UsingSearchCamera_SeparateAnalogs()
 {
-	return *usingGamepad ? FALSE : orgUsingSearchCamera();
+	return isMovingAround() ? FALSE : orgUsingSearchCamera();
 }
 
 // FALSE - allow search camera
 // TRUE - do not allow
 BOOL StartSearchCamera_Hook()
 {
-	if ( *usingGamepad ) return FALSE;
+	if ( isMovingAround() ) return FALSE;
 
 	return *moveDirection2 != 0 && *moveDirection2 != 3;
 }
@@ -186,6 +193,17 @@ void UpdateControllerTweaks()
 				return;
 			}	
 			moveDirection2 = *MoveDirectionPattern.get_first<int*>( 1 );
+		}
+
+		{
+			auto StrafingPattern = pattern( "A2 ? ? ? ? 88 0D ? ? ? ? 74 0F" ).count(1); // 0x52EC74
+			if (StrafingPattern.size() != 1)
+			{
+				Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+				return;
+			}
+			strafingLeft = *StrafingPattern.get_first<bool*>( 1 );
+			strafingRight = *StrafingPattern.get_first<bool*>( 5 + 2 );
 		}
 
 		{

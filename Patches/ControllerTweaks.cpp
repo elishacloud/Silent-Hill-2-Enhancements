@@ -294,5 +294,16 @@ void UpdateControllerTweaks()
 			WriteCalltoMemory(UpdateSearchCameraMatch, StartSearchCamera_Hook);
 			UpdateMemoryAddress(UpdateSearchCameraMatch + 5 + 2, nops, sizeof(nops) );
 		}
+
+		// Southpaw option
+		if (Southpaw)
+		{
+			auto SouthpawPattern = pattern( "C7 05 ? ? ? ? ? ? ? ? C3 90 83 EC 24" ).count(1); // 0x45BCA4
+			if (SouthpawPattern.size() == 1) // Don't treat failure as fatal, since it's a very minor change
+			{
+				const BOOL option = TRUE;
+				UpdateMemoryAddress(SouthpawPattern.get_first( 6 ), &option, sizeof(option));
+			}
+		}
 	}
 }

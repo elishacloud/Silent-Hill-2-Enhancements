@@ -43,7 +43,7 @@ __declspec(naked) void __stdcall CutsceneEscASM()
 	}
 }
 
-// ASM function to disables key press during in-game cutscenes
+// ASM function to disable all key presses besides Esc key
 __declspec(naked) void __stdcall CutsceneKeyPressASM()
 {
 	__asm
@@ -95,18 +95,16 @@ void UpdateHangOnEsc(DWORD *SH2_RoomID)
 		WriteJMPtoMemory((BYTE*)KeyPressAddress, *CutsceneKeyPressASM, 7);
 	}
 
-	static DWORD *ScreenEvent = nullptr;
+	// Get transition state address
+	static DWORD *ScreenEvent = GetTransitionStatePointer();
+
+	// Checking address pointer
 	if (!ScreenEvent)
 	{
 		RUNONCE();
 
-		constexpr BYTE SearchBytesScreenEvent[]{ 0x83, 0xF8, 0x19, 0x7E, 0x72, 0x83, 0xF8, 0x1A, 0x75, 0x05, 0xBF, 0x01, 0x00, 0x00, 0x00, 0x39, 0x1D };
-		ScreenEvent = (DWORD*)ReadSearchedAddresses(0x0048E87B, 0x0048EB1B, 0x0048ED2B, SearchBytesScreenEvent, sizeof(SearchBytesScreenEvent), 0x2A);
-		if (!ScreenEvent)
-		{
-			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
-			return;
-		}
+		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+		return;
 	}
 
 	static DWORD Address = NULL;

@@ -20,6 +20,7 @@ BYTE *GetPauseMenuPointer();
 DWORD *GetRoomIDPointer();
 DWORD *GetSpecializedLightPointer1();
 DWORD *GetSpecializedLightPointer2();
+DWORD *GetTransitionStatePointer();
 
 // Function forward declaration
 void DisableCDCheck();
@@ -81,11 +82,12 @@ extern BYTE *FlashlightSwitchAddr;
 extern bool IsInBloomEffect;
 extern bool IsInFakeFadeout;
 extern float *JamesPosAddr;
-extern DWORD *OnScreenAddr;		// 0 = load screen, 4 = normal in-game, 5 = maps, 6 = inventory screen, 9 = save screen
+extern DWORD *OnScreenAddr;				// 0 = load screen, 4 = normal in-game, 5 = maps, 6 = inventory screen, 9 = save screen
 extern BYTE *PauseMenuAddr;
 extern DWORD *RoomIDAddr;
 extern DWORD *SpecializedLightAddr1;
 extern DWORD *SpecializedLightAddr2;
+extern DWORD *TransitionStateAddr;		// 1 = fades the game image to black, 2 = solid black screen, 3 = fades from black back to the in game screen
 
 // Run code only once
 #define RUNONCE() \

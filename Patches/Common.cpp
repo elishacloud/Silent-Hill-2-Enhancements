@@ -33,6 +33,7 @@ BYTE *PauseMenuAddr = nullptr;
 DWORD *RoomIDAddr = nullptr;
 DWORD *SpecializedLightAddr1 = nullptr;
 DWORD *SpecializedLightAddr2 = nullptr;
+DWORD *TransitionStateAddr = nullptr;
 
 DWORD *GetRoomIDPointer()
 {
@@ -294,7 +295,7 @@ DWORD *GetOnScreenPointer()
 		return OnScreenAddr;
 	}
 
-	// Get address for pause menu
+	// Get address for on screen address
 	constexpr BYTE OnScreenSearchBytes[]{ 0x33, 0xC0, 0x5B, 0xC3, 0x68 };
 	OnScreenAddr = (DWORD*)ReadSearchedAddresses(0x0043F205, 0x0043F3C5, 0x0043F3C5, OnScreenSearchBytes, sizeof(OnScreenSearchBytes), 0x50);
 
@@ -306,4 +307,25 @@ DWORD *GetOnScreenPointer()
 	}
 
 	return OnScreenAddr;
+}
+
+DWORD *GetTransitionStatePointer()
+{
+	if (TransitionStateAddr)
+	{
+		return TransitionStateAddr;
+	}
+
+	// Get address for transition state
+	constexpr BYTE TransitionAddrSearchBytes[]{ 0x83, 0xF8, 0x19, 0x7E, 0x72, 0x83, 0xF8, 0x1A, 0x75, 0x05, 0xBF, 0x01, 0x00, 0x00, 0x00, 0x39, 0x1D };
+	TransitionStateAddr = (DWORD*)ReadSearchedAddresses(0x0048E87B, 0x0048EB1B, 0x0048ED2B, TransitionAddrSearchBytes, sizeof(TransitionAddrSearchBytes), 0x2A);
+
+	// Checking address pointer
+	if (!TransitionStateAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find transition state address!";
+		return nullptr;
+	}
+
+	return TransitionStateAddr;
 }

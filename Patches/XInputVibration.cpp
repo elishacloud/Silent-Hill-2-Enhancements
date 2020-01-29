@@ -32,7 +32,7 @@
 #include <Xinput.h>
 #pragma comment(lib, "Xinput9_1_0.lib")
 
-BYTE *IntensityAddr = nullptr;
+BYTE *IntensityAddr = nullptr;		// IntensityAddr (0 = Off, 1 = Soft, 2 = Normal, 3 = Hard)
 bool LostWindowFocus = false;
 HWND SH2WindowHandle = nullptr;
 HWINEVENTHOOK hEventHook = nullptr;
@@ -94,7 +94,6 @@ public:
 		{
 			WORD XIntensity = MaxVibrationIntensity;
 			WORD DIntensity = DI_FFNOMINALMAX;
-			// IntensityAddr (0 = Off, 1 = Soft, 2 = Normal, 3 = Hard)
 			if (IntensityAddr && *IntensityAddr < 3)
 			{
 				XIntensity = (WORD)(MaxVibrationIntensity * (*IntensityAddr * (100.0f / 3.0f)));
@@ -282,8 +281,15 @@ void UpdateInfiniteRumble(DWORD *SH2_RoomID)
 
 	// Get pause menu address
 	static BYTE *PauseAddress = GetPauseMenuPointer();
-	if (!PauseAddress)
+
+	// Get transition state address
+	static DWORD *ScreenEvent = GetTransitionStatePointer();
+
+	// Checking address pointer
+	if (!PauseAddress || !ScreenEvent)
 	{
+		RUNONCE();
+
 		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
 		return;
 	}
@@ -302,14 +308,14 @@ void UpdateInfiniteRumble(DWORD *SH2_RoomID)
 
 	// Disable rumble
 	static bool ValueSet = false;
-	if (*PauseAddress == 0x01 || *SH2_RoomID == 0x00 || LostWindowFocus)
+	if (*PauseAddress == 0x01 || *SH2_RoomID == 0x00 || *ScreenEvent == 0x01 || *ScreenEvent == 0x02 || *ScreenEvent == 0x03 || LostWindowFocus)
 	{
 		if (!ValueSet)
 		{
 			BYTE Value = 0x00;
 			UpdateMemoryAddress((void*)RumbleAddress, &Value, sizeof(BYTE));
 			ValueSet = true;
-			if (LostWindowFocus)
+			if (*ScreenEvent == 0x01 || *ScreenEvent == 0x02 || *ScreenEvent == 0x03 || LostWindowFocus)
 			{
 				StubXInputEffect.Stop();
 			}

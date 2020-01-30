@@ -67,6 +67,7 @@
 	visit(Room312ShadowFix, true) \
 	visit(RowboatAnimationFix, true) \
 	visit(SetBlackPillarBoxes, true) \
+	visit(Southpaw, false) \
 	visit(SteamCrashFix, true) \
 	visit(UnlockJapLang, false) \
 	visit(UseCustomExeStr, true) \
@@ -90,6 +91,7 @@
 	visit(ResY, 0) \
 	visit(FPSLimit, 30) \
 	visit(IncreaseNoiseEffectRes, 512) \
+	visit(RestoreSearchCamMovement, 1) \
 	visit(SingleCoreAffinity, 1) \
 	visit(SingleCoreAffinityTimer, 5000) \
 	visit(SmallFontWidth, 14) \

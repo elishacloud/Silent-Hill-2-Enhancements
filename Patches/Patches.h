@@ -23,11 +23,13 @@ DWORD *GetSpecializedLightPointer2();
 DWORD *GetTransitionStatePointer();
 
 // Function forward declaration
+void CheckArgumentsForPID();
 void DisableCDCheck();
 void PatchBinary();
 void SetDefaultFullscreenBackground();
 void SetWindowHandle(HWND WindowHandle);
 void Update2TBHardDriveFix();
+void UpdateAdminAccess();
 void UpdateBloodSize(DWORD *SH2_RoomID);
 void UpdateCatacombsMeatRoom();
 void UpdateCemeteryLighting();

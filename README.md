@@ -7,6 +7,7 @@ Below is a list of features:
 
  * [**Audio Script Builder**](AudioScripts) - Allows you to create or update the SH2 audio files.
  * **ASI Loader** - Loads custom libraries with the file extension .asi into the game using [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader).
+ * **Black Pillar Box Fix** - Forces all dynamically made letterboxing and pillarboxing to be black in color.
  * **Borderless Windowed Mode** - Enable or disable windows border. Requires Windowed Mode to be enabled (WndMode = 1).
  * **Catacomb's Meat Cold Room Fix** - Updates the color and lighting of the catacomb's meat cold rooms to be more like the PS2 version of the game.
  * **Cemetery Lighting Fix** - Fixes an issue where wrong data is used when saving the game in the cemetery, which can corrupt fog effects.
@@ -34,7 +35,9 @@ Below is a list of features:
  * **Improved Storage Support** - Allows you to save the game when you have more than 2 TB of free space.
  * **Increase Blood** - Increases the blood pool size of dead enemies to better match the PS2 version.
  * **Increase Draw Distance** - Fixes distant hallway walls (such as those in the Woodside Apartments) from suddenly appearing.  This makes them appear gradually, more naturally.
+ * **Left-handed Joystick Support** - Swaps left and right joystick functions. Useful for left-handed players.
  * **Lighting Transition Fix** - Makes lighting transition smooth from one light source to another for a few particular areas.
+ * **Joystick Camera Movement** - Sets right joystick mode for search camera movement on controllers.
  * **Missing Wall Chunks Fix** - Fixes an issue on Nvidia graphics cards where wall chunks are missing in some locations.
  * [**modupdater**](https://github.com/ThirteenAG/modupdater) - Automatically updates the module when new versions comes out.
  * **Multi-Language Support** - Restores the language selection in the Options menu.
@@ -42,16 +45,20 @@ Below is a list of features:
  * **NoCD Patch** - Disables the CD check. _Note: not yet supported in all game versions._
  * **Piston Room Fix** - Hides a piston behind a door that should not be seen during a cutscene.
  * **Reset Screen Res** - Resets the display adapter on exit which fixes an issue when using WineD3D casing the screen to go dark.
+ * **Room 312 Pause Menu Fix** - Restores the noise filter and bloom effects in the pause menu for Room 312.
  * **Room 312 Shadow Fix** - Prevents distracting shadow flickering while in Room 312 of the Hotel.
  * **Rowboat Animation Fix** - Fixes an issue with rowboat animation if you exit to the main menu and reload the game.
  * **SFX Address Fix** - Dynamically updates SH2 memory with correct index locations for the SFX from the `sddata.bin` file (required if you are using a modified version of the `sddata.bin` audio file).
  * **Soft Shadow Support** - Adds soft shadows, shadow level intensities, shadow fading on flashlight toggles, and self shadows.
  * **Special FX Fix** - Restores post-processing effects, which includes depth-of-field, motion blur, and pseudo blooms.
+ * **Texture Address Fix** - Dynamically updates SH2 memory to reserve additional space for large texture (required if you are using a large texture files).
  * **Town West Gate Event Fix** - Changes James' commentary about the back alley Heaven's Night gate at night to properly reflect the gate's status.
+ * **UAC Control** - Checks if administrator access is required for the game to function correctly and prompts for UAC if needed.
  * **Vibration Support** - Enables force feedback vibration support for XInput and DirectInput gamepads.
  * **White Shader Fix** - Fixes an issue on Nvidia graphics cards where certain textures would appear as white when they should be black.
  * [**Widescreen Fix**](https://github.com/ThirteenAG/WidescreenFixesPack/releases/tag/sh2) - Allows the game to fit any sized monitor appropriately and fixes other inherit game bugs.
  * **Windowed Mode** - Runs the game in windowed mode.
+ * **Woodside Apartment Object Fix** - Fixes spawning placements for objects in Woodside Apartments Room 205.
 
 ### Configuration
 To view an ini example see the [settings.ini](https://github.com/elishacloud/Silent-Hill-2-Enhancements/blob/master/Common/Settings.ini) file.

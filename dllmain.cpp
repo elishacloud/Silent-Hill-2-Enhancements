@@ -55,6 +55,9 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		// Module
 		m_hModule = hModule;
 
+		// Check arguments for PID
+		CheckArgumentsForPID();
+
 		// Get config file path
 		wchar_t configpath[MAX_PATH];
 		GetModuleFileName(hModule, configpath, MAX_PATH);
@@ -231,6 +234,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 
 		// Patch binray
 		PatchBinary();
+
+		// Check for admin access
+		if (CheckForAdminAccess)
+		{
+			UpdateAdminAccess();
+		}
 
 		// Update SFX addresses
 		if (EnableSFXAddrHack)

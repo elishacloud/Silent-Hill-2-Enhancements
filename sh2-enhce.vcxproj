@@ -40,6 +40,7 @@
     <ClCompile Include="External\MemoryModule\MemoryModule.c" />
     <ClCompile Include="External\WidescreenFixesPack\source\SilentHill2.WidescreenFix\dllmain.cpp" />
     <ClCompile Include="Patches\2TBHardDriveFix.cpp" />
+    <ClCompile Include="Patches\LaunchAsAdmin.cpp" />
     <ClCompile Include="Patches\PatchBinary.cpp" />
     <ClCompile Include="Patches\BloodSize.cpp" />
     <ClCompile Include="Patches\CemeteryLightingPatch.cpp" />

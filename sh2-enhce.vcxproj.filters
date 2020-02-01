@@ -224,6 +224,9 @@
     <ClCompile Include="Patches\ControllerTweaks.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\LaunchAsAdmin.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">

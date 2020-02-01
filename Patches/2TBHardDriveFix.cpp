@@ -67,7 +67,7 @@ __declspec(naked) void __stdcall NewSaveASM()
 		ja near EnoughDiskSpace
 		jmp HardDriveASM
 
-		EnoughDiskSpace :
+	EnoughDiskSpace:
 		jmp jmpNewSaveReturnAddr
 	}
 }

@@ -263,7 +263,9 @@ void UpdateTexAddr()
 
 	// Allocate dynamic memory for loading textures
 	BYTE *PtrBytes1 = new BYTE[size];
+	ZeroMemory(PtrBytes1, size);		// Need to clear menory for debug mode, game expects the memory to be zeroed
 	BYTE *PtrBytes2 = new BYTE[size];
+	ZeroMemory(PtrBytes2, size);		// Need to clear menory for debug mode, game expects the memory to be zeroed
 
 	// Logging update
 	Logging::Log() << "Updating Texture memory address locations...";

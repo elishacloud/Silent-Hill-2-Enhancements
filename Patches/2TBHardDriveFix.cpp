@@ -25,6 +25,7 @@ DWORD GetDiskSpace();
 
 // Variables for ASM
 void *jmpSkipDisk;
+void *jmpNewSaveReturnAddr;
 void *jmpHardDriveReturnAddr;
 void *jmpSkipDisplay;
 void *jmpDisplayReturnAddr;
@@ -38,7 +39,7 @@ __declspec(naked) void __stdcall HardDriveASM()
 		push ebx
 		push ecx
 		call GetDiskSpace
-		cmp eax, 0x20		// Require at least 32KBs of disk space
+		cmp eax, 0x08		// Require at least 8KBs of disk space
 		pop ecx
 		pop ebx
 		pop eax
@@ -47,6 +48,27 @@ __declspec(naked) void __stdcall HardDriveASM()
 
 	EnoughDiskSpace:
 		jmp jmpHardDriveReturnAddr
+	}
+}
+
+// ASM function for new save
+__declspec(naked) void __stdcall NewSaveASM()
+{
+	__asm
+	{
+		push eax
+		push ebx
+		push ecx
+		call GetDiskSpace
+		cmp eax, 0x20		// Require at least 32KBs of disk space for new save
+		pop ecx
+		pop ebx
+		pop eax
+		ja near EnoughDiskSpace
+		jmp HardDriveASM
+
+		EnoughDiskSpace :
+		jmp jmpNewSaveReturnAddr
 	}
 }
 
@@ -120,6 +142,7 @@ void Update2TBHardDriveFix()
 	}
 	jmpSkipDisk = (void*)(HardDriveAddr + 0x1A);
 	jmpHardDriveReturnAddr = (void*)(HardDriveAddr + 0x05);
+	jmpNewSaveReturnAddr = (void*)(HardDriveAddr - 0x0F);
 
 	// Disk display fix
 	constexpr BYTE DisplaySearchBytes[]{ 0x8B, 0xF0, 0x83, 0xC4, 0x04, 0x85, 0xF6, 0x7D, 0x02, 0x33, 0xF6, 0x6A, 0x00 };
@@ -136,6 +159,7 @@ void Update2TBHardDriveFix()
 
 	// Update SH2 code
 	Logging::Log() << "Setting 2TB hard disk Fix...";
+	WriteJMPtoMemory((BYTE*)(HardDriveAddr - 0x14), *NewSaveASM, 5);
 	WriteJMPtoMemory((BYTE*)HardDriveAddr, *HardDriveASM, 5);
 	WriteJMPtoMemory((BYTE*)DisplayFix, *DisplayASM, 6);
 }

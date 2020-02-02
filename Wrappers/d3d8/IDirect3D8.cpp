@@ -157,6 +157,9 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	// Update presentation parameters
 	UpdatePresentParameter(pPresentationParameters, hFocusWindow, true);
 
+	// Set Silent Hill 2 window to forground
+	SetForegroundWindow(DeviceWindow);
+
 	HRESULT hr = ProxyInterface->CreateDevice(Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface);
 
 	if (SUCCEEDED(hr) && ppReturnedDeviceInterface)

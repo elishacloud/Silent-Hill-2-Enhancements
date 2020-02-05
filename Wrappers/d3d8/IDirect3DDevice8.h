@@ -8,6 +8,9 @@ private:
 	LPDIRECT3DDEVICE8 ProxyInterface;
 	m_IDirect3D8* m_pD3D;
 
+	bool MaxAnisotropySet = false;
+	DWORD MaxAnisotropy = 0;
+
 	bool GammaSet = false;
 	D3DGAMMARAMP Ramp;
 

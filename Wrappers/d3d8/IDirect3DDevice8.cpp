@@ -155,7 +155,8 @@ HRESULT m_IDirect3DDevice8::EndScene()
 
 	EndSceneCounter++;
 
-	HRESULT hr = ProxyInterface->EndScene();
+	// Skip endscene to ensure all APIs exist inside the single begin/end scene calls
+	HRESULT hr = D3D_OK;	// ProxyInterface->EndScene();
 
 	// Fix pause menu in Room 312
 	if (SH2_PauseMenu && *SH2_PauseMenu)
@@ -761,6 +762,10 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	EndSceneCounter = 0;
 	PresentFlag = false;
 
+	// End scene before present
+	ProxyInterface->EndScene();
+
+	// Present screen
 	return ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 }
 
@@ -1321,6 +1326,21 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 	LastFrameFullscreenImage = IsInFullscreenImage;
 	IsInFullscreenImage = false;
 
+	// Enable Anisotropic Filtering
+	if (AnisotropicFiltering)
+	{
+		if (!MaxAnisotropySet)
+		{
+			MaxAnisotropySet = true;
+			D3DCAPS8 Caps;
+			ZeroMemory(&Caps, sizeof(D3DCAPS8));
+			if (SUCCEEDED(ProxyInterface->GetDeviceCaps(&Caps)))
+			{
+				MaxAnisotropy = (AnisotropicFiltering == 1) ? Caps.MaxAnisotropy : min((DWORD)AnisotropicFiltering, Caps.MaxAnisotropy);
+			}
+		}
+	}
+
 	// Enable Xbox shadows
 	if (EnableSoftShadows)
 	{
@@ -1554,6 +1574,23 @@ HRESULT m_IDirect3DDevice8::SetTexture(DWORD Stage, IDirect3DBaseTexture8 *pText
 HRESULT m_IDirect3DDevice8::SetTextureStageState(DWORD Stage, D3DTEXTURESTAGESTATETYPE Type, DWORD Value)
 {
 	Logging::LogDebug() << __FUNCTION__;
+
+	// Enable Anisotropic Filtering
+	if (MaxAnisotropy)
+	{
+		if (Type == D3DTSS_MAXANISOTROPY)
+		{
+			Value = MaxAnisotropy;
+			if (SUCCEEDED(ProxyInterface->SetTextureStageState(Stage, D3DTSS_MAXANISOTROPY, MaxAnisotropy)))
+			{
+				return D3D_OK;
+			}
+		}
+		else if (Type == D3DTSS_MAGFILTER || Type == D3DTSS_MINFILTER)
+		{
+			ProxyInterface->SetTextureStageState(Stage, D3DTSS_MAXANISOTROPY, MaxAnisotropy);
+		}
+	}
 
 	return ProxyInterface->SetTextureStageState(Stage, Type, Value);
 }

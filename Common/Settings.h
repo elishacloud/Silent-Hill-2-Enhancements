@@ -80,6 +80,7 @@
 	visit(WoodsideRoom205Fix, true)
 
 #define VISIT_INT_SETTINGS(visit) \
+	visit(AnisotropicFiltering, 0) \
 	visit(CustomFontCol, 100) \
 	visit(CustomFontRow, 14) \
 	visit(CustomFontCharWidth, 20) \
@@ -90,7 +91,7 @@
 	visit(PadNumber, 0) \
 	visit(ResX, 0) \
 	visit(ResY, 0) \
-	visit(FPSLimit, 30) \
+	visit(FPSLimit, 0) \
 	visit(IncreaseNoiseEffectRes, 512) \
 	visit(RestoreSearchCamMovement, 1) \
 	visit(SingleCoreAffinity, 1) \

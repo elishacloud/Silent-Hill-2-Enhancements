@@ -5,6 +5,7 @@ A project designed to enhance Silent Hill 2 (SH2) graphics and audio for the PC.
 ### Features
 Below is a list of features:
 
+ * **Anisotropic Filtering** - Enable or disable anisotropic filtering.
  * [**Audio Script Builder**](AudioScripts) - Allows you to create or update the SH2 audio files.
  * **ASI Loader** - Loads custom libraries with the file extension .asi into the game using [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader).
  * **Black Pillar Box Fix** - Forces all dynamically made letterboxing and pillarboxing to be black in color.

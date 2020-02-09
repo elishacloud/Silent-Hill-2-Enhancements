@@ -51,6 +51,7 @@
 	visit(LoadModulesFromMemory, false) \
 	visit(LoadPlugins, false) \
 	visit(LockResolution, true) \
+	visit(LockScreenPosition, true) \
 	visit(MainMenuFix, true) \
 	visit(MainMenuTitlePerLang, true) \
 	visit(Nemesis2000FogFix, true) \
@@ -71,6 +72,7 @@
 	visit(Southpaw, false) \
 	visit(SteamCrashFix, true) \
 	visit(UnlockJapLang, false) \
+	visit(UseBestGraphics, true) \
 	visit(UseCustomExeStr, true) \
 	visit(UseCustomFonts, true) \
 	visit(UseCustomModFolder, true) \

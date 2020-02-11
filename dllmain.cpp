@@ -389,6 +389,18 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			UpdateTownWestGateEventFix();
 		}
 
+		// Disables the screen position feature in the game's options menu, which is no longer needed for modern displays
+		if (LockScreenPosition)
+		{
+			UpdateLockScreenPosition();
+		}
+
+		// Enables all advanced graphics settings from the game's options menu on game launch
+		if (UseBestGraphics)
+		{
+			UpdateBestGraphics();
+		}
+
 		// Load Nemesis2000's Fog Fix
 		if (Nemesis2000FogFix)
 		{

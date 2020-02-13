@@ -155,8 +155,7 @@ HRESULT m_IDirect3DDevice8::EndScene()
 
 	EndSceneCounter++;
 
-	// Skip endscene to ensure all APIs exist inside the single begin/end scene calls
-	HRESULT hr = D3D_OK;	// ProxyInterface->EndScene();
+	HRESULT hr = ProxyInterface->EndScene();
 
 	// Fix pause menu in Room 312
 	if (SH2_PauseMenu && *SH2_PauseMenu)
@@ -761,9 +760,6 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 
 	EndSceneCounter = 0;
 	PresentFlag = false;
-
-	// End scene before present
-	ProxyInterface->EndScene();
 
 	// Present screen
 	return ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);

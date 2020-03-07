@@ -32,7 +32,6 @@
 	visit(FixMissingWallChunks, true) \
 	visit(FixTownWestGateEvent, true) \
 	visit(FMVWidescreenMode, true) \
-	visit(FMVWidescreenEnhancementPackCompatibility, true) \
 	visit(Fog2DFix, true) \
 	visit(FogParameterFix, true) \
 	visit(FullscreenImages, true) \
@@ -88,6 +87,7 @@
 	visit(CustomFontRow, 14) \
 	visit(CustomFontCharWidth, 20) \
 	visit(CustomFontCharHeight, 32) \
+	visit(FMVWidescreenEnhancementPackCompatibility, 2) \
 	visit(LetterSpacing, 2) \
 	visit(NormalFontWidth, 20) \
 	visit(NormalFontHeight, 30) \

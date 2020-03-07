@@ -13,6 +13,7 @@
 	visit(DisableCutsceneBorders, true) \
 	visit(DisableGameUX, true) \
 	visit(DisableEnlargedText, true) \
+	visit(DisableHighDPIScaling, true) \
 	visit(DisableLogging, false) \
 	visit(DisableRedCross, false) \
 	visit(DisableRedCrossInCutScenes, true) \

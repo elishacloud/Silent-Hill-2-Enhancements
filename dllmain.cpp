@@ -220,6 +220,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			InstallFileSystemHooks(hModule, configpath);
 		}
 
+		// Sets application DPI aware which disables DPI virtulization/High DPI scaling for this process
+		if (DisableHighDPIScaling)
+		{
+			SetDPIAware();
+		}
+
 		// Fix Windows Game Explorer issue
 		if (DisableGameUX)
 		{

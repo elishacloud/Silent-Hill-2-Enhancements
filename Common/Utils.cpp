@@ -21,6 +21,43 @@
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
 
+#ifndef _DPI_AWARENESS_CONTEXTS_
+
+#define _DPI_AWARENESS_CONTEXTS_
+
+DECLARE_HANDLE(DPI_AWARENESS_CONTEXT);
+
+typedef enum DPI_AWARENESS {
+	DPI_AWARENESS_INVALID = -1,
+	DPI_AWARENESS_UNAWARE = 0,
+	DPI_AWARENESS_SYSTEM_AWARE = 1,
+	DPI_AWARENESS_PER_MONITOR_AWARE = 2
+} DPI_AWARENESS;
+
+#define DPI_AWARENESS_CONTEXT_UNAWARE               ((DPI_AWARENESS_CONTEXT)-1)
+#define DPI_AWARENESS_CONTEXT_SYSTEM_AWARE          ((DPI_AWARENESS_CONTEXT)-2)
+#define DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE     ((DPI_AWARENESS_CONTEXT)-3)
+#define DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2  ((DPI_AWARENESS_CONTEXT)-4)
+#define DPI_AWARENESS_CONTEXT_UNAWARE_GDISCALED     ((DPI_AWARENESS_CONTEXT)-5)
+
+typedef enum DPI_HOSTING_BEHAVIOR {
+	DPI_HOSTING_BEHAVIOR_INVALID = -1,
+	DPI_HOSTING_BEHAVIOR_DEFAULT = 0,
+	DPI_HOSTING_BEHAVIOR_MIXED = 1
+} DPI_HOSTING_BEHAVIOR;
+
+#endif
+
+typedef enum PROCESS_DPI_AWARENESS {
+	PROCESS_DPI_UNAWARE = 0,
+	PROCESS_SYSTEM_DPI_AWARE = 1,
+	PROCESS_PER_MONITOR_DPI_AWARE = 2
+} PROCESS_DPI_AWARENESS;
+
+typedef HRESULT(WINAPI *SetProcessDpiAwarenessProc)(PROCESS_DPI_AWARENESS value);
+typedef BOOL(WINAPI *SetProcessDPIAwareProc)();
+typedef BOOL(WINAPI *SetProcessDpiAwarenessContextProc)(DPI_AWARENESS_CONTEXT value);
+
 bool m_StopThreadFlag = false;			// Used for SetSingleCoreAffinity function
 std::vector<HMODULE> custom_dll;		// Used for custom dll's and asi plugins
 
@@ -340,6 +377,48 @@ DWORD WINAPI SetSingleCoreAffinity(LPVOID pvParam)
 	CloseHandle(hCurrentProcess);
 
 	return S_OK;
+}
+
+// Sets application DPI aware which disables DPI virtulization/High DPI scaling for this process
+void SetDPIAware()
+{
+	Logging::Log() << "Disabling High DPI Scaling...";
+
+	BOOL setDpiAware = FALSE;
+	HMODULE hUser32 = LoadLibrary(L"user32.dll");
+	HMODULE hShcore = LoadLibrary(L"shcore.dll");
+	if (hUser32 && !setDpiAware)
+	{
+		SetProcessDpiAwarenessContextProc setProcessDpiAwarenessContext = (SetProcessDpiAwarenessContextProc)GetProcAddress(hUser32, "SetProcessDpiAwarenessContext");
+
+		if (setProcessDpiAwarenessContext)
+		{
+			setDpiAware |= setProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE);
+		}
+	}
+	if (hShcore && !setDpiAware)
+	{
+		SetProcessDpiAwarenessProc setProcessDpiAwareness = (SetProcessDpiAwarenessProc)GetProcAddress(hShcore, "SetProcessDpiAwareness");
+
+		if (setProcessDpiAwareness)
+		{
+			setDpiAware |= SUCCEEDED(setProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE));
+		}
+	}
+	if (hUser32 && !setDpiAware)
+	{
+		SetProcessDPIAwareProc setProcessDPIAware = (SetProcessDPIAwareProc)GetProcAddress(hUser32, "SetProcessDPIAware");
+
+		if (setProcessDPIAware)
+		{
+			setDpiAware |= setProcessDPIAware();
+		}
+	}
+
+	if (!setDpiAware)
+	{
+		Logging::Log() << "Failed to disable High DPI Scaling!";
+	}
 }
 
 // Add HMODULE to vector

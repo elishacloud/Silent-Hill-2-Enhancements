@@ -23,8 +23,6 @@
 #include "Logging\Logging.h"
 
 // API typedef
-typedef BOOL(WINAPI *PFN_GetModuleHandleExA)(DWORD dwFlags, LPCSTR lpModuleName, HMODULE *phModule);
-typedef BOOL(WINAPI *PFN_GetModuleHandleExW)(DWORD dwFlags, LPCWSTR lpModuleName, HMODULE *phModule);
 typedef DWORD(WINAPI *PFN_GetModuleFileNameA)(HMODULE, LPSTR, DWORD);
 typedef DWORD(WINAPI *PFN_GetModuleFileNameW)(HMODULE, LPWSTR, DWORD);
 typedef HANDLE(WINAPI *PFN_CreateFileA)(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile);
@@ -38,8 +36,6 @@ typedef BOOL(WINAPI *PFN_CreateProcessW)(LPCWSTR lpApplicationName, LPWSTR lpCom
 	LPVOID lpEnvironment, LPCWSTR lpCurrentDirectory, LPSTARTUPINFOW lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation);
 
 // Proc addresses
-FARPROC p_GetModuleHandleExA = nullptr;
-FARPROC p_GetModuleHandleExW = nullptr;
 FARPROC p_GetModuleFileNameA = nullptr;
 FARPROC p_GetModuleFileNameW = nullptr;
 FARPROC p_CreateFileA = nullptr;
@@ -261,89 +257,36 @@ T UpdateModPath(T sh2, D str)
 	return sh2;
 }
 
-// Update GetModuleHandleExA to fix module handle
-BOOL WINAPI GetModuleHandleExAHandler(DWORD dwFlags, LPCSTR lpModuleName, HMODULE *phModule)
-{
-	static PFN_GetModuleHandleExA org_GetModuleHandleEx = (PFN_GetModuleHandleExA)InterlockedCompareExchangePointer((PVOID*)&p_GetModuleHandleExA, nullptr, nullptr);
-
-	if (!org_GetModuleHandleEx)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
-		if (phModule)
-		{
-			*phModule = nullptr;
-		}
-		SetLastError(5);
-		return FALSE;
-	}
-
-	if (!IsFileSystemHooking)
-	{
-		return org_GetModuleHandleEx(dwFlags, lpModuleName, phModule);
-	}
-
-	BOOL ret = org_GetModuleHandleEx(dwFlags, lpModuleName, phModule);
-	if ((dwFlags & GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS) && phModule && !*phModule && moduleHandle)
-	{
-		*phModule = moduleHandle;
-		ret = TRUE;
-	}
-	return ret;
-}
-
-// Update GetModuleHandleExW to fix module handle
-BOOL WINAPI GetModuleHandleExWHandler(DWORD dwFlags, LPCWSTR lpModuleName, HMODULE *phModule)
-{
-	static PFN_GetModuleHandleExW org_GetModuleHandleEx = (PFN_GetModuleHandleExW)InterlockedCompareExchangePointer((PVOID*)&p_GetModuleHandleExW, nullptr, nullptr);
-
-	if (!org_GetModuleHandleEx)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
-		if (phModule)
-		{
-			*phModule = nullptr;
-		}
-		SetLastError(5);
-		return FALSE;
-	}
-
-	if (!IsFileSystemHooking)
-	{
-		return org_GetModuleHandleEx(dwFlags, lpModuleName, phModule);
-	}
-
-	BOOL ret = org_GetModuleHandleEx(dwFlags, lpModuleName, phModule);
-	if ((dwFlags & GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS) && phModule && !*phModule && moduleHandle)
-	{
-		*phModule = moduleHandle;
-		ret = TRUE;
-	}
-	return ret;
-}
-
 // Update GetModuleFileNameA to fix module name
 DWORD WINAPI GetModuleFileNameAHandler(HMODULE hModule, LPSTR lpFileName, DWORD nSize)
 {
 	static PFN_GetModuleFileNameA org_GetModuleFileName = (PFN_GetModuleFileNameA)InterlockedCompareExchangePointer((PVOID*)&p_GetModuleFileNameA, nullptr, nullptr);
 
-	if (!org_GetModuleFileName)
+	if (!org_GetModuleFileName || !lpFileName || !nSize)
 	{
-		Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
+		if (!org_GetModuleFileName)
+		{
+			Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
+		}
 		SetLastError(5);
 		return NULL;
 	}
 
-	if (!IsFileSystemHooking)
+	if (!IsFileSystemHooking || !nPathSize)
 	{
 		return org_GetModuleFileName(hModule, lpFileName, nSize);
 	}
 
-	DWORD ret = org_GetModuleFileName(hModule, lpFileName, nSize);
-	if (lpFileName && (ret && nSize > nPathSize && ((moduleHandle && hModule == moduleHandle)) || !PathExists(lpFileName)))
+	char FileName[MAX_PATH] = { '\0' };
+	DWORD ret = org_GetModuleFileName(hModule, FileName, MAX_PATH);
+	if (!ret || !PathExists(FileName) || hModule == moduleHandle)
 	{
-		ret = min(nSize, nPathSize);
-		strcpy_s(lpFileName, nSize, strModulePathA.c_str());
+		ret = nPathSize;
+		strcpy_s(FileName, MAX_PATH, strModulePathA.c_str());
 	}
+	ret = (ret < nSize) ? ret : nSize - 1;
+	FileName[ret] = '\0';
+	strcpy_s(lpFileName, nSize, FileName);
 	return ret;
 }
 
@@ -352,24 +295,31 @@ DWORD WINAPI GetModuleFileNameWHandler(HMODULE hModule, LPWSTR lpFileName, DWORD
 {
 	static PFN_GetModuleFileNameW org_GetModuleFileName = (PFN_GetModuleFileNameW)InterlockedCompareExchangePointer((PVOID*)&p_GetModuleFileNameW, nullptr, nullptr);
 
-	if (!org_GetModuleFileName)
+	if (!org_GetModuleFileName || !lpFileName || !nSize)
 	{
-		Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
+		if (!org_GetModuleFileName)
+		{
+			Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
+		}
 		SetLastError(5);
 		return NULL;
 	}
 
-	if (!IsFileSystemHooking)
+	if (!IsFileSystemHooking || !nPathSize)
 	{
 		return org_GetModuleFileName(hModule, lpFileName, nSize);
 	}
 
-	DWORD ret = org_GetModuleFileName(hModule, lpFileName, nSize);
-	if (lpFileName && (ret && nSize > nPathSize && ((moduleHandle && hModule == moduleHandle)) || !PathExists(lpFileName)))
+	wchar_t FileName[MAX_PATH] = { '\0' };
+	DWORD ret = org_GetModuleFileName(hModule, FileName, MAX_PATH);
+	if (!ret || !PathExists(FileName) || hModule == moduleHandle)
 	{
-		ret = min(nSize, nPathSize);
-		wcscpy_s(lpFileName, nSize, strModulePathW.c_str());
+		ret = nPathSize * sizeof(WCHAR);
+		wcscpy_s(FileName, MAX_PATH, strModulePathW.c_str());
 	}
+	ret = (ret < nSize) ? ret : nSize - 1;
+	FileName[ret] = '\0';
+	strcpy_s(lpFileName, nSize, FileName);
 	return ret;
 }
 
@@ -592,8 +542,6 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 
 	// Hook GetModuleFileName and GetModuleHandleEx to fix module name in modules loaded from memory
 	HMODULE h_kernel32 = GetModuleHandle(L"kernel32");
-	InterlockedExchangePointer((PVOID*)&p_GetModuleHandleExA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "GetModuleHandleExA"), "GetModuleHandleExA", GetModuleHandleExAHandler));
-	InterlockedExchangePointer((PVOID*)&p_GetModuleHandleExW, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "GetModuleHandleExW"), "GetModuleHandleExW", GetModuleHandleExWHandler));
 	InterlockedExchangePointer((PVOID*)&p_GetModuleFileNameA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "GetModuleFileNameA"), "GetModuleFileNameA", GetModuleFileNameAHandler));
 	InterlockedExchangePointer((PVOID*)&p_GetModuleFileNameW, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "GetModuleFileNameW"), "GetModuleFileNameW", GetModuleFileNameWHandler));
 
@@ -605,8 +553,8 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	InterlockedExchangePointer((PVOID*)&p_GetPrivateProfileStringW, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "GetPrivateProfileStringW"), "GetPrivateProfileStringW", *GetPrivateProfileStringWHandler));
 
 	// Check for hook failures
-	if (!p_GetModuleHandleExA || !p_GetModuleHandleExW || !p_GetModuleFileNameA || !p_GetModuleFileNameW ||
-		!p_CreateFileW || !p_FindNextFileA || !p_GetPrivateProfileStringA || !p_GetPrivateProfileStringW)
+	if (!p_GetModuleFileNameA || !p_GetModuleFileNameW ||
+		!p_CreateFileA || !p_CreateFileW || !p_FindNextFileA || !p_GetPrivateProfileStringA || !p_GetPrivateProfileStringW)
 	{
 		Logging::Log() << "FAILED to hook the FileSystem APIs, disabling 'UseCustomModFolder'!";
 		DisableFileSystemHooking();
@@ -652,7 +600,7 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	// Get module path
 	strModulePathA.assign(tmpPathA);
 	strModulePathW.assign(tmpPathW);
-	nPathSize = strModulePathA.size() + 1; // Include a null terminator
+	nPathSize = strModulePathA.size();
 	if (!PathExists(strModulePathA.c_str()) || !PathExists(strModulePathW.c_str()))
 	{
 		Logging::Log() << __FUNCTION__ " Error: 'strModulePath' incorrect! " << strModulePathA.c_str();

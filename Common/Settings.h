@@ -87,7 +87,7 @@
 	visit(CustomFontRow, 14) \
 	visit(CustomFontCharWidth, 20) \
 	visit(CustomFontCharHeight, 32) \
-	visit(FMVWidescreenEnhancementPackCompatibility, 2) \
+	visit(FMVWidescreenEnhancementPackCompatibility, 1) \
 	visit(LetterSpacing, 2) \
 	visit(NormalFontWidth, 20) \
 	visit(NormalFontHeight, 30) \

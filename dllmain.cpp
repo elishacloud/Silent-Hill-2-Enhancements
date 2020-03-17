@@ -214,8 +214,8 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			Logging::Log() << "Warning: Could not find expected DirectX 9.0c End-User Runtime files.  Try installing from: https://www.microsoft.com/download/details.aspx?id=35";
 		}
 
-		// Hook CreateFile API, only needed for external modules and UseCustomModFolder
-		if (Nemesis2000FogFix || UseCustomModFolder)
+		// Hook CreateFile API when using UseCustomModFolder
+		if (UseCustomModFolder)
 		{
 			InstallFileSystemHooks(hModule, configpath);
 		}
@@ -407,17 +407,10 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			UpdateBestGraphics();
 		}
 
-		// Load Nemesis2000's Fog Fix
-		if (Nemesis2000FogFix)
+		// Fog Fix
+		if (fog_custom_on)
 		{
-			if (LoadModulesFromMemory)
-			{
-				LoadModuleFromResource(hModule, IDR_SH2FOG, L"Nemesis2000 Fog Fix");
-			}
-			else
-			{
-				LoadModuleFromFile(hModule, IDR_SH2FOG, L"sh2fog.ini", configpath, L"Nemesis2000 Fog Fix", false);
-			}
+			SetCustomFogFix();
 		}
 
 		// Widescreen Fix

@@ -9,6 +9,7 @@
 	visit(CheckForAdminAccess, true) \
 	visit(ClosetCutsceneFix, true) \
 	visit(CreateLocalFix, true) \
+	visit(fog_custom_on, true) \
 	visit(d3d8to9, true) \
 	visit(DisableCutsceneBorders, true) \
 	visit(DisableGameUX, true) \
@@ -54,7 +55,6 @@
 	visit(LockScreenPosition, true) \
 	visit(MainMenuFix, true) \
 	visit(MainMenuTitlePerLang, true) \
-	visit(Nemesis2000FogFix, true) \
 	visit(NoCDPatch, true) \
 	visit(PistonRoomFix, true) \
 	visit(PS2CameraSpeed, true) \
@@ -87,6 +87,8 @@
 	visit(CustomFontRow, 14) \
 	visit(CustomFontCharWidth, 20) \
 	visit(CustomFontCharHeight, 32) \
+	visit(fog_transparency_layer1, 128) \
+	visit(fog_transparency_layer2, 138) \
 	visit(FMVWidescreenEnhancementPackCompatibility, 1) \
 	visit(LetterSpacing, 2) \
 	visit(NormalFontWidth, 20) \
@@ -103,6 +105,15 @@
 	visit(SmallFontHeight, 24) \
 	visit(SpaceSize, 7)
 
+#define VISIT_FLOAT_SETTINGS(visit) \
+	visit(fog_layer1_x1, 0.250f) \
+	visit(fog_layer1_x2, 0.250f) \
+	visit(fog_layer1_y1, 0.250f) \
+	visit(fog_layer1_y2, 0.250f) \
+	visit(fog_layer2_complexity, 0.066406f) \
+	visit(fog_layer2_density_add, 100.0f) \
+	visit(fog_layer2_density_mult, 1.4f)
+
 #define VISIT_STR_SETTINGS(visit) \
 	visit(CustomModFolder, "")
 
@@ -116,6 +127,11 @@ VISIT_BOOL_SETTINGS(DECLARE_BOOL_SETTINGS);
 	extern int name;
 
 VISIT_INT_SETTINGS(DECLARE_INT_SETTINGS);
+
+#define DECLARE_FLOAT_SETTINGS(name, unused) \
+	extern float name;
+
+VISIT_FLOAT_SETTINGS(DECLARE_FLOAT_SETTINGS);
 
 #define DECLARE_STR_SETTINGS(name, unused) \
 	extern std::string name;

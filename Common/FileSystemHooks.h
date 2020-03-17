@@ -68,8 +68,7 @@ struct MODULECONFIG
 // List of hardcoded config file names from memory modules
 static MODULECONFIG ConfigList[] =
 {
-	{ ConfigNameA, ConfigNameW, &FileEnabled },
-	{ "sh2fog.ini", L"sh2fog.ini", &Nemesis2000FogFix }
+	{ ConfigNameA, ConfigNameW, &FileEnabled }
 };
 
 void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath);

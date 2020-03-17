@@ -26,6 +26,7 @@ Below is a list of features:
  * **Effects Flicker Fix** - Removes the black flicker that appears at the beginning of post-processing effects.
  * **Flashlight Brightness** - Adjusts flashlight brightness to resemble the PS2 version. Reduces flashlight intensity for environments, but keeps enemies and NPCs bright.
  * **Fog 2D Fix** - Fixes an issue on Nvidia graphics cards where the 2D fog is missing.
+ * **Fog Fix** - Makes the game's fog closer resemble the PlayStation 2's version which is considered the best.  Based on [Nemesis2000 Fog Fix](http://ps2wide.net/pc.html#sh2).
  * **Fog Parameter Fix** - Adjusts the fog-of-war boundaries for specific areas to fix visual errors.
  * **Fullscreen Windowed Mode** - Enables fullscreen windowed mode. Requires Windowed Mode to be enabled (WndMode = 1).
  * **Game Load Fix** - Disables free-saving in a few rooms that would cause game issues upon file loading back into the rooms.
@@ -42,7 +43,6 @@ Below is a list of features:
  * **Missing Wall Chunks Fix** - Fixes an issue on Nvidia graphics cards where wall chunks are missing in some locations.
  * [**modupdater**](https://github.com/ThirteenAG/modupdater) - Automatically updates the module when new versions comes out.
  * **Multi-Language Support** - Restores the language selection in the Options menu.
- * [**Nemesis2000 Fog Fix**](http://ps2wide.net/pc.html#sh2) - Makes the game's fog closer resemble the PlayStation 2's version which is considered the best.
  * **NoCD Patch** - Disables the CD check. _Note: not yet supported in all game versions._
  * **Piston Room Fix** - Hides a piston behind a door that should not be seen during a cutscene.
  * **Reset Screen Res** - Resets the display adapter on exit which fixes an issue when using WineD3D casing the screen to go dark.

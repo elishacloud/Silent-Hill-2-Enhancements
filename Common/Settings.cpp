@@ -32,6 +32,11 @@ VISIT_BOOL_SETTINGS(SET_BOOL_DEFAULTS);
 
 VISIT_INT_SETTINGS(SET_INT_DEFAULTS);
 
+#define SET_FLOAT_DEFAULTS(name, value) \
+	float name = value;
+
+VISIT_FLOAT_SETTINGS(SET_FLOAT_DEFAULTS);
+
 #define SET_STR_DEFAULTS(name, value) \
 	std::string name;
 
@@ -57,6 +62,11 @@ void __stdcall ParseCallback(char* lpName, char* lpValue)
 	if (!_strcmpi(lpName, #name)) name = atoi(lpValue);
 
 	VISIT_INT_SETTINGS(GET_INT_VALUES);
+
+#define GET_FLOAT_VALUES(name, unused) \
+	if (!_strcmpi(lpName, #name)) name = (float)atof(lpValue);
+
+	VISIT_FLOAT_SETTINGS(GET_FLOAT_VALUES);
 
 #define GET_STR_VALUES(name, unused) \
 	if (!_strcmpi(lpName, #name)) name.assign(lpValue);

@@ -526,10 +526,6 @@ void DisableFileSystemHooking()
 	IsFileSystemHooking = false;
 	strcpy_s(ModPathA, MAX_PATH, "data");
 	wcscpy_s(ModPathW, MAX_PATH, L"data");
-	if (LoadModulesFromMemory)
-	{
-		Nemesis2000FogFix = false;
-	}
 }
 
 void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
@@ -574,10 +570,6 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	if (!PathExists(ConfigPathA) || !PathExists(ConfigPathW))
 	{
 		Logging::Log() << __FUNCTION__ " Error: 'ConfigPath' incorrect! " << ConfigPathA;
-		if (LoadModulesFromMemory)
-		{
-			Nemesis2000FogFix = false;
-		}
 	}
 
 	// Store config name
@@ -604,10 +596,6 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	if (!PathExists(strModulePathA.c_str()) || !PathExists(strModulePathW.c_str()))
 	{
 		Logging::Log() << __FUNCTION__ " Error: 'strModulePath' incorrect! " << strModulePathA.c_str();
-		if (LoadModulesFromMemory)
-		{
-			Nemesis2000FogFix = false;
-		}
 	}
 
 	// Get data path

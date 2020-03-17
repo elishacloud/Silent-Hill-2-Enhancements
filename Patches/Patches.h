@@ -26,6 +26,7 @@ DWORD *GetTransitionStatePointer();
 void CheckArgumentsForPID();
 void DisableCDCheck();
 void PatchBinary();
+void SetCustomFogFix();
 void SetDefaultFullscreenBackground();
 void SetWindowHandle(HWND WindowHandle);
 void Update2TBHardDriveFix();

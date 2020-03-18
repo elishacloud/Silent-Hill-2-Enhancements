@@ -82,6 +82,7 @@
 	visit(WoodsideRoom205Fix, true)
 
 #define VISIT_INT_SETTINGS(visit) \
+	visit(AntiAliasing, 0) \
 	visit(AnisotropicFiltering, 1) \
 	visit(CustomFontCol, 100) \
 	visit(CustomFontRow, 14) \

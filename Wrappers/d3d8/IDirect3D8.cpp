@@ -18,6 +18,7 @@
 
 HWND DeviceWindow = nullptr;
 LONG BufferWidth = 0, BufferHeight = 0;
+D3DMULTISAMPLE_TYPE DeviceMultiSampleType = D3DMULTISAMPLE_NONE;
 
 HRESULT m_IDirect3D8::QueryInterface(REFIID riid, LPVOID *ppvObj)
 {
@@ -160,7 +161,51 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	// Set Silent Hill 2 window to forground
 	SetForegroundWindow(DeviceWindow);
 
-	HRESULT hr = ProxyInterface->CreateDevice(Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface);
+	HRESULT hr = D3DERR_INVALIDCALL;
+
+	// Get multisample quality level
+	if (AntiAliasing)
+	{
+		D3DPRESENT_PARAMETERS d3dpp;
+
+		CopyMemory(&d3dpp, pPresentationParameters, sizeof(D3DPRESENT_PARAMETERS));
+		d3dpp.BackBufferCount = (d3dpp.BackBufferCount) ? d3dpp.BackBufferCount : 1;
+
+		// Check AntiAliasing quality
+		for (int x = min((AntiAliasing == 1 ? 16 : AntiAliasing), 16); x > 0; x--)
+		{
+			if (SUCCEEDED(ProxyInterface->CheckDeviceMultiSampleType(Adapter,
+				DeviceType, (d3dpp.BackBufferFormat) ? d3dpp.BackBufferFormat : D3DFMT_A8R8G8B8, d3dpp.Windowed,
+				(D3DMULTISAMPLE_TYPE)x)))
+			{
+				// Update Present Parameters for Multisample
+				UpdatePresentParameterForMultisample(&d3dpp, (D3DMULTISAMPLE_TYPE)x);
+
+				Logging::LogDebug() << __FUNCTION__ << " Trying MultiSample " << d3dpp.MultiSampleType;
+
+				// Create Device
+				hr = ProxyInterface->CreateDevice(Adapter, DeviceType, hFocusWindow, BehaviorFlags, &d3dpp, ppReturnedDeviceInterface);
+
+				// Check if device was created successfully
+				if (SUCCEEDED(hr) && ppReturnedDeviceInterface && *ppReturnedDeviceInterface)
+				{
+					(*ppReturnedDeviceInterface)->SetRenderState(D3DRS_MULTISAMPLEANTIALIAS, TRUE);
+					DeviceMultiSampleType = d3dpp.MultiSampleType;
+					Logging::Log() << __FUNCTION__ << " Setting MultiSample " << d3dpp.MultiSampleType;
+					break;
+				}
+			}
+		}
+		if (FAILED(hr))
+		{
+			Logging::Log() << __FUNCTION__ << " Failed to enable AntiAliasing!";
+		}
+	}
+
+	if (FAILED(hr))
+	{
+		hr = ProxyInterface->CreateDevice(Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface);
+	}
 
 	if (SUCCEEDED(hr) && ppReturnedDeviceInterface)
 	{
@@ -180,7 +225,7 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 		}
 
 		// Set correct resolution for room 312
-		if (Room312PauseScreenFix && WidescreenFix)
+		if ((AntiAliasing || Room312PauseScreenFix) && WidescreenFix)
 		{
 			RUNCODEONCE(UpdateRoom312ResolutionFix(&BufferWidth));
 		}
@@ -230,6 +275,25 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 			}
 			AdjustWindow(DeviceWindow, BufferWidth, BufferHeight);
 		}
+	}
+}
+
+void UpdatePresentParameterForMultisample(D3DPRESENT_PARAMETERS* pPresentationParameters, D3DMULTISAMPLE_TYPE MultiSampleType)
+{
+	if (!pPresentationParameters)
+	{
+		return;
+	}
+
+	pPresentationParameters->MultiSampleType = MultiSampleType;
+
+	pPresentationParameters->Flags &= ~D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
+	pPresentationParameters->SwapEffect = D3DSWAPEFFECT_DISCARD;
+
+	if (!pPresentationParameters->EnableAutoDepthStencil)
+	{
+		pPresentationParameters->EnableAutoDepthStencil = true;
+		pPresentationParameters->AutoDepthStencilFormat = D3DFMT_D24S8;
 	}
 }
 

@@ -40,7 +40,7 @@ private:
 	float PillarBoxBottom = 0.0f;
 
 	// Fix for Room 312 pause screen
-	bool InPauseMenu = false;
+	DWORD InPauseMenu = false;
 
 	typedef enum _FLDIMMODE {
 		SHADOW_FADING_NONE = 0,
@@ -296,6 +296,7 @@ private:
 	void RestoreState(D3DSTATE *state);
 	template <typename T>
 	void ReleaseInterface(T **ppInterface, UINT ReleaseRefNum = 1);
+	bool CheckSilhouetteTexture();
 	DWORD GetShadowOpacity();
 	DWORD GetShadowIntensity();
 	void SetShadowFading();

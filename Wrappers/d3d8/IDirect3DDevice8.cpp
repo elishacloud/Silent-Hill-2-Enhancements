@@ -112,6 +112,27 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 	// Update presentation parameters
 	UpdatePresentParameter(pPresentationParameters, nullptr, true);
 
+	// Set AntiAliasing
+	if (DeviceMultiSampleType != D3DMULTISAMPLE_NONE)
+	{
+		D3DPRESENT_PARAMETERS d3dpp;
+		CopyMemory(&d3dpp, pPresentationParameters, sizeof(D3DPRESENT_PARAMETERS));
+		d3dpp.BackBufferCount = (d3dpp.BackBufferCount) ? d3dpp.BackBufferCount : 1;
+
+		// Update Present Parameter for Multisample
+		UpdatePresentParameterForMultisample(&d3dpp, DeviceMultiSampleType);
+
+		// Reset device
+		if (SUCCEEDED(ProxyInterface->Reset(&d3dpp)))
+		{
+			return D3D_OK;
+		}
+
+		// If failed
+		DeviceMultiSampleType = D3DMULTISAMPLE_NONE;
+		Logging::Log() << __FUNCTION__ << " Error: MultiSample disabled!!!";
+	}
+
 	return ProxyInterface->Reset(pPresentationParameters);
 }
 
@@ -157,10 +178,10 @@ HRESULT m_IDirect3DDevice8::EndScene()
 
 	HRESULT hr = ProxyInterface->EndScene();
 
-	// Fix pause menu in Room 312
+	// Fix pause menu
 	if (SH2_PauseMenu && *SH2_PauseMenu)
 	{
-		if (Room312PauseScreenFix && !InPauseMenu && SH2_RoomID && *SH2_RoomID == 0xA2 && pCurrentRenderTexture)
+		if ((AntiAliasing || (Room312PauseScreenFix && SH2_RoomID && *SH2_RoomID == 0xA2)) && InPauseMenu < 2 && pCurrentRenderTexture)
 		{
 			ProxyInterface->BeginScene();
 			IDirect3DSurface8 *pCurrentRenderSurface = nullptr;
@@ -170,11 +191,11 @@ HRESULT m_IDirect3DDevice8::EndScene()
 				pCurrentRenderSurface->Release();
 			}
 		}
-		InPauseMenu = true;
+		++InPauseMenu;
 	}
 	else
 	{
-		InPauseMenu = false;
+		InPauseMenu = 0;
 	}
 
 	return hr;
@@ -241,6 +262,8 @@ HRESULT m_IDirect3DDevice8::CreateDepthStencilSurface(THIS_ UINT Width, UINT Hei
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	MultiSample = DeviceMultiSampleType;
+
 	HRESULT hr = ProxyInterface->CreateDepthStencilSurface(Width, Height, Format, MultiSample, ppSurface);
 
 	if (SUCCEEDED(hr) && ppSurface)
@@ -268,6 +291,8 @@ HRESULT m_IDirect3DDevice8::CreateIndexBuffer(THIS_ UINT Length, DWORD Usage, D3
 HRESULT m_IDirect3DDevice8::CreateRenderTarget(THIS_ UINT Width, UINT Height, D3DFORMAT Format, D3DMULTISAMPLE_TYPE MultiSample, BOOL Lockable, IDirect3DSurface8** ppSurface)
 {
 	Logging::LogDebug() << __FUNCTION__;
+
+	MultiSample = DeviceMultiSampleType;
 
 	HRESULT hr = ProxyInterface->CreateRenderTarget(Width, Height, Format, MultiSample, Lockable, ppSurface);
 
@@ -943,17 +968,8 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 			backbufferDepthStencil->Release();
 		}
 
-		// Create texture for James' silhouette if it doesn't exist
-		if (!silhouetteTexture)
-		{
-			if (SUCCEEDED(ProxyInterface->CreateTexture(BufferWidth, BufferHeight, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &silhouetteTexture)) && silhouetteTexture)
-			{
-				silhouetteTexture->GetSurfaceLevel(0, &silhouetteSurface);
-			}
-		}
-
-		// DrawPrimitiveUP trashes vertex buffer stream 0, back it up
-		IDirect3DVertexBuffer8 *pStream0;
+		// DrawPrimitive trashes vertex buffer stream 0, back it up
+		IDirect3DVertexBuffer8 *pStream0 = nullptr;
 		UINT stream0Stride = 0;
 		if (SUCCEEDED(ProxyInterface->GetStreamSource(0, &pStream0, &stream0Stride)) && pStream0)
 		{
@@ -961,7 +977,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 		}
 
 		// Error checking
-		if (!silhouetteTexture || !silhouetteSurface || !backbufferColor || !backbufferDepthStencil || !pStream0)
+		if (!CheckSilhouetteTexture() || !backbufferColor || !backbufferDepthStencil || !pStream0)
 		{
 			return D3DERR_INVALIDCALL;
 		}
@@ -1020,7 +1036,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 
 		// Bring back our original color buffer, clear stencil buffer like Xbox
 		ProxyInterface->SetRenderTarget(backbufferColor, backbufferDepthStencil);
-		ProxyInterface->Clear(0, NULL, D3DCLEAR_STENCIL, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 128);
+		ProxyInterface->Clear(0, NULL, D3DCLEAR_STENCIL, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 0x80);
 	}
 
 	return ProxyInterface->DrawPrimitive(PrimitiveType, StartVertex, PrimitiveCount);
@@ -1199,7 +1215,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 			shadowVolumeFlag = false;
 
 			// DrawPrimitiveUP trashes vertex buffer stream 0, back it up
-			IDirect3DVertexBuffer8 *pStream0;
+			IDirect3DVertexBuffer8 *pStream0 = nullptr;
 			UINT stream0Stride = 0;
 			if (SUCCEEDED(ProxyInterface->GetStreamSource(0, &pStream0, &stream0Stride)) && pStream0)
 			{
@@ -1207,9 +1223,16 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 			}
 
 			// Error checking
-			if (!silhouetteTexture || !pStream0)
+			if (!CheckSilhouetteTexture() || !pStream0)
 			{
 				return D3DERR_INVALIDCALL;
+			}
+
+			// Backup current texture
+			IDirect3DBaseTexture8 *pTexture = nullptr;
+			if (SUCCEEDED(ProxyInterface->GetTexture(0, &pTexture)) && pTexture)
+			{
+				pTexture->Release();
 			}
 
 			// Bind our texture of James' silhouette
@@ -1285,7 +1308,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 			ProxyInterface->SetTextureStageState(0, D3DTSS_ALPHAARG1, alphaArg1);
 
 			// Unbind silhouette texture, just to be safe
-			ProxyInterface->SetTexture(0, NULL);
+			ProxyInterface->SetTexture(0, pTexture);
 		}
 
 		if (EnableSoftShadows)
@@ -1440,7 +1463,15 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		IsInFakeFadeout = false;
 	}
 
-	return ProxyInterface->BeginScene();
+	HRESULT hr = ProxyInterface->BeginScene();
+
+	// Set AntiAliasing
+	if (DeviceMultiSampleType != D3DMULTISAMPLE_NONE)
+	{
+		SetRenderState(D3DRS_MULTISAMPLEANTIALIAS, TRUE);
+	}
+
+	return hr;
 }
 
 HRESULT m_IDirect3DDevice8::GetStreamSource(THIS_ UINT StreamNumber, IDirect3DVertexBuffer8** ppStreamData, UINT* pStride)
@@ -1541,7 +1572,7 @@ HRESULT m_IDirect3DDevice8::SetTexture(DWORD Stage, IDirect3DBaseTexture8 *pText
 		{
 		case D3DRTYPE_TEXTURE:
 			D3DSURFACE_DESC Desc;
-			if (Room312PauseScreenFix && SUCCEEDED(static_cast<m_IDirect3DTexture8 *>(pTexture)->GetLevelDesc(0, &Desc)) && Desc.Usage == D3DUSAGE_RENDERTARGET)
+			if ((AntiAliasing || Room312PauseScreenFix) && SUCCEEDED(static_cast<m_IDirect3DTexture8 *>(pTexture)->GetLevelDesc(0, &Desc)) && Desc.Usage == D3DUSAGE_RENDERTARGET)
 			{
 				pCurrentRenderTexture = static_cast<m_IDirect3DTexture8 *>(pTexture);
 			}
@@ -2279,12 +2310,20 @@ void m_IDirect3DDevice8::BackupState(D3DSTATE *state)
 	{
 		state->stage0->Release();
 	}
+	else
+	{
+		state->stage0 = nullptr;
+	}
 
 	ProxyInterface->GetVertexShader(&state->vertexShader);
 
 	if (SUCCEEDED(ProxyInterface->GetStreamSource(0, &state->pStream0, &state->stream0Stride)) && state->pStream0)
 	{
 		state->pStream0->Release();
+	}
+	else
+	{
+		state->pStream0 = nullptr;
 	}
 }
 
@@ -2330,6 +2369,19 @@ void m_IDirect3DDevice8::ReleaseInterface(T **ppInterface, UINT ReleaseRefNum)
 
 		*ppInterface = nullptr;
 	}
+}
+
+bool m_IDirect3DDevice8::CheckSilhouetteTexture()
+{
+	// Create texture for James' silhouette if it doesn't exist
+	if (!silhouetteTexture)
+	{
+		if (SUCCEEDED(ProxyInterface->CreateTexture(BufferWidth, BufferHeight, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &silhouetteTexture)) && silhouetteTexture)
+		{
+			silhouetteTexture->GetSurfaceLevel(0, &silhouetteSurface);
+		}
+	}
+	return (silhouetteTexture && silhouetteSurface);
 }
 
 // Get shadow opacity

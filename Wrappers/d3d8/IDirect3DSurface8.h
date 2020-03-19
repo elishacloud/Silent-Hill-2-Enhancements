@@ -6,6 +6,10 @@ private:
 	LPDIRECT3DSURFACE8 ProxyInterface;
 	m_IDirect3DDevice8* m_pDevice;
 
+	// For fake emulated locking
+	bool IsLocked = false;
+	std::vector<byte> surfaceArray;
+
 public:
 	m_IDirect3DSurface8(LPDIRECT3DSURFACE8 pSurface8, m_IDirect3DDevice8* pDevice) : ProxyInterface(pSurface8), m_pDevice(pDevice)
 	{

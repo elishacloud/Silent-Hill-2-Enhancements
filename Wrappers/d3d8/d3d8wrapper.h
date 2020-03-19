@@ -25,6 +25,7 @@ typedef IDirect3D8 *(WINAPI *Direct3DCreate8Proc)(UINT);
 
 void genericQueryInterface(REFIID riid, LPVOID *ppvObj, m_IDirect3DDevice8* m_pDevice);
 
+DWORD GetBitCount(D3DFORMAT Format);
 void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND hFocusWindow, bool SetWindow);
 void UpdatePresentParameterForMultisample(D3DPRESENT_PARAMETERS* pPresentationParameters, D3DMULTISAMPLE_TYPE MultiSampleType);
 void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight);

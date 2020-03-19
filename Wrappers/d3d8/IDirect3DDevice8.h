@@ -74,6 +74,7 @@ private:
 
 	IDirect3DTexture8 *pInTexture = nullptr;
 	IDirect3DSurface8 *pInSurface = nullptr;
+	IDirect3DSurface8 *pInRender = nullptr;
 
 	IDirect3DTexture8 *pShrunkTexture = nullptr;
 	IDirect3DSurface8 *pShrunkSurface = nullptr;
@@ -85,6 +86,7 @@ private:
 
 	IDirect3DTexture8 *silhouetteTexture = nullptr;
 	IDirect3DSurface8 *silhouetteSurface = nullptr;
+	IDirect3DSurface8 *silhouetteRender = nullptr;
 
 	IDirect3DTexture8 *pCurrentRenderTexture = nullptr;
 
@@ -220,6 +222,7 @@ public:
 	STDMETHOD(CreateImageSurface)(THIS_ UINT Width, UINT Height, D3DFORMAT Format, IDirect3DSurface8** ppSurface);
 	STDMETHOD(CopyRects)(THIS_ IDirect3DSurface8* pSourceSurface, CONST RECT* pSourceRectsArray, UINT cRects, IDirect3DSurface8* pDestinationSurface, CONST POINT* pDestPointsArray);
 	STDMETHOD(StretchRect)(THIS_ IDirect3DSurface8* pSourceSurface, CONST RECT* pSourceRect, IDirect3DSurface8* pDestSurface, CONST RECT* pDestRect, D3DTEXTUREFILTERTYPE Filter);
+	STDMETHOD(UpdateSurface)(THIS_ IDirect3DSurface8* pSourceSurface, IDirect3DSurface8* pDestSurface);
 	STDMETHOD(UpdateTexture)(THIS_ IDirect3DBaseTexture8* pSourceTexture, IDirect3DBaseTexture8* pDestinationTexture);
 	STDMETHOD(GetFrontBuffer)(THIS_ IDirect3DSurface8* pDestSurface);
 	STDMETHOD(SetRenderTarget)(THIS_ IDirect3DSurface8* pRenderTarget, IDirect3DSurface8* pNewZStencil);

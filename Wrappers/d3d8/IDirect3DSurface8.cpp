@@ -115,12 +115,52 @@ HRESULT m_IDirect3DSurface8::LockRect(THIS_ D3DLOCKED_RECT* pLockedRect, CONST R
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	return ProxyInterface->LockRect(pLockedRect, pRect, Flags);
+	HRESULT hr = ProxyInterface->LockRect(pLockedRect, pRect, Flags);
+
+	if (FAILED(hr) && DeviceMultiSampleType != D3DMULTISAMPLE_NONE)
+	{
+		D3DSURFACE_DESC Desc;
+		if (SUCCEEDED(GetDesc(&Desc)))
+		{
+			DWORD bits = GetBitCount(Desc.Format) / 8;
+			DWORD size = bits * Desc.Width * Desc.Height;
+			if (!bits || (IsLocked && surfaceArray.size() < size))
+			{
+				return hr;
+			}
+			else if (surfaceArray.size() < size)
+			{
+				surfaceArray.resize(size);
+			}
+
+			LOG_LIMIT(100, __FUNCTION__ << " Emulating the surface lock. Data may be lost here!");
+
+			DWORD start = (pRect) ? ((pRect->top * Desc.Width * bits) + (pRect->left * bits)) : 0;
+
+			// ToDo: copy surface data to memory
+			pLockedRect->pBits = &surfaceArray[start];
+			pLockedRect->Pitch = Desc.Width * bits;
+
+			IsLocked = true;
+
+			return D3D_OK;
+		}
+	}
+
+	return hr;
 }
 
 HRESULT m_IDirect3DSurface8::UnlockRect(THIS)
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	return ProxyInterface->UnlockRect();
+	HRESULT hr = ProxyInterface->UnlockRect();
+
+	if (SUCCEEDED(hr))
+	{
+		// ToDo: copy data back from emulated surface
+		IsLocked = false;
+	}
+
+	return hr;
 }

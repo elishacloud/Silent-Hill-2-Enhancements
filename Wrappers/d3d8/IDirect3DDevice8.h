@@ -74,7 +74,6 @@ private:
 
 	IDirect3DTexture8 *pInTexture = nullptr;
 	IDirect3DSurface8 *pInSurface = nullptr;
-	IDirect3DSurface8 *pInRender = nullptr;
 
 	IDirect3DTexture8 *pShrunkTexture = nullptr;
 	IDirect3DSurface8 *pShrunkSurface = nullptr;
@@ -86,9 +85,11 @@ private:
 
 	IDirect3DTexture8 *silhouetteTexture = nullptr;
 	IDirect3DSurface8 *silhouetteSurface = nullptr;
-	IDirect3DSurface8 *silhouetteRender = nullptr;
 
 	IDirect3DTexture8 *pCurrentRenderTexture = nullptr;
+
+	// Store a list of surfaces
+	std::vector<IDirect3DSurface8*> SurfaceVector;
 
 	struct CUSTOMVERTEX
 	{
@@ -174,7 +175,22 @@ public:
 		}
 
 		// Create blank texture for white shader fix
-		if (FAILED(ProxyInterface->CreateTexture(1, 1, 1, NULL, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED, &BlankTexture)))
+		UINT BlankWidth = 1, BlankHeight = 1;
+		if (SUCCEEDED(ProxyInterface->CreateTexture(BlankWidth, BlankHeight, 1, NULL, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &BlankTexture)) && BlankTexture)
+		{
+			D3DLOCKED_RECT LockedRect;
+			if (SUCCEEDED(BlankTexture->LockRect(0, &LockedRect, nullptr, 0)))
+			{
+				DWORD *ptrMem = (DWORD*)LockedRect.pBits;
+				for (DWORD x = 0; x < (DWORD)(BlankHeight * (LockedRect.Pitch / 4)); x++)
+				{
+					*ptrMem = D3DCOLOR_ARGB(0x00,0x00, 0x00, 0x00);
+					++ptrMem;
+				}
+				BlankTexture->UnlockRect(0);
+			}
+		}
+		else
 		{
 			BlankTexture = nullptr;
 		}
@@ -225,6 +241,7 @@ public:
 	STDMETHOD(UpdateSurface)(THIS_ IDirect3DSurface8* pSourceSurface, IDirect3DSurface8* pDestSurface);
 	STDMETHOD(UpdateTexture)(THIS_ IDirect3DBaseTexture8* pSourceTexture, IDirect3DBaseTexture8* pDestinationTexture);
 	STDMETHOD(GetFrontBuffer)(THIS_ IDirect3DSurface8* pDestSurface);
+	STDMETHOD(SetRenderTargetProxy)(THIS_ IDirect3DSurface8* pRenderTarget, IDirect3DSurface8* pNewZStencil);
 	STDMETHOD(SetRenderTarget)(THIS_ IDirect3DSurface8* pRenderTarget, IDirect3DSurface8* pNewZStencil);
 	STDMETHOD(GetRenderTarget)(THIS_ IDirect3DSurface8** ppRenderTarget);
 	STDMETHOD(GetDepthStencilSurface)(THIS_ IDirect3DSurface8** ppZStencilSurface);
@@ -291,6 +308,8 @@ public:
 	STDMETHOD(DrawRectPatch)(THIS_ UINT Handle, CONST float* pNumSegs, CONST D3DRECTPATCH_INFO* pRectPatchInfo);
 	STDMETHOD(DrawTriPatch)(THIS_ UINT Handle, CONST float* pNumSegs, CONST D3DTRIPATCH_INFO* pTriPatchInfo);
 	STDMETHOD(DeletePatch)(THIS_ UINT Handle);
+
+	void AddSurfaceToVector(IDirect3DSurface8* pSurface);
 
 private:
 	// Extra functions

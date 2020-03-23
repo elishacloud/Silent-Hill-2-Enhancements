@@ -20,6 +20,46 @@ HRESULT m_IDirect3DSurface8::QueryInterface(THIS_ REFIID riid, void** ppvObj)
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	// Get proxy interface
+	if (riid == IID_GetProxyInterface && ppvObj)
+	{
+		*ppvObj = ProxyInterface;
+		return S_OK;
+	}
+
+	// Get render target interface
+	if (riid == IID_GetRenderTarget && ppvObj)
+	{
+		if (!RenderInterface && m_pDevice)
+		{
+			D3DSURFACE_DESC Desc;
+			ProxyInterface->GetDesc(&Desc);
+			if (SUCCEEDED(m_pDevice->CreateRenderTarget(Desc.Width, Desc.Height, Desc.Format, DeviceMultiSampleType, FALSE, &RenderInterface)) && RenderInterface)
+			{
+				m_pDevice->AddSurfaceToVector(RenderInterface);
+				IDirect3DSurface8* pSurface = this;
+				RenderInterface->QueryInterface(IID_SetReplacedInterface, (void**)&pSurface);
+			}
+		}
+
+		*ppvObj = RenderInterface;
+		return S_OK;
+	}
+
+	// Get replaced interface
+	if (riid == IID_GetReplacedInterface && ppvObj && ReplacedInterface)
+	{
+		*ppvObj = ReplacedInterface;
+		return S_OK;
+	}
+
+	// Set replaced interface
+	if (riid == IID_SetReplacedInterface && ppvObj && *ppvObj)
+	{
+		ReplacedInterface = (IDirect3DSurface8*)*ppvObj;
+		return S_OK;
+	}
+
 	if ((riid == IID_IDirect3DSurface8 || riid == IID_IUnknown) && ppvObj)
 	{
 		AddRef();

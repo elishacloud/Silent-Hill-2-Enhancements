@@ -5,6 +5,8 @@ class m_IDirect3DSurface8 : public IDirect3DSurface8, public AddressLookupTableO
 private:
 	LPDIRECT3DSURFACE8 ProxyInterface;
 	m_IDirect3DDevice8* m_pDevice;
+	IDirect3DSurface8* RenderInterface = nullptr;
+	IDirect3DSurface8* ReplacedInterface = nullptr;
 
 	// For fake emulated locking
 	bool IsLocked = false;

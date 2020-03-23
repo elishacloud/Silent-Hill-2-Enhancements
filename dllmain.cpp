@@ -55,9 +55,6 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		// Module
 		m_hModule = hModule;
 
-		// Check arguments for PID
-		CheckArgumentsForPID();
-
 		// Get config file path
 		wchar_t configpath[MAX_PATH];
 		GetModuleFileName(hModule, configpath, MAX_PATH);
@@ -75,12 +72,18 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			free(szCfg);
 		}
 
+		// Check arguments for PID
+		if (CheckForAdminAccess)
+		{
+			CheckArgumentsForPID();
+		}
+
 		// Get log file path and open log file
-		wchar_t pathname[MAX_PATH];
-		GetModuleFileName(hModule, pathname, MAX_PATH);
-		wcscpy_s(wcsrchr(pathname, '.'), MAX_PATH - wcslen(pathname), L".log");
+		wchar_t logpath[MAX_PATH];
+		GetModuleFileName(hModule, logpath, MAX_PATH);
+		wcscpy_s(wcsrchr(logpath, '.'), MAX_PATH - wcslen(logpath), L".log");
 		Logging::EnableLogging = !DisableLogging;
-		Logging::Open(pathname);
+		Logging::Open(logpath);
 
 		// Starting
 		Logging::Log() << "Starting Silent Hill 2 Enhancements! v" << APP_VERSION;
@@ -116,8 +119,9 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		ValidateBinary();
 
 		// Get Silent Hill 2 file path
-		GetModuleFileName(nullptr, pathname, MAX_PATH);
-		Logging::Log() << "Running from: " << pathname;
+		wchar_t sh2path[MAX_PATH];
+		GetModuleFileName(nullptr, sh2path, MAX_PATH);
+		Logging::Log() << "Running from: " << sh2path;
 
 		if (IsLoadConfig)
 		{
@@ -136,18 +140,18 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		if (LoadD3d8FromScriptsFolder && Wrapper::dtype == DTYPE_D3D8)
 		{
 			// Get script paths
-			wchar_t path[MAX_PATH];
-			wcscpy_s(path, MAX_PATH, pathname);
-			wcscpy_s(wcsrchr(path, '\\'), MAX_PATH - wcslen(path), L"\0");
+			wchar_t scriptpath[MAX_PATH];
+			wcscpy_s(scriptpath, MAX_PATH, sh2path);
+			wcscpy_s(wcsrchr(scriptpath, '\\'), MAX_PATH - wcslen(scriptpath), L"\0");
 			std::wstring separator = L"\\";
-			std::wstring script_path(path + separator + L"scripts");
+			std::wstring script_path(scriptpath + separator + L"scripts");
 			std::wstring script_path_dll(script_path + L"\\d3d8.dll");
-			std::wstring plugin_path(path + separator + L"plugins");
+			std::wstring plugin_path(scriptpath + separator + L"plugins");
 			std::wstring plugin_path_dll(plugin_path + L"\\d3d8.dll");
 
 			// Store the current folder
-			wchar_t oldDir[MAX_PATH] = { 0 };
-			GetCurrentDirectory(MAX_PATH, oldDir);
+			wchar_t currentDir[MAX_PATH] = { 0 };
+			GetCurrentDirectory(MAX_PATH, currentDir);
 
 			// Load d3d8.dll from 'scripts' folder
 			SetCurrentDirectory(script_path.c_str());
@@ -169,7 +173,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			}
 
 			// Set current folder back
-			SetCurrentDirectory(oldDir);
+			SetCurrentDirectory(currentDir);
 		}
 
 		// Create wrapper

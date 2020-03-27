@@ -175,22 +175,7 @@ public:
 		}
 
 		// Create blank texture for white shader fix
-		UINT BlankWidth = 1, BlankHeight = 1;
-		if (SUCCEEDED(ProxyInterface->CreateTexture(BlankWidth, BlankHeight, 1, NULL, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &BlankTexture)) && BlankTexture)
-		{
-			D3DLOCKED_RECT LockedRect;
-			if (SUCCEEDED(BlankTexture->LockRect(0, &LockedRect, nullptr, 0)))
-			{
-				DWORD *ptrMem = (DWORD*)LockedRect.pBits;
-				for (DWORD x = 0; x < (DWORD)(BlankHeight * (LockedRect.Pitch / 4)); x++)
-				{
-					*ptrMem = D3DCOLOR_ARGB(0x00,0x00, 0x00, 0x00);
-					++ptrMem;
-				}
-				BlankTexture->UnlockRect(0);
-			}
-		}
-		else
+		if (FAILED(ProxyInterface->CreateTexture(1, 1, 1, NULL, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED, &BlankTexture)))
 		{
 			BlankTexture = nullptr;
 		}
@@ -309,10 +294,10 @@ public:
 	STDMETHOD(DrawTriPatch)(THIS_ UINT Handle, CONST float* pNumSegs, CONST D3DTRIPATCH_INFO* pTriPatchInfo);
 	STDMETHOD(DeletePatch)(THIS_ UINT Handle);
 
+	// Extra functions
 	void AddSurfaceToVector(IDirect3DSurface8* pSurface);
 
 private:
-	// Extra functions
 	HRESULT DrawSoftShadows();
 	void BackupState(D3DSTATE *state);
 	void RestoreState(D3DSTATE *state);

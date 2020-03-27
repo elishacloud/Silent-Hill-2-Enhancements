@@ -9,6 +9,7 @@
 	visit(CheckForAdminAccess, true) \
 	visit(ClosetCutsceneFix, true) \
 	visit(CreateLocalFix, true) \
+	visit(DisableScreenSaver, true) \
 	visit(fog_custom_on, true) \
 	visit(d3d8to9, true) \
 	visit(DisableCutsceneBorders, true) \

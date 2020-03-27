@@ -36,6 +36,7 @@ std::ofstream LOG;
 HMODULE m_hModule = nullptr;
 SH2VERSION GameVersion = SH2V_UNKNOWN;
 HMODULE wrapper_dll = nullptr;
+EXECUTION_STATE esFlags = 0;
 
 // Dll main function
 bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
@@ -265,6 +266,24 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		else
 		{
 			SetDefaultFullscreenBackground();
+		}
+
+		// Disable screensaver
+		if (DisableScreenSaver)
+		{
+			esFlags = SetThreadExecutionState(ES_USER_PRESENT | ES_CONTINUOUS);
+			if (!esFlags)
+			{
+				esFlags = SetThreadExecutionState(ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED | ES_CONTINUOUS);
+				if (esFlags)
+				{
+					Logging::Log() << "Disabling Screensaver...";
+				}
+			}
+			else
+			{
+				Logging::Log() << "Disabling Screensaver for Windows XP...";
+			}
 		}
 
 		// Fix issue with saving the gome on a drive that is larger than 2TBs
@@ -506,6 +525,13 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		{
 			Logging::Log() << "Removing temp folders";
 			RemoveTempFolders();
+		}
+
+		// Reenabling screensaver
+		if (esFlags)
+		{
+			Logging::Log() << "Reenabling Screensaver...";
+			SetThreadExecutionState(esFlags);
 		}
 
 		// Quitting

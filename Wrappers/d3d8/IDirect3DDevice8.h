@@ -14,6 +14,8 @@ private:
 	bool GammaSet = false;
 	D3DGAMMARAMP Ramp;
 
+	bool ReplacedLastRenderTarget = false;
+
 	BYTE *SH2_ChapterID = nullptr;
 	DWORD *SH2_RoomID = nullptr;
 	DWORD *SH2_CutsceneID = nullptr;
@@ -40,7 +42,8 @@ private:
 	float PillarBoxBottom = 0.0f;
 
 	// Fix for Room 312 pause screen
-	DWORD InPauseMenu = false;
+	bool InPauseMenu = false;
+	UINT LastDrawPrimitiveUPStride = 0;
 
 	typedef enum _FLDIMMODE {
 		SHADOW_FADING_NONE = 0,
@@ -88,8 +91,14 @@ private:
 
 	IDirect3DTexture8 *pCurrentRenderTexture = nullptr;
 
+	struct SURFACEVECTOR
+	{
+		m_IDirect3DSurface8 *SourceTarget = nullptr;
+		IDirect3DSurface8 *RenderTarget = nullptr;
+	};
+
 	// Store a list of surfaces
-	std::vector<IDirect3DSurface8*> SurfaceVector;
+	std::vector<SURFACEVECTOR> SurfaceVector;
 
 	struct CUSTOMVERTEX
 	{
@@ -172,6 +181,15 @@ public:
 		{
 			SH2_FlashlightGreen = (float*)((DWORD)SH2_FlashlightRed + 4);
 			SH2_FlashlightBlue = (float*)((DWORD)SH2_FlashlightRed + 8);
+		}
+
+		// Mark default render target
+		IDirect3DSurface8 *pCurrentTarget = nullptr;
+		if (SUCCEEDED(ProxyInterface->GetRenderTarget(&pCurrentTarget)) && pCurrentTarget)
+		{
+			pCurrentTarget->Release();
+			pCurrentTarget = (IDirect3DSurface8*)ProxyAddressLookupTable->FindAddress<m_IDirect3DSurface8>(pCurrentTarget);
+			pCurrentTarget->QueryInterface(IID_SetDefaultRenderTarget, nullptr);
 		}
 
 		// Create blank texture for white shader fix
@@ -295,7 +313,7 @@ public:
 	STDMETHOD(DeletePatch)(THIS_ UINT Handle);
 
 	// Extra functions
-	void AddSurfaceToVector(IDirect3DSurface8* pSurface);
+	void m_IDirect3DDevice8::AddSurfaceToVector(m_IDirect3DSurface8 *pSourceTarget, IDirect3DSurface8 *pRenderTarget);
 
 private:
 	HRESULT DrawSoftShadows();

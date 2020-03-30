@@ -27,22 +27,39 @@ HRESULT m_IDirect3DSurface8::QueryInterface(THIS_ REFIID riid, void** ppvObj)
 		return S_OK;
 	}
 
+	// Get proxy interface
+	if (riid == IID_SetDefaultRenderTarget)
+	{
+		IsDefaultRenderTarget = true;
+		return S_OK;
+	}
+
 	// Get render target interface
 	if (riid == IID_GetRenderTarget && ppvObj)
 	{
-		if (!RenderInterface && m_pDevice)
+		if (!IsDefaultRenderTarget && !RenderInterface && !ReplacedInterface && m_pDevice)
 		{
 			D3DSURFACE_DESC Desc;
-			ProxyInterface->GetDesc(&Desc);
-			if (SUCCEEDED(m_pDevice->CreateRenderTarget(Desc.Width, Desc.Height, Desc.Format, DeviceMultiSampleType, FALSE, &RenderInterface)) && RenderInterface)
+			if (SUCCEEDED(ProxyInterface->GetDesc(&Desc)) && DeviceMultiSampleType &&
+				SUCCEEDED(m_pDevice->CreateRenderTarget(Desc.Width, Desc.Height, Desc.Format, DeviceMultiSampleType, FALSE, &RenderInterface)) && RenderInterface)
 			{
-				m_pDevice->AddSurfaceToVector(RenderInterface);
+				m_pDevice->AddSurfaceToVector(this, RenderInterface);
 				IDirect3DSurface8* pSurface = this;
 				RenderInterface->QueryInterface(IID_SetReplacedInterface, (void**)&pSurface);
 			}
 		}
 
-		*ppvObj = RenderInterface;
+		if (RenderInterface)
+		{
+			*ppvObj = RenderInterface;
+			return S_OK;
+		}
+	}
+
+	// Clear render target interface
+	if (riid == IID_ClearRenderTarget)
+	{
+		RenderInterface = nullptr;
 		return S_OK;
 	}
 

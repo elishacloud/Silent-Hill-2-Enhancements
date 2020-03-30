@@ -71,11 +71,15 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 
 	pCurrentRenderTexture = nullptr;
 
-	for (IDirect3DSurface8 *pSurface : SurfaceVector)
+	for (SURFACEVECTOR SurfaceStruct : SurfaceVector)
 	{
-		if (pSurface)
+		if (SurfaceStruct.RenderTarget)
 		{
-			ReleaseInterface(&pSurface);
+			ReleaseInterface(&SurfaceStruct.RenderTarget);
+		}
+		if (SurfaceStruct.SourceTarget)
+		{
+			SurfaceStruct.SourceTarget->QueryInterface(IID_ClearRenderTarget, nullptr);
 		}
 	}
 	SurfaceVector.clear();
@@ -124,7 +128,7 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 	UpdatePresentParameter(pPresentationParameters, nullptr, true);
 
 	// Set AntiAliasing
-	if (DeviceMultiSampleType != D3DMULTISAMPLE_NONE)
+	if (DeviceMultiSampleType)
 	{
 		D3DPRESENT_PARAMETERS d3dpp;
 		CopyMemory(&d3dpp, pPresentationParameters, sizeof(D3DPRESENT_PARAMETERS));
@@ -187,29 +191,7 @@ HRESULT m_IDirect3DDevice8::EndScene()
 
 	EndSceneCounter++;
 
-	HRESULT hr = ProxyInterface->EndScene();
-
-	// Fix pause menu in Room 312
-	if (SH2_PauseMenu && *SH2_PauseMenu)
-	{
-		if (Room312PauseScreenFix && InPauseMenu < 2 && pCurrentRenderTexture && SH2_RoomID && *SH2_RoomID == 0xA2)
-		{
-			ProxyInterface->BeginScene();
-			IDirect3DSurface8 *pCurrentRenderSurface = nullptr;
-			if (SUCCEEDED(pCurrentRenderTexture->GetSurfaceLevel(0, &pCurrentRenderSurface)))
-			{
-				GetFrontBuffer(pCurrentRenderSurface);
-				pCurrentRenderSurface->Release();
-			}
-		}
-		++InPauseMenu;
-	}
-	else
-	{
-		InPauseMenu = 0;
-	}
-
-	return hr;
+	return ProxyInterface->EndScene();
 }
 
 void m_IDirect3DDevice8::SetCursorPosition(THIS_ UINT XScreenSpace, UINT YScreenSpace, DWORD Flags)
@@ -248,7 +230,7 @@ HRESULT m_IDirect3DDevice8::CreateAdditionalSwapChain(D3DPRESENT_PARAMETERS *pPr
 	UpdatePresentParameter(pPresentationParameters, nullptr, false);
 
 	// Set AntiAliasing
-	if (DeviceMultiSampleType != D3DMULTISAMPLE_NONE)
+	if (DeviceMultiSampleType)
 	{
 		D3DPRESENT_PARAMETERS d3dpp;
 		CopyMemory(&d3dpp, pPresentationParameters, sizeof(D3DPRESENT_PARAMETERS));
@@ -292,6 +274,8 @@ HRESULT m_IDirect3DDevice8::CreateDepthStencilSurface(THIS_ UINT Width, UINT Hei
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	MultiSample = DeviceMultiSampleType;
+
 	HRESULT hr = ProxyInterface->CreateDepthStencilSurface(Width, Height, Format, MultiSample, ppSurface);
 
 	if (SUCCEEDED(hr) && ppSurface)
@@ -319,6 +303,11 @@ HRESULT m_IDirect3DDevice8::CreateIndexBuffer(THIS_ UINT Length, DWORD Usage, D3
 HRESULT m_IDirect3DDevice8::CreateRenderTarget(THIS_ UINT Width, UINT Height, D3DFORMAT Format, D3DMULTISAMPLE_TYPE MultiSample, BOOL Lockable, IDirect3DSurface8** ppSurface)
 {
 	Logging::LogDebug() << __FUNCTION__;
+
+	if (!Lockable)
+	{
+		MultiSample = DeviceMultiSampleType;
+	}
 
 	HRESULT hr = ProxyInterface->CreateRenderTarget(Width, Height, Format, MultiSample, Lockable, ppSurface);
 
@@ -519,6 +508,8 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 
 HRESULT m_IDirect3DDevice8::SetRenderTargetProxy(THIS_ IDirect3DSurface8* pRenderTarget, IDirect3DSurface8* pNewZStencil)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	if (pRenderTarget)
 	{
 		// Get proxy interface
@@ -537,9 +528,9 @@ HRESULT m_IDirect3DDevice8::SetRenderTarget(THIS_ IDirect3DSurface8* pRenderTarg
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	if (pRenderTarget)
+	// Check if surface should be copied
+	if (ReplacedLastRenderTarget)
 	{
-		// Check if surface should be copied
 		IDirect3DSurface8 *pCurrentTarget = nullptr;
 		if (SUCCEEDED(ProxyInterface->GetRenderTarget(&pCurrentTarget)) && pCurrentTarget)
 		{
@@ -552,14 +543,18 @@ HRESULT m_IDirect3DDevice8::SetRenderTarget(THIS_ IDirect3DSurface8* pRenderTarg
 				UpdateSurface(pCurrentTarget, pReplacedSurface);
 			}
 		}
+	}
+	ReplacedLastRenderTarget = false;
 
+	if (pRenderTarget)
+	{
 		// Check if surface needs to be replaced
-		D3DSURFACE_DESC RenderDesc, StencilDesc;
-		if (pNewZStencil && SUCCEEDED(pRenderTarget->GetDesc(&RenderDesc)) && SUCCEEDED(pNewZStencil->GetDesc(&StencilDesc)) && RenderDesc.MultiSampleType != StencilDesc.MultiSampleType)
+		if (pNewZStencil)
 		{
 			IDirect3DSurface8 *pSurface = nullptr;
 			if (SUCCEEDED(pRenderTarget->QueryInterface(IID_GetRenderTarget, (void**)&pSurface)) && pSurface)
 			{
+				ReplacedLastRenderTarget = true;
 				pRenderTarget = pSurface;
 			}
 		}
@@ -841,6 +836,33 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 		return D3D_OK;
 	}
 
+	// Fix pause menu in Room 312
+	bool Room312Flag = false;
+	if (SH2_PauseMenu && *SH2_PauseMenu)
+	{
+		if (Room312PauseScreenFix && !InPauseMenu && pCurrentRenderTexture)
+		{
+			IDirect3DSurface8 *pCurrentRenderSurface = nullptr;
+			if (SUCCEEDED(pCurrentRenderTexture->GetSurfaceLevel(0, &pCurrentRenderSurface)))
+			{
+				pCurrentRenderSurface->Release();
+				GetFrontBuffer(pCurrentRenderSurface);
+				Room312Flag = true;
+			}
+		}
+		InPauseMenu = true;
+	}
+	else
+	{
+		if (Room312PauseScreenFix && SH2_RoomID && *SH2_RoomID == 0xA2 && (LastDrawPrimitiveUPStride == 16 || LastDrawPrimitiveUPStride == 328))
+		{
+			Room312Flag = true;
+		}
+		InPauseMenu = false;
+	}
+
+	LastDrawPrimitiveUPStride = 0;
+
 	// Shadow fading counter
 	if (DrawingShadowsFlag)
 	{
@@ -862,6 +884,11 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 
 	EndSceneCounter = 0;
 	PresentFlag = false;
+
+	if (Room312Flag)
+	{
+		return D3D_OK;
+	}
 
 	// Present screen
 	return ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
@@ -1122,6 +1149,8 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, CONST void *pVertexStreamZeroData, UINT VertexStreamZeroStride)
 {
 	Logging::LogDebug() << __FUNCTION__;
+
+	LastDrawPrimitiveUPStride += VertexStreamZeroStride;
 
 	// Draw Self/Soft Shadows
 	DWORD stencilRef;
@@ -1542,10 +1571,10 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 
 	HRESULT hr = ProxyInterface->BeginScene();
 
-	// Set AntiAliasing
-	if (DeviceMultiSampleType != D3DMULTISAMPLE_NONE)
+	// Set MultiSample
+	if (DeviceMultiSampleType)
 	{
-		SetRenderState(D3DRS_MULTISAMPLEANTIALIAS, TRUE);
+		ProxyInterface->SetRenderState(D3DRS_MULTISAMPLEANTIALIAS, TRUE);
 	}
 
 	return hr;
@@ -1690,9 +1719,13 @@ HRESULT m_IDirect3DDevice8::SetTextureStageState(DWORD Stage, D3DTEXTURESTAGESTA
 				return D3D_OK;
 			}
 		}
-		else if (Type == D3DTSS_MAGFILTER || Type == D3DTSS_MINFILTER)
+		else if (Type == D3DTSS_MAGFILTER || Type == D3DTSS_MINFILTER || Type == D3DTSS_MIPFILTER)
 		{
 			ProxyInterface->SetTextureStageState(Stage, D3DTSS_MAXANISOTROPY, MaxAnisotropy);
+			if (DeviceMultiSampleType && (Value == D3DTEXF_NONE || Value == D3DTEXF_POINT || Value == D3DTEXF_LINEAR))
+			{
+				Value = D3DTEXF_ANISOTROPIC;
+			}
 		}
 	}
 
@@ -2180,12 +2213,13 @@ HRESULT m_IDirect3DDevice8::GetInfo(THIS_ DWORD DevInfoID, void* pDevInfoStruct,
 	return ProxyInterface->GetInfo(DevInfoID, pDevInfoStruct, DevInfoStructSize);
 }
 
-void m_IDirect3DDevice8::AddSurfaceToVector(IDirect3DSurface8* pSurface)
+void m_IDirect3DDevice8::AddSurfaceToVector(m_IDirect3DSurface8 *pSourceTarget, IDirect3DSurface8 *pRenderTarget)
 {
-	if (pSurface)
+	if (pSourceTarget && pRenderTarget)
 	{
 		// Store surface
-		SurfaceVector.push_back(pSurface);
+		SURFACEVECTOR SurfaceStruct = { pSourceTarget , pRenderTarget };
+		SurfaceVector.push_back(SurfaceStruct);
 	}
 }
 
@@ -2486,9 +2520,9 @@ void m_IDirect3DDevice8::ReleaseInterface(T **ppInterface, UINT ReleaseRefNum)
 	}
 }
 
+// Create texture for James' silhouette if it doesn't exist
 bool m_IDirect3DDevice8::CheckSilhouetteTexture()
 {
-	// Create texture for James' silhouette if it doesn't exist
 	if (!silhouetteTexture)
 	{
 		if (SUCCEEDED(ProxyInterface->CreateTexture(BufferWidth, BufferHeight, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &silhouetteTexture)) && silhouetteTexture)

@@ -218,7 +218,7 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	HRESULT hr = D3DERR_INVALIDCALL;
 
 	// Get multisample quality level
-	if (AntiAliasing)
+	if (AntiAliasing && d3d8to9)
 	{
 		D3DPRESENT_PARAMETERS d3dpp;
 
@@ -278,7 +278,7 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 		}
 
 		// Set correct resolution for room 312
-		if ((AntiAliasing || Room312PauseScreenFix) && WidescreenFix)
+		if (Room312PauseScreenFix && WidescreenFix)
 		{
 			RUNCODEONCE(UpdateRoom312ResolutionFix(&BufferWidth));
 		}

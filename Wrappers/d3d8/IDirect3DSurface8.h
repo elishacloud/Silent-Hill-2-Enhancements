@@ -8,6 +8,8 @@ private:
 	IDirect3DSurface8* RenderInterface = nullptr;
 	IDirect3DSurface8* ReplacedInterface = nullptr;
 
+	bool IsDefaultRenderTarget = false;
+
 	// For fake emulated locking
 	bool IsLocked = false;
 	std::vector<byte> surfaceArray;

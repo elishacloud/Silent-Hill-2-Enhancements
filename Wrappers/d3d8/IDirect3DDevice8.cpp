@@ -548,10 +548,16 @@ HRESULT m_IDirect3DDevice8::SetRenderTarget(THIS_ IDirect3DSurface8* pRenderTarg
 
 	if (pRenderTarget)
 	{
+		IDirect3DSurface8 *pSurface = nullptr;
+		if (SUCCEEDED(pRenderTarget->QueryInterface(IID_GetReplacedInterface, (void**)&pSurface)) && pSurface)
+		{
+			pRenderTarget = pSurface;
+		}
+
 		// Check if surface needs to be replaced
 		if (pNewZStencil)
 		{
-			IDirect3DSurface8 *pSurface = nullptr;
+			pSurface = nullptr;
 			if (SUCCEEDED(pRenderTarget->QueryInterface(IID_GetRenderTarget, (void**)&pSurface)) && pSurface)
 			{
 				ReplacedLastRenderTarget = true;
@@ -560,7 +566,7 @@ HRESULT m_IDirect3DDevice8::SetRenderTarget(THIS_ IDirect3DSurface8* pRenderTarg
 		}
 
 		// Get proxy interface
-		IDirect3DSurface8 *pSurface = nullptr;
+		pSurface = nullptr;
 		if (SUCCEEDED(pRenderTarget->QueryInterface(IID_GetProxyInterface, (void**)&pSurface)) && pSurface)
 		{
 			pRenderTarget = pSurface;

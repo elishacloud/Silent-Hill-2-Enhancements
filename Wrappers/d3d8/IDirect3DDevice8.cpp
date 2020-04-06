@@ -20,6 +20,7 @@
 bool IsInBloomEffect = false;
 bool IsInFakeFadeout = false;
 bool ClassReleaseFlag = false;
+DWORD MaxAnisotropy = 0;
 
 HRESULT m_IDirect3DDevice8::QueryInterface(REFIID riid, LPVOID *ppvObj)
 {
@@ -84,6 +85,11 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 	}
 	SurfaceVector.clear();
 
+	if (pInRender)
+	{
+		ReleaseInterface(&pInRender);
+	}
+
 	if (pInSurface)
 	{
 		ReleaseInterface(&pInSurface, 2);
@@ -112,6 +118,11 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 	if (pOutTexture)
 	{
 		ReleaseInterface(&pOutTexture);
+	}
+
+	if (silhouetteRender)
+	{
+		ReleaseInterface(&silhouetteRender);
 	}
 
 	if (silhouetteSurface)
@@ -323,11 +334,24 @@ HRESULT m_IDirect3DDevice8::CreateTexture(THIS_ UINT Width, UINT Height, UINT Le
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	bool Flag = false;
+	if (Width == 512 && Height == 512 && (Format == D3DFMT_DXT1 || Format == D3DFMT_DXT2 || Format == D3DFMT_DXT3 || Format == D3DFMT_DXT4 || Format == D3DFMT_DXT5))
+	{
+		Flag = true;
+		Format = D3DFMT_A8R8G8B8;
+	}
+
 	HRESULT hr = ProxyInterface->CreateTexture(Width, Height, Levels, Usage, Format, Pool, ppTexture);
 
 	if (SUCCEEDED(hr) && ppTexture)
 	{
 		*ppTexture = ProxyAddressLookupTable->FindAddress<m_IDirect3DTexture8>(*ppTexture);
+
+		// Flag texture as modified
+		if (Flag)
+		{
+			(*ppTexture)->QueryInterface(IID_SetImageTexture, nullptr);
+		}
 	}
 
 	return hr;
@@ -506,24 +530,6 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 	return ProxyInterface->SetRenderState(State, Value);
 }
 
-HRESULT m_IDirect3DDevice8::SetRenderTargetProxy(THIS_ IDirect3DSurface8* pRenderTarget, IDirect3DSurface8* pNewZStencil)
-{
-	Logging::LogDebug() << __FUNCTION__;
-
-	if (pRenderTarget)
-	{
-		// Get proxy interface
-		IDirect3DSurface8 *pSurface = nullptr;
-		if (SUCCEEDED(pRenderTarget->QueryInterface(IID_GetProxyInterface, (void**)&pSurface)) && pSurface)
-		{
-			pRenderTarget = pSurface;
-		}
-
-		pRenderTarget = ProxyAddressLookupTable->FindAddress<m_IDirect3DSurface8>(pRenderTarget);
-	}
-	return SetRenderTarget(pRenderTarget, pNewZStencil);
-}
-
 HRESULT m_IDirect3DDevice8::SetRenderTarget(THIS_ IDirect3DSurface8* pRenderTarget, IDirect3DSurface8* pNewZStencil)
 {
 	Logging::LogDebug() << __FUNCTION__;
@@ -548,16 +554,10 @@ HRESULT m_IDirect3DDevice8::SetRenderTarget(THIS_ IDirect3DSurface8* pRenderTarg
 
 	if (pRenderTarget)
 	{
-		IDirect3DSurface8 *pSurface = nullptr;
-		if (SUCCEEDED(pRenderTarget->QueryInterface(IID_GetReplacedInterface, (void**)&pSurface)) && pSurface)
-		{
-			pRenderTarget = pSurface;
-		}
-
 		// Check if surface needs to be replaced
 		if (pNewZStencil)
 		{
-			pSurface = nullptr;
+			IDirect3DSurface8 *pSurface = nullptr;
 			if (SUCCEEDED(pRenderTarget->QueryInterface(IID_GetRenderTarget, (void**)&pSurface)) && pSurface)
 			{
 				ReplacedLastRenderTarget = true;
@@ -566,7 +566,7 @@ HRESULT m_IDirect3DDevice8::SetRenderTarget(THIS_ IDirect3DSurface8* pRenderTarg
 		}
 
 		// Get proxy interface
-		pSurface = nullptr;
+		IDirect3DSurface8 *pSurface = nullptr;
 		if (SUCCEEDED(pRenderTarget->QueryInterface(IID_GetProxyInterface, (void**)&pSurface)) && pSurface)
 		{
 			pRenderTarget = pSurface;
@@ -1086,6 +1086,11 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 			pStream0->Release();
 		}
 
+		if (!silhouetteRender && DeviceMultiSampleType)
+		{
+			ProxyInterface->CreateRenderTarget(BufferWidth, BufferHeight, D3DFMT_A8R8G8B8, DeviceMultiSampleType, FALSE, &silhouetteRender);
+		}
+
 		// Error checking
 		if (!CheckSilhouetteTexture() || !backbufferColor || !backbufferDepthStencil || !pStream0)
 		{
@@ -1093,7 +1098,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 		}
 
 		// Temporarily swap to new color buffer (keep original depth/stencil)
-		SetRenderTargetProxy(silhouetteSurface, backbufferDepthStencil);
+		ProxyInterface->SetRenderTarget(((silhouetteRender) ? silhouetteRender : silhouetteSurface), backbufferDepthStencil);
 		ProxyInterface->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 0);
 
 		CUSTOMVERTEX fullscreenQuad[] =
@@ -1145,7 +1150,11 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 		ProxyInterface->SetRenderState(D3DRS_CULLMODE, cullMode);
 
 		// Bring back our original color buffer, clear stencil buffer like Xbox
-		SetRenderTargetProxy(backbufferColor, backbufferDepthStencil);
+		ProxyInterface->SetRenderTarget(backbufferColor, backbufferDepthStencil);
+		if (silhouetteRender)
+		{
+			UpdateSurface(silhouetteRender, silhouetteSurface);
+		}
 		ProxyInterface->Clear(0, NULL, D3DCLEAR_STENCIL, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 0x80);
 	}
 
@@ -1688,6 +1697,11 @@ HRESULT m_IDirect3DDevice8::SetTexture(DWORD Stage, IDirect3DBaseTexture8 *pText
 			{
 				pCurrentRenderTexture = static_cast<m_IDirect3DTexture8 *>(pTexture);
 			}
+			if (SH2_RoomID)
+			{
+				DWORD RoomID = *SH2_RoomID;
+				pTexture->QueryInterface(IID_UpdateImageTexture, (void**)&RoomID);
+			}
 			pTexture = static_cast<m_IDirect3DTexture8 *>(pTexture)->GetProxyInterface();
 			break;
 		case D3DRTYPE_VOLUMETEXTURE:
@@ -1728,7 +1742,7 @@ HRESULT m_IDirect3DDevice8::SetTextureStageState(DWORD Stage, D3DTEXTURESTAGESTA
 		else if (Type == D3DTSS_MAGFILTER || Type == D3DTSS_MINFILTER || Type == D3DTSS_MIPFILTER)
 		{
 			ProxyInterface->SetTextureStageState(Stage, D3DTSS_MAXANISOTROPY, MaxAnisotropy);
-			if (DeviceMultiSampleType && (Value == D3DTEXF_NONE || Value == D3DTEXF_POINT || Value == D3DTEXF_LINEAR))
+			if (Value == D3DTEXF_NONE || Value == D3DTEXF_POINT || Value == D3DTEXF_LINEAR)
 			{
 				Value = D3DTEXF_ANISOTROPIC;
 			}
@@ -2289,6 +2303,11 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 		}
 	}
 
+	if (!pInRender && DeviceMultiSampleType)
+	{
+		ProxyInterface->CreateRenderTarget((UINT)screenW, (UINT)screenH, D3DFMT_A8R8G8B8, DeviceMultiSampleType, FALSE, &pInRender);
+	}
+
 	if (!pShrunkTexture)
 	{
 		if (SUCCEEDED(ProxyInterface->CreateTexture((UINT)screenWs, (UINT)screenHs, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &pShrunkTexture)) && pShrunkTexture)
@@ -2334,7 +2353,7 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 	}
 
 	// Swap to new render target, maintain old stencil buffer and draw shadows
-	SetRenderTargetProxy(pInSurface, pStencilBuffer);
+	ProxyInterface->SetRenderTarget(((pInRender) ? pInRender : pInSurface), pStencilBuffer);
 	ProxyInterface->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 0);
 
 	HRESULT hr = ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, shadowRectDiffuse, 20);
@@ -2344,7 +2363,11 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 	ProxyInterface->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
 	ProxyInterface->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
 
-	SetRenderTargetProxy(pShrunkSurface, NULL);
+	ProxyInterface->SetRenderTarget(pShrunkSurface, NULL);
+	if (pInRender)
+	{
+		UpdateSurface(pInRender, pInSurface);
+	}
 	ProxyInterface->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 0);
 	ProxyInterface->SetTexture(0, pInTexture);
 
@@ -2406,7 +2429,7 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 	// Perform fixed function blur
 	for (int i = 0; i < BLUR_PASSES; i++)
 	{
-		SetRenderTargetProxy(pOutSurface, NULL);
+		ProxyInterface->SetRenderTarget(pOutSurface, NULL);
 		ProxyInterface->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 0);
 		ProxyInterface->SetTexture(0, pShrunkTexture);
 
@@ -2416,7 +2439,7 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 		ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, blurUpRight, 24);
 		ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, blurDownRight, 24);
 
-		SetRenderTargetProxy(pShrunkSurface, NULL);
+		ProxyInterface->SetRenderTarget(pShrunkSurface, NULL);
 		ProxyInterface->SetTexture(0, pOutTexture);
 
 		ProxyInterface->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 0);
@@ -2424,7 +2447,7 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 	}
 
 	// Return to backbuffer but without stencil buffer
-	SetRenderTargetProxy(pBackBuffer, NULL);
+	ProxyInterface->SetRenderTarget(pBackBuffer, NULL);
 	ProxyInterface->SetTexture(0, pShrunkTexture);
 
 	// Set up alpha-blending for final draw back to scene
@@ -2442,7 +2465,7 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 	ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, shadowRectUV, 24);
 
 	// Return to original render target and stencil buffer
-	SetRenderTargetProxy(pBackBuffer, pStencilBuffer);
+	ProxyInterface->SetRenderTarget(pBackBuffer, pStencilBuffer);
 
 	RestoreState(&state);
 

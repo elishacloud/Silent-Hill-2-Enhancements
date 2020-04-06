@@ -37,10 +37,10 @@ HRESULT m_IDirect3DSurface8::QueryInterface(THIS_ REFIID riid, void** ppvObj)
 	// Get render target interface
 	if (riid == IID_GetRenderTarget && ppvObj)
 	{
-		if (!IsDefaultRenderTarget && !RenderInterface && !ReplacedInterface && m_pDevice)
+		if (DeviceMultiSampleType && !IsDefaultRenderTarget && !RenderInterface && !ReplacedInterface && m_pDevice)
 		{
 			D3DSURFACE_DESC Desc;
-			if (SUCCEEDED(ProxyInterface->GetDesc(&Desc)) && DeviceMultiSampleType &&
+			if (SUCCEEDED(ProxyInterface->GetDesc(&Desc)) && !Desc.MultiSampleType &&
 				SUCCEEDED(m_pDevice->CreateRenderTarget(Desc.Width, Desc.Height, Desc.Format, DeviceMultiSampleType, FALSE, &RenderInterface)) && RenderInterface)
 			{
 				m_pDevice->AddSurfaceToVector(this, RenderInterface);

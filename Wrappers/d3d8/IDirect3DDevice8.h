@@ -8,12 +8,10 @@ private:
 	LPDIRECT3DDEVICE8 ProxyInterface;
 	m_IDirect3D8* m_pD3D;
 
-	bool MaxAnisotropySet = false;
-	DWORD MaxAnisotropy = 0;
-
 	bool GammaSet = false;
 	D3DGAMMARAMP Ramp;
 
+	bool MaxAnisotropySet = false;
 	bool ReplacedLastRenderTarget = false;
 
 	BYTE *SH2_ChapterID = nullptr;
@@ -77,6 +75,7 @@ private:
 
 	IDirect3DTexture8 *pInTexture = nullptr;
 	IDirect3DSurface8 *pInSurface = nullptr;
+	IDirect3DSurface8 *pInRender = nullptr;
 
 	IDirect3DTexture8 *pShrunkTexture = nullptr;
 	IDirect3DSurface8 *pShrunkSurface = nullptr;
@@ -88,6 +87,7 @@ private:
 
 	IDirect3DTexture8 *silhouetteTexture = nullptr;
 	IDirect3DSurface8 *silhouetteSurface = nullptr;
+	IDirect3DSurface8 *silhouetteRender = nullptr;
 
 	IDirect3DTexture8 *pCurrentRenderTexture = nullptr;
 
@@ -244,7 +244,6 @@ public:
 	STDMETHOD(UpdateSurface)(THIS_ IDirect3DSurface8* pSourceSurface, IDirect3DSurface8* pDestSurface);
 	STDMETHOD(UpdateTexture)(THIS_ IDirect3DBaseTexture8* pSourceTexture, IDirect3DBaseTexture8* pDestinationTexture);
 	STDMETHOD(GetFrontBuffer)(THIS_ IDirect3DSurface8* pDestSurface);
-	STDMETHOD(SetRenderTargetProxy)(THIS_ IDirect3DSurface8* pRenderTarget, IDirect3DSurface8* pNewZStencil);
 	STDMETHOD(SetRenderTarget)(THIS_ IDirect3DSurface8* pRenderTarget, IDirect3DSurface8* pNewZStencil);
 	STDMETHOD(GetRenderTarget)(THIS_ IDirect3DSurface8** ppRenderTarget);
 	STDMETHOD(GetDepthStencilSurface)(THIS_ IDirect3DSurface8** ppZStencilSurface);

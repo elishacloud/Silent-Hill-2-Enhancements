@@ -11,7 +11,6 @@ private:
 	bool GammaSet = false;
 	D3DGAMMARAMP Ramp;
 
-	bool MaxAnisotropySet = false;
 	bool ReplacedLastRenderTarget = false;
 
 	BYTE *SH2_ChapterID = nullptr;
@@ -163,6 +162,17 @@ public:
 		Logging::LogDebug() << "Creating device " << __FUNCTION__ << "(" << this << ")";
 
 		ProxyAddressLookupTable = new AddressLookupTable<m_IDirect3DDevice8>(this);
+
+		// Enable Anisotropic Filtering
+		if (AnisotropicFiltering)
+		{
+			D3DCAPS8 Caps;
+			ZeroMemory(&Caps, sizeof(D3DCAPS8));
+			if (SUCCEEDED(ProxyInterface->GetDeviceCaps(&Caps)))
+			{
+				MaxAnisotropy = (AnisotropicFiltering == 1) ? Caps.MaxAnisotropy : min((DWORD)AnisotropicFiltering, Caps.MaxAnisotropy);
+			}
+		}
 
 		SH2_ChapterID = GetChapterIDPointer();
 		SH2_RoomID = GetRoomIDPointer();

@@ -18,6 +18,14 @@
 
 HWND DeviceWindow = nullptr;
 LONG BufferWidth = 0, BufferHeight = 0;
+DWORD VendorID = 0;			// 0x1002 = ATI Technologies Inc.
+							// 0x10DE = NVIDIA Corporation
+							// 0x102B = Matrox Electronic Systems Ltd.
+							// 0x121A = 3dfx Interactive Inc
+							// 0x5333 = S3 Graphics Co., Ltd.
+							// 0x8086 = Intel Corporation
+bool CopyRenderTarget = false;
+bool SetSSAA = false;
 D3DMULTISAMPLE_TYPE DeviceMultiSampleType = D3DMULTISAMPLE_NONE;
 
 HRESULT m_IDirect3D8::QueryInterface(REFIID riid, LPVOID *ppvObj)
@@ -218,7 +226,7 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	HRESULT hr = D3DERR_INVALIDCALL;
 
 	// Get multisample quality level
-	if (AntiAliasing && d3d8to9)
+	if (AntiAliasing)
 	{
 		D3DPRESENT_PARAMETERS d3dpp;
 
@@ -253,6 +261,25 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 		{
 			Logging::Log() << __FUNCTION__ << " Failed to enable AntiAliasing!";
 		}
+	}
+
+	// Get device information
+	D3DADAPTER_IDENTIFIER8 dai;
+	if (SUCCEEDED(ProxyInterface->GetAdapterIdentifier(D3DADAPTER_DEFAULT, 0, &dai)))
+	{
+		VendorID = dai.VendorId;
+	}
+
+	// Check if render target needs to be replaced
+	if (DeviceMultiSampleType || (FixGPUAntiAliasing && VendorID == 0x10DE /*Nvidia*/))
+	{
+		CopyRenderTarget = true;
+	}
+
+	// Check for SSAA
+	if ((DeviceMultiSampleType || FixGPUAntiAliasing) && (ProxyInterface->CheckDeviceFormat(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, D3DFMT_X8R8G8B8, 0, D3DRTYPE_SURFACE, (D3DFORMAT)MAKEFOURCC('S', 'S', 'A', 'A'))) == S_OK)
+	{
+		SetSSAA = true;
 	}
 
 	if (FAILED(hr))

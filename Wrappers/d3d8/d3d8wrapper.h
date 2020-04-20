@@ -27,8 +27,6 @@ DEFINE_GUID(IID_GetReplacedInterface, 0x22222222, 0x1c77, 0x4d40, 0xb0, 0xcf, 0x
 DEFINE_GUID(IID_SetReplacedInterface, 0x33333333, 0x1c77, 0x4d40, 0xb0, 0xcf, 0x98, 0xfe, 0xfd, 0xff, 0xff, 0xff);
 DEFINE_GUID(IID_ClearRenderTarget, 0x44444444, 0x1c77, 0x4d40, 0xb0, 0xcf, 0x98, 0xfe, 0xfd, 0xff, 0xff, 0xff);
 DEFINE_GUID(IID_SetDefaultRenderTarget, 0x55555555, 0x1c77, 0x4d40, 0xb0, 0xcf, 0x98, 0xfe, 0xfd, 0xff, 0xff, 0xff);
-DEFINE_GUID(IID_SetImageTexture, 0x66666666, 0x1c77, 0x4d40, 0xb0, 0xcf, 0x98, 0xfe, 0xfd, 0xff, 0xff, 0xff);
-DEFINE_GUID(IID_UpdateImageTexture, 0x77777777, 0x1c77, 0x4d40, 0xb0, 0xcf, 0x98, 0xfe, 0xfd, 0xff, 0xff, 0xff);
 
 typedef IDirect3D8 *(WINAPI *Direct3DCreate8Proc)(UINT);
 
@@ -39,9 +37,13 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 void UpdatePresentParameterForMultisample(D3DPRESENT_PARAMETERS* pPresentationParameters, D3DMULTISAMPLE_TYPE MultiSampleType);
 void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight);
 
+#define D3DRS_ADAPTIVETESS_Y 181
+
 extern bool ClassReleaseFlag;
 extern HWND DeviceWindow;
 extern LONG BufferWidth, BufferHeight;
+extern bool CopyRenderTarget;
+extern bool SetSSAA;
 extern D3DMULTISAMPLE_TYPE DeviceMultiSampleType;
 extern DWORD MaxAnisotropy;
 

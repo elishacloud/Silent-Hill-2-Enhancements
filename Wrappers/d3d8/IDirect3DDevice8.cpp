@@ -315,8 +315,9 @@ HRESULT m_IDirect3DDevice8::CreateRenderTarget(THIS_ UINT Width, UINT Height, D3
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	if (!Lockable)
+	if (DeviceMultiSampleType)
 	{
+		Lockable = FALSE;
 		MultiSample = DeviceMultiSampleType;
 	}
 
@@ -334,24 +335,11 @@ HRESULT m_IDirect3DDevice8::CreateTexture(THIS_ UINT Width, UINT Height, UINT Le
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	bool Flag = false;
-	if (Width == 512 && Height == 512 && (Format == D3DFMT_DXT1 || Format == D3DFMT_DXT2 || Format == D3DFMT_DXT3 || Format == D3DFMT_DXT4 || Format == D3DFMT_DXT5))
-	{
-		Flag = true;
-		Format = D3DFMT_A8R8G8B8;
-	}
-
 	HRESULT hr = ProxyInterface->CreateTexture(Width, Height, Levels, Usage, Format, Pool, ppTexture);
 
 	if (SUCCEEDED(hr) && ppTexture)
 	{
 		*ppTexture = ProxyAddressLookupTable->FindAddress<m_IDirect3DTexture8>(*ppTexture);
-
-		// Flag texture as modified
-		if (Flag)
-		{
-			(*ppTexture)->QueryInterface(IID_SetImageTexture, nullptr);
-		}
 	}
 
 	return hr;
@@ -554,10 +542,16 @@ HRESULT m_IDirect3DDevice8::SetRenderTarget(THIS_ IDirect3DSurface8* pRenderTarg
 
 	if (pRenderTarget)
 	{
+		IDirect3DSurface8 *pSurface = nullptr;
+		if (SUCCEEDED(pRenderTarget->QueryInterface(IID_GetReplacedInterface, (void**)&pSurface)) && pSurface)
+		{
+			pRenderTarget = pSurface;
+		}
+
 		// Check if surface needs to be replaced
 		if (pNewZStencil)
 		{
-			IDirect3DSurface8 *pSurface = nullptr;
+			pSurface = nullptr;
 			if (SUCCEEDED(pRenderTarget->QueryInterface(IID_GetRenderTarget, (void**)&pSurface)) && pSurface)
 			{
 				ReplacedLastRenderTarget = true;
@@ -566,7 +560,7 @@ HRESULT m_IDirect3DDevice8::SetRenderTarget(THIS_ IDirect3DSurface8* pRenderTarg
 		}
 
 		// Get proxy interface
-		IDirect3DSurface8 *pSurface = nullptr;
+		pSurface = nullptr;
 		if (SUCCEEDED(pRenderTarget->QueryInterface(IID_GetProxyInterface, (void**)&pSurface)) && pSurface)
 		{
 			pRenderTarget = pSurface;
@@ -1086,11 +1080,6 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 			pStream0->Release();
 		}
 
-		if (!silhouetteRender && DeviceMultiSampleType)
-		{
-			ProxyInterface->CreateRenderTarget(BufferWidth, BufferHeight, D3DFMT_A8R8G8B8, DeviceMultiSampleType, FALSE, &silhouetteRender);
-		}
-
 		// Error checking
 		if (!CheckSilhouetteTexture() || !backbufferColor || !backbufferDepthStencil || !pStream0)
 		{
@@ -1466,21 +1455,6 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 	LastFrameFullscreenImage = IsInFullscreenImage;
 	IsInFullscreenImage = false;
 
-	// Enable Anisotropic Filtering
-	if (AnisotropicFiltering)
-	{
-		if (!MaxAnisotropySet)
-		{
-			MaxAnisotropySet = true;
-			D3DCAPS8 Caps;
-			ZeroMemory(&Caps, sizeof(D3DCAPS8));
-			if (SUCCEEDED(ProxyInterface->GetDeviceCaps(&Caps)))
-			{
-				MaxAnisotropy = (AnisotropicFiltering == 1) ? Caps.MaxAnisotropy : min((DWORD)AnisotropicFiltering, Caps.MaxAnisotropy);
-			}
-		}
-	}
-
 	// Enable Xbox shadows
 	if (EnableSoftShadows)
 	{
@@ -1592,6 +1566,12 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		ProxyInterface->SetRenderState(D3DRS_MULTISAMPLEANTIALIAS, TRUE);
 	}
 
+	// Set Transparency Supersampling
+	if (SetSSAA)
+	{
+		ProxyInterface->SetRenderState((D3DRENDERSTATETYPE)D3DRS_ADAPTIVETESS_Y, (D3DFORMAT)MAKEFOURCC('S', 'S', 'A', 'A'));
+	}
+
 	return hr;
 }
 
@@ -1697,11 +1677,6 @@ HRESULT m_IDirect3DDevice8::SetTexture(DWORD Stage, IDirect3DBaseTexture8 *pText
 			{
 				pCurrentRenderTexture = static_cast<m_IDirect3DTexture8 *>(pTexture);
 			}
-			if (SH2_RoomID)
-			{
-				DWORD RoomID = *SH2_RoomID;
-				pTexture->QueryInterface(IID_UpdateImageTexture, (void**)&RoomID);
-			}
 			pTexture = static_cast<m_IDirect3DTexture8 *>(pTexture)->GetProxyInterface();
 			break;
 		case D3DRTYPE_VOLUMETEXTURE:
@@ -1742,7 +1717,7 @@ HRESULT m_IDirect3DDevice8::SetTextureStageState(DWORD Stage, D3DTEXTURESTAGESTA
 		else if (Type == D3DTSS_MAGFILTER || Type == D3DTSS_MINFILTER || Type == D3DTSS_MIPFILTER)
 		{
 			ProxyInterface->SetTextureStageState(Stage, D3DTSS_MAXANISOTROPY, MaxAnisotropy);
-			if (Value == D3DTEXF_NONE || Value == D3DTEXF_POINT || Value == D3DTEXF_LINEAR)
+			if (DeviceMultiSampleType && (Value == D3DTEXF_NONE || Value == D3DTEXF_POINT || Value == D3DTEXF_LINEAR))
 			{
 				Value = D3DTEXF_ANISOTROPIC;
 			}
@@ -1778,7 +1753,12 @@ HRESULT m_IDirect3DDevice8::UpdateSurface(IDirect3DSurface8* pSourceSurface, IDi
 		}
 	}
 
-	return ProxyInterface->CopyRects(pSourceSurface, nullptr, 1, pDestSurface, nullptr);
+	D3DSURFACE_DESC desc;
+	pSourceSurface->GetDesc(&desc);
+	RECT rect = { 0, 0, (LONG)desc.Width, (LONG)desc.Height };
+	POINT point = { 0, 0 };
+
+	return ProxyInterface->CopyRects(pSourceSurface, &rect, 1, pDestSurface, &point);
 }
 
 HRESULT m_IDirect3DDevice8::UpdateTexture(IDirect3DBaseTexture8 *pSourceTexture, IDirect3DBaseTexture8 *pDestinationTexture)
@@ -2303,7 +2283,7 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 		}
 	}
 
-	if (!pInRender && DeviceMultiSampleType)
+	if (!pInRender && CopyRenderTarget)
 	{
 		ProxyInterface->CreateRenderTarget((UINT)screenW, (UINT)screenH, D3DFMT_A8R8G8B8, DeviceMultiSampleType, FALSE, &pInRender);
 	}
@@ -2558,6 +2538,10 @@ bool m_IDirect3DDevice8::CheckSilhouetteTexture()
 		{
 			silhouetteTexture->GetSurfaceLevel(0, &silhouetteSurface);
 		}
+	}
+	if (!silhouetteRender && CopyRenderTarget)
+	{
+		ProxyInterface->CreateRenderTarget(BufferWidth, BufferHeight, D3DFMT_A8R8G8B8, DeviceMultiSampleType, FALSE, &silhouetteRender);
 	}
 	return (silhouetteTexture && silhouetteSurface);
 }

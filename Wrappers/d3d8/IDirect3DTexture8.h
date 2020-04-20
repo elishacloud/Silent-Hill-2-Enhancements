@@ -6,10 +6,6 @@ private:
 	LPDIRECT3DTEXTURE8 ProxyInterface;
 	m_IDirect3DDevice8* m_pDevice;
 
-	bool IsImageTexture = false;
-	bool TextureUpdated = false;
-	DWORD RoomID = 0;
-
 public:
 	m_IDirect3DTexture8(LPDIRECT3DTEXTURE8 pTexture8, m_IDirect3DDevice8* pDevice) : ProxyInterface(pTexture8), m_pDevice(pDevice)
 	{

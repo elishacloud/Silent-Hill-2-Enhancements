@@ -20,56 +20,6 @@ HRESULT m_IDirect3DTexture8::QueryInterface(THIS_ REFIID riid, void** ppvObj)
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	if (riid == IID_SetImageTexture)
-	{
-		IsImageTexture = true;
-		return S_OK;
-	}
-
-	if (riid == IID_UpdateImageTexture && ppvObj)
-	{
-		if ((DeviceMultiSampleType || MaxAnisotropy) && IsImageTexture && !TextureUpdated)
-		{
-			TextureUpdated = true;
-			RoomID = (DWORD)*ppvObj;
-
-			D3DLOCKED_RECT LockedRect;
-			if (SUCCEEDED(ProxyInterface->LockRect(0, &LockedRect, nullptr, NULL)) && LockedRect.pBits)
-			{
-				D3DSURFACE_DESC Desc;
-				if (SUCCEEDED(ProxyInterface->GetLevelDesc(0, &Desc)) && Desc.Format == D3DFMT_A8R8G8B8)
-				{
-					DWORD *memory = (DWORD*)LockedRect.pBits;
-					for (UINT y = 0; y < Desc.Height; y++)
-					{
-						for (UINT x = 0; x < Desc.Width; x++)
-						{
-							BYTE red = (BYTE)((*memory >> 16) & 0xFF);
-							BYTE green = (BYTE)((*memory >> 8) & 0xFF);
-							BYTE blue = (BYTE)(*memory & 0xFF);
-							if (RoomID == 0xA2 && red >= 0xF0 && green >= 0xF0 && blue >= 0xF0)
-							{
-								*memory = D3DCOLOR_RGBA(0x00, 0x72, 0x68, 0x51);
-							}
-							else if ((*memory & D3DCOLOR_RGBA(0x00, 0xFF, 0xFF, 0xFF)) == D3DCOLOR_RGBA(0x00, 0xFF, 0xFF, 0xFF))
-							{
-								switch (RoomID)
-								{
-								case 0x19:
-									*memory = D3DCOLOR_RGBA(0x00, 0x00, 0x00, 0x00);
-									break;
-								}
-							}
-							memory++;
-						}
-					}
-				}
-				ProxyInterface->UnlockRect(0);
-			}
-		}
-		return S_OK;
-	}
-
 	if ((riid == IID_IDirect3DTexture8 || riid == IID_IUnknown || riid == IID_IDirect3DResource8 || riid == IID_IDirect3DBaseTexture8) && ppvObj)
 	{
 		AddRef();

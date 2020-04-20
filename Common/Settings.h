@@ -30,6 +30,7 @@
 	visit(FixChainsawSpawn, true) \
 	visit(FixCreatureVehicleSpawn, true) \
 	visit(FixDrawingTextLine, true) \
+	visit(FixGPUAntiAliasing, true) \
 	visit(FixHangOnEsc, true) \
 	visit(FixMissingWallChunks, true) \
 	visit(FixTownWestGateEvent, true) \

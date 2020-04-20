@@ -37,7 +37,7 @@ HRESULT m_IDirect3DSurface8::QueryInterface(THIS_ REFIID riid, void** ppvObj)
 	// Get render target interface
 	if (riid == IID_GetRenderTarget && ppvObj)
 	{
-		if (DeviceMultiSampleType && !IsDefaultRenderTarget && !RenderInterface && !ReplacedInterface && m_pDevice)
+		if (CopyRenderTarget && !IsDefaultRenderTarget && !RenderInterface && !ReplacedInterface && m_pDevice)
 		{
 			D3DSURFACE_DESC Desc;
 			if (SUCCEEDED(ProxyInterface->GetDesc(&Desc)) && !Desc.MultiSampleType &&

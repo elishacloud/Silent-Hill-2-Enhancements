@@ -16,6 +16,10 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <atlstr.h>
+#include <string>
+#include <iostream>
+#include <filesystem>
 #include "Utils.h"
 #include "Patches\Patches.h"
 #include "Common\Settings.h"
@@ -445,4 +449,98 @@ void UnloadAllModules()
 DWORD ConvertFloat(float num)
 {
 	return *((DWORD*)&num);
+}
+
+void GetFileDate(std::filesystem::file_time_type filetime, char *strOutput, size_t size)
+{
+	if (!strOutput)
+	{
+		return;
+	}
+
+	time_t rawtime = std::chrono::duration_cast<std::chrono::seconds>(filetime.time_since_epoch()).count() - 11644473600;
+	struct tm ts;
+
+	// Format time, "mm/dd/yyyy hh:mm AM"
+	if (localtime_s(&ts, &rawtime) == 0)
+	{
+		strftime(strOutput, size, "%m/%d/%Y  %I:%M %p", &ts);
+	}
+}
+
+void GetFileSize(uintmax_t fsize, char *strOutput, size_t size)
+{
+	if (!strOutput)
+	{
+		return;
+	}
+
+	// Get file size
+	std::string strSize;
+	for (int x = 1; x < 18; x++)
+	{
+		if (fsize && x % 4 == 0)
+		{
+			strSize.insert(0, ",");
+		}
+		else if (!fsize)
+		{
+			strSize.insert(0, " ");
+		}
+		else
+		{
+			char num[2] = { '\0' };
+			num[0] = (fsize % 10) + 48;
+			strSize.insert(0, num);
+			fsize /= 10;
+		}
+	}
+	strcpy_s(strOutput, size, strSize.c_str());
+}
+
+void LogDirectory()
+{
+	wchar_t path[MAX_PATH];
+	GetModuleFileName(nullptr, path, MAX_PATH);
+	wcscpy_s(wcsrchr(path, '\\'), MAX_PATH - wcslen(path), L"\0");
+
+	Logging::Log() << "|- ";
+	Logging::Log() << "|-  Directory of " << path;
+	Logging::Log() << "|- ";
+
+	// Directories
+	for (const auto & entry : std::filesystem::directory_iterator(path))
+	{
+		if (entry.is_directory())
+		{
+			// Get file date
+			char filetime[80] = { "\0" };
+			GetFileDate(entry.last_write_time(), filetime, sizeof(filetime));
+
+			CStringA filename(entry.path().filename().c_str());
+
+			Logging::Log() << "|- " << filetime << "    <DIR>          " << filename;
+		}
+	}
+	// Files
+	for (const auto & entry : std::filesystem::directory_iterator(path))
+	{
+		if (!entry.is_directory())
+		{
+			// Get file date
+			char filetime[80] = { "\0" };
+			GetFileDate(entry.last_write_time(), filetime, sizeof(filetime));
+
+			// Get file size
+			char filesize[80] = { "\0" };
+			GetFileSize(entry.file_size(), filesize, sizeof(filesize));
+
+			// Get file name
+			CStringA filename(entry.path().filename().c_str());
+
+			Logging::Log() << "|- " << filetime << " " << filesize << " " << filename;
+		}
+	}
+
+	Logging::Log() << "|--------------------------------";
 }

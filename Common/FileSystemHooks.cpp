@@ -465,7 +465,7 @@ BOOL WINAPI CreateProcessAHandler(LPCSTR lpApplicationName, LPSTR lpCommandLine,
 
 	if (isInString(lpCommandLine, "gameux.dll,GameUXShim", L"gameux.dll,GameUXShim", MAX_PATH))
 	{
-		Logging::Log() << __FUNCTION__ << " " << lpCommandLine;
+		Logging::Log() << __FUNCTION__ << " Disabling the GameUX CLI: " << lpCommandLine;
 
 		char CommandLine[MAX_PATH] = { '\0' };
 
@@ -504,7 +504,7 @@ BOOL WINAPI CreateProcessWHandler(LPCWSTR lpApplicationName, LPWSTR lpCommandLin
 
 	if (isInString(lpCommandLine, "gameux.dll,GameUXShim", L"gameux.dll,GameUXShim", MAX_PATH))
 	{
-		Logging::Log() << __FUNCTION__ << " " << lpCommandLine;
+		Logging::Log() << __FUNCTION__ << " Disabling the GameUX CLI: " << lpCommandLine;
 
 		wchar_t CommandLine[MAX_PATH] = { '\0' };
 

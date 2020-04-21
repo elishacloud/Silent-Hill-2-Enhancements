@@ -18,5 +18,6 @@ DWORD WINAPI SetSingleCoreAffinity(LPVOID pvParam = nullptr);
 void AddHandleToVector(HMODULE dll);
 void UnloadAllModules();
 DWORD ConvertFloat(float num);
+void LogDirectory();
 
 extern bool m_StopThreadFlag;

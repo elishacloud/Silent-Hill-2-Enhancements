@@ -19,7 +19,9 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <string>
 #include "Settings.h"
+#include "Logging\Logging.h"
 
 // Configurable setting defaults
 #define SET_BOOL_DEFAULTS(name, value) \
@@ -72,6 +74,25 @@ void __stdcall ParseCallback(char* lpName, char* lpValue)
 	if (!_strcmpi(lpName, #name)) name.assign(lpValue);
 
 	VISIT_STR_SETTINGS(GET_STR_VALUES);
+}
+
+// Log config settings from string (file)
+void __stdcall LogCallback(char* lpName, char* lpValue)
+{
+	// Check for valid entries
+	if (!IsValidSettings(lpName, lpValue)) return;
+
+	// Log settings
+#define LOG_VALUES(name, unused) \
+	if (!_strcmpi(lpName, #name)) \
+	{ \
+		Logging::Log() << "|- " << #name << ": " << lpValue; \
+	}
+
+	VISIT_BOOL_SETTINGS(LOG_VALUES);
+	VISIT_INT_SETTINGS(LOG_VALUES);
+	VISIT_FLOAT_SETTINGS(LOG_VALUES);
+	VISIT_STR_SETTINGS(LOG_VALUES);
 }
 
 // Set booloean value from string (file)

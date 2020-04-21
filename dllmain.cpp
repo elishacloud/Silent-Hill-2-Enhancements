@@ -127,11 +127,25 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		if (IsLoadConfig)
 		{
 			Logging::Log() << "Config file: " << configpath;
+			Logging::Log() << "|----------- SETTINGS -----------";
+
+			// Log config settings
+			szCfg = Read(configpath);
+			if (szCfg)
+			{
+				Parse(szCfg, LogCallback);
+				free(szCfg);
+			}
+
+			Logging::Log() << "|--------------------------------";
 		}
 		else
 		{
 			Logging::Log() << __FUNCTION__ << " Error: Config file not found, using defaults";
 		}
+
+		// Log files in folder
+		LogDirectory();
 
 		// Get wrapper mode
 		Wrapper::GetWrapperMode(hModule);

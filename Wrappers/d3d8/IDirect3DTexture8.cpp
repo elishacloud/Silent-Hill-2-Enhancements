@@ -157,6 +157,13 @@ HRESULT m_IDirect3DTexture8::GetSurfaceLevel(THIS_ UINT Level, IDirect3DSurface8
 	if (SUCCEEDED(hr) && ppSurfaceLevel)
 	{
 		*ppSurfaceLevel = m_pDevice->ProxyAddressLookupTable->FindAddress<m_IDirect3DSurface8>(*ppSurfaceLevel);
+
+		// Flag as render target
+		D3DSURFACE_DESC Desc;
+		if (SUCCEEDED(ProxyInterface->GetLevelDesc(0, &Desc)) && Desc.Usage == D3DUSAGE_RENDERTARGET)
+		{
+			(*ppSurfaceLevel)->QueryInterface(IID_SetTextureRenderTarget, nullptr);
+		}
 	}
 
 	return hr;

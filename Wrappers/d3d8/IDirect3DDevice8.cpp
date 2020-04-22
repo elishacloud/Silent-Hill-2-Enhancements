@@ -549,14 +549,11 @@ HRESULT m_IDirect3DDevice8::SetRenderTarget(THIS_ IDirect3DSurface8* pRenderTarg
 		}
 
 		// Check if surface needs to be replaced
-		if (pNewZStencil)
+		pSurface = nullptr;
+		if (SUCCEEDED(pRenderTarget->QueryInterface(IID_GetRenderTarget, (void**)&pSurface)) && pSurface)
 		{
-			pSurface = nullptr;
-			if (SUCCEEDED(pRenderTarget->QueryInterface(IID_GetRenderTarget, (void**)&pSurface)) && pSurface)
-			{
-				ReplacedLastRenderTarget = true;
-				pRenderTarget = pSurface;
-			}
+			ReplacedLastRenderTarget = true;
+			pRenderTarget = pSurface;
 		}
 
 		// Get proxy interface
@@ -888,6 +885,12 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	if (Room312Flag)
 	{
 		return D3D_OK;
+	}
+
+	// Disable Transparency Supersampling
+	if (SetSSAA)
+	{
+		ProxyInterface->SetRenderState((D3DRENDERSTATETYPE)D3DRS_ADAPTIVETESS_Y, D3DFMT_UNKNOWN);
 	}
 
 	// Present screen
@@ -1569,7 +1572,7 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 	// Set Transparency Supersampling
 	if (SetSSAA)
 	{
-		ProxyInterface->SetRenderState((D3DRENDERSTATETYPE)D3DRS_ADAPTIVETESS_Y, (D3DFORMAT)MAKEFOURCC('S', 'S', 'A', 'A'));
+		ProxyInterface->SetRenderState((D3DRENDERSTATETYPE)D3DRS_ADAPTIVETESS_Y, MAKEFOURCC('S', 'S', 'A', 'A'));
 	}
 
 	return hr;
@@ -1717,10 +1720,6 @@ HRESULT m_IDirect3DDevice8::SetTextureStageState(DWORD Stage, D3DTEXTURESTAGESTA
 		else if (Type == D3DTSS_MAGFILTER || Type == D3DTSS_MINFILTER || Type == D3DTSS_MIPFILTER)
 		{
 			ProxyInterface->SetTextureStageState(Stage, D3DTSS_MAXANISOTROPY, MaxAnisotropy);
-			if (DeviceMultiSampleType && (Value == D3DTEXF_NONE || Value == D3DTEXF_POINT || Value == D3DTEXF_LINEAR))
-			{
-				Value = D3DTEXF_ANISOTROPIC;
-			}
 		}
 	}
 

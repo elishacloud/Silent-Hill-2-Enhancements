@@ -27,20 +27,20 @@ HRESULT m_IDirect3DSurface8::QueryInterface(THIS_ REFIID riid, void** ppvObj)
 		return S_OK;
 	}
 
-	// Get proxy interface
-	if (riid == IID_SetDefaultRenderTarget)
+	// Set texture interface
+	if (riid == IID_SetTextureRenderTarget)
 	{
-		IsDefaultRenderTarget = true;
+		IsTextureRenderTarget = true;
 		return S_OK;
 	}
 
 	// Get render target interface
 	if (riid == IID_GetRenderTarget && ppvObj)
 	{
-		if (CopyRenderTarget && !IsDefaultRenderTarget && !RenderInterface && !ReplacedInterface && m_pDevice)
+		if (CopyRenderTarget && IsTextureRenderTarget && !RenderInterface && !ReplacedInterface && m_pDevice)
 		{
 			D3DSURFACE_DESC Desc;
-			if (SUCCEEDED(ProxyInterface->GetDesc(&Desc)) && !Desc.MultiSampleType &&
+			if (SUCCEEDED(ProxyInterface->GetDesc(&Desc)) &&
 				SUCCEEDED(m_pDevice->CreateRenderTarget(Desc.Width, Desc.Height, Desc.Format, DeviceMultiSampleType, FALSE, &RenderInterface)) && RenderInterface)
 			{
 				m_pDevice->AddSurfaceToVector(this, RenderInterface);

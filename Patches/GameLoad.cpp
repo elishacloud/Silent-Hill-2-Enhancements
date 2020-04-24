@@ -37,7 +37,7 @@ void SetGameLoad()
 	UpdateMemoryAddress((void*)GameLoadAddr, &Value, sizeof(DWORD));
 }
 
-void UpdateGameLoad(DWORD *SH2_RoomID, float *SH2_JamesPos)
+void UpdateGameLoad(DWORD *SH2_RoomID, float *SH2_JamesPosX)
 {
 	// Update save code elevator room
 	RUNCODEONCE(SetGameLoad());
@@ -70,7 +70,7 @@ void UpdateGameLoad(DWORD *SH2_RoomID, float *SH2_JamesPos)
 	}
 	// Disable game saves for specific rooms
 	else if (*SH2_RoomID == 0x13 || *SH2_RoomID == 0x17 || *SH2_RoomID == 0xAA ||
-		(*SH2_RoomID == 0x78 && *SH2_JamesPos < -18600.0f))
+		(*SH2_RoomID == 0x78 && *SH2_JamesPosX < -18600.0f))
 	{
 		*Address = 0;
 		ValueUnSet = true;

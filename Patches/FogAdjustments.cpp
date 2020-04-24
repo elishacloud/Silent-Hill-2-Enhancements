@@ -285,3 +285,94 @@ void UpdateFogParameters()
 	WriteJMPtoMemory((BYTE*)FinalBossAddr1, FinalAreaBoss1ASM);
 	WriteJMPtoMemory((BYTE*)FinalBossAddr2, FinalAreaBoss2ASM);
 }
+
+// Slow the fog movement in certain areas of the game to better match the PS2's fog movements
+void UpdateFogSpeed(DWORD *SH2_RoomID, float *SH2_JamesPosY)
+{
+	static float *FogSpeed = nullptr;
+	if (!FogSpeed)
+	{
+		RUNONCE();
+
+		constexpr BYTE SearchBytes[]{ 0xD9, 0x5C, 0x24, 0x5C, 0xD9, 0xC9, 0xD8, 0x44, 0x24, 0x60, 0xD9, 0x5C, 0x24, 0x60, 0xDB, 0x44, 0x24, 0x44, 0xD8, 0x3D };
+		FogSpeed = (float*)ReadSearchedAddresses(0x0048683D, 0x00486ADD, 0x00486CED, SearchBytes, sizeof(SearchBytes), 0x14);
+		if (!FogSpeed)
+		{
+			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+			return;
+		}
+	}
+
+	static float *JamesFogInfluence = nullptr;
+	if (!JamesFogInfluence)
+	{
+		RUNONCE();
+
+		constexpr BYTE SearchBytes[]{ 0xC1, 0xE0, 0x18, 0x0B, 0xC3, 0x55, 0x89, 0x84, 0x24, 0x80, 0x00, 0x00, 0x00, 0xE8 };
+		JamesFogInfluence = (float*)ReadSearchedAddresses(0x00488ACB, 0x00488D6B, 0x00488F7B, SearchBytes, sizeof(SearchBytes), 0x14);
+		if (!JamesFogInfluence)
+		{
+			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+			return;
+		}
+	}
+
+	LOG_ONCE("Setting Fog Speed Fix...");
+
+	switch (*SH2_RoomID)
+	{
+	case 0x03:
+	case 0x04:
+	case 0x08:
+	case 0x8E:
+	case 0xBB:
+	case 0xBD:
+	case 0xC0:
+	case 0xC2:
+	case 0xCA:
+	case 0xC4:
+	case 0xD3:
+	case 0xD4:
+	{
+		constexpr float value = 0.25f;
+		if (*FogSpeed != value)
+		{
+			*FogSpeed = value;
+		}
+		break;
+	}
+	case 0x07:
+	case 0x8F:
+	case 0x90:
+	{
+		constexpr float value = 0.50f;
+		if (*FogSpeed != value)
+		{
+			*FogSpeed = value;
+		}
+		break;
+	}
+	}
+
+	static bool ValueSet = false;
+
+	// Prevents fog from "sticking" to James during certain parts of the Forest trail
+	if (*SH2_RoomID == 0x03 && *SH2_JamesPosY >= 1125.0f && *SH2_JamesPosY <= 1575.0f)
+	{
+		if (!ValueSet)
+		{
+			ValueSet = true;
+			float Value = 10.0f;
+			UpdateMemoryAddress(JamesFogInfluence, &Value, sizeof(float));
+		}
+	}
+	else
+	{
+		if (ValueSet)
+		{
+			ValueSet = false;
+			float Value = 200.0f;
+			UpdateMemoryAddress(JamesFogInfluence, &Value, sizeof(float));
+		}
+	}
+}

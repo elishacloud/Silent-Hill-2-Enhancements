@@ -167,10 +167,10 @@ HRESULT m_IDirect3DDevice8::EndScene()
 	Logging::LogDebug() << __FUNCTION__;
 
 	// Skip frames in specific cutscenes to prevent flickering
-	if (RemoveEnvironmentFlicker && SH2_CutsceneID && SH2_CutsceneCameraPos && SH2_JamesPos)
+	if (RemoveEnvironmentFlicker && SH2_CutsceneID && SH2_CutsceneCameraPos && SH2_JamesPosX)
 	{
-		if ((LastCutsceneID == 0x01 && SkipSceneCounter < 4 && (SkipSceneCounter || *SH2_JamesPos != LastJamesPos)) ||
-			(LastCutsceneID == 0x03 && SkipSceneCounter < 1 && (SkipSceneCounter || *SH2_JamesPos == 330.845f)) ||
+		if ((LastCutsceneID == 0x01 && SkipSceneCounter < 4 && (SkipSceneCounter || *SH2_JamesPosX != LastJamesPosX)) ||
+			(LastCutsceneID == 0x03 && SkipSceneCounter < 1 && (SkipSceneCounter || *SH2_JamesPosX == 330.845f)) ||
 			((LastCutsceneID == 0x15 || LastCutsceneID == 0x16) && SkipSceneCounter < 1 && (SkipSceneCounter || *SH2_CutsceneID != LastCutsceneID || (ClassReleaseFlag && !(*SH2_CutsceneCameraPos == *(float*)"\xAE\x01\x31\x46" && LastCameraPos == 0))) && !(*SH2_CutsceneID == 0x16 && LastCutsceneID == 0x15)) ||
 			(LastCutsceneID == 0x16 && SkipSceneCounter < 4 && (SkipSceneCounter || (*SH2_CutsceneCameraPos != LastCameraPos && *SH2_CutsceneCameraPos == *(float*)"\x40\xA1\xA8\x45")) && *SH2_CutsceneID == 0x16) ||
 			(LastCutsceneID == 0x4C && SkipSceneCounter < 1 && (SkipSceneCounter || *SH2_CutsceneID != LastCutsceneID)) ||
@@ -179,7 +179,7 @@ HRESULT m_IDirect3DDevice8::EndScene()
 		{
 			LOG_LIMIT(1, "Skipping frame during cutscene!");
 			Logging::LogDebug() << __FUNCTION__ " frame - Counter " << SkipSceneCounter << " Release: " << ClassReleaseFlag << " CutsceneID: " << *SH2_CutsceneID << " LastCutsceneID: " << LastCutsceneID <<
-				" CutsceneCameraPos: " << *SH2_CutsceneCameraPos << " LastCameraPos: " << LastCameraPos << " JamesPos: " << *SH2_JamesPos << " LastJamesPos: " << LastJamesPos;
+				" CutsceneCameraPos: " << *SH2_CutsceneCameraPos << " LastCameraPos: " << LastCameraPos << " JamesPos: " << *SH2_JamesPosX << " LastJamesPos: " << LastJamesPosX;
 
 			SkipSceneFlag = true;
 			SkipSceneCounter++;
@@ -191,7 +191,7 @@ HRESULT m_IDirect3DDevice8::EndScene()
 		SkipSceneCounter = 0;
 		LastCutsceneID = *SH2_CutsceneID;
 		LastCameraPos = *SH2_CutsceneCameraPos;
-		LastJamesPos = *SH2_JamesPos;
+		LastJamesPosX = *SH2_JamesPosX;
 	}
 
 	// Reset flag for black pillar boxes
@@ -1529,9 +1529,9 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 	}
 
 	// RPT Hospital Elevator Stabbing Animation Fix
-	if (HospitalChaseFix && SH2_RoomID && SH2_JamesPos)
+	if (HospitalChaseFix && SH2_RoomID && SH2_JamesPosX)
 	{
-		UpdateHospitalChase(SH2_RoomID, SH2_JamesPos);
+		UpdateHospitalChase(SH2_RoomID, SH2_JamesPosX);
 	}
 
 	// Hang on Esc Fix
@@ -1559,9 +1559,9 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 	}
 
 	// Game save fix
-	if (GameLoadFix && SH2_RoomID && SH2_JamesPos)
+	if (GameLoadFix && SH2_RoomID && SH2_JamesPosX)
 	{
-		UpdateGameLoad(SH2_RoomID, SH2_JamesPos);
+		UpdateGameLoad(SH2_RoomID, SH2_JamesPosX);
 	}
 
 	// Increase blood size
@@ -1610,6 +1610,12 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 	if (IsInFakeFadeout && SH2_CutsceneID && *SH2_CutsceneID != 0x19)
 	{
 		IsInFakeFadeout = false;
+	}
+
+	// Update fog speed
+	if (FogSpeedFix && SH2_RoomID && SH2_JamesPosY)
+	{
+		UpdateFogSpeed(SH2_RoomID, SH2_JamesPosY);
 	}
 
 	HRESULT hr = ProxyInterface->BeginScene();

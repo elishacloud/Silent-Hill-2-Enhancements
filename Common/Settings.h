@@ -10,7 +10,6 @@
 	visit(ClosetCutsceneFix, true) \
 	visit(CreateLocalFix, true) \
 	visit(DisableScreenSaver, true) \
-	visit(fog_custom_on, true) \
 	visit(d3d8to9, true) \
 	visit(DisableCutsceneBorders, true) \
 	visit(DisableGameUX, true) \
@@ -35,8 +34,10 @@
 	visit(FixMissingWallChunks, true) \
 	visit(FixTownWestGateEvent, true) \
 	visit(FMVWidescreenMode, true) \
+	visit(fog_custom_on, true) \
 	visit(Fog2DFix, true) \
 	visit(FogParameterFix, true) \
+	visit(FogSpeedFix, true) \
 	visit(FullscreenImages, true) \
 	visit(FullscreenWndMode, true) \
 	visit(GamepadControlsFix, true) \

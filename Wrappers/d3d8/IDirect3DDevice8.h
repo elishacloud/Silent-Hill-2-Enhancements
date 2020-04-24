@@ -17,7 +17,8 @@ private:
 	DWORD *SH2_RoomID = nullptr;
 	DWORD *SH2_CutsceneID = nullptr;
 	float *SH2_CutsceneCameraPos = nullptr;
-	float *SH2_JamesPos = nullptr;
+	float *SH2_JamesPosX = nullptr;
+	float *SH2_JamesPosY = nullptr;
 	DWORD *SH2_OnScreen = nullptr;
 	BYTE *SH2_PauseMenu = nullptr;
 	DWORD *SH2_SpecializedLight1 = nullptr;
@@ -64,7 +65,7 @@ private:
 	bool SkipSceneFlag = false;
 	DWORD LastCutsceneID = 0;
 	float LastCameraPos = 0;
-	float LastJamesPos = 0;
+	float LastJamesPosX = 0;
 	DWORD SkipSceneCounter = 0;
 
 	// Remove Effects Flicker by resetting texture on first frame
@@ -181,7 +182,8 @@ public:
 		SH2_RoomID = GetRoomIDPointer();
 		SH2_CutsceneID = GetCutsceneIDPointer();
 		SH2_CutsceneCameraPos = GetCutscenePosPointer();
-		SH2_JamesPos = GetJamesPosPointer();
+		SH2_JamesPosX = GetJamesPosXPointer();
+		SH2_JamesPosY = GetJamesPosYPointer();
 		SH2_OnScreen = GetOnScreenPointer();
 		SH2_PauseMenu = GetPauseMenuPointer();
 		SH2_SpecializedLight1 = GetSpecializedLightPointer1();

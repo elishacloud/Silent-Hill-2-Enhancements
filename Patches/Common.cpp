@@ -27,7 +27,8 @@ float *CutscenePosAddr = nullptr;
 float *FlashlightBrightnessAddr = nullptr;
 BYTE *FlashLightRenderAddr = nullptr;
 BYTE *FlashlightSwitchAddr = nullptr;
-float *JamesPosAddr = nullptr;
+float *JamesPosXAddr = nullptr;
+float *JamesPosYAddr = nullptr;
 DWORD *OnScreenAddr = nullptr;
 BYTE *PauseMenuAddr = nullptr;
 DWORD *RoomIDAddr = nullptr;
@@ -118,26 +119,48 @@ float *GetCutscenePosPointer()
 	return CutscenePosAddr;
 }
 
-float *GetJamesPosPointer()
+float *GetJamesPosXPointer()
 {
-	if (JamesPosAddr)
+	if (JamesPosXAddr)
 	{
-		return JamesPosAddr;
+		return JamesPosXAddr;
 	}
 
-	// Get James Pos address
-	constexpr BYTE JamesPosSearchBytes[]{ 0x4A, 0x8D, 0x88, 0xCC, 0x02, 0x00, 0x00, 0x89, 0x88, 0x94, 0x01, 0x00, 0x00, 0x8B, 0xC1, 0x75, 0xEF, 0x33, 0xC9, 0x89, 0x88, 0x94, 0x01, 0x00, 0x00, 0xB8 };
-	void *JamesPosition = (float*)ReadSearchedAddresses(0x00538070, 0x005383A0, 0x00537CC0, JamesPosSearchBytes, sizeof(JamesPosSearchBytes), -0x10);
+	// Get James Pos X address
+	constexpr BYTE JamesPosXSearchBytes[]{ 0x4A, 0x8D, 0x88, 0xCC, 0x02, 0x00, 0x00, 0x89, 0x88, 0x94, 0x01, 0x00, 0x00, 0x8B, 0xC1, 0x75, 0xEF, 0x33, 0xC9, 0x89, 0x88, 0x94, 0x01, 0x00, 0x00, 0xB8 };
+	void *JamesPositionX = (float*)ReadSearchedAddresses(0x00538070, 0x005383A0, 0x00537CC0, JamesPosXSearchBytes, sizeof(JamesPosXSearchBytes), -0x10);
 
 	// Checking address pointer
-	if (!JamesPosition)
+	if (!JamesPositionX)
 	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find James Pos function address!";
+		Logging::Log() << __FUNCTION__ << " Error: failed to find James Pos X function address!";
 		return nullptr;
 	}
-	JamesPosAddr = (float*)((DWORD)JamesPosition + 0x1C);
+	JamesPosXAddr = (float*)((DWORD)JamesPositionX + 0x1C);
 
-	return JamesPosAddr;
+	return JamesPosXAddr;
+}
+
+float *GetJamesPosYPointer()
+{
+	if (JamesPosYAddr)
+	{
+		return JamesPosYAddr;
+	}
+
+	// Get James Pos Y address
+	constexpr BYTE JamesPosYSearchBytes[]{ 0x4A, 0x8D, 0x88, 0xCC, 0x02, 0x00, 0x00, 0x89, 0x88, 0x94, 0x01, 0x00, 0x00, 0x8B, 0xC1, 0x75, 0xEF, 0x33, 0xC9, 0x89, 0x88, 0x94, 0x01, 0x00, 0x00, 0xB8 };
+	void *JamesPositionY = (float*)ReadSearchedAddresses(0x00538070, 0x005383A0, 0x00537CC0, JamesPosYSearchBytes, sizeof(JamesPosYSearchBytes), -0x10);
+
+	// Checking address pointer
+	if (!JamesPositionY)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find James Pos Y function address!";
+		return nullptr;
+	}
+	JamesPosYAddr = (float*)((DWORD)JamesPositionY + 0x20);
+
+	return JamesPosYAddr;
 }
 
 BYTE *GetFlashLightRenderPointer()

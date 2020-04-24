@@ -851,10 +851,6 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	}
 	else
 	{
-		if (Room312PauseScreenFix && SH2_RoomID && *SH2_RoomID == 0xA2 && (LastDrawPrimitiveUPStride == 16 || LastDrawPrimitiveUPStride == 328))
-		{
-			Room312Flag = true;
-		}
 		InPauseMenu = false;
 	}
 
@@ -1093,7 +1089,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 		ProxyInterface->SetRenderTarget(((silhouetteRender) ? silhouetteRender : silhouetteSurface), backbufferDepthStencil);
 		ProxyInterface->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 0);
 
-		CUSTOMVERTEX fullscreenQuad[] =
+		CUSTOMVERTEX_DIF fullscreenQuad[] =
 		{
 			{0.0f, 0.0f, 0.0f, 1.0f, D3DCOLOR_ARGB(255, 255, 255, 255)},
 			{0.0f, (float)BufferHeight, 0.0f, 1.0f, D3DCOLOR_ARGB(255, 255, 255, 255)},
@@ -1165,7 +1161,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 
 	// Fix bowling cutscene fading
 	if (WidescreenFix && SH2_CutsceneID && *SH2_CutsceneID == 0x19 && PrimitiveType == D3DPT_TRIANGLELIST && PrimitiveCount == 2 && VertexStreamZeroStride == 28 && pVertexStreamZeroData &&
-		((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[0].z == 0.01f && ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[1].z == 0.01f && ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[2].z == 0.01f)
+		((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[0].z == 0.01f && ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[1].z == 0.01f && ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[2].z == 0.01f)
 	{
 		IsInFakeFadeout = true;
 
@@ -1176,40 +1172,40 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 
 		for (int x = 0; x < 6; x++)
 		{
-			FullScreenFadeout[x].y = ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[x].y;
-			FullScreenFadeout[x].color = ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[x].color;
+			FullScreenFadeout[x].y = ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[x].y;
+			FullScreenFadeout[x].color = ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[x].color;
 		}
 
 		pVertexStreamZeroData = FullScreenFadeout;
 	}
 	// Detect fullscreen images for fixing pillar box color
 	else if (SetBlackPillarBoxes && PrimitiveType == D3DPT_TRIANGLELIST && PrimitiveCount == 2 && VertexStreamZeroStride == 28 && pVertexStreamZeroData &&
-		((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[0].z == 0.01f && ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[1].z == 0.01f && ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[2].z == 0.01f)
+		((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[0].z == 0.01f && ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[1].z == 0.01f && ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[2].z == 0.01f)
 	{
 		// Get fullscreen image left and right values
 		if (!IsInFullscreenImage)
 		{
-			PillarBoxLeft = ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[0].x;
-			PillarBoxRight = ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[1].x;
-			PillarBoxTop = ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[1].y;
-			PillarBoxBottom = ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[2].y;
+			PillarBoxLeft = ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[0].x;
+			PillarBoxRight = ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[1].x;
+			PillarBoxTop = ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[1].y;
+			PillarBoxBottom = ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[2].y;
 		}
 		// Clip artifacts that protrude into pillarbox
 		else if (PillarBoxLeft && PillarBoxRight && SH2_RoomID && *SH2_RoomID && SH2_CutsceneID && !*SH2_CutsceneID && SH2_OnScreen && (*SH2_OnScreen == 4 || *SH2_OnScreen == 5))
 		{
 			// Clip green player marker
-			if ((((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[1].x != ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[2].x ||
-				((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[3].x != ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[5].x))
+			if (pVertexStreamZeroData && ((((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[1].x != ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[2].x ||
+				((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[3].x != ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[5].x)))
 			{
 				bool SkipDrawing = true;
 				bool DrawPillarBoxes = false;
 				for (int x = 0; x < 6; x++)
 				{
-					if (((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[x].x > PillarBoxLeft && ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[x].x < PillarBoxRight)
+					if (((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[x].x > PillarBoxLeft && ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[x].x < PillarBoxRight)
 					{
 						SkipDrawing = false;
 					}
-					if (((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[x].x < PillarBoxLeft || ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[x].x > PillarBoxRight)
+					if (((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[x].x < PillarBoxLeft || ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[x].x > PillarBoxRight)
 					{
 						DrawPillarBoxes = true;
 					}
@@ -1219,7 +1215,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 					return D3D_OK;
 				}
 				// Add vertex to cover green marker that protrudes into the pillar box
-				if (BlankTexture && DrawPillarBoxes)
+				if (DrawPillarBoxes)
 				{
 					// Draw green marker
 					ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLELIST, 2, pVertexStreamZeroData, 28);
@@ -1262,10 +1258,10 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 				}
 			}
 			// Clip other artifacts
-			else
+			else if (pVertexStreamZeroData)
 			{
 				// Artifact is completely in the pillarbox so don't draw it
-				if (((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[1].x < PillarBoxLeft || ((CUSTOMVERTEX_DIF_UV*)pVertexStreamZeroData)[0].x > PillarBoxRight)
+				if (((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[1].x < PillarBoxLeft || ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[0].x > PillarBoxRight)
 				{
 					return D3D_OK;
 				}
@@ -1310,7 +1306,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 	}
 	// Set pillar boxes to black (removes noise filter from fullscreen images)
 	else if (IsInFullscreenImage && PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 24 && pVertexStreamZeroData &&
-		((CUSTOMVERTEX_UV*)pVertexStreamZeroData)[0].z == 0.0f && ((CUSTOMVERTEX_UV*)pVertexStreamZeroData)[1].z == 0.0f)
+		((CUSTOMVERTEX_TEX1*)pVertexStreamZeroData)[0].z == 0.0f && ((CUSTOMVERTEX_TEX1*)pVertexStreamZeroData)[1].z == 0.0f)
 	{
 		return D3D_OK;
 	}
@@ -1351,7 +1347,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 			// Bind our texture of James' silhouette
 			ProxyInterface->SetTexture(0, silhouetteTexture);
 
-			CUSTOMVERTEX_UV fullscreenQuad[] =
+			CUSTOMVERTEX_TEX1 fullscreenQuad[] =
 			{
 				{0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f},
 				{0.0f, (float)BufferHeight, 0.0f, 1.0f, 0.0f, 1.0f},
@@ -1431,13 +1427,68 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 	}
 
 	// Fix drawing line when using '0xFE' byte in '.mes' files
-	if (FixDrawingTextLine)
+	if (FixDrawingTextLine && pVertexStreamZeroData)
 	{
 		if (PrimitiveType == D3DPT_LINELIST && PrimitiveCount == 3 && VertexStreamZeroStride == 20) {
 			ProxyInterface->DrawPrimitiveUP(PrimitiveType, 1, pVertexStreamZeroData, VertexStreamZeroStride);
 			PrimitiveType = D3DPT_TRIANGLESTRIP;
 			PrimitiveCount = 2;
 			pVertexStreamZeroData = (void *)((BYTE *)pVertexStreamZeroData + VertexStreamZeroStride * 2);
+		}
+	}
+
+	if ((DeviceMultiSampleType || FixGPUAntiAliasing) && pVertexStreamZeroData)
+	{
+		DWORD Handle = 0;
+		ProxyInterface->GetVertexShader(&Handle);
+		if (Handle == D3DFVF_XYZRHW)
+		{
+			CUSTOMVERTEX *vert = (CUSTOMVERTEX*)pVertexStreamZeroData;
+			if (PrimitiveType == D3DPT_TRIANGLELIST &&
+				vert[0].x == 0.0f && vert[0].y == 0.0f && vert[0].z == 0.0f && vert[0].rhw == 1.0f &&
+				vert[1].x == (float)BufferWidth && vert[1].y == 0.0f && vert[1].z == 0.0f && vert[1].rhw == 1.0f &&
+				vert[2].x == (float)BufferWidth && vert[2].y == (float)BufferHeight && vert[2].z == 0.0f && vert[2].rhw == 1.0f &&
+				vert[3].x == 0.0f && vert[3].y == 0.0f && vert[3].z == 0.0f && vert[3].rhw == 1.0f &&
+				vert[4].x == (float)BufferWidth && vert[4].y == (float)BufferHeight && vert[4].z == 0.0f && vert[4].rhw == 1.0f &&
+				vert[5].x == 0.0f && vert[5].y == (float)BufferHeight && vert[5].z == 0.0f && vert[5].rhw == 1.0f)
+			{
+				for (int x = 0; x < 6; x++)
+				{
+					vert[x].x -= 0.5f;
+					vert[x].y -= 0.5f;
+					vert[x].z = 0.01f;
+				}
+			}
+			else if (PrimitiveType == D3DPT_TRIANGLESTRIP &&
+				vert[0].x == 0.0f && vert[0].y == 0.0f && vert[0].z == 0.0f && vert[0].rhw == 1.0f &&
+				vert[1].x == (float)BufferWidth && vert[1].y == 0.0f && vert[1].z == 0.0f && vert[1].rhw == 1.0f &&
+				vert[2].x == 0.0f && vert[2].y == (float)BufferHeight && vert[2].z == 0.0f && vert[2].rhw == 1.0f &&
+				vert[3].x == (float)BufferWidth && vert[3].y == (float)BufferHeight && vert[3].z == 0.0f && vert[3].rhw == 1.0f)
+			{
+				for (int x = 0; x < 4; x++)
+				{
+					vert[x].x -= 0.5f;
+					vert[x].y -= 0.5f;
+					vert[x].z = 0.01f;
+				}
+			}
+		}
+		else if (Handle == (D3DFVF_XYZRHW | D3DFVF_TEX4))
+		{
+			CUSTOMVERTEX_TEX4 *vert = (CUSTOMVERTEX_TEX4*)pVertexStreamZeroData;
+			if (PrimitiveType == D3DPT_TRIANGLESTRIP &&
+				vert[0].x == 0.0f && vert[0].y == 0.0f && vert[0].z == 0.0f && vert[0].rhw == 1.0f &&
+				vert[1].x == (float)BufferWidth && vert[1].y == 0.0f && vert[1].z == 0.0f && vert[1].rhw == 1.0f &&
+				vert[2].x == 0.0f && vert[2].y == (float)BufferHeight && vert[2].z == 0.0f && vert[2].rhw == 1.0f &&
+				vert[3].x == (float)BufferWidth && vert[3].y == (float)BufferHeight && vert[3].z == 0.0f && vert[3].rhw == 1.0f)
+			{
+				for (int x = 0; x < 4; x++)
+				{
+					vert[x].x -= 0.5f;
+					vert[x].y -= 0.5f;
+					vert[x].z = 0.01f;
+				}
+			}
 		}
 	}
 
@@ -1694,7 +1745,7 @@ HRESULT m_IDirect3DDevice8::SetTexture(DWORD Stage, IDirect3DBaseTexture8 *pText
 	}
 
 	// Fix for the white shader issue
-	if (WhiteShaderFix && Stage == 0 && !pTexture && BlankTexture)
+	if (WhiteShaderFix && Stage == 0 && !pTexture)
 	{
 		pTexture = BlankTexture;
 	}
@@ -2241,7 +2292,7 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 	const float screenHs = (float)BufferHeight / SHADOW_DIVISOR;
 
 	// Original geometry vanilla game uses
-	CUSTOMVERTEX shadowRectDiffuse[] =
+	CUSTOMVERTEX_DIF shadowRectDiffuse[] =
 	{
 		{0.0f, 0.0f, 0.0f, 1.0f, D3DCOLOR_ARGB(SHADOW_OPACITY, 0, 0, 0)},
 		{0.0f, screenH, 0.0f, 1.0f, D3DCOLOR_ARGB(SHADOW_OPACITY, 0, 0, 0)},
@@ -2250,7 +2301,7 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 	};
 
 	// No need for diffuse color, used to render from texture, requires texture coords
-	CUSTOMVERTEX_UV shadowRectUV_Small[] =
+	CUSTOMVERTEX_TEX1 shadowRectUV_Small[] =
 	{
 		{0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f},
 		{0.0f, screenHs, 0.0f, 1.0f, 0.0f, 1.0f},
@@ -2265,7 +2316,7 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 		shadowRectUV_Small[i].y -= 0.5f;
 	}
 
-	CUSTOMVERTEX_UV shadowRectUV[] =
+	CUSTOMVERTEX_TEX1 shadowRectUV[] =
 	{
 		{0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f},
 		{0.0f, screenH, 0.0f, 1.0f, 0.0f, 1.0f},
@@ -2353,7 +2404,7 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 	ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, shadowRectUV_Small, 24);
 
 	// Create 4 full-screen quads, each offset a tiny amount diagonally in each direction
-	CUSTOMVERTEX_UV blurUpLeft[] =
+	CUSTOMVERTEX_TEX1 blurUpLeft[] =
 	{
 		{    0.0f,     0.0f, 0.0f, 1.0f,    0.0f - (0.5f / screenWs), 0.0f - (0.5f / screenHs)},
 		{    0.0f, screenHs, 0.0f, 1.0f,    0.0f - (0.5f / screenWs), 1.0f - (0.5f / screenHs)},
@@ -2361,7 +2412,7 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 		{screenWs, screenHs, 0.0f, 1.0f,    1.0f - (0.5f / screenWs), 1.0f - (0.5f / screenHs)}
 	};
 
-	CUSTOMVERTEX_UV blurDownLeft[] =
+	CUSTOMVERTEX_TEX1 blurDownLeft[] =
 	{
 		{    0.0f,     0.0f, 0.0f, 1.0f,    0.0f - (0.5f / screenWs), 0.0f + (0.5f / screenHs)},
 		{    0.0f, screenHs, 0.0f, 1.0f,    0.0f - (0.5f / screenWs), 1.0f + (0.5f / screenHs)},
@@ -2369,7 +2420,7 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 		{screenWs, screenHs, 0.0f, 1.0f,    1.0f - (0.5f / screenWs), 1.0f + (0.5f / screenHs)}
 	};
 
-	CUSTOMVERTEX_UV blurUpRight[] =
+	CUSTOMVERTEX_TEX1 blurUpRight[] =
 	{
 		{    0.0f,     0.0f, 0.0f, 1.0f,    0.0f + (0.5f / screenWs), 0.0f - (0.5f / screenHs)},
 		{    0.0f, screenHs, 0.0f, 1.0f,    0.0f + (0.5f / screenWs), 1.0f - (0.5f / screenHs)},
@@ -2377,7 +2428,7 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 		{screenWs, screenHs, 0.0f, 1.0f,    1.0f + (0.5f / screenWs), 1.0f - (0.5f / screenHs)}
 	};
 
-	CUSTOMVERTEX_UV blurDownRight[] =
+	CUSTOMVERTEX_TEX1 blurDownRight[] =
 	{
 		{    0.0f,     0.0f, 0.0f, 1.0f,    0.0f + (0.5f / screenWs), 0.0f + (0.5f / screenHs)},
 		{    0.0f, screenHs, 0.0f, 1.0f,    0.0f + (0.5f / screenWs), 1.0f + (0.5f / screenHs)},

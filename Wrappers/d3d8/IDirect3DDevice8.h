@@ -102,25 +102,39 @@ private:
 	struct CUSTOMVERTEX
 	{
 		FLOAT x, y, z, rhw;
+	};
+
+	struct CUSTOMVERTEX_DIF
+	{
+		FLOAT x, y, z, rhw;
 		DWORD color;
 	};
 
-	struct CUSTOMVERTEX_UV
+	struct CUSTOMVERTEX_TEX1
 	{
 		FLOAT x, y, z, rhw;
 		FLOAT u, v;
 	};
 
-	struct CUSTOMVERTEX_DIF_UV
+	struct CUSTOMVERTEX_DIF_TEX1
 	{
 		FLOAT x, y, z, rhw;
 		DWORD color;
 		FLOAT u, v;
 	};
 
-	CUSTOMVERTEX_DIF_UV FullScreenArtifact[6];
+	struct CUSTOMVERTEX_TEX4
+	{
+		FLOAT x, y, z, rhw;
+		FLOAT u0, v0;
+		FLOAT u1, v1;
+		FLOAT u2, v2;
+		FLOAT u3, v3;
+	};
 
-	CUSTOMVERTEX_DIF_UV FullScreenFadeout[6]
+	CUSTOMVERTEX_DIF_TEX1 FullScreenArtifact[6];
+
+	CUSTOMVERTEX_DIF_TEX1 FullScreenFadeout[6]
 	{
 		{    -0.5f,  -36.5f, 0.01f, 1.0f, 0, 0.0f, 0.0f },
 		{ -1919.5f,  -36.5f, 0.01f, 1.0f, 0, 1.0f, 0.0f },
@@ -130,7 +144,7 @@ private:
 		{    -0.5f, 1115.5f, 0.01f, 1.0f, 0, 0.0f, 1.0f }
 	};
 
-	CUSTOMVERTEX_UV PillarBoxVertex[6]
+	CUSTOMVERTEX_TEX1 PillarBoxVertex[6]
 	{
 		{    0.5f,  -36.5f, 0.01f, 1.0f, 0.0f, 0.0f },
 		{ 1919.5f,  -36.5f, 0.01f, 1.0f, 1.0f, 0.0f },

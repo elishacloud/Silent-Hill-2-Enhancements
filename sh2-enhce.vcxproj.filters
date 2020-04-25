@@ -346,6 +346,12 @@
     <ClInclude Include="Include\GTA\WSF.h">
       <Filter>Include\GTA</Filter>
     </ClInclude>
+    <ClInclude Include="Include\VersionHelpers.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\winapifamily.h">
+      <Filter>Include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\sh2-enhce.rc">

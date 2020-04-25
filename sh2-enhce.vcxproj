@@ -111,6 +111,8 @@
     <ClInclude Include="Include\GTA\CFileMgr.h" />
     <ClInclude Include="Include\GTA\WSF.h" />
     <ClInclude Include="Include\stdafx.h" />
+    <ClInclude Include="Include\VersionHelpers.h" />
+    <ClInclude Include="Include\winapifamily.h" />
     <ClInclude Include="Logging\Logging.h" />
     <ClInclude Include="Patches\Patches.h" />
     <ClInclude Include="Patches\SfxPatch.h" />
@@ -208,7 +210,7 @@ copy /Y "$(ProjectDir)External\WidescreenFixesPack\data\SilentHill2.WidescreenFi
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <FloatingPointModel>Fast</FloatingPointModel>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>$(ProjectDir);Include;$(WindowsSDK80Path)Include\um;$(WindowsSDK80Path)Include\shared</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);Include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ObjectFileName>$(SolutionDir)bin\Intermediate\$(Configuration)\Object\%(RelativeDir)</ObjectFileName>
     </ClCompile>

@@ -1559,9 +1559,9 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 	}
 
 	// Game save fix
-	if (GameLoadFix && SH2_RoomID && SH2_JamesPosX)
+	if (GameLoadFix && SH2_RoomID && SH2_JamesPosX && SH2_JamesPosZ)
 	{
-		UpdateGameLoad(SH2_RoomID, SH2_JamesPosX);
+		UpdateGameLoad(SH2_RoomID, SH2_JamesPosX, SH2_JamesPosZ);
 	}
 
 	// Increase blood size

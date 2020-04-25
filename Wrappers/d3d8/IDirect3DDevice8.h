@@ -19,6 +19,7 @@ private:
 	float *SH2_CutsceneCameraPos = nullptr;
 	float *SH2_JamesPosX = nullptr;
 	float *SH2_JamesPosY = nullptr;
+	float *SH2_JamesPosZ = nullptr;
 	DWORD *SH2_OnScreen = nullptr;
 	BYTE *SH2_PauseMenu = nullptr;
 	DWORD *SH2_SpecializedLight1 = nullptr;
@@ -184,6 +185,7 @@ public:
 		SH2_CutsceneCameraPos = GetCutscenePosPointer();
 		SH2_JamesPosX = GetJamesPosXPointer();
 		SH2_JamesPosY = GetJamesPosYPointer();
+		SH2_JamesPosZ = GetJamesPosZPointer();
 		SH2_OnScreen = GetOnScreenPointer();
 		SH2_PauseMenu = GetPauseMenuPointer();
 		SH2_SpecializedLight1 = GetSpecializedLightPointer1();

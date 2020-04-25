@@ -20,60 +20,147 @@
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
+BYTE AllowQuickSaveFlag = TRUE;
+void *QuickSaveCmpAddr;
+void *jmpQuickSaveAddr;
+
+// ASM functions to disable quick saves
+__declspec(naked) void __stdcall QuickSaveASM()
+{
+	__asm
+	{
+		pushf
+		cmp byte ptr ds : [AllowQuickSaveFlag], TRUE
+		je near AllowQuickSave
+	//DisallowQuickSave:
+		popf
+		jmp near Exit
+	AllowQuickSave:
+		popf
+		mov eax, dword ptr ds : [QuickSaveCmpAddr]
+		cmp dword ptr ds : [eax], esi
+	Exit:
+		jmp jmpQuickSaveAddr
+	}
+}
+
 void SetGameLoad()
 {
 	// Get elevator room save address
-	constexpr BYTE SearchBytes[]{ 0x83, 0xC4, 0x10, 0xF7, 0xC1, 0x00, 0x00, 0x00, 0x04, 0x5E, 0x74, 0x0F, 0xC7, 0x05 };
-	DWORD GameLoadAddr = SearchAndGetAddresses(0x0058312C, 0x005839DC, 0x005832FC, SearchBytes, sizeof(SearchBytes), 0x94);
+	constexpr BYTE GameLoadSearchBytes[]{ 0x83, 0xC4, 0x10, 0xF7, 0xC1, 0x00, 0x00, 0x00, 0x04, 0x5E, 0x74, 0x0F, 0xC7, 0x05 };
+	DWORD GameLoadAddr = SearchAndGetAddresses(0x0058312C, 0x005839DC, 0x005832FC, GameLoadSearchBytes, sizeof(GameLoadSearchBytes), 0x94);
 	if (!GameLoadAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
 
+	constexpr BYTE QuickSaveSearchBytes[]{ 0x83, 0xC4, 0x04, 0x85, 0xC0, 0x74, 0x4C, 0x39, 0x35 };
+	DWORD QuickSaveFunction = SearchAndGetAddresses(0x00402495, 0x00402495, 0x00402495, QuickSaveSearchBytes, sizeof(QuickSaveSearchBytes), 0x07);
+	if (!QuickSaveFunction)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+	jmpQuickSaveAddr = (void*)(QuickSaveFunction + 0x06);
+	QuickSaveCmpAddr = (void*)*(DWORD*)(QuickSaveFunction + 0x02);
+
 	// Update SH2 code
 	Logging::Log() << "Enabling Load Game Fix...";
 	DWORD Value = 0x00;
 	UpdateMemoryAddress((void*)GameLoadAddr, &Value, sizeof(DWORD));
+	WriteJMPtoMemory((BYTE*)QuickSaveFunction, *QuickSaveASM, 6);
 }
 
-void UpdateGameLoad(DWORD *SH2_RoomID, float *SH2_JamesPosX)
+void UpdateGameLoad(DWORD *SH2_RoomID, float *SH2_JamesPosX, float *SH2_JamesPosZ)
 {
 	// Update save code elevator room
 	RUNCODEONCE(SetGameLoad());
 
 	// Get game save address
-	static BYTE *Address = nullptr;
-	if (!Address)
+	static BYTE *SaveGameAddress = nullptr;
+	if (!SaveGameAddress)
 	{
 		RUNONCE();
 
 		// Get address for game save
 		constexpr BYTE SearchBytes[]{ 0x3C, 0x1B, 0x74, 0x27, 0x3C, 0x25, 0x74, 0x23, 0x3C, 0x30, 0x74, 0x1F, 0x3C, 0x31, 0x74, 0x1B, 0x3C, 0x32, 0x74, 0x17, 0x3C, 0x33, 0x74, 0x13, 0x3C, 0x34, 0x74, 0x0F };
-		Address = (BYTE*)ReadSearchedAddresses(0x0044C648, 0x0044C7E8, 0x0044C7E8, SearchBytes, sizeof(SearchBytes), -0x0D);
-		if (!Address)
+		SaveGameAddress = (BYTE*)ReadSearchedAddresses(0x0044C648, 0x0044C7E8, 0x0044C7E8, SearchBytes, sizeof(SearchBytes), -0x0D);
+		if (!SaveGameAddress)
 		{
 			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
 			return;
 		}
 	}
 
+	// Get elevator running address
+	static BYTE *ElevatorRunning = nullptr;
+	if (!ElevatorRunning)
+	{
+		RUNONCE();
+
+		// Get address for game save
+		constexpr BYTE SearchBytes[]{ 0xF7, 0xC6, 0x00, 0x0C, 0x00, 0x00, 0x0F, 0x95, 0xC0, 0x49, 0x74, 0x0A, 0x49, 0x75, 0x25, 0x84, 0xC0 };
+		ElevatorRunning = (BYTE*)ReadSearchedAddresses(0x0052EA81, 0x0052EDB1, 0x0052E6D1, SearchBytes, sizeof(SearchBytes), -0x0E);
+		if (!ElevatorRunning)
+		{
+			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+			return;
+		}
+	}
+
+	// Get in-game voice event address
+	static BYTE *InGameVoiceEvent = nullptr;
+	if (!InGameVoiceEvent)
+	{
+		RUNONCE();
+
+		// Get address for game save
+		constexpr BYTE SearchBytes[]{ 0xB9, 0xA0, 0x02, 0x00, 0x00, 0x33, 0xC0, 0xBF };
+		InGameVoiceEvent = (BYTE*)ReadSearchedAddresses(0x00563CB4, 0x00562804, 0x00562124, SearchBytes, sizeof(SearchBytes), 0x08);
+		if (!InGameVoiceEvent)
+		{
+			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+			return;
+		}
+
+		InGameVoiceEvent = (BYTE*)((DWORD)InGameVoiceEvent + 0x90);
+	}
+
 	// Set static variables
 	static bool ValueSet = false;
 	static bool ValueUnSet = false;
 
+	bool DisableQuickSave = false;
+
 	// Enable game saves for specific rooms
 	if (*SH2_RoomID == 0x29)
 	{
-		*Address = 1;
+		*SaveGameAddress = 1;
 		ValueSet = true;
 	}
 	// Disable game saves for specific rooms
-	else if (*SH2_RoomID == 0x13 || *SH2_RoomID == 0x17 || *SH2_RoomID == 0xAA ||
-		(*SH2_RoomID == 0x78 && *SH2_JamesPosX < -18600.0f))
+	else if (*SH2_RoomID == 0x13 || *SH2_RoomID == 0x17 || *SH2_RoomID == 0xAA || *SH2_RoomID == 0xC7 ||
+		(*SH2_RoomID == 0x78 && *SH2_JamesPosX < -18600.0f) ||
+		(*SH2_RoomID == 0x04 && *SH2_JamesPosZ > 49000.0f))
 	{
-		*Address = 0;
+		*SaveGameAddress = 0;
 		ValueUnSet = true;
+	}
+	// Disable game saves for specific rooms and disable quick save if the Elevator is not running or there is in-game voice event happening
+	else if (*SH2_RoomID == 0x2A || *SH2_RoomID == 0x46 ||
+		(*SH2_RoomID == 0x9D && *SH2_JamesPosX < 60650.0f) ||
+		(*SH2_RoomID == 0xB8 && *SH2_JamesPosX > -15800.0f))
+	{
+		*SaveGameAddress = 0;
+		ValueUnSet = true;
+
+		// Disable quick save if the Elevator is not running or there is in-game voice event happening
+		if (*ElevatorRunning == 0 || *InGameVoiceEvent == 1)
+		{
+			DisableQuickSave = true;
+			AllowQuickSaveFlag = FALSE;
+		}
 	}
 	// Reset static variables
 	else
@@ -84,8 +171,14 @@ void UpdateGameLoad(DWORD *SH2_RoomID, float *SH2_JamesPosX)
 		}
 		if (ValueUnSet)
 		{
-			*Address = 1;
+			*SaveGameAddress = 1;
 			ValueUnSet = false;
 		}
+	}
+
+	// Reset quick save when needed
+	if (!DisableQuickSave && !AllowQuickSaveFlag)
+	{
+		AllowQuickSaveFlag = TRUE;
 	}
 }

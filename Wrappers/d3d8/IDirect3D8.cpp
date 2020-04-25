@@ -304,8 +304,8 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 			RUNCODEONCE(UpdateResolutionLock(BufferWidth, BufferHeight));
 		}
 
-		// Set correct resolution for room 312
-		if (Room312PauseScreenFix && WidescreenFix)
+		// Set correct resolution for Room 312
+		if (PauseScreenFix && WidescreenFix)
 		{
 			RUNCODEONCE(UpdateRoom312ResolutionFix(&BufferWidth));
 		}

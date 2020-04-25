@@ -833,18 +833,18 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 		return D3D_OK;
 	}
 
-	// Fix pause menu in Room 312
-	bool Room312Flag = false;
+	// Fix pause menu
+	bool PauseMenuFlag = false;
 	if (SH2_PauseMenu && *SH2_PauseMenu)
 	{
-		if (Room312PauseScreenFix && !InPauseMenu && pCurrentRenderTexture)
+		if (PauseScreenFix && !InPauseMenu && pCurrentRenderTexture)
 		{
 			IDirect3DSurface8 *pCurrentRenderSurface = nullptr;
 			if (SUCCEEDED(pCurrentRenderTexture->GetSurfaceLevel(0, &pCurrentRenderSurface)))
 			{
 				pCurrentRenderSurface->Release();
 				GetFrontBuffer(pCurrentRenderSurface);
-				Room312Flag = true;
+				PauseMenuFlag = true;
 			}
 		}
 		InPauseMenu = true;
@@ -878,7 +878,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	EndSceneCounter = 0;
 	PresentFlag = false;
 
-	if (Room312Flag)
+	if (PauseMenuFlag)
 	{
 		return D3D_OK;
 	}
@@ -1733,7 +1733,7 @@ HRESULT m_IDirect3DDevice8::SetTexture(DWORD Stage, IDirect3DBaseTexture8 *pText
 		{
 		case D3DRTYPE_TEXTURE:
 			D3DSURFACE_DESC Desc;
-			if (Room312PauseScreenFix && SUCCEEDED(static_cast<m_IDirect3DTexture8 *>(pTexture)->GetLevelDesc(0, &Desc)) && Desc.Usage == D3DUSAGE_RENDERTARGET)
+			if (PauseScreenFix && SUCCEEDED(static_cast<m_IDirect3DTexture8 *>(pTexture)->GetLevelDesc(0, &Desc)) && Desc.Usage == D3DUSAGE_RENDERTARGET)
 			{
 				pCurrentRenderTexture = static_cast<m_IDirect3DTexture8 *>(pTexture);
 			}

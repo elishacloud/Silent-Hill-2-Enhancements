@@ -59,6 +59,7 @@
 	visit(MainMenuFix, true) \
 	visit(MainMenuTitlePerLang, true) \
 	visit(NoCDPatch, true) \
+	visit(PauseScreenFix, true) \
 	visit(PistonRoomFix, true) \
 	visit(PS2CameraSpeed, true) \
 	visit(PS2FlashlightBrightness, true) \
@@ -68,7 +69,6 @@
 	visit(RemoveEnvironmentFlicker, true) \
 	visit(RestoreSpecialFX, true) \
 	visit(RestoreVibration, true) \
-	visit(Room312PauseScreenFix, true) \
 	visit(Room312ShadowFix, true) \
 	visit(RowboatAnimationFix, true) \
 	visit(SetBlackPillarBoxes, true) \
@@ -93,7 +93,7 @@
 	visit(CustomFontCharHeight, 32) \
 	visit(fog_transparency_layer1, 128) \
 	visit(fog_transparency_layer2, 138) \
-	visit(FMVWidescreenEnhancementPackCompatibility, 1) \
+	visit(FMVWidescreenEnhancementPackCompatibility, 2) \
 	visit(LetterSpacing, 2) \
 	visit(NormalFontWidth, 20) \
 	visit(NormalFontHeight, 30) \

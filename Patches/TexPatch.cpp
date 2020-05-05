@@ -220,10 +220,13 @@ void ScaleStart01Texture(wchar_t *TexName)
 
 	// Update memory
 	Logging::LogDebug() << __FUNCTION__ << " Scaling texture: " << TexName << " Resolution: " << TextureXRes << "x" << TextureYRes << " XYScale: " << Start01XScale << "x" << Start01YScale;
-	WriteJMPtoMemory((BYTE*)(Start01Addr1 + 0x31), *Start01ScaleX1ASM, 7);
-	WriteJMPtoMemory((BYTE*)(Start01Addr1 + 0x50), *Start01ScaleX2ASM, 7);
-	WriteJMPtoMemory((BYTE*)(Start01Addr1 + 0x42), *Start01ScaleY1ASM, 7);
-	WriteJMPtoMemory((BYTE*)(Start01Addr1 + 0x62), *Start01ScaleY2ASM, 7);
+	if (*(DWORD*)(Start01Addr1 + 0x31) != (DWORD)*Start01ScaleX1ASM)
+	{
+		WriteJMPtoMemory((BYTE*)(Start01Addr1 + 0x31), *Start01ScaleX1ASM, 7);
+		WriteJMPtoMemory((BYTE*)(Start01Addr1 + 0x50), *Start01ScaleX2ASM, 7);
+		WriteJMPtoMemory((BYTE*)(Start01Addr1 + 0x42), *Start01ScaleY1ASM, 7);
+		WriteJMPtoMemory((BYTE*)(Start01Addr1 + 0x62), *Start01ScaleY2ASM, 7);
+	}
 
 	// Fullscreen Start Background
 	if (TextureXRes > 512 && TextureYRes > 512)

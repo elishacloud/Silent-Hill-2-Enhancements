@@ -220,7 +220,7 @@ void ScaleStart01Texture(wchar_t *TexName)
 
 	// Update memory
 	Logging::LogDebug() << __FUNCTION__ << " Scaling texture: " << TexName << " Resolution: " << TextureXRes << "x" << TextureYRes << " XYScale: " << Start01XScale << "x" << Start01YScale;
-	if (*(DWORD*)(Start01Addr1 + 0x31) != (DWORD)*Start01ScaleX1ASM)
+	if (*(BYTE*)(Start01Addr1 + 0x31) != 0xE9)
 	{
 		WriteJMPtoMemory((BYTE*)(Start01Addr1 + 0x31), *Start01ScaleX1ASM, 7);
 		WriteJMPtoMemory((BYTE*)(Start01Addr1 + 0x50), *Start01ScaleX2ASM, 7);

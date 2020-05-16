@@ -127,6 +127,24 @@ void UpdateGameLoad(DWORD *SH2_RoomID, float *SH2_JamesPosX, float *SH2_JamesPos
 		InGameVoiceEvent = (BYTE*)((DWORD)InGameVoiceEvent + 0x90);
 	}
 
+	// Get full screen image event address
+	static BYTE *FullscreenImageEvent = nullptr;
+	if (!FullscreenImageEvent)
+	{
+		RUNONCE();
+
+		// Get address for game save
+		constexpr BYTE SearchBytes[]{ 0x90, 0x90, 0x8B, 0x44, 0x24, 0x04, 0x83, 0xC0, 0xFE, 0x83, 0xF8, 0x06, 0x77, 0x61, 0xFF, 0x24, 0x85 };
+		FullscreenImageEvent = (BYTE*)ReadSearchedAddresses(0x0052E25E, 0x0052E58E, 0x0052DEAE, SearchBytes, sizeof(SearchBytes), 0x1F);
+		if (!FullscreenImageEvent)
+		{
+			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+			return;
+		}
+
+		FullscreenImageEvent = (BYTE*)((DWORD)FullscreenImageEvent + 0x14);
+	}
+
 	// Set static variables
 	static bool ValueSet = false;
 	static bool ValueUnSet = false;
@@ -155,7 +173,7 @@ void UpdateGameLoad(DWORD *SH2_RoomID, float *SH2_JamesPosX, float *SH2_JamesPos
 		*SaveGameAddress = 0;
 		ValueUnSet = true;
 
-		// Disable quick save if the Elevator is not running or there is in-game voice event happening
+		// Disable game saves for specific rooms and disable quick save if the Elevator is running or there is in-game voice event happening
 		if (*ElevatorRunning == 0 || *InGameVoiceEvent == 1)
 		{
 			DisableQuickSave = true;
@@ -174,6 +192,14 @@ void UpdateGameLoad(DWORD *SH2_RoomID, float *SH2_JamesPosX, float *SH2_JamesPos
 			*SaveGameAddress = 1;
 			ValueUnSet = false;
 		}
+	}
+
+	// Disable quick save during certian in-game voice events and during fullscreen image events
+	if ((((*SH2_RoomID == 0x0A) || (*SH2_RoomID == 0xBA)) && *InGameVoiceEvent == 1) ||
+		*FullscreenImageEvent == 0)
+	{
+		DisableQuickSave = true;
+		AllowQuickSaveFlag = FALSE;
 	}
 
 	// Reset quick save when needed

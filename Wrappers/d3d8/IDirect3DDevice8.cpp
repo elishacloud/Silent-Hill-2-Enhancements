@@ -20,6 +20,7 @@
 bool IsInBloomEffect = false;
 bool IsInFakeFadeout = false;
 bool ClassReleaseFlag = false;
+DWORD TextureNum = 0;
 DWORD MaxAnisotropy = 0;
 
 HRESULT m_IDirect3DDevice8::QueryInterface(REFIID riid, LPVOID *ppvObj)
@@ -477,8 +478,16 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 	// Restores self shadows
 	if (EnableXboxShadows && State == D3DRS_STENCILPASS && Value == D3DSTENCILOP_REPLACE)
 	{
-		if (SH2_ChapterID && *SH2_ChapterID == 0x01) // Born From a Wish
+		// Special handling for room 54
+		static bool IsEnabledInRoom54 = false;
+		if ((SH2_CutsceneID && *SH2_CutsceneID == 0x54) && (IsEnabledInRoom54 || (SH2_CutsceneCameraPos && *SH2_CutsceneCameraPos == -19521.60742f)))
 		{
+			IsEnabledInRoom54 = true;
+			Value = D3DSTENCILOP_ZERO; // Restore self shadows
+		}
+		else if (SH2_ChapterID && *SH2_ChapterID == 0x01) // Born From a Wish
+		{
+			IsEnabledInRoom54 = false;
 			if (SH2_SpecializedLight1 && *SH2_SpecializedLight1 != 0x01) // If not in a specialized lighting zone
 			{
 				if (SH2_RoomID && *SH2_RoomID != 0x20 && *SH2_RoomID != 0x25 && *SH2_RoomID != 0x26) // Exclude Blue Creek hallways/staircase completely from restored self shadows
@@ -489,7 +498,8 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 		}
 		else // Main campaign
 		{
-			if (SH2_SpecializedLight1 && *SH2_SpecializedLight1 != 0x01 && SH2_SpecializedLight2 && *SH2_SpecializedLight2 != 0x01) // If not in a specialized lighting zone
+			IsEnabledInRoom54 = false;
+			if ((SH2_CutsceneID && *SH2_CutsceneID == 0x4E) || (SH2_SpecializedLight1 && *SH2_SpecializedLight1 != 0x01 && SH2_SpecializedLight2 && *SH2_SpecializedLight2 != 0x01))	// Exclude specialized lighting zone unless in specific cutscene
 			{
 				if (SH2_RoomID && *SH2_RoomID != 0x9E) // Exclude Hotel Room 202-204 completely from restored self shadows
 				{
@@ -999,6 +1009,15 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	// Lens flare effect
+	DWORD AlphaEnable = 0, SourceBlend = 0;
+	if (PrimitiveType == D3DPT_TRIANGLELIST && StartVertex == 0 &&
+		SUCCEEDED(GetRenderState(D3DRS_ALPHABLENDENABLE, &AlphaEnable)) && SUCCEEDED(GetRenderState(D3DRS_SRCBLEND, &SourceBlend)) &&
+		AlphaEnable == TRUE && SourceBlend == D3DBLEND_SRCALPHA)
+	{
+		// Add code here
+	}
+
 	// Set pillar boxes to black (removes game images from pillars)
 	if (LastFrameFullscreenImage && !IsInFullscreenImage && SH2_RoomID && *SH2_RoomID && SH2_CutsceneID && !*SH2_CutsceneID)
 	{
@@ -1155,9 +1174,14 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 
 	LastDrawPrimitiveUPStride += VertexStreamZeroStride;
 
-	// Draw Self/Soft Shadows
-	DWORD stencilRef;
-	GetRenderState(D3DRS_STENCILREF, &stencilRef);
+	// Noise Filter
+	DWORD AlphaEnable = 0, TextureFactor = 0;
+	if (PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 24 &&
+		SUCCEEDED(GetRenderState(D3DRS_ALPHABLENDENABLE, &AlphaEnable)) && SUCCEEDED(GetRenderState(D3DRS_TEXTUREFACTOR, &TextureFactor)) &&
+		AlphaEnable == TRUE && (TextureFactor & 0x00FFFFFF) != 0x00000000 && (TextureFactor & 0x00FFFFFF) != 0x00FFFFFF)
+	{
+		// Add code here
+	}
 
 	// Fix bowling cutscene fading
 	if (WidescreenFix && SH2_CutsceneID && *SH2_CutsceneID == 0x19 && PrimitiveType == D3DPT_TRIANGLELIST && PrimitiveCount == 2 && VertexStreamZeroStride == 28 && pVertexStreamZeroData &&
@@ -1316,7 +1340,9 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 		return D3D_OK;
 	}
 
-	if (stencilRef == 129)
+	// Draw Self/Soft Shadows
+	DWORD stencilRef;
+	if (SUCCEEDED(ProxyInterface->GetRenderState(D3DRS_STENCILREF, &stencilRef)) && stencilRef == 129)
 	{
 		if (EnableXboxShadows)
 		{
@@ -1727,15 +1753,24 @@ HRESULT m_IDirect3DDevice8::SetTexture(DWORD Stage, IDirect3DBaseTexture8 *pText
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	if (Stage == 0)
+	{
+		TextureNum = 0;
+	}
+
 	if (pTexture)
 	{
 		switch (pTexture->GetType())
 		{
 		case D3DRTYPE_TEXTURE:
 			D3DSURFACE_DESC Desc;
-			if (PauseScreenFix && SUCCEEDED(static_cast<m_IDirect3DTexture8 *>(pTexture)->GetLevelDesc(0, &Desc)) && Desc.Usage == D3DUSAGE_RENDERTARGET)
+			if (Stage == 0 && SUCCEEDED(static_cast<m_IDirect3DTexture8 *>(pTexture)->GetLevelDesc(0, &Desc)))
 			{
-				pCurrentRenderTexture = static_cast<m_IDirect3DTexture8 *>(pTexture);
+				TextureNum = ((Desc.Format & 0x00FFFFFF) == MAKEFOURCC('D', 'X', 'T', 0)) ? (BYTE)(Desc.Format >> 24) - 48 : 0;
+				if (PauseScreenFix && Desc.Usage == D3DUSAGE_RENDERTARGET)
+				{
+					pCurrentRenderTexture = static_cast<m_IDirect3DTexture8 *>(pTexture);
+				}
 			}
 			pTexture = static_cast<m_IDirect3DTexture8 *>(pTexture)->GetProxyInterface();
 			break;
@@ -1774,9 +1809,13 @@ HRESULT m_IDirect3DDevice8::SetTextureStageState(DWORD Stage, D3DTEXTURESTAGESTA
 				return D3D_OK;
 			}
 		}
-		else if (Type == D3DTSS_MAGFILTER || Type == D3DTSS_MINFILTER || Type == D3DTSS_MIPFILTER)
+		else if (Type == D3DTSS_MINFILTER || Type == D3DTSS_MAGFILTER || Type == D3DTSS_MIPFILTER)
 		{
 			ProxyInterface->SetTextureStageState(Stage, D3DTSS_MAXANISOTROPY, MaxAnisotropy);
+			if (Value != D3DTEXF_POINT && !(Stage == 0 && (Type == D3DTSS_MINFILTER || Type == D3DTSS_MAGFILTER)))
+			{
+				Value = D3DTEXF_ANISOTROPIC;
+			}
 		}
 	}
 

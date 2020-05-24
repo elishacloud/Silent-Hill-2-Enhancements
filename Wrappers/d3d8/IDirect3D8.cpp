@@ -217,6 +217,26 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	// Get device information
+	D3DADAPTER_IDENTIFIER8 dai;
+	if (SUCCEEDED(ProxyInterface->GetAdapterIdentifier(D3DADAPTER_DEFAULT, 0, &dai)))
+	{
+		VendorID = dai.VendorId;
+	}
+
+	// Check if render target needs to be replaced
+	if (DeviceMultiSampleType || (FixGPUAntiAliasing && VendorID == 0x10DE /*Nvidia*/))
+	{
+		CopyRenderTarget = true;
+	}
+
+	// Check for SSAA
+	if ((DeviceMultiSampleType || FixGPUAntiAliasing) &&
+		(ProxyInterface->CheckDeviceFormat(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, D3DFMT_X8R8G8B8, 0, D3DRTYPE_SURFACE, (D3DFORMAT)MAKEFOURCC('S', 'S', 'A', 'A')) == S_OK || VendorID == 0x10DE /*Nvidia*/))
+	{
+		SetSSAA = true;
+	}
+
 	// Update presentation parameters
 	UpdatePresentParameter(pPresentationParameters, hFocusWindow, true);
 
@@ -261,25 +281,6 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 		{
 			Logging::Log() << __FUNCTION__ << " Failed to enable AntiAliasing!";
 		}
-	}
-
-	// Get device information
-	D3DADAPTER_IDENTIFIER8 dai;
-	if (SUCCEEDED(ProxyInterface->GetAdapterIdentifier(D3DADAPTER_DEFAULT, 0, &dai)))
-	{
-		VendorID = dai.VendorId;
-	}
-
-	// Check if render target needs to be replaced
-	if (DeviceMultiSampleType || (FixGPUAntiAliasing && VendorID == 0x10DE /*Nvidia*/))
-	{
-		CopyRenderTarget = true;
-	}
-
-	// Check for SSAA
-	if ((DeviceMultiSampleType || FixGPUAntiAliasing) && (ProxyInterface->CheckDeviceFormat(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, D3DFMT_X8R8G8B8, 0, D3DRTYPE_SURFACE, (D3DFORMAT)MAKEFOURCC('S', 'S', 'A', 'A'))) == S_OK)
-	{
-		SetSSAA = true;
 	}
 
 	if (FAILED(hr))

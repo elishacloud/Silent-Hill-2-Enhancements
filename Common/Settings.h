@@ -3,6 +3,7 @@
 #include <string>
 
 #define VISIT_BOOL_SETTINGS(visit) \
+	visit(AudioClipDetection, true) \
 	visit(AutoUpdateModule, true) \
 	visit(CatacombsMeatRoomFix, true) \
 	visit(CemeteryLightingFix, true) \
@@ -85,6 +86,7 @@
 	visit(WoodsideRoom205Fix, true)
 
 #define VISIT_INT_SETTINGS(visit) \
+	visit(AudioFadeOutDelayMS, 20) \
 	visit(AntiAliasing, 0) \
 	visit(AnisotropicFiltering, 1) \
 	visit(CustomFontCol, 100) \

@@ -230,6 +230,18 @@
     <ClCompile Include="Patches\FogFix.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Wrappers\dsound\dsoundwrapper.cpp">
+      <Filter>Wrappers\dsound</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrappers\dsound\IDirectSound8.cpp">
+      <Filter>Wrappers\dsound</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrappers\dsound\IDirectSoundBuffer8.cpp">
+      <Filter>Wrappers\dsound</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrappers\dsound\InterfaceQuery.cpp">
+      <Filter>Wrappers\dsound</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">
@@ -352,6 +364,18 @@
     <ClInclude Include="Include\winapifamily.h">
       <Filter>Include</Filter>
     </ClInclude>
+    <ClInclude Include="Wrappers\dsound\dsoundwrapper.h">
+      <Filter>Wrappers\dsound</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\dsound\AddressLookupTable.h">
+      <Filter>Wrappers\dsound</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\dsound\IDirectSound8.h">
+      <Filter>Wrappers\dsound</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\dsound\IDirectSoundBuffer8.h">
+      <Filter>Wrappers\dsound</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\sh2-enhce.rc">
@@ -426,6 +450,9 @@
     </Filter>
     <Filter Include="Include\GTA">
       <UniqueIdentifier>{69a3da45-728e-4ff1-868c-43782034326f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Wrappers\dsound">
+      <UniqueIdentifier>{239f9f4e-9a68-4133-839f-fbfb3f509bf1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

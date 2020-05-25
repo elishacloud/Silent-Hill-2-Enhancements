@@ -36,6 +36,12 @@ namespace Wrapper
 #include "dinput8.h"
 #include "dsound.h"
 
+typedef struct IUnknown *LPUNKNOWN;
+typedef struct IDirectSound8 *LPDIRECTSOUND8;
+
+void HookDirectSoundCreate8();
+HRESULT WINAPI DirectSoundCreate8Wrapper(LPCGUID pcGuidDevice, LPDIRECTSOUND8 *ppDS8, LPUNKNOWN pUnkOuter);
+
 #define DECLARE_FORWARD_FUNCTIONS(procName, unused) \
 	extern "C" void __stdcall procName();
 

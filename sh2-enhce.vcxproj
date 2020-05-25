@@ -92,6 +92,10 @@
     <ClCompile Include="Wrappers\d3d8\IDirect3DVolume8.cpp" />
     <ClCompile Include="Wrappers\d3d8\IDirect3DVolumeTexture8.cpp" />
     <ClCompile Include="Wrappers\d3d8\InterfaceQuery.cpp" />
+    <ClCompile Include="Wrappers\dsound\dsoundwrapper.cpp" />
+    <ClCompile Include="Wrappers\dsound\IDirectSound8.cpp" />
+    <ClCompile Include="Wrappers\dsound\IDirectSoundBuffer8.cpp" />
+    <ClCompile Include="Wrappers\dsound\InterfaceQuery.cpp" />
     <ClCompile Include="Wrappers\wrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -134,6 +138,10 @@
     <ClInclude Include="Wrappers\d3d8\AddressLookupTable.h" />
     <ClInclude Include="Wrappers\dinput8.h" />
     <ClInclude Include="Wrappers\dsound.h" />
+    <ClInclude Include="Wrappers\dsound\AddressLookupTable.h" />
+    <ClInclude Include="Wrappers\dsound\dsoundwrapper.h" />
+    <ClInclude Include="Wrappers\dsound\IDirectSound8.h" />
+    <ClInclude Include="Wrappers\dsound\IDirectSoundBuffer8.h" />
     <ClInclude Include="Wrappers\wrapper.h" />
   </ItemGroup>
   <ItemGroup>

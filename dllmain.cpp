@@ -37,6 +37,7 @@ HMODULE m_hModule = nullptr;
 SH2VERSION GameVersion = SH2V_UNKNOWN;
 HMODULE wrapper_dll = nullptr;
 EXECUTION_STATE esFlags = 0;
+bool ds_threadExit = false;
 
 // Dll main function
 bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
@@ -212,6 +213,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			// Hook d3d8.dll -> d3d8wrapper
 			Logging::Log() << "Hooking d3d8.dll APIs...";
 			d3d8::Direct3DCreate8_var = (FARPROC)Hook::HotPatch(Hook::GetProcAddress(d3d8_dll, "Direct3DCreate8"), "Direct3DCreate8", p_Direct3DCreate8Wrapper, d3d8to9);
+		}
+
+		// Hook DirectSound8
+		if (AudioClipDetection)
+		{
+			HookDirectSoundCreate8();
 		}
 
 		// Enable d3d8to9

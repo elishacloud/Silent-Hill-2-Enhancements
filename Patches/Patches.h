@@ -26,13 +26,15 @@ DWORD *GetTransitionStatePointer();
 
 // Function forward declaration
 void CheckArgumentsForPID();
+void CheckAdminAccess();
+void DelayedStart();
 void DisableCDCheck();
 void PatchBinary();
 void SetCustomFogFix();
 void SetDefaultFullscreenBackground();
+void SetDelayedStart();
 void SetWindowHandle(HWND WindowHandle);
 void Update2TBHardDriveFix();
-void UpdateAdminAccess();
 void UpdateBestGraphics();
 void UpdateBloodSize(DWORD *SH2_RoomID);
 void UpdateCatacombsMeatRoom();

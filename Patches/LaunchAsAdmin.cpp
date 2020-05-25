@@ -25,30 +25,6 @@
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
-// Forward declarations
-void CheckForAdminAccess();
-
-// Variables for ASM
-DWORD GameAddressPointer;
-void *jmpAdminAccess;
-
-// ASM function to to check if admin access is needed
-__declspec(naked) void __stdcall AdminAccessASM()
-{
-	__asm
-	{
-		push eax
-		push ebx
-		push ecx
-		call CheckForAdminAccess
-		pop ecx
-		pop ebx
-		pop eax
-		push dword ptr ds : [GameAddressPointer]
-		jmp jmpAdminAccess
-	}
-}
-
 // Check arguments to see if a pid is sent as an argument
 void CheckArgumentsForPID()
 {
@@ -94,7 +70,7 @@ void CheckArgumentsForPID()
 }
 
 // Check if administrator access is required
-void CheckForAdminAccess()
+void CheckAdminAccess()
 {
 	// Get Silent Hill 2 file path
 	wchar_t sh2path[MAX_PATH];
@@ -129,24 +105,4 @@ void CheckForAdminAccess()
 	{
 		exit(0);
 	}
-}
-
-// Set hook at beginning of Silent Hill 2 code to check for administrator access
-void UpdateAdminAccess()
-{
-	// Get memory pointer
-	constexpr BYTE SearchBytes[]{ 0xFF, 0xD7, 0x66, 0x81, 0x38, 0x4D, 0x5A, 0x75, 0x1F, 0x8B, 0x48, 0x3C, 0x03, 0xC8, 0x81, 0x39 };
-	DWORD Address = SearchAndGetAddresses(0x0056FDEB, 0x0056EBBB, 0x0056E4DB, SearchBytes, sizeof(SearchBytes), -0x13);
-
-	// Checking address pointer
-	if (!Address)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find pointer address!";
-		return;
-	}
-	GameAddressPointer = *(DWORD*)(Address + 2);
-	jmpAdminAccess = (void*)(Address + 5);
-
-	// Update SH2 code
-	WriteJMPtoMemory((BYTE*)Address, *AdminAccessASM, 5);
 }

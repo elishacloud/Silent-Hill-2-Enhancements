@@ -242,6 +242,9 @@
     <ClCompile Include="Wrappers\dsound\InterfaceQuery.cpp">
       <Filter>Wrappers\dsound</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\DelayedStart.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">

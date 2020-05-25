@@ -207,6 +207,11 @@ void UpdateXInputVibration()
 	// Get vibration intensity
 	constexpr BYTE IntensitySearchBytes[]{ 0x6A, 0x60, 0x75, 0x04, 0x6A, 0x3F, 0xEB, 0x02, 0x6A, 0x1F, 0x6A, 0x3F, 0x6A, 0x3F, 0xE8 };
 	IntensityAddr = (BYTE*)ReadSearchedAddresses(0x00461735, 0x00461995, 0x00461995, IntensitySearchBytes, sizeof(IntensitySearchBytes), -0x04);
+	if (!IntensityAddr)
+	{
+		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+		return;
+	}
 
 	// Update SH2 code
 	Logging::Log() << "Enabling XInput Vibration Fix...";

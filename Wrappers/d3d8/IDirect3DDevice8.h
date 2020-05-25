@@ -13,24 +13,6 @@ private:
 
 	bool ReplacedLastRenderTarget = false;
 
-	BYTE *SH2_ChapterID = nullptr;
-	DWORD *SH2_RoomID = nullptr;
-	DWORD *SH2_CutsceneID = nullptr;
-	float *SH2_CutsceneCameraPos = nullptr;
-	float *SH2_JamesPosX = nullptr;
-	float *SH2_JamesPosY = nullptr;
-	float *SH2_JamesPosZ = nullptr;
-	DWORD *SH2_OnScreen = nullptr;
-	BYTE *SH2_PauseMenu = nullptr;
-	DWORD *SH2_SpecializedLight1 = nullptr;
-	DWORD *SH2_SpecializedLight2 = nullptr;
-
-	BYTE *SH2_FlashlightBeam = nullptr;
-	BYTE *SH2_FlashlightSwitch = nullptr;
-	float *SH2_FlashlightRed = nullptr;
-	float *SH2_FlashlightGreen = nullptr;
-	float *SH2_FlashlightBlue = nullptr;
-
 	// For detecting fullscreen images and turning pillar boxes to black
 	bool IsInFullscreenImage = false;
 	bool LastFrameFullscreenImage = false;
@@ -178,27 +160,6 @@ public:
 		Logging::LogDebug() << "Creating device " << __FUNCTION__ << "(" << this << ")";
 
 		ProxyAddressLookupTableD3d8 = new AddressLookupTableD3d8<m_IDirect3DDevice8>(this);
-
-		SH2_ChapterID = GetChapterIDPointer();
-		SH2_RoomID = GetRoomIDPointer();
-		SH2_CutsceneID = GetCutsceneIDPointer();
-		SH2_CutsceneCameraPos = GetCutscenePosPointer();
-		SH2_JamesPosX = GetJamesPosXPointer();
-		SH2_JamesPosY = GetJamesPosYPointer();
-		SH2_JamesPosZ = GetJamesPosZPointer();
-		SH2_OnScreen = GetOnScreenPointer();
-		SH2_PauseMenu = GetPauseMenuPointer();
-		SH2_SpecializedLight1 = GetSpecializedLightPointer1();
-		SH2_SpecializedLight2 = GetSpecializedLightPointer2();
-
-		SH2_FlashlightBeam = GetFlashLightRenderPointer();
-		SH2_FlashlightSwitch = GetFlashlightSwitchPointer();
-		SH2_FlashlightRed = GetFlashlightBrightnessPointer();
-		if (SH2_FlashlightRed)
-		{
-			SH2_FlashlightGreen = (float*)((DWORD)SH2_FlashlightRed + 4);
-			SH2_FlashlightBlue = (float*)((DWORD)SH2_FlashlightRed + 8);
-		}
 
 		// Enable Anisotropic Filtering
 		if (AnisotropicFiltering)

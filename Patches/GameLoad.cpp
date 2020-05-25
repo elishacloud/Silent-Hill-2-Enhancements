@@ -72,7 +72,7 @@ void SetGameLoad()
 	WriteJMPtoMemory((BYTE*)QuickSaveFunction, *QuickSaveASM, 6);
 }
 
-void UpdateGameLoad(DWORD *SH2_RoomID, float *SH2_JamesPosX, float *SH2_JamesPosZ)
+void RunGameLoad()
 {
 	// Update save code elevator room
 	RUNCODEONCE(SetGameLoad());
@@ -152,23 +152,23 @@ void UpdateGameLoad(DWORD *SH2_RoomID, float *SH2_JamesPosX, float *SH2_JamesPos
 	bool DisableQuickSave = false;
 
 	// Enable game saves for specific rooms
-	if (*SH2_RoomID == 0x29)
+	if (GetRoomID() == 0x29)
 	{
 		*SaveGameAddress = 1;
 		ValueSet = true;
 	}
 	// Disable game saves for specific rooms
-	else if (*SH2_RoomID == 0x13 || *SH2_RoomID == 0x17 || *SH2_RoomID == 0xAA || *SH2_RoomID == 0xC7 ||
-		(*SH2_RoomID == 0x78 && *SH2_JamesPosX < -18600.0f) ||
-		(*SH2_RoomID == 0x04 && *SH2_JamesPosZ > 49000.0f))
+	else if (GetRoomID() == 0x13 || GetRoomID() == 0x17 || GetRoomID() == 0xAA || GetRoomID() == 0xC7 ||
+		(GetRoomID() == 0x78 && GetJamesPosX() < -18600.0f) ||
+		(GetRoomID() == 0x04 && GetJamesPosZ() > 49000.0f))
 	{
 		*SaveGameAddress = 0;
 		ValueUnSet = true;
 	}
 	// Disable game saves for specific rooms and disable quick save if the Elevator is not running or there is in-game voice event happening
-	else if (*SH2_RoomID == 0x2A || *SH2_RoomID == 0x46 ||
-		(*SH2_RoomID == 0x9D && *SH2_JamesPosX < 60650.0f) ||
-		(*SH2_RoomID == 0xB8 && *SH2_JamesPosX > -15800.0f))
+	else if (GetRoomID() == 0x2A || GetRoomID() == 0x46 ||
+		(GetRoomID() == 0x9D && GetJamesPosX() < 60650.0f) ||
+		(GetRoomID() == 0xB8 && GetJamesPosX() > -15800.0f))
 	{
 		*SaveGameAddress = 0;
 		ValueUnSet = true;
@@ -195,7 +195,7 @@ void UpdateGameLoad(DWORD *SH2_RoomID, float *SH2_JamesPosX, float *SH2_JamesPos
 	}
 
 	// Disable quick save during certian in-game voice events and during fullscreen image events
-	if ((((*SH2_RoomID == 0x0A) || (*SH2_RoomID == 0xBA)) && *InGameVoiceEvent == 1) ||
+	if ((((GetRoomID() == 0x0A) || (GetRoomID() == 0xBA)) && *InGameVoiceEvent == 1) ||
 		*FullscreenImageEvent == 0)
 	{
 		DisableQuickSave = true;

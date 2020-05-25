@@ -19,7 +19,7 @@
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
-void UpdatePreventChainsawSpawn()
+void PatchPreventChainsawSpawn()
 {
 	// Get chiansaw spawn address
 	constexpr BYTE SearchBytes[]{ 0x85, 0xF6, 0x7E, 0x0F, 0xF6, 0xC1, 0x40, 0x74, 0x0A, 0x81, 0x0D };

@@ -142,7 +142,7 @@ __declspec(naked) void __stdcall SpaceSizeASM3()
 	}
 }
 
-void UpdateCustomFonts()
+void PatchCustomFonts()
 {
 	// Find address for font decode function
 	void *DFontAddrA = (void*)SearchAndGetAddresses(0x004809F4, 0x00480C94, 0x00480EA4, DFontFuncBlockA, sizeof(DFontFuncBlockA), 0x00);

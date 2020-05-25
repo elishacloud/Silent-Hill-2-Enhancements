@@ -61,8 +61,8 @@ __declspec(naked) void __stdcall CutsceneKeyPressASM()
 	}
 }
 
-// Update SH2 code to Fix an issue where the game will hang when Esc is pressed while transition is active
-void UpdateHangOnEsc(DWORD *SH2_RoomID)
+// Run SH2 code to Fix an issue where the game will hang when Esc is pressed while transition is active
+void RunHangOnEsc()
 {
 	static bool RunOnlyOnce = true;
 	if (RunOnlyOnce)
@@ -95,18 +95,6 @@ void UpdateHangOnEsc(DWORD *SH2_RoomID)
 		WriteJMPtoMemory((BYTE*)KeyPressAddress, *CutsceneKeyPressASM, 7);
 	}
 
-	// Get transition state address
-	static DWORD *ScreenEvent = GetTransitionStatePointer();
-
-	// Checking address pointer
-	if (!ScreenEvent)
-	{
-		RUNONCE();
-
-		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
-		return;
-	}
-
 	static DWORD Address = NULL;
 	if (!Address)
 	{
@@ -125,7 +113,7 @@ void UpdateHangOnEsc(DWORD *SH2_RoomID)
 	RUNCODEONCE(Logging::Log() << "Fixing Esc while transition is active...");
 
 	// Prevent player from pressing Esc while transition is active
-	if (*(DWORD*)Address != 0x03 && (*ScreenEvent == 0x03 || (IsInBloomEffect && *SH2_RoomID == 0x90) || IsInFakeFadeout))
+	if (*(DWORD*)Address != 0x03 && (GetTransitionState() == 0x03 || (IsInBloomEffect && GetRoomID() == 0x90) || IsInFakeFadeout))
 	{
 		DWORD Value = 3;
 		UpdateMemoryAddress((void*)Address, &Value, sizeof(DWORD));

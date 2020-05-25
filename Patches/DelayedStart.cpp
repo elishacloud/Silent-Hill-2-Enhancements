@@ -16,9 +16,10 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include "Patches.h"
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
+
+void DelayedStart();
 
 // Variables for ASM
 DWORD GameAddressPointer;

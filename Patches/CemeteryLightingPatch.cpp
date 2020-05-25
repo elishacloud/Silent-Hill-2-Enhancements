@@ -43,8 +43,8 @@ __declspec(naked) void __stdcall CemeteryLightingASM()
 	}
 }
 
-// Update SH2 code to Fix Cemetery Lighting
-void UpdateCemeteryLighting()
+// Patch SH2 code to Fix Cemetery Lighting
+void PatchCemeteryLighting()
 {
 	// Get Cemetery Lighting address
 	constexpr BYTE CemeterySearchBytes[]{ 0x83, 0xEC, 0x10, 0x55, 0x56, 0x57, 0x50, 0x51, 0x8D, 0x54, 0x24, 0x14, 0x6A, 0x00, 0x52 };

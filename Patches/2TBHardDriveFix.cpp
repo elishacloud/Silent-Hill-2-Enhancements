@@ -127,8 +127,8 @@ DWORD GetDiskSpace()
 	return (DWORD)(FreeSpace);
 }
 
-// Update SH2 code to Fix 2TB disk limit
-void Update2TBHardDriveFix()
+// Patch SH2 code to Fix 2TB disk limit
+void Patch2TBHardDrive()
 {
 	// 2TB disk check fix
 	constexpr BYTE HardDriveSearchBytes[]{ 0x75, 0x08, 0x5F, 0xB8, 0x02, 0x00, 0x00, 0x00, 0x5E, 0xC3, 0x84, 0xDB, 0x75, 0x14, 0x83, 0xFE, 0x20, 0x7C, 0x0F };

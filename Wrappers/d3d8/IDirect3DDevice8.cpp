@@ -168,19 +168,19 @@ HRESULT m_IDirect3DDevice8::EndScene()
 	Logging::LogDebug() << __FUNCTION__;
 
 	// Skip frames in specific cutscenes to prevent flickering
-	if (RemoveEnvironmentFlicker && SH2_CutsceneID && SH2_CutsceneCameraPos && SH2_JamesPosX)
+	if (RemoveEnvironmentFlicker)
 	{
-		if ((LastCutsceneID == 0x01 && SkipSceneCounter < 4 && (SkipSceneCounter || *SH2_JamesPosX != LastJamesPosX)) ||
-			(LastCutsceneID == 0x03 && SkipSceneCounter < 1 && (SkipSceneCounter || *SH2_JamesPosX == 330.845f)) ||
-			((LastCutsceneID == 0x15 || LastCutsceneID == 0x16) && SkipSceneCounter < 1 && (SkipSceneCounter || *SH2_CutsceneID != LastCutsceneID || (ClassReleaseFlag && !(*SH2_CutsceneCameraPos == *(float*)"\xAE\x01\x31\x46" && LastCameraPos == 0))) && !(*SH2_CutsceneID == 0x16 && LastCutsceneID == 0x15)) ||
-			(LastCutsceneID == 0x16 && SkipSceneCounter < 4 && (SkipSceneCounter || (*SH2_CutsceneCameraPos != LastCameraPos && *SH2_CutsceneCameraPos == *(float*)"\x40\xA1\xA8\x45")) && *SH2_CutsceneID == 0x16) ||
-			(LastCutsceneID == 0x4C && SkipSceneCounter < 1 && (SkipSceneCounter || *SH2_CutsceneID != LastCutsceneID)) ||
-			(LastCutsceneID == 0x4D && SkipSceneCounter < 2 && (SkipSceneCounter || *SH2_CutsceneID != LastCutsceneID || ClassReleaseFlag)) ||
-			(LastCutsceneID == 0x4D && SkipSceneCounter < 3 && (SkipSceneCounter || *SH2_CutsceneCameraPos != LastCameraPos) && *SH2_CutsceneCameraPos == *(float*)"\x59\xCC\x06\xC6" && *SH2_CutsceneID == 0x4D))
+		if ((LastCutsceneID == 0x01 && SkipSceneCounter < 4 && (SkipSceneCounter || GetJamesPosX() != LastJamesPosX)) ||
+			(LastCutsceneID == 0x03 && SkipSceneCounter < 1 && (SkipSceneCounter || GetJamesPosX() == 330.845f)) ||
+			((LastCutsceneID == 0x15 || LastCutsceneID == 0x16) && SkipSceneCounter < 1 && (SkipSceneCounter || GetCutsceneID() != LastCutsceneID || (ClassReleaseFlag && !(GetCutscenePos() == *(float*)"\xAE\x01\x31\x46" && LastCameraPos == 0))) && !(GetCutsceneID() == 0x16 && LastCutsceneID == 0x15)) ||
+			(LastCutsceneID == 0x16 && SkipSceneCounter < 4 && (SkipSceneCounter || (GetCutscenePos() != LastCameraPos && GetCutscenePos() == *(float*)"\x40\xA1\xA8\x45")) && GetCutsceneID() == 0x16) ||
+			(LastCutsceneID == 0x4C && SkipSceneCounter < 1 && (SkipSceneCounter || GetCutsceneID() != LastCutsceneID)) ||
+			(LastCutsceneID == 0x4D && SkipSceneCounter < 2 && (SkipSceneCounter || GetCutsceneID() != LastCutsceneID || ClassReleaseFlag)) ||
+			(LastCutsceneID == 0x4D && SkipSceneCounter < 3 && (SkipSceneCounter || GetCutscenePos() != LastCameraPos) && GetCutscenePos() == *(float*)"\x59\xCC\x06\xC6" && GetCutsceneID() == 0x4D))
 		{
 			LOG_LIMIT(1, "Skipping frame during cutscene!");
-			Logging::LogDebug() << __FUNCTION__ " frame - Counter " << SkipSceneCounter << " Release: " << ClassReleaseFlag << " CutsceneID: " << *SH2_CutsceneID << " LastCutsceneID: " << LastCutsceneID <<
-				" CutsceneCameraPos: " << *SH2_CutsceneCameraPos << " LastCameraPos: " << LastCameraPos << " JamesPos: " << *SH2_JamesPosX << " LastJamesPos: " << LastJamesPosX;
+			Logging::LogDebug() << __FUNCTION__ " frame - Counter " << SkipSceneCounter << " Release: " << ClassReleaseFlag << " CutsceneID: " << GetCutsceneID() << " LastCutsceneID: " << LastCutsceneID <<
+				" CutsceneCameraPos: " << GetCutscenePos() << " LastCameraPos: " << LastCameraPos << " JamesPos: " << GetJamesPosX() << " LastJamesPos: " << LastJamesPosX;
 
 			SkipSceneFlag = true;
 			SkipSceneCounter++;
@@ -190,9 +190,9 @@ HRESULT m_IDirect3DDevice8::EndScene()
 
 		SkipSceneFlag = false;
 		SkipSceneCounter = 0;
-		LastCutsceneID = *SH2_CutsceneID;
-		LastCameraPos = *SH2_CutsceneCameraPos;
-		LastJamesPosX = *SH2_JamesPosX;
+		LastCutsceneID = GetCutsceneID();
+		LastCameraPos = GetCutscenePos();
+		LastJamesPosX = GetJamesPosX();
 	}
 
 	// Reset flag for black pillar boxes
@@ -480,17 +480,17 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 	{
 		// Special handling for room 54
 		static bool IsEnabledInRoom54 = false;
-		if ((SH2_CutsceneID && *SH2_CutsceneID == 0x54) && (IsEnabledInRoom54 || (SH2_CutsceneCameraPos && *SH2_CutsceneCameraPos == -19521.60742f)))
+		if (GetCutsceneID() == 0x54 && (IsEnabledInRoom54 || GetCutscenePos() == -19521.60742f))
 		{
 			IsEnabledInRoom54 = true;
 			Value = D3DSTENCILOP_ZERO; // Restore self shadows
 		}
-		else if (SH2_ChapterID && *SH2_ChapterID == 0x01) // Born From a Wish
+		else if (GetChapterID() == 0x01) // Born From a Wish
 		{
 			IsEnabledInRoom54 = false;
-			if (SH2_SpecializedLight1 && *SH2_SpecializedLight1 != 0x01) // If not in a specialized lighting zone
+			if (GetSpecializedLight1() != 0x01) // If not in a specialized lighting zone
 			{
-				if (SH2_RoomID && *SH2_RoomID != 0x20 && *SH2_RoomID != 0x25 && *SH2_RoomID != 0x26) // Exclude Blue Creek hallways/staircase completely from restored self shadows
+				if (GetRoomID() != 0x20 && GetRoomID() != 0x25 && GetRoomID() != 0x26) // Exclude Blue Creek hallways/staircase completely from restored self shadows
 				{
 					Value = D3DSTENCILOP_ZERO; // Restore self shadows
 				}
@@ -499,9 +499,9 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 		else // Main campaign
 		{
 			IsEnabledInRoom54 = false;
-			if ((SH2_CutsceneID && *SH2_CutsceneID == 0x4E) || (SH2_SpecializedLight1 && *SH2_SpecializedLight1 != 0x01 && SH2_SpecializedLight2 && *SH2_SpecializedLight2 != 0x01))	// Exclude specialized lighting zone unless in specific cutscene
+			if (GetCutsceneID() == 0x4E || (GetSpecializedLight1() != 0x01 && GetSpecializedLight2() != 0x01))	// Exclude specialized lighting zone unless in specific cutscene
 			{
-				if (SH2_RoomID && *SH2_RoomID != 0x9E) // Exclude Hotel Room 202-204 completely from restored self shadows
+				if (GetRoomID() != 0x9E) // Exclude Hotel Room 202-204 completely from restored self shadows
 				{
 					Value = D3DSTENCILOP_ZERO; // Restore self shadows
 				}
@@ -845,7 +845,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 
 	// Fix pause menu
 	bool PauseMenuFlag = false;
-	if (SH2_PauseMenu && *SH2_PauseMenu)
+	if (GetPauseMenu())
 	{
 		if (PauseScreenFix && !InPauseMenu && pCurrentRenderTexture)
 		{
@@ -926,7 +926,7 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 	}
 
 	// Exclude Woodside Room 208 TV static geometry from receiving shadows
-	if (EnableSoftShadows && SH2_RoomID && *SH2_RoomID == 0x18 && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 4 && startIndex == 0 && primCount == 2)
+	if (EnableSoftShadows && GetRoomID() == 0x18 && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 4 && startIndex == 0 && primCount == 2)
 	{
 		LPDIRECT3DTEXTURE8 texture = nullptr;
 		D3DSURFACE_DESC desc = { D3DFMT_UNKNOWN, D3DRTYPE_TEXTURE, 0, D3DPOOL_DEFAULT, 0, D3DMULTISAMPLE_NONE, 0, 0 };
@@ -954,9 +954,9 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 	}
 	// Exclude windows in Heaven's Night, Hotel 2F Room Hallway and Hotel Storeroom from receiving shadows
 	else if (EnableSoftShadows &&
-		((SH2_RoomID && *SH2_RoomID == 0x0C && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 18 && startIndex == 0 && primCount == 21) ||
-		(SH2_RoomID && *SH2_RoomID == 0x9F && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 10 && startIndex == 0 && primCount == 10) ||
-		(SH2_RoomID && *SH2_RoomID == 0x94 && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 8 && startIndex == 0 && primCount == 8)))
+		((GetRoomID() == 0x0C && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 18 && startIndex == 0 && primCount == 21) ||
+		(GetRoomID() == 0x9F && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 10 && startIndex == 0 && primCount == 10) ||
+		(GetRoomID() == 0x94 && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 8 && startIndex == 0 && primCount == 8)))
 	{
 		DWORD stencilPass, stencilRef = 0;
 
@@ -977,7 +977,7 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 		return hr;
 	}
 	// Exclude refrigerator interior in hospital from receiving shadows
-	else if (EnableSoftShadows && SH2_RoomID && *SH2_RoomID == 0x53 && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 1037 && startIndex == 0 && primCount == 1580)
+	else if (EnableSoftShadows && GetRoomID() == 0x53 && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 1037 && startIndex == 0 && primCount == 1580)
 	{
 		DWORD stencilPass = 0;
 
@@ -1019,16 +1019,16 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 	}
 
 	// Set pillar boxes to black (removes game images from pillars)
-	if (LastFrameFullscreenImage && !IsInFullscreenImage && SH2_RoomID && *SH2_RoomID && SH2_CutsceneID && !*SH2_CutsceneID)
+	if (LastFrameFullscreenImage && !IsInFullscreenImage && GetRoomID() && !GetCutsceneID())
 	{
-		if (SH2_RoomID && *SH2_RoomID == 0x08)
+		if (GetRoomID() == 0x08)
 		{
 			DontModifyClear = true;
 		}
 		return ProxyInterface->Clear(0x00, nullptr, D3DCLEAR_TARGET | D3DCLEAR_STENCIL | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0xFF, 0x00, 0x00, 0x00), 1.0f, 0x80);
 	}
 	// Set pillar boxes to black (removes street decals from West Town fullscreen images)
-	else if (IsInFullscreenImage && PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && SH2_RoomID && *SH2_RoomID == 0x08)
+	else if (IsInFullscreenImage && PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && GetRoomID() == 0x08)
 	{
 		return D3D_OK;
 	}
@@ -1042,13 +1042,12 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 	}
 
 	// Disable shadow on the Labyrinth Valve
-	if (EnableSoftShadows && SH2_CutsceneID && *SH2_CutsceneID == 0x46 && PrimitiveType == D3DPT_TRIANGLELIST && PrimitiveCount > 496 && PrimitiveCount < 536)
+	if (EnableSoftShadows && GetCutsceneID() == 0x46 && PrimitiveType == D3DPT_TRIANGLELIST && PrimitiveCount > 496 && PrimitiveCount < 536)
 	{
 		return D3D_OK;
 	}
 	// Top Down Shadow
-	else if (EnableSoftShadows && ((SH2_RoomID && (*SH2_RoomID == 0x02 || *SH2_RoomID == 0x24 || *SH2_RoomID == 0x8F || *SH2_RoomID == 0x90)) ||
-		(SH2_CutsceneID && *SH2_CutsceneID == 0x5A)))
+	else if (EnableSoftShadows && ((GetRoomID() == 0x02 || GetRoomID() == 0x24 || GetRoomID() == 0x8F || GetRoomID() == 0x90) || GetCutsceneID() == 0x5A))
 	{
 		DWORD stencilPass = 0;
 		ProxyInterface->GetRenderState(D3DRS_STENCILPASS, &stencilPass);
@@ -1184,7 +1183,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 	}
 
 	// Fix bowling cutscene fading
-	if (WidescreenFix && SH2_CutsceneID && *SH2_CutsceneID == 0x19 && PrimitiveType == D3DPT_TRIANGLELIST && PrimitiveCount == 2 && VertexStreamZeroStride == 28 && pVertexStreamZeroData &&
+	if (WidescreenFix && GetCutsceneID() == 0x19 && PrimitiveType == D3DPT_TRIANGLELIST && PrimitiveCount == 2 && VertexStreamZeroStride == 28 && pVertexStreamZeroData &&
 		((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[0].z == 0.01f && ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[1].z == 0.01f && ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[2].z == 0.01f)
 	{
 		IsInFakeFadeout = true;
@@ -1215,7 +1214,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 			PillarBoxBottom = ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[2].y;
 		}
 		// Clip artifacts that protrude into pillarbox
-		else if (PillarBoxLeft && PillarBoxRight && SH2_RoomID && *SH2_RoomID && SH2_CutsceneID && !*SH2_CutsceneID && SH2_OnScreen && (*SH2_OnScreen == 4 || *SH2_OnScreen == 5))
+		else if (PillarBoxLeft && PillarBoxRight && GetRoomID() && !GetCutsceneID() && (GetOnScreen() == 4 || GetOnScreen() == 5))
 		{
 			// Clip green player marker
 			if (pVertexStreamZeroData && ((((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[1].x != ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[2].x ||
@@ -1335,7 +1334,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 		return D3D_OK;
 	}
 	// Set pillar boxes to black (removes fog from West Town fullscreen images)
-	else if (IsInFullscreenImage && PrimitiveType == D3DPT_TRIANGLEFAN && PrimitiveCount == 4 && VertexStreamZeroStride == 24 && SH2_RoomID && *SH2_RoomID == 0x08)
+	else if (IsInFullscreenImage && PrimitiveType == D3DPT_TRIANGLEFAN && PrimitiveCount == 4 && VertexStreamZeroStride == 24 && GetRoomID() == 0x08)
 	{
 		return D3D_OK;
 	}
@@ -1538,110 +1537,109 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 	// Enable Xbox shadows
 	if (EnableSoftShadows)
 	{
-		EnableXboxShadows = !((SH2_RoomID && (*SH2_RoomID == 0x02 || *SH2_RoomID == 0x24 || *SH2_RoomID == 0x8F || *SH2_RoomID == 0x90)) ||
-			(SH2_CutsceneID && *SH2_CutsceneID == 0x5A));
+		EnableXboxShadows = !((GetRoomID() == 0x02 || GetRoomID() == 0x24 || GetRoomID() == 0x8F || GetRoomID() == 0x90) || GetCutsceneID() == 0x5A);
 	}
 
 	// Hotel Water Visual Fixes
-	if (HotelWaterFix && SH2_RoomID)
+	if (HotelWaterFix)
 	{
-		UpdateHotelWater(SH2_RoomID);
+		RunHotelWater();
 	}
 
 	// RPT Apartment Closet Cutscene Fix
-	if (ClosetCutsceneFix && SH2_CutsceneID && SH2_CutsceneCameraPos)
+	if (ClosetCutsceneFix)
 	{
-		UpdateClosetCutscene(SH2_CutsceneID, SH2_CutsceneCameraPos);
+		RunClosetCutscene();
 	}
 
 	// RPT Hospital Elevator Stabbing Animation Fix
-	if (HospitalChaseFix && SH2_RoomID && SH2_JamesPosX)
+	if (HospitalChaseFix)
 	{
-		UpdateHospitalChase(SH2_RoomID, SH2_JamesPosX);
+		RunHospitalChase();
 	}
 
 	// Hang on Esc Fix
-	if (FixHangOnEsc && SH2_RoomID)
+	if (FixHangOnEsc)
 	{
-		UpdateHangOnEsc(SH2_RoomID);
+		RunHangOnEsc();
 	}
 
 	// Fix infinite rumble in pause menu
-	if (RestoreVibration && SH2_RoomID)
+	if (RestoreVibration)
 	{
-		UpdateInfiniteRumble(SH2_RoomID);
+		RunInfiniteRumble();
 	}
 
 	// Fix draw distance in forest with chainsaw logs and Eddie boss meat cold room
-	if (IncreaseDrawDistance && SH2_RoomID)
+	if (IncreaseDrawDistance)
 	{
-		UpdateDynamicDrawDistance(SH2_RoomID);
+		RunDynamicDrawDistance();
 	}
 
 	// Lighting Transition fix
-	if (LightingTransitionFix && SH2_CutsceneID)
+	if (LightingTransitionFix)
 	{
-		UpdateLightingTransition(SH2_CutsceneID);
+		RunLightingTransition();
 	}
 
 	// Game save fix
-	if (GameLoadFix && SH2_RoomID && SH2_JamesPosX && SH2_JamesPosZ)
+	if (GameLoadFix)
 	{
-		UpdateGameLoad(SH2_RoomID, SH2_JamesPosX, SH2_JamesPosZ);
+		RunGameLoad();
 	}
 
 	// Increase blood size
-	if (IncreaseBlood && SH2_RoomID)
+	if (IncreaseBlood)
 	{
-		UpdateBloodSize(SH2_RoomID);
+		RunBloodSize();
 	}
 
 	// Fix Fog volume in Hotel Room 312
-	if (RestoreSpecialFX && SH2_RoomID)
+	if (RestoreSpecialFX)
 	{
-		UpdateHotelRoom312FogVolumeFix(SH2_RoomID);
+		RunHotelRoom312FogVolumeFix();
 	}
 
 	// Disable shadow in specific cutscenes
-	if (EnableSoftShadows && SH2_CutsceneID)
+	if (EnableSoftShadows)
 	{
-		UpdateShadowCutscene(SH2_CutsceneID);
+		RunShadowCutscene();
 	}
 
 	// Scale special FX based on resolution
 	if (RestoreSpecialFX)
 	{
-		UpdateSpecialFXScale(BufferHeight);
+		RunSpecialFXScale(BufferHeight);
 	}
 
 	// Scale the inner glow of the flashlight
 	if (PS2FlashlightBrightness)
 	{
-		UpdateInnerFlashlightGlow(BufferHeight);
+		RunInnerFlashlightGlow(BufferHeight);
 	}
 
 	// Tree Lighting fix
-	if (LightingFix && WidescreenFix && SH2_CutsceneID)
+	if (LightingFix && WidescreenFix)
 	{
-		UpdateTreeColor(SH2_CutsceneID);
+		RunTreeColor();
 	}
 
 	// Fix rotating Mannequin glitch
-	if (WoodsideRoom205Fix && SH2_RoomID)
+	if (WoodsideRoom205Fix)
 	{
-		UpdateRotatingMannequin(SH2_RoomID);
-	}
-
-	// Bowling cutscene fading
-	if (IsInFakeFadeout && SH2_CutsceneID && *SH2_CutsceneID != 0x19)
-	{
-		IsInFakeFadeout = false;
+		RunRotatingMannequin();
 	}
 
 	// Update fog speed
-	if (FogSpeedFix && SH2_RoomID && SH2_JamesPosY)
+	if (FogSpeedFix)
 	{
-		UpdateFogSpeed(SH2_RoomID, SH2_JamesPosY);
+		RunFogSpeed();
+	}
+
+	// Bowling cutscene fading
+	if (IsInFakeFadeout && GetCutsceneID() != 0x19)
+	{
+		IsInFakeFadeout = false;
 	}
 
 	HRESULT hr = ProxyInterface->BeginScene();
@@ -2644,64 +2642,61 @@ bool m_IDirect3DDevice8::CheckSilhouetteTexture()
 // Get shadow opacity
 DWORD m_IDirect3DDevice8::GetShadowOpacity()
 {
-	if (SH2_RoomID && SH2_ChapterID)
+	// Main scenario
+	if (GetChapterID() == 0x00)
 	{
-		// Main scenario
-		if (*SH2_ChapterID == 0x00)
+		switch (GetRoomID())
 		{
-			switch (*SH2_RoomID)
-			{
-			case 0x0F:
-				return 40;
-			case 0xA2:
-			case 0xBD:
-				return 50;
-			case 0x89:
-				return 70;
-			case 0x0B:
-			case 0x21:
-				return 110;
-			case 0xBF:
-				return 128;
-			}
+		case 0x0F:
+			return 40;
+		case 0xA2:
+		case 0xBD:
+			return 50;
+		case 0x89:
+			return 70;
+		case 0x0B:
+		case 0x21:
+			return 110;
+		case 0xBF:
+			return 128;
 		}
-		// Born From a Wish chapter
-		else if (*SH2_ChapterID == 0x01)
+	}
+	// Born From a Wish chapter
+	else if (GetChapterID() == 0x01)
+	{
+		switch (GetRoomID())
 		{
-			switch (*SH2_RoomID)
-			{
-			case 0x27:
-				return 30;
-			case 0xC2:
-				return 60;
-			case 0x0C:
-			case 0x0D:
-			case 0x20:
-			case 0x21:
-			case 0x25:
-			case 0x26:
-			case 0xC0:
-			case 0xC1:
-			case 0xC3:
-			case 0xC4:
-			case 0xC5:
-			case 0xC6:
-			case 0xC8:
-			case 0xC9:
-			case 0xCA:
-			case 0xCB:
-			case 0xCC:
-			case 0xCD:
-			case 0xCE:
-			case 0xCF:
-			case 0xD0:
-			case 0xD1:
-			case 0xD2:
-			case 0xD5:
-				return 90;
-			case 0xC7:
-				return 128;
-			}
+		case 0x27:
+			return 30;
+		case 0xC2:
+			return 60;
+		case 0x0C:
+		case 0x0D:
+		case 0x20:
+		case 0x21:
+		case 0x25:
+		case 0x26:
+		case 0xC0:
+		case 0xC1:
+		case 0xC3:
+		case 0xC4:
+		case 0xC5:
+		case 0xC6:
+		case 0xC8:
+		case 0xC9:
+		case 0xCA:
+		case 0xCB:
+		case 0xCC:
+		case 0xCD:
+		case 0xCE:
+		case 0xCF:
+		case 0xD0:
+		case 0xD1:
+		case 0xD2:
+		case 0xD5:
+			return 90;
+		case 0xC7:
+			return 128;
 		}
 	}
 
@@ -2712,23 +2707,17 @@ DWORD m_IDirect3DDevice8::GetShadowOpacity()
 // Get shadow fading intensity
 DWORD m_IDirect3DDevice8::GetShadowIntensity()
 {
-	return (!SH2_FlashlightRed || !SH2_FlashlightGreen || !SH2_FlashlightBlue) ? 100 :
-		(DWORD)(((*SH2_FlashlightRed + *SH2_FlashlightGreen + *SH2_FlashlightBlue) * 33.3333333f) / 7.0f);
+	return (DWORD)(((GetFlashlightBrightnessRed() + GetFlashlightBrightnessGreen() + GetFlashlightBrightnessBlue()) * 33.3333333f) / 7.0f);
 }
 
 // Check if shadow fading needs to be done and set the shadow intensity
 void m_IDirect3DDevice8::SetShadowFading()
 {
-	if (!SH2_FlashlightBeam || !SH2_FlashlightSwitch)
-	{
-		return;
-	}
-
 	// Check room ID to see if shadow fading should be enabled
 	bool EnableShadowFading = true;
 	for (const DWORD &Room : { 0x89, 0xA2, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBD })
 	{
-		if (SH2_RoomID && *SH2_RoomID == Room)
+		if (GetRoomID() == Room)
 		{
 			EnableShadowFading = false;
 			break;
@@ -2736,7 +2725,7 @@ void m_IDirect3DDevice8::SetShadowFading()
 	}
 
 	// Fade shadows in after turning flashlight on
-	if (EnableShadowFading && (LastFlashlightSwitch == 0x00 || ShadowMode != SHADOW_FADING_NONE) && *SH2_FlashlightSwitch == 0x01)
+	if (EnableShadowFading && (LastFlashlightSwitch == 0x00 || ShadowMode != SHADOW_FADING_NONE) && GetFlashlightSwitch() == 0x01)
 	{
 		if (ShadowMode != SHADOW_FADING_IN)
 		{
@@ -2746,12 +2735,12 @@ void m_IDirect3DDevice8::SetShadowFading()
 		ShadowFadingIntensity = GetShadowIntensity();	// Intesity is increased by around 3 each frame
 		if (ShadowFadingIntensity == 100)				// Exit once intensity reaches 100
 		{
-			LastFlashlightSwitch = *SH2_FlashlightSwitch;
+			LastFlashlightSwitch = GetFlashlightSwitch();
 			ShadowMode = SHADOW_FADING_NONE;
 		}
 	}
 	// Fade shadows out after turning flashlight off
-	else if (EnableShadowFading && *SH2_FlashlightSwitch == 0x00 && *SH2_FlashlightBeam == 0x01)
+	else if (EnableShadowFading && GetFlashlightSwitch() == 0x00 && GetFlashLightRender() == 0x01)
 	{
 		if (ShadowMode != SHADOW_FADING_OUT)
 		{
@@ -2761,7 +2750,7 @@ void m_IDirect3DDevice8::SetShadowFading()
 		ShadowFadingIntensity = GetShadowIntensity();	// Intesity is decreased by around 15 each frame
 	}
 	// Refade in other shadows after turning flashlight off
-	else if (EnableShadowFading && ((SH2_FlashlightSwitch && *SH2_FlashlightSwitch != LastFlashlightSwitch) || ShadowMode == SHADOW_FADING_OUT || ShadowMode == SHADOW_REFADING))
+	else if (EnableShadowFading && (GetFlashlightSwitch() != LastFlashlightSwitch || ShadowMode == SHADOW_FADING_OUT || ShadowMode == SHADOW_REFADING))
 	{
 		if (ShadowMode != SHADOW_REFADING)
 		{
@@ -2772,7 +2761,7 @@ void m_IDirect3DDevice8::SetShadowFading()
 		ShadowFadingIntensity = min(100, ShadowFadingCounter / 2);	// Intesity is increased by 1 every other frame
 		if (ShadowFadingIntensity == 100)							// Exit once intensity reaches 100
 		{
-			LastFlashlightSwitch = *SH2_FlashlightSwitch;
+			LastFlashlightSwitch = GetFlashlightSwitch();
 			ShadowMode = SHADOW_FADING_NONE;
 		}
 	}
@@ -2780,7 +2769,7 @@ void m_IDirect3DDevice8::SetShadowFading()
 	else
 	{
 		ShadowMode = SHADOW_FADING_NONE;
-		LastFlashlightSwitch = *SH2_FlashlightSwitch;
+		LastFlashlightSwitch = GetFlashlightSwitch();
 		ShadowFadingIntensity = LastFlashlightSwitch * 100;
 	}
 }

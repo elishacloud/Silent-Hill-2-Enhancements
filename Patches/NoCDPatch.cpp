@@ -19,7 +19,7 @@
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
-void DisableCDCheck()
+void PatchCDCheck()
 {
 	// Check for CD patch
 	constexpr BYTE CDCheckAddredBlock[] = { 0xEC, 0x08, 0x04, 0x00, 0x00, 0xA1 };

@@ -173,7 +173,7 @@ void CreateDirectInputGamepad_Hook()
 	}
 }
 
-void UpdateXInputVibration()
+void PatchXInputVibration()
 {
 	constexpr BYTE XIVibrationSearchBytes[]{ 0x57, 0x33, 0xC0, 0xB9, 0x9F, 0x01, 0x00, 0x00 };
 	const DWORD CreateDIGamepadAddr = SearchAndGetAddresses(0x458B30, 0x458D90, 0x458D90, XIVibrationSearchBytes, sizeof(XIVibrationSearchBytes), 0x24);
@@ -265,7 +265,7 @@ void UnhookWindowHandle()
 	}
 }
 
-void UpdateInfiniteRumble(DWORD *SH2_RoomID)
+void RunInfiniteRumble()
 {
 	// Get rumble address
 	static BYTE *RumbleAddress = nullptr;
@@ -313,7 +313,7 @@ void UpdateInfiniteRumble(DWORD *SH2_RoomID)
 
 	// Disable rumble
 	static bool ValueSet = false;
-	if (*PauseAddress == 0x01 || *SH2_RoomID == 0x00 || *ScreenEvent == 0x01 || *ScreenEvent == 0x02 || *ScreenEvent == 0x03 || LostWindowFocus)
+	if (*PauseAddress == 0x01 || GetRoomID() == 0x00 || *ScreenEvent == 0x01 || *ScreenEvent == 0x02 || *ScreenEvent == 0x03 || LostWindowFocus)
 	{
 		if (!ValueSet)
 		{

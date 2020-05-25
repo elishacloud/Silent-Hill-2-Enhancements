@@ -302,13 +302,13 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 		// Disables the ability to change resolution, displays currently used
 		if (LockResolution && WidescreenFix)
 		{
-			RUNCODEONCE(UpdateResolutionLock(BufferWidth, BufferHeight));
+			RUNCODEONCE(SetResolutionLock(BufferWidth, BufferHeight));
 		}
 
 		// Set correct resolution for Room 312
 		if (PauseScreenFix && WidescreenFix)
 		{
-			RUNCODEONCE(UpdateRoom312ResolutionFix(&BufferWidth));
+			RUNCODEONCE(SetRoom312Resolution(&BufferWidth));
 		}
 	}
 

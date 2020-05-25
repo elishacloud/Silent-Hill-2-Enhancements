@@ -65,8 +65,8 @@ __declspec(naked) void __stdcall PistonRoomASM()
 	}
 }
 
-// Update SH2 code to Fix Piston Position
-void UpdatePistonRoom()
+// Patch SH2 code to Fix Piston Position
+void PatchPistonRoom()
 {
 	// Get Piston address
 	constexpr BYTE SearchBytesPiston[]{ 0x52, 0x8D, 0x44, 0x24, 0x10, 0x50, 0x56, 0x57, 0xE8 };

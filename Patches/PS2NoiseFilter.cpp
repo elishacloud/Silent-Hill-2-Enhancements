@@ -47,8 +47,8 @@ __declspec(naked) void __stdcall NoiseFilterASM()
 	}
 }
 
-// Update SH2 code for PS2 Style Noise Filter
-void UpdatePS2NoiseFilter()
+// Patch SH2 code for PS2 Style Noise Filter
+void PatchPS2NoiseFilter()
 {
 	// Get PS2 filter memory address
 	constexpr BYTE FilterByteEDX[2][5] = { { 0xBA, 0xFF, 0x00, 0x00, 0x00 }, { 0xBA, 0xD7, 0x01, 0x00, 0x00 } };

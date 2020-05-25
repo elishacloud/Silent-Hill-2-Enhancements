@@ -20,8 +20,8 @@
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
-// Update SH2 code to Fix RPT Hospital Elevator Stabbing Animation
-void UpdateHospitalChase(DWORD *SH2_RoomID, float *SH2_JamesPosX)
+// Run SH2 code to Fix RPT Hospital Elevator Stabbing Animation
+void RunHospitalChase()
 {
 	static DWORD Address = NULL;
 	if (!Address)
@@ -42,10 +42,10 @@ void UpdateHospitalChase(DWORD *SH2_RoomID, float *SH2_JamesPosX)
 
 	// Fix Animation
 	static bool ValueSet = false;
-	if (*SH2_RoomID == 0x5B)
+	if (GetRoomID() == 0x5B)
 	{
 
-		if (!ValueSet && *SH2_JamesPosX > 33185.0f)
+		if (!ValueSet && GetJamesPosX() > 33185.0f)
 		{
 			BYTE Value = 5;
 			UpdateMemoryAddress((void*)Address, &Value, sizeof(BYTE));

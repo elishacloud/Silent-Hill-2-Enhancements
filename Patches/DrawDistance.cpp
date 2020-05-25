@@ -41,8 +41,8 @@ __declspec(naked) void __stdcall DrawDistanceASM()
 	}
 }
 
-// Update SH2 code for Draw Distance
-void UpdateDrawDistance()
+// Patch SH2 code for Draw Distance
+void PatchDrawDistance()
 {
 	// Loop variables
 	DWORD LoopCounter = 0;
@@ -163,7 +163,7 @@ DWORD CheckUpdateMemory(void *dataSrc, void *dataDest, size_t size, bool SearchM
 	return SearchMemoryFlag;
 }
 
-void UpdateDynamicDrawDistance(DWORD *SH2_RoomID)
+void RunDynamicDrawDistance()
 {
 	// Get dynamic draw distance address
 	static float *Address = nullptr;
@@ -184,7 +184,7 @@ void UpdateDynamicDrawDistance(DWORD *SH2_RoomID)
 
 	// Set dynamic draw distance
 	static bool ValueSet = false;
-	if (*SH2_RoomID == 0x03)
+	if (GetRoomID() == 0x03)
 	{
 		if (!ValueSet)
 		{
@@ -193,7 +193,7 @@ void UpdateDynamicDrawDistance(DWORD *SH2_RoomID)
 			ValueSet = true;
 		}
 	}
-	else if (*SH2_RoomID == 0x90)
+	else if (GetRoomID() == 0x90)
 	{
 		if (!ValueSet)
 		{

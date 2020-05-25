@@ -106,8 +106,8 @@ __declspec(naked) void __stdcall Room312BloomASM()
 	}
 }
 
-// Updates Room 312 to use correct resolution
-void UpdateRoom312ResolutionFix(void *WidthAddress)
+// Set Room 312 to use correct resolution
+void SetRoom312Resolution(void *WidthAddress)
 {
 	// Get Hotel Room 312 render texture width address
 	constexpr BYTE SearchBytesRenderTexture[]{ 0x56, 0x6A, 0x00, 0x6A, 0x15, 0x8B, 0xCF, 0x6A, 0x01, 0xD3, 0xEB, 0x6A, 0x01, 0x53, 0x8B, 0x1D };
@@ -134,8 +134,8 @@ void UpdateRoom312ResolutionFix(void *WidthAddress)
 	UpdateMemoryAddress((void*)Room312Viewport, &WidthAddr, sizeof(DWORD));
 }
 
-// Update SH2 code to Fix Hotel Room 312 Shadow Flicker
-void UpdateRoom312ShadowFix()
+// Patch SH2 code to Fix Hotel Room 312 Shadow Flicker
+void PatchRoom312ShadowFix()
 {
 	// Get Hotel Room 312 address
 	constexpr BYTE SearchBytesHotelRoom312[]{ 0x8B, 0x08, 0x6A, 0x01, 0x6A, 0x0F, 0x50, 0xBB, 0x08, 0x00, 0x00, 0x00, 0xFF, 0x91, 0xC8, 0x00, 0x00, 0x00, 0xA1 };

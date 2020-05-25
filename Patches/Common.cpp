@@ -16,6 +16,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include "Patches.h"
 #include "Common\Utils.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
@@ -36,6 +37,13 @@ DWORD *RoomIDAddr = nullptr;
 DWORD *SpecializedLightAddr1 = nullptr;
 DWORD *SpecializedLightAddr2 = nullptr;
 DWORD *TransitionStateAddr = nullptr;
+
+DWORD GetRoomID()
+{
+	DWORD *pRoomID = GetRoomIDPointer();
+
+	return (pRoomID) ? *pRoomID : 0;
+}
 
 DWORD *GetRoomIDPointer()
 {
@@ -66,6 +74,13 @@ DWORD *GetRoomIDPointer()
 	memcpy(&RoomIDAddr, RoomFunctAddr, sizeof(DWORD));
 
 	return RoomIDAddr;
+}
+
+DWORD GetCutsceneID()
+{
+	DWORD *pCutsceneID = GetCutsceneIDPointer();
+
+	return (pCutsceneID) ? *pCutsceneID : 0;
 }
 
 DWORD *GetCutsceneIDPointer()
@@ -99,6 +114,13 @@ DWORD *GetCutsceneIDPointer()
 	return CutsceneIDAddr;
 }
 
+float GetCutscenePos()
+{
+	float *pCutscenePos = GetCutscenePosPointer();
+
+	return (pCutscenePos) ? *pCutscenePos : 0.0f;
+}
+
 float *GetCutscenePosPointer()
 {
 	if (CutscenePosAddr)
@@ -118,6 +140,13 @@ float *GetCutscenePosPointer()
 	}
 
 	return CutscenePosAddr;
+}
+
+float GetJamesPosX()
+{
+	float *pJamesPosX = GetJamesPosXPointer();
+
+	return (pJamesPosX) ? *pJamesPosX : 0.0f;
 }
 
 float *GetJamesPosXPointer()
@@ -142,6 +171,13 @@ float *GetJamesPosXPointer()
 	return JamesPosXAddr;
 }
 
+float GetJamesPosY()
+{
+	float *pJamesPosY = GetJamesPosYPointer();
+
+	return (pJamesPosY) ? *pJamesPosY : 0.0f;
+}
+
 float *GetJamesPosYPointer()
 {
 	if (JamesPosYAddr)
@@ -161,6 +197,13 @@ float *GetJamesPosYPointer()
 	JamesPosYAddr = (float*)((DWORD)JamesPositionY + 0x04);
 
 	return JamesPosYAddr;
+}
+
+float GetJamesPosZ()
+{
+	float *pJamesPosZ = GetJamesPosZPointer();
+
+	return (pJamesPosZ) ? *pJamesPosZ : 0.0f;
 }
 
 float *GetJamesPosZPointer()
@@ -184,6 +227,13 @@ float *GetJamesPosZPointer()
 	return JamesPosZAddr;
 }
 
+BYTE GetFlashLightRender()
+{
+	BYTE *pFlashLightRender = GetFlashLightRenderPointer();
+
+	return (pFlashLightRender) ? *pFlashLightRender : 0;
+}
+
 BYTE *GetFlashLightRenderPointer()
 {
 	if (FlashLightRenderAddr)
@@ -203,6 +253,13 @@ BYTE *GetFlashLightRenderPointer()
 	}
 
 	return FlashLightRenderAddr;
+}
+
+BYTE GetChapterID()
+{
+	BYTE *pChapterID = GetChapterIDPointer();
+
+	return (pChapterID) ? *pChapterID : 0;
 }
 
 BYTE *GetChapterIDPointer()
@@ -226,6 +283,13 @@ BYTE *GetChapterIDPointer()
 	return ChapterIDAddr;
 }
 
+DWORD GetSpecializedLight1()
+{
+	DWORD *pSpecializedLight1 = GetSpecializedLightPointer1();
+
+	return (pSpecializedLight1) ? *pSpecializedLight1 : 0;
+}
+
 DWORD *GetSpecializedLightPointer1()
 {
 	if (SpecializedLightAddr1)
@@ -245,6 +309,13 @@ DWORD *GetSpecializedLightPointer1()
 	}
 
 	return SpecializedLightAddr1;
+}
+
+DWORD GetSpecializedLight2()
+{
+	DWORD *pSpecializedLight2 = GetSpecializedLightPointer2();
+
+	return (pSpecializedLight2) ? *pSpecializedLight2 : 0;
 }
 
 DWORD *GetSpecializedLightPointer2()
@@ -268,6 +339,13 @@ DWORD *GetSpecializedLightPointer2()
 	return SpecializedLightAddr2;
 }
 
+BYTE GetFlashlightSwitch()
+{
+	BYTE *pFlashlightSwitch = GetFlashlightSwitchPointer();
+
+	return (pFlashlightSwitch) ? *pFlashlightSwitch : 0;
+}
+
 BYTE *GetFlashlightSwitchPointer()
 {
 	if (FlashlightSwitchAddr)
@@ -289,6 +367,27 @@ BYTE *GetFlashlightSwitchPointer()
 	return FlashlightSwitchAddr;
 }
 
+float GetFlashlightBrightnessRed()
+{
+	float *pFlashlightBrightness = GetFlashlightBrightnessPointer();
+
+	return (pFlashlightBrightness) ? *pFlashlightBrightness : 0.0f;
+}
+
+float GetFlashlightBrightnessGreen()
+{
+	float *pFlashlightBrightness = GetFlashlightBrightnessPointer();
+
+	return (pFlashlightBrightness) ? *(float*)((DWORD)pFlashlightBrightness + 0x04) : 0.0f;
+}
+
+float GetFlashlightBrightnessBlue()
+{
+	float *pFlashlightBrightness = GetFlashlightBrightnessPointer();
+
+	return (pFlashlightBrightness) ? *(float*)((DWORD)pFlashlightBrightness + 0x08) : 0.0f;
+}
+
 float *GetFlashlightBrightnessPointer()
 {
 	if (FlashlightBrightnessAddr)
@@ -308,6 +407,13 @@ float *GetFlashlightBrightnessPointer()
 	}
 
 	return FlashlightBrightnessAddr;
+}
+
+BYTE GetPauseMenu()
+{
+	BYTE *pPauseMenu = GetPauseMenuPointer();
+
+	return (pPauseMenu) ? *pPauseMenu : 0;
 }
 
 BYTE *GetPauseMenuPointer()
@@ -332,6 +438,13 @@ BYTE *GetPauseMenuPointer()
 	return PauseMenuAddr;
 }
 
+DWORD GetOnScreen()
+{
+	DWORD *pOnScreen = GetOnScreenPointer();
+
+	return (pOnScreen) ? *pOnScreen : 0;
+}
+
 DWORD *GetOnScreenPointer()
 {
 	if (OnScreenAddr)
@@ -351,6 +464,13 @@ DWORD *GetOnScreenPointer()
 	}
 
 	return OnScreenAddr;
+}
+
+DWORD GetTransitionState()
+{
+	DWORD *pTransitionState = GetTransitionStatePointer();
+
+	return (pTransitionState) ? *pTransitionState : 0;
 }
 
 DWORD *GetTransitionStatePointer()

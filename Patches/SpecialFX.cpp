@@ -217,8 +217,8 @@ __declspec(naked) void __stdcall BloomColorASM()
 }
 
 
-// Update SH2 code to reenable special FX
-void UpdateSpecialFX()
+// Patch SH2 code to reenable special FX
+void PatchSpecialFX()
 {
 	// Get first custom address set (006A1488)
 	constexpr BYTE SearchBytesCustomAddr1[]{ 0x89, 0x4C, 0x24, 0x08, 0x8B, 0x08, 0x50, 0xDB, 0x44, 0x24, 0x0C, 0x89, 0x54, 0x24, 0x0C, 0xD8, 0x0D };
@@ -399,7 +399,7 @@ void UpdateSpecialFX()
 	WriteJMPtoMemory((BYTE*)BloomColorPtr, *BloomColorASM, 6);
 }
 
-void UpdateSpecialFXScale(DWORD Height)
+void RunSpecialFXScale(DWORD Height)
 {
 	static DWORD LastHeight = 0;
 	if (LastHeight == Height)
@@ -420,7 +420,7 @@ void UpdateSpecialFXScale(DWORD Height)
 	HotelRoom312Value2 = -4.0f * DisplayRatio;
 }
 
-void UpdateHotelRoom312FogVolumeFix(DWORD *SH2_RoomID)
+void RunHotelRoom312FogVolumeFix()
 {
 	// Get Fog Volume Intensity address
 	static BYTE *Address1 = nullptr;
@@ -438,7 +438,7 @@ void UpdateHotelRoom312FogVolumeFix(DWORD *SH2_RoomID)
 		}
 	}
 
-	if (*SH2_RoomID == 0xA2 && *Address1 != 0)
+	if (GetRoomID() == 0xA2 && *Address1 != 0)
 	{
 		*Address1 = 0;
 	}

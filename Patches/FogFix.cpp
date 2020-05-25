@@ -42,8 +42,8 @@ __declspec(naked) void __stdcall FogDensityASM()
 	}
 }
 
-// Sets the custom fog fix
-void SetCustomFogFix()
+// Patch the custom fog
+void PatchCustomFog()
 {
 	// Get fog addresses
 	constexpr BYTE TL1SearchBytes[]{ 0x8B, 0x4C, 0x24, 0x00, 0x89, 0x44, 0x24, 0x08, 0xDB, 0x44, 0x24, 0x08, 0x89, 0x0D };

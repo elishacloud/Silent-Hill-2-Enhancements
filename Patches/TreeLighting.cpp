@@ -51,8 +51,8 @@ __declspec(naked) void __stdcall TreeLightingASM()
 	}
 }
 
-// Update SH2 code to fix tree lighting conditions for Maria & Leave endings
-void UpdateTreeLighting()
+// Patch SH2 code to fix tree lighting conditions for Maria & Leave endings
+void PatchTreeLighting()
 {
 	// Get address
 	constexpr BYTE SearchBytes[]{ 0x8B, 0x6C, 0x24, 0x54, 0x56, 0x57, 0x6A, 0x01, 0xE8 };
@@ -82,7 +82,7 @@ void UpdateTreeLighting()
 }
 
 // Update tree lighting color
-void UpdateTreeColor(DWORD *SH2_CutsceneID)
+void RunTreeColor()
 {
 	// Get Address
 	static DWORD ColorAddress = NULL;
@@ -103,7 +103,7 @@ void UpdateTreeColor(DWORD *SH2_CutsceneID)
 	}
 
 	// Static updates
-	if (*SH2_CutsceneID == 0x5D)
+	if (GetCutsceneID() == 0x5D)
 	{
 		BYTE Red = 125;
 		BYTE Green = 135;

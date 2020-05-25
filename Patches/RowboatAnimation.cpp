@@ -45,8 +45,8 @@ __declspec(naked) void __stdcall RowboatAnimationASM()
 	}
 }
 
-// Update SH2 code to Fix Rowboat Animation
-void UpdateRowboatAnimation()
+// Patch SH2 code to Fix Rowboat Animation
+void PatchRowboatAnimation()
 {
 	// Get Rowboat Animation address
 	constexpr BYTE RowboatSearchBytes[]{ 0x8B, 0x56, 0x08, 0x89, 0x10, 0x5F, 0x5E, 0x5D, 0x83, 0xC4, 0x50, 0xC3 };

@@ -37,7 +37,7 @@ __declspec(naked) void __stdcall MainMenuFixASM()
 	}
 }
 
-void UpdateMainMenuFix()
+void PatchMainMenu()
 {
 	// Check for game versions that don't need to be patched
 	if (GameVersion == SH2V_10 || GameVersion == SH2V_DC)
@@ -164,7 +164,7 @@ __declspec(naked) void __stdcall MainMenuTitleASM()
 	}
 }
 
-void UpdateMainMenuTitlePerLang()
+void PatchMainMenuTitlePerLang()
 {
 	// Check for game versions that don't need to be patched
 	if (GameVersion == SH2V_DC)

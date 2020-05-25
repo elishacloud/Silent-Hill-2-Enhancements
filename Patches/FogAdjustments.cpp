@@ -177,7 +177,7 @@ __declspec(naked) void __stdcall FinalAreaBoss2ASM()
 	}
 }
 
-void UpdateFogParameters()
+void PatchFogParameters()
 {
 	// Get Fog address
 	constexpr BYTE FogSearchBytes[]{ 0x8B, 0xF8, 0x81, 0xE7, 0xFF, 0x00, 0x00, 0x00, 0xC1, 0xE7, 0x10, 0x25, 0x00, 0xFF, 0x00, 0xFF, 0x0B, 0xF7, 0x0B, 0xF0, 0x56 };
@@ -287,7 +287,7 @@ void UpdateFogParameters()
 }
 
 // Slow the fog movement in certain areas of the game to better match the PS2's fog movements
-void UpdateFogSpeed(DWORD *SH2_RoomID, float *SH2_JamesPosY)
+void RunFogSpeed()
 {
 	static float *FogSpeed = nullptr;
 	if (!FogSpeed)
@@ -319,7 +319,7 @@ void UpdateFogSpeed(DWORD *SH2_RoomID, float *SH2_JamesPosY)
 
 	LOG_ONCE("Setting Fog Speed Fix...");
 
-	switch (*SH2_RoomID)
+	switch (GetRoomID())
 	{
 	case 0x03:
 	case 0x04:
@@ -357,7 +357,7 @@ void UpdateFogSpeed(DWORD *SH2_RoomID, float *SH2_JamesPosY)
 	static bool ValueSet = false;
 
 	// Prevents fog from "sticking" to James during certain parts of the Forest trail
-	if (*SH2_RoomID == 0x03 && *SH2_JamesPosY >= 1125.0f && *SH2_JamesPosY <= 1575.0f)
+	if (GetRoomID() == 0x03 && GetJamesPosY() >= 1125.0f && GetJamesPosY() <= 1575.0f)
 	{
 		if (!ValueSet)
 		{

@@ -689,7 +689,7 @@ __declspec(naked) void __stdcall BloodStrFixASM4()
 	}
 }
 
-void UpdateCustomExeStr()
+void PatchCustomExeStr()
 {
 	void *DLangAddrA = (void*)SearchAndGetAddresses(0x0040730A, 0x0040730A, 0x0040731A, LangSearchBytesA, sizeof(LangSearchBytesA), 0x00);
 
@@ -916,7 +916,7 @@ char *getResolutionDescStr()
 constexpr BYTE TownWestGateEventSearchBytes[] = { 0x00, 0x00, 0x00, 0x90, 0x00, 0xC0, 0x3F, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x60, 0x6E, 0x20 };
 constexpr BYTE TownWestGateEventUpdateVal[] = { 0x00, 0x00, 0x00, 0x60, 0x00, 0x80, 0x13, 0x00 };
 
-void UpdateTownWestGateEventFix()
+void PatchTownWestGateEvent()
 {
 	void* DTownWestGateEventAddr = (void*)SearchAndGetAddresses(0x008DB440, 0x008DF110, 0x008DE110, TownWestGateEventSearchBytes, sizeof(TownWestGateEventSearchBytes), 0x00);
 

@@ -36,8 +36,8 @@ constexpr float CatacombLargeRoomFloorR = 0.0f; // "Large Room" Floor Red
 constexpr float CatacombLargeRoomFloorG = -0.1f; // "Large Room" Floor Green
 constexpr float CatacombLargeRoomFloorB = -0.1f; // "Large Room" Floor Blue
 
-// Update SH2 code to Fix Cemetery Lighting
-void UpdateCatacombsMeatRoom()
+// Patch SH2 code to Fix Cemetery Lighting
+void PatchCatacombsMeatRoom()
 {
 	// Check for required map files
 	if (!UseCustomModFolder ||

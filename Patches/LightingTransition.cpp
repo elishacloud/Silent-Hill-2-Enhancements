@@ -165,7 +165,7 @@ void SetLightingTransition()
 	WriteJMPtoMemory((BYTE*)LightingTransitionAddr, *LightingTransitionASM, 6);
 }
 
-void UpdateLightingTransition(DWORD *SH2_CutsceneID)
+void RunLightingTransition()
 {
 	// Update SH2 code to enable Lighting Transition fix
 	RUNCODEONCE(SetLightingTransition());
@@ -183,7 +183,7 @@ void UpdateLightingTransition(DWORD *SH2_CutsceneID)
 	// Set flashlight render
 	static bool ValueSet = false;
 	static DWORD Counter = 0;
-	if (*SH2_CutsceneID == 0x5C)
+	if (GetCutsceneID() == 0x5C)
 	{
 		if (*FlashLightRenderAddr != 0 && ++Counter < 3)
 		{
@@ -191,7 +191,7 @@ void UpdateLightingTransition(DWORD *SH2_CutsceneID)
 			ValueSet = true;
 		}
 	}
-	else if (*SH2_CutsceneID == 0x19)
+	else if (GetCutsceneID() == 0x19)
 	{
 		if (!ValueSet)
 		{

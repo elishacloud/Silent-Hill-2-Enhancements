@@ -7,98 +7,118 @@ typedef enum _SH2VERSION {
 	SH2V_DC = 3,
 } SH2VERSION;
 
-// Shared Function declarations
-BYTE *GetChapterIDPointer();
+// Shared function declaration
+DWORD GetRoomID();
+DWORD GetCutsceneID();
+float GetCutscenePos();
+float GetJamesPosX();
+float GetJamesPosY();
+float GetJamesPosZ();
+BYTE GetFlashLightRender();
+BYTE GetChapterID();
+DWORD GetSpecializedLight1();
+DWORD GetSpecializedLight2();
+BYTE GetFlashlightSwitch();
+float GetFlashlightBrightnessRed();
+float GetFlashlightBrightnessGreen();
+float GetFlashlightBrightnessBlue();
+BYTE GetPauseMenu();
+DWORD GetOnScreen();
+DWORD GetTransitionState();
+
+// Shared pointer function declaration
+DWORD *GetRoomIDPointer();
 DWORD *GetCutsceneIDPointer();
 float *GetCutscenePosPointer();
-float *GetFlashlightBrightnessPointer();
-BYTE *GetFlashLightRenderPointer();
-BYTE *GetFlashlightSwitchPointer();
 float *GetJamesPosXPointer();
 float *GetJamesPosYPointer();
 float *GetJamesPosZPointer();
-DWORD *GetOnScreenPointer();
-BYTE *GetPauseMenuPointer();
-DWORD *GetRoomIDPointer();
+BYTE *GetFlashLightRenderPointer();
+BYTE *GetChapterIDPointer();
 DWORD *GetSpecializedLightPointer1();
 DWORD *GetSpecializedLightPointer2();
+BYTE *GetFlashlightSwitchPointer();
+float *GetFlashlightBrightnessPointer();
+BYTE *GetPauseMenuPointer();
+DWORD *GetOnScreenPointer();
 DWORD *GetTransitionStatePointer();
 
-// Function forward declaration
+// Function patch declaration
 void CheckArgumentsForPID();
 void CheckAdminAccess();
-void DelayedStart();
-void DisableCDCheck();
-void PatchBinary();
-void SetCustomFogFix();
 void SetDefaultFullscreenBackground();
 void SetDelayedStart();
+void SetResolutionLock(DWORD ResX, DWORD ResY);
+void SetRoom312Resolution(void *WidthAddress);
 void SetWindowHandle(HWND WindowHandle);
-void Update2TBHardDriveFix();
-void UpdateBestGraphics();
-void UpdateBloodSize(DWORD *SH2_RoomID);
-void UpdateCatacombsMeatRoom();
-void UpdateCemeteryLighting();
-void UpdateClosetCutscene(DWORD *SH2_CutsceneID, float *SH2_CutsceneCameraPos);
-void UpdateCreatureVehicleSpawn();
-void UpdateCustomExeStr();
-void UpdateCustomFonts();
-void UpdateControllerTweaks();
-void UpdateDrawDistance();
-void UpdateDynamicDrawDistance(DWORD *SH2_RoomID);
-void UpdateFogParameters();
-void UpdateFogSpeed(DWORD *SH2_RoomID, float *SH2_JamesPosY);
-void UpdateGameLoad(DWORD *SH2_RoomID, float *SH2_JamesPosX, float *SH2_JamesPosZ);
-void UpdateHangOnEsc(DWORD *SH2_RoomID);
-void UpdateHospitalChase(DWORD *SH2_RoomID, float *SH2_JamesPosX);
-void UpdateHotelWater(DWORD *SH2_RoomID);
-void UpdateHotelRoom312FogVolumeFix(DWORD *SH2_RoomID);
-void UpdateInfiniteRumble(DWORD *SH2_RoomID);
-void UpdateInnerFlashlightGlow(DWORD Height);
-void UpdateLightingTransition(DWORD *SH2_CutsceneID);
-void UpdateLockScreenPosition();
-void UpdateMainMenuFix();
-void UpdateMainMenuTitlePerLang();
-void UpdatePistonRoom();
-void UpdatePreventChainsawSpawn();
-void UpdatePS2Flashlight();
-void UpdatePS2NoiseFilter();
-void UpdateRedCrossInCutscene();
-void UpdateResolutionLock(DWORD ResX, DWORD ResY);
-void UpdateRoom312ResolutionFix(void *WidthAddress);
-void UpdateRoom312ShadowFix();
-void UpdateRotatingMannequin(DWORD *SH2_RoomID);
-void UpdateRowboatAnimation();
-void UpdateShadowCutscene(DWORD *SH2_CutsceneID);
-void UpdateSpecialFX();
-void UpdateSpecialFXScale(DWORD Height);
-void UpdateSFXAddr();
-void UpdateTexAddr();
-void UpdateTownWestGateEventFix();
-void UpdateTreeColor(DWORD *SH2_CutsceneID);
-void UpdateTreeLighting();
 void UnhookWindowHandle();
-void UpdateXInputVibration();
 void ValidateBinary();
+
+void Patch2TBHardDrive();
+void PatchBestGraphics();
+void PatchBinary();
+void PatchCDCheck();
+void PatchCatacombsMeatRoom();
+void PatchCemeteryLighting();
+void PatchCreatureVehicleSpawn();
+void PatchCustomExeStr();
+void PatchCustomFog();
+void PatchCustomFonts();
+void PatchControllerTweaks();
+void PatchDrawDistance();
+void PatchFogParameters();
+void PatchLockScreenPosition();
+void PatchMainMenu();
+void PatchMainMenuTitlePerLang();
+void PatchPistonRoom();
+void PatchPreventChainsawSpawn();
+void PatchPS2Flashlight();
+void PatchPS2NoiseFilter();
+void PatchRedCrossInCutscene();
+void PatchRoom312ShadowFix();
+void PatchRowboatAnimation();
+void PatchSpecialFX();
+void PatchSFXAddr();
+void PatchTexAddr();
+void PatchTownWestGateEvent();
+void PatchTreeLighting();
+void PatchXInputVibration();
+
+void RunBloodSize();
+void RunClosetCutscene();
+void RunDynamicDrawDistance();
+void RunFogSpeed();
+void RunGameLoad();
+void RunHangOnEsc();
+void RunHospitalChase();
+void RunHotelRoom312FogVolumeFix();
+void RunHotelWater();
+void RunInfiniteRumble();
+void RunInnerFlashlightGlow(DWORD Height);
+void RunLightingTransition();
+void RunRotatingMannequin();
+void RunShadowCutscene();
+void RunSpecialFXScale(DWORD Height);
+void RunTreeColor();
 
 // Variable forward declaration
 extern SH2VERSION GameVersion;
-extern BYTE *ChapterIDAddr;
-extern DWORD *CutsceneIDAddr;
-extern float *CutscenePosAddr;
-extern float *FlashlightBrightnessAddr;
-extern BYTE *FlashLightRenderAddr;
-extern BYTE *FlashlightSwitchAddr;
 extern bool IsInBloomEffect;
 extern bool IsInFakeFadeout;
+extern DWORD *RoomIDAddr;
+extern DWORD *CutsceneIDAddr;
+extern float *CutscenePosAddr;
 extern float *JamesPosXAddr;
 extern float *JamesPosYAddr;
 extern float *JamesPosZAddr;
-extern DWORD *OnScreenAddr;				// 0 = load screen, 4 = normal in-game, 5 = maps, 6 = inventory screen, 9 = save screen
-extern BYTE *PauseMenuAddr;
-extern DWORD *RoomIDAddr;
+extern BYTE *FlashLightRenderAddr;
+extern BYTE *ChapterIDAddr;
 extern DWORD *SpecializedLightAddr1;
 extern DWORD *SpecializedLightAddr2;
+extern BYTE *FlashlightSwitchAddr;
+extern float *FlashlightBrightnessAddr;
+extern BYTE *PauseMenuAddr;
+extern DWORD *OnScreenAddr;				// 0 = load screen, 4 = normal in-game, 5 = maps, 6 = inventory screen, 9 = save screen
 extern DWORD *TransitionStateAddr;		// 1 = fades the game image to black, 2 = solid black screen, 3 = fades from black back to the in game screen
 
 // Run code only once

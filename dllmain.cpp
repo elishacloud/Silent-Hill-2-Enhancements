@@ -186,7 +186,7 @@ void DelayedStart()
 	// Enable No-CD Patch
 	if (NoCDPatch)
 	{
-		DisableCDCheck();
+		PatchCDCheck();
 	}
 
 	// Patch binray
@@ -195,13 +195,13 @@ void DelayedStart()
 	// Update SFX addresses
 	if (EnableSFXAddrHack)
 	{
-		UpdateSFXAddr();
+		PatchSFXAddr();
 	}
 
 	// Update Texture addresses
 	if (EnableTexAddrHack)
 	{
-		UpdateTexAddr();
+		PatchTexAddr();
 	}
 	else
 	{
@@ -235,151 +235,151 @@ void DelayedStart()
 	// Fix issue with saving the gome on a drive that is larger than 2TBs
 	if (ImproveStorageSupport)
 	{
-		Update2TBHardDriveFix();
+		Patch2TBHardDrive();
 	}
 
 	// PS2 Noise Filter
 	if (PS2StyleNoiseFilter)
 	{
-		UpdatePS2NoiseFilter();
+		PatchPS2NoiseFilter();
 	}
 
 	// Draw Distance
 	if (IncreaseDrawDistance)
 	{
-		UpdateDrawDistance();
+		PatchDrawDistance();
 	}
 
 	// Cemetery Lighting Fix
 	if (CemeteryLightingFix)
 	{
-		UpdateCemeteryLighting();
+		PatchCemeteryLighting();
 	}
 
 	// Tree Lighting fix
 	if (LightingFix && WidescreenFix)
 	{
-		UpdateTreeLighting();
+		PatchTreeLighting();
 	}
 
 	// Rowboat Animation Fix
 	if (RowboatAnimationFix)
 	{
-		UpdateRowboatAnimation();
+		PatchRowboatAnimation();
 	}
 
 	// Catacombs Meat Room
 	if (CatacombsMeatRoomFix)
 	{
-		UpdateCatacombsMeatRoom();
+		PatchCatacombsMeatRoom();
 	}
 
 	// Fog adjustment fixes
 	if (FogParameterFix)
 	{
-		UpdateFogParameters();
+		PatchFogParameters();
 	}
 
 	// Piston room fix
 	if (PistonRoomFix)
 	{
-		UpdatePistonRoom();
+		PatchPistonRoom();
 	}
 
 	// Hotel Room 312 Shadow Flicker Fix
 	if (Room312ShadowFix)
 	{
-		UpdateRoom312ShadowFix();
+		PatchRoom312ShadowFix();
 	}
 
 	// Red Cross health indicator in cutscene
 	if (DisableRedCrossInCutScenes)
 	{
-		UpdateRedCrossInCutscene();
+		PatchRedCrossInCutscene();
 	}
 
 	// Adjusts flashlight brightness
 	if (PS2FlashlightBrightness)
 	{
-		UpdatePS2Flashlight();
+		PatchPS2Flashlight();
 	}
 
 	// Fixes Lying Figure's behavior
 	if (FixCreatureVehicleSpawn)
 	{
-		UpdateCreatureVehicleSpawn();
+		PatchCreatureVehicleSpawn();
 	}
 
 	// Prevent chainsaw spawn on first playthrough
 	if (FixChainsawSpawn)
 	{
-		UpdatePreventChainsawSpawn();
+		PatchPreventChainsawSpawn();
 	}
 
 	// XInput based vibration
 	if (RestoreVibration)
 	{
-		UpdateXInputVibration();
+		PatchXInputVibration();
 	}
 
 	// DPad movement
 	if (DPadMovementFix || RestoreSearchCamMovement != 0)
 	{
-		UpdateControllerTweaks();
+		PatchControllerTweaks();
 	}
 
 	// Loads font texture form tga file
 	if (UseCustomFonts)
 	{
-		UpdateCustomFonts();
+		PatchCustomFonts();
 	}
 
 	// Load exe's strings from txt file
 	if (UseCustomExeStr)
 	{
-		UpdateCustomExeStr();
+		PatchCustomExeStr();
 	}
 
 	// Fixes mouse hitboxes in Main Menu (for 1.1 version)
 	if (MainMenuFix)
 	{
-		UpdateMainMenuFix();
+		PatchMainMenu();
 	}
 
 	// Loads 'start01.tex' (graphic Main Menu) according to the selected language
 	if (MainMenuTitlePerLang)
 	{
-		UpdateMainMenuTitlePerLang();
+		PatchMainMenuTitlePerLang();
 	}
 
 	// Reenable game's special FX
 	if (RestoreSpecialFX)
 	{
-		UpdateSpecialFX();
+		PatchSpecialFX();
 	}
 
 	// Changes the event at the gate near Heaven's Night to that when trying to re-enter the door to Blue Creek Apartments
 	if (FixTownWestGateEvent)
 	{
-		UpdateTownWestGateEventFix();
+		PatchTownWestGateEvent();
 	}
 
 	// Disables the screen position feature in the game's options menu, which is no longer needed for modern displays
 	if (LockScreenPosition)
 	{
-		UpdateLockScreenPosition();
+		PatchLockScreenPosition();
 	}
 
 	// Enables all advanced graphics settings from the game's options menu on game launch
 	if (UseBestGraphics)
 	{
-		UpdateBestGraphics();
+		PatchBestGraphics();
 	}
 
 	// Fog Fix
 	if (fog_custom_on)
 	{
-		SetCustomFogFix();
+		PatchCustomFog();
 	}
 
 	// Widescreen Fix

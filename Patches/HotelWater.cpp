@@ -20,8 +20,8 @@
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
-// Update SH2 code to Fix Hotel Water
-void UpdateHotelWater(DWORD *SH2_RoomID)
+// Run SH2 code to Fix Hotel Water
+void RunHotelWater()
 {
 	// Get Address1
 	static DWORD Address1 = NULL;
@@ -140,7 +140,7 @@ void UpdateHotelWater(DWORD *SH2_RoomID)
 		bool RoomsMatch = false;
 		for (auto const &RoomID : RoomIDs)
 		{
-			if (*SH2_RoomID == RoomID)
+			if (GetRoomID() == RoomID)
 			{
 				RoomsMatch = true;
 			}
@@ -162,7 +162,7 @@ void UpdateHotelWater(DWORD *SH2_RoomID)
 		bool RoomsMatch = false;
 		for (auto const &RoomID : RoomIDs)
 		{
-			if (*SH2_RoomID == RoomID)
+			if (GetRoomID() == RoomID)
 			{
 				RoomsMatch = true;
 			}

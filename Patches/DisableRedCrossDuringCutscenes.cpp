@@ -59,8 +59,8 @@ __declspec(naked) void __stdcall RedCrossCutscenesASM()
 	}
 }
 
-// Update SH2 code to disable RedCross during cutscenes
-void UpdateRedCrossInCutscene()
+// Patch SH2 code to disable RedCross during cutscenes
+void PatchRedCrossInCutscene()
 {
 	// Get RedCross address
 	constexpr BYTE RedCrossSearchBytes[]{ 0xD9, 0x81, 0x40, 0x01, 0x00, 0x00, 0xD8, 0xA1, 0x3C, 0x01, 0x00, 0x00, 0xD8, 0xB1, 0x40, 0x01, 0x00, 0x00 };

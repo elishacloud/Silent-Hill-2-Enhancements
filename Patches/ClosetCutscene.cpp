@@ -84,8 +84,8 @@ void SetClosetCutscene()
 	WriteJMPtoMemory((BYTE*)ClosetCutsceneAddr, *ClosetCutsceneASM, 0x05);
 }
 
-// Update SH2 code to Fix RPT Apartment Closet Cutscene
-void UpdateClosetCutscene(DWORD *SH2_CutsceneID, float *SH2_CutsceneCameraPos)
+// Run SH2 code to Fix RPT Apartment Closet Cutscene
+void RunClosetCutscene()
 {
 	// Update SH2 code to enable Lighting Transition fix
 	RUNCODEONCE(SetClosetCutscene());
@@ -138,7 +138,7 @@ void UpdateClosetCutscene(DWORD *SH2_CutsceneID, float *SH2_CutsceneCameraPos)
 
 	// Darken & blur more closet bars
 	static bool ValueSet1 = false;
-	if (*SH2_CutsceneID == 0x0E && *SH2_CutsceneCameraPos == -21376.56445f)
+	if (GetCutsceneID() == 0x0E && GetCutscenePos() == -21376.56445f)
 	{
 		if (!ValueSet1)
 		{
@@ -156,7 +156,7 @@ void UpdateClosetCutscene(DWORD *SH2_CutsceneID, float *SH2_CutsceneCameraPos)
 
 	// Adjust room/dynamic objects for one shot
 	static bool ValueSet2 = false;
-	if (*SH2_CutsceneID == 0x0E  && *SH2_CutsceneCameraPos == -20133.99805f)
+	if (GetCutsceneID() == 0x0E  && GetCutscenePos() == -20133.99805f)
 	{
 		if (!ValueSet2)
 		{
@@ -186,7 +186,7 @@ void UpdateClosetCutscene(DWORD *SH2_CutsceneID, float *SH2_CutsceneCameraPos)
 
 	// Disable the flashlight during cutscene
 	static bool ValueSet3 = false;
-	if (*SH2_CutsceneID == 0x0E && *SH2_CutsceneCameraPos == -22256.61133f)
+	if (GetCutsceneID() == 0x0E && GetCutscenePos() == -22256.61133f)
 	{
 		if (!ValueSet3)
 		{

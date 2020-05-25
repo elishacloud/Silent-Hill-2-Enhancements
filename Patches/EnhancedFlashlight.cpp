@@ -201,7 +201,7 @@ __declspec(naked) void __stdcall FlashlightHallwayASM()
 }
 
 // Scale the inner glow of the flashlight
-void UpdateInnerFlashlightGlow(DWORD Height)
+void RunInnerFlashlightGlow(DWORD Height)
 {
 	static DWORD LastHeight = 0;
 	if (LastHeight == Height)
@@ -229,8 +229,8 @@ void UpdateInnerFlashlightGlow(DWORD Height)
 	UpdateMemoryAddress(Addr1, &InnerGlowSize, sizeof(float));
 }
 
-// Update SH2 code to enable PS2 flashlight
-void UpdatePS2Flashlight()
+// Patch SH2 code to enable PS2 flashlight
+void PatchPS2Flashlight()
 {
 	// Get address for Flashlight Brightness ASM
 	constexpr BYTE SearchBytesFlashlight[]{ 0x8B, 0xC1, 0x89, 0x4C, 0x24, 0x2C, 0x8B, 0x4C, 0x24, 0x24, 0x89, 0x54, 0x24, 0x30 };

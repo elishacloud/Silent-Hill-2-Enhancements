@@ -20,7 +20,7 @@
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
-void UpdateShadowCutscene(DWORD *SH2_CutsceneID)
+void RunShadowCutscene()
 {
 	// Get shadow address
 	static BYTE *Address = nullptr;
@@ -41,7 +41,7 @@ void UpdateShadowCutscene(DWORD *SH2_CutsceneID)
 	// Set shadow
 	static bool ValueSet = false;
 	static BYTE LastValue = 0x01;
-	if (*SH2_CutsceneID == 0x03 || *SH2_CutsceneID == 0x2E || *SH2_CutsceneID == 0x5C)
+	if (GetCutsceneID() == 0x03 || GetCutsceneID() == 0x2E || GetCutsceneID() == 0x5C)
 	{
 		if (!ValueSet)
 		{

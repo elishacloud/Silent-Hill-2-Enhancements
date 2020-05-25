@@ -127,7 +127,7 @@ BOOL StartSearchCamera_Hook()
 	return *moveDirection2 != 0 && *moveDirection2 != 3;
 }
 
-void UpdateControllerTweaks()
+void PatchControllerTweaks()
 {
 	using namespace hook;
 

@@ -22,7 +22,7 @@
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
-void UpdateSFXAddr()
+void PatchSFXAddr()
 {
 	// Find address for SFX indexes
 	void *sfxAddr = (void*)SearchAndGetAddresses(0x008A67DC, 0x008AA3C4, 0x008A93C4, sfxBlock, sizeof(sfxBlock), 0x00);

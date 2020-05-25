@@ -38,7 +38,7 @@ void SetBloodSize()
 	UpdateMemoryAddress((void*)BloodSizeAddr, &Value, sizeof(float));
 }
 
-void UpdateBloodSize(DWORD *SH2_RoomID)
+void RunBloodSize()
 {
 	// Update SH2 code to enable blood position fix
 	RUNCODEONCE(SetBloodSize());
@@ -87,7 +87,7 @@ void UpdateBloodSize(DWORD *SH2_RoomID)
 
 	// Set blood position for Apartment Mannequin/Flashlight Room
 	static bool ValueSet1 = false;
-	if (*SH2_RoomID == 0x17)
+	if (GetRoomID() == 0x17)
 	{
 		float Value = -3.0f;
 		if (*Address1_a != Value || *Address1_b != Value || *Address1_c != Value || *Address1_d != Value)
@@ -107,7 +107,7 @@ void UpdateBloodSize(DWORD *SH2_RoomID)
 
 	// Set blood position for Flesh Room
 	static bool ValueSet2 = false;
-	if (*SH2_RoomID == 0x8A)
+	if (GetRoomID() == 0x8A)
 	{
 		if (!ValueSet2)
 		{

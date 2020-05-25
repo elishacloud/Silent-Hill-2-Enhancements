@@ -242,7 +242,7 @@ void ScaleStart01Texture(wchar_t *TexName)
 	}
 }
 
-void UpdateTexAddr()
+void PatchTexAddr()
 {
 	// Get addresses
 	const DWORD StaticAddr = 0x00401CC1;		// Address is the same on all binaries

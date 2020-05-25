@@ -177,7 +177,7 @@ public:
 	{
 		Logging::LogDebug() << "Creating device " << __FUNCTION__ << "(" << this << ")";
 
-		ProxyAddressLookupTable = new AddressLookupTable<m_IDirect3DDevice8>(this);
+		ProxyAddressLookupTableD3d8 = new AddressLookupTableD3d8<m_IDirect3DDevice8>(this);
 
 		SH2_ChapterID = GetChapterIDPointer();
 		SH2_RoomID = GetRoomIDPointer();
@@ -221,11 +221,11 @@ public:
 	{
 		Logging::LogDebug() << __FUNCTION__ << "(" << this << ")" << " deleting device!";
 
-		delete ProxyAddressLookupTable;
+		delete ProxyAddressLookupTableD3d8;
 	}
 
 	LPDIRECT3DDEVICE8 GetProxyInterface() { return ProxyInterface; }
-	AddressLookupTable<m_IDirect3DDevice8> *ProxyAddressLookupTable;
+	AddressLookupTableD3d8<m_IDirect3DDevice8> *ProxyAddressLookupTableD3d8;
 
 	/*** IUnknown methods ***/
 	STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID * ppvObj);

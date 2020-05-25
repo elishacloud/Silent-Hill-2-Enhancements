@@ -154,7 +154,7 @@ HRESULT m_IDirect3DVolumeTexture8::GetVolumeLevel(THIS_ UINT Level, IDirect3DVol
 
 	if (SUCCEEDED(hr) && ppVolumeLevel)
 	{
-		*ppVolumeLevel = m_pDevice->ProxyAddressLookupTable->FindAddress<m_IDirect3DVolume8>(*ppVolumeLevel);
+		*ppVolumeLevel = m_pDevice->ProxyAddressLookupTableD3d8->FindAddress<m_IDirect3DVolume8>(*ppVolumeLevel);
 	}
 
 	return hr;

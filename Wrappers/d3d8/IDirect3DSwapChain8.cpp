@@ -68,7 +68,7 @@ HRESULT m_IDirect3DSwapChain8::GetBackBuffer(THIS_ UINT BackBuffer, D3DBACKBUFFE
 
 	if (SUCCEEDED(hr) && ppBackBuffer)
 	{
-		*ppBackBuffer = m_pDevice->ProxyAddressLookupTable->FindAddress<m_IDirect3DSurface8>(*ppBackBuffer);
+		*ppBackBuffer = m_pDevice->ProxyAddressLookupTableD3d8->FindAddress<m_IDirect3DSurface8>(*ppBackBuffer);
 	}
 
 	return hr;

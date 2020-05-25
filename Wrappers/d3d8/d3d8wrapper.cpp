@@ -16,12 +16,84 @@
 
 #include "d3d8wrapper.h"
 #include "Wrappers\wrapper.h"
+#include "Common\Utils.h"
+
+Direct3DCreate8Proc m_pDirect3DCreate8 = nullptr;
+
+// Hook d3d8 API
+void HookDirect3DCreate8()
+{
+	// Get Direct3DCreate8 address
+	constexpr BYTE SearchBytes[]{ 0x84, 0xC0, 0x74, 0x06, 0xB8, 0x03, 0x00, 0x00, 0x00, 0xC3, 0x68, 0xDC, 0x00, 0x00, 0x00, 0xE8 };
+	DWORD Address = SearchAndGetAddresses(0x004F6315, 0x004F65C5, 0x004F5E85, SearchBytes, sizeof(SearchBytes), 0x0F);
+
+	// Checking address pointer
+	if (!Address)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+
+	// Load wrapper d3d8 from scripts or plugins folder
+	HMODULE script_d3d8_dll = nullptr;
+	if (LoadD3d8FromScriptsFolder)
+	{
+		// Get script paths
+		wchar_t scriptpath[MAX_PATH];
+		GetModuleFileName(nullptr, scriptpath, MAX_PATH);
+		wcscpy_s(wcsrchr(scriptpath, '\\'), MAX_PATH - wcslen(scriptpath), L"\0");
+		std::wstring separator = L"\\";
+		std::wstring script_path(scriptpath + separator + L"scripts");
+		std::wstring script_path_dll(script_path + L"\\d3d8.dll");
+		std::wstring plugin_path(scriptpath + separator + L"plugins");
+		std::wstring plugin_path_dll(plugin_path + L"\\d3d8.dll");
+
+		// Store the current folder
+		wchar_t currentDir[MAX_PATH] = { 0 };
+		GetCurrentDirectory(MAX_PATH, currentDir);
+
+		// Load d3d8.dll from 'scripts' folder
+		SetCurrentDirectory(script_path.c_str());
+		script_d3d8_dll = LoadLibrary(script_path_dll.c_str());
+		if (script_d3d8_dll)
+		{
+			Logging::Log() << "Loaded d3d8.dll from: " << script_path_dll.c_str();
+		}
+
+		// Load d3d8.dll from 'plugins' folder
+		if (!script_d3d8_dll)
+		{
+			SetCurrentDirectory(plugin_path.c_str());
+			script_d3d8_dll = LoadLibrary(plugin_path_dll.c_str());
+			if (script_d3d8_dll)
+			{
+				Logging::Log() << "Loaded d3d8.dll from: " << plugin_path_dll.c_str();
+			}
+		}
+
+		// Set current folder back
+		SetCurrentDirectory(currentDir);
+	}
+
+	// Get function address
+	if (script_d3d8_dll)
+	{
+		m_pDirect3DCreate8 = (Direct3DCreate8Proc)GetProcAddress(script_d3d8_dll, "Direct3DCreate8");
+	}
+
+	// Checking function address
+	if (!m_pDirect3DCreate8)
+	{
+		m_pDirect3DCreate8 = (Direct3DCreate8Proc)(Address + 5 + *(DWORD*)(Address + 1));
+	}
+
+	// Write to memory
+	WriteCalltoMemory((BYTE*)Address, *Direct3DCreate8Wrapper, 5);
+}
 
 IDirect3D8 *WINAPI Direct3DCreate8Wrapper(UINT SDKVersion)
 {
-	Logging::LogDebug() << __FUNCTION__;
-
-	static Direct3DCreate8Proc m_pDirect3DCreate8 = (Direct3DCreate8Proc)d3d8::Direct3DCreate8_var;
+	LOG_LIMIT(3, "Redirecting 'Direct3DCreate8' ...");
 
 	LPDIRECT3D8 pD3D8 = m_pDirect3DCreate8(SDKVersion);
 
@@ -32,5 +104,3 @@ IDirect3D8 *WINAPI Direct3DCreate8Wrapper(UINT SDKVersion)
 
 	return nullptr;
 }
-
-FARPROC p_Direct3DCreate8Wrapper = (FARPROC)*Direct3DCreate8Wrapper;

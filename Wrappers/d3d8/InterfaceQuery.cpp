@@ -43,7 +43,7 @@ void genericQueryInterface(REFIID riid, LPVOID *ppvObj, m_IDirect3DDevice8* m_pD
 #define QUERYINTERFACE(x) \
 	if (riid == IID_ ## x) \
 		{ \
-			*ppvObj = m_pDevice->ProxyAddressLookupTable->FindAddress<m_ ## x>(*ppvObj); \
+			*ppvObj = m_pDevice->ProxyAddressLookupTableD3d8->FindAddress<m_ ## x>(*ppvObj); \
 			return; \
 		}
 

@@ -14,6 +14,8 @@
 *   3. This notice may not be removed or altered from any source distribution.
 */
 
+#define WIN32_LEAN_AND_MEAN
+#include <Shlwapi.h>
 #include "External\d3d8to9\source\d3d8to9.hpp"
 #include "External\d3d8to9\source\d3dx9.hpp"
 #include "External\Hooking\Hook.h"
@@ -27,9 +29,11 @@
 #define TOSTRING(x) STRINGIFY(x)
 #define APP_VERSION TOSTRING(FILEVERSION)
 
+typedef IDirect3D8 *(WINAPI *Direct3DCreate8Proc)(UINT);
 typedef LPDIRECT3D9(WINAPI *PFN_Direct3DCreate9)(UINT SDKVersion);
 
-FARPROC p_Direct3DCreate9 = nullptr;
+extern Direct3DCreate8Proc m_pDirect3DCreate8;
+PFN_Direct3DCreate9 p_Direct3DCreate9 = nullptr;
 
 PFN_D3DXAssembleShader D3DXAssembleShader = nullptr;
 PFN_D3DXDisassembleShader D3DXDisassembleShader = nullptr;
@@ -46,8 +50,9 @@ void EnableD3d8to9()
 	}
 
 	AddHandleToVector(d3d9_dll);
-	p_Direct3DCreate9 = GetProcAddress(d3d9_dll, "Direct3DCreate9");
-	d3d8::Direct3DCreate8_var = p_Direct3DCreate8to9;
+	p_Direct3DCreate9 = reinterpret_cast<PFN_Direct3DCreate9>(GetProcAddress(d3d9_dll, "Direct3DCreate9"));
+	m_pDirect3DCreate8 = (Direct3DCreate8Proc)*Direct3DCreate8to9;
+	d3d8::Direct3DCreate8_var = (FARPROC)*Direct3DCreate8to9;
 }
 
 // Handles calls to 'Direct3DCreate8' for d3d8to9
@@ -59,15 +64,7 @@ Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 
 	Logging::Log() << "Redirecting 'Direct3DCreate8' to --> 'Direct3DCreate9' (" << SDKVersion << ")";
 
-	// Declare Direct3DCreate9
-	static PFN_Direct3DCreate9 Direct3DCreate9 = reinterpret_cast<PFN_Direct3DCreate9>(p_Direct3DCreate9);
-	if (!Direct3DCreate9)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: Failed to get 'Direct3DCreate9' ProcAddress of d3d9.dll!";
-		return nullptr;
-	}
-
-	IDirect3D9 *const d3d = Direct3DCreate9(D3D_SDK_VERSION);
+	IDirect3D9 *const d3d = p_Direct3DCreate9(D3D_SDK_VERSION);
 
 	if (d3d == nullptr)
 	{
@@ -95,6 +92,7 @@ Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 
 		if (d3dx9Module)
 		{
+			Logging::Log() << "Loaded " << d3dx9name;
 			D3DXAssembleShader = reinterpret_cast<PFN_D3DXAssembleShader>(GetProcAddress(d3dx9Module, "D3DXAssembleShader"));
 			D3DXDisassembleShader = reinterpret_cast<PFN_D3DXDisassembleShader>(GetProcAddress(d3dx9Module, "D3DXDisassembleShader"));
 			D3DXLoadSurfaceFromSurface = reinterpret_cast<PFN_D3DXLoadSurfaceFromSurface>(GetProcAddress(d3dx9Module, "D3DXLoadSurfaceFromSurface"));
@@ -103,6 +101,17 @@ Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 		{
 			Logging::Log() << __FUNCTION__ << " Error: Failed to load d3dx9_xx.dll! Some features will not work correctly.";
 		}
+	}
+
+	// Check for required DirectX 9 runtime files
+	wchar_t d3dx9_path[MAX_PATH], d3dcompiler_path[MAX_PATH];
+	GetSystemDirectory(d3dx9_path, MAX_PATH);
+	wcscat_s(d3dx9_path, L"\\d3dx9_43.dll");
+	GetSystemDirectory(d3dcompiler_path, MAX_PATH);
+	wcscat_s(d3dcompiler_path, L"\\d3dcompiler_43.dll");
+	if (!PathFileExists(d3dx9_path) || !PathFileExists(d3dcompiler_path))
+	{
+		Logging::Log() << "Warning: Could not find expected DirectX 9.0c End-User Runtime files.  Try installing from: https://www.microsoft.com/download/details.aspx?id=35";
 	}
 
 	// Check if WineD3D is loaded

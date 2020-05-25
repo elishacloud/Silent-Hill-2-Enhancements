@@ -125,6 +125,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		GetModuleFileName(nullptr, sh2path, MAX_PATH);
 		Logging::Log() << "Running from: " << sh2path;
 
+		// Log settings in ini file
 		if (IsLoadConfig)
 		{
 			Logging::Log() << "Config file: " << configpath;
@@ -151,49 +152,8 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		// Get wrapper mode
 		Wrapper::GetWrapperMode(hModule);
 
-		// Load wrapper d3d8 from scripts or plugins folder
-		HMODULE script_d3d8_dll = nullptr;
-		if (LoadD3d8FromScriptsFolder && Wrapper::dtype == DTYPE_D3D8)
-		{
-			// Get script paths
-			wchar_t scriptpath[MAX_PATH];
-			wcscpy_s(scriptpath, MAX_PATH, sh2path);
-			wcscpy_s(wcsrchr(scriptpath, '\\'), MAX_PATH - wcslen(scriptpath), L"\0");
-			std::wstring separator = L"\\";
-			std::wstring script_path(scriptpath + separator + L"scripts");
-			std::wstring script_path_dll(script_path + L"\\d3d8.dll");
-			std::wstring plugin_path(scriptpath + separator + L"plugins");
-			std::wstring plugin_path_dll(plugin_path + L"\\d3d8.dll");
-
-			// Store the current folder
-			wchar_t currentDir[MAX_PATH] = { 0 };
-			GetCurrentDirectory(MAX_PATH, currentDir);
-
-			// Load d3d8.dll from 'scripts' folder
-			SetCurrentDirectory(script_path.c_str());
-			script_d3d8_dll = LoadLibrary(script_path_dll.c_str());
-			if (script_d3d8_dll)
-			{
-				Logging::Log() << "Loaded d3d8.dll from: " << script_path_dll.c_str();
-			}
-
-			// Load d3d8.dll from 'plugins' folder
-			if (!script_d3d8_dll && Wrapper::dtype == DTYPE_D3D8)
-			{
-				SetCurrentDirectory(plugin_path.c_str());
-				script_d3d8_dll = LoadLibrary(plugin_path_dll.c_str());
-				if (script_d3d8_dll)
-				{
-					Logging::Log() << "Loaded d3d8.dll from: " << plugin_path_dll.c_str();
-				}
-			}
-
-			// Set current folder back
-			SetCurrentDirectory(currentDir);
-		}
-
 		// Create wrapper
-		wrapper_dll = Wrapper::CreateWrapper((Wrapper::dtype == DTYPE_D3D8) ? script_d3d8_dll : nullptr);
+		wrapper_dll = Wrapper::CreateWrapper(nullptr);
 		if (wrapper_dll)
 		{
 			Logging::Log() << "Wrapper created for " << dtypename[Wrapper::dtype];
@@ -203,22 +163,10 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			Logging::Log() << __FUNCTION__ << " Error: could not create wrapper!";
 		}
 
-		// Hook d3d8.dll
-		if (Wrapper::dtype != DTYPE_D3D8)
+		// Hook Direct3D8
+		if (HookDirect3D)
 		{
-			// Load d3d8 procs
-			HMODULE d3d8_dll = LoadLibrary(L"d3d8.dll");
-			AddHandleToVector(d3d8_dll);
-
-			// Hook d3d8.dll -> d3d8wrapper
-			Logging::Log() << "Hooking d3d8.dll APIs...";
-			d3d8::Direct3DCreate8_var = (FARPROC)Hook::HotPatch(Hook::GetProcAddress(d3d8_dll, "Direct3DCreate8"), "Direct3DCreate8", p_Direct3DCreate8Wrapper, d3d8to9);
-		}
-
-		// Hook DirectSound8
-		if (AudioClipDetection)
-		{
-			HookDirectSoundCreate8();
+			HookDirect3DCreate8();
 		}
 
 		// Enable d3d8to9
@@ -227,17 +175,10 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			EnableD3d8to9();
 		}
 
-		// Check for required DirectX 9 runtime files
-		wchar_t d3dx9_path[MAX_PATH], d3dcompiler_path[MAX_PATH], xaudio2_path[MAX_PATH];
-		GetSystemDirectory(d3dx9_path, MAX_PATH);
-		wcscat_s(d3dx9_path, L"\\d3dx9_43.dll");
-		GetSystemDirectory(d3dcompiler_path, MAX_PATH);
-		wcscat_s(d3dcompiler_path, L"\\d3dcompiler_43.dll");
-		GetSystemDirectory(xaudio2_path, MAX_PATH);
-		wcscat_s(xaudio2_path, L"\\xaudio2_7.dll");
-		if (!PathFileExists(d3dx9_path) || !PathFileExists(d3dcompiler_path) || !PathFileExists(xaudio2_path))
+		// Hook DirectSound8
+		if (AudioClipDetection)
 		{
-			Logging::Log() << "Warning: Could not find expected DirectX 9.0c End-User Runtime files.  Try installing from: https://www.microsoft.com/download/details.aspx?id=35";
+			HookDirectSoundCreate8();
 		}
 
 		// Hook CreateFile API when using UseCustomModFolder

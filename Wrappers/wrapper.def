@@ -26,7 +26,7 @@ Direct3D8EnableMaximizedWindowedModeShim
 ValidatePixelShader
 ValidateVertexShader
 DebugSetMute
-Direct3DCreate8 = Direct3DCreate8Wrapper
+Direct3DCreate8
 
 
 ; ****

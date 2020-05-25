@@ -6,11 +6,11 @@
 constexpr UINT MaxIndex = 11;
 
 template <typename D>
-class AddressLookupTable
+class AddressLookupTableD3d8
 {
 public:
-	explicit AddressLookupTable(D *pDevice) : pDevice(pDevice) {}
-	~AddressLookupTable()
+	explicit AddressLookupTableD3d8(D *pDevice) : pDevice(pDevice) {}
+	~AddressLookupTableD3d8()
 	{
 		ConstructorFlag = true;
 
@@ -96,13 +96,13 @@ public:
 private:
 	bool ConstructorFlag = false;
 	D *const pDevice;
-	std::unordered_map<void*, class AddressLookupTableObject*> g_map[MaxIndex];
+	std::unordered_map<void*, class AddressLookupTableD3d8Object*> g_map[MaxIndex];
 };
 
-class AddressLookupTableObject
+class AddressLookupTableD3d8Object
 {
 public:
-	virtual ~AddressLookupTableObject() { }
+	virtual ~AddressLookupTableD3d8Object() { }
 
 	void DeleteMe()
 	{

@@ -37,9 +37,12 @@ namespace Wrapper
 #include "dsound.h"
 
 typedef struct IUnknown *LPUNKNOWN;
+typedef struct IDirect3D8 *LPDIRECT3D8;
 typedef struct IDirectSound8 *LPDIRECTSOUND8;
 
+void HookDirect3DCreate8();
 void HookDirectSoundCreate8();
+IDirect3D8 *WINAPI Direct3DCreate8Wrapper(UINT SDKVersion);
 HRESULT WINAPI DirectSoundCreate8Wrapper(LPCGUID pcGuidDevice, LPDIRECTSOUND8 *ppDS8, LPUNKNOWN pUnkOuter);
 
 #define DECLARE_FORWARD_FUNCTIONS(procName, unused) \
@@ -52,5 +55,3 @@ namespace d3d8
 {
 	VISIT_PROCS_D3D8(DECLARE_PROC_VARIABLES);
 }
-
-extern FARPROC p_Direct3DCreate8Wrapper;

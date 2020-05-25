@@ -1,6 +1,6 @@
 #pragma once
 
-class m_IDirect3DVolumeTexture8 : public IDirect3DVolumeTexture8, public AddressLookupTableObject
+class m_IDirect3DVolumeTexture8 : public IDirect3DVolumeTexture8, public AddressLookupTableD3d8Object
 {
 private:
 	LPDIRECT3DVOLUMETEXTURE8 ProxyInterface;
@@ -11,7 +11,7 @@ public:
 	{
 		Logging::LogDebug() << "Creating device " << __FUNCTION__ << "(" << this << ")";
 
-		m_pDevice->ProxyAddressLookupTable->SaveAddress(this, ProxyInterface);
+		m_pDevice->ProxyAddressLookupTableD3d8->SaveAddress(this, ProxyInterface);
 	}
 	~m_IDirect3DVolumeTexture8()
 	{

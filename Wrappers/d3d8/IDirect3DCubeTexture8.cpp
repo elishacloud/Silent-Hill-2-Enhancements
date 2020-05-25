@@ -154,7 +154,7 @@ HRESULT m_IDirect3DCubeTexture8::GetCubeMapSurface(THIS_ D3DCUBEMAP_FACES FaceTy
 
 	if (SUCCEEDED(hr) && ppCubeMapSurface)
 	{
-		*ppCubeMapSurface = m_pDevice->ProxyAddressLookupTable->FindAddress<m_IDirect3DSurface8>(*ppCubeMapSurface);
+		*ppCubeMapSurface = m_pDevice->ProxyAddressLookupTableD3d8->FindAddress<m_IDirect3DSurface8>(*ppCubeMapSurface);
 	}
 
 	return hr;

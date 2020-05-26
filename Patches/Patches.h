@@ -25,6 +25,8 @@ float GetFlashlightBrightnessBlue();
 BYTE GetPauseMenu();
 DWORD GetOnScreen();
 DWORD GetTransitionState();
+BYTE GetFullscreenImageEvent();
+float GetInGameCameraPosY();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -42,6 +44,8 @@ float *GetFlashlightBrightnessPointer();
 BYTE *GetPauseMenuPointer();
 DWORD *GetOnScreenPointer();
 DWORD *GetTransitionStatePointer();
+BYTE *GetFullscreenImageEventPointer();
+float *GetInGameCameraPosYPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -59,13 +63,13 @@ void PatchBestGraphics();
 void PatchBinary();
 void PatchCDCheck();
 void PatchCatacombsMeatRoom();
-void PatchCemeteryLighting();
 void PatchCreatureVehicleSpawn();
 void PatchCustomExeStr();
 void PatchCustomFog();
 void PatchCustomFonts();
 void PatchControllerTweaks();
 void PatchDrawDistance();
+void PatchFlashlightClockPush();
 void PatchFogParameters();
 void PatchLockScreenPosition();
 void PatchMainMenu();
@@ -76,6 +80,7 @@ void PatchPS2Flashlight();
 void PatchPS2NoiseFilter();
 void PatchRedCrossInCutscene();
 void PatchRoom312ShadowFix();
+void PatchRoomLighting();
 void PatchRowboatAnimation();
 void PatchSpecialFX();
 void PatchSFXAddr();
@@ -87,6 +92,7 @@ void PatchXInputVibration();
 void RunBloodSize();
 void RunClosetCutscene();
 void RunDynamicDrawDistance();
+void RunFlashlightClockPush();
 void RunFogSpeed();
 void RunGameLoad();
 void RunHangOnEsc();
@@ -120,6 +126,8 @@ extern float *FlashlightBrightnessAddr;
 extern BYTE *PauseMenuAddr;
 extern DWORD *OnScreenAddr;				// 0 = load screen, 4 = normal in-game, 5 = maps, 6 = inventory screen, 9 = save screen
 extern DWORD *TransitionStateAddr;		// 1 = fades the game image to black, 2 = solid black screen, 3 = fades from black back to the in game screen
+extern BYTE *FullscreenImageEventAddr;
+extern float *InGameCameraPosY;
 
 // Run code only once
 #define RUNONCE() \

@@ -41,11 +41,12 @@
     <ClCompile Include="External\WidescreenFixesPack\source\SilentHill2.WidescreenFix\dllmain.cpp" />
     <ClCompile Include="Patches\2TBHardDriveFix.cpp" />
     <ClCompile Include="Patches\DelayedStart.cpp" />
+    <ClCompile Include="Patches\FlashlightClockPush.cpp" />
     <ClCompile Include="Patches\FogFix.cpp" />
     <ClCompile Include="Patches\LaunchAsAdmin.cpp" />
     <ClCompile Include="Patches\PatchBinary.cpp" />
     <ClCompile Include="Patches\BloodSize.cpp" />
-    <ClCompile Include="Patches\CemeteryLightingPatch.cpp" />
+    <ClCompile Include="Patches\LightingPatch.cpp" />
     <ClCompile Include="Patches\ClosetCutscene.cpp" />
     <ClCompile Include="Patches\Common.cpp" />
     <ClCompile Include="Patches\CreatureVehicleSpawn.cpp" />

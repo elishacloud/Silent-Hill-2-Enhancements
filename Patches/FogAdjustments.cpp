@@ -28,7 +28,6 @@ void *jmpFogReturnAddr;
 void *jmpBlueCreekFogReturnAddr;
 void *NewEnvFogRGB;
 void *OriginalEnvFogRGB;
-void *InGameCameraYOrientation;
 void *jmpFinalAreaBossAddr1;
 void *jmpFinalAreaBossAddr2;
 
@@ -133,7 +132,7 @@ __declspec(naked) void __stdcall FinalAreaBoss1ASM()
 		mov eax, dword ptr ds : [RoomIDAddr]
 		cmp dword ptr ds : [eax], 0xBB
 		jne near NotFinalBoss
-		mov eax, dword ptr ds : [InGameCameraYOrientation]
+		mov eax, dword ptr ds : [InGameCameraPosY]
 		movss xmm0, dword ptr ds : [FinalAreaCameraYOrientation]
 		comiss xmm0, dword ptr ds : [eax]
 		jbe near NotFinalBoss
@@ -158,7 +157,7 @@ __declspec(naked) void __stdcall FinalAreaBoss2ASM()
 		mov eax, dword ptr ds : [RoomIDAddr]
 		cmp dword ptr ds : [eax], 0xBB
 		jne near NotFinalBoss
-		mov eax, dword ptr ds : [InGameCameraYOrientation]
+		mov eax, dword ptr ds : [InGameCameraPosY]
 		movss xmm0, dword ptr ds : [FinalAreaCameraYOrientation]
 		comiss xmm0, dword ptr ds : [eax]
 		jbe near NotFinalBoss
@@ -215,17 +214,6 @@ void PatchFogParameters()
 	memcpy(&FogFrontPointer, (void*)((DWORD)jmpFogReturnAddr - 4), sizeof(DWORD));
 	FogBackPointer = (void*)((DWORD)FogFrontPointer - 4);
 
-	// In-game camera Y
-	constexpr BYTE InGameCameraYSearchBytes[]{ 0x8B, 0x08, 0x8B, 0x50, 0x04, 0x8B, 0x40, 0x08, 0x89, 0x44, 0x24, 0x0C, 0xA1 };
-	InGameCameraYOrientation = (void*)ReadSearchedAddresses(0x005155ED, 0x0051591D, 0x0051523D, InGameCameraYSearchBytes, sizeof(InGameCameraYSearchBytes), 0x17);
-
-	// Checking address pointer
-	if (!InGameCameraYOrientation)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
-		return;
-	}
-
 	// New environment fog RGB
 	constexpr BYTE NewEnvFogSearchBytes[]{ 0x90, 0x90, 0x90, 0x8B, 0x44, 0x24, 0x04, 0x8B, 0x0D };
 	NewEnvFogRGB = (void*)ReadSearchedAddresses(0x004798ED, 0x00479B8D, 0x00479D9D, NewEnvFogSearchBytes, sizeof(NewEnvFogSearchBytes), 0x09);
@@ -271,8 +259,11 @@ void PatchFogParameters()
 	// Get cutscene camera position address
 	CutscenePosAddr = GetCutscenePosPointer();
 
+	// Get Camera in-game position Y
+	InGameCameraPosY = GetInGameCameraPosYPointer();
+
 	// Checking address pointers
-	if (!RoomIDAddr || !CutsceneIDAddr || !CutscenePosAddr)
+	if (!RoomIDAddr || !CutsceneIDAddr || !CutscenePosAddr || !InGameCameraPosY)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to get cutscene ID or position address!";
 		return;

@@ -59,9 +59,6 @@
     <ClCompile Include="Patches\DrawDistance.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
-    <ClCompile Include="Patches\CemeteryLightingPatch.cpp">
-      <Filter>Patches</Filter>
-    </ClCompile>
     <ClCompile Include="Patches\RowboatAnimation.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
@@ -243,6 +240,12 @@
       <Filter>Wrappers\dsound</Filter>
     </ClCompile>
     <ClCompile Include="Patches\DelayedStart.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\FlashlightClockPush.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\LightingPatch.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
   </ItemGroup>

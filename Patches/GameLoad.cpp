@@ -115,7 +115,7 @@ void RunGameLoad()
 	{
 		RUNONCE();
 
-		// Get address for game save
+		// Get address for in game voice event
 		constexpr BYTE SearchBytes[]{ 0xB9, 0xA0, 0x02, 0x00, 0x00, 0x33, 0xC0, 0xBF };
 		InGameVoiceEvent = (BYTE*)ReadSearchedAddresses(0x00563CB4, 0x00562804, 0x00562124, SearchBytes, sizeof(SearchBytes), 0x08);
 		if (!InGameVoiceEvent)
@@ -125,24 +125,6 @@ void RunGameLoad()
 		}
 
 		InGameVoiceEvent = (BYTE*)((DWORD)InGameVoiceEvent + 0x90);
-	}
-
-	// Get full screen image event address
-	static BYTE *FullscreenImageEvent = nullptr;
-	if (!FullscreenImageEvent)
-	{
-		RUNONCE();
-
-		// Get address for game save
-		constexpr BYTE SearchBytes[]{ 0x90, 0x90, 0x8B, 0x44, 0x24, 0x04, 0x83, 0xC0, 0xFE, 0x83, 0xF8, 0x06, 0x77, 0x61, 0xFF, 0x24, 0x85 };
-		FullscreenImageEvent = (BYTE*)ReadSearchedAddresses(0x0052E25E, 0x0052E58E, 0x0052DEAE, SearchBytes, sizeof(SearchBytes), 0x1F);
-		if (!FullscreenImageEvent)
-		{
-			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
-			return;
-		}
-
-		FullscreenImageEvent = (BYTE*)((DWORD)FullscreenImageEvent + 0x14);
 	}
 
 	// Set static variables
@@ -195,8 +177,7 @@ void RunGameLoad()
 	}
 
 	// Disable quick save during certian in-game voice events and during fullscreen image events
-	if ((((GetRoomID() == 0x0A) || (GetRoomID() == 0xBA)) && *InGameVoiceEvent == 1) ||
-		*FullscreenImageEvent == 0)
+	if ((((GetRoomID() == 0x0A) || (GetRoomID() == 0xBA)) && *InGameVoiceEvent == 1) || GetFullscreenImageEvent() == 0)
 	{
 		DisableQuickSave = true;
 		AllowQuickSaveFlag = FALSE;

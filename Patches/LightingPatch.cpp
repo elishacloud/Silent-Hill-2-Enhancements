@@ -43,8 +43,8 @@ __declspec(naked) void __stdcall CemeteryLightingASM()
 	}
 }
 
-// Patch SH2 code to Fix Cemetery Lighting
-void PatchCemeteryLighting()
+// Patch SH2 code to Fix Lighting in several rooms
+void PatchRoomLighting()
 {
 	// Get Cemetery Lighting address
 	constexpr BYTE CemeterySearchBytes[]{ 0x83, 0xEC, 0x10, 0x55, 0x56, 0x57, 0x50, 0x51, 0x8D, 0x54, 0x24, 0x14, 0x6A, 0x00, 0x52 };
@@ -66,7 +66,23 @@ void PatchCemeteryLighting()
 		return;
 	}
 
+	// Get carpet room lighting address
+	constexpr BYTE CarpetSearchBytes[]{ 0x8B, 0x54, 0x24, 0x1C, 0x6A, 0x00, 0x89, 0x0D };
+	DWORD CarpetAddr = ReadSearchedAddresses(0x00576F80, 0x00577830, 0x00577150, CarpetSearchBytes, sizeof(CarpetSearchBytes), 0x30);
+
+	// Checking address pointer
+	if (!CarpetAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+	CarpetAddr += 0x04;
+
 	// Update SH2 code
-	Logging::Log() << "Setting Cemetery Lighting Fix...";
+	Logging::Log() << "Setting Room Lighting Fix...";
+	float Value = -3000.0f;
+	UpdateMemoryAddress((BYTE*)CarpetAddr, &Value, sizeof(float));
+	Value = -1000.0f;
+	UpdateMemoryAddress((BYTE*)(CarpetAddr + 0x0C), &Value, sizeof(float));
 	WriteJMPtoMemory((BYTE*)CemeteryAddr, *CemeteryLightingASM, 6);
 }

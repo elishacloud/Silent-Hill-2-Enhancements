@@ -6,7 +6,6 @@
 	visit(AudioClipDetection, true) \
 	visit(AutoUpdateModule, true) \
 	visit(CatacombsMeatRoomFix, true) \
-	visit(CemeteryLightingFix, true) \
 	visit(CheckForAdminAccess, true) \
 	visit(ClosetCutsceneFix, true) \
 	visit(CreateLocalFix, true) \
@@ -27,6 +26,7 @@
 	visit(EnableWndMode, true) \
 	visit(FastTransitions, true) \
 	visit(Fix2D, true) \
+	visit(FixAptClockFlashlight, true) \
 	visit(FixChainsawSpawn, true) \
 	visit(FixCreatureVehicleSpawn, true) \
 	visit(FixDrawingTextLine, true) \
@@ -72,6 +72,7 @@
 	visit(RestoreSpecialFX, true) \
 	visit(RestoreVibration, true) \
 	visit(Room312ShadowFix, true) \
+	visit(RoomLightingFix, true) \
 	visit(RowboatAnimationFix, true) \
 	visit(SetBlackPillarBoxes, true) \
 	visit(Southpaw, false) \

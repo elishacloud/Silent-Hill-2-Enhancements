@@ -37,6 +37,8 @@ DWORD *RoomIDAddr = nullptr;
 DWORD *SpecializedLightAddr1 = nullptr;
 DWORD *SpecializedLightAddr2 = nullptr;
 DWORD *TransitionStateAddr = nullptr;
+BYTE *FullscreenImageEventAddr = nullptr;
+float *InGameCameraPosY = nullptr;
 
 DWORD GetRoomID()
 {
@@ -492,4 +494,64 @@ DWORD *GetTransitionStatePointer()
 	}
 
 	return TransitionStateAddr;
+}
+
+BYTE GetFullscreenImageEvent()
+{
+	BYTE *pFullscreenImageEvent = GetFullscreenImageEventPointer();
+
+	return (pFullscreenImageEvent) ? *pFullscreenImageEvent : 0;
+}
+
+// Get full screen image event address
+BYTE *GetFullscreenImageEventPointer()
+{
+	if (FullscreenImageEventAddr)
+	{
+		return FullscreenImageEventAddr;
+	}
+
+	// Get address for fullsceen image event
+	constexpr BYTE FullscreenImageSearchBytes[]{ 0x90, 0x90, 0x8B, 0x44, 0x24, 0x04, 0x83, 0xC0, 0xFE, 0x83, 0xF8, 0x06, 0x77, 0x61, 0xFF, 0x24, 0x85 };
+	FullscreenImageEventAddr = (BYTE*)ReadSearchedAddresses(0x0052E25E, 0x0052E58E, 0x0052DEAE, FullscreenImageSearchBytes, sizeof(FullscreenImageSearchBytes), 0x1F);
+
+	// Checking address pointer
+	if (!FullscreenImageEventAddr)
+	{
+		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	FullscreenImageEventAddr = (BYTE*)((DWORD)FullscreenImageEventAddr + 0x14);
+
+	return FullscreenImageEventAddr;
+}
+
+float GetInGameCameraPosY()
+{
+	float *pInGameCameraPosY = GetInGameCameraPosYPointer();
+
+	return (pInGameCameraPosY) ? *pInGameCameraPosY : 0.0f;
+}
+
+// Get Camera in-game position Y
+float *GetInGameCameraPosYPointer()
+{
+	if (InGameCameraPosY)
+	{
+		return InGameCameraPosY;
+	}
+
+	// In-game camera Y
+	constexpr BYTE InGameCameraYSearchBytes[]{ 0x8B, 0x08, 0x8B, 0x50, 0x04, 0x8B, 0x40, 0x08, 0x89, 0x44, 0x24, 0x0C, 0xA1 };
+	InGameCameraPosY = (float*)ReadSearchedAddresses(0x005155ED, 0x0051591D, 0x0051523D, InGameCameraYSearchBytes, sizeof(InGameCameraYSearchBytes), 0x17);
+
+	// Checking address pointer
+	if (!InGameCameraPosY)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	return InGameCameraPosY;
 }

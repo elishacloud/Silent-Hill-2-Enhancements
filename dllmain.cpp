@@ -250,10 +250,10 @@ void DelayedStart()
 		PatchDrawDistance();
 	}
 
-	// Cemetery Lighting Fix
-	if (CemeteryLightingFix)
+	// Room Lighting Fix
+	if (RoomLightingFix)
 	{
-		PatchCemeteryLighting();
+		PatchRoomLighting();
 	}
 
 	// Tree Lighting fix
@@ -368,6 +368,12 @@ void DelayedStart()
 	if (LockScreenPosition)
 	{
 		PatchLockScreenPosition();
+	}
+
+	// Fix flashlight at end of failed clock push cutscene
+	if (FixAptClockFlashlight)
+	{
+		PatchFlashlightClockPush();
 	}
 
 	// Enables all advanced graphics settings from the game's options menu on game launch

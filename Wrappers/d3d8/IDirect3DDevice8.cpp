@@ -1636,6 +1636,12 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		RunFogSpeed();
 	}
 
+	// Fix flashlight at end of failed clock push cutscene
+	if (FixAptClockFlashlight)
+	{
+		RunFlashlightClockPush();
+	}
+
 	// Bowling cutscene fading
 	if (IsInFakeFadeout && GetCutsceneID() != 0x19)
 	{

@@ -179,6 +179,7 @@ HRESULT m_IDirectSoundBuffer8::Play(DWORD dwReserved1, DWORD dwPriority, DWORD d
 	{
 		PendingStop = false;
 
+		// Stop
 		ProxyInterface->Stop();
 
 		// Reset volume

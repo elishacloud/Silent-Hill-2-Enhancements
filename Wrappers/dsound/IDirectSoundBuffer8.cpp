@@ -179,6 +179,8 @@ HRESULT m_IDirectSoundBuffer8::Play(DWORD dwReserved1, DWORD dwPriority, DWORD d
 	{
 		PendingStop = false;
 
+		ProxyInterface->Stop();
+
 		// Reset volume
 		ProxyInterface->SetVolume(CurrentVolume);
 	}
@@ -205,6 +207,11 @@ HRESULT m_IDirectSoundBuffer8::SetVolume(LONG lVolume)
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
 
 	CurrentVolume = lVolume;
+
+	if (PendingStop)
+	{
+		return DS_OK;
+	}
 
 	return ProxyInterface->SetVolume(lVolume);
 }
@@ -304,10 +311,10 @@ void m_IDirectSoundBuffer8::ResetPending()
 		{
 			// Stop
 			ProxyInterface->Stop();
-
-			// Reset volume
-			ProxyInterface->SetVolume(CurrentVolume);
 		}
+
+		// Reset volume
+		ProxyInterface->SetVolume(CurrentVolume);
 
 		// Reset pending stop
 		PendingStop = false;

@@ -29,7 +29,7 @@ Here is an example:
 adxencd bgm_001.wav -lps3241390 -lpe7106605
 ```
 
-In this example the loop starts at audio sample 483700 and ends at audio sample 1065230.
+In this example the loop starts at audio sample 3241390 and ends at audio sample 7106605.
 
 ### Instructions:
 To create the ADX and AIX files for Silent Hill 2 copy all the WAV files into a folder, copy and run the `Build-BGM-Files.bat` tool.  This tool will create all the ADX and AIX.  It will also create a folder call `sound` and put all the files in their correct folders under `sound`.  Just copy the `sound` folder over the top of the `sound` folder in the `Silent Hill 2\data` folder.

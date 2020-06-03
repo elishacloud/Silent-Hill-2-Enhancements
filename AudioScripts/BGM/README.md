@@ -20,7 +20,7 @@ The AIX files can include multiple ADX files in them.  For example `bgm_115.aix`
 ** NOTE: All of the audio files in an AIX multiplex file needs to be the exact same length, format and have the exact same audio metadata in them for them to work correctly with Silent Hill 2.  In addition, ADX metadata is not supported with multiplexed AIX files in Silent Hill 2.
 
 ### Looping:
-All of the BGM files in Silent Hill 2 should loop.  To do this requires modification of the adx file metadata.  The `adxencd.exe` tool has two parameters to handle this.  The first is `-lps` and the second is `-lpe`.  `-lps` stands for "loop start" and indicates the first audio [sample](https://en.wikipedia.org/wiki/Sampling_(signal_processing)) of the area in the file where you want to loop.  `-lps` stands for "loop end" and indicates the last audio sample that you want to include in the loop.  A loop can start or end anywhere in the wav file
+All of the BGM files in Silent Hill 2 should loop.  To do this requires modification of the adx file metadata.  The `adxencd.exe` tool has two parameters to handle this.  The first is `-lps` and the second is `-lpe`.  `-lps` stands for "loop start" and indicates the first audio [sample](https://en.wikipedia.org/wiki/Sampling_(signal_processing)) of the area in the file where you want to loop.  `-lpe` stands for "loop end" and indicates the last audio sample that you want to include in the loop.  A loop can start or end anywhere in the wav file
 
 The `Build-Dialog-Files.bat` file should be modified with the loop parameters before running it so that you ensure that these files loop correctly.
 

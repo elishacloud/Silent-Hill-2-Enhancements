@@ -34,11 +34,12 @@ float *JamesPosZAddr = nullptr;
 DWORD *OnScreenAddr = nullptr;
 BYTE *PauseMenuAddr = nullptr;
 DWORD *RoomIDAddr = nullptr;
-DWORD *SpecializedLightAddr1 = nullptr;
-DWORD *SpecializedLightAddr2 = nullptr;
+DWORD *SpecializedLight1Addr = nullptr;
+DWORD *SpecializedLight2Addr = nullptr;
 DWORD *TransitionStateAddr = nullptr;
 BYTE *FullscreenImageEventAddr = nullptr;
-float *InGameCameraPosY = nullptr;
+float *InGameCameraPosYAddr = nullptr;
+BYTE *InventoryStatusAddr = nullptr;
 
 DWORD GetRoomID()
 {
@@ -287,58 +288,58 @@ BYTE *GetChapterIDPointer()
 
 DWORD GetSpecializedLight1()
 {
-	DWORD *pSpecializedLight1 = GetSpecializedLightPointer1();
+	DWORD *pSpecializedLight1 = GetSpecializedLight1Pointer();
 
 	return (pSpecializedLight1) ? *pSpecializedLight1 : 0;
 }
 
-DWORD *GetSpecializedLightPointer1()
+DWORD *GetSpecializedLight1Pointer()
 {
-	if (SpecializedLightAddr1)
+	if (SpecializedLight1Addr)
 	{
-		return SpecializedLightAddr1;
+		return SpecializedLight1Addr;
 	}
 
 	// Get address for flashlight render
 	constexpr BYTE SpecializedLightSearchBytes[]{ 0x8B, 0x44, 0x24, 0x04, 0x8B, 0x4C, 0x24, 0x08, 0xA3 };
-	SpecializedLightAddr1 = (DWORD*)ReadSearchedAddresses(0x00445630, 0x004457F0, 0x004457F0, SpecializedLightSearchBytes, sizeof(SpecializedLightSearchBytes), 0x09);
+	SpecializedLight1Addr = (DWORD*)ReadSearchedAddresses(0x00445630, 0x004457F0, 0x004457F0, SpecializedLightSearchBytes, sizeof(SpecializedLightSearchBytes), 0x09);
 
 	// Checking address pointer
-	if (!SpecializedLightAddr1)
+	if (!SpecializedLight1Addr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find specialized light address 1!";
 		return nullptr;
 	}
 
-	return SpecializedLightAddr1;
+	return SpecializedLight1Addr;
 }
 
 DWORD GetSpecializedLight2()
 {
-	DWORD *pSpecializedLight2 = GetSpecializedLightPointer2();
+	DWORD *pSpecializedLight2 = GetSpecializedLight2Pointer();
 
 	return (pSpecializedLight2) ? *pSpecializedLight2 : 0;
 }
 
-DWORD *GetSpecializedLightPointer2()
+DWORD *GetSpecializedLight2Pointer()
 {
-	if (SpecializedLightAddr2)
+	if (SpecializedLight2Addr)
 	{
-		return SpecializedLightAddr2;
+		return SpecializedLight2Addr;
 	}
 
 	// Get address for flashlight render
 	constexpr BYTE SpecializedLightSearchBytes[]{ 0x00, 0x00, 0x00, 0x52, 0x6A, 0x22, 0x50, 0x89, 0x1D };
-	SpecializedLightAddr2 = (DWORD*)ReadSearchedAddresses(0x004FFA1B, 0x004FFD4B, 0x004FF66B, SpecializedLightSearchBytes, sizeof(SpecializedLightSearchBytes), 0x09);
+	SpecializedLight2Addr = (DWORD*)ReadSearchedAddresses(0x004FFA1B, 0x004FFD4B, 0x004FF66B, SpecializedLightSearchBytes, sizeof(SpecializedLightSearchBytes), 0x09);
 
 	// Checking address pointer
-	if (!SpecializedLightAddr2)
+	if (!SpecializedLight2Addr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find specialized light address 2!";
 		return nullptr;
 	}
 
-	return SpecializedLightAddr2;
+	return SpecializedLight2Addr;
 }
 
 BYTE GetFlashlightSwitch()
@@ -537,21 +538,50 @@ float GetInGameCameraPosY()
 // Get Camera in-game position Y
 float *GetInGameCameraPosYPointer()
 {
-	if (InGameCameraPosY)
+	if (InGameCameraPosYAddr)
 	{
-		return InGameCameraPosY;
+		return InGameCameraPosYAddr;
 	}
 
 	// In-game camera Y
 	constexpr BYTE InGameCameraYSearchBytes[]{ 0x8B, 0x08, 0x8B, 0x50, 0x04, 0x8B, 0x40, 0x08, 0x89, 0x44, 0x24, 0x0C, 0xA1 };
-	InGameCameraPosY = (float*)ReadSearchedAddresses(0x005155ED, 0x0051591D, 0x0051523D, InGameCameraYSearchBytes, sizeof(InGameCameraYSearchBytes), 0x17);
+	InGameCameraPosYAddr = (float*)ReadSearchedAddresses(0x005155ED, 0x0051591D, 0x0051523D, InGameCameraYSearchBytes, sizeof(InGameCameraYSearchBytes), 0x17);
 
 	// Checking address pointer
-	if (!InGameCameraPosY)
+	if (!InGameCameraPosYAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return nullptr;
 	}
 
-	return InGameCameraPosY;
+	return InGameCameraPosYAddr;
+}
+
+BYTE GetInventoryStatus()
+{
+	BYTE *pInventoryStatus = GetInventoryStatusPointer();
+
+	return (pInventoryStatus) ? *pInventoryStatus : 3;
+}
+
+// Get inventory status
+BYTE *GetInventoryStatusPointer()
+{
+	if (InventoryStatusAddr)
+	{
+		return InventoryStatusAddr;
+	}
+
+	// In-game camera Y
+	constexpr BYTE InventoryStatusSearchBytes[]{ 0x83, 0xF8, 0x03, 0x74, 0x08, 0x83, 0xF8, 0x01, 0x74, 0x03, 0x33, 0xC0, 0xC3, 0xB8, 0x01, 0x00, 0x00, 0x00, 0xC3 };
+	InventoryStatusAddr = (BYTE*)ReadSearchedAddresses(0x00476065, 0x00476305, 0x00476061, InventoryStatusSearchBytes, sizeof(InventoryStatusSearchBytes), -0x04);
+
+	// Checking address pointer
+	if (!InventoryStatusAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	return InventoryStatusAddr;
 }

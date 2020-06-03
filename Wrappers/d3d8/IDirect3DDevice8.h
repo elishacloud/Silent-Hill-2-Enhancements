@@ -11,10 +11,10 @@ private:
 	bool GammaSet = false;
 	D3DGAMMARAMP Ramp;
 
+	BYTE HotelEmployeeElevatorRoomFlag = FALSE;
 	bool ReplacedLastRenderTarget = false;
 
 	// For detecting fullscreen images and turning pillar boxes to black
-	bool IsInFullscreenImage = false;
 	bool LastFrameFullscreenImage = false;
 	bool DontModifyClear = false;
 	float PillarBoxLeft = 0.0f;
@@ -73,6 +73,7 @@ private:
 	IDirect3DSurface8 *silhouetteRender = nullptr;
 
 	IDirect3DTexture8 *pCurrentRenderTexture = nullptr;
+	IDirect3DTexture8 *pSnapshotTexture = nullptr;
 
 	struct SURFACEVECTOR
 	{

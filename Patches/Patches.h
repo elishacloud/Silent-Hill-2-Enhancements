@@ -27,6 +27,7 @@ DWORD GetOnScreen();
 DWORD GetTransitionState();
 BYTE GetFullscreenImageEvent();
 float GetInGameCameraPosY();
+BYTE GetInventoryStatus();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -37,8 +38,8 @@ float *GetJamesPosYPointer();
 float *GetJamesPosZPointer();
 BYTE *GetFlashLightRenderPointer();
 BYTE *GetChapterIDPointer();
-DWORD *GetSpecializedLightPointer1();
-DWORD *GetSpecializedLightPointer2();
+DWORD *GetSpecializedLight1Pointer();
+DWORD *GetSpecializedLight2Pointer();
 BYTE *GetFlashlightSwitchPointer();
 float *GetFlashlightBrightnessPointer();
 BYTE *GetPauseMenuPointer();
@@ -46,6 +47,7 @@ DWORD *GetOnScreenPointer();
 DWORD *GetTransitionStatePointer();
 BYTE *GetFullscreenImageEventPointer();
 float *GetInGameCameraPosYPointer();
+BYTE *GetInventoryStatusPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -109,6 +111,7 @@ void RunTreeColor();
 
 // Variable forward declaration
 extern SH2VERSION GameVersion;
+extern bool IsInFullscreenImage;
 extern bool IsInBloomEffect;
 extern bool IsInFakeFadeout;
 extern DWORD *RoomIDAddr;
@@ -119,15 +122,16 @@ extern float *JamesPosYAddr;
 extern float *JamesPosZAddr;
 extern BYTE *FlashLightRenderAddr;
 extern BYTE *ChapterIDAddr;
-extern DWORD *SpecializedLightAddr1;
-extern DWORD *SpecializedLightAddr2;
+extern DWORD *SpecializedLight1Addr;
+extern DWORD *SpecializedLight2Addr;
 extern BYTE *FlashlightSwitchAddr;
 extern float *FlashlightBrightnessAddr;
 extern BYTE *PauseMenuAddr;
 extern DWORD *OnScreenAddr;				// 0 = load screen, 4 = normal in-game, 5 = maps, 6 = inventory screen, 9 = save screen
 extern DWORD *TransitionStateAddr;		// 1 = fades the game image to black, 2 = solid black screen, 3 = fades from black back to the in game screen
 extern BYTE *FullscreenImageEventAddr;
-extern float *InGameCameraPosY;
+extern float *InGameCameraPosYAddr;
+extern BYTE *InventoryStatusAddr;
 
 // Run code only once
 #define RUNONCE() \

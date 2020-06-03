@@ -17,6 +17,7 @@
 #include "d3d8wrapper.h"
 #include "Common\Utils.h"
 
+bool IsInFullscreenImage = false;
 bool IsInBloomEffect = false;
 bool IsInFakeFadeout = false;
 bool ClassReleaseFlag = false;
@@ -72,6 +73,8 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 	Logging::LogDebug() << __FUNCTION__;
 
 	pCurrentRenderTexture = nullptr;
+
+	pSnapshotTexture = nullptr;
 
 	for (SURFACEVECTOR SurfaceStruct : SurfaceVector)
 	{
@@ -341,6 +344,11 @@ HRESULT m_IDirect3DDevice8::CreateTexture(THIS_ UINT Width, UINT Height, UINT Le
 	if (SUCCEEDED(hr) && ppTexture)
 	{
 		*ppTexture = ProxyAddressLookupTableD3d8->FindAddress<m_IDirect3DTexture8>(*ppTexture);
+
+		if (!pSnapshotTexture && Usage == D3DUSAGE_RENDERTARGET && Width == (UINT)BufferWidth && Height == (UINT)BufferHeight)
+		{
+			pSnapshotTexture = *ppTexture;
+		}
 	}
 
 	return hr;
@@ -864,6 +872,36 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 		InPauseMenu = false;
 	}
 
+	HRESULT hr = D3D_OK;
+
+	// Disable Transparency Supersampling
+	if (SetSSAA)
+	{
+		ProxyInterface->SetRenderState((D3DRENDERSTATETYPE)D3DRS_ADAPTIVETESS_Y, D3DFMT_UNKNOWN);
+	}
+
+	// Present screen
+	if (!PauseMenuFlag)
+	{
+		hr = ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+	}
+
+	// Fix inventory snapshot in Hotel Employee Elevator Room
+	if (HotelEmployeeElevatorRoomFlag && ++HotelEmployeeElevatorRoomFlag > 2)
+	{
+		if (pSnapshotTexture && GetOnScreen() == 6)
+		{
+			IDirect3DSurface8 *pSnapshotSurface = nullptr;
+			if (SUCCEEDED(pSnapshotTexture->GetSurfaceLevel(0, &pSnapshotSurface)))
+			{
+				pSnapshotSurface->Release();
+				ProxyInterface->BeginScene();
+				GetFrontBuffer(pSnapshotSurface);
+			}
+		}
+		HotelEmployeeElevatorRoomFlag = FALSE;
+	}
+
 	LastDrawPrimitiveUPStride = 0;
 
 	// Shadow fading counter
@@ -888,19 +926,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	EndSceneCounter = 0;
 	PresentFlag = false;
 
-	if (PauseMenuFlag)
-	{
-		return D3D_OK;
-	}
-
-	// Disable Transparency Supersampling
-	if (SetSSAA)
-	{
-		ProxyInterface->SetRenderState((D3DRENDERSTATETYPE)D3DRS_ADAPTIVETESS_Y, D3DFMT_UNKNOWN);
-	}
-
-	// Present screen
-	return ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+	return hr;
 }
 
 HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount)
@@ -1008,15 +1034,6 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitiveUP(D3DPRIMITIVETYPE PrimitiveTyp
 HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, UINT PrimitiveCount)
 {
 	Logging::LogDebug() << __FUNCTION__;
-
-	// Lens flare effect
-	DWORD AlphaEnable = 0, SourceBlend = 0;
-	if (PrimitiveType == D3DPT_TRIANGLELIST && StartVertex == 0 &&
-		SUCCEEDED(GetRenderState(D3DRS_ALPHABLENDENABLE, &AlphaEnable)) && SUCCEEDED(GetRenderState(D3DRS_SRCBLEND, &SourceBlend)) &&
-		AlphaEnable == TRUE && SourceBlend == D3DBLEND_SRCALPHA)
-	{
-		// Add code here
-	}
 
 	// Set pillar boxes to black (removes game images from pillars)
 	if (LastFrameFullscreenImage && !IsInFullscreenImage && GetRoomID() && !GetCutsceneID())
@@ -1173,13 +1190,11 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 
 	LastDrawPrimitiveUPStride += VertexStreamZeroStride;
 
-	// Noise Filter
-	DWORD AlphaEnable = 0, TextureFactor = 0;
-	if (PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 24 &&
-		SUCCEEDED(GetRenderState(D3DRS_ALPHABLENDENABLE, &AlphaEnable)) && SUCCEEDED(GetRenderState(D3DRS_TEXTUREFACTOR, &TextureFactor)) &&
-		AlphaEnable == TRUE && (TextureFactor & 0x00FFFFFF) != 0x00000000 && (TextureFactor & 0x00FFFFFF) != 0x00FFFFFF)
+	// Remove red cross in inventory snapshot in Hotel Employee Elevator Room
+	if (DisableRedCrossInCutScenes && HotelEmployeeElevatorRoomFlag && GetOnScreen() == 6 && PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 24 &&
+		((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[0].z == 0.01f && ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[0].rhw == 1.0f)
 	{
-		// Add code here
+		return D3D_OK;
 	}
 
 	// Fix bowling cutscene fading
@@ -2213,6 +2228,12 @@ HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface
 	if (pDestSurface)
 	{
 		pDestSurface = static_cast<m_IDirect3DSurface8 *>(pDestSurface)->GetProxyInterface();
+	}
+
+	// Fix inventory snapshot in Hotel Employee Elevator Room
+	if (PauseScreenFix && GetRoomID() == 0x9D && GetOnScreen() == 0x04)
+	{
+		HotelEmployeeElevatorRoomFlag = TRUE;
 	}
 
 	HRESULT hr = D3DERR_INVALIDCALL;

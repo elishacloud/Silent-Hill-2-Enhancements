@@ -132,7 +132,7 @@ __declspec(naked) void __stdcall FinalAreaBoss1ASM()
 		mov eax, dword ptr ds : [RoomIDAddr]
 		cmp dword ptr ds : [eax], 0xBB
 		jne near NotFinalBoss
-		mov eax, dword ptr ds : [InGameCameraPosY]
+		mov eax, dword ptr ds : [InGameCameraPosYAddr]
 		movss xmm0, dword ptr ds : [FinalAreaCameraYOrientation]
 		comiss xmm0, dword ptr ds : [eax]
 		jbe near NotFinalBoss
@@ -157,7 +157,7 @@ __declspec(naked) void __stdcall FinalAreaBoss2ASM()
 		mov eax, dword ptr ds : [RoomIDAddr]
 		cmp dword ptr ds : [eax], 0xBB
 		jne near NotFinalBoss
-		mov eax, dword ptr ds : [InGameCameraPosY]
+		mov eax, dword ptr ds : [InGameCameraPosYAddr]
 		movss xmm0, dword ptr ds : [FinalAreaCameraYOrientation]
 		comiss xmm0, dword ptr ds : [eax]
 		jbe near NotFinalBoss
@@ -260,10 +260,10 @@ void PatchFogParameters()
 	CutscenePosAddr = GetCutscenePosPointer();
 
 	// Get Camera in-game position Y
-	InGameCameraPosY = GetInGameCameraPosYPointer();
+	InGameCameraPosYAddr = GetInGameCameraPosYPointer();
 
 	// Checking address pointers
-	if (!RoomIDAddr || !CutsceneIDAddr || !CutscenePosAddr || !InGameCameraPosY)
+	if (!RoomIDAddr || !CutsceneIDAddr || !CutscenePosAddr || !InGameCameraPosYAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to get cutscene ID or position address!";
 		return;

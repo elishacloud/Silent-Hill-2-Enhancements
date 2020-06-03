@@ -45,7 +45,7 @@ To create the ADX and AIX files for Silent Hill 2 copy all the WAV files into a 
 1. adxencd.exe
 2. adx2aix.exe
 3. Build-BGM-Files.bat
-4. Silent Hill 2 dialog wav sound files: bgm_[001...128][0000...0007].wav
+4. Silent Hill 2 dialog wav sound files: bgm_[001...128][0000...0006].wav
 
 #### Script Files:
 	adx2aix.exe

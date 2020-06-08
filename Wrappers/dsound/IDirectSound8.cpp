@@ -125,7 +125,15 @@ HRESULT m_IDirectSound8::GetSpeakerConfig(LPDWORD pdwSpeakerConfig)
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
 
-	return ProxyInterface->GetSpeakerConfig(pdwSpeakerConfig);
+	HRESULT hr = ProxyInterface->GetSpeakerConfig(pdwSpeakerConfig);
+
+	if (pdwSpeakerConfig)
+	{
+		*pdwSpeakerConfig = (*pdwSpeakerConfig == DSSPEAKER_7POINT1_SURROUND) ? DSSPEAKER_7POINT1 :
+			(*pdwSpeakerConfig == DSSPEAKER_5POINT1_SURROUND) ? DSSPEAKER_5POINT1 : *pdwSpeakerConfig;
+	}
+
+	return hr;
 }
 
 HRESULT m_IDirectSound8::SetSpeakerConfig(DWORD dwSpeakerConfig)

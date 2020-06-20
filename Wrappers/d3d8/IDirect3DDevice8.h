@@ -8,6 +8,10 @@ private:
 	LPDIRECT3DDEVICE8 ProxyInterface;
 	m_IDirect3D8* m_pD3D;
 
+	LONG screenWidth = 0;
+	LONG screenHeight = 0;
+	
+	bool RunningAsWindow = false;
 	bool GammaSet = false;
 	D3DGAMMARAMP Ramp;
 
@@ -162,6 +166,9 @@ public:
 
 		ProxyAddressLookupTableD3d8 = new AddressLookupTableD3d8<m_IDirect3DDevice8>(this);
 
+		GetDesktopRes(screenWidth, screenHeight);
+		RunningAsWindow = (EnableWndMode && (BufferWidth != screenWidth || BufferHeight != screenHeight));
+
 		// Enable Anisotropic Filtering
 		if (AnisotropicFiltering)
 		{
@@ -225,6 +232,7 @@ public:
 	STDMETHOD(UpdateSurface)(THIS_ IDirect3DSurface8* pSourceSurface, IDirect3DSurface8* pDestSurface);
 	STDMETHOD(UpdateTexture)(THIS_ IDirect3DBaseTexture8* pSourceTexture, IDirect3DBaseTexture8* pDestinationTexture);
 	STDMETHOD(GetFrontBuffer)(THIS_ IDirect3DSurface8* pDestSurface);
+	STDMETHOD(FakeGetFrontBuffer)(THIS_ IDirect3DSurface8* pDestSurface);
 	STDMETHOD(SetRenderTarget)(THIS_ IDirect3DSurface8* pRenderTarget, IDirect3DSurface8* pNewZStencil);
 	STDMETHOD(GetRenderTarget)(THIS_ IDirect3DSurface8** ppRenderTarget);
 	STDMETHOD(GetDepthStencilSurface)(THIS_ IDirect3DSurface8** ppZStencilSurface);

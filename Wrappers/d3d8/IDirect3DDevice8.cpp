@@ -861,7 +861,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 			if (SUCCEEDED(pCurrentRenderTexture->GetSurfaceLevel(0, &pCurrentRenderSurface)))
 			{
 				pCurrentRenderSurface->Release();
-				GetFrontBuffer(pCurrentRenderSurface);
+				FakeGetFrontBuffer(pCurrentRenderSurface);
 				PauseMenuFlag = true;
 			}
 		}
@@ -896,7 +896,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 			{
 				pSnapshotSurface->Release();
 				ProxyInterface->BeginScene();
-				GetFrontBuffer(pSnapshotSurface);
+				FakeGetFrontBuffer(pSnapshotSurface);
 			}
 		}
 		HotelEmployeeElevatorRoomFlag = FALSE;
@@ -2225,104 +2225,97 @@ HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	if (pDestSurface)
-	{
-		pDestSurface = static_cast<m_IDirect3DSurface8 *>(pDestSurface)->GetProxyInterface();
-	}
-
 	// Fix inventory snapshot in Hotel Employee Elevator Room
 	if (PauseScreenFix && GetRoomID() == 0x9D && GetOnScreen() == 0x04)
 	{
 		HotelEmployeeElevatorRoomFlag = TRUE;
 	}
 
-	HRESULT hr = D3DERR_INVALIDCALL;
-
-	if (!EnableWndMode)
+	if (RunningAsWindow)
 	{
-		hr = ProxyInterface->GetFrontBuffer(pDestSurface);
+		return FakeGetFrontBuffer(pDestSurface);
+	}
+	else
+	{
+		if (pDestSurface)
+		{
+			pDestSurface = static_cast<m_IDirect3DSurface8 *>(pDestSurface)->GetProxyInterface();
+		}
+
+		return ProxyInterface->GetFrontBuffer(pDestSurface);
+	}
+}
+
+HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface)
+{
+	Logging::LogDebug() << __FUNCTION__;
+
+	if (!pDestSurface)
+	{
+		return D3DERR_INVALIDCALL;
 	}
 
+	pDestSurface = static_cast<m_IDirect3DSurface8 *>(pDestSurface)->GetProxyInterface();
+
+	// Get dest surface size
+	D3DSURFACE_DESC Desc;
+	pDestSurface->GetDesc(&Desc);
+
+	// Get location of client window
+	RECT RectSrc = { 0, 0, BufferWidth , BufferHeight };
+	RECT rcClient = { 0, 0, BufferWidth , BufferHeight };
+	if (EnableWndMode && DeviceWindow && (!GetWindowRect(DeviceWindow, &RectSrc) || !GetClientRect(DeviceWindow, &rcClient)))
+	{
+		return D3DERR_INVALIDCALL;
+	}
+	int border_thickness = ((RectSrc.right - RectSrc.left) - rcClient.right) / 2;
+	int top_border = (RectSrc.bottom - RectSrc.top) - rcClient.bottom - border_thickness;
+	RectSrc.left += border_thickness;
+	RectSrc.top += top_border;
+	RectSrc.right = RectSrc.left + rcClient.right;
+	RectSrc.bottom = RectSrc.top + rcClient.bottom;
+
+	// Create new surface to hold data
+	IDirect3DSurface8 *pSrcSurface = nullptr;
+	if (FAILED(ProxyInterface->CreateImageSurface(max(screenWidth, RectSrc.right), max(screenHeight, RectSrc.bottom), D3DFMT_A8R8G8B8, &pSrcSurface)))
+	{
+		return D3DERR_INVALIDCALL;
+	}
+
+	// Get FrontBuffer data to new surface
+	HRESULT hr = ProxyInterface->GetFrontBuffer(pSrcSurface);
 	if (FAILED(hr))
 	{
-		// Create new surface to hold data
-		IDirect3DSurface8 *pSrcSurface = nullptr;
-		int ScreenWidth = GetSystemMetrics(SM_CXSCREEN);
-		int ScreenHeight = GetSystemMetrics(SM_CYSCREEN);
-		if (FAILED(ProxyInterface->CreateImageSurface(ScreenWidth, ScreenHeight, D3DFMT_A8R8G8B8, &pSrcSurface)))
-		{
-			return D3DERR_INVALIDCALL;
-		}
-
-		// Get FrontBuffer data to new surface
-		hr = ProxyInterface->GetFrontBuffer(pSrcSurface);
-		if (FAILED(hr))
-		{
-			pSrcSurface->Release();
-			return hr;
-		}
-
-		// Get dest surface size
-		D3DSURFACE_DESC Desc;
-		pDestSurface->GetDesc(&Desc);
-
-		// Get location of client window
-		RECT RectSrc, rcClient;
-		if (EnableWndMode && DeviceWindow)
-		{
-			if (!GetWindowRect(DeviceWindow, &RectSrc) || !GetClientRect(DeviceWindow, &rcClient))
-			{
-				pSrcSurface->Release();
-				return D3DERR_INVALIDCALL;
-			}
-		}
-		else
-		{
-			RectSrc.left = 0;
-			RectSrc.right = BufferWidth;
-			RectSrc.top = 0;
-			RectSrc.bottom = BufferHeight;
-			rcClient.left = RectSrc.left;
-			rcClient.right = RectSrc.right;
-			rcClient.top = RectSrc.top;
-			rcClient.bottom = RectSrc.bottom;
-		}
-		int border_thickness = ((RectSrc.right - RectSrc.left) - rcClient.right) / 2;
-		int top_border = (RectSrc.bottom - RectSrc.top) - rcClient.bottom - border_thickness;
-		RectSrc.left += border_thickness;
-		RectSrc.top += top_border;
-		RectSrc.right = min(RectSrc.left + rcClient.right, ScreenWidth);
-		RectSrc.bottom = min(RectSrc.top + rcClient.bottom, ScreenHeight);
-
-		// Copy data to DestSurface
-		hr = D3DERR_INVALIDCALL;
-		if ((LONG)Desc.Width == rcClient.right && (LONG)Desc.Height == rcClient.bottom)
-		{
-			POINT PointDest = { 0, 0 };
-			hr = ProxyInterface->CopyRects(pSrcSurface, &RectSrc, 1, pDestSurface, &PointDest);
-		}
-
-		// Try using StretchRect
-		if (FAILED(hr))
-		{
-			IDirect3DSurface8 *pTmpSurface = nullptr;
-			if (SUCCEEDED(ProxyInterface->CreateImageSurface(Desc.Width, Desc.Height, D3DFMT_A8R8G8B8, &pTmpSurface)))
-			{
-				if (SUCCEEDED(StretchRect(pSrcSurface, &RectSrc, pTmpSurface, nullptr, D3DTEXF_NONE)))
-				{
-					POINT PointDest = { 0, 0 };
-					RECT Rect = { 0, 0, (LONG)Desc.Width, (LONG)Desc.Height };
-					hr = ProxyInterface->CopyRects(pTmpSurface, &Rect, 1, pDestSurface, &PointDest);
-				}
-				pTmpSurface->Release();
-			}
-		}
-
-		// Release surface
 		pSrcSurface->Release();
 		return hr;
 	}
 
+	// Copy data to DestSurface
+	hr = D3DERR_INVALIDCALL;
+	if (rcClient.left == 0 && rcClient.top == 0 && (LONG)Desc.Width == rcClient.right && (LONG)Desc.Height == rcClient.bottom)
+	{
+		POINT PointDest = { 0, 0 };
+		hr = ProxyInterface->CopyRects(pSrcSurface, &RectSrc, 1, pDestSurface, &PointDest);
+	}
+
+	// Try using StretchRect
+	if (FAILED(hr))
+	{
+		IDirect3DSurface8 *pTmpSurface = nullptr;
+		if (SUCCEEDED(ProxyInterface->CreateImageSurface(Desc.Width, Desc.Height, D3DFMT_A8R8G8B8, &pTmpSurface)))
+		{
+			if (SUCCEEDED(StretchRect(pSrcSurface, &RectSrc, pTmpSurface, nullptr, D3DTEXF_NONE)))
+			{
+				POINT PointDest = { 0, 0 };
+				RECT Rect = { 0, 0, (LONG)Desc.Width, (LONG)Desc.Height };
+				hr = ProxyInterface->CopyRects(pTmpSurface, &Rect, 1, pDestSurface, &PointDest);
+			}
+			pTmpSurface->Release();
+		}
+	}
+
+	// Release surface
+	pSrcSurface->Release();
 	return hr;
 }
 

@@ -378,6 +378,16 @@ void UpdatePresentParameterForMultisample(D3DPRESENT_PARAMETERS* pPresentationPa
 	}
 }
 
+void GetDesktopRes(LONG &screenWidth, LONG &screenHeight)
+{
+	HMONITOR monitor = MonitorFromWindow(GetDesktopWindow(), MONITOR_DEFAULTTONEAREST);
+	MONITORINFO info = {};
+	info.cbSize = sizeof(MONITORINFO);
+	GetMonitorInfo(monitor, &info);
+	screenWidth = info.rcMonitor.right - info.rcMonitor.left;
+	screenHeight = info.rcMonitor.bottom - info.rcMonitor.top;
+}
+
 // Adjusting the window position for WindowMode
 void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 {
@@ -388,8 +398,8 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	}
 
 	// Get screen width and height
-	LONG screenWidth = GetSystemMetrics(SM_CXSCREEN);
-	LONG screenHeight = GetSystemMetrics(SM_CYSCREEN);
+	LONG screenWidth = 0, screenHeight = 0;
+	GetDesktopRes(screenWidth, screenHeight);
 
 	// Set window active and focus
 	SetActiveWindow(MainhWnd);

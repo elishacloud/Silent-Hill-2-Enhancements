@@ -382,6 +382,12 @@ void DelayedStart()
 		PatchBestGraphics();
 	}
 
+	// Disables changing the speaker configuration in the game's options menu
+	if (LockSpeakerConfig)
+	{
+		PatchSpeakerConfigLock();
+	}
+
 	// Fog Fix
 	if (fog_custom_on)
 	{

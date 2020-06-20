@@ -58,6 +58,7 @@
 	visit(LoadPlugins, false) \
 	visit(LockResolution, true) \
 	visit(LockScreenPosition, true) \
+	visit(LockSpeakerConfig, true) \
 	visit(MainMenuFix, true) \
 	visit(MainMenuTitlePerLang, true) \
 	visit(NoCDPatch, true) \

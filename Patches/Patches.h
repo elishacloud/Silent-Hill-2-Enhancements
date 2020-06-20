@@ -84,6 +84,7 @@ void PatchRedCrossInCutscene();
 void PatchRoom312ShadowFix();
 void PatchRoomLighting();
 void PatchRowboatAnimation();
+void PatchSpeakerConfigLock();
 void PatchSpecialFX();
 void PatchSFXAddr();
 void PatchTexAddr();

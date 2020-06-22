@@ -55,6 +55,14 @@ void SetGameLoad()
 		return;
 	}
 
+	constexpr BYTE FlashFixSearchBytes[]{ 0x5F, 0x5E, 0x5D, 0x33, 0xC0, 0x5B, 0xC3, 0x90, 0x90, 0x33, 0xC0, 0xA3 };
+	DWORD FlashFixAddr = SearchAndGetAddresses(0x004EEA37, 0x004EECE7, 0x004EE5A7, FlashFixSearchBytes, sizeof(FlashFixSearchBytes), 0x0B);
+	if (!FlashFixAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+
 	constexpr BYTE QuickSaveSearchBytes[]{ 0x83, 0xC4, 0x04, 0x85, 0xC0, 0x74, 0x4C, 0x39, 0x35 };
 	DWORD QuickSaveFunction = SearchAndGetAddresses(0x00402495, 0x00402495, 0x00402495, QuickSaveSearchBytes, sizeof(QuickSaveSearchBytes), 0x07);
 	if (!QuickSaveFunction)
@@ -69,6 +77,7 @@ void SetGameLoad()
 	Logging::Log() << "Enabling Load Game Fix...";
 	DWORD Value = 0x00;
 	UpdateMemoryAddress((void*)GameLoadAddr, &Value, sizeof(DWORD));
+	UpdateMemoryAddress((void*)FlashFixAddr, "\x90\x90\x90\x90\x90", 5);
 	WriteJMPtoMemory((BYTE*)QuickSaveFunction, *QuickSaveASM, 6);
 }
 

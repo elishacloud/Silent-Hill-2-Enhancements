@@ -9,7 +9,6 @@
 	visit(CheckForAdminAccess, true) \
 	visit(ClosetCutsceneFix, true) \
 	visit(CreateLocalFix, true) \
-	visit(DisableScreenSaver, true) \
 	visit(d3d8to9, true) \
 	visit(DisableCutsceneBorders, true) \
 	visit(DisableGameUX, true) \
@@ -19,6 +18,7 @@
 	visit(DisableRedCross, false) \
 	visit(DisableRedCrossInCutScenes, true) \
 	visit(DisableSafeMode, true) \
+	visit(DisableScreenSaver, true) \
 	visit(DPadMovementFix, true) \
 	visit(EnableSFXAddrHack, true) \
 	visit(EnableTexAddrHack, true) \

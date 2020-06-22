@@ -20,7 +20,6 @@
 
 AddressLookupTableDsound<void> ProxyAddressLookupTableDsound = AddressLookupTableDsound<void>();
 
-DWORD ds_ThreadID = 0;
 DirectSoundCreate8Proc m_pDirectSoundCreate8 = nullptr;
 
 // Hook dsound API
@@ -44,27 +43,6 @@ void HookDirectSoundCreate8()
 	WriteCalltoMemory((BYTE*)Address, *DirectSoundCreate8Wrapper, 5);
 }
 
-// Fix clipped sound thread
-DWORD WINAPI ClippedAutioThread(LPVOID)
-{
-	Logging::Log() << __FUNCTION__ " Started audio clip thread!";
-
-	while (!ds_threadExit)
-	{
-		Sleep(1);
-		if (LastStopped.size())
-		{
-			for (const auto& sdound : LastStopped)
-			{
-				sdound->ResetPending();
-			}
-			LastStopped.clear();
-		}
-	}
-
-	return S_OK;
-}
-
 // Dsound DirectSoundCreate8 API wrapper
 HRESULT WINAPI DirectSoundCreate8Wrapper(LPCGUID pcGuidDevice, LPDIRECTSOUND8 *ppDS8, LPUNKNOWN pUnkOuter)
 {
@@ -75,12 +53,6 @@ HRESULT WINAPI DirectSoundCreate8Wrapper(LPCGUID pcGuidDevice, LPDIRECTSOUND8 *p
 	if (SUCCEEDED(hr) && ppDS8)
 	{
 		*ppDS8 = ProxyAddressLookupTableDsound.FindAddress<m_IDirectSound8>(*ppDS8);
-
-		// Create thread
-		if (!ds_ThreadID)
-		{
-			CreateThread(nullptr, 0, ClippedAutioThread, nullptr, 0, &ds_ThreadID);
-		}
 	}
 
 	return hr;

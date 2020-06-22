@@ -16,7 +16,7 @@
 
 #include "dsoundwrapper.h"
 
-std::vector<m_IDirectSoundBuffer8*> LastStopped;
+DWORD WINAPI ResetPending(LPVOID pvParam);
 
 HRESULT m_IDirectSoundBuffer8::QueryInterface(REFIID riid, LPVOID * ppvObj)
 {
@@ -48,49 +48,26 @@ ULONG m_IDirectSoundBuffer8::AddRef()
 	return ProxyInterface->AddRef();
 }
 
-// Delete Sound8 class
-DWORD WINAPI DeleteSound8ClassThread(LPVOID pvParam)
-{
-	// Get class address
-	m_IDirectSoundBuffer8 *p_IDirectSoundBuffer8 = nullptr;
-	if (pvParam)
-	{
-		p_IDirectSoundBuffer8 = (m_IDirectSoundBuffer8*)pvParam;
-	}
-
-	// Delete class when safe
-	if (p_IDirectSoundBuffer8)
-	{
-		while (LastStopped.size())
-		{
-			Sleep(1);
-		}
-		p_IDirectSoundBuffer8->DeleteMe();
-	}
-
-	return S_OK;
-}
-
 ULONG m_IDirectSoundBuffer8::Release()
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
 
+	EnterCriticalSection(&AudioClip.dics);
+
 	ULONG x = ProxyInterface->Release();
+
+	if (x == 0 && AudioClip.ds_ThreadID)
+	{
+		HANDLE hThread = OpenThread(THREAD_TERMINATE, 0, AudioClip.ds_ThreadID);
+		TerminateThread(hThread, S_FALSE);
+		CloseHandle(hThread);
+	}
+
+	LeaveCriticalSection(&AudioClip.dics);
 
 	if (x == 0)
 	{
-		PendingStop = false;
-
-		if (LastStopped.size())
-		{
-			// Create thread
-			DWORD ThreadID = 0;
-			CreateThread(nullptr, 0, DeleteSound8ClassThread, this, 0, &ThreadID);
-		}
-		else
-		{
-			delete this;
-		}
+		delete this;
 	}
 
 	return x;
@@ -121,9 +98,9 @@ HRESULT m_IDirectSoundBuffer8::GetVolume(LPLONG plVolume)
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
 
-	if (PendingStop && plVolume)
+	if (AudioClip.PendingStop && plVolume)
 	{
-		*plVolume = CurrentVolume;
+		*plVolume = AudioClip.CurrentVolume;
 
 		return DS_OK;
 	}
@@ -175,15 +152,15 @@ HRESULT m_IDirectSoundBuffer8::Play(DWORD dwReserved1, DWORD dwPriority, DWORD d
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
 
-	if (PendingStop)
+	if (AudioClip.PendingStop)
 	{
-		PendingStop = false;
+		AudioClip.PendingStop = false;
 
 		// Stop
 		ProxyInterface->Stop();
 
 		// Reset volume
-		ProxyInterface->SetVolume(CurrentVolume);
+		ProxyInterface->SetVolume(AudioClip.CurrentVolume);
 	}
 
 	return ProxyInterface->Play(dwReserved1, dwPriority, dwFlags);
@@ -207,9 +184,9 @@ HRESULT m_IDirectSoundBuffer8::SetVolume(LONG lVolume)
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
 
-	CurrentVolume = lVolume;
+	AudioClip.CurrentVolume = lVolume;
 
-	if (PendingStop)
+	if (AudioClip.PendingStop)
 	{
 		return DS_OK;
 	}
@@ -237,20 +214,33 @@ HRESULT m_IDirectSoundBuffer8::Stop()
 
 	if (AudioClipDetection)
 	{
-		// Set pending stop
-		PendingStop = true;
-		LastStopped.push_back(this);
+		EnterCriticalSection(&AudioClip.dics);
 
-		// Lower volume
-		ProxyInterface->SetVolume(DSBVOLUME_MIN);
+		if (!AudioClip.ds_ThreadID)
+		{
+			// Set pending stop
+			AudioClip.PendingStop = true;
 
-		// Get current counter
-		QueryPerformanceFrequency(&Frequency);
-		Frequency.QuadPart /= ((NumMilliSeconds) ? 1000 / NumMilliSeconds : Frequency.QuadPart);
-		QueryPerformanceCounter(&StartingTime);
+			// Lower volume
+			ProxyInterface->SetVolume(DSBVOLUME_MIN);
+
+			// Get current counter
+			QueryPerformanceFrequency(&AudioClip.Frequency);
+			AudioClip.Frequency.QuadPart /= ((AudioFadeOutDelayMS) ? 1000 / AudioFadeOutDelayMS : AudioClip.Frequency.QuadPart);
+			QueryPerformanceCounter(&AudioClip.StartingTime);
+
+			// Start thread
+			if (CreateThread(nullptr, 0, ResetPending, &AudioClip, 0, &AudioClip.ds_ThreadID) == nullptr || !AudioClip.ds_ThreadID)
+			{
+				AudioClip.PendingStop = false;
+				AudioClip.ds_ThreadID = 0;
+			}
+		}
+
+		LeaveCriticalSection(&AudioClip.dics);
 
 		// Return value
-		return S_OK;
+		return DS_OK;
 	}
 
 	// Return
@@ -298,26 +288,43 @@ HRESULT m_IDirectSoundBuffer8::GetObjectInPath(REFGUID rguidObject, DWORD dwInde
 	return hr;
 }
 
-void m_IDirectSoundBuffer8::ResetPending()
+DWORD WINAPI ResetPending(LPVOID pvParam)
 {
-	if (PendingStop)
+	if (!pvParam)
+	{
+		return S_FALSE;
+	}
+
+	AUDIOCLIP &AudioClip = *(AUDIOCLIP*)pvParam;
+
+	// Pending stop
+	if (AudioClip.PendingStop)
 	{
 		// Add slight delay
 		do {
 			Sleep(0);
-			QueryPerformanceCounter(&EndingTime);
-		} while (StartingTime.QuadPart + Frequency.QuadPart > EndingTime.QuadPart);
+			QueryPerformanceCounter(&AudioClip.EndingTime);
+		} while (AudioClip.PendingStop && AudioClip.StartingTime.QuadPart + AudioClip.Frequency.QuadPart > AudioClip.EndingTime.QuadPart);
+	}
 
-		if (PendingStop)
-		{
-			// Stop
-			ProxyInterface->Stop();
-		}
+	EnterCriticalSection(&AudioClip.dics);
+
+	if (AudioClip.PendingStop && AudioClip.ProxyInterface)
+	{
+		// Stop
+		AudioClip.ProxyInterface->Stop();
 
 		// Reset volume
-		ProxyInterface->SetVolume(CurrentVolume);
-
-		// Reset pending stop
-		PendingStop = false;
+		AudioClip.ProxyInterface->SetVolume(AudioClip.CurrentVolume);
 	}
+
+	// Reset pending stop
+	AudioClip.PendingStop = false;
+
+	// Reset thread ID
+	AudioClip.ds_ThreadID = 0;
+
+	LeaveCriticalSection(&AudioClip.dics);
+
+	return S_OK;
 }

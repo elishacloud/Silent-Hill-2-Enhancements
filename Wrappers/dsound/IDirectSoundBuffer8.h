@@ -1,26 +1,41 @@
 #pragma once
 
+struct AUDIOCLIP
+{
+	DWORD ds_ThreadID = 0;
+	CRITICAL_SECTION dics;
+	LPDIRECTSOUNDBUFFER8 ProxyInterface = nullptr;
+	LONG CurrentVolume = 0;
+	LARGE_INTEGER StartingTime, EndingTime, Frequency;
+	bool PendingStop = false;
+};
+
 class m_IDirectSoundBuffer8 : public IDirectSoundBuffer8, public AddressLookupTableDsoundObject
 {
 private:
 	LPDIRECTSOUNDBUFFER8 ProxyInterface;
 
 	// Set varables
-	bool PendingStop = false;
-	LONG CurrentVolume = 0;
-	int NumMilliSeconds = AudioFadeOutDelayMS;
-	LARGE_INTEGER StartingTime, EndingTime, Frequency;
+	AUDIOCLIP AudioClip;
 
 public:
 	m_IDirectSoundBuffer8(LPDIRECTSOUNDBUFFER8 pSound8) : ProxyInterface(pSound8)
 	{
 		Logging::LogDebug() << "Creating device " << __FUNCTION__ << "(" << this << ")";
 
+		AudioClip.ProxyInterface = ProxyInterface;
+
+		// Initialize Critical Section
+		InitializeCriticalSection(&AudioClip.dics);
+
 		ProxyAddressLookupTableDsound.SaveAddress(this, ProxyInterface);
 	}
 	~m_IDirectSoundBuffer8()
 	{
 		Logging::LogDebug() << __FUNCTION__ << "(" << this << ")" << " deleting device!";
+
+		// Delete Critical Section
+		DeleteCriticalSection(&AudioClip.dics);
 
 		ProxyAddressLookupTableDsound.DeleteAddress(this);
 	}
@@ -59,21 +74,4 @@ public:
 	STDMETHOD(SetFX)(THIS_ DWORD dwEffectsCount, _In_reads_opt_(dwEffectsCount) LPDSEFFECTDESC pDSFXDesc, _Out_writes_opt_(dwEffectsCount) LPDWORD pdwResultCodes);
 	STDMETHOD(AcquireResources)(THIS_ DWORD dwFlags, DWORD dwEffectsCount, _Out_writes_(dwEffectsCount) LPDWORD pdwResultCodes);
 	STDMETHOD(GetObjectInPath)(THIS_ _In_ REFGUID rguidObject, DWORD dwIndex, _In_ REFGUID rguidInterface, _Outptr_ LPVOID *ppObject);
-
-	// Helper APIs
-	bool GetPrimaryBuffer()
-	{
-		return m_bIsPrimary;
-	};
-	void SetPrimaryBuffer(bool bIsPrimary)
-	{
-		m_bIsPrimary = bIsPrimary;
-	};
-	void ResetPending();
-
-protected:
-	DWORD m_dwOldWriteCursorPos = 0;
-	BYTE m_nWriteCursorIdent = 0;
-
-	bool m_bIsPrimary = false;
 };

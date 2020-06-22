@@ -1539,142 +1539,148 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	// Skip frames in specific cutscenes to prevent flickering
-	if (SkipSceneFlag == true)
+	if (EndSceneCounter == 0)
 	{
-		return D3D_OK;
-	}
+		// Skip frames in specific cutscenes to prevent flickering
+		if (SkipSceneFlag == true)
+		{
+			return D3D_OK;
+		}
 
-	ClassReleaseFlag = false;
-	LastFrameFullscreenImage = IsInFullscreenImage;
-	IsInFullscreenImage = false;
+		ClassReleaseFlag = false;
+		LastFrameFullscreenImage = IsInFullscreenImage;
+		IsInFullscreenImage = false;
 
-	// Enable Xbox shadows
-	if (EnableSoftShadows)
-	{
-		EnableXboxShadows = !((GetRoomID() == 0x02 || GetRoomID() == 0x24 || GetRoomID() == 0x8F || GetRoomID() == 0x90) || GetCutsceneID() == 0x5A);
-	}
+		// Enable Xbox shadows
+		if (EnableSoftShadows)
+		{
+			EnableXboxShadows = !((GetRoomID() == 0x02 || GetRoomID() == 0x24 || GetRoomID() == 0x8F || GetRoomID() == 0x90) || GetCutsceneID() == 0x5A);
+		}
 
-	// Hotel Water Visual Fixes
-	if (HotelWaterFix)
-	{
-		RunHotelWater();
-	}
+		// Hotel Water Visual Fixes
+		if (HotelWaterFix)
+		{
+			RunHotelWater();
+		}
 
-	// RPT Apartment Closet Cutscene Fix
-	if (ClosetCutsceneFix)
-	{
-		RunClosetCutscene();
-	}
+		// RPT Apartment Closet Cutscene Fix
+		if (ClosetCutsceneFix)
+		{
+			RunClosetCutscene();
+		}
 
-	// RPT Hospital Elevator Stabbing Animation Fix
-	if (HospitalChaseFix)
-	{
-		RunHospitalChase();
-	}
+		// RPT Hospital Elevator Stabbing Animation Fix
+		if (HospitalChaseFix)
+		{
+			RunHospitalChase();
+		}
 
-	// Hang on Esc Fix
-	if (FixHangOnEsc)
-	{
-		RunHangOnEsc();
-	}
+		// Hang on Esc Fix
+		if (FixHangOnEsc)
+		{
+			RunHangOnEsc();
+		}
 
-	// Fix infinite rumble in pause menu
-	if (RestoreVibration)
-	{
-		RunInfiniteRumble();
-	}
+		// Fix infinite rumble in pause menu
+		if (RestoreVibration)
+		{
+			RunInfiniteRumble();
+		}
 
-	// Fix draw distance in forest with chainsaw logs and Eddie boss meat cold room
-	if (IncreaseDrawDistance)
-	{
-		RunDynamicDrawDistance();
-	}
+		// Fix draw distance in forest with chainsaw logs and Eddie boss meat cold room
+		if (IncreaseDrawDistance)
+		{
+			RunDynamicDrawDistance();
+		}
 
-	// Lighting Transition fix
-	if (LightingTransitionFix)
-	{
-		RunLightingTransition();
-	}
+		// Lighting Transition fix
+		if (LightingTransitionFix)
+		{
+			RunLightingTransition();
+		}
 
-	// Game save fix
-	if (GameLoadFix)
-	{
-		RunGameLoad();
-	}
+		// Game save fix
+		if (GameLoadFix)
+		{
+			RunGameLoad();
+		}
 
-	// Increase blood size
-	if (IncreaseBlood)
-	{
-		RunBloodSize();
-	}
+		// Increase blood size
+		if (IncreaseBlood)
+		{
+			RunBloodSize();
+		}
 
-	// Fix Fog volume in Hotel Room 312
-	if (RestoreSpecialFX)
-	{
-		RunHotelRoom312FogVolumeFix();
-	}
+		// Fix Fog volume in Hotel Room 312
+		if (RestoreSpecialFX)
+		{
+			RunHotelRoom312FogVolumeFix();
+		}
 
-	// Disable shadow in specific cutscenes
-	if (EnableSoftShadows)
-	{
-		RunShadowCutscene();
-	}
+		// Disable shadow in specific cutscenes
+		if (EnableSoftShadows)
+		{
+			RunShadowCutscene();
+		}
 
-	// Scale special FX based on resolution
-	if (RestoreSpecialFX)
-	{
-		RunSpecialFXScale(BufferHeight);
-	}
+		// Scale special FX based on resolution
+		if (RestoreSpecialFX)
+		{
+			RunSpecialFXScale(BufferHeight);
+		}
 
-	// Scale the inner glow of the flashlight
-	if (PS2FlashlightBrightness)
-	{
-		RunInnerFlashlightGlow(BufferHeight);
-	}
+		// Scale the inner glow of the flashlight
+		if (PS2FlashlightBrightness)
+		{
+			RunInnerFlashlightGlow(BufferHeight);
+		}
 
-	// Tree Lighting fix
-	if (LightingFix && WidescreenFix)
-	{
-		RunTreeColor();
-	}
+		// Tree Lighting fix
+		if (LightingFix)
+		{
+			RunTreeColor();
+		}
 
-	// Fix rotating Mannequin glitch
-	if (WoodsideRoom205Fix)
-	{
-		RunRotatingMannequin();
-	}
+		// Fix rotating Mannequin glitch
+		if (WoodsideRoom205Fix)
+		{
+			RunRotatingMannequin();
+		}
 
-	// Update fog speed
-	if (FogSpeedFix)
-	{
-		RunFogSpeed();
-	}
+		// Update fog speed
+		if (FogSpeedFix)
+		{
+			RunFogSpeed();
+		}
 
-	// Fix flashlight at end of failed clock push cutscene
-	if (FixAptClockFlashlight)
-	{
-		RunFlashlightClockPush();
-	}
+		// Fix flashlight at end of failed clock push cutscene
+		if (FixAptClockFlashlight)
+		{
+			RunFlashlightClockPush();
+		}
 
-	// Bowling cutscene fading
-	if (IsInFakeFadeout && GetCutsceneID() != 0x19)
-	{
-		IsInFakeFadeout = false;
+		// Bowling cutscene fading
+		if (IsInFakeFadeout && GetCutsceneID() != 0x19)
+		{
+			IsInFakeFadeout = false;
+		}
 	}
 
 	HRESULT hr = ProxyInterface->BeginScene();
 
-	// Set MultiSample
-	if (DeviceMultiSampleType)
+	if (EndSceneCounter == 0)
 	{
-		ProxyInterface->SetRenderState(D3DRS_MULTISAMPLEANTIALIAS, TRUE);
-	}
+		// Set MultiSample
+		if (DeviceMultiSampleType)
+		{
+			ProxyInterface->SetRenderState(D3DRS_MULTISAMPLEANTIALIAS, TRUE);
+		}
 
-	// Set Transparency Supersampling
-	if (SetSSAA)
-	{
-		ProxyInterface->SetRenderState((D3DRENDERSTATETYPE)D3DRS_ADAPTIVETESS_Y, MAKEFOURCC('S', 'S', 'A', 'A'));
+		// Set Transparency Supersampling
+		if (SetSSAA)
+		{
+			ProxyInterface->SetRenderState((D3DRENDERSTATETYPE)D3DRS_ADAPTIVETESS_Y, MAKEFOURCC('S', 'S', 'A', 'A'));
+		}
 	}
 
 	return hr;

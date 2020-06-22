@@ -102,17 +102,28 @@ void RunTreeColor()
 		}
 	}
 
-	// Static updates
-	if (GetCutsceneID() == 0x5D)
+	// Tree lighting color fix for ending cutscene (horizon fog color)
+	if (GetCutsceneID() == 0x5D && WidescreenFix)
 	{
-		BYTE Red = 125;
-		BYTE Green = 135;
-		BYTE Blue = 150;
+		constexpr BYTE Red = 125;
+		constexpr BYTE Green = 135;
+		constexpr BYTE Blue = 150;
 		if (*(BYTE*)(ColorAddress + 0x00) != Red || *(BYTE*)(ColorAddress + 0x01) != Green || *(BYTE*)(ColorAddress + 0x02) != Blue)
 		{
-			UpdateMemoryAddress((BYTE*)(ColorAddress + 0x00), &Red, sizeof(BYTE));
-			UpdateMemoryAddress((BYTE*)(ColorAddress + 0x01), &Green, sizeof(BYTE));
-			UpdateMemoryAddress((BYTE*)(ColorAddress + 0x02), &Blue, sizeof(BYTE));
+			constexpr DWORD ColorValue = (Red) | (Green << 8) | (Blue << 16);
+			UpdateMemoryAddress((BYTE*)(ColorAddress + 0x00), &ColorValue, sizeof(BYTE) * 3);
+		}
+	}
+	// Hotel Room 312 light fix (game world color)
+	else if (GetRoomID() == 0xA2 && GetTransitionState() != 2 && GetOnScreen())
+	{
+		constexpr BYTE Red = 255;
+		constexpr BYTE Green = 255;
+		constexpr BYTE Blue = 227;
+		if (*(BYTE*)(ColorAddress + 0x30) != Red || *(BYTE*)(ColorAddress + 0x31) != Green || *(BYTE*)(ColorAddress + 0x32) != Blue)
+		{
+			constexpr DWORD ColorValue = (Red) | (Green << 8) | (Blue << 16);
+			UpdateMemoryAddress((BYTE*)(ColorAddress + 0x30), &ColorValue, sizeof(BYTE) * 3);
 		}
 	}
 }

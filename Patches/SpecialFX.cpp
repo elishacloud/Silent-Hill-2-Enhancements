@@ -46,11 +46,6 @@ void *jmpCustomMotionBlur5Addr;
 void *jmpCustomMotionBlur6Addr;
 void *jmpEddieBossDeathAddr;
 void *jmpEddieBossDeathTimerAddr;
-void *BloomColorRed;
-void *BloomColorGreen;
-void *BloomColorBlue;
-void *jmpBloomCustomColorAddr;
-void *jmpBloomDefaultColorAddr;
 
 // Second custom addresses ASM (00631614)
 __declspec(naked) void __stdcall CustomAddress2ASM()
@@ -184,39 +179,6 @@ __declspec(naked) void __stdcall EddieBossDeathASM()
 	}
 }
 
-// Eddie Boss Death Sequence ASM
-__declspec(naked) void __stdcall BloomColorASM()
-{
-	__asm {
-		push edx
-		mov edx, dword ptr ds : [RoomIDAddr]		// moves room ID pointer to edx
-		cmp dword ptr ds : [edx], 0xB5				// Hotel 3rd Floor Hallway
-		je NEAR CustomBloomColor					// jumps to CustomBloomColor
-		cmp dword ptr ds : [edx], 0xA2				// Hotel Room 312
-		je NEAR CustomBloomColor					// jumps to CustomBloomColor
-		jmp NEAR DefaultBloomColor					// jumps to DefaultBloomColor
-
-	CustomBloomColor:
-		cmp bl, 0x00
-		je NEAR DefaultBloomColor					// jumps to DefaultBloomColor
-		mov edx, dword ptr ds : [BloomColorRed]
-		mov byte ptr ds : [edx], 0xFF				// 255 Red
-		mov edx, dword ptr ds : [BloomColorGreen]
-		mov byte ptr ds : [edx], 0xFF				// 255 Green
-		mov edx, dword ptr ds : [BloomColorBlue]
-		mov byte ptr ds : [edx], 0xE3				// 227 Blue
-		pop edx
-		jmp jmpBloomCustomColorAddr
-
-	DefaultBloomColor:
-		mov edx, dword ptr ds : [BloomColorRed]
-		mov byte ptr ds : [edx], bl
-		pop edx
-		jmp jmpBloomDefaultColorAddr
-	}
-}
-
-
 // Patch SH2 code to reenable special FX
 void PatchSpecialFX()
 {
@@ -314,20 +276,6 @@ void PatchSpecialFX()
 		return;
 	}
 
-	// Get Bloom Color address
-	constexpr BYTE SearchBytesBloomColor[]{ 0x00, 0x8A, 0x4C, 0x24, 0x1C, 0x8A, 0x54, 0x24, 0x20, 0x88, 0x1D };
-	DWORD BloomColorPtr = SearchAndGetAddresses(0x0047C107, 0x0047C3A7, 0x0047C5B7, SearchBytesBloomColor, sizeof(SearchBytesBloomColor), 0x1B);
-	if (!BloomColorPtr)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
-		return;
-	}
-	jmpBloomCustomColorAddr = (void*)(BloomColorPtr + 0x12);
-	jmpBloomDefaultColorAddr = (void*)(BloomColorPtr + 0x06);
-	memcpy(&BloomColorRed, (void*)(BloomColorPtr + 2), sizeof(DWORD));
-	BloomColorGreen = (void*)((DWORD)BloomColorRed + 1);
-	BloomColorBlue = (void*)((DWORD)BloomColorRed + 2);
-
 	// Get room ID address
 	RoomIDAddr = GetRoomIDPointer();
 
@@ -394,9 +342,6 @@ void PatchSpecialFX()
 
 	// Write Eddie Boss Death Sequence address
 	WriteJMPtoMemory((BYTE*)EddieBossDeathPtr, *EddieBossDeathASM, 5);
-
-	// Write Bloom Color address
-	WriteJMPtoMemory((BYTE*)BloomColorPtr, *BloomColorASM, 6);
 }
 
 void RunSpecialFXScale(DWORD Height)

@@ -149,6 +149,9 @@ VISIT_STR_SETTINGS(DECLARE_STR_SETTINGS);
 
 typedef void(__stdcall* NV)(char* name, char* value);
 
+extern HMODULE m_hModule;
+extern bool CustomExeStrSet;
+
 char* Read(wchar_t* szFileName);
 void Parse(char* str, NV NameValueCallback);
 void __stdcall ParseCallback(char* lpName, char* lpValue);

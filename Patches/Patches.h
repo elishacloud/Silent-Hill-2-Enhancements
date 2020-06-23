@@ -66,7 +66,7 @@ void PatchBinary();
 void PatchCDCheck();
 void PatchCatacombsMeatRoom();
 void PatchCreatureVehicleSpawn();
-void PatchCustomExeStr();
+HRESULT PatchCustomExeStr();
 void PatchCustomFog();
 void PatchCustomFonts();
 void PatchControllerTweaks();

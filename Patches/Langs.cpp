@@ -18,7 +18,6 @@
 #include <Windows.h>
 #include "Common\FileSystemHooks.h"
 #include "Common\Utils.h"
-#include "WidescreenFixesPack\WidescreenFixesPack.h"
 #include "Logging\Logging.h"
 #include "Common\Settings.h"
 #include <string>
@@ -690,7 +689,7 @@ __declspec(naked) void __stdcall BloodStrFixASM4()
 	}
 }
 
-void PatchCustomExeStr()
+HRESULT PatchCustomExeStr()
 {
 	void *DLangAddrA = (void*)SearchAndGetAddresses(0x0040730A, 0x0040730A, 0x0040731A, LangSearchBytesA, sizeof(LangSearchBytesA), 0x00);
 
@@ -698,7 +697,7 @@ void PatchCustomExeStr()
 	if (!DLangAddrA)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
-		return;
+		return E_FAIL;
 	}
 
 	langMin = (UnlockJapLang == false);
@@ -710,207 +709,209 @@ void PatchCustomExeStr()
 
 	ifstream file(txtpath);
 
-	if (file.is_open())
+	if (!file.is_open())
 	{
-		string line;
-		int i = 0;
-		while (getline(file, line) && i < (STR_PER_LANG * 6))
+		Logging::Log() << __FUNCTION__ << " Error: Could not find text file";
+		return E_FAIL;
+	}
+
+	string line;
+	int i = 0;
+	while (getline(file, line) && i < (STR_PER_LANG * 6))
+	{
+		if (!line.empty() && !((*(char *)line.c_str() == '/') && (*(char *)(line.c_str() + 1) == '/')))
 		{
-			if (!line.empty() && !((*(char *)line.c_str() == '/') && (*(char *)(line.c_str() + 1) == '/')))
+			exeStrPtr[i] = (char *)malloc(line.length() + 10);
+			if (exeStrPtr[i])
 			{
-				exeStrPtr[i] = (char *)malloc(line.length() + 10);
-				if (exeStrPtr[i])
-				{
-					strcpy_s(exeStrPtr[i], line.length() + 10, line.c_str());
-				}
-				i++;
+				strcpy_s(exeStrPtr[i], line.length() + 10, line.c_str());
 			}
+			i++;
 		}
-		file.close();
+	}
+	file.close();
 
-		if (i != (STR_PER_LANG * 6))
+	if (i != (STR_PER_LANG * 6))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Wrong text file!";
+		return E_FAIL;
+	}
+
+	Logging::Log() << "Enabling Custom Exe Strings...";
+
+	// Pause menu
+	LangsPauseRetAddr = (void *)((BYTE*)DLangAddrA + 0x0F);
+	WriteJMPtoMemory((BYTE*)DLangAddrA + 6, *LangsPauseASM, 9);
+
+	// Errors
+	void *DLangAddrB = (void*)SearchAndGetAddresses(0x00407629, 0x00407629, 0x00407639, LangSearchBytesB, sizeof(LangSearchBytesB), 0x00);
+	if (DLangAddrB)
+	{
+		LangsErrorsRetAddr = (void *)((BYTE*)DLangAddrB + 9);
+		isMultiLang = *(WORD *)((BYTE*)LangsErrorsRetAddr + 0x70) == 0xF685;
+		WriteJMPtoMemory((BYTE*)DLangAddrB, *LangsErrorsASM, 9);
+	}
+
+	// Button
+	BYTE codeA[] = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
+	void *DLangAddrC = CheckMultiMemoryAddress((void*)0x005AEE9F, 0x00000000, 0x00000000, (void*)LangSearchBytesC, sizeof(LangSearchBytesC));
+	if (DLangAddrC)
+	{
+		WriteJMPtoMemory((BYTE*)DLangAddrC + 0x10, *LangsButtonASM, 5);
+		LangsButtonRetAddr = (void *)((BYTE*)DLangAddrC + 0x15);
+	}
+	else
+	{
+		void *DLangAddrD = CheckMultiMemoryAddress(0x00000000, (void*)0x005AF759, (void*)0x005AF079, (void*)LangSearchBytesD, sizeof(LangSearchBytesD));
+		if (DLangAddrD)
 		{
-			Logging::Log() << __FUNCTION__ << " Error: Wrong text file!";
-			return;
+			UpdateMemoryAddress((void *)((BYTE*)DLangAddrD + 0x0C), (void *)codeA, 9);
+			WriteJMPtoMemory((BYTE*)DLangAddrD + 0x1B, *LangsButtonASM, 5);
+			LangsButtonRetAddr = (void *)((BYTE*)DLangAddrD + 0x20);
 		}
+	}
 
-		Logging::Log() << "Enabling Custom Exe Strings...";
-
-		// Pause menu
-		LangsPauseRetAddr = (void *)((BYTE*)DLangAddrA + 0x0F);
-		WriteJMPtoMemory((BYTE*)DLangAddrA + 6, *LangsPauseASM, 9);
-
-		// Errors
-		void *DLangAddrB = (void*)SearchAndGetAddresses(0x00407629, 0x00407629, 0x00407639, LangSearchBytesB, sizeof(LangSearchBytesB), 0x00);
-		if (DLangAddrB)
-		{
-			LangsErrorsRetAddr = (void *)((BYTE*)DLangAddrB + 9);
-			isMultiLang = *(WORD *)((BYTE*)LangsErrorsRetAddr + 0x70) == 0xF685;
-			WriteJMPtoMemory((BYTE*)DLangAddrB, *LangsErrorsASM, 9);
-		}
-
-		// Button
-		BYTE codeA[] = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
-		void *DLangAddrC = CheckMultiMemoryAddress((void*)0x005AEE9F, 0x00000000, 0x00000000, (void*)LangSearchBytesC, sizeof(LangSearchBytesC));
-		if (DLangAddrC)
-		{
-			WriteJMPtoMemory((BYTE*)DLangAddrC + 0x10, *LangsButtonASM, 5);
-			LangsButtonRetAddr = (void *)((BYTE*)DLangAddrC + 0x15);
-		}
-		else
-		{
-			void *DLangAddrD = CheckMultiMemoryAddress(0x00000000, (void*)0x005AF759, (void*)0x005AF079, (void*)LangSearchBytesD, sizeof(LangSearchBytesD));
-			if (DLangAddrD)
-			{
-				UpdateMemoryAddress((void *)((BYTE*)DLangAddrD + 0x0C), (void *)codeA, 9);
-				WriteJMPtoMemory((BYTE*)DLangAddrD + 0x1B, *LangsButtonASM, 5);
-				LangsButtonRetAddr = (void *)((BYTE*)DLangAddrD + 0x20);
-			}
-		}
-
-		// Quick save
-		void *DLangAddrE = CheckMultiMemoryAddress((void*)0x0044C688, 0x00000000, 0x00000000, (void*)LangSearchBytesE, sizeof(LangSearchBytesE));
+	// Quick save
+	void *DLangAddrE = CheckMultiMemoryAddress((void*)0x0044C688, 0x00000000, 0x00000000, (void*)LangSearchBytesE, sizeof(LangSearchBytesE));
+	if (DLangAddrE)
+	{
+		WriteJMPtoMemory((BYTE*)DLangAddrE + 0x28, *LangsGameSavedASM, 5);
+		LangsGameSavedRetAddr = (void *)((BYTE*)DLangAddrE + 0x2D);
+		DLangAddrE = CheckMultiMemoryAddress((void*)0x0044C6D8, 0x00000000, 0x00000000, (void*)LangSearchBytesE, sizeof(LangSearchBytesE));
 		if (DLangAddrE)
 		{
-			WriteJMPtoMemory((BYTE*)DLangAddrE + 0x28, *LangsGameSavedASM, 5);
-			LangsGameSavedRetAddr = (void *)((BYTE*)DLangAddrE + 0x2D);
-			DLangAddrE = CheckMultiMemoryAddress((void*)0x0044C6D8, 0x00000000, 0x00000000, (void*)LangSearchBytesE, sizeof(LangSearchBytesE));
+			WriteJMPtoMemory((BYTE*)DLangAddrE + 0x28, *LangsCantSaveASM, 5);
+			LangsCantSaveRetAddr = (void *)((BYTE*)DLangAddrE + 0x2D);
+			DLangAddrE = CheckMultiMemoryAddress((void*)0x0044C728, 0x00000000, 0x00000000, (void*)LangSearchBytesE, sizeof(LangSearchBytesE));
 			if (DLangAddrE)
 			{
-				WriteJMPtoMemory((BYTE*)DLangAddrE + 0x28, *LangsCantSaveASM, 5);
-				LangsCantSaveRetAddr = (void *)((BYTE*)DLangAddrE + 0x2D);
-				DLangAddrE = CheckMultiMemoryAddress((void*)0x0044C728, 0x00000000, 0x00000000, (void*)LangSearchBytesE, sizeof(LangSearchBytesE));
-				if (DLangAddrE)
-				{
-					WriteJMPtoMemory((BYTE*)DLangAddrE + 0x28, *LangsNoQuickSaveASM, 5);
-					LangsNoQuickSaveRetAddr = (void *)((BYTE*)DLangAddrE + 0x2D);
-				}
+				WriteJMPtoMemory((BYTE*)DLangAddrE + 0x28, *LangsNoQuickSaveASM, 5);
+				LangsNoQuickSaveRetAddr = (void *)((BYTE*)DLangAddrE + 0x2D);
 			}
-		}
-		else
-		{
-			void *DLangAddrF = CheckMultiMemoryAddress(0x00000000, (void*)0x0044C827, (void*)0x0044C827, (void*)LangSearchBytesF, sizeof(LangSearchBytesF));
-			if (DLangAddrF)
-			{
-				UpdateMemoryAddress((void *)((BYTE*)DLangAddrF + 5), (void *)codeA, 9);
-				WriteJMPtoMemory((BYTE*)DLangAddrF + 0x0E, *LangsGameSavedASM2, 5);
-				LangsGameSavedRetAddr2 = (void *)((BYTE*)DLangAddrF + 0x13);
-				DLangAddrF = (void *)((BYTE*)DLangAddrF + 0x90);
-				UpdateMemoryAddress((void *)((BYTE*)DLangAddrF + 5), (void *)codeA, 9);
-				WriteJMPtoMemory((BYTE*)DLangAddrF + 0x0E, *LangsCantSaveASM2, 5);
-				LangsCantSaveRetAddr2 = (void *)((BYTE*)DLangAddrF + 0x13);
-				DLangAddrF = (void *)((BYTE*)DLangAddrF + 0x90);
-				UpdateMemoryAddress((void *)((BYTE*)DLangAddrF + 5), (void *)codeA, 9);
-				WriteJMPtoMemory((BYTE*)DLangAddrF + 0x0E, *LangsNoQuickSaveASM2, 5);
-				LangsNoQuickSaveRetAddr2 = (void *)((BYTE*)DLangAddrF + 0x13);
-			}
-		}
-
-		// Unlock language selector
-		void *DLangAddrG = CheckMultiMemoryAddress(0x00000000, 0x00000000, (void*)0x00463F77, (void*)LangSearchBytesG, sizeof(LangSearchBytesG));
-		if (DLangAddrG)
-		{
-			UpdateMemoryAddress((void *)((BYTE*)DLangAddrG + 0x19), (void *)&langMin, 1);
-			UpdateMemoryAddress((void *)((BYTE*)DLangAddrG + 0x5F), (void *)&langMin, 1);
-			// Fix mouse hitboxes for arrows in Game Options menu
-			PosByLang = (int *)*(DWORD *)((BYTE*)DLangAddrG + 0x0702);
-			MFSomeByte = (BYTE *)*(DWORD *)((BYTE*)DLangAddrG - 0x0C78);
-			MFMenuYPos = (BYTE *)*(DWORD *)((BYTE*)DLangAddrG - 0x0C90);
-			RetMouseB = (DWORD(*)(int a))(((BYTE*)DLangAddrG - 0x0CDE) + *(int *)((BYTE*)DLangAddrG - 0x0CE2));
-			RetMouseX = (DWORD(*)(int a))(((BYTE*)DLangAddrG - 0x0CD2) + *(int *)((BYTE*)DLangAddrG - 0x0CD6));
-			RetMouseY = (DWORD(*)(int a))(((BYTE*)DLangAddrG - 0x0CA9) + *(int *)((BYTE*)DLangAddrG - 0x0CAD));
-			MouseFixRetAddr = (void *)((BYTE*)DLangAddrG - 0x0C74);
-			WriteJMPtoMemory((BYTE*)DLangAddrG - 0x0C79, *MouseFixASM2, 5);
-		}
-		else
-		{
-			void *DLangAddrH = CheckMultiMemoryAddress((void*)0x004F74BA, (void*)0x004F77EA, 0x00000000, (void*)LangSearchBytesH, sizeof(LangSearchBytesH));
-			if (DLangAddrH)
-			{
-				gLangID_S = (DWORD *)*(DWORD *)((BYTE*)DLangAddrH + 0x32);
-				void *DLangAddrI = CheckMultiMemoryAddress((void*)0x00463D20, 0x00000000, 0x00000000, (void*)LangSearchBytesI, sizeof(LangSearchBytesI));
-				if (DLangAddrI)
-				{
-					SomeWord = (WORD *)*(DWORD *)((BYTE*)DLangAddrI + 0xBF);
-					SomeByte = (BYTE *)*(DWORD *)((BYTE*)DLangAddrI + 0xCB);
-					SomeDataA = (DWORD *)*(DWORD *)((BYTE*)DLangAddrI + 0xFC);
-					SomeDataB = (DWORD *)*(DWORD *)((BYTE*)DLangAddrI + 0xD7);
-					FunctionA = (DWORD(*)(int a, int b, int c))(((BYTE*)DLangAddrI + 0xE1) + *(int *)((BYTE*)DLangAddrI + 0xDD));
-					FunctionB = (DWORD(*)(int a))(((BYTE*)DLangAddrI + 0xEF) + *(int *)((BYTE*)DLangAddrI + 0xEB));
-					FunctionC = (DWORD(*)(int a))(((BYTE*)DLangAddrI - 0x0548) + *(int *)((BYTE*)DLangAddrI - 0x054C));
-					FunctionD = (DWORD(*)(int a, int b))(((BYTE*)DLangAddrI - 0x540) + *(int *)((BYTE*)DLangAddrI - 0x0544));
-					LabelA = (DWORD *)(((BYTE*)DLangAddrI + 0xD5) + *(int *)((BYTE*)DLangAddrI + 0xD1));
-					LabelB = (DWORD *)(((BYTE*)DLangAddrI + 0x03) + *(int *)((BYTE*)DLangAddrI - 0x01));
-					WriteJMPtoMemory((BYTE*)DLangAddrI - 0xE8, *LangsSelectorASM, 5);
-					// Fix blood setting arrows position in Game Options menu
-					PosByLang = (int *)*(DWORD *)((BYTE*)DLangAddrI - 0x0456);
-					BloodArrowFixRetAddr = (void *)((BYTE*)DLangAddrI + 0x095D);
-					DWORD BloodArrowFixAddr = (DWORD)*BloodArrowFixASM;
-					UpdateMemoryAddress((void *)((BYTE*)DLangAddrI + 0x0CD8), (void *)&BloodArrowFixAddr, 4);
-					BloodArrowFixRetAddr2 = (void *)((BYTE*)DLangAddrI + 0x09C8);
-					WriteJMPtoMemory((BYTE*)DLangAddrI + 0x09C3, *BloodArrowFixASM2, 5);
-					// Fix mouse hitboxes for arrows in Game Options menu
-					MFSomeByte = (BYTE *)*(DWORD *)((BYTE*)DLangAddrI - 0x0C9E);
-					MFMenuYPos = (BYTE *)*(DWORD *)((BYTE*)DLangAddrI - 0x0CB2);
-					RetMouseB = (DWORD(*)(int a))(((BYTE*)DLangAddrI - 0x0D00) + *(int *)((BYTE*)DLangAddrI - 0x0D04));
-					RetMouseX = (DWORD(*)(int a))(((BYTE*)DLangAddrI - 0x0CF4) + *(int *)((BYTE*)DLangAddrI - 0x0CF8));
-					RetMouseY = (DWORD(*)(int a))(((BYTE*)DLangAddrI - 0x0CCB) + *(int *)((BYTE*)DLangAddrI - 0x0CCF));
-					MouseFixRetAddr = (void *)((BYTE*)DLangAddrI - 0x0C9A);
-					WriteJMPtoMemory((BYTE*)DLangAddrI - 0x0C9F, *MouseFixASM, 5);
-				}
-				else
-				{
-					void *DLangAddrJ = CheckMultiMemoryAddress(0x00000000, (void*)0x00463E16, 0x00000000, (void*)LangSearchBytesJ, sizeof(LangSearchBytesJ));
-					if (DLangAddrJ)
-					{
-						SomeWord = (WORD *)*(DWORD *)((BYTE*)DLangAddrJ + 0x010D);
-						SomeByte = (BYTE *)*(DWORD *)((BYTE*)DLangAddrJ + 0x0119);
-						SomeDataA = (DWORD *)*(DWORD *)((BYTE*)DLangAddrJ + 0x0138);
-						SomeDataB = (DWORD *)*(DWORD *)((BYTE*)DLangAddrJ + 0x0125);
-						FunctionA = (DWORD(*)(int a, int b, int c))(((BYTE*)DLangAddrJ + 0x012F) + *(int *)((BYTE*)DLangAddrJ + 0x012B));
-						FunctionB = (DWORD(*)(int a))(((BYTE*)DLangAddrJ + 0x0150) + *(int *)((BYTE*)DLangAddrJ + 0x014C));
-						FunctionC = (DWORD(*)(int a))(((BYTE*)DLangAddrJ - 0x03CE) + *(int *)((BYTE*)DLangAddrJ - 0x03D2));
-						FunctionD = (DWORD(*)(int a, int b))(((BYTE*)DLangAddrJ - 0x3C6) + *(int *)((BYTE*)DLangAddrJ - 0x03CA));
-						LabelA = (DWORD *)(((BYTE*)DLangAddrJ + 0x9A) + *(int *)((BYTE*)DLangAddrJ + 0x96));
-						LabelB = (DWORD *)(((BYTE*)DLangAddrJ + 0x0186) + *(int *)((BYTE*)DLangAddrJ + 0x0182));
-						WriteJMPtoMemory((BYTE*)DLangAddrJ + 0x95, *LangsSelectorASM, 5);
-						// Fix mouse points for arrows in Game Options menu
-						PosByLang = (int *)*(DWORD *)((BYTE*)DLangAddrJ + 0x0660);
-						MFSomeByte = (BYTE *)*(DWORD *)((BYTE*)DLangAddrJ - 0x0B24);
-						MFMenuYPos = (BYTE *)*(DWORD *)((BYTE*)DLangAddrJ - 0x0B38);
-						RetMouseB = (DWORD(*)(int a))(((BYTE*)DLangAddrJ - 0x0B86) + *(int *)((BYTE*)DLangAddrJ - 0x0B8A));
-						RetMouseX = (DWORD(*)(int a))(((BYTE*)DLangAddrJ - 0x0B7A) + *(int *)((BYTE*)DLangAddrJ - 0x0B7E));
-						RetMouseY = (DWORD(*)(int a))(((BYTE*)DLangAddrJ - 0x0B51) + *(int *)((BYTE*)DLangAddrJ - 0x0B55));
-						MouseFixRetAddr = (void *)((BYTE*)DLangAddrJ - 0x0B20);
-						WriteJMPtoMemory((BYTE*)DLangAddrJ - 0x0B25, *MouseFixASM, 5);
-					}
-				}
-			}
-		}
-
-		// Fix blood setting string position in Game Options menu
-		void *DLangAddrK = CheckMultiMemoryAddress((void*)0x00461FFB, 0x00000000, 0x00000000, (void*)LangSearchBytesK, sizeof(LangSearchBytesK));
-		if (DLangAddrK)
-		{
-			BYTE codeB[] = { 0x56, 0x90, 0x90, 0x90, 0x90 };
-			UpdateMemoryAddress((void *)((BYTE*)DLangAddrK + 0x07), (void *)&codeB, 5);
-			UpdateMemoryAddress((void *)((BYTE*)DLangAddrK + 0x1F), (void *)&codeB, 5);
-			UpdateMemoryAddress((void *)((BYTE*)DLangAddrK + 0x38), (void *)&codeB, 5);
-			UpdateMemoryAddress((void *)((BYTE*)DLangAddrK + 0x4B), (void *)&codeB, 5);
-			WriteJMPtoMemory((BYTE*)DLangAddrK + 0x028D, *BloodStrFixASM, 5);
-			BloodStrFixRetAddr = (void *)((BYTE*)DLangAddrK + 0x028D + 5);
-			WriteJMPtoMemory((BYTE*)DLangAddrK + 0x02B1, *BloodStrFixASM2, 5);
-			BloodStrFixRetAddr2 = (void *)((BYTE*)DLangAddrK + 0x02B1 + 5);
-			WriteJMPtoMemory((BYTE*)DLangAddrK + 0x02D5, *BloodStrFixASM3, 5);
-			BloodStrFixRetAddr3 = (void *)((BYTE*)DLangAddrK + 0x02D5 + 5);
-			WriteJMPtoMemory((BYTE*)DLangAddrK + 0x02F5, *BloodStrFixASM4, 5);
-			BloodStrFixRetAddr4 = (void *)((BYTE*)DLangAddrK + 0x02F5 + 5);
 		}
 	}
 	else
 	{
-		Logging::Log() << __FUNCTION__ << " Error: Could not find text file";
+		void *DLangAddrF = CheckMultiMemoryAddress(0x00000000, (void*)0x0044C827, (void*)0x0044C827, (void*)LangSearchBytesF, sizeof(LangSearchBytesF));
+		if (DLangAddrF)
+		{
+			UpdateMemoryAddress((void *)((BYTE*)DLangAddrF + 5), (void *)codeA, 9);
+			WriteJMPtoMemory((BYTE*)DLangAddrF + 0x0E, *LangsGameSavedASM2, 5);
+			LangsGameSavedRetAddr2 = (void *)((BYTE*)DLangAddrF + 0x13);
+			DLangAddrF = (void *)((BYTE*)DLangAddrF + 0x90);
+			UpdateMemoryAddress((void *)((BYTE*)DLangAddrF + 5), (void *)codeA, 9);
+			WriteJMPtoMemory((BYTE*)DLangAddrF + 0x0E, *LangsCantSaveASM2, 5);
+			LangsCantSaveRetAddr2 = (void *)((BYTE*)DLangAddrF + 0x13);
+			DLangAddrF = (void *)((BYTE*)DLangAddrF + 0x90);
+			UpdateMemoryAddress((void *)((BYTE*)DLangAddrF + 5), (void *)codeA, 9);
+			WriteJMPtoMemory((BYTE*)DLangAddrF + 0x0E, *LangsNoQuickSaveASM2, 5);
+			LangsNoQuickSaveRetAddr2 = (void *)((BYTE*)DLangAddrF + 0x13);
+		}
 	}
+
+	// Unlock language selector
+	void *DLangAddrG = CheckMultiMemoryAddress(0x00000000, 0x00000000, (void*)0x00463F77, (void*)LangSearchBytesG, sizeof(LangSearchBytesG));
+	if (DLangAddrG)
+	{
+		UpdateMemoryAddress((void *)((BYTE*)DLangAddrG + 0x19), (void *)&langMin, 1);
+		UpdateMemoryAddress((void *)((BYTE*)DLangAddrG + 0x5F), (void *)&langMin, 1);
+		// Fix mouse hitboxes for arrows in Game Options menu
+		PosByLang = (int *)*(DWORD *)((BYTE*)DLangAddrG + 0x0702);
+		MFSomeByte = (BYTE *)*(DWORD *)((BYTE*)DLangAddrG - 0x0C78);
+		MFMenuYPos = (BYTE *)*(DWORD *)((BYTE*)DLangAddrG - 0x0C90);
+		RetMouseB = (DWORD(*)(int a))(((BYTE*)DLangAddrG - 0x0CDE) + *(int *)((BYTE*)DLangAddrG - 0x0CE2));
+		RetMouseX = (DWORD(*)(int a))(((BYTE*)DLangAddrG - 0x0CD2) + *(int *)((BYTE*)DLangAddrG - 0x0CD6));
+		RetMouseY = (DWORD(*)(int a))(((BYTE*)DLangAddrG - 0x0CA9) + *(int *)((BYTE*)DLangAddrG - 0x0CAD));
+		MouseFixRetAddr = (void *)((BYTE*)DLangAddrG - 0x0C74);
+		WriteJMPtoMemory((BYTE*)DLangAddrG - 0x0C79, *MouseFixASM2, 5);
+	}
+	else
+	{
+		void *DLangAddrH = CheckMultiMemoryAddress((void*)0x004F74BA, (void*)0x004F77EA, 0x00000000, (void*)LangSearchBytesH, sizeof(LangSearchBytesH));
+		if (DLangAddrH)
+		{
+			gLangID_S = (DWORD *)*(DWORD *)((BYTE*)DLangAddrH + 0x32);
+			void *DLangAddrI = CheckMultiMemoryAddress((void*)0x00463D20, 0x00000000, 0x00000000, (void*)LangSearchBytesI, sizeof(LangSearchBytesI));
+			if (DLangAddrI)
+			{
+				SomeWord = (WORD *)*(DWORD *)((BYTE*)DLangAddrI + 0xBF);
+				SomeByte = (BYTE *)*(DWORD *)((BYTE*)DLangAddrI + 0xCB);
+				SomeDataA = (DWORD *)*(DWORD *)((BYTE*)DLangAddrI + 0xFC);
+				SomeDataB = (DWORD *)*(DWORD *)((BYTE*)DLangAddrI + 0xD7);
+				FunctionA = (DWORD(*)(int a, int b, int c))(((BYTE*)DLangAddrI + 0xE1) + *(int *)((BYTE*)DLangAddrI + 0xDD));
+				FunctionB = (DWORD(*)(int a))(((BYTE*)DLangAddrI + 0xEF) + *(int *)((BYTE*)DLangAddrI + 0xEB));
+				FunctionC = (DWORD(*)(int a))(((BYTE*)DLangAddrI - 0x0548) + *(int *)((BYTE*)DLangAddrI - 0x054C));
+				FunctionD = (DWORD(*)(int a, int b))(((BYTE*)DLangAddrI - 0x540) + *(int *)((BYTE*)DLangAddrI - 0x0544));
+				LabelA = (DWORD *)(((BYTE*)DLangAddrI + 0xD5) + *(int *)((BYTE*)DLangAddrI + 0xD1));
+				LabelB = (DWORD *)(((BYTE*)DLangAddrI + 0x03) + *(int *)((BYTE*)DLangAddrI - 0x01));
+				WriteJMPtoMemory((BYTE*)DLangAddrI - 0xE8, *LangsSelectorASM, 5);
+				// Fix blood setting arrows position in Game Options menu
+				PosByLang = (int *)*(DWORD *)((BYTE*)DLangAddrI - 0x0456);
+				BloodArrowFixRetAddr = (void *)((BYTE*)DLangAddrI + 0x095D);
+				DWORD BloodArrowFixAddr = (DWORD)*BloodArrowFixASM;
+				UpdateMemoryAddress((void *)((BYTE*)DLangAddrI + 0x0CD8), (void *)&BloodArrowFixAddr, 4);
+				BloodArrowFixRetAddr2 = (void *)((BYTE*)DLangAddrI + 0x09C8);
+				WriteJMPtoMemory((BYTE*)DLangAddrI + 0x09C3, *BloodArrowFixASM2, 5);
+				// Fix mouse hitboxes for arrows in Game Options menu
+				MFSomeByte = (BYTE *)*(DWORD *)((BYTE*)DLangAddrI - 0x0C9E);
+				MFMenuYPos = (BYTE *)*(DWORD *)((BYTE*)DLangAddrI - 0x0CB2);
+				RetMouseB = (DWORD(*)(int a))(((BYTE*)DLangAddrI - 0x0D00) + *(int *)((BYTE*)DLangAddrI - 0x0D04));
+				RetMouseX = (DWORD(*)(int a))(((BYTE*)DLangAddrI - 0x0CF4) + *(int *)((BYTE*)DLangAddrI - 0x0CF8));
+				RetMouseY = (DWORD(*)(int a))(((BYTE*)DLangAddrI - 0x0CCB) + *(int *)((BYTE*)DLangAddrI - 0x0CCF));
+				MouseFixRetAddr = (void *)((BYTE*)DLangAddrI - 0x0C9A);
+				WriteJMPtoMemory((BYTE*)DLangAddrI - 0x0C9F, *MouseFixASM, 5);
+			}
+			else
+			{
+				void *DLangAddrJ = CheckMultiMemoryAddress(0x00000000, (void*)0x00463E16, 0x00000000, (void*)LangSearchBytesJ, sizeof(LangSearchBytesJ));
+				if (DLangAddrJ)
+				{
+					SomeWord = (WORD *)*(DWORD *)((BYTE*)DLangAddrJ + 0x010D);
+					SomeByte = (BYTE *)*(DWORD *)((BYTE*)DLangAddrJ + 0x0119);
+					SomeDataA = (DWORD *)*(DWORD *)((BYTE*)DLangAddrJ + 0x0138);
+					SomeDataB = (DWORD *)*(DWORD *)((BYTE*)DLangAddrJ + 0x0125);
+					FunctionA = (DWORD(*)(int a, int b, int c))(((BYTE*)DLangAddrJ + 0x012F) + *(int *)((BYTE*)DLangAddrJ + 0x012B));
+					FunctionB = (DWORD(*)(int a))(((BYTE*)DLangAddrJ + 0x0150) + *(int *)((BYTE*)DLangAddrJ + 0x014C));
+					FunctionC = (DWORD(*)(int a))(((BYTE*)DLangAddrJ - 0x03CE) + *(int *)((BYTE*)DLangAddrJ - 0x03D2));
+					FunctionD = (DWORD(*)(int a, int b))(((BYTE*)DLangAddrJ - 0x3C6) + *(int *)((BYTE*)DLangAddrJ - 0x03CA));
+					LabelA = (DWORD *)(((BYTE*)DLangAddrJ + 0x9A) + *(int *)((BYTE*)DLangAddrJ + 0x96));
+					LabelB = (DWORD *)(((BYTE*)DLangAddrJ + 0x0186) + *(int *)((BYTE*)DLangAddrJ + 0x0182));
+					WriteJMPtoMemory((BYTE*)DLangAddrJ + 0x95, *LangsSelectorASM, 5);
+					// Fix mouse points for arrows in Game Options menu
+					PosByLang = (int *)*(DWORD *)((BYTE*)DLangAddrJ + 0x0660);
+					MFSomeByte = (BYTE *)*(DWORD *)((BYTE*)DLangAddrJ - 0x0B24);
+					MFMenuYPos = (BYTE *)*(DWORD *)((BYTE*)DLangAddrJ - 0x0B38);
+					RetMouseB = (DWORD(*)(int a))(((BYTE*)DLangAddrJ - 0x0B86) + *(int *)((BYTE*)DLangAddrJ - 0x0B8A));
+					RetMouseX = (DWORD(*)(int a))(((BYTE*)DLangAddrJ - 0x0B7A) + *(int *)((BYTE*)DLangAddrJ - 0x0B7E));
+					RetMouseY = (DWORD(*)(int a))(((BYTE*)DLangAddrJ - 0x0B51) + *(int *)((BYTE*)DLangAddrJ - 0x0B55));
+					MouseFixRetAddr = (void *)((BYTE*)DLangAddrJ - 0x0B20);
+					WriteJMPtoMemory((BYTE*)DLangAddrJ - 0x0B25, *MouseFixASM, 5);
+				}
+			}
+		}
+	}
+
+	// Fix blood setting string position in Game Options menu
+	void *DLangAddrK = CheckMultiMemoryAddress((void*)0x00461FFB, 0x00000000, 0x00000000, (void*)LangSearchBytesK, sizeof(LangSearchBytesK));
+	if (DLangAddrK)
+	{
+		BYTE codeB[] = { 0x56, 0x90, 0x90, 0x90, 0x90 };
+		UpdateMemoryAddress((void *)((BYTE*)DLangAddrK + 0x07), (void *)&codeB, 5);
+		UpdateMemoryAddress((void *)((BYTE*)DLangAddrK + 0x1F), (void *)&codeB, 5);
+		UpdateMemoryAddress((void *)((BYTE*)DLangAddrK + 0x38), (void *)&codeB, 5);
+		UpdateMemoryAddress((void *)((BYTE*)DLangAddrK + 0x4B), (void *)&codeB, 5);
+		WriteJMPtoMemory((BYTE*)DLangAddrK + 0x028D, *BloodStrFixASM, 5);
+		BloodStrFixRetAddr = (void *)((BYTE*)DLangAddrK + 0x028D + 5);
+		WriteJMPtoMemory((BYTE*)DLangAddrK + 0x02B1, *BloodStrFixASM2, 5);
+		BloodStrFixRetAddr2 = (void *)((BYTE*)DLangAddrK + 0x02B1 + 5);
+		WriteJMPtoMemory((BYTE*)DLangAddrK + 0x02D5, *BloodStrFixASM3, 5);
+		BloodStrFixRetAddr3 = (void *)((BYTE*)DLangAddrK + 0x02D5 + 5);
+		WriteJMPtoMemory((BYTE*)DLangAddrK + 0x02F5, *BloodStrFixASM4, 5);
+		BloodStrFixRetAddr4 = (void *)((BYTE*)DLangAddrK + 0x02F5 + 5);
+	}
+
+	// Return
+	return S_OK;
 }
 
 char *getResolutionDescStr()

@@ -38,6 +38,7 @@ SH2VERSION GameVersion = SH2V_UNKNOWN;
 HMODULE wrapper_dll = nullptr;
 EXECUTION_STATE esFlags = 0;
 bool ds_threadExit = false;
+bool CustomExeStrSet = false;
 
 void DelayedStart()
 {
@@ -337,7 +338,7 @@ void DelayedStart()
 	// Load exe's strings from txt file
 	if (UseCustomExeStr)
 	{
-		PatchCustomExeStr();
+		CustomExeStrSet = SUCCEEDED(PatchCustomExeStr());
 	}
 
 	// Fixes mouse hitboxes in Main Menu (for 1.1 version)
@@ -383,7 +384,7 @@ void DelayedStart()
 	}
 
 	// Disables changing the speaker configuration in the game's options menu
-	if (LockSpeakerConfig)
+	if (LockSpeakerConfig && CustomExeStrSet)
 	{
 		PatchSpeakerConfigLock();
 	}

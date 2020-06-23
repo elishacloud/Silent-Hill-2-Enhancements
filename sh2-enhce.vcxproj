@@ -207,7 +207,8 @@
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul
-copy /Y "$(ProjectDir)External\WidescreenFixesPack\data\SilentHill2.WidescreenFix\scripts\SilentHill2.WidescreenFix.dat" "$(TargetDir)$(TargetName).dat" &gt;nul</Command>
+copy /Y "$(ProjectDir)External\WidescreenFixesPack\data\SilentHill2.WidescreenFix\scripts\SilentHill2.WidescreenFix.dat" "$(TargetDir)$(TargetName).dat" &gt;nul
+copy /Y "$(ProjectDir)Resources\exe_str.txt" "$(TargetDir)$(TargetName).res" &gt;nul</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -247,7 +248,8 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul
-copy /Y "$(ProjectDir)External\WidescreenFixesPack\data\SilentHill2.WidescreenFix\scripts\SilentHill2.WidescreenFix.dat" "$(TargetDir)$(TargetName).dat" &gt;nul</Command>
+copy /Y "$(ProjectDir)External\WidescreenFixesPack\data\SilentHill2.WidescreenFix\scripts\SilentHill2.WidescreenFix.dat" "$(TargetDir)$(TargetName).dat" &gt;nul
+copy /Y "$(ProjectDir)Resources\exe_str.txt" "$(TargetDir)$(TargetName).res" &gt;nul</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

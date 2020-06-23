@@ -18,6 +18,7 @@
 #include <Windows.h>
 #include "Common\FileSystemHooks.h"
 #include "Common\Utils.h"
+#include "WidescreenFixesPack\WidescreenFixesPack.h"
 #include "Logging\Logging.h"
 #include "Common\Settings.h"
 #include <string>
@@ -703,7 +704,11 @@ void PatchCustomExeStr()
 	langMin = (UnlockJapLang == false);
 	gLangID = (BYTE *)*(DWORD *)((BYTE*)DLangAddrA - 2);
 
-	ifstream file("data\\text\\exe_str.txt");
+	char txtpath[MAX_PATH];
+	GetModuleFileNameA(m_hModule, txtpath, MAX_PATH);
+	strcpy_s(strrchr(txtpath, '.'), MAX_PATH - strlen(txtpath), ".res");
+
+	ifstream file(txtpath);
 
 	if (file.is_open())
 	{

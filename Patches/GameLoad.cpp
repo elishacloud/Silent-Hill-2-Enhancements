@@ -22,9 +22,73 @@
 
 BYTE AllowQuickSaveFlag = TRUE;
 void *QuickSaveCmpAddr;
+void *jmpSoftLockAddr;
+void *TimerMemoryAddr;
+void *TextMemoryAddr;
+void *InteractiveTextAddr;
+void *callSaveTimerAddr;
+void *jmpSaveTimerAddr;
+void *callTextOverlapAddr;
+void *jmpTextOverlapAddr;
 void *jmpQuickSaveAddr;
 
-// ASM functions to disable quick saves
+// ASM function for Quick Save Soft-Lock Fix
+__declspec(naked) void __stdcall SoftLockASM()
+{
+	__asm
+	{
+		cmp dword ptr ds : [esi + 0x04], 0x00004214
+		je near SoftLockFix // jumps to soft-lock fix if locked
+		mov ecx, dword ptr ds : [esi + 0x04]
+		mov dword ptr ds : [edi - 0x04], ecx
+		jmp jmpSoftLockAddr
+
+	SoftLockFix:
+		mov ecx, 0x0000214 // unlocks
+		mov dword ptr ds : [edi - 0x04], ecx
+		jmp jmpSoftLockAddr
+	}
+}
+
+// ASM function for Quick Save Timer Fix
+__declspec(naked) void __stdcall SaveTimerASM()
+{
+	__asm
+	{
+		push eax
+		mov eax, dword ptr ds : [TimerMemoryAddr]
+		mov dword ptr ds : [eax], esi
+		mov eax, dword ptr ds : [InteractiveTextAddr]
+		cmp dword ptr ds : [eax], 0x02
+		pop eax
+		je near Exit // jumps to code exit if interactive text is displayed
+		call callSaveTimerAddr
+
+	Exit:
+		jmp jmpSaveTimerAddr
+	}
+}
+
+// ASM function for Quick Save Text Overlap Fix
+__declspec(naked) void __stdcall TextOverlapASM()
+{
+	__asm
+	{
+		push eax
+		mov eax, dword ptr ds : [TextMemoryAddr]
+		mov dword ptr ds : [eax], esi
+		mov eax, dword ptr ds : [InteractiveTextAddr]
+		cmp dword ptr ds : [eax], 0x02
+		pop eax
+		je near Exit // jumps to code exit if interactive text is displayed
+		call callTextOverlapAddr
+
+	Exit:
+		jmp jmpTextOverlapAddr
+	}
+}
+
+// ASM function to disable quick saves
 __declspec(naked) void __stdcall QuickSaveASM()
 {
 	__asm
@@ -55,6 +119,7 @@ void SetGameLoad()
 		return;
 	}
 
+	// Fix momentarily "flash" when save file is loaded
 	constexpr BYTE FlashFixSearchBytes[]{ 0x5F, 0x5E, 0x5D, 0x33, 0xC0, 0x5B, 0xC3, 0x90, 0x90, 0x33, 0xC0, 0xA3 };
 	DWORD FlashFixAddr = SearchAndGetAddresses(0x004EEA37, 0x004EECE7, 0x004EE5A7, FlashFixSearchBytes, sizeof(FlashFixSearchBytes), 0x0B);
 	if (!FlashFixAddr)
@@ -63,6 +128,40 @@ void SetGameLoad()
 		return;
 	}
 
+	// Disable Quick Save Reset
+	constexpr BYTE QuickSaveResetSearchBytes[]{ 0x57, 0x8D, 0x7D, 0x30, 0xEB, 0x03, 0x8D, 0x49, 0x00, 0x0F, 0xBE, 0x46, 0x11, 0x85, 0xC0, 0x0F, 0x8E };
+	DWORD QuickSaveResetFunction = SearchAndGetAddresses(0x0053AE37, 0x0053B167, 0x0053AA87, QuickSaveResetSearchBytes, sizeof(QuickSaveResetSearchBytes), 0x21);
+	if (!QuickSaveResetFunction)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+
+	// Quick Save Soft-Lock Fix
+	DWORD SoftLockFunction = QuickSaveResetFunction + 5;
+	jmpSoftLockAddr = (void*)(SoftLockFunction + 6);
+
+	// Quick Save Timer Fix
+	constexpr BYTE SaveTimerSearchBytes[]{ 0x83, 0xC4, 0x04, 0x85, 0xC0, 0x74, 0x4C, 0x39, 0x35 };
+	DWORD SaveTimerFunction = SearchAndGetAddresses(0x00402495, 0x00402495, 0x00402495, SaveTimerSearchBytes, sizeof(SaveTimerSearchBytes), -0x15);
+	constexpr BYTE InteractiveTextSearchBytes[]{ 0x33, 0xC0, 0x85, 0xC9, 0x0F, 0x94, 0xC0, 0xC3, 0x90, 0x90, 0xD9, 0x44, 0x24, 0x04, 0xD8, 0x64, 0x24, 0x0C, 0xD9, 0x1D };
+	InteractiveTextAddr = (void*)ReadSearchedAddresses(0x0048AFD6, 0x0048B276, 0x0048B486, InteractiveTextSearchBytes, sizeof(InteractiveTextSearchBytes), -0x37);
+	if (!SaveTimerFunction || !InteractiveTextAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+	TimerMemoryAddr = (void*)*(DWORD*)(SaveTimerFunction - 0x1B);
+	callSaveTimerAddr = (void*)(*(DWORD*)(SaveTimerFunction + 7) + SaveTimerFunction + 0x0B);
+	jmpSaveTimerAddr = (void*)(SaveTimerFunction + 0x0B);
+
+	// Quick Save Text Overlap Fix
+	DWORD TextOverlapFunction = SaveTimerFunction + 0xB4;
+	TextMemoryAddr = (void*)((DWORD)TimerMemoryAddr - 0x08);
+	callTextOverlapAddr = (void*)(*(DWORD*)(TextOverlapFunction + 7) + TextOverlapFunction + 0x0B);
+	jmpTextOverlapAddr = (void*)(TextOverlapFunction + 0x0B);
+
+	// Location for to disabling quick saves
 	constexpr BYTE QuickSaveSearchBytes[]{ 0x83, 0xC4, 0x04, 0x85, 0xC0, 0x74, 0x4C, 0x39, 0x35 };
 	DWORD QuickSaveFunction = SearchAndGetAddresses(0x00402495, 0x00402495, 0x00402495, QuickSaveSearchBytes, sizeof(QuickSaveSearchBytes), 0x07);
 	if (!QuickSaveFunction)
@@ -78,6 +177,10 @@ void SetGameLoad()
 	DWORD Value = 0x00;
 	UpdateMemoryAddress((void*)GameLoadAddr, &Value, sizeof(DWORD));
 	UpdateMemoryAddress((void*)FlashFixAddr, "\x90\x90\x90\x90\x90", 5);
+	UpdateMemoryAddress((void*)QuickSaveResetFunction, "\x90\x90\x90\x90\x90", 5);
+	WriteJMPtoMemory((BYTE*)SoftLockFunction, *SoftLockASM, 6);
+	WriteJMPtoMemory((BYTE*)SaveTimerFunction, *SaveTimerASM, 6);
+	WriteJMPtoMemory((BYTE*)TextOverlapFunction, *TextOverlapASM, 6);
 	WriteJMPtoMemory((BYTE*)QuickSaveFunction, *QuickSaveASM, 6);
 }
 

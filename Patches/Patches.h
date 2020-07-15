@@ -102,7 +102,7 @@ void RunHangOnEsc();
 void RunHospitalChase();
 void RunHotelRoom312FogVolumeFix();
 void RunHotelWater();
-void RunInfiniteRumble();
+void RunInfiniteRumbleFix();
 void RunInnerFlashlightGlow(DWORD Height);
 void RunLightingTransition();
 void RunRotatingMannequin();

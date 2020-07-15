@@ -18,14 +18,10 @@
 #define WINVER 0x0501
 #define _WIN32_WINNT 0x0501
 
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include "patches.h"
+#include "dinput8wrapper.h"
+#include "Patches\patches.h"
 #include "Common\Utils.h"
-#include "Common\Settings.h"
-#include "Logging\Logging.h"
 
-#define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 #pragma comment(lib, "dxguid.lib")
 
@@ -33,141 +29,185 @@
 #pragma comment(lib, "Xinput9_1_0.lib")
 
 BYTE *IntensityAddr = nullptr;		// IntensityAddr (0 = Off, 1 = Soft, 2 = Normal, 3 = Hard)
-bool LostWindowFocus = false;
-HWND SH2WindowHandle = nullptr;
-HWINEVENTHOOK hEventHook = nullptr;
-static LPDIRECTINPUTEFFECT originalDInputEffect = nullptr;
+m_IDirectInputEffect StubXInputEffect(nullptr);
 
-// XInput -> DirectInput vibration effect wrapper
-
-// NOTE: This wrapper is very primitive, mostly because it's been tailored specifically for the game
-// Silent Hill 2 uses vibration in a very simple manner - submits a periodic wave at 100% force until stopped by the game
-// For this use case, we just need to implement Start and Stop
-class XInputEffect final : public IDirectInputEffect
+HRESULT m_IDirectInputEffect::QueryInterface(REFIID riid, LPVOID * ppvObj)
 {
-public:
-	virtual HRESULT WINAPI QueryInterface(REFIID, LPVOID*) override
+	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
+
+	if ((riid == IID_IDirectInputEffect || riid == IID_IUnknown) && ppvObj)
 	{
-		// Deliberately left unimplemented
-		return E_NOTIMPL;
+		AddRef();
+
+		*ppvObj = this;
+
+		return S_OK;
 	}
 
-	virtual ULONG WINAPI AddRef(void) override
+	if (IsStatic || !ProxyInterface)
 	{
-		// Deliberately left unimplemented
+		return E_NOINTERFACE;
+	}
+
+	HRESULT hr = ProxyInterface->QueryInterface(riid, ppvObj);
+
+	if (SUCCEEDED(hr))
+	{
+		genericQueryInterface(riid, ppvObj);
+	}
+
+	return hr;
+}
+
+ULONG m_IDirectInputEffect::AddRef()
+{
+	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
+
+	if (IsStatic || !ProxyInterface)
+	{
+		return 1;
+	}
+
+	return ProxyInterface->AddRef();
+}
+
+ULONG m_IDirectInputEffect::Release()
+{
+	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
+
+	if (IsStatic || !ProxyInterface)
+	{
 		return 0;
 	}
 
-	virtual ULONG WINAPI Release(void) override
+	ULONG ref = ProxyInterface->Release();
+
+	if (ref == 0)
 	{
-		// Deliberately left unimplemented
-		return 0;
+		delete this;
 	}
 
-	virtual HRESULT WINAPI Initialize(HINSTANCE, DWORD, REFGUID) override
-	{
-		// Deliberately left unimplemented
-		return E_NOTIMPL;
-	}
+	return ref;
+}
 
-	virtual HRESULT WINAPI GetEffectGuid(LPGUID) override
-	{
-		// Deliberately left unimplemented
-		return E_NOTIMPL;
-	}
+HRESULT m_IDirectInputEffect::Initialize(HINSTANCE hinst, DWORD dwVersion, REFGUID rguid)
+{
+	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
 
-	virtual HRESULT WINAPI GetParameters(LPDIEFFECT, DWORD) override
-	{
-		// Deliberately left unimplemented
-		return E_NOTIMPL;
-	}
+	return ProxyInterface != nullptr ? ProxyInterface->Initialize(hinst, dwVersion, rguid) : DI_OK;
+}
 
-	virtual HRESULT WINAPI SetParameters(LPCDIEFFECT, DWORD) override
-	{
-		// Deliberately left empty, SH2 only submits 100% force to SetParameters
-		return DI_OK;
-	}
+HRESULT m_IDirectInputEffect::GetEffectGuid(LPGUID pguid)
+{
+	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
 
-	virtual HRESULT WINAPI Start(DWORD dwIterations, DWORD dwFlags) override
+	return ProxyInterface != nullptr ? ProxyInterface->GetEffectGuid(pguid) : DI_OK;
+}
+
+HRESULT m_IDirectInputEffect::GetParameters(LPDIEFFECT peff, DWORD dwFlags)
+{
+	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
+
+	return ProxyInterface != nullptr ? ProxyInterface->GetParameters(peff, dwFlags) : DI_OK;
+}
+
+HRESULT m_IDirectInputEffect::SetParameters(LPCDIEFFECT peff, DWORD dwFlags)
+{
+	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
+
+	return ProxyInterface != nullptr ? ProxyInterface->SetParameters(peff, dwFlags) : DI_OK;
+}
+
+HRESULT m_IDirectInputEffect::Start(DWORD dwIterations, DWORD dwFlags)
+{
+	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
+
+	if (RestoreVibration && !m_vibrating)
 	{
-		if ( !m_vibrating )
+		WORD XIntensity = MaxVibrationIntensity;
+		WORD DIntensity = DI_FFNOMINALMAX;
+		if (IntensityAddr && *IntensityAddr < 3)
 		{
-			WORD XIntensity = MaxVibrationIntensity;
-			WORD DIntensity = DI_FFNOMINALMAX;
-			if (IntensityAddr && *IntensityAddr < 3)
-			{
-				XIntensity = (WORD)(MaxVibrationIntensity * (*IntensityAddr * (100.0f / 3.0f)));
-				DIntensity = (WORD)(DI_FFNOMINALMAX * (*IntensityAddr * (100.0f / 3.0f)));
-			}
-			XINPUT_VIBRATION vib = { XIntensity, XIntensity };
-			XInputSetState( PadNumber, &vib );
-			if (originalDInputEffect)
-			{
-				DIEFFECT diEffect;
-				ZeroMemory(&diEffect, sizeof(DIEFFECT));
-				diEffect.dwSize = sizeof(DIEFFECT);
-				diEffect.dwGain = DIntensity;
-				originalDInputEffect->SetParameters(&diEffect, DIEP_GAIN);
-			}
-			m_vibrating = true;
-		}
-		return originalDInputEffect != nullptr ? originalDInputEffect->Start( dwIterations, dwFlags ) : DI_OK;
-	}
-
-	virtual HRESULT WINAPI Stop(void) override
-	{
-		if ( m_vibrating )
-		{
-			XINPUT_VIBRATION vib = { 0, 0 };
-			XInputSetState( PadNumber, &vib );
-			m_vibrating = false;
+			XIntensity = (WORD)(MaxVibrationIntensity * (*IntensityAddr * (100.0f / 3.0f)));
+			DIntensity = (WORD)(DI_FFNOMINALMAX * (*IntensityAddr * (100.0f / 3.0f)));
 		}
 
-		return originalDInputEffect != nullptr ? originalDInputEffect->Stop() : DI_OK;
+		// xinput
+		XINPUT_VIBRATION vib = { XIntensity, XIntensity };
+		XInputSetState(PadNumber, &vib);
+
+		// dinput
+		DIEFFECT diEffect;
+		ZeroMemory(&diEffect, sizeof(DIEFFECT));
+		diEffect.dwSize = sizeof(DIEFFECT);
+		diEffect.dwGain = DIntensity;
+		SetParameters(&diEffect, DIEP_GAIN);
+
+		m_vibrating = true;
 	}
 
-	virtual HRESULT WINAPI GetEffectStatus(LPDWORD) override
+	return ProxyInterface != nullptr ? ProxyInterface->Start(dwIterations, dwFlags) : DI_OK;
+}
+
+HRESULT m_IDirectInputEffect::Stop()
+{
+	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
+
+	if (RestoreVibration && m_vibrating)
 	{
-		// Deliberately left unimplemented
-		return E_NOTIMPL;
+		XINPUT_VIBRATION vib = { 0, 0 };
+		XInputSetState(PadNumber, &vib);
+		m_vibrating = false;
 	}
 
-	virtual HRESULT WINAPI Download(void) override
-	{
-		// Deliberately left unimplemented
-		return E_NOTIMPL;
-	}
+	return ProxyInterface != nullptr ? ProxyInterface->Stop() : DI_OK;
+}
 
-	virtual HRESULT WINAPI Unload(void) override
-	{
-		// Deliberately left unimplemented
-		return E_NOTIMPL;
-	}
+HRESULT m_IDirectInputEffect::GetEffectStatus(LPDWORD pdwFlags)
+{
+	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
 
-	virtual HRESULT WINAPI Escape(LPDIEFFESCAPE) override
-	{
-		// Deliberately left unimplemented
-		return E_NOTIMPL;
-	}
+	return ProxyInterface != nullptr ? ProxyInterface->GetEffectStatus(pdwFlags) : DI_OK;
+}
 
-private:
-	static constexpr WORD MaxVibrationIntensity = 65535;
-	bool m_vibrating = false;
-} StubXInputEffect;
+HRESULT m_IDirectInputEffect::Download()
+{
+	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
 
+	return ProxyInterface != nullptr ? ProxyInterface->Download() : DI_OK;
+}
+
+HRESULT m_IDirectInputEffect::Unload()
+{
+	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
+
+	return ProxyInterface != nullptr ? ProxyInterface->Unload() : DI_OK;
+}
+
+HRESULT m_IDirectInputEffect::Escape(LPDIEFFESCAPE pesc)
+{
+	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
+
+	return ProxyInterface != nullptr ? ProxyInterface->Escape(pesc) : DI_OK;
+}
+
+
+//**************************
+// Other fucntions
+//**************************
 
 int32_t* DInputGamepadType;
 LPDIRECTINPUTEFFECT* directInputEffect;
 
-void (*orgCreateDirectInputGamepad)();
+void(*orgCreateDirectInputGamepad)();
 void CreateDirectInputGamepad_Hook()
 {
 	orgCreateDirectInputGamepad();
 
-	if ( *DInputGamepadType != 0 )
+	if (*DInputGamepadType != 0)
 	{
 		// If game already created an effect, store it so we can submit data to both DInput and XInput
-		originalDInputEffect = *directInputEffect;
+		StubXInputEffect.SetProxyInterface(*directInputEffect);
 		*directInputEffect = &StubXInputEffect;
 		*DInputGamepadType = 2;
 	}
@@ -185,7 +225,7 @@ void PatchXInputVibration()
 
 	// Read out a jump from under this address and replace it with a custom one
 	int32_t jmpAddress = 0;
-	memcpy( &jmpAddress, (void*)(CreateDIGamepadAddr + 1), sizeof(jmpAddress) );
+	memcpy(&jmpAddress, (void*)(CreateDIGamepadAddr + 1), sizeof(jmpAddress));
 
 	constexpr BYTE SetVibrationParametersSearchBytes[]{ 0x83, 0xEC, 0x38, 0x83, 0xF8, 0x02, 0x75, 0x39 };
 	const DWORD SetVibrationParametersAddr = SearchAndGetAddresses(0x458005, 0x458265, 0x458265, SetVibrationParametersSearchBytes, sizeof(SetVibrationParametersSearchBytes), -0x5);
@@ -204,15 +244,6 @@ void PatchXInputVibration()
 		return;
 	}
 
-	// Get vibration intensity
-	constexpr BYTE IntensitySearchBytes[]{ 0x6A, 0x60, 0x75, 0x04, 0x6A, 0x3F, 0xEB, 0x02, 0x6A, 0x1F, 0x6A, 0x3F, 0x6A, 0x3F, 0xE8 };
-	IntensityAddr = (BYTE*)ReadSearchedAddresses(0x00461735, 0x00461995, 0x00461995, IntensitySearchBytes, sizeof(IntensitySearchBytes), -0x04);
-	if (!IntensityAddr)
-	{
-		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
-		return;
-	}
-
 	// Update SH2 code
 	Logging::Log() << "Enabling XInput Vibration Fix...";
 	orgCreateDirectInputGamepad = decltype(orgCreateDirectInputGamepad)(jmpAddress + CreateDIGamepadAddr + 5);
@@ -226,6 +257,9 @@ void PatchXInputVibration()
 	UpdateMemoryAddress((void*)MenuRumbleAddr, &NOP, sizeof(NOP));
 }
 
+bool LostWindowFocus = false;
+HWND SH2WindowHandle = nullptr;
+HWINEVENTHOOK hEventHook = nullptr;
 void CALLBACK windowChangeHook(HWINEVENTHOOK hWinEventHook, DWORD event, HWND hwnd, LONG idObject, LONG idChild, DWORD dwEventThread, DWORD dwmsEventTime)
 {
 	UNREFERENCED_PARAMETER(hWinEventHook);
@@ -265,8 +299,22 @@ void UnhookWindowHandle()
 	}
 }
 
-void RunInfiniteRumble()
+void RunInfiniteRumbleFix()
 {
+	// Get vibration intensity
+	if (!IntensityAddr)
+	{
+		RUNONCE();
+
+		constexpr BYTE IntensitySearchBytes[]{ 0x6A, 0x60, 0x75, 0x04, 0x6A, 0x3F, 0xEB, 0x02, 0x6A, 0x1F, 0x6A, 0x3F, 0x6A, 0x3F, 0xE8 };
+		IntensityAddr = (BYTE*)ReadSearchedAddresses(0x00461735, 0x00461995, 0x00461995, IntensitySearchBytes, sizeof(IntensitySearchBytes), -0x04);
+		if (!IntensityAddr)
+		{
+			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+			return;
+		}
+	}
+
 	// Get rumble address
 	static BYTE *RumbleAddress = nullptr;
 	if (!RumbleAddress)

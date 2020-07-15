@@ -1584,7 +1584,7 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		// Fix infinite rumble in pause menu
 		if (RestoreVibration)
 		{
-			RunInfiniteRumble();
+			RunInfiniteRumbleFix();
 		}
 
 		// Fix draw distance in forest with chainsaw logs and Eddie boss meat cold room

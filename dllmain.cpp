@@ -172,6 +172,12 @@ void DelayedStart()
 		HookDirectSoundCreate8();
 	}
 
+	// Hook DirectInput8
+	if (RestoreVibration)
+	{
+		HookDirectInput8Create();
+	}
+
 	// Hook CreateFile API when using UseCustomModFolder
 	if (UseCustomModFolder)
 	{

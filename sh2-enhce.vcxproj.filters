@@ -146,9 +146,6 @@
     <ClCompile Include="Patches\EnhancedFlashlight.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
-    <ClCompile Include="Patches\XInputVibration.cpp">
-      <Filter>Patches</Filter>
-    </ClCompile>
     <ClCompile Include="Patches\LightingTransition.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
@@ -247,6 +244,27 @@
     </ClCompile>
     <ClCompile Include="Patches\LightingPatch.cpp">
       <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrappers\dinput8\dinput8wrapper.cpp">
+      <Filter>Wrappers\dinput8</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrappers\dinput8\IDirectInput8A.cpp">
+      <Filter>Wrappers\dinput8</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrappers\dinput8\IDirectInputDevice8A.cpp">
+      <Filter>Wrappers\dinput8</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrappers\dinput8\IDirectInputEffect.cpp">
+      <Filter>Wrappers\dinput8</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrappers\dinput8\IDirectInputEnum.cpp">
+      <Filter>Wrappers\dinput8</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrappers\dinput8\InterfaceQuery.cpp">
+      <Filter>Wrappers\dinput8</Filter>
+    </ClCompile>
+    <ClCompile Include="Logging\Logging.cpp">
+      <Filter>Logging</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -382,6 +400,24 @@
     <ClInclude Include="Wrappers\dsound\IDirectSoundBuffer8.h">
       <Filter>Wrappers\dsound</Filter>
     </ClInclude>
+    <ClInclude Include="Wrappers\dinput8\AddressLookupTable.h">
+      <Filter>Wrappers\dinput8</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\dinput8\dinput8wrapper.h">
+      <Filter>Wrappers\dinput8</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\dinput8\IDirectInput8A.h">
+      <Filter>Wrappers\dinput8</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\dinput8\IDirectInputDevice8A.h">
+      <Filter>Wrappers\dinput8</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\dinput8\IDirectInputEffect.h">
+      <Filter>Wrappers\dinput8</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\dinput8\IDirectInputEnum.h">
+      <Filter>Wrappers\dinput8</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\sh2-enhce.rc">
@@ -459,6 +495,9 @@
     </Filter>
     <Filter Include="Wrappers\dsound">
       <UniqueIdentifier>{239f9f4e-9a68-4133-839f-fbfb3f509bf1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Wrappers\dinput8">
+      <UniqueIdentifier>{594860f0-d658-47fe-9c60-a2b2a56f0f65}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

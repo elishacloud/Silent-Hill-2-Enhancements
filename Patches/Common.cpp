@@ -513,8 +513,8 @@ BYTE *GetFullscreenImageEventPointer()
 	}
 
 	// Get address for fullsceen image event
-	constexpr BYTE FullscreenImageSearchBytes[]{ 0x90, 0x90, 0x8B, 0x44, 0x24, 0x04, 0x83, 0xC0, 0xFE, 0x83, 0xF8, 0x06, 0x77, 0x61, 0xFF, 0x24, 0x85 };
-	FullscreenImageEventAddr = (BYTE*)ReadSearchedAddresses(0x0052E25E, 0x0052E58E, 0x0052DEAE, FullscreenImageSearchBytes, sizeof(FullscreenImageSearchBytes), 0x1F);
+	constexpr BYTE FullscreenImageSearchBytes[]{ 0x33, 0xC0, 0x85, 0xC9, 0x0F, 0x94, 0xC0, 0xC3, 0x90, 0x90, 0xD9, 0x44, 0x24, 0x04, 0xD8, 0x64, 0x24, 0x0C, 0xD9, 0x1D };
+	FullscreenImageEventAddr = (BYTE*)ReadSearchedAddresses(0x0048AFD6, 0x0048B276, 0x0048B486, FullscreenImageSearchBytes, sizeof(FullscreenImageSearchBytes), -0x37);
 
 	// Checking address pointer
 	if (!FullscreenImageEventAddr)
@@ -522,8 +522,6 @@ BYTE *GetFullscreenImageEventPointer()
 		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
 		return nullptr;
 	}
-
-	FullscreenImageEventAddr = (BYTE*)((DWORD)FullscreenImageEventAddr + 0x14);
 
 	return FullscreenImageEventAddr;
 }

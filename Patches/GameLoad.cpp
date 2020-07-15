@@ -25,7 +25,6 @@ void *QuickSaveCmpAddr;
 void *jmpSoftLockAddr;
 void *TimerMemoryAddr;
 void *TextMemoryAddr;
-void *InteractiveTextAddr;
 void *callSaveTimerAddr;
 void *jmpSaveTimerAddr;
 void *callTextOverlapAddr;
@@ -58,7 +57,7 @@ __declspec(naked) void __stdcall SaveTimerASM()
 		push eax
 		mov eax, dword ptr ds : [TimerMemoryAddr]
 		mov dword ptr ds : [eax], esi
-		mov eax, dword ptr ds : [InteractiveTextAddr]
+		mov eax, dword ptr ds : [FullscreenImageEventAddr]
 		cmp dword ptr ds : [eax], 0x02
 		pop eax
 		je near Exit // jumps to code exit if interactive text is displayed
@@ -77,7 +76,7 @@ __declspec(naked) void __stdcall TextOverlapASM()
 		push eax
 		mov eax, dword ptr ds : [TextMemoryAddr]
 		mov dword ptr ds : [eax], esi
-		mov eax, dword ptr ds : [InteractiveTextAddr]
+		mov eax, dword ptr ds : [FullscreenImageEventAddr]
 		cmp dword ptr ds : [eax], 0x02
 		pop eax
 		je near Exit // jumps to code exit if interactive text is displayed
@@ -144,9 +143,8 @@ void SetGameLoad()
 	// Quick Save Timer Fix
 	constexpr BYTE SaveTimerSearchBytes[]{ 0x83, 0xC4, 0x04, 0x85, 0xC0, 0x74, 0x4C, 0x39, 0x35 };
 	DWORD SaveTimerFunction = SearchAndGetAddresses(0x00402495, 0x00402495, 0x00402495, SaveTimerSearchBytes, sizeof(SaveTimerSearchBytes), -0x15);
-	constexpr BYTE InteractiveTextSearchBytes[]{ 0x33, 0xC0, 0x85, 0xC9, 0x0F, 0x94, 0xC0, 0xC3, 0x90, 0x90, 0xD9, 0x44, 0x24, 0x04, 0xD8, 0x64, 0x24, 0x0C, 0xD9, 0x1D };
-	InteractiveTextAddr = (void*)ReadSearchedAddresses(0x0048AFD6, 0x0048B276, 0x0048B486, InteractiveTextSearchBytes, sizeof(InteractiveTextSearchBytes), -0x37);
-	if (!SaveTimerFunction || !InteractiveTextAddr)
+	FullscreenImageEventAddr = GetFullscreenImageEventPointer();
+	if (!SaveTimerFunction || !FullscreenImageEventAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
@@ -289,7 +287,7 @@ void RunGameLoad()
 	}
 
 	// Disable quick save during certian in-game voice events and during fullscreen image events
-	if ((((GetRoomID() == 0x0A) || (GetRoomID() == 0xBA)) && *InGameVoiceEvent == 1) || GetFullscreenImageEvent() == 0)
+	if ((((GetRoomID() == 0x0A) || (GetRoomID() == 0xBA)) && *InGameVoiceEvent == 1) || GetFullscreenImageEvent() == 2)
 	{
 		DisableQuickSave = true;
 		AllowQuickSaveFlag = FALSE;

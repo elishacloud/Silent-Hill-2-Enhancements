@@ -107,12 +107,12 @@ BOOL CheckIfInCutscene()
 		return TRUE;
 	}
 	// James monologue at end of hospital
-	else if (GetRoomID() == 0x08 && GetJamesPosZ() == -6000.0f && GetFullscreenImageEvent() == 0)
+	else if (GetRoomID() == 0x08 && GetJamesPosZ() == -6000.0f && GetFullscreenImageEvent() == 2)
 	{
 		return TRUE;
 	}
 	// Alt Hotel flooded elevator ride
-	else if (GetRoomID() == 0xB8 && GetJamesPosZ() == -56599.01953f && GetFullscreenImageEvent() == 0)
+	else if (GetRoomID() == 0xB8 && GetJamesPosZ() == -56599.01953f && GetFullscreenImageEvent() == 2)
 	{
 		return TRUE;
 	}

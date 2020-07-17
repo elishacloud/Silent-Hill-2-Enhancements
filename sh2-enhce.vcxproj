@@ -44,6 +44,7 @@
     <ClCompile Include="Patches\DelayedStart.cpp" />
     <ClCompile Include="Patches\FlashlightClockPush.cpp" />
     <ClCompile Include="Patches\FogFix.cpp" />
+    <ClCompile Include="Patches\FullscreenImages.cpp" />
     <ClCompile Include="Patches\LaunchAsAdmin.cpp" />
     <ClCompile Include="Patches\PatchBinary.cpp" />
     <ClCompile Include="Patches\BloodSize.cpp" />
@@ -219,7 +220,7 @@
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul
-copy /Y "$(ProjectDir)External\WidescreenFixesPack\data\SilentHill2.WidescreenFix\scripts\SilentHill2.WidescreenFix.dat" "$(TargetDir)$(TargetName).dat" &gt;nul
+copy /Y "$(ProjectDir)Resources\FullscreenImages.dat" "$(TargetDir)$(TargetName).dat" &gt;nul
 copy /Y "$(ProjectDir)Resources\exe_str.txt" "$(TargetDir)$(TargetName).res" &gt;nul</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -260,7 +261,7 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul
-copy /Y "$(ProjectDir)External\WidescreenFixesPack\data\SilentHill2.WidescreenFix\scripts\SilentHill2.WidescreenFix.dat" "$(TargetDir)$(TargetName).dat" &gt;nul
+copy /Y "$(ProjectDir)Resources\FullscreenImages.dat" "$(TargetDir)$(TargetName).dat" &gt;nul
 copy /Y "$(ProjectDir)Resources\exe_str.txt" "$(TargetDir)$(TargetName).res" &gt;nul</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

@@ -408,6 +408,12 @@ void DelayedStart()
 		WSFInit();
 	}
 
+	// Update full screen images
+	if (FullscreenImages)
+	{
+		PatchFullscreenImages();
+	}
+
 	// Load modupdater
 	if (AutoUpdateModule)
 	{

@@ -39,7 +39,6 @@
 	visit(Fog2DFix, true) \
 	visit(FogParameterFix, true) \
 	visit(FogSpeedFix, true) \
-	visit(FullscreenImages, true) \
 	visit(FullscreenWndMode, true) \
 	visit(GamepadControlsFix, true) \
 	visit(GameLoadFix, true) \
@@ -98,6 +97,7 @@
 	visit(CustomFontCharHeight, 32) \
 	visit(fog_transparency_layer1, 128) \
 	visit(fog_transparency_layer2, 138) \
+	visit(FullscreenImages, 1) \
 	visit(FMVWidescreenEnhancementPackCompatibility, 2) \
 	visit(LetterSpacing, 2) \
 	visit(NormalFontWidth, 20) \

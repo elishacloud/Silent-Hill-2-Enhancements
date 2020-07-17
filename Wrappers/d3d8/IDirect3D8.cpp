@@ -310,6 +310,12 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 		{
 			RUNCODEONCE(SetRoom312Resolution(&BufferWidth));
 		}
+
+		// Set fullscreen image resolution
+		if (FullscreenImages)
+		{
+			RUNCODEONCE(SetFullscreenImagesRes(BufferWidth, BufferHeight));
+		}
 	}
 
 	return hr;

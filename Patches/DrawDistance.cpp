@@ -193,7 +193,7 @@ void RunDynamicDrawDistance()
 			ValueSet = true;
 		}
 	}
-	else if (GetRoomID() == 0x90)
+	else if (GetRoomID() == 0x90 || GetRoomID() == 0xD4)
 	{
 		if (!ValueSet)
 		{

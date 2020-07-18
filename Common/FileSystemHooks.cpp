@@ -210,7 +210,7 @@ bool CheckConfigPath(T str)
 template<typename T, typename D>
 T UpdateModPath(T sh2, D str)
 {
-	if (!sh2 || !str)
+	if (!sh2 || !str || !IsFileSystemHooking)
 	{
 		return sh2;
 	}

@@ -71,5 +71,8 @@ static MODULECONFIG ConfigList[] =
 	{ ConfigNameA, ConfigNameW, &FileEnabled }
 };
 
+template<typename T, typename D>
+T UpdateModPath(T sh2, D str);
+
 void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath);
 void InstallCreateProcessHooks();

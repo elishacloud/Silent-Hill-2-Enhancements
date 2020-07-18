@@ -16,11 +16,17 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <Shlwapi.h>
 #include <fstream>
+#include <iostream>
+#include <filesystem>
 #include "Patches.h"
 #include "Common\Utils.h"
+#include "Common\FileSystemHooks.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
+
+namespace fs = std::filesystem;
 
 // Variables for ASM
 WORD Start01TempASM;
@@ -242,6 +248,50 @@ void ScaleStart01Texture(wchar_t *TexName)
 	}
 }
 
+DWORD GetTexBufferSize()
+{
+	DWORD size = 0;
+
+	for (const auto& path : {
+		"data\\pic",
+		"data\\pic\\add",
+		"data\\pic\\apt",
+		"data\\pic\\dls",
+		"data\\pic\\effect",
+		"data\\pic\\etc",
+		"data\\pic\\hsp",
+		"data\\pic\\htl",
+		"data\\pic\\item",
+		"data\\pic\\map",
+		"data\\pic\\out",
+		"data\\pic\\ufo",
+		"data\\menu\\mc"
+		})
+	{
+		if (PathFileExistsA(path))
+		{
+			for (const auto & entry : fs::directory_iterator(path))
+			{
+				if (entry.is_regular_file())
+				{
+					// Get size of file
+					WIN32_FILE_ATTRIBUTE_DATA FileInformation = {};
+
+					wchar_t Filename[MAX_PATH];
+					if (GetFileAttributesEx(UpdateModPath(entry.path().c_str(), Filename), GetFileExInfoStandard, &FileInformation) && FileInformation.nFileSizeLow)
+					{
+						if (size < FileInformation.nFileSizeLow)
+						{
+							size = FileInformation.nFileSizeLow;
+						}
+					}
+				}
+			}
+		}
+	}
+	return size;
+}
+
 void PatchTexAddr()
 {
 	// Get addresses
@@ -262,13 +312,25 @@ void PatchTexAddr()
 	}
 
 	// Get size of textures
-	const DWORD size = 0x01400000;		// Just hard code to 20 MBs
+	DWORD size = GetTexBufferSize();
+	if (!size)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find texture buffer size!";
+		return;
+	}
+	size += 2 * 1024 * 1024;	// Add 2 MB to buffer
+	Logging::Log() << "Setting texture buffer size: " << size;
 
 	// Allocate dynamic memory for loading textures
 	BYTE *PtrBytes1 = new BYTE[size];
 	ZeroMemory(PtrBytes1, size);		// Need to clear menory for debug mode, game expects the memory to be zeroed
 	BYTE *PtrBytes2 = new BYTE[size];
 	ZeroMemory(PtrBytes2, size);		// Need to clear menory for debug mode, game expects the memory to be zeroed
+	if (!PtrBytes1 || !PtrBytes2)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to create texture buffer!";
+		return;
+	}
 
 	// Logging update
 	Logging::Log() << "Updating Texture memory address locations...";

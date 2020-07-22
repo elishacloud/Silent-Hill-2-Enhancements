@@ -36,14 +36,21 @@ __declspec(naked) void __stdcall SoftLockASM()
 {
 	__asm
 	{
-		cmp dword ptr ds : [esi + 0x04], 0x00004214
-		je near SoftLockFix // jumps to soft-lock fix if locked
+		cmp dword ptr ds : [esi + 0x04], 0x00004214 // locked with flashlight on
+		je near SoftLockFix1 // jumps to soft-lock fix if locked
+		cmp dword ptr ds : [esi + 0x04], 0x00004014 // locked with flashlight off
+		je near SoftLockFix2 // jumps to soft-lock fix if locked
 		mov ecx, dword ptr ds : [esi + 0x04]
 		mov dword ptr ds : [edi - 0x04], ecx
 		jmp jmpSoftLockAddr
 
-	SoftLockFix:
+	SoftLockFix1:
 		mov ecx, 0x0000214 // unlocks
+		mov dword ptr ds : [edi - 0x04], ecx
+		jmp jmpSoftLockAddr
+			
+	SoftLockFix2:
+		mov ecx, 0x0000014 // unlocks
 		mov dword ptr ds : [edi - 0x04], ecx
 		jmp jmpSoftLockAddr
 	}

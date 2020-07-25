@@ -88,7 +88,6 @@ constexpr BYTE MenuSearchBytesD[] = { 0x07, 0x68, 0x4C, 0xFF, 0xFF, 0xFF, 0xBF, 
 constexpr BYTE MenuSearchBytesE[] = { 0x8B, 0x4C, 0x24, 0x04, 0x83, 0xF9, 0x0D, 0xB8, 0xFE, 0xFF, 0xFF, 0xFF, 0x0F, 0x87, 0x41, 0x03, 0x00, 0x00 };
 
 extern BYTE *gLangID;
-extern void ScaleStart01Texture(wchar_t* TexName);
 
 TexPath start00Offset;
 TexPath start01Offset;
@@ -136,14 +135,6 @@ void UpdateTitlePath()
 	{
 		start01Offset.pathPtr = (char *)start01CustomPath;
 		file.close();
-	}
-
-	if (EnableTexAddrHack)
-	{
-		size_t outsize;
-		wchar_t st01path[MAX_PATH];
-		mbstowcs_s(&outsize, st01path, start01Offset.pathPtr, MAX_PATH);
-		ScaleStart01Texture(st01path);
 	}
 }
 

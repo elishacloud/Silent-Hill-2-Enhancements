@@ -210,10 +210,6 @@ void DelayedStart()
 	{
 		PatchTexAddr();
 	}
-	else
-	{
-		SetDefaultFullscreenBackground();
-	}
 
 	// Sets application DPI aware which disables DPI virtulization/High DPI scaling for this process
 	if (DisableHighDPIScaling)

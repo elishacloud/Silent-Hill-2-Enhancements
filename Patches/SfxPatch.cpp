@@ -127,6 +127,11 @@ void PatchSFXAddr()
 
 	// Allocate memory
 	BYTE *PtrBytes = new BYTE[size + 1];
+	if (!PtrBytes)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to create memory buffer!";
+		return;
+	}
 
 	// Write new memory address
 	UpdateMemoryAddress(sfxAddr, &PtrBytes, sizeof(void*));

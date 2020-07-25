@@ -52,7 +52,6 @@ BYTE *GetInventoryStatusPointer();
 // Function patch declaration
 void CheckArgumentsForPID();
 void CheckAdminAccess();
-void SetDefaultFullscreenBackground();
 void SetDelayedStart();
 void SetFullscreenImagesRes(DWORD Width, DWORD Height);
 void SetResolutionLock(DWORD Width, DWORD Height);

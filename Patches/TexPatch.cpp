@@ -158,14 +158,16 @@ void PatchTexAddr()
 
 	// Allocate dynamic memory for loading textures
 	PtrBytes1 = new BYTE[BufferSize];
-	ClearBuffer1();
 	PtrBytes2 = new BYTE[BufferSize];
-	ClearBuffer2();
 	if (!PtrBytes1 || !PtrBytes2)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to create texture buffer!";
 		return;
 	}
+
+	// Clear texture buffers
+	ClearBuffer1();
+	ClearBuffer2();
 
 	// Logging update
 	Logging::Log() << "Updating Texture memory address locations...";
@@ -177,11 +179,11 @@ void PatchTexAddr()
 	UpdateMemoryAddress((void*)Addr1, &PtrBytes1, sizeof(void*));
 
 	// Write new memory address 2
-	UpdateMemoryAddress((void*)Addr2, "\xB8", sizeof(BYTE));
+	UpdateMemoryAddress((void*)Addr2, "\xB8", sizeof(BYTE));		// Change from 'add' to 'mov'
 	UpdateMemoryAddress((void*)(Addr2 + 1), &PtrBytes2, sizeof(void*));
 
 	// Write new memory address 3
-	UpdateMemoryAddress((void*)Addr3, "\xB8", sizeof(BYTE));
+	UpdateMemoryAddress((void*)Addr3, "\xB8", sizeof(BYTE));		// Change from 'add' to 'mov'
 	UpdateMemoryAddress((void*)(Addr3 + 1), &PtrBytes2, sizeof(void*));
 
 	// Write jmp to memory

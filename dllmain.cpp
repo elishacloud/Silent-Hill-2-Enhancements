@@ -77,7 +77,6 @@ void DelayedStart()
 
 	// Init Logs
 	Logging::LogComputerManufacturer();
-	Logging::LogVideoCard();
 	Logging::LogOSVersion();
 	Logging::LogProcessNameAndPID();
 

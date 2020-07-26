@@ -16,14 +16,16 @@
 
 #include "d3d8wrapper.h"
 
+#define ATI_VENDOR_ID		0x1002	/* ATI Technologies Inc.			*/
+#define NVIDIA_VENDOR_ID	0x10DE	/* NVIDIA Corporation				*/
+#define MATROX_VENDOR_ID	0x102B	/* Matrox Electronic Systems Ltd.	*/
+#define _3DFX_VENDOR_ID		0x121A	/* 3dfx Interactive Inc.			*/
+#define S3_VENDOR_ID		0x5333	/* S3 Graphics Co., Ltd.			*/
+#define INTEL_VENDOR_ID		0x8086	/* Intel Corporation				*/
+
 HWND DeviceWindow = nullptr;
 LONG BufferWidth = 0, BufferHeight = 0;
-DWORD VendorID = 0;			// 0x1002 = ATI Technologies Inc.
-							// 0x10DE = NVIDIA Corporation
-							// 0x102B = Matrox Electronic Systems Ltd.
-							// 0x121A = 3dfx Interactive Inc
-							// 0x5333 = S3 Graphics Co., Ltd.
-							// 0x8086 = Intel Corporation
+DWORD VendorID = 0;
 bool CopyRenderTarget = false;
 bool SetSSAA = false;
 D3DMULTISAMPLE_TYPE DeviceMultiSampleType = D3DMULTISAMPLE_NONE;
@@ -219,20 +221,23 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 
 	// Get device information
 	D3DADAPTER_IDENTIFIER8 dai;
-	if (SUCCEEDED(ProxyInterface->GetAdapterIdentifier(D3DADAPTER_DEFAULT, 0, &dai)))
+	if (SUCCEEDED(ProxyInterface->GetAdapterIdentifier(Adapter, 0, &dai)))
 	{
 		VendorID = dai.VendorId;
+		Logging::Log() << "|---------- VIDEO CARD ----------";
+		Logging::Log() << "| " __FUNCTION__ << " Using video card: " << dai.Description << " (" << Logging::hex(dai.VendorId) << ")";
+		Logging::Log() << "|--------------------------------";
 	}
 
 	// Check if render target needs to be replaced
-	if (DeviceMultiSampleType || (FixGPUAntiAliasing && VendorID == 0x10DE /*Nvidia*/))
+	if (DeviceMultiSampleType || (FixGPUAntiAliasing && VendorID == NVIDIA_VENDOR_ID))
 	{
 		CopyRenderTarget = true;
 	}
 
 	// Check for SSAA
 	if ((DeviceMultiSampleType || FixGPUAntiAliasing) &&
-		(ProxyInterface->CheckDeviceFormat(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, D3DFMT_X8R8G8B8, 0, D3DRTYPE_SURFACE, (D3DFORMAT)MAKEFOURCC('S', 'S', 'A', 'A')) == S_OK || VendorID == 0x10DE /*Nvidia*/))
+		(ProxyInterface->CheckDeviceFormat(Adapter, D3DDEVTYPE_HAL, D3DFMT_X8R8G8B8, 0, D3DRTYPE_SURFACE, (D3DFORMAT)MAKEFOURCC('S', 'S', 'A', 'A')) == S_OK || VendorID == NVIDIA_VENDOR_ID))
 	{
 		SetSSAA = true;
 	}

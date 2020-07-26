@@ -24,6 +24,55 @@
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
 
+BYTE *PtrBytes1 = nullptr;
+BYTE *PtrBytes2 = nullptr;
+DWORD BufferSize = 0;
+
+void *callBufferAddr = nullptr;
+void *jmpBufferAddr = nullptr;
+
+void ClearBuffer1()
+{
+	ZeroMemory(PtrBytes1, BufferSize);
+}
+
+void ClearBuffer2()
+{
+	ZeroMemory(PtrBytes2, BufferSize);
+}
+
+// ASM function to clear texture buffer
+__declspec(naked) void __stdcall TexBufferASM()
+{
+	__asm
+	{
+		call callBufferAddr
+		pushf
+		push eax
+		push ebx
+		push ecx
+		cmp ebp, PtrBytes1
+		je near Clear1
+		cmp ebp, PtrBytes2
+		je near Clear2
+		jmp near Exit
+
+	Clear1:
+		call ClearBuffer1
+		jmp near Exit
+
+	Clear2:
+		call ClearBuffer2
+
+	Exit:
+		pop ecx
+		pop ebx
+		pop eax
+		popf
+		jmp jmpBufferAddr
+	}
+}
+
 DWORD GetTexBufferSize()
 {
 	DWORD size = 0;
@@ -67,6 +116,19 @@ DWORD GetTexBufferSize()
 
 void PatchTexAddr()
 {
+	// Get call address
+	constexpr BYTE BufferSearchBytes[]{ 0x83, 0xC4, 0x10, 0x85, 0xC0, 0x74, 0x1C, 0x33, 0xC0, 0x5D, 0x8B, 0x8C, 0x24 };
+	const DWORD ClearBuffAddr = SearchAndGetAddresses(0x00449FDC, 0x0044A17C, 0x0044A17C, BufferSearchBytes, sizeof(BufferSearchBytes), 0x31);
+
+	// Checking address pointer
+	if (!ClearBuffAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+	callBufferAddr = (void*)(*(DWORD*)(ClearBuffAddr + 1) + ClearBuffAddr + 5);
+	jmpBufferAddr = (void*)(ClearBuffAddr + 5);
+
 	// Get addresses
 	const DWORD StaticAddr = 0x00401CC1;		// Address is the same on all binaries
 	BYTE SearchBytes1[]{ 0x68, 0x00, 0x00, 0x00, 0x00 };
@@ -85,20 +147,20 @@ void PatchTexAddr()
 	}
 
 	// Get size of textures
-	DWORD size = GetTexBufferSize();
-	if (!size)
+	BufferSize = GetTexBufferSize();
+	if (!BufferSize)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find texture buffer size!";
 		return;
 	}
-	size += 2 * 1024 * 1024;	// Add 2 MB to buffer
-	Logging::Log() << "Setting texture buffer size: " << size;
+	BufferSize += 2 * 1024 * 1024;	// Add 2 MB to buffer
+	Logging::Log() << "Setting texture buffer size: " << BufferSize;
 
 	// Allocate dynamic memory for loading textures
-	BYTE *PtrBytes1 = new BYTE[size];
-	ZeroMemory(PtrBytes1, size);		// Need to clear menory for debug mode, game expects the memory to be zeroed
-	BYTE *PtrBytes2 = new BYTE[size];
-	ZeroMemory(PtrBytes2, size);		// Need to clear menory for debug mode, game expects the memory to be zeroed
+	PtrBytes1 = new BYTE[BufferSize];
+	ClearBuffer1();
+	PtrBytes2 = new BYTE[BufferSize];
+	ClearBuffer2();
 	if (!PtrBytes1 || !PtrBytes2)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to create texture buffer!";
@@ -121,4 +183,7 @@ void PatchTexAddr()
 	// Write new memory address 3
 	UpdateMemoryAddress((void*)Addr3, "\xB8", sizeof(BYTE));
 	UpdateMemoryAddress((void*)(Addr3 + 1), &PtrBytes2, sizeof(void*));
+
+	// Write jmp to memory
+	WriteJMPtoMemory((BYTE*)ClearBuffAddr, TexBufferASM);
 }

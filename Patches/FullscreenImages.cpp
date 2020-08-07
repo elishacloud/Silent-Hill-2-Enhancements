@@ -29,8 +29,8 @@ float SizeNormal = 1.0f;
 float SizeFullscreen = 1.0f;
 float AspectRatio = 1.0f;	// this value should be softcoded or you need to calculate the aspect ratio from one of the textures. (TexResY / TexResX) = AspectRatio
 
-float ORG_TextureResX = 1024.0f; // based on the original res X of whichever texture you decide to use
-float ORG_TextureResY = 1024.0f; // based on the original res Y of whichever texture you decide to use
+float ORG_TextureResX = 512.0f; // based on the original res X of whichever texture you decide to use
+float ORG_TextureResY = 512.0f; // based on the original res Y of whichever texture you decide to use
 
 float VerBoundPos = 240.0f;		// (240.0f / Size)
 DWORD VerBoundPosInt = 240;		// (240.0f / Size)
@@ -405,7 +405,7 @@ void PatchFullscreenImages()
 	myfile.close();
 
 	// Get texture size and scale
-	if (!GetTextureRes(L"data\\pic\\map\\outmap.tex", TextureResX, TextureResY))
+	if (!GetTextureRes(L"data\\pic\\out\\p_incar.tex", TextureResX, TextureResY))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to get texture resolution!";
 		return;

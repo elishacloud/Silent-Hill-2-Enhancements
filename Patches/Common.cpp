@@ -32,6 +32,7 @@ float *JamesPosXAddr = nullptr;
 float *JamesPosYAddr = nullptr;
 float *JamesPosZAddr = nullptr;
 DWORD *OnScreenAddr = nullptr;
+BYTE *EventIndexAddr = nullptr;
 BYTE *PauseMenuAddr = nullptr;
 DWORD *RoomIDAddr = nullptr;
 DWORD *SpecializedLight1Addr = nullptr;
@@ -455,18 +456,46 @@ DWORD *GetOnScreenPointer()
 		return OnScreenAddr;
 	}
 
-	// Get address for on screen address
+	// Get address for on-screen address
 	constexpr BYTE OnScreenSearchBytes[]{ 0x33, 0xC0, 0x5B, 0xC3, 0x68 };
 	OnScreenAddr = (DWORD*)ReadSearchedAddresses(0x0043F205, 0x0043F3C5, 0x0043F3C5, OnScreenSearchBytes, sizeof(OnScreenSearchBytes), 0x50);
 
 	// Checking address pointer
 	if (!OnScreenAddr)
 	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find on screen address!";
+		Logging::Log() << __FUNCTION__ << " Error: failed to find on-screen address!";
 		return nullptr;
 	}
 
 	return OnScreenAddr;
+}
+
+BYTE GetEventIndex()
+{
+	BYTE *pEventIndex = GetEventIndexPointer();
+
+	return (pEventIndex) ? *pEventIndex : 0;
+}
+
+BYTE *GetEventIndexPointer()
+{
+	if (EventIndexAddr)
+	{
+		return EventIndexAddr;
+	}
+
+	// Get address for event index address
+	constexpr BYTE EventIndexSearchBytes[]{ 0x5E, 0xB8, 0x01, 0x00, 0x00, 0x00, 0x5B, 0xC3, 0x8B, 0xFF };
+	EventIndexAddr = (BYTE*)ReadSearchedAddresses(0x0043F28A, 0x0043F44A, 0x0043F44A, EventIndexSearchBytes, sizeof(EventIndexSearchBytes), -0x35);
+
+	// Checking address pointer
+	if (!EventIndexAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find event index address!";
+		return nullptr;
+	}
+
+	return EventIndexAddr;
 }
 
 DWORD GetTransitionState()

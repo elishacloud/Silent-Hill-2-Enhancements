@@ -1,0 +1,44 @@
+// Outside
+data/pic/map/outmapmark.tex
+data/pic/map/outmap.tex
+data/pic/map/outmape.tex
+data/pic/map/outmapw.tex
+
+// Apartments
+data/pic/map/apartmapmark.tex
+data/pic/map/apartmape1f.tex
+data/pic/map/apartmape2f.tex
+data/pic/map/apartmape3f.tex
+data/pic/map/apartmapew1f.tex
+data/pic/map/apartmapew2f.tex
+data/pic/map/apartmapew3f.tex
+data/pic/map/apartmapw.tex
+
+// Hospital
+data/pic/map/hospitalmapmk.tex
+data/pic/map/hospitalmap01.tex
+data/pic/map/hospitalmap02.tex
+
+// Prison & Labyrinth
+data/pic/map/prisonmap01mark.tex
+data/pic/map/prisonmap02mark.tex
+data/pic/map/prisonmap03mark.tex
+data/pic/map/prisonmap.tex
+data/pic/map/prisonmap01.tex
+data/pic/map/prisonmap02.tex
+data/pic/map/prisonmap03.tex
+
+// Hotel
+data/pic/map/hotelmapmark.tex
+data/pic/map/hotelmap1f01.tex
+data/pic/map/hotelmap2f01.tex
+data/pic/map/hotelmap3f01.tex
+data/pic/map/hotelmapbf01.tex
+data/pic/map/hotelmap1f02.tex
+data/pic/map/hotelmap2f02.tex
+data/pic/map/hotelmap3f02.tex
+data/pic/map/hotelmapbf02.tex
+
+// Born From a Wish
+data/pic/add/mapboldwin.tex
+data/pic/add/mapmark.tex

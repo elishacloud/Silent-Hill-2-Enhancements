@@ -27,28 +27,52 @@
 // Common Values
 float SizeNormal = 1.0f;
 float SizeFullscreen = 1.0f;
-float AspectRatio = 1.0f;	// this value should be softcoded or you need to calculate the aspect ratio from one of the textures. (TexResY / TexResX) = AspectRatio
+float AspectRatio = 1.0f;		// this value should be softcoded or you need to calculate the aspect ratio from one of the textures. (TexResY / TexResX) = AspectRatio
 
 float ORG_TextureResX = 512.0f; // based on the original res X of whichever texture you decide to use
 float ORG_TextureResY = 512.0f; // based on the original res Y of whichever texture you decide to use
 
-float VerBoundPos = 240.0f;		// (240.0f / Size)
-DWORD VerBoundPosInt = 240;		// (240.0f / Size)
-float VerBoundNeg = 240.0f;		// (-240.0f / Size)
+float VerBoundPos = 240.0f;		// 240.0f / SizeNormal
+DWORD VerBoundPosInt = 240;		// 240.0f / SizeNormal
+float VerBoundNeg = 240.0f;		// -240.0f / SizeNormal
 
 const DWORD Deuce = 2;
 
-DWORD GameResX;				// Example: 1920 (can be acquired from 00A32898) 
-DWORD GameResY;				// Example: 1080 (can be acquired from 00A3289C)
+DWORD GameResX;					// Example: 1920 (can be acquired from 00A32898) 
+DWORD GameResY;					// Example: 1080 (can be acquired from 00A3289C)
 
-BYTE *ScreenPosX;			// Example: 0x00 (must be acquired from 01DBBFF7, byte)
-BYTE *ScreenPosY;			// Example: 0x00 (must be acquired from 01DBBFF8, byte)
+BYTE *ScreenPosX;				// Example: 0x00 (must be acquired from 01DBBFF7, byte)
+BYTE *ScreenPosY;				// Example: 0x00 (must be acquired from 01DBBFF8, byte)
 
-DWORD TextureResX;			// New texture X size
-DWORD TextureResY;			// New texture Y size
+DWORD TextureResX;				// New texture X size
+DWORD TextureResY;				// New texture Y size
 
-float TextureScaleX;		// (TextureResX / ORG_TextureResX);
-float TextureScaleY;		// (TextureResY / ORG_TextureResY);
+float TextureScaleX;			// TextureResX / ORG_TextureResX
+float TextureScaleY;			// TextureResY / ORG_TextureResY
+
+// Map scaling
+DWORD MapTextureResX;			// New texture X size
+DWORD MapTextureResY;			// New texture Y size
+
+float MapAspectRatio;			// MapTextureResY / MapTextureResX
+float MapResFormula;			// GameResY / (GameResX * (MapAspectRatio * 0.75f))
+DWORD MapResX;					// GameResX * MapResFormula
+DWORD MapResX_43;				// GameResX * ((GameResY / GameResX) / 0.75f)
+
+float MapScaleX;				// 16.0f / MapAspectRatio
+
+float MapMarkingWidth;			// 0.5f * MapAspectRatio
+float MapMarkingPosX;			// 1.0f / MapAspectRatio
+float MapMarkingPosX_00625 = 0.0625f;
+
+float PlayerIconWidth;			// 1.0f * MapAspectRatio
+float PlayerIconPosX;			// 1.0f * MapAspectRatio
+
+float MapWidth;
+float MapPosX;
+DWORD MapScreenPosX;
+float MapWidth_Divider = -1.0f;
+float MapPosX_Divider = 2.0f;
 
 // placeholder variables, don't assign value
 DWORD ScreenPosXtmp;
@@ -58,6 +82,8 @@ DWORD TempResultY;
 DWORD OffsetX;
 DWORD OffsetY;
 
+void *MapIDAddr = nullptr;
+
 void *VerBoundPosIntAddr = nullptr;
 void *VerBoundNegAddr1 = nullptr;
 void *VerBoundNegAddr2 = nullptr;
@@ -65,12 +91,25 @@ void *VerBoundNegAddr3 = nullptr;
 
 char **TexNameAddr = nullptr;
 std::vector<std::string> imagelist;
+std::vector<std::string> maplist;
 
 BOOL CheckTexture()
 {
 	if (TexNameAddr && *TexNameAddr)
 	{
 		if (std::any_of(imagelist.begin(), imagelist.end(), [](const std::string & str) { return str.compare(*TexNameAddr) == 0; }))
+		{
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+BOOL CheckMapTexture()
+{
+	if (TexNameAddr && *TexNameAddr)
+	{
+		if (std::any_of(maplist.begin(), maplist.end(), [](const std::string & str) { return str.compare(*TexNameAddr) == 0; }))
 		{
 			return TRUE;
 		}
@@ -86,8 +125,14 @@ __declspec(naked) void __stdcall TexWidthASM()
 		pushf
 		push ebx
 		push ecx
+		push edx
+		push esi
+		push edi
 		call CheckTexture
 		cmp eax, FALSE
+		pop edi
+		pop esi
+		pop edx
 		pop ecx
 		pop ebx
 		mov eax, dword ptr ds : [GameResX]
@@ -114,8 +159,14 @@ __declspec(naked) void __stdcall TexHeightASM()
 		push eax
 		push ebx
 		push ecx
+		push edx
+		push esi
+		push edi
 		call CheckTexture
 		cmp eax, FALSE
+		pop edi
+		pop esi
+		pop edx
 		pop ecx
 		pop ebx
 		pop eax
@@ -141,8 +192,14 @@ __declspec(naked) void __stdcall TexXPosASM()
 		push eax
 		push ebx
 		push ecx
+		push edx
+		push esi
+		push edi
 		call CheckTexture
 		cmp eax, FALSE
+		pop edi
+		pop esi
+		pop edx
 		pop ecx
 		pop ebx
 		pop eax
@@ -163,7 +220,7 @@ __declspec(naked) void __stdcall TexXPosASM()
 		fsub dword ptr ds : [TempResultX]		// subtracts TempResult
 		mov edx, dword ptr ds : [ScreenPosX]
 		movzx edx, byte ptr ds : [edx]
-		mov ScreenPosXtmp, edx
+		mov dword ptr ds : [ScreenPosXtmp], edx
 		fiadd dword ptr ds : [ScreenPosXtmp]	// adds ScreenPosX
 		fidiv dword ptr ds : [Deuce]			// divide by 2
 		fistp dword ptr ds : [OffsetX]			// stores final result
@@ -181,8 +238,14 @@ __declspec(naked) void __stdcall TexYPosASM()
 		pushf
 		push ebx
 		push ecx
+		push edx
+		push esi
+		push edi
 		call CheckTexture
 		cmp eax, FALSE
+		pop edi
+		pop esi
+		pop edx
 		pop ecx
 		pop ebx
 		je near NoScaling
@@ -219,6 +282,120 @@ __declspec(naked) void __stdcall TexYPosEDXASM()
 		call TexYPosASM
 		mov edx, eax
 		pop eax
+		ret
+	}
+}
+
+// ASM function to scale Map Marking X Pos
+__declspec(naked) void __stdcall MapMarkingXPosASM()
+{
+	__asm
+	{
+		fmul dword ptr ds : [MapMarkingPosX_00625]
+		fdiv dword ptr ds : [MapMarkingPosX]
+		ret
+	}
+}
+
+// ASM function to scale Player Icon Width
+__declspec(naked) void __stdcall PlayerIconWidthASM()
+{
+	__asm
+	{
+		fmul dword ptr ds : [PlayerIconWidth]
+		fadd dword ptr ds : [esp + 0x18]
+		fld dword ptr ds : [esp + 0x1C]
+		ret
+	}
+}
+
+// ASM function to scale Player Icon X Pos
+__declspec(naked) void __stdcall PlayerIconXPosASM()
+{
+	__asm
+	{
+		fld dword ptr ds : [ebx]
+		fmul dword ptr ds : [PlayerIconPosX]
+		fstp dword ptr ds : [ebx]
+		mov eax, dword ptr ds : [MapIDAddr]		// Map ID
+		mov eax, dword ptr ds : [eax]
+		ret
+	}
+}
+
+// ASM function to scale Map Width
+__declspec(naked) void __stdcall MapWidthASM()
+{
+	__asm
+	{
+		push eax
+		push ebx
+		push ecx
+		push edx
+		push esi
+		push edi
+		call CheckMapTexture
+		cmp eax, FALSE
+		pop edi
+		pop esi
+		pop edx
+		pop ecx
+		pop ebx
+		pop eax
+		je near NoScaling
+	// Adjust scale
+		fadd dword ptr ds : [esp + 0x10]
+		fadd dword ptr ds : [esp + 0x1C]
+		fild dword ptr ds : [MapResX]			// Loads "MapResX" (example: 1920)
+		fisub dword ptr ds : [MapResX_43]		// Subtracts by "MapResX_43"(example: 1440)
+		fdiv dword ptr ds : [MapWidth_Divider]	// Divides by -1.0f (converts value to negative/positive)
+		fstp dword ptr ds : [MapWidth]			// Stores value at "MapWidth"
+		fadd dword ptr ds : [MapWidth]			// Adds "MapWidth"
+		jmp near Exit
+	NoScaling:
+		fadd dword ptr ds : [esp + 0x10]
+		fadd dword ptr ds : [esp + 0x1C]
+	Exit:
+		test eax, eax							// There's a conditional jump that depends on this! It must always be included!
+		ret
+	}
+}
+
+// ASM function to scale Map X Pos
+__declspec(naked) void __stdcall MapXPosASM()
+{
+	__asm
+	{
+		pushf
+		push eax
+		push ebx
+		push ecx
+		push edx
+		push esi
+		push edi
+		call CheckMapTexture
+		cmp eax, FALSE
+		pop edi
+		pop esi
+		pop edx
+		pop ecx
+		pop ebx
+		pop eax
+		je near NoScaling
+	// Adjust scale
+		mov dword ptr ds : [MapScreenPosX], edx		// Moves EDX value to "MapScreenPosX"
+		fild dword ptr ds : [MapResX]				// Loads "MapResX" (example: 1920)
+		fisub dword ptr ds : [MapResX_43]			// Subtracts by "MapResX_43"(example: 1440)
+		fdiv dword ptr ds : [MapPosX_Divider]		// Divides by 2.0f
+		fiadd dword ptr ds : [MapScreenPosX]		// Adds MapScreenPosX value
+		fistp dword ptr ds : [MapPosX]				// Stores value at "MapPosX"
+		mov edx, dword ptr ds : [MapPosX]			// moves MapPosX to EDX
+		mov eax, dword ptr ds : [GameResY]			// moves GameResY to EAX
+		jmp near Exit
+	NoScaling:
+		mov eax, dword ptr ds : [GameResY]			// moves GameResY to EAX
+	Exit:
+		popf
 		ret
 	}
 }
@@ -261,6 +438,28 @@ bool GetTextureRes(wchar_t *TexName, DWORD &TextureX, DWORD &TextureY)
 	return flag;
 }
 
+void SetImageScaling()
+{
+	TextureScaleX = (float)TextureResX / (float)ORG_TextureResX;
+	TextureScaleY = (float)TextureResY / (float)ORG_TextureResY;
+}
+
+void SetMapImageScaling()
+{
+	MapAspectRatio = (float)MapTextureResY / (float)MapTextureResX;
+	MapResFormula = (float)GameResY / ((float)GameResX * (MapAspectRatio * 0.75f));
+	MapResX = (DWORD)(GameResX * MapResFormula);
+	MapResX_43 = (DWORD)(GameResX * (((float)GameResY / (float)GameResX) / 0.75f));
+
+	MapScaleX = 16.0f / MapAspectRatio;
+
+	MapMarkingWidth = 0.5f * MapAspectRatio;
+	MapMarkingPosX = 1.0f / MapAspectRatio;
+
+	PlayerIconWidth = 1.0f * MapAspectRatio;
+	PlayerIconPosX = 1.0f * MapAspectRatio;
+}
+
 void SetFullscreenImagesRes(DWORD Width, DWORD Height)
 {
 	GameResX = Width;
@@ -286,11 +485,14 @@ void SetFullscreenImagesRes(DWORD Width, DWORD Height)
 		break;
 	}
 
+	SetImageScaling();
+	SetMapImageScaling();
+
 	if (VerBoundPosIntAddr && VerBoundNegAddr1 && VerBoundNegAddr2 && VerBoundNegAddr3)
 	{
-		VerBoundPos = (240.0f / SizeFullscreen);
+		VerBoundPos = 240.0f / SizeFullscreen;
 		VerBoundPosInt = (DWORD)(240.0f / SizeFullscreen);
-		VerBoundNeg = (-240.0f / SizeFullscreen);
+		VerBoundNeg = -240.0f / SizeFullscreen;
 
 		UpdateMemoryAddress(VerBoundPosIntAddr, &VerBoundPosInt, sizeof(DWORD));
 		UpdateMemoryAddress(VerBoundNegAddr1, &VerBoundNeg, sizeof(DWORD));
@@ -338,15 +540,15 @@ void Start00Scaling()
 		return;
 	}
 
-	float Start00_Ratio = ((float)Start00ResX / (float)Start00ResY);
-	float Start00_ScaleX = (8192.0f * Start00_Ratio);
+	float Start00_Ratio = (float)Start00ResX / (float)Start00ResY;
+	float Start00_ScaleX = 8192.0f * Start00_Ratio;
 	WORD Start00_PosX = (WORD)(4096 * Start00_Ratio);
-	WORD Start00_Width = (61440 - (Start00_PosX - 4096));
+	WORD Start00_Width = 61440 - (Start00_PosX - 4096);
 
-	float SaveBG_Ratio = ((float)SaveBGResX / (float)SaveBGResY);
-	float SaveBG_ScaleX = (8192.0f * SaveBG_Ratio);
+	float SaveBG_Ratio = (float)SaveBGResX / (float)SaveBGResY;
+	float SaveBG_ScaleX = 8192.0f * SaveBG_Ratio;
 	WORD SaveBG_PosX = (WORD)(4096 * SaveBG_Ratio);
-	WORD SaveBG_Width = (61440 - (SaveBG_PosX - 4096));
+	WORD SaveBG_Width = 61440 - (SaveBG_PosX - 4096);
 
 	// Write data to addresses
 	UpdateMemoryAddress(Start00ScaleXAddr, &Start00_ScaleX, sizeof(float));
@@ -379,6 +581,120 @@ void Start00Scaling()
 	}
 }
 
+void PatchMapImages(DWORD WidthAddr)
+{
+	// Get dat file path
+	wchar_t datpath[MAX_PATH];
+	GetModuleFileName(m_hModule, datpath, MAX_PATH);
+	wcscpy_s(wcsrchr(datpath, '.'), MAX_PATH - wcslen(datpath), L".map");
+
+	// Open dat file
+	std::ifstream myfile(datpath);
+	if (!myfile)
+	{
+		return;
+	}
+
+	// Read contents of dat file
+	std::string line;
+	while (std::getline(myfile, line))
+	{
+		if (line.size() > 2 && !(line.c_str()[0] == '/' && line.c_str()[1] == '/'))
+		{
+			maplist.push_back(line);
+		}
+	}
+	myfile.close();
+
+	// Get maps texture size and scale from reference texture
+	if (!GetTextureRes(L"data\\pic\\map\\outmap.tex", MapTextureResX, MapTextureResY))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to get map texture resolution!";
+		return;
+	}
+	Logging::Log() << "Texture Map resolution: " << MapTextureResX << "x" << MapTextureResY;
+
+	// Get address locations
+	constexpr BYTE MapScaleSearchBytes[]{ 0xFF, 0xFF, 0x83, 0xC4, 0x10, 0xC3, 0x90, 0x90 };
+	DWORD MapScaleAddr1 = SearchAndGetAddresses(0x0049E058, 0x0049E308, 0x0049DBC8, MapScaleSearchBytes, sizeof(MapScaleSearchBytes), -0xA8);
+
+	constexpr BYTE MapMarkScaleSearchBytes[]{ 0xD8, 0xC2, 0xD9, 0x5C, 0x24, 0x10, 0xDD, 0xD8, 0xD9, 0x44, 0x24, 0x14, 0xD8, 0x0D };
+	DWORD MapMarkScaleAddr1 = SearchAndGetAddresses(0x0049B678, 0x0049B928, 0x0049B1E8, MapMarkScaleSearchBytes, sizeof(MapMarkScaleSearchBytes), 0x0E);
+
+	constexpr BYTE MapMarkAnimaScaleSearchBytes[]{ 0xD8, 0xC2, 0xD9, 0x5C, 0x24, 0x10, 0xDD, 0xD8, 0xD9, 0x44, 0x24, 0x18, 0xD8, 0x0D };
+	DWORD MapMarkAnimaScaleAddr1 = SearchAndGetAddresses(0x0049CA1E, 0x0049CCCE, 0x0049C58E, MapMarkAnimaScaleSearchBytes, sizeof(MapMarkAnimaScaleSearchBytes), 0x0E);
+
+	// Checking address pointer
+	if (!MapScaleAddr1 || !MapMarkScaleAddr1 || !MapMarkAnimaScaleAddr1)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+
+	// Maps
+	DWORD MapScaleAddr2 = MapScaleAddr1 + 0x43;
+	// Maps (Scripted Animation)
+	DWORD MapAnimaScaleAddr1 = MapScaleAddr1 - 0x1E9;
+	DWORD MapAnimaScaleAddr2 = MapScaleAddr1 - 0x1A6;
+	// Map-Markings
+	DWORD MapMarkScaleAddr2 = MapMarkScaleAddr1 + 0x20;
+	// Map-Markings (Scripted Animation)
+	DWORD MapMarkAnimaScaleAddr2 = MapMarkAnimaScaleAddr1 + 0x20;
+	// Player-Icon
+	DWORD PlayerIconScaleAddr1 = MapScaleAddr1 - 0x4B6;
+	DWORD PlayerIconScaleAddr2 = PlayerIconScaleAddr1 + 0x29;
+	DWORD PlayerIconScaleAddr3 = PlayerIconScaleAddr1 + 0x51;
+	DWORD PlayerIconScaleAddr4 = PlayerIconScaleAddr1 + 0x84;
+	// Map-Markings 
+	DWORD MapMarkWidthAddr = MapMarkScaleAddr1 - 0x26;
+	// Map-Markings (Scripted Animation)
+	DWORD MapMarkAnimaWidthAddr = MapMarkAnimaScaleAddr1 - 0x26;
+	// Map Marking X Pos
+	DWORD MapMarkXPosAddr1 = MapMarkScaleAddr1 - 0x9D;
+	DWORD MapMarkXPosAddr2 = MapMarkAnimaScaleAddr1 - 0xB9;
+	// Player Icon Width
+	DWORD PlayerIconWidthAddr1 = PlayerIconScaleAddr1 - 0x12B;
+	DWORD PlayerIconWidthAddr2 = PlayerIconScaleAddr1 - 0xF5;
+	DWORD PlayerIconWidthAddr3 = PlayerIconScaleAddr1 - 0xBF;
+	DWORD PlayerIconWidthAddr4 = PlayerIconScaleAddr1 - 0x89;
+	// Player Icon X Pos
+	DWORD PlayerIconXPosAddr = PlayerIconScaleAddr1 - 0x360;
+	// Map Width
+	DWORD MapWidthAddr = WidthAddr + 0x322;
+	// Map X Pos
+	DWORD MapXPosAddr = WidthAddr + 0x305;
+	// Map ID address
+	MapIDAddr = (void*)*(DWORD*)(MapMarkScaleAddr1 - 0x255);
+
+	// Write data to addresses
+	Logging::Log() << "Set map scaling!";
+	void *address = &MapScaleX;
+	UpdateMemoryAddress((void*)MapScaleAddr1, &address, sizeof(float));
+	UpdateMemoryAddress((void*)MapScaleAddr2, &address, sizeof(float));
+	UpdateMemoryAddress((void*)MapAnimaScaleAddr1, &address, sizeof(float));
+	UpdateMemoryAddress((void*)MapAnimaScaleAddr2, &address, sizeof(float));
+	UpdateMemoryAddress((void*)MapMarkScaleAddr1, &address, sizeof(float));
+	UpdateMemoryAddress((void*)MapMarkScaleAddr2, &address, sizeof(float));
+	UpdateMemoryAddress((void*)MapMarkAnimaScaleAddr1, &address, sizeof(float));
+	UpdateMemoryAddress((void*)MapMarkAnimaScaleAddr2, &address, sizeof(float));
+	UpdateMemoryAddress((void*)PlayerIconScaleAddr1, &address, sizeof(float));
+	UpdateMemoryAddress((void*)PlayerIconScaleAddr2, &address, sizeof(float));
+	UpdateMemoryAddress((void*)PlayerIconScaleAddr3, &address, sizeof(float));
+	UpdateMemoryAddress((void*)PlayerIconScaleAddr4, &address, sizeof(float));
+	address = &MapMarkingWidth;
+	UpdateMemoryAddress((void*)MapMarkWidthAddr, &address, sizeof(float));
+	UpdateMemoryAddress((void*)MapMarkAnimaWidthAddr, &address, sizeof(float));
+	WriteCalltoMemory((BYTE*)MapMarkXPosAddr1, MapMarkingXPosASM, 6);
+	WriteCalltoMemory((BYTE*)MapMarkXPosAddr2, MapMarkingXPosASM, 6);
+	WriteCalltoMemory((BYTE*)PlayerIconWidthAddr1, PlayerIconWidthASM, 8);
+	WriteCalltoMemory((BYTE*)PlayerIconWidthAddr2, PlayerIconWidthASM, 8);
+	WriteCalltoMemory((BYTE*)PlayerIconWidthAddr3, PlayerIconWidthASM, 8);
+	WriteCalltoMemory((BYTE*)PlayerIconWidthAddr4, PlayerIconWidthASM, 8);
+	WriteCalltoMemory((BYTE*)PlayerIconXPosAddr, PlayerIconXPosASM);
+	WriteCalltoMemory((BYTE*)MapWidthAddr, MapWidthASM, 8);
+	WriteCalltoMemory((BYTE*)MapXPosAddr, MapXPosASM);
+}
+
 void PatchFullscreenImages()
 {
 	// Get dat file path
@@ -397,22 +713,20 @@ void PatchFullscreenImages()
 	std::string line;
 	while (std::getline(myfile, line))
 	{
-		if (line.size())
+		if (line.size() > 2 && !(line.c_str()[0] == '/' && line.c_str()[1] == '/'))
 		{
 			imagelist.push_back(line);
 		}
 	}
 	myfile.close();
 
-	// Get texture size and scale
+	// Get texture size and scale from reference texture
 	if (!GetTextureRes(L"data\\pic\\out\\p_incar.tex", TextureResX, TextureResY))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to get texture resolution!";
 		return;
 	}
 	Logging::Log() << "Texture resolution: " << TextureResX << "x" << TextureResY;
-	TextureScaleX = ((float)TextureResX / ORG_TextureResX);
-	TextureScaleY = ((float)TextureResY / ORG_TextureResY);
 
 	// Get address locations
 	constexpr BYTE MemorySearchBytes[]{ 0xDE, 0xC1, 0xDA, 0x44, 0x24, 0x08, 0x59, 0xC3, 0x90, 0x90, 0x90 };
@@ -459,6 +773,9 @@ void PatchFullscreenImages()
 
 	// Scale Start00 and SaveBG textures
 	Start00Scaling();
+
+	// Update Map scaling addresses
+	PatchMapImages((DWORD)WidthAddr);
 
 	// Write data to addresses
 	Logging::Log() << "Set texture scaling!";

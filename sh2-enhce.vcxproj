@@ -221,6 +221,7 @@
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul
 copy /Y "$(ProjectDir)Resources\FullscreenImages.dat" "$(TargetDir)$(TargetName).dat" &gt;nul
+copy /Y "$(ProjectDir)Resources\Maps.dat" "$(TargetDir)$(TargetName).map" &gt;nul
 copy /Y "$(ProjectDir)Resources\exe_str.txt" "$(TargetDir)$(TargetName).res" &gt;nul</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -262,6 +263,7 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul
 copy /Y "$(ProjectDir)Resources\FullscreenImages.dat" "$(TargetDir)$(TargetName).dat" &gt;nul
+copy /Y "$(ProjectDir)Resources\Maps.dat" "$(TargetDir)$(TargetName).map" &gt;nul
 copy /Y "$(ProjectDir)Resources\exe_str.txt" "$(TargetDir)$(TargetName).res" &gt;nul</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

@@ -30,13 +30,7 @@ __declspec(naked) void __stdcall DelayedStartASM()
 {
 	__asm
 	{
-		push eax
-		push ebx
-		push ecx
 		call DelayedStart
-		pop ecx
-		pop ebx
-		pop eax
 		push dword ptr ds : [GameAddressPointer]
 		jmp jmpDelayedStart
 	}

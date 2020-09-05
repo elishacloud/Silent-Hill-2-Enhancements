@@ -38,8 +38,14 @@ __declspec(naked) void __stdcall HardDriveASM()
 		push eax
 		push ebx
 		push ecx
+		push edx
+		push esi
+		push edi
 		call GetDiskSpace
 		cmp eax, 0x08		// Require at least 8KBs of disk space
+		pop edi
+		pop esi
+		pop edx
 		pop ecx
 		pop ebx
 		pop eax
@@ -59,8 +65,14 @@ __declspec(naked) void __stdcall NewSaveASM()
 		push eax
 		push ebx
 		push ecx
+		push edx
+		push esi
+		push edi
 		call GetDiskSpace
 		cmp eax, 0x20		// Require at least 32KBs of disk space for new save
+		pop edi
+		pop esi
+		pop edx
 		pop ecx
 		pop ebx
 		pop eax
@@ -80,8 +92,14 @@ __declspec(naked) void __stdcall DisplayASM()
 		push eax
 		push ebx
 		push ecx
+		push edx
+		push esi
+		push edi
 		call GetDiskSpace
 		cmp eax, 0x3FFFFFFF
+		pop edi
+		pop esi
+		pop edx
 		pop ecx
 		pop ebx
 		pop eax

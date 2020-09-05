@@ -128,12 +128,17 @@ __declspec(naked) void __stdcall RedCrossCutscenesASM()
 		push eax
 		push ebx
 		push ecx
+		push edx
+		push esi
+		push edi
 		call CheckIfInCutscene
 		cmp eax, FALSE
+		pop edi
+		pop esi
+		pop edx
 		pop ecx
 		pop ebx
 		pop eax
-
 		je near EnableHealthIndicator
 
 	//DisableHealthIndicator:

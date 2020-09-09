@@ -28,17 +28,20 @@ BYTE *PtrBytes1 = nullptr;
 BYTE *PtrBytes2 = nullptr;
 DWORD BufferSize = 0;
 
+void *LoadAddress = nullptr;
 void *callBufferAddr = nullptr;
 void *jmpBufferAddr = nullptr;
 
-void ClearBuffer1()
+void ClearMemoryBuffer()
 {
-	ZeroMemory(PtrBytes1, BufferSize);
-}
-
-void ClearBuffer2()
-{
-	ZeroMemory(PtrBytes2, BufferSize);
+	if (LoadAddress == PtrBytes1)
+	{
+		ZeroMemory(PtrBytes1, BufferSize);
+	}
+	else if (LoadAddress == PtrBytes2)
+	{
+		ZeroMemory(PtrBytes2, BufferSize);
+	}
 }
 
 // ASM function to clear texture buffer
@@ -51,20 +54,14 @@ __declspec(naked) void __stdcall TexBufferASM()
 		push eax
 		push ebx
 		push ecx
-		cmp ebp, PtrBytes1
-		je near Clear1
-		cmp ebp, PtrBytes2
-		je near Clear2
-		jmp near Exit
-
-	Clear1:
-		call ClearBuffer1
-		jmp near Exit
-
-	Clear2:
-		call ClearBuffer2
-
-	Exit:
+		push edx
+		push esi
+		push edi
+		mov dword ptr ds : [LoadAddress], ebp
+		call ClearMemoryBuffer
+		pop edi
+		pop esi
+		pop edx
 		pop ecx
 		pop ebx
 		pop eax
@@ -166,8 +163,8 @@ void PatchTexAddr()
 	}
 
 	// Clear texture buffers
-	ClearBuffer1();
-	ClearBuffer2();
+	ZeroMemory(PtrBytes1, BufferSize);
+	ZeroMemory(PtrBytes2, BufferSize);
 
 	// Logging update
 	Logging::Log() << "Updating Texture memory address locations...";

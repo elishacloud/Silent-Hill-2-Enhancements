@@ -421,6 +421,9 @@
     <ClInclude Include="Wrappers\dinput8\IDirectInputEnum.h">
       <Filter>Wrappers\dinput8</Filter>
     </ClInclude>
+    <ClInclude Include="Patches\FullscreenImages.h">
+      <Filter>Patches</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\sh2-enhce.rc">

@@ -16,10 +16,9 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include <vector>
-#include <string>
 #include <regex>
 #include "Patches.h"
+#include "FullscreenImages.h"
 #include "Common\Utils.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
@@ -28,9 +27,6 @@
 float SizeNormal = 1.0f;
 float SizeFullscreen = 1.0f;
 float AspectRatio = 1.0f;		// this value should be softcoded or you need to calculate the aspect ratio from one of the textures. (TexResY / TexResX) = AspectRatio
-
-float ORG_TextureResX = 512.0f; // based on the original res X of whichever texture you decide to use
-float ORG_TextureResY = 512.0f; // based on the original res Y of whichever texture you decide to use
 
 float VerBoundPos = 240.0f;		// 240.0f / SizeNormal
 DWORD VerBoundPosInt = 240;		// 240.0f / SizeNormal
@@ -43,6 +39,9 @@ DWORD GameResY;					// Example: 1080 (can be acquired from 00A3289C)
 
 BYTE *ScreenPosX;				// Example: 0x00 (must be acquired from 01DBBFF7, byte)
 BYTE *ScreenPosY;				// Example: 0x00 (must be acquired from 01DBBFF8, byte)
+
+DWORD ORG_TextureResX;			// The original res X of texture
+DWORD ORG_TextureResY;			// The original res Y of texture
 
 DWORD TextureResX;				// New texture X size
 DWORD TextureResY;				// New texture Y size
@@ -82,6 +81,8 @@ DWORD TempResultY;
 DWORD OffsetX;
 DWORD OffsetY;
 
+void *jmpLoadTexture;
+
 void *MapIDAddr = nullptr;
 
 void *VerBoundPosIntAddr = nullptr;
@@ -90,31 +91,73 @@ void *VerBoundNegAddr2 = nullptr;
 void *VerBoundNegAddr3 = nullptr;
 
 char **TexNameAddr = nullptr;
-std::vector<std::string> imagelist;
-std::vector<std::string> maplist;
+
+void SetImageScaling();
+void SetMapImageScaling();
+bool GetTextureRes(char *TexName, DWORD &TextureX, DWORD &TextureY);
 
 BOOL CheckTexture()
 {
-	if (TexNameAddr && *TexNameAddr)
-	{
-		if (std::any_of(imagelist.begin(), imagelist.end(), [](const std::string & str) { return str.compare(*TexNameAddr) == 0; }))
-		{
-			return TRUE;
-		}
-	}
-	return FALSE;
+	return (TexNameAddr && *TexNameAddr && std::any_of(std::begin(DefaultTextureList), std::end(DefaultTextureList), [](const TexSize & TexItem) { return TexItem.IsScaled && strcmp(TexItem.Name, *TexNameAddr) == 0; }));
 }
 
 BOOL CheckMapTexture()
 {
+	return (TexNameAddr && *TexNameAddr && std::any_of(std::begin(DefaultTextureList), std::end(DefaultTextureList), [](const TexSize & TexItem) { return TexItem.IsMap && strcmp(TexItem.Name, *TexNameAddr) == 0; }));
+}
+
+// Runs each time a texture is loaded
+void CheckLoadedTexture()
+{
 	if (TexNameAddr && *TexNameAddr)
 	{
-		if (std::any_of(maplist.begin(), maplist.end(), [](const std::string & str) { return str.compare(*TexNameAddr) == 0; }))
+		for (auto TexItem : DefaultTextureList)
 		{
-			return TRUE;
+			if (TexItem.IsReference && strcmp(TexItem.Name, *TexNameAddr) == 0)
+			{
+				if (TexItem.IsMap)
+				{
+					GetTextureRes(*TexNameAddr, MapTextureResX, MapTextureResY);
+					SetMapImageScaling();
+					TextureScaleY = (float)MapTextureResY / (float)TexItem.Y;
+					TextureScaleX = TextureScaleY;
+				}
+				else
+				{
+					GetTextureRes(*TexNameAddr, TextureResX, TextureResY);
+					ORG_TextureResX = TexItem.X;
+					ORG_TextureResY = TexItem.Y;
+					SetImageScaling();
+				}
+				break;
+			}
 		}
 	}
-	return FALSE;
+}
+
+// ASM function to check texture on load
+__declspec(naked) void __stdcall LoadTextureASM()
+{
+	__asm
+	{
+		pushf
+		push eax
+		push ebx
+		push ecx
+		push edx
+		push esi
+		push edi
+		call CheckLoadedTexture
+		pop edi
+		pop esi
+		pop edx
+		pop ecx
+		pop ebx
+		pop eax
+		popf
+		mov ecx, dword ptr ds : [esp + 0x40C]
+		jmp jmpLoadTexture
+	}
 }
 
 // ASM function to scale texture width
@@ -401,35 +444,45 @@ __declspec(naked) void __stdcall MapXPosASM()
 }
 
 // Get texture resolution
-bool GetTextureRes(wchar_t *TexName, WORD &TextureX, WORD &TextureY)
+bool GetTextureRes(char *TexName, WORD &TextureX, WORD &TextureY)
 {
-	std::ifstream in(TexName, std::ifstream::ate | std::ifstream::binary);
-	if (!in.is_open())
+	HANDLE hFile;
+	DWORD FileSize;
+	const DWORD BytesToRead = 128;
+	DWORD dwBytesRead;
+
+	char TexData[BytesToRead];
+	hFile = CreateFileA(TexName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+	if (hFile == INVALID_HANDLE_VALUE)
 	{
 		return false;
 	}
-	if (in.tellg() < 128)
+	FileSize = GetFileSize(hFile, nullptr);
+
+	if (FileSize < BytesToRead || FileSize == 0xFFFFFFFF ||
+		!ReadFile(hFile, TexData, BytesToRead, &dwBytesRead, nullptr) ||
+		dwBytesRead < BytesToRead ||
+		memcmp(TexData, "\x01\x09\x99\x19", 4))
 	{
-		in.close();
+		CloseHandle(hFile);
 		return false;
 	}
 	for (auto& num : { 20, 24, 56 })
 	{
-		in.seekg(num);
-		in.read((char*)&TextureX, 2);
-		in.read((char*)&TextureY, 2);
+		TextureX = *(WORD*)&TexData[num];
+		TextureY = *(WORD*)&TexData[num + 2];
 		if (TextureX && TextureY)
 		{
-			in.close();
+			CloseHandle(hFile);
 			return true;
 		}
 	}
-	in.close();
+	CloseHandle(hFile);
 	return false;
 }
 
 // Get texture resolution
-bool GetTextureRes(wchar_t *TexName, DWORD &TextureX, DWORD &TextureY)
+bool GetTextureRes(char *TexName, DWORD &TextureX, DWORD &TextureY)
 {
 	WORD TextureXRes, TextureYRes;
 	bool flag = GetTextureRes(TexName, TextureXRes, TextureYRes);
@@ -485,9 +538,6 @@ void SetFullscreenImagesRes(DWORD Width, DWORD Height)
 		break;
 	}
 
-	SetImageScaling();
-	SetMapImageScaling();
-
 	if (VerBoundPosIntAddr && VerBoundNegAddr1 && VerBoundNegAddr2 && VerBoundNegAddr3)
 	{
 		VerBoundPos = 240.0f / SizeFullscreen;
@@ -533,8 +583,8 @@ void Start00Scaling()
 	void *LogoHighlightHeight = (void*)((DWORD)Start00ScaleXAddr + 0x7E);
 
 	WORD Start00ResX, Start00ResY, SaveBGResX, SaveBGResY;
-	if (!GetTextureRes(L"data\\pic\\etc\\start00.tex", Start00ResX, Start00ResY) ||
-		!GetTextureRes(L"data\\menu\\mc\\savebg.tbn2", SaveBGResX, SaveBGResY))
+	if (!GetTextureRes("data/pic/etc/start00.tex", Start00ResX, Start00ResY) ||
+		!GetTextureRes("data/menu/mc/savebg.tbn2", SaveBGResX, SaveBGResY))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to get texture resolution!";
 		return;
@@ -583,37 +633,6 @@ void Start00Scaling()
 
 void PatchMapImages(DWORD WidthAddr)
 {
-	// Get dat file path
-	wchar_t datpath[MAX_PATH];
-	GetModuleFileName(m_hModule, datpath, MAX_PATH);
-	wcscpy_s(wcsrchr(datpath, '.'), MAX_PATH - wcslen(datpath), L".map");
-
-	// Open dat file
-	std::ifstream myfile(datpath);
-	if (!myfile)
-	{
-		return;
-	}
-
-	// Read contents of dat file
-	std::string line;
-	while (std::getline(myfile, line))
-	{
-		if (line.size() > 2 && !(line.c_str()[0] == '/' && line.c_str()[1] == '/'))
-		{
-			maplist.push_back(line);
-		}
-	}
-	myfile.close();
-
-	// Get maps texture size and scale from reference texture
-	if (!GetTextureRes(L"data\\pic\\map\\outmap.tex", MapTextureResX, MapTextureResY))
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to get map texture resolution!";
-		return;
-	}
-	Logging::Log() << "Texture Map resolution: " << MapTextureResX << "x" << MapTextureResY;
-
 	// Get address locations
 	constexpr BYTE MapScaleSearchBytes[]{ 0xFF, 0xFF, 0x83, 0xC4, 0x10, 0xC3, 0x90, 0x90 };
 	DWORD MapScaleAddr1 = SearchAndGetAddresses(0x0049E058, 0x0049E308, 0x0049DBC8, MapScaleSearchBytes, sizeof(MapScaleSearchBytes), -0xA8);
@@ -697,37 +716,6 @@ void PatchMapImages(DWORD WidthAddr)
 
 void PatchFullscreenImages()
 {
-	// Get dat file path
-	wchar_t datpath[MAX_PATH];
-	GetModuleFileName(m_hModule, datpath, MAX_PATH);
-	wcscpy_s(wcsrchr(datpath, '.'), MAX_PATH - wcslen(datpath), L".dat");
-
-	// Open dat file
-	std::ifstream myfile(datpath);
-	if (!myfile)
-	{
-		return;
-	}
-
-	// Read contents of dat file
-	std::string line;
-	while (std::getline(myfile, line))
-	{
-		if (line.size() > 2 && !(line.c_str()[0] == '/' && line.c_str()[1] == '/'))
-		{
-			imagelist.push_back(line);
-		}
-	}
-	myfile.close();
-
-	// Get texture size and scale from reference texture
-	if (!GetTextureRes(L"data\\pic\\out\\p_incar.tex", TextureResX, TextureResY))
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to get texture resolution!";
-		return;
-	}
-	Logging::Log() << "Texture resolution: " << TextureResX << "x" << TextureResY;
-
 	// Get address locations
 	constexpr BYTE MemorySearchBytes[]{ 0xDE, 0xC1, 0xDA, 0x44, 0x24, 0x08, 0x59, 0xC3, 0x90, 0x90, 0x90 };
 	DWORD MemAddress = SearchAndGetAddresses(0x0044A5D5, 0x0044A775, 0x0044A775, MemorySearchBytes, sizeof(MemorySearchBytes), -0x18);
@@ -737,6 +725,9 @@ void PatchFullscreenImages()
 
 	constexpr BYTE VerBoundPosSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x05, 0x7A, 0x6D, 0xD9, 0x05 };
 	void *VerBoundPosAddr1 = (void*)SearchAndGetAddresses(0x004A2A5F, 0x004A2D0F, 0x004A25CF, VerBoundPosSearchBytes, sizeof(VerBoundPosSearchBytes), 0x15);
+
+	constexpr BYTE LoadTextureSearchBytes[]{ 0x8B, 0x8C, 0x24, 0x0C, 0x04, 0x00, 0x00, 0x56, 0x51, 0x8D, 0x54, 0x24, 0x0C, 0x52 };
+	DWORD LoadTextureAddr = SearchAndGetAddresses(0x00449FFF, 0x0044A19F, 0x0044A19F, LoadTextureSearchBytes, sizeof(LoadTextureSearchBytes), 0x00);
 
 	// Checking address pointer
 	if (!MemAddress || !WidthAddr || !VerBoundPosAddr1)
@@ -771,6 +762,8 @@ void PatchFullscreenImages()
 
 	TexNameAddr = (char**)*(DWORD*)(MemAddress - 0x85);
 
+	jmpLoadTexture = (void*)(LoadTextureAddr + 7);
+
 	// Scale Start00 and SaveBG textures
 	Start00Scaling();
 
@@ -789,6 +782,7 @@ void PatchFullscreenImages()
 	WriteCalltoMemory((BYTE*)YPosAddr1, TexYPosASM, 7);
 	WriteCalltoMemory((BYTE*)YPosAddr2, TexYPosASM, 7);
 	WriteCalltoMemory((BYTE*)YPosEDXAddr, TexYPosEDXASM, 7);
+	WriteJMPtoMemory((BYTE*)LoadTextureAddr, LoadTextureASM, 7);
 	void *address = &TextureScaleX;
 	UpdateMemoryAddress(TextureScaleXAddr, &address, sizeof(float));
 	address = &TextureScaleY;

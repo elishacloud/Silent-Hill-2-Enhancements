@@ -258,12 +258,14 @@ constexpr TexSize DefaultTextureList[] = {
 	// Splash/Main Menu/Save Screen Images
 	
 	{ "data/menu/mc/mu_alpha.tbn2", 512, 64, 0, 0, 0 },
-	{ "data/menu/mc/savebg.tbn2", 512, 512, 0, 0, 0 },
-	{ "data/menu/mc/savebg2.tbn2", 512, 512, 0, 0, 0 },
+	{ "data/menu/mc/savebg.tbn2", 512, 512, 1, 0, 0 },
+	{ "data/menu/mc/savebg2.tbn2", 512, 512, 1, 0, 0 },
 	{ "data/pic/etc/konami2048x2048.tex", 2048, 2048, 0, 0, 0 },
 	{ "data/pic/etc/splash_logo.tex", 2048, 2048, 0, 0, 0 },
-	{ "data/pic/etc/start00.tex", 512, 512, 0, 0, 0 },
+	{ "data/pic/etc/start00.tex", 512, 512, 1, 0, 0 },
+	{ "data/pic/etc/start00j.tex", 512, 512, 1, 0, 0 },
 	{ "data/pic/etc/start01.tex", 512, 512, 0, 0, 0 },
+	{ "data/pic/etc/start01j.tex", 512, 512, 0, 0, 0 },
 	
 	// Other Full Screen Images
 	
@@ -271,7 +273,7 @@ constexpr TexSize DefaultTextureList[] = {
 	{ "data/chr/jms/lll_jms.tbn2", 512, 512, 0, 0, 0 },
 	{ "data/etc/effect/footmark.tbn2", 64, 64, 0, 0, 0 },
 	{ "data/etc/effect/lens_flare.tbn2", 128, 128, 0, 0, 0 },
-	{ "data/pic/etc/carsol.tex", 256, 128, 1, 0, 0 },
+	{ "data/pic/etc/carsol.tex", 256, 128, 0, 0, 0 },
 	{ "data/pic/etc/gameover1.tex", 512, 512, 1, 0, 0 },
 	{ "data/pic/etc/p_memo.tex", 512, 512, 1, 0, 0 },
 	
@@ -372,8 +374,6 @@ constexpr TexSize DefaultTextureList[] = {
 	{ "data/pic/etc/sce.tex", 512, 512, 0, 0, 0 },
 	{ "data/pic/etc/sh2dc.tex", 512, 512, 0, 0, 0 },
 	{ "data/pic/etc/splash_logo_us.tex", 2048, 2048, 0, 0, 0 },
-	{ "data/pic/etc/start00j.tex", 512, 512, 0, 0, 0 },
-	{ "data/pic/etc/start01j.tex", 512, 512, 0, 0, 0 },
 	{ "data/pic/etc/itemmenu.tex", 1024, 1024, 1, 0, 0 },
 	{ "data/pic/etc/title.tex", 512, 512, 0, 0, 0 },
 	{ "data/pic/hsp/p_panel02.tex", 128, 256, 0, 0, 1 },

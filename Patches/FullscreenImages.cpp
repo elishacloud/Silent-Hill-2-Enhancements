@@ -111,24 +111,25 @@ void CheckLoadedTexture()
 {
 	if (TexNameAddr && *TexNameAddr)
 	{
-		char *TexName = strcmp(*TexNameAddr, "data/pic/etc/start00.tex") ? *TexNameAddr : "data/pic/etc/carsol.tex";
 		for (auto TexItem : DefaultTextureList)
 		{
-			if (TexItem.IsReference && strcmp(TexItem.Name, TexName) == 0)
+			if (TexItem.IsReference && strcmp(TexItem.Name, *TexNameAddr) == 0)
 			{
+				GetTextureRes(*TexNameAddr, MapTextureResX, MapTextureResY);
+				GetTextureRes(*TexNameAddr, TextureResX, TextureResY);
+				ORG_TextureResX = TexItem.X;
+				ORG_TextureResY = TexItem.Y;
+				SetImageScaling();
 				if (TexItem.IsMap)
 				{
-					GetTextureRes(TexName, MapTextureResX, MapTextureResY);
 					SetMapImageScaling();
-					TextureScaleY = (float)MapTextureResY / (float)TexItem.Y;
-					TextureScaleX = TextureScaleY;
 				}
-				else
+				// Scale for X and Y needs to be the same on some screens
+				if (TexItem.IsMap ||
+					strncmp(*TexNameAddr, "data/menu/mc/savebg", 19) == 0 ||
+					strncmp(*TexNameAddr, "data/pic/etc/start00", 20) == 0)
 				{
-					GetTextureRes(TexName, TextureResX, TextureResY);
-					ORG_TextureResX = TexItem.X;
-					ORG_TextureResY = TexItem.Y;
-					SetImageScaling();
+					TextureScaleX = TextureScaleY;
 				}
 				break;
 			}

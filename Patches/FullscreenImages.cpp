@@ -111,20 +111,21 @@ void CheckLoadedTexture()
 {
 	if (TexNameAddr && *TexNameAddr)
 	{
+		char *TexName = strcmp(*TexNameAddr, "data/pic/etc/start00.tex") ? *TexNameAddr : "data/pic/etc/carsol.tex";
 		for (auto TexItem : DefaultTextureList)
 		{
-			if (TexItem.IsReference && strcmp(TexItem.Name, *TexNameAddr) == 0)
+			if (TexItem.IsReference && strcmp(TexItem.Name, TexName) == 0)
 			{
 				if (TexItem.IsMap)
 				{
-					GetTextureRes(*TexNameAddr, MapTextureResX, MapTextureResY);
+					GetTextureRes(TexName, MapTextureResX, MapTextureResY);
 					SetMapImageScaling();
 					TextureScaleY = (float)MapTextureResY / (float)TexItem.Y;
 					TextureScaleX = TextureScaleY;
 				}
 				else
 				{
-					GetTextureRes(*TexNameAddr, TextureResX, TextureResY);
+					GetTextureRes(TexName, TextureResX, TextureResY);
 					ORG_TextureResX = TexItem.X;
 					ORG_TextureResY = TexItem.Y;
 					SetImageScaling();

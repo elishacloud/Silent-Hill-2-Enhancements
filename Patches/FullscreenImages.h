@@ -262,11 +262,8 @@ constexpr TexSize DefaultTextureList[] = {
 	{ "data/menu/mc/savebg2.tbn2", 512, 512, 0, 0, 0 },
 	{ "data/pic/etc/konami2048x2048.tex", 2048, 2048, 0, 0, 0 },
 	{ "data/pic/etc/splash_logo.tex", 2048, 2048, 0, 0, 0 },
-	{ "data/pic/etc/splash_logo_us.tex", 2048, 2048, 0, 0, 0 },
 	{ "data/pic/etc/start00.tex", 512, 512, 0, 0, 0 },
-	{ "data/pic/etc/start00j.tex", 512, 512, 0, 0, 0 },
 	{ "data/pic/etc/start01.tex", 512, 512, 0, 0, 0 },
-	{ "data/pic/etc/start01j.tex", 512, 512, 0, 0, 0 },
 	
 	// Other Full Screen Images
 	
@@ -374,6 +371,9 @@ constexpr TexSize DefaultTextureList[] = {
 	{ "data/pic/etc/savebg1.tex", 512, 512, 0, 0, 0 },
 	{ "data/pic/etc/sce.tex", 512, 512, 0, 0, 0 },
 	{ "data/pic/etc/sh2dc.tex", 512, 512, 0, 0, 0 },
+	{ "data/pic/etc/splash_logo_us.tex", 2048, 2048, 0, 0, 0 },
+	{ "data/pic/etc/start00j.tex", 512, 512, 0, 0, 0 },
+	{ "data/pic/etc/start01j.tex", 512, 512, 0, 0, 0 },
 	{ "data/pic/etc/itemmenu.tex", 1024, 1024, 1, 0, 0 },
 	{ "data/pic/etc/title.tex", 512, 512, 0, 0, 0 },
 	{ "data/pic/hsp/p_panel02.tex", 128, 256, 0, 0, 1 },

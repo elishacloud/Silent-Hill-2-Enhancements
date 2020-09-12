@@ -26,7 +26,11 @@
 
 BYTE *PtrBytes1 = nullptr;
 BYTE *PtrBytes2 = nullptr;
+BYTE *PtrBytes3 = nullptr;
 DWORD BufferSize = 0;
+DWORD BufferSize3 = 0;
+
+extern char **TexNameAddr;
 
 void *LoadAddress = nullptr;
 void *callBufferAddr = nullptr;
@@ -41,6 +45,10 @@ void ClearMemoryBuffer()
 	else if (LoadAddress == PtrBytes2)
 	{
 		ZeroMemory(PtrBytes2, BufferSize);
+	}
+	else if (LoadAddress == PtrBytes3)
+	{
+		ZeroMemory(PtrBytes3, BufferSize3);
 	}
 }
 
@@ -136,27 +144,36 @@ void PatchTexAddr()
 	constexpr BYTE SearchBytes3[]{ 0x05, 0x00, 0x48, 0x10, 0x00 };
 	const DWORD Addr3 = SearchAndGetAddresses(0x0049B40A, 0x0049B6BA, 0x0049AF7A, SearchBytes3, sizeof(SearchBytes3), 0x00);
 
+	// Find UFO addresses
+	constexpr BYTE UFOSearchBytes[]{ 0x05, 0xFF, 0x07, 0x00, 0x00, 0x25, 0x00, 0xF8, 0xFF, 0xFF, 0x03, 0xC2, 0x50, 0x68 };
+	const DWORD UfoAddr1 = SearchAndGetAddresses(0x0057E84E, 0x0057F0FE, 0x0057EA1E, UFOSearchBytes, sizeof(UFOSearchBytes), -0x28);
+	const DWORD UfoAddr2 = UfoAddr1 + 0x0F;
+	const DWORD UfoAddr3 = SearchAndGetAddresses(0x0058C31E, 0x0058CBCE, 0x0058C4EE, UFOSearchBytes, sizeof(UFOSearchBytes), -0x28);
+	const DWORD UfoAddr4 = UfoAddr3 + 0x0F;
+
 	// Checking address pointer
-	if (!Addr1 || !Addr2 || !Addr3)
+	if (!Addr1 || !Addr2 || !Addr3 || !UfoAddr1 || !UfoAddr3)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
 
 	// Get size of textures
-	BufferSize = GetTexBufferSize();
-	if (!BufferSize)
+	DWORD Size = GetTexBufferSize();
+	if (!Size)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find texture buffer size!";
 		return;
 	}
-	BufferSize += 2 * 1024 * 1024;	// Add 2 MB to buffer
+	BufferSize = Size + max(Size, 2 * 1024 * 1024);
+	BufferSize3 = Size * 4;
 	Logging::Log() << "Setting texture buffer size: " << BufferSize;
 
 	// Allocate dynamic memory for loading textures
 	PtrBytes1 = new BYTE[BufferSize];
 	PtrBytes2 = new BYTE[BufferSize];
-	if (!PtrBytes1 || !PtrBytes2)
+	PtrBytes3 = new BYTE[BufferSize3];
+	if (!PtrBytes1 || !PtrBytes2 || !PtrBytes3)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to create texture buffer!";
 		return;
@@ -165,6 +182,7 @@ void PatchTexAddr()
 	// Clear texture buffers
 	ZeroMemory(PtrBytes1, BufferSize);
 	ZeroMemory(PtrBytes2, BufferSize);
+	ZeroMemory(PtrBytes3, BufferSize3);
 
 	// Logging update
 	Logging::Log() << "Updating Texture memory address locations...";
@@ -182,6 +200,14 @@ void PatchTexAddr()
 	// Write new memory address 3
 	UpdateMemoryAddress((void*)Addr3, "\xB8", sizeof(BYTE));		// Change from 'add' to 'mov'
 	UpdateMemoryAddress((void*)(Addr3 + 1), &PtrBytes2, sizeof(void*));
+
+	// Write addresses for lake UFO sighting
+	UpdateMemoryAddress((void*)UfoAddr1, &PtrBytes3, sizeof(void*));
+	UpdateMemoryAddress((void*)UfoAddr2, &PtrBytes3, sizeof(void*));
+
+	// Write addresses for hospital UFO sighting
+	UpdateMemoryAddress((void*)UfoAddr3, &PtrBytes3, sizeof(void*));
+	UpdateMemoryAddress((void*)UfoAddr4, &PtrBytes3, sizeof(void*));
 
 	// Write jmp to memory
 	WriteJMPtoMemory((BYTE*)ClearBuffAddr, TexBufferASM);

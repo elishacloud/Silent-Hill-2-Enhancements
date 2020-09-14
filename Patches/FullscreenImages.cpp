@@ -520,23 +520,25 @@ void SetFullscreenImagesRes(DWORD Width, DWORD Height)
 	GameResX = Width;
 	GameResY = Height;
 
+	float Ratio = (float)GameResX / (float)GameResY;
+
+	float alg1 = 4.0f / 3.0f;
+	float alg2 = 16.0f / 9.0f;
+	float alg3 = Ratio * 0.75f;
+	float alg4 = 1.25f + (Ratio - 1.25f) * (alg1 - 1.25f) / (alg2 - 1.25f);
+
 	// Set scale ratio
 	switch (FullscreenImages)
 	{
 	case 0: // original [Size = 1.0f]
 		SizeFullscreen = 1.0f;
 		break;
-	case 1: // auto-scaling
-		if (((float)GameResX / (float)GameResY) <= 16.0f / 9.0f)
-		{
-			SizeFullscreen = ((float)GameResX / (float)GameResY) * 0.75f;
-			break;
-		}
-	case 2: // cropped [Size = 1.3333f]
-		SizeFullscreen = 16.0f / 9.0f;
+	case 1: // pillarboxed [no cropping]
+		SizeFullscreen = min(1.25f, alg3);
 		break;
-	case 3: // pillarboxed [Size = 1.25f]
-		SizeFullscreen = 5.0f / 4.0f;
+	default:
+	case 2: // cropped [zoom to fill screen]
+		SizeFullscreen = min(alg2 * 0.75f, alg4);
 		break;
 	}
 

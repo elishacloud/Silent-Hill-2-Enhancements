@@ -97,7 +97,7 @@
 	visit(CustomFontCharHeight, 32) \
 	visit(fog_transparency_layer1, 128) \
 	visit(fog_transparency_layer2, 138) \
-	visit(FullscreenImages, 1) \
+	visit(FullscreenImages, 2) \
 	visit(FMVWidescreenEnhancementPackCompatibility, 2) \
 	visit(LetterSpacing, 2) \
 	visit(NormalFontWidth, 20) \

@@ -28,6 +28,7 @@ constexpr char *GoodHashes[] = {
 	{ "b2d4a1f0cff2542f9f856150cd770a16" },
 	{ "f3f5360298b6d0f6f2e09cf24a0925d1" },
 	{ "c16ed8436fdcfc53a07ab21723994770" },
+	{ "0afa171ea93ee1441682f49969e6f02c" }
 };
 
 // Get number of textures in array

@@ -98,12 +98,22 @@ bool GetTextureRes(char *TexName, DWORD &TextureX, DWORD &TextureY);
 
 BOOL CheckTexture()
 {
-	return (TexNameAddr && *TexNameAddr && std::any_of(std::begin(DefaultTextureList), std::end(DefaultTextureList), [](const TexSize & TexItem) { return TexItem.IsScaled && strcmp(TexItem.Name, *TexNameAddr) == 0; }));
+	static BOOL flag = FALSE;
+	if (TexNameAddr && *TexNameAddr && strcmp(*TexNameAddr, "data/etc/effect/lens_flare.tbn2"))
+	{
+		flag = (std::any_of(std::begin(DefaultTextureList), std::end(DefaultTextureList), [](const TexSize & TexItem) { return TexItem.IsScaled && strcmp(TexItem.Name, *TexNameAddr) == 0; }));
+	}
+	return flag;
 }
 
 BOOL CheckMapTexture()
 {
-	return (TexNameAddr && *TexNameAddr && std::any_of(std::begin(DefaultTextureList), std::end(DefaultTextureList), [](const TexSize & TexItem) { return TexItem.IsMap && strcmp(TexItem.Name, *TexNameAddr) == 0; }));
+	static BOOL flag = FALSE;
+	if (TexNameAddr && *TexNameAddr && strcmp(*TexNameAddr, "data/etc/effect/lens_flare.tbn2"))
+	{
+		flag = (std::any_of(std::begin(DefaultTextureList), std::end(DefaultTextureList), [](const TexSize & TexItem) { return TexItem.IsMap && strcmp(TexItem.Name, *TexNameAddr) == 0; }));
+	}
+	return flag;
 }
 
 // Runs each time a texture is loaded
@@ -115,13 +125,13 @@ void CheckLoadedTexture()
 		{
 			if (TexItem.IsReference && strcmp(TexItem.Name, *TexNameAddr) == 0)
 			{
-				GetTextureRes(*TexNameAddr, MapTextureResX, MapTextureResY);
 				GetTextureRes(*TexNameAddr, TextureResX, TextureResY);
 				ORG_TextureResX = TexItem.X;
 				ORG_TextureResY = TexItem.Y;
 				SetImageScaling();
 				if (TexItem.IsMap)
 				{
+					GetTextureRes(*TexNameAddr, MapTextureResX, MapTextureResY);
 					SetMapImageScaling();
 				}
 				// Scale for X and Y needs to be the same on some screens

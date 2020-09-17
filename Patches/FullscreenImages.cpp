@@ -16,6 +16,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <vector>
 #include <regex>
 #include "Patches.h"
 #include "FullscreenImages.h"
@@ -96,23 +97,53 @@ void SetImageScaling();
 void SetMapImageScaling();
 bool GetTextureRes(char *TexName, DWORD &TextureX, DWORD &TextureY);
 
+struct ImageCache
+{
+	void *Name;
+	BOOL Flag;
+};
+
+std::vector<ImageCache> ScaleList, MapList;
+
 BOOL CheckTexture()
 {
 	static BOOL flag = FALSE;
-	if (TexNameAddr && *TexNameAddr && strcmp(*TexNameAddr, "data/etc/effect/lens_flare.tbn2"))
+	static void *last = nullptr;
+
+	if (!TexNameAddr || !*TexNameAddr  || last == *TexNameAddr ||
+		std::any_of(ScaleList.begin(), ScaleList.end(), [](const ImageCache & TexCache) { if (TexCache.Name == *TexNameAddr) { flag = TexCache.Flag; return true; } return false; })
+		|| strcmp(*TexNameAddr, "data/etc/effect/lens_flare.tbn2") == 0)
 	{
-		flag = (std::any_of(std::begin(DefaultTextureList), std::end(DefaultTextureList), [](const TexSize & TexItem) { return TexItem.IsScaled && strcmp(TexItem.Name, *TexNameAddr) == 0; }));
+		last = (TexNameAddr) ? *TexNameAddr : nullptr;
+		return flag;
 	}
+
+	flag = (std::any_of(std::begin(DefaultTextureList), std::end(DefaultTextureList), [](const TexSize & TexItem) { return TexItem.IsScaled && strcmp(TexItem.Name, *TexNameAddr) == 0; }));
+	
+	ScaleList.push_back({ *TexNameAddr , flag });
+	last = *TexNameAddr;
+
 	return flag;
 }
 
 BOOL CheckMapTexture()
 {
 	static BOOL flag = FALSE;
-	if (TexNameAddr && *TexNameAddr && strcmp(*TexNameAddr, "data/etc/effect/lens_flare.tbn2"))
+	static void *last = nullptr;
+
+	if (!TexNameAddr || !*TexNameAddr || last == *TexNameAddr ||
+		std::any_of(MapList.begin(), MapList.end(), [](const ImageCache & TexCache) { if (TexCache.Name == *TexNameAddr) { flag = TexCache.Flag; return true; } return false; })
+		|| strcmp(*TexNameAddr, "data/etc/effect/lens_flare.tbn2") == 0)
 	{
-		flag = (std::any_of(std::begin(DefaultTextureList), std::end(DefaultTextureList), [](const TexSize & TexItem) { return TexItem.IsMap && strcmp(TexItem.Name, *TexNameAddr) == 0; }));
+		last = (TexNameAddr) ? *TexNameAddr : nullptr;
+		return flag;
 	}
+
+	flag = (std::any_of(std::begin(DefaultTextureList), std::end(DefaultTextureList), [](const TexSize & TexItem) { return TexItem.IsMap && strcmp(TexItem.Name, *TexNameAddr) == 0; }));
+	
+	MapList.push_back({ *TexNameAddr , flag });
+	last = *TexNameAddr;
+
 	return flag;
 }
 

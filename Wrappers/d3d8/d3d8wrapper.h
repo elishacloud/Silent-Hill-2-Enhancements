@@ -18,6 +18,7 @@ class m_IDirect3DVolume8;
 class m_IDirect3DVolumeTexture8;
 
 #include "AddressLookupTable.h"
+#include "Common\Utils.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
 

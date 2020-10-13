@@ -29,6 +29,7 @@ DWORD GetTransitionState();
 BYTE GetFullscreenImageEvent();
 float GetInGameCameraPosY();
 BYTE GetInventoryStatus();
+DWORD GetLoadingScreen();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -50,6 +51,7 @@ DWORD *GetTransitionStatePointer();
 BYTE *GetFullscreenImageEventPointer();
 float *GetInGameCameraPosYPointer();
 BYTE *GetInventoryStatusPointer();
+DWORD *GetLoadingScreenPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -157,6 +159,7 @@ extern DWORD *TransitionStateAddr;		/* 1 = fades the game image to black
 extern BYTE *FullscreenImageEventAddr;
 extern float *InGameCameraPosYAddr;
 extern BYTE *InventoryStatusAddr;
+extern DWORD *LoadingScreenAddr;
 
 // Run code only once
 #define RUNONCE() \

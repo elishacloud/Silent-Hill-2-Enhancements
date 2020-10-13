@@ -38,9 +38,6 @@
     <ClCompile Include="External\d3d8to9\source\d3d8types.cpp">
       <Filter>External\d3d8to9</Filter>
     </ClCompile>
-    <ClCompile Include="External\d3d8to9\source\lookup_table.cpp">
-      <Filter>External\d3d8to9</Filter>
-    </ClCompile>
     <ClCompile Include="External\MemoryModule\MemoryModule.c">
       <Filter>External\MemoryModule</Filter>
     </ClCompile>
@@ -103,9 +100,6 @@
     </ClCompile>
     <ClCompile Include="Patches\DisableRedCrossDuringCutscenes.cpp">
       <Filter>Patches</Filter>
-    </ClCompile>
-    <ClCompile Include="External\Logging\Logging.cpp">
-      <Filter>External\Logging</Filter>
     </ClCompile>
     <ClCompile Include="External\Hooking\Hook.cpp">
       <Filter>External\Hooking</Filter>
@@ -172,9 +166,6 @@
     </ClCompile>
     <ClCompile Include="Patches\BloodSize.cpp">
       <Filter>Patches</Filter>
-    </ClCompile>
-    <ClCompile Include="External\d3d8to9\source\interface_query.cpp">
-      <Filter>External\d3d8to9</Filter>
     </ClCompile>
     <ClCompile Include="Patches\CreatureVehicleSpawn.cpp">
       <Filter>Patches</Filter>
@@ -269,6 +260,21 @@
     <ClCompile Include="Patches\FullscreenImages.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="External\Logging\Logging.cpp">
+      <Filter>External\Logging</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrappers\d3d9\IDirect3D9.cpp">
+      <Filter>Wrappers\d3d9</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrappers\d3d9\IDirect3DDevice9.cpp">
+      <Filter>Wrappers\d3d9</Filter>
+    </ClCompile>
+    <ClCompile Include="External\d3d8to9\source\interface_query.cpp">
+      <Filter>External\d3d8to9</Filter>
+    </ClCompile>
+    <ClCompile Include="External\d3d8to9\source\lookup_table.cpp">
+      <Filter>External\d3d8to9</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">
@@ -296,9 +302,6 @@
       <Filter>External\d3d8to9</Filter>
     </ClInclude>
     <ClInclude Include="External\d3d8to9\source\d3dx9.hpp">
-      <Filter>External\d3d8to9</Filter>
-    </ClInclude>
-    <ClInclude Include="External\d3d8to9\source\lookup_table.hpp">
       <Filter>External\d3d8to9</Filter>
     </ClInclude>
     <ClInclude Include="Resources\sh2-enhce.h">
@@ -351,9 +354,6 @@
     </ClInclude>
     <ClInclude Include="Wrappers\d3d8\d3d8wrapper.h">
       <Filter>Wrappers\d3d8</Filter>
-    </ClInclude>
-    <ClInclude Include="External\Logging\Logging.h">
-      <Filter>External\Logging</Filter>
     </ClInclude>
     <ClInclude Include="External\Hooking\Hook.h">
       <Filter>External\Hooking</Filter>
@@ -424,6 +424,21 @@
     <ClInclude Include="Patches\FullscreenImages.h">
       <Filter>Patches</Filter>
     </ClInclude>
+    <ClInclude Include="Wrappers\d3d9\IDirect3DSwapChain9.h">
+      <Filter>Wrappers\d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Logging\Logging.h">
+      <Filter>External\Logging</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\d3d9\IDirect3D9.h">
+      <Filter>Wrappers\d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\d3d9\IDirect3DDevice9.h">
+      <Filter>Wrappers\d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="External\d3d8to9\source\lookup_table.hpp">
+      <Filter>External\d3d8to9</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\sh2-enhce.rc">
@@ -441,6 +456,9 @@
       <Filter>Wrappers</Filter>
     </None>
     <None Include="Common\Settings.ini">
+      <Filter>Common</Filter>
+    </None>
+    <None Include="Resources\ReShade.ini">
       <Filter>Common</Filter>
     </None>
   </ItemGroup>
@@ -505,5 +523,77 @@
     <Filter Include="Wrappers\dinput8">
       <UniqueIdentifier>{594860f0-d658-47fe-9c60-a2b2a56f0f65}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Wrappers\d3d9">
+      <UniqueIdentifier>{63356f14-45b5-4047-9be1-e7e6e8a3f3e5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="resources">
+      <UniqueIdentifier>{7f3f7a66-aeb1-4c44-abb4-d7eff03a1247}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ReShade">
+      <UniqueIdentifier>{d75dd84b-8feb-4210-b826-7eea08b014b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Logging">
+      <UniqueIdentifier>{e3799186-a587-4f4e-8559-03a9b97b4f04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ReShade\Runtime">
+      <UniqueIdentifier>{ecdb23a8-21dc-4334-b5cf-2ea57d27001d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Wrappers\d3d9\buffer_detection.cpp">
+      <Filter>Wrappers\d3d9</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrappers\d3d9\d3d9wrapper.cpp">
+      <Filter>Wrappers\d3d9</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrappers\d3d9\runtime_d3d9.cpp">
+      <Filter>Wrappers\d3d9</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrappers\d3d9\state_block.cpp">
+      <Filter>Wrappers\d3d9</Filter>
+    </ClCompile>
+    <ClCompile Include="ReShade\Runtime\runtime.cpp">
+      <Filter>ReShade\Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="ReShade\Runtime\runtime_config.cpp">
+      <Filter>ReShade\Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="Wrappers\d3d9\IDirect3DSwapChain9.cpp">
+      <Filter>Wrappers\d3d9</Filter>
+    </ClCompile>
+    <ClCompile Include="Logging\Logging.cpp">
+      <Filter>Logging</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Wrappers\d3d9\buffer_detection.hpp">
+      <Filter>Wrappers\d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\d3d9\com_ptr.hpp">
+      <Filter>Wrappers\d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\d3d9\d3d9wrapper.h">
+      <Filter>Wrappers\d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\d3d9\runtime_d3d9.hpp">
+      <Filter>Wrappers\d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\d3d9\state_block.hpp">
+      <Filter>Wrappers\d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="ReShade\Runtime\runtime.hpp">
+      <Filter>ReShade\Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="ReShade\Runtime\runtime_config.hpp">
+      <Filter>ReShade\Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="ReShade\Runtime\runtime_objects.hpp">
+      <Filter>ReShade\Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="Logging\Logging.h">
+      <Filter>Logging</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

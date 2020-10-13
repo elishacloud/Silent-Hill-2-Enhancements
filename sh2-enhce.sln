@@ -1,9 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sh2-enhce", "sh2-enhce.vcxproj", "{E204DCB3-D122-4F2E-88A8-89AC22CE3274}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D1C2099B-BEC7-4993-8947-01D4A1F7EAE2} = {D1C2099B-BEC7-4993-8947-01D4A1F7EAE2}
+		{723BDEF8-4A39-4961-BDAB-54074012FF47} = {723BDEF8-4A39-4961-BDAB-54074012FF47}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReShade FX", "ReShade\ReShadeFX\ReShadeFX.vcxproj", "{D1C2099B-BEC7-4993-8947-01D4A1F7EAE2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "depots", "depots", "{11B78243-91C3-4357-9FDD-4EAFBF4EE52B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "stb", "ReShade\stb\stb.vcxproj", "{723BDEF8-4A39-4961-BDAB-54074012FF47}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,8 +25,23 @@ Global
 		{E204DCB3-D122-4F2E-88A8-89AC22CE3274}.Debug|Win32.Build.0 = Debug|Win32
 		{E204DCB3-D122-4F2E-88A8-89AC22CE3274}.Release|Win32.ActiveCfg = Release|Win32
 		{E204DCB3-D122-4F2E-88A8-89AC22CE3274}.Release|Win32.Build.0 = Release|Win32
+		{D1C2099B-BEC7-4993-8947-01D4A1F7EAE2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D1C2099B-BEC7-4993-8947-01D4A1F7EAE2}.Debug|Win32.Build.0 = Debug|Win32
+		{D1C2099B-BEC7-4993-8947-01D4A1F7EAE2}.Release|Win32.ActiveCfg = Release|Win32
+		{D1C2099B-BEC7-4993-8947-01D4A1F7EAE2}.Release|Win32.Build.0 = Release|Win32
+		{723BDEF8-4A39-4961-BDAB-54074012FF47}.Debug|Win32.ActiveCfg = Debug|Win32
+		{723BDEF8-4A39-4961-BDAB-54074012FF47}.Debug|Win32.Build.0 = Debug|Win32
+		{723BDEF8-4A39-4961-BDAB-54074012FF47}.Release|Win32.ActiveCfg = Release|Win32
+		{723BDEF8-4A39-4961-BDAB-54074012FF47}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D1C2099B-BEC7-4993-8947-01D4A1F7EAE2} = {11B78243-91C3-4357-9FDD-4EAFBF4EE52B}
+		{723BDEF8-4A39-4961-BDAB-54074012FF47} = {11B78243-91C3-4357-9FDD-4EAFBF4EE52B}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D62E660A-3A0C-4026-8DCB-D3B7959E0951}
 	EndGlobalSection
 EndGlobal

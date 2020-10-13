@@ -39,6 +39,7 @@ HMODULE wrapper_dll = nullptr;
 EXECUTION_STATE esFlags = 0;
 bool ds_threadExit = false;
 bool CustomExeStrSet = false;
+bool EnableCustomShaders = false;
 
 void DelayedStart()
 {
@@ -57,6 +58,9 @@ void DelayedStart()
 		IsLoadConfig = true;
 		Parse(szCfg, ParseCallback);
 		free(szCfg);
+
+		// Set shaders default
+		EnableCustomShaders = ((AdjustColorTemp || RestoreBrightnessSelector || EnableSMAA) && d3d8to9);
 	}
 
 	// Check arguments for PID

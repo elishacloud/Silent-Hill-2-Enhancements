@@ -613,7 +613,7 @@ void m_IDirect3DDevice8::SetGammaRamp(THIS_ DWORD Flags, CONST D3DGAMMARAMP* pRa
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	if (!EnableWndMode || FullscreenWndMode)
+	if (!EnableWndMode || FullscreenWndMode || (RestoreBrightnessSelector && d3d8to9))
 	{
 		ProxyInterface->SetGammaRamp(Flags, pRamp);
 	}

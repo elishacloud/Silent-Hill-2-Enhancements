@@ -15,13 +15,15 @@
 */
 
 #define WIN32_LEAN_AND_MEAN
+#include "d3d9\d3d9wrapper.h"
 #include <Shlwapi.h>
 #include "External\d3d8to9\source\d3d8to9.hpp"
 #include "External\d3d8to9\source\d3dx9.hpp"
-#include "External\Hooking\Hook.h"
-#include "Common\Utils.h"
 #include "wrapper.h"
 #include "d3d8to9.h"
+#include "External\Hooking\Hook.h"
+#include "Common\Utils.h"
+#include "Common\Settings.h"
 #include "Logging\Logging.h"
 #include "BuildNo.rc"
 
@@ -29,11 +31,7 @@
 #define TOSTRING(x) STRINGIFY(x)
 #define APP_VERSION TOSTRING(FILEVERSION)
 
-typedef IDirect3D8 *(WINAPI *Direct3DCreate8Proc)(UINT);
-typedef LPDIRECT3D9(WINAPI *PFN_Direct3DCreate9)(UINT SDKVersion);
-
-extern Direct3DCreate8Proc m_pDirect3DCreate8;
-PFN_Direct3DCreate9 p_Direct3DCreate9 = nullptr;
+Direct3DCreate9Proc p_Direct3DCreate9 = nullptr;
 
 PFN_D3DXAssembleShader D3DXAssembleShader = nullptr;
 PFN_D3DXDisassembleShader D3DXDisassembleShader = nullptr;
@@ -42,23 +40,35 @@ PFN_D3DXLoadSurfaceFromSurface D3DXLoadSurfaceFromSurface = nullptr;
 // Redirects or hooks 'Direct3DCreate8' to go to d3d8to9
 void EnableD3d8to9()
 {
-	HMODULE d3d9_dll = LoadLibrary(L"d3d9.dll");
-	if (!d3d9_dll)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: could not load d3d9.dll!";
-		return;
-	}
-
-	AddHandleToVector(d3d9_dll);
-	p_Direct3DCreate9 = reinterpret_cast<PFN_Direct3DCreate9>(GetProcAddress(d3d9_dll, "Direct3DCreate9"));
 	m_pDirect3DCreate8 = (Direct3DCreate8Proc)*Direct3DCreate8to9;
 	d3d8::Direct3DCreate8_var = (FARPROC)*Direct3DCreate8to9;
+}
+
+// Initializes d3d9 and Direct3DCreate9 for d3d8to9
+void Initd3d8to9()
+{
+	if (!EnableCustomShaders)
+	{
+		Initd3d9();
+		p_Direct3DCreate9 = m_pDirect3DCreate9;
+	}
+	else
+	{
+		p_Direct3DCreate9 = rs_Direct3DCreate9;
+	}
 }
 
 // Handles calls to 'Direct3DCreate8' for d3d8to9
 Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 {
 	UNREFERENCED_PARAMETER(SDKVersion);
+
+	Initd3d8to9();
+	if (!p_Direct3DCreate9)
+	{
+		Logging::Log() << __FUNCTION__ << " Error finding 'Direct3DCreate9'";
+		return nullptr;
+	}
 
 	LOG_ONCE("Starting D3d8to9 v" << APP_VERSION);
 

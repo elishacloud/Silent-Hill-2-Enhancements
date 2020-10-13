@@ -41,6 +41,7 @@ DWORD *TransitionStateAddr = nullptr;
 BYTE *FullscreenImageEventAddr = nullptr;
 float *InGameCameraPosYAddr = nullptr;
 BYTE *InventoryStatusAddr = nullptr;
+DWORD *LoadingScreenAddr = nullptr;
 
 DWORD GetRoomID()
 {
@@ -611,4 +612,33 @@ BYTE *GetInventoryStatusPointer()
 	}
 
 	return InventoryStatusAddr;
+}
+
+DWORD GetLoadingScreen()
+{
+	DWORD *pLoadingScreen = GetLoadingScreenPointer();
+
+	return (pLoadingScreen) ? *pLoadingScreen : 0;
+}
+
+// Get loading screen status
+DWORD *GetLoadingScreenPointer()
+{
+	if (LoadingScreenAddr)
+	{
+		return LoadingScreenAddr;
+	}
+
+	// In-game camera Y
+	constexpr BYTE LoadingScreenSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x41, 0x75, 0x23, 0xE8 };
+	LoadingScreenAddr = (DWORD*)ReadSearchedAddresses(0x00406C13, 0x00406C13, 0x00406C23, LoadingScreenSearchBytes, sizeof(LoadingScreenSearchBytes), 0x14);
+
+	// Checking address pointer
+	if (!LoadingScreenAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	return LoadingScreenAddr;
 }

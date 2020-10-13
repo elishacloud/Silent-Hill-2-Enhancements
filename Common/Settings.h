@@ -3,6 +3,7 @@
 #include <string>
 
 #define VISIT_BOOL_SETTINGS(visit) \
+	visit(AdjustColorTemp, true) \
 	visit(AudioClipDetection, true) \
 	visit(AutoUpdateModule, true) \
 	visit(CatacombsMeatRoomFix, true) \
@@ -20,8 +21,9 @@
 	visit(DisableSafeMode, true) \
 	visit(DisableScreenSaver, true) \
 	visit(DPadMovementFix, true) \
-	visit(EnableSFXAddrHack, true) \
 	visit(EnableTexAddrHack, true) \
+	visit(EnableSFXAddrHack, true) \
+	visit(EnableSMAA, false) \
 	visit(EnableSoftShadows, true) \
 	visit(EnableWndMode, true) \
 	visit(FastTransitions, true) \
@@ -60,6 +62,7 @@
 	visit(LockSpeakerConfig, true) \
 	visit(MainMenuFix, true) \
 	visit(MainMenuTitlePerLang, true) \
+	visit(MaximizedWindowedMode, false) \
 	visit(NoCDPatch, true) \
 	visit(PauseScreenFix, true) \
 	visit(PistonRoomFix, true) \
@@ -69,6 +72,7 @@
 	visit(ReduceCutsceneFOV, true) \
 	visit(RemoveEffectsFlicker, true) \
 	visit(RemoveEnvironmentFlicker, true) \
+	visit(RestoreBrightnessSelector, true) \
 	visit(RestoreSpecialFX, true) \
 	visit(RestoreVibration, true) \
 	visit(Room312ShadowFix, true) \
@@ -151,6 +155,7 @@ typedef void(__stdcall* NV)(char* name, char* value);
 
 extern HMODULE m_hModule;
 extern bool CustomExeStrSet;
+extern bool EnableCustomShaders;
 
 char* Read(wchar_t* szFileName);
 void Parse(char* str, NV NameValueCallback);

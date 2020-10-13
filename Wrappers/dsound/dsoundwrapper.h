@@ -1,12 +1,13 @@
 #pragma once
 
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#include <MMSystem.h>
 #include <dsound.h>
 
 class m_IDirectSound8;
 class m_IDirectSoundBuffer8;
 
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
 #include "AddressLookupTable.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"

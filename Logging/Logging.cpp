@@ -16,8 +16,11 @@
 
 #define INITGUID
 
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include "Logging.h"
+
+typedef unsigned char byte;
 
 std::ostream& operator<<(std::ostream& os, REFIID riid)
 {

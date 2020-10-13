@@ -100,13 +100,17 @@ This project uses code from several other projects. Below is a list of locations
  * [md5 hash](http://www.zedwood.com/article/cpp-md5-function): Includes code for computing md5 hash.
  * [MemoryModule](https://github.com/fancycode/MemoryModule): Includes code for loading libraries from memory.
  * [modupdater](https://github.com/ThirteenAG/modupdater): Includes the full binary file for the modupdater.
- * [Nemesis2000 Fog Fix](http://ps2wide.net/pc.html#sh2): Includes the full binary file for fog fix by Nemesis2000.
+ * [Nemesis2000 Fog Fix](http://ps2wide.net/pc.html#sh2): Includes code created by reviewing the Nemesis2000 fog fix.
+ * [ReShade](https://github.com/crosire/reshade): Includes code from ReShade for supporting custom shaders.
+ * [SPIRV](https://github.com/KhronosGroup/SPIRV-Headers): Includes code from SPIRV.
+ * [stb](https://github.com/nothings/stb): Includes code from stb.
+ * [utfcpp](https://github.com/nemtrif/utfcpp): Includes code from utfcpp.
  * [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader): Includes code for loading ASI plugins and code for loading modules from a module resource.
  * [Widescreen Fix](https://github.com/ThirteenAG/WidescreenFixesPack/releases/tag/sh2): Includes code from the Widescreen Fix by [ThirteenAG](https://github.com/ThirteenAG) and [AeroWidescreen](https://github.com/AeroWidescreen).
 
 ### Development
 This project is written in C++ using Microsoft Visual Studio Community 2017.
 
-The project uses the Windows 10 SDK and WDK. The exact version required can be seen in the project properties in Visual Studio.
+The project uses the Windows 10 SDK, WDK and [DirectX9 SDK](https://www.microsoft.com/en-us/download/details.aspx?id=6812). The exact version required can be seen in the project properties in Visual Studio.
 
 Thanks for stopping by!

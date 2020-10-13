@@ -1206,6 +1206,30 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 
 	LastDrawPrimitiveUPStride += VertexStreamZeroStride;
 
+	// Remove cursor during fade
+	if (EnableCustomShaders && PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 24 &&
+		(GetTransitionState() == 1 || GetTransitionState() == 2 || GetTransitionState() == 3))
+	{
+		CUSTOMVERTEX_TEX1 *pVertex = (CUSTOMVERTEX_TEX1*)pVertexStreamZeroData;
+
+		float Width = pVertex[1].x - pVertex[0].x;
+		float Height = pVertex[2].y - pVertex[1].y;
+
+		float ComputeWidth = truncf(BufferHeight * (4.0f / 3.0f)) * (15.0f / 256.0f);
+		float ComputeHeight = BufferHeight / 16.0f;
+
+		if (pVertex[0].z == 0.010f && pVertex[0].rhw == 1.0f &&
+			pVertex[0].u == 0.0f && pVertex[0].v == 0.0f &&
+			pVertex[1].u == 1.0f && pVertex[1].v == 0.0f &&
+			pVertex[2].u == 0.0f && pVertex[2].v == 1.0f &&
+			pVertex[3].u == 1.0f && pVertex[3].v == 1.0f &&
+			Width > ComputeWidth - 0.1f && Width < ComputeWidth + 0.1f &&
+			Height > ComputeHeight - 0.1f && Height < ComputeHeight + 0.1f)
+		{
+			return D3D_OK;
+		}
+	}
+
 	// Remove red cross in inventory snapshot in Hotel Employee Elevator Room
 	if (DisableRedCrossInCutScenes && HotelEmployeeElevatorRoomFlag && GetOnScreen() == 6 && PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 24 &&
 		((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[0].z == 0.01f && ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[0].rhw == 1.0f)

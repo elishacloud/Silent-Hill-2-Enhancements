@@ -15,6 +15,9 @@ private:
 	bool GammaSet = false;
 	D3DGAMMARAMP Ramp;
 
+	bool IsGetFrontBufferCalled = false;
+	bool IsSnapshotTextureSet = false;
+
 	BYTE HotelEmployeeElevatorRoomFlag = FALSE;
 	bool ReplacedLastRenderTarget = false;
 

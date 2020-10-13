@@ -17,6 +17,7 @@
 #include "d3d8wrapper.h"
 #include "Common\Utils.h"
 
+bool DisableShaderOnPresent = false;
 bool IsInFullscreenImage = false;
 bool IsInBloomEffect = false;
 bool IsInFakeFadeout = false;
@@ -870,6 +871,21 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	else
 	{
 		InPauseMenu = false;
+	}
+
+	// Check if shader needs to be disabled
+	if (EnableCustomShaders && !PauseMenuFlag)
+	{
+		// Get variables
+		static BYTE LastEvent = 0;
+		IsGetFrontBufferCalled = (GetTransitionState() == 1 || GetLoadingScreen() != 0) ? IsGetFrontBufferCalled : false;
+
+		// Set shader disable flag
+		DisableShaderOnPresent = (IsGetFrontBufferCalled || (PauseScreenFix && (GetEventIndex() == 16 || (LastEvent == 16 && IsSnapshotTextureSet))));
+
+		// Reset variables
+		LastEvent = GetEventIndex();
+		IsSnapshotTextureSet = false;
 	}
 
 	HRESULT hr = D3D_OK;
@@ -1791,6 +1807,10 @@ HRESULT m_IDirect3DDevice8::SetTexture(DWORD Stage, IDirect3DBaseTexture8 *pText
 			D3DSURFACE_DESC Desc;
 			if (Stage == 0 && SUCCEEDED(static_cast<m_IDirect3DTexture8 *>(pTexture)->GetLevelDesc(0, &Desc)))
 			{
+				if (pCurrentRenderTexture == pTexture)
+				{
+					IsSnapshotTextureSet = true;
+				}
 				TextureNum = ((Desc.Format & 0x00FFFFFF) == MAKEFOURCC('D', 'X', 'T', 0)) ? (BYTE)(Desc.Format >> 24) - 48 : 0;
 				if (PauseScreenFix && Desc.Usage == D3DUSAGE_RENDERTARGET)
 				{
@@ -2230,6 +2250,8 @@ HRESULT m_IDirect3DDevice8::StretchRect(THIS_ IDirect3DSurface8* pSourceSurface,
 HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface)
 {
 	Logging::LogDebug() << __FUNCTION__;
+
+	IsGetFrontBufferCalled = true;
 
 	// Fix inventory snapshot in Hotel Employee Elevator Room
 	if (PauseScreenFix && GetRoomID() == 0x9D && GetOnScreen() == 0x04)

@@ -272,6 +272,9 @@
     <ClCompile Include="External\d3d8to9\source\interface_query.cpp">
       <Filter>External\d3d8to9</Filter>
     </ClCompile>
+    <ClCompile Include="Common\AutoUpdate.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">
@@ -435,6 +438,9 @@
     </ClInclude>
     <ClInclude Include="External\d3d8to9\source\interface_query.hpp">
       <Filter>External\d3d8to9</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\AutoUpdate.h">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

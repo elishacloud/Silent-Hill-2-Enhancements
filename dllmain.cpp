@@ -26,6 +26,7 @@
 #include "Wrappers\d3d8to9.h"
 #include "Common\LoadModules.h"
 #include "Common\Utils.h"
+#include "Common\AutoUpdate.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
 
@@ -109,6 +110,12 @@ void DelayedStart()
 	if (CheckForAdminAccess)
 	{
 		CheckAdminAccess();
+	}
+
+	// Check for update
+	if (AutoUpdateModule)
+	{
+		CheckForUpdate();
 	}
 
 	// Validate binary version

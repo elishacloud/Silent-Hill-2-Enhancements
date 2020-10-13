@@ -16,6 +16,7 @@
     <ResourceCompile Include="Resources\UALx86.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Common\AutoUpdate.cpp" />
     <ClCompile Include="Common\FileSystemHooks.cpp" />
     <ClCompile Include="Common\LoadModules.cpp" />
     <ClCompile Include="Common\md5.cpp" />
@@ -107,6 +108,7 @@
     <ClCompile Include="Wrappers\wrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Common\AutoUpdate.h" />
     <ClInclude Include="Common\FileSystemHooks.h" />
     <ClInclude Include="Common\LoadModules.h" />
     <ClInclude Include="Common\md5.h" />

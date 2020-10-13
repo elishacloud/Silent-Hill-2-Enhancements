@@ -272,9 +272,6 @@
     <ClCompile Include="External\d3d8to9\source\interface_query.cpp">
       <Filter>External\d3d8to9</Filter>
     </ClCompile>
-    <ClCompile Include="External\d3d8to9\source\lookup_table.cpp">
-      <Filter>External\d3d8to9</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">
@@ -436,7 +433,7 @@
     <ClInclude Include="Wrappers\d3d9\IDirect3DDevice9.h">
       <Filter>Wrappers\d3d9</Filter>
     </ClInclude>
-    <ClInclude Include="External\d3d8to9\source\lookup_table.hpp">
+    <ClInclude Include="External\d3d8to9\source\interface_query.hpp">
       <Filter>External\d3d8to9</Filter>
     </ClInclude>
   </ItemGroup>

@@ -46,8 +46,10 @@ void DelayedStart()
 {
 	// Get config file path
 	wchar_t configpath[MAX_PATH];
-	GetModuleFileName(m_hModule, configpath, MAX_PATH);
-	wcscpy_s(wcsrchr(configpath, '.'), MAX_PATH - wcslen(configpath), L".ini");
+	if (GetModuleFileName(m_hModule, configpath, MAX_PATH) && wcsrchr(configpath, '.'))
+	{
+		wcscpy_s(wcsrchr(configpath, '.'), MAX_PATH - wcslen(configpath), L".ini");
+	}
 
 	// Read config file
 	char* szCfg = Read(configpath);

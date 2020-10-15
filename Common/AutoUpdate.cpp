@@ -17,10 +17,12 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <Shldisp.h>
+#include <shlwapi.h>
 #include <shellapi.h>
 #include <urlmon.h>
 #include <sstream>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <regex>
 #include "Common\LoadModules.h"
@@ -84,7 +86,7 @@ HRESULT URLDownloadToFileHandler(LPUNKNOWN pCaller, LPCWSTR szURL, LPCWSTR szFil
 	static URLDownloadToFileProc pURLDownloadToFile = (URLDownloadToFileProc)GetProcAddress(urlmondll, "URLDownloadToFileW");
 	if (!pURLDownloadToFile)
 	{
-		Logging::Log() << __FUNCTION__ << " Error: Cannnot find 'URLOpenBlockingStreamA' in urlmon.dll!";
+		Logging::Log() << __FUNCTION__ << " Error: Cannnot find 'URLDownloadToFileW' in urlmon.dll!";
 		return E_FAIL;
 	}
 
@@ -143,18 +145,6 @@ HRESULT UnZipFile(BSTR sourceZip, BSTR destFolder)
 			break;
 		}
 
-		VARIANT vDir;
-		VariantInit(&vDir);
-		vDir.vt = VT_BSTR;
-		vDir.bstrVal = destFolder;
-
-		// Destination is our zip file
-		if (FAILED(pISD->NameSpace(vDir, &pToFolder)) || !pToFolder)
-		{
-			Logging::Log() << __FUNCTION__ " Failed to get source NameSpace!";
-			break;
-		}
-
 		VARIANT vFile;
 		VariantInit(&vFile);
 		vFile.vt = VT_BSTR;
@@ -162,7 +152,23 @@ HRESULT UnZipFile(BSTR sourceZip, BSTR destFolder)
 
 		if (FAILED(pISD->NameSpace(vFile, &pFromFolder)))
 		{
-			Logging::Log() << __FUNCTION__ " Failed to get destination NameSpace!";
+			Logging::Log() << __FUNCTION__ " Failed to get source NameSpace! " << sourceZip;
+			break;
+		}
+
+		VARIANT vDir;
+		VariantInit(&vDir);
+		vDir.vt = VT_BSTR;
+		vDir.bstrVal = destFolder;
+		if (!PathFileExists(destFolder))
+		{
+			CreateDirectoryW(destFolder, nullptr);
+		}
+
+		// Destination is our zip file
+		if (FAILED(pISD->NameSpace(vDir, &pToFolder)) || !pToFolder)
+		{
+			Logging::Log() << __FUNCTION__ " Failed to get destination NameSpace! " << destFolder;
 			break;
 		}
 
@@ -189,7 +195,6 @@ HRESULT UnZipFile(BSTR sourceZip, BSTR destFolder)
 			break;
 		}
 
-		Sleep(0);
 		hr = S_OK;
 	}
 	while (false);
@@ -214,36 +219,73 @@ HRESULT UnZipFile(BSTR sourceZip, BSTR destFolder)
 	return hr;
 }
 
-void CheckForUpdate()
+DWORD MatchCount(std::string &path1, std::string &path2)
+{
+	DWORD size = min(path1.size(), path2.size());
+	for (DWORD x = 0; x < size; x++)
+	{
+		if (path1[x] != path2[x])
+		{
+			return x;
+		}
+	}
+	return size;
+}
+
+std::string ReadFile(std::wstring &path)
+{
+	std::wifstream in(path.c_str());
+	if (!in)
+	{
+		Logging::Log() << __FUNCTION__ " Failed to open file: " << path.c_str();
+		return "";
+	}
+	std::wostringstream ss;
+	ss << in.rdbuf();
+	std::wstring str(ss.str());
+	in.close();
+	return std::string(str.begin(), str.end());
+}
+
+HRESULT GetReleaseBuild(std::string &urlDownload)
 {
 	// Get GitHub url for the latest released build
 	std::string data;
 	if (!GetURLString("https://api.github.com/repos/elishacloud/Silent-Hill-2-Enhancements/releases", data))
 	{
-		return;
+		return E_FAIL;
 	}
 
 	// Break string into lines and parce each line
 	data = std::regex_replace(data, std::regex(","), "\n");
-	std::string line, url;
+	std::string line, urlBuildNo;
 	std::istringstream s_data(data.c_str());
 	while (std::getline(s_data, line))
 	{
 		if (line.find("html_url") != std::string::npos)
 		{
-			url = std::regex_replace(line, std::regex("html_url"), "");
-			trim(url);
-			url = std::regex_replace(url, std::regex("github.com"), "raw.githubusercontent.com");
-			url = std::regex_replace(url, std::regex("/releases/tag/"), "/");
-			url.append("/Resources/BuildNo.rc");
+			// Get url from line
+			urlBuildNo = std::regex_replace(line, std::regex("html_url"), "");
+			trim(urlBuildNo);
+			urlDownload.assign(urlBuildNo);
+
+			// Get url for build number
+			urlBuildNo = std::regex_replace(urlBuildNo, std::regex("github.com"), "raw.githubusercontent.com");
+			urlBuildNo = std::regex_replace(urlBuildNo, std::regex("/releases/tag/"), "/");
+			urlBuildNo.append("/Resources/BuildNo.rc");
+
+			// Get download url
+			urlDownload = std::regex_replace(urlDownload, std::regex("/releases/tag/"), "/releases/download/");
+			urlDownload.append("/d3d8.zip");
 			break;
 		}
 	}
 
 	// Get latest release build number from repository
-	if (!GetURLString((char*)url.c_str(), data))
+	if (!GetURLString((char*)urlBuildNo.c_str(), data))
 	{
-		return;
+		Logging::Log() << __FUNCTION__ " Failed to download release build number: " << urlBuildNo;
+		return E_FAIL;
 	}
 
 	// Get build number from data stream
@@ -255,7 +297,7 @@ void CheckForUpdate()
 	if (!ReleaseBuildNo)
 	{
 		Logging::Log() << __FUNCTION__ " Warning: Failed to get release build number!";
-		return;
+		return E_FAIL;
 	}
 	Logging::Log() << __FUNCTION__ " Latest release build found: " << ReleaseBuildNo;
 
@@ -263,74 +305,153 @@ void CheckForUpdate()
 	if (BUILD_NUMBER == ReleaseBuildNo)
 	{
 		Logging::Log() << __FUNCTION__ " Using release build version!";
-		return;
+		return E_FAIL;
 	}
 	else if (BUILD_NUMBER > ReleaseBuildNo)
 	{
 		Logging::Log() << __FUNCTION__ " Using a build newer than the release build!";
+		return E_FAIL;
+	}
+
+	Logging::Log() << __FUNCTION__ " Using an older build!";
+	return S_OK;
+}
+
+void GetSH2Path(std::wstring &path, std::wstring &name)
+{
+	wchar_t t_path[MAX_PATH] = {}, t_name[MAX_PATH] = {};
+	if (GetModuleFileName(m_hModule, t_path, MAX_PATH) && wcsrchr(t_path, '\\'))
+	{
+		wcscpy_s(t_name, MAX_PATH - wcslen(t_path) - 1, wcsrchr(t_path, '\\') + 1);
+		if (wcsrchr(t_path, '.'))
+		{
+			wcscpy_s(wcsrchr(t_name, '.'), MAX_PATH - wcslen(t_name), L"\0");
+		}
+		wcscpy_s(wcsrchr(t_path, '\\'), MAX_PATH - wcslen(t_path), L"\0");
+		path.assign(t_path);
+		name.assign(t_name);
+	}
+}
+
+HRESULT UpdateiniFile(std::wstring &path, std::wstring &name, std::wstring &updatePath)
+{
+	// Read configuration file
+	std::wstring configPath(path + L"\\" + name + L".ini");
+	std::istringstream s_currentini(ReadFile(configPath).c_str());
+
+	// Read new ini file
+	std::wstring iniPath(updatePath + L"\\d3d8.ini");
+	std::istringstream s_ini(ReadFile(iniPath).c_str());
+
+	// Check config files
+	if (s_currentini.str().empty() || s_ini.str().empty())
+	{
+		Logging::Log() << __FUNCTION__ " Failed to read ini file!";
+		return E_FAIL;
+	}
+
+	// Merge current settings with new ini file
+	std::string newini, line, tmpline;
+	while (std::getline(s_ini, line))
+	{
+		trim(line, " \t\n\r");
+		if (line[0] == ';' || line.find("=") == std::string::npos)
+		{
+			newini.append(line + "\n");
+		}
+		else
+		{
+			bool found = false;
+			size_t size = line.find_first_of(" =");
+			s_currentini.clear();
+			s_currentini.seekg(0, std::ios::beg);
+			while (std::getline(s_currentini, tmpline))
+			{
+				trim(tmpline, " \t\n\r");
+				if (MatchCount(line, tmpline) >= size)
+				{
+					found = true;
+					newini.append(tmpline + "\n");
+					break;
+				}
+			}
+			if (!found)
+			{
+				newini.append(line + "\n");
+			}
+		}
+	}
+
+	// Write updated ini file
+	std::ofstream out(configPath);
+	if (!out)
+	{
+		Logging::Log() << __FUNCTION__ " Failed to save ini file!";
+		return E_FAIL;
+	}
+	out << newini;
+	out.close();
+	DeleteFile(iniPath.c_str());
+
+	return S_OK;
+}
+
+void CheckForUpdate()
+{
+	// Check if there is a newer update
+	std::string urlDownload;
+	if (FAILED(GetReleaseBuild(urlDownload)))
+	{
 		return;
 	}
-	Logging::Log() << __FUNCTION__ " Using an older build!";
 
 	// *********************************************************************************
 	// ToDo: prompt user for download
 	// *********************************************************************************
 
-	// Get zip file download url
-	while (std::getline(s_data, line))
+	// Get Silent Hill 2 folder path
+	std::wstring path, name;
+	GetSH2Path(path, name);
+	if (path.empty() || name.empty())
 	{
-		if (line.find("browser_download_url") != std::string::npos)
+		Logging::Log() << __FUNCTION__ " Failed to module path or name!";
+		return;
+	}
+	std::wstring downloadPath(path + L"\\" + name + L".zip");
+	std::wstring updatePath(path + L"\\~update");
+
+	// Update module and accessory files
+	do
+	{
+		// Download the updated release build
+		if (FAILED(URLDownloadToFileHandler(nullptr, std::wstring(urlDownload.begin(), urlDownload.end()).c_str(), downloadPath.c_str(), 0, nullptr)))
 		{
-			url = std::regex_replace(line, std::regex("browser_download_url"), "");
-			trim(url);
+			Logging::Log() << __FUNCTION__ " Failed to download updated build: " << urlDownload;
 			break;
 		}
-	}
 
-	// Get Silent Hill folder path
-	wchar_t path[MAX_PATH] = {}, name[MAX_PATH] = {};
-	GetModuleFileName(m_hModule, path, MAX_PATH);
-	wcscpy_s(name, MAX_PATH - wcslen(path) - 1, wcsrchr(path, '\\') + 1);
-	wcscpy_s(wcsrchr(name, '.'), MAX_PATH - wcslen(name), L"\0");
-	wcscpy_s(wcsrchr(path, '\\'), MAX_PATH - wcslen(path), L"\0");
+		// Unzip downloaded file
+		if ((UnZipFile((BSTR)downloadPath.c_str(), (BSTR)updatePath.c_str())))
+		{
+			Logging::Log() << __FUNCTION__ " Failed to unzip release download!";
+			break;
+		}
 
-	// Download the updated release build
-	std::wstring downloadPath(std::wstring(path) + L"\\" + name + L".zip");
-	if (FAILED(URLDownloadToFileHandler(nullptr, std::wstring(url.begin(), url.end()).c_str(), downloadPath.c_str(), 0, nullptr)))
-	{
-		Logging::Log() << __FUNCTION__ " Failed to download updated build: " << url;
-		return;
-	}
-	Sleep(0);
+		// Update ini configuration file
+		if (FAILED(UpdateiniFile(path, name, updatePath)))
+		{
+			Logging::Log() << __FUNCTION__ " Failed to update ini file!";
+			break;
+		}
 
-	// Get update folder
-	std::wstring updatePath(std::wstring(path) + L"\\~update");
-	DeleteAllfiles(updatePath.c_str());
-	RemoveDirectoryW(updatePath.c_str());
-	CreateDirectoryW(updatePath.c_str(), nullptr);
+		// *********************************************************************************
+		// ToDo: update existing d3d8.dll and d3d8.res files
+		// *********************************************************************************
 
-	// Unzip downloaded
-	if ((UnZipFile((BSTR)downloadPath.c_str(), (BSTR)updatePath.c_str())))
-	{
-		Logging::Log() << __FUNCTION__ " Failed to download updated build: " << url;
-
-		// Remove temp files
-		DeleteAllfiles(updatePath.c_str());
-		RemoveDirectoryW(updatePath.c_str());
-		DeleteFile(downloadPath.c_str());
-
-		// Quit update
-		return;
-	}
-
-	// Delete downloaded zip file
-	DeleteFile(downloadPath.c_str());
-
-	// *********************************************************************************
-	// ToDo: update esiting d3d8.dll, d3d8.ini and d3d8.res files
-	// *********************************************************************************
+	} while (false);
 
 	// Remove temp files
+	DeleteFile(downloadPath.c_str());
 	DeleteAllfiles(updatePath.c_str());
 	RemoveDirectoryW(updatePath.c_str());
 }

@@ -117,7 +117,8 @@ void DelayedStart()
 	// Check for update
 	if (AutoUpdateModule)
 	{
-		CheckForUpdate();
+		DWORD ThreadID = 0;
+		CreateThread(nullptr, 0, CheckForUpdate, nullptr, 0, &ThreadID);
 	}
 
 	// Validate binary version

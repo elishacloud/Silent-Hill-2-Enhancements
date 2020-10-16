@@ -1,3 +1,3 @@
 #pragma once
 
-void CheckForUpdate();
+DWORD WINAPI CheckForUpdate(LPVOID);

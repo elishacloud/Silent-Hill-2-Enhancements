@@ -34,8 +34,10 @@ typedef HRESULT(WINAPI *URLDownloadToFileProc)(LPUNKNOWN pCaller, LPCWSTR szURL,
 
 extern HMODULE m_hModule;
 
+std::wstring DllUpdateStr = L"_update.dll";
+
 namespace {
-	const char removechars[] = " {}:\"\t\n\r";
+	const char removechars[] = " \t\n\r";
 	inline void trim(std::string &str, const char chars[] = removechars)
 	{
 		str.erase(0, str.find_first_not_of(chars));
@@ -247,13 +249,13 @@ std::string ReadFile(std::wstring &path)
 	return std::string(str.begin(), str.end());
 }
 
-HRESULT GetReleaseBuild(std::string &urlDownload)
+bool NewReleaseBuildAvailable(std::string &urlDownload)
 {
 	// Get GitHub url for the latest released build
 	std::string data;
 	if (!GetURLString("https://api.github.com/repos/elishacloud/Silent-Hill-2-Enhancements/releases", data))
 	{
-		return E_FAIL;
+		return false;
 	}
 
 	// Break string into lines and parce each line
@@ -266,7 +268,7 @@ HRESULT GetReleaseBuild(std::string &urlDownload)
 		{
 			// Get url from line
 			urlBuildNo = std::regex_replace(line, std::regex("html_url"), "");
-			trim(urlBuildNo);
+			trim(urlBuildNo, " {}:\"\t\n\r");
 			urlDownload.assign(urlBuildNo);
 
 			// Get url for build number
@@ -285,7 +287,7 @@ HRESULT GetReleaseBuild(std::string &urlDownload)
 	if (!GetURLString((char*)urlBuildNo.c_str(), data))
 	{
 		Logging::Log() << __FUNCTION__ " Failed to download release build number: " << urlBuildNo;
-		return E_FAIL;
+		return false;
 	}
 
 	// Get build number from data stream
@@ -297,24 +299,24 @@ HRESULT GetReleaseBuild(std::string &urlDownload)
 	if (!ReleaseBuildNo)
 	{
 		Logging::Log() << __FUNCTION__ " Warning: Failed to get release build number!";
-		return E_FAIL;
+		return false;
 	}
-	Logging::Log() << __FUNCTION__ " Latest release build found: " << ReleaseBuildNo;
+	Logging::Log() << "Latest release build found: " << ReleaseBuildNo;
 
 	// Check if newer build is available
 	if (BUILD_NUMBER == ReleaseBuildNo)
 	{
-		Logging::Log() << __FUNCTION__ " Using release build version!";
-		return E_FAIL;
+		Logging::Log() << "Using release build version!";
+		return false;
 	}
 	else if (BUILD_NUMBER > ReleaseBuildNo)
 	{
-		Logging::Log() << __FUNCTION__ " Using a build newer than the release build!";
-		return E_FAIL;
+		Logging::Log() << "Using a build newer than the release build!";
+		return false;
 	}
 
 	Logging::Log() << __FUNCTION__ " Using an older build!";
-	return S_OK;
+	return true;
 }
 
 void GetSH2Path(std::wstring &path, std::wstring &name)
@@ -354,7 +356,7 @@ HRESULT UpdateiniFile(std::wstring &path, std::wstring &name, std::wstring &upda
 	std::string newini, line, tmpline;
 	while (std::getline(s_ini, line))
 	{
-		trim(line, " \t\n\r");
+		trim(line);
 		if (line[0] == ';' || line.find("=") == std::string::npos)
 		{
 			newini.append(line + "\n");
@@ -362,13 +364,13 @@ HRESULT UpdateiniFile(std::wstring &path, std::wstring &name, std::wstring &upda
 		else
 		{
 			bool found = false;
-			size_t size = line.find_first_of(" =");
+			DWORD loc = line.find_first_of(" =");
 			s_currentini.clear();
 			s_currentini.seekg(0, std::ios::beg);
 			while (std::getline(s_currentini, tmpline))
 			{
-				trim(tmpline, " \t\n\r");
-				if (MatchCount(line, tmpline) >= size)
+				trim(tmpline);
+				if (MatchCount(line, tmpline) >= loc)
 				{
 					found = true;
 					newini.append(tmpline + "\n");
@@ -396,13 +398,64 @@ HRESULT UpdateiniFile(std::wstring &path, std::wstring &name, std::wstring &upda
 	return S_OK;
 }
 
-void CheckForUpdate()
+HRESULT UpdatedllFile(std::wstring &path, std::wstring &name, std::wstring &updatePath)
+{
+	// Read configuration file
+	std::wstring newdllPath(updatePath + L"\\d3d8.dll");
+	std::wstring dllUpdatePath(path + L"\\" + name + DllUpdateStr);
+
+	// Move updated dll
+	if (!CopyFile(newdllPath.c_str(), dllUpdatePath.c_str(), FALSE))
+	{
+		return E_FAIL;
+	}
+	DeleteFile(newdllPath.c_str());
+	return S_OK;
+}
+
+HRESULT UpdateAllFiles(std::wstring &path, std::wstring &updatePath)
+{
+	// Find the first file in the directory.
+	WIN32_FIND_DATA ffd;
+	HANDLE hFind = FindFirstFile(std::wstring(updatePath + L"\\*").c_str(), &ffd);
+	if (hFind == INVALID_HANDLE_VALUE)
+	{
+		return E_FAIL;
+	}
+
+	HRESULT hr = S_OK;
+
+	// Copy all the files in update directory
+	do
+	{
+		if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+		{
+			if (!CopyFile(std::wstring(updatePath + L"\\" + ffd.cFileName).c_str(), std::wstring(path + L"\\" + ffd.cFileName).c_str(), FALSE))
+			{
+				hr = E_FAIL;
+			}
+		}
+	} while (FindNextFile(hFind, &ffd) != 0);
+
+	DWORD err = GetLastError();
+	if (err != ERROR_NO_MORE_FILES)
+	{
+		Logging::Log() << "Error updating accessory files!";
+		hr = err;
+	}
+
+	FindClose(hFind);
+
+	return hr;
+}
+
+DWORD WINAPI CheckForUpdate(LPVOID)
 {
 	// Check if there is a newer update
 	std::string urlDownload;
-	if (FAILED(GetReleaseBuild(urlDownload)))
+	if (!NewReleaseBuildAvailable(urlDownload))
 	{
-		return;
+		//return 0;
 	}
 
 	// *********************************************************************************
@@ -414,8 +467,8 @@ void CheckForUpdate()
 	GetSH2Path(path, name);
 	if (path.empty() || name.empty())
 	{
-		Logging::Log() << __FUNCTION__ " Failed to module path or name!";
-		return;
+		Logging::Log() << __FUNCTION__ " Failed to get module path or name!";
+		return 0;
 	}
 	std::wstring downloadPath(path + L"\\" + name + L".zip");
 	std::wstring updatePath(path + L"\\~update");
@@ -431,7 +484,7 @@ void CheckForUpdate()
 		}
 
 		// Unzip downloaded file
-		if ((UnZipFile((BSTR)downloadPath.c_str(), (BSTR)updatePath.c_str())))
+		if (FAILED(UnZipFile((BSTR)downloadPath.c_str(), (BSTR)updatePath.c_str())))
 		{
 			Logging::Log() << __FUNCTION__ " Failed to unzip release download!";
 			break;
@@ -444,9 +497,19 @@ void CheckForUpdate()
 			break;
 		}
 
-		// *********************************************************************************
-		// ToDo: update existing d3d8.dll and d3d8.res files
-		// *********************************************************************************
+		// Update dll file
+		if (FAILED(UpdatedllFile(path, name, updatePath)))
+		{
+			Logging::Log() << __FUNCTION__ " Failed to update dll file!";
+			break;
+		}
+
+		// Update accessory files
+		if (FAILED(UpdateAllFiles(path, updatePath)))
+		{
+			Logging::Log() << __FUNCTION__ " Failed to update accessory files!";
+			break;
+		}
 
 	} while (false);
 
@@ -454,4 +517,6 @@ void CheckForUpdate()
 	DeleteFile(downloadPath.c_str());
 	DeleteAllfiles(updatePath.c_str());
 	RemoveDirectoryW(updatePath.c_str());
+
+	return 0;
 }

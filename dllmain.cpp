@@ -41,6 +41,7 @@ EXECUTION_STATE esFlags = 0;
 bool ds_threadExit = false;
 bool CustomExeStrSet = false;
 bool EnableCustomShaders = false;
+bool m_StopThreadFlag = false;			// Used for thread functions
 
 void DelayedStart()
 {
@@ -112,13 +113,6 @@ void DelayedStart()
 	if (CheckForAdminAccess)
 	{
 		CheckAdminAccess();
-	}
-
-	// Check for update
-	if (AutoUpdateModule)
-	{
-		DWORD ThreadID = 0;
-		CreateThread(nullptr, 0, CheckForUpdate, nullptr, 0, &ThreadID);
 	}
 
 	// Validate binary version
@@ -423,17 +417,11 @@ void DelayedStart()
 		PatchFullscreenImages();
 	}
 
-	// Load modupdater
+	// Check for update
 	if (AutoUpdateModule)
 	{
-		if (LoadModulesFromMemory)
-		{
-			LoadModuleFromResource(m_hModule, IDR_SH2UPD, L"modupdater");
-		}
-		else
-		{
-			LoadModuleFromFile(m_hModule, IDR_SH2UPD, nullptr, configpath, L"modupdater", false);
-		}
+		DWORD ThreadID = 0;
+		CreateThread(nullptr, 0, CheckForUpdate, nullptr, 0, &ThreadID);
 	}
 
 	// Load ASI pluggins
@@ -501,22 +489,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		// Unload standard modules
 		UnloadAllModules();
 
-		// Unload memory modules
-		UnloadResourceModules();
-
 		// Unload wrapped dll file
 		if (wrapper_dll)
 		{
 			FreeModule(wrapper_dll);
 		}
 #endif // DEBUG
-
-		// Delete temp directories
-		if (!LoadModulesFromMemory)
-		{
-			Logging::Log() << "Removing temp folders";
-			RemoveTempFolders();
-		}
 
 		// Reenabling screensaver
 		if (esFlags)

@@ -3,8 +3,7 @@
 #include "BuildNo.rc"
 
 // Included resource files
-#define IDR_SH2UPD                      101
-#define IDR_RESHADE_INI                 102
+#define IDR_RESHADE_INI                 101
 
 #define IDR_SMAA_FX                     201
 #define IDR_COLORGRAD_FX                202

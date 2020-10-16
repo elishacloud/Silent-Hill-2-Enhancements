@@ -33,6 +33,7 @@ typedef HRESULT(WINAPI *URLOpenBlockingStreamProc)(LPUNKNOWN pCaller, LPCSTR szU
 typedef HRESULT(WINAPI *URLDownloadToFileProc)(LPUNKNOWN pCaller, LPCWSTR szURL, LPCWSTR szFileName, _Reserved_ DWORD dwReserved, LPBINDSTATUSCALLBACK lpfnCB);
 
 extern HMODULE m_hModule;
+extern bool m_StopThreadFlag;
 
 std::wstring DllUpdateStr = L"_update.dll";
 std::wstring DllTempStr = L"_tmp.dll";
@@ -455,7 +456,7 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 	// Get Silent Hill 2 folder paths
 	std::wstring path, name;
 	GetSH2Path(path, name);
-	if (path.empty() || name.empty())
+	if (m_StopThreadFlag || path.empty() || name.empty())
 	{
 		Logging::Log() << __FUNCTION__ " Failed to get module path or name!";
 		return S_OK;
@@ -471,7 +472,7 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 
 	// Check if there is a newer update
 	std::string urlDownload;
-	if (!NewReleaseBuildAvailable(urlDownload))
+	if (m_StopThreadFlag || !NewReleaseBuildAvailable(urlDownload))
 	{
 		return S_OK;
 	}
@@ -486,7 +487,7 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 	do
 	{
 		// Download the updated release build
-		if (FAILED(URLDownloadToFileHandler(nullptr, std::wstring(urlDownload.begin(), urlDownload.end()).c_str(), downloadPath.c_str(), 0, nullptr)))
+		if (m_StopThreadFlag || FAILED(URLDownloadToFileHandler(nullptr, std::wstring(urlDownload.begin(), urlDownload.end()).c_str(), downloadPath.c_str(), 0, nullptr)))
 		{
 			Logging::Log() << __FUNCTION__ " Failed to download updated build: " << urlDownload;
 			hr = E_FAIL;
@@ -494,7 +495,7 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 		}
 
 		// Unzip downloaded file
-		if (FAILED(UnZipFile((BSTR)downloadPath.c_str(), (BSTR)updatePath.c_str())))
+		if (m_StopThreadFlag || FAILED(UnZipFile((BSTR)downloadPath.c_str(), (BSTR)updatePath.c_str())))
 		{
 			Logging::Log() << __FUNCTION__ " Failed to unzip release download!";
 			hr = E_FAIL;
@@ -502,7 +503,7 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 		}
 
 		// Update ini configuration file
-		if (FAILED(UpdateiniFile(path, name, updatePath)))
+		if (m_StopThreadFlag || FAILED(UpdateiniFile(path, name, updatePath)))
 		{
 			Logging::Log() << __FUNCTION__ " Failed to update ini file!";
 			hr = E_FAIL;
@@ -510,7 +511,7 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 		}
 
 		// Update dll file
-		if (FAILED(UpdatedllFile(path, name, updatePath)))
+		if (m_StopThreadFlag || FAILED(UpdatedllFile(path, name, updatePath)))
 		{
 			Logging::Log() << __FUNCTION__ " Failed to update dll file!";
 			hr = E_FAIL;
@@ -518,46 +519,57 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 		}
 
 		// Update accessory files
-		if (FAILED(UpdateAllFiles(path, updatePath)))
+		if (m_StopThreadFlag || FAILED(UpdateAllFiles(path, updatePath)))
 		{
 			Logging::Log() << __FUNCTION__ " Failed to update accessory files!";
 			hr = E_FAIL;
 			break;
 		}
 
+		// Update current dll
+		if (!m_StopThreadFlag)
+		{
+			// Move current dll to temp
+			if (!MoveFile(currentDll.c_str(), tempDll.c_str()))
+			{
+				Logging::Log() << __FUNCTION__ " Error: Failed to rename current dll!";
+				hr = E_FAIL;
+				break;
+			}
+
+			// Move updated dll to primary
+			if (!MoveFile(updatedDll.c_str(), currentDll.c_str()))
+			{
+				// If failed then restore current dll
+				Logging::Log() << __FUNCTION__ " Error: Failed to rename updated dll!";
+				if (!MoveFile(tempDll.c_str(), currentDll.c_str()))
+				{
+					Logging::Log() << __FUNCTION__ " Error: Failed to restore current dll!";
+				}
+				hr = E_FAIL;
+				break;
+			}
+		}
 	} while (false);
 
 	// Remove temp files
 	DeleteFile(downloadPath.c_str());
 	DeleteAllfiles(updatePath.c_str());
 	RemoveDirectoryW(updatePath.c_str());
+	DeleteFile(updatedDll.c_str());
 
-	// If failed delete updated dll
-	if (FAILED(hr))
+	// Prompt for results
+	if (!m_StopThreadFlag)
 	{
-		DeleteFile(updatedDll.c_str());
-		return hr;
-	}
-
-	// Move current dll to temp
-	if (!MoveFile(currentDll.c_str(), tempDll.c_str()))
-	{
-		Logging::Log() << __FUNCTION__ " Error: Failed to rename current dll!";
-		return (DWORD)E_FAIL;
-	}
-
-	// Move updated dll to primary
-	if (!MoveFile(updatedDll.c_str(), currentDll.c_str()))
-	{
-		// If failed then restore current dll
-		Logging::Log() << __FUNCTION__ " Error: Failed to rename updated dll!";
-		if (!MoveFile(tempDll.c_str(), currentDll.c_str()))
+		if (SUCCEEDED(hr))
 		{
-			Logging::Log() << __FUNCTION__ " Error: Failed to restore current dll!";
+			Logging::Log() << __FUNCTION__ " Successfully updated module!";
 		}
-		return (DWORD)E_FAIL;
+
+		// *********************************************************************************
+		// ToDo: prompt user with success or failure message
+		// *********************************************************************************
 	}
 
-	Logging::Log() << __FUNCTION__ " Successfully updated module!";
 	return hr;
 }

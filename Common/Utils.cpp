@@ -62,7 +62,7 @@ typedef HRESULT(WINAPI *SetProcessDpiAwarenessProc)(PROCESS_DPI_AWARENESS value)
 typedef BOOL(WINAPI *SetProcessDPIAwareProc)();
 typedef BOOL(WINAPI *SetProcessDpiAwarenessContextProc)(DPI_AWARENESS_CONTEXT value);
 
-bool m_StopThreadFlag = false;			// Used for SetSingleCoreAffinity function
+extern bool m_StopThreadFlag;
 std::vector<HMODULE> custom_dll;		// Used for custom dll's and asi plugins
 
 // Search memory for byte array

@@ -37,7 +37,6 @@
     <ClCompile Include="External\Hooking\HotPatch.cpp" />
     <ClCompile Include="External\Hooking\IATPatch.cpp" />
     <ClCompile Include="External\Logging\Logging.cpp" />
-    <ClCompile Include="External\MemoryModule\MemoryModule.c" />
     <ClCompile Include="External\WidescreenFixesPack\source\SilentHill2.WidescreenFix\dllmain.cpp" />
     <ClCompile Include="Logging\Logging.cpp" />
     <ClCompile Include="Patches\2TBHardDriveFix.cpp" />
@@ -121,7 +120,6 @@
     <ClInclude Include="External\Hooking.Patterns\Hooking.Patterns.h" />
     <ClInclude Include="External\Hooking\Hook.h" />
     <ClInclude Include="External\Logging\Logging.h" />
-    <ClInclude Include="External\MemoryModule\MemoryModule.h" />
     <ClInclude Include="Include\GTA\CFileMgr.h" />
     <ClInclude Include="Include\GTA\WSF.h" />
     <ClInclude Include="Include\stdafx.h" />

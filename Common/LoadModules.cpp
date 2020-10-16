@@ -33,13 +33,6 @@ LPCWSTR exTempPath = L"~tmp_sh2_enhce";
 
 typedef void(WINAPI *PFN_InitializeASI)(void);
 
-// Memory modules
-struct MMODULE
-{
-	HMEMORYMODULE handle;		// Module handle
-	DWORD ResID;				// Resource ID
-};
-std::vector<MMODULE> HMModules;
 
 // Find asi plugins to load
 void FindFiles(WIN32_FIND_DATA* fd)
@@ -121,90 +114,6 @@ void LoadASIPlugins(bool LoadFromScriptsOnlyFlag)
 	SetCurrentDirectory(oldDir); // Reset the current directory
 }
 
-// Load memory module from resource
-HMEMORYMODULE LoadModuleFromResource(HMODULE hModule, DWORD ResID, LPCWSTR lpName)
-{
-	HRSRC hResource = FindResource(hModule, MAKEINTRESOURCE(ResID), RT_RCDATA);
-	if (hResource)
-	{
-		HGLOBAL hLoadedResource = LoadResource(hModule, hResource);
-		if (hLoadedResource)
-		{
-			LPVOID pLockedResource = LockResource(hLoadedResource);
-			if (pLockedResource)
-			{
-				DWORD dwResourceSize = SizeofResource(hModule, hResource);
-				if (dwResourceSize != 0)
-				{
-					Logging::Log() << "Loading the " << lpName << " module...";
-					HMEMORYMODULE hMModule = MemoryLoadLibrary((const void*)pLockedResource, dwResourceSize);
-					if (hMModule)
-					{
-						MMODULE MMItem = { hMModule , ResID };
-						HMModules.push_back(MMItem);
-						InitializeASI(hMModule);
-						return (HMODULE)hMModule;
-					}
-					else
-					{
-						Logging::Log() << __FUNCTION__ << " Error: " << lpName << " module could not be loaded!";
-					}
-				}
-			}
-		}
-	}
-	Logging::Log() << __FUNCTION__ << " Error: failed to load " << lpName << " module!";
-
-	return nullptr;
-}
-
-// Load memory module from resource
-HMODULE LoadModuleFromResourceToFile(HMODULE hModule, DWORD ResID, LPCWSTR lpName, LPCWSTR lpFilepath)
-{
-	HRSRC hResource = FindResource(hModule, MAKEINTRESOURCE(ResID), RT_RCDATA);
-	if (hResource)
-	{
-		HGLOBAL hLoadedResource = LoadResource(hModule, hResource);
-		if (hLoadedResource)
-		{
-			LPVOID pLockedResource = LockResource(hLoadedResource);
-			if (pLockedResource)
-			{
-				DWORD dwResourceSize = SizeofResource(hModule, hResource);
-				if (dwResourceSize != 0)
-				{
-					Logging::Log() << "Loading the " << lpName << " module...";
-					std::fstream fsModule;
-					fsModule.open(lpFilepath, std::ios_base::out | std::ios_base::binary);
-					if (fsModule.is_open())
-					{
-						fsModule.write((char*)pLockedResource, dwResourceSize);
-						fsModule.close();
-						SetFileAttributes(lpFilepath, FILE_ATTRIBUTE_TEMPORARY);
-						HMODULE h_Module = LoadLibrary(lpFilepath);
-						if (h_Module)
-						{
-							AddHandleToVector(h_Module);
-							return h_Module;
-						}
-						else
-						{
-							Logging::Log() << __FUNCTION__ << " Error: " << lpName << " module could not be loaded!";
-						}
-					}
-					else
-					{
-						Logging::Log() << __FUNCTION__ << " Error: " << lpName << " module could not be written!";
-					}
-				}
-			}
-		}
-	}
-	Logging::Log() << __FUNCTION__ << " Error: failed to load " << lpName << " module!";
-
-	return nullptr;
-}
-
 // Initialize ASI module
 void InitializeASI(HMODULE hModule)
 {
@@ -214,24 +123,6 @@ void InitializeASI(HMODULE hModule)
 	}
 
 	PFN_InitializeASI p_InitializeASI = (PFN_InitializeASI)GetProcAddress(hModule, "InitializeASI");
-
-	if (!p_InitializeASI)
-	{
-		return;
-	}
-
-	p_InitializeASI();
-}
-
-// Initialize ASI module
-void InitializeASI(HMEMORYMODULE hModule)
-{
-	if (!hModule)
-	{
-		return;
-	}
-
-	PFN_InitializeASI p_InitializeASI = (PFN_InitializeASI)MemoryGetProcAddress(hModule, "InitializeASI");
 
 	if (!p_InitializeASI)
 	{
@@ -264,100 +155,4 @@ HRESULT DeleteAllfiles(LPCWSTR lpFolder)
 	}
 
 	return S_OK;
-}
-
-// Load mod from file
-HMODULE LoadModuleFromFile(HMODULE hModule, DWORD ResID, LPCWSTR lpConfigName, LPCWSTR lpConfigPath, LPCWSTR lpName, bool CopyDatFile)
-{
-	// Get module name
-	wchar_t Name[MAX_PATH], Path[MAX_PATH], Config[MAX_PATH];
-	GetModuleFileName(hModule, Path, MAX_PATH);
-	wcscpy_s(Name, MAX_PATH, wcsrchr(Path, '\\'));
-
-	// Get 'temp' path
-	if (!GetTempPath(MAX_PATH, Path))
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to get temp path!";
-		return nullptr;
-	}
-	wcscat_s(Path, MAX_PATH, exTempPath);
-
-	// Use unique folder path
-	wcscat_s(Path, MAX_PATH, std::to_wstring(++n).c_str());
-
-	// Remove all files from directory
-	DeleteAllfiles(Path);
-
-	// Create folder if does not exist
-	CreateDirectory(Path, nullptr);
-	if (!PathFileExists(Path))
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to create temp folder!";
-		return nullptr;
-	}
-
-	// Copy config file to temp folder
-	wcscpy_s(Config, MAX_PATH, Path);
-	if (lpConfigName)
-	{
-		wcscat_s(Config, MAX_PATH, L"\\");
-		wcscat_s(Config, MAX_PATH, lpConfigName);
-	}
-	else
-	{
-		wcscat_s(Config, MAX_PATH, Name);
-		wcscpy_s(wcsrchr(Config, '.'), MAX_PATH - wcslen(Config), L".ini");
-	}
-	CopyFile(lpConfigPath, Config, FALSE);
-
-	// Copy dat file to temp folder
-	if (CopyDatFile)
-	{
-		wchar_t DatFile[MAX_PATH];
-		wcscpy_s(DatFile, MAX_PATH, lpConfigPath);
-		wcscpy_s(wcsrchr(DatFile, '.'), MAX_PATH - wcslen(DatFile), L".dat");
-		wcscpy_s(wcsrchr(Config, '.'), MAX_PATH - wcslen(Config), L".dat");
-		CopyFile(DatFile, Config, FALSE);
-	}
-
-	// Update path with module name
-	wcscat_s(Path, MAX_PATH, Name);
-	wcscpy_s(wcsrchr(Path, '.'), MAX_PATH - wcslen(Path), L".asi");
-
-	// Load module
-	return LoadModuleFromResourceToFile(hModule, ResID, lpName, Path);
-}
-
-// Delete temp folders
-void RemoveTempFolders()
-{
-	// Get 'temp' path
-	wchar_t Path[MAX_PATH], TempPath[MAX_PATH];
-	if (!GetTempPath(MAX_PATH, TempPath))
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to get temp path!";
-		return;
-	}
-	wcscat_s(TempPath, MAX_PATH, exTempPath);
-
-	// Delete folder path
-	for (int x = 0; x <= n; x++)
-	{
-		wcscpy_s(Path, MAX_PATH, TempPath);
-		if (x)
-		{
-			wcscat_s(Path, MAX_PATH, std::to_wstring(x).c_str());
-		}
-		DeleteAllfiles(Path);
-		RemoveDirectory(Path);
-	}
-}
-
-// Unload resource memory modules
-void UnloadResourceModules()
-{
-	for (MMODULE it : HMModules)
-	{
-		MemoryFreeLibrary(it.handle);
-	}
 }

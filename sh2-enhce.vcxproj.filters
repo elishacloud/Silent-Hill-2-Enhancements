@@ -38,9 +38,6 @@
     <ClCompile Include="External\d3d8to9\source\d3d8types.cpp">
       <Filter>External\d3d8to9</Filter>
     </ClCompile>
-    <ClCompile Include="External\MemoryModule\MemoryModule.c">
-      <Filter>External\MemoryModule</Filter>
-    </ClCompile>
     <ClCompile Include="Patches\PS2NoiseFilter.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
@@ -307,9 +304,6 @@
     <ClInclude Include="Resources\sh2-enhce.h">
       <Filter>Resources</Filter>
     </ClInclude>
-    <ClInclude Include="External\MemoryModule\MemoryModule.h">
-      <Filter>External\MemoryModule</Filter>
-    </ClInclude>
     <ClInclude Include="Patches\SfxPatch.h">
       <Filter>Patches</Filter>
     </ClInclude>
@@ -480,9 +474,6 @@
     </Filter>
     <Filter Include="Resources">
       <UniqueIdentifier>{9530d5d6-2e97-44ac-bf25-78f74779f6d0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External\MemoryModule">
-      <UniqueIdentifier>{25ae67b5-cfe4-4166-9701-53e48a1cb574}</UniqueIdentifier>
     </Filter>
     <Filter Include="Patches">
       <UniqueIdentifier>{7d0dc3ce-9a23-4da8-bfa7-b04883141415}</UniqueIdentifier>

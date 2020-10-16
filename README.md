@@ -7,6 +7,7 @@ Below is a list of features:
 
  * **Anisotropic Filtering** - Enable or disable anisotropic filtering.
  * [**Audio Script Builder**](AudioScripts) - Allows you to create or update the SH2 audio files.
+ * **AutoUpdater** - Automatically updates the module when new versions comes out.
  * **ASI Loader** - Loads custom libraries with the file extension .asi into the game using [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader).
  * **Black Pillar Box Fix** - Forces all dynamically made letterboxing and pillarboxing to be black in color.
  * **Borderless Windowed Mode** - Enable or disable windows border. Requires Windowed Mode to be enabled (WndMode = 1).
@@ -41,7 +42,6 @@ Below is a list of features:
  * **Lighting Transition Fix** - Makes lighting transition smooth from one light source to another for a few particular areas.
  * **Joystick Camera Movement** - Sets right joystick mode for search camera movement on controllers.
  * **Missing Wall Chunks Fix** - Fixes an issue on Nvidia graphics cards where wall chunks are missing in some locations.
- * [**modupdater**](https://github.com/ThirteenAG/modupdater) - Automatically updates the module when new versions comes out.
  * **Multi-Language Support** - Restores the language selection in the Options menu.
  * **NoCD Patch** - Disables the CD check. _Note: not yet supported in all game versions._
  * **Piston Room Fix** - Hides a piston behind a door that should not be seen during a cutscene.
@@ -98,8 +98,6 @@ This project uses code from several other projects. Below is a list of locations
  * [GetComputerManufacturer](http://www.rohitab.com/discuss/topic/35915-win32-api-to-get-system-information/): Includes code from rohitab.com to get the computer vendor and model.
  * [GetFileVersionInfo](https://stackoverflow.com/a/940743): Includes code from stackoverflow.com for getting the version of a PE file.
  * [md5 hash](http://www.zedwood.com/article/cpp-md5-function): Includes code for computing md5 hash.
- * [MemoryModule](https://github.com/fancycode/MemoryModule): Includes code for loading libraries from memory.
- * [modupdater](https://github.com/ThirteenAG/modupdater): Includes the full binary file for the modupdater.
  * [Nemesis2000 Fog Fix](http://ps2wide.net/pc.html#sh2): Includes code created by reviewing the Nemesis2000 fog fix.
  * [ReShade](https://github.com/crosire/reshade): Includes code from ReShade for supporting custom shaders.
  * [SPIRV](https://github.com/KhronosGroup/SPIRV-Headers): Includes code from SPIRV.

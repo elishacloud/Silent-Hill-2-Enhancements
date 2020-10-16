@@ -333,13 +333,13 @@ void RunInfiniteRumbleFix()
 	}
 
 	// Get pause menu address
-	static BYTE *PauseAddress = GetPauseMenuPointer();
+	static BYTE *EventIndex = GetEventIndexPointer();
 
 	// Get transition state address
-	static DWORD *ScreenEvent = GetTransitionStatePointer();
+	static DWORD *TransitionState = GetTransitionStatePointer();
 
 	// Checking address pointer
-	if (!PauseAddress || !ScreenEvent)
+	if (!EventIndex || !TransitionState)
 	{
 		RUNONCE();
 
@@ -361,14 +361,14 @@ void RunInfiniteRumbleFix()
 
 	// Disable rumble
 	static bool ValueSet = false;
-	if (*PauseAddress == 0x01 || GetRoomID() == 0x00 || *ScreenEvent == 0x01 || *ScreenEvent == 0x02 || *ScreenEvent == 0x03 || LostWindowFocus)
+	if (*EventIndex != 0x04 || GetRoomID() == 0x00 || *TransitionState == 0x01 || *TransitionState == 0x02 || *TransitionState == 0x03 || LostWindowFocus)
 	{
 		if (!ValueSet)
 		{
 			BYTE Value = 0x00;
 			UpdateMemoryAddress((void*)RumbleAddress, &Value, sizeof(BYTE));
 			ValueSet = true;
-			if (*ScreenEvent == 0x01 || *ScreenEvent == 0x02 || *ScreenEvent == 0x03 || LostWindowFocus)
+			if (*TransitionState == 0x01 || *TransitionState == 0x02 || *TransitionState == 0x03 || LostWindowFocus)
 			{
 				StubXInputEffect.Stop();
 			}

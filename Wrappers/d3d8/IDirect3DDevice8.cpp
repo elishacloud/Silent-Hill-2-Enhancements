@@ -854,7 +854,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 
 	// Fix pause menu
 	bool PauseMenuFlag = false;
-	if (GetPauseMenu())
+	if (GetEventIndex() == 16)
 	{
 		if (PauseScreenFix && !InPauseMenu && pCurrentRenderTexture)
 		{

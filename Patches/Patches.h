@@ -22,7 +22,6 @@ BYTE GetFlashlightSwitch();
 float GetFlashlightBrightnessRed();
 float GetFlashlightBrightnessGreen();
 float GetFlashlightBrightnessBlue();
-BYTE GetPauseMenu();
 DWORD GetOnScreen();
 BYTE GetEventIndex();
 DWORD GetTransitionState();
@@ -44,7 +43,6 @@ DWORD *GetSpecializedLight1Pointer();
 DWORD *GetSpecializedLight2Pointer();
 BYTE *GetFlashlightSwitchPointer();
 float *GetFlashlightBrightnessPointer();
-BYTE *GetPauseMenuPointer();
 DWORD *GetOnScreenPointer();
 BYTE *GetEventIndexPointer();
 DWORD *GetTransitionStatePointer();
@@ -132,7 +130,6 @@ extern DWORD *SpecializedLight1Addr;
 extern DWORD *SpecializedLight2Addr;
 extern BYTE *FlashlightSwitchAddr;
 extern float *FlashlightBrightnessAddr;
-extern BYTE *PauseMenuAddr;
 extern DWORD *OnScreenAddr;				/* 0 = load screen
 										4 = normal in-game
 										5 = maps

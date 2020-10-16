@@ -33,7 +33,6 @@ float *JamesPosYAddr = nullptr;
 float *JamesPosZAddr = nullptr;
 DWORD *OnScreenAddr = nullptr;
 BYTE *EventIndexAddr = nullptr;
-BYTE *PauseMenuAddr = nullptr;
 DWORD *RoomIDAddr = nullptr;
 DWORD *SpecializedLight1Addr = nullptr;
 DWORD *SpecializedLight2Addr = nullptr;
@@ -412,35 +411,6 @@ float *GetFlashlightBrightnessPointer()
 	}
 
 	return FlashlightBrightnessAddr;
-}
-
-BYTE GetPauseMenu()
-{
-	BYTE *pPauseMenu = GetPauseMenuPointer();
-
-	return (pPauseMenu) ? *pPauseMenu : 0;
-}
-
-BYTE *GetPauseMenuPointer()
-{
-	if (PauseMenuAddr)
-	{
-		return PauseMenuAddr;
-	}
-
-	// Get address for pause menu
-	constexpr BYTE PauseMenuSearchBytes[]{ 0x74, 0x0F, 0x66, 0x3D, 0x04, 0x00, 0x66, 0xC7, 0x05 };
-	PauseMenuAddr = (BYTE*)ReadSearchedAddresses(0x004553A4, 0x00455604, 0x00455604, PauseMenuSearchBytes, sizeof(PauseMenuSearchBytes), 0x09);
-
-	// Checking address pointer
-	if (!PauseMenuAddr)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find pause menu address!";
-		return nullptr;
-	}
-	PauseMenuAddr = (BYTE*)((DWORD)PauseMenuAddr + 0x04);
-
-	return PauseMenuAddr;
 }
 
 DWORD GetOnScreen()

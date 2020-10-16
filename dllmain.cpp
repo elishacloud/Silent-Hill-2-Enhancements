@@ -46,10 +46,19 @@ bool m_StopThreadFlag = false;			// Used for thread functions
 void DelayedStart()
 {
 	// Get config file path
-	wchar_t configpath[MAX_PATH];
-	if (GetModuleFileName(m_hModule, configpath, MAX_PATH) && wcsrchr(configpath, '.'))
+	wchar_t configpath[MAX_PATH] = {};
+	if (GetModuleFileName(m_hModule, configpath, MAX_PATH) && wcsrchr(configpath, '\\'))
 	{
-		wcscpy_s(wcsrchr(configpath, '.'), MAX_PATH - wcslen(configpath), L".ini");
+		wchar_t t_name[MAX_PATH] = {};
+		wcscpy_s(t_name, MAX_PATH - wcslen(configpath) - 1, wcsrchr(configpath, '\\') + 1);
+		if (wcsrchr(configpath, '.'))
+		{
+			wcscpy_s(wcsrchr(t_name, '.'), MAX_PATH - wcslen(t_name), L"\0");
+		}
+		wcscpy_s(wcsrchr(configpath, '\\'), MAX_PATH - wcslen(configpath), L"\0");
+		std::wstring name(t_name);
+		std::transform(name.begin(), name.end(), name.begin(), [](wchar_t c) { return towlower(c); });
+		wcscpy_s(configpath, MAX_PATH, std::wstring(std::wstring(configpath) + L"\\" + name + L".ini").c_str());
 	}
 
 	// Read config file
@@ -75,7 +84,7 @@ void DelayedStart()
 
 	// Get log file path and open log file
 	wchar_t logpath[MAX_PATH];
-	GetModuleFileName(m_hModule, logpath, MAX_PATH);
+	wcscpy_s(logpath, MAX_PATH, configpath);
 	wcscpy_s(wcsrchr(logpath, '.'), MAX_PATH - wcslen(logpath), L".log");
 	Logging::EnableLogging = !DisableLogging;
 	Logging::Open(logpath);

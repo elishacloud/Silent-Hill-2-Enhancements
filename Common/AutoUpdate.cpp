@@ -35,9 +35,6 @@ typedef HRESULT(WINAPI *URLDownloadToFileProc)(LPUNKNOWN pCaller, LPCWSTR szURL,
 extern HMODULE m_hModule;
 extern bool m_StopThreadFlag;
 
-std::wstring DllUpdateStr = L"_update.dll";
-std::wstring DllTempStr = L"_tmp.dll";
-
 namespace {
 	const char removechars[] = " \t\n\r";
 	inline void trim(std::string &str, const char chars[] = removechars)
@@ -334,7 +331,35 @@ void GetSH2Path(std::wstring &path, std::wstring &name)
 		wcscpy_s(wcsrchr(t_path, '\\'), MAX_PATH - wcslen(t_path), L"\0");
 		path.assign(t_path);
 		name.assign(t_name);
+		std::transform(name.begin(), name.end(), name.begin(), [](wchar_t c) { return towlower(c); });
 	}
+}
+
+HRESULT UpdatedllFile(std::wstring &currentDll, std::wstring &tempDll, std::wstring &updatePath)
+{
+	// Read configuration file
+	std::wstring newdll(updatePath + L"\\d3d8.dll");
+
+	// Move current dll to temp
+	if (!MoveFile(currentDll.c_str(), tempDll.c_str()))
+	{
+		Logging::Log() << __FUNCTION__ " Error: Failed to rename current dll!";
+		return E_FAIL;
+	}
+
+	// Move updated dll to primary
+	if (!MoveFile(newdll.c_str(), currentDll.c_str()))
+	{
+		// If failed then restore current dll
+		Logging::Log() << __FUNCTION__ " Error: Failed to rename updated dll!";
+		if (!MoveFile(tempDll.c_str(), currentDll.c_str()))
+		{
+			Logging::Log() << __FUNCTION__ " Error: Failed to restore current dll!";
+		}
+		return E_FAIL;
+	}
+
+	return S_OK;
 }
 
 HRESULT UpdateiniFile(std::wstring &path, std::wstring &name, std::wstring &updatePath)
@@ -400,22 +425,7 @@ HRESULT UpdateiniFile(std::wstring &path, std::wstring &name, std::wstring &upda
 	return S_OK;
 }
 
-HRESULT UpdatedllFile(std::wstring &path, std::wstring &name, std::wstring &updatePath)
-{
-	// Read configuration file
-	std::wstring newdllPath(updatePath + L"\\d3d8.dll");
-	std::wstring dllUpdatePath(path + L"\\" + name + DllUpdateStr);
-
-	// Move updated dll
-	if (!CopyFile(newdllPath.c_str(), dllUpdatePath.c_str(), FALSE))
-	{
-		return E_FAIL;
-	}
-	DeleteFile(newdllPath.c_str());
-	return S_OK;
-}
-
-HRESULT UpdateAllFiles(std::wstring &path, std::wstring &updatePath)
+HRESULT UpdateAllFiles(std::wstring &path, std::wstring &name, std::wstring &updatePath)
 {
 	// Find the first file in the directory.
 	WIN32_FIND_DATA ffd;
@@ -432,7 +442,10 @@ HRESULT UpdateAllFiles(std::wstring &path, std::wstring &updatePath)
 	{
 		if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 		{
-			if (!CopyFile(std::wstring(updatePath + L"\\" + ffd.cFileName).c_str(), std::wstring(path + L"\\" + ffd.cFileName).c_str(), FALSE))
+			std::wstring filename(ffd.cFileName);
+			filename = std::regex_replace(filename, std::wregex(L"d3d8."), name + L".");
+
+			if (!CopyFile(std::wstring(updatePath + L"\\" + ffd.cFileName).c_str(), std::wstring(path + L"\\" + filename).c_str(), FALSE))
 			{
 				hr = E_FAIL;
 			}
@@ -464,8 +477,7 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 	std::wstring downloadPath(path + L"\\" + name + L".zip");
 	std::wstring updatePath(path + L"\\~update");
 	std::wstring currentDll(path + L"\\" + name + L".dll");
-	std::wstring updatedDll(path + L"\\" + name + DllUpdateStr);
-	std::wstring tempDll(path + L"\\" + name + DllTempStr);
+	std::wstring tempDll(path + L"\\~" + name + L".dll");
 
 	// Delete old module if it exists
 	DeleteFile(tempDll.c_str());
@@ -502,6 +514,14 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 			break;
 		}
 
+		// Update dll file
+		if (m_StopThreadFlag || FAILED(UpdatedllFile(currentDll, tempDll, updatePath)))
+		{
+			Logging::Log() << __FUNCTION__ " Failed to update dll file!";
+			hr = E_FAIL;
+			break;
+		}
+
 		// Update ini configuration file
 		if (m_StopThreadFlag || FAILED(UpdateiniFile(path, name, updatePath)))
 		{
@@ -510,45 +530,12 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 			break;
 		}
 
-		// Update dll file
-		if (m_StopThreadFlag || FAILED(UpdatedllFile(path, name, updatePath)))
-		{
-			Logging::Log() << __FUNCTION__ " Failed to update dll file!";
-			hr = E_FAIL;
-			break;
-		}
-
 		// Update accessory files
-		if (m_StopThreadFlag || FAILED(UpdateAllFiles(path, updatePath)))
+		if (m_StopThreadFlag || FAILED(UpdateAllFiles(path, name, updatePath)))
 		{
 			Logging::Log() << __FUNCTION__ " Failed to update accessory files!";
 			hr = E_FAIL;
 			break;
-		}
-
-		// Update current dll
-		if (!m_StopThreadFlag)
-		{
-			// Move current dll to temp
-			if (!MoveFile(currentDll.c_str(), tempDll.c_str()))
-			{
-				Logging::Log() << __FUNCTION__ " Error: Failed to rename current dll!";
-				hr = E_FAIL;
-				break;
-			}
-
-			// Move updated dll to primary
-			if (!MoveFile(updatedDll.c_str(), currentDll.c_str()))
-			{
-				// If failed then restore current dll
-				Logging::Log() << __FUNCTION__ " Error: Failed to rename updated dll!";
-				if (!MoveFile(tempDll.c_str(), currentDll.c_str()))
-				{
-					Logging::Log() << __FUNCTION__ " Error: Failed to restore current dll!";
-				}
-				hr = E_FAIL;
-				break;
-			}
 		}
 	} while (false);
 
@@ -556,19 +543,18 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 	DeleteFile(downloadPath.c_str());
 	DeleteAllfiles(updatePath.c_str());
 	RemoveDirectoryW(updatePath.c_str());
-	DeleteFile(updatedDll.c_str());
 
 	// Prompt for results
 	if (!m_StopThreadFlag)
 	{
+		// *********************************************************************************
+		// ToDo: prompt user with success or failure message
+		// *********************************************************************************
+
 		if (SUCCEEDED(hr))
 		{
 			Logging::Log() << __FUNCTION__ " Successfully updated module!";
 		}
-
-		// *********************************************************************************
-		// ToDo: prompt user with success or failure message
-		// *********************************************************************************
 	}
 
 	return hr;

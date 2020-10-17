@@ -197,7 +197,7 @@ void DelayedStart()
 	// Hook CreateFile API when using UseCustomModFolder
 	if (UseCustomModFolder)
 	{
-		InstallFileSystemHooks(m_hModule, configpath);
+		InstallFileSystemHooks(m_hModule);
 	}
 
 	// Fix Windows Game Explorer issue

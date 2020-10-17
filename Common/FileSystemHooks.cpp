@@ -51,8 +51,6 @@ FARPROC p_CreateProcessW = nullptr;
 // Variable used in hooked modules
 bool IsFileSystemHooking = false;
 HMODULE moduleHandle = nullptr;
-char ConfigPathA[MAX_PATH];
-wchar_t ConfigPathW[MAX_PATH];
 char ModPathA[MAX_PATH];
 wchar_t ModPathW[MAX_PATH];
 DWORD modLoc = 0;
@@ -81,16 +79,6 @@ inline LPCSTR ModPath(LPCSTR)
 inline LPCWSTR ModPath(LPCWSTR)
 {
 	return ModPathW;
-}
-
-inline LPCSTR ConfigPath(LPCSTR)
-{
-	return ConfigPathA;
-}
-
-inline LPCWSTR ConfigPath(LPCWSTR)
-{
-	return ConfigPathW;
 }
 
 inline void strcpy_s(wchar_t *dest, size_t size, LPCWSTR src)
@@ -194,31 +182,12 @@ inline bool isDataPath(T sh2)
 	return false;
 }
 
-template<typename T>
-bool CheckConfigPath(T str)
-{
-	for (MODULECONFIG it : ConfigList)
-	{
-		if (*(it.Enabled) && isInString(str, it.ConfigFileListA, it.ConfigFileListW, MAX_PATH))
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
 template<typename T, typename D>
 T UpdateModPath(T sh2, D str)
 {
 	if (!sh2 || !str || !IsFileSystemHooking)
 	{
 		return sh2;
-	}
-
-	// Check if this is a config file
-	if (CheckConfigPath(sh2))
-	{
-		return ConfigPath(sh2);
 	}
 
 	// Check if CustomModFolder is enabled
@@ -530,7 +499,7 @@ void DisableFileSystemHooking()
 	wcscpy_s(ModPathW, MAX_PATH, L"data");
 }
 
-void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
+void InstallFileSystemHooks(HMODULE hModule)
 {
 	// Logging
 	Logging::Log() << "Hooking the FileSystem APIs...";
@@ -564,19 +533,6 @@ void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath)
 	wchar_t tmpPathW[MAX_PATH];
 	GetModuleFileNameA(hModule, tmpPathA, MAX_PATH);
 	GetModuleFileNameW(hModule, tmpPathW, MAX_PATH);
-
-	// Store config path
-	strcpy_s(ConfigPathA, MAX_PATH, tmpPathA);
-	strcpy_s(strrchr(ConfigPathA, '.'), MAX_PATH - strlen(ConfigPathA), ".ini");
-	wcscpy_s(ConfigPathW, MAX_PATH, ConfigPath);
-	if (!PathExists(ConfigPathA) || !PathExists(ConfigPathW))
-	{
-		Logging::Log() << __FUNCTION__ " Error: 'ConfigPath' incorrect! " << ConfigPathA;
-	}
-
-	// Store config name
-	strcpy_s(ConfigNameA, MAX_PATH, strrchr(ConfigPathA, '\\'));
-	wcscpy_s(ConfigNameW, MAX_PATH, wcsrchr(ConfigPathW, '\\'));
 
 	// Set module name
 	if (CustomModFolder.size())

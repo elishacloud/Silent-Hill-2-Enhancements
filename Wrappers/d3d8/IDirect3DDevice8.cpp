@@ -17,6 +17,9 @@
 #include "d3d8wrapper.h"
 #include "Common\Utils.h"
 
+extern bool m_StopThreadFlag;
+extern bool IsUpdatingModule;
+
 bool DisableShaderOnPresent = false;
 bool IsInFullscreenImage = false;
 bool IsInBloomEffect = false;
@@ -851,6 +854,20 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	{
 		return D3D_OK;
 	}
+
+	// Update in progress
+	static bool ClearScreen = true;
+	if (!m_StopThreadFlag && IsUpdatingModule && !IsGetFrontBufferCalled)
+	{
+		if (ClearScreen)
+		{
+			ClearScreen = false;
+			ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+		}
+
+		return D3D_OK;
+	}
+	ClearScreen = true;
 
 	// Fix pause menu
 	bool PauseMenuFlag = false;
@@ -2274,6 +2291,12 @@ HRESULT m_IDirect3DDevice8::StretchRect(THIS_ IDirect3DSurface8* pSourceSurface,
 HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface)
 {
 	Logging::LogDebug() << __FUNCTION__;
+
+	// Update in progress
+	if (!m_StopThreadFlag && IsUpdatingModule)
+	{
+		return D3D_OK;
+	}
 
 	IsGetFrontBufferCalled = true;
 

@@ -101,7 +101,7 @@ void CheckAdminAccess()
 	_itow_s(GetCurrentProcessId(), buffer, 10);
 
 	// Administrator access required, re-launching with administrator access
-	if ((int)ShellExecute(nullptr, L"runas", sh2path, buffer, nullptr, SW_NORMAL) > 32)
+	if ((int)ShellExecute(nullptr, L"runas", sh2path, buffer, nullptr, SW_SHOWDEFAULT) > 32)
 	{
 		exit(0);
 	}

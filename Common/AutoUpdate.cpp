@@ -27,13 +27,16 @@
 #include <regex>
 #include "Common\LoadModules.h"
 #include "Logging\Logging.h"
-#include "Resources\BuildNo.rc"
+#include "Resources\sh2-enhce.h"
 
 typedef HRESULT(WINAPI *URLOpenBlockingStreamProc)(LPUNKNOWN pCaller, LPCSTR szURL, LPSTREAM *ppStream, _Reserved_ DWORD dwReserved, LPBINDSTATUSCALLBACK lpfnCB);
 typedef HRESULT(WINAPI *URLDownloadToFileProc)(LPUNKNOWN pCaller, LPCWSTR szURL, LPCWSTR szFileName, _Reserved_ DWORD dwReserved, LPBINDSTATUSCALLBACK lpfnCB);
 
+extern HWND DeviceWindow;
 extern HMODULE m_hModule;
 extern bool m_StopThreadFlag;
+
+bool IsUpdatingModule = false;
 
 namespace {
 	const char removechars[] = " \t\n\r";
@@ -163,7 +166,7 @@ HRESULT UnZipFile(BSTR sourceZip, BSTR destFolder)
 		vDir.bstrVal = destFolder;
 		if (!PathFileExists(destFolder))
 		{
-			CreateDirectoryW(destFolder, nullptr);
+			CreateDirectory(destFolder, nullptr);
 		}
 
 		// Destination is our zip file
@@ -464,6 +467,23 @@ HRESULT UpdateAllFiles(std::wstring &path, std::wstring &name, std::wstring &upd
 	return hr;
 }
 
+void RestoreMainWindow()
+{
+	if (IsWindow(DeviceWindow) && IsIconic(DeviceWindow))
+	{
+		ShowWindow(DeviceWindow, SW_RESTORE);
+	}
+}
+
+LRESULT WINAPI ChangeCaptionButtons(int nCode, WPARAM wParam, LPARAM)
+{
+	if (nCode == HCBT_ACTIVATE)
+	{
+		SetWindowText(GetDlgItem((HWND)wParam, IDOK), L"Confirm");
+	}
+	return 0;
+}
+
 DWORD WINAPI CheckForUpdate(LPVOID)
 {
 	// Get Silent Hill 2 folder paths
@@ -489,9 +509,34 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 		return S_OK;
 	}
 
-	// *********************************************************************************
-	// ToDo: prompt user for download
-	// *********************************************************************************
+	// Wait for main window handle
+	std::string app_name(APP_NAME);
+	std::wstring MsgTitle(app_name.begin(), app_name.end());
+	while (!m_StopThreadFlag && !IsWindow(DeviceWindow))
+	{
+		Sleep(1000);
+	}
+
+	// Prompt user for download
+	if (!m_StopThreadFlag)
+	{
+		IsUpdatingModule = true;
+
+		// Ask user for update
+		int Response = MessageBox(DeviceWindow, L"There is an update for the SH2 Enhancements module. Would you like to update?", MsgTitle.c_str(), MB_YESNO | MB_ICONINFORMATION);
+		if (Response == IDNO)
+		{
+			Logging::Log() << __FUNCTION__ " User chose not to update the build!";
+			IsUpdatingModule = false;
+			RestoreMainWindow();
+			return S_OK;
+		}
+
+		// Notify user to download other packages
+		HHOOK hook = SetWindowsHookEx(WH_CBT, ChangeCaptionButtons, GetModuleHandle(nullptr), GetCurrentThreadId());
+		MessageBox(DeviceWindow, L"Note: This only updates the SH2 Enhancements module. You must manually download and update other enhancement packages from the project's website.", MsgTitle.c_str(), MB_OK | MB_ICONWARNING);
+		UnhookWindowsHookEx(hook);
+	}
 
 	HRESULT hr = S_OK;
 
@@ -542,20 +587,40 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 	// Remove temp files
 	DeleteFile(downloadPath.c_str());
 	DeleteAllfiles(updatePath.c_str());
-	RemoveDirectoryW(updatePath.c_str());
+	RemoveDirectory(updatePath.c_str());
 
 	// Prompt for results
 	if (!m_StopThreadFlag)
 	{
-		// *********************************************************************************
-		// ToDo: prompt user with success or failure message
-		// *********************************************************************************
-
+		// Update succeeded
 		if (SUCCEEDED(hr))
 		{
 			Logging::Log() << __FUNCTION__ " Successfully updated module!";
+
+			int Response = MessageBox(DeviceWindow, L"Update complete! You must restart the game for the update to take effect. Would you like to restart the game now?", MsgTitle.c_str(), MB_YESNO | MB_ICONINFORMATION);
+			if (Response == IDYES)
+			{
+				// Get Silent Hill 2 file path and restart
+				wchar_t sh2path[MAX_PATH];
+				if (GetModuleFileName(nullptr, sh2path, MAX_PATH) && (int)ShellExecute(nullptr, L"open", sh2path, nullptr, nullptr, SW_SHOWDEFAULT) > 32)
+				{
+					exit(0);
+					return S_OK;
+				}
+			}
+		}
+		// Update failed
+		else
+		{
+			Logging::Log() << __FUNCTION__ " Update Failed!";
+
+			MessageBox(DeviceWindow, L"Update FAILED! You will need to manually update the SH2 Enhancements module!", MsgTitle.c_str(), MB_OK | MB_ICONERROR);
 		}
 	}
+
+	IsUpdatingModule = false;
+
+	RestoreMainWindow();
 
 	return hr;
 }

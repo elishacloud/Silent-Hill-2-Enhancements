@@ -337,6 +337,15 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 	BufferWidth = (pPresentationParameters->BackBufferWidth) ? pPresentationParameters->BackBufferWidth : BufferWidth;
 	BufferHeight = (pPresentationParameters->BackBufferHeight) ? pPresentationParameters->BackBufferHeight : BufferHeight;
 
+	DeviceWindow = (pPresentationParameters->hDeviceWindow) ? pPresentationParameters->hDeviceWindow :
+		(hFocusWindow) ? hFocusWindow : DeviceWindow;
+
+	// Check if window is minimized and restore it
+	if (IsWindow(DeviceWindow) && IsIconic(DeviceWindow))
+	{
+		ShowWindow(DeviceWindow, SW_RESTORE);
+	}
+
 	// Set window size if window mode is enabled
 	if (EnableWndMode && (pPresentationParameters->hDeviceWindow || DeviceWindow || hFocusWindow))
 	{
@@ -344,8 +353,6 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 		pPresentationParameters->FullScreen_RefreshRateInHz = 0;
 		if (SetWindow)
 		{
-			DeviceWindow = (pPresentationParameters->hDeviceWindow) ? pPresentationParameters->hDeviceWindow :
-				(hFocusWindow) ? hFocusWindow : DeviceWindow;
 			if (!BufferWidth || !BufferHeight)
 			{
 				RECT tempRect;

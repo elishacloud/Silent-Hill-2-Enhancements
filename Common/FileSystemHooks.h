@@ -58,21 +58,8 @@ extern wchar_t ConfigNameW[MAX_PATH];
 extern char ModPathA[MAX_PATH];
 extern wchar_t ModPathW[MAX_PATH];
 
-struct MODULECONFIG
-{
-	char *ConfigFileListA;			// Module config name
-	wchar_t *ConfigFileListW;		// Module config name
-	bool *Enabled;					// Is module enabled
-};
-
-// List of hardcoded config file names from memory modules
-static MODULECONFIG ConfigList[] =
-{
-	{ ConfigNameA, ConfigNameW, &FileEnabled }
-};
-
 template<typename T, typename D>
 T UpdateModPath(T sh2, D str);
 
-void InstallFileSystemHooks(HMODULE hModule, wchar_t *ConfigPath);
+void InstallFileSystemHooks(HMODULE hModule);
 void InstallCreateProcessHooks();

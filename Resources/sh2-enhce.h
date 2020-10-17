@@ -13,7 +13,7 @@
 #define IDR_AREATEX_DDS                 302
 
 // Main resource file details
-#define APP_NAME				"Silent Hill 2 Enhancement Module"
+#define APP_NAME				"Silent Hill 2: Enhanced Edition"
 #define APP_MAJOR				1
 #define APP_MINOR				5
 #define APP_BUILDNUMBER			BUILD_NUMBER

@@ -96,6 +96,7 @@ void DelayedStart()
 	Logging::LogComputerManufacturer();
 	Logging::LogOSVersion();
 	Logging::LogProcessNameAndPID();
+	Logging::LogCompatLayer();
 
 	// Game version
 	if (memcmp((void*)0x00401005, "\xE9\x56\x25\x00\x00\xE9\x71\x25\x00\x00\xE9\xFC\x69\x00\x00\xE9\x77\x06\x00\x00", 0x14) == 0)
@@ -333,6 +334,12 @@ void DelayedStart()
 	if (FixChainsawSpawn)
 	{
 		PatchPreventChainsawSpawn();
+	}
+
+	// Causes the Options menu to exit directly to game play
+	if (PauseScreenFix)
+	{
+		PatchPauseScreen();
 	}
 
 	// XInput based vibration

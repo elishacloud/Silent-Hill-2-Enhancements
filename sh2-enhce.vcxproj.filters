@@ -272,6 +272,9 @@
     <ClCompile Include="Common\AutoUpdate.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\PauseScreen.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">

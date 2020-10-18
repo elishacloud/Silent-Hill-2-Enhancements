@@ -79,6 +79,7 @@ void PatchFullscreenImages();
 void PatchLockScreenPosition();
 void PatchMainMenu();
 void PatchMainMenuTitlePerLang();
+void PatchPauseScreen();
 void PatchPistonRoom();
 void PatchPreventChainsawSpawn();
 void PatchPS2Flashlight();

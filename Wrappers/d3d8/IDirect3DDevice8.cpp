@@ -920,7 +920,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	}
 
 	// Fix inventory snapshot in Hotel Employee Elevator Room
-	if (HotelEmployeeElevatorRoomFlag && ++HotelEmployeeElevatorRoomFlag > 2)
+	if (HotelEmployeeElevatorRoomFlag)
 	{
 		if (pSnapshotTexture && GetOnScreen() == 6)
 		{
@@ -1225,7 +1225,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 
 	// Remove cursor during fade
 	if (EnableCustomShaders && PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 24 &&
-		(GetTransitionState() == 1 || GetTransitionState() == 2 || GetTransitionState() == 3))
+		(GetTransitionState() == 1 || GetTransitionState() == 2 || GetTransitionState() == 3 || (GetEventIndex() == 7 && LastDrawPrimitiveUPStride == 2024)))
 	{
 		CUSTOMVERTEX_TEX1 *pVertex = (CUSTOMVERTEX_TEX1*)pVertexStreamZeroData;
 

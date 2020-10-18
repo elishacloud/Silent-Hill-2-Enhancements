@@ -57,6 +57,7 @@
     <ClCompile Include="Patches\DrawDistance.cpp" />
     <ClCompile Include="Patches\CatacombsMeatRoom.cpp" />
     <ClCompile Include="Patches\EnhancedFlashlight.cpp" />
+    <ClCompile Include="Patches\PauseScreen.cpp" />
     <ClCompile Include="Patches\RotatingMannequinGlitch.cpp" />
     <ClCompile Include="Patches\SpecialFX.cpp" />
     <ClCompile Include="Patches\TexPatch.cpp" />

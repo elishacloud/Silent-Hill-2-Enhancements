@@ -316,4 +316,5 @@ private:
 	DWORD GetShadowOpacity();
 	DWORD GetShadowIntensity();
 	void SetShadowFading();
+	void CaptureScreenShot();
 };

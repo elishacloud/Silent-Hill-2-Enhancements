@@ -23,11 +23,15 @@
 #define S3_VENDOR_ID		0x5333	/* S3 Graphics Co., Ltd.			*/
 #define INTEL_VENDOR_ID		0x8086	/* Intel Corporation				*/
 
+LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+WNDPROC OriginalWndProc = nullptr;
 HWND DeviceWindow = nullptr;
 LONG BufferWidth = 0, BufferHeight = 0;
 DWORD VendorID = 0;
 bool CopyRenderTarget = false;
 bool SetSSAA = false;
+bool TakeScreenShot = false;
 D3DMULTISAMPLE_TYPE DeviceMultiSampleType = D3DMULTISAMPLE_NONE;
 
 HRESULT m_IDirect3D8::QueryInterface(REFIID riid, LPVOID *ppvObj)
@@ -245,6 +249,16 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	// Update presentation parameters
 	UpdatePresentParameter(pPresentationParameters, hFocusWindow, true);
 
+	// Get WndProc
+	if (EnableScreenshots && !OriginalWndProc)
+	{
+		OriginalWndProc = (WNDPROC)SetWindowLongA(DeviceWindow, GWL_WNDPROC, (LONG)WndProc);
+		if (OriginalWndProc)
+		{
+			SetWindowLongA(DeviceWindow, GWL_WNDPROC, (LONG)WndProc);
+		}
+	}
+
 	// Set Silent Hill 2 window to forground
 	SetForegroundWindow(DeviceWindow);
 
@@ -456,4 +470,23 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 		yLoc = (screenHeight - newDisplayHeight) / 2;
 	}
 	SetWindowPos(MainhWnd, nullptr, xLoc, yLoc, newDisplayWidth, newDisplayHeight, SWP_NOZORDER);
+}
+
+// Get keyboard press
+LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	Logging::LogDebug() << __FUNCTION__ << " " << Logging::hex(wParam);
+
+	if (uMsg == WM_KEYUP && wParam == VK_SNAPSHOT)
+	{
+		TakeScreenShot = true;
+	}
+
+	if (!OriginalWndProc)
+	{
+		LOG_LIMIT(100, __FUNCTION__ << " Error: no WndProc specified " << Logging::hex(uMsg));
+		return NULL;
+	}
+
+	return OriginalWndProc(hWnd, uMsg, wParam, lParam);
 }

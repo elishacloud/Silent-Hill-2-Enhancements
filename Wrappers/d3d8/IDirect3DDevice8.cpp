@@ -15,10 +15,17 @@
 */
 
 #include "d3d8wrapper.h"
+#include <chrono>
+#include <ctime>
 #include "Common\Utils.h"
+#include "stb_image.h"
+#include "stb_image_dds.h"
+#include "stb_image_write.h"
+#include "stb_image_resize.h"
 
 extern bool m_StopThreadFlag;
 extern bool IsUpdatingModule;
+extern bool TakeScreenShot;
 
 bool DisableShaderOnPresent = false;
 bool IsInFullscreenImage = false;
@@ -1740,6 +1747,13 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		}
 	}
 
+	// Take screenshot
+	if (TakeScreenShot)
+	{
+		CaptureScreenShot();
+		TakeScreenShot = false;
+	}
+
 	return hr;
 }
 
@@ -2867,4 +2881,80 @@ void m_IDirect3DDevice8::SetShadowFading()
 		LastFlashlightSwitch = GetFlashlightSwitch();
 		ShadowFadingIntensity = LastFlashlightSwitch * 100;
 	}
+}
+
+void m_IDirect3DDevice8::CaptureScreenShot()
+{
+	Logging::LogDebug() << __FUNCTION__;
+
+	// Create new surface to hold data
+	IDirect3DSurface8 *pDestSurface = nullptr;
+	if (FAILED(ProxyInterface->CreateImageSurface(BufferWidth, BufferHeight, D3DFMT_A8R8G8B8, &pDestSurface)))
+	{
+		return;
+	}
+
+	// Get FrontBuffer data to new surface
+	HRESULT hr = ProxyInterface->GetFrontBuffer(pDestSurface);
+	if (FAILED(hr))
+	{
+		pDestSurface->Release();
+		return;
+	}
+
+	// Lock surface, read surface into a buffer and write PNG file
+	D3DLOCKED_RECT LockedRect = {};
+	if (SUCCEEDED(pDestSurface->LockRect(&LockedRect, nullptr, D3DLOCK_READONLY)) && LockedRect.pBits)
+	{
+		// Set varables
+		DWORD size = LockedRect.Pitch * BufferHeight;
+		std::vector<BYTE> buffer(size);
+		BYTE *bufferIn = (BYTE*)LockedRect.pBits;
+		BYTE *bufferOut = (BYTE*)&buffer[0];
+
+		// Read surface into buffer
+		for (int y = 0; y < BufferHeight; y++)
+		{
+			for (int x = 0; x < BufferWidth; x++)
+			{
+				DWORD loc = x * 4;
+				bufferOut[3] = bufferIn[loc + 3];	// Alpha
+				bufferOut[0] = bufferIn[loc + 2];	// Red
+				bufferOut[1] = bufferIn[loc + 1];	// Green
+				bufferOut[2] = bufferIn[loc + 0];	// Blue
+				bufferOut += 4;
+			}
+			bufferIn += LockedRect.Pitch;
+		}
+
+		// Unlock surface
+		pDestSurface->UnlockRect();
+
+		// Get current time and date
+		const std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+		tm tm; localtime_s(&tm, &t);
+
+		// Get file name
+		char timestamp[21];
+		sprintf_s(timestamp, " %.4d-%.2d-%.2d %.2d-%.2d-%.2d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+		std::string name("Screenshot" + std::string(timestamp) + ".png");
+
+		// Write PNG buffer to disk
+		if (FILE *file; _wfopen_s(&file, std::wstring(name.begin(), name.end()).c_str(), L"wb") == 0)
+		{
+			const auto write_callback = [](void *context, void *data, int size) {
+				fwrite(data, 1, size, static_cast<FILE *>(context));
+			};
+
+			Logging::Log() << "Saving screenshot to " << name << " ...";
+
+			stbi_write_png_to_func(write_callback, file, BufferWidth, BufferHeight, 4, &buffer[0], 0);
+
+			fclose(file);
+		}
+	}
+
+	// Release surface
+	pDestSurface->Release();
+	return;
 }

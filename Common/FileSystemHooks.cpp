@@ -29,6 +29,7 @@ typedef DWORD(WINAPI *PFN_GetModuleFileNameA)(HMODULE, LPSTR, DWORD);
 typedef DWORD(WINAPI *PFN_GetModuleFileNameW)(HMODULE, LPWSTR, DWORD);
 typedef HANDLE(WINAPI *PFN_CreateFileA)(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile);
 typedef HANDLE(WINAPI *PFN_CreateFileW)(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile);
+typedef HANDLE(WINAPI *PFN_FindFirstFileA)(LPCSTR lpFileName, LPWIN32_FIND_DATAA lpFindFileData);
 typedef BOOL(WINAPI *PFN_FindNextFileA)(HANDLE hFindFile, LPWIN32_FIND_DATAA lpFindFileData);
 typedef DWORD(WINAPI *PFN_GetPrivateProfileStringA)(LPCSTR lpAppName, LPCSTR lpKeyName, LPCSTR lpDefault, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName);
 typedef DWORD(WINAPI *PFN_GetPrivateProfileStringW)(LPCWSTR lpAppName, LPCWSTR lpKeyName, LPCWSTR lpDefault, LPWSTR lpReturnedString, DWORD nSize, LPCWSTR lpFileName);
@@ -42,6 +43,7 @@ FARPROC p_GetModuleFileNameA = nullptr;
 FARPROC p_GetModuleFileNameW = nullptr;
 FARPROC p_CreateFileA = nullptr;
 FARPROC p_CreateFileW = nullptr;
+FARPROC p_FindFirstFileA = nullptr;
 FARPROC p_FindNextFileA = nullptr;
 FARPROC p_GetPrivateProfileStringA = nullptr;
 FARPROC p_GetPrivateProfileStringW = nullptr;
@@ -336,6 +338,49 @@ HANDLE WINAPI CreateFileWHandler(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWOR
 	return org_CreateFile(UpdateModPath(lpFileName, Filename), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 }
 
+void UpdateFindData(LPWIN32_FIND_DATAA lpFindFileData)
+{
+	if (UseCustomModFolder && lpFindFileData)
+	{
+
+#define CHECK_BGM_FILES(name, ext, unused) \
+		if (isInString(lpFindFileData->cFileName, ## #name ## "." ## # ext, L## #name ## "." ## # ext, MaxModFileLen)) \
+		{ \
+			if (name ## SizeLow) \
+			{ \
+				lpFindFileData->nFileSizeLow = name ## SizeLow; \
+				lpFindFileData->nFileSizeHigh = 0; \
+			} \
+		}
+
+		VISIT_BGM_FILES(CHECK_BGM_FILES);
+	}
+}
+
+// FindFirstFileA wrapper function
+HANDLE WINAPI FindFirstFileAHandler(LPCSTR lpFileName, LPWIN32_FIND_DATAA lpFindFileData)
+{
+	static PFN_FindFirstFileA org_FindFirstFile = (PFN_FindFirstFileA)InterlockedCompareExchangePointer((PVOID*)&p_FindFirstFileA, nullptr, nullptr);
+
+	if (!org_FindFirstFile)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
+		SetLastError(127);
+		return FALSE;
+	}
+
+	if (!IsFileSystemHooking)
+	{
+		return org_FindFirstFile(lpFileName, lpFindFileData);
+	}
+
+	HANDLE ret = org_FindFirstFile(lpFileName, lpFindFileData);
+
+	UpdateFindData(lpFindFileData);
+
+	return ret;
+}
+
 // FindNextFileA wrapper function
 BOOL WINAPI FindNextFileAHandler(HANDLE hFindFile, LPWIN32_FIND_DATAA lpFindFileData)
 {
@@ -354,21 +399,9 @@ BOOL WINAPI FindNextFileAHandler(HANDLE hFindFile, LPWIN32_FIND_DATAA lpFindFile
 	}
 
 	BOOL ret = org_FindNextFile(hFindFile, lpFindFileData);
-	if (UseCustomModFolder && lpFindFileData)
-	{
 
-#define CHECK_BGM_FILES(name, ext, unused) \
-		if (isInString(lpFindFileData->cFileName, ## #name ## "." ## # ext, L## #name ## "." ## # ext, MaxModFileLen)) \
-		{ \
-			if (name ## SizeLow) \
-			{ \
-				lpFindFileData->nFileSizeLow = name ## SizeLow; \
-				lpFindFileData->nFileSizeHigh = 0; \
-			} \
-		}
+	UpdateFindData(lpFindFileData);
 
-		VISIT_BGM_FILES(CHECK_BGM_FILES);
-	}
 	return ret;
 }
 
@@ -515,13 +548,16 @@ void InstallFileSystemHooks(HMODULE hModule)
 	// Hook FileSystem APIs
 	InterlockedExchangePointer((PVOID*)&p_CreateFileA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "CreateFileA"), "CreateFileA", *CreateFileAHandler));
 	InterlockedExchangePointer((PVOID*)&p_CreateFileW, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "CreateFileW"), "CreateFileW", *CreateFileWHandler));
+	InterlockedExchangePointer((PVOID*)&p_FindFirstFileA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "FindFirstFileA"), "FindFirstFileA", *FindFirstFileAHandler));
 	InterlockedExchangePointer((PVOID*)&p_FindNextFileA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "FindNextFileA"), "FindNextFileA", *FindNextFileAHandler));
 	InterlockedExchangePointer((PVOID*)&p_GetPrivateProfileStringA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "GetPrivateProfileStringA"), "GetPrivateProfileStringA", *GetPrivateProfileStringAHandler));
 	InterlockedExchangePointer((PVOID*)&p_GetPrivateProfileStringW, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "GetPrivateProfileStringW"), "GetPrivateProfileStringW", *GetPrivateProfileStringWHandler));
 
 	// Check for hook failures
 	if (!p_GetModuleFileNameA || !p_GetModuleFileNameW ||
-		!p_CreateFileA || !p_CreateFileW || !p_FindNextFileA || !p_GetPrivateProfileStringA || !p_GetPrivateProfileStringW)
+		!p_CreateFileA || !p_CreateFileW ||
+		!p_FindFirstFileA || !p_FindNextFileA ||
+		!p_GetPrivateProfileStringA || !p_GetPrivateProfileStringW)
 	{
 		Logging::Log() << "FAILED to hook the FileSystem APIs, disabling 'UseCustomModFolder'!";
 		DisableFileSystemHooking();

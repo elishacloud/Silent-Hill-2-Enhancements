@@ -74,6 +74,7 @@ void PatchCustomFonts();
 void PatchControllerTweaks();
 void PatchDrawDistance();
 void PatchFlashlightClockPush();
+void PatchFlashlightFlicker();
 void PatchFogParameters();
 void PatchFullscreenImages();
 void PatchLockScreenPosition();

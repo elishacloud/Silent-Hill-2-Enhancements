@@ -336,6 +336,12 @@ void DelayedStart()
 		PatchPreventChainsawSpawn();
 	}
 
+	// Fix flashlight flicker
+	if (FlashlightFlickerFix)
+	{
+		PatchFlashlightFlicker();
+	}
+
 	// Causes the Options menu to exit directly to game play
 	if (PauseScreenFix)
 	{

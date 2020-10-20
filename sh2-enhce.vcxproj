@@ -42,6 +42,7 @@
     <ClCompile Include="Patches\2TBHardDriveFix.cpp" />
     <ClCompile Include="Patches\DelayedStart.cpp" />
     <ClCompile Include="Patches\FlashlightClockPush.cpp" />
+    <ClCompile Include="Patches\FlashlightFlicker.cpp" />
     <ClCompile Include="Patches\FogFix.cpp" />
     <ClCompile Include="Patches\FullscreenImages.cpp" />
     <ClCompile Include="Patches\LaunchAsAdmin.cpp" />

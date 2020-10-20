@@ -15,6 +15,7 @@
 */
 
 #include "d3d8wrapper.h"
+#include <shlwapi.h>
 #include <chrono>
 #include <ctime>
 #include "Common\Utils.h"
@@ -2889,13 +2890,13 @@ void m_IDirect3DDevice8::CaptureScreenShot()
 
 	// Create new surface to hold data
 	IDirect3DSurface8 *pDestSurface = nullptr;
-	if (FAILED(ProxyInterface->CreateImageSurface(BufferWidth, BufferHeight, D3DFMT_A8R8G8B8, &pDestSurface)))
+	if (FAILED(CreateImageSurface(BufferWidth, BufferHeight, D3DFMT_A8R8G8B8, &pDestSurface)))
 	{
 		return;
 	}
 
 	// Get FrontBuffer data to new surface
-	HRESULT hr = ProxyInterface->GetFrontBuffer(pDestSurface);
+	HRESULT hr = GetFrontBuffer(pDestSurface);
 	if (FAILED(hr))
 	{
 		pDestSurface->Release();
@@ -2939,14 +2940,26 @@ void m_IDirect3DDevice8::CaptureScreenShot()
 		sprintf_s(timestamp, " %.4d-%.2d-%.2d %.2d-%.2d-%.2d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 		std::string name("Screenshot" + std::string(timestamp) + ".png");
 
+		// Get Silent Hill 2 folder
+		wchar_t path[MAX_PATH] = {};
+		if (GetModuleFileName(nullptr, path, MAX_PATH) && wcsrchr(path, '\\'))
+		{
+			wcscpy_s(wcsrchr(path, '\\'), MAX_PATH - wcslen(path), L"\0");
+			wcscat_s(path, MAX_PATH, L"\\imgs\\");
+			if (!PathFileExists(path))
+			{
+				CreateDirectory(path, nullptr);
+			}
+		}
+
 		// Write PNG buffer to disk
-		if (FILE *file; _wfopen_s(&file, std::wstring(name.begin(), name.end()).c_str(), L"wb") == 0)
+		if (FILE *file; _wfopen_s(&file, std::wstring(path + std::wstring(name.begin(), name.end())).c_str(), L"wb") == 0)
 		{
 			const auto write_callback = [](void *context, void *data, int size) {
 				fwrite(data, 1, size, static_cast<FILE *>(context));
 			};
 
-			Logging::Log() << "Saving screenshot to " << name << " ...";
+			Logging::Log() << "Saving screenshot to '" << name << "' ...";
 
 			stbi_write_png_to_func(write_callback, file, BufferWidth, BufferHeight, 4, &buffer[0], 0);
 

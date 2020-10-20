@@ -37,6 +37,7 @@
 	visit(FixHangOnEsc, true) \
 	visit(FixMissingWallChunks, true) \
 	visit(FixTownWestGateEvent, true) \
+	visit(FlashlightFlickerFix, true) \
 	visit(FMVWidescreenMode, true) \
 	visit(fog_custom_on, true) \
 	visit(Fog2DFix, true) \

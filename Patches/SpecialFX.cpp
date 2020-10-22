@@ -361,7 +361,7 @@ void RunSpecialFXScale(DWORD Height)
 	PyramidHeadCutsceneValue2 = -1.5f * DisplayRatio;
 	LyingFigureTunnelCutsceneValue1 = -3.0f * DisplayRatio;
 	LyingFigureTunnelCutsceneValue2 = -1.0f * DisplayRatio;
-	HotelRoom312Value1 = -8.0f * DisplayRatio;
+	HotelRoom312Value1 = -2.0f * DisplayRatio;
 	HotelRoom312Value2 = -4.0f * DisplayRatio;
 }
 

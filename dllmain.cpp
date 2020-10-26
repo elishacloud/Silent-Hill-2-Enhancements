@@ -175,6 +175,9 @@ void DelayedStart()
 	if (HookDirect3D)
 	{
 		HookDirect3DCreate8();
+
+		// Create thread to save screenshot file
+		CreateThread(nullptr, 0, SaveScreenshotFile, nullptr, 0, nullptr);
 	}
 
 	// Enable d3d8to9
@@ -442,8 +445,7 @@ void DelayedStart()
 	// Check for update
 	if (AutoUpdateModule)
 	{
-		DWORD ThreadID = 0;
-		CreateThread(nullptr, 0, CheckForUpdate, nullptr, 0, &ThreadID);
+		CreateThread(nullptr, 0, CheckForUpdate, nullptr, 0, nullptr);
 	}
 
 	// Load ASI pluggins
@@ -457,9 +459,8 @@ void DelayedStart()
 	{
 		if (SingleCoreAffinityTimer)
 		{
-			DWORD ThreadID = 0;
 			static DWORD SleepTime = SingleCoreAffinityTimer;
-			CreateThread(nullptr, 0, SetSingleCoreAffinity, &SleepTime, 0, &ThreadID);
+			CreateThread(nullptr, 0, SetSingleCoreAffinity, &SleepTime, 0, nullptr);
 		}
 		else
 		{

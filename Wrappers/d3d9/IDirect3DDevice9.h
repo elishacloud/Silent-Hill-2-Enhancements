@@ -44,9 +44,14 @@ public:
 		UseSoftwareRendering(use_software_rendering),
 		_buffer_detection(original)
 	{
+		Logging::LogDebug() << "Creating device " << __FUNCTION__ << "(" << this << ")";
+
 		assert(ProxyInterface != nullptr);
 	}
-	~m_IDirect3DDevice9() {	}
+	~m_IDirect3DDevice9()
+	{
+		Logging::LogDebug() << __FUNCTION__ << "(" << this << ")" << " deleting device!";
+	}
 
 	/*** IUnknown methods ***/
 	STDMETHOD(QueryInterface)(THIS_ REFIID riid, void** ppvObj);

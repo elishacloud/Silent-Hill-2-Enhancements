@@ -39,9 +39,14 @@ public:
 		D3Device(device),
 		_runtime(runtime)
 	{
+		Logging::LogDebug() << "Creating device " << __FUNCTION__ << "(" << this << ")";
+
 		assert(ProxyInterface != nullptr && D3Device != nullptr && _runtime != nullptr);
 	}
-	~m_IDirect3DSwapChain9() { }
+	~m_IDirect3DSwapChain9()
+	{
+		Logging::LogDebug() << __FUNCTION__ << "(" << this << ")" << " deleting device!";
+	}
 
 	/*** IUnknown methods ***/
 	STDMETHOD(QueryInterface)(THIS_ REFIID riid, void** ppvObj);

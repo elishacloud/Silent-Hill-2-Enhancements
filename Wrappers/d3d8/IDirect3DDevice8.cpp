@@ -36,6 +36,16 @@ bool ClassReleaseFlag = false;
 DWORD TextureNum = 0;
 DWORD MaxAnisotropy = 0;
 
+struct SCREENSHOTSTRUCT
+{
+	std::vector<BYTE> buffer;
+	std::wstring filename;
+	LONG Width = 0;
+	LONG Height = 0;
+};
+
+std::vector<SCREENSHOTSTRUCT> ScreenshotVector;
+
 HRESULT m_IDirect3DDevice8::QueryInterface(REFIID riid, LPVOID *ppvObj)
 {
 	Logging::LogDebug() << __FUNCTION__;
@@ -943,6 +953,13 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 		HotelEmployeeElevatorRoomFlag = FALSE;
 	}
 
+	// Take screenshot
+	if (TakeScreenShot)
+	{
+		TakeScreenShot = false;
+		CaptureScreenShot();
+	}
+
 	LastDrawPrimitiveUPStride = 0;
 
 	// Shadow fading counter
@@ -1746,13 +1763,6 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		{
 			ProxyInterface->SetRenderState((D3DRENDERSTATETYPE)D3DRS_ADAPTIVETESS_Y, MAKEFOURCC('S', 'S', 'A', 'A'));
 		}
-	}
-
-	// Take screenshot
-	if (TakeScreenShot)
-	{
-		CaptureScreenShot();
-		TakeScreenShot = false;
 	}
 
 	return hr;
@@ -2884,6 +2894,38 @@ void m_IDirect3DDevice8::SetShadowFading()
 	}
 }
 
+DWORD WINAPI SaveScreenshotFile(LPVOID)
+{
+	// Wait for new screenshot
+	while (!m_StopThreadFlag)
+	{
+		if (ScreenshotVector.size())
+		{
+			if (ScreenshotVector[0].filename.size() && ScreenshotVector[0].buffer.size() && ScreenshotVector[0].Width && ScreenshotVector[0].Height)
+			{
+				// Write PNG buffer to disk
+				if (FILE *file; _wfopen_s(&file, ScreenshotVector[0].filename.c_str(), L"wb") == 0)
+				{
+					const auto write_callback = [](void *context, void *data, int size) {
+						fwrite(data, 1, size, static_cast<FILE *>(context));
+					};
+
+					Logging::Log() << "Saving screenshot to " << ScreenshotVector[0].filename.c_str() << " ...";
+
+					stbi_write_png_to_func(write_callback, file, ScreenshotVector[0].Width, ScreenshotVector[0].Height, 4, &ScreenshotVector[0].buffer[0], 0);
+
+					fclose(file);
+				}
+			}
+			// Remove item from vector
+			ScreenshotVector.erase(ScreenshotVector.begin());
+		}
+		Sleep(500);
+	}
+
+	return S_OK;
+}
+
 void m_IDirect3DDevice8::CaptureScreenShot()
 {
 	Logging::LogDebug() << __FUNCTION__;
@@ -2892,13 +2934,14 @@ void m_IDirect3DDevice8::CaptureScreenShot()
 	IDirect3DSurface8 *pDestSurface = nullptr;
 	if (FAILED(CreateImageSurface(BufferWidth, BufferHeight, D3DFMT_A8R8G8B8, &pDestSurface)))
 	{
+		Logging::LogDebug() << __FUNCTION__ << " Failed to create image surface!";
 		return;
 	}
 
 	// Get FrontBuffer data to new surface
-	HRESULT hr = GetFrontBuffer(pDestSurface);
-	if (FAILED(hr))
+	if (FAILED(GetFrontBuffer(pDestSurface)))
 	{
+		Logging::LogDebug() << __FUNCTION__ << " Failed to get front buffer!";
 		pDestSurface->Release();
 		return;
 	}
@@ -2908,10 +2951,13 @@ void m_IDirect3DDevice8::CaptureScreenShot()
 	if (SUCCEEDED(pDestSurface->LockRect(&LockedRect, nullptr, D3DLOCK_READONLY)) && LockedRect.pBits)
 	{
 		// Set varables
+		SCREENSHOTSTRUCT scElement;
+		scElement.Width = BufferWidth;
+		scElement.Height = BufferHeight;
 		DWORD size = LockedRect.Pitch * BufferHeight;
-		std::vector<BYTE> buffer(size);
+		scElement.buffer.resize(size);
 		BYTE *bufferIn = (BYTE*)LockedRect.pBits;
-		BYTE *bufferOut = (BYTE*)&buffer[0];
+		BYTE *bufferOut = &scElement.buffer[0];
 
 		// Read surface into buffer
 		for (int y = 0; y < BufferHeight; y++)
@@ -2930,6 +2976,9 @@ void m_IDirect3DDevice8::CaptureScreenShot()
 
 		// Unlock surface
 		pDestSurface->UnlockRect();
+
+		// Release surface
+		pDestSurface->Release();
 
 		// Get current time and date
 		const std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
@@ -2952,22 +3001,12 @@ void m_IDirect3DDevice8::CaptureScreenShot()
 			}
 		}
 
-		// Write PNG buffer to disk
-		if (FILE *file; _wfopen_s(&file, std::wstring(path + std::wstring(name.begin(), name.end())).c_str(), L"wb") == 0)
-		{
-			const auto write_callback = [](void *context, void *data, int size) {
-				fwrite(data, 1, size, static_cast<FILE *>(context));
-			};
+		// File name
+		scElement.filename.assign(path + std::wstring(name.begin(), name.end()));
 
-			Logging::Log() << "Saving screenshot to '" << name << "' ...";
-
-			stbi_write_png_to_func(write_callback, file, BufferWidth, BufferHeight, 4, &buffer[0], 0);
-
-			fclose(file);
-		}
+		// Add to vector
+		ScreenshotVector.push_back(scElement);
 	}
 
-	// Release surface
-	pDestSurface->Release();
 	return;
 }

@@ -9,8 +9,14 @@ private:
 	static void init_runtime_d3d(T *&device, D3DDEVTYPE device_type, D3DPRESENT_PARAMETERS pp, bool use_software_rendering);
 
 public:
-	m_IDirect3D9(LPDIRECT3D9 pDirect3D) : ProxyInterface(pDirect3D) { }
-	~m_IDirect3D9() { }
+	m_IDirect3D9(LPDIRECT3D9 pDirect3D) : ProxyInterface(pDirect3D)
+	{
+		Logging::LogDebug() << "Creating device " << __FUNCTION__ << "(" << this << ")";
+	}
+	~m_IDirect3D9()
+	{
+		Logging::LogDebug() << __FUNCTION__ << "(" << this << ")" << " deleting device!";
+	}
 
 	/*** IUnknown methods ***/
 	STDMETHOD(QueryInterface)(THIS_ REFIID riid, void** ppvObj);

@@ -541,7 +541,7 @@ void InstallFileSystemHooks(HMODULE hModule)
 	moduleHandle = hModule;
 
 	// Hook GetModuleFileName and GetModuleHandleEx to fix module name in modules loaded from memory
-	HMODULE h_kernel32 = GetModuleHandle(L"kernel32");
+	HMODULE h_kernel32 = GetModuleHandle(L"kernel32.dll");
 	InterlockedExchangePointer((PVOID*)&p_GetModuleFileNameA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "GetModuleFileNameA"), "GetModuleFileNameA", GetModuleFileNameAHandler));
 	InterlockedExchangePointer((PVOID*)&p_GetModuleFileNameW, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "GetModuleFileNameW"), "GetModuleFileNameW", GetModuleFileNameWHandler));
 
@@ -630,7 +630,7 @@ void InstallCreateProcessHooks()
 	Logging::Log() << "Hooking the CreateProcess APIs...";
 
 	// Hook CreateProcess APIs
-	HMODULE h_kernel32 = GetModuleHandle(L"kernel32");
+	HMODULE h_kernel32 = GetModuleHandle(L"kernel32.dll");
 	InterlockedExchangePointer((PVOID*)&p_CreateProcessA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "CreateProcessA"), "CreateProcessA", *CreateProcessAHandler));
 	InterlockedExchangePointer((PVOID*)&p_CreateProcessW, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "CreateProcessW"), "CreateProcessW", *CreateProcessWHandler));
 }

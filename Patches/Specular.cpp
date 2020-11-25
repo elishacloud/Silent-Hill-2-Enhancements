@@ -12,32 +12,44 @@ struct LightSource
 
 static LightSource fakeLight = {{D3DLIGHT_DIRECTIONAL}};
 static bool useFakeLight = false;
+static int fakeLightIndex = -1;
 
 static auto getLightSourceCount_50C590 = *reinterpret_cast<int(__cdecl*)()>(0x50C590);
+static auto getLightSourceStruct_50C5A0 = *reinterpret_cast<LightSource* (__cdecl*)(int)>(0x50C5A0);
 int __cdecl Part1()
 {
 	// This function replaces a call to `int getLightSourceCount_50C590()`
 	// When no light sources are present and the function would normally return 0, we set our boolean and return 1 instead
 
-	useFakeLight = false;
+	useFakeLight = true;
+	fakeLightIndex = -1;
+
 	int lightSourceCount = getLightSourceCount_50C590();
 
-	if (lightSourceCount == 0)
+	for (int i = 0; lightSourceCount > 0 && i < lightSourceCount; i++)
 	{
-		useFakeLight = true;
-		return 1;
+		auto pLight = getLightSourceStruct_50C5A0(i);
+		if (pLight->light.Type == D3DLIGHT_DIRECTIONAL)
+		{
+			useFakeLight = false;
+		}
+	}
+
+	if (useFakeLight)
+	{
+		fakeLightIndex = lightSourceCount;
+		return lightSourceCount + 1;
 	}
 
 	return lightSourceCount;
 }
 
-static auto getLightSourceStruct_50C5A0 = *reinterpret_cast<LightSource* (__cdecl*)(int)>(0x50C5A0);
 LightSource* __cdecl Part2(int index)
 {
 	// This function replaces a call to `LightSourceStruct* getLightSourceStruct_50C5A0(index)`
 	// When no light sources are present we substitute a minimal one of our own
 
-	if (useFakeLight)
+	if (useFakeLight && index == fakeLightIndex)
 		return &fakeLight;
 	else
 		return getLightSourceStruct_50C5A0(index);
@@ -49,14 +61,14 @@ HRESULT __stdcall Part3(IDirect3DDevice8* /*This*/, DWORD Register, void* pConst
 	// This function replaces a call to `HRESULT pD3DDevice_A32894->SetPixelShaderConstant(Register, pConstantData, ConstantCount)`
 	// When using our fake light source we adjust the intensity of the specular highlights to 25%
 
-	if (useFakeLight)
-	{
-		// If these values are all 0.0 then material type was not 4 (glossy), but multiplying by 0 has no affect anyway
-		((float*)pConstantData)[0] *= 0.25f; // r
-		((float*)pConstantData)[1] *= 0.25f; // g
-		((float*)pConstantData)[2] *= 0.25f; // b
-	  //((float*)pConstantData)[3] *= 1.00f; // a (unused)
-	}
+	//if (useFakeLight)
+	//{
+	//	// If these values are all 0.0 then material type was not 4 (glossy), but multiplying by 0 has no affect anyway
+	//	((float*)pConstantData)[0] *= 0.25f; // r
+	//	((float*)pConstantData)[1] *= 0.25f; // g
+	//	((float*)pConstantData)[2] *= 0.25f; // b
+	//  //((float*)pConstantData)[3] *= 1.00f; // a (unused)
+	//}
 
 	return pD3DDevice_A32894->SetPixelShaderConstant(Register, pConstantData, ConstantCount);
 }

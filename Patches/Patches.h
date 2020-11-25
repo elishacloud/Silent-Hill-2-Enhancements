@@ -96,6 +96,7 @@ void PatchTexAddr();
 void PatchTownWestGateEvent();
 void PatchTreeLighting();
 void PatchXInputVibration();
+void PatchSpecular();
 
 void RunBloodSize();
 void RunClosetCutscene();

@@ -468,6 +468,8 @@ void DelayedStart()
 		}
 	}
 
+	PatchSpecular();
+
 	// Loaded
 	Logging::Log() << "Silent Hill 2 Enhancements module loaded!";
 }

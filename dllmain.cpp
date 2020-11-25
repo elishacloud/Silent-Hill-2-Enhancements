@@ -472,6 +472,8 @@ void DelayedStart()
 		SetSingleCoreAffinity();
 	}
 
+	PatchSpecular();
+
 	// Loaded
 	Logging::Log() << "Silent Hill 2 Enhancements module loaded!";
 }

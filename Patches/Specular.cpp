@@ -95,7 +95,7 @@ int __cdecl Part1()
 
 	int lightSourceCount = getLightSourceCount_50C590();
 
-	for (int i = 0; lightSourceCount > 0 && i < lightSourceCount; i++)
+	for (int i = 0; i < lightSourceCount; i++)
 	{
 		auto pLight = getLightSourceStruct_50C5A0(i);
 		if (pLight->light.Type == D3DLIGHT_DIRECTIONAL)

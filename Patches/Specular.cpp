@@ -31,7 +31,7 @@ static auto& pD3DDevice_A32894 = *reinterpret_cast<IDirect3DDevice8**>(0xA32894)
 int __cdecl Part1()
 {
 	// This function replaces a call to `int getLightSourceCount_50C590()`
-	// When no light sources are present and the function would normally return 0, we set our boolean and return 1 instead
+	// When no D3D_DIRECTIONAL light sources exist, set our booleans and return 1 greater than reality
 
 	inSpecialLightZone = false;
 	useFakeLight = true;
@@ -61,7 +61,7 @@ int __cdecl Part1()
 LightSource* __cdecl Part2(int index)
 {
 	// This function replaces a call to `LightSourceStruct* getLightSourceStruct_50C5A0(index)`
-	// When no light sources are present we substitute a minimal one of our own
+	// When we hit the index 1 greater than the real light source count, return our fake
 
 	if (useFakeLight && index == fakeLightIndex)
 		return &fakeLight;
@@ -72,43 +72,39 @@ LightSource* __cdecl Part2(int index)
 HRESULT __stdcall Part3(IDirect3DDevice8* /*This*/, DWORD Register, void* pConstantData, DWORD ConstantCount)
 {
 	// This function replaces a call to `HRESULT pD3DDevice_A32894->SetPixelShaderConstant(Register, pConstantData, ConstantCount)`
-	// When using our fake light source we adjust the intensity of the specular highlights to 25%
+	// Adjust opacity depending on the situation and model
 
 	auto constants = reinterpret_cast<float*>(pConstantData);
 	if (constants[0] != 0.0f || constants[1] != 0.0f || constants[2] != 0.0f)
 	{
-		// 75% if we're James and in a special lighting zone
 		if (getModelId_50B6C0() == ModelId::James && inSpecialLightZone)
 		{
+			// 75% if we're James and in a special lighting zone
 			constants[0] = 0.75f;
 			constants[1] = 0.75f;
 			constants[2] = 0.75f;
-			return pD3DDevice_A32894->SetPixelShaderConstant(Register, pConstantData, ConstantCount);
 		}
-
-		// 50% If we're not James and we're in a special lighting zone
-		if (getModelId_50B6C0() != ModelId::James && inSpecialLightZone)
+		else if (getModelId_50B6C0() != ModelId::James && inSpecialLightZone)
 		{
+			// 50% If we're not James and we're in a special lighting zone
 			constants[0] = 0.50f;
 			constants[1] = 0.50f;
 			constants[2] = 0.50f;
-			return pD3DDevice_A32894->SetPixelShaderConstant(Register, pConstantData, ConstantCount);
 		}
-
-		// 50% If we're not James and the flashlight is on
-		if (getModelId_50B6C0() != ModelId::James && !inSpecialLightZone && !useFakeLight)
+		else if (getModelId_50B6C0() != ModelId::James && !inSpecialLightZone && !useFakeLight)
 		{
+			// 50% If we're not James and the flashlight is on
 			constants[0] = 0.50f;
 			constants[1] = 0.50f;
 			constants[2] = 0.50f;
-			return pD3DDevice_A32894->SetPixelShaderConstant(Register, pConstantData, ConstantCount);
 		}
-
-		// Default to 25% specularity
-		constants[0] = 0.25f;
-		constants[1] = 0.25f;
-		constants[2] = 0.25f;
-		return pD3DDevice_A32894->SetPixelShaderConstant(Register, pConstantData, ConstantCount);
+		else
+		{
+			// Default to 25% specularity
+			constants[0] = 0.25f;
+			constants[1] = 0.25f;
+			constants[2] = 0.25f;
+		}
 	}
 
 	// Material is not glossy, don't bother

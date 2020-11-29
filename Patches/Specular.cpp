@@ -25,14 +25,14 @@ bool isJames(ModelId id)
 {
 	switch (id)
 	{
-	case ModelId::model_hhh_jms:
-	case ModelId::model_hhl_jms:
-	case ModelId::model_hll_jms:
 	case ModelId::model_lll_jms:
-	case ModelId::model_rhhh_jms:
-	case ModelId::model_rhhl_jms:
-	case ModelId::model_rhll_jms:
+	case ModelId::model_hll_jms:
+	case ModelId::model_hhl_jms:
+	case ModelId::model_hhh_jms:
 	case ModelId::model_rlll_jms:
+	case ModelId::model_rhll_jms:
+	case ModelId::model_rhhl_jms:
+	case ModelId::model_rhhh_jms:
 		return true;
 	}
 
@@ -43,11 +43,11 @@ bool isMaria(ModelId id)
 {
 	switch (id)
 	{
-	case ModelId::model_hhh_mar:
 	case ModelId::model_lll_mar:
-	case ModelId::model_rhhh_mar:
-	case ModelId::model_rlll_mar:
+	case ModelId::model_hhh_mar:
 	case ModelId::model_lxx_mar:
+	case ModelId::model_rlll_mar:
+	case ModelId::model_rhhh_mar:
 	case ModelId::model_rlxx_mar:
 		return true;
 	}

@@ -445,6 +445,9 @@
     <ClInclude Include="Common\AutoUpdate.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="Patches\ModelIds.h">
+      <Filter>Patches</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\sh2-enhce.rc">

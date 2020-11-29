@@ -3,36 +3,7 @@
 #include "Patches.h"
 #include "Common\Utils.h"
 #include "Wrappers\d3d8\DirectX81SDK\include\d3d8.h"
-
-enum class ModelId
-{
-	hhh_mar = 262,
-	//hhh_mar_notex = 262,
-	lll_mar = 261,
-	rhhh_mar = 294,
-	//rhhh_mar_notex = 294,
-	rlll_mar = 293,
-	lxx_mar = 270,
-	rlxx_mar = 302,
-	//rlxx_mar_notex = 302,
-
-	hhh_jms = 259,
-	//hhh_jms_notex = 259,
-	hhl_jms = 258,
-	//hhl_jms_notex = 258,
-	hll_jms = 257,
-	//hll_jms_notex = 257,
-	lll_jms = 256,
-	//lll_jms_hand = 256,
-	//lll_jms_kaku = 256,
-	//lll_jms_n = 256,
-	//lll_jms_normal = 256,
-	//lll_jms_notex = 256,
-	rhhh_jms = 291,
-	rhhl_jms = 290,
-	rhll_jms = 289,
-	rlll_jms = 288
-};
+#include "ModelIds.h"
 
 struct LightSource
 {
@@ -54,14 +25,14 @@ bool isJames(ModelId id)
 {
 	switch (id)
 	{
-	case ModelId::hhh_jms:
-	case ModelId::hhl_jms:
-	case ModelId::hll_jms:
-	case ModelId::lll_jms:
-	case ModelId::rhhh_jms:
-	case ModelId::rhhl_jms:
-	case ModelId::rhll_jms:
-	case ModelId::rlll_jms:
+	case ModelId::model_hhh_jms:
+	case ModelId::model_hhl_jms:
+	case ModelId::model_hll_jms:
+	case ModelId::model_lll_jms:
+	case ModelId::model_rhhh_jms:
+	case ModelId::model_rhhl_jms:
+	case ModelId::model_rhll_jms:
+	case ModelId::model_rlll_jms:
 		return true;
 	}
 
@@ -72,12 +43,12 @@ bool isMaria(ModelId id)
 {
 	switch (id)
 	{
-	case ModelId::hhh_mar:
-	case ModelId::lll_mar:
-	case ModelId::rhhh_mar:
-	case ModelId::rlll_mar:
-	case ModelId::lxx_mar:
-	case ModelId::rlxx_mar:
+	case ModelId::model_hhh_mar:
+	case ModelId::model_lll_mar:
+	case ModelId::model_rhhh_mar:
+	case ModelId::model_rlll_mar:
+	case ModelId::model_lxx_mar:
+	case ModelId::model_rlxx_mar:
 		return true;
 	}
 

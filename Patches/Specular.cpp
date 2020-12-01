@@ -108,14 +108,14 @@ bool IsJames(ModelId id)
 {
 	switch (id)
 	{
-	case ModelId::model_lll_jms:
-	case ModelId::model_hll_jms:
-	case ModelId::model_hhl_jms:
-	case ModelId::model_hhh_jms:
-	case ModelId::model_rlll_jms:
-	case ModelId::model_rhll_jms:
-	case ModelId::model_rhhl_jms:
-	case ModelId::model_rhhh_jms:
+	case ModelId::chr_jms_lll_jms:
+	case ModelId::chr_jms_hll_jms:
+	case ModelId::chr_jms_hhl_jms:
+	case ModelId::chr_jms_hhh_jms:
+	case ModelId::chr_jms_rlll_jms:
+	case ModelId::chr_jms_rhll_jms:
+	case ModelId::chr_jms_rhhl_jms:
+	case ModelId::chr_jms_rhhh_jms:
 		return true;
 	}
 
@@ -126,24 +126,17 @@ bool IsMaria(ModelId id)
 {
 	switch (id)
 	{
-	case ModelId::model_lll_mar:
-	case ModelId::model_hhh_mar:
-	case ModelId::model_lxx_mar:
-	case ModelId::model_rlll_mar:
-	case ModelId::model_rhhh_mar:
-	case ModelId::model_rlxx_mar:
+	case ModelId::chr_mar_lll_mar:
+	case ModelId::chr_mar_hhh_mar:
+	case ModelId::chr2_mar_lxx_mar:
+	case ModelId::chr_mar_rlll_mar:
+	case ModelId::chr_mar_rhhh_mar:
+	case ModelId::chr2_mar_rlxx_mar:
+	case ModelId::chr_item_dmr:
 		return true;
 	}
 
 	return false;
-}
-
-bool IsMariasEyes()
-{
-	if (GetCurrentMaterialIndex() == 3)
-		return true;
-	else
-		return false;
 }
 
 void __cdecl Part0(ModelOffsetTable* pOffsetTable, void* arg2)
@@ -220,11 +213,6 @@ HRESULT __stdcall Part4(IDirect3DDevice8* /*This*/, DWORD Register, void* pConst
 
 		if (IsJames(modelId)) // James
 		{
-			// Default to 25% specularity
-			constants[0] = 0.25f;
-			constants[1] = 0.25f;
-			constants[2] = 0.25f;
-
 			if (inSpecialLightZone || (GetCutsceneID() && GetFlashLightRender()))
 			{
 				// 75% if in a special lighting zone or not in cutscene 0 and flashlight is on
@@ -232,14 +220,16 @@ HRESULT __stdcall Part4(IDirect3DDevice8* /*This*/, DWORD Register, void* pConst
 				constants[1] = 0.75f;
 				constants[2] = 0.75f;
 			}
+			else
+			{
+				// Default to 25% specularity
+				constants[0] = 0.25f;
+				constants[1] = 0.25f;
+				constants[2] = 0.25f;
+			}
 		}
-		else if (IsMaria(modelId) && !IsMariasEyes()) // Maria, but not her eyes
+		else if (IsMaria(modelId) && GetCurrentMaterialIndex() != 3) // Maria, but not her eyes
 		{
-			// Default to 10% specularity
-			constants[0] = 0.10f;
-			constants[1] = 0.10f;
-			constants[2] = 0.10f;
-
 			if (GetFlashLightRender() || inSpecialLightZone)
 			{
 				// 20% If in a special lighting zone and/or flashlight is on
@@ -247,41 +237,67 @@ HRESULT __stdcall Part4(IDirect3DDevice8* /*This*/, DWORD Register, void* pConst
 				constants[1] = 0.20f;
 				constants[2] = 0.20f;
 			}
+			else
+			{
+				// Default to 5% specularity
+				constants[0] = 0.05f;
+				constants[1] = 0.05f;
+				constants[2] = 0.05f;
+			}
 		}
-		else if (IsMaria(modelId) && IsMariasEyes()) // Maria's Eyes
+		else if (IsMaria(modelId) && GetCurrentMaterialIndex() == 3) // Maria's Eyes
 		{
 			// 50% specularity
 			constants[0] = 0.50f;
 			constants[1] = 0.50f;
 			constants[2] = 0.50f;
 		}
-		else if (modelId == ModelId::model_bos) // Final boss
+		else if (modelId == ModelId::chr_bos_bos) // Final boss
 		{
 			// 25% specularity
 			constants[0] = 0.25f;
 			constants[1] = 0.25f;
 			constants[2] = 0.25f;
 		}
+		else if ((modelId == ModelId::chr_agl_agl || modelId == ModelId::chr_agl_ragl) && GetCurrentMaterialIndex() == 3) // Angela's eyes
+		{
+			if (!GetFlashLightRender() && !inSpecialLightZone)
+			{
+				// 25% specularity if flashlight is off and not in special light zone
+				constants[0] = 0.25f;
+				constants[1] = 0.25f;
+				constants[2] = 0.25f;
+			}
+			else
+			{
+				// Default to 50% specularity
+				constants[0] = 0.50f;
+				constants[1] = 0.50f;
+				constants[2] = 0.50f;
+			}
+		}
+		else if (modelId == ModelId::chr_mry_mry) // Mary (Healthy)
+		{
+			// 50% specularity
+			constants[0] = 0.50f;
+			constants[1] = 0.50f;
+			constants[2] = 0.50f;
+		}
 		else // Everything else
 		{
-			// Default to 15% specularity
-			constants[0] = 0.15f;
-			constants[1] = 0.15f;
-			constants[2] = 0.15f;
-
-			if(GetRoomID() == 0x1B || GetRoomID() == 0x3E)
-			{
-				// 10% In Apt 3F Handgun Room and Hospital Special Treatment Hallway
-				constants[0] = 0.10f;
-				constants[1] = 0.10f;
-				constants[2] = 0.10f;
-			}
-			else if (GetFlashLightRender() || inSpecialLightZone)
+			if (GetFlashLightRender() || inSpecialLightZone)
 			{
 				// 40% If in a special lighting zone and/or flashlight is on
 				constants[0] = 0.40f;
 				constants[1] = 0.40f;
 				constants[2] = 0.40f;
+			}
+			else
+			{
+				// Default to 15% specularity
+				constants[0] = 0.15f;
+				constants[1] = 0.15f;
+				constants[2] = 0.15f;
 			}
 		}
 	}

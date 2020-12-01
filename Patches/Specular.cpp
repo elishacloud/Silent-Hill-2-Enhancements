@@ -225,9 +225,9 @@ HRESULT __stdcall Part4(IDirect3DDevice8* /*This*/, DWORD Register, void* pConst
 			constants[1] = 0.25f;
 			constants[2] = 0.25f;
 
-			if (inSpecialLightZone)
+			if (inSpecialLightZone || (GetCutsceneID() != 0 && !useFakeLight))
 			{
-				// 75% if in a special lighting zone
+				// 75% if in a special lighting zone or not in cutscene 0 and flashlight is on
 				constants[0] = 0.75f;
 				constants[1] = 0.75f;
 				constants[2] = 0.75f;
@@ -242,30 +242,50 @@ HRESULT __stdcall Part4(IDirect3DDevice8* /*This*/, DWORD Register, void* pConst
 
 			if (!useFakeLight || inSpecialLightZone)
 			{
-				// 25% If in a special lighting zone and/or flashlight is on
-				constants[0] = 0.25f;
-				constants[1] = 0.25f;
-				constants[2] = 0.25f;
+				// 20% If in a special lighting zone and/or flashlight is on
+				constants[0] = 0.20f;
+				constants[1] = 0.20f;
+				constants[2] = 0.20f;
 			}
 		}
-		else // Enemy/Other and Maria's Eyes
+		else if (isMaria(modelId) && isMariasEyes()) // Maria's Eyes
 		{
-			// Default to 25% specularity
+			// 50% specularity
+			constants[0] = 0.50f;
+			constants[1] = 0.50f;
+			constants[2] = 0.50f;
+		}
+		else if (modelId == ModelId::model_bos) // Final boss
+		{
+			// 25% specularity
 			constants[0] = 0.25f;
 			constants[1] = 0.25f;
 			constants[2] = 0.25f;
+		}
+		else // Everything else
+		{
+			// Default to 15% specularity
+			constants[0] = 0.15f;
+			constants[1] = 0.15f;
+			constants[2] = 0.15f;
 
-			if (!useFakeLight || inSpecialLightZone)
+			if(GetRoomID() == 0x1B || GetRoomID() == 0x3E)
 			{
-				// 50% If in a special lighting zone and/or flashlight is on
-				constants[0] = 0.50f;
-				constants[1] = 0.50f;
-				constants[2] = 0.50f;
+				// 10% In Apt 3F Handgun Room and Hospital Special Treatment Hallway
+				constants[0] = 0.10f;
+				constants[1] = 0.10f;
+				constants[2] = 0.10f;
+			}
+			else if (!useFakeLight || inSpecialLightZone)
+			{
+				// 40% If in a special lighting zone and/or flashlight is on
+				constants[0] = 0.40f;
+				constants[1] = 0.40f;
+				constants[2] = 0.40f;
 			}
 		}
 	}
 
-	// Material is not glossy, don't bother
 	return pD3DDevice_A32894->SetPixelShaderConstant(Register, pConstantData, ConstantCount);
 }
 

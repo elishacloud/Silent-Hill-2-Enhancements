@@ -99,7 +99,7 @@ int GetCurrentMaterialIndex()
 		if (pCurrentMaterial == pCursor)
 			return index;
 
-		pCursor = (ModelMaterial*)((char*)pCursor + pCursor->materialLength);
+		pCursor = reinterpret_cast<ModelMaterial*>((reinterpret_cast<char*>(pCursor) + pCursor->materialLength));
 		index++;
 	}
 }
@@ -122,7 +122,7 @@ bool IsJames(ModelId id)
 	return false;
 }
 
-bool IsMaria(ModelId id)
+bool IsMariaExcludingEyes(ModelId id)
 {
 	switch (id)
 	{
@@ -132,8 +132,31 @@ bool IsMaria(ModelId id)
 	case ModelId::chr_mar_rlll_mar:
 	case ModelId::chr_mar_rhhh_mar:
 	case ModelId::chr2_mar_rlxx_mar:
+		if (GetCurrentMaterialIndex() != 3) return true;
+		break;
 	case ModelId::chr_item_dmr:
-		return true;
+		if (GetCurrentMaterialIndex() != 1) return true;
+		break;
+	}
+
+	return false;
+}
+
+bool IsMariaEyes(ModelId id)
+{
+	switch (id)
+	{
+	case ModelId::chr_mar_lll_mar:
+	case ModelId::chr_mar_hhh_mar:
+	case ModelId::chr2_mar_lxx_mar:
+	case ModelId::chr_mar_rlll_mar:
+	case ModelId::chr_mar_rhhh_mar:
+	case ModelId::chr2_mar_rlxx_mar:
+		if (GetCurrentMaterialIndex() == 3) return true;
+		break;
+	case ModelId::chr_item_dmr:
+		if (GetCurrentMaterialIndex() == 1) return true;
+		break;
 	}
 
 	return false;
@@ -228,7 +251,7 @@ HRESULT __stdcall Part4(IDirect3DDevice8* /*This*/, DWORD Register, void* pConst
 				constants[2] = 0.25f;
 			}
 		}
-		else if (IsMaria(modelId) && GetCurrentMaterialIndex() != 3) // Maria, but not her eyes
+		else if (IsMariaExcludingEyes(modelId)) // Maria, but not her eyes
 		{
 			if (GetFlashLightRender() || inSpecialLightZone)
 			{
@@ -245,7 +268,7 @@ HRESULT __stdcall Part4(IDirect3DDevice8* /*This*/, DWORD Register, void* pConst
 				constants[2] = 0.05f;
 			}
 		}
-		else if (IsMaria(modelId) && GetCurrentMaterialIndex() == 3) // Maria's Eyes
+		else if (IsMariaEyes(modelId)) // Maria's Eyes
 		{
 			// 50% specularity
 			constants[0] = 0.50f;

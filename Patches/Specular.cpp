@@ -82,14 +82,14 @@ static int materialCount = 0;
 static ModelMaterial* pFirstMaterial = nullptr;
 static ModelMaterial* pCurrentMaterial = nullptr;
 
-static auto getModelId_50B6C0 = reinterpret_cast<ModelId(__cdecl*)()>(0x50B6C0);
-static auto getLightSourceCount_50C590 = *reinterpret_cast<int(__cdecl*)()>(0x50C590);
-static auto getLightSourceStruct_50C5A0 = *reinterpret_cast<LightSource * (__cdecl*)(int)>(0x50C5A0);
+static auto GetModelId_50B6C0 = reinterpret_cast<ModelId(__cdecl*)()>(0x50B6C0);
+static auto GetLightSourceCount_50C590 = *reinterpret_cast<int(__cdecl*)()>(0x50C590);
+static auto GetLightSourceStruct_50C5A0 = *reinterpret_cast<LightSource * (__cdecl*)(int)>(0x50C5A0);
 static auto& pD3DDevice_A32894 = *reinterpret_cast<IDirect3DDevice8**>(0xA32894);
-static auto actorDrawOpaque_501540 = reinterpret_cast<void(__cdecl*)(ModelMaterial*)>(0x501540);
+static auto ActorDrawOpaque_501540 = reinterpret_cast<void(__cdecl*)(ModelMaterial*)>(0x501540);
 static auto DoActorOpaqueStuff_501F90 = reinterpret_cast<void(__cdecl*)(ModelOffsetTable*, void*)>(0x501F90);
 
-int getCurrentMaterialIndex()
+int GetCurrentMaterialIndex()
 {
 	int index = 0;
 	ModelMaterial* pCursor = pFirstMaterial;
@@ -104,7 +104,7 @@ int getCurrentMaterialIndex()
 	}
 }
 
-bool isJames(ModelId id)
+bool IsJames(ModelId id)
 {
 	switch (id)
 	{
@@ -122,7 +122,7 @@ bool isJames(ModelId id)
 	return false;
 }
 
-bool isMaria(ModelId id)
+bool IsMaria(ModelId id)
 {
 	switch (id)
 	{
@@ -138,9 +138,9 @@ bool isMaria(ModelId id)
 	return false;
 }
 
-bool isMariasEyes()
+bool IsMariasEyes()
 {
-	if (getCurrentMaterialIndex() == 3)
+	if (GetCurrentMaterialIndex() == 3)
 		return true;
 	else
 		return false;
@@ -159,7 +159,7 @@ void __cdecl Part0(ModelOffsetTable* pOffsetTable, void* arg2)
 
 int __cdecl Part1()
 {
-	// This function replaces a call to `int getLightSourceCount_50C590()`
+	// This function replaces a call to `int GetLightSourceCount_50C590()`
 	// When no D3D_DIRECTIONAL light sources exist, set our booleans and return 1 greater than reality
 
 	inSpecialLightZone = false;
@@ -167,11 +167,11 @@ int __cdecl Part1()
 	fakeLightIndex = -1;
 	pCurrentMaterial = nullptr;
 
-	int lightSourceCount = getLightSourceCount_50C590();
+	int lightSourceCount = GetLightSourceCount_50C590();
 
 	for (int i = 0; i < lightSourceCount; i++)
 	{
-		auto pLight = getLightSourceStruct_50C5A0(i);
+		auto pLight = GetLightSourceStruct_50C5A0(i);
 		if (pLight->light.Type == D3DLIGHT_DIRECTIONAL)
 			useFakeLight = false;
 
@@ -190,22 +190,22 @@ int __cdecl Part1()
 
 LightSource* __cdecl Part2(int index)
 {
-	// This function replaces a call to `LightSourceStruct* getLightSourceStruct_50C5A0(int index)`
+	// This function replaces a call to `LightSourceStruct* GetLightSourceStruct_50C5A0(int index)`
 	// When we hit the index 1 greater than the real light source count, return our fake
 
 	if (useFakeLight && index == fakeLightIndex)
 		return &fakeLight;
 	else
-		return getLightSourceStruct_50C5A0(index);
+		return GetLightSourceStruct_50C5A0(index);
 }
 
 void Part3(ModelMaterial* pModelMaterial)
 {
-	// This function replaces a call to `void actorDrawOpaque_501540(ModelMaterial* pModelMaterial)`
+	// This function replaces a call to `void ActorDrawOpaque_501540(ModelMaterial* pModelMaterial)`
 	// We copy off the pointer to a static variable, so we can reference it in Part 4
 
 	pCurrentMaterial = pModelMaterial;
-	actorDrawOpaque_501540(pModelMaterial);
+	ActorDrawOpaque_501540(pModelMaterial);
 }
 
 HRESULT __stdcall Part4(IDirect3DDevice8* /*This*/, DWORD Register, void* pConstantData, DWORD ConstantCount)
@@ -216,16 +216,16 @@ HRESULT __stdcall Part4(IDirect3DDevice8* /*This*/, DWORD Register, void* pConst
 	auto constants = reinterpret_cast<float*>(pConstantData);
 	if (constants[0] != 0.0f || constants[1] != 0.0f || constants[2] != 0.0f)
 	{
-		ModelId modelId = getModelId_50B6C0();
+		ModelId modelId = GetModelId_50B6C0();
 
-		if (isJames(modelId)) // James
+		if (IsJames(modelId)) // James
 		{
 			// Default to 25% specularity
 			constants[0] = 0.25f;
 			constants[1] = 0.25f;
 			constants[2] = 0.25f;
 
-			if (inSpecialLightZone || (GetCutsceneID() != 0 && !useFakeLight))
+			if (inSpecialLightZone || (GetCutsceneID() && GetFlashLightRender()))
 			{
 				// 75% if in a special lighting zone or not in cutscene 0 and flashlight is on
 				constants[0] = 0.75f;
@@ -233,14 +233,14 @@ HRESULT __stdcall Part4(IDirect3DDevice8* /*This*/, DWORD Register, void* pConst
 				constants[2] = 0.75f;
 			}
 		}
-		else if (isMaria(modelId) && !isMariasEyes()) // Maria, but not her eyes
+		else if (IsMaria(modelId) && !IsMariasEyes()) // Maria, but not her eyes
 		{
 			// Default to 10% specularity
 			constants[0] = 0.10f;
 			constants[1] = 0.10f;
 			constants[2] = 0.10f;
 
-			if (!useFakeLight || inSpecialLightZone)
+			if (GetFlashLightRender() || inSpecialLightZone)
 			{
 				// 20% If in a special lighting zone and/or flashlight is on
 				constants[0] = 0.20f;
@@ -248,7 +248,7 @@ HRESULT __stdcall Part4(IDirect3DDevice8* /*This*/, DWORD Register, void* pConst
 				constants[2] = 0.20f;
 			}
 		}
-		else if (isMaria(modelId) && isMariasEyes()) // Maria's Eyes
+		else if (IsMaria(modelId) && IsMariasEyes()) // Maria's Eyes
 		{
 			// 50% specularity
 			constants[0] = 0.50f;
@@ -276,7 +276,7 @@ HRESULT __stdcall Part4(IDirect3DDevice8* /*This*/, DWORD Register, void* pConst
 				constants[1] = 0.10f;
 				constants[2] = 0.10f;
 			}
-			else if (!useFakeLight || inSpecialLightZone)
+			else if (GetFlashLightRender() || inSpecialLightZone)
 			{
 				// 40% If in a special lighting zone and/or flashlight is on
 				constants[0] = 0.40f;

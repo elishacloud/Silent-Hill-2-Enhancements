@@ -236,7 +236,7 @@ HRESULT __stdcall Part4(IDirect3DDevice8* /*This*/, DWORD Register, void* pConst
 
 		if (IsJames(modelId)) // James
 		{
-			if (inSpecialLightZone || (GetCutsceneID() && GetFlashLightRender()))
+			if (inSpecialLightZone)
 			{
 				// 75% if in a special lighting zone or not in cutscene 0 and flashlight is on
 				constants[0] = 0.75f;
@@ -253,7 +253,7 @@ HRESULT __stdcall Part4(IDirect3DDevice8* /*This*/, DWORD Register, void* pConst
 		}
 		else if (IsMariaExcludingEyes(modelId)) // Maria, but not her eyes
 		{
-			if (GetFlashLightRender() || inSpecialLightZone)
+			if (!useFakeLight || inSpecialLightZone)
 			{
 				// 20% If in a special lighting zone and/or flashlight is on
 				constants[0] = 0.20f;
@@ -284,9 +284,9 @@ HRESULT __stdcall Part4(IDirect3DDevice8* /*This*/, DWORD Register, void* pConst
 		}
 		else if ((modelId == ModelId::chr_agl_agl || modelId == ModelId::chr_agl_ragl) && GetCurrentMaterialIndex() == 3) // Angela's eyes
 		{
-			if (!GetFlashLightRender() && !inSpecialLightZone)
+			if (useFakeLight && !inSpecialLightZone && GetCutsceneID() != 0x53)
 			{
-				// 25% specularity if flashlight is off and not in special light zone
+				// 25% specularity if flashlight is off and not in special light zone or in cutscene 0x53
 				constants[0] = 0.25f;
 				constants[1] = 0.25f;
 				constants[2] = 0.25f;
@@ -308,7 +308,7 @@ HRESULT __stdcall Part4(IDirect3DDevice8* /*This*/, DWORD Register, void* pConst
 		}
 		else // Everything else
 		{
-			if (GetFlashLightRender() || inSpecialLightZone)
+			if (!useFakeLight || inSpecialLightZone)
 			{
 				// 40% If in a special lighting zone and/or flashlight is on
 				constants[0] = 0.40f;

@@ -445,7 +445,7 @@
     <ClInclude Include="Common\AutoUpdate.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="Patches\ModelIds.h">
+    <ClInclude Include="Patches\ModelID.h">
       <Filter>Patches</Filter>
     </ClInclude>
   </ItemGroup>

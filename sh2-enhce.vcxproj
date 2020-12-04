@@ -130,7 +130,7 @@
     <ClInclude Include="Include\winapifamily.h" />
     <ClInclude Include="Logging\Logging.h" />
     <ClInclude Include="Patches\FullscreenImages.h" />
-    <ClInclude Include="Patches\ModelIds.h" />
+    <ClInclude Include="Patches\ModelID.h" />
     <ClInclude Include="Patches\Patches.h" />
     <ClInclude Include="Patches\SfxPatch.h" />
     <ClInclude Include="Resources\sh2-enhce.h" />

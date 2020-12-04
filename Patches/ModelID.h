@@ -1,6 +1,6 @@
 #pragma once
 
-enum class ModelId
+enum class ModelID
 {
 	chr_nse_nse_st = 0,				// Probably broken
 	chr_scu_scu_st = 0,				// Probably broken
@@ -364,4 +364,4 @@ enum class ModelId
 	chr2_wp_rwp_chinanife_notex = 2090
 };
 
-extern ModelId (__cdecl *GetModelId_50B6C0)();
+extern ModelID (__cdecl *GetModelID_50B6C0)();

@@ -3,7 +3,7 @@
 #include "Patches.h"
 #include "Common\Utils.h"
 #include "Wrappers\d3d8\DirectX81SDK\include\d3d8.h"
-#include "ModelIds.h"
+#include "ModelID.h"
 
 struct LightSource
 {
@@ -82,7 +82,7 @@ static int materialCount = 0;
 static ModelMaterial* pFirstMaterial = nullptr;
 static ModelMaterial* pCurrentMaterial = nullptr;
 
-ModelId (__cdecl *GetModelId_50B6C0)() = reinterpret_cast<ModelId(__cdecl*)()>(0x50B6C0);
+ModelID (__cdecl *GetModelID_50B6C0)() = reinterpret_cast<ModelID(__cdecl*)()>(0x50B6C0);
 static auto GetLightSourceCount_50C590 = *reinterpret_cast<int(__cdecl*)()>(0x50C590);
 static auto GetLightSourceStruct_50C5A0 = *reinterpret_cast<LightSource * (__cdecl*)(int)>(0x50C5A0);
 static auto& pD3DDevice_A32894 = *reinterpret_cast<IDirect3DDevice8**>(0xA32894);
@@ -102,39 +102,41 @@ int GetCurrentMaterialIndex()
 		pCursor = reinterpret_cast<ModelMaterial*>((reinterpret_cast<char*>(pCursor) + pCursor->materialLength));
 		index++;
 	}
+
+	return -1;
 }
 
-bool IsJames(ModelId id)
+bool IsJames(ModelID id)
 {
 	switch (id)
 	{
-	case ModelId::chr_jms_lll_jms:
-	case ModelId::chr_jms_hll_jms:
-	case ModelId::chr_jms_hhl_jms:
-	case ModelId::chr_jms_hhh_jms:
-	case ModelId::chr_jms_rlll_jms:
-	case ModelId::chr_jms_rhll_jms:
-	case ModelId::chr_jms_rhhl_jms:
-	case ModelId::chr_jms_rhhh_jms:
+	case ModelID::chr_jms_lll_jms:
+	case ModelID::chr_jms_hll_jms:
+	case ModelID::chr_jms_hhl_jms:
+	case ModelID::chr_jms_hhh_jms:
+	case ModelID::chr_jms_rlll_jms:
+	case ModelID::chr_jms_rhll_jms:
+	case ModelID::chr_jms_rhhl_jms:
+	case ModelID::chr_jms_rhhh_jms:
 		return true;
 	}
 
 	return false;
 }
 
-bool IsMariaExcludingEyes(ModelId id)
+bool IsMariaExcludingEyes(ModelID id)
 {
 	switch (id)
 	{
-	case ModelId::chr_mar_lll_mar:
-	case ModelId::chr_mar_hhh_mar:
-	case ModelId::chr2_mar_lxx_mar:
-	case ModelId::chr_mar_rlll_mar:
-	case ModelId::chr_mar_rhhh_mar:
-	case ModelId::chr2_mar_rlxx_mar:
+	case ModelID::chr_mar_lll_mar:
+	case ModelID::chr_mar_hhh_mar:
+	case ModelID::chr2_mar_lxx_mar:
+	case ModelID::chr_mar_rlll_mar:
+	case ModelID::chr_mar_rhhh_mar:
+	case ModelID::chr2_mar_rlxx_mar:
 		if (GetCurrentMaterialIndex() != 3) return true;
 		break;
-	case ModelId::chr_item_dmr:
+	case ModelID::chr_item_dmr:
 		if (GetCurrentMaterialIndex() != 1) return true;
 		break;
 	}
@@ -142,19 +144,19 @@ bool IsMariaExcludingEyes(ModelId id)
 	return false;
 }
 
-bool IsMariaEyes(ModelId id)
+bool IsMariaEyes(ModelID id)
 {
 	switch (id)
 	{
-	case ModelId::chr_mar_lll_mar:
-	case ModelId::chr_mar_hhh_mar:
-	case ModelId::chr2_mar_lxx_mar:
-	case ModelId::chr_mar_rlll_mar:
-	case ModelId::chr_mar_rhhh_mar:
-	case ModelId::chr2_mar_rlxx_mar:
+	case ModelID::chr_mar_lll_mar:
+	case ModelID::chr_mar_hhh_mar:
+	case ModelID::chr2_mar_lxx_mar:
+	case ModelID::chr_mar_rlll_mar:
+	case ModelID::chr_mar_rhhh_mar:
+	case ModelID::chr2_mar_rlxx_mar:
 		if (GetCurrentMaterialIndex() == 3) return true;
 		break;
-	case ModelId::chr_item_dmr:
+	case ModelID::chr_item_dmr:
 		if (GetCurrentMaterialIndex() == 1) return true;
 		break;
 	}
@@ -232,9 +234,9 @@ HRESULT __stdcall Part4(IDirect3DDevice8* /*This*/, DWORD Register, void* pConst
 	auto constants = reinterpret_cast<float*>(pConstantData);
 	if (constants[0] != 0.0f || constants[1] != 0.0f || constants[2] != 0.0f)
 	{
-		ModelId modelId = GetModelId_50B6C0();
+		ModelID modelID = GetModelID_50B6C0();
 
-		if (IsJames(modelId)) // James
+		if (IsJames(modelID)) // James
 		{
 			if (inSpecialLightZone)
 			{
@@ -251,7 +253,7 @@ HRESULT __stdcall Part4(IDirect3DDevice8* /*This*/, DWORD Register, void* pConst
 				constants[2] = 0.25f;
 			}
 		}
-		else if (IsMariaExcludingEyes(modelId)) // Maria, but not her eyes
+		else if (IsMariaExcludingEyes(modelID)) // Maria, but not her eyes
 		{
 			if (!useFakeLight || inSpecialLightZone)
 			{
@@ -268,21 +270,21 @@ HRESULT __stdcall Part4(IDirect3DDevice8* /*This*/, DWORD Register, void* pConst
 				constants[2] = 0.05f;
 			}
 		}
-		else if (IsMariaEyes(modelId)) // Maria's Eyes
+		else if (IsMariaEyes(modelID)) // Maria's Eyes
 		{
 			// 50% specularity
 			constants[0] = 0.50f;
 			constants[1] = 0.50f;
 			constants[2] = 0.50f;
 		}
-		else if (modelId == ModelId::chr_bos_bos) // Final boss
+		else if (modelID == ModelID::chr_bos_bos) // Final boss
 		{
 			// 25% specularity
 			constants[0] = 0.25f;
 			constants[1] = 0.25f;
 			constants[2] = 0.25f;
 		}
-		else if ((modelId == ModelId::chr_agl_agl || modelId == ModelId::chr_agl_ragl) && GetCurrentMaterialIndex() == 3) // Angela's eyes
+		else if ((modelID == ModelID::chr_agl_agl || modelID == ModelID::chr_agl_ragl) && GetCurrentMaterialIndex() == 3) // Angela's eyes
 		{
 			if (useFakeLight && !inSpecialLightZone && GetCutsceneID() != 0x53)
 			{
@@ -299,7 +301,7 @@ HRESULT __stdcall Part4(IDirect3DDevice8* /*This*/, DWORD Register, void* pConst
 				constants[2] = 0.50f;
 			}
 		}
-		else if (modelId == ModelId::chr_mry_mry) // Mary (Healthy)
+		else if (modelID == ModelID::chr_mry_mry) // Mary (Healthy)
 		{
 			// 50% specularity
 			constants[0] = 0.50f;

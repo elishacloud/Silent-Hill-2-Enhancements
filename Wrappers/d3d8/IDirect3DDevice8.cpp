@@ -23,7 +23,7 @@
 #include "stb_image_dds.h"
 #include "stb_image_write.h"
 #include "stb_image_resize.h"
-#include "Patches/ModelIds.h"
+#include "Patches/ModelID.h"
 
 extern bool m_StopThreadFlag;
 extern bool IsUpdatingModule;
@@ -1017,7 +1017,7 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 	}
 
 	// Exclude Woodside Room 208 TV static geometry from receiving shadows
-	if (EnableSoftShadows && GetRoomID() == 0x18 && GetModelId_50B6C0() == ModelId::chr_item_noa)
+	if (EnableSoftShadows && GetRoomID() == 0x18 && GetModelID_50B6C0() == ModelID::chr_item_noa)
 	{
 		DWORD stencilPass = 0;
 		ProxyInterface->GetRenderState(D3DRS_STENCILPASS, &stencilPass);

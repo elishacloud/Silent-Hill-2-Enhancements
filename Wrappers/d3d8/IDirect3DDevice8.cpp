@@ -23,6 +23,7 @@
 #include "stb_image_dds.h"
 #include "stb_image_write.h"
 #include "stb_image_resize.h"
+#include "Patches/ModelIds.h"
 
 extern bool m_StopThreadFlag;
 extern bool IsUpdatingModule;
@@ -1016,31 +1017,18 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 	}
 
 	// Exclude Woodside Room 208 TV static geometry from receiving shadows
-	if (EnableSoftShadows && GetRoomID() == 0x18 && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 4 && startIndex == 0 && primCount == 2)
+	if (EnableSoftShadows && GetRoomID() == 0x18 && GetModelId_50B6C0() == ModelId::chr_item_noa)
 	{
-		LPDIRECT3DTEXTURE8 texture = nullptr;
-		D3DSURFACE_DESC desc = { D3DFMT_UNKNOWN, D3DRTYPE_TEXTURE, 0, D3DPOOL_DEFAULT, 0, D3DMULTISAMPLE_NONE, 0, 0 };
+		DWORD stencilPass = 0;
+		ProxyInterface->GetRenderState(D3DRS_STENCILPASS, &stencilPass);
 
-		HRESULT hr = ProxyInterface->GetTexture(0, (LPDIRECT3DBASETEXTURE8 *)&texture);
-		if (SUCCEEDED(hr) && texture)
-		{
-			hr = texture->GetLevelDesc(0, &desc);
+		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);
 
-			texture->Release();
-		}
-		if (SUCCEEDED(hr) && desc.Width == 684 && desc.Height == 512)
-		{
-			DWORD stencilPass = 0;
-			ProxyInterface->GetRenderState(D3DRS_STENCILPASS, &stencilPass);
+		HRESULT hr = ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
 
-			ProxyInterface->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);
+		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, stencilPass);
 
-			hr = ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
-
-			ProxyInterface->SetRenderState(D3DRS_STENCILPASS, stencilPass);
-
-			return hr;
-		}
+		return hr;
 	}
 	// Exclude windows in Heaven's Night, Hotel 2F Room Hallway and Hotel Storeroom from receiving shadows
 	else if (EnableSoftShadows &&

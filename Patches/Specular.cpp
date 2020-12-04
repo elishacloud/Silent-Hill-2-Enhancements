@@ -82,7 +82,7 @@ static int materialCount = 0;
 static ModelMaterial* pFirstMaterial = nullptr;
 static ModelMaterial* pCurrentMaterial = nullptr;
 
-static auto GetModelId_50B6C0 = reinterpret_cast<ModelId(__cdecl*)()>(0x50B6C0);
+ModelId (__cdecl *GetModelId_50B6C0)() = reinterpret_cast<ModelId(__cdecl*)()>(0x50B6C0);
 static auto GetLightSourceCount_50C590 = *reinterpret_cast<int(__cdecl*)()>(0x50C590);
 static auto GetLightSourceStruct_50C5A0 = *reinterpret_cast<LightSource * (__cdecl*)(int)>(0x50C5A0);
 static auto& pD3DDevice_A32894 = *reinterpret_cast<IDirect3DDevice8**>(0xA32894);

@@ -364,4 +364,4 @@ enum class ModelID
 	chr2_wp_rwp_chinanife_notex = 2090
 };
 
-extern ModelID (__cdecl *GetModelID_50B6C0)();
+extern ModelID (__cdecl *GetModelID)();

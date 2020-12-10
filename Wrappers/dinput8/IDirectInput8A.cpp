@@ -89,12 +89,18 @@ HRESULT m_IDirectInput8A::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBACKA 
 	{
 		RunOnceFlag = false;
 
-		ENUMDEVICEA CallbackContext;
-		CallbackContext.pvRef = nullptr;
-		CallbackContext.lpCallback = nullptr;
+		struct EnumDevice
+		{
+			static BOOL CALLBACK EnumDeviceCallback(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef)
+			{
+				Logging::Log() << "|- Name: '" << lpddi->tszProductName << "' GUID: " << lpddi->guidInstance;
+
+				return DIENUM_CONTINUE;
+			}
+		};
 
 		Logging::Log() << "|----------- GAMEPADS -----------";
-		ProxyInterface->EnumDevices(dwDevType, m_IDirectInputEnumDevice::EnumDeviceCallbackA, &CallbackContext, DIEDFL_ATTACHEDONLY);
+		ProxyInterface->EnumDevices(dwDevType, EnumDevice::EnumDeviceCallback, nullptr, DIEDFL_ATTACHEDONLY);
 		Logging::Log() << "|--------------------------------";
 	}
 
@@ -138,11 +144,27 @@ HRESULT m_IDirectInput8A::EnumDevicesBySemantics(LPCSTR ptszUserName, LPDIACTION
 		return E_INVALIDARG;
 	}
 
-	ENUMDEVICESEMA CallbackContext;
+	struct EnumDevice
+	{
+		LPVOID pvRef;
+		LPDIENUMDEVICESBYSEMANTICSCBA lpCallback;
+
+		static BOOL CALLBACK EnumDeviceCallback(LPCDIDEVICEINSTANCEA lpddi, LPDIRECTINPUTDEVICE8A lpdid, DWORD dwFlags, DWORD dwRemaining, LPVOID pvRef)
+		{
+			EnumDevice *self = (EnumDevice*)pvRef;
+
+			if (lpdid)
+			{
+				lpdid = ProxyAddressLookupTableDinput8.FindAddress<m_IDirectInputDevice8A>(lpdid);
+			}
+
+			return self->lpCallback(lpddi, lpdid, dwFlags, dwRemaining, self->pvRef);
+		}
+	} CallbackContext;
 	CallbackContext.pvRef = pvRef;
 	CallbackContext.lpCallback = lpCallback;
 
-	return ProxyInterface->EnumDevicesBySemantics(ptszUserName, lpdiActionFormat, m_IDirectInputEnumDeviceSemantics::EnumDeviceCallbackA, &CallbackContext, dwFlags);
+	return ProxyInterface->EnumDevicesBySemantics(ptszUserName, lpdiActionFormat, EnumDevice::EnumDeviceCallback, &CallbackContext, dwFlags);
 }
 
 HRESULT m_IDirectInput8A::ConfigureDevices(LPDICONFIGUREDEVICESCALLBACK lpdiCallback, LPDICONFIGUREDEVICESPARAMSA lpdiCDParams, DWORD dwFlags, LPVOID pvRefData)

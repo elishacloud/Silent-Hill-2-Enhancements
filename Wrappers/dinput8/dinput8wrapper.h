@@ -21,4 +21,3 @@ extern AddressLookupTableDinput8<void> ProxyAddressLookupTableDinput8;
 #include "IDirectInput8A.h"
 #include "IDirectInputDevice8A.h"
 #include "IDirectInputEffect.h"
-#include "IDirectInputEnum.h"

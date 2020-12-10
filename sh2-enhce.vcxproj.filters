@@ -245,9 +245,6 @@
     <ClCompile Include="Wrappers\dinput8\IDirectInputEffect.cpp">
       <Filter>Wrappers\dinput8</Filter>
     </ClCompile>
-    <ClCompile Include="Wrappers\dinput8\IDirectInputEnum.cpp">
-      <Filter>Wrappers\dinput8</Filter>
-    </ClCompile>
     <ClCompile Include="Wrappers\dinput8\InterfaceQuery.cpp">
       <Filter>Wrappers\dinput8</Filter>
     </ClCompile>
@@ -416,9 +413,6 @@
       <Filter>Wrappers\dinput8</Filter>
     </ClInclude>
     <ClInclude Include="Wrappers\dinput8\IDirectInputEffect.h">
-      <Filter>Wrappers\dinput8</Filter>
-    </ClInclude>
-    <ClInclude Include="Wrappers\dinput8\IDirectInputEnum.h">
       <Filter>Wrappers\dinput8</Filter>
     </ClInclude>
     <ClInclude Include="Patches\FullscreenImages.h">

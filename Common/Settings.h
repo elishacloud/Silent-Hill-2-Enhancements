@@ -21,11 +21,11 @@
 	visit(DisableSafeMode, true) \
 	visit(DisableScreenSaver, true) \
 	visit(DPadMovementFix, true) \
-	visit(EnableTexAddrHack, true) \
 	visit(EnableScreenshots, true) \
 	visit(EnableSFXAddrHack, true) \
 	visit(EnableSMAA, false) \
 	visit(EnableSoftShadows, true) \
+	visit(EnableTexAddrHack, true) \
 	visit(EnableWndMode, true) \
 	visit(FastTransitions, true) \
 	visit(Fix2D, true) \
@@ -43,7 +43,7 @@
 	visit(Fog2DFix, true) \
 	visit(FogParameterFix, true) \
 	visit(FogSpeedFix, true) \
-	visit(FullscreenWndMode, true) \
+	visit(FullscreenWndMode, false) \
 	visit(GamepadControlsFix, true) \
 	visit(GameLoadFix, true) \
 	visit(HalogenLightFix, true) \
@@ -90,7 +90,7 @@
 	visit(UseCustomModFolder, true) \
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
-	visit(WndModeBorder, true) \
+	visit(WndModeBorder, false) \
 	visit(WoodsideRoom205Fix, true)
 
 #define VISIT_INT_SETTINGS(visit) \
@@ -102,7 +102,7 @@
 	visit(CustomFontCharWidth, 20) \
 	visit(CustomFontCharHeight, 32) \
 	visit(fog_transparency_layer1, 128) \
-	visit(fog_transparency_layer2, 138) \
+	visit(fog_transparency_layer2, 112) \
 	visit(FullscreenImages, 2) \
 	visit(FMVWidescreenEnhancementPackCompatibility, 2) \
 	visit(LetterSpacing, 2) \
@@ -116,16 +116,16 @@
 	visit(RestoreSearchCamMovement, 1) \
 	visit(SingleCoreAffinity, 2) \
 	visit(SingleCoreAffinityTimer, 5000) \
-	visit(SmallFontWidth, 14) \
+	visit(SmallFontWidth, 16) \
 	visit(SmallFontHeight, 24) \
 	visit(SpaceSize, 7)
 
 #define VISIT_FLOAT_SETTINGS(visit) \
 	visit(fog_layer1_x1, 0.250f) \
 	visit(fog_layer1_x2, 0.250f) \
-	visit(fog_layer1_y1, 0.250f) \
-	visit(fog_layer1_y2, 0.250f) \
-	visit(fog_layer2_complexity, 0.066406f) \
+	visit(fog_layer1_y1, 0.125f) \
+	visit(fog_layer1_y2, 0.125f) \
+	visit(fog_layer2_complexity, 0.055f) \
 	visit(fog_layer2_density_add, 100.0f) \
 	visit(fog_layer2_density_mult, 1.4f)
 

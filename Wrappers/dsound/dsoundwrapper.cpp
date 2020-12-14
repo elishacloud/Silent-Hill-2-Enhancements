@@ -52,7 +52,7 @@ HRESULT WINAPI DirectSoundCreate8Wrapper(LPCGUID pcGuidDevice, LPDIRECTSOUND8 *p
 
 	if (SUCCEEDED(hr) && ppDS8)
 	{
-		*ppDS8 = ProxyAddressLookupTableDsound.FindAddress<m_IDirectSound8>(*ppDS8);
+		*ppDS8 = new m_IDirectSound8(*ppDS8);
 	}
 
 	return hr;

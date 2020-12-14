@@ -173,7 +173,7 @@ HRESULT m_IDirectInputDevice8A::CreateEffect(REFGUID rguid, LPCDIEFFECT lpeff, L
 
 	if (SUCCEEDED(hr) && ppdeff)
 	{
-		*ppdeff = ProxyAddressLookupTableDinput8.FindAddress<m_IDirectInputEffect>(*ppdeff);
+		*ppdeff = new m_IDirectInputEffect(*ppdeff);
 	}
 
 	return hr;

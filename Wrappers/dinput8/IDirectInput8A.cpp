@@ -73,7 +73,7 @@ HRESULT m_IDirectInput8A::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICE8A *lpl
 
 	if (SUCCEEDED(hr) && lplpDirectInputDevice)
 	{
-		*lplpDirectInputDevice = ProxyAddressLookupTableDinput8.FindAddress<m_IDirectInputDevice8A>(*lplpDirectInputDevice);
+		*lplpDirectInputDevice = new m_IDirectInputDevice8A(*lplpDirectInputDevice);
 	}
 
 	return hr;
@@ -93,6 +93,8 @@ HRESULT m_IDirectInput8A::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBACKA 
 		{
 			static BOOL CALLBACK EnumDeviceCallback(LPCDIDEVICEINSTANCEA lpddi, LPVOID pvRef)
 			{
+				UNREFERENCED_PARAMETER(pvRef);
+
 				Logging::Log() << "|- Name: '" << lpddi->tszProductName << "' GUID: " << lpddi->guidInstance;
 
 				return DIENUM_CONTINUE;

@@ -52,7 +52,14 @@ HRESULT WINAPI DirectInput8CreateWrapper(HINSTANCE hinst, DWORD dwVersion, REFII
 
 	if (SUCCEEDED(hr))
 	{
-		genericQueryInterface(riidltf, ppvOut);
+		if (riidltf == IID_IDirectInput8A)
+		{
+			*ppvOut = new m_IDirectInput8A((IDirectInput8A*)*ppvOut);
+		}
+		else
+		{
+			genericQueryInterface(riidltf, ppvOut);
+		}
 	}
 
 	return hr;

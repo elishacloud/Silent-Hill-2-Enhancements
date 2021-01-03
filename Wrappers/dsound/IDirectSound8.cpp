@@ -75,7 +75,13 @@ HRESULT m_IDirectSound8::CreateSoundBuffer(LPCDSBUFFERDESC pcDSBufferDesc, LPDIR
 
 	if (SUCCEEDED(hr) && ppDSBuffer)
 	{
+		LOG_LIMIT(1, __FUNCTION__ << " Created buffer!");
+
 		*ppDSBuffer = new m_IDirectSoundBuffer8((IDirectSoundBuffer8*)*ppDSBuffer);
+	}
+	else
+	{
+		Logging::Log() << __FUNCTION__ << " Failed! Error: " << (DSERR)hr;
 	}
 
 	return hr;

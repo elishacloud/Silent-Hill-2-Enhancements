@@ -54,6 +54,10 @@ HRESULT WINAPI DirectSoundCreate8Wrapper(LPCGUID pcGuidDevice, LPDIRECTSOUND8 *p
 	{
 		*ppDS8 = new m_IDirectSound8(*ppDS8);
 	}
+	else
+	{
+		Logging::Log() << "'DirectSoundCreate8' Failed! Error: " << (DSERR)hr;
+	}
 
 	return hr;
 }

@@ -309,6 +309,8 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 
 	if (SUCCEEDED(hr) && ppReturnedDeviceInterface)
 	{
+		LOG_LIMIT(1, __FUNCTION__ << " Created device!");
+
 		*ppReturnedDeviceInterface = new m_IDirect3DDevice8(*ppReturnedDeviceInterface, this);
 
 		if (EnableWndMode)
@@ -335,6 +337,10 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 		{
 			RUNCODEONCE(SetFullscreenImagesRes(BufferWidth, BufferHeight));
 		}
+	}
+	else
+	{
+		Logging::Log() << __FUNCTION__ << " Failed! Error: " << (D3DERR)hr;
 	}
 
 	return hr;

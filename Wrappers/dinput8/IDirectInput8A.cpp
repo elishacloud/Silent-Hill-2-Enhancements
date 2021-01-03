@@ -73,7 +73,13 @@ HRESULT m_IDirectInput8A::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICE8A *lpl
 
 	if (SUCCEEDED(hr) && lplpDirectInputDevice)
 	{
+		LOG_LIMIT(1, __FUNCTION__ << " Created device!");
+
 		*lplpDirectInputDevice = new m_IDirectInputDevice8A(*lplpDirectInputDevice);
+	}
+	else
+	{
+		Logging::Log() << __FUNCTION__ << " Failed! Error: " << (DIERR)hr;
 	}
 
 	return hr;

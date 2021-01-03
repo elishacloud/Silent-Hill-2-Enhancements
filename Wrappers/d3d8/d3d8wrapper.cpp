@@ -100,6 +100,10 @@ IDirect3D8 *WINAPI Direct3DCreate8Wrapper(UINT SDKVersion)
 	{
 		return new m_IDirect3D8(pD3D8);
 	}
+	else
+	{
+		Logging::Log() << "'Direct3DCreate8' Failed!";
+	}
 
 	return nullptr;
 }

@@ -61,6 +61,10 @@ HRESULT WINAPI DirectInput8CreateWrapper(HINSTANCE hinst, DWORD dwVersion, REFII
 			genericQueryInterface(riidltf, ppvOut);
 		}
 	}
+	else
+	{
+		Logging::Log() << "'DirectInput8Create' Failed! Error: " << (DIERR)hr;
+	}
 
 	return hr;
 }

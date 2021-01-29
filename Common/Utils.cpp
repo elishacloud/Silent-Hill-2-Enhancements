@@ -346,23 +346,8 @@ DWORD ReplaceMemoryBytes(void *dataSrc, void *dataDest, size_t size, DWORD start
 }
 
 // Set Single Core Affinity
-DWORD WINAPI SetSingleCoreAffinity(LPVOID pvParam)
+void SetSingleCoreAffinity()
 {
-	// Get sleep time
-	DWORD SleepTime = 0;
-	if (pvParam)
-	{
-		SleepTime = *(DWORD*)pvParam;
-	}
-
-	// Sleep for a while
-	DWORD timer = 0;
-	while (!m_StopThreadFlag && timer < SleepTime)
-	{
-		Sleep(120);
-		timer += 120;
-	};
-
 	Logging::Log() << "Setting SingleCoreAffinity...";
 	DWORD_PTR ProcessAffinityMask, SystemAffinityMask;
 	HANDLE hCurrentProcess = GetCurrentProcess();
@@ -379,8 +364,6 @@ DWORD WINAPI SetSingleCoreAffinity(LPVOID pvParam)
 		}
 	}
 	CloseHandle(hCurrentProcess);
-
-	return S_OK;
 }
 
 // Sets application DPI aware which disables DPI virtulization/High DPI scaling for this process

@@ -455,17 +455,9 @@ void DelayedStart()
 	}
 
 	// Set single core affinity
-	if (SingleCoreAffinity)
+	if (SingleCoreAffinity && !SingleCoreAffinityTimer)
 	{
-		if (SingleCoreAffinityTimer)
-		{
-			static DWORD SleepTime = SingleCoreAffinityTimer;
-			CreateThread(nullptr, 0, SetSingleCoreAffinity, &SleepTime, 0, nullptr);
-		}
-		else
-		{
-			SetSingleCoreAffinity();
-		}
+		SetSingleCoreAffinity();
 	}
 
 	// Loaded

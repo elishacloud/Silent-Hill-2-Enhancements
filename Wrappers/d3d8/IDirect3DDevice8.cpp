@@ -1746,12 +1746,6 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		{
 			IsInFakeFadeout = false;
 		}
-
-		// Set single core affinity
-		if (SingleCoreAffinity && SingleCoreAffinityTimer)
-		{
-			RUNCODEONCE(SetSingleCoreAffinity());
-		}
 	}
 
 	HRESULT hr = ProxyInterface->BeginScene();

@@ -8,6 +8,7 @@
 	visit(AutoUpdateModule, true) \
 	visit(CatacombsMeatRoomFix, true) \
 	visit(CheckForAdminAccess, true) \
+	visit(CheckCompatibilityMode, true) \
 	visit(ClosetCutsceneFix, true) \
 	visit(CreateLocalFix, true) \
 	visit(d3d8to9, true) \

@@ -18,33 +18,45 @@
 #include <Windows.h>
 #include <psapi.h>
 #include <string>
+#include <shlwapi.h>
 #include <iostream>
 #include <fstream>
 #include <shellapi.h>
 #include "Patches.h"
 #include "Common\Utils.h"
+#include "Common\Settings.h"
 #include "Logging\Logging.h"
+
+const wchar_t *ArgString = L"SH2-PID=";
+const DWORD ArgSize = wcslen(ArgString);
+
+bool ProcessRelaunched = false;
 
 // Check arguments to see if a pid is sent as an argument
 void CheckArgumentsForPID()
 {
+	wchar_t sh2path[MAX_PATH];
+
 	// Retrieve command line arguments
 	LPWSTR *szArgList;
 	int argCount;
 	szArgList = CommandLineToArgvW(GetCommandLine(), &argCount);
 
 	// If arguments
-	if (szArgList && argCount)
+	if (szArgList && argCount && GetModuleFileName(nullptr, sh2path, MAX_PATH) != 0)
 	{
-		wchar_t sh2path[MAX_PATH];
-		GetModuleFileName(nullptr, sh2path, MAX_PATH);
-
 		for (int i = 0; i < argCount; i++)
 		{
-			int pid = _wtoi(szArgList[i]);
+			DWORD pid = 0;
+
+			if (wcslen(szArgList[i]) >= ArgSize && wcsstr(szArgList[i], ArgString))
+			{
+				ProcessRelaunched = true;
+				pid = _wtoi(szArgList[i] + ArgSize);
+			}
 
 			// If argument is a number
-			if (pid > 0)
+			if (pid)
 			{
 				wchar_t filename[MAX_PATH];
 
@@ -69,9 +81,37 @@ void CheckArgumentsForPID()
 	LocalFree(szArgList);
 }
 
+// Relaunch Silent Hill 2 with administrator rights
+void RelaunchSilentHill2(const wchar_t *sh2path)
+{
+	// Check Silent Hill 2 file path
+	if (!ProcessRelaunched && PathFileExistsW(sh2path))
+	{
+		// Get pid
+		wchar_t parameter[40] = { '\0' };
+		wcscpy_s(parameter, ArgString);
+		_itow_s(GetCurrentProcessId(), parameter + ArgSize, 40 - ArgSize, 10);
+
+		// Administrator access required, re-launching with administrator access
+		if ((int)ShellExecute(nullptr, L"runas", sh2path, parameter, nullptr, SW_SHOWDEFAULT) > 32)
+		{
+			exit(0);
+		}
+	}
+}
+
 // Check if administrator access is required
 void CheckAdminAccess()
 {
+	// Log activity
+	Logging::Log() << "Checking if administrator access is required.";
+
+	if (ProcessRelaunched)
+	{
+		Logging::Log() << "Detected relaunch with administrator rights!";
+		return;
+	}
+
 	// Get Silent Hill 2 file path
 	wchar_t sh2path[MAX_PATH];
 	if (GetModuleFileName(nullptr, sh2path, MAX_PATH) != 0)
@@ -82,9 +122,6 @@ void CheckAdminAccess()
 		wcscpy_s(wcsrchr(tmpfile, '\\'), MAX_PATH - wcslen(tmpfile), L"\0");
 		wcscat_s(tmpfile, MAX_PATH, L"\\~sh2check.dll");		// Needs to be a dll or exe file to bypass Windows' VirtualStore
 
-		// Log activity
-		Logging::Log() << __FUNCTION__ << " Checking if administrator access is required.";
-
 		// Check if file can be created in Silent Hill 2 folder
 		std::ofstream outfile(tmpfile);
 
@@ -92,17 +129,65 @@ void CheckAdminAccess()
 		{
 			outfile.close();
 			DeleteFile(tmpfile);
-			return;		// Admin access is not needed
+		}
+		else
+		{
+			RelaunchSilentHill2(sh2path);
+		}
+
+		// Check compatibility options
+		if (CheckCompatibilityMode && GetEnvironmentVariableA("__COMPAT_LAYER", nullptr, 0))
+		{
+			RelaunchSilentHill2(sh2path);
 		}
 	}
+}
 
-	// Get pid
-	wchar_t buffer[10] = { '\0' };
-	_itow_s(GetCurrentProcessId(), buffer, 10);
+bool RemoveCompatibilityRegistry(HKEY hKeyRoot, const wchar_t *sh2path)
+{
+	bool NeedsRestart = false;
 
-	// Administrator access required, re-launching with administrator access
-	if ((int)ShellExecute(nullptr, L"runas", sh2path, buffer, nullptr, SW_SHOWDEFAULT) > 32)
+	// Check Silent Hill 2 file path
+	if (PathFileExists(sh2path))
 	{
-		exit(0);
+		HKEY hKey;
+		if (RegOpenKeyEx(hKeyRoot, L"Software\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers", 0, KEY_READ | KEY_SET_VALUE | KEY_WOW64_64KEY, &hKey) == ERROR_SUCCESS)
+		{
+			DWORD dwType;
+			LONG nResult = RegQueryValueEx(hKey, sh2path, NULL, &dwType, NULL, NULL);
+
+			if (nResult == ERROR_SUCCESS)
+			{
+				NeedsRestart = true;
+				RegDeleteValue(hKey, sh2path);
+			}
+
+			RegCloseKey(hKey);
+		}
+		else
+		{
+			NeedsRestart = true;
+		}
+
+	}
+
+	return NeedsRestart;
+}
+
+// Remove compatibility settings
+void RemoveCompatibilityMode()
+{
+	// Get Silent Hill 2 file path
+	wchar_t sh2path[MAX_PATH];
+	if (GetModuleFileName(nullptr, sh2path, MAX_PATH) != 0)
+	{
+		Logging::Log() << "Checking for Compatibility Settings!";
+		bool NeedsRestart = RemoveCompatibilityRegistry(HKEY_CURRENT_USER, sh2path);
+		NeedsRestart = (RemoveCompatibilityRegistry(HKEY_LOCAL_MACHINE, sh2path) || NeedsRestart);
+
+		if (NeedsRestart)
+		{
+			RelaunchSilentHill2(sh2path);
+		}
 	}
 }

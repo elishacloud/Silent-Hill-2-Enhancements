@@ -77,10 +77,7 @@ void DelayedStart()
 	}
 
 	// Check arguments for PID
-	if (CheckForAdminAccess)
-	{
-		CheckArgumentsForPID();
-	}
+	CheckArgumentsForPID();
 
 	// Get log file path and open log file
 	wchar_t logpath[MAX_PATH];
@@ -96,7 +93,6 @@ void DelayedStart()
 	Logging::LogComputerManufacturer();
 	Logging::LogOSVersion();
 	Logging::LogProcessNameAndPID();
-	Logging::LogCompatLayer();
 
 	// Game version
 	if (memcmp((void*)0x00401005, "\xE9\x56\x25\x00\x00\xE9\x71\x25\x00\x00\xE9\xFC\x69\x00\x00\xE9\x77\x06\x00\x00", 0x14) == 0)
@@ -118,6 +114,14 @@ void DelayedStart()
 	{
 		Logging::Log() << "Warning: Unknown game binary version!";
 	}
+
+	// Remove unsupported compatibility settings
+	// Needs to be before CheckAdminAccess()
+	if (CheckCompatibilityMode)
+	{
+		RemoveCompatibilityMode();
+	}
+	Logging::LogCompatLayer();
 
 	// Check for admin access
 	if (CheckForAdminAccess)

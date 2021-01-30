@@ -337,6 +337,12 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 		{
 			RUNCODEONCE(SetFullscreenImagesRes(BufferWidth, BufferHeight));
 		}
+
+		// Set single core affinity
+		if (SingleCoreAffinity && SingleCoreAffinityTimer)
+		{
+			RUNCODEONCE(SetSingleCoreAffinity());
+		}
 	}
 	else
 	{

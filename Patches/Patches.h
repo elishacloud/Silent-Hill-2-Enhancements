@@ -54,6 +54,7 @@ DWORD *GetLoadingScreenPointer();
 // Function patch declaration
 void CheckArgumentsForPID();
 void CheckAdminAccess();
+void RemoveCompatibilityMode();
 void SetDelayedStart();
 void SetFullscreenImagesRes(DWORD Width, DWORD Height);
 void SetResolutionLock(DWORD Width, DWORD Height);

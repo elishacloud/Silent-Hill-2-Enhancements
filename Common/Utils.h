@@ -18,6 +18,10 @@ void SetSingleCoreAffinity();
 void AddHandleToVector(HMODULE dll);
 void UnloadAllModules();
 DWORD ConvertFloat(float num);
+bool GetModulePath(char *path, rsize_t size);
+bool GetModulePath(wchar_t *path, rsize_t size);
+bool GetSH2FolderPath(char *path, rsize_t size);
+bool GetSH2FolderPath(wchar_t *path, rsize_t size);
 void LogDirectory();
 
 extern bool m_StopThreadFlag;

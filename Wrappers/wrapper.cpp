@@ -19,6 +19,7 @@
 #include <vector>
 #include <algorithm>
 #include <fstream>
+#include "Common\Utils.h"
 #include "Logging\Logging.h"
 
 #define ADD_FARPROC_MEMBER(procName, unused) \
@@ -152,12 +153,15 @@ void Wrapper::ShimProc(FARPROC &var, FARPROC in, FARPROC &out)
 #define CHECK_FOR_WRAPPER(dllName) \
 	{ using namespace dllName; if (_wcsicmp(WrapperMode, Name) == 0) { dll = Load(ProxyDll, hWrapper); return dll; }}
 
-void Wrapper::GetWrapperMode(HMODULE hModule)
+void Wrapper::GetWrapperMode()
 {
 	// Get module name
+	wchar_t* WrapperMode = nullptr;
 	wchar_t WrapperName[MAX_PATH] = { 0 };
-	GetModuleFileName(hModule, WrapperName, MAX_PATH);
-	wchar_t* WrapperMode = wcsrchr(WrapperName, '\\') + 1;
+	if (GetModulePath(WrapperName, MAX_PATH) && wcsrchr(WrapperName, '\\'))
+	{
+		WrapperMode = wcsrchr(WrapperName, '\\') + 1;
+	}
 
 	// Save wrapper mode
 	if (_wcsicmp(WrapperMode, dtypename[DTYPE_D3D8]) == 0)

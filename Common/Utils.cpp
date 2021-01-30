@@ -481,11 +481,49 @@ void GetFileSize(uintmax_t fsize, char *strOutput, size_t size)
 	strcpy_s(strOutput, size, strSize.c_str());
 }
 
+bool GetModulePath(char *path, rsize_t size)
+{
+	static char modpath[MAX_PATH] = { '\0' };
+
+	static bool ret = (GetModuleFileNameA(m_hModule, modpath, MAX_PATH) != 0);
+
+	return (strcpy_s(path, size, modpath) == 0 && ret);
+}
+
+bool GetModulePath(wchar_t *path, rsize_t size)
+{
+	static wchar_t modpath[MAX_PATH] = { '\0' };
+
+	static bool ret = (GetModuleFileNameW(m_hModule, modpath, MAX_PATH) != 0);
+
+	return (wcscpy_s(path, size, modpath) == 0 && ret);
+}
+
+bool GetSH2FolderPath(char *path, rsize_t size)
+{
+	static char sh2path[MAX_PATH] = { '\0' };
+
+	static bool ret = (GetModuleFileNameA(nullptr, sh2path, MAX_PATH) != 0);
+
+	return (strcpy_s(path, size, sh2path) == 0 && ret);
+}
+
+bool GetSH2FolderPath(wchar_t *path, rsize_t size)
+{
+	static wchar_t sh2path[MAX_PATH] = { '\0' };
+
+	static bool ret = (GetModuleFileNameW(nullptr, sh2path, MAX_PATH) != 0);
+
+	return (wcscpy_s(path, size, sh2path) == 0 && ret);
+}
+
 void LogDirectory()
 {
 	wchar_t path[MAX_PATH];
-	GetModuleFileName(nullptr, path, MAX_PATH);
-	wcscpy_s(wcsrchr(path, '\\'), MAX_PATH - wcslen(path), L"\0");
+	if (GetSH2FolderPath(path, MAX_PATH) && wcsrchr(path, '\\'))
+	{
+		wcscpy_s(wcsrchr(path, '\\'), MAX_PATH - wcslen(path), L"\0");
+	}
 
 	Logging::Log() << "|- ";
 	Logging::Log() << "|-  Directory of " << path;

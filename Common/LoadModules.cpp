@@ -85,10 +85,10 @@ void LoadASIPlugins(bool LoadFromScriptsOnlyFlag)
 	GetCurrentDirectory(MAX_PATH, oldDir);
 
 	wchar_t selfPath[MAX_PATH] = { 0 };
-	HMODULE hModule = NULL;
-	GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCTSTR)LoadASIPlugins, &hModule);
-	GetModuleFileName(hModule, selfPath, MAX_PATH);
-	*wcsrchr(selfPath, '\\') = '\0';
+	if (GetModulePath(selfPath, MAX_PATH) && wcsrchr(selfPath, '\\'))
+	{
+		*wcsrchr(selfPath, '\\') = '\0';
+	}
 	SetCurrentDirectory(selfPath);
 
 	WIN32_FIND_DATA fd;

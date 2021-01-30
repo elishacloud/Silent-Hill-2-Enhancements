@@ -37,7 +37,7 @@ constexpr DWORD HashNum = (sizeof(GoodHashes) / sizeof(*GoodHashes));
 void ValidateBinary()
 {
 	wchar_t pathname[MAX_PATH];
-	GetModuleFileName(nullptr, pathname, MAX_PATH);
+	GetSH2FolderPath(pathname, MAX_PATH);
 	std::ifstream file(pathname, std::ios::in | std::ios::binary | std::ios::ate);
 	std::string buffer;
 

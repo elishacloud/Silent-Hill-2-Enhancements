@@ -31,6 +31,7 @@ const wchar_t *ArgString = L"SH2-PID=";
 const DWORD ArgSize = wcslen(ArgString);
 
 bool ProcessRelaunched = false;
+bool NeedsRestart = false;
 
 // Check arguments to see if a pid is sent as an argument
 void CheckArgumentsForPID()
@@ -43,7 +44,7 @@ void CheckArgumentsForPID()
 	szArgList = CommandLineToArgvW(GetCommandLine(), &argCount);
 
 	// If arguments
-	if (szArgList && argCount && GetModuleFileName(nullptr, sh2path, MAX_PATH) != 0)
+	if (szArgList && argCount && GetSH2FolderPath(sh2path, MAX_PATH))
 	{
 		for (int i = 0; i < argCount; i++)
 		{
@@ -114,8 +115,22 @@ void CheckAdminAccess()
 
 	// Get Silent Hill 2 file path
 	wchar_t sh2path[MAX_PATH];
-	if (GetModuleFileName(nullptr, sh2path, MAX_PATH) != 0)
+	if (GetSH2FolderPath(sh2path, MAX_PATH))
 	{
+		// Check if restart is needed
+		if (NeedsRestart)
+		{
+			RelaunchSilentHill2(sh2path);
+			return;
+		}
+
+		// Check compatibility options
+		if (CheckCompatibilityMode && GetEnvironmentVariableA("__COMPAT_LAYER", nullptr, 0))
+		{
+			RelaunchSilentHill2(sh2path);
+			return;
+		}
+
 		// Get path for temp file
 		wchar_t tmpfile[MAX_PATH];
 		wcscpy_s(tmpfile, MAX_PATH, sh2path);
@@ -133,20 +148,13 @@ void CheckAdminAccess()
 		else
 		{
 			RelaunchSilentHill2(sh2path);
-		}
-
-		// Check compatibility options
-		if (CheckCompatibilityMode && GetEnvironmentVariableA("__COMPAT_LAYER", nullptr, 0))
-		{
-			RelaunchSilentHill2(sh2path);
+			return;
 		}
 	}
 }
 
-bool RemoveCompatibilityRegistry(HKEY hKeyRoot, const wchar_t *sh2path)
+void RemoveCompatibilityRegistry(HKEY hKeyRoot, const wchar_t *sh2path)
 {
-	bool NeedsRestart = false;
-
 	// Check Silent Hill 2 file path
 	if (PathFileExists(sh2path))
 	{
@@ -170,8 +178,6 @@ bool RemoveCompatibilityRegistry(HKEY hKeyRoot, const wchar_t *sh2path)
 		}
 
 	}
-
-	return NeedsRestart;
 }
 
 // Remove compatibility settings
@@ -179,15 +185,10 @@ void RemoveCompatibilityMode()
 {
 	// Get Silent Hill 2 file path
 	wchar_t sh2path[MAX_PATH];
-	if (GetModuleFileName(nullptr, sh2path, MAX_PATH) != 0)
+	if (GetSH2FolderPath(sh2path, MAX_PATH))
 	{
 		Logging::Log() << "Checking for Compatibility Settings!";
-		bool NeedsRestart = RemoveCompatibilityRegistry(HKEY_CURRENT_USER, sh2path);
-		NeedsRestart = (RemoveCompatibilityRegistry(HKEY_LOCAL_MACHINE, sh2path) || NeedsRestart);
-
-		if (NeedsRestart)
-		{
-			RelaunchSilentHill2(sh2path);
-		}
+		RemoveCompatibilityRegistry(HKEY_CURRENT_USER, sh2path);
+		RemoveCompatibilityRegistry(HKEY_LOCAL_MACHINE, sh2path);
 	}
 }

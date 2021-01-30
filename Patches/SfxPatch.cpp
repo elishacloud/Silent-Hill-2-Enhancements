@@ -38,9 +38,11 @@ void PatchSFXAddr()
 
 	// Get sddata.bin file path
 	char myPath[MAX_PATH];
-	GetModuleFileNameA(nullptr, myPath, MAX_PATH);
-	char* p_pName = strrchr(myPath, '\\') + 1;
-	strcpy_s(p_pName, MAX_PATH - strlen(myPath), "data\\sound\\sddata.bin");
+	if (GetSH2FolderPath(myPath, MAX_PATH) && strrchr(myPath, '\\'))
+	{
+		char* p_pName = strrchr(myPath, '\\') + 1;
+		strcpy_s(p_pName, MAX_PATH - strlen(myPath), "data\\sound\\sddata.bin");
+	}
 
 	// Open sddata.bin file
 	std::ifstream infile;

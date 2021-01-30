@@ -47,7 +47,7 @@ void DelayedStart()
 {
 	// Get config file path
 	wchar_t configpath[MAX_PATH] = {};
-	if (GetModuleFileName(m_hModule, configpath, MAX_PATH) && wcsrchr(configpath, '\\'))
+	if (GetModulePath(configpath, MAX_PATH) && wcsrchr(configpath, '\\'))
 	{
 		wchar_t t_name[MAX_PATH] = {};
 		wcscpy_s(t_name, MAX_PATH - wcslen(configpath) - 1, wcsrchr(configpath, '\\') + 1);
@@ -134,7 +134,7 @@ void DelayedStart()
 
 	// Get Silent Hill 2 file path
 	wchar_t sh2path[MAX_PATH];
-	GetModuleFileName(nullptr, sh2path, MAX_PATH);
+	GetSH2FolderPath(sh2path, MAX_PATH);
 	Logging::Log() << "Running from: " << sh2path;
 
 	// Log settings in ini file
@@ -162,7 +162,7 @@ void DelayedStart()
 	LogDirectory();
 
 	// Get wrapper mode
-	Wrapper::GetWrapperMode(m_hModule);
+	Wrapper::GetWrapperMode();
 
 	// Create wrapper
 	wrapper_dll = Wrapper::CreateWrapper(nullptr);

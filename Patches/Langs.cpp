@@ -704,8 +704,10 @@ HRESULT PatchCustomExeStr()
 	gLangID = (BYTE *)*(DWORD *)((BYTE*)DLangAddrA - 2);
 
 	char txtpath[MAX_PATH];
-	GetModuleFileNameA(m_hModule, txtpath, MAX_PATH);
-	strcpy_s(strrchr(txtpath, '.'), MAX_PATH - strlen(txtpath), ".res");
+	if (GetModulePath(txtpath, MAX_PATH) && strrchr(txtpath, '.'))
+	{
+		strcpy_s(strrchr(txtpath, '.'), MAX_PATH - strlen(txtpath), ".res");
+	}
 
 	ifstream file(txtpath);
 

@@ -25,6 +25,7 @@
 #include <fstream>
 #include <string>
 #include <regex>
+#include "Common\Utils.h"
 #include "Common\LoadModules.h"
 #include "Logging\Logging.h"
 #include "Resources\sh2-enhce.h"
@@ -33,7 +34,6 @@ typedef HRESULT(WINAPI *URLOpenBlockingStreamProc)(LPUNKNOWN pCaller, LPCSTR szU
 typedef HRESULT(WINAPI *URLDownloadToFileProc)(LPUNKNOWN pCaller, LPCWSTR szURL, LPCWSTR szFileName, _Reserved_ DWORD dwReserved, LPBINDSTATUSCALLBACK lpfnCB);
 
 extern HWND DeviceWindow;
-extern HMODULE m_hModule;
 extern bool m_StopThreadFlag;
 
 bool IsUpdatingModule = false;
@@ -324,7 +324,7 @@ bool NewReleaseBuildAvailable(std::string &urlDownload)
 void GetSH2Path(std::wstring &path, std::wstring &name)
 {
 	wchar_t t_path[MAX_PATH] = {}, t_name[MAX_PATH] = {};
-	if (GetModuleFileName(m_hModule, t_path, MAX_PATH) && wcsrchr(t_path, '\\'))
+	if (GetModulePath(t_path, MAX_PATH) && wcsrchr(t_path, '\\'))
 	{
 		wcscpy_s(t_name, MAX_PATH - wcslen(t_path) - 1, wcsrchr(t_path, '\\') + 1);
 		if (wcsrchr(t_path, '.'))
@@ -602,7 +602,7 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 			{
 				// Get Silent Hill 2 file path and restart
 				wchar_t sh2path[MAX_PATH];
-				if (GetModuleFileName(nullptr, sh2path, MAX_PATH) && (int)ShellExecute(nullptr, L"open", sh2path, nullptr, nullptr, SW_SHOWDEFAULT) > 32)
+				if (GetSH2FolderPath(sh2path, MAX_PATH) && (int)ShellExecute(nullptr, L"open", sh2path, nullptr, nullptr, SW_SHOWDEFAULT) > 32)
 				{
 					exit(0);
 					return S_OK;

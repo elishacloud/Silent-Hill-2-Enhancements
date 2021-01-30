@@ -35,8 +35,6 @@
 #include "stb_image_write.h"
 #include "stb_image_resize.h"
 
-extern HMODULE m_hModule;
-
  bool read_resource(DWORD id, std::string &data)
 {
 	const HRSRC info = FindResource(m_hModule, MAKEINTRESOURCE(id), RT_RCDATA);

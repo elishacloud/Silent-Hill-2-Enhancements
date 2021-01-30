@@ -40,8 +40,10 @@ void HookDirect3DCreate8()
 	{
 		// Get script paths
 		wchar_t scriptpath[MAX_PATH];
-		GetModuleFileName(nullptr, scriptpath, MAX_PATH);
-		wcscpy_s(wcsrchr(scriptpath, '\\'), MAX_PATH - wcslen(scriptpath), L"\0");
+		if (GetSH2FolderPath(scriptpath, MAX_PATH) && wcsrchr(scriptpath, '\\'))
+		{
+			wcscpy_s(wcsrchr(scriptpath, '\\'), MAX_PATH - wcslen(scriptpath), L"\0");
+		}
 		std::wstring script_path(scriptpath + std::wstring(L"\\scripts"));
 		std::wstring script_path_dll(script_path + L"\\d3d8.dll");
 		std::wstring plugin_path(scriptpath + std::wstring(L"\\plugins"));

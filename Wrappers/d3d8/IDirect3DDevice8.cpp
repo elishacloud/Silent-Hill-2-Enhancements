@@ -2991,7 +2991,7 @@ void m_IDirect3DDevice8::CaptureScreenShot()
 
 		// Get Silent Hill 2 folder
 		wchar_t path[MAX_PATH] = {};
-		if (GetModuleFileName(nullptr, path, MAX_PATH) && wcsrchr(path, '\\'))
+		if (GetSH2FolderPath(path, MAX_PATH) && wcsrchr(path, '\\'))
 		{
 			wcscpy_s(wcsrchr(path, '\\'), MAX_PATH - wcslen(path), L"\0");
 			wcscat_s(path, MAX_PATH, L"\\imgs\\");

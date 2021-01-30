@@ -26,6 +26,7 @@
 #include "External\injector\include\injector\utility.hpp"
 #include "External\Hooking.Patterns\Hooking.Patterns.h"
 #include <filesystem>
+#include "Common\Utils.h"
 
 #define CEXP
 #define DllMain WSFMain
@@ -143,8 +144,10 @@ public:
 		{
 			// Get config file path
 			char configpath[MAX_PATH];
-			GetModuleFileNameA(m_hModule, configpath, MAX_PATH);
-			strcpy_s(strrchr(configpath, '.'), MAX_PATH - strlen(configpath), ".ini");
+			if (GetModulePath(configpath, MAX_PATH) && strrchr(configpath, '.'))
+			{
+				strcpy_s(strrchr(configpath, '.'), MAX_PATH - strlen(configpath), ".ini");
+			}
 			m_szFileName.assign(configpath);
 		}
 		return m_szFileName;

@@ -120,8 +120,10 @@ DWORD GetDiskSpace()
 
 	if (GetFolder)
 	{
-		GetModuleFileName(nullptr, DirectoryName, MAX_PATH);
-		wcscpy_s(wcsrchr(DirectoryName, '\\'), MAX_PATH - wcslen(DirectoryName), L"\0");
+		if (GetSH2FolderPath(DirectoryName, MAX_PATH) && wcsrchr(DirectoryName, '\\'))
+		{
+			wcscpy_s(wcsrchr(DirectoryName, '\\'), MAX_PATH - wcslen(DirectoryName), L"\0");
+		}
 
 		GetFolder = false;
 	}

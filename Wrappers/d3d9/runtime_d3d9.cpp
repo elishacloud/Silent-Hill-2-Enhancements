@@ -267,6 +267,8 @@ void reshade::d3d9::runtime_d3d9::on_present()
 bool reshade::d3d9::runtime_d3d9::init_effect(size_t index)
 {
 	if (_d3d_compiler == nullptr)
+		_d3d_compiler = GetModuleHandleW(L"d3dcompiler_43.dll");
+	if (_d3d_compiler == nullptr)
 		_d3d_compiler = LoadLibraryW(L"d3dcompiler_47.dll");
 	if (_d3d_compiler == nullptr)
 		_d3d_compiler = LoadLibraryW(L"d3dcompiler_43.dll");

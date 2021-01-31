@@ -113,7 +113,7 @@
 	visit(ResX, 0) \
 	visit(ResY, 0) \
 	visit(FPSLimit, 0) \
-	visit(IncreaseNoiseEffectRes, 512) \
+	visit(IncreaseNoiseEffectRes, 768) \
 	visit(RestoreSearchCamMovement, 1) \
 	visit(SingleCoreAffinity, 2) \
 	visit(SingleCoreAffinityTimer, 5000) \

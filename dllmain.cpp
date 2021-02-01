@@ -123,9 +123,10 @@ void DelayedStart()
 	}
 	Logging::LogCompatLayer();
 
-	// Check for admin access
+	// Remove unneeded virtual store files and check for admin access
 	if (CheckForAdminAccess)
 	{
+		RemoveVirtualStoreFiles();
 		CheckAdminAccess();
 	}
 

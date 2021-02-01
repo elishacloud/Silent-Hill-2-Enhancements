@@ -18,12 +18,15 @@
 #include <Windows.h>
 #include <psapi.h>
 #include <string>
+#include <shellapi.h>
 #include <shlwapi.h>
+#pragma warning( suppress : 4091 )
+#include <Shlobj.h>
 #include <iostream>
 #include <fstream>
-#include <shellapi.h>
 #include "Patches.h"
 #include "Common\Utils.h"
+#include "Common\LoadModules.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
 
@@ -150,6 +153,50 @@ void CheckAdminAccess()
 			RelaunchSilentHill2(sh2path);
 			return;
 		}
+	}
+}
+
+void RemoveVirtualStoreFiles()
+{
+	// Get Silent Hill 2 file path
+	wchar_t sh2path[MAX_PATH];
+	if (!GetSH2FolderPath(sh2path, MAX_PATH))
+	{
+		return;
+	}
+
+	// Remove Silent Hill 2 process name from path
+	wchar_t *pdest = wcsrchr(sh2path, '\\');
+	if (pdest)
+	{
+		wcscpy_s(pdest, MAX_PATH - wcslen(sh2path), L"\\");
+	}
+
+	// Remove drive root from the path
+	pdest = wcschr(sh2path, '\\');
+	if (!pdest || !wcslen(pdest))
+	{
+		return;
+	}
+
+	// Get local appdata path
+	wchar_t vspath[MAX_PATH];
+	if (FAILED(SHGetFolderPath(nullptr, CSIDL_LOCAL_APPDATA, nullptr, 0, vspath)))
+	{
+		return;
+	}
+
+	// Append virtual store and Silent Hill 2 to local appdata path
+	if (!PathAppend(vspath, L"VirtualStore\\") || !PathAppend(vspath, pdest))
+	{
+		return;
+	}
+
+	// Check if path exists and delete virtual store files in the root
+	if (PathFileExists(vspath))
+	{
+		DeleteAllfiles(vspath);
+		NeedsRestart = true;
 	}
 }
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <Shldisp.h>
 
 void *GetAddressOfData(const void *data, size_t len, DWORD step = 1);
 void *GetAddressOfData(const void *data, size_t len, DWORD step, DWORD start, DWORD distance = 0x0FFFFFFF);
@@ -18,6 +19,7 @@ void SetSingleCoreAffinity();
 void AddHandleToVector(HMODULE dll);
 void UnloadAllModules();
 DWORD ConvertFloat(float num);
+HRESULT UnZipFile(BSTR sourceZip, BSTR destFolder);
 bool GetModulePath(char *path, rsize_t size);
 bool GetModulePath(wchar_t *path, rsize_t size);
 bool GetSH2FolderPath(char *path, rsize_t size);

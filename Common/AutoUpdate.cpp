@@ -16,8 +16,6 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include <Shldisp.h>
-#include <shlwapi.h>
 #include <shellapi.h>
 #include <urlmon.h>
 #include <sstream>
@@ -126,101 +124,6 @@ bool GetURLString(char*URL, std::string &data)
 	stream->Release();
 
 	return true;
-}
-
-HRESULT UnZipFile(BSTR sourceZip, BSTR destFolder)
-{
-	HRESULT hr = E_FAIL;
-	IShellDispatch *pISD = nullptr;
-	Folder *pToFolder = nullptr;
-	Folder *pFromFolder = nullptr;
-
-	do
-	{
-		if (FAILED(CoInitialize(NULL)))
-		{
-			Logging::Log() << __FUNCTION__ " Failed to CoInitialize!";
-			break;
-		}
-
-		if (FAILED(CoCreateInstance(CLSID_Shell, NULL, CLSCTX_INPROC_SERVER, IID_IShellDispatch, (void **)&pISD)) || !pISD)
-		{
-			Logging::Log() << __FUNCTION__ " Failed to CoCreateInstance!";
-			break;
-		}
-
-		VARIANT vFile;
-		VariantInit(&vFile);
-		vFile.vt = VT_BSTR;
-		vFile.bstrVal = sourceZip;
-
-		if (FAILED(pISD->NameSpace(vFile, &pFromFolder)))
-		{
-			Logging::Log() << __FUNCTION__ " Failed to get source NameSpace! " << sourceZip;
-			break;
-		}
-
-		VARIANT vDir;
-		VariantInit(&vDir);
-		vDir.vt = VT_BSTR;
-		vDir.bstrVal = destFolder;
-		if (!PathFileExists(destFolder))
-		{
-			CreateDirectory(destFolder, nullptr);
-		}
-
-		// Destination is our zip file
-		if (FAILED(pISD->NameSpace(vDir, &pToFolder)) || !pToFolder)
-		{
-			Logging::Log() << __FUNCTION__ " Failed to get destination NameSpace! " << destFolder;
-			break;
-		}
-
-		FolderItems *fi = nullptr;
-		if (FAILED(pFromFolder->Items(&fi)))
-		{
-			Logging::Log() << __FUNCTION__ " Failed to get file list from zip file!";
-			break;
-		}
-
-		VARIANT vOpt;
-		VariantInit(&vOpt);
-		vOpt.vt = VT_I4;
-		vOpt.lVal = FOF_NO_UI;
-
-		VARIANT newV;
-		VariantInit(&newV);
-		newV.vt = VT_DISPATCH;
-		newV.pdispVal = fi;
-
-		if (FAILED(pToFolder->CopyHere(newV, vOpt)))
-		{
-			Logging::Log() << __FUNCTION__ " Failed to extract files out of zip file!";
-			break;
-		}
-
-		hr = S_OK;
-	}
-	while (false);
-
-	if (pToFolder)
-	{
-		pToFolder->Release();
-	}
-
-	if (pFromFolder)
-	{
-		pFromFolder->Release();
-	}
-
-	if (pISD)
-	{
-		pISD->Release();
-	}
-
-	CoUninitialize();
-
-	return hr;
 }
 
 DWORD MatchCount(std::string &path1, std::string &path2)

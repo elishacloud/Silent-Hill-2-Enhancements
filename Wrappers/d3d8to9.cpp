@@ -23,6 +23,7 @@
 #include "d3d8to9.h"
 #include "External\Hooking\Hook.h"
 #include "Common\Utils.h"
+#include "Common\LoadModules.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
 #include "BuildNo.rc"
@@ -100,6 +101,13 @@ Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 			d3dx9Module = LoadLibrary(d3dx9name);
 		}
 
+		// Extract d3dx9 tools from binary
+		if (!d3dx9Module)
+		{
+			ExtractD3DX9Tools();
+			d3dx9Module = LoadLibrary(L"d3dx9_43.dll");
+		}
+
 		if (d3dx9Module)
 		{
 			Logging::Log() << "Loaded " << d3dx9name;
@@ -109,19 +117,9 @@ Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 		}
 		else
 		{
+			// Should never get here
 			Logging::Log() << __FUNCTION__ << " Error: Failed to load d3dx9_xx.dll! Some features will not work correctly.";
 		}
-	}
-
-	// Check for required DirectX 9 runtime files
-	wchar_t d3dx9_path[MAX_PATH], d3dcompiler_path[MAX_PATH];
-	GetSystemDirectory(d3dx9_path, MAX_PATH);
-	wcscat_s(d3dx9_path, L"\\d3dx9_43.dll");
-	GetSystemDirectory(d3dcompiler_path, MAX_PATH);
-	wcscat_s(d3dcompiler_path, L"\\d3dcompiler_43.dll");
-	if (!PathFileExists(d3dx9_path) || !PathFileExists(d3dcompiler_path))
-	{
-		Logging::Log() << "Warning: Could not find expected DirectX 9.0c End-User Runtime files.  Try installing from: https://www.microsoft.com/download/details.aspx?id=35";
 	}
 
 	// Check if WineD3D is loaded

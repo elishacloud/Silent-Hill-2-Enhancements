@@ -86,10 +86,19 @@ void CheckArgumentsForPID()
 }
 
 // Relaunch Silent Hill 2 with administrator rights
-void RelaunchSilentHill2(const wchar_t *sh2path)
+void RelaunchSilentHill2()
 {
+	// Only relaunch once
+	static bool RunOnce = false;
+	if (ProcessRelaunched || RunOnce)
+	{
+		return;
+	}
+	RunOnce = true;
+
 	// Check Silent Hill 2 file path
-	if (!ProcessRelaunched && PathFileExistsW(sh2path))
+	wchar_t sh2path[MAX_PATH];
+	if (GetSH2FolderPath(sh2path, MAX_PATH))
 	{
 		// Get pid
 		wchar_t parameter[40] = { '\0' };
@@ -123,14 +132,14 @@ void CheckAdminAccess()
 		// Check if restart is needed
 		if (NeedsRestart)
 		{
-			RelaunchSilentHill2(sh2path);
+			RelaunchSilentHill2();
 			return;
 		}
 
 		// Check compatibility options
 		if (CheckCompatibilityMode && GetEnvironmentVariableA("__COMPAT_LAYER", nullptr, 0))
 		{
-			RelaunchSilentHill2(sh2path);
+			RelaunchSilentHill2();
 			return;
 		}
 
@@ -150,7 +159,7 @@ void CheckAdminAccess()
 		}
 		else
 		{
-			RelaunchSilentHill2(sh2path);
+			RelaunchSilentHill2();
 			return;
 		}
 	}

@@ -21,18 +21,14 @@
 #include <Windows.h>
 #include <Shlwapi.h>
 #include <vector>
+#include "Resources\sh2-enhce.h"
 #include "LoadModules.h"
-#include "External\Hooking\Hook.h"
-#include "FileSystemHooks.h"
+#include "Patches\Patches.h"
 #include "Settings.h"
 #include "Utils.h"
 #include "Logging\Logging.h"
 
-int n = 0;
-LPCWSTR exTempPath = L"~tmp_sh2_enhce";
-
 typedef void(WINAPI *PFN_InitializeASI)(void);
-
 
 // Find asi plugins to load
 void FindFiles(WIN32_FIND_DATA* fd)
@@ -130,6 +126,72 @@ void InitializeASI(HMODULE hModule)
 	}
 
 	p_InitializeASI();
+}
+
+void ExtractD3DX9Tools()
+{
+	do {
+		// Get Silent Hill 2 file path
+		wchar_t sh2path[MAX_PATH];
+		if (!GetSH2FolderPath(sh2path, MAX_PATH))
+		{
+			break;
+		}
+
+		// Remove Silent Hill 2 process name from path
+		wchar_t *pdest = wcsrchr(sh2path, '\\');
+		if (pdest)
+		{
+			wcscpy_s(pdest, MAX_PATH - wcslen(sh2path), L"\\");
+		}
+
+		// Append virtual store and Silent Hill 2 to local appdata path
+		wchar_t d3dx9zip[MAX_PATH];
+		wcscpy(d3dx9zip, sh2path);
+		if (!PathAppend(d3dx9zip, L"D3DX9.zip"))
+		{
+			break;
+		}
+
+		HRSRC hResource = FindResource(m_hModule, MAKEINTRESOURCE(IDR_D3DX9_TOOLS), RT_RCDATA);
+		if (hResource)
+		{
+			HGLOBAL hLoadedResource = LoadResource(m_hModule, hResource);
+			if (hLoadedResource)
+			{
+				LPVOID pLockedResource = LockResource(hLoadedResource);
+				if (pLockedResource)
+				{
+					DWORD dwResourceSize = SizeofResource(m_hModule, hResource);
+					if (dwResourceSize != 0)
+					{
+						Logging::Log() << "Extracting the " << d3dx9zip << " file...";
+
+						std::fstream fsModule;
+						fsModule.open(d3dx9zip, std::ios_base::out | std::ios_base::binary);
+						if (fsModule.is_open())
+						{
+							// Write zip file to disk
+							fsModule.write((char*)pLockedResource, dwResourceSize);
+							fsModule.close();
+							// Extract zip file
+							UnZipFile(d3dx9zip, sh2path);
+							// Delete zip file
+							DeleteFile(d3dx9zip);
+							// Return
+							return;
+						}
+						else
+						{
+							RelaunchSilentHill2();
+						}
+					}
+				}
+			}
+		}
+	} while (false);
+
+	Logging::Log() << __FUNCTION__ << " Error: could not extract the 'D3DX9.zip' file!";
 }
 
 HRESULT DeleteAllfiles(LPCWSTR lpFolder)

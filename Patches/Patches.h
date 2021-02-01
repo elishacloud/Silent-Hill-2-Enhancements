@@ -53,6 +53,7 @@ DWORD *GetLoadingScreenPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
+void RelaunchSilentHill2();
 void CheckAdminAccess();
 void RemoveVirtualStoreFiles();
 void RemoveCompatibilityMode();

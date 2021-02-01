@@ -12,6 +12,8 @@
 #define IDR_SEARCHTEX_DDS               301
 #define IDR_AREATEX_DDS                 302
 
+#define IDR_D3DX9_TOOLS                 401
+
 // Main resource file details
 #define APP_NAME				"Silent Hill 2: Enhanced Edition"
 #define APP_MAJOR				1

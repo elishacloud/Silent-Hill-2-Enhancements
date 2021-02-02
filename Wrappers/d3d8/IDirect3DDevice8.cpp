@@ -38,8 +38,12 @@ DWORD MaxAnisotropy = 0;
 
 struct SCREENSHOTSTRUCT
 {
+	bool Enabled = false;
 	std::vector<BYTE> buffer;
+	std::vector<BYTE> bufferRaw;
 	std::wstring filename;
+	DWORD size = 0;
+	INT Pitch = 0;
 	LONG Width = 0;
 	LONG Height = 0;
 };
@@ -923,6 +927,15 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 		IsSnapshotTextureSet = false;
 	}
 
+	// Take screenshot
+	if (TakeScreenShot)
+	{
+		TakeScreenShot = false;
+		ProxyInterface->BeginScene();
+		CaptureScreenShot();
+		ProxyInterface->EndScene();
+	}
+
 	HRESULT hr = D3D_OK;
 
 	// Disable Transparency Supersampling
@@ -951,13 +964,6 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 			}
 		}
 		HotelEmployeeElevatorRoomFlag = FALSE;
-	}
-
-	// Take screenshot
-	if (TakeScreenShot)
-	{
-		TakeScreenShot = false;
-		CaptureScreenShot();
 	}
 
 	LastDrawPrimitiveUPStride = 0;
@@ -2899,10 +2905,29 @@ DWORD WINAPI SaveScreenshotFile(LPVOID)
 	// Wait for new screenshot
 	while (!m_StopThreadFlag)
 	{
-		if (ScreenshotVector.size())
+		if (ScreenshotVector.size() && ScreenshotVector[0].Enabled)
 		{
-			if (ScreenshotVector[0].filename.size() && ScreenshotVector[0].buffer.size() && ScreenshotVector[0].Width && ScreenshotVector[0].Height)
+			if (ScreenshotVector[0].filename.size() && ScreenshotVector[0].bufferRaw.size() && ScreenshotVector[0].Width && ScreenshotVector[0].Height)
 			{
+				ScreenshotVector[0].buffer.resize(ScreenshotVector[0].size);
+				BYTE *bufferIn = &ScreenshotVector[0].bufferRaw[0];
+				BYTE *bufferOut = &ScreenshotVector[0].buffer[0];
+
+				// Transcode buffer into RGB for image conversion
+				for (int y = 0; y < ScreenshotVector[0].Height; y++)
+				{
+					for (int x = 0; x < ScreenshotVector[0].Width; x++)
+					{
+						DWORD loc = x * 4;
+						bufferOut[3] = 0xFF;				// Alpha - bufferIn[loc + 3];
+						bufferOut[0] = bufferIn[loc + 2];	// Red
+						bufferOut[1] = bufferIn[loc + 1];	// Green
+						bufferOut[2] = bufferIn[loc + 0];	// Blue
+						bufferOut += 4;
+					}
+					bufferIn += ScreenshotVector[0].Pitch;
+				}
+
 				// Write PNG buffer to disk
 				if (FILE *file; _wfopen_s(&file, ScreenshotVector[0].filename.c_str(), L"wb") == 0)
 				{
@@ -2916,11 +2941,19 @@ DWORD WINAPI SaveScreenshotFile(LPVOID)
 
 					fclose(file);
 				}
+				else
+				{
+					LOG_LIMIT(3, __FUNCTION__ << " Error creating screenshot file!");
+				}
+			}
+			else
+			{
+				LOG_LIMIT(3, __FUNCTION__ << " Error with data in screenshot vector!");
 			}
 			// Remove item from vector
 			ScreenshotVector.erase(ScreenshotVector.begin());
 		}
-		Sleep(500);
+		Sleep(100);
 	}
 
 	return S_OK;
@@ -2930,55 +2963,32 @@ void m_IDirect3DDevice8::CaptureScreenShot()
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	// Create new surface to hold data
+	// Get BackBuffer
 	IDirect3DSurface8 *pDestSurface = nullptr;
-	if (FAILED(CreateImageSurface(BufferWidth, BufferHeight, D3DFMT_A8R8G8B8, &pDestSurface)))
+	if (FAILED(GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &pDestSurface)))
 	{
-		Logging::LogDebug() << __FUNCTION__ << " Failed to create image surface!";
+		LOG_LIMIT(3, __FUNCTION__ << " Failed to get back buffer!");
 		return;
 	}
 
-	// Get FrontBuffer data to new surface
-	if (FAILED(GetFrontBuffer(pDestSurface)))
-	{
-		Logging::LogDebug() << __FUNCTION__ << " Failed to get front buffer!";
-		pDestSurface->Release();
-		return;
-	}
-
-	// Lock surface, read surface into a buffer and write PNG file
+	// Lock surface, read it into a memory buffer and add it to a queue (vector)
 	D3DLOCKED_RECT LockedRect = {};
 	if (SUCCEEDED(pDestSurface->LockRect(&LockedRect, nullptr, D3DLOCK_READONLY)) && LockedRect.pBits)
 	{
-		// Set varables
+		// Set variables
 		SCREENSHOTSTRUCT scElement;
-		scElement.Width = BufferWidth;
-		scElement.Height = BufferHeight;
-		DWORD size = LockedRect.Pitch * BufferHeight;
-		scElement.buffer.resize(size);
-		BYTE *bufferIn = (BYTE*)LockedRect.pBits;
-		BYTE *bufferOut = &scElement.buffer[0];
+		ScreenshotVector.push_back(scElement);
+		ScreenshotVector.back().Width = BufferWidth;
+		ScreenshotVector.back().Height = BufferHeight;
+		ScreenshotVector.back().size = LockedRect.Pitch * BufferHeight;
+		ScreenshotVector.back().Pitch = LockedRect.Pitch;
+		ScreenshotVector.back().bufferRaw.resize(ScreenshotVector.back().size);
 
-		// Read surface into buffer
-		for (int y = 0; y < BufferHeight; y++)
-		{
-			for (int x = 0; x < BufferWidth; x++)
-			{
-				DWORD loc = x * 4;
-				bufferOut[3] = bufferIn[loc + 3];	// Alpha
-				bufferOut[0] = bufferIn[loc + 2];	// Red
-				bufferOut[1] = bufferIn[loc + 1];	// Green
-				bufferOut[2] = bufferIn[loc + 0];	// Blue
-				bufferOut += 4;
-			}
-			bufferIn += LockedRect.Pitch;
-		}
+		// Copy memory
+		memcpy(&ScreenshotVector.back().bufferRaw[0], LockedRect.pBits, ScreenshotVector.back().size);
 
 		// Unlock surface
 		pDestSurface->UnlockRect();
-
-		// Release surface
-		pDestSurface->Release();
 
 		// Get current time and date
 		const std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
@@ -3002,11 +3012,18 @@ void m_IDirect3DDevice8::CaptureScreenShot()
 		}
 
 		// File name
-		scElement.filename.assign(path + std::wstring(name.begin(), name.end()));
+		ScreenshotVector.back().filename.assign(path + std::wstring(name.begin(), name.end()));
 
-		// Add to vector
-		ScreenshotVector.push_back(scElement);
+		// Enable item in vector
+		ScreenshotVector.back().Enabled = true;
 	}
+	else
+	{
+		LOG_LIMIT(3, __FUNCTION__ << " Failed to lock back buffer!");
+	}
+
+	// Release surface
+	pDestSurface->Release();
 
 	return;
 }

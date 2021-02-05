@@ -19,7 +19,6 @@
 #include "Common\Settings.h"
 #include "External\Hooking\Hook.h"
 
-Direct3D9EnableMaximizedWindowedModeShimProc m_pDirect3D9EnableMaximizedWindowedModeShim = nullptr;
 Direct3DCreate9Proc m_pDirect3DCreate9 = nullptr;
 
 HMODULE d3d9dll = nullptr;
@@ -45,26 +44,7 @@ void Initd3d9()
 	}
 
 	// Get function addresses
-	m_pDirect3D9EnableMaximizedWindowedModeShim = (Direct3D9EnableMaximizedWindowedModeShimProc)GetProcAddress(d3d9dll, "Direct3D9EnableMaximizedWindowedModeShim");
 	m_pDirect3DCreate9 = (Direct3DCreate9Proc)GetProcAddress(d3d9dll, "Direct3DCreate9");
-
-	// Launch function to set Maximized Windowed Mode
-	rs_Direct3D9EnableMaximizedWindowedModeShim(0);
-
-	// Hook function to keep Maximized Windowed Mode disabled
-	InterlockedExchangePointer((PVOID*)&m_pDirect3D9EnableMaximizedWindowedModeShim, Hook::HotPatch(m_pDirect3D9EnableMaximizedWindowedModeShim, "Direct3D9EnableMaximizedWindowedModeShim", rs_Direct3D9EnableMaximizedWindowedModeShim));
-}
-
-int WINAPI rs_Direct3D9EnableMaximizedWindowedModeShim(BOOL)
-{
-	Initd3d9();
-	if (!m_pDirect3D9EnableMaximizedWindowedModeShim)
-	{
-		Logging::Log() << __FUNCTION__ << " Error finding 'Direct3D9EnableMaximizedWindowedModeShim'";
-		return 0;
-	}
-
-	return m_pDirect3D9EnableMaximizedWindowedModeShim(MaximizedWindowedMode);
 }
 
 IDirect3D9 *WINAPI rs_Direct3DCreate9(UINT SDKVersion)

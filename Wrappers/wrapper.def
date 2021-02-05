@@ -22,7 +22,6 @@ DirectSoundCaptureCreate8		@12
 ; ****
 ;LIBRARY "d3d8"
 ; ****
-Direct3D8EnableMaximizedWindowedModeShim
 ValidatePixelShader
 ValidateVertexShader
 DebugSetMute

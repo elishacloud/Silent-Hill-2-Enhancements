@@ -1,7 +1,6 @@
 #pragma once
 
 #define VISIT_PROCS_D3D8(visit) \
-	visit(Direct3D8EnableMaximizedWindowedModeShim, jmpaddrvoid) \
 	visit(ValidatePixelShader, jmpaddr) \
 	visit(ValidateVertexShader, jmpaddr) \
 	visit(DebugSetMute, jmpaddr) \

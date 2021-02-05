@@ -65,7 +65,6 @@
 	visit(LockSpeakerConfig, true) \
 	visit(MainMenuFix, true) \
 	visit(MainMenuTitlePerLang, true) \
-	visit(MaximizedWindowedMode, false) \
 	visit(NoCDPatch, true) \
 	visit(PauseScreenFix, true) \
 	visit(PistonRoomFix, true) \

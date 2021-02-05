@@ -24,7 +24,6 @@ DirectSoundCaptureCreate8		@12
 ; ****
 ValidatePixelShader
 ValidateVertexShader
-DebugSetMute
 Direct3DCreate8
 
 
@@ -32,4 +31,3 @@ Direct3DCreate8
 ;LIBRARY "dinput8"
 ; ****
 DirectInput8Create
-GetdfDIJoystick

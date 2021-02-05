@@ -12,6 +12,9 @@
 *   2. Altered source versions must  be plainly  marked as such, and  must not be  misrepresented  as
 *      being the original software.
 *   3. This notice may not be removed or altered from any source distribution.
+*
+* ValidatePixelShader and ValidateVertexShader created from source code found in Wine
+* https://github.com/alexhenrie/wine/tree/master/dlls/d3d8
 */
 
 #define WIN32_LEAN_AND_MEAN
@@ -41,8 +44,10 @@ PFN_D3DXLoadSurfaceFromSurface D3DXLoadSurfaceFromSurface = nullptr;
 // Redirects or hooks 'Direct3DCreate8' to go to d3d8to9
 void EnableD3d8to9()
 {
-	m_pDirect3DCreate8 = (Direct3DCreate8Proc)*Direct3DCreate8to9;
+	d3d8::ValidatePixelShader_var = (FARPROC)*d8_ValidatePixelShader;
+	d3d8::ValidateVertexShader_var = (FARPROC)*d8_ValidateVertexShader;
 	d3d8::Direct3DCreate8_var = (FARPROC)*Direct3DCreate8to9;
+	m_pDirect3DCreate8 = (Direct3DCreate8Proc)*Direct3DCreate8to9;
 }
 
 // Initializes d3d9 and Direct3DCreate9 for d3d8to9
@@ -56,6 +61,61 @@ void Initd3d8to9()
 	else
 	{
 		p_Direct3DCreate9 = rs_Direct3DCreate9;
+	}
+}
+
+HRESULT WINAPI d8_ValidatePixelShader(DWORD* pixelshader, DWORD* reserved1, BOOL flag, DWORD* toto)
+{
+	UNREFERENCED_PARAMETER(flag);
+	UNREFERENCED_PARAMETER(toto);
+
+	LOG_LIMIT(1, __FUNCTION__);
+
+	if (!pixelshader)
+	{
+		return D3DERR_INVALIDCALL;
+	}
+	if (reserved1)
+	{
+		return D3DERR_INVALIDCALL;
+	}
+	switch (*pixelshader)
+	{
+	case 0xFFFF0100:
+	case 0xFFFF0101:
+	case 0xFFFF0102:
+	case 0xFFFF0103:
+	case 0xFFFF0104:
+		return D3D_OK;
+		break;
+	default:
+		return D3DERR_INVALIDCALL;
+	}
+}
+
+HRESULT WINAPI d8_ValidateVertexShader(DWORD* vertexshader, DWORD* reserved1, DWORD* reserved2, BOOL flag, DWORD* toto)
+{
+	UNREFERENCED_PARAMETER(flag);
+	UNREFERENCED_PARAMETER(toto);
+
+	LOG_LIMIT(1, __FUNCTION__);
+
+	if (!vertexshader)
+	{
+		return D3DERR_INVALIDCALL;
+	}
+	if (reserved1 || reserved2)
+	{
+		return D3DERR_INVALIDCALL;
+	}
+	switch (*vertexshader)
+	{
+	case 0xFFFE0100:
+	case 0xFFFE0101:
+		return D3D_OK;
+		break;
+	default:
+		return D3DERR_INVALIDCALL;
 	}
 }
 

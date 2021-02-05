@@ -38,6 +38,7 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 void UpdatePresentParameterForMultisample(D3DPRESENT_PARAMETERS* pPresentationParameters, D3DMULTISAMPLE_TYPE MultiSampleType);
 void GetDesktopRes(LONG &screenWidth, LONG &screenHeight);
 void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight);
+DWORD WINAPI SaveScreenshotFile(LPVOID pvParam);
 
 #define D3DRS_ADAPTIVETESS_Y 181
 

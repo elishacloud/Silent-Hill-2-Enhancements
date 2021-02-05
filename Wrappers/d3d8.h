@@ -3,7 +3,6 @@
 #define VISIT_PROCS_D3D8(visit) \
 	visit(ValidatePixelShader, jmpaddr) \
 	visit(ValidateVertexShader, jmpaddr) \
-	visit(DebugSetMute, jmpaddrvoid) \
 	visit(Direct3DCreate8, jmpaddr)
 
 #ifdef PROC_CLASS

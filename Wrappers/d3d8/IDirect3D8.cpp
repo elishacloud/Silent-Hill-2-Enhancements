@@ -343,6 +343,9 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 		{
 			RUNCODEONCE(SetSingleCoreAffinity());
 		}
+
+		// Create thread to save screenshot file
+		RUNCODEONCE(CreateThread(nullptr, 0, SaveScreenshotFile, nullptr, 0, nullptr));
 	}
 	else
 	{

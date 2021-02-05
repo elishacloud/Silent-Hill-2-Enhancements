@@ -166,7 +166,7 @@ void DelayedStart()
 	Wrapper::GetWrapperMode();
 
 	// Create wrapper
-	if (!(Wrapper::dtype == DTYPE_D3D8 && d3d8to9))
+	if (!(d3d8to9 && Wrapper::dtype == DTYPE_D3D8))
 	{
 		// Get defined d3d8 script wrapper
 		HMODULE ScriptDll = nullptr;
@@ -190,9 +190,6 @@ void DelayedStart()
 	if (HookDirect3D)
 	{
 		HookDirect3DCreate8();
-
-		// Create thread to save screenshot file
-		CreateThread(nullptr, 0, SaveScreenshotFile, nullptr, 0, nullptr);
 	}
 
 	// Enable d3d8to9

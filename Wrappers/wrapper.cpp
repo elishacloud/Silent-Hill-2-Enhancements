@@ -22,8 +22,8 @@
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
-#define ADD_FARPROC_MEMBER(procName, unused) \
-	FARPROC procName ## _var = jmpaddr;
+#define ADD_FARPROC_MEMBER(procName, prodAddr) \
+	FARPROC procName ## _var = prodAddr;
 
 #define CREATE_PROC_STUB(procName, unused) \
 	extern "C" __declspec(naked) void __stdcall procName() \

@@ -20,6 +20,51 @@
 
 Direct3DCreate8Proc m_pDirect3DCreate8 = nullptr;
 
+HMODULE GetD3d8ScriptDll()
+{
+	// Load wrapper d3d8 from scripts or plugins folder
+	HMODULE script_d3d8_dll = nullptr;
+
+	// Get script paths
+	wchar_t scriptpath[MAX_PATH];
+	if (GetSH2FolderPath(scriptpath, MAX_PATH) && wcsrchr(scriptpath, '\\'))
+	{
+		wcscpy_s(wcsrchr(scriptpath, '\\'), MAX_PATH - wcslen(scriptpath), L"\0");
+	}
+	std::wstring script_path(scriptpath + std::wstring(L"\\scripts"));
+	std::wstring script_path_dll(script_path + L"\\d3d8.dll");
+	std::wstring plugin_path(scriptpath + std::wstring(L"\\plugins"));
+	std::wstring plugin_path_dll(plugin_path + L"\\d3d8.dll");
+
+	// Store the current folder
+	wchar_t currentDir[MAX_PATH] = { 0 };
+	GetCurrentDirectory(MAX_PATH, currentDir);
+
+	// Load d3d8.dll from 'scripts' folder
+	SetCurrentDirectory(script_path.c_str());
+	script_d3d8_dll = LoadLibrary(script_path_dll.c_str());
+	if (script_d3d8_dll)
+	{
+		Logging::Log() << "Loaded d3d8.dll from: " << script_path_dll.c_str();
+	}
+
+	// Load d3d8.dll from 'plugins' folder
+	if (!script_d3d8_dll)
+	{
+		SetCurrentDirectory(plugin_path.c_str());
+		script_d3d8_dll = LoadLibrary(plugin_path_dll.c_str());
+		if (script_d3d8_dll)
+		{
+			Logging::Log() << "Loaded d3d8.dll from: " << plugin_path_dll.c_str();
+		}
+	}
+
+	// Set current folder back
+	SetCurrentDirectory(currentDir);
+
+	return script_d3d8_dll;
+}
+
 // Hook d3d8 API
 void HookDirect3DCreate8()
 {
@@ -34,59 +79,8 @@ void HookDirect3DCreate8()
 		return;
 	}
 
-	// Load wrapper d3d8 from scripts or plugins folder
-	HMODULE script_d3d8_dll = nullptr;
-	if (LoadD3d8FromScriptsFolder)
-	{
-		// Get script paths
-		wchar_t scriptpath[MAX_PATH];
-		if (GetSH2FolderPath(scriptpath, MAX_PATH) && wcsrchr(scriptpath, '\\'))
-		{
-			wcscpy_s(wcsrchr(scriptpath, '\\'), MAX_PATH - wcslen(scriptpath), L"\0");
-		}
-		std::wstring script_path(scriptpath + std::wstring(L"\\scripts"));
-		std::wstring script_path_dll(script_path + L"\\d3d8.dll");
-		std::wstring plugin_path(scriptpath + std::wstring(L"\\plugins"));
-		std::wstring plugin_path_dll(plugin_path + L"\\d3d8.dll");
-
-		// Store the current folder
-		wchar_t currentDir[MAX_PATH] = { 0 };
-		GetCurrentDirectory(MAX_PATH, currentDir);
-
-		// Load d3d8.dll from 'scripts' folder
-		SetCurrentDirectory(script_path.c_str());
-		script_d3d8_dll = LoadLibrary(script_path_dll.c_str());
-		if (script_d3d8_dll)
-		{
-			Logging::Log() << "Loaded d3d8.dll from: " << script_path_dll.c_str();
-		}
-
-		// Load d3d8.dll from 'plugins' folder
-		if (!script_d3d8_dll)
-		{
-			SetCurrentDirectory(plugin_path.c_str());
-			script_d3d8_dll = LoadLibrary(plugin_path_dll.c_str());
-			if (script_d3d8_dll)
-			{
-				Logging::Log() << "Loaded d3d8.dll from: " << plugin_path_dll.c_str();
-			}
-		}
-
-		// Set current folder back
-		SetCurrentDirectory(currentDir);
-	}
-
 	// Get function address
-	if (script_d3d8_dll)
-	{
-		m_pDirect3DCreate8 = (Direct3DCreate8Proc)GetProcAddress(script_d3d8_dll, "Direct3DCreate8");
-	}
-
-	// Checking function address
-	if (!m_pDirect3DCreate8)
-	{
-		m_pDirect3DCreate8 = (Direct3DCreate8Proc)(Address + 5 + *(DWORD*)(Address + 1));
-	}
+	m_pDirect3DCreate8 = (Direct3DCreate8Proc)(Address + 5 + *(DWORD*)(Address + 1));
 
 	// Write to memory
 	WriteCalltoMemory((BYTE*)Address, *Direct3DCreate8Wrapper, 5);

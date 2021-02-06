@@ -240,7 +240,7 @@ static HRESULT __stdcall Part4(IDirect3DDevice8* /*This*/, DWORD Register, void*
 		{
 			if (inSpecialLightZone)
 			{
-				// 75% if in a special lighting zone or not in cutscene 0 and flashlight is on
+				// 75% if in a special lighting zone
 				constants[0] = 0.75f;
 				constants[1] = 0.75f;
 				constants[2] = 0.75f;

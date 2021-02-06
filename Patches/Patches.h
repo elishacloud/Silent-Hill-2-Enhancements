@@ -99,6 +99,7 @@ void PatchTexAddr();
 void PatchTownWestGateEvent();
 void PatchTreeLighting();
 void PatchXInputVibration();
+void FindGetModelID();
 void PatchSpecular();
 
 void RunBloodSize();

@@ -82,34 +82,14 @@ static int materialCount = 0;
 static ModelMaterial* pFirstMaterial = nullptr;
 static ModelMaterial* pCurrentMaterial = nullptr;
 
-// NA 1.0
-ModelID (__cdecl *GetModelID)() = reinterpret_cast<ModelID(__cdecl*)()>(0x50B6C0);
-static auto GetLightSourceCount = *reinterpret_cast<int(__cdecl*)()>(0x50C590);
-static auto GetLightSourceStruct = *reinterpret_cast<LightSource * (__cdecl*)(int)>(0x50C5A0);
-static auto ActorDrawOpaque = reinterpret_cast<void(__cdecl*)(ModelMaterial*)>(0x501540);
-static auto DoActorOpaqueStuff = reinterpret_cast<void(__cdecl*)(ModelOffsetTable*, void*)>(0x501F90);
+ModelID(__cdecl* GetModelID)() = nullptr;
+static int(__cdecl* GetLightSourceCount)() = nullptr;
+static LightSource* (__cdecl* GetLightSourceStruct)(int) = nullptr;
+static void(__cdecl* ActorDrawOpaque)(ModelMaterial*) = nullptr;
+static void(__cdecl* DoActorOpaqueStuff)(ModelOffsetTable*, void*) = nullptr;
+static IDirect3DDevice8** pD3DDevice;
 
-static auto& pD3DDevice = *reinterpret_cast<IDirect3DDevice8**>(0xA32894);
-
-// NA 1.1
-//ModelID(__cdecl* GetModelID)() = reinterpret_cast<ModelID(__cdecl*)()>(0x50B9F0);
-//static auto GetLightSourceCount = *reinterpret_cast<int(__cdecl*)()>(0x50C8C0);
-//static auto GetLightSourceStruct = *reinterpret_cast<LightSource * (__cdecl*)(int)>(0x50C8D0);
-//static auto ActorDrawOpaque = reinterpret_cast<void(__cdecl*)(ModelMaterial*)>(0x501870);
-//static auto DoActorOpaqueStuff = reinterpret_cast<void(__cdecl*)(ModelOffsetTable*, void*)>(0x5022C0);
-//
-//static auto& pD3DDevice = *reinterpret_cast<IDirect3DDevice8**>(0xA36494);
-
-// DC
-//ModelID(__cdecl* GetModelID)() = reinterpret_cast<ModelID(__cdecl*)()>(0x50B310);
-//static auto GetLightSourceCount = *reinterpret_cast<int(__cdecl*)()>(0x50C1E0);
-//static auto GetLightSourceStruct = *reinterpret_cast<LightSource * (__cdecl*)(int)>(0x50C1F0);
-//static auto ActorDrawOpaque = reinterpret_cast<void(__cdecl*)(ModelMaterial*)>(0x501190);
-//static auto DoActorOpaqueStuff = reinterpret_cast<void(__cdecl*)(ModelOffsetTable*, void*)>(0x501BE0);
-//
-//static auto& pD3DDevice = *reinterpret_cast<IDirect3DDevice8**>(0xA35494);
-
-int GetCurrentMaterialIndex()
+static int GetCurrentMaterialIndex()
 {
 	int index = 0;
 	ModelMaterial* pCursor = pFirstMaterial;
@@ -126,7 +106,7 @@ int GetCurrentMaterialIndex()
 	return -1;
 }
 
-bool IsJames(ModelID id)
+static bool IsJames(ModelID id)
 {
 	switch (id)
 	{
@@ -144,7 +124,7 @@ bool IsJames(ModelID id)
 	return false;
 }
 
-bool IsMariaExcludingEyes(ModelID id)
+static bool IsMariaExcludingEyes(ModelID id)
 {
 	switch (id)
 	{
@@ -164,7 +144,7 @@ bool IsMariaExcludingEyes(ModelID id)
 	return false;
 }
 
-bool IsMariaEyes(ModelID id)
+static bool IsMariaEyes(ModelID id)
 {
 	switch (id)
 	{
@@ -184,7 +164,7 @@ bool IsMariaEyes(ModelID id)
 	return false;
 }
 
-void __cdecl Part0(ModelOffsetTable* pOffsetTable, void* arg2)
+static void __cdecl Part0(ModelOffsetTable* pOffsetTable, void* arg2)
 {
 	// This function replaces a call to `void DoActorOpaqueStuff(ModelOffsetTable* pOffsetTable, void* arg2)`
 	// Backup the materialCount and pointer to first material for use in later Parts
@@ -195,7 +175,7 @@ void __cdecl Part0(ModelOffsetTable* pOffsetTable, void* arg2)
 	DoActorOpaqueStuff(pOffsetTable, arg2);
 }
 
-int __cdecl Part1()
+static int __cdecl Part1()
 {
 	// This function replaces a call to `int GetLightSourceCount()`
 	// When no D3D_DIRECTIONAL light sources exist, set our booleans and return 1 greater than reality
@@ -226,7 +206,7 @@ int __cdecl Part1()
 	return lightSourceCount;
 }
 
-LightSource* __cdecl Part2(int index)
+static LightSource* __cdecl Part2(int index)
 {
 	// This function replaces a call to `LightSourceStruct* GetLightSourceStruct(int index)`
 	// When we hit the index 1 greater than the real light source count, return our fake
@@ -237,7 +217,7 @@ LightSource* __cdecl Part2(int index)
 		return GetLightSourceStruct(index);
 }
 
-void Part3(ModelMaterial* pModelMaterial)
+static void Part3(ModelMaterial* pModelMaterial)
 {
 	// This function replaces a call to `void ActorDrawOpaque(ModelMaterial* pModelMaterial)`
 	// We copy off the pointer to a static variable, so we can reference it in Part 4
@@ -246,7 +226,7 @@ void Part3(ModelMaterial* pModelMaterial)
 	ActorDrawOpaque(pModelMaterial);
 }
 
-HRESULT __stdcall Part4(IDirect3DDevice8* /*This*/, DWORD Register, void* pConstantData, DWORD ConstantCount)
+static HRESULT __stdcall Part4(IDirect3DDevice8* /*This*/, DWORD Register, void* pConstantData, DWORD ConstantCount)
 {
 	// This function replaces a call to `HRESULT pD3DDevice->SetPixelShaderConstant(DWORD Register, void* pConstantData, DWORD ConstantCount)`
 	// Adjust opacity depending on the situation and model
@@ -347,29 +327,70 @@ HRESULT __stdcall Part4(IDirect3DDevice8* /*This*/, DWORD Register, void* pConst
 		}
 	}
 
-	return pD3DDevice->SetPixelShaderConstant(Register, pConstantData, ConstantCount);
+	return (*pD3DDevice)->SetPixelShaderConstant(Register, pConstantData, ConstantCount);
+}
+
+void FindGetModelID()
+{
+	switch (GameVersion)
+	{
+	case SH2V_10:
+		GetModelID = reinterpret_cast<decltype(GetModelID)>(0x50B6C0);
+		break;
+	case SH2V_11:
+		GetModelID = reinterpret_cast<decltype(GetModelID)>(0x50B9F0);
+		break;
+	case SH2V_DC:
+		GetModelID = reinterpret_cast<decltype(GetModelID)>(0x50B310);
+		break;
+	}
 }
 
 void PatchSpecular()
 {
-	// NA 1.0
-	WriteCalltoMemory(reinterpret_cast<BYTE*>(0x50EB2B), Part0, 5);
-	WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FECD0), Part1, 5);
-	WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FED28), Part2, 5);
-	WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501F77), Part3, 5);
-	WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501E1B), Part4, 6);
+	switch (GameVersion)
+	{
+	case SH2V_10:
+		GetLightSourceCount = *reinterpret_cast<int(__cdecl*)()>(0x50C590);
+		GetLightSourceStruct = *reinterpret_cast<LightSource * (__cdecl*)(int)>(0x50C5A0);
+		ActorDrawOpaque = reinterpret_cast<void(__cdecl*)(ModelMaterial*)>(0x501540);
+		DoActorOpaqueStuff = reinterpret_cast<void(__cdecl*)(ModelOffsetTable*, void*)>(0x501F90);
 
-	// NA 1.1
-	//WriteCalltoMemory(reinterpret_cast<BYTE*>(0x50EE5B), Part0, 5);
-	//WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FF000), Part1, 5);
-	//WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FF058), Part2, 5);
-	//WriteCalltoMemory(reinterpret_cast<BYTE*>(0x5022A7), Part3, 5);
-	//WriteCalltoMemory(reinterpret_cast<BYTE*>(0x50214B), Part4, 6);
+		pD3DDevice = reinterpret_cast<IDirect3DDevice8**>(0xA32894);
 
-	// DC
-	//WriteCalltoMemory(reinterpret_cast<BYTE*>(0x50E77B), Part0, 5);
-	//WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FE920), Part1, 5);
-	//WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FE978), Part2, 5);
-	//WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501BC7), Part3, 5);
-	//WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501A6B), Part4, 6);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x50EB2B), Part0, 5);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FECD0), Part1, 5);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FED28), Part2, 5);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501F77), Part3, 5);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501E1B), Part4, 6);
+		break;
+	case SH2V_11:
+		GetLightSourceCount = *reinterpret_cast<int(__cdecl*)()>(0x50C8C0);
+		GetLightSourceStruct = *reinterpret_cast<LightSource * (__cdecl*)(int)>(0x50C8D0);
+		ActorDrawOpaque = reinterpret_cast<void(__cdecl*)(ModelMaterial*)>(0x501870);
+		DoActorOpaqueStuff = reinterpret_cast<void(__cdecl*)(ModelOffsetTable*, void*)>(0x5022C0);
+
+		pD3DDevice = reinterpret_cast<IDirect3DDevice8**>(0xA36494);
+
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x50EE5B), Part0, 5);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FF000), Part1, 5);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FF058), Part2, 5);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x5022A7), Part3, 5);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x50214B), Part4, 6);
+		break;
+	case SH2V_DC:
+		GetLightSourceCount = *reinterpret_cast<int(__cdecl*)()>(0x50C1E0);
+		GetLightSourceStruct = *reinterpret_cast<LightSource * (__cdecl*)(int)>(0x50C1F0);
+		ActorDrawOpaque = reinterpret_cast<void(__cdecl*)(ModelMaterial*)>(0x501190);
+		DoActorOpaqueStuff = reinterpret_cast<void(__cdecl*)(ModelOffsetTable*, void*)>(0x501BE0);
+
+		pD3DDevice = reinterpret_cast<IDirect3DDevice8**>(0xA35494);
+
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x50E77B), Part0, 5);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FE920), Part1, 5);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FE978), Part2, 5);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501BC7), Part3, 5);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501A6B), Part4, 6);
+		break;
+	}
 }

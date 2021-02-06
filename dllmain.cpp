@@ -472,6 +472,8 @@ void DelayedStart()
 		SetSingleCoreAffinity();
 	}
 
+	FindGetModelID();
+
 	// Specular Fix
 	if (SpecularFix)
 	{

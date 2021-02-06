@@ -2,8 +2,8 @@
 
 enum class ModelID
 {
-	chr_nse_nse_st = 0,				// Probably broken
-	chr_scu_scu_st = 0,				// Probably broken
+	chr_nse_nse_st = 0,
+	chr_scu_scu_st = 0,
 	chr_jms_lll_jms = 256,
 	chr_jms_lll_jms_hand = 256,
 	chr_jms_lll_jms_kaku = 256,

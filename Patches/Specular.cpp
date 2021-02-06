@@ -87,7 +87,7 @@ static int(__cdecl* GetLightSourceCount)() = nullptr;
 static LightSource* (__cdecl* GetLightSourceStruct)(int) = nullptr;
 static void(__cdecl* ActorDrawOpaque)(ModelMaterial*) = nullptr;
 static void(__cdecl* DoActorOpaqueStuff)(ModelOffsetTable*, void*) = nullptr;
-static IDirect3DDevice8** pD3DDevice;
+static IDirect3DDevice8** pD3DDevice = nullptr;
 
 static int GetCurrentMaterialIndex()
 {

@@ -35,7 +35,35 @@ char *resStrPtr;
 
 int printResStr(unsigned short, unsigned char, int x, int y)
 {
-	sprintf_s((char *)resStrBuf, sizeof(resStrBuf), "\\h%d x %d", gWidth, gHeight);
+	char* text = "\\h%dx%d";
+	if (abs((float)gWidth / 3 - (float)gHeight / 2) < 1.0f)
+		text = "\\h%dx%d (3:2)";
+	else if (abs((float)gWidth / 4 - (float)gHeight / 3) < 1.0f)
+		text = "\\h%dx%d (4:3)";
+	else if (abs((float)gWidth / 5 - (float)gHeight / 3) < 1.0f)
+		text = "\\h%dx%d (5:3)";
+	else if (abs((float)gWidth / 5 - (float)gHeight / 4) < 1.0f)
+		text = "\\h%dx%d (5:4)";
+	else if (abs((float)gWidth / 7 - (float)gHeight / 5) < 1.0f)
+		text = "\\h%dx%d (7:5)";
+	else if (abs((float)gWidth / 9 - (float)gHeight / 5) < 1.0f)
+		text = "\\h%dx%d (9:5)";
+	else if (abs((float)gWidth / 16 - (float)gHeight / 5) < 1.0f)
+		text = "\\h%dx%d (16:5)";
+	else if (abs((float)gWidth / 16 - (float)gHeight / 9) < 1.0f)
+		text = "\\h%dx%d (16:9)";
+	else if (abs((float)gWidth / 16 - (float)gHeight / 10) < 1.0f)
+		text = "\\h%dx%d (16:10)";
+	else if (abs((float)gWidth / 17 - (float)gHeight / 9) < 1.0f)
+		text = "\\h%dx%d (17:9)";
+	else if (abs((float)gWidth / 21 - (float)gHeight / 9) < 1.0f)
+		text = "\\h%dx%d (21:9)";
+	else if (abs((float)gWidth / 25 - (float)gHeight / 16) < 1.0f)
+		text = "\\h%dx%d (25:16)";
+	else if (abs((float)gWidth / 48 - (float)gHeight / 9) < 1.0f)
+		text = "\\h%dx%d (48:9)";
+
+	sprintf_s((char *)resStrBuf, sizeof(resStrBuf), text, gWidth, gHeight);
 	resStrPtr = (char *)prepText(resStrBuf);
 	return printTextPos(resStrPtr, x, y);
 }

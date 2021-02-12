@@ -111,7 +111,7 @@ void SetRoom312Resolution(void *WidthAddress)
 {
 	// Get Hotel Room 312 render texture width address
 	constexpr BYTE SearchBytesRenderTexture[]{ 0x56, 0x6A, 0x00, 0x6A, 0x15, 0x8B, 0xCF, 0x6A, 0x01, 0xD3, 0xEB, 0x6A, 0x01, 0x53, 0x8B, 0x1D };
-	DWORD Room312RenderTexture = SearchAndGetAddresses(0x00476FCE, 0x0047726E, 0x0047747E, SearchBytesRenderTexture, sizeof(SearchBytesRenderTexture), 0x10);
+	static DWORD Room312RenderTexture = SearchAndGetAddresses(0x00476FCE, 0x0047726E, 0x0047747E, SearchBytesRenderTexture, sizeof(SearchBytesRenderTexture), 0x10);
 	if (!Room312RenderTexture)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -120,7 +120,7 @@ void SetRoom312Resolution(void *WidthAddress)
 
 	// Get Hotel Room 312 viewport width address
 	constexpr BYTE SearchBytesViewport[]{ 0x8B, 0x08, 0x52, 0x8B, 0x54, 0x24, 0x10, 0x52, 0x50, 0xFF, 0x51, 0x7C, 0xE8 };
-	DWORD Room312Viewport = SearchAndGetAddresses(0x00478F8E, 0x0047922E, 0x0047943E, SearchBytesViewport, sizeof(SearchBytesViewport), 0x26);
+	static DWORD Room312Viewport = SearchAndGetAddresses(0x00478F8E, 0x0047922E, 0x0047943E, SearchBytesViewport, sizeof(SearchBytesViewport), 0x26);
 	if (!Room312Viewport)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";

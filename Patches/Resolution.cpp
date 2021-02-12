@@ -127,6 +127,7 @@ void SetResolutionLock(DWORD Width, DWORD Height)
 		ResSelectorAddr = (unsigned int *)((BYTE*)DResAddrA + 0x87F);
 		if (*ResSelectorAddr != 0x00046855)
 		{
+			Logging::Log() << __FUNCTION__ << " Error: wrong memory address!";
 			return;
 		}
 		exitOffset = 0x2EB;

@@ -292,7 +292,7 @@ void DelayedStart()
 	}
 
 	// Tree Lighting fix
-	if (LightingFix && WidescreenFix)
+	if (LightingFix)
 	{
 		PatchTreeLighting();
 	}

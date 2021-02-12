@@ -320,24 +320,6 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 
 		SetWindowHandle(DeviceWindow);
 
-		// Disables the ability to change resolution, displays currently used
-		if (LockResolution && WidescreenFix && CustomExeStrSet)
-		{
-			RUNCODEONCE(SetResolutionLock(BufferWidth, BufferHeight));
-		}
-
-		// Set correct resolution for Room 312
-		if (PauseScreenFix && WidescreenFix)
-		{
-			RUNCODEONCE(SetRoom312Resolution(&BufferWidth));
-		}
-
-		// Set fullscreen image resolution
-		if (FullscreenImages)
-		{
-			RUNCODEONCE(SetFullscreenImagesRes(BufferWidth, BufferHeight));
-		}
-
 		// Set single core affinity
 		if (SingleCoreAffinity && SingleCoreAffinityTimer)
 		{
@@ -363,11 +345,36 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 		return;
 	}
 
+	LONG oldBufferWidth = BufferWidth, oldBufferHeight = BufferHeight;
+
 	BufferWidth = (pPresentationParameters->BackBufferWidth) ? pPresentationParameters->BackBufferWidth : BufferWidth;
 	BufferHeight = (pPresentationParameters->BackBufferHeight) ? pPresentationParameters->BackBufferHeight : BufferHeight;
 
 	DeviceWindow = (pPresentationParameters->hDeviceWindow) ? pPresentationParameters->hDeviceWindow :
 		(hFocusWindow) ? hFocusWindow : DeviceWindow;
+
+	if (oldBufferWidth != BufferWidth || oldBufferHeight != BufferHeight)
+	{
+		Logging::Log() << "Setting resolution: " << BufferWidth << "x" << BufferHeight;
+
+		// Disables the ability to change resolution, displays currently used
+		if (LockResolution && WidescreenFix && CustomExeStrSet)
+		{
+			RUNCODEONCE(SetResolutionLock(BufferWidth, BufferHeight));
+		}
+
+		// Set correct resolution for Room 312
+		if (PauseScreenFix)
+		{
+			SetRoom312Resolution(&BufferWidth);
+		}
+
+		// Set fullscreen image resolution
+		if (FullscreenImages)
+		{
+			SetFullscreenImagesRes(BufferWidth, BufferHeight);
+		}
+	}
 
 	// Check if window is minimized and restore it
 	if (IsWindow(DeviceWindow) && IsIconic(DeviceWindow))

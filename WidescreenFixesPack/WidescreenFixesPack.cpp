@@ -22,6 +22,8 @@
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
 
+bool DisableStaticResolution = false;
+
 bool IsUALPresent()
 {
 	return true;
@@ -143,7 +145,11 @@ int GetValue(std::string_view, std::string_view szKey, int)
 	}
 	else if (szKey.compare("FullscreenImages") == 0)
 	{
-		ret = 0;
+		ret = 0;	// Always disable full screen images here
+	}
+	else if (szKey.compare("DisableResolutionListOverride") == 0)
+	{
+		ret = DisableStaticResolution;
 	}
 	else
 	{

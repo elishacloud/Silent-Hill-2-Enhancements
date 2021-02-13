@@ -17,6 +17,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include "Common\Utils.h"
+#include "WidescreenFixesPack\WidescreenFixesPack.h"
 #include "Logging\Logging.h"
 #include "Common\Settings.h"
 #include "Patches.h"
@@ -24,6 +25,9 @@
 
 using namespace std;
 
+extern bool DisableStaticResolution;
+
+BYTE *ResolutionIndex = nullptr;
 BYTE *TextResIndex = nullptr;
 DWORD *ResolutionArray = nullptr;
 
@@ -33,10 +37,22 @@ DWORD (*printTextPos)(char *str, int x, int y);
 char resStrBuf[64];
 char *resStrPtr;
 
+void GetSetResolution(int &Width, int &Height)
+{
+	Width = *(DWORD*)((BYTE*)ResolutionArray + (*ResolutionIndex * 8));
+	Height = *(DWORD*)((BYTE*)ResolutionArray + (*ResolutionIndex * 8) + 4);
+}
+
+void GetNewResolution(int &Width, int &Height)
+{
+	Width = *(DWORD*)((BYTE*)ResolutionArray + (*TextResIndex * 8));
+	Height = *(DWORD*)((BYTE*)ResolutionArray + (*TextResIndex * 8) + 4);
+}
+
 int printResStr(unsigned short, unsigned char, int x, int y)
 {
-	DWORD gWidth = *(DWORD*)((BYTE*)ResolutionArray + (*TextResIndex * 8));
-	DWORD gHeight = *(DWORD*)((BYTE*)ResolutionArray + (*TextResIndex * 8) + 4);
+	int gWidth, gHeight;
+	GetNewResolution(gWidth, gHeight);
 
 	char* text = "\\h%dx%d";
 	if (abs((float)gWidth / 3 - (float)gHeight / 2) < 1.0f)
@@ -103,6 +119,65 @@ __declspec(naked) void __stdcall ResArrowASM()
 	}
 }
 
+void WSFDynamicStartup()
+{
+	GetSetResolution(ResX, ResY);
+	WSFInit();
+}
+
+__declspec(naked) void __stdcall StartupResASM()
+{
+	__asm
+	{
+		pushf
+		push eax
+		push ebx
+		push ecx
+		push edx
+		push esi
+		push edi
+		call WSFDynamicStartup
+		pop edi
+		pop esi
+		pop edx
+		pop ecx
+		pop ebx
+		pop eax
+		popf
+		retn
+	}
+}
+
+void WSFDynamicChange()
+{
+	GetNewResolution(ResX, ResY);
+	WSFInit();
+}
+
+__declspec(naked) void __stdcall ChangeResASM()
+{
+	__asm
+	{
+		pushf
+		push eax
+		push ebx
+		push ecx
+		push edx
+		push esi
+		push edi
+		call WSFDynamicChange
+		pop edi
+		pop esi
+		pop edx
+		pop ecx
+		pop ebx
+		pop eax
+		popf
+		mov dword ptr ds : [ecx], eax
+		retn
+	}
+}
+
 void SetResolutionLock()
 {
 	constexpr BYTE ResSearchBytesA[] = { 0x94, 0x00, 0x68, 0xB3, 0x00, 0x00, 0x00, 0x05, 0xB0, 0x00, 0x00, 0x00, 0xE9, 0xCD, 0x02, 0x00, 0x00, 0xA0, 0x1C };
@@ -144,14 +219,25 @@ void SetResolutionLock()
 	// Get text resolution index
 	constexpr BYTE TextResIndexSearchBytes[] = { 0x68, 0x8B, 0x01, 0x00, 0x00, 0x6A, 0x46, 0x68, 0xD1, 0x00, 0x00, 0x00, 0x52, 0xE8 };
 	TextResIndex = (BYTE*)ReadSearchedAddresses(0x00465631, 0x004658CD, 0x00465ADD, TextResIndexSearchBytes, sizeof(TextResIndexSearchBytes), 0x29);
+	constexpr BYTE ResolutionIndexSearchBytes[] = { 0x6A, 0x01, 0x6A, 0x00, 0x50, 0xFF, 0x51, 0x34, 0x6A, 0x00, 0xE8 };
+	ResolutionIndex = (BYTE*)ReadSearchedAddresses(0x004F633F, 0x004F65EF, 0x004F5EAF, ResolutionIndexSearchBytes, sizeof(ResolutionIndexSearchBytes), 0x10);
 	constexpr BYTE ResolutionArraySearchBytes[] = { 0x10, 0x51, 0x56, 0x6A, 0x00, 0x50, 0xFF, 0x52, 0x1C, 0x8B, 0x54, 0x24, 0x10 };
 	ResolutionArray = (DWORD*)ReadSearchedAddresses(0x004F5DEB, 0x004F609B, 0x004F595B, ResolutionArraySearchBytes, sizeof(ResolutionArraySearchBytes), 0xF);
-	if (!TextResIndex || !ResolutionArray)
+	BYTE *ResStartupAddr = (BYTE*)SearchAndGetAddresses(0x004F5DEB, 0x004F609B, 0x004F595B, ResolutionArraySearchBytes, sizeof(ResolutionArraySearchBytes), 0x4B);
+	if (!TextResIndex || !ResolutionIndex || !ResolutionArray || !ResStartupAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory addresses!";
 		return;
 	}
 	TextResIndex += 1;
+
+	// Dynamic resolution
+	if (WidescreenFix && DisableStaticResolution)
+	{
+		WriteJMPtoMemory(ResStartupAddr, *StartupResASM);
+		UpdateMemoryAddress((ResStartupAddr + 0x56), "\xEB\x1B\x90", 3);		// Jump near to 0x1B
+		WriteJMPtoMemory((ResStartupAddr + 0x56 + 0x02 + 0x1B), *ChangeResASM);
+	}
 
 	// Check if resolution is locked
 	if (*(DWORD*)((BYTE*)ResolutionArray) == *(DWORD*)((BYTE*)ResolutionArray + 8) &&

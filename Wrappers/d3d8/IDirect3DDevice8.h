@@ -169,8 +169,7 @@ public:
 
 		ProxyAddressLookupTableD3d8 = new AddressLookupTableD3d8<m_IDirect3DDevice8>(this);
 
-		GetDesktopRes(screenWidth, screenHeight);
-		RunningAsWindow = (EnableWndMode && (BufferWidth != screenWidth || BufferHeight != screenHeight));
+		GetScreenSize();
 
 		// Enable Anisotropic Filtering
 		if (AnisotropicFiltering)
@@ -317,4 +316,5 @@ private:
 	DWORD GetShadowIntensity();
 	void SetShadowFading();
 	void CaptureScreenShot();
+	void GetScreenSize();
 };

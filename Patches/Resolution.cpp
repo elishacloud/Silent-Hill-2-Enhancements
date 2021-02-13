@@ -24,8 +24,8 @@
 
 using namespace std;
 
-unsigned int gWidth;
-unsigned int gHeight;
+BYTE *TextResIndex = nullptr;
+DWORD *ResolutionArray = nullptr;
 
 DWORD (*prepText)(char *str);
 DWORD (*printTextPos)(char *str, int x, int y);
@@ -35,6 +35,9 @@ char *resStrPtr;
 
 int printResStr(unsigned short, unsigned char, int x, int y)
 {
+	DWORD gWidth = *(DWORD*)((BYTE*)ResolutionArray + (*TextResIndex * 8));
+	DWORD gHeight = *(DWORD*)((BYTE*)ResolutionArray + (*TextResIndex * 8) + 4);
+
 	char* text = "\\h%dx%d";
 	if (abs((float)gWidth / 3 - (float)gHeight / 2) < 1.0f)
 		text = "\\h%dx%d (3:2)";
@@ -100,7 +103,7 @@ __declspec(naked) void __stdcall ResArrowASM()
 	}
 }
 
-void SetResolutionLock(DWORD Width, DWORD Height)
+void SetResolutionLock()
 {
 	constexpr BYTE ResSearchBytesA[] = { 0x94, 0x00, 0x68, 0xB3, 0x00, 0x00, 0x00, 0x05, 0xB0, 0x00, 0x00, 0x00, 0xE9, 0xCD, 0x02, 0x00, 0x00, 0xA0, 0x1C };
 	void *DResAddrA = (void*)SearchAndGetAddresses(0x0046565C, 0x004658F8, 0x00465B08, ResSearchBytesA, sizeof(ResSearchBytesA), 0x00);
@@ -113,9 +116,6 @@ void SetResolutionLock(DWORD Width, DWORD Height)
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
-
-	gWidth = Width;
-	gHeight = Height;
 
 	unsigned int *ResSelectorAddr = (unsigned int *)((BYTE*)DResAddrA + 0x879);
 	int exitOffset = 0x2ED;
@@ -141,10 +141,33 @@ void SetResolutionLock(DWORD Width, DWORD Height)
 	prepText = (DWORD(*)(char *str))(((BYTE*)DResAddrB + 0x15) + *(int *)((BYTE*)DResAddrB + 0x11));
 	printTextPos = (DWORD(*)(char *str, int x, int y))(((BYTE*)DResAddrB + 0x1E) + *(int *)((BYTE*)DResAddrB + 0x1A));
 
-	// Lock resolution
-	void *ResSelectorAddrExit = (void *)((BYTE*)ResSelectorAddr + exitOffset);
-	WriteJMPtoMemory((BYTE*)ResSelectorAddr, ResSelectorAddrExit, 5);
-	
+	// Get text resolution index
+	constexpr BYTE TextResIndexSearchBytes[] = { 0x68, 0x8B, 0x01, 0x00, 0x00, 0x6A, 0x46, 0x68, 0xD1, 0x00, 0x00, 0x00, 0x52, 0xE8 };
+	TextResIndex = (BYTE*)ReadSearchedAddresses(0x00465631, 0x004658CD, 0x00465ADD, TextResIndexSearchBytes, sizeof(TextResIndexSearchBytes), 0x29);
+	constexpr BYTE ResolutionArraySearchBytes[] = { 0x10, 0x51, 0x56, 0x6A, 0x00, 0x50, 0xFF, 0x52, 0x1C, 0x8B, 0x54, 0x24, 0x10 };
+	ResolutionArray = (DWORD*)ReadSearchedAddresses(0x004F5DEB, 0x004F609B, 0x004F595B, ResolutionArraySearchBytes, sizeof(ResolutionArraySearchBytes), 0xF);
+	if (!TextResIndex || !ResolutionArray)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory addresses!";
+		return;
+	}
+	TextResIndex += 1;
+
+	// Check if resolution is locked
+	if (*(DWORD*)((BYTE*)ResolutionArray) == *(DWORD*)((BYTE*)ResolutionArray + 8) &&
+		*(DWORD*)((BYTE*)ResolutionArray + 4) == *(DWORD*)((BYTE*)ResolutionArray + 12))
+	{
+		// Lock resolution
+		void *ResSelectorAddrExit = (void *)((BYTE*)ResSelectorAddr + exitOffset);
+		WriteJMPtoMemory((BYTE*)ResSelectorAddr, ResSelectorAddrExit, 5);
+
+		// Update resolution description string
+		if (UseCustomExeStr)
+		{
+			WriteCalltoMemory(((BYTE*)DResAddrA + 0x55), *printResDescStr, 5);
+		}
+	}
+
 	// Update resolution strings
 	ResSelectStrRetAddr = (DWORD *)(((BYTE*)DResAddrA + 0x92) + *(int *)((BYTE*)DResAddrA + 0x8E) + 8);
 	WriteJMPtoMemory(((BYTE*)DResAddrA + 0x8D), *ResSelectStrASM, 5);
@@ -155,12 +178,6 @@ void SetResolutionLock(DWORD Width, DWORD Height)
 	UpdateMemoryAddress((void *)((BYTE*)DResAddrA + arrowOffset), (void *)&codeA, sizeof(codeA));
 	ResArrowRetAddr = (DWORD *)(((BYTE*)DResAddrA + arrowOffset + 0x27) + *(int *)((BYTE*)DResAddrA + arrowOffset + 0x23) + 6);
 	WriteJMPtoMemory(((BYTE*)DResAddrA + arrowOffset + 0x22), *ResArrowASM, 5);
-
-	// Update resolution description string
-	if (UseCustomExeStr)
-	{
-		WriteCalltoMemory(((BYTE*)DResAddrA + 0x55), *printResDescStr, 5);
-	}
 }
 
 static DWORD* gFogOn;

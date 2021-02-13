@@ -59,7 +59,7 @@ void RemoveVirtualStoreFiles();
 void RemoveCompatibilityMode();
 void SetDelayedStart();
 void SetFullscreenImagesRes(DWORD Width, DWORD Height);
-void SetResolutionLock(DWORD Width, DWORD Height);
+void SetResolutionLock();
 void SetRoom312Resolution(void *WidthAddress);
 void SetWindowHandle(HWND WindowHandle);
 void UnhookWindowHandle();

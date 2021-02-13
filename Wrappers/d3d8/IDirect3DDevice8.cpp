@@ -28,6 +28,10 @@ extern bool m_StopThreadFlag;
 extern bool IsUpdatingModule;
 extern bool TakeScreenShot;
 
+bool RunningAsWindow = false;
+LONG screenWidth = 0;
+LONG screenHeight = 0;
+
 bool DisableShaderOnPresent = false;
 bool IsInFullscreenImage = false;
 bool IsInBloomEffect = false;
@@ -189,7 +193,11 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 		Logging::Log() << __FUNCTION__ << " Error: MultiSample disabled!!!";
 	}
 
-	return ProxyInterface->Reset(pPresentationParameters);
+	HRESULT hr = ProxyInterface->Reset(pPresentationParameters);
+
+	GetScreenSize();
+
+	return hr;
 }
 
 HRESULT m_IDirect3DDevice8::EndScene()
@@ -3026,4 +3034,10 @@ void m_IDirect3DDevice8::CaptureScreenShot()
 	pDestSurface->Release();
 
 	return;
+}
+
+void m_IDirect3DDevice8::GetScreenSize()
+{
+	GetDesktopRes(screenWidth, screenHeight);
+	RunningAsWindow = (EnableWndMode && (BufferWidth != screenWidth || BufferHeight != screenHeight));
 }

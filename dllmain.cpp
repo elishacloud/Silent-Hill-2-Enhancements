@@ -454,6 +454,12 @@ void DelayedStart()
 		PatchFullscreenImages();
 	}
 
+	// Disables the ability to change resolution, displays currently used
+	if (LockResolution && CustomExeStrSet)
+	{
+		SetResolutionLock();
+	}
+
 	// Check for update
 	if (AutoUpdateModule)
 	{

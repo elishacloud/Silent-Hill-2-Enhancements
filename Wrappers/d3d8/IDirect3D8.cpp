@@ -353,15 +353,10 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 	DeviceWindow = (pPresentationParameters->hDeviceWindow) ? pPresentationParameters->hDeviceWindow :
 		(hFocusWindow) ? hFocusWindow : DeviceWindow;
 
+	// Check if resolution changed
 	if (oldBufferWidth != BufferWidth || oldBufferHeight != BufferHeight)
 	{
 		Logging::Log() << "Setting resolution: " << BufferWidth << "x" << BufferHeight;
-
-		// Disables the ability to change resolution, displays currently used
-		if (LockResolution && WidescreenFix && CustomExeStrSet)
-		{
-			RUNCODEONCE(SetResolutionLock(BufferWidth, BufferHeight));
-		}
 
 		// Set correct resolution for Room 312
 		if (PauseScreenFix)

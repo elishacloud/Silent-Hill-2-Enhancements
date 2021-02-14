@@ -147,6 +147,9 @@ void WSFDynamicStartup()
 	}
 	GetCurrentResolution(ResX, ResY);
 	WSFInit();
+
+	// Flush cache
+	FlushInstructionCache(GetCurrentProcess(), nullptr, 0);
 }
 
 void *jmpStartupRes = nullptr;
@@ -177,6 +180,9 @@ void WSFDynamicChange()
 {
 	GetTextResolution(ResX, ResY);
 	WSFInit();
+
+	// Flush cache
+	FlushInstructionCache(GetCurrentProcess(), nullptr, 0);
 }
 
 __declspec(naked) void __stdcall ChangeResASM()

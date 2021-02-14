@@ -128,10 +128,28 @@ __declspec(naked) void __stdcall ResArrowASM()
 
 void WSFDynamicStartup()
 {
+	// Check if ResolutionIndex is too large and default to current resolution
+	if (*ResolutionIndex >= ResolutionVector.size())
+	{
+		*ResolutionIndex = 0;
+		LONG screenWidth, screenHeight;
+		GetDesktopRes(screenWidth, screenHeight);
+		BYTE Index = 0;
+		for (auto res : ResolutionVector)
+		{
+			if ((LONG)res.Width == screenWidth && (LONG)res.Height == screenHeight)
+			{
+				*ResolutionIndex = Index;
+				break;
+			}
+			Index++;
+		}
+	}
 	GetCurrentResolution(ResX, ResY);
 	WSFInit();
 }
 
+void *jmpStartupRes = nullptr;
 __declspec(naked) void __stdcall StartupResASM()
 {
 	__asm
@@ -143,8 +161,6 @@ __declspec(naked) void __stdcall StartupResASM()
 		push edx
 		push esi
 		push edi
-		mov eax, dword ptr ds : [ResolutionIndex]
-		mov dword ptr ds : [eax], ebx		// ebx stores the currnetly used resolution index here
 		call WSFDynamicStartup
 		pop edi
 		pop esi
@@ -153,7 +169,7 @@ __declspec(naked) void __stdcall StartupResASM()
 		pop ebx
 		pop eax
 		popf
-		retn
+		jmp jmpStartupRes
 	}
 }
 
@@ -212,12 +228,15 @@ void GetCustomResolutions()
 			break;
 		}
 		bool found = false;
-		for (auto res : ResolutionVector)
+		if (d3ddispmode.Width >= 640 && d3ddispmode.Height >= 480)
 		{
-			if (res.Width == d3ddispmode.Width && res.Height == d3ddispmode.Height)
+			for (auto res : ResolutionVector)
 			{
-				found = true;
-				break;
+				if (res.Width == d3ddispmode.Width && res.Height == d3ddispmode.Height)
+				{
+					found = true;
+					break;
+				}
 			}
 		}
 		if (!found)
@@ -291,7 +310,9 @@ void SetResolutionLock()
 	BYTE *ResStartupAddr = (BYTE*)SearchAndGetAddresses(0x004F5DEB, 0x004F609B, 0x004F595B, ResolutionArraySearchBytes, sizeof(ResolutionArraySearchBytes), 0x4B);
 	constexpr BYTE ResSizeSearchBytes[] = { 0x3C, 0x05, 0x73, 0x04, 0xFE, 0xC0, 0xEB, 0x02, 0x32, 0xC0, 0x0F, 0xB6, 0xC8, 0x51, 0xA2 };
 	BYTE *ResSizeAddr = (BYTE*)SearchAndGetAddresses(0x00465F2A, 0x004661CC, 0x004663DC, ResSizeSearchBytes, sizeof(ResSizeSearchBytes), 0x00);
-	if (!TextResIndex || !ResolutionIndex || !ResolutionArray || !ResStartupAddr || !ResSizeAddr)
+	constexpr BYTE ResConfigSearchBytes[] = { 0x1B, 0xD2, 0x42, 0xC1, 0xE8, 0x10, 0x89, 0x15 };
+	BYTE *ResConfigAddr = (BYTE*)SearchAndGetAddresses(0x004F71CD, 0x004F74FD, 0x004F6E1C, ResConfigSearchBytes, sizeof(ResConfigSearchBytes), -0x28);
+	if (!TextResIndex || !ResolutionIndex || !ResolutionArray || !ResStartupAddr || !ResSizeAddr || !ResConfigAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory addresses!";
 		return;
@@ -310,9 +331,6 @@ void SetResolutionLock()
 			BYTE *ArrayWidth = (BYTE*)ResolutionArray;
 			BYTE *ArrayHeight = (BYTE*)ResolutionArray + 4;
 
-			UpdateMemoryAddress((void *)(ResStartupAddr - 0x3E + 2), &ArrayWidth, sizeof(DWORD));
-			UpdateMemoryAddress((void *)(ResStartupAddr - 0x32 + 2), &ArrayHeight, sizeof(DWORD));
-
 			UpdateMemoryAddress((void *)(ResStartupAddr + 0x3E + 3), &ArrayWidth, sizeof(DWORD));
 			UpdateMemoryAddress((void *)(ResStartupAddr + 0x4B + 3), &ArrayHeight, sizeof(DWORD));
 
@@ -329,11 +347,12 @@ void SetResolutionLock()
 				DWORD delta = (GameVersion == SH2V_10) ? 0x33 : 0x31;
 				UpdateMemoryAddress((void *)(ResSizeAddr + delta + 1), &ListSize, sizeof(BYTE));
 			}
-		}
 
-		WriteJMPtoMemory(ResStartupAddr, *StartupResASM);
-		UpdateMemoryAddress((ResStartupAddr + 0x56), "\xEB\x1B\x90", 3);		// Jump near to 0x1B
-		WriteJMPtoMemory((ResStartupAddr + 0x56 + 0x02 + 0x1B), *ChangeResASM);
+			jmpStartupRes = ResConfigAddr + 0xF;
+			WriteJMPtoMemory(ResConfigAddr, *StartupResASM, 0xF);
+			UpdateMemoryAddress((ResStartupAddr + 0x56), "\xEB\x1B\x90", 3);		// Jump near to 0x1B
+			WriteJMPtoMemory((ResStartupAddr + 0x56 + 0x02 + 0x1B), *ChangeResASM);
+		}
 	}
 
 	// Check if resolution is locked

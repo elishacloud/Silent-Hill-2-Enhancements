@@ -22,6 +22,7 @@
 	visit(DisableSafeMode, true) \
 	visit(DisableScreenSaver, true) \
 	visit(DPadMovementFix, true) \
+	visit(DynamicResolution, false) \
 	visit(EnableScreenshots, true) \
 	visit(EnableSFXAddrHack, true) \
 	visit(EnableSMAA, false) \

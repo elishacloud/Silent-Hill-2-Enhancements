@@ -143,6 +143,8 @@ __declspec(naked) void __stdcall StartupResASM()
 		push edx
 		push esi
 		push edi
+		mov eax, dword ptr ds : [ResolutionIndex]
+		mov dword ptr ds : [eax], ebx		// ebx stores the currnetly used resolution index here
 		call WSFDynamicStartup
 		pop edi
 		pop esi
@@ -297,7 +299,7 @@ void SetResolutionLock()
 	TextResIndex += 1;
 
 	// Dynamic resolution
-	if (WidescreenFix && false)
+	if (WidescreenFix && DynamicResolution)
 	{
 		GetCustomResolutions();
 

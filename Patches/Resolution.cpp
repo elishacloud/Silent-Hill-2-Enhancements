@@ -16,8 +16,10 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <vector>
 #include "Common\Utils.h"
 #include "WidescreenFixesPack\WidescreenFixesPack.h"
+#include "Wrappers\d3d8\d3d8wrapper.h"
 #include "Logging\Logging.h"
 #include "Common\Settings.h"
 #include "Patches.h"
@@ -25,11 +27,16 @@
 
 using namespace std;
 
-extern bool DisableStaticResolution;
+struct RESOLUTONLIST
+{
+	DWORD Width;
+	DWORD Height;
+};
 
 BYTE *ResolutionIndex = nullptr;
 BYTE *TextResIndex = nullptr;
-DWORD *ResolutionArray = nullptr;
+RESOLUTONLIST *ResolutionArray = nullptr;
+std::vector<RESOLUTONLIST> ResolutionVector;
 
 DWORD (*prepText)(char *str);
 DWORD (*printTextPos)(char *str, int x, int y);
@@ -37,22 +44,22 @@ DWORD (*printTextPos)(char *str, int x, int y);
 char resStrBuf[64];
 char *resStrPtr;
 
-void GetSetResolution(int &Width, int &Height)
+void GetCurrentResolution(int &Width, int &Height)
 {
-	Width = *(DWORD*)((BYTE*)ResolutionArray + (*ResolutionIndex * 8));
-	Height = *(DWORD*)((BYTE*)ResolutionArray + (*ResolutionIndex * 8) + 4);
+	Width = ResolutionArray[*ResolutionIndex].Width;
+	Height = ResolutionArray[*ResolutionIndex].Height;
 }
 
-void GetNewResolution(int &Width, int &Height)
+void GetTextResolution(int &Width, int &Height)
 {
-	Width = *(DWORD*)((BYTE*)ResolutionArray + (*TextResIndex * 8));
-	Height = *(DWORD*)((BYTE*)ResolutionArray + (*TextResIndex * 8) + 4);
+	Width = ResolutionArray[*TextResIndex].Width;
+	Height = ResolutionArray[*TextResIndex].Height;
 }
 
 int printResStr(unsigned short, unsigned char, int x, int y)
 {
 	int gWidth, gHeight;
-	GetNewResolution(gWidth, gHeight);
+	GetTextResolution(gWidth, gHeight);
 
 	char* text = "\\h%dx%d";
 	if (abs((float)gWidth / 3 - (float)gHeight / 2) < 1.0f)
@@ -121,7 +128,7 @@ __declspec(naked) void __stdcall ResArrowASM()
 
 void WSFDynamicStartup()
 {
-	GetSetResolution(ResX, ResY);
+	GetCurrentResolution(ResX, ResY);
 	WSFInit();
 }
 
@@ -150,7 +157,7 @@ __declspec(naked) void __stdcall StartupResASM()
 
 void WSFDynamicChange()
 {
-	GetNewResolution(ResX, ResY);
+	GetTextResolution(ResX, ResY);
 	WSFInit();
 }
 
@@ -176,6 +183,58 @@ __declspec(naked) void __stdcall ChangeResASM()
 		mov dword ptr ds : [ecx], eax
 		retn
 	}
+}
+
+void GetCustomResolutions()
+{
+	RESOLUTONLIST Resolution;
+	IDirect3D8 *pDirect3D = Direct3DCreate8Wrapper(D3D_SDK_VERSION);
+
+	if (!pDirect3D)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to create Direct3D8!";
+		return;
+	}
+
+	// Setup display mode
+	D3DDISPLAYMODE d3ddispmode;
+
+	// Enumerate modes for format XRGB
+	UINT modeCount = pDirect3D->GetAdapterModeCount(D3DADAPTER_DEFAULT);
+
+	// Loop through each mode
+	for (UINT i = 0; i < modeCount; i++)
+	{
+		if (FAILED(pDirect3D->EnumAdapterModes(D3DADAPTER_DEFAULT, i, &d3ddispmode)))
+		{
+			break;
+		}
+		bool found = false;
+		for (auto res : ResolutionVector)
+		{
+			if (res.Width == d3ddispmode.Width && res.Height == d3ddispmode.Height)
+			{
+				found = true;
+				break;
+			}
+		}
+		if (!found)
+		{
+			Resolution.Width = d3ddispmode.Width;
+			Resolution.Height = d3ddispmode.Height;
+			ResolutionVector.push_back(Resolution);
+		}
+	}
+
+	// Check if any resolutions were found
+	if (ResolutionVector.empty())
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to get resolution list!";
+		return;
+	}
+
+	// Release Direct3D8
+	pDirect3D->Release();
 }
 
 void SetResolutionLock()
@@ -222,9 +281,11 @@ void SetResolutionLock()
 	constexpr BYTE ResolutionIndexSearchBytes[] = { 0x6A, 0x01, 0x6A, 0x00, 0x50, 0xFF, 0x51, 0x34, 0x6A, 0x00, 0xE8 };
 	ResolutionIndex = (BYTE*)ReadSearchedAddresses(0x004F633F, 0x004F65EF, 0x004F5EAF, ResolutionIndexSearchBytes, sizeof(ResolutionIndexSearchBytes), 0x10);
 	constexpr BYTE ResolutionArraySearchBytes[] = { 0x10, 0x51, 0x56, 0x6A, 0x00, 0x50, 0xFF, 0x52, 0x1C, 0x8B, 0x54, 0x24, 0x10 };
-	ResolutionArray = (DWORD*)ReadSearchedAddresses(0x004F5DEB, 0x004F609B, 0x004F595B, ResolutionArraySearchBytes, sizeof(ResolutionArraySearchBytes), 0xF);
+	ResolutionArray = (RESOLUTONLIST*)ReadSearchedAddresses(0x004F5DEB, 0x004F609B, 0x004F595B, ResolutionArraySearchBytes, sizeof(ResolutionArraySearchBytes), 0xF);
 	BYTE *ResStartupAddr = (BYTE*)SearchAndGetAddresses(0x004F5DEB, 0x004F609B, 0x004F595B, ResolutionArraySearchBytes, sizeof(ResolutionArraySearchBytes), 0x4B);
-	if (!TextResIndex || !ResolutionIndex || !ResolutionArray || !ResStartupAddr)
+	constexpr BYTE ResSizeSearchBytes[] = { 0x3C, 0x05, 0x73, 0x04, 0xFE, 0xC0, 0xEB, 0x02, 0x32, 0xC0, 0x0F, 0xB6, 0xC8, 0x51, 0xA2 };
+	BYTE *ResSizeAddr = (BYTE*)SearchAndGetAddresses(0x00465F2A, 0x004661CC, 0x004663DC, ResSizeSearchBytes, sizeof(ResSizeSearchBytes), 0x00);
+	if (!TextResIndex || !ResolutionIndex || !ResolutionArray || !ResStartupAddr || !ResSizeAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory addresses!";
 		return;
@@ -232,8 +293,35 @@ void SetResolutionLock()
 	TextResIndex += 1;
 
 	// Dynamic resolution
-	if (WidescreenFix && DisableStaticResolution)
+	if (WidescreenFix && false)
 	{
+		GetCustomResolutions();
+
+		if (ResolutionVector.size())
+		{
+			ResolutionArray = &ResolutionVector[0];
+
+			BYTE *ArrayWidth = (BYTE*)ResolutionArray;
+			BYTE *ArrayHeight = (BYTE*)ResolutionArray + 4;
+
+			UpdateMemoryAddress((void *)(ResStartupAddr - 0x3E + 2), &ArrayWidth, sizeof(DWORD));
+			UpdateMemoryAddress((void *)(ResStartupAddr - 0x32 + 2), &ArrayHeight, sizeof(DWORD));
+
+			UpdateMemoryAddress((void *)(ResStartupAddr + 0x3E + 3), &ArrayWidth, sizeof(DWORD));
+			UpdateMemoryAddress((void *)(ResStartupAddr + 0x4B + 3), &ArrayHeight, sizeof(DWORD));
+
+			UpdateMemoryAddress((void *)(ResStartupAddr + 0x51D + 3), &ArrayWidth, sizeof(DWORD));
+			UpdateMemoryAddress((void *)(ResStartupAddr + 0x529 + 3), &ArrayHeight, sizeof(DWORD));
+
+			// Set the number of resolutions in the list
+			if (ResolutionVector.size() != 6)
+			{
+				BYTE ListSize = (BYTE)ResolutionVector.size();
+				UpdateMemoryAddress((void *)(ResSizeAddr + 1), &ListSize, sizeof(BYTE));
+				UpdateMemoryAddress((void *)(ResSizeAddr + 0x33 + 1), &ListSize, sizeof(BYTE));
+			}
+		}
+
 		WriteJMPtoMemory(ResStartupAddr, *StartupResASM);
 		UpdateMemoryAddress((ResStartupAddr + 0x56), "\xEB\x1B\x90", 3);		// Jump near to 0x1B
 		WriteJMPtoMemory((ResStartupAddr + 0x56 + 0x02 + 0x1B), *ChangeResASM);

@@ -31,6 +31,8 @@ DEFINE_GUID(IID_SetTextureRenderTarget, 0x55555555, 0x1c77, 0x4d40, 0xb0, 0xcf, 
 
 typedef IDirect3D8 *(WINAPI *Direct3DCreate8Proc)(UINT);
 
+IDirect3D8 *WINAPI Direct3DCreate8Wrapper(UINT SDKVersion);
+
 void genericQueryInterface(REFIID riid, LPVOID *ppvObj, m_IDirect3DDevice8* m_pDevice);
 
 DWORD GetBitCount(D3DFORMAT Format);

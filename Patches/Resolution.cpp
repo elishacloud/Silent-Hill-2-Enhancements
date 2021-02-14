@@ -224,6 +224,10 @@ void GetCustomResolutions()
 			Resolution.Height = d3ddispmode.Height;
 			ResolutionVector.push_back(Resolution);
 		}
+		if (ResolutionVector.size() >= 0xFF)
+		{
+			break;
+		}
 	}
 
 	// Check if any resolutions were found
@@ -317,8 +321,11 @@ void SetResolutionLock()
 			if (ResolutionVector.size() != 6)
 			{
 				BYTE ListSize = (BYTE)ResolutionVector.size();
+				UpdateMemoryAddress((void *)(ResStartupAddr + 0x12 + 2), &ListSize, sizeof(BYTE));
+				--ListSize;
 				UpdateMemoryAddress((void *)(ResSizeAddr + 1), &ListSize, sizeof(BYTE));
-				UpdateMemoryAddress((void *)(ResSizeAddr + 0x33 + 1), &ListSize, sizeof(BYTE));
+				DWORD delta = (GameVersion == SH2V_10) ? 0x33 : 0x31;
+				UpdateMemoryAddress((void *)(ResSizeAddr + delta + 1), &ListSize, sizeof(BYTE));
 			}
 		}
 

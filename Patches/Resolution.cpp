@@ -344,13 +344,11 @@ void SetResolutionLock()
 		arrowOffset = 0x365;
 	}
 
-	Logging::Log() << "Enabling Resolution Lock...";
-
 	// Get functions
 	prepText = (DWORD(*)(char *str))(((BYTE*)DResAddrB + 0x15) + *(int *)((BYTE*)DResAddrB + 0x11));
 	printTextPos = (DWORD(*)(char *str, int x, int y))(((BYTE*)DResAddrB + 0x1E) + *(int *)((BYTE*)DResAddrB + 0x1A));
 
-	// Get text resolution index
+	// Get resolution addresses
 	constexpr BYTE TextResIndexSearchBytes[] = { 0x68, 0x8B, 0x01, 0x00, 0x00, 0x6A, 0x46, 0x68, 0xD1, 0x00, 0x00, 0x00, 0x52, 0xE8 };
 	TextResIndex = (BYTE*)ReadSearchedAddresses(0x00465631, 0x004658CD, 0x00465ADD, TextResIndexSearchBytes, sizeof(TextResIndexSearchBytes), 0x29);
 	constexpr BYTE ResolutionIndexSearchBytes[] = { 0x6A, 0x01, 0x6A, 0x00, 0x50, 0xFF, 0x51, 0x34, 0x6A, 0x00, 0xE8 };
@@ -370,6 +368,8 @@ void SetResolutionLock()
 		return;
 	}
 	TextResIndex += 1;
+
+	Logging::Log() << "Enabling Resolution Lock...";
 
 	// Dynamic resolution
 	if (WidescreenFix && DynamicResolution)

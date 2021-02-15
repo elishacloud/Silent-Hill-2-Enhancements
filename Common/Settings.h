@@ -115,6 +115,7 @@
 	visit(FPSLimit, 0) \
 	visit(IncreaseNoiseEffectRes, 768) \
 	visit(RestoreSearchCamMovement, 1) \
+	visit(ScreenMode, 0xFFFF) \
 	visit(SingleCoreAffinity, 2) \
 	visit(SingleCoreAffinityTimer, 5000) \
 	visit(SmallFontWidth, 16) \

@@ -165,3 +165,4 @@ char* Read(wchar_t* szFileName);
 void Parse(char* str, NV NameValueCallback);
 void __stdcall ParseCallback(char* lpName, char* lpValue);
 void __stdcall LogCallback(char* lpName, char* lpValue);
+void UpdateConfigDefaults();

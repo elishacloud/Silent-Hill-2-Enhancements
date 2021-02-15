@@ -240,3 +240,26 @@ void Parse(char* str, NV NameValueCallback)
 		}
 	}
 }
+
+void UpdateConfigDefaults()
+{
+	// Set shaders default
+	EnableCustomShaders = ((AdjustColorTemp || RestoreBrightnessSelector || EnableSMAA) && d3d8to9);
+
+	// Set screen mode
+	switch (ScreenMode)
+	{
+	case 1:
+		EnableWndMode = 1;
+		FullscreenWndMode = 0;
+		break;
+	case 2:
+		EnableWndMode = 1;
+		FullscreenWndMode = 1;
+		break;
+	case 3:
+		EnableWndMode = 0;
+		FullscreenWndMode = 0;
+		break;
+	}
+}

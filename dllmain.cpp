@@ -478,6 +478,9 @@ void DelayedStart()
 		SetSingleCoreAffinity();
 	}
 
+	// Flush cache
+	FlushInstructionCache(GetCurrentProcess(), nullptr, 0);
+
 	// Loaded
 	Logging::Log() << "Silent Hill 2 Enhancements module loaded!";
 }

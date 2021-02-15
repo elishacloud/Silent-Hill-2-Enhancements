@@ -458,7 +458,7 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	LONG lStyle = GetWindowLong(MainhWnd, GWL_STYLE) | WS_VISIBLE;
 	if (WndModeBorder && screenHeight > displayHeight + 32)
 	{
-		lStyle |= WS_OVERLAPPEDWINDOW;
+		lStyle = (lStyle | WS_OVERLAPPEDWINDOW) & ~(WS_MAXIMIZEBOX | WS_THICKFRAME);
 	}
 	else
 	{

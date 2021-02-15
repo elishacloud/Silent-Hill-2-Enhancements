@@ -44,7 +44,7 @@ DWORD (*printTextPos)(char *str, int x, int y);
 char resStrBuf[64];
 char *resStrPtr;
 
-void GetCurrentResolution(int &Width, int &Height)
+void GetStartupResolution(int &Width, int &Height)
 {
 	Width = ResolutionArray[*ResolutionIndex].Width;
 	Height = ResolutionArray[*ResolutionIndex].Height;
@@ -128,10 +128,32 @@ __declspec(naked) void __stdcall ResArrowASM()
 
 void WSFDynamicStartup()
 {
-	// Check if ResolutionIndex is too large and default to current resolution
-	if (*ResolutionIndex >= ResolutionVector.size())
+	DWORD Width = 0, Height = 0;
+
+	// Get saved resolution
+	HRESULT hr = GetResolution(Width, Height);
+
+	// Check if resolution is found and set correct index
+	bool found = false;
+	if (SUCCEEDED(hr))
 	{
-		*ResolutionIndex = 0;
+		BYTE Index = 0;
+		for (auto res : ResolutionVector)
+		{
+			if (res.Width == Width && res.Height == Height)
+			{
+				found = true;
+				*ResolutionIndex = Index;
+				break;
+			}
+			Index++;
+		}
+	}
+
+	// Default to current resolution if index is too large or saved resolution is not found
+	if ((SUCCEEDED(hr) && !found) || *ResolutionIndex >= ResolutionVector.size())
+	{
+		*ResolutionIndex = (BYTE)(ResolutionVector.size() - 1);
 		LONG screenWidth, screenHeight;
 		GetDesktopRes(screenWidth, screenHeight);
 		BYTE Index = 0;
@@ -145,7 +167,11 @@ void WSFDynamicStartup()
 			Index++;
 		}
 	}
-	GetCurrentResolution(ResX, ResY);
+
+	// Get initial resolution from index
+	GetStartupResolution(ResX, ResY);
+
+	// Update Widescreen Fix for initial resolution
 	WSFInit();
 
 	// Flush cache
@@ -178,7 +204,13 @@ __declspec(naked) void __stdcall StartupResASM()
 
 void WSFDynamicChange()
 {
+	// Get updated resolution from index
 	GetTextResolution(ResX, ResY);
+
+	// Save updated resolution
+	SaveResolution(ResX, ResY);
+
+	// Update Widescreen Fix for new resolution
 	WSFInit();
 
 	// Flush cache

@@ -613,6 +613,41 @@ bool GetSH2FolderPath(wchar_t *path, rsize_t size)
 	return (wcscpy_s(path, size, sh2path) == 0 && ret);
 }
 
+HRESULT GetResolution(DWORD &Width, DWORD &Height)
+{
+	HKEY hKey;
+	if (RegCreateKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Konami\\Silent Hill 2\\sh2e", 0, nullptr, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, nullptr, &hKey, nullptr) != ERROR_SUCCESS)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to open registry key!";
+		return E_FAIL;
+	}
+
+	DWORD Size = sizeof(DWORD);
+	RegGetValue(hKey, nullptr, L"Width", RRF_RT_DWORD, nullptr, &Width, &Size);
+
+	Size = sizeof(DWORD);
+	RegGetValue(hKey, nullptr, L"Height", RRF_RT_DWORD, nullptr, &Height, &Size);
+
+	RegCloseKey(hKey);
+
+	return S_OK;
+}
+
+void SaveResolution(DWORD Width, DWORD Height)
+{
+	HKEY hKey;
+	if (RegCreateKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Konami\\Silent Hill 2\\sh2e", 0, nullptr, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, nullptr, &hKey, nullptr) != ERROR_SUCCESS)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to open registry key!";
+		return;
+	}
+
+	RegSetValueEx(hKey, L"Width", 0, REG_DWORD, (BYTE*)&Width, sizeof(DWORD));
+	RegSetValueEx(hKey, L"Height", 0, REG_DWORD, (BYTE*)&Height, sizeof(DWORD));
+
+	RegCloseKey(hKey);
+}
+
 void LogDirectory()
 {
 	wchar_t path[MAX_PATH];

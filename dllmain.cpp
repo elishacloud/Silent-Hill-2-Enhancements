@@ -455,7 +455,7 @@ void DelayedStart()
 	}
 
 	// Disables the ability to change resolution, displays currently used
-	if (LockResolution && CustomExeStrSet)
+	if ((DynamicResolution || LockResolution) && CustomExeStrSet)
 	{
 		SetResolutionLock();
 	}

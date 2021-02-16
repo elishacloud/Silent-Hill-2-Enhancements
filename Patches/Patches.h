@@ -113,6 +113,7 @@ void RunHotelWater();
 void RunInfiniteRumbleFix();
 void RunInnerFlashlightGlow(DWORD Height);
 void RunLightingTransition();
+void RunRoomLighting();
 void RunRotatingMannequin();
 void RunShadowCutscene();
 void RunSpecialFXScale(DWORD Height);

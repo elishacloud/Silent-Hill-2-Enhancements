@@ -1737,6 +1737,12 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 			RunTreeColor();
 		}
 
+		// Lighting patch
+		if (RoomLightingFix)
+		{
+			RunRoomLighting();
+		}
+
 		// Fix rotating Mannequin glitch
 		if (WoodsideRoom205Fix)
 		{

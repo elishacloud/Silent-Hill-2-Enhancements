@@ -17,6 +17,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include "Common\Utils.h"
+#include "Patches.h"
 #include "Logging\Logging.h"
 
 // Variables for ASM
@@ -85,4 +86,59 @@ void PatchRoomLighting()
 	Value = -1000.0f;
 	UpdateMemoryAddress((BYTE*)(CarpetAddr + 0x0C), &Value, sizeof(float));
 	WriteJMPtoMemory((BYTE*)CemeteryAddr, *CemeteryLightingASM, 6);
+}
+
+void RunRoomLighting()
+{
+	// Room levels based on flashlight state
+	static float *RoomLevels = nullptr;
+	if (!RoomLevels)
+	{
+		RUNONCE();
+
+		// Get Room 312 Shadow address
+		constexpr BYTE SearchBytes[]{ 0x66, 0x3B, 0xC6, 0x7E, 0x66, 0xD9, 0x05 };
+		RoomLevels = (float*)ReadSearchedAddresses(0x0050AF2D, 0x0050B25D, 0x0050AB7D, SearchBytes, sizeof(SearchBytes), 0x7);
+
+		// Checking address pointer
+		if (!RoomLevels)
+		{
+			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+			return;
+		}
+
+		Logging::Log() << __FUNCTION__ << " Found memory address for 'RoomLevels': " << RoomLevels;
+	}
+
+	// Store Room ID
+	static DWORD LastRoomID = GetRoomID();
+	DWORD CurrentRoomID = GetRoomID();
+
+	// Check if need to update
+	static bool LastCheck = false;
+	if (LastCheck)
+	{
+		if (GetChapterID() == 0x01) // Side campaign
+		{
+			if (CurrentRoomID == 0x08 /*Town West*/ || CurrentRoomID == 0xD3 /*Mansion outside main entrance*/)
+			{
+				*RoomLevels = 1.0f;
+			}
+			else if (CurrentRoomID == 0xD4 /*Mansion outside guest entrance*/)
+			{
+				*RoomLevels = 0.0f;
+			}
+		}
+		else // Main campaign
+		{
+			if (CurrentRoomID == 0x04 /*Wood Side outside entrance*/ || CurrentRoomID == 0x07 /*Wood Side courtyard*/ || CurrentRoomID == 0x08 /*Town West*/ || CurrentRoomID == 0x0E /*Lake*/)
+			{
+				*RoomLevels = 0.0f;
+			}
+		}
+	}
+
+	// Store last results
+	LastCheck = (CurrentRoomID != LastRoomID);
+	LastRoomID = GetRoomID();
 }

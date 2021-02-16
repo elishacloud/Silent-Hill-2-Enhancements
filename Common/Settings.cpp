@@ -28,6 +28,7 @@
 	bool name = value;
 
 VISIT_BOOL_SETTINGS(SET_BOOL_DEFAULTS);
+VISIT_LEGACY_BOOL_SETTINGS(SET_BOOL_DEFAULTS);
 
 #define SET_INT_DEFAULTS(name, value) \
 	int name = value;
@@ -59,6 +60,7 @@ void __stdcall ParseCallback(char* lpName, char* lpValue)
 	if (!_strcmpi(lpName, #name)) name = SetValue(lpValue);
 
 	VISIT_BOOL_SETTINGS(GET_BOOL_VALUES);
+	VISIT_LEGACY_BOOL_SETTINGS(GET_BOOL_VALUES);
 
 #define GET_INT_VALUES(name, unused) \
 	if (!_strcmpi(lpName, #name)) name = atoi(lpValue);
@@ -246,20 +248,38 @@ void UpdateConfigDefaults()
 	// Set shaders default
 	EnableCustomShaders = ((AdjustColorTemp || RestoreBrightnessSelector || EnableSMAA) && d3d8to9);
 
+	// Set FogFix
+	if (FogFix == 0xFFFF)
+	{
+		FogFix = fog_custom_on;
+	}
+
+	// Set FogLayerFix
+	if (FogLayerFix == 0xFFFF)
+	{
+		FogLayerFix = Fog2DFix;
+	}
+
 	// Set screen mode
 	switch (ScreenMode)
 	{
 	case 1:
-		EnableWndMode = 1;
-		FullscreenWndMode = 0;
-		break;
 	case 2:
-		EnableWndMode = 1;
-		FullscreenWndMode = 1;
-		break;
 	case 3:
-		EnableWndMode = 0;
-		FullscreenWndMode = 0;
 		break;
+	case 0xFFFF:
+	default:
+		if (EnableWndMode && !FullscreenWndMode)
+		{
+			ScreenMode = 1;
+		}
+		else if (EnableWndMode && FullscreenWndMode)
+		{
+			ScreenMode = 2;
+		}
+		else
+		{
+			ScreenMode = 3;
+		}
 	}
 }

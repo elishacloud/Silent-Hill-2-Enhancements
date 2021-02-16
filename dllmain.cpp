@@ -435,7 +435,7 @@ void DelayedStart()
 	}
 
 	// Fog Fix
-	if (fog_custom_on)
+	if (FogFix)
 	{
 		PatchCustomFog();
 	}

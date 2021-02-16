@@ -286,7 +286,7 @@ void GetCustomResolutions()
 				break;
 			}
 		}
-		bool NotTooLarge = ((EnableWndMode && !FullscreenWndMode) ? (d3ddispmode.Width <= (DWORD)screenWidth && d3ddispmode.Height <= (DWORD)screenHeight) : true);
+		bool NotTooLarge = ((ScreenMode == 1) ? (d3ddispmode.Width <= (DWORD)screenWidth && d3ddispmode.Height <= (DWORD)screenHeight) : true);
 		bool NotTooSmall = (d3ddispmode.Width >= 640 && d3ddispmode.Height >= 480);
 		if (!found && NotTooSmall && NotTooLarge)
 		{

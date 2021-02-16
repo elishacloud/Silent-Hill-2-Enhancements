@@ -145,7 +145,7 @@ HRESULT m_IDirect3D8::CheckDeviceMultiSampleType(THIS_ UINT Adapter, D3DDEVTYPE 
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	if (EnableWndMode)
+	if (ScreenMode != 3)
 	{
 		Windowed = true;
 	}
@@ -157,7 +157,7 @@ HRESULT m_IDirect3D8::CheckDeviceType(UINT Adapter, D3DDEVTYPE CheckType, D3DFOR
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	if (EnableWndMode)
+	if (ScreenMode != 3)
 	{
 		Windowed = true;
 	}
@@ -234,13 +234,13 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	}
 
 	// Check if render target needs to be replaced
-	if (DeviceMultiSampleType || (FixGPUAntiAliasing && VendorID == NVIDIA_VENDOR_ID))
+	if (DeviceMultiSampleType || FixGPUAntiAliasing)
 	{
 		CopyRenderTarget = true;
 	}
 
 	// Check for SSAA
-	if ((DeviceMultiSampleType || FixGPUAntiAliasing) &&
+	if ((DeviceMultiSampleType) &&
 		(ProxyInterface->CheckDeviceFormat(Adapter, D3DDEVTYPE_HAL, D3DFMT_X8R8G8B8, 0, D3DRTYPE_SURFACE, (D3DFORMAT)MAKEFOURCC('S', 'S', 'A', 'A')) == S_OK || VendorID == NVIDIA_VENDOR_ID))
 	{
 		SetSSAA = true;
@@ -313,7 +313,7 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 
 		*ppReturnedDeviceInterface = new m_IDirect3DDevice8(*ppReturnedDeviceInterface, this);
 
-		if (EnableWndMode)
+		if (ScreenMode != 3)
 		{
 			AdjustWindow(DeviceWindow, BufferWidth, BufferHeight);
 		}
@@ -378,7 +378,7 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 	}
 
 	// Set window size if window mode is enabled
-	if (EnableWndMode && (pPresentationParameters->hDeviceWindow || DeviceWindow || hFocusWindow))
+	if (ScreenMode != 3 && (pPresentationParameters->hDeviceWindow || DeviceWindow || hFocusWindow))
 	{
 		pPresentationParameters->Windowed = true;
 		pPresentationParameters->FullScreen_RefreshRateInHz = 0;
@@ -391,7 +391,7 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 				BufferWidth = tempRect.right;
 				BufferHeight = tempRect.bottom;
 			}
-			if (FullscreenWndMode)
+			if (ScreenMode == 2)
 			{
 				DEVMODE newSettings;
 				ZeroMemory(&newSettings, sizeof(newSettings));

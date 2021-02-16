@@ -512,7 +512,7 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 	Logging::LogDebug() << __FUNCTION__;
 
 	// Fix for 2D Fog and glow around the flashlight lens for Nvidia cards
-	if (Fog2DFix && State == D3DRS_ZBIAS)
+	if (FogLayerFix && State == D3DRS_ZBIAS)
 	{
 		Value = (Value * 15) / 16;
 	}
@@ -647,7 +647,7 @@ void m_IDirect3DDevice8::SetGammaRamp(THIS_ DWORD Flags, CONST D3DGAMMARAMP* pRa
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	if (!EnableWndMode || FullscreenWndMode || (RestoreBrightnessSelector && d3d8to9))
+	if (ScreenMode != 1 || (RestoreBrightnessSelector && d3d8to9))
 	{
 		ProxyInterface->SetGammaRamp(Flags, pRamp);
 	}
@@ -2378,7 +2378,7 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 	// Get location of client window
 	RECT RectSrc = { 0, 0, BufferWidth , BufferHeight };
 	RECT rcClient = { 0, 0, BufferWidth , BufferHeight };
-	if (EnableWndMode && DeviceWindow && (!GetWindowRect(DeviceWindow, &RectSrc) || !GetClientRect(DeviceWindow, &rcClient)))
+	if (ScreenMode != 3 && DeviceWindow && (!GetWindowRect(DeviceWindow, &RectSrc) || !GetClientRect(DeviceWindow, &rcClient)))
 	{
 		return D3DERR_INVALIDCALL;
 	}
@@ -3039,5 +3039,5 @@ void m_IDirect3DDevice8::CaptureScreenShot()
 void m_IDirect3DDevice8::GetScreenSize()
 {
 	GetDesktopRes(screenWidth, screenHeight);
-	RunningAsWindow = (EnableWndMode && (BufferWidth != screenWidth || BufferHeight != screenHeight));
+	RunningAsWindow = (ScreenMode != 3 && (BufferWidth != screenWidth || BufferHeight != screenHeight));
 }

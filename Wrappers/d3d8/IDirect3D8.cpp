@@ -31,6 +31,7 @@ LONG BufferWidth = 0, BufferHeight = 0;
 DWORD VendorID = 0;
 bool CopyRenderTarget = false;
 bool SetSSAA = false;
+bool WindowMoved = true;
 bool TakeScreenShot = false;
 D3DMULTISAMPLE_TYPE DeviceMultiSampleType = D3DMULTISAMPLE_NONE;
 
@@ -250,7 +251,7 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	UpdatePresentParameter(pPresentationParameters, hFocusWindow, true);
 
 	// Get WndProc
-	if (EnableScreenshots && !OriginalWndProc)
+	if ((ScreenMode == 1 || EnableScreenshots) && !OriginalWndProc)
 	{
 		OriginalWndProc = (WNDPROC)SetWindowLongA(DeviceWindow, GWL_WNDPROC, (LONG)WndProc);
 		if (OriginalWndProc)
@@ -393,14 +394,20 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 			}
 			if (ScreenMode == 2)
 			{
-				DEVMODE newSettings;
-				ZeroMemory(&newSettings, sizeof(newSettings));
-				if (EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &newSettings) != 0)
+				// Get monitor info
+				MONITORINFOEX infoex = {};
+				infoex.cbSize = sizeof(MONITORINFOEX);
+				BOOL bRet = GetMonitorInfo(GetMonitorHandle(), &infoex);
+
+				// Get resolution list for specified monitor
+				DEVMODE newSettings = {};
+				newSettings.dmSize = sizeof(newSettings);
+				if (EnumDisplaySettings(bRet ? infoex.szDevice : nullptr, ENUM_CURRENT_SETTINGS, &newSettings) != 0)
 				{
 					newSettings.dmPelsWidth = BufferWidth;
 					newSettings.dmPelsHeight = BufferHeight;
 					newSettings.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
-					ChangeDisplaySettings(&newSettings, CDS_FULLSCREEN);
+					ChangeDisplaySettingsEx(bRet ? infoex.szDevice : nullptr, &newSettings, nullptr, CDS_FULLSCREEN, nullptr);
 				}
 			}
 			AdjustWindow(DeviceWindow, BufferWidth, BufferHeight);
@@ -427,14 +434,29 @@ void UpdatePresentParameterForMultisample(D3DPRESENT_PARAMETERS* pPresentationPa
 	}
 }
 
+HMONITOR GetMonitorHandle()
+{
+	return MonitorFromWindow(IsWindow(DeviceWindow) ? DeviceWindow : GetDesktopWindow(), MONITOR_DEFAULTTONEAREST);
+}
+
 void GetDesktopRes(LONG &screenWidth, LONG &screenHeight)
 {
-	HMONITOR monitor = MonitorFromWindow(GetDesktopWindow(), MONITOR_DEFAULTTONEAREST);
 	MONITORINFO info = {};
 	info.cbSize = sizeof(MONITORINFO);
-	GetMonitorInfo(monitor, &info);
+	GetMonitorInfo(GetMonitorHandle(), &info);
 	screenWidth = info.rcMonitor.right - info.rcMonitor.left;
 	screenHeight = info.rcMonitor.bottom - info.rcMonitor.top;
+}
+
+void GetDesktopRect(RECT &screenRect)
+{
+	MONITORINFO info = {};
+	info.cbSize = sizeof(MONITORINFO);
+	GetMonitorInfo(GetMonitorHandle(), &info);
+	screenRect.left = info.rcMonitor.left;
+	screenRect.top = info.rcMonitor.top;
+	screenRect.right = info.rcMonitor.right;
+	screenRect.bottom = info.rcMonitor.bottom;
 }
 
 // Adjusting the window position for WindowMode
@@ -449,6 +471,8 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	// Get screen width and height
 	LONG screenWidth = 0, screenHeight = 0;
 	GetDesktopRes(screenWidth, screenHeight);
+	RECT screenRect = {};
+	GetDesktopRect(screenRect);
 
 	// Set window active and focus
 	SetActiveWindow(MainhWnd);
@@ -456,8 +480,8 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 
 	// Get window border
 	LONG lStyle = GetWindowLong(MainhWnd, GWL_STYLE) | WS_VISIBLE;
-	if (WndModeBorder && (screenWidth > displayWidth + (GetSystemMetrics(SM_CXSIZEFRAME) * 2) || 
-		screenHeight > displayHeight + (GetSystemMetrics(SM_CYSIZEFRAME) * 2) + GetSystemMetrics(SM_CYCAPTION)))
+	if (WndModeBorder && screenWidth > displayWidth + (GetSystemMetrics(SM_CXSIZEFRAME) * 2) &&
+		screenHeight > displayHeight + (GetSystemMetrics(SM_CYSIZEFRAME) * 2) + GetSystemMetrics(SM_CYCAPTION))
 	{
 		lStyle = (lStyle | WS_OVERLAPPEDWINDOW) & ~(WS_MAXIMIZEBOX | WS_THICKFRAME);
 	}
@@ -484,8 +508,8 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	LONG yLoc = 0;
 	if (screenWidth >= newDisplayWidth && screenHeight >= newDisplayHeight)
 	{
-		xLoc = (screenWidth - newDisplayWidth) / 2;
-		yLoc = (screenHeight - newDisplayHeight) / 2;
+		xLoc = screenRect.left + (screenWidth - newDisplayWidth) / 2;
+		yLoc = screenRect.top + (screenHeight - newDisplayHeight) / 2;
 	}
 	SetWindowPos(MainhWnd, nullptr, xLoc, yLoc, newDisplayWidth, newDisplayHeight, SWP_NOZORDER);
 }
@@ -495,9 +519,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	Logging::LogDebug() << __FUNCTION__ << " " << Logging::hex(wParam);
 
-	if (uMsg == WM_KEYUP && wParam == VK_SNAPSHOT)
+	switch (uMsg)
 	{
-		TakeScreenShot = true;
+	case WM_KEYUP:
+		if (wParam == VK_SNAPSHOT)
+		{
+			TakeScreenShot = true;
+		}
+		break;
+	case WM_MOVE:
+	case WM_WINDOWPOSCHANGED:
+		WindowMoved = true;
+		break;
 	}
 
 	if (!OriginalWndProc)

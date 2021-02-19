@@ -453,10 +453,10 @@ void DelayedStart()
 		PatchFullscreenImages();
 	}
 
-	// Disables the ability to change resolution, displays currently used
-	if ((DynamicResolution || LockResolution) && CustomExeStrSet)
+	// Patch resolution list in the Options menu
+	if (((DynamicResolution && WidescreenFix) || LockResolution) && CustomExeStrSet)
 	{
-		SetResolutionLock();
+		SetResolutionPatch();
 	}
 
 	// Check for update

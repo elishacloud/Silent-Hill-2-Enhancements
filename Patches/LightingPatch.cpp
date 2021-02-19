@@ -106,8 +106,6 @@ void RunRoomLighting()
 			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 			return;
 		}
-
-		Logging::Log() << __FUNCTION__ << " Found memory address for 'RoomLevels': " << RoomLevels;
 	}
 
 	// Store Room ID

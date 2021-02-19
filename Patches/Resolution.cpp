@@ -80,12 +80,20 @@ int printResStr(unsigned short, unsigned char, int x, int y)
 		text = "\\h%dx%d (16:9)";
 	else if (abs((float)gWidth / 16 - (float)gHeight / 10) < 1.0f)
 		text = "\\h%dx%d (16:10)";
-	else if (abs((float)gWidth / 17 - (float)gHeight / 9) < 1.0f)
+	else if (abs((float)gWidth / 17 - (float)gHeight / 9) < 1.0f ||
+		abs((float)gWidth / 256 - (float)gHeight / 135) < 1.0f)
 		text = "\\h%dx%d (17:9)";
-	else if (abs((float)gWidth / 21 - (float)gHeight / 9) < 1.0f)
+	else if (abs((float)gWidth / 21 - (float)gHeight / 9) < 1.0f ||
+		abs((float)gWidth / 64 - (float)gHeight / 27) < 1.0f ||
+		abs((float)gWidth / 43 - (float)gHeight / 18) < 1.0f ||
+		abs((float)gWidth / 12 - (float)gHeight / 5) < 1.0f)
 		text = "\\h%dx%d (21:9)";
 	else if (abs((float)gWidth / 25 - (float)gHeight / 16) < 1.0f)
 		text = "\\h%dx%d (25:16)";
+	else if (abs((float)gWidth / 32 - (float)gHeight / 9) < 1.0f)
+		text = "\\h%dx%d (32:9)";
+	else if (abs((float)gWidth / 32 - (float)gHeight / 15) < 1.0f)
+		text = "\\h%dx%d (32:15)";
 	else if (abs((float)gWidth / 48 - (float)gHeight / 9) < 1.0f)
 		text = "\\h%dx%d (48:9)";
 

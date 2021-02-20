@@ -24,6 +24,7 @@ float GetFlashlightBrightnessGreen();
 float GetFlashlightBrightnessBlue();
 DWORD GetOnScreen();
 BYTE GetEventIndex();
+BYTE GetMenuEvent();
 DWORD GetTransitionState();
 BYTE GetFullscreenImageEvent();
 float GetInGameCameraPosY();
@@ -45,6 +46,7 @@ BYTE *GetFlashlightSwitchPointer();
 float *GetFlashlightBrightnessPointer();
 DWORD *GetOnScreenPointer();
 BYTE *GetEventIndexPointer();
+BYTE *GetMenuEventPointer();
 DWORD *GetTransitionStatePointer();
 BYTE *GetFullscreenImageEventPointer();
 float *GetInGameCameraPosYPointer();
@@ -93,6 +95,7 @@ void PatchRedCrossInCutscene();
 void PatchRoom312ShadowFix();
 void PatchRoomLighting();
 void PatchRowboatAnimation();
+void PatchSaveBGImage();
 void PatchSpeakerConfigLock();
 void PatchSpecialFX();
 void PatchSFXAddr();
@@ -116,6 +119,7 @@ void RunInnerFlashlightGlow(DWORD Height);
 void RunLightingTransition();
 void RunRoomLighting();
 void RunRotatingMannequin();
+void RunSaveBGImage();
 void RunShadowCutscene();
 void RunSpecialFXScale(DWORD Height);
 void RunTreeColor();
@@ -155,6 +159,8 @@ extern BYTE *EventIndexAddr;			/*1 = reload/re-enter into current room
 										12 = "COMING SOON!" splash screen
 										13 = game over screen
 										16 = PC pause menu*/
+
+extern BYTE *MenuEventAddr;				/* 7 = main menu event index */
 
 extern DWORD *TransitionStateAddr;		/* 1 = fades the game image to black
 										2 = solid black screen

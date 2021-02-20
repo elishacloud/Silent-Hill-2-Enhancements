@@ -38,9 +38,9 @@ HMODULE m_hModule = nullptr;
 SH2VERSION GameVersion = SH2V_UNKNOWN;
 HMODULE wrapper_dll = nullptr;
 EXECUTION_STATE esFlags = 0;
-bool ds_threadExit = false;
 bool CustomExeStrSet = false;
 bool EnableCustomShaders = false;
+bool ds_threadExit = false;
 bool m_StopThreadFlag = false;			// Used for thread functions
 
 void DelayedStart()
@@ -420,6 +420,12 @@ void DelayedStart()
 	if (FixAptClockFlashlight)
 	{
 		PatchFlashlightClockPush();
+	}
+
+	// FixSaveBGImage
+	if (FixSaveBGImage)
+	{
+		PatchSaveBGImage();
 	}
 
 	// Enables all advanced graphics settings from the game's options menu on game launch

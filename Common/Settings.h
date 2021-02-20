@@ -37,6 +37,7 @@
 	visit(FixGPUAntiAliasing, true) \
 	visit(FixHangOnEsc, true) \
 	visit(FixMissingWallChunks, true) \
+	visit(FixSaveBGImage, true) \
 	visit(FixTownWestGateEvent, true) \
 	visit(FlashlightFlickerFix, true) \
 	visit(FMVWidescreenMode, true) \

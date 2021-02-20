@@ -1734,6 +1734,12 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 			RunGameLoad();
 		}
 
+		// FixSaveBGImage
+		if (FixSaveBGImage)
+		{
+			RunSaveBGImage();
+		}
+
 		// Increase blood size
 		if (IncreaseBlood)
 		{

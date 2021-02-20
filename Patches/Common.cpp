@@ -33,6 +33,7 @@ float *JamesPosYAddr = nullptr;
 float *JamesPosZAddr = nullptr;
 DWORD *OnScreenAddr = nullptr;
 BYTE *EventIndexAddr = nullptr;
+BYTE *MenuEventAddr = nullptr;
 DWORD *RoomIDAddr = nullptr;
 DWORD *SpecializedLight1Addr = nullptr;
 DWORD *SpecializedLight2Addr = nullptr;
@@ -467,6 +468,34 @@ BYTE *GetEventIndexPointer()
 	}
 
 	return EventIndexAddr;
+}
+
+BYTE GetMenuEvent()
+{
+	BYTE *pMenuEvent = GetMenuEventPointer();
+
+	return (pMenuEvent) ? *pMenuEvent : 0;
+}
+
+BYTE *GetMenuEventPointer()
+{
+	if (MenuEventAddr)
+	{
+		return MenuEventAddr;
+	}
+
+	// Get menu event addresses
+	constexpr BYTE MenuEventSearchBytes[]{ 0x83, 0xC4, 0x04, 0x33, 0xF6, 0x56, 0x6A, 0x01, 0x68, 0xF0, 0x00, 0x00, 0x00, 0x68, 0x00, 0x01, 0x00, 0x00, 0x6A, 0x1A, 0x50, 0xE8 };
+	MenuEventAddr = (BYTE*)ReadSearchedAddresses(0x0044765D, 0x004477FD, 0x004477FD, MenuEventSearchBytes, sizeof(MenuEventSearchBytes), -0x3E);
+
+	// Checking address pointer
+	if (!MenuEventAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find event index address!";
+		return nullptr;
+	}
+
+	return MenuEventAddr;
 }
 
 DWORD GetTransitionState()

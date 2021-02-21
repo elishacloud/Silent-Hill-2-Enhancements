@@ -33,8 +33,13 @@ struct RESOLUTONLIST
 	DWORD Height;
 };
 
+LONG MaxWidth = 0, MaxHeight = 0;
+const DWORD MinWidth = 640;
+const DWORD MinHeight = 480;
+
 BYTE *ResolutionIndex = nullptr;
 BYTE *TextResIndex = nullptr;
+float *SetAspectRatio = nullptr;
 RESOLUTONLIST *ResolutionArray = nullptr;
 std::vector<RESOLUTONLIST> ResolutionVector;
 
@@ -134,6 +139,18 @@ __declspec(naked) void __stdcall ResArrowASM()
 	}
 }
 
+void UpdateWSF()
+{
+	// Update Widescreen Fix for new resolution
+	WSFInit();
+
+	// Set aspect ratio
+	*SetAspectRatio = (float)ResX / (float)ResY;
+
+	// Flush cache
+	FlushInstructionCache(GetCurrentProcess(), nullptr, 0);
+}
+
 void WSFDynamicStartup()
 {
 	DWORD Width = 0, Height = 0;
@@ -180,10 +197,7 @@ void WSFDynamicStartup()
 	GetStartupResolution(ResX, ResY);
 
 	// Update Widescreen Fix for initial resolution
-	WSFInit();
-
-	// Flush cache
-	FlushInstructionCache(GetCurrentProcess(), nullptr, 0);
+	UpdateWSF();
 }
 
 void *jmpStartupRes = nullptr;
@@ -221,16 +235,14 @@ void WSFDynamicChange()
 	}
 
 	// Get updated resolution from index
-	GetTextResolution(ResX, ResY);
+	ResX = Width;
+	ResY = Height;
 
 	// Save updated resolution
 	SaveResolution(ResX, ResY);
 
 	// Update Widescreen Fix for new resolution
-	WSFInit();
-
-	// Flush cache
-	FlushInstructionCache(GetCurrentProcess(), nullptr, 0);
+	UpdateWSF();
 }
 
 void *jmpChangeRes = nullptr;
@@ -259,15 +271,12 @@ __declspec(naked) void __stdcall ChangeResASM()
 	}
 }
 
-LONG MaxWidth = 0, MaxHeight = 0;
 void AddResolutionToList(DWORD Width, DWORD Height)
 {
 	if (ResolutionVector.size() >= 0xFF)
 	{
 		return;
 	}
-
-	const DWORD MinWidth = 640, MinHeight = 480;
 
 	bool found = false;
 	for (auto res : ResolutionVector)
@@ -430,18 +439,20 @@ void SetResolutionPatch()
 	ResSizeAddr = (BYTE*)SearchAndGetAddresses(0x00465F2A, 0x004661CC, 0x004663DC, ResSizeSearchBytes, sizeof(ResSizeSearchBytes), 0x00);
 	constexpr BYTE ResConfigSearchBytes[] = { 0x1B, 0xD2, 0x42, 0xC1, 0xE8, 0x10, 0x89, 0x15 };
 	BYTE *ResConfigAddr = (BYTE*)SearchAndGetAddresses(0x004F71CD, 0x004F74FD, 0x004F6E1C, ResConfigSearchBytes, sizeof(ResConfigSearchBytes), -0x28);
-	if (!TextResIndex || !ResolutionIndex || !ResolutionArray || !ResStartupAddr || !ChangeResAddr || !ResSizeAddr || !ResConfigAddr)
+	constexpr BYTE AspectRatioBytes[] = { 0x83, 0xEC, 0x3C, 0x55, 0x56, 0x8B, 0xF1, 0x8B, 0x0B, 0x89, 0x44, 0x24, 0x14, 0x57, 0x03, 0xC6, 0x8B, 0xFA, 0x89, 0x44, 0x24, 0x20 };
+	SetAspectRatio = (float*)ReadSearchedAddresses(0x00458D80, 0x00458FE0, 0x00458FE0, AspectRatioBytes, sizeof(AspectRatioBytes), -0x44);
+	if (!TextResIndex || !ResolutionIndex || !ResolutionArray || !ResStartupAddr || !ChangeResAddr || !ResSizeAddr || !ResConfigAddr || !SetAspectRatio)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory addresses!";
 		return;
 	}
 	TextResIndex += 1;
 
-	Logging::Log() << "Enabling Resolution Lock...";
-
 	// Dynamic resolution
 	if (DynamicResolution && WidescreenFix)
 	{
+		Logging::Log() << "Enabling Dynamic Resolution...";
+
 		ResolutionVector.reserve(0xFF);		// Reserve space for max resolution limit
 		GetCustomResolutions();
 
@@ -472,6 +483,8 @@ void SetResolutionPatch()
 	if (*(DWORD*)((BYTE*)ResolutionArray) == *(DWORD*)((BYTE*)ResolutionArray + 8) &&
 		*(DWORD*)((BYTE*)ResolutionArray + 4) == *(DWORD*)((BYTE*)ResolutionArray + 12))
 	{
+		Logging::Log() << "Enabling Resolution Lock...";
+
 		// Lock resolution
 		void *ResSelectorAddrExit = (void *)((BYTE*)ResSelectorAddr + exitOffset);
 		WriteJMPtoMemory((BYTE*)ResSelectorAddr, ResSelectorAddrExit, 5);

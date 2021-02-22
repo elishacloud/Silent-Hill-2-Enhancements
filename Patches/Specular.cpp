@@ -172,7 +172,7 @@ static void __cdecl HookActorDrawTop(ModelOffsetTable* pOffsetTable, void* arg2)
 	// Hooking allows us to note the materialCount and pointer to the materialArray for later traversal
 
 	materialCount = pOffsetTable->materialCount;
-	pMaterialArray = (ModelMaterial*)((char*)pOffsetTable + pOffsetTable->materialsOffset);
+	pMaterialArray = reinterpret_cast<ModelMaterial*>(reinterpret_cast<char*>(pOffsetTable) + pOffsetTable->materialsOffset);
 
 	ActorDrawTop(pOffsetTable, arg2);
 }
@@ -256,10 +256,10 @@ void PatchSpecular()
 	switch (GameVersion)
 	{
 	case SH2V_10:
-		ActorDrawTop = reinterpret_cast<void(__cdecl*)(ModelOffsetTable*, void*)>(0x501F90);
-		GetLightSourceCount = *reinterpret_cast<int(__cdecl*)()>(0x50C590);
-		GetLightSourceAt = *reinterpret_cast<LightSource * (__cdecl*)(int)>(0x50C5A0);
-		ActorOpaqueDraw = reinterpret_cast<void(__cdecl*)(ModelMaterial*)>(0x501540);
+		ActorDrawTop = reinterpret_cast<decltype(ActorDrawTop)>(0x501F90);
+		GetLightSourceCount = reinterpret_cast<decltype(GetLightSourceCount)>(0x50C590);
+		GetLightSourceAt = reinterpret_cast<decltype(GetLightSourceAt)>(0x50C5A0);
+		ActorOpaqueDraw = reinterpret_cast<decltype(ActorOpaqueDraw)>(0x501540);
 
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x50EB2B), HookActorDrawTop, 5);
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FECD0), HookGetLightSourceCount, 5);
@@ -267,10 +267,10 @@ void PatchSpecular()
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501F77), HookActorOpaqueDraw, 5);
 		break;
 	case SH2V_11:
-		ActorDrawTop = reinterpret_cast<void(__cdecl*)(ModelOffsetTable*, void*)>(0x5022C0);
-		GetLightSourceCount = *reinterpret_cast<int(__cdecl*)()>(0x50C8C0);
-		GetLightSourceAt = *reinterpret_cast<LightSource * (__cdecl*)(int)>(0x50C8D0);
-		ActorOpaqueDraw = reinterpret_cast<void(__cdecl*)(ModelMaterial*)>(0x501870);
+		ActorDrawTop = reinterpret_cast<decltype(ActorDrawTop)>(0x5022C0);
+		GetLightSourceCount = reinterpret_cast<decltype(GetLightSourceCount)>(0x50C8C0);
+		GetLightSourceAt = reinterpret_cast<decltype(GetLightSourceAt)>(0x50C8D0);
+		ActorOpaqueDraw = reinterpret_cast<decltype(ActorOpaqueDraw)>(0x501870);
 
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x50EE5B), HookActorDrawTop, 5);
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FF000), HookGetLightSourceCount, 5);
@@ -278,10 +278,10 @@ void PatchSpecular()
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x5022A7), HookActorOpaqueDraw, 5);
 		break;
 	case SH2V_DC:
-		ActorDrawTop = reinterpret_cast<void(__cdecl*)(ModelOffsetTable*, void*)>(0x501BE0);
-		GetLightSourceCount = *reinterpret_cast<int(__cdecl*)()>(0x50C1E0);
-		GetLightSourceAt = *reinterpret_cast<LightSource * (__cdecl*)(int)>(0x50C1F0);
-		ActorOpaqueDraw = reinterpret_cast<void(__cdecl*)(ModelMaterial*)>(0x501190);
+		ActorDrawTop = reinterpret_cast<decltype(ActorDrawTop)>(0x501BE0);
+		GetLightSourceCount = reinterpret_cast<decltype(GetLightSourceCount)>(0x50C1E0);
+		GetLightSourceAt = reinterpret_cast<decltype(GetLightSourceAt)>(0x50C1F0);
+		ActorOpaqueDraw = reinterpret_cast<decltype(ActorOpaqueDraw)>(0x501190);
 
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x50E77B), HookActorDrawTop, 5);
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FE920), HookGetLightSourceCount, 5);

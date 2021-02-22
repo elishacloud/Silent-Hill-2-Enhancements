@@ -33,6 +33,11 @@ struct RESOLUTONLIST
 	DWORD Height;
 };
 
+struct RESOLUTONTEXT
+{
+	char resStrBuf[27];
+};
+
 LONG MaxWidth = 0, MaxHeight = 0;
 const DWORD MinWidth = 640;
 const DWORD MinHeight = 480;
@@ -42,11 +47,11 @@ BYTE *TextResIndex = nullptr;
 float *SetAspectRatio = nullptr;
 RESOLUTONLIST *ResolutionArray = nullptr;
 std::vector<RESOLUTONLIST> ResolutionVector;
+std::vector<RESOLUTONTEXT> ResolutionText;
 
 DWORD (*prepText)(char *str);
 DWORD (*printTextPos)(char *str, int x, int y);
 
-char resStrBuf[64];
 char *resStrPtr;
 
 void GetStartupResolution(int &Width, int &Height)
@@ -61,11 +66,8 @@ void GetTextResolution(int &Width, int &Height)
 	Height = ResolutionArray[*TextResIndex].Height;
 }
 
-int printResStr(unsigned short, unsigned char, int x, int y)
+void CreateResolutionText(int gWidth, int gHeight)
 {
-	int gWidth, gHeight;
-	GetTextResolution(gWidth, gHeight);
-
 	char* text = "\\h%dx%d";
 	if (abs((float)gWidth / 3 - (float)gHeight / 2) < 1.0f)
 		text = "\\h%dx%d (3:2)";
@@ -102,8 +104,14 @@ int printResStr(unsigned short, unsigned char, int x, int y)
 	else if (abs((float)gWidth / 48 - (float)gHeight / 9) < 1.0f)
 		text = "\\h%dx%d (48:9)";
 
-	sprintf_s((char *)resStrBuf, sizeof(resStrBuf), text, gWidth, gHeight);
-	resStrPtr = (char *)prepText(resStrBuf);
+	RESOLUTONTEXT Buffer;
+	sprintf_s((char *)Buffer.resStrBuf, sizeof(Buffer.resStrBuf), text, gWidth, gHeight);
+	ResolutionText.push_back(Buffer);
+}
+
+int printResStr(unsigned short, unsigned char, int x, int y)
+{
+	resStrPtr = (char *)prepText(ResolutionText[*TextResIndex].resStrBuf);
 	return printTextPos(resStrPtr, x, y);
 }
 
@@ -122,7 +130,6 @@ __declspec(naked) void __stdcall ResSelectStrASM()
 	__asm
 	{
 		call printResStr
-		add	esp, 30h
 		jmp ResSelectStrRetAddr
 	}
 }
@@ -295,6 +302,7 @@ void AddResolutionToList(DWORD Width, DWORD Height)
 		Resolution.Width = Width;
 		Resolution.Height = Height;
 		ResolutionVector.push_back(Resolution);
+		CreateResolutionText(Width, Height);
 	}
 }
 
@@ -373,6 +381,10 @@ void SetResolutionList()
 			while (ResolutionVector.size())
 			{
 				ResolutionVector.pop_back();
+			}
+			while (ResolutionText.size())
+			{
+				ResolutionText.pop_back();
 			}
 			GetCustomResolutions();
 		}
@@ -496,8 +508,17 @@ void SetResolutionPatch()
 		}
 	}
 
+	// Cache resolution text
+	if (ResolutionText.empty())
+	{
+		for (int x = 0; x < 6; x++)
+		{
+			CreateResolutionText(ResolutionArray[x].Width, ResolutionArray[x].Height);
+		}
+	}
+
 	// Update resolution strings
-	ResSelectStrRetAddr = (DWORD *)(((BYTE*)DResAddrA + 0x92) + *(int *)((BYTE*)DResAddrA + 0x8E) + 8);
+	ResSelectStrRetAddr = (DWORD *)(((BYTE*)DResAddrA + 0x92) + *(int *)((BYTE*)DResAddrA + 0x8E) + 5);
 	WriteJMPtoMemory(((BYTE*)DResAddrA + 0x8D), *ResSelectStrASM, 5);
 	WriteCalltoMemory(((BYTE*)DResAddrA - prtStrOffset), *printResStr, 5);
 

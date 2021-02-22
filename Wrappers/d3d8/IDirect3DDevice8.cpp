@@ -382,7 +382,7 @@ HRESULT m_IDirect3DDevice8::CreateTexture(THIS_ UINT Width, UINT Height, UINT Le
 			pInitialRenderTexture = *ppTexture;
 
 			// If cached data exists then copy to render target
-			if (CachedSurfaceData.size() == (Width * 4) * Height)
+			if (PauseScreenFix && CachedSurfaceData.size() == (Width * 4) * Height)
 			{
 				IDirect3DSurface8 *pTmpSurface = nullptr;
 				if (SUCCEEDED(ProxyInterface->CreateImageSurface(Width, Height, Format, &pTmpSurface)))

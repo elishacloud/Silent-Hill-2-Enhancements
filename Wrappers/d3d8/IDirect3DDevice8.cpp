@@ -2133,6 +2133,114 @@ HRESULT m_IDirect3DDevice8::SetPixelShaderConstant(THIS_ DWORD Register, CONST v
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	// We want to skip the first call to SetPixelShaderConstant when fixing Specular highlights and only adjust the second
+	if(specularFlag == 1)
+	{
+		auto pConstants = reinterpret_cast<const float*>(pConstantData);
+		float constants[3] = { pConstants[0], pConstants[1], pConstants[2] };
+
+		if (constants[0] != 0.0f || constants[1] != 0.0f || constants[2] != 0.0f)
+		{
+			ModelID modelID = GetModelID();
+
+			if (IsJames(modelID)) // James
+			{
+				if (inSpecialLightZone)
+				{
+					// 75% if in a special lighting zone
+					constants[0] = 0.75f;
+					constants[1] = 0.75f;
+					constants[2] = 0.75f;
+				}
+				else
+				{
+					// Default to 25% specularity
+					constants[0] = 0.25f;
+					constants[1] = 0.25f;
+					constants[2] = 0.25f;
+				}
+			}
+			else if (IsMariaExcludingEyes(modelID)) // Maria, but not her eyes
+			{
+				if (!useFakeLight || inSpecialLightZone)
+				{
+					// 20% If in a special lighting zone and/or flashlight is on
+					constants[0] = 0.20f;
+					constants[1] = 0.20f;
+					constants[2] = 0.20f;
+				}
+				else
+				{
+					// Default to 5% specularity
+					constants[0] = 0.05f;
+					constants[1] = 0.05f;
+					constants[2] = 0.05f;
+				}
+			}
+			else if (IsMariaEyes(modelID)) // Maria's Eyes
+			{
+				// 50% specularity
+				constants[0] = 0.50f;
+				constants[1] = 0.50f;
+				constants[2] = 0.50f;
+			}
+			else if (modelID == ModelID::chr_bos_bos) // Final boss
+			{
+				// 25% specularity
+				constants[0] = 0.25f;
+				constants[1] = 0.25f;
+				constants[2] = 0.25f;
+			}
+			else if ((modelID == ModelID::chr_agl_agl || modelID == ModelID::chr_agl_ragl) && GetCurrentMaterialIndex() == 3) // Angela's eyes
+			{
+				if (useFakeLight && !inSpecialLightZone && GetCutsceneID() != 0x53)
+				{
+					// 25% specularity if flashlight is off and not in special light zone or in cutscene 0x53
+					constants[0] = 0.25f;
+					constants[1] = 0.25f;
+					constants[2] = 0.25f;
+				}
+				else
+				{
+					// Default to 50% specularity
+					constants[0] = 0.50f;
+					constants[1] = 0.50f;
+					constants[2] = 0.50f;
+				}
+			}
+			else if (modelID == ModelID::chr_mry_mry) // Mary (Healthy)
+			{
+				// 50% specularity
+				constants[0] = 0.50f;
+				constants[1] = 0.50f;
+				constants[2] = 0.50f;
+			}
+			else // Everything else
+			{
+				if (!useFakeLight || inSpecialLightZone)
+				{
+					// 40% If in a special lighting zone and/or flashlight is on
+					constants[0] = 0.40f;
+					constants[1] = 0.40f;
+					constants[2] = 0.40f;
+				}
+				else
+				{
+					// Default to 15% specularity
+					constants[0] = 0.15f;
+					constants[1] = 0.15f;
+					constants[2] = 0.15f;
+				}
+			}
+		}
+
+		specularFlag--;
+		return ProxyInterface->SetPixelShaderConstant(Register, &constants, ConstantCount);
+	}
+
+	if (specularFlag > 0)
+		specularFlag--;
+
 	return ProxyInterface->SetPixelShaderConstant(Register, pConstantData, ConstantCount);
 }
 

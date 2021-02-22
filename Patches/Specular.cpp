@@ -74,9 +74,11 @@ struct ModelMaterial
 	int reserved4;
 };
 
+int specularFlag = 0;
+
 static LightSource fakeLight = { {D3DLIGHT_DIRECTIONAL} };
-static bool useFakeLight = false;
-static bool inSpecialLightZone = false;
+bool useFakeLight = false;
+bool inSpecialLightZone = false;
 static int fakeLightIndex = -1;
 static int materialCount = 0;
 static ModelMaterial* pMaterialArray = nullptr;
@@ -90,7 +92,7 @@ static void(__cdecl* ActorOpaqueDraw)(ModelMaterial*) = nullptr;
 
 static IDirect3DDevice8** pD3DDevice = nullptr;
 
-static int GetCurrentMaterialIndex()
+int GetCurrentMaterialIndex()
 {
 	int index = 0;
 	ModelMaterial* pCursor = pMaterialArray;
@@ -107,7 +109,7 @@ static int GetCurrentMaterialIndex()
 	return -1;
 }
 
-static bool IsJames(ModelID id)
+bool IsJames(ModelID id)
 {
 	switch (id)
 	{
@@ -125,7 +127,7 @@ static bool IsJames(ModelID id)
 	return false;
 }
 
-static bool IsMariaExcludingEyes(ModelID id)
+bool IsMariaExcludingEyes(ModelID id)
 {
 	switch (id)
 	{
@@ -145,7 +147,7 @@ static bool IsMariaExcludingEyes(ModelID id)
 	return false;
 }
 
-static bool IsMariaEyes(ModelID id)
+bool IsMariaEyes(ModelID id)
 {
 	switch (id)
 	{
@@ -226,112 +228,10 @@ static void HookActorOpaqueDraw(ModelMaterial* pModelMaterial)
 	// Here we hook a call to `void ActorOpaqueDraw(ModelMaterial* pModelMaterial)`
 	// Hooking allows us to note the current material for later use
 
+	specularFlag = 2;
+
 	pCurrentMaterial = pModelMaterial;
 	ActorOpaqueDraw(pModelMaterial);
-}
-
-static HRESULT __stdcall HookSetPixelShaderConstant(IDirect3DDevice8* /*This*/, DWORD Register, void* pConstantData, DWORD ConstantCount)
-{
-	// Here we hook a call to `HRESULT pD3DDevice->SetPixelShaderConstant(DWORD Register, void* pConstantData, DWORD ConstantCount)`
-	// Hooking allows us to adjust opacities depending on the situation and model before they are sent to D3D
-
-	auto constants = reinterpret_cast<float*>(pConstantData);
-	if (constants[0] != 0.0f || constants[1] != 0.0f || constants[2] != 0.0f)
-	{
-		ModelID modelID = GetModelID();
-
-		if (IsJames(modelID)) // James
-		{
-			if (inSpecialLightZone)
-			{
-				// 75% if in a special lighting zone
-				constants[0] = 0.75f;
-				constants[1] = 0.75f;
-				constants[2] = 0.75f;
-			}
-			else
-			{
-				// Default to 25% specularity
-				constants[0] = 0.25f;
-				constants[1] = 0.25f;
-				constants[2] = 0.25f;
-			}
-		}
-		else if (IsMariaExcludingEyes(modelID)) // Maria, but not her eyes
-		{
-			if (!useFakeLight || inSpecialLightZone)
-			{
-				// 20% If in a special lighting zone and/or flashlight is on
-				constants[0] = 0.20f;
-				constants[1] = 0.20f;
-				constants[2] = 0.20f;
-			}
-			else
-			{
-				// Default to 5% specularity
-				constants[0] = 0.05f;
-				constants[1] = 0.05f;
-				constants[2] = 0.05f;
-			}
-		}
-		else if (IsMariaEyes(modelID)) // Maria's Eyes
-		{
-			// 50% specularity
-			constants[0] = 0.50f;
-			constants[1] = 0.50f;
-			constants[2] = 0.50f;
-		}
-		else if (modelID == ModelID::chr_bos_bos) // Final boss
-		{
-			// 25% specularity
-			constants[0] = 0.25f;
-			constants[1] = 0.25f;
-			constants[2] = 0.25f;
-		}
-		else if ((modelID == ModelID::chr_agl_agl || modelID == ModelID::chr_agl_ragl) && GetCurrentMaterialIndex() == 3) // Angela's eyes
-		{
-			if (useFakeLight && !inSpecialLightZone && GetCutsceneID() != 0x53)
-			{
-				// 25% specularity if flashlight is off and not in special light zone or in cutscene 0x53
-				constants[0] = 0.25f;
-				constants[1] = 0.25f;
-				constants[2] = 0.25f;
-			}
-			else
-			{
-				// Default to 50% specularity
-				constants[0] = 0.50f;
-				constants[1] = 0.50f;
-				constants[2] = 0.50f;
-			}
-		}
-		else if (modelID == ModelID::chr_mry_mry) // Mary (Healthy)
-		{
-			// 50% specularity
-			constants[0] = 0.50f;
-			constants[1] = 0.50f;
-			constants[2] = 0.50f;
-		}
-		else // Everything else
-		{
-			if (!useFakeLight || inSpecialLightZone)
-			{
-				// 40% If in a special lighting zone and/or flashlight is on
-				constants[0] = 0.40f;
-				constants[1] = 0.40f;
-				constants[2] = 0.40f;
-			}
-			else
-			{
-				// Default to 15% specularity
-				constants[0] = 0.15f;
-				constants[1] = 0.15f;
-				constants[2] = 0.15f;
-			}
-		}
-	}
-
-	return (*pD3DDevice)->SetPixelShaderConstant(Register, pConstantData, ConstantCount);
 }
 
 void FindGetModelID()
@@ -366,7 +266,6 @@ void PatchSpecular()
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FECD0), HookGetLightSourceCount, 5);
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FED28), HookGetLightSourceAt, 5);
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501F77), HookActorOpaqueDraw, 5);
-		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501E1B), HookSetPixelShaderConstant, 6);
 		break;
 	case SH2V_11:
 		ActorDrawTop = reinterpret_cast<void(__cdecl*)(ModelOffsetTable*, void*)>(0x5022C0);
@@ -380,7 +279,6 @@ void PatchSpecular()
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FF000), HookGetLightSourceCount, 5);
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FF058), HookGetLightSourceAt, 5);
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x5022A7), HookActorOpaqueDraw, 5);
-		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x50214B), HookSetPixelShaderConstant, 6);
 		break;
 	case SH2V_DC:
 		ActorDrawTop = reinterpret_cast<void(__cdecl*)(ModelOffsetTable*, void*)>(0x501BE0);
@@ -394,7 +292,6 @@ void PatchSpecular()
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FE920), HookGetLightSourceCount, 5);
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FE978), HookGetLightSourceAt, 5);
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501BC7), HookActorOpaqueDraw, 5);
-		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501A6B), HookSetPixelShaderConstant, 6);
 		break;
 	}
 }

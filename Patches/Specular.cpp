@@ -79,20 +79,21 @@ static bool useFakeLight = false;
 static bool inSpecialLightZone = false;
 static int fakeLightIndex = -1;
 static int materialCount = 0;
-static ModelMaterial* pFirstMaterial = nullptr;
+static ModelMaterial* pMaterialArray = nullptr;
 static ModelMaterial* pCurrentMaterial = nullptr;
 
-ModelID(__cdecl* GetModelID)() = nullptr;
+static void(__cdecl* ActorDrawTop)(ModelOffsetTable*, void*) = nullptr;
 static int(__cdecl* GetLightSourceCount)() = nullptr;
-static LightSource* (__cdecl* GetLightSourceStruct)(int) = nullptr;
-static void(__cdecl* ActorDrawOpaque)(ModelMaterial*) = nullptr;
-static void(__cdecl* DoActorOpaqueStuff)(ModelOffsetTable*, void*) = nullptr;
+static LightSource* (__cdecl* GetLightSourceAt)(int) = nullptr;
+ModelID(__cdecl* GetModelID)() = nullptr;
+static void(__cdecl* ActorOpaqueDraw)(ModelMaterial*) = nullptr;
+
 static IDirect3DDevice8** pD3DDevice = nullptr;
 
 static int GetCurrentMaterialIndex()
 {
 	int index = 0;
-	ModelMaterial* pCursor = pFirstMaterial;
+	ModelMaterial* pCursor = pMaterialArray;
 
 	while (index < materialCount)
 	{
@@ -164,21 +165,23 @@ static bool IsMariaEyes(ModelID id)
 	return false;
 }
 
-static void __cdecl Part0(ModelOffsetTable* pOffsetTable, void* arg2)
+static void __cdecl HookActorDrawTop(ModelOffsetTable* pOffsetTable, void* arg2)
 {
-	// This function replaces a call to `void DoActorOpaqueStuff(ModelOffsetTable* pOffsetTable, void* arg2)`
-	// Backup the materialCount and pointer to first material for use in later Parts
+	// Here we hook a call to `void ActorDrawTop(ModelOffsetTable* pOffsetTable, void* arg2)`
+	// This is the earliest function we're concerned with during an Actor draw
+	// Hooking allows us to note the materialCount and pointer to the materialArray for later traversal
 
 	materialCount = pOffsetTable->materialCount;
-	pFirstMaterial = (ModelMaterial*)((char*)pOffsetTable + pOffsetTable->materialsOffset);
+	pMaterialArray = (ModelMaterial*)((char*)pOffsetTable + pOffsetTable->materialsOffset);
 
-	DoActorOpaqueStuff(pOffsetTable, arg2);
+	ActorDrawTop(pOffsetTable, arg2);
 }
 
-static int __cdecl Part1()
+static int __cdecl HookGetLightSourceCount()
 {
-	// This function replaces a call to `int GetLightSourceCount()`
-	// When no D3D_DIRECTIONAL light sources exist, set our booleans and return 1 greater than reality
+	// Here we hook a call to `int GetLightSourceCount()`
+	// This function usually just returns the amount of LightSource structures in the LightSourceArray
+	// Hooking allows us to return a count 1 greater than reality when no D3D_DIRECTIONAL light sources exist
 
 	inSpecialLightZone = false;
 	useFakeLight = true;
@@ -189,7 +192,7 @@ static int __cdecl Part1()
 
 	for (int i = 0; i < lightSourceCount; i++)
 	{
-		auto pLight = GetLightSourceStruct(i);
+		auto pLight = GetLightSourceAt(i);
 		if (pLight->light.Type == D3DLIGHT_DIRECTIONAL)
 			useFakeLight = false;
 
@@ -206,30 +209,31 @@ static int __cdecl Part1()
 	return lightSourceCount;
 }
 
-static LightSource* __cdecl Part2(int index)
+static LightSource* __cdecl HookGetLightSourceAt(int index)
 {
-	// This function replaces a call to `LightSourceStruct* GetLightSourceStruct(int index)`
-	// When we hit the index 1 greater than the real light source count, return our fake
+	// Here we hook a call to `LightSource* GetLightSourceAt(int index)`
+	// This function usually returns the a pointer to the LightSource at the supplied index
+	// Hooking allows us to return fakeLight when the index is 1 greater than the true array length
 
 	if (useFakeLight && index == fakeLightIndex)
 		return &fakeLight;
 	else
-		return GetLightSourceStruct(index);
+		return GetLightSourceAt(index);
 }
 
-static void Part3(ModelMaterial* pModelMaterial)
+static void HookActorOpaqueDraw(ModelMaterial* pModelMaterial)
 {
-	// This function replaces a call to `void ActorDrawOpaque(ModelMaterial* pModelMaterial)`
-	// We copy off the pointer to a static variable, so we can reference it in Part 4
+	// Here we hook a call to `void ActorOpaqueDraw(ModelMaterial* pModelMaterial)`
+	// Hooking allows us to note the current material for later use
 
 	pCurrentMaterial = pModelMaterial;
-	ActorDrawOpaque(pModelMaterial);
+	ActorOpaqueDraw(pModelMaterial);
 }
 
-static HRESULT __stdcall Part4(IDirect3DDevice8* /*This*/, DWORD Register, void* pConstantData, DWORD ConstantCount)
+static HRESULT __stdcall HookSetPixelShaderConstant(IDirect3DDevice8* /*This*/, DWORD Register, void* pConstantData, DWORD ConstantCount)
 {
-	// This function replaces a call to `HRESULT pD3DDevice->SetPixelShaderConstant(DWORD Register, void* pConstantData, DWORD ConstantCount)`
-	// Adjust opacity depending on the situation and model
+	// Here we hook a call to `HRESULT pD3DDevice->SetPixelShaderConstant(DWORD Register, void* pConstantData, DWORD ConstantCount)`
+	// Hooking allows us to adjust opacities depending on the situation and model before they are sent to D3D
 
 	auto constants = reinterpret_cast<float*>(pConstantData);
 	if (constants[0] != 0.0f || constants[1] != 0.0f || constants[2] != 0.0f)
@@ -351,46 +355,46 @@ void PatchSpecular()
 	switch (GameVersion)
 	{
 	case SH2V_10:
+		ActorDrawTop = reinterpret_cast<void(__cdecl*)(ModelOffsetTable*, void*)>(0x501F90);
 		GetLightSourceCount = *reinterpret_cast<int(__cdecl*)()>(0x50C590);
-		GetLightSourceStruct = *reinterpret_cast<LightSource * (__cdecl*)(int)>(0x50C5A0);
-		ActorDrawOpaque = reinterpret_cast<void(__cdecl*)(ModelMaterial*)>(0x501540);
-		DoActorOpaqueStuff = reinterpret_cast<void(__cdecl*)(ModelOffsetTable*, void*)>(0x501F90);
+		GetLightSourceAt = *reinterpret_cast<LightSource * (__cdecl*)(int)>(0x50C5A0);
+		ActorOpaqueDraw = reinterpret_cast<void(__cdecl*)(ModelMaterial*)>(0x501540);
 
 		pD3DDevice = reinterpret_cast<IDirect3DDevice8**>(0xA32894);
 
-		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x50EB2B), Part0, 5);
-		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FECD0), Part1, 5);
-		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FED28), Part2, 5);
-		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501F77), Part3, 5);
-		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501E1B), Part4, 6);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x50EB2B), HookActorDrawTop, 5);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FECD0), HookGetLightSourceCount, 5);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FED28), HookGetLightSourceAt, 5);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501F77), HookActorOpaqueDraw, 5);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501E1B), HookSetPixelShaderConstant, 6);
 		break;
 	case SH2V_11:
+		ActorDrawTop = reinterpret_cast<void(__cdecl*)(ModelOffsetTable*, void*)>(0x5022C0);
 		GetLightSourceCount = *reinterpret_cast<int(__cdecl*)()>(0x50C8C0);
-		GetLightSourceStruct = *reinterpret_cast<LightSource * (__cdecl*)(int)>(0x50C8D0);
-		ActorDrawOpaque = reinterpret_cast<void(__cdecl*)(ModelMaterial*)>(0x501870);
-		DoActorOpaqueStuff = reinterpret_cast<void(__cdecl*)(ModelOffsetTable*, void*)>(0x5022C0);
+		GetLightSourceAt = *reinterpret_cast<LightSource * (__cdecl*)(int)>(0x50C8D0);
+		ActorOpaqueDraw = reinterpret_cast<void(__cdecl*)(ModelMaterial*)>(0x501870);
 
 		pD3DDevice = reinterpret_cast<IDirect3DDevice8**>(0xA36494);
 
-		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x50EE5B), Part0, 5);
-		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FF000), Part1, 5);
-		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FF058), Part2, 5);
-		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x5022A7), Part3, 5);
-		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x50214B), Part4, 6);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x50EE5B), HookActorDrawTop, 5);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FF000), HookGetLightSourceCount, 5);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FF058), HookGetLightSourceAt, 5);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x5022A7), HookActorOpaqueDraw, 5);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x50214B), HookSetPixelShaderConstant, 6);
 		break;
 	case SH2V_DC:
+		ActorDrawTop = reinterpret_cast<void(__cdecl*)(ModelOffsetTable*, void*)>(0x501BE0);
 		GetLightSourceCount = *reinterpret_cast<int(__cdecl*)()>(0x50C1E0);
-		GetLightSourceStruct = *reinterpret_cast<LightSource * (__cdecl*)(int)>(0x50C1F0);
-		ActorDrawOpaque = reinterpret_cast<void(__cdecl*)(ModelMaterial*)>(0x501190);
-		DoActorOpaqueStuff = reinterpret_cast<void(__cdecl*)(ModelOffsetTable*, void*)>(0x501BE0);
+		GetLightSourceAt = *reinterpret_cast<LightSource * (__cdecl*)(int)>(0x50C1F0);
+		ActorOpaqueDraw = reinterpret_cast<void(__cdecl*)(ModelMaterial*)>(0x501190);
 
 		pD3DDevice = reinterpret_cast<IDirect3DDevice8**>(0xA35494);
 
-		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x50E77B), Part0, 5);
-		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FE920), Part1, 5);
-		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FE978), Part2, 5);
-		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501BC7), Part3, 5);
-		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501A6B), Part4, 6);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x50E77B), HookActorDrawTop, 5);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FE920), HookGetLightSourceCount, 5);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FE978), HookGetLightSourceAt, 5);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501BC7), HookActorOpaqueDraw, 5);
+		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501A6B), HookSetPixelShaderConstant, 6);
 		break;
 	}
 }

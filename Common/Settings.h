@@ -82,6 +82,7 @@
 	visit(RowboatAnimationFix, true) \
 	visit(SetBlackPillarBoxes, true) \
 	visit(Southpaw, false) \
+	visit(SpecularFix, true) \
 	visit(SteamCrashFix, true) \
 	visit(UnlockJapLang, false) \
 	visit(UseBestGraphics, true) \
@@ -91,8 +92,7 @@
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, false) \
-	visit(WoodsideRoom205Fix, true) \
-	visit(SpecularFix, true)
+	visit(WoodsideRoom205Fix, true)
 
 #define VISIT_INT_SETTINGS(visit) \
 	visit(AudioFadeOutDelayMS, 20) \

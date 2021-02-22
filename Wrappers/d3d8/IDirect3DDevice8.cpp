@@ -2134,7 +2134,7 @@ HRESULT m_IDirect3DDevice8::SetPixelShaderConstant(THIS_ DWORD Register, CONST v
 	Logging::LogDebug() << __FUNCTION__;
 
 	// We want to skip the first call to SetPixelShaderConstant when fixing Specular highlights and only adjust the second
-	if(SpecularFix && specularFlag == 1)
+	if(SpecularFix && SpecularFlag == 1)
 	{
 		auto pConstants = reinterpret_cast<const float*>(pConstantData);
 		float constants[3] = { pConstants[0], pConstants[1], pConstants[2] };
@@ -2145,7 +2145,7 @@ HRESULT m_IDirect3DDevice8::SetPixelShaderConstant(THIS_ DWORD Register, CONST v
 
 			if (IsJames(modelID)) // James
 			{
-				if (inSpecialLightZone)
+				if (InSpecialLightZone)
 				{
 					// 75% if in a special lighting zone
 					constants[0] = 0.75f;
@@ -2162,7 +2162,7 @@ HRESULT m_IDirect3DDevice8::SetPixelShaderConstant(THIS_ DWORD Register, CONST v
 			}
 			else if (IsMariaExcludingEyes(modelID)) // Maria, but not her eyes
 			{
-				if (!useFakeLight || inSpecialLightZone)
+				if (!UseFakeLight || InSpecialLightZone)
 				{
 					// 20% If in a special lighting zone and/or flashlight is on
 					constants[0] = 0.20f;
@@ -2193,7 +2193,7 @@ HRESULT m_IDirect3DDevice8::SetPixelShaderConstant(THIS_ DWORD Register, CONST v
 			}
 			else if ((modelID == ModelID::chr_agl_agl || modelID == ModelID::chr_agl_ragl) && GetCurrentMaterialIndex() == 3) // Angela's eyes
 			{
-				if (useFakeLight && !inSpecialLightZone && GetCutsceneID() != 0x53)
+				if (UseFakeLight && !InSpecialLightZone && GetCutsceneID() != 0x53)
 				{
 					// 25% specularity if flashlight is off and not in special light zone or in cutscene 0x53
 					constants[0] = 0.25f;
@@ -2217,7 +2217,7 @@ HRESULT m_IDirect3DDevice8::SetPixelShaderConstant(THIS_ DWORD Register, CONST v
 			}
 			else // Everything else
 			{
-				if (!useFakeLight || inSpecialLightZone)
+				if (!UseFakeLight || InSpecialLightZone)
 				{
 					// 40% If in a special lighting zone and/or flashlight is on
 					constants[0] = 0.40f;
@@ -2234,12 +2234,12 @@ HRESULT m_IDirect3DDevice8::SetPixelShaderConstant(THIS_ DWORD Register, CONST v
 			}
 		}
 
-		specularFlag--;
+		SpecularFlag--;
 		return ProxyInterface->SetPixelShaderConstant(Register, &constants, ConstantCount);
 	}
 
-	if (SpecularFix && specularFlag > 0)
-		specularFlag--;
+	if (SpecularFix && SpecularFlag > 0)
+		SpecularFlag--;
 
 	return ProxyInterface->SetPixelShaderConstant(Register, pConstantData, ConstantCount);
 }

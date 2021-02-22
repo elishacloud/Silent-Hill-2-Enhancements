@@ -171,9 +171,9 @@ extern BYTE *FullscreenImageEventAddr;
 extern float *InGameCameraPosYAddr;
 extern BYTE *InventoryStatusAddr;
 extern DWORD *LoadingScreenAddr;
-extern int specularFlag;
-extern bool useFakeLight;
-extern bool inSpecialLightZone;
+extern int SpecularFlag;
+extern bool UseFakeLight;
+extern bool InSpecialLightZone;
 
 // Run code only once
 #define RUNONCE() \

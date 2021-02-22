@@ -74,11 +74,11 @@ struct ModelMaterial
 	int reserved4;
 };
 
-int specularFlag = 0;
+int SpecularFlag = 0;
+bool UseFakeLight = false;
+bool InSpecialLightZone = false;
 
 static LightSource fakeLight = { {D3DLIGHT_DIRECTIONAL} };
-bool useFakeLight = false;
-bool inSpecialLightZone = false;
 static int fakeLightIndex = -1;
 static int materialCount = 0;
 static ModelMaterial* pMaterialArray = nullptr;
@@ -183,8 +183,8 @@ static int __cdecl HookGetLightSourceCount()
 	// This function usually just returns the amount of LightSource structures in the LightSourceArray
 	// Hooking allows us to return a count 1 greater than reality when no D3D_DIRECTIONAL light sources exist
 
-	inSpecialLightZone = false;
-	useFakeLight = true;
+	InSpecialLightZone = false;
+	UseFakeLight = true;
 	fakeLightIndex = -1;
 	pCurrentMaterial = nullptr;
 
@@ -194,13 +194,13 @@ static int __cdecl HookGetLightSourceCount()
 	{
 		auto pLight = GetLightSourceAt(i);
 		if (pLight->light.Type == D3DLIGHT_DIRECTIONAL)
-			useFakeLight = false;
+			UseFakeLight = false;
 
 		if (pLight->light.Type == D3DLIGHT_SPOT)
-			inSpecialLightZone = true;
+			InSpecialLightZone = true;
 	}
 
-	if (useFakeLight)
+	if (UseFakeLight)
 	{
 		fakeLightIndex = lightSourceCount;
 		return lightSourceCount + 1;
@@ -215,7 +215,7 @@ static LightSource* __cdecl HookGetLightSourceAt(int index)
 	// This function usually returns the a pointer to the LightSource at the supplied index
 	// Hooking allows us to return fakeLight when the index is 1 greater than the true array length
 
-	if (useFakeLight && index == fakeLightIndex)
+	if (UseFakeLight && index == fakeLightIndex)
 		return &fakeLight;
 	else
 		return GetLightSourceAt(index);
@@ -226,7 +226,7 @@ static void HookActorOpaqueDraw(ModelMaterial* pModelMaterial)
 	// Here we hook a call to `void ActorOpaqueDraw(ModelMaterial* pModelMaterial)`
 	// Hooking allows us to note the current material for later use
 
-	specularFlag = 2;
+	SpecularFlag = 2;
 
 	pCurrentMaterial = pModelMaterial;
 	ActorOpaqueDraw(pModelMaterial);

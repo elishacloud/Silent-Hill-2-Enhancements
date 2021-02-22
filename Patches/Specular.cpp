@@ -90,8 +90,6 @@ static LightSource* (__cdecl* GetLightSourceAt)(int) = nullptr;
 ModelID(__cdecl* GetModelID)() = nullptr;
 static void(__cdecl* ActorOpaqueDraw)(ModelMaterial*) = nullptr;
 
-static IDirect3DDevice8** pD3DDevice = nullptr;
-
 int GetCurrentMaterialIndex()
 {
 	int index = 0;
@@ -260,8 +258,6 @@ void PatchSpecular()
 		GetLightSourceAt = *reinterpret_cast<LightSource * (__cdecl*)(int)>(0x50C5A0);
 		ActorOpaqueDraw = reinterpret_cast<void(__cdecl*)(ModelMaterial*)>(0x501540);
 
-		pD3DDevice = reinterpret_cast<IDirect3DDevice8**>(0xA32894);
-
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x50EB2B), HookActorDrawTop, 5);
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FECD0), HookGetLightSourceCount, 5);
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FED28), HookGetLightSourceAt, 5);
@@ -273,8 +269,6 @@ void PatchSpecular()
 		GetLightSourceAt = *reinterpret_cast<LightSource * (__cdecl*)(int)>(0x50C8D0);
 		ActorOpaqueDraw = reinterpret_cast<void(__cdecl*)(ModelMaterial*)>(0x501870);
 
-		pD3DDevice = reinterpret_cast<IDirect3DDevice8**>(0xA36494);
-
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x50EE5B), HookActorDrawTop, 5);
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FF000), HookGetLightSourceCount, 5);
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FF058), HookGetLightSourceAt, 5);
@@ -285,8 +279,6 @@ void PatchSpecular()
 		GetLightSourceCount = *reinterpret_cast<int(__cdecl*)()>(0x50C1E0);
 		GetLightSourceAt = *reinterpret_cast<LightSource * (__cdecl*)(int)>(0x50C1F0);
 		ActorOpaqueDraw = reinterpret_cast<void(__cdecl*)(ModelMaterial*)>(0x501190);
-
-		pD3DDevice = reinterpret_cast<IDirect3DDevice8**>(0xA35494);
 
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x50E77B), HookActorDrawTop, 5);
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FE920), HookGetLightSourceCount, 5);

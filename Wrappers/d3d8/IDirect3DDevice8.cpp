@@ -2134,7 +2134,7 @@ HRESULT m_IDirect3DDevice8::SetPixelShaderConstant(THIS_ DWORD Register, CONST v
 	Logging::LogDebug() << __FUNCTION__;
 
 	// We want to skip the first call to SetPixelShaderConstant when fixing Specular highlights and only adjust the second
-	if(specularFlag == 1)
+	if(SpecularFix && specularFlag == 1)
 	{
 		auto pConstants = reinterpret_cast<const float*>(pConstantData);
 		float constants[3] = { pConstants[0], pConstants[1], pConstants[2] };
@@ -2238,7 +2238,7 @@ HRESULT m_IDirect3DDevice8::SetPixelShaderConstant(THIS_ DWORD Register, CONST v
 		return ProxyInterface->SetPixelShaderConstant(Register, &constants, ConstantCount);
 	}
 
-	if (specularFlag > 0)
+	if (SpecularFix && specularFlag > 0)
 		specularFlag--;
 
 	return ProxyInterface->SetPixelShaderConstant(Register, pConstantData, ConstantCount);

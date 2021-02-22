@@ -234,6 +234,9 @@ static void HookActorOpaqueDraw(ModelMaterial* pModelMaterial)
 
 void FindGetModelID()
 {
+	if (GetModelID)
+		return;
+
 	switch (GameVersion)
 	{
 	case SH2V_10:

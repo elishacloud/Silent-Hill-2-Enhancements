@@ -29,6 +29,7 @@ extern bool IsUpdatingModule;
 extern bool TakeScreenShot;
 extern bool WindowMoved;
 
+bool DeviceLost = false;
 bool DisableShaderOnPresent = false;
 bool IsInFullscreenImage = false;
 bool IsInBloomEffect = false;

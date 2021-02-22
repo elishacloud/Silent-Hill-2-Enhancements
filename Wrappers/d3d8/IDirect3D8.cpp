@@ -25,6 +25,8 @@
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+extern bool DeviceLost;
+
 WNDPROC OriginalWndProc = nullptr;
 HWND DeviceWindow = nullptr;
 LONG BufferWidth = 0, BufferHeight = 0;
@@ -251,7 +253,7 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	UpdatePresentParameter(pPresentationParameters, hFocusWindow, true);
 
 	// Get WndProc
-	if ((ScreenMode == 1 || EnableScreenshots) && !OriginalWndProc)
+	if ((ScreenMode == 1 || EnableScreenshots || DynamicResolution) && !OriginalWndProc)
 	{
 		OriginalWndProc = (WNDPROC)SetWindowLongA(DeviceWindow, GWL_WNDPROC, (LONG)WndProc);
 		if (OriginalWndProc)
@@ -392,7 +394,12 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 				BufferWidth = tempRect.right;
 				BufferHeight = tempRect.bottom;
 			}
-			if (ScreenMode == 2)
+			if (ScreenMode == 1)
+			{
+				// Reset screen settings
+				ChangeDisplaySettingsEx(nullptr, nullptr, nullptr, CDS_RESET, nullptr);
+			}
+			else if (ScreenMode == 2)
 			{
 				// Get monitor info
 				MONITORINFOEX infoex = {};
@@ -521,8 +528,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	switch (uMsg)
 	{
+	case WM_SYSKEYDOWN:
+		if (wParam == VK_RETURN && DynamicResolution && ScreenMode != 3)
+		{
+			ScreenMode = (ScreenMode == 1) ? 2 : 1;
+			DeviceLost = true;
+		}
+		break;
 	case WM_KEYUP:
-		if (wParam == VK_SNAPSHOT)
+		if (wParam == VK_SNAPSHOT && EnableScreenshots)
 		{
 			TakeScreenShot = true;
 		}

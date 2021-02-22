@@ -10,7 +10,6 @@ private:
 
 	std::vector<BYTE> CachedSurfaceData;
 
-	bool DeviceLost = false;
 	HMONITOR LastMonitorHandle = nullptr;
 
 	bool GammaSet = false;

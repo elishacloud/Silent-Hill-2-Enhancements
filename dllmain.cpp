@@ -544,6 +544,9 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			SetThreadExecutionState(esFlags);
 		}
 
+		// Reset screen settings
+		ChangeDisplaySettingsEx(nullptr, nullptr, nullptr, CDS_RESET, nullptr);
+
 		// Quitting
 		Logging::Log() << "Unloading Silent Hill 2 Enhancements!";
 

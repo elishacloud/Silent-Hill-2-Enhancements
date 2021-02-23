@@ -8,7 +8,7 @@
 struct LightSource
 {
 	D3DLIGHT8 light;
-	float extraFloats[12]; // Purposes unknown
+	float extraFloats[12]; // Purpose unknown
 };
 
 struct ModelOffsetTable
@@ -84,10 +84,12 @@ static int materialCount = 0;
 static ModelMaterial* pMaterialArray = nullptr;
 static ModelMaterial* pCurrentMaterial = nullptr;
 
+ModelID(__cdecl* GetModelID)() = nullptr;
+
 static void(__cdecl* ActorDrawTop)(ModelOffsetTable*, void*) = nullptr;
 static int(__cdecl* GetLightSourceCount)() = nullptr;
 static LightSource* (__cdecl* GetLightSourceAt)(int) = nullptr;
-ModelID(__cdecl* GetModelID)() = nullptr;
+
 static void(__cdecl* ActorOpaqueDraw)(ModelMaterial*) = nullptr;
 
 int GetCurrentMaterialIndex()
@@ -242,9 +244,11 @@ void FindGetModelID()
 	case SH2V_10:
 		GetModelID = reinterpret_cast<decltype(GetModelID)>(0x50B6C0);
 		break;
+
 	case SH2V_11:
 		GetModelID = reinterpret_cast<decltype(GetModelID)>(0x50B9F0);
 		break;
+
 	case SH2V_DC:
 		GetModelID = reinterpret_cast<decltype(GetModelID)>(0x50B310);
 		break;
@@ -266,6 +270,7 @@ void PatchSpecular()
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FED28), HookGetLightSourceAt, 5);
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501F77), HookActorOpaqueDraw, 5);
 		break;
+
 	case SH2V_11:
 		ActorDrawTop = reinterpret_cast<decltype(ActorDrawTop)>(0x5022C0);
 		GetLightSourceCount = reinterpret_cast<decltype(GetLightSourceCount)>(0x50C8C0);
@@ -277,6 +282,7 @@ void PatchSpecular()
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FF058), HookGetLightSourceAt, 5);
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x5022A7), HookActorOpaqueDraw, 5);
 		break;
+
 	case SH2V_DC:
 		ActorDrawTop = reinterpret_cast<decltype(ActorDrawTop)>(0x501BE0);
 		GetLightSourceCount = reinterpret_cast<decltype(GetLightSourceCount)>(0x50C1E0);

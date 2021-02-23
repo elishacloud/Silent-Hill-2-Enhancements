@@ -534,7 +534,7 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 		else // Main campaign
 		{
 			IsEnabledInRoom54 = false;
-			if (GetCutsceneID() == 0x4E || InSpecialLightZone)	// Exclude specialized lighting zone unless in specific cutscene
+			if (GetCutsceneID() == 0x4E || !InSpecialLightZone)	// Exclude specialized lighting zone unless in specific cutscene
 			{
 				if (GetRoomID() != 0x9E) // Exclude Hotel Room 202-204 completely from restored self shadows
 				{

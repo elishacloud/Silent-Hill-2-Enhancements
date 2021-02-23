@@ -44,6 +44,8 @@ const DWORD MinHeight = 480;
 
 BYTE *ResolutionIndex = nullptr;
 BYTE *TextResIndex = nullptr;
+DWORD InitialIndex = 1;
+bool InitialIndexSet = false;
 float *SetAspectRatio = nullptr;
 RESOLUTONLIST *ResolutionArray = nullptr;
 std::vector<RESOLUTONLIST> ResolutionVector;
@@ -71,6 +73,8 @@ void CreateResolutionText(int gWidth, int gHeight)
 	char* text = "\\h%dx%d";
 	if (abs((float)gWidth / 3 - (float)gHeight / 2) < 1.0f)
 		text = "\\h%dx%d (3:2)";
+	else if (abs((float)gWidth / 4 - (float)gHeight / 1) < 1.0f)
+		text = "\\h%dx%d (4:1)";
 	else if (abs((float)gWidth / 4 - (float)gHeight / 3) < 1.0f)
 		text = "\\h%dx%d (4:3)";
 	else if (abs((float)gWidth / 5 - (float)gHeight / 3) < 1.0f)
@@ -148,11 +152,28 @@ __declspec(naked) void __stdcall ResArrowASM()
 
 void UpdateWSF()
 {
-	// Update Widescreen Fix for new resolution
-	WSFInit();
-
 	// Set aspect ratio
 	*SetAspectRatio = (float)ResX / (float)ResY;
+
+	// Update FMV and fullscreen images
+	if (*SetAspectRatio <= 1.34f) // 4:3 (4:3, 5:4, etc.)
+	{
+		FullscreenImages = 1;
+		FMVWidescreenEnhancementPackCompatibility = 3;
+	}
+	else if (*SetAspectRatio < 1.78f) // 16:9 (16:10, 3:2, etc.)
+	{
+		FullscreenImages = 2;
+		FMVWidescreenEnhancementPackCompatibility = 1;
+	}
+	else // AspectRatio >= 16:9 (16:9, 21:9, etc.)
+	{
+		FullscreenImages = 2;
+		FMVWidescreenEnhancementPackCompatibility = 2;
+	}
+
+	// Update Widescreen Fix for new resolution
+	WSFInit();
 
 	// Flush cache
 	FlushInstructionCache(GetCurrentProcess(), nullptr, 0);
@@ -160,9 +181,15 @@ void UpdateWSF()
 
 void WSFDynamicStartup()
 {
-	DWORD Width = 0, Height = 0;
+	// Store initual resolution
+	if (!InitialIndexSet)
+	{
+		InitialIndexSet = true;
+		InitialIndex = (*ResolutionIndex < 6) ? *ResolutionIndex : 1;
+	}
 
 	// Get saved resolution
+	DWORD Width = 0, Height = 0;
 	HRESULT hr = GetResolution(Width, Height);
 
 	// Check if resolution is found and set correct index
@@ -438,6 +465,8 @@ void SetResolutionPatch()
 	printTextPos = (DWORD(*)(char *str, int x, int y))(((BYTE*)DResAddrB + 0x1E) + *(int *)((BYTE*)DResAddrB + 0x1A));
 
 	// Get resolution addresses
+	constexpr BYTE SaveResIndexSearchBytes[] = { 0x8B, 0xF0, 0x83, 0xC4, 0x08, 0x85, 0xF6, 0x0F, 0x84 };
+	void *SaveResIndexAddr = (BYTE*)SearchAndGetAddresses(0x004F7561, 0x004F7891, 0x004F71B1, SaveResIndexSearchBytes, sizeof(SaveResIndexSearchBytes), 0x5F);
 	constexpr BYTE TextResIndexSearchBytes[] = { 0x68, 0x8B, 0x01, 0x00, 0x00, 0x6A, 0x46, 0x68, 0xD1, 0x00, 0x00, 0x00, 0x52, 0xE8 };
 	TextResIndex = (BYTE*)ReadSearchedAddresses(0x00465631, 0x004658CD, 0x00465ADD, TextResIndexSearchBytes, sizeof(TextResIndexSearchBytes), 0x29);
 	constexpr BYTE ResolutionIndexSearchBytes[] = { 0x6A, 0x01, 0x6A, 0x00, 0x50, 0xFF, 0x51, 0x34, 0x6A, 0x00, 0xE8 };
@@ -484,6 +513,8 @@ void SetResolutionPatch()
 			// Set the number of resolutions in the list
 			SetResolutionList();
 
+			DWORD Value = (DWORD)&InitialIndex;
+			UpdateMemoryAddress(SaveResIndexAddr, &Value, sizeof(DWORD));
 			jmpStartupRes = ResConfigAddr + 0xF;
 			WriteJMPtoMemory(ResConfigAddr, *StartupResASM, 0xF);
 			jmpChangeRes = ChangeResAddr + 5;

@@ -243,7 +243,7 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	}
 
 	// Check for SSAA
-	if ((DeviceMultiSampleType) &&
+	if ((DeviceMultiSampleType || FixGPUAntiAliasing) &&
 		(ProxyInterface->CheckDeviceFormat(Adapter, D3DDEVTYPE_HAL, D3DFMT_X8R8G8B8, 0, D3DRTYPE_SURFACE, (D3DFORMAT)MAKEFOURCC('S', 'S', 'A', 'A')) == S_OK || VendorID == NVIDIA_VENDOR_ID))
 	{
 		SetSSAA = true;

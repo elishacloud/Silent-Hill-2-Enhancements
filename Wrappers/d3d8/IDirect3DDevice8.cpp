@@ -27,7 +27,6 @@
 extern bool m_StopThreadFlag;
 extern bool IsUpdatingModule;
 extern bool TakeScreenShot;
-extern bool WindowMoved;
 
 bool DeviceLost = false;
 bool DisableShaderOnPresent = false;
@@ -99,8 +98,6 @@ ULONG m_IDirect3DDevice8::Release()
 HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters)
 {
 	Logging::LogDebug() << __FUNCTION__;
-
-	WindowMoved = true;
 
 	DeviceLost = false;
 
@@ -370,6 +367,13 @@ HRESULT m_IDirect3DDevice8::CreateRenderTarget(THIS_ UINT Width, UINT Height, D3
 HRESULT m_IDirect3DDevice8::CreateTexture(THIS_ UINT Width, UINT Height, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, IDirect3DTexture8** ppTexture)
 {
 	Logging::LogDebug() << __FUNCTION__;
+
+	// Fixes FMV issue with UAC prompt
+	if (FixFMVResetIssue && Usage == D3DUSAGE_DYNAMIC && Format == D3DFMT_A8R8G8B8 && Pool == D3DPOOL_DEFAULT)
+	{
+		Usage = 0;
+		Pool = D3DPOOL_MANAGED;
+	}
 
 	HRESULT hr = ProxyInterface->CreateTexture(Width, Height, Levels, Usage, Format, Pool, ppTexture);
 
@@ -1665,12 +1669,6 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 
 	if (EndSceneCounter == 0)
 	{
-		// Check if window moved since last call
-		if (WindowMoved)
-		{
-			CheckMonitor();
-		}
-
 		// Skip frames in specific cutscenes to prevent flickering
 		if (SkipSceneFlag == true)
 		{
@@ -3003,15 +3001,4 @@ void m_IDirect3DDevice8::CaptureScreenShot()
 	pDestSurface->Release();
 
 	return;
-}
-
-void m_IDirect3DDevice8::CheckMonitor()
-{
-	WindowMoved = false;
-	if (LastMonitorHandle && LastMonitorHandle != GetMonitorHandle())
-	{
-		DeviceLost = true;
-		SetResolutionList();
-	}
-	LastMonitorHandle = GetMonitorHandle();
 }

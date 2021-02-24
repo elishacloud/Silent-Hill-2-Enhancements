@@ -10,8 +10,6 @@ private:
 
 	std::vector<BYTE> CachedSurfaceData;
 
-	HMONITOR LastMonitorHandle = nullptr;
-
 	bool GammaSet = false;
 	D3DGAMMARAMP Ramp;
 
@@ -313,5 +311,4 @@ private:
 	DWORD GetShadowIntensity();
 	void SetShadowFading();
 	void CaptureScreenShot();
-	void CheckMonitor();
 };

@@ -34,6 +34,7 @@
 	visit(FixChainsawSpawn, true) \
 	visit(FixCreatureVehicleSpawn, true) \
 	visit(FixDrawingTextLine, true) \
+	visit(FixFMVResetIssue, true) \
 	visit(FixGPUAntiAliasing, true) \
 	visit(FixHangOnEsc, true) \
 	visit(FixMissingWallChunks, true) \

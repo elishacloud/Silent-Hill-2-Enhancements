@@ -33,7 +33,6 @@ LONG BufferWidth = 0, BufferHeight = 0;
 DWORD VendorID = 0;
 bool CopyRenderTarget = false;
 bool SetSSAA = false;
-bool WindowMoved = true;
 bool TakeScreenShot = false;
 D3DMULTISAMPLE_TYPE DeviceMultiSampleType = D3DMULTISAMPLE_NONE;
 
@@ -394,7 +393,8 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 				BufferWidth = tempRect.right;
 				BufferHeight = tempRect.bottom;
 			}
-			if (ScreenMode == 1)
+			static int LastScreenMode = 0;
+			if (ScreenMode == 1 && ScreenMode != LastScreenMode)
 			{
 				// Reset screen settings
 				ChangeDisplaySettingsEx(nullptr, nullptr, nullptr, CDS_RESET, nullptr);
@@ -417,6 +417,7 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 					ChangeDisplaySettingsEx(bRet ? infoex.szDevice : nullptr, &newSettings, nullptr, CDS_FULLSCREEN, nullptr);
 				}
 			}
+			LastScreenMode = ScreenMode;
 			AdjustWindow(DeviceWindow, BufferWidth, BufferHeight);
 		}
 	}
@@ -526,13 +527,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	Logging::LogDebug() << __FUNCTION__ << " " << Logging::hex(wParam);
 
+	static HMONITOR LastMonitorHandle = nullptr;
+
 	switch (uMsg)
 	{
 	case WM_SYSKEYDOWN:
 		if (wParam == VK_RETURN && DynamicResolution && ScreenMode != 3)
 		{
-			ScreenMode = (ScreenMode == 1) ? 2 : 1;
 			DeviceLost = true;
+			ScreenMode = (ScreenMode == 1) ? 2 : 1;
 		}
 		break;
 	case WM_KEYUP:
@@ -543,8 +546,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_MOVE:
 	case WM_WINDOWPOSCHANGED:
-		WindowMoved = true;
+	{
+		HMONITOR MonitorHandle = GetMonitorHandle();
+		if (LastMonitorHandle && LastMonitorHandle != MonitorHandle)
+		{
+			DeviceLost = true;
+			SetResolutionList(BufferWidth, BufferHeight);
+		}
+		LastMonitorHandle = MonitorHandle;
 		break;
+	}
 	}
 
 	if (!OriginalWndProc)

@@ -43,6 +43,7 @@ const DWORD MinWidth = 640;
 const DWORD MinHeight = 480;
 
 BYTE *ResolutionIndex = nullptr;
+BYTE *MenuResolutionIndex = nullptr;
 BYTE *TextResIndex = nullptr;
 DWORD InitialIndex = 1;
 bool InitialIndexSet = false;
@@ -56,7 +57,7 @@ DWORD (*printTextPos)(char *str, int x, int y);
 
 char *resStrPtr;
 
-void GetStartupResolution(int &Width, int &Height)
+void GetConfiguredResolution(int &Width, int &Height)
 {
 	Width = ResolutionArray[*ResolutionIndex].Width;
 	Height = ResolutionArray[*ResolutionIndex].Height;
@@ -161,7 +162,7 @@ void UpdateWSF()
 		FullscreenImages = 1;
 		FMVWidescreenEnhancementPackCompatibility = 3;
 	}
-	else if (*SetAspectRatio < 1.78f) // 16:9 (16:10, 3:2, etc.)
+	else if (*SetAspectRatio < 1.76f) // 16:9 (16:10, 3:2, etc.)
 	{
 		FullscreenImages = 2;
 		FMVWidescreenEnhancementPackCompatibility = 1;
@@ -228,7 +229,7 @@ void WSFDynamicStartup()
 	}
 
 	// Get initial resolution from index
-	GetStartupResolution(ResX, ResY);
+	GetConfiguredResolution(ResX, ResY);
 
 	// Update Widescreen Fix for initial resolution
 	UpdateWSF();
@@ -398,13 +399,18 @@ void GetCustomResolutions()
 
 BYTE *ResStartupAddr = nullptr;
 BYTE *ResSizeAddr = nullptr;
-void SetResolutionList()
+void SetResolutionList(DWORD Width, DWORD Height)
 {
 	if (WidescreenFix && DynamicResolution && ResStartupAddr && ResSizeAddr)
 	{
 		// If resolution list exists than replce with a new list
 		if (ResolutionVector.size())
 		{
+			// Get current resolution from index
+			int textWidth, textHeight;
+			GetTextResolution(textWidth, textHeight);
+
+			// Rebuild resolution list
 			while (ResolutionVector.size())
 			{
 				ResolutionVector.pop_back();
@@ -414,6 +420,40 @@ void SetResolutionList()
 				ResolutionText.pop_back();
 			}
 			GetCustomResolutions();
+
+			// Update current resolution index
+			bool Found = false;
+			for (DWORD x = 0; x < ResolutionVector.size(); x++)
+			{
+				if (ResolutionVector[x].Width == Width && ResolutionVector[x].Height == Height)
+				{
+					Found = true;
+					*ResolutionIndex = (BYTE)x;
+					break;
+				}
+			}
+			if (!Found || *ResolutionIndex > ResolutionVector.size() - 1)
+			{
+				*ResolutionIndex = (BYTE)(ResolutionVector.size() - 1);
+			}
+			*(TextResIndex + 0x74) = *ResolutionIndex;
+			*MenuResolutionIndex = *ResolutionIndex;
+
+			// Update text resolution index
+			Found = false;
+			for (DWORD x = 0; x < ResolutionVector.size(); x++)
+			{
+				if (ResolutionVector[x].Width == (DWORD)textWidth && ResolutionVector[x].Height == (DWORD)textHeight)
+				{
+					Found = true;
+					*TextResIndex = (BYTE)x;
+					break;
+				}
+			}
+			if (!Found || *TextResIndex > ResolutionVector.size() - 1)
+			{
+				*TextResIndex = *ResolutionIndex;
+			}
 		}
 
 		// Update code to set the size of the resolution list
@@ -471,6 +511,8 @@ void SetResolutionPatch()
 	TextResIndex = (BYTE*)ReadSearchedAddresses(0x00465631, 0x004658CD, 0x00465ADD, TextResIndexSearchBytes, sizeof(TextResIndexSearchBytes), 0x29);
 	constexpr BYTE ResolutionIndexSearchBytes[] = { 0x6A, 0x01, 0x6A, 0x00, 0x50, 0xFF, 0x51, 0x34, 0x6A, 0x00, 0xE8 };
 	ResolutionIndex = (BYTE*)ReadSearchedAddresses(0x004F633F, 0x004F65EF, 0x004F5EAF, ResolutionIndexSearchBytes, sizeof(ResolutionIndexSearchBytes), 0x10);
+	constexpr BYTE MenuResolutionIndexSearchBytes[] = { 0x6A, 0x01, 0x6A, 0x00, 0x50, 0xFF, 0x51, 0x34, 0x6A, 0x00, 0xE8 };
+	MenuResolutionIndex = (BYTE*)ReadSearchedAddresses(0x004F633F, 0x004F65EF, 0x004F5EAF, MenuResolutionIndexSearchBytes, sizeof(MenuResolutionIndexSearchBytes), 0x1C);
 	constexpr BYTE ResolutionArraySearchBytes[] = { 0x10, 0x51, 0x56, 0x6A, 0x00, 0x50, 0xFF, 0x52, 0x1C, 0x8B, 0x54, 0x24, 0x10 };
 	ResolutionArray = (RESOLUTONLIST*)ReadSearchedAddresses(0x004F5DEB, 0x004F609B, 0x004F595B, ResolutionArraySearchBytes, sizeof(ResolutionArraySearchBytes), 0xF);
 	ResStartupAddr = (BYTE*)SearchAndGetAddresses(0x004F5DEB, 0x004F609B, 0x004F595B, ResolutionArraySearchBytes, sizeof(ResolutionArraySearchBytes), 0x4B);
@@ -482,7 +524,7 @@ void SetResolutionPatch()
 	BYTE *ResConfigAddr = (BYTE*)SearchAndGetAddresses(0x004F71CD, 0x004F74FD, 0x004F6E1C, ResConfigSearchBytes, sizeof(ResConfigSearchBytes), -0x28);
 	constexpr BYTE AspectRatioBytes[] = { 0x83, 0xEC, 0x3C, 0x55, 0x56, 0x8B, 0xF1, 0x8B, 0x0B, 0x89, 0x44, 0x24, 0x14, 0x57, 0x03, 0xC6, 0x8B, 0xFA, 0x89, 0x44, 0x24, 0x20 };
 	SetAspectRatio = (float*)ReadSearchedAddresses(0x00458D80, 0x00458FE0, 0x00458FE0, AspectRatioBytes, sizeof(AspectRatioBytes), -0x44);
-	if (!TextResIndex || !ResolutionIndex || !ResolutionArray || !ResStartupAddr || !ChangeResAddr || !ResSizeAddr || !ResConfigAddr || !SetAspectRatio)
+	if (!SaveResIndexAddr || !TextResIndex || !ResolutionIndex || !MenuResolutionIndex || !ResolutionArray || !ResStartupAddr || !ChangeResAddr || !ResSizeAddr || !ResConfigAddr || !SetAspectRatio)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory addresses!";
 		return;
@@ -511,7 +553,7 @@ void SetResolutionPatch()
 			UpdateMemoryAddress((void *)(ResStartupAddr + 0x529 + 3), &ArrayHeight, sizeof(DWORD));
 
 			// Set the number of resolutions in the list
-			SetResolutionList();
+			SetResolutionList(ResX, ResY);
 
 			DWORD Value = (DWORD)&InitialIndex;
 			UpdateMemoryAddress(SaveResIndexAddr, &Value, sizeof(DWORD));

@@ -523,7 +523,7 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 		else if (GetChapterID() == 0x01) // Born From a Wish
 		{
 			IsEnabledInRoom54 = false;
-			if (!InSpecialLightZone) // If not in a specialized lighting zone
+			if (GetSpecializedLight1() != 0x01) // If not in a specialized lighting zone
 			{
 				if (GetRoomID() != 0x20 && GetRoomID() != 0x25 && GetRoomID() != 0x26) // Exclude Blue Creek hallways/staircase completely from restored self shadows
 				{
@@ -534,7 +534,7 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 		else // Main campaign
 		{
 			IsEnabledInRoom54 = false;
-			if (GetCutsceneID() == 0x4E || !InSpecialLightZone)	// Exclude specialized lighting zone unless in specific cutscene
+			if (GetCutsceneID() == 0x4E || (GetSpecializedLight1() != 0x01 && GetSpecializedLight2() != 0x01))	// Exclude specialized lighting zone unless in specific cutscene
 			{
 				if (GetRoomID() != 0x9E) // Exclude Hotel Room 202-204 completely from restored self shadows
 				{

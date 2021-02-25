@@ -275,6 +275,9 @@
     <ClCompile Include="Patches\FlashlightFlicker.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\Specular.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
     <ClCompile Include="Patches\SaveBGImage.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
@@ -438,6 +441,9 @@
     </ClInclude>
     <ClInclude Include="Common\AutoUpdate.h">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Patches\ModelID.h">
+      <Filter>Patches</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

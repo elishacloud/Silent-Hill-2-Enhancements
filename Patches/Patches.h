@@ -7,6 +7,8 @@ typedef enum _SH2VERSION {
 	SH2V_DC = 3,
 } SH2VERSION;
 
+enum class ModelID;
+
 // Shared function declaration
 DWORD GetRoomID();
 DWORD GetCutsceneID();
@@ -98,11 +100,18 @@ void PatchRowboatAnimation();
 void PatchSaveBGImage();
 void PatchSpeakerConfigLock();
 void PatchSpecialFX();
+void PatchSpecular();
 void PatchSFXAddr();
 void PatchTexAddr();
 void PatchTownWestGateEvent();
 void PatchTreeLighting();
 void PatchXInputVibration();
+
+void FindGetModelID();
+int GetCurrentMaterialIndex();
+bool IsJames(ModelID id);
+bool IsMariaExcludingEyes(ModelID id);
+bool IsMariaEyes(ModelID id);
 
 void RunBloodSize();
 void RunClosetCutscene();
@@ -170,6 +179,9 @@ extern BYTE *FullscreenImageEventAddr;
 extern float *InGameCameraPosYAddr;
 extern BYTE *InventoryStatusAddr;
 extern DWORD *LoadingScreenAddr;
+extern int SpecularFlag;
+extern bool UseFakeLight;
+extern bool InSpecialLightZone;
 
 // Run code only once
 #define RUNONCE() \

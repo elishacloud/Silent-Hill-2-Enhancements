@@ -23,6 +23,7 @@
 #include "stb_image_dds.h"
 #include "stb_image_write.h"
 #include "stb_image_resize.h"
+#include "Patches/ModelID.h"
 
 extern bool m_StopThreadFlag;
 extern bool IsUpdatingModule;
@@ -1056,31 +1057,18 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 	}
 
 	// Exclude Woodside Room 208 TV static geometry from receiving shadows
-	if (EnableSoftShadows && GetRoomID() == 0x18 && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 4 && startIndex == 0 && primCount == 2)
+	if (EnableSoftShadows && GetRoomID() == 0x18 && GetModelID() == ModelID::chr_item_noa)
 	{
-		LPDIRECT3DTEXTURE8 texture = nullptr;
-		D3DSURFACE_DESC desc = { D3DFMT_UNKNOWN, D3DRTYPE_TEXTURE, 0, D3DPOOL_DEFAULT, 0, D3DMULTISAMPLE_NONE, 0, 0 };
+		DWORD stencilPass = 0;
+		ProxyInterface->GetRenderState(D3DRS_STENCILPASS, &stencilPass);
 
-		HRESULT hr = ProxyInterface->GetTexture(0, (LPDIRECT3DBASETEXTURE8 *)&texture);
-		if (SUCCEEDED(hr) && texture)
-		{
-			hr = texture->GetLevelDesc(0, &desc);
+		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);
 
-			texture->Release();
-		}
-		if (SUCCEEDED(hr) && desc.Width == 684 && desc.Height == 512)
-		{
-			DWORD stencilPass = 0;
-			ProxyInterface->GetRenderState(D3DRS_STENCILPASS, &stencilPass);
+		HRESULT hr = ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
 
-			ProxyInterface->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);
+		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, stencilPass);
 
-			hr = ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
-
-			ProxyInterface->SetRenderState(D3DRS_STENCILPASS, stencilPass);
-
-			return hr;
-		}
+		return hr;
 	}
 	// Exclude windows in Heaven's Night, Hotel 2F Room Hallway and Hotel Storeroom from receiving shadows
 	else if (EnableSoftShadows &&
@@ -2196,6 +2184,114 @@ HRESULT m_IDirect3DDevice8::GetVertexShaderFunction(THIS_ DWORD Handle, void* pD
 HRESULT m_IDirect3DDevice8::SetPixelShaderConstant(THIS_ DWORD Register, CONST void* pConstantData, DWORD ConstantCount)
 {
 	Logging::LogDebug() << __FUNCTION__;
+
+	// We want to skip the first call to SetPixelShaderConstant when fixing Specular highlights and only adjust the second
+	if(SpecularFix && SpecularFlag == 1)
+	{
+		auto pConstants = reinterpret_cast<const float*>(pConstantData);
+		float constants[3] = { pConstants[0], pConstants[1], pConstants[2] };
+
+		if (constants[0] != 0.0f || constants[1] != 0.0f || constants[2] != 0.0f)
+		{
+			ModelID modelID = GetModelID();
+
+			if (IsJames(modelID)) // James
+			{
+				if (InSpecialLightZone)
+				{
+					// 75% if in a special lighting zone
+					constants[0] = 0.75f;
+					constants[1] = 0.75f;
+					constants[2] = 0.75f;
+				}
+				else
+				{
+					// Default to 25% specularity
+					constants[0] = 0.25f;
+					constants[1] = 0.25f;
+					constants[2] = 0.25f;
+				}
+			}
+			else if (IsMariaExcludingEyes(modelID)) // Maria, but not her eyes
+			{
+				if (!UseFakeLight || InSpecialLightZone)
+				{
+					// 20% If in a special lighting zone and/or flashlight is on
+					constants[0] = 0.20f;
+					constants[1] = 0.20f;
+					constants[2] = 0.20f;
+				}
+				else
+				{
+					// Default to 5% specularity
+					constants[0] = 0.05f;
+					constants[1] = 0.05f;
+					constants[2] = 0.05f;
+				}
+			}
+			else if (IsMariaEyes(modelID)) // Maria's Eyes
+			{
+				// 50% specularity
+				constants[0] = 0.50f;
+				constants[1] = 0.50f;
+				constants[2] = 0.50f;
+			}
+			else if (modelID == ModelID::chr_bos_bos) // Final boss
+			{
+				// 25% specularity
+				constants[0] = 0.25f;
+				constants[1] = 0.25f;
+				constants[2] = 0.25f;
+			}
+			else if ((modelID == ModelID::chr_agl_agl || modelID == ModelID::chr_agl_ragl) && GetCurrentMaterialIndex() == 3) // Angela's eyes
+			{
+				if (UseFakeLight && !InSpecialLightZone && GetCutsceneID() != 0x53)
+				{
+					// 25% specularity if flashlight is off and not in special light zone or in cutscene 0x53
+					constants[0] = 0.25f;
+					constants[1] = 0.25f;
+					constants[2] = 0.25f;
+				}
+				else
+				{
+					// Default to 50% specularity
+					constants[0] = 0.50f;
+					constants[1] = 0.50f;
+					constants[2] = 0.50f;
+				}
+			}
+			else if (modelID == ModelID::chr_mry_mry) // Mary (Healthy)
+			{
+				// 50% specularity
+				constants[0] = 0.50f;
+				constants[1] = 0.50f;
+				constants[2] = 0.50f;
+			}
+			else // Everything else
+			{
+				if (!UseFakeLight || InSpecialLightZone)
+				{
+					// 40% If in a special lighting zone and/or flashlight is on
+					constants[0] = 0.40f;
+					constants[1] = 0.40f;
+					constants[2] = 0.40f;
+				}
+				else
+				{
+					// Default to 15% specularity
+					constants[0] = 0.15f;
+					constants[1] = 0.15f;
+					constants[2] = 0.15f;
+				}
+			}
+		}
+
+		SpecularFlag--;
+		return ProxyInterface->SetPixelShaderConstant(Register, &constants, ConstantCount);
+	}
+
+	if (SpecularFix && SpecularFlag > 0)
+		SpecularFlag--;
 
 	return ProxyInterface->SetPixelShaderConstant(Register, pConstantData, ConstantCount);
 }

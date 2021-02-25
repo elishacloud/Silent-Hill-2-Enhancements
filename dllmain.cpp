@@ -483,6 +483,18 @@ void DelayedStart()
 		SetSingleCoreAffinity();
 	}
 
+	// Find GetModelID when a dependent fix is enabled
+	if (EnableSoftShadows || SpecularFix)
+	{
+		FindGetModelID();
+	}
+
+	// Specular Fix
+	if (SpecularFix)
+	{
+		PatchSpecular();
+	}
+
 	// Flush cache
 	FlushInstructionCache(GetCurrentProcess(), nullptr, 0);
 

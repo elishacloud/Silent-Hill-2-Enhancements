@@ -62,6 +62,7 @@
     <ClCompile Include="Patches\RotatingMannequinGlitch.cpp" />
     <ClCompile Include="Patches\SaveBGImage.cpp" />
     <ClCompile Include="Patches\SpecialFX.cpp" />
+    <ClCompile Include="Patches\Specular.cpp" />
     <ClCompile Include="Patches\TexPatch.cpp" />
     <ClCompile Include="Patches\FogAdjustments.cpp" />
     <ClCompile Include="Patches\Fonts.cpp" />
@@ -129,6 +130,7 @@
     <ClInclude Include="Include\winapifamily.h" />
     <ClInclude Include="Logging\Logging.h" />
     <ClInclude Include="Patches\FullscreenImages.h" />
+    <ClInclude Include="Patches\ModelID.h" />
     <ClInclude Include="Patches\Patches.h" />
     <ClInclude Include="Patches\SfxPatch.h" />
     <ClInclude Include="Resources\sh2-enhce.h" />

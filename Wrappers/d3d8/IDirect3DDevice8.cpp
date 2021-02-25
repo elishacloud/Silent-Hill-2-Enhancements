@@ -29,6 +29,7 @@ extern bool m_StopThreadFlag;
 extern bool IsUpdatingModule;
 extern bool TakeScreenShot;
 
+bool DeviceLost = false;
 bool DisableShaderOnPresent = false;
 bool IsInFullscreenImage = false;
 bool IsInBloomEffect = false;
@@ -99,9 +100,11 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	DeviceLost = false;
+
 	pCurrentRenderTexture = nullptr;
 
-	pSnapshotTexture = nullptr;
+	pInitialRenderTexture = nullptr;
 
 	for (SURFACEVECTOR SurfaceStruct : SurfaceVector)
 	{
@@ -366,15 +369,47 @@ HRESULT m_IDirect3DDevice8::CreateTexture(THIS_ UINT Width, UINT Height, UINT Le
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	// Fixes FMV issue with UAC prompt
+	if (FixFMVResetIssue && Usage == D3DUSAGE_DYNAMIC && Format == D3DFMT_A8R8G8B8 && Pool == D3DPOOL_DEFAULT)
+	{
+		Usage = 0;
+		Pool = D3DPOOL_MANAGED;
+	}
+
 	HRESULT hr = ProxyInterface->CreateTexture(Width, Height, Levels, Usage, Format, Pool, ppTexture);
 
 	if (SUCCEEDED(hr) && ppTexture)
 	{
+		IDirect3DTexture8 *pCreatedTexture = *ppTexture;
 		*ppTexture = new m_IDirect3DTexture8(*ppTexture, this);
 
-		if (!pSnapshotTexture && Usage == D3DUSAGE_RENDERTARGET && Width == (UINT)BufferWidth && Height == (UINT)BufferHeight)
+		if (!pInitialRenderTexture && Usage == D3DUSAGE_RENDERTARGET && Width == (UINT)BufferWidth && Height == (UINT)BufferHeight)
 		{
-			pSnapshotTexture = *ppTexture;
+			pInitialRenderTexture = *ppTexture;
+
+			// If cached data exists then copy to render target
+			if (PauseScreenFix && CachedSurfaceData.size() == (Width * 4) * Height)
+			{
+				IDirect3DSurface8 *pTmpSurface = nullptr;
+				if (SUCCEEDED(ProxyInterface->CreateImageSurface(Width, Height, Format, &pTmpSurface)))
+				{
+					D3DLOCKED_RECT LockedRect = {};
+					if (SUCCEEDED(pTmpSurface->LockRect(&LockedRect, nullptr, 0)))
+					{
+						memcpy(LockedRect.pBits, &CachedSurfaceData[0], LockedRect.Pitch * Height);
+						pTmpSurface->UnlockRect();
+					}
+					IDirect3DSurface8 *pTmpTargetSurface = nullptr;
+					if (SUCCEEDED(pCreatedTexture->GetSurfaceLevel(0, &pTmpTargetSurface)))
+					{
+						POINT PointDest = { 0, 0 };
+						RECT Rect = { 0, 0, BufferWidth, BufferHeight };
+						ProxyInterface->CopyRects(pTmpSurface, &Rect, 1, pTmpTargetSurface, &PointDest);
+						pTmpTargetSurface->Release();
+					}
+					pTmpSurface->Release();
+				}
+			}
 		}
 	}
 
@@ -505,7 +540,7 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 	Logging::LogDebug() << __FUNCTION__;
 
 	// Fix for 2D Fog and glow around the flashlight lens for Nvidia cards
-	if (Fog2DFix && State == D3DRS_ZBIAS)
+	if (FogLayerFix && State == D3DRS_ZBIAS)
 	{
 		Value = (Value * 15) / 16;
 	}
@@ -640,7 +675,7 @@ void m_IDirect3DDevice8::SetGammaRamp(THIS_ DWORD Flags, CONST D3DGAMMARAMP* pRa
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	if (!EnableWndMode || FullscreenWndMode || (RestoreBrightnessSelector && d3d8to9))
+	if (ScreenMode != 1 || (RestoreBrightnessSelector && d3d8to9))
 	{
 		ProxyInterface->SetGammaRamp(Flags, pRamp);
 	}
@@ -802,6 +837,11 @@ HRESULT m_IDirect3DDevice8::TestCooperativeLevel()
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	if (DeviceLost)
+	{
+		return D3DERR_DEVICENOTRESET;
+	}
+
 	return ProxyInterface->TestCooperativeLevel();
 }
 
@@ -954,10 +994,10 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	// Fix inventory snapshot in Hotel Employee Elevator Room
 	if (HotelEmployeeElevatorRoomFlag)
 	{
-		if (pSnapshotTexture && GetOnScreen() == 6)
+		if (pInitialRenderTexture && GetOnScreen() == 6)
 		{
 			IDirect3DSurface8 *pSnapshotSurface = nullptr;
-			if (SUCCEEDED(pSnapshotTexture->GetSurfaceLevel(0, &pSnapshotSurface)))
+			if (SUCCEEDED(pInitialRenderTexture->GetSurfaceLevel(0, &pSnapshotSurface)))
 			{
 				pSnapshotSurface->Release();
 				ProxyInterface->BeginScene();
@@ -1274,7 +1314,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 	}
 
 	// Fix bowling cutscene fading
-	if (WidescreenFix && GetCutsceneID() == 0x19 && PrimitiveType == D3DPT_TRIANGLELIST && PrimitiveCount == 2 && VertexStreamZeroStride == 28 && pVertexStreamZeroData &&
+	if (GetCutsceneID() == 0x19 && PrimitiveType == D3DPT_TRIANGLELIST && PrimitiveCount == 2 && VertexStreamZeroStride == 28 && pVertexStreamZeroData &&
 		((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[0].z == 0.01f && ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[1].z == 0.01f && ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[2].z == 0.01f)
 	{
 		IsInFakeFadeout = true;
@@ -1681,6 +1721,12 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 			RunGameLoad();
 		}
 
+		// FixSaveBGImage
+		if (FixSaveBGImage)
+		{
+			RunSaveBGImage();
+		}
+
 		// Increase blood size
 		if (IncreaseBlood)
 		{
@@ -1715,6 +1761,12 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		if (LightingFix)
 		{
 			RunTreeColor();
+		}
+
+		// Lighting patch
+		if (RoomLightingFix)
+		{
+			RunRoomLighting();
 		}
 
 		// Fix rotating Mannequin glitch
@@ -2303,118 +2355,6 @@ HRESULT m_IDirect3DDevice8::CopyRects(THIS_ IDirect3DSurface8* pSourceSurface, C
 	return ProxyInterface->CopyRects(pSourceSurface, pSourceRectsArray, cRects, pDestinationSurface, pDestPointsArray);
 }
 
-// Stretch source rect to destination rect
-HRESULT m_IDirect3DDevice8::StretchRect(THIS_ IDirect3DSurface8* pSourceSurface, CONST RECT* pSourceRect, IDirect3DSurface8* pDestSurface, CONST RECT* pDestRect, D3DTEXTUREFILTERTYPE Filter)
-{
-	Logging::LogDebug() << __FUNCTION__;
-
-	UNREFERENCED_PARAMETER(Filter);
-
-	// Check destination parameters
-	if (!pSourceSurface || !pDestSurface)
-	{
-		return D3DERR_INVALIDCALL;
-	}
-
-	// Get surface desc
-	D3DSURFACE_DESC SrcDesc, DestDesc;
-	if (FAILED(pSourceSurface->GetDesc(&SrcDesc)))
-	{
-		return D3DERR_INVALIDCALL;
-	}
-	if (FAILED(pDestSurface->GetDesc(&DestDesc)))
-	{
-		return D3DERR_INVALIDCALL;
-	}
-
-	// Check rects
-	RECT SrcRect, DestRect;
-	if (!pSourceRect)
-	{
-		SrcRect.left = 0;
-		SrcRect.top = 0;
-		SrcRect.right = SrcDesc.Width;
-		SrcRect.bottom = SrcDesc.Height;
-	}
-	else
-	{
-		memcpy(&SrcRect, pSourceRect, sizeof(RECT));
-	}
-	if (!pDestRect)
-	{
-		DestRect.left = 0;
-		DestRect.top = 0;
-		DestRect.right = DestDesc.Width;
-		DestRect.bottom = DestDesc.Height;
-	}
-	else
-	{
-		memcpy(&DestRect, pDestRect, sizeof(RECT));
-	}
-
-	// Check if source and destination formats are the same
-	if (SrcDesc.Format != DestDesc.Format)
-	{
-		return D3DERR_INVALIDCALL;
-	}
-
-	// Lock surface
-	D3DLOCKED_RECT SrcLockRect, DestLockRect;
-	if (FAILED(pSourceSurface->LockRect(&SrcLockRect, nullptr, D3DLOCK_NOSYSLOCK | D3DLOCK_READONLY)))
-	{
-		return D3DERR_INVALIDCALL;
-	}
-	if (FAILED(pDestSurface->LockRect(&DestLockRect, nullptr, D3DLOCK_NOSYSLOCK)))
-	{
-		pSourceSurface->UnlockRect();
-		return D3DERR_INVALIDCALL;
-	}
-
-	// Get bit count
-	DWORD ByteCount = SrcLockRect.Pitch / SrcDesc.Width;
-
-	// Get width and height of rect
-	LONG DestRectWidth = DestRect.right - DestRect.left;
-	LONG DestRectHeight = DestRect.bottom - DestRect.top;
-	LONG SrcRectWidth = SrcRect.right - SrcRect.left;
-	LONG SrcRectHeight = SrcRect.bottom - SrcRect.top;
-
-	// Get ratio
-	float WidthRatio = (float)SrcRectWidth / (float)DestRectWidth;
-	float HeightRatio = (float)SrcRectHeight / (float)DestRectHeight;
-
-	// Copy memory using color key
-	switch (ByteCount)
-	{
-	case 1: // 8-bit surfaces
-	case 2: // 16-bit surfaces
-	case 3: // 24-bit surfaces
-	case 4: // 32-bit surfaces
-	{
-		for (LONG y = 0; y < DestRectHeight; y++)
-		{
-			DWORD StartDestLoc = ((y + DestRect.top) * DestLockRect.Pitch) + (DestRect.left * ByteCount);
-			DWORD StartSrcLoc = ((((DWORD)((float)y * HeightRatio)) + SrcRect.top) * SrcLockRect.Pitch) + (SrcRect.left * ByteCount);
-
-			for (LONG x = 0; x < DestRectWidth; x++)
-			{
-				memcpy((BYTE*)DestLockRect.pBits + StartDestLoc + x * ByteCount, (BYTE*)((BYTE*)SrcLockRect.pBits + StartSrcLoc + ((DWORD)((float)x * WidthRatio)) * ByteCount), ByteCount);
-			}
-		}
-		break;
-	}
-	default: // Unsupported surface bit count
-		pSourceSurface->UnlockRect();
-		pDestSurface->UnlockRect();
-		return D3DERR_INVALIDCALL;
-	}
-
-	// Unlock rect and return
-	pSourceSurface->UnlockRect();
-	pDestSurface->UnlockRect();
-	return D3D_OK;
-}
-
 HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface)
 {
 	Logging::LogDebug() << __FUNCTION__;
@@ -2433,19 +2373,7 @@ HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface
 		HotelEmployeeElevatorRoomFlag = TRUE;
 	}
 
-	if (RunningAsWindow)
-	{
-		return FakeGetFrontBuffer(pDestSurface);
-	}
-	else
-	{
-		if (pDestSurface)
-		{
-			pDestSurface = static_cast<m_IDirect3DSurface8 *>(pDestSurface)->GetProxyInterface();
-		}
-
-		return ProxyInterface->GetFrontBuffer(pDestSurface);
-	}
+	return FakeGetFrontBuffer(pDestSurface);
 }
 
 HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface)
@@ -2459,65 +2387,112 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 
 	pDestSurface = static_cast<m_IDirect3DSurface8 *>(pDestSurface)->GetProxyInterface();
 
-	// Get dest surface size
-	D3DSURFACE_DESC Desc;
-	pDestSurface->GetDesc(&Desc);
-
-	// Get location of client window
-	RECT RectSrc = { 0, 0, BufferWidth , BufferHeight };
-	RECT rcClient = { 0, 0, BufferWidth , BufferHeight };
-	if (EnableWndMode && DeviceWindow && (!GetWindowRect(DeviceWindow, &RectSrc) || !GetClientRect(DeviceWindow, &rcClient)))
+	// Update cached buffer size
+	if ((LONG)CachedSurfaceData.size() != (BufferWidth * 4) * BufferHeight)
 	{
-		return D3DERR_INVALIDCALL;
-	}
-	int border_thickness = ((RectSrc.right - RectSrc.left) - rcClient.right) / 2;
-	int top_border = (RectSrc.bottom - RectSrc.top) - rcClient.bottom - border_thickness;
-	RectSrc.left += border_thickness;
-	RectSrc.top += top_border;
-	RectSrc.right = RectSrc.left + rcClient.right;
-	RectSrc.bottom = RectSrc.top + rcClient.bottom;
-
-	// Create new surface to hold data
-	IDirect3DSurface8 *pSrcSurface = nullptr;
-	if (FAILED(ProxyInterface->CreateImageSurface(max(screenWidth, RectSrc.right), max(screenHeight, RectSrc.bottom), D3DFMT_A8R8G8B8, &pSrcSurface)))
-	{
-		return D3DERR_INVALIDCALL;
+		CachedSurfaceData.resize((BufferWidth * 4) * BufferHeight);
 	}
 
-	// Get FrontBuffer data to new surface
-	HRESULT hr = ProxyInterface->GetFrontBuffer(pSrcSurface);
-	if (FAILED(hr))
+	// If in fullscreen exclusive mode then use GetFrontBuffer()
+	if (ScreenMode == 3)
 	{
-		pSrcSurface->Release();
-		return hr;
-	}
-
-	// Copy data to DestSurface
-	hr = D3DERR_INVALIDCALL;
-	if (rcClient.left == 0 && rcClient.top == 0 && (LONG)Desc.Width == rcClient.right && (LONG)Desc.Height == rcClient.bottom)
-	{
-		POINT PointDest = { 0, 0 };
-		hr = ProxyInterface->CopyRects(pSrcSurface, &RectSrc, 1, pDestSurface, &PointDest);
-	}
-
-	// Try using StretchRect
-	if (FAILED(hr))
-	{
-		IDirect3DSurface8 *pTmpSurface = nullptr;
-		if (SUCCEEDED(ProxyInterface->CreateImageSurface(Desc.Width, Desc.Height, D3DFMT_A8R8G8B8, &pTmpSurface)))
+		// Create new surface to hold data
+		IDirect3DSurface8 *pSrcSurface = nullptr;
+		if (SUCCEEDED(ProxyInterface->CreateImageSurface(BufferWidth, BufferHeight, D3DFMT_A8R8G8B8, &pSrcSurface)))
 		{
-			if (SUCCEEDED(StretchRect(pSrcSurface, &RectSrc, pTmpSurface, nullptr, D3DTEXF_NONE)))
+			// Get front buffer data
+			if (SUCCEEDED(ProxyInterface->GetFrontBuffer(pSrcSurface)))
 			{
-				POINT PointDest = { 0, 0 };
-				RECT Rect = { 0, 0, (LONG)Desc.Width, (LONG)Desc.Height };
-				hr = ProxyInterface->CopyRects(pTmpSurface, &Rect, 1, pDestSurface, &PointDest);
+				// Lock destination surface
+				D3DLOCKED_RECT LockedRect = {};
+				if (SUCCEEDED(pSrcSurface->LockRect(&LockedRect, nullptr, 0)))
+				{
+					// Copy surface to cached buffer
+					memcpy(&CachedSurfaceData[0], LockedRect.pBits, LockedRect.Pitch * BufferHeight);
+					pSrcSurface->UnlockRect();
+				}
 			}
-			pTmpSurface->Release();
+
+			// Release surface
+			pSrcSurface->Release();
+		}
+	}
+	// In windowed mode use GDI to get front buffer data
+	else
+	{
+		// Get location of client window
+		RECT RectSrc = { 0, 0, BufferWidth, BufferHeight };
+		RECT rcClient = { 0, 0, BufferWidth, BufferHeight };
+		if (DeviceWindow && (!GetWindowRect(DeviceWindow, &RectSrc) || !GetClientRect(DeviceWindow, &rcClient)))
+		{
+			return D3DERR_INVALIDCALL;
+		}
+		int border_thickness = ((RectSrc.right - RectSrc.left) - rcClient.right) / 2;
+		int top_border = (RectSrc.bottom - RectSrc.top) - rcClient.bottom - border_thickness;
+		RectSrc.left += border_thickness;
+		RectSrc.top += top_border;
+		RectSrc.right = RectSrc.left + rcClient.right;
+		RectSrc.bottom = RectSrc.top + rcClient.bottom;
+
+		if (RectSrc.right - RectSrc.left != BufferWidth || RectSrc.bottom - RectSrc.top != BufferHeight)
+		{
+			return D3DERR_INVALIDCALL;
+		}
+
+		// Capture Screen
+		HWND hDesktopWnd = GetDesktopWindow();
+		HDC hDesktopDC = GetDC(hDesktopWnd);
+		HDC hWindowDC = GetDC(DeviceWindow);
+		HDC hCaptureDC = CreateCompatibleDC(hWindowDC);
+		HBITMAP hCaptureBitmap = CreateCompatibleBitmap(hDesktopDC, BufferWidth, BufferHeight);
+		SelectObject(hCaptureDC, hCaptureBitmap);
+		BitBlt(hCaptureDC, 0, 0, BufferWidth, BufferHeight, hDesktopDC, RectSrc.left, RectSrc.top, SRCCOPY | CAPTUREBLT);
+
+		// Copy front buffer data to cached buffer 
+		GetBitmapBits(hCaptureBitmap, CachedSurfaceData.size(), &CachedSurfaceData[0]);
+
+		// Release DC
+		ReleaseDC(hDesktopWnd, hDesktopDC);
+		ReleaseDC(DeviceWindow, hWindowDC);
+		DeleteDC(hCaptureDC);
+		DeleteObject(hCaptureBitmap);
+		CloseWindow(hDesktopWnd);
+	}
+
+	HRESULT hr = D3D_OK;
+
+	// Lock destination surface
+	D3DLOCKED_RECT LockedRect = {};
+	if (SUCCEEDED(pDestSurface->LockRect(&LockedRect, nullptr, 0)))
+	{
+		// Copy data to surface
+		memcpy(LockedRect.pBits, &CachedSurfaceData[0], LockedRect.Pitch * BufferHeight);
+		pDestSurface->UnlockRect();
+	}
+	else
+	{
+		// Create new surface to hold data
+		IDirect3DSurface8 *pSrcSurface = nullptr;
+		if (SUCCEEDED(ProxyInterface->CreateImageSurface(BufferWidth, BufferHeight, D3DFMT_A8R8G8B8, &pSrcSurface)))
+		{
+			// Lock destination surface
+			if (SUCCEEDED(pSrcSurface->LockRect(&LockedRect, nullptr, 0)))
+			{
+				// Copy data to new surface
+				memcpy(LockedRect.pBits, &CachedSurfaceData[0], LockedRect.Pitch * BufferHeight);
+				pSrcSurface->UnlockRect();
+
+				// Copy data to destination surface
+				POINT PointDest = { 0, 0 };
+				RECT Rect = { 0, 0, BufferWidth, BufferHeight };
+				hr = ProxyInterface->CopyRects(pSrcSurface, &Rect, 1, pDestSurface, &PointDest);
+			}
+
+			// Release surface
+			pSrcSurface->Release();
 		}
 	}
 
-	// Release surface
-	pSrcSurface->Release();
 	return hr;
 }
 
@@ -2937,7 +2912,7 @@ void m_IDirect3DDevice8::SetShadowFading()
 {
 	// Check room ID to see if shadow fading should be enabled
 	bool EnableShadowFading = true;
-	for (const DWORD &Room : { 0x89, 0xA2, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBD })
+	for (const DWORD &Room : { 0x32, 0x39, 0x42, 0x89, 0xA2, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBD })
 	{
 		if (GetRoomID() == Room)
 		{

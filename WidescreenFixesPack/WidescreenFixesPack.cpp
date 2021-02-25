@@ -143,7 +143,7 @@ int GetValue(std::string_view, std::string_view szKey, int)
 	}
 	else if (szKey.compare("FullscreenImages") == 0)
 	{
-		ret = 0;
+		ret = 0;	// Always disable full screen images here
 	}
 	else
 	{

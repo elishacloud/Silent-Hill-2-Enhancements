@@ -22,29 +22,28 @@
 	visit(DisableSafeMode, true) \
 	visit(DisableScreenSaver, true) \
 	visit(DPadMovementFix, true) \
+	visit(DynamicResolution, true) \
 	visit(EnableScreenshots, true) \
 	visit(EnableSFXAddrHack, true) \
 	visit(EnableSMAA, false) \
 	visit(EnableSoftShadows, true) \
 	visit(EnableTexAddrHack, true) \
-	visit(EnableWndMode, true) \
 	visit(FastTransitions, true) \
 	visit(Fix2D, true) \
 	visit(FixAptClockFlashlight, true) \
 	visit(FixChainsawSpawn, true) \
 	visit(FixCreatureVehicleSpawn, true) \
 	visit(FixDrawingTextLine, true) \
+	visit(FixFMVResetIssue, true) \
 	visit(FixGPUAntiAliasing, true) \
 	visit(FixHangOnEsc, true) \
 	visit(FixMissingWallChunks, true) \
+	visit(FixSaveBGImage, true) \
 	visit(FixTownWestGateEvent, true) \
 	visit(FlashlightFlickerFix, true) \
 	visit(FMVWidescreenMode, true) \
-	visit(fog_custom_on, true) \
-	visit(Fog2DFix, true) \
 	visit(FogParameterFix, true) \
 	visit(FogSpeedFix, true) \
-	visit(FullscreenWndMode, false) \
 	visit(GamepadControlsFix, true) \
 	visit(GameLoadFix, true) \
 	visit(HalogenLightFix, true) \
@@ -104,6 +103,8 @@
 	visit(CustomFontCharHeight, 32) \
 	visit(fog_transparency_layer1, 128) \
 	visit(fog_transparency_layer2, 112) \
+	visit(FogFix, 0xFFFF) /* Overloading the old 'fog_custom_on' option */ \
+	visit(FogLayerFix, 0xFFFF) /* Overloading the old 'Fog2DFix' option */ \
 	visit(FullscreenImages, 2) \
 	visit(FMVWidescreenEnhancementPackCompatibility, 2) \
 	visit(LetterSpacing, 2) \
@@ -115,6 +116,7 @@
 	visit(FPSLimit, 0) \
 	visit(IncreaseNoiseEffectRes, 768) \
 	visit(RestoreSearchCamMovement, 1) \
+	visit(ScreenMode, 0xFFFF) /* Overloading the old 'EnableWndMode' and 'FullscreenWndMode' options */ \
 	visit(SingleCoreAffinity, 2) \
 	visit(SingleCoreAffinityTimer, 5000) \
 	visit(SmallFontWidth, 16) \
@@ -132,6 +134,12 @@
 
 #define VISIT_STR_SETTINGS(visit) \
 	visit(CustomModFolder, "")
+
+#define VISIT_LEGACY_BOOL_SETTINGS(visit) \
+	visit(EnableWndMode, true) \
+	visit(fog_custom_on, true) \
+	visit(Fog2DFix, true) \
+	visit(FullscreenWndMode, false)
 
 // Configurable setting defaults
 #define DECLARE_BOOL_SETTINGS(name, unused) \
@@ -164,3 +172,4 @@ char* Read(wchar_t* szFileName);
 void Parse(char* str, NV NameValueCallback);
 void __stdcall ParseCallback(char* lpName, char* lpValue);
 void __stdcall LogCallback(char* lpName, char* lpValue);
+void UpdateConfigDefaults();

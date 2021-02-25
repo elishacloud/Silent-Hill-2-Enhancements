@@ -7,9 +7,6 @@
 [submodule "External/Hooking"]
 	path = External/Hooking
 	url = https://github.com/elishacloud/Hooking
-[submodule "External/WidescreenFixesPack"]
-	path = External/WidescreenFixesPack
-	url = https://github.com/ThirteenAG/WidescreenFixesPack
 [submodule "External/injector"]
 	path = External/injector
 	url = https://github.com/thelink2012/injector
@@ -28,3 +25,6 @@
 [submodule "External/utfcpp"]
 	path = External/utfcpp
 	url = https://github.com/nemtrif/utfcpp
+[submodule "External/WidescreenFixesPack"]
+	path = External/WidescreenFixesPack
+	url = https://github.com/elishacloud/WidescreenFixesPack

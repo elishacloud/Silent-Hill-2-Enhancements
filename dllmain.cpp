@@ -38,9 +38,9 @@ HMODULE m_hModule = nullptr;
 SH2VERSION GameVersion = SH2V_UNKNOWN;
 HMODULE wrapper_dll = nullptr;
 EXECUTION_STATE esFlags = 0;
-bool ds_threadExit = false;
 bool CustomExeStrSet = false;
 bool EnableCustomShaders = false;
+bool ds_threadExit = false;
 bool m_StopThreadFlag = false;			// Used for thread functions
 
 void DelayedStart()
@@ -72,8 +72,7 @@ void DelayedStart()
 		Parse(szCfg, ParseCallback);
 		free(szCfg);
 
-		// Set shaders default
-		EnableCustomShaders = ((AdjustColorTemp || RestoreBrightnessSelector || EnableSMAA) && d3d8to9);
+		UpdateConfigDefaults();
 	}
 
 	// Check arguments for PID
@@ -292,7 +291,7 @@ void DelayedStart()
 	}
 
 	// Tree Lighting fix
-	if (LightingFix && WidescreenFix)
+	if (LightingFix)
 	{
 		PatchTreeLighting();
 	}
@@ -423,6 +422,12 @@ void DelayedStart()
 		PatchFlashlightClockPush();
 	}
 
+	// FixSaveBGImage
+	if (FixSaveBGImage)
+	{
+		PatchSaveBGImage();
+	}
+
 	// Enables all advanced graphics settings from the game's options menu on game launch
 	if (UseBestGraphics)
 	{
@@ -436,7 +441,7 @@ void DelayedStart()
 	}
 
 	// Fog Fix
-	if (fog_custom_on)
+	if (FogFix)
 	{
 		PatchCustomFog();
 	}
@@ -452,6 +457,12 @@ void DelayedStart()
 	if (FullscreenImages)
 	{
 		PatchFullscreenImages();
+	}
+
+	// Patch resolution list in the Options menu
+	if (((DynamicResolution && WidescreenFix) || LockResolution) && CustomExeStrSet)
+	{
+		SetResolutionPatch();
 	}
 
 	// Check for update
@@ -483,6 +494,9 @@ void DelayedStart()
 	{
 		PatchSpecular();
 	}
+
+	// Flush cache
+	FlushInstructionCache(GetCurrentProcess(), nullptr, 0);
 
 	// Loaded
 	Logging::Log() << "Silent Hill 2 Enhancements module loaded!";
@@ -541,6 +555,9 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			Logging::Log() << "Reenabling Screensaver...";
 			SetThreadExecutionState(esFlags);
 		}
+
+		// Reset screen settings
+		ChangeDisplaySettingsEx(nullptr, nullptr, nullptr, CDS_RESET, nullptr);
 
 		// Quitting
 		Logging::Log() << "Unloading Silent Hill 2 Enhancements!";

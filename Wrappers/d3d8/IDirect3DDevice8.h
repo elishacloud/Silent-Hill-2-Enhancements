@@ -8,10 +8,8 @@ private:
 	LPDIRECT3DDEVICE8 ProxyInterface;
 	m_IDirect3D8* m_pD3D;
 
-	LONG screenWidth = 0;
-	LONG screenHeight = 0;
-	
-	bool RunningAsWindow = false;
+	std::vector<BYTE> CachedSurfaceData;
+
 	bool GammaSet = false;
 	D3DGAMMARAMP Ramp;
 
@@ -80,7 +78,7 @@ private:
 	IDirect3DSurface8 *silhouetteRender = nullptr;
 
 	IDirect3DTexture8 *pCurrentRenderTexture = nullptr;
-	IDirect3DTexture8 *pSnapshotTexture = nullptr;
+	IDirect3DTexture8 *pInitialRenderTexture = nullptr;
 
 	struct SURFACEVECTOR
 	{
@@ -169,9 +167,6 @@ public:
 
 		ProxyAddressLookupTableD3d8 = new AddressLookupTableD3d8<m_IDirect3DDevice8>(this);
 
-		GetDesktopRes(screenWidth, screenHeight);
-		RunningAsWindow = (EnableWndMode && (BufferWidth != screenWidth || BufferHeight != screenHeight));
-
 		// Enable Anisotropic Filtering
 		if (AnisotropicFiltering)
 		{
@@ -231,7 +226,6 @@ public:
 	STDMETHOD(CreateDepthStencilSurface)(THIS_ UINT Width, UINT Height, D3DFORMAT Format, D3DMULTISAMPLE_TYPE MultiSample, IDirect3DSurface8** ppSurface);
 	STDMETHOD(CreateImageSurface)(THIS_ UINT Width, UINT Height, D3DFORMAT Format, IDirect3DSurface8** ppSurface);
 	STDMETHOD(CopyRects)(THIS_ IDirect3DSurface8* pSourceSurface, CONST RECT* pSourceRectsArray, UINT cRects, IDirect3DSurface8* pDestinationSurface, CONST POINT* pDestPointsArray);
-	STDMETHOD(StretchRect)(THIS_ IDirect3DSurface8* pSourceSurface, CONST RECT* pSourceRect, IDirect3DSurface8* pDestSurface, CONST RECT* pDestRect, D3DTEXTUREFILTERTYPE Filter);
 	STDMETHOD(UpdateSurface)(THIS_ IDirect3DSurface8* pSourceSurface, IDirect3DSurface8* pDestSurface);
 	STDMETHOD(UpdateTexture)(THIS_ IDirect3DBaseTexture8* pSourceTexture, IDirect3DBaseTexture8* pDestinationTexture);
 	STDMETHOD(GetFrontBuffer)(THIS_ IDirect3DSurface8* pDestSurface);

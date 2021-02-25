@@ -16,7 +16,10 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <vector>
 #include "Common\Utils.h"
+#include "WidescreenFixesPack\WidescreenFixesPack.h"
+#include "Wrappers\d3d8\d3d8wrapper.h"
 #include "Logging\Logging.h"
 #include "Common\Settings.h"
 #include "Patches.h"
@@ -24,19 +27,96 @@
 
 using namespace std;
 
-unsigned int gWidth;
-unsigned int gHeight;
+struct RESOLUTONLIST
+{
+	DWORD Width;
+	DWORD Height;
+};
+
+struct RESOLUTONTEXT
+{
+	char resStrBuf[27];
+};
+
+LONG MaxWidth = 0, MaxHeight = 0;
+const DWORD MinWidth = 640;
+const DWORD MinHeight = 480;
+
+BYTE *ResolutionIndex = nullptr;
+BYTE *MenuResolutionIndex = nullptr;
+BYTE *TextResIndex = nullptr;
+DWORD InitialIndex = 1;
+bool InitialIndexSet = false;
+float *SetAspectRatio = nullptr;
+RESOLUTONLIST *ResolutionArray = nullptr;
+std::vector<RESOLUTONLIST> ResolutionVector;
+std::vector<RESOLUTONTEXT> ResolutionText;
 
 DWORD (*prepText)(char *str);
 DWORD (*printTextPos)(char *str, int x, int y);
 
-char resStrBuf[64];
 char *resStrPtr;
+
+void GetConfiguredResolution(int &Width, int &Height)
+{
+	Width = ResolutionArray[*ResolutionIndex].Width;
+	Height = ResolutionArray[*ResolutionIndex].Height;
+}
+
+void GetTextResolution(int &Width, int &Height)
+{
+	Width = ResolutionArray[*TextResIndex].Width;
+	Height = ResolutionArray[*TextResIndex].Height;
+}
+
+void CreateResolutionText(int gWidth, int gHeight)
+{
+	char* text = "\\h%dx%d";
+	if (abs((float)gWidth / 3 - (float)gHeight / 2) < 1.0f)
+		text = "\\h%dx%d (3:2)";
+	else if (abs((float)gWidth / 4 - (float)gHeight / 1) < 1.0f)
+		text = "\\h%dx%d (4:1)";
+	else if (abs((float)gWidth / 4 - (float)gHeight / 3) < 1.0f)
+		text = "\\h%dx%d (4:3)";
+	else if (abs((float)gWidth / 5 - (float)gHeight / 3) < 1.0f)
+		text = "\\h%dx%d (5:3)";
+	else if (abs((float)gWidth / 5 - (float)gHeight / 4) < 1.0f)
+		text = "\\h%dx%d (5:4)";
+	else if (abs((float)gWidth / 7 - (float)gHeight / 5) < 1.0f)
+		text = "\\h%dx%d (7:5)";
+	else if (abs((float)gWidth / 9 - (float)gHeight / 5) < 1.0f)
+		text = "\\h%dx%d (9:5)";
+	else if (abs((float)gWidth / 16 - (float)gHeight / 5) < 1.0f)
+		text = "\\h%dx%d (16:5)";
+	else if (abs((float)gWidth / 16 - (float)gHeight / 9) < 1.0f)
+		text = "\\h%dx%d (16:9)";
+	else if (abs((float)gWidth / 16 - (float)gHeight / 10) < 1.0f)
+		text = "\\h%dx%d (16:10)";
+	else if (abs((float)gWidth / 17 - (float)gHeight / 9) < 1.0f ||
+		abs((float)gWidth / 256 - (float)gHeight / 135) < 1.0f)
+		text = "\\h%dx%d (17:9)";
+	else if (abs((float)gWidth / 21 - (float)gHeight / 9) < 1.0f ||
+		abs((float)gWidth / 64 - (float)gHeight / 27) < 1.0f ||
+		abs((float)gWidth / 43 - (float)gHeight / 18) < 1.0f ||
+		abs((float)gWidth / 12 - (float)gHeight / 5) < 1.0f)
+		text = "\\h%dx%d (21:9)";
+	else if (abs((float)gWidth / 25 - (float)gHeight / 16) < 1.0f)
+		text = "\\h%dx%d (25:16)";
+	else if (abs((float)gWidth / 32 - (float)gHeight / 9) < 1.0f)
+		text = "\\h%dx%d (32:9)";
+	else if (abs((float)gWidth / 32 - (float)gHeight / 15) < 1.0f)
+		text = "\\h%dx%d (32:15)";
+	else if (abs((float)gWidth / 48 - (float)gHeight / 9) < 1.0f)
+		text = "\\h%dx%d (48:9)";
+
+	RESOLUTONTEXT Buffer;
+	sprintf_s((char *)Buffer.resStrBuf, sizeof(Buffer.resStrBuf), text, gWidth, gHeight);
+	ResolutionText.push_back(Buffer);
+}
 
 int printResStr(unsigned short, unsigned char, int x, int y)
 {
-	sprintf_s((char *)resStrBuf, sizeof(resStrBuf), "\\h%d x %d", gWidth, gHeight);
-	resStrPtr = (char *)prepText(resStrBuf);
+	resStrPtr = (char *)prepText(ResolutionText[*TextResIndex].resStrBuf);
 	return printTextPos(resStrPtr, x, y);
 }
 
@@ -55,7 +135,6 @@ __declspec(naked) void __stdcall ResSelectStrASM()
 	__asm
 	{
 		call printResStr
-		add	esp, 30h
 		jmp ResSelectStrRetAddr
 	}
 }
@@ -72,7 +151,324 @@ __declspec(naked) void __stdcall ResArrowASM()
 	}
 }
 
-void SetResolutionLock(DWORD Width, DWORD Height)
+void UpdateWSF()
+{
+	// Set aspect ratio
+	*SetAspectRatio = (float)ResX / (float)ResY;
+
+	// Update FMV and fullscreen images
+	if (*SetAspectRatio <= 1.34f) // 4:3 (4:3, 5:4, etc.)
+	{
+		FullscreenImages = 1;
+		FMVWidescreenEnhancementPackCompatibility = 3;
+	}
+	else if (*SetAspectRatio < 1.76f) // 16:9 (16:10, 3:2, etc.)
+	{
+		FullscreenImages = 2;
+		FMVWidescreenEnhancementPackCompatibility = 1;
+	}
+	else // AspectRatio >= 16:9 (16:9, 21:9, etc.)
+	{
+		FullscreenImages = 2;
+		FMVWidescreenEnhancementPackCompatibility = 2;
+	}
+
+	// Update Widescreen Fix for new resolution
+	WSFInit();
+
+	// Flush cache
+	FlushInstructionCache(GetCurrentProcess(), nullptr, 0);
+}
+
+void WSFDynamicStartup()
+{
+	// Store initual resolution
+	if (!InitialIndexSet)
+	{
+		InitialIndexSet = true;
+		InitialIndex = (*ResolutionIndex < 6) ? *ResolutionIndex : 1;
+	}
+
+	// Get saved resolution
+	DWORD Width = 0, Height = 0;
+	HRESULT hr = GetResolution(Width, Height);
+
+	// Check if resolution is found and set correct index
+	bool found = false;
+	if (SUCCEEDED(hr))
+	{
+		BYTE Index = 0;
+		for (auto res : ResolutionVector)
+		{
+			if (res.Width == Width && res.Height == Height)
+			{
+				found = true;
+				*ResolutionIndex = Index;
+				break;
+			}
+			Index++;
+		}
+	}
+
+	// Default to current resolution if index is too large or saved resolution is not found
+	if ((SUCCEEDED(hr) && !found) || *ResolutionIndex >= ResolutionVector.size())
+	{
+		*ResolutionIndex = (BYTE)(ResolutionVector.size() - 1);
+		LONG screenWidth, screenHeight;
+		GetDesktopRes(screenWidth, screenHeight);
+		BYTE Index = 0;
+		for (auto res : ResolutionVector)
+		{
+			if ((LONG)res.Width == screenWidth && (LONG)res.Height == screenHeight)
+			{
+				*ResolutionIndex = Index;
+				break;
+			}
+			Index++;
+		}
+	}
+
+	// Get initial resolution from index
+	GetConfiguredResolution(ResX, ResY);
+
+	// Update Widescreen Fix for initial resolution
+	UpdateWSF();
+}
+
+void *jmpStartupRes = nullptr;
+__declspec(naked) void __stdcall StartupResASM()
+{
+	__asm
+	{
+		pushf
+		push eax
+		push ebx
+		push ecx
+		push edx
+		push esi
+		push edi
+		call WSFDynamicStartup
+		pop edi
+		pop esi
+		pop edx
+		pop ecx
+		pop ebx
+		pop eax
+		popf
+		jmp jmpStartupRes
+	}
+}
+
+void WSFDynamicChange()
+{
+	// Detect if resolution changed
+	int Width, Height;
+	GetTextResolution(Width, Height);
+	if (Width == ResX && Height == ResY)
+	{
+		return;
+	}
+
+	// Get updated resolution from index
+	ResX = Width;
+	ResY = Height;
+
+	// Save updated resolution
+	SaveResolution(ResX, ResY);
+
+	// Update Widescreen Fix for new resolution
+	UpdateWSF();
+}
+
+void *jmpChangeRes = nullptr;
+__declspec(naked) void __stdcall ChangeResASM()
+{
+	__asm
+	{
+		pushf
+		push ebx
+		push eax
+		push ecx
+		push edx
+		push esi
+		push edi
+		call WSFDynamicChange
+		pop edi
+		pop esi
+		pop edx
+		pop ecx
+		pop eax
+		mov ebx, dword ptr ds : [TextResIndex]
+		mov al, byte ptr ds : [ebx]
+		pop ebx
+		popf
+		jmp jmpChangeRes
+	}
+}
+
+void AddResolutionToList(DWORD Width, DWORD Height)
+{
+	if (ResolutionVector.size() >= 0xFF)
+	{
+		return;
+	}
+
+	bool found = false;
+	for (auto res : ResolutionVector)
+	{
+		if (res.Width == Width && res.Height == Height)
+		{
+			found = true;
+			break;
+		}
+	}
+	bool NotTooLarge = ((ScreenMode == 1) ? (Width <= (DWORD)MaxWidth && Height <= (DWORD)MaxHeight) : true);
+	bool NotTooSmall = (Width >= MinWidth && Height >= MinHeight);
+	if (!found && NotTooSmall && NotTooLarge)
+	{
+		RESOLUTONLIST Resolution;
+		Resolution.Width = Width;
+		Resolution.Height = Height;
+		ResolutionVector.push_back(Resolution);
+		CreateResolutionText(Width, Height);
+	}
+}
+
+void GetCustomResolutions()
+{
+	GetDesktopRes(MaxWidth, MaxHeight);
+
+	// Exclusive fullscreen mode
+	if (ScreenMode == 3)
+	{
+		IDirect3D8 *pDirect3D = Direct3DCreate8Wrapper(D3D_SDK_VERSION);
+
+		if (!pDirect3D)
+		{
+			Logging::Log() << __FUNCTION__ << " Error: failed to create Direct3D8!";
+			return;
+		}
+
+		// Setup display mode
+		D3DDISPLAYMODE d3ddispmode;
+
+		// Enumerate modes for format XRGB
+		UINT modeCount = pDirect3D->GetAdapterModeCount(D3DADAPTER_DEFAULT);
+
+		// Loop through each mode
+		for (UINT i = 0; i < modeCount; i++)
+		{
+			// Get next resolution
+			if (FAILED(pDirect3D->EnumAdapterModes(D3DADAPTER_DEFAULT, i, &d3ddispmode)))
+			{
+				break;
+			}
+
+			// Add resolution to list
+			AddResolutionToList(d3ddispmode.Width, d3ddispmode.Height);
+		}
+
+		// Release Direct3D8
+		pDirect3D->Release();
+	}
+	// Windowed and windowed fullscreen modes
+	else
+	{
+		// Get monitor info
+		MONITORINFOEX infoex = {};
+		infoex.cbSize = sizeof(MONITORINFOEX);
+		BOOL bRet = GetMonitorInfo(GetMonitorHandle(), &infoex);
+
+		// Get resolution list for specified monitor
+		DEVMODE dm = {};
+		dm.dmSize = sizeof(dm);
+		for (int x = 0; EnumDisplaySettings(bRet ? infoex.szDevice : nullptr, x, &dm) != 0; x++)
+		{
+			// Add resolution to list
+			AddResolutionToList(dm.dmPelsWidth, dm.dmPelsHeight);
+		}
+	}
+
+	// Check if any resolutions were found
+	if (ResolutionVector.empty())
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to get resolution list!";
+		return;
+	}
+}
+
+BYTE *ResStartupAddr = nullptr;
+BYTE *ResSizeAddr = nullptr;
+void SetResolutionList(DWORD Width, DWORD Height)
+{
+	if (WidescreenFix && DynamicResolution && ResStartupAddr && ResSizeAddr)
+	{
+		// If resolution list exists than replce with a new list
+		if (ResolutionVector.size())
+		{
+			// Get current resolution from index
+			int textWidth, textHeight;
+			GetTextResolution(textWidth, textHeight);
+
+			// Rebuild resolution list
+			while (ResolutionVector.size())
+			{
+				ResolutionVector.pop_back();
+			}
+			while (ResolutionText.size())
+			{
+				ResolutionText.pop_back();
+			}
+			GetCustomResolutions();
+
+			// Update current resolution index
+			bool Found = false;
+			for (DWORD x = 0; x < ResolutionVector.size(); x++)
+			{
+				if (ResolutionVector[x].Width == Width && ResolutionVector[x].Height == Height)
+				{
+					Found = true;
+					*ResolutionIndex = (BYTE)x;
+					break;
+				}
+			}
+			if (!Found || *ResolutionIndex > ResolutionVector.size() - 1)
+			{
+				*ResolutionIndex = (BYTE)(ResolutionVector.size() - 1);
+			}
+			*(TextResIndex + 0x74) = *ResolutionIndex;
+			*MenuResolutionIndex = *ResolutionIndex;
+
+			// Update text resolution index
+			Found = false;
+			for (DWORD x = 0; x < ResolutionVector.size(); x++)
+			{
+				if (ResolutionVector[x].Width == (DWORD)textWidth && ResolutionVector[x].Height == (DWORD)textHeight)
+				{
+					Found = true;
+					*TextResIndex = (BYTE)x;
+					break;
+				}
+			}
+			if (!Found || *TextResIndex > ResolutionVector.size() - 1)
+			{
+				*TextResIndex = *ResolutionIndex;
+			}
+		}
+
+		// Update code to set the size of the resolution list
+		BYTE ListSize = (BYTE)ResolutionVector.size();
+		UpdateMemoryAddress((void *)(ResStartupAddr + 0x12 + 2), &ListSize, sizeof(BYTE));
+		constexpr BYTE AsmBytes[] = { 0xB8, 0x01, 0x00, 0x00, 0x00, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };	// mov eax, 1
+		UpdateMemoryAddress((void *)(ResStartupAddr + 0x15 + 2), AsmBytes, sizeof(AsmBytes));
+		--ListSize;
+		UpdateMemoryAddress((void *)(ResSizeAddr + 1), &ListSize, sizeof(BYTE));
+		DWORD delta = (GameVersion == SH2V_10) ? 0x33 : 0x31;
+		UpdateMemoryAddress((void *)(ResSizeAddr + delta + 1), &ListSize, sizeof(BYTE));
+	}
+}
+
+void SetResolutionPatch()
 {
 	constexpr BYTE ResSearchBytesA[] = { 0x94, 0x00, 0x68, 0xB3, 0x00, 0x00, 0x00, 0x05, 0xB0, 0x00, 0x00, 0x00, 0xE9, 0xCD, 0x02, 0x00, 0x00, 0xA0, 0x1C };
 	void *DResAddrA = (void*)SearchAndGetAddresses(0x0046565C, 0x004658F8, 0x00465B08, ResSearchBytesA, sizeof(ResSearchBytesA), 0x00);
@@ -86,9 +482,6 @@ void SetResolutionLock(DWORD Width, DWORD Height)
 		return;
 	}
 
-	gWidth = Width;
-	gHeight = Height;
-
 	unsigned int *ResSelectorAddr = (unsigned int *)((BYTE*)DResAddrA + 0x879);
 	int exitOffset = 0x2ED;
 	int prtStrOffset = 0x3B0;
@@ -99,6 +492,7 @@ void SetResolutionLock(DWORD Width, DWORD Height)
 		ResSelectorAddr = (unsigned int *)((BYTE*)DResAddrA + 0x87F);
 		if (*ResSelectorAddr != 0x00046855)
 		{
+			Logging::Log() << __FUNCTION__ << " Error: wrong memory address!";
 			return;
 		}
 		exitOffset = 0x2EB;
@@ -106,18 +500,98 @@ void SetResolutionLock(DWORD Width, DWORD Height)
 		arrowOffset = 0x365;
 	}
 
-	Logging::Log() << "Enabling Resolution Lock...";
-
 	// Get functions
 	prepText = (DWORD(*)(char *str))(((BYTE*)DResAddrB + 0x15) + *(int *)((BYTE*)DResAddrB + 0x11));
 	printTextPos = (DWORD(*)(char *str, int x, int y))(((BYTE*)DResAddrB + 0x1E) + *(int *)((BYTE*)DResAddrB + 0x1A));
 
-	// Lock resolution
-	void *ResSelectorAddrExit = (void *)((BYTE*)ResSelectorAddr + exitOffset);
-	WriteJMPtoMemory((BYTE*)ResSelectorAddr, ResSelectorAddrExit, 5);
-	
+	// Get resolution addresses
+	constexpr BYTE SaveResIndexSearchBytes[] = { 0x8B, 0xF0, 0x83, 0xC4, 0x08, 0x85, 0xF6, 0x0F, 0x84 };
+	void *SaveResIndexAddr = (BYTE*)SearchAndGetAddresses(0x004F7561, 0x004F7891, 0x004F71B1, SaveResIndexSearchBytes, sizeof(SaveResIndexSearchBytes), 0x5F);
+	constexpr BYTE TextResIndexSearchBytes[] = { 0x68, 0x8B, 0x01, 0x00, 0x00, 0x6A, 0x46, 0x68, 0xD1, 0x00, 0x00, 0x00, 0x52, 0xE8 };
+	TextResIndex = (BYTE*)ReadSearchedAddresses(0x00465631, 0x004658CD, 0x00465ADD, TextResIndexSearchBytes, sizeof(TextResIndexSearchBytes), 0x29);
+	constexpr BYTE ResolutionIndexSearchBytes[] = { 0x6A, 0x01, 0x6A, 0x00, 0x50, 0xFF, 0x51, 0x34, 0x6A, 0x00, 0xE8 };
+	ResolutionIndex = (BYTE*)ReadSearchedAddresses(0x004F633F, 0x004F65EF, 0x004F5EAF, ResolutionIndexSearchBytes, sizeof(ResolutionIndexSearchBytes), 0x10);
+	constexpr BYTE MenuResolutionIndexSearchBytes[] = { 0x6A, 0x01, 0x6A, 0x00, 0x50, 0xFF, 0x51, 0x34, 0x6A, 0x00, 0xE8 };
+	MenuResolutionIndex = (BYTE*)ReadSearchedAddresses(0x004F633F, 0x004F65EF, 0x004F5EAF, MenuResolutionIndexSearchBytes, sizeof(MenuResolutionIndexSearchBytes), 0x1C);
+	constexpr BYTE ResolutionArraySearchBytes[] = { 0x10, 0x51, 0x56, 0x6A, 0x00, 0x50, 0xFF, 0x52, 0x1C, 0x8B, 0x54, 0x24, 0x10 };
+	ResolutionArray = (RESOLUTONLIST*)ReadSearchedAddresses(0x004F5DEB, 0x004F609B, 0x004F595B, ResolutionArraySearchBytes, sizeof(ResolutionArraySearchBytes), 0xF);
+	ResStartupAddr = (BYTE*)SearchAndGetAddresses(0x004F5DEB, 0x004F609B, 0x004F595B, ResolutionArraySearchBytes, sizeof(ResolutionArraySearchBytes), 0x4B);
+	constexpr BYTE ChangeResSearchBytes[] = { 0x74, 0x16, 0x0F, 0xB6, 0xD0, 0x52, 0xE8 };
+	BYTE *ChangeResAddr = (BYTE*)SearchAndGetAddresses(0x00464DF3, 0x00465083, 0x00465293, ChangeResSearchBytes, sizeof(ChangeResSearchBytes), -0xB);
+	constexpr BYTE ResSizeSearchBytes[] = { 0x3C, 0x05, 0x73, 0x04, 0xFE, 0xC0, 0xEB, 0x02, 0x32, 0xC0, 0x0F, 0xB6, 0xC8, 0x51, 0xA2 };
+	ResSizeAddr = (BYTE*)SearchAndGetAddresses(0x00465F2A, 0x004661CC, 0x004663DC, ResSizeSearchBytes, sizeof(ResSizeSearchBytes), 0x00);
+	constexpr BYTE ResConfigSearchBytes[] = { 0x1B, 0xD2, 0x42, 0xC1, 0xE8, 0x10, 0x89, 0x15 };
+	BYTE *ResConfigAddr = (BYTE*)SearchAndGetAddresses(0x004F71CD, 0x004F74FD, 0x004F6E1C, ResConfigSearchBytes, sizeof(ResConfigSearchBytes), -0x28);
+	constexpr BYTE AspectRatioBytes[] = { 0x83, 0xEC, 0x3C, 0x55, 0x56, 0x8B, 0xF1, 0x8B, 0x0B, 0x89, 0x44, 0x24, 0x14, 0x57, 0x03, 0xC6, 0x8B, 0xFA, 0x89, 0x44, 0x24, 0x20 };
+	SetAspectRatio = (float*)ReadSearchedAddresses(0x00458D80, 0x00458FE0, 0x00458FE0, AspectRatioBytes, sizeof(AspectRatioBytes), -0x44);
+	if (!SaveResIndexAddr || !TextResIndex || !ResolutionIndex || !MenuResolutionIndex || !ResolutionArray || !ResStartupAddr || !ChangeResAddr || !ResSizeAddr || !ResConfigAddr || !SetAspectRatio)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory addresses!";
+		return;
+	}
+	TextResIndex += 1;
+
+	// Dynamic resolution
+	if (DynamicResolution && WidescreenFix)
+	{
+		Logging::Log() << "Enabling Dynamic Resolution...";
+
+		ResolutionVector.reserve(0xFF);		// Reserve space for max resolution limit
+		GetCustomResolutions();
+
+		if (ResolutionVector.size())
+		{
+			ResolutionArray = &ResolutionVector[0];
+
+			BYTE *ArrayWidth = (BYTE*)ResolutionArray;
+			BYTE *ArrayHeight = (BYTE*)ResolutionArray + 4;
+
+			UpdateMemoryAddress((void *)(ResStartupAddr + 0x3E + 3), &ArrayWidth, sizeof(DWORD));
+			UpdateMemoryAddress((void *)(ResStartupAddr + 0x4B + 3), &ArrayHeight, sizeof(DWORD));
+
+			UpdateMemoryAddress((void *)(ResStartupAddr + 0x51D + 3), &ArrayWidth, sizeof(DWORD));
+			UpdateMemoryAddress((void *)(ResStartupAddr + 0x529 + 3), &ArrayHeight, sizeof(DWORD));
+
+			// Set the number of resolutions in the list
+			SetResolutionList(ResX, ResY);
+
+			DWORD Value = (DWORD)&InitialIndex;
+			UpdateMemoryAddress(SaveResIndexAddr, &Value, sizeof(DWORD));
+			jmpStartupRes = ResConfigAddr + 0xF;
+			WriteJMPtoMemory(ResConfigAddr, *StartupResASM, 0xF);
+			jmpChangeRes = ChangeResAddr + 5;
+			WriteJMPtoMemory(ChangeResAddr, *ChangeResASM);
+		}
+	}
+
+	// Check if resolution is locked
+	if (*(DWORD*)((BYTE*)ResolutionArray) == *(DWORD*)((BYTE*)ResolutionArray + 8) &&
+		*(DWORD*)((BYTE*)ResolutionArray + 4) == *(DWORD*)((BYTE*)ResolutionArray + 12))
+	{
+		Logging::Log() << "Enabling Resolution Lock...";
+
+		// Lock resolution
+		void *ResSelectorAddrExit = (void *)((BYTE*)ResSelectorAddr + exitOffset);
+		WriteJMPtoMemory((BYTE*)ResSelectorAddr, ResSelectorAddrExit, 5);
+
+		// Update resolution description string
+		if (UseCustomExeStr)
+		{
+			WriteCalltoMemory(((BYTE*)DResAddrA + 0x55), *printResDescStr, 5);
+		}
+	}
+
+	// Cache resolution text
+	if (ResolutionText.empty())
+	{
+		for (int x = 0; x < 6; x++)
+		{
+			CreateResolutionText(ResolutionArray[x].Width, ResolutionArray[x].Height);
+		}
+	}
+
 	// Update resolution strings
-	ResSelectStrRetAddr = (DWORD *)(((BYTE*)DResAddrA + 0x92) + *(int *)((BYTE*)DResAddrA + 0x8E) + 8);
+	ResSelectStrRetAddr = (DWORD *)(((BYTE*)DResAddrA + 0x92) + *(int *)((BYTE*)DResAddrA + 0x8E) + 5);
 	WriteJMPtoMemory(((BYTE*)DResAddrA + 0x8D), *ResSelectStrASM, 5);
 	WriteCalltoMemory(((BYTE*)DResAddrA - prtStrOffset), *printResStr, 5);
 
@@ -126,12 +600,6 @@ void SetResolutionLock(DWORD Width, DWORD Height)
 	UpdateMemoryAddress((void *)((BYTE*)DResAddrA + arrowOffset), (void *)&codeA, sizeof(codeA));
 	ResArrowRetAddr = (DWORD *)(((BYTE*)DResAddrA + arrowOffset + 0x27) + *(int *)((BYTE*)DResAddrA + arrowOffset + 0x23) + 6);
 	WriteJMPtoMemory(((BYTE*)DResAddrA + arrowOffset + 0x22), *ResArrowASM, 5);
-
-	// Update resolution description string
-	if (UseCustomExeStr)
-	{
-		WriteCalltoMemory(((BYTE*)DResAddrA + 0x55), *printResDescStr, 5);
-	}
 }
 
 static DWORD* gFogOn;

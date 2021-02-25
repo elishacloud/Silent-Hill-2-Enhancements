@@ -85,6 +85,27 @@ void CheckArgumentsForPID()
 	LocalFree(szArgList);
 }
 
+// Check if running elevated
+BOOL IsElevated()
+{
+	BOOL fRet = FALSE;
+	HANDLE hToken = NULL;
+	if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken))
+	{
+		TOKEN_ELEVATION Elevation;
+		DWORD cbSize = sizeof(TOKEN_ELEVATION);
+		if (GetTokenInformation(hToken, TokenElevation, &Elevation, sizeof(Elevation), &cbSize))
+		{
+			fRet = Elevation.TokenIsElevated;
+		}
+	}
+	if (hToken)
+	{
+		CloseHandle(hToken);
+	}
+	return fRet;
+}
+
 // Relaunch Silent Hill 2 with administrator rights
 void RelaunchSilentHill2()
 {
@@ -95,6 +116,12 @@ void RelaunchSilentHill2()
 		return;
 	}
 	RunOnce = true;
+
+	// Check if already running elevated
+	if (IsElevated())
+	{
+		return;
+	}
 
 	// Check Silent Hill 2 file path
 	wchar_t sh2path[MAX_PATH];

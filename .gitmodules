@@ -26,3 +26,6 @@
 [submodule "External/utfcpp"]
 	path = External/utfcpp
 	url = https://github.com/nemtrif/utfcpp
+[submodule "External/WidescreenFixesPack"]
+	path = External/WidescreenFixesPack
+	url = https://github.com/ThirteenAG/WidescreenFixesPack

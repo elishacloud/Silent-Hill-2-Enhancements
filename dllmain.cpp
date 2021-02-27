@@ -514,6 +514,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		// Store Module handle
 		m_hModule = hModule;
 
+		// Allows application to use Windows themes
+		if (ScreenMode != 3 && WndModeBorder)
+		{
+			SetGUITheme(nullptr);
+		}
+
 		// Set things to load on delayed access
 		SetDelayedStart();
 

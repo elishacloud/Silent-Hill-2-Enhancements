@@ -476,6 +476,12 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 		return;
 	}
 
+	// Handle Windows themes
+	if (ScreenMode != 3 && WndModeBorder)
+	{
+		SetGUITheme(MainhWnd);
+	}
+
 	// Get screen width and height
 	LONG screenWidth = 0, screenHeight = 0;
 	GetDesktopRes(screenWidth, screenHeight);
@@ -531,6 +537,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	switch (uMsg)
 	{
+	case  WM_WININICHANGE:
+		if (lParam && WndModeBorder && ScreenMode != 3 && !_strcmpi((char*)lParam, "ImmersiveColorSet"))
+		{
+			SetGUITheme(DeviceWindow);
+		}
 	case WM_SYSKEYDOWN:
 		if (wParam == VK_RETURN && DynamicResolution && ScreenMode != 3)
 		{

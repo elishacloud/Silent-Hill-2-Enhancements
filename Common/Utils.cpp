@@ -54,6 +54,11 @@ typedef enum DPI_HOSTING_BEHAVIOR {
 
 #endif
 
+#define STAP_ALLOW_NONCLIENT (1UL << 0)
+
+#define DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 19
+#define DWMWA_USE_IMMERSIVE_DARK_MODE 20
+
 typedef enum PROCESS_DPI_AWARENESS {
 	PROCESS_DPI_UNAWARE = 0,
 	PROCESS_SYSTEM_DPI_AWARE = 1,
@@ -410,6 +415,39 @@ void SetDPIAware()
 	}
 }
 
+// Allow for dark mode theme
+void SetGUITheme(HWND hWnd)
+{
+	static HMODULE hUxtheme = LoadLibrary(L"uxtheme.dll");
+
+	using SetThemeAppPropertiesProc = void (WINAPI *)(_In_ DWORD dwFlags);
+	static SetThemeAppPropertiesProc SetThemeAppProperties = (SetThemeAppPropertiesProc)GetProcAddress(hUxtheme, "SetThemeAppProperties");
+
+	if (SetThemeAppProperties)
+	{
+		SetThemeAppProperties(STAP_ALLOW_NONCLIENT);
+	}
+
+	using SetWindowThemeProc = void (WINAPI *)(_In_ HWND hwnd, _In_opt_ LPCWSTR pszSubAppName, _In_opt_ LPCWSTR pszSubIdList);
+	static SetWindowThemeProc SetWindowTheme = (SetWindowThemeProc)GetProcAddress(hUxtheme, "SetWindowTheme");
+
+	if (SetWindowTheme && hWnd)
+	{
+		SetWindowTheme(hWnd, L"Explorer", NULL);
+	}
+
+	static HMODULE hDwmapi = LoadLibrary(L"dwmapi.dll");
+
+	using DwmSetWindowAttributeProc = HRESULT(WINAPI *)(HWND hwnd, DWORD dwAttribute, _In_reads_bytes_(cbAttribute) LPCVOID pvAttribute, DWORD cbAttribute);
+	static DwmSetWindowAttributeProc DwmSetWindowAttribute = (DwmSetWindowAttributeProc)GetProcAddress(hDwmapi, "DwmSetWindowAttribute");
+
+	if (DwmSetWindowAttribute && hWnd)
+	{
+		BOOL fBool = !GetAppsLightMode();
+		DwmSetWindowAttribute(hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &fBool, sizeof(BOOL));
+	}
+}
+
 // Add HMODULE to vector
 void AddHandleToVector(HMODULE dll)
 {
@@ -611,6 +649,27 @@ bool GetSH2FolderPath(wchar_t *path, rsize_t size)
 	static bool ret = (GetModuleFileNameW(nullptr, sh2path, MAX_PATH) != 0);
 
 	return (wcscpy_s(path, size, sh2path) == 0 && ret);
+}
+
+BOOL GetAppsLightMode()
+{
+	HKEY hKey;
+	if (RegOpenKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", 0, KEY_READ, &hKey) != ERROR_SUCCESS)
+	{
+		LOG_ONCE(__FUNCTION__ << " Error: Failed to open registry key!");
+		return NULL;
+	}
+
+	BOOL bFlag = NULL;
+	DWORD size = sizeof(BOOL);
+	if (RegGetValue(hKey, nullptr, L"AppsUseLightTheme", RRF_RT_REG_DWORD, nullptr, &bFlag, &size) != ERROR_SUCCESS)
+	{
+		LOG_ONCE(__FUNCTION__ << " Error: Failed to read registry value!");
+	}
+
+	RegCloseKey(hKey);
+
+	return bFlag;
 }
 
 HRESULT GetResolution(DWORD &Width, DWORD &Height)

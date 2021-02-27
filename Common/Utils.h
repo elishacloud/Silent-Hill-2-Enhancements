@@ -14,8 +14,9 @@ bool UpdateMemoryAddress(void *dataAddr, const void *dataBytes, size_t dataSize)
 bool WriteCalltoMemory(BYTE *dataAddr, const void *JMPAddr, DWORD count = 5);
 bool WriteJMPtoMemory(BYTE *dataAddr, const void *JMPAddr, DWORD count = 5);
 DWORD ReplaceMemoryBytes(void *dataSrc, void *dataDest, size_t size, DWORD start, DWORD distance, DWORD count = 0);
-void SetDPIAware();
 void SetSingleCoreAffinity();
+void SetDPIAware();
+void SetGUITheme(HWND hWnd);
 void AddHandleToVector(HMODULE dll);
 void UnloadAllModules();
 DWORD ConvertFloat(float num);
@@ -24,6 +25,7 @@ bool GetModulePath(char *path, rsize_t size);
 bool GetModulePath(wchar_t *path, rsize_t size);
 bool GetSH2FolderPath(char *path, rsize_t size);
 bool GetSH2FolderPath(wchar_t *path, rsize_t size);
+BOOL GetAppsLightMode();
 HRESULT GetResolution(DWORD &Width, DWORD &Height);
 void SaveResolution(DWORD Width, DWORD Height);
 void LogDirectory();

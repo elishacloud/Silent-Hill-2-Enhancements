@@ -1,5 +1,5 @@
 /**
-* Copyright (C) 2020 Elisha Riedlinger
+* Copyright (C) 2021 Elisha Riedlinger
 *
 * This software is  provided 'as-is', without any express  or implied  warranty. In no event will the
 * authors be held liable for any damages arising from the use of this software.
@@ -549,15 +549,15 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 	if (EnableXboxShadows && State == D3DRS_STENCILPASS && Value == D3DSTENCILOP_REPLACE)
 	{
 		// Special handling for room 54
-		static bool IsEnabledInRoom54 = false;
-		if (GetCutsceneID() == 0x54 && (IsEnabledInRoom54 || GetCutscenePos() == -19521.60742f))
+		static bool IsEnabledForCutscene54 = false;
+		if (GetCutsceneID() == 0x54 && (IsEnabledForCutscene54 || GetCutscenePos() == -19521.60742f))
 		{
-			IsEnabledInRoom54 = true;
+			IsEnabledForCutscene54 = true;
 			Value = D3DSTENCILOP_ZERO; // Restore self shadows
 		}
 		else if (GetChapterID() == 0x01) // Born From a Wish
 		{
-			IsEnabledInRoom54 = false;
+			IsEnabledForCutscene54 = false;
 			if (GetSpecializedLight1() != 0x01) // If not in a specialized lighting zone
 			{
 				if (GetRoomID() != 0x20 && GetRoomID() != 0x25 && GetRoomID() != 0x26) // Exclude Blue Creek hallways/staircase completely from restored self shadows
@@ -568,7 +568,7 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 		}
 		else // Main campaign
 		{
-			IsEnabledInRoom54 = false;
+			IsEnabledForCutscene54 = false;
 			if (GetCutsceneID() == 0x4E || (GetSpecializedLight1() != 0x01 && GetSpecializedLight2() != 0x01))	// Exclude specialized lighting zone unless in specific cutscene
 			{
 				if (GetRoomID() != 0x9E) // Exclude Hotel Room 202-204 completely from restored self shadows

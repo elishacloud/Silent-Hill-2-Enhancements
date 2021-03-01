@@ -19,6 +19,7 @@
 
 #include "WidescreenFixesPack.h"
 #include <vector>
+#include "Common\Utils.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
 
@@ -29,13 +30,9 @@ bool IsUALPresent()
 
 std::tuple<int32_t, int32_t> GetDesktopRes()
 {
-	HMONITOR monitor = MonitorFromWindow(GetDesktopWindow(), MONITOR_DEFAULTTONEAREST);
-	MONITORINFO info = {};
-	info.cbSize = sizeof(MONITORINFO);
-	GetMonitorInfo(monitor, &info);
-	int32_t DesktopResW = info.rcMonitor.right - info.rcMonitor.left;
-	int32_t DesktopResH = info.rcMonitor.bottom - info.rcMonitor.top;
-	return std::make_tuple(DesktopResW, DesktopResH);
+	LONG screenWidth = 0, screenHeight = 0;
+	GetDesktopRes(screenWidth, screenHeight);
+	return std::make_tuple((int32_t)screenWidth, (int32_t)screenHeight);
 }
 
 std::string format(const char *fmt, ...)

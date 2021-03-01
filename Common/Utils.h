@@ -26,8 +26,9 @@ bool GetModulePath(wchar_t *path, rsize_t size);
 bool GetSH2FolderPath(char *path, rsize_t size);
 bool GetSH2FolderPath(wchar_t *path, rsize_t size);
 BOOL GetAppsLightMode();
-HRESULT GetResolution(DWORD &Width, DWORD &Height);
+HMONITOR GetMonitorHandle();
+void GetDesktopRes(LONG &screenWidth, LONG &screenHeight);
+void GetDesktopRect(RECT &screenRect);
+HRESULT GetSavedResolution(DWORD &Width, DWORD &Height);
 void SaveResolution(DWORD Width, DWORD Height);
 void LogDirectory();
-
-extern bool m_StopThreadFlag;

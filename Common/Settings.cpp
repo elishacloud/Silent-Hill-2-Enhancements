@@ -57,23 +57,23 @@ void __stdcall ParseCallback(char* lpName, char* lpValue)
 
 	// Check settings
 #define GET_BOOL_VALUES(name, unused) \
-	if (!_strcmpi(lpName, #name)) name = SetValue(lpValue);
+	if (!_stricmp(lpName, #name)) name = SetValue(lpValue);
 
 	VISIT_BOOL_SETTINGS(GET_BOOL_VALUES);
 	VISIT_LEGACY_BOOL_SETTINGS(GET_BOOL_VALUES);
 
 #define GET_INT_VALUES(name, unused) \
-	if (!_strcmpi(lpName, #name)) name = atoi(lpValue);
+	if (!_stricmp(lpName, #name)) name = atoi(lpValue);
 
 	VISIT_INT_SETTINGS(GET_INT_VALUES);
 
 #define GET_FLOAT_VALUES(name, unused) \
-	if (!_strcmpi(lpName, #name)) name = (float)atof(lpValue);
+	if (!_stricmp(lpName, #name)) name = (float)atof(lpValue);
 
 	VISIT_FLOAT_SETTINGS(GET_FLOAT_VALUES);
 
 #define GET_STR_VALUES(name, unused) \
-	if (!_strcmpi(lpName, #name)) name.assign(lpValue);
+	if (!_stricmp(lpName, #name)) name.assign(lpValue);
 
 	VISIT_STR_SETTINGS(GET_STR_VALUES);
 }
@@ -86,7 +86,7 @@ void __stdcall LogCallback(char* lpName, char* lpValue)
 
 	// Log settings
 #define LOG_VALUES(name, unused) \
-	if (!_strcmpi(lpName, #name)) \
+	if (!_stricmp(lpName, #name)) \
 	{ \
 		Logging::Log() << "|- " << #name << ": " << lpValue; \
 	}
@@ -101,10 +101,10 @@ void __stdcall LogCallback(char* lpName, char* lpValue)
 bool SetValue(char* value)
 {
 	return (atoi(value) > 0 ||
-		_strcmpi("on", value) == 0 ||
-		_strcmpi("yes", value) == 0 ||
-		_strcmpi("true", value) == 0 ||
-		_strcmpi("enabled", value) == 0);
+		_stricmp("on", value) == 0 ||
+		_stricmp("yes", value) == 0 ||
+		_stricmp("true", value) == 0 ||
+		_stricmp("enabled", value) == 0);
 }
 
 // Check if the values are valid
@@ -117,7 +117,7 @@ bool IsValidSettings(char* name, char* value)
 	if (strlen(name) == 0 || strlen(value) == 0 ||
 		strlen(name) == ((size_t)(-1)) || strlen(value) == ((size_t)(-1)) ||
 		name[0] == '\0' || value[0] == '\0' ||
-		!_strcmpi(value, "AUTO"))
+		!_stricmp(value, "AUTO"))
 	{
 		return false;
 	}

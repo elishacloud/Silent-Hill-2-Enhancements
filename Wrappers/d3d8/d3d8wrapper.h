@@ -38,21 +38,20 @@ void genericQueryInterface(REFIID riid, LPVOID *ppvObj, m_IDirect3DDevice8* m_pD
 DWORD GetBitCount(D3DFORMAT Format);
 void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND hFocusWindow, bool SetWindow);
 void UpdatePresentParameterForMultisample(D3DPRESENT_PARAMETERS* pPresentationParameters, D3DMULTISAMPLE_TYPE MultiSampleType);
-HMONITOR GetMonitorHandle();
-void GetDesktopRes(LONG &screenWidth, LONG &screenHeight);
-void GetDesktopRect(RECT &screenRect);
 void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight);
 DWORD WINAPI SaveScreenshotFile(LPVOID pvParam);
 
 #define D3DRS_ADAPTIVETESS_Y 181
 
-extern bool ClassReleaseFlag;
 extern HWND DeviceWindow;
 extern LONG BufferWidth, BufferHeight;
+extern bool DeviceLost;
+extern bool ClassReleaseFlag;
 extern bool CopyRenderTarget;
 extern bool SetSSAA;
 extern D3DMULTISAMPLE_TYPE DeviceMultiSampleType;
 extern DWORD MaxAnisotropy;
+extern bool TakeScreenShot;
 
 #include "IDirect3D8.h"
 #include "IDirect3DDevice8.h"

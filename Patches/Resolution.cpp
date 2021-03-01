@@ -191,7 +191,7 @@ void WSFDynamicStartup()
 
 	// Get saved resolution
 	DWORD Width = 0, Height = 0;
-	HRESULT hr = GetResolution(Width, Height);
+	HRESULT hr = GetSavedResolution(Width, Height);
 
 	// Check if resolution is found and set correct index
 	bool found = false;

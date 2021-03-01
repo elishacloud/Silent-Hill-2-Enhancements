@@ -167,6 +167,8 @@ typedef void(__stdcall* NV)(char* name, char* value);
 extern HMODULE m_hModule;
 extern bool CustomExeStrSet;
 extern bool EnableCustomShaders;
+extern bool IsUpdatingModule;
+extern bool m_StopThreadFlag;
 
 char* Read(wchar_t* szFileName);
 void Parse(char* str, NV NameValueCallback);

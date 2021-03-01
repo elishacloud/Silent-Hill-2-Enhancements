@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <algorithm>
 
-constexpr UINT MaxIndex = 11;
+constexpr UINT MaxD8Index = 11;
 
 template <typename D>
 class AddressLookupTableD3d8
@@ -96,7 +96,7 @@ public:
 private:
 	bool ConstructorFlag = false;
 	D *const pDevice;
-	std::unordered_map<void*, class AddressLookupTableD3d8Object*> g_map[MaxIndex];
+	std::unordered_map<void*, class AddressLookupTableD3d8Object*> g_map[MaxD8Index];
 };
 
 class AddressLookupTableD3d8Object

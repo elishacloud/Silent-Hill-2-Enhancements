@@ -25,10 +25,6 @@
 #include "stb_image_resize.h"
 #include "Patches/ModelID.h"
 
-extern bool m_StopThreadFlag;
-extern bool IsUpdatingModule;
-extern bool TakeScreenShot;
-
 bool DeviceLost = false;
 bool DisableShaderOnPresent = false;
 bool IsInFullscreenImage = false;

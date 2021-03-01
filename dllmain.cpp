@@ -38,10 +38,9 @@ HMODULE m_hModule = nullptr;
 SH2VERSION GameVersion = SH2V_UNKNOWN;
 HMODULE wrapper_dll = nullptr;
 EXECUTION_STATE esFlags = 0;
-bool IsWindows10 = false;
 bool CustomExeStrSet = false;
 bool EnableCustomShaders = false;
-bool ds_threadExit = false;
+bool IsUpdatingModule = false;
 bool m_StopThreadFlag = false;			// Used for thread functions
 
 void DelayedStart()

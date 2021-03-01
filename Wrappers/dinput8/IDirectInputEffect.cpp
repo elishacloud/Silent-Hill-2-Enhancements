@@ -19,6 +19,7 @@
 #define _WIN32_WINNT 0x0501
 
 #include "dinput8wrapper.h"
+#include "Wrappers\d3d8\d3d8wrapper.h"
 #include "Patches\patches.h"
 #include "Common\Utils.h"
 
@@ -258,7 +259,6 @@ void PatchXInputVibration()
 }
 
 bool LostWindowFocus = false;
-HWND SH2WindowHandle = nullptr;
 HWINEVENTHOOK hEventHook = nullptr;
 void CALLBACK windowChangeHook(HWINEVENTHOOK hWinEventHook, DWORD event, HWND hwnd, LONG idObject, LONG idChild, DWORD dwEventThread, DWORD dwmsEventTime)
 {
@@ -269,13 +269,13 @@ void CALLBACK windowChangeHook(HWINEVENTHOOK hWinEventHook, DWORD event, HWND hw
 	UNREFERENCED_PARAMETER(dwEventThread);
 	UNREFERENCED_PARAMETER(dwmsEventTime);
 
-	if (!SH2WindowHandle)
+	if (!DeviceWindow)
 	{
 		return;
 	}
 
 	// Check window focus
-	if (SH2WindowHandle == hwnd)
+	if (DeviceWindow == hwnd)
 	{
 		LostWindowFocus = false;
 	}
@@ -283,11 +283,6 @@ void CALLBACK windowChangeHook(HWINEVENTHOOK hWinEventHook, DWORD event, HWND hw
 	{
 		LostWindowFocus = true;
 	}
-}
-
-void SetWindowHandle(HWND WindowHandle)
-{
-	SH2WindowHandle = WindowHandle;
 }
 
 void UnhookWindowHandle()

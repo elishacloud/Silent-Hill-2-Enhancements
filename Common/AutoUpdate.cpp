@@ -25,16 +25,12 @@
 #include <regex>
 #include "Common\Utils.h"
 #include "Common\LoadModules.h"
+#include "Wrappers\d3d8\d3d8wrapper.h"
 #include "Logging\Logging.h"
 #include "Resources\sh2-enhce.h"
 
 typedef HRESULT(WINAPI *URLOpenBlockingStreamProc)(LPUNKNOWN pCaller, LPCSTR szURL, LPSTREAM *ppStream, _Reserved_ DWORD dwReserved, LPBINDSTATUSCALLBACK lpfnCB);
 typedef HRESULT(WINAPI *URLDownloadToFileProc)(LPUNKNOWN pCaller, LPCWSTR szURL, LPCWSTR szFileName, _Reserved_ DWORD dwReserved, LPBINDSTATUSCALLBACK lpfnCB);
-
-extern HWND DeviceWindow;
-extern bool m_StopThreadFlag;
-
-bool IsUpdatingModule = false;
 
 namespace {
 	const char removechars[] = " \t\n\r";

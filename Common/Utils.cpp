@@ -24,6 +24,7 @@
 #include <filesystem>
 #include "Utils.h"
 #include "Patches\Patches.h"
+#include "Wrappers\d3d8\d3d8wrapper.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
 
@@ -69,7 +70,6 @@ typedef HRESULT(WINAPI *SetProcessDpiAwarenessProc)(PROCESS_DPI_AWARENESS value)
 typedef BOOL(WINAPI *SetProcessDPIAwareProc)();
 typedef BOOL(WINAPI *SetProcessDpiAwarenessContextProc)(DPI_AWARENESS_CONTEXT value);
 
-extern bool m_StopThreadFlag;
 std::vector<HMODULE> custom_dll;		// Used for custom dll's and asi plugins
 
 // Search memory for byte array
@@ -672,7 +672,32 @@ BOOL GetAppsLightMode()
 	return bFlag;
 }
 
-HRESULT GetResolution(DWORD &Width, DWORD &Height)
+HMONITOR GetMonitorHandle()
+{
+	return MonitorFromWindow(IsWindow(DeviceWindow) ? DeviceWindow : GetDesktopWindow(), MONITOR_DEFAULTTONEAREST);
+}
+
+void GetDesktopRes(LONG &screenWidth, LONG &screenHeight)
+{
+	MONITORINFO info = {};
+	info.cbSize = sizeof(MONITORINFO);
+	GetMonitorInfo(GetMonitorHandle(), &info);
+	screenWidth = info.rcMonitor.right - info.rcMonitor.left;
+	screenHeight = info.rcMonitor.bottom - info.rcMonitor.top;
+}
+
+void GetDesktopRect(RECT &screenRect)
+{
+	MONITORINFO info = {};
+	info.cbSize = sizeof(MONITORINFO);
+	GetMonitorInfo(GetMonitorHandle(), &info);
+	screenRect.left = info.rcMonitor.left;
+	screenRect.top = info.rcMonitor.top;
+	screenRect.right = info.rcMonitor.right;
+	screenRect.bottom = info.rcMonitor.bottom;
+}
+
+HRESULT GetSavedResolution(DWORD &Width, DWORD &Height)
 {
 	HKEY hKey;
 	if (RegCreateKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Konami\\Silent Hill 2\\sh2e", 0, nullptr, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, nullptr, &hKey, nullptr) != ERROR_SUCCESS)

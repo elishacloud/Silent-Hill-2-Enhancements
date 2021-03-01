@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <algorithm>
 
-constexpr UINT MaxIndex = 3;
+constexpr UINT MaxDSIndex = 3;
 
 template <typename D>
 class AddressLookupTableDsound
@@ -80,7 +80,7 @@ public:
 private:
 	bool ConstructorFlag = false;
 	D *unused = nullptr;
-	std::unordered_map<void*, class AddressLookupTableDsoundObject*> g_map[MaxIndex];
+	std::unordered_map<void*, class AddressLookupTableDsoundObject*> g_map[MaxDSIndex];
 };
 
 class AddressLookupTableDsoundObject

@@ -2394,7 +2394,7 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 	}
 
 	// If in fullscreen exclusive mode then use GetFrontBuffer()
-	if (ScreenMode == 3)
+	if (!IsWindows10 && ScreenMode == 3)
 	{
 		// Create new surface to hold data
 		IDirect3DSurface8 *pSrcSurface = nullptr;
@@ -2420,43 +2420,20 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 	// In windowed mode use GDI to get front buffer data
 	else
 	{
-		// Get location of client window
-		RECT RectSrc = { 0, 0, BufferWidth, BufferHeight };
-		RECT rcClient = { 0, 0, BufferWidth, BufferHeight };
-		if (DeviceWindow && (!GetWindowRect(DeviceWindow, &RectSrc) || !GetClientRect(DeviceWindow, &rcClient)))
-		{
-			return D3DERR_INVALIDCALL;
-		}
-		int border_thickness = ((RectSrc.right - RectSrc.left) - rcClient.right) / 2;
-		int top_border = (RectSrc.bottom - RectSrc.top) - rcClient.bottom - border_thickness;
-		RectSrc.left += border_thickness;
-		RectSrc.top += top_border;
-		RectSrc.right = RectSrc.left + rcClient.right;
-		RectSrc.bottom = RectSrc.top + rcClient.bottom;
-
-		if (RectSrc.right - RectSrc.left != BufferWidth || RectSrc.bottom - RectSrc.top != BufferHeight)
-		{
-			return D3DERR_INVALIDCALL;
-		}
-
-		// Capture Screen
-		HWND hDesktopWnd = GetDesktopWindow();
-		HDC hDesktopDC = GetDC(hDesktopWnd);
+		// Capture Silent Hill 2 window data
 		HDC hWindowDC = GetDC(DeviceWindow);
 		HDC hCaptureDC = CreateCompatibleDC(hWindowDC);
-		HBITMAP hCaptureBitmap = CreateCompatibleBitmap(hDesktopDC, BufferWidth, BufferHeight);
+		HBITMAP hCaptureBitmap = CreateCompatibleBitmap(hWindowDC, BufferWidth, BufferHeight);
 		SelectObject(hCaptureDC, hCaptureBitmap);
-		BitBlt(hCaptureDC, 0, 0, BufferWidth, BufferHeight, hDesktopDC, RectSrc.left, RectSrc.top, SRCCOPY | CAPTUREBLT);
+		BitBlt(hCaptureDC, 0, 0, BufferWidth, BufferHeight, hWindowDC, 0, 0, SRCCOPY | CAPTUREBLT);
 
-		// Copy front buffer data to cached buffer 
+		// Copy front buffer data to cached buffer
 		GetBitmapBits(hCaptureBitmap, CachedSurfaceData.size(), &CachedSurfaceData[0]);
 
 		// Release DC
-		ReleaseDC(hDesktopWnd, hDesktopDC);
-		ReleaseDC(DeviceWindow, hWindowDC);
-		DeleteDC(hCaptureDC);
 		DeleteObject(hCaptureBitmap);
-		CloseWindow(hDesktopWnd);
+		DeleteDC(hCaptureDC);
+		ReleaseDC(DeviceWindow, hWindowDC);
 	}
 
 	HRESULT hr = D3D_OK;

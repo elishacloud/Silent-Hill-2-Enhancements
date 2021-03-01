@@ -94,29 +94,6 @@ void DelayedStart()
 	Logging::LogOSVersion();
 	Logging::LogProcessNameAndPID();
 
-	// Check if system is running Windows 10 equivalent
-	if (!IsWindows10)
-	{
-		// Define registry keys
-		HKEY RegKey = nullptr;
-		DWORD dwDataMajor = 0;
-		unsigned long iSize = sizeof(DWORD);
-
-		// Get version
-		if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", 0, KEY_READ, &RegKey) == ERROR_SUCCESS)
-		{
-			if (RegQueryValueExA(RegKey, "CurrentMajorVersionNumber", nullptr, nullptr, (LPBYTE)&dwDataMajor, &iSize) == ERROR_SUCCESS)
-			{
-				if (dwDataMajor >= 10)
-				{
-					IsWindows10 = true;
-					Logging::Log() << "Windows 10 equivalent found!";
-				}
-			}
-			RegCloseKey(RegKey);
-		}
-	}
-
 	// Game version
 	if (memcmp((void*)0x00401005, "\xE9\x56\x25\x00\x00\xE9\x71\x25\x00\x00\xE9\xFC\x69\x00\x00\xE9\x77\x06\x00\x00", 0x14) == 0)
 	{

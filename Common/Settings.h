@@ -165,7 +165,6 @@ VISIT_STR_SETTINGS(DECLARE_STR_SETTINGS);
 typedef void(__stdcall* NV)(char* name, char* value);
 
 extern HMODULE m_hModule;
-extern bool IsWindows10;
 extern bool CustomExeStrSet;
 extern bool EnableCustomShaders;
 

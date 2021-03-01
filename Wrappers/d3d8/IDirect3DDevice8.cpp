@@ -2394,7 +2394,7 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 	}
 
 	// If in fullscreen exclusive mode then use GetFrontBuffer()
-	if (!IsWindows10 && ScreenMode == 3)
+	if (ScreenMode == 3)
 	{
 		// Create new surface to hold data
 		IDirect3DSurface8 *pSrcSurface = nullptr;

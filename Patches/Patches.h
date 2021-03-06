@@ -149,28 +149,30 @@ extern DWORD *SpecializedLight1Addr;
 extern DWORD *SpecializedLight2Addr;
 extern BYTE *FlashlightSwitchAddr;
 extern float *FlashlightBrightnessAddr;
-extern DWORD *OnScreenAddr;				/* 0 = load screen
+extern DWORD *OnScreenAddr;							/* 0 = load screen
 										4 = normal in-game
 										5 = maps
 										6 = inventory screen
 										9 = save screen */
 
-extern BYTE *EventIndexAddr;			/*1 = reload/re-enter into current room
+extern BYTE *EventIndexAddr;							/*0 = load screen
+										1 = load room
 										2 = main menu
 										4 = in-game
 										5 = map
 										6 = inventory
-										7 = options menu
-										8 = bugged Xbox button config menu
-										9 = save menu
-										10/11 = pull up Game Results file
+										7 = options menu & FMVs (from Movie Menu)
+										8 = memo list
+										9 = save screen
+										10/11 = game result
 										12 = "COMING SOON!" splash screen
 										13 = game over screen
+										15 = FMVs
 										16 = PC pause menu*/
 
-extern BYTE *MenuEventAddr;				/* 7 = main menu event index */
+extern BYTE *MenuEventAddr;							/* 7 = main menu event index */
 
-extern DWORD *TransitionStateAddr;		/* 1 = fades the game image to black
+extern DWORD *TransitionStateAddr;						/* 1 = fades the game image to black
 										2 = solid black screen
 										3 = fades from black back to the in game screen */
 

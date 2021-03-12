@@ -634,8 +634,8 @@ __declspec(naked) void __stdcall AdvOptionsSetsASM()
 		call AdvOptionsSetsCallAddr		// Set SH2 defaults
 
 	Exit:
-		call AdvOptionsSets
-		jmp AdvOptionsSetsRetAddr		// Set "Best Graphics" defaults
+		call AdvOptionsSets				// Set "Best Graphics" defaults
+		jmp AdvOptionsSetsRetAddr
 	}
 }
 

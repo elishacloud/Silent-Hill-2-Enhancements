@@ -623,6 +623,22 @@ static void AdvOptionsSets()
 	*gScreenYPos = 0;
 }
 
+void *AdvOptionsSetsCallAddr = nullptr;
+void *AdvOptionsSetsRetAddr = nullptr;
+__declspec(naked) void __stdcall AdvOptionsSetsASM()
+{
+	__asm
+	{
+		test eax, eax
+		jnz near Exit
+		call AdvOptionsSetsCallAddr		// Set SH2 defaults
+
+	Exit:
+		call AdvOptionsSets
+		jmp AdvOptionsSetsRetAddr		// Set "Best Graphics" defaults
+	}
+}
+
 void PatchBestGraphics()
 {
 	constexpr BYTE OptSearchBytesA[] = { 0x83, 0xEC, 0x20, 0x53, 0x56, 0x57, 0x33, 0xC0, 0xBE, 0x01, 0x00, 0x00, 0x00, 0xB9, 0x08, 0x00 };
@@ -648,10 +664,19 @@ void PatchBestGraphics()
 	gScreenYPos = (DWORD*)*(DWORD*)((BYTE*)DOptAddrA + 0x59);
 	gLowResTexOn = (DWORD*)*(DWORD*)((BYTE*)DOptAddrA + 0x95);
 
+	DWORD CallAddr = 0;
 	if (GameVersion == SH2V_DC)
-		WriteCalltoMemory(((BYTE*)DOptAddrB + 0x77), AdvOptionsSets, 11);
+	{
+		CallAddr = (DWORD)((BYTE*)DOptAddrB + 0x77);
+	}
 	else
-		WriteCalltoMemory(((BYTE*)DOptAddrB + 0x78), AdvOptionsSets, 11);
+	{
+		CallAddr = (DWORD)((BYTE*)DOptAddrB + 0x78);
+	}
+
+	AdvOptionsSetsCallAddr = (void*)(*(DWORD*)(CallAddr + 5) + (CallAddr + 5) + 4);
+	AdvOptionsSetsRetAddr = (void*)(CallAddr + 11);
+	WriteJMPtoMemory((BYTE*)CallAddr, AdvOptionsSetsASM, 11);
 }
 
 static void* LabelA;

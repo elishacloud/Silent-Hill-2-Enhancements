@@ -39,15 +39,6 @@ constexpr float CatacombLargeRoomFloorB = -0.1f; // "Large Room" Floor Blue
 // Patch SH2 code to Fix Cemetery Lighting
 void PatchCatacombsMeatRoom()
 {
-	// Check for required map files
-	if (!UseCustomModFolder ||
-		!PathFileExists(std::wstring(std::wstring(ModPathW) + L"\\bg\\ps\\ps189.map").c_str()) ||
-		!PathFileExists(std::wstring(std::wstring(ModPathW) + L"\\bg\\ps\\ps193.map").c_str()))
-	{
-		Logging::Log() << __FUNCTION__ << " Could not load fix.  This fix requires 'UseCustomModFolder' enabled and custom map files 'ps189.map' and 'ps193.map'.";
-		return;
-	}
-
 	// Get Cemetery Lighting address
 	constexpr BYTE CatacombSearchBytes[]{ 0x00, 0xFE, 0x42, 0x00, 0x00, 0x31, 0x43, 0x00, 0x00, 0xFE, 0x42, 0x00, 0x00, 0xFE, 0x42, 0x9A, 0x99, 0x19, 0x3E, 0x9A, 0x99, 0x19, 0x3E, 0x9A, 0x99, 0x19 };
 	DWORD CatacombSmallRoomTexAddr = SearchAndGetAddresses(0x007FBB91, 0x007FF779, 0x007FE779, CatacombSearchBytes, sizeof(CatacombSearchBytes), 0x3F);

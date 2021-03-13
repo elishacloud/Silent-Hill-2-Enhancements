@@ -48,7 +48,17 @@ HRESULT WINAPI DirectSoundCreate8Wrapper(LPCGUID pcGuidDevice, LPDIRECTSOUND8 *p
 {
 	LOG_LIMIT(3, "Redirecting 'DirectSoundCreate8' ...");
 
-	HRESULT hr = m_pDirectSoundCreate8(pcGuidDevice, ppDS8, pUnkOuter);
+	HRESULT hr;
+
+	DWORD x = 0;
+	do {
+		hr = m_pDirectSoundCreate8(pcGuidDevice, ppDS8, pUnkOuter);
+
+		if (FAILED(hr))
+		{
+			Sleep(100);
+		}
+	} while (FAILED(hr) && ++x < 100);
 
 	if (SUCCEEDED(hr) && ppDS8)
 	{

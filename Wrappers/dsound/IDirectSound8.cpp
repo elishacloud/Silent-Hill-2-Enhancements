@@ -71,7 +71,17 @@ HRESULT m_IDirectSound8::CreateSoundBuffer(LPCDSBUFFERDESC pcDSBufferDesc, LPDIR
 		DSBufferDesc->dwFlags |= DSBCAPS_CTRLVOLUME;
 	}
 
-	HRESULT hr = ProxyInterface->CreateSoundBuffer(pcDSBufferDesc, ppDSBuffer, pUnkOuter);
+	HRESULT hr;
+
+	DWORD x = 0;
+	do {
+		hr = ProxyInterface->CreateSoundBuffer(pcDSBufferDesc, ppDSBuffer, pUnkOuter);
+
+		if (FAILED(hr))
+		{
+			Sleep(100);
+		}
+	} while (FAILED(hr) && ++x < 100);
 
 	if (SUCCEEDED(hr) && ppDSBuffer)
 	{

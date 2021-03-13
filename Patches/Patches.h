@@ -87,6 +87,7 @@ void PatchFullscreenImages();
 void PatchLockScreenPosition();
 void PatchMainMenu();
 void PatchMainMenuTitlePerLang();
+void PatchMemoBrightnes();
 void PatchPauseScreen();
 void PatchPistonRoom();
 void PatchPreventChainsawSpawn();

@@ -46,6 +46,7 @@
     <ClCompile Include="Patches\FogFix.cpp" />
     <ClCompile Include="Patches\FullscreenImages.cpp" />
     <ClCompile Include="Patches\LaunchAsAdmin.cpp" />
+    <ClCompile Include="Patches\MemoFix.cpp" />
     <ClCompile Include="Patches\PatchBinary.cpp" />
     <ClCompile Include="Patches\BloodSize.cpp" />
     <ClCompile Include="Patches\LightingPatch.cpp" />

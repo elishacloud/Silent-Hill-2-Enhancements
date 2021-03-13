@@ -37,6 +37,7 @@
 	visit(FixFMVResetIssue, true) \
 	visit(FixGPUAntiAliasing, true) \
 	visit(FixHangOnEsc, true) \
+	visit(FixMemoFading, true) \
 	visit(FixMissingWallChunks, true) \
 	visit(FixSaveBGImage, true) \
 	visit(FixTownWestGateEvent, true) \

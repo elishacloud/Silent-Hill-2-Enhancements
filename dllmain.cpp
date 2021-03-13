@@ -356,6 +356,12 @@ void DelayedStart()
 		PatchFlashlightFlicker();
 	}
 
+	// Fix memo brightness
+	if (FixMemoFading)
+	{
+		PatchMemoBrightnes();
+	}
+
 	// Causes the Options menu to exit directly to game play
 	if (PauseScreenFix)
 	{

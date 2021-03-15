@@ -89,6 +89,7 @@
 	visit(UseCustomExeStr, true) \
 	visit(UseCustomFonts, true) \
 	visit(UseCustomModFolder, true) \
+	visit(UsePS2LowResTextures, false) \
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, false) \

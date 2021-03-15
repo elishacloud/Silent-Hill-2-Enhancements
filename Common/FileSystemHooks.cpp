@@ -55,8 +55,11 @@ bool IsFileSystemHooking = false;
 HMODULE moduleHandle = nullptr;
 char ModPathA[MAX_PATH];
 wchar_t ModPathW[MAX_PATH];
+char *ModPicPathA = "ps2";
+wchar_t *ModPicPathW = L"ps2";
 DWORD modLoc = 0;
 DWORD modLen = 0;
+DWORD picLen = 0;
 DWORD MaxModFileLen = 0;
 std::string strModulePathA;
 std::wstring strModulePathW;
@@ -81,6 +84,16 @@ inline LPCSTR ModPath(LPCSTR)
 inline LPCWSTR ModPath(LPCWSTR)
 {
 	return ModPathW;
+}
+
+inline LPCSTR ModPicPath(LPCSTR)
+{
+	return ModPicPathA;
+}
+
+inline LPCWSTR ModPicPath(LPCWSTR)
+{
+	return ModPicPathW;
 }
 
 inline void strcpy_s(wchar_t *dest, size_t size, LPCWSTR src)
@@ -184,6 +197,39 @@ inline bool isDataPath(T sh2)
 	return false;
 }
 
+template<typename T>
+inline DWORD getPicPath(T sh2)
+{
+	if ((sh2[0] == 'p' || sh2[0] == 'P') &&
+		(sh2[1] == 'i' || sh2[1] == 'I') &&
+		(sh2[2] == 'c' || sh2[2] == 'C'))
+	{
+		return 3;
+	}
+	if ((sh2[0] == 'm' || sh2[0] == 'M') &&
+		(sh2[1] == 'e' || sh2[1] == 'E') &&
+		(sh2[2] == 'n' || sh2[2] == 'N') &&
+		(sh2[3] == 'u' || sh2[3] == 'U') &&
+		(sh2[5] == 'm' || sh2[5] == 'M') &&
+		(sh2[6] == 'c' || sh2[6] == 'C'))
+	{
+		return 4;
+	}
+	if ((sh2[0] == 'e' || sh2[0] == 'E') &&
+		(sh2[1] == 't' || sh2[1] == 'T') &&
+		(sh2[2] == 'c' || sh2[2] == 'C') &&
+		(sh2[4] == 'e' || sh2[4] == 'E') &&
+		(sh2[5] == 'f' || sh2[5] == 'F') &&
+		(sh2[6] == 'f' || sh2[6] == 'F') &&
+		(sh2[7] == 'e' || sh2[7] == 'E') &&
+		(sh2[8] == 'c' || sh2[8] == 'C') &&
+		(sh2[9] == 't' || sh2[9] == 'T'))
+	{
+		return 3;
+	}
+	return 0;
+}
+
 template<typename T, typename D>
 T UpdateModPath(T sh2, D str)
 {
@@ -205,6 +251,16 @@ T UpdateModPath(T sh2, D str)
 	{
 		strcpy_s(str, MAX_PATH, ModPath(sh2));
 		strcpy_s(str + modLen, MAX_PATH - modLen, sh2 + 4);
+		if (UsePS2LowResTextures)
+		{
+			T sh2_pic = sh2 + 5;
+			DWORD PicPath = getPicPath(sh2_pic);
+			if (PicPath)
+			{
+				strcpy_s(str + modLen + 1, MAX_PATH - modLen - 1, ModPicPath(sh2));
+				strcpy_s(str + modLen + picLen + 1, MAX_PATH - modLen - picLen - 1, sh2_pic + PicPath);
+			}
+		}
 		if (PathExists(str))
 		{
 			return str;
@@ -219,6 +275,16 @@ T UpdateModPath(T sh2, D str)
 		strcpy_s(str, MAX_PATH, sh2);
 		strcpy_s(str + modLoc, MAX_PATH - modLoc, ModPath(sh2));
 		strcpy_s(str + modLoc + modLen, MAX_PATH - modLoc - modLen, sh2_data + 4);
+		if (UsePS2LowResTextures)
+		{
+			T sh2_pic = sh2_data + 5;
+			DWORD PicPath = getPicPath(sh2_pic);
+			if (PicPath)
+			{
+				strcpy_s(str + modLoc + modLen + 1, MAX_PATH - modLoc - modLen, ModPicPath(sh2));
+				strcpy_s(str + modLoc + modLen + picLen + 1, MAX_PATH - modLoc - modLen - picLen - 1, sh2_pic + PicPath);
+			}
+		}
 		if (PathExists(str))
 		{
 			return str;
@@ -598,6 +664,7 @@ void InstallFileSystemHooks(HMODULE hModule)
 	wcscpy_s(wcsrchr(tmpPath, '\\'), MAX_PATH - wcslen(tmpPath), L"\0");
 	modLoc = wcslen(tmpPath) + 1;
 	modLen = strlen(ModPathA);
+	picLen = strlen(ModPicPathA);
 	if (modLoc + modLen > MAX_PATH)
 	{
 		Logging::Log() << __FUNCTION__ " Error: custom mod path length is too long! " << modLoc + modLen;

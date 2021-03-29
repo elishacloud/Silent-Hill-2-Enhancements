@@ -20,6 +20,7 @@
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
+// Variables for ASM
 BYTE AllowQuickSaveFlag = TRUE;
 void *QuickSaveCmpAddr;
 void *jmpSoftLockAddr;
@@ -32,6 +33,11 @@ void *jmpSaveTimerAddr;
 void *callTextOverlapAddr;
 void *jmpTextOverlapAddr;
 void *jmpQuickSaveAddr;
+bool IsInGameResults = false;
+BYTE *SaveIndexAddr = nullptr;
+BYTE *SaveArrayAddr = nullptr;
+DWORD *InGameAddr = nullptr;
+void *jmpIndexCheckAddr = nullptr;
 
 // ASM function for Quick Save Soft-Lock Fix
 __declspec(naked) void __stdcall SoftLockASM()
@@ -134,6 +140,67 @@ __declspec(naked) void __stdcall QuickSaveASM()
 	Exit:
 		jmp jmpQuickSaveAddr
 	}
+}
+
+// Check if loading a Game Result save
+void GameResultSave()
+{
+	BYTE Value = *(BYTE*)(((DWORD)*SaveIndexAddr * 24) + (DWORD)SaveArrayAddr + 2);
+	if (Value == 0x50 || Value == 0xFF)
+	{
+		*InGameAddr = 0x00;
+		if (GetRoomID())
+		{
+			IsInGameResults = true;
+		}
+	}
+}
+
+// ASM function to Fix Game Result Saves
+__declspec(naked) void __stdcall GameResultSaveASM()
+{
+	__asm
+	{
+		pushf
+		push eax
+		push ecx
+		push edx
+		mov eax, dword ptr ds : [SaveIndexAddr]
+		mov dword ptr ds : [eax], esi
+		call GameResultSave
+		pop edx
+		pop ecx
+		pop eax
+		popf
+		jmp jmpIndexCheckAddr
+	}
+}
+
+void PatchGameLoad()
+{
+	// Get in-game check address
+	constexpr BYTE InGameCheckSearchBytes[]{ 0x80, 0x3A, 0xD8, 0x74, 0x11, 0x41, 0x83, 0xC2, 0x18, 0x3B, 0xCF, 0x7C, 0xF3, 0x5F, 0x5E, 0xB8, 0x02, 0x00, 0x00, 0x00, 0x5B, 0xC3, 0x8B, 0xD6, 0x6B, 0xD2, 0x64, 0x03, 0xCA, 0x8D, 0x0C, 0x49 };
+	BYTE *InGameCheckAddr = (BYTE*)SearchAndGetAddresses(0x00454BF5, 0x00454E55, 0x00454E55, InGameCheckSearchBytes, sizeof(InGameCheckSearchBytes), 0x1AF);
+
+	// Get save Index address
+	constexpr BYTE IndexSearchBytes[]{ 0x33, 0xC9, 0x0F, 0xBE, 0xF3, 0x0F, 0xB6, 0x10, 0x3B, 0xD6, 0x75, 0x0D, 0x0F, 0xB6, 0x50, 0x01, 0x0F, 0xBE, 0x7C, 0x24, 0x0C, 0x3B, 0xD7, 0x74, 0x0B, 0x41, 0x83, 0xC0, 0x18, 0x83, 0xF9, 0x64, 0x7C, 0xE3, 0xEB, 0x05 };
+	BYTE *IndexCheckAddr = (BYTE*)SearchAndGetAddresses(0x0044CF0F, 0x0044D16F, 0x0044D16F, IndexSearchBytes, sizeof(IndexSearchBytes), 0x91);
+
+	// Checking address pointer
+	if (!InGameCheckAddr || !IndexCheckAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+	jmpIndexCheckAddr = IndexCheckAddr + 6;
+
+	InGameAddr = (DWORD*)*(DWORD*)(InGameCheckAddr + 1);	// 0x00932034;
+	SaveIndexAddr = (BYTE*)*(DWORD*)(IndexCheckAddr + 2);	// 0x009335E4;
+	SaveArrayAddr = SaveIndexAddr + 0x44;					// 0x00933628;
+
+	// Update SH2 code
+	Logging::Log() << "Fixing Game Results loading crash...";
+	WriteJMPtoMemory((BYTE*)IndexCheckAddr, *GameResultSaveASM, 6);
 }
 
 void SetGameLoad()

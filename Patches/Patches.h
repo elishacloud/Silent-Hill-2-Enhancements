@@ -84,6 +84,7 @@ void PatchFlashlightClockPush();
 void PatchFlashlightFlicker();
 void PatchFogParameters();
 void PatchFullscreenImages();
+void PatchGameLoad();
 void PatchLockScreenPosition();
 void PatchMainMenu();
 void PatchMainMenuTitlePerLang();
@@ -184,6 +185,7 @@ extern DWORD *LoadingScreenAddr;
 extern int SpecularFlag;
 extern bool UseFakeLight;
 extern bool InSpecialLightZone;
+extern bool IsInGameResults;
 
 // Run code only once
 #define RUNONCE() \

@@ -15,6 +15,7 @@
 */
 
 #include "dsoundwrapper.h"
+#include "Patches\Patches.h"
 
 DWORD WINAPI ResetPending(LPVOID pvParam);
 
@@ -163,6 +164,12 @@ HRESULT m_IDirectSoundBuffer8::Play(DWORD dwReserved1, DWORD dwPriority, DWORD d
 		ProxyInterface->SetVolume(AudioClip.CurrentVolume);
 	}
 
+	// Disable sound when in Game Results
+	if (CheckGameResults())
+	{
+		return DS_OK;
+	}
+
 	return ProxyInterface->Play(dwReserved1, dwPriority, dwFlags);
 }
 
@@ -251,7 +258,15 @@ HRESULT m_IDirectSoundBuffer8::Unlock(LPVOID pvAudioPtr1, DWORD dwAudioBytes1, L
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
 
-	return ProxyInterface->Unlock(pvAudioPtr1, dwAudioBytes1, pvAudioPtr2, dwAudioBytes2);
+	HRESULT hr = ProxyInterface->Unlock(pvAudioPtr1, dwAudioBytes1, pvAudioPtr2, dwAudioBytes2);
+
+	// Disable sound when in Game Results
+	if (CheckGameResults())
+	{
+		Stop();
+	}
+
+	return hr;
 }
 
 HRESULT m_IDirectSoundBuffer8::Restore()
@@ -286,6 +301,17 @@ HRESULT m_IDirectSoundBuffer8::GetObjectInPath(REFGUID rguidObject, DWORD dwInde
 	}
 
 	return hr;
+}
+
+// Helper functions
+bool m_IDirectSoundBuffer8::CheckGameResults()
+{
+	if (IsInGameResults && GetEventIndex() == 2)
+	{
+		IsInGameResults = false;
+	}
+
+	return (IsInGameResults && (GetEventIndex() == 10 || GetEventIndex() == 11));
 }
 
 DWORD WINAPI ResetPending(LPVOID pvParam)

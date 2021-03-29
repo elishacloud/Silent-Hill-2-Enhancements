@@ -428,6 +428,12 @@ void DelayedStart()
 		PatchFlashlightClockPush();
 	}
 
+	// Fixes crash when loading Game Results
+	if (GameLoadFix)
+	{
+		PatchGameLoad();
+	}
+
 	// FixSaveBGImage
 	if (FixSaveBGImage)
 	{

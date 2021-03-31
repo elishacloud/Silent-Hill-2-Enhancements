@@ -465,10 +465,16 @@ void DelayedStart()
 		WSFInit();
 	}
 
-	// Update full screen images
+	// Update fullscreen images
 	if (FullscreenImages)
 	{
 		PatchFullscreenImages();
+	}
+
+	// Update fullscreen videos
+	if (FullscreenVideos)
+	{
+		PatchFullscreenVideos();
 	}
 
 	// Patch resolution list in the Options menu

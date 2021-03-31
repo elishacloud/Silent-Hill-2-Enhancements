@@ -44,6 +44,7 @@
     <ClCompile Include="Patches\FlashlightClockPush.cpp" />
     <ClCompile Include="Patches\FlashlightFlicker.cpp" />
     <ClCompile Include="Patches\FogFix.cpp" />
+    <ClCompile Include="Patches\FullscreenVideos.cpp" />
     <ClCompile Include="Patches\FullscreenImages.cpp" />
     <ClCompile Include="Patches\LaunchAsAdmin.cpp" />
     <ClCompile Include="Patches\MemoFix.cpp" />

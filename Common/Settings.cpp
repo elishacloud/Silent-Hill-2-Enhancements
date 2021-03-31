@@ -260,6 +260,18 @@ void UpdateConfigDefaults()
 		FogLayerFix = Fog2DFix;
 	}
 
+	// Set FullscreenImages
+	if ((DWORD)FullscreenImages >= 3)
+	{
+		AutoScaleImages = true;
+	}
+
+	// Set FullscreenVideos
+	if ((DWORD)FullscreenVideos >= 3)
+	{
+		AutoScaleVideos = true;
+	}
+
 	// Set screen mode
 	switch (ScreenMode)
 	{

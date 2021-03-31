@@ -487,7 +487,7 @@ __declspec(naked) void __stdcall MapXPosASM()
 }
 
 // Get texture resolution
-bool GetTextureRes(char *TexName, WORD &TextureX, WORD &TextureY)
+bool GetTextureRes(char *TexName, DWORD &TextureX, DWORD &TextureY)
 {
 	HANDLE hFile;
 	DWORD FileSize;
@@ -522,16 +522,6 @@ bool GetTextureRes(char *TexName, WORD &TextureX, WORD &TextureY)
 	}
 	CloseHandle(hFile);
 	return false;
-}
-
-// Get texture resolution
-bool GetTextureRes(char *TexName, DWORD &TextureX, DWORD &TextureY)
-{
-	WORD TextureXRes, TextureYRes;
-	bool flag = GetTextureRes(TexName, TextureXRes, TextureYRes);
-	TextureX = TextureXRes;
-	TextureY = TextureYRes;
-	return flag;
 }
 
 void SetImageScaling()
@@ -574,7 +564,7 @@ void SetFullscreenImagesRes(DWORD Width, DWORD Height)
 	case 0: // original [Size = 1.0f]
 		SizeFullscreen = 1.0f;
 		break;
-	case 1: // pillarboxed [no cropping]
+	case 1: // pillarboxed / letterboxed [no cropping]
 		SizeFullscreen = min(1.25f, alg3);
 		break;
 	default:
@@ -627,7 +617,7 @@ void Start00Scaling()
 
 	void *LogoHighlightHeight = (void*)((DWORD)Start00ScaleXAddr + 0x7E);
 
-	WORD Start00ResX, Start00ResY, SaveBGResX, SaveBGResY;
+	DWORD Start00ResX, Start00ResY, SaveBGResX, SaveBGResY;
 	if (!GetTextureRes("data/pic/etc/start00.tex", Start00ResX, Start00ResY) ||
 		!GetTextureRes("data/menu/mc/savebg.tbn2", SaveBGResX, SaveBGResY))
 	{

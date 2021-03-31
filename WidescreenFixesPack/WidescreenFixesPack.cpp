@@ -80,11 +80,11 @@ int GetValue(std::string_view, std::string_view szKey, int)
 	}
 	else if (szKey.compare("FMVWidescreenMode") == 0)
 	{
-		ret = FMVWidescreenMode;
+		ret = 0;
 	}
 	else if (szKey.compare("FMVWidescreenEnhancementPackCompatibility") == 0)
 	{
-		ret = FMVWidescreenEnhancementPackCompatibility;
+		ret = 0;
 	}
 	else if (szKey.compare("Fix2D") == 0)
 	{

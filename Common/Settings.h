@@ -42,7 +42,6 @@
 	visit(FixSaveBGImage, true) \
 	visit(FixTownWestGateEvent, true) \
 	visit(FlashlightFlickerFix, true) \
-	visit(FMVWidescreenMode, true) \
 	visit(FogParameterFix, true) \
 	visit(FogSpeedFix, true) \
 	visit(GamepadControlsFix, true) \
@@ -107,8 +106,8 @@
 	visit(fog_transparency_layer2, 112) \
 	visit(FogFix, 0xFFFF) /* Overloading the old 'fog_custom_on' option */ \
 	visit(FogLayerFix, 0xFFFF) /* Overloading the old 'Fog2DFix' option */ \
-	visit(FullscreenImages, 2) \
-	visit(FMVWidescreenEnhancementPackCompatibility, 2) \
+	visit(FullscreenImages, 3) \
+	visit(FullscreenVideos, 3) \
 	visit(LetterSpacing, 2) \
 	visit(NormalFontWidth, 20) \
 	visit(NormalFontHeight, 30) \
@@ -171,6 +170,8 @@ extern bool CustomExeStrSet;
 extern bool EnableCustomShaders;
 extern bool IsUpdatingModule;
 extern bool m_StopThreadFlag;
+extern bool AutoScaleImages;
+extern bool AutoScaleVideos;
 
 char* Read(wchar_t* szFileName);
 void Parse(char* str, NV NameValueCallback);

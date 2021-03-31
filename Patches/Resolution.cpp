@@ -42,6 +42,8 @@ LONG MaxWidth = 0, MaxHeight = 0;
 const DWORD MinWidth = 640;
 const DWORD MinHeight = 480;
 
+bool AutoScaleImages = false;
+bool AutoScaleVideos = false;
 BYTE *ResolutionIndex = nullptr;
 BYTE *MenuResolutionIndex = nullptr;
 BYTE *TextResIndex = nullptr;
@@ -151,27 +153,30 @@ __declspec(naked) void __stdcall ResArrowASM()
 	}
 }
 
+void SetDymanicScale(float AspectRatio)
+{
+	// Update FMV and fullscreen images
+	if (AspectRatio <= 1.34f) // 4:3 (4:3, 5:4, etc.)
+	{
+		FullscreenImages = (AutoScaleImages) ? 1 : FullscreenImages;
+		FullscreenVideos = (AutoScaleVideos) ? 1 : FullscreenVideos;
+	}
+	else if (AspectRatio < 1.76f) // 16:9 (16:10, 3:2, etc.)
+	{
+		FullscreenImages = (AutoScaleImages) ? 2 : FullscreenImages;
+		FullscreenVideos = (AutoScaleVideos) ? 2 : FullscreenVideos;
+	}
+	else // AspectRatio >= 16:9 (16:9, 21:9, etc.)
+	{
+		FullscreenImages = (AutoScaleImages) ? 2 : FullscreenImages;
+		FullscreenVideos = (AutoScaleVideos) ? 2 : FullscreenVideos;
+	}
+}
+
 void UpdateWSF()
 {
 	// Set aspect ratio
 	*SetAspectRatio = (float)ResX / (float)ResY;
-
-	// Update FMV and fullscreen images
-	if (*SetAspectRatio <= 1.34f) // 4:3 (4:3, 5:4, etc.)
-	{
-		FullscreenImages = 1;
-		FMVWidescreenEnhancementPackCompatibility = 3;
-	}
-	else if (*SetAspectRatio < 1.76f) // 16:9 (16:10, 3:2, etc.)
-	{
-		FullscreenImages = 2;
-		FMVWidescreenEnhancementPackCompatibility = 1;
-	}
-	else // AspectRatio >= 16:9 (16:9, 21:9, etc.)
-	{
-		FullscreenImages = 2;
-		FMVWidescreenEnhancementPackCompatibility = 2;
-	}
 
 	// Update Widescreen Fix for new resolution
 	WSFInit();

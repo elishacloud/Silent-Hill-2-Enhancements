@@ -357,10 +357,21 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 			SetRoom312Resolution(&BufferWidth);
 		}
 
+		if (AutoScaleImages || AutoScaleVideos)
+		{
+			SetDymanicScale((float)BufferWidth / (float)BufferHeight);
+		}
+
 		// Set fullscreen image resolution
 		if (FullscreenImages)
 		{
 			SetFullscreenImagesRes(BufferWidth, BufferHeight);
+		}
+
+		// Set fullscreen video resolution
+		if (FullscreenVideos)
+		{
+			SetFullscreenVideoRes(BufferWidth, BufferHeight);
 		}
 	}
 

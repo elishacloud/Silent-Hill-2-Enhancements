@@ -136,6 +136,26 @@ inline wint_t mytolower(const wchar_t chr)
 	return towlower(chr);
 }
 
+inline LPCSTR GetEnding1(LPCSTR)
+{
+	return "\\movie\\end.bik";
+}
+
+inline LPCWSTR GetEnding1(LPCWSTR)
+{
+	return L"\\movie\\end.bik";
+}
+
+inline LPCSTR GetEnding2(LPCSTR)
+{
+	return "\\movie\\ending.bik";
+}
+
+inline LPCWSTR GetEnding2(LPCWSTR)
+{
+	return L"\\movie\\ending.bik";
+}
+
 template<typename T>
 bool isInString(T strCheck, T str, size_t size)
 {
@@ -198,6 +218,43 @@ inline bool isDataPath(T sh2)
 }
 
 template<typename T>
+inline bool isEndVideoPath(T sh2)
+{
+	if ((sh2[0] == 'm' || sh2[0] == 'M') &&
+		(sh2[1] == 'o' || sh2[1] == 'O') &&
+		(sh2[2] == 'v' || sh2[2] == 'V') &&
+		(sh2[3] == 'i' || sh2[3] == 'I') &&
+		(sh2[4] == 'e' || sh2[4] == 'E') &&
+		(sh2[6] == 'e' || sh2[6] == 'E') &&
+		(sh2[7] == 'n' || sh2[7] == 'N') &&
+		(sh2[8] == 'd' || sh2[8] == 'D') &&
+		(sh2[9] == 'i' || sh2[9] == 'I') &&
+		(sh2[10] == 'n' || sh2[10] == 'N') &&
+		(sh2[11] == 'g' || sh2[11] == 'G') &&
+		(sh2[13] == 'b' || sh2[13] == 'B') &&
+		(sh2[14] == 'i' || sh2[14] == 'I') &&
+		(sh2[15] == 'k' || sh2[15] == 'K'))
+	{
+		return true;
+	}
+	if ((sh2[0] == 'm' || sh2[0] == 'M') &&
+		(sh2[1] == 'o' || sh2[1] == 'O') &&
+		(sh2[2] == 'v' || sh2[2] == 'V') &&
+		(sh2[3] == 'i' || sh2[3] == 'I') &&
+		(sh2[4] == 'e' || sh2[4] == 'E') &&
+		(sh2[6] == 'e' || sh2[6] == 'E') &&
+		(sh2[7] == 'n' || sh2[7] == 'N') &&
+		(sh2[8] == 'd' || sh2[8] == 'D') &&
+		(sh2[10] == 'b' || sh2[10] == 'B') &&
+		(sh2[11] == 'i' || sh2[11] == 'I') &&
+		(sh2[12] == 'k' || sh2[12] == 'K'))
+	{
+		return true;
+	}
+	return false;
+}
+
+template<typename T>
 inline DWORD getPicPath(T sh2)
 {
 	if ((sh2[0] == 'p' || sh2[0] == 'P') &&
@@ -244,53 +301,75 @@ T UpdateModPath(T sh2, D str)
 		return sh2;
 	}
 
-	T sh2_data = sh2 + modLoc;
+	DWORD padding = 0;
 
-	// Check relative path
+	// Check if data path is found and store location
 	if (isDataPath(sh2))
 	{
-		strcpy_s(str, MAX_PATH, ModPath(sh2));
-		strcpy_s(str + modLen, MAX_PATH - modLen, sh2 + 4);
-		if (UsePS2LowResTextures)
-		{
-			T sh2_pic = sh2 + 5;
-			DWORD PicPath = getPicPath(sh2_pic);
-			if (PicPath)
-			{
-				strcpy_s(str + modLen + 1, MAX_PATH - modLen - 1, ModPicPath(sh2));
-				strcpy_s(str + modLen + picLen + 1, MAX_PATH - modLen - picLen - 1, sh2_pic + PicPath);
-			}
-		}
-		if (PathExists(str))
-		{
-			return str;
-		}
-
+		// Data path found at location '0', do nothing
+	}
+	else if (isDataPath(sh2 + modLoc))
+	{
+		// Data path found at mod location, update padding and initialize
+		padding = modLoc;
+		strcpy_s(str, MAX_PATH, sh2);
+	}
+	else
+	{
+		// Could not find data path
 		return sh2;
 	}
 
-	// Check full path
-	if (isDataPath(sh2_data))
+	// Update path with new mod path
+	strcpy_s(str + padding, MAX_PATH - padding, ModPath(sh2));
+	strcpy_s(str + padding + modLen, MAX_PATH - padding - modLen, sh2 + padding + 4);
+
+	// Handle end.bik/ending.bik (favor end.bik)
+	if (isEndVideoPath(sh2 + padding + 5))
 	{
-		strcpy_s(str, MAX_PATH, sh2);
-		strcpy_s(str + modLoc, MAX_PATH - modLoc, ModPath(sh2));
-		strcpy_s(str + modLoc + modLen, MAX_PATH - modLoc - modLen, sh2_data + 4);
-		if (UsePS2LowResTextures)
+		// Check mod path
+		strcpy_s(str + padding + modLen, MAX_PATH - padding - modLen, GetEnding1(sh2));
+		if (PathExists(str))
 		{
-			T sh2_pic = sh2_data + 5;
-			DWORD PicPath = getPicPath(sh2_pic);
-			if (PicPath)
-			{
-				strcpy_s(str + modLoc + modLen + 1, MAX_PATH - modLoc - modLen, ModPicPath(sh2));
-				strcpy_s(str + modLoc + modLen + picLen + 1, MAX_PATH - modLoc - modLen - picLen - 1, sh2_pic + PicPath);
-			}
+			return str;
 		}
+		strcpy_s(str + padding + modLen, MAX_PATH - padding - modLen, GetEnding2(sh2));
 		if (PathExists(str))
 		{
 			return str;
 		}
 
+		// Check data path
+		strcpy_s(str, MAX_PATH, sh2);
+		strcpy_s(str + padding + 4, MAX_PATH - padding - 4, GetEnding1(sh2));
+		if (PathExists(str))
+		{
+			return str;
+		}
+		strcpy_s(str + padding + 4, MAX_PATH - padding - 4, GetEnding2(sh2));
+		if (PathExists(str))
+		{
+			return str;
+		}
 		return sh2;
+	}
+
+	// Handle PS2 low texture mod
+	if (UsePS2LowResTextures)
+	{
+		T sh2_pic = sh2 + padding + 5;
+		DWORD PicPath = getPicPath(sh2_pic);
+		if (PicPath)
+		{
+			strcpy_s(str + padding + modLen + 1, MAX_PATH - padding - modLen, ModPicPath(sh2));
+			strcpy_s(str + padding + modLen + picLen + 1, MAX_PATH - padding - modLen - picLen - 1, sh2_pic + PicPath);
+		}
+	}
+
+	// If mod path exists then use it
+	if (PathExists(str))
+	{
+		return str;
 	}
 
 	return sh2;

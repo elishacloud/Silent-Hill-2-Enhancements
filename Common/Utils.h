@@ -30,5 +30,5 @@ HMONITOR GetMonitorHandle();
 void GetDesktopRes(LONG &screenWidth, LONG &screenHeight);
 void GetDesktopRect(RECT &screenRect);
 HRESULT GetSavedResolution(DWORD &Width, DWORD &Height);
-void SaveResolution(DWORD Width, DWORD Height);
+HRESULT SaveResolution(DWORD Width, DWORD Height);
 void LogDirectory();

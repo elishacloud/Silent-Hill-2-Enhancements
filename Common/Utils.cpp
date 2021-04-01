@@ -697,39 +697,154 @@ void GetDesktopRect(RECT &screenRect)
 	screenRect.bottom = info.rcMonitor.bottom;
 }
 
-HRESULT GetSavedResolution(DWORD &Width, DWORD &Height)
+HRESULT GetResolutionFromConfig(DWORD &Width, DWORD &Height);
+
+void MigrateRegistry()
 {
+	DWORD Width = 0, Height = 0;
+
+	// Check if registry key exists
 	HKEY hKey;
-	if (RegCreateKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Konami\\Silent Hill 2\\sh2e", 0, nullptr, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, nullptr, &hKey, nullptr) != ERROR_SUCCESS)
+	if (RegOpenKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Konami\\Silent Hill 2\\sh2e", REG_OPTION_NON_VOLATILE, KEY_READ, &hKey) != ERROR_SUCCESS)
 	{
-		Logging::Log() << __FUNCTION__ << " Error: Failed to open registry key!";
-		return E_FAIL;
+		return;
 	}
-
-	DWORD Size = sizeof(DWORD);
-	RegGetValue(hKey, nullptr, L"Width", RRF_RT_DWORD, nullptr, &Width, &Size);
-
-	Size = sizeof(DWORD);
-	RegGetValue(hKey, nullptr, L"Height", RRF_RT_DWORD, nullptr, &Height, &Size);
-
 	RegCloseKey(hKey);
 
-	return S_OK;
-}
-
-void SaveResolution(DWORD Width, DWORD Height)
-{
-	HKEY hKey;
-	if (RegCreateKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Konami\\Silent Hill 2\\sh2e", 0, nullptr, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, nullptr, &hKey, nullptr) != ERROR_SUCCESS)
+	// Open registry key
+	if (RegOpenKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Konami\\Silent Hill 2", REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, &hKey) != ERROR_SUCCESS)
 	{
-		Logging::Log() << __FUNCTION__ << " Error: Failed to open registry key!";
 		return;
 	}
 
-	RegSetValueEx(hKey, L"Width", 0, REG_DWORD, (BYTE*)&Width, sizeof(DWORD));
-	RegSetValueEx(hKey, L"Height", 0, REG_DWORD, (BYTE*)&Height, sizeof(DWORD));
+	DWORD Size = sizeof(DWORD);
+	RegGetValue(hKey, L"sh2e", L"Width", RRF_RT_DWORD, nullptr, &Width, &Size);
+
+	Size = sizeof(DWORD);
+	RegGetValue(hKey, L"sh2e", L"Height", RRF_RT_DWORD, nullptr, &Height, &Size);
+
+	if (Width && Height)
+	{
+		DWORD TestWidth = 0, TestHeight = 0;
+
+		if (FAILED(GetResolutionFromConfig(TestWidth, TestHeight)) || !TestWidth || !TestHeight)
+		{
+			if (FAILED(SaveResolution(Width, Height)))
+			{
+				RegCloseKey(hKey);
+				return;
+			}
+		}
+	}
+
+	RegDeleteKey(hKey, L"sh2e");
 
 	RegCloseKey(hKey);
+
+	return;
+}
+
+bool GetConfigName(char *ConfigName)
+{
+	if (GetModulePath(ConfigName, MAX_PATH) && strrchr(ConfigName, '\\'))
+	{
+		char t_name[MAX_PATH] = {};
+		strcpy_s(t_name, MAX_PATH - strlen(ConfigName) - 1, strrchr(ConfigName, '\\') + 1);
+		if (strrchr(ConfigName, '.'))
+		{
+			strcpy_s(strrchr(t_name, '.'), MAX_PATH - strlen(t_name), "\0");
+		}
+		strcpy_s(strrchr(ConfigName, '\\'), MAX_PATH - strlen(ConfigName), "\0");
+		std::string name(t_name);
+		std::transform(name.begin(), name.end(), name.begin(), [](char c) { return (char)towlower(c); });
+		strcpy_s(ConfigName, MAX_PATH, std::string(std::string(ConfigName) + "\\" + name + ".cfg").c_str());
+
+		return true;
+	}
+	return false;
+}
+
+struct CFGDATA
+{
+	DWORD Width = 0;
+	DWORD Height = 0;
+};
+
+HRESULT GetResolutionFromConfig(DWORD &Width, DWORD &Height)
+{
+	char ConfigName[MAX_PATH] = {};
+	if (!GetConfigName(ConfigName))
+	{
+		return E_FAIL;
+	}
+
+	HANDLE hFile;
+	DWORD FileSize;
+	const DWORD BytesToRead = sizeof(CFGDATA);
+	DWORD dwBytesRead;
+
+	CFGDATA ConfigData;
+	hFile = CreateFileA(ConfigName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		return E_FAIL;
+	}
+	FileSize = GetFileSize(hFile, nullptr);
+
+	if (FileSize < BytesToRead || FileSize == 0xFFFFFFFF ||
+		!ReadFile(hFile, (void*)&ConfigData, BytesToRead, &dwBytesRead, nullptr) ||
+		dwBytesRead < BytesToRead)
+	{
+		CloseHandle(hFile);
+		return E_FAIL;
+	}
+
+	if (ConfigData.Width && ConfigData.Height)
+	{
+		Width = ConfigData.Width;
+		Height = ConfigData.Height;
+
+		CloseHandle(hFile);
+		return S_OK;
+	}
+
+	CloseHandle(hFile);
+	return E_FAIL;
+}
+
+HRESULT GetSavedResolution(DWORD &Width, DWORD &Height)
+{
+	// Migrate old registry keys to config file 
+	MigrateRegistry();
+
+	// Check for config file
+	return GetResolutionFromConfig(Width, Height);
+}
+
+HRESULT SaveResolution(DWORD Width, DWORD Height)
+{
+	char ConfigName[MAX_PATH] = {};
+	if (!GetConfigName(ConfigName))
+	{
+		return E_FAIL;
+	}
+
+	HANDLE hFile;
+	const DWORD BytesToRead = sizeof(CFGDATA);
+	DWORD dwBytesWritten;
+
+	CFGDATA ConfigData = { Width, Height };
+	hFile = CreateFileA(ConfigName, GENERIC_WRITE, FILE_SHARE_WRITE, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		return E_FAIL;
+	}
+
+	BOOL bRet = WriteFile(hFile, (void*)&ConfigData, BytesToRead, &dwBytesWritten, nullptr);
+
+	CloseHandle(hFile);
+
+	return (bRet) ? S_OK : E_FAIL;
 }
 
 void LogDirectory()

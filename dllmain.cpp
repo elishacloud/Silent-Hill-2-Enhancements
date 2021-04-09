@@ -42,11 +42,14 @@ bool CustomExeStrSet = false;
 bool EnableCustomShaders = false;
 bool IsUpdatingModule = false;
 bool m_StopThreadFlag = false;			// Used for thread functions
+bool IsLoadConfig = false;
 
-void DelayedStart()
+// Paths
+wchar_t configpath[MAX_PATH] = {};
+
+void GetConfig()
 {
-	// Get config file path
-	wchar_t configpath[MAX_PATH] = {};
+	// Get config file path	
 	if (GetModulePath(configpath, MAX_PATH) && wcsrchr(configpath, '\\'))
 	{
 		wchar_t t_name[MAX_PATH] = {};
@@ -65,7 +68,6 @@ void DelayedStart()
 	char* szCfg = Read(configpath);
 
 	// Parce config file
-	bool IsLoadConfig = false;
 	if (szCfg)
 	{
 		IsLoadConfig = true;
@@ -74,10 +76,10 @@ void DelayedStart()
 
 		UpdateConfigDefaults();
 	}
+}
 
-	// Check arguments for PID
-	CheckArgumentsForPID();
-
+void StartLogging()
+{
 	// Get log file path and open log file
 	wchar_t logpath[MAX_PATH];
 	wcscpy_s(logpath, MAX_PATH, configpath);
@@ -87,12 +89,10 @@ void DelayedStart()
 
 	// Starting
 	Logging::Log() << "Starting Silent Hill 2 Enhancements! v" << APP_VERSION;
+}
 
-	// Init Logs
-	Logging::LogComputerManufacturer();
-	Logging::LogOSVersion();
-	Logging::LogProcessNameAndPID();
-
+void GetGameVersion()
+{
 	// Game version
 	if (memcmp((void*)0x00401005, "\xE9\x56\x25\x00\x00\xE9\x71\x25\x00\x00\xE9\xFC\x69\x00\x00\xE9\x77\x06\x00\x00", 0x14) == 0)
 	{
@@ -113,6 +113,17 @@ void DelayedStart()
 	{
 		Logging::Log() << "Warning: Unknown game binary version!";
 	}
+}
+
+void DelayedStart()
+{
+	// Init Logs
+	Logging::LogComputerManufacturer();
+	Logging::LogOSVersion();
+	Logging::LogProcessNameAndPID();
+
+	// Check arguments for PID
+	CheckArgumentsForPID();
 
 	// Remove unsupported compatibility settings
 	// Needs to be before CheckAdminAccess()
@@ -144,7 +155,7 @@ void DelayedStart()
 		Logging::Log() << "|----------- SETTINGS -----------";
 
 		// Log config settings
-		szCfg = Read(configpath);
+		char* szCfg = Read(configpath);
 		if (szCfg)
 		{
 			Parse(szCfg, LogCallback);
@@ -215,12 +226,6 @@ void DelayedStart()
 		InstallFileSystemHooks(m_hModule);
 	}
 
-	// Fix Windows Game Explorer issue
-	if (DisableGameUX)
-	{
-		InstallCreateProcessHooks();
-	}
-
 	// Enable No-CD Patch
 	if (NoCDPatch)
 	{
@@ -240,12 +245,6 @@ void DelayedStart()
 	if (EnableTexAddrHack)
 	{
 		PatchTexAddr();
-	}
-
-	// Sets application DPI aware which disables DPI virtulization/High DPI scaling for this process
-	if (DisableHighDPIScaling)
-	{
-		SetDPIAware();
 	}
 
 	// Disable screensaver
@@ -546,10 +545,31 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		// Store Module handle
 		m_hModule = hModule;
 
+		// Get configuration
+		GetConfig();
+
+		// Start logging
+		StartLogging();
+
+		// Get game version
+		GetGameVersion();
+
+		// Sets application DPI aware which disables DPI virtulization/High DPI scaling for this process
+		if (DisableHighDPIScaling)
+		{
+			SetDPIAware();
+		}
+
 		// Allows application to use Windows themes
 		if (ScreenMode != 3 && WndModeBorder)
 		{
-			SetGUITheme(nullptr);
+			SetAppTheme();
+		}
+
+		// Fix Windows Game Explorer issue
+		if (DisableGameUX)
+		{
+			InstallCreateProcessHooks();
 		}
 
 		// Set things to load on delayed access

@@ -52,5 +52,6 @@ void SetDelayedStart()
 	jmpDelayedStart = (void*)(Address + 5);
 
 	// Update SH2 code
+	Logging::Log() << "Setting delayed startup...";
 	WriteJMPtoMemory((BYTE*)Address, *DelayedStartASM, 5);
 }

@@ -464,7 +464,7 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	// Handle Windows themes
 	if (ScreenMode != 3 && WndModeBorder)
 	{
-		SetGUITheme(MainhWnd);
+		SetWindowTheme(MainhWnd);
 	}
 
 	// Get screen width and height
@@ -525,7 +525,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case  WM_WININICHANGE:
 		if (lParam && WndModeBorder && ScreenMode != 3 && !_stricmp((char*)lParam, "ImmersiveColorSet"))
 		{
-			SetGUITheme(DeviceWindow);
+			SetWindowTheme(DeviceWindow);
 		}
 	case WM_SYSKEYDOWN:
 		if (wParam == VK_RETURN && DynamicResolution && ScreenMode != 3)

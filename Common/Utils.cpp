@@ -379,9 +379,9 @@ void SetDPIAware()
 	Logging::Log() << "Disabling High DPI Scaling...";
 
 	BOOL setDpiAware = FALSE;
-	HMODULE hUser32 = LoadLibrary(L"user32.dll");
-	HMODULE hShcore = LoadLibrary(L"shcore.dll");
-	if (hUser32 && !setDpiAware)
+	HMODULE hUser32 = GetModuleHandle(L"user32.dll");
+
+	if (!setDpiAware)
 	{
 		SetProcessDpiAwarenessContextProc setProcessDpiAwarenessContext = (SetProcessDpiAwarenessContextProc)GetProcAddress(hUser32, "SetProcessDpiAwarenessContext");
 
@@ -390,8 +390,9 @@ void SetDPIAware()
 			setDpiAware |= setProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE);
 		}
 	}
-	if (hShcore && !setDpiAware)
+	if (!setDpiAware)
 	{
+		HMODULE hShcore = LoadLibrary(L"shcore.dll");
 		SetProcessDpiAwarenessProc setProcessDpiAwareness = (SetProcessDpiAwarenessProc)GetProcAddress(hShcore, "SetProcessDpiAwareness");
 
 		if (setProcessDpiAwareness)
@@ -399,7 +400,7 @@ void SetDPIAware()
 			setDpiAware |= SUCCEEDED(setProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE));
 		}
 	}
-	if (hUser32 && !setDpiAware)
+	if (!setDpiAware)
 	{
 		SetProcessDPIAwareProc setProcessDPIAware = (SetProcessDPIAwareProc)GetProcAddress(hUser32, "SetProcessDPIAware");
 
@@ -416,8 +417,10 @@ void SetDPIAware()
 }
 
 // Allow for dark mode theme
-void SetGUITheme(HWND hWnd)
+HMODULE SetAppTheme()
 {
+	LOG_ONCE("Setting GUI theme...");
+
 	static HMODULE hUxtheme = LoadLibrary(L"uxtheme.dll");
 
 	using SetThemeAppPropertiesProc = void (WINAPI *)(_In_ DWORD dwFlags);
@@ -425,14 +428,24 @@ void SetGUITheme(HWND hWnd)
 
 	if (SetThemeAppProperties)
 	{
+		LOG_ONCE("Setting theme properties...");
 		SetThemeAppProperties(STAP_ALLOW_NONCLIENT);
 	}
+
+	return hUxtheme;
+}
+
+// Allow for dark mode theme
+void SetWindowTheme(HWND hWnd)
+{
+	HMODULE hUxtheme = SetAppTheme();
 
 	using SetWindowThemeProc = void (WINAPI *)(_In_ HWND hwnd, _In_opt_ LPCWSTR pszSubAppName, _In_opt_ LPCWSTR pszSubIdList);
 	static SetWindowThemeProc SetWindowTheme = (SetWindowThemeProc)GetProcAddress(hUxtheme, "SetWindowTheme");
 
 	if (SetWindowTheme && hWnd)
 	{
+		LOG_ONCE("Setting Window theme...");
 		SetWindowTheme(hWnd, L"Explorer", NULL);
 	}
 
@@ -443,6 +456,7 @@ void SetGUITheme(HWND hWnd)
 
 	if (DwmSetWindowAttribute && hWnd)
 	{
+		LOG_ONCE("Setting Window Attributes...");
 		BOOL fBool = !GetAppsLightMode();
 		DwmSetWindowAttribute(hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &fBool, sizeof(BOOL));
 	}

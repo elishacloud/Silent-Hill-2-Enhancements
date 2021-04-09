@@ -30,6 +30,7 @@ void PatchCreatureVehicleSpawn()
 		return;
 	}
 
+	// Update SH2 code
 	Logging::Log() << "Fixing behavior of Lying Figures that are hiding under vehicles...";
 	UpdateMemoryAddress((void*)CreatureAddr, "\x90\x90\x90", 3);
 }

@@ -360,14 +360,15 @@ void SetSingleCoreAffinity()
 	HANDLE hCurrentProcess = GetCurrentProcess();
 	if (GetProcessAffinityMask(hCurrentProcess, &ProcessAffinityMask, &SystemAffinityMask))
 	{
-		DWORD_PTR AffinityMask = 1;
-		while (AffinityMask && (AffinityMask & ProcessAffinityMask) == 0)
+		DWORD_PTR AffinityLow = 1;
+		while (AffinityLow && (AffinityLow & SystemAffinityMask) == 0)
 		{
-			AffinityMask <<= 1;
+			AffinityLow <<= 1;
 		}
-		if (AffinityMask)
+		if (AffinityLow)
 		{
-			SetProcessAffinityMask(hCurrentProcess, ((AffinityMask << (SingleCoreAffinity - 1)) & ProcessAffinityMask) ? (AffinityMask << (SingleCoreAffinity - 1)) : AffinityMask);
+			DWORD_PTR nMask = ((AffinityLow << (SingleCoreAffinity - 1)) & SystemAffinityMask) ? (AffinityLow << (SingleCoreAffinity - 1)) : AffinityLow;
+			SetProcessAffinityMask(hCurrentProcess, nMask);
 		}
 	}
 	CloseHandle(hCurrentProcess);

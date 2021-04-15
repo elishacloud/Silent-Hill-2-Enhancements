@@ -55,6 +55,8 @@ ULONG m_IDirectSoundBuffer8::Release()
 
 	EnterCriticalSection(&AudioClip.dics);
 
+	ProxyInterface->Stop();
+
 	ULONG x = ProxyInterface->Release();
 
 	if (x == 0 && AudioClip.ds_ThreadID)
@@ -170,7 +172,7 @@ HRESULT m_IDirectSoundBuffer8::Play(DWORD dwReserved1, DWORD dwPriority, DWORD d
 		return DS_OK;
 	}
 
-	return ProxyInterface->Play(dwReserved1, dwPriority, dwFlags);
+	return ProxyInterface->Play(dwReserved1, dwPriority, dwFlags | ((AudioClipDetection) ? DSBPLAY_TERMINATEBY_TIME : 0));
 }
 
 HRESULT m_IDirectSoundBuffer8::SetCurrentPosition(DWORD dwNewPosition)

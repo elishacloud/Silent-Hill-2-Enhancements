@@ -6,7 +6,7 @@ struct AUDIOCLIP
 	CRITICAL_SECTION dics;
 	LPDIRECTSOUNDBUFFER8 ProxyInterface = nullptr;
 	LONG CurrentVolume = 0;
-	LARGE_INTEGER StartingTime, EndingTime, Frequency;
+	LARGE_INTEGER StartingTime, EndingTime;
 	bool PendingStop = false;
 };
 
@@ -76,5 +76,7 @@ public:
 	STDMETHOD(GetObjectInPath)(THIS_ _In_ REFGUID rguidObject, DWORD dwIndex, _In_ REFGUID rguidInterface, _Outptr_ LPVOID *ppObject);
 
 	// Helper functions
+	bool CheckThreadRunning();
+	void StopThread();
 	bool CheckGameResults();
 };

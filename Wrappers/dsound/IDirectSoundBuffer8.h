@@ -6,7 +6,7 @@ struct AUDIOCLIP
 	CRITICAL_SECTION dics;
 	LPDIRECTSOUNDBUFFER8 ProxyInterface = nullptr;
 	LONG CurrentVolume = 0;
-	LARGE_INTEGER StartingTime, EndingTime;
+	HANDLE hTriggerEvent;
 	bool PendingStop = false;
 };
 
@@ -27,6 +27,9 @@ public:
 
 		// Initialize Critical Section
 		InitializeCriticalSection(&AudioClip.dics);
+		wchar_t EventName[MAX_PATH];
+		swprintf(EventName, MAX_PATH, L"Local\\SH2EAudioClipDetection-%u", (DWORD)this);
+		AudioClip.hTriggerEvent = CreateEvent(nullptr, FALSE, FALSE, EventName);
 
 		ProxyAddressLookupTableDsound.SaveAddress(this, ProxyInterface);
 	}
@@ -36,6 +39,7 @@ public:
 
 		// Delete Critical Section
 		DeleteCriticalSection(&AudioClip.dics);
+		CloseHandle(AudioClip.hTriggerEvent);
 
 		ProxyAddressLookupTableDsound.DeleteAddress(this);
 	}

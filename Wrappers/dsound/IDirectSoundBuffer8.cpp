@@ -53,8 +53,6 @@ ULONG m_IDirectSoundBuffer8::Release()
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
 
-	ProxyInterface->Stop();
-
 	if (CheckThreadRunning())
 	{
 		StopThread();
@@ -178,7 +176,7 @@ HRESULT m_IDirectSoundBuffer8::Play(DWORD dwReserved1, DWORD dwPriority, DWORD d
 		ProxyInterface->SetVolume(AudioClip.CurrentVolume);
 	}
 
-	return ProxyInterface->Play(dwReserved1, dwPriority, dwFlags | ((AudioClipDetection) ? DSBPLAY_TERMINATEBY_TIME : 0));
+	return ProxyInterface->Play(dwReserved1, dwPriority, dwFlags);
 }
 
 HRESULT m_IDirectSoundBuffer8::SetCurrentPosition(DWORD dwNewPosition)
@@ -261,12 +259,6 @@ HRESULT m_IDirectSoundBuffer8::Stop()
 			// Lower volume
 			ProxyInterface->SetVolume(DSBVOLUME_MIN);
 
-			// Get current counter
-			LARGE_INTEGER Frequency = {};
-			QueryPerformanceFrequency(&Frequency);
-			QueryPerformanceCounter(&AudioClip.StartingTime);
-			AudioClip.EndingTime.QuadPart = AudioClip.StartingTime.QuadPart + ((Frequency.QuadPart / 1000) * ((AudioFadeOutDelayMS) ? AudioFadeOutDelayMS : 20));
-
 			// Start thread
 			if (CreateThread(nullptr, 0, ResetPending, &AudioClip, 0, &AudioClip.ds_ThreadID) == nullptr || !AudioClip.ds_ThreadID)
 			{
@@ -278,10 +270,7 @@ HRESULT m_IDirectSoundBuffer8::Stop()
 		LeaveCriticalSection(&AudioClip.dics);
 
 		// Return
-		if (CheckThreadRunning())
-		{
-			return DS_OK;
-		}
+		return DS_OK;
 	}
 
 	// Return
@@ -346,8 +335,6 @@ bool m_IDirectSoundBuffer8::CheckThreadRunning()
 	if (AudioClip.ds_ThreadID)
 	{
 		ThreadRunning = true;
-		AudioClip.PendingStop = false;
-		AudioClip.ProxyInterface = nullptr;
 	}
 
 	LeaveCriticalSection(&AudioClip.dics);
@@ -357,8 +344,15 @@ bool m_IDirectSoundBuffer8::CheckThreadRunning()
 
 void m_IDirectSoundBuffer8::StopThread()
 {
+	// Trigger thread
+	SetEvent(AudioClip.hTriggerEvent);
+
+	// Wiat for thread to exit
 	bool flag = false;
 	do {
+
+		Sleep(0);
+
 		EnterCriticalSection(&AudioClip.dics);
 
 		flag = (AudioClip.ds_ThreadID != 0);
@@ -389,18 +383,7 @@ DWORD WINAPI ResetPending(LPVOID pvParam)
 	AUDIOCLIP &AudioClip = *(AUDIOCLIP*)pvParam;
 
 	// Add slight delay
-	bool flag = false;
-	do {
-		Sleep(0);
-
-		EnterCriticalSection(&AudioClip.dics);
-
-		QueryPerformanceCounter(&AudioClip.StartingTime);
-		flag = (AudioClip.PendingStop && AudioClip.StartingTime.QuadPart < AudioClip.EndingTime.QuadPart);
-
-		LeaveCriticalSection(&AudioClip.dics);
-
-	} while (flag);
+	WaitForSingleObject(AudioClip.hTriggerEvent, ((AudioFadeOutDelayMS) ? AudioFadeOutDelayMS : 20));
 
 	EnterCriticalSection(&AudioClip.dics);
 

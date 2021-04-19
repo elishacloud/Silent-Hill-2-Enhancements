@@ -68,7 +68,7 @@ HRESULT m_IDirectSound8::CreateSoundBuffer(LPCDSBUFFERDESC pcDSBufferDesc, LPDIR
 	if (AudioClipDetection && pcDSBufferDesc)
 	{
 		DSBUFFERDESC *DSBufferDesc = (DSBUFFERDESC*)pcDSBufferDesc;
-		DSBufferDesc->dwFlags |= DSBCAPS_CTRLVOLUME | DSBCAPS_LOCDEFER;
+		DSBufferDesc->dwFlags |= DSBCAPS_CTRLVOLUME;
 	}
 
 	HRESULT hr;

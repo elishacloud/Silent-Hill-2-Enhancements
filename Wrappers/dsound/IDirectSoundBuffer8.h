@@ -6,7 +6,7 @@ struct AUDIOCLIP
 	CRITICAL_SECTION dics;
 	LPDIRECTSOUNDBUFFER8 ProxyInterface = nullptr;
 	LONG CurrentVolume = 0;
-	HANDLE hTriggerEvent;
+	HANDLE hTriggerEvent = nullptr;
 	bool PendingStop = false;
 };
 

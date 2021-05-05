@@ -48,6 +48,7 @@
 	visit(GameLoadFix, true) \
 	visit(HalogenLightFix, true) \
 	visit(HookDirect3D, true) \
+	visit(HookDirectSound, true) \
 	visit(HospitalChaseFix, true) \
 	visit(HotelWaterFix, true) \
 	visit(ImproveStorageSupport, true) \

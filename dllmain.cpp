@@ -209,7 +209,7 @@ void DelayedStart()
 	}
 
 	// Hook DirectSound8
-	if (AudioClipDetection)
+	if (HookDirectSound)
 	{
 		HookDirectSoundCreate8();
 	}

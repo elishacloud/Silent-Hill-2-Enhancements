@@ -22,8 +22,6 @@
 #include "Settings.h"
 #include "Logging\Logging.h"
 
-#pragma comment (lib, "Psapi.lib")
-
 // API typedef
 typedef DWORD(WINAPI *PFN_GetModuleFileNameA)(HMODULE, LPSTR, DWORD);
 typedef DWORD(WINAPI *PFN_GetModuleFileNameW)(HMODULE, LPWSTR, DWORD);

@@ -352,13 +352,17 @@ DWORD ReplaceMemoryBytes(void *dataSrc, void *dataDest, size_t size, DWORD start
 	return counter;
 }
 
-// Set Single Core Affinity
-void SetSingleCoreAffinity()
+// Get processor mask
+DWORD_PTR GetProcessMask()
 {
-	Logging::Log() << "Setting SingleCoreAffinity...";
+	static DWORD_PTR nMask = 0;
+	if (nMask)
+	{
+		return nMask;
+	}
+
 	DWORD_PTR ProcessAffinityMask, SystemAffinityMask;
-	HANDLE hCurrentProcess = GetCurrentProcess();
-	if (GetProcessAffinityMask(hCurrentProcess, &ProcessAffinityMask, &SystemAffinityMask))
+	if (GetProcessAffinityMask(GetCurrentProcess(), &ProcessAffinityMask, &SystemAffinityMask))
 	{
 		DWORD_PTR AffinityLow = 1;
 		while (AffinityLow && (AffinityLow & SystemAffinityMask) == 0)
@@ -367,11 +371,19 @@ void SetSingleCoreAffinity()
 		}
 		if (AffinityLow)
 		{
-			DWORD_PTR nMask = ((AffinityLow << (SingleCoreAffinity - 1)) & SystemAffinityMask) ? (AffinityLow << (SingleCoreAffinity - 1)) : AffinityLow;
-			SetProcessAffinityMask(hCurrentProcess, nMask);
+			nMask = ((AffinityLow << (SingleCoreAffinityLegacy - 1)) & SystemAffinityMask) ? (AffinityLow << (SingleCoreAffinityLegacy - 1)) : AffinityLow;
 		}
 	}
-	CloseHandle(hCurrentProcess);
+
+	Logging::Log() << __FUNCTION__ << " Setting CPU mask: " << Logging::hex(nMask);
+	return nMask;
+}
+
+// Set Single Core Affinity
+void SetSingleCoreAffinity()
+{
+	Logging::Log() << "Setting SingleCoreAffinity...";
+	SetProcessAffinityMask(GetCurrentProcess(), GetProcessMask());
 }
 
 // Sets application DPI aware which disables DPI virtulization/High DPI scaling for this process

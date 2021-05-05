@@ -22,12 +22,11 @@
 #include "Wrappers\d3d8\d3d8wrapper.h"
 #include "Patches\patches.h"
 #include "Common\Utils.h"
-
 #include <dinput.h>
-#pragma comment(lib, "dxguid.lib")
-
 #include <Xinput.h>
-#pragma comment(lib, "Xinput9_1_0.lib")
+
+typedef DWORD *(WINAPI *XInputSetStateProc)(DWORD dwUserIndex, XINPUT_VIBRATION *pVibration);
+XInputSetStateProc pXInputSetState = nullptr;
 
 BYTE *IntensityAddr = nullptr;		// IntensityAddr (0 = Off, 1 = Soft, 2 = Normal, 3 = Hard)
 m_IDirectInputEffect StubXInputEffect(nullptr);
@@ -134,8 +133,11 @@ HRESULT m_IDirectInputEffect::Start(DWORD dwIterations, DWORD dwFlags)
 		}
 
 		// xinput
-		XINPUT_VIBRATION vib = { XIntensity, XIntensity };
-		XInputSetState(PadNumber, &vib);
+		if (pXInputSetState)
+		{
+			XINPUT_VIBRATION vib = { XIntensity, XIntensity };
+			pXInputSetState(PadNumber, &vib);
+		}
 
 		// dinput
 		DIEFFECT diEffect;
@@ -156,8 +158,11 @@ HRESULT m_IDirectInputEffect::Stop()
 
 	if (RestoreVibration && m_vibrating)
 	{
-		XINPUT_VIBRATION vib = { 0, 0 };
-		XInputSetState(PadNumber, &vib);
+		if (pXInputSetState)
+		{
+			XINPUT_VIBRATION vib = { 0, 0 };
+			pXInputSetState(PadNumber, &vib);
+		}
 		m_vibrating = false;
 	}
 
@@ -243,6 +248,20 @@ void PatchXInputVibration()
 	{
 		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
 		return;
+	}
+
+	// Load xinput module
+	for (auto dllname : { L"xinput1_4.dll" , L"xinput9_1_0.dll",  L"xinput1_3.dll",  L"xinput1_2.dll",  L"xinput1_1.dll" })
+	{
+		HMODULE dll = LoadLibrary(dllname);
+		if (dll)
+		{
+			pXInputSetState = (XInputSetStateProc)GetProcAddress(dll, "XInputSetState");
+			if (pXInputSetState)
+			{
+				break;
+			}
+		}
 	}
 
 	// Update SH2 code

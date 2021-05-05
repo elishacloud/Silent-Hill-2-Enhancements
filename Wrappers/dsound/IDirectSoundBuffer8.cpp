@@ -79,6 +79,12 @@ HRESULT m_IDirectSoundBuffer8::GetCurrentPosition(LPDWORD pdwCurrentPlayCursor, 
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
 
+	// Disable sound when in Game Results
+	if (CheckGameResults())
+	{
+		Stop();
+	}
+
 	return ProxyInterface->GetCurrentPosition(pdwCurrentPlayCursor, pdwCurrentWriteCursor);
 }
 
@@ -131,6 +137,12 @@ HRESULT m_IDirectSoundBuffer8::GetFrequency(LPDWORD pdwFrequency)
 HRESULT m_IDirectSoundBuffer8::GetStatus(LPDWORD pdwStatus)
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
+
+	// Disable sound when in Game Results
+	if (CheckGameResults())
+	{
+		Stop();
+	}
 
 	return ProxyInterface->GetStatus(pdwStatus);
 }
@@ -326,6 +338,17 @@ HRESULT m_IDirectSoundBuffer8::GetObjectInPath(REFGUID rguidObject, DWORD dwInde
 	return hr;
 }
 
+// Helper functions
+bool m_IDirectSoundBuffer8::CheckGameResults()
+{
+	if (IsInGameResults && GetEventIndex() == 2)
+	{
+		IsInGameResults = false;
+	}
+
+	return (IsInGameResults && (GetEventIndex() == 10 || GetEventIndex() == 11));
+}
+
 bool m_IDirectSoundBuffer8::CheckThreadRunning()
 {
 	bool ThreadRunning = false;
@@ -360,17 +383,6 @@ void m_IDirectSoundBuffer8::StopThread()
 		LeaveCriticalSection(&AudioClip.dics);
 
 	} while (flag);
-}
-
-// Helper functions
-bool m_IDirectSoundBuffer8::CheckGameResults()
-{
-	if (IsInGameResults && GetEventIndex() == 2)
-	{
-		IsInGameResults = false;
-	}
-
-	return (IsInGameResults && (GetEventIndex() == 10 || GetEventIndex() == 11));
 }
 
 DWORD WINAPI ResetPending(LPVOID pvParam)

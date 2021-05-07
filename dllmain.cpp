@@ -220,6 +220,12 @@ void DelayedStart()
 		HookDirectInput8Create();
 	}
 
+	// Fix audio thread issues
+	if (FixAudioThreadDeadlock)
+	{
+		InstallCreateThreadHooks();
+	}
+
 	// Hook CreateFile API when using UseCustomModFolder
 	if (UseCustomModFolder)
 	{
@@ -492,12 +498,6 @@ void DelayedStart()
 	if (LoadPlugins && Wrapper::dtype != DTYPE_ASI)
 	{
 		LoadASIPlugins(LoadFromScriptsOnly);
-	}
-
-	// Set single core affinity
-	if (SingleCoreAffinity && !SingleCoreAffinityTimer)
-	{
-		SetSingleCoreAffinity();
 	}
 
 	// Find GetModelID when a dependent fix is enabled

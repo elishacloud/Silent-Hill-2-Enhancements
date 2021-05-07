@@ -31,6 +31,7 @@
 	visit(FastTransitions, true) \
 	visit(Fix2D, true) \
 	visit(FixAptClockFlashlight, true) \
+	visit(FixAudioThreadDeadlock, true) \
 	visit(FixChainsawSpawn, true) \
 	visit(FixCreatureVehicleSpawn, true) \
 	visit(FixDrawingTextLine, true) \
@@ -119,8 +120,7 @@
 	visit(IncreaseNoiseEffectRes, 768) \
 	visit(RestoreSearchCamMovement, 1) \
 	visit(ScreenMode, 0xFFFF) /* Overloading the old 'EnableWndMode' and 'FullscreenWndMode' options */ \
-	visit(SingleCoreAffinity, 2) \
-	visit(SingleCoreAffinityTimer, 5000) \
+	visit(SingleCoreAffinityLegacy, 0) \
 	visit(SmallFontWidth, 16) \
 	visit(SmallFontHeight, 24) \
 	visit(SpaceSize, 7)

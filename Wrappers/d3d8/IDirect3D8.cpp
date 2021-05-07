@@ -309,7 +309,7 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	}
 
 	// Set single core affinity
-	if (SingleCoreAffinity && SingleCoreAffinityTimer)
+	if (SingleCoreAffinityLegacy)
 	{
 		RUNCODEONCE(SetSingleCoreAffinity());
 	}

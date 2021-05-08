@@ -14,3 +14,5 @@ std::ostream& operator<<(std::ostream& os, const DSERR& ErrCode);
 #ifdef GUID_DEFINED
 std::ostream& operator<<(std::ostream& os, REFIID riid);
 #endif
+std::ostream& operator<<(std::ostream& os, const POINT& p);
+std::ostream& operator<<(std::ostream& os, const RECT& rect);

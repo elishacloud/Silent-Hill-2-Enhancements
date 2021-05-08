@@ -191,3 +191,20 @@ std::ostream& operator<<(std::ostream& os, const DSERR& ErrCode)
 
 	return os << Logging::hex((DWORD)ErrCode);
 }
+
+std::ostream& operator<<(std::ostream& os, const POINT& p)
+{
+	return Logging::LogStruct(os)
+		<< p.x
+		<< p.y;
+}
+
+std::ostream& operator<<(std::ostream& os, const RECT& rect)
+{
+	return Logging::LogStruct(os)
+		<< rect.left
+		<< rect.top
+		<< rect.right
+		<< rect.bottom;
+}
+

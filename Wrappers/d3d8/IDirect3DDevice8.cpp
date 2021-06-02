@@ -1012,6 +1012,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	}
 
 	DrawingShadowsFlag = false;
+	IsNoiseFilterVertexSet = false;
 
 	// For blur frame flicker fix
 	if (EndSceneCounter == 1)
@@ -1454,16 +1455,32 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 
 		IsInFullscreenImage = true;
 	}
-	// Set pillar boxes to black (removes noise filter from fullscreen images)
-	else if (IsInFullscreenImage && PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 24 && pVertexStreamZeroData &&
-		((CUSTOMVERTEX_TEX1*)pVertexStreamZeroData)[0].z == 0.0f && ((CUSTOMVERTEX_TEX1*)pVertexStreamZeroData)[1].z == 0.0f)
-	{
-		return D3D_OK;
-	}
 	// Set pillar boxes to black (removes fog from West Town fullscreen images)
 	else if (IsInFullscreenImage && PrimitiveType == D3DPT_TRIANGLEFAN && PrimitiveCount == 4 && VertexStreamZeroStride == 24 && GetRoomID() == 0x08)
 	{
 		return D3D_OK;
+	}
+	// Set pillar boxes to black (removes noise filter from fullscreen images and limits noise filter size for FMVs)
+	else if (PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 24 && pVertexStreamZeroData &&
+		((CUSTOMVERTEX_TEX1*)pVertexStreamZeroData)[0].z == 0.0f && ((CUSTOMVERTEX_TEX1*)pVertexStreamZeroData)[1].z == 0.0f)
+	{
+		if (IsInFullscreenImage)
+		{
+			// Remove noise filter from fullscreen images
+			return D3D_OK;
+		}
+		else if (IsNoiseFilterVertexSet)
+		{
+			// Limit noise filter vertex to size of FMV
+			pVertexStreamZeroData = FMVVertex;
+		}
+	}
+
+	// Get the vertex of the FMV
+	if (WidescreenFix && PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 24 && pVertexStreamZeroData)
+	{
+		IsNoiseFilterVertexSet = true;
+		memcpy_s(FMVVertex, sizeof(FMVVertex), pVertexStreamZeroData, sizeof(CUSTOMVERTEX_TEX1) * 4);
 	}
 
 	// Draw Self/Soft Shadows

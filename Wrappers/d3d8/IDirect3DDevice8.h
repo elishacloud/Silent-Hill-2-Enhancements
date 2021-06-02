@@ -15,6 +15,7 @@ private:
 
 	bool IsGetFrontBufferCalled = false;
 	bool IsSnapshotTextureSet = false;
+	bool IsNoiseFilterVertexSet = false;
 
 	BYTE HotelEmployeeElevatorRoomFlag = FALSE;
 	bool ReplacedLastRenderTarget = false;
@@ -143,6 +144,8 @@ private:
 		{ 1919.5f, 1115.5f, 0.01f, 1.0f, 1.0f, 1.0f },
 		{    0.5f, 1115.5f, 0.01f, 1.0f, 0.0f, 1.0f }
 	};
+
+	CUSTOMVERTEX_TEX1 FMVVertex[4] = {};
 
 	struct D3DSTATE
 	{

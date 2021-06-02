@@ -711,6 +711,26 @@ bool CheckPathNameMatch(LPCSTR lpFileName1, LPCSTR lpFileName2)
 	return false;
 }
 
+void CopyReplaceSlash(char* DestStr, size_t Size, LPCSTR SrcStr)
+{
+	for (UINT x = 0; x < Size; x++)
+	{
+		if (SrcStr[x] == '/')
+		{
+			DestStr[x] = '\\';
+		}
+		else if (SrcStr[x] == '\0')
+		{
+			DestStr[x] = SrcStr[x];
+			break;
+		}
+		else
+		{
+			DestStr[x] = SrcStr[x];
+		}
+	}
+}
+
 BOOL GetAppsLightMode()
 {
 	HKEY hKey;

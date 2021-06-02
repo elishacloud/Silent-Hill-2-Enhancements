@@ -504,27 +504,6 @@ __declspec(naked) void __stdcall MapXPosASM()
 	}
 }
 
-template<typename T, typename D>
-inline void CopyReplaceSlash(T DestStr, size_t Size, D SrcStr)
-{
-	for (UINT x = 0; x < Size; x++)
-	{
-		if (SrcStr[x] == '/')
-		{
-			DestStr[x] = '\\';
-		}
-		else if (SrcStr[x] == '\0')
-		{
-			DestStr[x] = SrcStr[x];
-			break;
-		}
-		else
-		{
-			DestStr[x] = SrcStr[x];
-		}
-	}
-}
-
 // Get texture resolution
 bool GetTextureRes(char *TexName, DWORD &TextureX, DWORD &TextureY, HANDLE hFile)
 {

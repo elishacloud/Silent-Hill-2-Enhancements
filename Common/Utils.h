@@ -27,6 +27,7 @@ bool GetModulePath(char *path, rsize_t size);
 bool GetModulePath(wchar_t *path, rsize_t size);
 bool GetSH2FolderPath(char *path, rsize_t size);
 bool GetSH2FolderPath(wchar_t *path, rsize_t size);
+bool CheckPathNameMatch(LPCSTR lpFileName1, LPCSTR lpFileName2);
 BOOL GetAppsLightMode();
 HMONITOR GetMonitorHandle();
 void GetDesktopRes(LONG &screenWidth, LONG &screenHeight);

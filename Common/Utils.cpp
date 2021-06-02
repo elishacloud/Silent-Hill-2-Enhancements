@@ -678,6 +678,39 @@ bool GetSH2FolderPath(wchar_t *path, rsize_t size)
 	return (wcscpy_s(path, size, sh2path) == 0 && ret);
 }
 
+bool CheckPathNameMatch(LPCSTR lpFileName1, LPCSTR lpFileName2)
+{
+	char *pfile1 = nullptr;
+	for (int x = 0; x < MAX_PATH; x++)
+	{
+		if (lpFileName1[x] == '\0')
+		{
+			break;
+		}
+		else if (lpFileName1[x] == '\\' || lpFileName1[x] == '/')
+		{
+			pfile1 = (char*)(lpFileName1 + x + 1);
+		}
+	}
+	char *pfile2 = nullptr;
+	for (int x = 0; x < MAX_PATH; x++)
+	{
+		if (lpFileName2[x] == '\0')
+		{
+			break;
+		}
+		else if (lpFileName2[x] == '\\' || lpFileName2[x] == '/')
+		{
+			pfile2 = (char*)(lpFileName2 + x + 1);
+		}
+	}
+	if (pfile1 && pfile2 && strcmp(pfile1, pfile2) == 0)
+	{
+		return true;
+	}
+	return false;
+}
+
 BOOL GetAppsLightMode()
 {
 	HKEY hKey;
@@ -806,7 +839,6 @@ HRESULT GetResolutionFromConfig(DWORD &Width, DWORD &Height)
 	}
 
 	HANDLE hFile;
-	DWORD FileSize;
 	const DWORD BytesToRead = sizeof(CFGDATA);
 	DWORD dwBytesRead;
 
@@ -816,11 +848,9 @@ HRESULT GetResolutionFromConfig(DWORD &Width, DWORD &Height)
 	{
 		return E_FAIL;
 	}
-	FileSize = GetFileSize(hFile, nullptr);
 
-	if (FileSize < BytesToRead || FileSize == 0xFFFFFFFF ||
-		!ReadFile(hFile, (void*)&ConfigData, BytesToRead, &dwBytesRead, nullptr) ||
-		dwBytesRead < BytesToRead)
+	BOOL hRet = ReadFile(hFile, (void*)&ConfigData, BytesToRead, &dwBytesRead, nullptr);
+	if (dwBytesRead != BytesToRead || hRet == FALSE)
 	{
 		CloseHandle(hFile);
 		return E_FAIL;

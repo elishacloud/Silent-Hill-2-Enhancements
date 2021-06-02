@@ -16,7 +16,6 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include <Shlwapi.h>
 #include "Resources\sh2-enhce.h"
 #include "Patches\Patches.h"
 #include "WidescreenFixesPack\WidescreenFixesPack.h"

@@ -30,8 +30,6 @@ BYTE *PtrBytes3 = nullptr;
 DWORD BufferSize = 0;
 DWORD BufferSize3 = 0;
 
-extern char **TexNameAddr;
-
 void *LoadAddress = nullptr;
 void *callBufferAddr = nullptr;
 void *jmpBufferAddr = nullptr;

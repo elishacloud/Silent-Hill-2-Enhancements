@@ -18,6 +18,7 @@
 #include <Windows.h>
 #include <Shlwapi.h>
 #include "Common\Utils.h"
+#include "Patches\Patches.h"
 #include "FileSystemHooks.h"
 #include "External\Hooking\Hook.h"
 #include "Settings.h"
@@ -460,7 +461,15 @@ HANDLE WINAPI CreateFileAHandler(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD
 	}
 
 	char Filename[MAX_PATH];
-	return org_CreateFile(UpdateModPath(lpFileName, Filename), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+	HANDLE hFile = org_CreateFile(UpdateModPath(lpFileName, Filename), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+
+	if (hFile != INVALID_HANDLE_VALUE)
+	{
+		OnFileLoadTex(hFile, lpFileName);
+		OnFileLoadVid(hFile, lpFileName);
+	}
+
+	return hFile;
 }
 
 // CreateFileW wrapper function

@@ -19,7 +19,6 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include "d3d9\d3d9wrapper.h"
-#include <Shlwapi.h>
 #include "External\d3d8to9\source\d3d8to9.hpp"
 #include "External\d3d8to9\source\d3dx9.hpp"
 #include "wrapper.h"

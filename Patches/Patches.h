@@ -117,6 +117,9 @@ bool IsJames(ModelID id);
 bool IsMariaExcludingEyes(ModelID id);
 bool IsMariaEyes(ModelID id);
 
+void OnFileLoadTex(HANDLE hFile, LPCSTR lpFileName);
+void OnFileLoadVid(HANDLE hFile, LPCSTR lpFileName);
+
 void RunBloodSize();
 void RunClosetCutscene();
 void RunDynamicDrawDistance();

@@ -44,25 +44,43 @@ namespace
 	void *HeightAddr2;
 	void *HeightAddr3;
 
+	bool CheckingVideo = false;
+
 	// asm variables
 	char *LoadingVideoName = nullptr;
 	void *VideoCallAddr = nullptr;
 	void *JmpVideoAddr = nullptr;
 }
 
-bool GetFMVRes(char *VideoName, DWORD &VideoX, DWORD &VideoY);
+bool GetFMVRes(char *VideoName, DWORD &VideoX, DWORD &VideoY, HANDLE hFile);
 
 void SetVideoScaling();
 
-// Check if loading a Game Result save
-void UpdateLoadedVideo()
+void GetVideoOnLoad(HANDLE hFile)
 {
 	// Get FMV resolution
-	GetFMVRes(LoadingVideoName, VideoResX, VideoResY);
+	CheckingVideo = true;
+	GetFMVRes(LoadingVideoName, VideoResX, VideoResY, hFile);
+	CheckingVideo = false;
 
 	// Scale FMV for displaying on screen
 	ForceCropped = (strcmp(LoadingVideoName, "data\\movie\\water.bik") == 0);
 	SetVideoScaling();
+}
+
+// Check if passed filename is the texture being loaded
+void OnFileLoadVid(HANDLE hFile, LPCSTR lpFileName)
+{
+	if (!CheckingVideo && lpFileName && LoadingVideoName && CheckPathNameMatch(lpFileName, LoadingVideoName))
+	{
+		GetVideoOnLoad(hFile);
+	}
+}
+
+// Check if loading a Game Result save
+void UpdateLoadedVideo()
+{
+	GetVideoOnLoad(nullptr);
 }
 
 // ASM function to Fix Game Result Saves
@@ -122,41 +140,66 @@ void PatchFullscreenVideos()
 }
 
 // Get FMV resolution
-bool GetFMVRes(char *VideoName, DWORD &VideoX, DWORD &VideoY)
+bool GetFMVRes(char *VideoName, DWORD &VideoX, DWORD &VideoY, HANDLE hFile)
 {
-	HANDLE hFile;
-	DWORD FileSize;
+	bool Opened = false;
+	bool Result = false;
+	LONG lDistanceToMove = 0;
+	LONG lDistanceToMoveHigh = 0;
+
 	const DWORD BytesToRead = 128;
 	DWORD dwBytesRead;
 
-	char VideoData[BytesToRead];
-	hFile = CreateFileA(VideoName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+	// Get current file pointer
+	if (hFile)
+	{
+		lDistanceToMove = SetFilePointer(hFile, 0, &lDistanceToMoveHigh, FILE_CURRENT);
+		if (lDistanceToMove == INVALID_SET_FILE_POINTER)
+		{
+			lDistanceToMove = 0;
+		}
+	}
+	// Open file if not already open
+	else
+	{
+		Opened = true;
+		hFile = CreateFileA(VideoName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+	}
+	// Check file handle
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
 		return false;
 	}
-	FileSize = GetFileSize(hFile, nullptr);
 
-	if (FileSize < BytesToRead || FileSize == 0xFFFFFFFF ||
-		!ReadFile(hFile, VideoData, BytesToRead, &dwBytesRead, nullptr) ||
-		dwBytesRead < BytesToRead ||
-		memcmp(VideoData, "\x42\x49\x4b", 3))
+	do {
+		// Read data from file
+		char VideoData[BytesToRead];
+		BOOL hRet = ReadFile(hFile, VideoData, BytesToRead, &dwBytesRead, nullptr);
+		if (dwBytesRead != BytesToRead || hRet == FALSE || memcmp(VideoData, "\x42\x49\x4b", 3) != 0)
+		{
+			break;
+		}
+		for (auto& num : { 0x14 })
+		{
+			VideoX = *(WORD*)&VideoData[num];
+			VideoY = *(WORD*)&VideoData[num + 4];
+			if (VideoX && VideoY)
+			{
+				Result = true;
+				break;
+			}
+		}
+	} while (FALSE);
+
+	if (Opened)
 	{
 		CloseHandle(hFile);
-		return false;
 	}
-	for (auto& num : { 0x14 })
+	else
 	{
-		VideoX = *(WORD*)&VideoData[num];
-		VideoY = *(WORD*)&VideoData[num + 4];
-		if (VideoX && VideoY)
-		{
-			CloseHandle(hFile);
-			return true;
-		}
+		SetFilePointer(hFile, lDistanceToMove, &lDistanceToMoveHigh, FILE_BEGIN);
 	}
-	CloseHandle(hFile);
-	return false;
+	return Result;
 }
 
 void SetFullscreenVideoRes(DWORD Width, DWORD Height)

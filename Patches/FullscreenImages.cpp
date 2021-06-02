@@ -91,11 +91,12 @@ void *VerBoundNegAddr1 = nullptr;
 void *VerBoundNegAddr2 = nullptr;
 void *VerBoundNegAddr3 = nullptr;
 
+bool CheckingTexture = false;
 char **TexNameAddr = nullptr;
 
 void SetImageScaling();
 void SetMapImageScaling();
-bool GetTextureRes(char *TexName, DWORD &TextureX, DWORD &TextureY);
+bool GetTextureRes(char *TexName, DWORD &TextureX, DWORD &TextureY, HANDLE hFile = nullptr);
 
 struct ImageCache
 {
@@ -147,8 +148,7 @@ BOOL CheckMapTexture()
 	return flag;
 }
 
-// Runs each time a texture is loaded
-void CheckLoadedTexture()
+void GetTextureOnLoad(HANDLE hFile)
 {
 	if (TexNameAddr && *TexNameAddr)
 	{
@@ -156,13 +156,16 @@ void CheckLoadedTexture()
 		{
 			if (TexItem.IsReference && strcmp(TexItem.Name, *TexNameAddr) == 0)
 			{
-				GetTextureRes(*TexNameAddr, TextureResX, TextureResY);
+				CheckingTexture = true;
+				GetTextureRes(*TexNameAddr, TextureResX, TextureResY, hFile);
+				CheckingTexture = false;
 				ORG_TextureResX = TexItem.X;
 				ORG_TextureResY = TexItem.Y;
 				SetImageScaling();
 				if (TexItem.IsMap)
 				{
-					GetTextureRes(*TexNameAddr, MapTextureResX, MapTextureResY);
+					MapTextureResX = TextureResX;
+					MapTextureResY = TextureResY;
 					SetMapImageScaling();
 				}
 				// Scale for X and Y needs to be the same on some screens
@@ -176,6 +179,21 @@ void CheckLoadedTexture()
 			}
 		}
 	}
+}
+
+// Check if passed filename is the texture being loaded
+void OnFileLoadTex(HANDLE hFile, LPCSTR lpFileName)
+{
+	if (!CheckingTexture && lpFileName && TexNameAddr && *TexNameAddr && CheckPathNameMatch(lpFileName, *TexNameAddr))
+	{
+		GetTextureOnLoad(hFile);
+	}
+}
+
+// Runs each time a texture is loaded
+void CheckLoadedTexture()
+{
+	GetTextureOnLoad(nullptr);
 }
 
 // ASM function to check texture on load
@@ -486,42 +504,98 @@ __declspec(naked) void __stdcall MapXPosASM()
 	}
 }
 
-// Get texture resolution
-bool GetTextureRes(char *TexName, DWORD &TextureX, DWORD &TextureY)
+template<typename T, typename D>
+inline void CopyReplaceSlash(T DestStr, size_t Size, D SrcStr)
 {
-	HANDLE hFile;
-	DWORD FileSize;
+	for (UINT x = 0; x < Size; x++)
+	{
+		if (SrcStr[x] == '/')
+		{
+			DestStr[x] = '\\';
+		}
+		else if (SrcStr[x] == '\0')
+		{
+			DestStr[x] = SrcStr[x];
+			break;
+		}
+		else
+		{
+			DestStr[x] = SrcStr[x];
+		}
+	}
+}
+
+// Get texture resolution
+bool GetTextureRes(char *TexName, DWORD &TextureX, DWORD &TextureY, HANDLE hFile)
+{
+	bool Opened = false;
+	bool Result = false;
+	LONG lDistanceToMove = 0;
+	LONG lDistanceToMoveHigh = 0;
+
 	const DWORD BytesToRead = 128;
 	DWORD dwBytesRead;
 
-	char TexData[BytesToRead];
-	hFile = CreateFileA(TexName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
-	if (hFile == INVALID_HANDLE_VALUE)
-	{
-		return false;
-	}
-	FileSize = GetFileSize(hFile, nullptr);
+	char TexPath[MAX_PATH];
+	CopyReplaceSlash(TexPath, MAX_PATH, TexName);
 
-	if (FileSize < BytesToRead || FileSize == 0xFFFFFFFF ||
-		!ReadFile(hFile, TexData, BytesToRead, &dwBytesRead, nullptr) ||
-		dwBytesRead < BytesToRead ||
-		memcmp(TexData, "\x01\x09\x99\x19", 4))
+	// Get current file pointer
+	if (hFile)
 	{
-		CloseHandle(hFile);
-		return false;
-	}
-	for (auto& num : { 20, 24, 56 })
-	{
-		TextureX = *(WORD*)&TexData[num];
-		TextureY = *(WORD*)&TexData[num + 2];
-		if (TextureX && TextureY)
+		lDistanceToMove = SetFilePointer(hFile, 0, &lDistanceToMoveHigh, FILE_CURRENT);
+		if (lDistanceToMove == INVALID_SET_FILE_POINTER)
 		{
-			CloseHandle(hFile);
-			return true;
+			lDistanceToMove = 0;
 		}
 	}
-	CloseHandle(hFile);
-	return false;
+	// Open file if not already open
+	else
+	{
+		Opened = true;
+		hFile = CreateFileA(TexPath, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+	}
+	// Check file handle
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		LOG_LIMIT(100, __FUNCTION__ << " Error: failed to open file: '" << TexPath << "'");
+		return false;
+	}
+
+	do {
+		// Read data from file
+		char TexData[BytesToRead];
+		BOOL hRet = ReadFile(hFile, TexData, BytesToRead, &dwBytesRead, nullptr);
+		if (dwBytesRead != BytesToRead || hRet == FALSE || memcmp(TexData, "\x01\x09\x99\x19", 4) != 0)
+		{
+			LOG_LIMIT(100, __FUNCTION__ << " Error: file incorrect: '" << TexPath << "' " << BytesToRead << " " << dwBytesRead << " " << hRet << " " << Logging::hex(*(DWORD*)TexData));
+			break;
+		}
+		// Get texture resolution
+		for (auto& num : { 20, 24, 56 })
+		{
+			TextureX = *(WORD*)&TexData[num];
+			TextureY = *(WORD*)&TexData[num + 2];
+			if (TextureX && TextureY)
+			{
+				Result = true;
+				break;
+			}
+		}
+		if (!Result)
+		{
+			LOG_LIMIT(100, __FUNCTION__ << " Error: failed to get texture resolution: '" << TexPath << "'");
+		}
+	} while (FALSE);
+
+	if (Opened)
+	{
+		CloseHandle(hFile);
+	}
+	else
+	{
+		SetFilePointer(hFile, lDistanceToMove, &lDistanceToMoveHigh, FILE_BEGIN);
+	}
+	return Result;
 }
 
 void SetImageScaling()
@@ -618,8 +692,8 @@ void Start00Scaling()
 	void *LogoHighlightHeight = (void*)((DWORD)Start00ScaleXAddr + 0x7E);
 
 	DWORD Start00ResX, Start00ResY, SaveBGResX, SaveBGResY;
-	if (!GetTextureRes("data/pic/etc/start00.tex", Start00ResX, Start00ResY) ||
-		!GetTextureRes("data/menu/mc/savebg.tbn2", SaveBGResX, SaveBGResY))
+	if (!GetTextureRes("data\\pic\\etc\\start00.tex", Start00ResX, Start00ResY) ||
+		!GetTextureRes("data\\menu\\mc\\savebg.tbn2", SaveBGResX, SaveBGResY))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to get texture resolution!";
 		return;

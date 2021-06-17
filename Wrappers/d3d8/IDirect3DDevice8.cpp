@@ -1477,7 +1477,8 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 	}
 
 	// Get the vertex of the FMV
-	if (WidescreenFix && PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 24 && pVertexStreamZeroData)
+	if (WidescreenFix && PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 24 && LastDrawPrimitiveUPStride == VertexStreamZeroStride && pVertexStreamZeroData &&
+		(GetEventIndex() == 7 || GetEventIndex() == 15))
 	{
 		IsNoiseFilterVertexSet = true;
 		memcpy_s(FMVVertex, sizeof(FMVVertex), pVertexStreamZeroData, sizeof(CUSTOMVERTEX_TEX1) * 4);

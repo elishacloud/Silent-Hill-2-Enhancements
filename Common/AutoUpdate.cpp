@@ -20,6 +20,7 @@
 #include <urlmon.h>
 #include <sstream>
 #include <iostream>
+#include <shlwapi.h>
 #include <fstream>
 #include <string>
 #include <regex>
@@ -28,6 +29,7 @@
 #include "Wrappers\d3d8\d3d8wrapper.h"
 #include "Logging\Logging.h"
 #include "Resources\sh2-enhce.h"
+#include "External\csvparser\src\rapidcsv.h"
 
 typedef HRESULT(WINAPI *URLOpenBlockingStreamProc)(LPUNKNOWN pCaller, LPCSTR szURL, LPSTREAM *ppStream, _Reserved_ DWORD dwReserved, LPBINDSTATUSCALLBACK lpfnCB);
 typedef HRESULT(WINAPI *URLDownloadToFileProc)(LPUNKNOWN pCaller, LPCWSTR szURL, LPCWSTR szFileName, _Reserved_ DWORD dwReserved, LPBINDSTATUSCALLBACK lpfnCB);
@@ -150,7 +152,7 @@ std::string ReadFile(std::wstring &path)
 	return std::string(str.begin(), str.end());
 }
 
-bool NewReleaseBuildAvailable(std::string &urlDownload)
+bool NewModuleReleaseBuildAvailable(std::string &urlDownload)
 {
 	// Get GitHub url for the latest released build
 	std::string data;
@@ -218,6 +220,45 @@ bool NewReleaseBuildAvailable(std::string &urlDownload)
 
 	Logging::Log() << __FUNCTION__ " Using an older build!";
 	return true;
+}
+
+bool NewProjectReleaseAvailable(std::string &path_str)
+{
+	// Parse local CSV file
+	rapidcsv::Document localcsv(path_str + "\\" + "SH2EEsetup.dat", rapidcsv::LabelParams(), rapidcsv::SeparatorParams(),
+		rapidcsv::ConverterParams(),
+		rapidcsv::LineReaderParams(true /* pSkipCommentLines */,
+			'#' /* pCommentPrefix */));
+
+	std::vector<std::string> localcsv_id = localcsv.GetColumn<std::string>("id");
+	std::vector<std::string> localcsv_isInstalled = localcsv.GetColumn<std::string>("isInstalled");
+	std::vector<std::string> localcsv_version = localcsv.GetColumn<std::string>("version");
+
+	// Get and parse web CSV
+	std::string webcsv;
+	if (!GetURLString("http://etc.townofsilenthill.com/sandbox/ee_itmp/_sh2ee.csv", webcsv))
+	{
+		return false;
+	}
+
+	std::stringstream webcsv_sstream(webcsv);
+	rapidcsv::Document doc(webcsv_sstream, rapidcsv::LabelParams(), rapidcsv::SeparatorParams(),
+		rapidcsv::ConverterParams(),
+		rapidcsv::LineReaderParams(true /* pSkipCommentLines */,
+			'#' /* pCommentPrefix */));
+
+	std::vector<std::string> webcsv_id = doc.GetColumn<std::string>("id");
+	std::vector<std::string> webcsv_version = doc.GetColumn<std::string>("version");
+
+	for (std::size_t i{}; i != std::size(localcsv_id); ++i) {
+		if (localcsv_isInstalled[i] != "false") {
+			if (localcsv_version[i] != webcsv_version[i]) {
+				IsProjectUpdateAvailable = true;
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 void GetSH2Path(std::wstring &path, std::wstring &name)
@@ -397,15 +438,28 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 	std::wstring updatePath(path + L"\\~update");
 	std::wstring currentDll(path + L"\\" + name + L".dll");
 	std::wstring tempDll(path + L"\\~" + name + L".dll");
+	std::wstring SH2EEsetupExePath(path + L"\\" + L"SH2EEsetup.exe");
 
 	// Delete old module if it exists
 	DeleteFile(tempDll.c_str());
 
-	// Check if there is a newer update
+	// Check if file exists in the path
 	std::string urlDownload;
-	if (m_StopThreadFlag || !NewReleaseBuildAvailable(urlDownload))
+	std::string path_str(path.begin(), path.end());
+	if (PathFileExistsA(std::string(path_str + "\\" + "SH2EEsetup.dat").c_str()))
 	{
-		return S_OK;
+		Logging::Log() << __FUNCTION__ " SH2EEsetup.dat exists, using CSV for update checking...";
+		// Check if there is a new project update
+		if (m_StopThreadFlag || !NewProjectReleaseAvailable(path_str))
+		{
+			return S_OK;
+		}
+	} else {
+		// Check if there is a newer module update
+		if (m_StopThreadFlag || !NewModuleReleaseBuildAvailable(urlDownload))
+		{
+			return S_OK;
+		}
 	}
 
 	// Wait for main window handle
@@ -419,22 +473,47 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 	// Prompt user for download
 	if (!m_StopThreadFlag)
 	{
-		IsUpdatingModule = true;
-
-		// Ask user for update
-		int Response = MessageBox(DeviceWindow, L"There is an update for the SH2 Enhancements module. Would you like to update?", MsgTitle.c_str(), MB_YESNO | MB_ICONINFORMATION);
-		if (Response == IDNO)
+		if (IsProjectUpdateAvailable)
 		{
-			Logging::Log() << __FUNCTION__ " User chose not to update the build!";
-			IsUpdatingModule = false;
-			RestoreMainWindow();
-			return S_OK;
-		}
+			// Update SH2EE project
+			IsUpdating = true;
 
-		// Notify user to download other packages
-		HHOOK hook = SetWindowsHookEx(WH_CBT, ChangeCaptionButtons, GetModuleHandle(nullptr), GetCurrentThreadId());
-		MessageBox(DeviceWindow, L"Note: This only updates the SH2 Enhancements module. You must manually download and update other enhancement packages from the project's website.", MsgTitle.c_str(), MB_OK | MB_ICONWARNING);
-		UnhookWindowsHookEx(hook);
+			// Ask user for update
+			int Response = MessageBox(DeviceWindow, L"There is an update for Silent Hill 2: Enhanced Edition. Would you like to close the game and launch the updater?", MsgTitle.c_str(), MB_YESNO | MB_ICONINFORMATION);
+			if (Response == IDYES)
+			{
+				// Run SH2EEsetup.exe
+				if ((int)ShellExecute(nullptr, L"open", SH2EEsetupExePath.data(), L"-update", nullptr, SW_SHOWDEFAULT) > 32)
+				{
+					exit(0);
+					return S_OK;
+				}
+			}
+			else {
+				Logging::Log() << __FUNCTION__ " User chose not to update the project!";
+				IsUpdating = false;
+				RestoreMainWindow();
+				return S_OK;
+			}
+		} else {
+			// Update SH2E module only
+			IsUpdating = true;
+
+			// Ask user for update
+			int Response = MessageBox(DeviceWindow, L"There is an update for the SH2 Enhancements module. Would you like to update?", MsgTitle.c_str(), MB_YESNO | MB_ICONINFORMATION);
+			if (Response == IDNO)
+			{
+				Logging::Log() << __FUNCTION__ " User chose not to update the build!";
+				IsUpdating = false;
+				RestoreMainWindow();
+				return S_OK;
+			}
+
+			// Notify user to download other packages
+			HHOOK hook = SetWindowsHookEx(WH_CBT, ChangeCaptionButtons, GetModuleHandle(nullptr), GetCurrentThreadId());
+			MessageBox(DeviceWindow, L"Note: This only updates the SH2 Enhancements module. You must manually download and update other enhancement packages from the project's website.", MsgTitle.c_str(), MB_OK | MB_ICONWARNING);
+			UnhookWindowsHookEx(hook);
+		}
 	}
 
 	HRESULT hr = S_OK;
@@ -512,12 +591,15 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 		else
 		{
 			Logging::Log() << __FUNCTION__ " Update Failed!";
-
-			MessageBox(DeviceWindow, L"Update FAILED! You will need to manually update the SH2 Enhancements module!", MsgTitle.c_str(), MB_OK | MB_ICONERROR);
+			
+			if (!IsProjectUpdateAvailable)
+				MessageBox(DeviceWindow, L"Update FAILED! You will need to manually update the SH2 Enhancements module!", MsgTitle.c_str(), MB_OK | MB_ICONERROR);
+			else
+				MessageBox(DeviceWindow, L"Failed to launch the updater! Please try to manually run SH2EEsetup.exe and update from there.", MsgTitle.c_str(), MB_OK | MB_ICONERROR);
 		}
 	}
 
-	IsUpdatingModule = false;
+	IsUpdating = false;
 
 	RestoreMainWindow();
 

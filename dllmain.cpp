@@ -39,7 +39,8 @@ HMODULE wrapper_dll = nullptr;
 EXECUTION_STATE esFlags = 0;
 bool CustomExeStrSet = false;
 bool EnableCustomShaders = false;
-bool IsUpdatingModule = false;
+bool IsUpdating = false;
+bool IsProjectUpdateAvailable = false;
 bool m_StopThreadFlag = false;			// Used for thread functions
 bool IsLoadConfig = false;
 

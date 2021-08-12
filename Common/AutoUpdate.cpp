@@ -256,14 +256,19 @@ bool NewProjectReleaseAvailable(std::string &path_str)
 		return true;
 	}
 
-	for (std::size_t i{}; i != std::size(localcsv_id); ++i) {
-		if (localcsv_isInstalled[i] != "false") {
-			if (localcsv_version[i] != webcsv_version[i]) {
-				IsProjectUpdateAvailable = true;
-				return true;
+	// Check if there is an update available for all the components
+	if (std::size(localcsv_id) == std::size(webcsv_id))
+	{
+		for (std::size_t i{}; i != std::size(localcsv_id); ++i) {
+			if (localcsv_isInstalled[i] != "false") {
+				if (localcsv_version[i] != webcsv_version[i]) {
+					IsProjectUpdateAvailable = true;
+					return true;
+				}
 			}
 		}
 	}
+
 	return false;
 }
 

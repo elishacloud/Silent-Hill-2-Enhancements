@@ -250,6 +250,12 @@ bool NewProjectReleaseAvailable(std::string &path_str)
 	std::vector<std::string> webcsv_id = doc.GetColumn<std::string>("id");
 	std::vector<std::string> webcsv_version = doc.GetColumn<std::string>("version");
 
+	// Check if there is an update available for the Setup Tool
+	if (localcsv_version[0] != webcsv_version[0]) {
+		IsSetupToolUpdateAvailable = true;
+		return true;
+	}
+
 	for (std::size_t i{}; i != std::size(localcsv_id); ++i) {
 		if (localcsv_isInstalled[i] != "false") {
 			if (localcsv_version[i] != webcsv_version[i]) {
@@ -473,17 +479,28 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 	// Prompt user for download
 	if (!m_StopThreadFlag)
 	{
-		if (IsProjectUpdateAvailable)
+		if (IsProjectUpdateAvailable || IsSetupToolUpdateAvailable)
 		{
 			// Update SH2EE project
 			IsUpdating = true;
+			std::wstring param;
 
 			// Ask user for update
 			int Response = MessageBox(DeviceWindow, L"There is an update for Silent Hill 2: Enhanced Edition. Would you like to close the game and launch the updater?", MsgTitle.c_str(), MB_YESNO | MB_ICONINFORMATION);
 			if (Response == IDYES)
 			{
+				// Decide which parameter to use
+				if (IsProjectUpdateAvailable)
+				{
+					param = L"-update";
+				}
+				else if (IsSetupToolUpdateAvailable)
+				{
+					param = L"-selfUpdate";
+				}
+
 				// Run SH2EEsetup.exe
-				if ((int)ShellExecute(nullptr, L"open", SH2EEsetupExePath.data(), L"-update", nullptr, SW_SHOWDEFAULT) > 32)
+				if ((int)ShellExecute(nullptr, L"open", SH2EEsetupExePath.data(), param.data(), nullptr, SW_SHOWDEFAULT) > 32)
 				{
 					exit(0);
 					return S_OK;

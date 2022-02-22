@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -40,6 +40,7 @@
     <ClCompile Include="External\WidescreenFixesPack\source\SilentHill2.WidescreenFix\dllmain.cpp" />
     <ClCompile Include="Logging\Logging.cpp" />
     <ClCompile Include="Patches\2TBHardDriveFix.cpp" />
+    <ClCompile Include="Patches\AdvancedOptionsFix.cpp" />
     <ClCompile Include="Patches\DelayedStart.cpp" />
     <ClCompile Include="Patches\FlashlightClockPush.cpp" />
     <ClCompile Include="Patches\FlashlightFlicker.cpp" />

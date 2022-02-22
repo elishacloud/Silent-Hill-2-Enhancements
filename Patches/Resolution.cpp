@@ -134,11 +134,15 @@ void *ResSelectStrRetAddr;
 
 __declspec(naked) void __stdcall ResSelectStrASM()
 {
-	__asm
+	if (FixAdvancedOptions)
 	{
-		call printResStr
-		jmp ResSelectStrRetAddr
+		if (!isConfirmationPromptOpen()) // Needed to fix the advanced menu options. See AdvancedSettingsFix.cpp.
+			__asm {call printResStr}
 	}
+	else
+		__asm {call printResStr}
+
+	__asm {jmp ResSelectStrRetAddr}
 }
 
 void *ResArrowRetAddr;

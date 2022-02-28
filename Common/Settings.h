@@ -94,7 +94,8 @@
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, false) \
-	visit(WoodsideRoom205Fix, true)
+	visit(WoodsideRoom205Fix, true) \
+	visit(SaveGameSoundFix, true)
 
 #define VISIT_INT_SETTINGS(visit) \
 	visit(AudioFadeOutDelayMS, 20) \

@@ -32,6 +32,7 @@ BYTE GetFullscreenImageEvent();
 float GetInGameCameraPosY();
 BYTE GetInventoryStatus();
 DWORD GetLoadingScreen();
+DWORD GetPauseMenuButtonIndex();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -54,6 +55,7 @@ BYTE *GetFullscreenImageEventPointer();
 float *GetInGameCameraPosYPointer();
 BYTE *GetInventoryStatusPointer();
 DWORD *GetLoadingScreenPointer();
+DWORD *GetPauseMenuButtonIndexPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -110,6 +112,7 @@ void PatchTexAddr();
 void PatchTownWestGateEvent();
 void PatchTreeLighting();
 void PatchXInputVibration();
+void PatchSaveGameSound();
 
 void FindGetModelID();
 int GetCurrentMaterialIndex();
@@ -192,6 +195,7 @@ extern int SpecularFlag;
 extern bool UseFakeLight;
 extern bool InSpecialLightZone;
 extern bool IsInGameResults;
+extern DWORD *PauseMenuButtonIndexAddr;
 
 // Run code only once
 #define RUNONCE() \

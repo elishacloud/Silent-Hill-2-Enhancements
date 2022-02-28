@@ -7,7 +7,6 @@
 #include "Logging\Logging.h"
 
 void* GameSoundReturnAddress;
-void* ReturnToOrigin;
 
 // Function instance created
 typedef uintptr_t* (__cdecl* Play_Sound)(uint32_t some_value, uint32_t volume_maybe, uint32_t sound_id);
@@ -64,5 +63,5 @@ void PatchSaveGameSound()
 	// Update SH2 code
 	WriteJMPtoMemory(reinterpret_cast<BYTE*>(SoundEffectCallAddr), *SaveGameSoundASM, 16);
 
-	Logging::Log() << "Fixing Game Save Sound...";
+	Logging::Log() << "Fixing \"Save Game\" Sound...";
 }

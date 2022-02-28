@@ -80,6 +80,7 @@
 	visit(RestoreVibration, true) \
 	visit(Room312ShadowFix, true) \
 	visit(RoomLightingFix, true) \
+	visit(SaveGameSoundFix, true) \
 	visit(RowboatAnimationFix, true) \
 	visit(SetBlackPillarBoxes, true) \
 	visit(Southpaw, false) \
@@ -94,8 +95,7 @@
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, false) \
-	visit(WoodsideRoom205Fix, true) \
-	visit(SaveGameSoundFix, true)
+	visit(WoodsideRoom205Fix, true)
 
 #define VISIT_INT_SETTINGS(visit) \
 	visit(AudioFadeOutDelayMS, 20) \

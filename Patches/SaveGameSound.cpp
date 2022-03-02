@@ -1,6 +1,5 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include <vector>
 
 #include "Patches.h"
 #include "Common\Utils.h"
@@ -26,7 +25,7 @@ __declspec(naked) void __stdcall SaveGameSoundASM()
 		call play_sound
 		pop eax
 		jmp GameSoundReturnAddress
-		real_code :
+		real_code:
 		push esi
 		push 0x3F800000
 		push 0x0002712
@@ -48,9 +47,8 @@ void PatchSaveGameSound()
 	// calls this function for the getting PauseMenuButtonIndexAddr
 	GetPauseMenuButtonIndex();
 
-	// Get Play Music Call Function
-	constexpr BYTE SearchSoundEffectCallBytes[]{ 0x68, 0x00, 0x00, 0x80, 0x3F, 0x68, 0x12, 0x27, 0x00, 0x00 };
-	DWORD SoundEffectCallAddr = SearchAndGetAddresses(0x00402824, 0x00402824, 0x00402824, SearchSoundEffectCallBytes, sizeof(SearchSoundEffectCallBytes), -1);
+	// Sund effect function address
+	DWORD SoundEffectCallAddr = 0x00402823;
 
 	// Checking address pointer
 	if (!SoundEffectCallAddr)

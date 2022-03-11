@@ -227,8 +227,7 @@ bool NewProjectReleaseAvailable(std::string &path_str)
 	// Parse local CSV file
 	rapidcsv::Document localcsv(path_str + "\\" + "SH2EEsetup.dat", rapidcsv::LabelParams(), rapidcsv::SeparatorParams(),
 		rapidcsv::ConverterParams(),
-		rapidcsv::LineReaderParams(true /* pSkipCommentLines */,
-			'#' /* pCommentPrefix */));
+		rapidcsv::LineReaderParams(true /* pSkipCommentLines */, '#' /* pCommentPrefix */));
 
 	std::vector<std::string> localcsv_id = localcsv.GetColumn<std::string>("id");
 	std::vector<std::string> localcsv_isInstalled = localcsv.GetColumn<std::string>("isInstalled");
@@ -236,7 +235,7 @@ bool NewProjectReleaseAvailable(std::string &path_str)
 
 	// Get and parse web CSV
 	std::string webcsv;
-	if (!GetURLString("http://etc.townofsilenthill.com/sandbox/ee_itmp/_sh2ee.csv", webcsv))
+	if (!GetURLString("http://etc.townofsilenthill.com/sandbox/ee_itmp/_sh2ee.csv", webcsv)) // Should be updated if we move the .csv
 	{
 		return false;
 	}
@@ -244,8 +243,7 @@ bool NewProjectReleaseAvailable(std::string &path_str)
 	std::stringstream webcsv_sstream(webcsv);
 	rapidcsv::Document doc(webcsv_sstream, rapidcsv::LabelParams(), rapidcsv::SeparatorParams(),
 		rapidcsv::ConverterParams(),
-		rapidcsv::LineReaderParams(true /* pSkipCommentLines */,
-			'#' /* pCommentPrefix */));
+		rapidcsv::LineReaderParams(true /* pSkipCommentLines */, '#' /* pCommentPrefix */));
 
 	std::vector<std::string> webcsv_id = doc.GetColumn<std::string>("id");
 	std::vector<std::string> webcsv_version = doc.GetColumn<std::string>("version");

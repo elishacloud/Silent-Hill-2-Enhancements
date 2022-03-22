@@ -19,10 +19,11 @@
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 #include "External/Hooking.Patterns/Hooking.Patterns.h"
-#include "External/injector/include/injector/injector.hpp"
 
 HWND __stdcall CreateWindowExA_Hook(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
 {
+	UNREFERENCED_PARAMETER(lpWindowName);
+
 	return CreateWindowExA(dwExStyle, lpClassName, "Silent Hill 2: Enhanced Edition" , dwStyle, X, Y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
 }
 
@@ -38,6 +39,5 @@ void PatchWindowTitle()
 		return;
 	}
 
-	injector::MakeNOP(pattern.count(1).get(0).get<uint32_t*>(0), 6, true);
-	injector::MakeCALL(pattern.count(1).get(0).get<uint32_t*>(0), CreateWindowExA_Hook, true);
+	WriteCalltoMemory((BYTE*)pattern.count(1).get(0).get<uint32_t*>(0), CreateWindowExA_Hook, 6);
 }

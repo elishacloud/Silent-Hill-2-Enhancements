@@ -15,7 +15,6 @@
 */
 
 #define WIN32_LEAN_AND_MEAN
-#pragma warning(disable:4740)
 #include <Windows.h>
 #include "Common\Utils.h"
 #include "Common\Settings.h"
@@ -29,9 +28,13 @@ static uint32_t* ptrSelectionIndex;
 bool isConfirmationPromptOpen()
 {
 	if (*(uint8_t*)(ptrConfirmationPromptState) == 1)
+	{
 		return true;
+	}
 	else
+	{
 		return false;
+	}
 }
 
 int iSelectionIndex()
@@ -40,13 +43,16 @@ int iSelectionIndex()
 }
 
 __int16(__cdecl* DrawTextOverlay_orig)(); // Originally called sub_480550
+#pragma warning(suppress: 4740)
 __int16 __declspec(naked) DrawTextOverlay_hook()
 {
 	if (iSelectionIndex() > 2 && iSelectionIndex() < 7) // if index is 3, 4, 5 or 6
 	{
 		// Don't render the 3D effect if the confirmation prompt is open
 		if (isConfirmationPromptOpen())
+		{
 			__asm {ret}
+		}
 	}
 
 	__asm {jmp DrawTextOverlay_orig}

@@ -132,15 +132,20 @@ int printResDescStr(unsigned short, unsigned char, int x, int y)
 
 void *ResSelectStrRetAddr;
 
+#pragma warning(suppress: 4740)
 __declspec(naked) void __stdcall ResSelectStrASM()
 {
 	if (FixAdvancedOptions)
 	{
 		if (!isConfirmationPromptOpen()) // Needed to fix the advanced menu options. See AdvancedSettingsFix.cpp.
+		{
 			__asm {call printResStr}
+		}
 	}
 	else
+	{
 		__asm {call printResStr}
+	}
 
 	__asm {jmp ResSelectStrRetAddr}
 }

@@ -441,6 +441,12 @@ void DelayedStart()
 		PatchGameLoad();
 	}
 
+	// Game Save Sound Fix
+	if (SaveGameSoundFix)
+	{
+		PatchSaveGameSound();
+	}
+
 	// FixSaveBGImage
 	if (FixSaveBGImage)
 	{

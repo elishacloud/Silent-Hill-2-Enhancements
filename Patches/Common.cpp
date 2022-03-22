@@ -42,6 +42,7 @@ BYTE *FullscreenImageEventAddr = nullptr;
 float *InGameCameraPosYAddr = nullptr;
 BYTE *InventoryStatusAddr = nullptr;
 DWORD *LoadingScreenAddr = nullptr;
+DWORD *PauseMenuButtonIndexAddr = nullptr;
 
 DWORD GetRoomID()
 {
@@ -640,4 +641,37 @@ DWORD *GetLoadingScreenPointer()
 	}
 
 	return LoadingScreenAddr;
+}
+
+DWORD GetPauseMenuButtonIndex()
+{
+	DWORD *PauseMenuIndex = GetPauseMenuButtonIndexPointer();
+
+	return (PauseMenuIndex) ? *PauseMenuIndex : 0;
+}
+
+DWORD *GetPauseMenuButtonIndexPointer()
+{
+	if (PauseMenuButtonIndexAddr)
+	{
+		return PauseMenuButtonIndexAddr;
+	}
+
+	// Get Pause Menu Button Index address
+	constexpr BYTE PauseMenuButtonIndexBytes[]{ 0x68, 0xFF, 0x00, 0x00, 0x00, 0x6A, 0x7F, 0x6A, 0x7F, 0x6A, 0x7F };
+	auto PauseMenuIndexAddr = reinterpret_cast<void*>(SearchAndGetAddresses(0x00407497, 0x00407497, 0x004074A7, PauseMenuButtonIndexBytes,
+		sizeof(PauseMenuButtonIndexBytes), 0x10));
+
+	// Checking address pointer
+	if (!PauseMenuIndexAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Button Index Pointer address!";
+		return nullptr;
+	}
+
+	PauseMenuIndexAddr = reinterpret_cast<void*>(reinterpret_cast<DWORD>(PauseMenuIndexAddr) + 0x01);
+
+	memcpy(&PauseMenuButtonIndexAddr, PauseMenuIndexAddr, sizeof(DWORD));
+
+	return PauseMenuButtonIndexAddr;
 }

@@ -81,6 +81,7 @@
 	visit(RestoreVibration, true) \
 	visit(Room312ShadowFix, true) \
 	visit(RoomLightingFix, true) \
+	visit(SaveGameSoundFix, true) \
 	visit(RowboatAnimationFix, true) \
 	visit(SetBlackPillarBoxes, true) \
 	visit(Southpaw, false) \

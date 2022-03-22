@@ -195,6 +195,9 @@ void DelayedStart()
 		}
 	}
 
+	// Replace window title
+	PatchWindowTitle();
+
 	// Hook Direct3D8
 	if (HookDirect3D)
 	{
@@ -436,6 +439,12 @@ void DelayedStart()
 	if (GameLoadFix)
 	{
 		PatchGameLoad();
+	}
+
+	// Game Save Sound Fix
+	if (SaveGameSoundFix)
+	{
+		PatchSaveGameSound();
 	}
 
 	// FixSaveBGImage

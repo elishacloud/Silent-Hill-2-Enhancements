@@ -30,6 +30,7 @@
 	visit(EnableTexAddrHack, true) \
 	visit(FastTransitions, true) \
 	visit(Fix2D, true) \
+	visit(FixAdvancedOptions, true) \
 	visit(FixAptClockFlashlight, true) \
 	visit(FixAudioThreadDeadlock, true) \
 	visit(FixChainsawSpawn, true) \

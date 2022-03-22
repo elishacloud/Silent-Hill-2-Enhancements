@@ -74,6 +74,7 @@ void UnhookWindowHandle();
 void ValidateBinary();
 
 void Patch2TBHardDrive();
+void PatchAdvancedOptions();
 void PatchBestGraphics();
 void PatchBinary();
 void PatchCDCheck();
@@ -120,6 +121,7 @@ int GetCurrentMaterialIndex();
 bool IsJames(ModelID id);
 bool IsMariaExcludingEyes(ModelID id);
 bool IsMariaEyes(ModelID id);
+bool isConfirmationPromptOpen();
 
 void OnFileLoadTex(HANDLE hFile, LPCSTR lpFileName);
 void OnFileLoadVid(HANDLE hFile, LPCSTR lpFileName);

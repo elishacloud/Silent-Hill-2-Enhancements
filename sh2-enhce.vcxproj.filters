@@ -287,6 +287,9 @@
     <ClCompile Include="Patches\FullscreenVideos.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\AdvancedOptionsFix.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
     <ClCompile Include="Patches\SaveGameSound.cpp">
       <Filter>Patches</Filter>
     </ClCompile>

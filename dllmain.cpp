@@ -496,6 +496,12 @@ void DelayedStart()
 		SetResolutionPatch();
 	}
 
+	// Fixes issues in the Advanced Options screen
+	if (FixAdvancedOptions)
+	{
+		PatchAdvancedOptions();
+	}
+
 	// Check for update
 	if (AutoUpdateModule)
 	{

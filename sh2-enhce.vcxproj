@@ -41,6 +41,7 @@
     <ClCompile Include="Patches\SaveGameSound.cpp" />
     <ClCompile Include="Logging\Logging.cpp" />
     <ClCompile Include="Patches\2TBHardDriveFix.cpp" />
+    <ClCompile Include="Patches\AdvancedOptionsFix.cpp" />
     <ClCompile Include="Patches\DelayedStart.cpp" />
     <ClCompile Include="Patches\FlashlightClockPush.cpp" />
     <ClCompile Include="Patches\FlashlightFlicker.cpp" />

@@ -111,6 +111,7 @@ void PatchSFXAddr();
 void PatchTexAddr();
 void PatchTownWestGateEvent();
 void PatchTreeLighting();
+void PatchWindowTitle();
 void PatchXInputVibration();
 void PatchSaveGameSound();
 

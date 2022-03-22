@@ -195,6 +195,9 @@ void DelayedStart()
 		}
 	}
 
+	// Replace window title
+	PatchWindowTitle();
+
 	// Hook Direct3D8
 	if (HookDirect3D)
 	{

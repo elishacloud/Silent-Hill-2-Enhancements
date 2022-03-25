@@ -916,7 +916,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 
 	// Update in progress
 	static bool ClearScreen = true;
-	if (!m_StopThreadFlag && IsUpdatingModule && !IsGetFrontBufferCalled)
+	if (!m_StopThreadFlag && IsUpdating && !IsGetFrontBufferCalled)
 	{
 		if (ClearScreen)
 		{
@@ -2374,7 +2374,7 @@ HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface
 	Logging::LogDebug() << __FUNCTION__;
 
 	// Update in progress
-	if (!m_StopThreadFlag && IsUpdatingModule)
+	if (!m_StopThreadFlag && IsUpdating)
 	{
 		return D3D_OK;
 	}

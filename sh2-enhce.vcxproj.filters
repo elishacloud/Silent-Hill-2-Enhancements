@@ -460,6 +460,9 @@
     <ClInclude Include="Patches\ModelID.h">
       <Filter>Patches</Filter>
     </ClInclude>
+    <ClInclude Include="External\csvparser\src\rapidcsv.h">
+      <Filter>External\csvparser</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\sh2-enhce.rc">
@@ -543,6 +546,9 @@
     </Filter>
     <Filter Include="Wrappers\d3d9">
       <UniqueIdentifier>{63356f14-45b5-4047-9be1-e7e6e8a3f3e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\csvparser">
+      <UniqueIdentifier>{d4a94675-8b89-4bf7-a3ba-396831832431}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

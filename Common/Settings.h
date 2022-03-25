@@ -172,8 +172,6 @@ extern HMODULE m_hModule;
 extern bool CustomExeStrSet;
 extern bool EnableCustomShaders;
 extern bool IsUpdating;
-extern bool IsSetupToolUpdateAvailable;
-extern bool IsProjectUpdateAvailable;
 extern bool m_StopThreadFlag;
 extern bool AutoScaleImages;
 extern bool AutoScaleVideos;

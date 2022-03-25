@@ -40,8 +40,6 @@ EXECUTION_STATE esFlags = 0;
 bool CustomExeStrSet = false;
 bool EnableCustomShaders = false;
 bool IsUpdating = false;
-bool IsSetupToolUpdateAvailable = false;
-bool IsProjectUpdateAvailable = false;
 bool m_StopThreadFlag = false;			// Used for thread functions
 bool IsLoadConfig = false;
 

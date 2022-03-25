@@ -31,10 +31,19 @@
 #include "Resources\sh2-enhce.h"
 #include "External\csvparser\src\rapidcsv.h"
 
+// Should be updated if we move the .csv
+#define SH2EE_UPDATE_URL "http://etc.townofsilenthill.com/sandbox/ee_itmp/_sh2ee.csv"
+#define SH2EE_SETUP_EXE_FILE "SH2EEsetup.exe"
+#define SH2EE_SETUP_DATA_FILE "SH2EEsetup.dat"
+
 typedef HRESULT(WINAPI *URLOpenBlockingStreamProc)(LPUNKNOWN pCaller, LPCSTR szURL, LPSTREAM *ppStream, _Reserved_ DWORD dwReserved, LPBINDSTATUSCALLBACK lpfnCB);
 typedef HRESULT(WINAPI *URLDownloadToFileProc)(LPUNKNOWN pCaller, LPCWSTR szURL, LPCWSTR szFileName, _Reserved_ DWORD dwReserved, LPBINDSTATUSCALLBACK lpfnCB);
 
-namespace {
+bool IsSetupToolUpdateAvailable = false;
+bool IsProjectUpdateAvailable = false;
+
+namespace
+{
 	const char removechars[] = " \t\n\r";
 	inline void trim(std::string &str, const char chars[] = removechars)
 	{
@@ -225,7 +234,7 @@ bool NewModuleReleaseBuildAvailable(std::string &urlDownload)
 bool NewProjectReleaseAvailable(std::string &path_str)
 {
 	// Parse local CSV file
-	rapidcsv::Document localcsv(path_str + "\\" + "SH2EEsetup.dat", rapidcsv::LabelParams(), rapidcsv::SeparatorParams(),
+	rapidcsv::Document localcsv(path_str + "\\" + SH2EE_SETUP_DATA_FILE, rapidcsv::LabelParams(), rapidcsv::SeparatorParams(),
 		rapidcsv::ConverterParams(),
 		rapidcsv::LineReaderParams(true /* pSkipCommentLines */, '#' /* pCommentPrefix */));
 
@@ -235,7 +244,7 @@ bool NewProjectReleaseAvailable(std::string &path_str)
 
 	// Get and parse web CSV
 	std::string webcsv;
-	if (!GetURLString("http://etc.townofsilenthill.com/sandbox/ee_itmp/_sh2ee.csv", webcsv)) // Should be updated if we move the .csv
+	if (!GetURLString(SH2EE_UPDATE_URL, webcsv))
 	{
 		return false;
 	}
@@ -249,7 +258,8 @@ bool NewProjectReleaseAvailable(std::string &path_str)
 	std::vector<std::string> webcsv_version = doc.GetColumn<std::string>("version");
 
 	// Check if there is an update available for the Setup Tool
-	if (localcsv_version[0] != webcsv_version[0]) {
+	if (localcsv_version[0] != webcsv_version[0])
+	{
 		IsSetupToolUpdateAvailable = true;
 		return true;
 	}
@@ -257,9 +267,12 @@ bool NewProjectReleaseAvailable(std::string &path_str)
 	// Check if there is an update available for all the components
 	if (std::size(localcsv_id) == std::size(webcsv_id))
 	{
-		for (std::size_t i{}; i != std::size(localcsv_id); ++i) {
-			if (localcsv_isInstalled[i] != "false") {
-				if (localcsv_version[i] != webcsv_version[i]) {
+		for (std::size_t i{}; i != std::size(localcsv_id); ++i)
+		{
+			if (localcsv_isInstalled[i] != "false")
+			{
+				if (localcsv_version[i] != webcsv_version[i])
+				{
 					IsProjectUpdateAvailable = true;
 					return true;
 				}
@@ -268,6 +281,23 @@ bool NewProjectReleaseAvailable(std::string &path_str)
 	}
 
 	return false;
+}
+
+void GetSH2Path(std::string &path, std::string &name)
+{
+	char t_path[MAX_PATH] = {}, t_name[MAX_PATH] = {};
+	if (GetModulePath(t_path, MAX_PATH) && strrchr(t_path, '\\'))
+	{
+		strcpy_s(t_name, MAX_PATH - strlen(t_path) - 1, strrchr(t_path, '\\') + 1);
+		if (strrchr(t_path, '.'))
+		{
+			strcpy_s(strrchr(t_name, '.'), MAX_PATH - strlen(t_name), "\0");
+		}
+		strcpy_s(strrchr(t_path, '\\'), MAX_PATH - strlen(t_path), "\0");
+		path.assign(t_path);
+		name.assign(t_name);
+		std::transform(name.begin(), name.end(), name.begin(), [](char c) { return (char)towlower(c); });
+	}
 }
 
 void GetSH2Path(std::wstring &path, std::wstring &name)
@@ -447,23 +477,26 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 	std::wstring updatePath(path + L"\\~update");
 	std::wstring currentDll(path + L"\\" + name + L".dll");
 	std::wstring tempDll(path + L"\\~" + name + L".dll");
-	std::wstring SH2EEsetupExePath(path + L"\\" + L"SH2EEsetup.exe");
+	std::wstring SH2EEsetupExePath(path + L"\\" + TEXT(SH2EE_SETUP_EXE_FILE));
 
 	// Delete old module if it exists
 	DeleteFile(tempDll.c_str());
 
 	// Check if file exists in the path
 	std::string urlDownload;
-	std::string path_str(path.begin(), path.end());
-	if (PathFileExistsA(std::string(path_str + "\\" + "SH2EEsetup.dat").c_str()))
+	std::string path_str, name_str;
+	GetSH2Path(path_str, name_str);
+	if (PathFileExistsA(std::string(path_str + "\\" + SH2EE_SETUP_DATA_FILE).c_str()) && PathFileExistsA(std::string(path_str + "\\" + SH2EE_SETUP_EXE_FILE).c_str()))
 	{
-		Logging::Log() << __FUNCTION__ " SH2EEsetup.dat exists, using CSV for update checking...";
+		Logging::Log() << __FUNCTION__ " " << SH2EE_SETUP_DATA_FILE << " exists, using CSV for update checking...";
 		// Check if there is a new project update
 		if (m_StopThreadFlag || !NewProjectReleaseAvailable(path_str))
 		{
 			return S_OK;
 		}
-	} else {
+	}
+	else
+	{
 		// Check if there is a newer module update
 		if (m_StopThreadFlag || !NewModuleReleaseBuildAvailable(urlDownload))
 		{
@@ -509,13 +542,16 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 					return S_OK;
 				}
 			}
-			else {
+			else
+			{
 				Logging::Log() << __FUNCTION__ " User chose not to update the project!";
 				IsUpdating = false;
 				RestoreMainWindow();
 				return S_OK;
 			}
-		} else {
+		}
+		else
+		{
 			// Update SH2E module only
 			IsUpdating = true;
 
@@ -613,9 +649,13 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 			Logging::Log() << __FUNCTION__ " Update Failed!";
 			
 			if (!IsProjectUpdateAvailable)
+			{
 				MessageBox(DeviceWindow, L"Update FAILED! You will need to manually update the SH2 Enhancements module!", MsgTitle.c_str(), MB_OK | MB_ICONERROR);
+			}
 			else
-				MessageBox(DeviceWindow, L"Failed to launch the updater! Please try to manually run SH2EEsetup.exe and update from there.", MsgTitle.c_str(), MB_OK | MB_ICONERROR);
+			{
+				MessageBox(DeviceWindow, std::wstring(L"Failed to launch the updater! Please try to manually run " + std::wstring(TEXT(SH2EE_SETUP_EXE_FILE)) + L" and update from there.").c_str(), MsgTitle.c_str(), MB_OK | MB_ICONERROR);
+			}
 		}
 	}
 

@@ -30,5 +30,5 @@
 	path = External/WidescreenFixesPack
 	url = https://github.com/ThirteenAG/WidescreenFixesPack
 [submodule "external/csvparser"]
-	path = external/csvparser
+	path = External/csvparser
 	url = https://github.com/d99kris/rapidcsv.git

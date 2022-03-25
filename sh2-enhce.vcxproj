@@ -38,8 +38,10 @@
     <ClCompile Include="External\Hooking\IATPatch.cpp" />
     <ClCompile Include="External\Logging\Logging.cpp" />
     <ClCompile Include="External\WidescreenFixesPack\source\SilentHill2.WidescreenFix\dllmain.cpp" />
+    <ClCompile Include="Patches\SaveGameSound.cpp" />
     <ClCompile Include="Logging\Logging.cpp" />
     <ClCompile Include="Patches\2TBHardDriveFix.cpp" />
+    <ClCompile Include="Patches\AdvancedOptionsFix.cpp" />
     <ClCompile Include="Patches\DelayedStart.cpp" />
     <ClCompile Include="Patches\FlashlightClockPush.cpp" />
     <ClCompile Include="Patches\FlashlightFlicker.cpp" />
@@ -61,6 +63,7 @@
     <ClCompile Include="Patches\CatacombsMeatRoom.cpp" />
     <ClCompile Include="Patches\EnhancedFlashlight.cpp" />
     <ClCompile Include="Patches\PauseScreen.cpp" />
+    <ClCompile Include="Patches\ReplaceWindowTitle.cpp" />
     <ClCompile Include="Patches\RotatingMannequinGlitch.cpp" />
     <ClCompile Include="Patches\SaveBGImage.cpp" />
     <ClCompile Include="Patches\SpecialFX.cpp" />

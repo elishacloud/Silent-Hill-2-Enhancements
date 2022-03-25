@@ -32,6 +32,7 @@ BYTE GetFullscreenImageEvent();
 float GetInGameCameraPosY();
 BYTE GetInventoryStatus();
 DWORD GetLoadingScreen();
+DWORD GetPauseMenuButtonIndex();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -54,6 +55,7 @@ BYTE *GetFullscreenImageEventPointer();
 float *GetInGameCameraPosYPointer();
 BYTE *GetInventoryStatusPointer();
 DWORD *GetLoadingScreenPointer();
+DWORD *GetPauseMenuButtonIndexPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -72,6 +74,7 @@ void UnhookWindowHandle();
 void ValidateBinary();
 
 void Patch2TBHardDrive();
+void PatchAdvancedOptions();
 void PatchBestGraphics();
 void PatchBinary();
 void PatchCDCheck();
@@ -109,13 +112,16 @@ void PatchSFXAddr();
 void PatchTexAddr();
 void PatchTownWestGateEvent();
 void PatchTreeLighting();
+void PatchWindowTitle();
 void PatchXInputVibration();
+void PatchSaveGameSound();
 
 void FindGetModelID();
 int GetCurrentMaterialIndex();
 bool IsJames(ModelID id);
 bool IsMariaExcludingEyes(ModelID id);
 bool IsMariaEyes(ModelID id);
+bool isConfirmationPromptOpen();
 
 void OnFileLoadTex(HANDLE hFile, LPCSTR lpFileName);
 void OnFileLoadVid(HANDLE hFile, LPCSTR lpFileName);
@@ -192,6 +198,7 @@ extern int SpecularFlag;
 extern bool UseFakeLight;
 extern bool InSpecialLightZone;
 extern bool IsInGameResults;
+extern DWORD *PauseMenuButtonIndexAddr;
 
 // Run code only once
 #define RUNONCE() \

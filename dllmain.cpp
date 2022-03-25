@@ -197,6 +197,9 @@ void DelayedStart()
 		}
 	}
 
+	// Replace window title
+	PatchWindowTitle();
+
 	// Hook Direct3D8
 	if (HookDirect3D)
 	{
@@ -440,6 +443,12 @@ void DelayedStart()
 		PatchGameLoad();
 	}
 
+	// Game Save Sound Fix
+	if (SaveGameSoundFix)
+	{
+		PatchSaveGameSound();
+	}
+
 	// FixSaveBGImage
 	if (FixSaveBGImage)
 	{
@@ -487,6 +496,12 @@ void DelayedStart()
 	if (((DynamicResolution && WidescreenFix) || LockResolution) && CustomExeStrSet)
 	{
 		SetResolutionPatch();
+	}
+
+	// Fixes issues in the Advanced Options screen
+	if (FixAdvancedOptions)
+	{
+		PatchAdvancedOptions();
 	}
 
 	// Check for update

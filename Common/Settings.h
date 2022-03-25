@@ -30,6 +30,7 @@
 	visit(EnableTexAddrHack, true) \
 	visit(FastTransitions, true) \
 	visit(Fix2D, true) \
+	visit(FixAdvancedOptions, true) \
 	visit(FixAptClockFlashlight, true) \
 	visit(FixAudioThreadDeadlock, true) \
 	visit(FixChainsawSpawn, true) \
@@ -80,6 +81,7 @@
 	visit(RestoreVibration, true) \
 	visit(Room312ShadowFix, true) \
 	visit(RoomLightingFix, true) \
+	visit(SaveGameSoundFix, true) \
 	visit(RowboatAnimationFix, true) \
 	visit(SetBlackPillarBoxes, true) \
 	visit(Southpaw, false) \

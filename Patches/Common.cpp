@@ -42,7 +42,7 @@ BYTE *FullscreenImageEventAddr = nullptr;
 float *InGameCameraPosYAddr = nullptr;
 BYTE *InventoryStatusAddr = nullptr;
 DWORD *LoadingScreenAddr = nullptr;
-DWORD *PauseMenuButtonIndexAddr = nullptr;
+BYTE *PauseMenuButtonIndexAddr = nullptr;
 
 DWORD GetRoomID()
 {
@@ -643,14 +643,14 @@ DWORD *GetLoadingScreenPointer()
 	return LoadingScreenAddr;
 }
 
-DWORD GetPauseMenuButtonIndex()
+BYTE GetPauseMenuButtonIndex()
 {
-	DWORD *PauseMenuIndex = GetPauseMenuButtonIndexPointer();
+	BYTE *PauseMenuIndex = GetPauseMenuButtonIndexPointer();
 
 	return (PauseMenuIndex) ? *PauseMenuIndex : 0;
 }
 
-DWORD *GetPauseMenuButtonIndexPointer()
+BYTE *GetPauseMenuButtonIndexPointer()
 {
 	if (PauseMenuButtonIndexAddr)
 	{

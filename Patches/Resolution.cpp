@@ -225,7 +225,7 @@ void WSFDynamicStartup()
 	}
 
 	// Default to current resolution if index is too large or saved resolution is not found
-	if ((SUCCEEDED(hr) && !found) || *ResolutionIndex >= ResolutionVector.size())
+	if (FAILED(hr) || (SUCCEEDED(hr) && !found) || *ResolutionIndex >= ResolutionVector.size())
 	{
 		*ResolutionIndex = (BYTE)(ResolutionVector.size() - 1);
 		LONG screenWidth, screenHeight;

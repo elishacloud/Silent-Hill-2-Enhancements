@@ -336,6 +336,14 @@ void RunGameLoad()
 		InGameVoiceEvent = (BYTE*)((DWORD)InGameVoiceEvent + 0x90);
 	}
 
+	// Get Pause Menu Button address
+	GetPauseMenuButtonIndex();
+	if (!PauseMenuButtonIndexAddr)
+	{
+		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+		return;
+	}
+
 	// Set static variables
 	static bool ValueSet = false;
 	static bool ValueUnSet = false;
@@ -383,6 +391,18 @@ void RunGameLoad()
 			*SaveGameAddress = 1;
 			ValueUnSet = false;
 		}
+	}
+
+	// Reset the Pause Button Menu Index
+	static bool PauseValueUnSet = true;
+	if (GetEventIndex() != 16 && PauseValueUnSet)
+	{
+		*PauseMenuButtonIndexAddr = 0;
+		PauseValueUnSet = false;
+	}
+	else
+	{
+		PauseValueUnSet = true;
 	}
 
 	// Disable quick save during certian in-game voice events and during fullscreen image events

@@ -424,6 +424,12 @@ void DelayedStart()
 		PatchSpecialFX();
 	}
 
+	// Enable Alternate Stomp
+	if (RestoreAlternateStomp)
+	{
+		PatchAlternateStomp();
+	}
+
 	// Changes the event at the gate near Heaven's Night to that when trying to re-enter the door to Blue Creek Apartments
 	if (FixTownWestGateEvent)
 	{

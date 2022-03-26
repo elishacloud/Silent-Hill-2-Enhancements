@@ -75,6 +75,7 @@ void ValidateBinary();
 
 void Patch2TBHardDrive();
 void PatchAdvancedOptions();
+void PatchAlternateStomp();
 void PatchBestGraphics();
 void PatchBinary();
 void PatchCDCheck();

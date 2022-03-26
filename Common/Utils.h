@@ -22,6 +22,8 @@ void SetWindowTheme(HWND hWnd);
 void AddHandleToVector(HMODULE dll);
 void UnloadAllModules();
 DWORD ConvertFloat(float num);
+template <typename T>
+void ExtractFileFromResource(DWORD ResID, T lpFilepath);
 HRESULT UnZipFile(BSTR sourceZip, BSTR destFolder);
 bool GetModulePath(char *path, rsize_t size);
 bool GetModulePath(wchar_t *path, rsize_t size);

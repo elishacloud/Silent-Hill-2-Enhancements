@@ -548,6 +548,45 @@ void GetFileSize(uintmax_t fsize, char *strOutput, size_t size)
 	strcpy_s(strOutput, size, strSize.c_str());
 }
 
+template void ExtractFileFromResource<LPCSTR>(DWORD, LPCSTR);
+template void ExtractFileFromResource<LPCWSTR>(DWORD, LPCWSTR);
+template <typename T>
+void ExtractFileFromResource(DWORD ResID, T lpFilepath)
+{
+	do {
+		HRSRC hResource = FindResource(m_hModule, MAKEINTRESOURCE(ResID), RT_RCDATA);
+		if (hResource)
+		{
+			HGLOBAL hLoadedResource = LoadResource(m_hModule, hResource);
+			if (hLoadedResource)
+			{
+				LPVOID pLockedResource = LockResource(hLoadedResource);
+				if (pLockedResource)
+				{
+					DWORD dwResourceSize = SizeofResource(m_hModule, hResource);
+					if (dwResourceSize != 0)
+					{
+						Logging::Log() << "Extracting the " << lpFilepath << " file...";
+
+						std::fstream fsModule;
+						fsModule.open(lpFilepath, std::ios_base::out | std::ios_base::binary);
+						if (fsModule.is_open())
+						{
+							// Write file to disk
+							fsModule.write((char*)pLockedResource, dwResourceSize);
+							fsModule.close();
+							// Return
+							return;
+						}
+					}
+				}
+			}
+		}
+	} while (false);
+
+	Logging::Log() << __FUNCTION__ << " Error: could not extract the " << lpFilepath << " file!";
+}
+
 HRESULT UnZipFile(BSTR sourceZip, BSTR destFolder)
 {
 	HRESULT hr = E_FAIL;

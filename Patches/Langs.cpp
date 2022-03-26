@@ -16,6 +16,8 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <shlwapi.h>
+#include "Resources\sh2-enhce.h"
 #include "Common\FileSystemHooks.h"
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
@@ -707,6 +709,12 @@ HRESULT PatchCustomExeStr()
 	if (GetModulePath(txtpath, MAX_PATH) && strrchr(txtpath, '.'))
 	{
 		strcpy_s(strrchr(txtpath, '.'), MAX_PATH - strlen(txtpath), ".res");
+	}
+
+	// Check if config file does not exist
+	if (!PathFileExistsA(txtpath))
+	{
+		ExtractFileFromResource<LPCSTR>(IDR_LANG_RES, txtpath);
 	}
 
 	ifstream file(txtpath);

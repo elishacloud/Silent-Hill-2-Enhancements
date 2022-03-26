@@ -16,6 +16,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <shlwapi.h>
 #include "Resources\sh2-enhce.h"
 #include "Patches\Patches.h"
 #include "WidescreenFixesPack\WidescreenFixesPack.h"
@@ -61,6 +62,12 @@ void GetConfig()
 		std::wstring name(t_name);
 		std::transform(name.begin(), name.end(), name.begin(), [](wchar_t c) { return towlower(c); });
 		wcscpy_s(configpath, MAX_PATH, std::wstring(std::wstring(configpath) + L"\\" + name + L".ini").c_str());
+	}
+
+	// Check if config file does not exist
+	if (!PathFileExists(configpath))
+	{
+		ExtractFileFromResource<LPCWSTR>(IDR_SETTINGS_INI, configpath);
 	}
 
 	// Read config file

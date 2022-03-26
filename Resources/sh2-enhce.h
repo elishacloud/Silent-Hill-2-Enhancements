@@ -4,6 +4,8 @@
 
 // Included resource files
 #define IDR_RESHADE_INI                 101
+#define IDR_SETTINGS_INI                102
+#define IDR_LANG_RES                    103
 
 #define IDR_SMAA_FX                     201
 #define IDR_COLORGRAD_FX                202

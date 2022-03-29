@@ -1693,6 +1693,12 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 			RunHotelWater();
 		}
 
+		// Change James' spawn point after the cutscene ends
+		if (ChangeClosetSpawn)
+		{
+			RunClosetSpawn();
+		}
+
 		// RPT Apartment Closet Cutscene Fix
 		if (ClosetCutsceneFix)
 		{

@@ -364,6 +364,12 @@ void DelayedStart()
 		PatchPreventChainsawSpawn();
 	}
 
+	// Change James' spawn point after the cutscene ends
+	if (ChangeClosetSpawn)
+	{
+		PatchClosetSpawn();
+	}
+
 	// Fix flashlight flicker
 	if (FlashlightFlickerFix)
 	{

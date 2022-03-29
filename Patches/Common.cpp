@@ -25,6 +25,7 @@
 BYTE *ChapterIDAddr = nullptr;
 DWORD *CutsceneIDAddr = nullptr;
 float *CutscenePosAddr = nullptr;
+float *CameraFOVAddr = nullptr;
 float *FlashlightBrightnessAddr = nullptr;
 BYTE *FlashLightRenderAddr = nullptr;
 BYTE *FlashlightSwitchAddr = nullptr;
@@ -146,6 +147,34 @@ float *GetCutscenePosPointer()
 	}
 
 	return CutscenePosAddr;
+}
+
+float GetCameraFOV()
+{
+	float *pCameraFOV = GetCameraFOVPointer();
+
+	return (pCameraFOV) ? *pCameraFOV : 0.0f;
+}
+
+float *GetCameraFOVPointer()
+{
+	if (CameraFOVAddr)
+	{
+		return CameraFOVAddr;
+	}
+
+	// Get Camera FOV address
+	constexpr BYTE CameraFOVSearchBytes[]{ 0x8D, 0x7C, 0x24, 0x3C, 0x50, 0xF3, 0xA5, 0xE8 };
+	CameraFOVAddr = (float*)ReadSearchedAddresses(0x0048978E, 0x00489A2E, 0x00489C3E, CameraFOVSearchBytes, sizeof(CameraFOVSearchBytes), 0x0E);
+
+	// Checking address pointer
+	if (!CameraFOVAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Camera Pos function address!";
+		return nullptr;
+	}
+
+	return CameraFOVAddr;
 }
 
 float GetJamesPosX()

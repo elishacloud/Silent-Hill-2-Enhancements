@@ -7,6 +7,7 @@
 	visit(AudioClipDetection, true) \
 	visit(AutoUpdateModule, true) \
 	visit(CatacombsMeatRoomFix, true) \
+	visit(ChangeClosetSpawn, true) \
 	visit(CheckForAdminAccess, true) \
 	visit(CheckCompatibilityMode, true) \
 	visit(ClosetCutsceneFix, true) \

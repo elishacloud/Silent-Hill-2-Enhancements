@@ -40,7 +40,7 @@ __declspec(naked) void __stdcall StopMothSfxOnPauseMenu()
 	}
 }
 
-void PatchSfxSoundLoop()
+void PatchSpecificSoundLoopFix()
 {
 	MothSFXLoopingFix();
 	ChainsawSFXLoopingFix();
@@ -90,7 +90,6 @@ void MothSFXLoopingFix()
 
 	Logging::Log() << "Fixing Moth Sound Looping...";
 }
-
 
 void ChainsawSFXLoopingFix()
 {

@@ -302,7 +302,7 @@
     <ClCompile Include="Patches\ChangeClosetSpawn.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
-    <ClCompile Include="Patches\SfxSoundLoop.cpp">
+    <ClCompile Include="Patches\SpecificSoundLoopFix.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
   </ItemGroup>

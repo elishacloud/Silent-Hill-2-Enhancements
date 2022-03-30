@@ -86,6 +86,7 @@
 	visit(SaveGameSoundFix, true) \
 	visit(RowboatAnimationFix, true) \
 	visit(SetBlackPillarBoxes, true) \
+	visit(SfxSoundLoopFix, true) \
 	visit(Southpaw, false) \
 	visit(SpecularFix, true) \
 	visit(SteamCrashFix, true) \

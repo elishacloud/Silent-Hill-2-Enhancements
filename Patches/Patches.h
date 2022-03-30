@@ -113,6 +113,7 @@ void PatchSpeakerConfigLock();
 void PatchSpecialFX();
 void PatchSpecular();
 void PatchSFXAddr();
+void PatchSfxSoundLoop();
 void PatchTexAddr();
 void PatchTownWestGateEvent();
 void PatchTreeLighting();

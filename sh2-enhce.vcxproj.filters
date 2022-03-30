@@ -302,6 +302,9 @@
     <ClCompile Include="Patches\ChangeClosetSpawn.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\SfxSoundLoop.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">

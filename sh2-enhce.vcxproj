@@ -91,6 +91,7 @@
     <ClCompile Include="Patches\SfxPatch.cpp" />
     <ClCompile Include="Patches\TreeLighting.cpp" />
     <ClCompile Include="Patches\ValidateBinary.cpp" />
+    <ClCompile Include="Patches\SfxSoundLoop.cpp" />
     <ClCompile Include="WidescreenFixesPack\WidescreenFixesPack.cpp" />
     <ClCompile Include="Wrappers\d3d8to9.cpp" />
     <ClCompile Include="Wrappers\d3d8\d3d8wrapper.cpp" />

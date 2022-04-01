@@ -20,8 +20,14 @@
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
+typedef int(__cdecl *oTextToGameAsmProc)(unsigned __int16* a1, unsigned __int16 a2);
+
 // Forward declarations
 DWORD GetDiskSpace();
+
+// Variables
+bool DiskSizeSet = false;
+char szNewFreeSpaceString[MAX_PATH] = { '\0' };
 
 // Variables for ASM
 void *jmpSkipDisk;
@@ -29,6 +35,7 @@ void *jmpNewSaveReturnAddr;
 void *jmpHardDriveReturnAddr;
 void *jmpSkipDisplay;
 void *jmpDisplayReturnAddr;
+void *jmpRemoveKBAddr;
 
 // ASM function to update 2TB disk limit
 __declspec(naked) void __stdcall HardDriveASM()
@@ -112,6 +119,32 @@ __declspec(naked) void __stdcall DisplayASM()
 	}
 }
 
+// ASM function to update 2TB disk limit
+__declspec(naked) void __stdcall oTextToGameAsm()
+{
+	__asm
+	{
+		mov eax, dword ptr ss : [esp + 4]
+		test eax, eax
+		jmp jmpRemoveKBAddr
+	}
+}
+oTextToGameAsmProc oTextToGame = (oTextToGameAsmProc)oTextToGameAsm;
+
+// Remove "KB" text
+int __cdecl TextToGame(unsigned __int16* a1, unsigned __int16 a2)
+{
+	int TTG = oTextToGame(a1, a2);
+
+	if (a2 == 147)
+	{
+		BYTE RemoveKBPatch[2] = { 0x00, 0x00 };
+		UpdateMemoryAddress((BYTE*)(TTG + 0x11), RemoveKBPatch, 2);
+	}
+
+	return TTG;
+}
+
 // Get amount of free disk space in KBs, greater than 0x7FFFFFFF will simply return 0x7FFFFFFF
 DWORD GetDiskSpace()
 {
@@ -128,15 +161,34 @@ DWORD GetDiskSpace()
 		GetFolder = false;
 	}
 
-	ULARGE_INTEGER TotalNumberOfFreeBytes = { NULL };
-	if (!GetDiskFreeSpaceEx(DirectoryName, nullptr, nullptr, &TotalNumberOfFreeBytes))
+	ULARGE_INTEGER FreeBytesAvailableToCaller = { NULL };
+	if (!GetDiskFreeSpaceEx(DirectoryName, &FreeBytesAvailableToCaller, nullptr, nullptr))
 	{
 		RUNCODEONCE(Logging::Log() << __FUNCTION__ << " Error: failed to get available disk space!");
 
+		DiskSizeSet = false;
 		return NULL;
 	}
 
-	ULONGLONG FreeSpace = TotalNumberOfFreeBytes.QuadPart / 1024;
+	DiskSizeSet = true;
+	if (FreeBytesAvailableToCaller.QuadPart < 0xF4240)
+	{
+		_snprintf_s(szNewFreeSpaceString, MAX_PATH, _TRUNCATE, "\\h%f KB", (double)FreeBytesAvailableToCaller.QuadPart);
+	}
+	else if (FreeBytesAvailableToCaller.QuadPart / 1024 < 0xF4240)
+	{
+		_snprintf_s(szNewFreeSpaceString, MAX_PATH, _TRUNCATE, "\\h%f MB", (double)FreeBytesAvailableToCaller.QuadPart / 1024.0f / 1024.0f);
+	}
+	else if (FreeBytesAvailableToCaller.QuadPart / 1024 < 0x3B9ACA00)
+	{
+		_snprintf_s(szNewFreeSpaceString, MAX_PATH, _TRUNCATE, "\\h%.1f GB", (double)FreeBytesAvailableToCaller.QuadPart / 1024.0f / 1024.0f / 1024.0f);
+	}
+	else if (FreeBytesAvailableToCaller.QuadPart / 1024 >= 0x3B9ACA00)
+	{
+		_snprintf_s(szNewFreeSpaceString, MAX_PATH, _TRUNCATE, "\\h%.2f TB", (double)FreeBytesAvailableToCaller.QuadPart / 1024.0f / 1024.0f / 1024.0f / 1024.0f);
+	}
+
+	ULONGLONG FreeSpace = FreeBytesAvailableToCaller.QuadPart / 1024;
 	if (FreeSpace > 0x7FFFFFFF)
 	{
 		RUNCODEONCE(Logging::Log() << __FUNCTION__ << " Available disk space larger than 2TBs: " << FreeSpace);
@@ -145,6 +197,33 @@ DWORD GetDiskSpace()
 
 	RUNCODEONCE(Logging::Log() << __FUNCTION__ << " Available disk space smaller than 2TBs: " << FreeSpace);
 	return (DWORD)(FreeSpace);
+}
+
+// sprintf replacement for printing diskspace
+int PrintFreeDiskSpace(char* Buffer, const char* a1, ...)
+{
+	if (Buffer == nullptr || a1 == nullptr)
+	{
+		return sprintf(Buffer, a1);
+	}
+
+	char FullMessageBufferReturn[MAX_PATH] = { 0 };
+
+	va_list vaReturn;
+	va_start(vaReturn, a1);
+
+	_vsnprintf_s(FullMessageBufferReturn, MAX_PATH, _TRUNCATE, a1, vaReturn);
+	va_end(vaReturn);
+
+	if (DiskSizeSet)
+	{
+		return sprintf(Buffer, szNewFreeSpaceString);
+	}
+	else
+	{
+		strcat_s(FullMessageBufferReturn, MAX_PATH, " KB");
+		return sprintf(Buffer, FullMessageBufferReturn);
+	}
 }
 
 // Patch SH2 code to Fix 2TB disk limit
@@ -167,19 +246,25 @@ void Patch2TBHardDrive()
 	// Disk display fix
 	constexpr BYTE DisplaySearchBytes[]{ 0x8B, 0xF0, 0x83, 0xC4, 0x04, 0x85, 0xF6, 0x7D, 0x02, 0x33, 0xF6, 0x6A, 0x00 };
 	DWORD DisplayFix = SearchAndGetAddresses(0x0044FB54, 0x0044FDB4, 0x0044FDB4, DisplaySearchBytes, sizeof(DisplaySearchBytes), 0x1A);
+	constexpr BYTE RemoveKBSearchBytes[]{ 0x8B, 0x44, 0x24, 0x04, 0x85, 0xC0, 0x74, 0x16, 0x66, 0x8B, 0x4C, 0x24, 0x08 };
+	DWORD RemoveKBAddr = SearchAndGetAddresses(0x0047EC60, 0x0047EF00, 0x0047F110, RemoveKBSearchBytes, sizeof(RemoveKBSearchBytes), 0x0);
 
 	// Checking address pointer
-	if (!DisplayFix)
+	if (!DisplayFix || !RemoveKBAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
 	jmpSkipDisplay = (void*)(DisplayFix + 0x08);
 	jmpDisplayReturnAddr = (void*)(DisplayFix + 0x06);
+	jmpRemoveKBAddr = (void*)(RemoveKBAddr + 6);
+	DWORD sprintfAddr = DisplayFix + 0x42;
 
 	// Update SH2 code
 	Logging::Log() << "Setting 2TB hard disk Fix...";
 	WriteJMPtoMemory((BYTE*)(HardDriveAddr - 0x14), *NewSaveASM, 5);
 	WriteJMPtoMemory((BYTE*)HardDriveAddr, *HardDriveASM, 5);
 	WriteJMPtoMemory((BYTE*)DisplayFix, *DisplayASM, 6);
+	WriteCalltoMemory((BYTE*)sprintfAddr, *PrintFreeDiskSpace, 6);
+	WriteJMPtoMemory((BYTE*)RemoveKBAddr, *TextToGame, 6);
 }

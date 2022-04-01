@@ -466,6 +466,12 @@ void DelayedStart()
 		PatchSaveGameSound();
 	}
 
+	// Fixes at chainsaw and final Marry boss's mouth attack.
+	if (SpecificSoundLoopFix)
+	{
+		PatchSpecificSoundLoopFix();
+	}
+
 	// FixSaveBGImage
 	if (FixSaveBGImage)
 	{

@@ -87,6 +87,7 @@
 	visit(RowboatAnimationFix, true) \
 	visit(SetBlackPillarBoxes, true) \
 	visit(Southpaw, false) \
+	visit(SpecificSoundLoopFix, true) \
 	visit(SpecularFix, true) \
 	visit(SteamCrashFix, true) \
 	visit(UnlockJapLang, false) \

@@ -21,14 +21,16 @@ typedef uintptr_t* (__cdecl* dunno)(uint32_t);
 dunno Dunno = (dunno)0x00401670;
 
 // ASM function to stop moth sfx
+#pragma warning(suppress: 4740)
 __declspec(naked) void __stdcall StopMothSfxOnPauseMenu()
 {
 	// It checks room id, if the id is points to final boss it runs the stop function
-	// Note: This code also a fix for the moths on west side apartments. stop_moth_sfx also kill's the moth but when we clean bytes of reset instuctions they won't coming back.\
-	So we have to be sure this code will work only on final boss.
+	// Note: This code also a fix for the moths on west side apartments. stop_moth_sfx also kill's the moth but when we clean bytes of reset instuctions they won't coming back.
+	// So we have to be sure this code will work only on final boss.
 	if (GetRoomID() == 0xBB)
 	{
-		__asm {
+		__asm
+		{
 			call stop_moth_sfx
 		}
 	}
@@ -71,8 +73,8 @@ void MothSFXLoopingFix()
 
 	// These are resets moth pos after leaving inventory, we don't need these because game already stores these value's in different memory and these mem's are just useless.
 	injector::MakeNOP(MothCallAddr - 0x53, 0x37);
-	// This memory summon moths again but again we don't need because when game call's this it's also resets moth timer and pos. Also it calls the play_moth_sfx because there is already one below \
-	of the byte.
+	// This memory summon moths again but again we don't need because when game call's this it's also resets moth timer and pos. Also it calls the play_moth_sfx because there is already one below
+	// of the byte.
 	injector::MakeNOP(MothCallAddr + 0x8, 0x3);
 	// Ahh i'm tired to comment everything out, you can find more info in here: https://github.com/elishacloud/Silent-Hill-2-Enhancements/issues/424
 	// Simply it just NOP's the useless enDeleteEnemy(0x004ab73d) call when timer is out, it instantly destroy moth's but we like the moth's goes away and destroy's theirself. This thing does it already 0x004ac29a;  

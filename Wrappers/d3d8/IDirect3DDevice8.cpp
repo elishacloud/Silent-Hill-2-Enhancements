@@ -1660,6 +1660,19 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 				}
 			}
 		}
+		// Fix 1 pixel gap in cutscene letterboxes
+		else if (PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 20)
+		{
+			CUSTOMVERTEX_DIF *vert = (CUSTOMVERTEX_DIF*)pVertexStreamZeroData;
+			if (vert[0].x == 0.0f && vert[2].x == 0.0f && (vert[1].x == (float)BufferWidth || vert[0].y == (float)BufferHeight))
+			{
+				for (int x = 0; x < 4; x++)
+				{
+					vert[x].x -= 0.5f;
+					vert[x].y -= 0.5f;
+				}
+			}
+		}
 	}
 
 	return ProxyInterface->DrawPrimitiveUP(PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride);

@@ -16,9 +16,15 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <conio.h>
 #include "Patches.h"
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
+
+typedef void(__cdecl* LoadMariaProc)(int a1);
+typedef void(__cdecl* MariaFunctionProc)();
+
+LoadMariaProc oLoadMaria = nullptr;
 
 // Variables for ASM
 BYTE AllowQuickSaveFlag = TRUE;
@@ -38,6 +44,9 @@ BYTE *SaveIndexAddr = nullptr;
 BYTE *SaveArrayAddr = nullptr;
 DWORD *InGameAddr = nullptr;
 void *jmpIndexCheckAddr = nullptr;
+void *jmpMariaFunctionAddr = nullptr;
+DWORD FilesLoadedAddr;
+DWORD CutsceneValueAddr;
 
 // ASM function for Quick Save Soft-Lock Fix
 __declspec(naked) void __stdcall SoftLockASM()
@@ -176,6 +185,43 @@ __declspec(naked) void __stdcall GameResultSaveASM()
 	}
 }
 
+// ASM function to disable quick saves
+__declspec(naked) void __stdcall MariaFunctionASM()
+{
+	__asm
+	{
+		sub esp, 0x208
+		jmp jmpMariaFunctionAddr
+	}
+}
+MariaFunctionProc oMariaFunction = (MariaFunctionProc)*MariaFunctionASM;
+
+void __cdecl NewMariaFunction()
+{
+	BYTE bFilesLoaded[4] = { 0 };
+	SIZE_T BytesRead = 0;
+
+	ReadProcessMemory(GetCurrentProcess(), (LPVOID)FilesLoadedAddr, bFilesLoaded, sizeof(bFilesLoaded), &BytesRead);
+
+	_cprintf_s("bFilesLoaded --> %d --> %d --> %d --> %d\n", bFilesLoaded[0], bFilesLoaded[1], bFilesLoaded[2], bFilesLoaded[3]);
+
+	BYTE CutsceneValue[4] = { 0 };
+	SIZE_T BytesReadCutscene = 0;
+
+	ReadProcessMemory(GetCurrentProcess(), (LPVOID)CutsceneValueAddr, CutsceneValue, sizeof(CutsceneValue), &BytesReadCutscene);
+
+	_cprintf_s("CutsceneValue --> %d --> %d --> %d --> %d\n", CutsceneValue[0], CutsceneValue[1], CutsceneValue[2], CutsceneValue[3]);
+
+	if (bFilesLoaded[0] == 0)
+	{
+		if (CutsceneValue[3] > 0 && CutsceneValue[3] < 8)
+		{
+			oLoadMaria(1);
+		}
+	}
+	return oMariaFunction();
+}
+
 void PatchGameLoad()
 {
 	// Get in-game check address
@@ -269,6 +315,19 @@ void SetGameLoad()
 	jmpQuickSaveAddr = (void*)(QuickSaveFunction + 0x06);
 	QuickSaveCmpAddr = (void*)*(DWORD*)(QuickSaveFunction + 0x02);
 
+	constexpr BYTE LoadMariaSearchBytes[]{ 0x8B, 0x44, 0x24, 0x04, 0x85, 0xC0, 0x75, 0x5E };
+	oLoadMaria = (LoadMariaProc)SearchAndGetAddresses(0x00593FC5, 0x00594875, 0x00594195, LoadMariaSearchBytes, sizeof(LoadMariaSearchBytes), -0x05);
+	constexpr BYTE MariaFunctionSearchBytes[]{ 0x81, 0xEC, 0x08, 0x02, 0x00, 0x00, 0x53, 0x55 };
+	DWORD MariaFunctionAddr = SearchAndGetAddresses(0x00594C40, 0x005954F0, 0x00594E10, MariaFunctionSearchBytes, sizeof(MariaFunctionSearchBytes), 0x00);
+	if (!(DWORD)*oLoadMaria || !MariaFunctionAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+	jmpMariaFunctionAddr = (void*)(MariaFunctionAddr + 6);
+	UpdateMemoryAddress((void*)&FilesLoadedAddr, (void*)(MariaFunctionAddr + 0x6D), sizeof(DWORD));
+	UpdateMemoryAddress((void*)&CutsceneValueAddr, (void*)(MariaFunctionAddr + 0x53), sizeof(DWORD));
+
 	// Update SH2 code
 	Logging::Log() << "Enabling Load Game Fix...";
 	DWORD Value = 0x00;
@@ -279,6 +338,7 @@ void SetGameLoad()
 	WriteJMPtoMemory((BYTE*)SaveTimerFunction, *SaveTimerASM, 6);
 	WriteJMPtoMemory((BYTE*)TextOverlapFunction, *TextOverlapASM, 6);
 	WriteJMPtoMemory((BYTE*)QuickSaveFunction, *QuickSaveASM, 6);
+	WriteJMPtoMemory((BYTE*)MariaFunctionAddr, *NewMariaFunction, 6);
 }
 
 void RunGameLoad()

@@ -16,7 +16,6 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include <conio.h>
 #include "Patches.h"
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
@@ -203,14 +202,10 @@ void __cdecl NewMariaFunction()
 
 	ReadProcessMemory(GetCurrentProcess(), (LPVOID)FilesLoadedAddr, bFilesLoaded, sizeof(bFilesLoaded), &BytesRead);
 
-	_cprintf_s("bFilesLoaded --> %d --> %d --> %d --> %d\n", bFilesLoaded[0], bFilesLoaded[1], bFilesLoaded[2], bFilesLoaded[3]);
-
 	BYTE CutsceneValue[4] = { 0 };
 	SIZE_T BytesReadCutscene = 0;
 
 	ReadProcessMemory(GetCurrentProcess(), (LPVOID)CutsceneValueAddr, CutsceneValue, sizeof(CutsceneValue), &BytesReadCutscene);
-
-	_cprintf_s("CutsceneValue --> %d --> %d --> %d --> %d\n", CutsceneValue[0], CutsceneValue[1], CutsceneValue[2], CutsceneValue[3]);
 
 	if (bFilesLoaded[0] == 0)
 	{

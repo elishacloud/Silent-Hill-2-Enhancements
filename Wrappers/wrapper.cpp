@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <fstream>
 #include "Common\Utils.h"
+#include "Common\Settings.h"
 #include "Logging\Logging.h"
 
 #define ADD_FARPROC_MEMBER(procName, prodAddr) \
@@ -163,16 +164,19 @@ void Wrapper::GetWrapperMode()
 		WrapperMode = wcsrchr(WrapperName, '\\') + 1;
 	}
 
+	std::string sWrapperType(WrapperType);
+	std::wstring wWrapperType(sWrapperType.begin(), sWrapperType.end());
+
 	// Save wrapper mode
-	if (_wcsicmp(WrapperMode, dtypename[DTYPE_D3D8]) == 0)
+	if (_wcsicmp(WrapperMode, dtypename[DTYPE_D3D8]) == 0 || _wcsicmp(wWrapperType.c_str(), dtypename[DTYPE_D3D8]) == 0)
 	{
 		dtype = DTYPE_D3D8;
 	}
-	else if (_wcsicmp(WrapperMode, dtypename[DTYPE_DINPUT8]) == 0)
+	else if (_wcsicmp(WrapperMode, dtypename[DTYPE_DINPUT8]) == 0 || _wcsicmp(wWrapperType.c_str(), dtypename[DTYPE_DINPUT8]) == 0)
 	{
 		dtype = DTYPE_DINPUT8;
 	}
-	else if (_wcsicmp(WrapperMode, dtypename[DTYPE_DSOUND]) == 0)
+	else if (_wcsicmp(WrapperMode, dtypename[DTYPE_DSOUND]) == 0 || _wcsicmp(wWrapperType.c_str(), dtypename[DTYPE_DSOUND]) == 0)
 	{
 		dtype = DTYPE_DSOUND;
 	}

@@ -30,10 +30,6 @@
 #include "Logging\Logging.h"
 #include "BuildNo.rc"
 
-#define STRINGIFY(x) #x
-#define TOSTRING(x) STRINGIFY(x)
-#define APP_VERSION TOSTRING(FILEVERSION)
-
 Direct3DCreate9Proc p_Direct3DCreate9 = nullptr;
 
 PFN_D3DXAssembleShader D3DXAssembleShader = nullptr;
@@ -47,14 +43,20 @@ void EnableD3d8to9()
 	d3d8::ValidateVertexShader_var = (FARPROC)*d8_ValidateVertexShader;
 	d3d8::Direct3DCreate8_var = (FARPROC)*Direct3DCreate8to9;
 	m_pDirect3DCreate8 = (Direct3DCreate8Proc)*Direct3DCreate8to9;
-}
 
-// Initializes d3d9 and Direct3DCreate9 for d3d8to9
-void Initd3d8to9()
-{
+	// Load d3d9.dll
+	Logging::Log() << "Loading d3d9.dll";
+	HMODULE d3d9dll = LoadLibrary(L"d3d9.dll");
+
+	// Get function addresses
+	if (d3d9dll)
+	{
+		m_pDirect3DCreate9 = (Direct3DCreate9Proc)GetProcAddress(d3d9dll, "Direct3DCreate9");
+	}
+
+	// Use Direct3D9 wrapper if shaders are enabled
 	if (!EnableCustomShaders)
 	{
-		Initd3d9();
 		p_Direct3DCreate9 = m_pDirect3DCreate9;
 	}
 	else
@@ -123,7 +125,6 @@ Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 {
 	UNREFERENCED_PARAMETER(SDKVersion);
 
-	Initd3d8to9();
 	if (!p_Direct3DCreate9)
 	{
 		Logging::Log() << __FUNCTION__ << " Error finding 'Direct3DCreate9'";

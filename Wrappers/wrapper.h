@@ -40,7 +40,6 @@ typedef struct IUnknown *LPUNKNOWN;
 typedef struct IDirect3D8 *LPDIRECT3D8;
 typedef struct IDirectSound8 *LPDIRECTSOUND8;
 
-HMODULE GetD3d8ScriptDll();
 void HookDirect3DCreate8();
 void HookDirectInput8Create();
 void HookDirectSoundCreate8();

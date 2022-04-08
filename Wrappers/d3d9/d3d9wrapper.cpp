@@ -21,35 +21,8 @@
 
 Direct3DCreate9Proc m_pDirect3DCreate9 = nullptr;
 
-HMODULE d3d9dll = nullptr;
-
-void Initd3d9()
-{
-	static bool RunOnce = true;
-	if (!RunOnce)
-	{
-		return;
-	}
-	RunOnce = false;
-
-	// Load dll
-	char path[MAX_PATH];
-	strcpy_s(path, "d3d9.dll");
-	Logging::Log() << "Loading " << path;
-	d3d9dll = LoadLibraryA(path);
-	if (!d3d9dll)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: Cannnot open d3d9.dll!";
-		return;
-	}
-
-	// Get function addresses
-	m_pDirect3DCreate9 = (Direct3DCreate9Proc)GetProcAddress(d3d9dll, "Direct3DCreate9");
-}
-
 IDirect3D9 *WINAPI rs_Direct3DCreate9(UINT SDKVersion)
 {
-	Initd3d9();
 	if (!m_pDirect3DCreate9)
 	{
 		Logging::Log() << __FUNCTION__ << " Error finding 'Direct3DCreate9'";

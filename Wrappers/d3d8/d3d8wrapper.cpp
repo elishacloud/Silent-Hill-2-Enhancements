@@ -79,8 +79,22 @@ void HookDirect3DCreate8()
 		return;
 	}
 
+	// Get defined d3d8 script wrapper
+	if (!d3d8to9 && LoadD3d8FromScriptsFolder)
+	{
+		HMODULE ScriptDll = nullptr;
+		ScriptDll = GetD3d8ScriptDll();
+		if (ScriptDll)
+		{
+			m_pDirect3DCreate8 = (Direct3DCreate8Proc)GetProcAddress(ScriptDll, "Direct3DCreate8");
+		}
+	}
+
 	// Get function address
-	m_pDirect3DCreate8 = (Direct3DCreate8Proc)(Address + 5 + *(DWORD*)(Address + 1));
+	if (!m_pDirect3DCreate8)
+	{
+		m_pDirect3DCreate8 = (Direct3DCreate8Proc)(Address + 5 + *(DWORD*)(Address + 1));
+	}
 
 	// Write to memory
 	WriteCalltoMemory((BYTE*)Address, *Direct3DCreate8Wrapper, 5);

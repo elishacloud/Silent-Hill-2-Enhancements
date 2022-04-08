@@ -24,6 +24,4 @@ IDirect3D9 *WINAPI rs_Direct3DCreate9(UINT SDKVersion);
 #include "ReShade\Runtime\runtime_config.hpp"
 #include "ReShade\Runtime\runtime_objects.hpp"
 
-void Initd3d9();
-
 extern Direct3DCreate9Proc m_pDirect3DCreate9;

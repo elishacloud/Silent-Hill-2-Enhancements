@@ -182,24 +182,14 @@ void DelayedStart()
 	Wrapper::GetWrapperMode();
 
 	// Create wrapper
-	if (!(d3d8to9 && Wrapper::dtype == DTYPE_D3D8))
+	wrapper_dll = Wrapper::CreateWrapper(nullptr);
+	if (wrapper_dll)
 	{
-		// Get defined d3d8 script wrapper
-		HMODULE ScriptDll = nullptr;
-		if (LoadD3d8FromScriptsFolder)
-		{
-			ScriptDll = GetD3d8ScriptDll();
-		}
-
-		wrapper_dll = Wrapper::CreateWrapper(Wrapper::dtype == DTYPE_D3D8 ? ScriptDll : nullptr);
-		if (wrapper_dll)
-		{
-			Logging::Log() << "Wrapper created for " << dtypename[Wrapper::dtype];
-		}
-		else if (Wrapper::dtype != DTYPE_ASI)
-		{
-			Logging::Log() << __FUNCTION__ << " Error: could not create wrapper!";
-		}
+		Logging::Log() << "Wrapper created for " << dtypename[Wrapper::dtype];
+	}
+	else if (Wrapper::dtype != DTYPE_ASI)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: could not create wrapper!";
 	}
 
 	// Replace window title

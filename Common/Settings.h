@@ -140,7 +140,8 @@
 	visit(fog_layer2_density_mult, 1.4f)
 
 #define VISIT_STR_SETTINGS(visit) \
-	visit(CustomModFolder, "")
+	visit(CustomModFolder, "") \
+	visit(WrapperType, "")
 
 #define VISIT_LEGACY_BOOL_SETTINGS(visit) \
 	visit(EnableWndMode, true) \

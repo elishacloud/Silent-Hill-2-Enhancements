@@ -626,7 +626,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		m_StopThreadFlag = true;
 
 		// Unhook window handle
-		void UnhookWindowHandle();
+		UnhookWindowHandle();
 
 		// Unhook APIs
 		Logging::Log() << "Unhooking library functions";

@@ -30,6 +30,10 @@
 #include "Logging\Logging.h"
 #include "BuildNo.rc"
 
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+#define APP_VERSION TOSTRING(FILEVERSION)
+
 Direct3DCreate9Proc p_Direct3DCreate9 = nullptr;
 
 PFN_D3DXAssembleShader D3DXAssembleShader = nullptr;

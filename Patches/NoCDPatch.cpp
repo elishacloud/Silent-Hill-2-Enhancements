@@ -41,5 +41,5 @@ void PatchCDCheck()
 
 	// Update SH2 code
 	Logging::Log() << "Bypassing CD check...";
-	UpdateMemoryAddress(CDCheckAddr, "\xC3", 1);
+	UpdateMemoryAddress(CDCheckAddr, "\x33\xC0\x40\xC3", 4);
 }

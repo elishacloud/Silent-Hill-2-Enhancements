@@ -2,10 +2,6 @@
 
 #include "External\d3d8to9\source\d3d8to9.hpp"
 
-#define STRINGIFY(x) #x
-#define TOSTRING(x) STRINGIFY(x)
-#define APP_VERSION TOSTRING(FILEVERSION)
-
 typedef IDirect3D8 *(WINAPI *Direct3DCreate8Proc)(UINT);
 
 void EnableD3d8to9();

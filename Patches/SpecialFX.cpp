@@ -19,6 +19,7 @@
 #include "Patches.h"
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
+#include "External/Hooking.Patterns/Hooking.Patterns.h"
 
 // Variables for ASM
 constexpr float CustomAddress1Value = 0.04f;
@@ -33,6 +34,7 @@ float LyingFigureTunnelCutsceneValue1 = 0;
 float LyingFigureTunnelCutsceneValue2 = 0;
 float HotelRoom312Value1 = 0;
 float HotelRoom312Value2 = 0;
+void* FadeOutTypeAddr;
 void *jmpCustomAddress2Addr;
 void *jmpCustomAddress3Addr;
 void *jmpMotionBlurAddr;
@@ -46,6 +48,55 @@ void *jmpCustomMotionBlur5Addr;
 void *jmpCustomMotionBlur6Addr;
 void *jmpEddieBossDeathAddr;
 void *jmpEddieBossDeathTimerAddr;
+void* jmpToMariaFadeOutAddr;
+void* jmpWorkingPuzzleFadeOutFunction;
+
+// Fade out wasn't work when motion blur is on because it was changing type of fade out to 0. I found another memory that can help us too but that didn't work as i expected, so i decided to use like this
+__declspec(naked) void __cdecl MariaCutsceneFadeoutASM()
+{
+	__asm {
+		push ecx
+	}
+	
+	// The reason of why i set to "uint32" is when i set this to float game crashes.
+	if (GetRoomID() == 137 && *reinterpret_cast<uint32_t*>(GetJamesPosZPointer()) == 1185259392)
+	{
+		// There is 2 cutscenes in same room but fadeout works when CutSceneID is zero, just wanted to be sure
+		if (GetCutsceneID() == 0) 
+		{
+			__asm 
+			{
+				mov ecx, dword ptr ds : [FadeOutTypeAddr]
+				mov [ecx],0x11
+				mov eax , [ecx]
+			}
+		}
+	}
+	else
+	{
+		__asm 
+		{
+			mov ecx, dword ptr ds : [FadeOutTypeAddr]
+			mov [ecx], 0x0
+			mov eax, [ecx]
+		}
+	}
+
+	__asm
+	{
+		pop ecx
+		jmp jmpToMariaFadeOutAddr
+	}
+}
+
+// Made a simple trick in here, when comparison is true, game stores new values and then returns but i made overwrite on the return value to jump on forgotten functions (program returns there).
+__declspec(naked) void __cdecl LouisePuzzleBoxFadeOutASM()
+{
+	__asm
+	{
+		jmp jmpWorkingPuzzleFadeOutFunction
+	}
+}
 
 // Second custom addresses ASM (00631614)
 __declspec(naked) void __stdcall CustomAddress2ASM()
@@ -289,6 +340,35 @@ void PatchSpecialFX()
 		return;
 	}
 
+	// Get fadeout type addr
+	auto MariaFadeOutFixPattern = hook::pattern("33 C0 A3 ? ? ? ? A3 ? ? ? ? A3 ? ? ? ? A3 ? ? ? ? A3 ? ? ? ? A3 ? ? ? ? C3").count(1);
+	auto MariaFadeOutFixAddr = reinterpret_cast<DWORD>(MariaFadeOutFixPattern.get_first(0x2));
+
+	// Get memory address before overwriting jmp on it
+	memcpy(&FadeOutTypeAddr, (void*)(MariaFadeOutFixAddr + 0x1), sizeof(DWORD));
+
+	jmpToMariaFadeOutAddr = reinterpret_cast<void*>(MariaFadeOutFixAddr + 0x5);
+
+	if (!MariaFadeOutFixAddr || MariaFadeOutFixPattern.size() != 1)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+	
+	// Get return address of dial lock
+	constexpr BYTE PuzzleFadeOutBytes[]{ 0x74, 0xA2, 0xA8, 0x02, 0x74, 0x9E, 0xA8, 0x08, 0x74, 0x9A, 0xE8 };
+	DWORD PuzzleFadeOutPatchAddr = SearchAndGetAddresses(0x0058F5E2, 0x0058FE92, 0x0058F7B2, PuzzleFadeOutBytes, sizeof(PuzzleFadeOutBytes), 0x23);
+
+	// Sets jump point to more better working address after if comparison true
+	auto PuzzleFadeOutFixPattern = hook::pattern("A8 08 C7 05 ? ? ? ? ? ? ? ? 75 0A C7 05 ? ? ? ? ? ? ? ? C7 05 ? ? ? ? ? ? ? ? E8").count(1);
+	jmpWorkingPuzzleFadeOutFunction = reinterpret_cast<DWORD*>(PuzzleFadeOutFixPattern.get_first(0x22));
+
+	if (!PuzzleFadeOutPatchAddr || PuzzleFadeOutFixPattern.size() != 1)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+
 	// Update SH2 code
 	Logging::Log() << "Enabling post Processing Special FX...";
 
@@ -342,6 +422,12 @@ void PatchSpecialFX()
 
 	// Write Eddie Boss Death Sequence address
 	WriteJMPtoMemory((BYTE*)EddieBossDeathPtr, *EddieBossDeathASM, 5);
+	
+	// Write CutSceme Fadeout Addr
+	WriteJMPtoMemory((BYTE*)MariaFadeOutFixAddr, *MariaCutsceneFadeoutASM, 5);
+
+	// Write Puzzle Turn Dial Return Addr
+	WriteJMPtoMemory((BYTE*)PuzzleFadeOutPatchAddr, *LouisePuzzleBoxFadeOutASM, 5);
 }
 
 void RunSpecialFXScale(DWORD Height)

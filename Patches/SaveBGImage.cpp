@@ -25,7 +25,7 @@ void PatchSaveBGImage()
 {
 	// Get fog addresses
 	constexpr BYTE BGLoadSearchBytes[]{ 0x83, 0xC4, 0x0C, 0x3C, 0x02, 0x7D, 0x1D, 0x80, 0x3D };
-	BYTE *BGLoadAddr = (BYTE*)SearchAndGetAddresses(0x0044B414, 0x0044B5B4, 0x0044B5B4, BGLoadSearchBytes, sizeof(BGLoadSearchBytes), -0x5);
+	BYTE *BGLoadAddr = (BYTE*)SearchAndGetAddresses(0x0044B414, 0x0044B5B4, 0x0044B5B4, BGLoadSearchBytes, sizeof(BGLoadSearchBytes), 0x5);
 
 	if (!BGLoadAddr)
 	{
@@ -35,7 +35,7 @@ void PatchSaveBGImage()
 
 	// Update SH2 code
 	Logging::Log() << "Enabling Save Background Images Fix...";
-	UpdateMemoryAddress(BGLoadAddr, "\x90\x90\x90\x90\x90", 5);
+	UpdateMemoryAddress(BGLoadAddr, "\x90\x90", 2);
 }
 
 void RunSaveBGImage()

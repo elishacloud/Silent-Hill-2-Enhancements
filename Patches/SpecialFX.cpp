@@ -52,6 +52,7 @@ void* jmpToMariaFadeOutAddr;
 void* jmpWorkingPuzzleFadeOutFunction;
 
 // Fade out wasn't work when motion blur is on because it was changing type of fade out to 0. I found another memory that can help us too but that didn't work as i expected, so i decided to use like this
+#pragma warning(suppress: 4740)
 __declspec(naked) void __cdecl MariaCutsceneFadeoutASM()
 {
 	__asm {

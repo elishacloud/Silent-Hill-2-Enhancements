@@ -74,7 +74,9 @@ void GetTextResolution(int &Width, int &Height)
 void CreateResolutionText(int gWidth, int gHeight)
 {
 	char* text = "\\h%dx%d";
-	if (abs((float)gWidth / 3 - (float)gHeight / 2) < 1.0f)
+	if (abs((float)gWidth - (float)gHeight) < 1.0f)
+		text = "\\h%dx%d (1:1)";
+	else if (abs((float)gWidth / 3 - (float)gHeight / 2) < 1.0f)
 		text = "\\h%dx%d (3:2)";
 	else if (abs((float)gWidth / 4 - (float)gHeight / 1) < 1.0f)
 		text = "\\h%dx%d (4:1)";
@@ -90,25 +92,25 @@ void CreateResolutionText(int gWidth, int gHeight)
 		text = "\\h%dx%d (9:5)";
 	else if (abs((float)gWidth / 16 - (float)gHeight / 5) < 1.0f)
 		text = "\\h%dx%d (16:5)";
-	else if (abs((float)gWidth / 16 - (float)gHeight / 9) < 1.0f)
+	else if (abs((float)gWidth / 16 - (float)gHeight / 9) < 0.5f)
 		text = "\\h%dx%d (16:9)";
-	else if (abs((float)gWidth / 16 - (float)gHeight / 10) < 1.0f)
+	else if (abs((float)gWidth / 16 - (float)gHeight / 10) < 0.5f)
 		text = "\\h%dx%d (16:10)";
-	else if (abs((float)gWidth / 17 - (float)gHeight / 9) < 1.0f ||
-		abs((float)gWidth / 256 - (float)gHeight / 135) < 1.0f)
+	else if (abs((float)gWidth / 17 - (float)gHeight / 9) < 0.5f ||
+		abs((float)gWidth / 256 - (float)gHeight / 135) < 0.1f)
 		text = "\\h%dx%d (17:9)";
-	else if (abs((float)gWidth / 21 - (float)gHeight / 9) < 1.0f ||
-		abs((float)gWidth / 64 - (float)gHeight / 27) < 1.0f ||
-		abs((float)gWidth / 43 - (float)gHeight / 18) < 1.0f ||
+	else if (abs((float)gWidth / 21 - (float)gHeight / 9) < 0.5f ||
+		abs((float)gWidth / 64 - (float)gHeight / 27) < 0.5f ||
+		abs((float)gWidth / 43 - (float)gHeight / 18) < 0.5f ||
 		abs((float)gWidth / 12 - (float)gHeight / 5) < 1.0f)
 		text = "\\h%dx%d (21:9)";
-	else if (abs((float)gWidth / 25 - (float)gHeight / 16) < 1.0f)
+	else if (abs((float)gWidth / 25 - (float)gHeight / 16) < 0.5f)
 		text = "\\h%dx%d (25:16)";
-	else if (abs((float)gWidth / 32 - (float)gHeight / 9) < 1.0f)
+	else if (abs((float)gWidth / 32 - (float)gHeight / 9) < 0.5f)
 		text = "\\h%dx%d (32:9)";
-	else if (abs((float)gWidth / 32 - (float)gHeight / 15) < 1.0f)
+	else if (abs((float)gWidth / 32 - (float)gHeight / 15) < 0.5f)
 		text = "\\h%dx%d (32:15)";
-	else if (abs((float)gWidth / 48 - (float)gHeight / 9) < 1.0f)
+	else if (abs((float)gWidth / 48 - (float)gHeight / 9) < 0.5f)
 		text = "\\h%dx%d (48:9)";
 
 	RESOLUTONTEXT Buffer;
@@ -320,7 +322,7 @@ __declspec(naked) void __stdcall ChangeResASM()
 	}
 }
 
-void AddResolutionToList(DWORD Width, DWORD Height)
+void AddResolutionToList(DWORD Width, DWORD Height, bool force = false)
 {
 	if (ResolutionVector.size() >= 0xFF)
 	{
@@ -338,7 +340,7 @@ void AddResolutionToList(DWORD Width, DWORD Height)
 	}
 	bool NotTooLarge = ((ScreenMode == 1) ? (Width <= (DWORD)MaxWidth && Height <= (DWORD)MaxHeight) : true);
 	bool NotTooSmall = (Width >= MinWidth && Height >= MinHeight);
-	if (!found && NotTooSmall && NotTooLarge)
+	if (!found && (force || NotTooSmall) && NotTooLarge)
 	{
 		RESOLUTONLIST Resolution;
 		Resolution.Width = Width;
@@ -361,6 +363,12 @@ void GetCustomResolutions()
 		{
 			Logging::Log() << __FUNCTION__ << " Error: failed to create Direct3D8!";
 			return;
+		}
+
+		// Add custom resolution to list
+		if (ResY && ResX)
+		{
+			AddResolutionToList(ResX, ResY, true);
 		}
 
 		// Setup display mode
@@ -388,6 +396,12 @@ void GetCustomResolutions()
 	// Windowed and windowed fullscreen modes
 	else
 	{
+		// Add custom resolution to list
+		if (ResY && ResX)
+		{
+			AddResolutionToList(ResX, ResY, true);
+		}
+
 		// Get monitor info
 		MONITORINFOEX infoex = {};
 		infoex.cbSize = sizeof(MONITORINFOEX);

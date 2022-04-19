@@ -178,14 +178,24 @@ void DelayedStart()
 	// Log files in folder
 	LogDirectory();
 
+	// Replace window title
+	PatchWindowTitle();
+
 	// Get wrapper mode
 	Wrapper::GetWrapperMode();
 
-	// Create wrapper
-	if (Wrapper::dtype != DTYPE_ASI && !(Wrapper::dtype == DTYPE_D3D8 && d3d8to9))
+	// Get script dll
+	HMODULE ScriptDll = nullptr;
+	if (LoadD3d8FromScriptsFolder && !d3d8to9)
 	{
-		wrapper_dll = Wrapper::CreateWrapper(nullptr);
-		if (wrapper_dll || d3d8to9)
+		ScriptDll = GetD3d8ScriptDll();
+	}
+
+	// Create wrapper
+	if (Wrapper::dtype != DTYPE_ASI && (Wrapper::dtype != DTYPE_D3D8 || !d3d8to9))
+	{
+		wrapper_dll = Wrapper::CreateWrapper((Wrapper::dtype == DTYPE_D3D8) ? ScriptDll : nullptr);
+		if (wrapper_dll)
 		{
 			Logging::Log() << "Wrapper created for " << dtypename[Wrapper::dtype];
 		}
@@ -195,13 +205,10 @@ void DelayedStart()
 		}
 	}
 
-	// Replace window title
-	PatchWindowTitle();
-
 	// Hook Direct3D8
 	if (HookDirect3D)
 	{
-		HookDirect3DCreate8();
+		HookDirect3DCreate8(ScriptDll);
 	}
 
 	// Enable d3d8to9

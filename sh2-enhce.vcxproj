@@ -38,6 +38,15 @@
     <ClCompile Include="External\Hooking\IATPatch.cpp" />
     <ClCompile Include="External\Logging\Logging.cpp" />
     <ClCompile Include="External\WidescreenFixesPack\source\SilentHill2.WidescreenFix\dllmain.cpp" />
+    <ClCompile Include="Include\criware\criware_adx.cpp" />
+    <ClCompile Include="Include\criware\criware_adxfic.cpp" />
+    <ClCompile Include="Include\criware\criware_afs.cpp" />
+    <ClCompile Include="Include\criware\criware_aix.cpp" />
+    <ClCompile Include="Include\criware\criware_decode.cpp" />
+    <ClCompile Include="Include\criware\criware_dsound.cpp" />
+    <ClCompile Include="Include\criware\criware_file.cpp" />
+    <ClCompile Include="Include\criware\criware_main.cpp" />
+    <ClCompile Include="Include\criware\criware_server.cpp" />
     <ClCompile Include="Patches\AlternateStomp.cpp" />
     <ClCompile Include="Patches\ChangeClosetSpawn.cpp" />
     <ClCompile Include="Patches\SaveGameSound.cpp" />
@@ -132,6 +141,14 @@
     <ClInclude Include="External\Hooking.Patterns\Hooking.Patterns.h" />
     <ClInclude Include="External\Hooking\Hook.h" />
     <ClInclude Include="External\Logging\Logging.h" />
+    <ClInclude Include="Include\criware\criware.h" />
+    <ClInclude Include="Include\criware\criware_adx.h" />
+    <ClInclude Include="Include\criware\criware_adxfic.h" />
+    <ClInclude Include="Include\criware\criware_afs.h" />
+    <ClInclude Include="Include\criware\criware_aix.h" />
+    <ClInclude Include="Include\criware\criware_dsound.h" />
+    <ClInclude Include="Include\criware\criware_file.h" />
+    <ClInclude Include="Include\criware\criware_server.h" />
     <ClInclude Include="Include\GTA\CFileMgr.h" />
     <ClInclude Include="Include\GTA\WSF.h" />
     <ClInclude Include="Include\stdafx.h" />
@@ -180,11 +197,12 @@
     <ProjectGuid>{E204DCB3-D122-4F2E-88A8-89AC22CE3274}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <ProjectName>sh2-enhce</ProjectName>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v141_xp</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -211,7 +229,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <AdditionalIncludeDirectories>$(SolutionDir);Include;%(AdditionalIncludeDirectories);$(DXSDK_DIR)Include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WINDLL;WIN32;_DEBUG;PSAPI_VERSION=2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(SolutionDir)bin\Intermediate\$(ProjectName)\$(Configuration)\Object\%(RelativeDir)</ObjectFileName>
@@ -233,7 +251,7 @@ copy /Y "$(ProjectDir)Resources\exe_str.txt" "$(TargetDir)$(TargetName).res" &gt
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <AdditionalIncludeDirectories>$(SolutionDir);Include;%(AdditionalIncludeDirectories);$(DXSDK_DIR)Include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WINDLL;WIN32;NDEBUG;PSAPI_VERSION=2;D3D8TO9NOLOG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(SolutionDir)bin\Intermediate\$(ProjectName)\$(Configuration)\Object\%(RelativeDir)</ObjectFileName>

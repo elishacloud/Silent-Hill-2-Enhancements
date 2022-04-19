@@ -305,6 +305,33 @@
     <ClCompile Include="Patches\SpecificSoundLoopFix.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Include\criware\criware_adx.cpp">
+      <Filter>Include\criware</Filter>
+    </ClCompile>
+    <ClCompile Include="Include\criware\criware_adxfic.cpp">
+      <Filter>Include\criware</Filter>
+    </ClCompile>
+    <ClCompile Include="Include\criware\criware_afs.cpp">
+      <Filter>Include\criware</Filter>
+    </ClCompile>
+    <ClCompile Include="Include\criware\criware_aix.cpp">
+      <Filter>Include\criware</Filter>
+    </ClCompile>
+    <ClCompile Include="Include\criware\criware_decode.cpp">
+      <Filter>Include\criware</Filter>
+    </ClCompile>
+    <ClCompile Include="Include\criware\criware_dsound.cpp">
+      <Filter>Include\criware</Filter>
+    </ClCompile>
+    <ClCompile Include="Include\criware\criware_file.cpp">
+      <Filter>Include\criware</Filter>
+    </ClCompile>
+    <ClCompile Include="Include\criware\criware_main.cpp">
+      <Filter>Include\criware</Filter>
+    </ClCompile>
+    <ClCompile Include="Include\criware\criware_server.cpp">
+      <Filter>Include\criware</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">
@@ -472,6 +499,30 @@
     <ClInclude Include="External\csvparser\src\rapidcsv.h">
       <Filter>External\csvparser</Filter>
     </ClInclude>
+    <ClInclude Include="Include\criware\criware.h">
+      <Filter>Include\criware</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\criware\criware_adx.h">
+      <Filter>Include\criware</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\criware\criware_adxfic.h">
+      <Filter>Include\criware</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\criware\criware_afs.h">
+      <Filter>Include\criware</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\criware\criware_aix.h">
+      <Filter>Include\criware</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\criware\criware_dsound.h">
+      <Filter>Include\criware</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\criware\criware_file.h">
+      <Filter>Include\criware</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\criware\criware_server.h">
+      <Filter>Include\criware</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\sh2-enhce.rc">
@@ -558,6 +609,9 @@
     </Filter>
     <Filter Include="External\csvparser">
       <UniqueIdentifier>{d4a94675-8b89-4bf7-a3ba-396831832431}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\criware">
+      <UniqueIdentifier>{5448b3d6-8d77-4320-8d53-37aed07543cf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

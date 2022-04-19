@@ -225,7 +225,7 @@ void DelayedStart()
 	// Fix audio thread issues
 	if (FixAudioThreadDeadlock)
 	{
-		InstallCreateThreadHooks();
+		//InstallCreateThreadHooks();
 	}
 
 	// Hook CreateFile API when using UseCustomModFolder
@@ -543,6 +543,8 @@ void DelayedStart()
 	{
 		PatchSpecular();
 	}
+
+	PatchCriware();
 
 	// Remove the "Now loading..." message
 	switch (GameVersion)

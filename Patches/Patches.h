@@ -84,6 +84,7 @@ void PatchCDCheck();
 void PatchCatacombsMeatRoom();
 void PatchClosetSpawn();
 void PatchCreatureVehicleSpawn();
+void PatchCriware();
 HRESULT PatchCustomExeStr();
 void PatchCustomFog();
 void PatchCustomFonts();

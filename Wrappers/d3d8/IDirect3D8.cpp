@@ -311,7 +311,7 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	// Set single core affinity
 	if (SingleCoreAffinityLegacy)
 	{
-		RUNCODEONCE(SetSingleCoreAffinity());
+		//RUNCODEONCE(SetSingleCoreAffinity());
 	}
 
 	// Create thread to save screenshot file

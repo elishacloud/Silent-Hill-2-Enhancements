@@ -544,7 +544,10 @@ void DelayedStart()
 		PatchSpecular();
 	}
 
-	PatchCriware();
+	if (EnableCriWareReimplementation)
+	{
+		PatchCriware();
+	}
 
 	// Remove the "Now loading..." message
 	switch (GameVersion)

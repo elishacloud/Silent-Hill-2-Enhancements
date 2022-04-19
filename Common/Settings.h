@@ -24,6 +24,7 @@
 	visit(DisableScreenSaver, true) \
 	visit(DPadMovementFix, true) \
 	visit(DynamicResolution, true) \
+	visit(EnableCriWareReimplementation, true) \
 	visit(EnableScreenshots, true) \
 	visit(EnableSFXAddrHack, true) \
 	visit(EnableSMAA, false) \

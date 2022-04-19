@@ -9,10 +9,10 @@
 #include "criware.h"
 #include <chrono>
 
-#define MEASURE_ACCESS		1
+#define MEASURE_ACCESS		0
 
 #if MEASURE_ACCESS
-double TimeGetTime()
+static double TimeGetTime()
 {
 	return std::chrono::duration<double>(std::chrono::high_resolution_clock::now().time_since_epoch()).count() * 1000.;
 }
@@ -69,12 +69,14 @@ typedef struct AIX_THREAD_CTX
 
 static DWORD WINAPI aix_load_thread(LPVOID param)
 {
-#if MEASURE_ACCESS
-	double start = TimeGetTime();
-	OutputDebugStringA(__FUNCTION__ ": preparing AIX...\n");
-#endif
-
 	auto obj = (AIXP_Object*)param;
+
+#if MEASURE_ACCESS
+	char str[MAX_PATH];
+	double start = TimeGetTime();
+	sprintf_s(str, sizeof(str), __FUNCTION__ ": preparing AIX %s...\n", obj->fname);
+	OutputDebugStringA(str);
+#endif
 
 	AIX_Demuxer* aix;
 	if (OpenAIX(obj->fname, &aix) == 0)
@@ -108,8 +110,7 @@ static DWORD WINAPI aix_load_thread(LPVOID param)
 	}
 
 #if MEASURE_ACCESS
-	char str[64];
-	sprintf_s(str, sizeof(str), __FUNCTION__ ": AIX done parsing in %f ms, play!\n", TimeGetTime() - start);
+	sprintf_s(str, sizeof(str), __FUNCTION__ ": AIX done parsing in %f ms.\n", TimeGetTime() - start);
 	OutputDebugStringA(str);
 #endif
 

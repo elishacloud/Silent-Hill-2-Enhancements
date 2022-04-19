@@ -7,6 +7,16 @@
 * ===============================================================
 */
 #include "criware.h"
+#include <chrono>
+
+#define MEASURE_ACCESS		1
+
+#if MEASURE_ACCESS
+static double TimeGetTime()
+{
+	return std::chrono::duration<double>(std::chrono::high_resolution_clock::now().time_since_epoch()).count() * 1000.;
+}
+#endif
 
 int OpenADX(ADXStream* adx)
 {
@@ -133,6 +143,39 @@ int OpenADX(const char* filename, ADXStream** obj)
 	*obj = adx;
 
 	return 1;
+}
+
+void adx_StartFname(ADXT_Object* obj, const char* fname)
+{
+	if (obj == nullptr)
+		return;
+
+#if MEASURE_ACCESS
+	char str[MAX_PATH];
+	double start = TimeGetTime();
+	sprintf_s(str, sizeof(str), __FUNCTION__ ": preparing ADX %s...\n", fname);
+	OutputDebugStringA(str);
+#endif
+
+	if (obj->state != ADXT_STAT_STOP)
+		ADXT_Stop(obj);
+
+	ADXStream* stream;
+	OpenADX(fname, &stream);
+
+	obj->state = ADXT_STAT_PLAYING;
+	obj->stream = stream;
+	obj->obj = ds_FindObj();
+	obj->obj->loops = true;
+	obj->obj->adx = obj;
+
+#if MEASURE_ACCESS
+	sprintf_s(str, sizeof(str), __FUNCTION__ ": ADX done parsing in %f ms.\n", TimeGetTime() - start);
+	OutputDebugStringA(str);
+#endif
+
+	obj->obj->CreateBuffer(stream);
+	obj->obj->Play();
 }
 
 void ADXT_Object::Release()

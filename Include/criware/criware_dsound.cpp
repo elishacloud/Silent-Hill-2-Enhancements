@@ -37,183 +37,6 @@ SndObj* ds_FindObj()
 	return nullptr;
 }
 
-void ds_CreateBuffer(SndObj *obj, CriFileStream* stream)
-{
-	obj->str = stream;
-
-	obj->fmt.cbSize = sizeof(WAVEFORMATEX);
-	obj->fmt.nSamplesPerSec = stream->sample_rate;
-	obj->fmt.nBlockAlign = (WORD)(2 * stream->channel_count);
-	obj->fmt.nChannels = (WORD)stream->channel_count;
-	obj->fmt.wBitsPerSample = 16;
-	obj->fmt.wFormatTag = WAVE_FORMAT_PCM;
-	obj->fmt.nAvgBytesPerSec = stream->sample_rate * 2 * stream->channel_count;
-
-	DSBUFFERDESC desc = { 0 };
-	desc.dwSize = sizeof(desc);
-	desc.lpwfxFormat = &obj->fmt;
-	desc.dwFlags = DSBCAPS_GLOBALFOCUS | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLPAN | /*DSBCAPS_CTRL3D |*/ DSBCAPS_CTRLFREQUENCY /*| DSBCAPS_GETCURRENTPOSITION2*/ /*| DSBCAPS_LOCSOFTWARE*/;
-	desc.dwBufferBytes = BUFFER_SIZE;
-	if (FAILED(pDS8->CreateSoundBuffer(&desc, &obj->pBuf, nullptr)))
-		MessageBoxA(nullptr, "error", __FUNCTION__, MB_OK);
-
-	DWORD bytes1, bytes2;
-	short* ptr1, * ptr2;
-	obj->trans_lock = 1;
-	obj->pBuf->Lock(0, BUFFER_SIZE, (LPVOID*)&ptr1, &bytes1, (LPVOID*)&ptr2, &bytes2, 0);
-	auto needed = stream->Decode(ptr1, bytes1 / obj->fmt.nBlockAlign, obj->loops);
-	if (needed && obj->loops == 0)
-	{
-		needed *= obj->fmt.nBlockAlign;
-		memset(&ptr1[(bytes1 - needed) / 2], 0, needed);
-	}
-	obj->pBuf->Unlock(ptr1, bytes1, ptr2, bytes2);
-	obj->trans_lock = 0;
-
-	obj->used = 1;
-	obj->offset = 0;
-}
-
-u_long ds_GetPosition(SndObj* obj)
-{
-	DWORD pos;
-	obj->pBuf->GetCurrentPosition(&pos, nullptr);
-
-	return pos;
-}
-
-void adxds_SendData(SndObj *obj)
-{
-	obj->trans_lock = 1;
-
-	u_long add = 0, pos;
-	const DWORD snd_dwBytes = BUFFER_QUART;
-
-	pos = ds_GetPosition(obj);
-
-	if (pos - obj->offset < 0)
-		add = BUFFER_SIZE;
-	if (pos + add - obj->offset > 2 * snd_dwBytes + 16)
-	{
-		DWORD bytes1, bytes2;
-		short* ptr1, * ptr2;
-
-		obj->pBuf->Lock(obj->offset, snd_dwBytes, (LPVOID*)&ptr1, &bytes1, (LPVOID*)&ptr2, &bytes2, 0);
-		// just fill with silence if we're stopping
-		if (obj->stopping)
-		{
-#if _DEBUG
-			OutputDebugStringA(__FUNCTION__ ": sending silence...\n");
-#endif
-			memset(ptr1, 0, bytes1);
-		}
-		else
-		{
-			auto needed = obj->str->Decode(ptr1, bytes1 / obj->fmt.nBlockAlign, obj->loops);
-			if (needed && obj->loops == 0)
-			{
-				// fill trail with silence
-				needed *= obj->fmt.nBlockAlign;
-				memset(&ptr1[(bytes1 - needed) / 2], 0, needed);
-			}
-		}
-		obj->pBuf->Unlock(ptr1, bytes1, ptr2, bytes2);
-
-		auto total = snd_dwBytes + obj->offset;
-		obj->offset = total;
-		if (BUFFER_SIZE <= total)
-			obj->offset = total - BUFFER_SIZE;
-	}
-
-	obj->trans_lock = 0;
-}
-
-void ds_SetVolume(SndObj* obj, int vol)
-{
-	if (vol < -1000)
-		vol = -1000;
-
-	obj->volume = vol;
-	if (obj->used && obj->pBuf)
-		obj->pBuf->SetVolume(vol * 10);
-}
-
-void ds_Play(SndObj* obj)
-{
-	if (obj->used)
-	{
-		if (obj->adx && obj->adx->set_volume)
-		{
-			obj->SetVolume(obj->adx->volume);
-			obj->adx->set_volume = 0;
-		}
-
-		if(obj->pBuf)
-			obj->pBuf->Play(0, 0, DSBPLAY_LOOPING);
-	}
-}
-
-int ds_Stop(SndObj* obj)
-{
-	// this is inactive or stopped already
-	if (obj->used == 0) return 1 ;
-	if (obj->stopped == 1) return 1;
-
-	if (obj->pBuf)
-	{
-		if (obj->stopping == 0)
-		{
-			// queue stop to directsound
-			obj->stopping = 1;
-			obj->pBuf->Stop();
-		}
-
-		// check if directsound is done
-		int s = ds_GetStatus(obj);
-		if (s == DSOS_LOOPING || s == DSOS_PLAYING)
-		{
-#if _DEBUG
-			OutputDebugStringA(__FUNCTION__ ": still playing, can't release...\n");
-#endif
-			return 0;	// still playing
-		}
-		
-		// ok, we're done!
-		obj->stopped = 1;
-		return 1;
-	}
-
-	return 0;
-}
-
-int ds_GetStatus(SndObj* obj)
-{
-	if (obj->used == 0 || obj->pBuf == nullptr)
-		return DSOS_UNUSED;
-
-	DWORD status;
-	obj->pBuf->GetStatus(&status);
-
-	if (status & DSBSTATUS_LOOPING)
-		return DSOS_LOOPING;
-	if (status & DSBSTATUS_PLAYING)
-		return DSOS_PLAYING;
-	if (status & DSBSTATUS_TERMINATED)
-		return DSOS_ENDED;
-
-	return DSOS_ENDED;
-}
-
-void ds_Release(SndObj* obj)
-{
-	if (obj->used && obj->pBuf)
-	{
-		while (obj->trans_lock);	// wait if it's transferring data in the thread
-		obj->pBuf->Release();
-		memset(obj, 0, sizeof(*obj));
-	}
-}
-
 void ds_Update()
 {
 	for (int i = 0; i < MAX_OBJ; i++)
@@ -241,14 +64,179 @@ void ds_Update()
 	}
 }
 
-//-------------------------------------
-// C++ helpers
-void SndObj::CreateBuffer(CriFileStream* stream) { ds_CreateBuffer(this, stream); };
-void SndObj::Play() { ds_Play(this); }
-int  SndObj::Stop() { return ds_Stop(this); }
+void SndObj::CreateBuffer(CriFileStream* stream)
+{
+	str = stream;
+	
+	fmt.cbSize = sizeof(WAVEFORMATEX);
+	fmt.nSamplesPerSec = stream->sample_rate;
+	fmt.nBlockAlign = (WORD)(2 * stream->channel_count);
+	fmt.nChannels = (WORD)stream->channel_count;
+	fmt.wBitsPerSample = 16;
+	fmt.wFormatTag = WAVE_FORMAT_PCM;
+	fmt.nAvgBytesPerSec = stream->sample_rate * 2 * stream->channel_count;
 
-u_long SndObj::GetPosition() { return ds_GetPosition(this); }
-int SndObj::GetStatus() { return ds_GetStatus(this); }
-void SndObj::SendData() { adxds_SendData(this); }
-void SndObj::SetVolume(int vol) { ds_SetVolume(this, vol); }
-void SndObj::Release() { ds_Release(this); }
+	DSBUFFERDESC desc = { 0 };
+	desc.dwSize = sizeof(desc);
+	desc.lpwfxFormat = &fmt;
+	desc.dwFlags = DSBCAPS_GLOBALFOCUS | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLPAN | /*DSBCAPS_CTRL3D |*/ DSBCAPS_CTRLFREQUENCY /*| DSBCAPS_GETCURRENTPOSITION2*/ /*| DSBCAPS_LOCSOFTWARE*/;
+	desc.dwBufferBytes = BUFFER_SIZE;
+	if (FAILED(pDS8->CreateSoundBuffer(&desc, &pBuf, nullptr)))
+		MessageBoxA(nullptr, "error", __FUNCTION__, MB_OK);
+
+	DWORD bytes1, bytes2;
+	short* ptr1, * ptr2;
+	trans_lock = 1;
+	pBuf->Lock(0, BUFFER_SIZE, (LPVOID*)&ptr1, &bytes1, (LPVOID*)&ptr2, &bytes2, 0);
+	auto needed = stream->Decode(ptr1, bytes1 / fmt.nBlockAlign, loops);
+	if (needed && loops == 0)
+	{
+		needed *= fmt.nBlockAlign;
+		memset(&ptr1[(bytes1 - needed) / 2], 0, needed);
+	}
+	pBuf->Unlock(ptr1, bytes1, ptr2, bytes2);
+	trans_lock = 0;
+
+	used = 1;
+	offset = 0;
+}
+
+u_long SndObj::GetPosition()
+{
+	DWORD pos;
+	pBuf->GetCurrentPosition(&pos, nullptr);
+
+	return pos;
+}
+
+void SndObj::SendData()
+{
+	trans_lock = 1;
+
+	u_long add = 0, pos;
+	const DWORD snd_dwBytes = BUFFER_QUART;
+
+	pos = GetPosition();
+
+	if (pos - offset < 0)
+		add = BUFFER_SIZE;
+	if (pos + add - offset > 2 * snd_dwBytes + 16)
+	{
+		DWORD bytes1, bytes2;
+		short* ptr1, * ptr2;
+
+		pBuf->Lock(offset, snd_dwBytes, (LPVOID*)&ptr1, &bytes1, (LPVOID*)&ptr2, &bytes2, 0);
+		// just fill with silence if we're stopping
+		if (stopping)
+		{
+#if _DEBUG
+			OutputDebugStringA(__FUNCTION__ ": sending silence...\n");
+#endif
+			memset(ptr1, 0, bytes1);
+		}
+		else
+		{
+			auto needed = str->Decode(ptr1, bytes1 / fmt.nBlockAlign, loops);
+			if (needed && loops == 0)
+			{
+				// fill trail with silence
+				needed *= fmt.nBlockAlign;
+				memset(&ptr1[(bytes1 - needed) / 2], 0, needed);
+			}
+		}
+		pBuf->Unlock(ptr1, bytes1, ptr2, bytes2);
+
+		auto total = snd_dwBytes + offset;
+		offset = total;
+		if (BUFFER_SIZE <= total)
+			offset = total - BUFFER_SIZE;
+	}
+
+	trans_lock = 0;
+}
+
+void SndObj::SetVolume(int vol)
+{
+	if (vol < -1000)
+		vol = -1000;
+
+	volume = vol;
+	if (used && pBuf)
+		pBuf->SetVolume(vol * 10);
+}
+
+void SndObj::Play()
+{
+	if (used)
+	{
+		if (adx && adx->set_volume)
+		{
+			SetVolume(adx->volume);
+			adx->set_volume = 0;
+		}
+
+		if(pBuf)
+			pBuf->Play(0, 0, DSBPLAY_LOOPING);
+	}
+}
+
+int SndObj::Stop()
+{
+	// this is inactive or stopped already
+	if (used == 0) return 1 ;
+	if (stopped == 1) return 1;
+
+	if (pBuf)
+	{
+		if (stopping == 0)
+		{
+			// queue stop to directsound
+			stopping = 1;
+			pBuf->Stop();
+		}
+
+		// check if directsound is done
+		int s = GetStatus();
+		if (s == DSOS_LOOPING || s == DSOS_PLAYING)
+		{
+#if _DEBUG
+			OutputDebugStringA(__FUNCTION__ ": still playing, can't release...\n");
+#endif
+			return 0;	// still playing
+		}
+		
+		// ok, we're done!
+		stopped = 1;
+		return 1;
+	}
+
+	return 0;
+}
+
+int SndObj::GetStatus()
+{
+	if (used == 0 || pBuf == nullptr)
+		return DSOS_UNUSED;
+
+	DWORD status;
+	pBuf->GetStatus(&status);
+
+	if (status & DSBSTATUS_LOOPING)
+		return DSOS_LOOPING;
+	if (status & DSBSTATUS_PLAYING)
+		return DSOS_PLAYING;
+	if (status & DSBSTATUS_TERMINATED)
+		return DSOS_ENDED;
+
+	return DSOS_ENDED;
+}
+
+void SndObj::Release()
+{
+	if (used && pBuf)
+	{
+		while (trans_lock);	// wait if it's transferring data in the thread
+		pBuf->Release();
+		memset(this, 0, sizeof(*this));
+	}
+}

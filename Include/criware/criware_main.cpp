@@ -113,20 +113,7 @@ void ADXT_StartFname(ADXT_Object* obj, const char* fname)
 	if (obj == nullptr)
 		return;
 
-	if (obj->state != ADXT_STAT_STOP)
-		ADXT_Stop(obj);
-
-	ADXStream *stream;
-	OpenADX(fname, &stream);
-
-	obj->state = ADXT_STAT_PLAYING;
-	obj->stream = stream;
-	obj->obj = ds_FindObj();
-	obj->obj->loops = true;
-	obj->obj->adx = obj;
-
-	obj->obj->CreateBuffer(stream);
-	obj->obj->Play();
+	adx_StartFname(obj, fname);
 }
 
 // initializes the "talk" module, whatever that does

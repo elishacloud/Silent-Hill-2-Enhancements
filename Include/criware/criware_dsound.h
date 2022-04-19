@@ -63,15 +63,5 @@ public:
 };
 
 void ds_SetupSound(LPDIRECTSOUND8 pDS);
-void ds_Update();
-
 SndObj* ds_FindObj();
-
-void ds_CreateBuffer(SndObj* obj, CriFileStream* stream);
-u_long ds_GetPosition(SndObj* obj);
-void adxds_SendData(SndObj* obj);
-void ds_SetVolume(SndObj* obj, int vol);
-void ds_Play(SndObj* obj);
-int  ds_Stop(SndObj* obj);
-int ds_GetStatus(SndObj* obj);
-void ds_Release(SndObj* obj);
+void ds_Update();

@@ -110,4 +110,5 @@ unsigned ADXDEC_Decode(CriFileStream* adx, short* buffer, unsigned samples_neede
 
 int OpenADX(const char* filename, ADXStream** obj);
 int OpenADX(ADXStream* adx);
-void CloseADX(ADXStream* adx);
+
+void adx_StartFname(ADXT_Object* obj, const char* fname);

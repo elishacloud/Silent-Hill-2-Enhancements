@@ -92,7 +92,7 @@ static DWORD WINAPI aix_load_thread(LPVOID param)
 	{
 		obj->adxt[i].state = ADXT_STAT_PREP;
 		obj->adxt[i].stream = &aix->stream[i];
-		obj->adxt[i].obj = ds_FindObj();
+		obj->adxt[i].obj = adxs_FindObj();
 		obj->adxt[i].obj->loops = true;
 		obj->adxt[i].obj->adx = &obj->adxt[i];
 		obj->adxt[i].obj->CreateBuffer(obj->adxt[i].stream);

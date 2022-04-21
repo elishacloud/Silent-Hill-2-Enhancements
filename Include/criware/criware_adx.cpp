@@ -9,7 +9,7 @@
 #include "criware.h"
 #include <chrono>
 
-#define MEASURE_ACCESS		1
+#define MEASURE_ACCESS		0
 
 #if MEASURE_ACCESS
 static double TimeGetTime()
@@ -165,7 +165,7 @@ void adx_StartFname(ADXT_Object* obj, const char* fname)
 
 	obj->state = ADXT_STAT_PLAYING;
 	obj->stream = stream;
-	obj->obj = ds_FindObj();
+	obj->obj = adxs_FindObj();
 	obj->obj->loops = true;
 	obj->obj->adx = obj;
 

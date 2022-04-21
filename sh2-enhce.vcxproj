@@ -47,6 +47,7 @@
     <ClCompile Include="Include\criware\criware_file.cpp" />
     <ClCompile Include="Include\criware\criware_main.cpp" />
     <ClCompile Include="Include\criware\criware_server.cpp" />
+    <ClCompile Include="Include\criware\criware_sound.cpp" />
     <ClCompile Include="Patches\AlternateStomp.cpp" />
     <ClCompile Include="Patches\ChangeClosetSpawn.cpp" />
     <ClCompile Include="Patches\PatchCriware.cpp" />
@@ -150,6 +151,7 @@
     <ClInclude Include="Include\criware\criware_dsound.h" />
     <ClInclude Include="Include\criware\criware_file.h" />
     <ClInclude Include="Include\criware\criware_server.h" />
+    <ClInclude Include="Include\criware\criware_sound.h" />
     <ClInclude Include="Include\GTA\CFileMgr.h" />
     <ClInclude Include="Include\GTA\WSF.h" />
     <ClInclude Include="Include\stdafx.h" />
@@ -244,6 +246,7 @@
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories);$(WindowsSDK80Path)Lib\winv6.3\um\x86</AdditionalLibraryDirectories>
       <AdditionalDependencies>dxguid.lib;Shlwapi.lib;WinInet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>D:\Program Files\Silent Hill 2\$(TargetName)$(TargetExt)</OutputFile>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul

@@ -43,7 +43,7 @@ DWORD WINAPI server_thread(LPVOID params)
 {
 	while (loop)
 	{
-		ds_Update();
+		adxs_Update();
 		Sleep(1);	// just give the thread enough time for locking from external operations
 					// used to be 10 milliseconds, but that seems to introduce lag when swapping weapons on weaker processors
 	}
@@ -53,16 +53,21 @@ DWORD WINAPI server_thread(LPVOID params)
 
 void server_create()
 {
+#if ADX_SERVER_ENABLE
 	hServer = CreateThread(nullptr, 0, server_thread, nullptr, CREATE_SUSPENDED, nullptr);
 	if (hServer)
 	{
-		//SetThreadPriority(hServer, THREAD_PRIORITY_ABOVE_NORMAL);	// make sure the thread is snappy
+		//SetThreadPriority(hServer, THREAD_PRIORITY_IDLE);	// make sure the thread is snappy
+		SetThreadPriorityBoost(hServer, 1);
 		ResumeThread(hServer);
 	}
+#endif
 }
 
 void server_destroy()
 {
+#if ADX_SERVER_ENABLE
 	loop = false;
 	WaitForSingleObject(hServer, INFINITE);
+#endif
 }

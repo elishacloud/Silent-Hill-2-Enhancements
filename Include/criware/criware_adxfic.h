@@ -1,17 +1,10 @@
 /*
 */
 #pragma once
-#define ADXFIC_USE_HASHES	0
-
-#if ADXFIC_USE_HASHES
-#include "..\xxhash.h"
-#endif
 
 typedef struct ADX_Entry
 {
-#if ADXFIC_USE_HASHES
-	XXH64_hash_t hash;
-#endif
+	uint32_t hash;
 	std::string filename;
 	DWORD size;
 } ADX_Entry;

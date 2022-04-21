@@ -2,6 +2,8 @@
 // file server module
 #pragma once
 
+#define ADX_SERVER_ENABLE		1
+
 void server_create();
 void server_destroy();
 

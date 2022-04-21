@@ -1,67 +1,31 @@
 #pragma once
-#include "criware_adx.h"
 
-enum DSOBJ_STATE
-{
-	DSOS_UNUSED,
-	DSOS_PLAYING,
-	DSOS_LOOPING,
-	DSOS_ENDED
-};
+#define SOUND_MAX_OBJ			32
 
-typedef void (*SndCbPlayEnd)(LPVOID);
-
-class SndObj
+class SndObjDSound : public SndObjBase
 {
 public:
-	SndObj() : offset(0),
-		used(0),
-		loops(0),
-		stopped(0),
-		trans_lock(0),
-		stopping(0),
-		volume(0),
-		pBuf(nullptr),
-		str(nullptr),
-		fmt{ 0 },
-		cbPlayEnd(nullptr),
-		cbPlayContext(nullptr)
+	SndObjDSound() : pBuf(nullptr)
 	{}
-	~SndObj()
+	virtual ~SndObjDSound()
 	{}
 
-	void CreateBuffer(CriFileStream* stream);
-	void SetEndCallback(SndCbPlayEnd cb, LPVOID ctx)
-	{
-		cbPlayEnd = cb;
-		cbPlayContext = ctx;
-	}
+	virtual void CreateBuffer(CriFileStream* stream);
 
-	void Play();
-	int  Stop();
+	virtual void Play();
+	virtual int  Stop();
+	virtual void Update();
+
+	virtual void SendData();
+	virtual void SetVolume(int vol);
+	virtual void Release();
 
 	u_long GetPosition();
 	int GetStatus();
-	void SendData();
-	void SetVolume(int vol);
-	void Release();
 
-	u_long offset;
-	u_long used : 1,
-		loops : 1,
-		stopped : 1,
-		trans_lock : 1,		// failsafe for locking data transfers
-		stopping : 1;
-	int volume;
-	WAVEFORMATEX fmt;
 	LPDIRECTSOUNDBUFFER pBuf;
-	CriFileStream* str;
-	ADXT_Object* adx;
-
-	SndCbPlayEnd cbPlayEnd;
-	LPVOID cbPlayContext;
 };
 
-void ds_SetupSound(LPDIRECTSOUND8 pDS);
-SndObj* ds_FindObj();
-void ds_Update();
+extern SndObjBase* sound_obj_tbl[SOUND_MAX_OBJ];
+
+void adxs_SetupDSound(LPDIRECTSOUND8 pDS);

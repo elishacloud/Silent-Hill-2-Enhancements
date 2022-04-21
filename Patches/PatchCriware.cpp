@@ -9,8 +9,17 @@ void PatchCriware()
 {
 	Logging::Log() << "Enabling Criware...";
 
+	// hanging
+	auto pattern = hook::pattern("E8 ? ? ? ? 6A 01 FF ? E8 ? ? ? ? 85 ? 74 ? 33 DB 53 53 E8 ? ? ? ? 53 53");
+	if (pattern.size() != 1)
+	{
+		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+		return;
+	}
+	uint32_t* ptr_hang = pattern.count(1).get(0).get<uint32_t>(6);
+
 	// ADXFIC
-	auto pattern = hook::pattern("E9 ? ? ? ? 90 90 90 90 90 90 90 90 90 90 90 8B 44 24 ? 85 C0 74");
+	pattern = hook::pattern("E9 ? ? ? ? 90 90 90 90 90 90 90 90 90 90 90 8B 44 24 ? 85 C0 74");
 	if (pattern.size() != 1)
 	{
 		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
@@ -247,6 +256,8 @@ void PatchCriware()
 	}
 	uintptr_t ptr_AIXP_ExecServer = injector::GetBranchDestination(pattern.count(1).get(0).get<uint32_t>(0)).as_int();
 
+	UpdateMemoryAddress(ptr_hang, "\x0", 1);
+	
 	// Write new JMPs
 	WriteJMPtoMemory((BYTE*)ptr_ADXFIC_Create, ADXFIC_Create);
 	WriteJMPtoMemory((BYTE*)ptr_ADXFIC_GetNumFiles, ADXFIC_GetNumFiles);

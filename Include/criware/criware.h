@@ -64,6 +64,7 @@ private:
 
 #include "criware_server.h"
 #include "criware_file.h"
+#include "criware_sound.h"
 #include "criware_dsound.h"
 #include "criware_adx.h"
 #include "criware_aix.h"
@@ -81,7 +82,7 @@ void ADXWIN_SetupSound(LPDIRECTSOUND8 pDS8);
 // threads
 void ADXM_SetupThrd(int* = nullptr);
 void ADXM_ShutdownThrd();
-void ADXM_ExecMain();
+int  ADXM_ExecMain();
 
 // hierarchy interface
 ADXFIC_Object* ADXFIC_Create(const char* dname, int mode, char* work, int wksize);
@@ -104,7 +105,7 @@ void ADXT_SetOutVol(ADXT_Object* obj, int);
 void ADXT_StartAfs(ADXT_Object* obj, int patid, int fid);
 
 // aix parsing interface
-int  AIXP_Init();
+void AIXP_Init();
 void AIXP_Stop(AIXP_Object *obj);
 void AIXP_ExecServer();
 void AIXP_Destroy(AIXP_Object *obj);

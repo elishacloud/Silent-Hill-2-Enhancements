@@ -102,7 +102,7 @@
 	visit(WoodsideRoom205Fix, true)
 
 #define VISIT_INT_SETTINGS(visit) \
-	visit(AudioFadeOutDelayMS, 5) \
+	visit(AudioFadeOutDelayMS, 10) \
 	visit(AntiAliasing, 0) \
 	visit(AnisotropicFiltering, 1) \
 	visit(CustomFontCol, 100) \

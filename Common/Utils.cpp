@@ -18,7 +18,7 @@
 #include <Windows.h>
 #include <Shldisp.h>
 #include <shellapi.h>
-#include <atlstr.h>
+#include <Shlwapi.h>
 #include <string>
 #include <iostream>
 #include <filesystem>
@@ -984,7 +984,8 @@ void LogDirectory()
 			char filetime[80] = { "\0" };
 			GetFileDate(entry.last_write_time(), filetime, sizeof(filetime));
 
-			CStringA filename(entry.path().filename().c_str());
+			// Get folder name
+			std::string filename(entry.path().filename().generic_string());
 
 			Logging::Log() << "|- " << filetime << "    <DIR>          " << filename;
 		}
@@ -1003,7 +1004,7 @@ void LogDirectory()
 			GetFileSize(entry.file_size(), filesize, sizeof(filesize));
 
 			// Get file name
-			CStringA filename(entry.path().filename().c_str());
+			std::string filename(entry.path().filename().generic_string());
 
 			Logging::Log() << "|- " << filetime << " " << filesize << " " << filename;
 		}

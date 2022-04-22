@@ -44,7 +44,7 @@ DWORD WINAPI server_thread(LPVOID params)
 	while (loop)
 	{
 		adxs_Update();
-		Sleep(2);	// just give the thread enough time for locking from external operations
+		Sleep(1);	// just give the thread enough time for locking from external operations
 					// used to be 10 milliseconds
 	}
 

@@ -66,7 +66,7 @@ HMODULE GetD3d8ScriptDll()
 }
 
 // Hook d3d8 API
-void HookDirect3DCreate8()
+void HookDirect3DCreate8(HMODULE ScriptDll)
 {
 	// Get Direct3DCreate8 address
 	constexpr BYTE SearchBytes[]{ 0x84, 0xC0, 0x74, 0x06, 0xB8, 0x03, 0x00, 0x00, 0x00, 0xC3, 0x68, 0xDC, 0x00, 0x00, 0x00, 0xE8 };
@@ -80,14 +80,9 @@ void HookDirect3DCreate8()
 	}
 
 	// Get defined d3d8 script wrapper
-	if (!d3d8to9 && LoadD3d8FromScriptsFolder)
+	if (ScriptDll)
 	{
-		HMODULE ScriptDll = nullptr;
-		ScriptDll = GetD3d8ScriptDll();
-		if (ScriptDll)
-		{
-			m_pDirect3DCreate8 = (Direct3DCreate8Proc)GetProcAddress(ScriptDll, "Direct3DCreate8");
-		}
+		m_pDirect3DCreate8 = (Direct3DCreate8Proc)GetProcAddress(ScriptDll, "Direct3DCreate8");
 	}
 
 	// Get function address

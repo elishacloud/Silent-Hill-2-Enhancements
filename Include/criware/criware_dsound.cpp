@@ -42,7 +42,7 @@ void SndObjDSound::CreateBuffer(CriFileStream* stream)
 	DSBUFFERDESC desc = { 0 };
 	desc.dwSize = sizeof(desc);
 	desc.lpwfxFormat = &fmt;
-	desc.dwFlags = DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_GLOBALFOCUS | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLPAN | DSBCAPS_CTRLFREQUENCY | DSBCAPS_LOCSOFTWARE;
+	desc.dwFlags = DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_GLOBALFOCUS | DSBCAPS_CTRLVOLUME | /*DSBCAPS_CTRLPAN |*/ DSBCAPS_CTRLFREQUENCY | DSBCAPS_LOCSOFTWARE;
 	desc.dwBufferBytes = BUFFER_SIZE;
 	if (FAILED(pDS8->CreateSoundBuffer(&desc, &pBuf, nullptr)))
 		MessageBoxA(nullptr, "error", __FUNCTION__, MB_OK);

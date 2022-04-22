@@ -14,6 +14,11 @@ typedef void (*SndCbPlayEnd)(LPVOID);
 class SndObjBase
 {
 public:
+	SndObjBase()
+	{
+		Release();
+	}
+
 	virtual void CreateBuffer(CriFileStream* stream) {}
 
 	virtual void Release()

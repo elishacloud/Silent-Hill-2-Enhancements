@@ -61,6 +61,5 @@ extern wchar_t ModPathW[MAX_PATH];
 template<typename T, typename D>
 T UpdateModPath(T sh2, D str);
 
-void InstallCreateThreadHooks();
 void InstallCreateProcessHooks();
 void InstallFileSystemHooks(HMODULE hModule);

@@ -34,7 +34,6 @@
 	visit(Fix2D, true) \
 	visit(FixAdvancedOptions, true) \
 	visit(FixAptClockFlashlight, true) \
-	visit(FixAudioThreadDeadlock, true) \
 	visit(FixChainsawSpawn, true) \
 	visit(FixCreatureVehicleSpawn, true) \
 	visit(FixDrawingTextLine, true) \

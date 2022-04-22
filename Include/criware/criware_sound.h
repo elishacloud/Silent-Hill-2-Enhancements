@@ -24,6 +24,7 @@ public:
 	virtual void Release()
 	{
 		offset = 0;
+		offset_played = 0;
 		used = 0;
 		loops = 0;
 		stopped = 0;
@@ -54,7 +55,8 @@ public:
 	SndCbPlayEnd cbPlayEnd;
 	LPVOID cbPlayContext;
 
-	u_long offset;
+	u_long offset,
+		offset_played;
 	u_long used : 1,
 		loops : 1,
 		stopped : 1,
@@ -68,3 +70,4 @@ public:
 
 SndObjBase* adxs_FindObj();
 void adxs_Update();
+void adxs_Release();

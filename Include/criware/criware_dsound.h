@@ -21,6 +21,7 @@ public:
 	virtual void Release();
 
 	u_long GetPosition();
+	u_long GetPlayedSamples();
 	int GetStatus();
 
 	LPDIRECTSOUNDBUFFER pBuf;

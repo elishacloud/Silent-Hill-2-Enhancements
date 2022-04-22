@@ -78,6 +78,7 @@ private:
 void ADXWIN_SetupDvdFs(void* = nullptr);
 void ADXWIN_ShutdownDvdFs();
 void ADXWIN_SetupSound(LPDIRECTSOUND8 pDS8);
+void ADXWIN_ShutdownSound();
 
 // threads
 void ADXM_SetupThrd(int* = nullptr);

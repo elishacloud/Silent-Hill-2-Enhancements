@@ -44,8 +44,8 @@ DWORD WINAPI server_thread(LPVOID params)
 	while (loop)
 	{
 		adxs_Update();
-		Sleep(1);	// just give the thread enough time for locking from external operations
-					// used to be 10 milliseconds, but that seems to introduce lag when swapping weapons on weaker processors
+		Sleep(2);	// just give the thread enough time for locking from external operations
+					// used to be 10 milliseconds
 	}
 
 	return 0;

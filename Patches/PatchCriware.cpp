@@ -76,6 +76,14 @@ void PatchCriware()
 	}
 	uint32_t* ptr_ADXWIN_SetupSound = pattern.count(1).get(0).get<uint32_t>(0);
 
+	pattern = hook::pattern("8B 44 24 ? 50 6A ? E8 ? ? ? ? 83 C4 ? C3 C3 90 90 90 90");
+	if (pattern.size() != 1)
+	{
+		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+		return;
+	}
+	uint32_t* ptr_ADXWIN_ShutdownSound = pattern.count(1).get(0).get<uint32_t>(0x10);
+
 	// ADXM
 	pattern = hook::pattern("A1 ? ? ? ? 81 EC ? ? ? ? 53 33 DB 56 3B C3 57 0F 85 ? ? ? ? 89 1D");
 	if (pattern.size() != 1)
@@ -256,6 +264,16 @@ void PatchCriware()
 	}
 	uintptr_t ptr_AIXP_ExecServer = injector::GetBranchDestination(pattern.count(1).get(0).get<uint32_t>(0)).as_int();
 
+	// patch subtitle being too slow in the bowling fake cutscene (double check for DC and 1.1)
+	constexpr BYTE CutsceneSearchBytes[]{ 0x2a, 0x00, 0x7b, 0x00, 0x7b, 0x00, 0xba, 0x00, 0xff, 0xff, 0xff, 0xff };
+	BYTE* ptr_sub_fix = (BYTE*)SearchAndGetAddresses(0x008DAEEC, 0x8DB07C, 0x8DB07C, CutsceneSearchBytes, sizeof(CutsceneSearchBytes), 6);
+	if (ptr_sub_fix == nullptr)
+	{
+		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+		return;
+	}
+
+	// remove lag due to a useless Sleep(1) inside the rendering code
 	UpdateMemoryAddress(ptr_hang, "\x0", 1);
 	
 	// Write new JMPs
@@ -267,6 +285,7 @@ void PatchCriware()
 	WriteJMPtoMemory((BYTE*)ptr_ADXWIN_SetupDvdFs, ADXWIN_SetupDvdFs);
 	WriteJMPtoMemory((BYTE*)ptr_ADXWIN_ShutdownDvdFs, ADXWIN_ShutdownDvdFs);
 	WriteJMPtoMemory((BYTE*)ptr_ADXWIN_SetupSound, ADXWIN_SetupSound);
+	WriteJMPtoMemory((BYTE*)ptr_ADXWIN_ShutdownSound, ADXWIN_ShutdownSound);
 
 	WriteJMPtoMemory((BYTE*)ptr_ADXM_SetupThrd, ADXM_SetupThrd);
 	WriteJMPtoMemory((BYTE*)ptr_ADXM_ExecMain, ADXM_ExecMain);
@@ -293,4 +312,6 @@ void PatchCriware()
 	WriteJMPtoMemory((BYTE*)ptr_AIXP_GetAdxt, AIXP_GetAdxt);
 	WriteJMPtoMemory((BYTE*)ptr_AIXP_SetLpSw, AIXP_SetLpSw);
 	WriteJMPtoMemory((BYTE*)ptr_AIXP_ExecServer, AIXP_ExecServer);
+
+	UpdateMemoryAddress(ptr_sub_fix, "\xb5\x00", 2);
 }

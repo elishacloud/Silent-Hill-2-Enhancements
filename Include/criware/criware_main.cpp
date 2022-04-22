@@ -38,6 +38,11 @@ void ADXWIN_SetupSound(LPDIRECTSOUND8 pDS8)
 	adxs_SetupDSound(pDS8);
 }
 
+void ADXWIN_ShutdownSound()
+{
+	adxs_Release();
+}
+
 // initializes the threads used by the ADX server
 // in our case it just creates one thread running in parallel with the game
 void ADXM_SetupThrd(int* priority /* ignored */)
@@ -90,7 +95,7 @@ void ADXT_SetOutVol(ADXT_Object *obj, int volume)
 	if (obj)
 	{
 		obj->volume = volume;
-		// if there's no dsound object queue a volume change
+		// if there's no sound object yet, queue a volume change
 		if (obj->obj == nullptr)
 			obj->set_volume = 1;
 		// otherwise just update the object directly
@@ -120,6 +125,8 @@ void ADXT_StartFname(ADXT_Object* obj, const char* fname)
 	if (obj == nullptr)
 		return;
 
+	if (obj->state != ADXT_STAT_STOP)
+		ADXT_Stop(obj);
 	adx_StartFname(obj, fname);
 }
 

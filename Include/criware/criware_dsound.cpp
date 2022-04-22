@@ -20,11 +20,7 @@ void adxs_SetupDSound(LPDIRECTSOUND8 pDS)
 	pDS8 = pDS;
 
 	for (int i = 0; i < SOUND_MAX_OBJ; i++)
-	{
-		SndObjDSound* n = new SndObjDSound();
-		sound_obj_tbl[i] = n;
-		sound_obj_tbl[i]->used = 0;
-	}
+		sound_obj_tbl[i] = new SndObjDSound();
 }
 
 void SndObjDSound::CreateBuffer(CriFileStream* stream)
@@ -66,6 +62,7 @@ void SndObjDSound::CreateBuffer(CriFileStream* stream)
 
 	used = 1;
 	offset = 0;
+	offset_played = 0;
 }
 
 u_long SndObjDSound::GetPosition()
@@ -74,6 +71,11 @@ u_long SndObjDSound::GetPosition()
 	pBuf->GetCurrentPosition(&pos, nullptr);
 
 	return pos;
+}
+
+u_long SndObjDSound::GetPlayedSamples()
+{
+	return (offset_played + GetPosition()) / fmt.nBlockAlign;
 }
 
 void SndObjDSound::SendData()
@@ -90,8 +92,8 @@ void SndObjDSound::SendData()
 
 		trans_lock = 1;
 		pBuf->Lock(offset, BUFFER_QUART, (LPVOID*)&ptr1, &bytes1, (LPVOID*)&ptr2, &bytes2, 0);
-		// just fill with silence if we're stopping
-		if (stopping)
+		// just fill with silence if we're stopping or the data is over
+		if (stopping || adx->state == ADXT_STAT_DECEND)
 		{
 #if _DEBUG
 			OutputDebugStringA(__FUNCTION__ ": sending silence...\n");
@@ -101,11 +103,17 @@ void SndObjDSound::SendData()
 		else
 		{
 			auto needed = str->Decode(ptr1, bytes1 / fmt.nBlockAlign, loops);
-			if (needed && loops == 0)
+
+			if (loops == 0)
 			{
-				// fill trail with silence
-				needed *= fmt.nBlockAlign;
-				memset(&ptr1[(bytes1 - needed) / 2], 0, needed);
+				if (str->sample_index >= str->loop_end_index)
+					adx->state = ADXT_STAT_DECEND;
+				if (needed)
+				{
+					// fill trail with silence
+					needed *= fmt.nBlockAlign;
+					memset(&ptr1[(bytes1 - needed) / 2], 0, needed);
+				}
 			}
 		}
 		pBuf->Unlock(ptr1, bytes1, ptr2, bytes2);
@@ -115,6 +123,7 @@ void SndObjDSound::SendData()
 		offset = total;
 		if (BUFFER_SIZE <= total)
 			offset = total - BUFFER_SIZE;
+		offset_played += BUFFER_QUART;
 	}
 }
 
@@ -184,23 +193,27 @@ void SndObjDSound::Update()
 	if (pBuf && stopped == 0)
 	{
 		// if it's not set to loop we need to release the object when it's done playing
-		if (loops == 0 && str->sample_index >= str->loop_end_index)
+		if (loops == 0)
 		{
-			Stop();
-			if (cbPlayEnd)
-				cbPlayEnd(cbPlayContext);
-			//Release();
-		}
-		else
-		{
-			// check if the volume needs to be changed
-			if (adx && adx->set_volume)
+			if (str->sample_index >= str->loop_end_index)
+				adx->state = ADXT_STAT_DECEND;
+			if (GetPlayedSamples()/*str->sample_index*/ >= str->loop_end_index)
 			{
-				SetVolume(adx->volume);
-				adx->set_volume = 0;
+				Stop();
+				//if (cbPlayEnd)
+				//	cbPlayEnd(cbPlayContext);
+				//Release();
+				adx->state = ADXT_STAT_PLAYEND;
 			}
-			SendData();
 		}
+
+		// check if the volume needs to be changed
+		if (adx && adx->set_volume)
+		{
+			SetVolume(adx->volume);
+			adx->set_volume = 0;
+		}
+		SendData();
 	}
 }
 
@@ -226,8 +239,7 @@ void SndObjDSound::Release()
 {
 	if (used && pBuf)
 	{
-		while (trans_lock)
-			;	// wait if it's transferring data in the thread
+		while (trans_lock);	// wait if it's transferring data in the thread
 		pBuf->Release();
 		pBuf = nullptr;
 

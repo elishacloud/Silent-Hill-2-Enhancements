@@ -42,7 +42,7 @@ void SndObjDSound::CreateBuffer(CriFileStream* stream)
 	DSBUFFERDESC desc = { 0 };
 	desc.dwSize = sizeof(desc);
 	desc.lpwfxFormat = &fmt;
-	desc.dwFlags = /*DSBCAPS_GETCURRENTPOSITION2 |*/ DSBCAPS_GLOBALFOCUS | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLPAN | /*DSBCAPS_CTRL3D |*/ DSBCAPS_CTRLFREQUENCY /*| DSBCAPS_LOCHARDWARE*/;
+	desc.dwFlags = DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_GLOBALFOCUS | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLPAN | DSBCAPS_CTRLFREQUENCY | DSBCAPS_LOCSOFTWARE;
 	desc.dwBufferBytes = BUFFER_SIZE;
 	if (FAILED(pDS8->CreateSoundBuffer(&desc, &pBuf, nullptr)))
 		MessageBoxA(nullptr, "error", __FUNCTION__, MB_OK);
@@ -78,9 +78,12 @@ u_long SndObjDSound::GetPosition()
 
 void SndObjDSound::SendData()
 {
-	u_long pos = GetPosition();
+	u_long pos = GetPosition(),
+		add = 0;
 
-	if ((pos + offset) % BUFFER_HALF > BUFFER_QUART)
+	if (pos - offset < 0)
+		add = BUFFER_SIZE;
+	if (pos + add - offset > BUFFER_HALF + 16)
 	{
 		DWORD bytes1, bytes2;
 		short* ptr1, * ptr2;
@@ -108,7 +111,10 @@ void SndObjDSound::SendData()
 		pBuf->Unlock(ptr1, bytes1, ptr2, bytes2);
 		trans_lock = 0;
 
-		offset = (offset + BUFFER_QUART) % BUFFER_SIZE;
+		u_long total = offset + BUFFER_QUART;
+		offset = total;
+		if (BUFFER_SIZE <= total)
+			offset = total - BUFFER_SIZE;
 	}
 }
 

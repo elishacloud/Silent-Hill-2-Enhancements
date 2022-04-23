@@ -205,9 +205,6 @@ void DelayedStart()
 		}
 	}
 
-						
-					
-
 	// Hook Direct3D8
 	if (HookDirect3D)
 	{
@@ -230,12 +227,6 @@ void DelayedStart()
 	if (RestoreVibration)
 	{
 		HookDirectInput8Create();
-	}
-
-	// Fix audio thread issues
-	if (FixAudioThreadDeadlock)
-	{
-		InstallCreateThreadHooks();
 	}
 
 	// Hook CreateFile API when using UseCustomModFolder

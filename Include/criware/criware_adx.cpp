@@ -9,7 +9,7 @@
 #include "criware.h"
 #include <chrono>
 
-#define MEASURE_ACCESS		1
+#define MEASURE_ACCESS		0
 
 #if MEASURE_ACCESS
 static double TimeGetTime()
@@ -151,10 +151,8 @@ void adx_StartFname(ADXT_Object* obj, const char* fname)
 		return;
 
 #if MEASURE_ACCESS
-	char str[MAX_PATH];
 	double start = TimeGetTime();
-	sprintf_s(str, sizeof(str), __FUNCTION__ ": preparing ADX %s...\n", fname);
-	OutputDebugStringA(str);
+	ADXD_Log(__FUNCTION__ ": preparing ADX %s...\n", fname);
 #endif
 
 	if (obj->state != ADXT_STAT_STOP)
@@ -170,48 +168,98 @@ void adx_StartFname(ADXT_Object* obj, const char* fname)
 	obj->obj->adx = obj;
 
 #if MEASURE_ACCESS
-	sprintf_s(str, sizeof(str), __FUNCTION__ ": ADX done parsing in %f ms.\n", TimeGetTime() - start);
-	OutputDebugStringA(str);
+	ADXD_Log(__FUNCTION__ ": ADX done parsing in %f ms.\n", TimeGetTime() - start);
 #endif
 
 	obj->obj->CreateBuffer(stream);
 	obj->obj->Play();
+	obj->Resume();
+}
+
+//
+ADXT_Object::ADXT_Object() : work_size(0),
+	work(nullptr),
+	maxch(0),
+	stream(nullptr),
+	obj(nullptr),
+	volume(0),
+	state(ADXT_STAT_STOP),
+	is_aix(0),
+	is_blocking(0),
+	set_volume(0)
+{
+	th = CreateThread(nullptr, 0, thread, this, CREATE_SUSPENDED, nullptr);
+	th_suspended = 1;
+	th_exit = 0;
+}
+
+ADXT_Object::~ADXT_Object()
+{
+	if (th)
+	{
+		th_exit = 1;
+		WaitForSingleObject(th, INFINITE);
+		th = 0;
+	}
+
+	Release();
+}
+
+void ADXT_Object::Suspend()
+{
+	if (th_suspended == 0)
+	{
+		SuspendThread(th);
+		th_suspended = 1;
+	}
+}
+
+void ADXT_Object::Resume()
+{
+	if (th_suspended == 1)
+	{
+		ResumeThread(th);
+		th_suspended = 0;
+	}
 }
 
 void ADXT_Object::Release()
 {
 	if (state != ADXT_STAT_STOP)
 	{
-		if (is_blocking)
-		{
-			if (obj)
-			{
-				// wait for any pending data transfers
-				while (obj->trans_lock);
-				// lock the thread to avoid further transfers
-				ADX_lock();
-				obj->Stop();
-				obj->Release();
-				// unlock thread and trash the dsound reference
-				ADX_unlock();
-				obj = nullptr;
-			}
-			if (stream && !is_aix)
-				delete stream;
-			stream = nullptr;
-			state = ADXT_STAT_STOP;
-		}
-		else
-		{
-			if (obj->Stop())
-			{
-				obj->Release();
-				obj = nullptr;
-			}
-			if (stream && !is_aix)
-				delete stream;
-			stream = nullptr;
-			state = ADXT_STAT_STOP;
-		}
+		Suspend();
+			
+		obj->Stop();
+		obj->Release();
+		obj = nullptr;
+		if (stream && !is_aix)
+			delete stream;
+		stream = nullptr;
+		state = ADXT_STAT_STOP;
 	}
+}
+
+void ADXT_Object::Thread()
+{
+	while (th_exit == 0)
+	{
+		switch (state)
+		{
+		case ADXT_STAT_PLAYING:
+		case ADXT_STAT_DECEND:
+			if(obj)
+				obj->Update();
+			break;
+		}
+		Sleep(20);
+	}
+}
+
+DWORD ADXT_Object::thread(LPVOID param)
+{
+	ADXT_Object* th = (ADXT_Object*)param;
+
+	th->Thread();
+
+	return 0;
 }

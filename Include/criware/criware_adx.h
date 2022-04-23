@@ -75,22 +75,13 @@ class SndObjBase;	// forward declaration
 class ADXT_Object
 {
 public:
-	ADXT_Object() : work_size(0),
-		work(nullptr),
-		maxch(0),
-		stream(nullptr),
-		obj(nullptr),
-		volume(0),
-		state(ADXT_STAT_STOP),
-		is_aix(0),
-		is_blocking(0),
-		set_volume(0)
-	{}
-	~ADXT_Object()
-	{
-	}
+	ADXT_Object();
+	~ADXT_Object();
 
 	void Release();
+
+	void Suspend();
+	void Resume();
 
 	CriFileStream* stream;
 	SndObjBase* obj;
@@ -100,9 +91,18 @@ public:
 	u_long work_size;
 	void* work;
 	u_short maxch;
+	// state flags
 	u_short is_aix : 1,
 		is_blocking : 1,
-		set_volume : 1;
+		set_volume : 1,
+	// threading
+		th_suspended : 1,
+		th_exit : 1;
+	HANDLE th;
+
+private:
+	void Thread();
+	static DWORD WINAPI thread(LPVOID param);
 };
 
 void ADXDEC_SetCoeff(CriFileStream* adx);

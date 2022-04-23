@@ -41,24 +41,9 @@ void SndObjDSound::CreateBuffer(CriFileStream* stream)
 	desc.dwFlags = DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_GLOBALFOCUS | DSBCAPS_CTRLVOLUME | /*DSBCAPS_CTRLPAN |*/ DSBCAPS_CTRLFREQUENCY | DSBCAPS_LOCSOFTWARE;
 	desc.dwBufferBytes = BUFFER_SIZE;
 	if (FAILED(pDS8->CreateSoundBuffer(&desc, &pBuf, nullptr)))
-		MessageBoxA(nullptr, "error", __FUNCTION__, MB_OK);
+		ADXD_Error(__FUNCTION__, "Can't create buffer.");
 
-	DWORD bytes1, bytes2;
-	short* ptr1, * ptr2;
-	trans_lock = 1;
-	pBuf->Lock(0, BUFFER_SIZE, (LPVOID*)&ptr1, &bytes1, (LPVOID*)&ptr2, &bytes2, 0);
-#if 1
-	auto needed = stream->Decode(ptr1, bytes1 / fmt.nBlockAlign, loops);
-	if (needed && loops == 0)
-	{
-		needed *= fmt.nBlockAlign;
-		memset(&ptr1[(bytes1 - needed) / 2], 0, needed);
-	}
-#else
-	memset(ptr1, 0, bytes1);
-#endif
-	pBuf->Unlock(ptr1, bytes1, ptr2, bytes2);
-	trans_lock = 0;
+	Fill(BUFFER_SIZE);
 
 	used = 1;
 	offset = 0;
@@ -87,37 +72,7 @@ void SndObjDSound::SendData()
 		add = BUFFER_SIZE;
 	if (pos + add - offset > BUFFER_HALF + 16)
 	{
-		DWORD bytes1, bytes2;
-		short* ptr1, * ptr2;
-
-		trans_lock = 1;
-		pBuf->Lock(offset, BUFFER_QUART, (LPVOID*)&ptr1, &bytes1, (LPVOID*)&ptr2, &bytes2, 0);
-		// just fill with silence if we're stopping or the data is over
-		if (stopping || adx->state == ADXT_STAT_DECEND)
-		{
-#if _DEBUG
-			OutputDebugStringA(__FUNCTION__ ": sending silence...\n");
-#endif
-			memset(ptr1, 0, bytes1);
-		}
-		else
-		{
-			auto needed = str->Decode(ptr1, bytes1 / fmt.nBlockAlign, loops);
-
-			if (loops == 0)
-			{
-				if (str->sample_index >= str->loop_end_index)
-					adx->state = ADXT_STAT_DECEND;
-				if (needed)
-				{
-					// fill trail with silence
-					needed *= fmt.nBlockAlign;
-					memset(&ptr1[(bytes1 - needed) / 2], 0, needed);
-				}
-			}
-		}
-		pBuf->Unlock(ptr1, bytes1, ptr2, bytes2);
-		trans_lock = 0;
+		Fill(BUFFER_QUART);
 
 		u_long total = offset + BUFFER_QUART;
 		offset = total;
@@ -171,9 +126,7 @@ int SndObjDSound::Stop()
 		int s = GetStatus();
 		if (s == DSOS_LOOPING || s == DSOS_PLAYING)
 		{
-#if _DEBUG
-			OutputDebugStringA(__FUNCTION__ ": still playing, can't release...\n");
-#endif
+			ADXD_Log(__FUNCTION__ ": still playing, can't release...\n");
 			return 0;	// still playing
 		}
 		
@@ -197,12 +150,9 @@ void SndObjDSound::Update()
 		{
 			if (str->sample_index >= str->loop_end_index)
 				adx->state = ADXT_STAT_DECEND;
-			if (GetPlayedSamples()/*str->sample_index*/ >= str->loop_end_index)
+			if (GetPlayedSamples() >= str->loop_end_index)
 			{
 				Stop();
-				//if (cbPlayEnd)
-				//	cbPlayEnd(cbPlayContext);
-				//Release();
 				adx->state = ADXT_STAT_PLAYEND;
 			}
 		}
@@ -235,13 +185,59 @@ int SndObjDSound::GetStatus()
 	return DSOS_ENDED;
 }
 
+void SndObjDSound::Lock(u_long size)
+{
+	ADX_lock();
+	if (FAILED(pBuf->Lock(offset, size, (LPVOID*)&ptr1, &bytes1, (LPVOID*)&ptr2, &bytes2, 0)))
+		ADXD_Error(__FUNCTION__, "Can't lock.");
+}
+
+void SndObjDSound::Unlock()
+{
+	if (FAILED(pBuf->Unlock(ptr1, bytes1, ptr2, bytes2)))
+		ADXD_Error(__FUNCTION__, "Can't unlock.");
+	ADX_unlock();
+}
+
+void SndObjDSound::Fill(u_long size)
+{
+	Lock(size);
+	// just fill with silence if we're stopping or the data is over
+	if (stopping || adx->state == ADXT_STAT_DECEND)
+	{
+		ADXD_Log(__FUNCTION__ ": sending silence...\n");
+		memset(ptr1, 0, bytes1);
+	}
+	else
+	{
+		auto needed = str->Decode(ptr1, bytes1 / fmt.nBlockAlign, loops);
+
+		if (loops == 0)
+		{
+			if (str->sample_index >= str->loop_end_index)
+				adx->state = ADXT_STAT_DECEND;
+			if (needed)
+			{
+				// fill trail with silence
+				needed *= fmt.nBlockAlign;
+				memset(&ptr1[(bytes1 - needed) / 2], 0, needed);
+			}
+		}
+	}
+	Unlock();
+}
+
 void SndObjDSound::Release()
 {
 	if (used && pBuf)
 	{
-		while (trans_lock);	// wait if it's transferring data in the thread
 		pBuf->Release();
 		pBuf = nullptr;
+
+		ptr1 = nullptr;
+		bytes1 = 0;
+		ptr2 = nullptr;
+		bytes2 = 0;
 
 		SndObjBase::Release();
 	}

@@ -54,7 +54,7 @@ public:
 
 AFS_Object afs;
 
-int asf_LoadPartitionNw(int ptid, const char* filename, void* ptinfo, void* nfile)
+int afs_LoadPartitionNw(int ptid, const char* filename, void* ptinfo, void* nfile)
 {
 	afs.Open(filename);
 	if (afs.fp == INVALID_HANDLE_VALUE)
@@ -78,13 +78,7 @@ int asf_LoadPartitionNw(int ptid, const char* filename, void* ptinfo, void* nfil
 	return 1;
 }
 
-static void cb(LPVOID ctx)
-{
-	ADXT_Object* obj = (ADXT_Object*)ctx;
-	obj->state = ADXT_STAT_PLAYEND;		// signal that it's done playing the full waveform (prevents hanging events in some cutscenes)
-}
-
-int asf_StartAfs(ADXT_Object* obj, int patid, int fid)
+int afs_StartAfs(ADXT_Object* obj, int patid, int fid)
 {
 	CriFileStream* stream;
 	
@@ -102,7 +96,7 @@ int asf_StartAfs(ADXT_Object* obj, int patid, int fid)
 		ADXF_Seek(fp, afs.entries[fid].pos, FILE_BEGIN);
 		if (wav->Open(fp, afs.entries[fid].pos) == S_FALSE)
 		{
-			MessageBoxA(nullptr, "Error opening WAV stream.", __FUNCTION__, MB_ICONERROR);
+			ADXD_Warning(__FUNCTION__, "Error opening WAV stream.");
 			return 0;
 		}
 		stream = wav;
@@ -117,7 +111,7 @@ int asf_StartAfs(ADXT_Object* obj, int patid, int fid)
 		adx->Open(afs.fp, afs.entries[fid].pos);
 		if (FAILED(OpenADX(adx)))
 		{
-			MessageBoxA(nullptr, "Error opening ADX stream.", __FUNCTION__, MB_ICONERROR);
+			ADXD_Warning(__FUNCTION__, "Error opening ADX stream.");
 			return 0;
 		}
 		stream = adx;
@@ -128,10 +122,10 @@ int asf_StartAfs(ADXT_Object* obj, int patid, int fid)
 	obj->obj->adx = obj;
 	obj->obj->loops = stream->loop_enabled;
 	obj->is_blocking = 1;
-	obj->obj->SetEndCallback(cb, obj);
 
 	obj->obj->CreateBuffer(stream);
 	obj->obj->Play();
+	obj->Resume();
 
 	obj->state = ADXT_STAT_PLAYING;
 

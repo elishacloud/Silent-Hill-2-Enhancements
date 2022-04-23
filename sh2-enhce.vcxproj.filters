@@ -338,6 +338,9 @@
     <ClCompile Include="Include\criware\criware_sound.cpp">
       <Filter>Include\criware</Filter>
     </ClCompile>
+    <ClCompile Include="Include\criware\criware_debug.cpp">
+      <Filter>Include\criware</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">
@@ -530,6 +533,9 @@
       <Filter>Include\criware</Filter>
     </ClInclude>
     <ClInclude Include="Include\criware\criware_sound.h">
+      <Filter>Include\criware</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\criware\criware_debug.h">
       <Filter>Include\criware</Filter>
     </ClInclude>
   </ItemGroup>

@@ -18,6 +18,10 @@ public:
 	{
 		Release();
 	}
+	virtual ~SndObjBase()
+	{
+		Release();
+	}
 
 	virtual void CreateBuffer(CriFileStream* stream) {}
 
@@ -28,15 +32,11 @@ public:
 		used = 0;
 		loops = 0;
 		stopped = 0;
-		trans_lock = 0;
 		stopping = 0;
 		volume = 0;
 		memset(&fmt, 0, sizeof(fmt));
 		str = nullptr;
 		adx = nullptr;
-
-		cbPlayEnd = nullptr;
-		cbPlayContext = nullptr;
 	}
 
 	virtual void Play() {}
@@ -46,21 +46,11 @@ public:
 	virtual void SendData() {}
 	virtual void SetVolume(int vol) {}
 
-	void SetEndCallback(SndCbPlayEnd cb, LPVOID ctx)
-	{
-		cbPlayEnd = cb;
-		cbPlayContext = ctx;
-	}
-
-	SndCbPlayEnd cbPlayEnd;
-	LPVOID cbPlayContext;
-
 	u_long offset,
 		offset_played;
 	u_long used : 1,
 		loops : 1,
 		stopped : 1,
-		trans_lock : 1,		// failsafe for locking data transfers
 		stopping : 1;
 	int volume;
 	WAVEFORMATEX fmt;

@@ -29,7 +29,7 @@ u_long ADXF_ReadFile(HANDLE fp, void* buffer, size_t size)
 	ReadFile(fp, buffer, size, &read, nullptr);
 #if _DEBUG
 	if (read != size)
-		OutputDebugStringA(__FUNCTION__ "Warning: read data is not the same as requested.\n");
+		ADXD_Log(__FUNCTION__ "Warning: read data is not the same as requested.\n");
 #endif
 
 	return read;

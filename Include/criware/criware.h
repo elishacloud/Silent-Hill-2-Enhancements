@@ -70,6 +70,7 @@ private:
 #include "criware_aix.h"
 #include "criware_adxfic.h"
 #include "criware_afs.h"
+#include "criware_debug.h"
 
 //-------------------------------------------
 // main module exposed methods

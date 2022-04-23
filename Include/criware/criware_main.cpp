@@ -61,16 +61,12 @@ void ADXM_ShutdownThrd()
 // leave empty
 int ADXM_ExecMain()
 {
-#if !ADX_SERVER_ENABLE
-	ds_Update();
-#endif
-
 	return 1;
 }
 
 int ADXF_LoadPartitionNw(int ptid, const char *filename, void *ptinfo, void *nfile)
 {
-	asf_LoadPartitionNw(ptid, filename, ptinfo, nfile);
+	afs_LoadPartitionNw(ptid, filename, ptinfo, nfile);
 
 	return 1;
 }
@@ -111,7 +107,7 @@ void ADXT_StartAfs(ADXT_Object* obj, int patid, int fid)
 	
 	if (obj->state != ADXT_STAT_STOP)
 		ADXT_Stop(obj);
-	asf_StartAfs(obj, patid, fid);
+	afs_StartAfs(obj, patid, fid);
 }
 
 void ADXT_Stop(ADXT_Object* obj)

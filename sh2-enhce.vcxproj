@@ -42,6 +42,7 @@
     <ClCompile Include="Include\criware\criware_adxfic.cpp" />
     <ClCompile Include="Include\criware\criware_afs.cpp" />
     <ClCompile Include="Include\criware\criware_aix.cpp" />
+    <ClCompile Include="Include\criware\criware_debug.cpp" />
     <ClCompile Include="Include\criware\criware_decode.cpp" />
     <ClCompile Include="Include\criware\criware_dsound.cpp" />
     <ClCompile Include="Include\criware\criware_file.cpp" />
@@ -148,6 +149,7 @@
     <ClInclude Include="Include\criware\criware_adxfic.h" />
     <ClInclude Include="Include\criware\criware_afs.h" />
     <ClInclude Include="Include\criware\criware_aix.h" />
+    <ClInclude Include="Include\criware\criware_debug.h" />
     <ClInclude Include="Include\criware\criware_dsound.h" />
     <ClInclude Include="Include\criware\criware_file.h" />
     <ClInclude Include="Include\criware\criware_server.h" />
@@ -273,10 +275,11 @@ copy /Y "$(ProjectDir)Resources\exe_str.txt" "$(TargetDir)$(TargetName).res" &gt
       <ModuleDefinitionFile>Wrappers\wrapper.def</ModuleDefinitionFile>
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories);$(WindowsSDK80Path)Lib\winv6.3\um\x86</AdditionalLibraryDirectories>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>dxguid.lib;Shlwapi.lib;WinInet.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>D:\Program Files\Silent Hill 2\$(TargetName)$(TargetExt)</OutputFile>
     </Link>
     <PreBuildEvent>
       <Command>cmd /q /c "cd /D ""$(ProjectDir)"" &amp;&amp; if not exist Resources\BuildNo.rc echo #define BUILD_NUMBER 0 &gt;Resources\BuildNo.rc"

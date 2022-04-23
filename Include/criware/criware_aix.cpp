@@ -72,10 +72,8 @@ static DWORD WINAPI aix_load_thread(LPVOID param)
 	auto obj = (AIXP_Object*)param;
 
 #if MEASURE_ACCESS
-	char str[MAX_PATH];
 	double start = TimeGetTime();
-	sprintf_s(str, sizeof(str), __FUNCTION__ ": preparing AIX %s...\n", obj->fname);
-	OutputDebugStringA(str);
+	ADXD_Log(__FUNCTION__ ": preparing AIX %s...\n", obj->fname);
 #endif
 
 	AIX_Demuxer* aix;
@@ -107,11 +105,11 @@ static DWORD WINAPI aix_load_thread(LPVOID param)
 	{
 		obj->adxt[i].state = ADXT_STAT_PLAYING;
 		obj->adxt[i].obj->Play();
+		obj->adxt[i].Resume();
 	}
 
 #if MEASURE_ACCESS
-	sprintf_s(str, sizeof(str), __FUNCTION__ ": AIX done parsing in %f ms.\n", TimeGetTime() - start);
-	OutputDebugStringA(str);
+	ADXD_Log(__FUNCTION__ ": AIX done parsing in %f ms.\n", TimeGetTime() - start);
 #endif
 
 	obj->th = 0;
@@ -142,6 +140,8 @@ void AIXP_Object::Release()
 	{
 		for (int i = 0; i < stream_no; i++)
 		{
+			adxt[i].state = ADXT_STAT_STOP;
+			adxt[i].Suspend();
 			adxt[i].obj->Stop();
 			adxt[i].obj->Release();
 			adxt[i].obj = nullptr;

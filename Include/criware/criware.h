@@ -9,6 +9,8 @@
 #include <vector>
 #include <string>
 
+//-------------------------------------------
+// object states
 #define	ADXF_STAT_STOP		(1)		// Idling
 #define ADXF_STAT_READING	(2)		// During data read-in
 #define ADXF_STAT_READEND	(3)		// Data read-in end
@@ -116,4 +118,3 @@ void AIXP_SetLpSw(AIXP_Object *obj, int sw);
 void AIXP_StartFname(AIXP_Object *obj, const char *fname, void *atr);
 ADXT_Object* AIXP_GetAdxt(AIXP_Object *obj, int trno);
 int  AIXP_GetStat(AIXP_Object *obj);
-

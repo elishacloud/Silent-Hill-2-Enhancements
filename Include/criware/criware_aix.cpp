@@ -24,7 +24,10 @@ int OpenAIX(const char* filename, AIX_Demuxer**obj)
 
 	HANDLE fp = ADXF_OpenFile(filename);
 	if (fp == INVALID_HANDLE_VALUE)
+	{
+		ADXD_Warning(__FUNCTION__, "Can't open AIX %s...\n", filename);
 		return 0;
+	}
 
 	AIX_Demuxer* aix = new AIX_Demuxer;
 	aix->fp = fp;
@@ -39,7 +42,7 @@ int OpenAIX(const char* filename, AIX_Demuxer**obj)
 	{
 		ADX_header_AIX adx_head;
 
-		auto s = &aix->stream[i];
+		auto s = aix->stream[i];
 		s->Read(&adx_head, sizeof(adx_head));
 
 		s->block_size = adx_head.block_size;
@@ -82,14 +85,14 @@ static DWORD WINAPI aix_load_thread(LPVOID param)
 		obj->state = AIXP_STAT_ERROR;
 		return 0;
 	}
-	obj->aix = aix;
+	obj->demuxer = aix;
 	obj->stream_no = aix->stream_count;
 
 	// create the necessary buffers
 	for (int i = 0; i < obj->stream_no; i++)
 	{
 		obj->adxt[i].state = ADXT_STAT_PREP;
-		obj->adxt[i].stream = &aix->stream[i];
+		obj->adxt[i].stream = aix->stream[i];
 		obj->adxt[i].obj = adxs_FindObj();
 		obj->adxt[i].obj->loops = true;
 		obj->adxt[i].obj->adx = &obj->adxt[i];
@@ -105,7 +108,7 @@ static DWORD WINAPI aix_load_thread(LPVOID param)
 	{
 		obj->adxt[i].state = ADXT_STAT_PLAYING;
 		obj->adxt[i].obj->Play();
-		obj->adxt[i].Resume();
+		obj->adxt[i].ThResume();
 	}
 
 #if MEASURE_ACCESS
@@ -138,23 +141,22 @@ void AIXP_Object::Release()
 {
 	if (state != AIXP_STAT_STOP)
 	{
+		// ensure all stream threads are dead
 		for (int i = 0; i < stream_no; i++)
-		{
-			adxt[i].state = ADXT_STAT_STOP;
-			adxt[i].Suspend();
-			adxt[i].obj->Stop();
-			adxt[i].obj->Release();
-			adxt[i].obj = nullptr;
-		}
-		stream_no = 0;
-		memset(adxt, 0, sizeof(adxt));
+			adxt[i].ThKill();
+		// now we can release everything
+		for (int i = 0; i < stream_no; i++)
+			adxt[i].Reset();
 
-		if (aix)
+		//memset(adxt, 0, sizeof(adxt));
+
+		if (demuxer)
 		{
-			delete aix;
-			aix = nullptr;
+			delete demuxer;
+			demuxer = nullptr;
 		}
 
 		state = AIXP_STAT_STOP;
+		stream_no = 0;
 	}
 }

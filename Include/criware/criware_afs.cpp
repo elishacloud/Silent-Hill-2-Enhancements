@@ -58,7 +58,10 @@ int afs_LoadPartitionNw(int ptid, const char* filename, void* ptinfo, void* nfil
 {
 	afs.Open(filename);
 	if (afs.fp == INVALID_HANDLE_VALUE)
+	{
+		ADXD_Error(__FUNCTION__, "Couldn't open %s.", filename);
 		return 0;
+	}
 
 	AFS_header head;
 
@@ -66,6 +69,7 @@ int afs_LoadPartitionNw(int ptid, const char* filename, void* ptinfo, void* nfil
 
 	if (head.magic != '\x00SFA' && head.magic != 'AFS\x00')
 	{
+		ADXD_Warning(__FUNCTION__, "Incorrect AFS header.");
 		afs.Close();
 		return 0;
 	}
@@ -125,7 +129,7 @@ int afs_StartAfs(ADXT_Object* obj, int patid, int fid)
 
 	obj->obj->CreateBuffer(stream);
 	obj->obj->Play();
-	obj->Resume();
+	obj->ThResume();
 
 	obj->state = ADXT_STAT_PLAYING;
 

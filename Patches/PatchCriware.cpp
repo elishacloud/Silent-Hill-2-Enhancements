@@ -264,7 +264,8 @@ void PatchCriware()
 	}
 	uintptr_t ptr_AIXP_ExecServer = injector::GetBranchDestination(pattern.count(1).get(0).get<uint32_t>(0)).as_int();
 
-	// patch subtitle being too slow in the bowling fake cutscene (double check for DC and 1.1)
+	// patch subtitle being too slow in the bowling fake cutscene
+	// TODO: double check addresses for DC and 1.1 --- Gemini
 	constexpr BYTE CutsceneSearchBytes[]{ 0x2a, 0x00, 0x7b, 0x00, 0x7b, 0x00, 0xba, 0x00, 0xff, 0xff, 0xff, 0xff };
 	BYTE* ptr_sub_fix = (BYTE*)SearchAndGetAddresses(0x008DAEEC, 0x8DB07C, 0x8DB07C, CutsceneSearchBytes, sizeof(CutsceneSearchBytes), 6);
 	if (ptr_sub_fix == nullptr)

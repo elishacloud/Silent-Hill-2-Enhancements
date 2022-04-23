@@ -218,7 +218,7 @@ public:
 	void RequestData(u_long count);
 
 	HANDLE fp;
-	AIXStream* stream;
+	AIXStream** stream;
 	u_long stream_count;
 #if STR_AIX_CACHING
 	BYTE cache[STREAM_CACHE_SIZE];

@@ -1,10 +1,9 @@
 /*
 * Copyright (C) 2022 Gemini
 * ===============================================================
-* DirectSound interface for buffers
+* DirectSound8 interface
 * ---------------------------------------------------------------
-* Just an interface with DirectSound8 to generate buffers and
-* some helpers.
+* Generates sound buffers and takes care of playback.
 * ===============================================================
 */
 #include "criware.h"
@@ -38,7 +37,7 @@ void SndObjDSound::CreateBuffer(CriFileStream* stream)
 	DSBUFFERDESC desc = { 0 };
 	desc.dwSize = sizeof(desc);
 	desc.lpwfxFormat = &fmt;
-	desc.dwFlags = DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_GLOBALFOCUS | DSBCAPS_CTRLVOLUME | /*DSBCAPS_CTRLPAN |*/ DSBCAPS_CTRLFREQUENCY | DSBCAPS_LOCSOFTWARE;
+	desc.dwFlags = DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_GLOBALFOCUS | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY | DSBCAPS_LOCSOFTWARE;
 	desc.dwBufferBytes = BUFFER_SIZE;
 	if (FAILED(pDS8->CreateSoundBuffer(&desc, &pBuf, nullptr)))
 		ADXD_Error(__FUNCTION__, "Can't create buffer.");
@@ -145,11 +144,13 @@ void SndObjDSound::Update()
 
 	if (pBuf && stopped == 0)
 	{
-		// if it's not set to loop we need to release the object when it's done playing
+		// if this stream is not set to loop we need to stop streaming when it's done playing
 		if (loops == 0)
 		{
-			if (str->sample_index >= str->loop_end_index)
+			// signal that decoding is done
+			if (adx->state != ADXT_STAT_DECEND && str->sample_index >= str->loop_end_index)
 				adx->state = ADXT_STAT_DECEND;
+			// signal that playback is done and stop filling the buffer
 			if (GetPlayedSamples() >= str->loop_end_index)
 			{
 				Stop();
@@ -163,6 +164,7 @@ void SndObjDSound::Update()
 			SetVolume(adx->volume);
 			adx->set_volume = 0;
 		}
+
 		SendData();
 	}
 }
@@ -187,7 +189,6 @@ int SndObjDSound::GetStatus()
 
 void SndObjDSound::Lock(u_long size)
 {
-	ADX_lock();
 	if (FAILED(pBuf->Lock(offset, size, (LPVOID*)&ptr1, &bytes1, (LPVOID*)&ptr2, &bytes2, 0)))
 		ADXD_Error(__FUNCTION__, "Can't lock.");
 }
@@ -196,13 +197,12 @@ void SndObjDSound::Unlock()
 {
 	if (FAILED(pBuf->Unlock(ptr1, bytes1, ptr2, bytes2)))
 		ADXD_Error(__FUNCTION__, "Can't unlock.");
-	ADX_unlock();
 }
 
 void SndObjDSound::Fill(u_long size)
 {
 	Lock(size);
-	// just fill with silence if we're stopping or the data is over
+	// just fill with silence if we're stopping or the data was previously over
 	if (stopping || adx->state == ADXT_STAT_DECEND)
 	{
 		ADXD_Log(__FUNCTION__ ": sending silence...\n");
@@ -214,11 +214,9 @@ void SndObjDSound::Fill(u_long size)
 
 		if (loops == 0)
 		{
-			if (str->sample_index >= str->loop_end_index)
-				adx->state = ADXT_STAT_DECEND;
 			if (needed)
 			{
-				// fill trail with silence
+				// fill trail with silence, just for ADX (WAV does it internally)
 				needed *= fmt.nBlockAlign;
 				memset(&ptr1[(bytes1 - needed) / 2], 0, needed);
 			}

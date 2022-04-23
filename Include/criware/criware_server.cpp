@@ -4,7 +4,8 @@
 * File server module
 * -----------------------------------------------------------
 * This module uses a thread to fetch data to DirectSound
-* buffers for ADX and AIX playback.
+* buffers for ADX and AIX playback. Also helpers to lock
+* down threads during transfers.
 * ===========================================================
 */
 #include "criware.h"

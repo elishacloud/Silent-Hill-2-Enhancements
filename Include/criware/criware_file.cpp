@@ -286,13 +286,14 @@ void AIX_Demuxer::Open(HANDLE _fp, u_long _stream_count, u_long total_size)
 	fp = _fp;
 	stream_count = _stream_count;
 
-	stream = new AIXStream[stream_count];
+	stream = new AIXStream*[stream_count];
 	for (u_long i = 0; i < stream_count; i++)
 	{
-		stream[i].parent = this;
-		stream[i].stream_id = i;
-		stream[i].MakeBuffer(total_size / stream_count);
-		stream[i].is_aix = 1;
+		stream[i] = new AIXStream();
+		stream[i]->parent = this;
+		stream[i]->stream_id = i;
+		stream[i]->MakeBuffer(total_size / stream_count);
+		stream[i]->is_aix = 1;
 	}
 
 #if STR_AIX_CACHING
@@ -316,7 +317,7 @@ void AIX_Demuxer::Open(HANDLE _fp, u_long _stream_count, u_long total_size)
 		{
 		case 'P':
 			Read(&aixp, sizeof(aixp));
-			s = &stream[aixp.stream_id];
+			s = stream[aixp.stream_id];
 			Read(&s->data[s->cached], chunk.next.dw() - sizeof(aixp));
 			s->cached += chunk.next.dw() - sizeof(aixp);
 			break;
@@ -330,9 +331,12 @@ void AIX_Demuxer::Open(HANDLE _fp, u_long _stream_count, u_long total_size)
 void AIX_Demuxer::Close()
 {
 	if (stream_count)
-		delete[] stream;
-	stream_count = 0;
-	stream = nullptr;
+	{
+		if(stream)
+			delete[] stream;
+		stream = nullptr;
+		stream_count = 0;
+	}
 
 	CloseHandle(fp);
 	fp = INVALID_HANDLE_VALUE;
@@ -394,7 +398,7 @@ void AIX_Demuxer::RequestData(u_long count)
 		{
 		case 'P':
 			Read(&aixp, sizeof(aixp));
-			s = &stream[aixp.stream_id];
+			s = stream[aixp.stream_id];
 			Read(&s->data[s->cached], chunk.next.dw() - sizeof(aixp));
 			s->cached += chunk.next.dw() - sizeof(aixp);
 			break;

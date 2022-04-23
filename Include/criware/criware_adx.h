@@ -78,10 +78,11 @@ public:
 	ADXT_Object();
 	~ADXT_Object();
 
-	void Release();
+	void Reset();
 
-	void Suspend();
-	void Resume();
+	void ThSuspend();	// suspend thread
+	void ThResume();	// resume thread
+	void ThKill();		// murders thread in a safe way
 
 	CriFileStream* stream;
 	SndObjBase* obj;

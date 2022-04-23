@@ -63,7 +63,7 @@ class AIXP_Object
 {
 public:
 	AIXP_Object() : stream_no(0),
-		aix(nullptr),
+		demuxer(nullptr),
 		state(AIXP_STAT_STOP),
 		fname(nullptr),
 		th(0)
@@ -78,7 +78,7 @@ public:
 
 	int stream_no,
 		state;
-	AIX_Demuxer* aix;
+	AIX_Demuxer* demuxer;
 	ADXT_Object adxt[8];
 	HANDLE th;		// initial caching thread
 	const char* fname;

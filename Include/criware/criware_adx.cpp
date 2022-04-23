@@ -75,6 +75,8 @@ int OpenADX(ADXStream* adx)
 	}
 	else
 	{
+		ADXD_Warning(__FUNCTION__, "Can't detect ADX version.");
+
 		delete adx;
 		return -1;
 	}
@@ -134,6 +136,8 @@ int OpenADX(const char* filename, ADXStream** obj)
 	}
 	else
 	{
+		ADXD_Warning(__FUNCTION__, "Can't detect ADX version.");
+
 		delete adx;
 		return 0;
 	}
@@ -173,10 +177,10 @@ void adx_StartFname(ADXT_Object* obj, const char* fname)
 
 	obj->obj->CreateBuffer(stream);
 	obj->obj->Play();
-	obj->Resume();
+	obj->ThResume();
 }
 
-//
+//-------------------------------------------
 ADXT_Object::ADXT_Object() : work_size(0),
 	work(nullptr),
 	maxch(0),
@@ -186,55 +190,62 @@ ADXT_Object::ADXT_Object() : work_size(0),
 	state(ADXT_STAT_STOP),
 	is_aix(0),
 	is_blocking(0),
-	set_volume(0)
+	set_volume(0),
+	th(CreateThread(nullptr, 0, thread, this, CREATE_SUSPENDED, nullptr)),
+	th_suspended(1),
+	th_exit(0)
 {
-	th = CreateThread(nullptr, 0, thread, this, CREATE_SUSPENDED, nullptr);
-	th_suspended = 1;
-	th_exit = 0;
 }
 
 ADXT_Object::~ADXT_Object()
 {
-	if (th)
-	{
-		th_exit = 1;
-		WaitForSingleObject(th, INFINITE);
-		th = 0;
-	}
-
-	Release();
+	ThKill();
+	Reset();
 }
 
-void ADXT_Object::Suspend()
+void ADXT_Object::ThSuspend()
 {
-	if (th_suspended == 0)
+	if (th && th_suspended == 0)
 	{
 		SuspendThread(th);
 		th_suspended = 1;
 	}
 }
 
-void ADXT_Object::Resume()
+void ADXT_Object::ThResume()
 {
-	if (th_suspended == 1)
+	if (th && th_suspended == 1)
 	{
 		ResumeThread(th);
 		th_suspended = 0;
 	}
 }
 
-void ADXT_Object::Release()
+void ADXT_Object::ThKill()
+{
+	if (th)
+	{
+		th_exit = 1;
+		ThResume();
+		WaitForSingleObject(th, INFINITE);
+		th = 0;
+	}
+}
+
+void ADXT_Object::Reset()
 {
 	if (state != ADXT_STAT_STOP)
 	{
-		Suspend();
-			
+		ThSuspend();
+
 		obj->Stop();
 		obj->Release();
 		obj = nullptr;
-		if (stream && !is_aix)
+		if (stream)
+		{
 			delete stream;
-		stream = nullptr;
+			stream = nullptr;
+		}
 		state = ADXT_STAT_STOP;
 	}
 }
@@ -243,6 +254,8 @@ void ADXT_Object::Thread()
 {
 	while (th_exit == 0)
 	{
+		ADX_lock();		// barricade the damn thing
+		//
 		switch (state)
 		{
 		case ADXT_STAT_PLAYING:
@@ -251,15 +264,15 @@ void ADXT_Object::Thread()
 				obj->Update();
 			break;
 		}
+		//
+		ADX_unlock();
+
 		Sleep(20);
 	}
 }
 
 DWORD ADXT_Object::thread(LPVOID param)
 {
-	ADXT_Object* th = (ADXT_Object*)param;
-
-	th->Thread();
-
+	((ADXT_Object*)param)->Thread();
 	return 0;
 }

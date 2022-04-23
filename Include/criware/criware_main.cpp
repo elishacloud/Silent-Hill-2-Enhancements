@@ -33,25 +33,26 @@ const char* ADXFIC_GetFileName(ADXFIC_Object* obj, u_long index)
 void ADXWIN_SetupDvdFs(void*) {}
 void ADXWIN_ShutdownDvdFs() {}
 
+// directsound setup
 void ADXWIN_SetupSound(LPDIRECTSOUND8 pDS8)
 {
 	adxs_SetupDSound(pDS8);
 }
 
+// close directsound
 void ADXWIN_ShutdownSound()
 {
 	adxs_Release();
 }
 
-// initializes the threads used by the ADX server
-// in our case it just creates one thread running in parallel with the game
+// initialize the threads used by the ADX server
 void ADXM_SetupThrd(int* priority /* ignored */)
 {
 	ADX_lock_init();
 	server_create();
 }
 
-// destroys the ADX threads
+// destroy the ADX threads
 void ADXM_ShutdownThrd()
 {
 	server_destroy();
@@ -59,11 +60,13 @@ void ADXM_ShutdownThrd()
 }
 
 // leave empty
+// this is called inside the performance thread, but it's useless
 int ADXM_ExecMain()
 {
 	return 1;
 }
 
+// initialize AFS partition
 int ADXF_LoadPartitionNw(int ptid, const char *filename, void *ptinfo, void *nfile)
 {
 	afs_LoadPartitionNw(ptid, filename, ptinfo, nfile);
@@ -86,6 +89,7 @@ int ADXT_GetStat(ADXT_Object* obj)
 	return -1;
 }
 
+// send volume signal or just set volume in real time
 void ADXT_SetOutVol(ADXT_Object *obj, int volume)
 {
 	if (obj)
@@ -110,12 +114,14 @@ void ADXT_StartAfs(ADXT_Object* obj, int patid, int fid)
 	afs_StartAfs(obj, patid, fid);
 }
 
+// clear ADXT handle
 void ADXT_Stop(ADXT_Object* obj)
 {
 	if(obj)
-		obj->Release();
+		obj->Reset();
 }
 
+// Starts to play ADX with filename
 void ADXT_StartFname(ADXT_Object* obj, const char* fname)
 {
 	if (obj == nullptr)
@@ -126,7 +132,7 @@ void ADXT_StartFname(ADXT_Object* obj, const char* fname)
 	adx_StartFname(obj, fname);
 }
 
-// initializes the "talk" module, whatever that does
+// initialize the "talk" module, whatever that does
 void ADXT_Init()
 {}
 
@@ -134,7 +140,7 @@ void ADXT_Init()
 void ADXT_Finish()
 {}
 
-// Creation of an ADXT handle
+// creation of an ADXT handle
 ADXT_Object* ADXT_Create(int maxch, void* work, u_long work_size)
 {
 	ADXT_Object* obj = new ADXT_Object;
@@ -145,7 +151,7 @@ ADXT_Object* ADXT_Create(int maxch, void* work, u_long work_size)
 	return obj;
 }
 
-// Destroy an ADXT handle
+// destroy an ADXT handle
 void ADXT_Destroy(ADXT_Object* adxt)
 {
 	if(adxt)
@@ -158,6 +164,7 @@ void AIXP_Init() {}
 // leave empty
 void AIXP_ExecServer() {}
 
+// create a demuxer handle
 AIXP_Object* AIXP_Create(int maxntr, int maxnch, void* work, int worksize)
 {
 	AIXP_Object* obj = new AIXP_Object;
@@ -172,19 +179,24 @@ AIXP_Object* AIXP_Create(int maxntr, int maxnch, void* work, int worksize)
 	return obj;
 }
 
+// deallocate demuxer
 void AIXP_Destroy(AIXP_Object* obj)
 {
-	if(obj)
+	if (obj)
+	{
+		AIXP_Stop(obj);
 		delete obj;
+	}
 }
 
+// release internal states of demuxer
 void AIXP_Stop(AIXP_Object* obj)
 {
 	if(obj)
 		obj->Release();
 }
 
-// set if this should loop
+// set if AIX should loop
 void AIXP_SetLpSw(AIXP_Object* obj, int sw)
 {
 	if (obj == nullptr)
@@ -194,6 +206,7 @@ void AIXP_SetLpSw(AIXP_Object* obj, int sw)
 		obj->adxt[i].obj->loops = sw ? 1 : 0;
 }
 
+// start playing AIX with a filename
 void AIXP_StartFname(AIXP_Object* obj, const char* fname, void* atr)
 {
 	if (obj == nullptr)
@@ -202,6 +215,7 @@ void AIXP_StartFname(AIXP_Object* obj, const char* fname, void* atr)
 	aix_start(obj, fname);
 }
 
+// retrieve an ADXT handle from demuxer
 ADXT_Object* AIXP_GetAdxt(AIXP_Object* obj, int trno)
 {
 	if (obj == nullptr)
@@ -210,6 +224,7 @@ ADXT_Object* AIXP_GetAdxt(AIXP_Object* obj, int trno)
 	return &obj->adxt[trno];
 }
 
+// demuxer state
 int AIXP_GetStat(AIXP_Object* obj)
 {
 	if(obj)

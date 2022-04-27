@@ -37,7 +37,6 @@ typedef BOOL(WINAPI *PFN_CreateProcessA)(LPCSTR lpApplicationName, LPSTR lpComma
 	LPVOID lpEnvironment, LPCSTR lpCurrentDirectory, LPSTARTUPINFOA lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation);
 typedef BOOL(WINAPI *PFN_CreateProcessW)(LPCWSTR lpApplicationName, LPWSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags,
 	LPVOID lpEnvironment, LPCWSTR lpCurrentDirectory, LPSTARTUPINFOW lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation);
-typedef HANDLE(WINAPI *PFN_CreateThread)(LPSECURITY_ATTRIBUTES lpThreadAttributes, SIZE_T dwStackSize, LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParameter, DWORD dwCreationFlags, LPDWORD lpThreadId);
 
 // Proc addresses
 FARPROC p_GetModuleFileNameA = nullptr;
@@ -50,7 +49,6 @@ FARPROC p_GetPrivateProfileStringA = nullptr;
 FARPROC p_GetPrivateProfileStringW = nullptr;
 FARPROC p_CreateProcessA = nullptr;
 FARPROC p_CreateProcessW = nullptr;
-FARPROC p_CreateThread = nullptr;
 
 // Variable used in hooked modules
 bool IsFileSystemHooking = false;
@@ -678,48 +676,6 @@ BOOL WINAPI CreateProcessWHandler(LPCWSTR lpApplicationName, LPWSTR lpCommandLin
 
 	return org_CreateProcess(lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes, bInheritHandles, dwCreationFlags,
 		lpEnvironment, lpCurrentDirectory, lpStartupInfo, lpProcessInformation);
-}
-
-HANDLE WINAPI CreateThreadHandler(LPSECURITY_ATTRIBUTES lpThreadAttributes, SIZE_T dwStackSize, LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParameter, DWORD dwCreationFlags, LPDWORD lpThreadId)
-{
-	static PFN_CreateThread org_CreateThread = (PFN_CreateThread)InterlockedCompareExchangePointer((PVOID*)&p_CreateThread, nullptr, nullptr);
-
-	if (!org_CreateThread)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
-		return nullptr;
-	}
-
-	HANDLE hThread = org_CreateThread(lpThreadAttributes, dwStackSize, lpStartAddress, lpParameter, dwCreationFlags, lpThreadId);
-
-	if (hThread)
-	{
-		HMODULE hModule = nullptr;
-		GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCTSTR)lpStartAddress, &hModule);
-
-		wchar_t dllPath[MAX_PATH] = { };
-		GetModuleFileName(hModule, dllPath, MAX_PATH);
-
-		wchar_t *name = wcsrchr(dllPath, '\\');
-		name = name ? name + 1 : dllPath;
-
-		if ((DWORD)hModule == 0x00400000 || _wcsicmp(name, L"dsound.dll") == 0)
-		{
-			SetThreadAffinityMask(hThread, GetProcessMask());
-		}
-	}
-
-	return hThread;
-}
-
-void InstallCreateThreadHooks()
-{
-	// Logging
-	Logging::Log() << "Hooking the CreateThread APIs...";
-
-	// Hook CreateThread APIs
-	HMODULE h_kernel32 = GetModuleHandle(L"kernel32.dll");
-	InterlockedExchangePointer((PVOID*)&p_CreateThread, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "CreateThread"), "CreateThread", CreateThreadHandler));
 }
 
 void InstallCreateProcessHooks()

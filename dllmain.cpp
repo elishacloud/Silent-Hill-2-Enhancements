@@ -229,12 +229,6 @@ void DelayedStart()
 		HookDirectInput8Create();
 	}
 
-	// Fix audio thread issues
-	if (FixAudioThreadDeadlock)
-	{
-		InstallCreateThreadHooks();
-	}
-
 	// Hook CreateFile API when using UseCustomModFolder
 	if (UseCustomModFolder)
 	{
@@ -549,6 +543,11 @@ void DelayedStart()
 	if (SpecularFix)
 	{
 		PatchSpecular();
+	}
+
+	if (EnableCriWareReimplementation)
+	{
+		PatchCriware();
 	}
 
 	// Remove the "Now loading..." message

@@ -35,8 +35,11 @@ public:
 	{}
 	virtual ~CriFileStream() {}
 
+#pragma warning(suppress: 4100)
 	virtual void Read(void* buffer, size_t size) {}
+#pragma warning(suppress: 4100)
 	virtual void Seek(u_long pos, u_long mode) {}
+#pragma warning(suppress: 4100)
 	virtual u_long Decode(int16_t* buffer, unsigned samples_needed, bool looping_enabled) { return 0; }
 
 	u_long is_aix;
@@ -79,8 +82,11 @@ public:
 
 	int Open(HANDLE fp, u_long pos);
 
+#pragma warning(suppress: 4100)
 	virtual void Read(void* buffer, size_t size) {}
+#pragma warning(suppress: 4100)
 	virtual void Seek(u_long pos, u_long mode) {}
+#pragma warning(suppress: 4100)
 	virtual u_long Decode(int16_t* buffer, unsigned samples_needed, bool looping_enabled);
 
 	HANDLE fp;
@@ -161,7 +167,7 @@ public:
 #if STR_ADX_CACHING
 		, cache{0},
 		pos_cache(0),
-		last_pos(-1)
+		last_pos((u_long)-1)
 #endif
 	{}
 

@@ -11,6 +11,10 @@
 
 ADXFIC_Object* ADXFIC_Create(const char* dname, int mode, char *work, int wksize)
 {
+	UNREFERENCED_PARAMETER(mode);
+	UNREFERENCED_PARAMETER(work);
+	UNREFERENCED_PARAMETER(wksize);
+
 	return adx_ficCreate(dname);
 }
 
@@ -48,6 +52,8 @@ void ADXWIN_ShutdownSound()
 // initialize the threads used by the ADX server
 void ADXM_SetupThrd(int* priority /* ignored */)
 {
+	UNREFERENCED_PARAMETER(priority);
+
 	ADX_lock_init();
 	server_create();
 }
@@ -144,7 +150,7 @@ void ADXT_Finish()
 ADXT_Object* ADXT_Create(int maxch, void* work, u_long work_size)
 {
 	ADXT_Object* obj = new ADXT_Object;
-	obj->maxch = maxch;
+	obj->maxch = (u_short)maxch;
 	obj->work = work;
 	obj->work_size = work_size;
 
@@ -167,11 +173,13 @@ void AIXP_ExecServer() {}
 // create a demuxer handle
 AIXP_Object* AIXP_Create(int maxntr, int maxnch, void* work, int worksize)
 {
+	UNREFERENCED_PARAMETER(maxntr);
+
 	AIXP_Object* obj = new AIXP_Object;
 
 	for (int i = 0; i < _countof(obj->adxt); i++)
 	{
-		obj->adxt[i].maxch = maxnch;
+		obj->adxt[i].maxch = (u_short)maxnch;
 		obj->adxt[i].work_size = worksize;
 		obj->adxt[i].work = work;
 	}
@@ -209,6 +217,8 @@ void AIXP_SetLpSw(AIXP_Object* obj, int sw)
 // start playing AIX with a filename
 void AIXP_StartFname(AIXP_Object* obj, const char* fname, void* atr)
 {
+	UNREFERENCED_PARAMETER(atr);
+
 	if (obj == nullptr)
 		return;
 

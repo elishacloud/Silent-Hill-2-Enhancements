@@ -45,6 +45,8 @@ static __inline void bitstream_seek(bitstream* stream, u_long pos)
 
 static __inline u_long bitstream_read(bitstream* stream, u_long bits)
 {
+	UNREFERENCED_PARAMETER(bits);
+
 	u_long b = 0;
 	if (stream->bitpos == 0)
 		b = (stream->read >> 4) & 0xf;
@@ -140,10 +142,10 @@ unsigned ADXDEC_Decode(CriFileStream* adx, int16_t* buffer, unsigned samples_nee
 
 				// Update the past samples with the newer sample
 				adx->past_samples[i * 2 + 1] = adx->past_samples[i * 2 + 0];
-				adx->past_samples[i * 2 + 0] = sample;
+				adx->past_samples[i * 2 + 0] = (short)sample;
 
 				// Save the sample to the buffer then advance one place
-				*buffer++ = sample;
+				*buffer++ = (int16_t)sample;
 			}
 			++sample_offset;		// We've decoded one sample from every block, advance block offset by 1
 			++adx->sample_index;	// This also means we're one sample further into the stream

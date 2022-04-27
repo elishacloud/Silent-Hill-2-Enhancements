@@ -76,6 +76,8 @@ int WAVStream::Open(HANDLE _fp, u_long pos)
 
 u_long WAVStream::Decode(int16_t* buffer, unsigned samples_needed, bool looping_enabled)
 {
+	UNREFERENCED_PARAMETER(looping_enabled);
+
 	fill((BYTE*)buffer, samples_needed);
 	sample_index += samples_needed;
 	return 0;
@@ -222,7 +224,7 @@ int ADXStream::Open(HANDLE _fp, u_long pos)
 	start = pos;
 #if STR_ADX_CACHING
 	pos_cache = 0;
-	last_pos = -1;
+	last_pos = (u_long)-1;
 #endif
 	Seek(0, SEEK_SET);
 
@@ -435,6 +437,8 @@ void AIXStream::Read(void* buffer, size_t size)
 
 void AIXStream::Seek(u_long _pos, u_long mode)
 {
+	UNREFERENCED_PARAMETER(mode);
+
 #if !AIX_SEGMENTED
 	pos = _pos;
 #else

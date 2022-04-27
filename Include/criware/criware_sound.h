@@ -23,6 +23,7 @@ public:
 		Release();
 	}
 
+#pragma warning(suppress: 4100)
 	virtual void CreateBuffer(CriFileStream* stream) {}
 
 	virtual void Release()
@@ -44,6 +45,7 @@ public:
 	virtual void Update() {}
 
 	virtual void SendData() {}
+#pragma warning(suppress: 4100)
 	virtual void SetVolume(int vol) {}
 
 	u_long offset,

@@ -44,8 +44,11 @@ void ADX_unlock()
 		LeaveCriticalSection(&ADX_crit);
 }
 
+#pragma warning(suppress: 4505)
 static DWORD WINAPI server_thread(LPVOID params)
 {
+	UNREFERENCED_PARAMETER(params);
+
 	while (loop)
 	{
 		adxs_Update();

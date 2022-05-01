@@ -4,8 +4,18 @@
 #include "..\nvwa\debug_new.h"
 #endif
 
+#define XAUDIO2		0
+
 #include <windows.h>
+
+#if !XAUDIO2
 #include <dsound.h>
+#else
+#define XAUDIO2_HELPER_FUNCTIONS	1
+#include "..\xaudio\include\xaudio2.h"
+#include "..\daudio2\daudio.h"
+#endif
+
 #include <vector>
 #include <string>
 
@@ -67,7 +77,11 @@ private:
 #include "criware_server.h"
 #include "criware_file.h"
 #include "criware_sound.h"
+#if !XAUDIO2
 #include "criware_dsound.h"
+#else
+#include "criware_xaudio2.h"
+#endif
 #include "criware_adx.h"
 #include "criware_aix.h"
 #include "criware_adxfic.h"
@@ -80,7 +94,7 @@ private:
 // windows exclusive
 void ADXWIN_SetupDvdFs(void* = nullptr);
 void ADXWIN_ShutdownDvdFs();
-void ADXWIN_SetupSound(LPDIRECTSOUND8 pDS8);
+void ADXWIN_SetupSound(void* pAudio);
 void ADXWIN_ShutdownSound();
 
 // threads

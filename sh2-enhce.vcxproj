@@ -49,6 +49,7 @@
     <ClCompile Include="Include\criware\criware_main.cpp" />
     <ClCompile Include="Include\criware\criware_server.cpp" />
     <ClCompile Include="Include\criware\criware_sound.cpp" />
+    <ClCompile Include="Include\criware\criware_xaudio2.cpp" />
     <ClCompile Include="Patches\AlternateStomp.cpp" />
     <ClCompile Include="Patches\ChangeClosetSpawn.cpp" />
     <ClCompile Include="Patches\PatchCriware.cpp" />
@@ -154,6 +155,7 @@
     <ClInclude Include="Include\criware\criware_file.h" />
     <ClInclude Include="Include\criware\criware_server.h" />
     <ClInclude Include="Include\criware\criware_sound.h" />
+    <ClInclude Include="Include\criware\criware_xaudio2.h" />
     <ClInclude Include="Include\GTA\CFileMgr.h" />
     <ClInclude Include="Include\GTA\WSF.h" />
     <ClInclude Include="Include\stdafx.h" />

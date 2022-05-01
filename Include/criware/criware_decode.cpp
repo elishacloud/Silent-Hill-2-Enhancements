@@ -12,21 +12,22 @@
 #include <algorithm>
 #include "criware.h"
 
+#define toshort(x)		(short)(x)		// used to be lrint, but in the ADX code it's just a cast
+
 void ADXDEC_SetCoeff(CriFileStream* adx)
 {
-	const double M_SQRT2 = 1.4142135623730951;
-	const double M_PI = 3.141592653589793;
+	const double mSQRT2 = 1.414213562373095;
+	const double mPI    = 3.141592653589793;
 
 	double a, b, c;
-	a = M_SQRT2 - cos(2.0 * M_PI * (double)adx->highpass_frequency / (double)adx->sample_rate);
-	b = M_SQRT2 - 1.0;
+	a = mSQRT2 - cos(2.0 * mPI * (double)adx->highpass_frequency / (double)adx->sample_rate);
+	b = mSQRT2 - 1.0;
 	c = (a - sqrt((a + b) * (a - b))) / b;
 
-	// double coefficient[2];
-	adx->coefficient[0] = (short)lrint(c * 2. * (double)(1 << 12));
-	adx->coefficient[1] = (short)lrint(-(c * c) * (double)(1 << 12));
+	adx->coefficient[0] = toshort(c * 8192.);
+	adx->coefficient[1] = toshort(c * c * -4096.);
 	adx->sample_index = 0;
-	memset(adx->past_samples, 0, adx->channel_count * 4);
+	memset(adx->past_samples, 0, sizeof(adx->past_samples));
 }
 
 typedef struct bitstream
@@ -43,7 +44,7 @@ static __inline void bitstream_seek(bitstream* stream, u_long pos)
 	stream->fp->Read(&stream->read, 1);
 }
 
-static __inline u_long bitstream_read(bitstream* stream, u_long bits)
+static __inline u_long bitstream_read(bitstream* stream)
 {
 	u_long b = 0;
 	if (stream->bitpos == 0)
@@ -54,18 +55,16 @@ static __inline u_long bitstream_read(bitstream* stream, u_long bits)
 	return b;
 }
 
-static __inline int sign_extend(u_long base, u_long bits)
-{
-	int res = base;
-
-	return (res << (32 - bits)) >> (32 - bits);
-}
-
 static __inline short sbetole(short a)
 {
 	u_short b = a;
 	return (b >> 8) | (b << 8);
 }
+
+static signed char adx_qtbl[] =
+{
+	0, 1, 2, 3, 4, 5, 6, 7, -8, -7, -6, -5, -4, -3, -2, -1
+};
 
 // buffer is where the decoded samples will be put
 // samples_needed states how many sample 'sets' (one sample from every channel) need to be decoded to fill the buffer
@@ -74,7 +73,7 @@ static __inline short sbetole(short a)
 unsigned ADXDEC_Decode(CriFileStream* adx, int16_t* buffer, unsigned samples_needed, bool looping_enabled)
 {
 	unsigned const samples_per_block = (adx->block_size - 2) * 8 / adx->sample_bitdepth;
-	int16_t scale[4];
+	int16_t scale[2];
 
 	bitstream stream = { 0 };
 	stream.fp = adx;
@@ -107,7 +106,7 @@ unsigned ADXDEC_Decode(CriFileStream* adx, int16_t* buffer, unsigned samples_nee
 		{
 			adx->Seek(started_at / 8 + adx->block_size * i, SEEK_SET);
 			adx->Read(&scale[i], 2);
-			scale[i] = sbetole(scale[i]);
+			scale[i] = (sbetole(scale[i]) & 0x1fff) + 1;
 		}
 
 		// Pre-calculate the stop value for sample_offset
@@ -120,16 +119,12 @@ unsigned ADXDEC_Decode(CriFileStream* adx, int16_t* buffer, unsigned samples_nee
 			for (unsigned i = 0; i < adx->channel_count; ++i)
 			{
 				// Predict the next sample
-				int sample_prediction = (adx->coefficient[0] * adx->past_samples[i * 2 + 0] + adx->coefficient[1] * adx->past_samples[i * 2 + 1]) >> 12;
+				int sample_prediction = (adx->coefficient[0] * adx->past_samples[i][0] + adx->coefficient[1] * adx->past_samples[i][1]) >> 12;
 
 				// Seek to the sample offset, read and sign extend it to a 32bit integer
 				// The sign extension will also need to include a endian adjustment if there are more than 8 bits
 				bitstream_seek(&stream, started_at + adx->sample_bitdepth * sample_offset + adx->block_size * 8 * i);
-				int sample_error = bitstream_read(&stream, adx->sample_bitdepth);
-				sample_error = sign_extend(sample_error, adx->sample_bitdepth);
-
-				// Scale the error correction value
-				sample_error *= scale[i];
+				int sample_error = adx_qtbl[bitstream_read(&stream)] * scale[i];
 
 				// Calculate the sample by combining the prediction with the error correction
 				int sample = sample_error + sample_prediction;
@@ -139,11 +134,11 @@ unsigned ADXDEC_Decode(CriFileStream* adx, int16_t* buffer, unsigned samples_nee
 				else if (sample < SHRT_MIN) sample = SHRT_MIN;
 
 				// Update the past samples with the newer sample
-				adx->past_samples[i * 2 + 1] = adx->past_samples[i * 2 + 0];
-				adx->past_samples[i * 2 + 0] = sample;
+				adx->past_samples[i][1] = adx->past_samples[i][0];
+				adx->past_samples[i][0] = (short)sample;
 
 				// Save the sample to the buffer then advance one place
-				*buffer++ = sample;
+				*buffer++ = (short)sample;
 			}
 			++sample_offset;		// We've decoded one sample from every block, advance block offset by 1
 			++adx->sample_index;	// This also means we're one sample further into the stream

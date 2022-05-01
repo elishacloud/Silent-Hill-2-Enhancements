@@ -56,6 +56,10 @@ AFS_Object afs;
 
 int afs_LoadPartitionNw(int ptid, const char* filename, void* ptinfo, void* nfile)
 {
+	UNREFERENCED_PARAMETER(nfile);
+	UNREFERENCED_PARAMETER(ptinfo);
+	UNREFERENCED_PARAMETER(ptid);
+
 	afs.Open(filename);
 	if (afs.fp == INVALID_HANDLE_VALUE)
 	{
@@ -84,6 +88,8 @@ int afs_LoadPartitionNw(int ptid, const char* filename, void* ptinfo, void* nfil
 
 int afs_StartAfs(ADXT_Object* obj, int patid, int fid)
 {
+	UNREFERENCED_PARAMETER(patid);
+
 	CriFileStream* stream;
 	
 	// read magic word to detect type

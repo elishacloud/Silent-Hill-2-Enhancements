@@ -8,6 +8,8 @@
 */
 #include "criware.h"
 
+#if !XAUDIO2
+
 LPDIRECTSOUND8 pDS8;
 
 #define BUFFER_SIZE		32768
@@ -139,34 +141,37 @@ int SndObjDSound::Stop()
 
 void SndObjDSound::Update()
 {
+	ADX_lock();
 	// inactive objects need to do nothing
-	if (used == 0) return;
-
-	if (pBuf && stopped == 0)
+	if (used)
 	{
-		// if this stream is not set to loop we need to stop streaming when it's done playing
-		if (loops == 0)
+		if (pBuf && stopped == 0)
 		{
-			// signal that decoding is done
-			if (adx->state != ADXT_STAT_DECEND && str->sample_index >= str->loop_end_index)
-				adx->state = ADXT_STAT_DECEND;
-			// signal that playback is done and stop filling the buffer
-			if (GetPlayedSamples() >= str->loop_end_index)
+			// if this stream is not set to loop we need to stop streaming when it's done playing
+			if (loops == 0)
 			{
-				Stop();
-				adx->state = ADXT_STAT_PLAYEND;
+				// signal that decoding is done
+				if (adx->state != ADXT_STAT_DECEND && str->sample_index >= str->loop_end_index)
+					adx->state = ADXT_STAT_DECEND;
+				// signal that playback is done and stop filling the buffer
+				if (GetPlayedSamples() >= str->loop_end_index)
+				{
+					Stop();
+					adx->state = ADXT_STAT_PLAYEND;
+				}
 			}
-		}
 
-		// check if the volume needs to be changed
-		if (adx && adx->set_volume)
-		{
-			SetVolume(adx->volume);
-			adx->set_volume = 0;
-		}
+			// check if the volume needs to be changed
+			if (adx && adx->set_volume)
+			{
+				SetVolume(adx->volume);
+				adx->set_volume = 0;
+			}
 
-		SendData();
+			SendData();
+		}
 	}
+	ADX_unlock();
 }
 
 int SndObjDSound::GetStatus()
@@ -240,3 +245,5 @@ void SndObjDSound::Release()
 		SndObjBase::Release();
 	}
 }
+
+#endif

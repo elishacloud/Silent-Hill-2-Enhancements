@@ -4,6 +4,7 @@
 #include "Common/Utils.h"
 #include "External/Hooking.Patterns/Hooking.Patterns.h"
 #include <External/injector/include/injector/injector.hpp>
+#include "Common\Settings.h"
 
 void PatchCriware()
 {
@@ -315,4 +316,6 @@ void PatchCriware()
 	WriteJMPtoMemory((BYTE*)ptr_AIXP_ExecServer, AIXP_ExecServer);
 
 	UpdateMemoryAddress(ptr_sub_fix, "\xb5\x00", 2);
+
+	ADXD_SetLevel(EnableCriWareReimplementation);
 }

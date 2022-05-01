@@ -380,15 +380,13 @@ void RunGameLoad()
 		RUNONCE();
 
 		// Get address for in game voice event
-		constexpr BYTE SearchBytes[]{ 0xB9, 0xA0, 0x02, 0x00, 0x00, 0x33, 0xC0, 0xBF };
-		InGameVoiceEvent = (BYTE*)ReadSearchedAddresses(0x00563CB4, 0x00562804, 0x00562124, SearchBytes, sizeof(SearchBytes), 0x08);
+		constexpr BYTE SearchBytes[]{ 0x85, 0xC0, 0x75, 0x07, 0xD9, 0x05 };
+		InGameVoiceEvent = (BYTE*)ReadSearchedAddresses(0x004A0305, 0x004A05B5, 0x0049FE75, SearchBytes, sizeof(SearchBytes), -0x04);
 		if (!InGameVoiceEvent)
 		{
 			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
 			return;
 		}
-
-		InGameVoiceEvent = (BYTE*)((DWORD)InGameVoiceEvent + 0x90);
 	}
 
 	// Get Pause Menu Button address
@@ -412,27 +410,14 @@ void RunGameLoad()
 		ValueSet = true;
 	}
 	// Disable game saves for specific rooms
-	else if (GetRoomID() == 0x13 || GetRoomID() == 0x17 || GetRoomID() == 0xAA || GetRoomID() == 0xC7 ||
+	else if (GetRoomID() == 0x13 || GetRoomID() == 0x17 || GetRoomID() == 0x2A || GetRoomID() == 0x46 || GetRoomID() == 0xAA || GetRoomID() == 0xC7 ||
+		(GetRoomID() == 0x04 && GetJamesPosZ() > 49000.0f) ||
 		(GetRoomID() == 0x78 && GetJamesPosX() < -18600.0f) ||
-		(GetRoomID() == 0x04 && GetJamesPosZ() > 49000.0f))
-	{
-		*SaveGameAddress = 0;
-		ValueUnSet = true;
-	}
-	// Disable game saves for specific rooms and disable quick save if the Elevator is not running or there is in-game voice event happening
-	else if (GetRoomID() == 0x2A || GetRoomID() == 0x46 ||
 		(GetRoomID() == 0x9D && GetJamesPosX() < 60650.0f) ||
 		(GetRoomID() == 0xB8 && GetJamesPosX() > -15800.0f))
 	{
 		*SaveGameAddress = 0;
 		ValueUnSet = true;
-
-		// Disable game saves for specific rooms and disable quick save if the Elevator is running or there is in-game voice event happening
-		if (*ElevatorRunning == 0 || *InGameVoiceEvent == 1)
-		{
-			DisableQuickSave = true;
-			AllowQuickSaveFlag = FALSE;
-		}
 	}
 	// Reset static variables
 	else
@@ -461,7 +446,7 @@ void RunGameLoad()
 	}
 
 	// Disable quick save during certian in-game voice events and during fullscreen image events
-	if ((((GetRoomID() == 0x0A) || (GetRoomID() == 0xBA)) && *InGameVoiceEvent == 1) || GetFullscreenImageEvent() == 2)
+	if (*InGameVoiceEvent != 0 || GetFullscreenImageEvent() == 2)
 	{
 		DisableQuickSave = true;
 		AllowQuickSaveFlag = FALSE;

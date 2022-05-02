@@ -44,7 +44,7 @@ void ADX_unlock()
 		LeaveCriticalSection(&ADX_crit);
 }
 
-#pragma warning(suppress: 4505)
+#if ADX_SERVER_ENABLE
 static DWORD WINAPI server_thread(LPVOID params)
 {
 	UNREFERENCED_PARAMETER(params);
@@ -58,6 +58,7 @@ static DWORD WINAPI server_thread(LPVOID params)
 
 	return 0;
 }
+#endif
 
 void server_create()
 {

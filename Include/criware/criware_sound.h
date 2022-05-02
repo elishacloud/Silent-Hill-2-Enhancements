@@ -9,6 +9,8 @@ enum DSOBJ_STATE
 	DSOS_ENDED
 };
 
+#define SOUND_MAX_OBJ			32
+
 typedef void (*SndCbPlayEnd)(LPVOID);
 
 class SndObjBase
@@ -23,8 +25,10 @@ public:
 		Release();
 	}
 
-#pragma warning(suppress: 4100)
-	virtual void CreateBuffer(CriFileStream* stream) {}
+	virtual void CreateBuffer(CriFileStream* stream)
+	{
+		UNREFERENCED_PARAMETER(stream);
+	}
 
 	virtual void Release()
 	{
@@ -45,8 +49,10 @@ public:
 	virtual void Update() {}
 
 	virtual void SendData() {}
-#pragma warning(suppress: 4100)
-	virtual void SetVolume(int vol) {}
+	virtual void SetVolume(int vol)
+	{
+		UNREFERENCED_PARAMETER(vol);
+	}
 
 	u_long offset,
 		offset_played;

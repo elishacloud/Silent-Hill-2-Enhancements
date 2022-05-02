@@ -1,6 +1,6 @@
 #pragma once
 
-#define SOUND_MAX_OBJ			32
+#if !XAUDIO2
 
 class SndObjDSound : public SndObjBase
 {
@@ -41,3 +41,5 @@ private:
 extern SndObjBase* sound_obj_tbl[SOUND_MAX_OBJ];
 
 void adxs_SetupDSound(LPDIRECTSOUND8 pDS);
+
+#endif

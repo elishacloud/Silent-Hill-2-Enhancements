@@ -24,7 +24,6 @@
 	visit(DisableScreenSaver, true) \
 	visit(DPadMovementFix, true) \
 	visit(DynamicResolution, true) \
-	visit(EnableCriWareReimplementation, true) \
 	visit(EnableScreenshots, true) \
 	visit(EnableSFXAddrHack, true) \
 	visit(EnableSMAA, false) \
@@ -128,7 +127,8 @@
 	visit(SingleCoreAffinityLegacy, 0) \
 	visit(SmallFontWidth, 16) \
 	visit(SmallFontHeight, 24) \
-	visit(SpaceSize, 7)
+	visit(SpaceSize, 7) \
+	visit(EnableCriWareReimplementation, 2) \
 
 #define VISIT_FLOAT_SETTINGS(visit) \
 	visit(fog_layer1_x1, 0.250f) \

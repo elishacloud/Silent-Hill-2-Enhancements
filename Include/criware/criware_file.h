@@ -35,12 +35,23 @@ public:
 	{}
 	virtual ~CriFileStream() {}
 
-#pragma warning(suppress: 4100)
-	virtual void Read(void* buffer, size_t size) {}
-#pragma warning(suppress: 4100)
-	virtual void Seek(u_long pos, u_long mode) {}
-#pragma warning(suppress: 4100)
-	virtual u_long Decode(int16_t* buffer, unsigned samples_needed, bool looping_enabled) { return 0; }
+	virtual void Read(void* buffer, size_t size)
+	{
+		UNREFERENCED_PARAMETER(buffer);
+		UNREFERENCED_PARAMETER(size);
+	}
+	virtual void Seek(u_long pos, u_long mode)
+	{
+		UNREFERENCED_PARAMETER(pos);
+		UNREFERENCED_PARAMETER(mode);
+	}
+	virtual u_long Decode(int16_t* buffer, unsigned samples_needed, bool looping_enabled)
+	{
+		UNREFERENCED_PARAMETER(buffer);
+		UNREFERENCED_PARAMETER(samples_needed);
+		UNREFERENCED_PARAMETER(looping_enabled);
+		return 0;
+	}
 
 	u_long is_aix;
 	// attributes
@@ -55,7 +66,7 @@ public:
 		loop_start_index,
 		loop_end_index;
 	// decoding fields
-	short past_samples[16];
+	short past_samples[2][2];
 	short coefficient[2];
 	u_long sample_index;
 };
@@ -82,11 +93,16 @@ public:
 
 	int Open(HANDLE fp, u_long pos);
 
-#pragma warning(suppress: 4100)
-	virtual void Read(void* buffer, size_t size) {}
-#pragma warning(suppress: 4100)
-	virtual void Seek(u_long pos, u_long mode) {}
-#pragma warning(suppress: 4100)
+	virtual void Read(void* buffer, size_t size)
+	{
+		UNREFERENCED_PARAMETER(buffer);
+		UNREFERENCED_PARAMETER(size);
+	}
+	virtual void Seek(u_long pos, u_long mode)
+	{
+		UNREFERENCED_PARAMETER(pos);
+		UNREFERENCED_PARAMETER(mode);
+	}
 	virtual u_long Decode(int16_t* buffer, unsigned samples_needed, bool looping_enabled);
 
 	HANDLE fp;

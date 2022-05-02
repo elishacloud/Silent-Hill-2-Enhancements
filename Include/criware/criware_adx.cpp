@@ -254,8 +254,6 @@ void ADXT_Object::Thread()
 {
 	while (th_exit == 0)
 	{
-		ADX_lock();		// barricade the damn thing
-		//
 		switch (state)
 		{
 		case ADXT_STAT_PLAYING:
@@ -264,10 +262,8 @@ void ADXT_Object::Thread()
 				obj->Update();
 			break;
 		}
-		//
-		ADX_unlock();
 
-		Sleep(20);
+		Sleep(10);
 	}
 }
 

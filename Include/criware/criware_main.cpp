@@ -38,9 +38,16 @@ void ADXWIN_SetupDvdFs(void*) {}
 void ADXWIN_ShutdownDvdFs() {}
 
 // directsound setup
-void ADXWIN_SetupSound(LPDIRECTSOUND8 pDS8)
+void ADXWIN_SetupSound(void* pDS8)
 {
-	adxs_SetupDSound(pDS8);
+#if !XAUDIO2
+	adxs_SetupDSound((LPDIRECTSOUND8)pDS8);
+#else
+	IXAudio2* pXA;
+	((IDirectAudio*)pDS8)->QueryInterface(IID_IXAudio2, (LPVOID*)&pXA);
+
+	adxs_SetupXAudio(pXA);
+#endif
 }
 
 // close directsound

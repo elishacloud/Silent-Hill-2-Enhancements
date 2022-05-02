@@ -46,8 +46,6 @@ static __inline void bitstream_seek(bitstream* stream, u_long pos)
 
 static __inline u_long bitstream_read(bitstream* stream)
 {
-	UNREFERENCED_PARAMETER(bits);
-
 	u_long b = 0;
 	if (stream->bitpos == 0)
 		b = (stream->read >> 4) & 0xf;

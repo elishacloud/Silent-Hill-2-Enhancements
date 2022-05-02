@@ -44,6 +44,8 @@ void ADXD_Warning(const char* caption, const char* fmt, ...)
 
 void ADXD_Log(const char* fmt, ...)
 {
+	UNREFERENCED_PARAMETER(fmt);
+
 #if _DEBUG
 	va_list ap;
 	char buf[256];

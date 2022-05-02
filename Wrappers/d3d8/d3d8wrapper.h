@@ -50,7 +50,6 @@ extern bool ClassReleaseFlag;
 extern bool CopyRenderTarget;
 extern bool SetSSAA;
 extern D3DMULTISAMPLE_TYPE DeviceMultiSampleType;
-extern DWORD MaxAnisotropy;
 extern bool TakeScreenShot;
 
 #include "IDirect3D8.h"

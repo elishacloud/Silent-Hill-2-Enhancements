@@ -371,7 +371,8 @@ DWORD_PTR GetProcessMask()
 		}
 		if (AffinityLow)
 		{
-			nMask = ((AffinityLow << (SingleCoreAffinityLegacy - 1)) & SystemAffinityMask) ? (AffinityLow << (SingleCoreAffinityLegacy - 1)) : AffinityLow;
+			DWORD_PTR Base = (SingleCoreAffinityLegacy) ? SingleCoreAffinityLegacy : ((AffinityLow << 2) & SystemAffinityMask) ? 3 : 2;
+			nMask = ((AffinityLow << (Base - 1)) & SystemAffinityMask) ? (AffinityLow << (Base - 1)) : AffinityLow;
 		}
 	}
 

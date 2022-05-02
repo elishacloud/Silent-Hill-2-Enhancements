@@ -56,9 +56,9 @@ AFS_Object afs;
 
 int afs_LoadPartitionNw(int ptid, const char* filename, void* ptinfo, void* nfile)
 {
-	UNREFERENCED_PARAMETER(nfile);
-	UNREFERENCED_PARAMETER(ptinfo);
 	UNREFERENCED_PARAMETER(ptid);
+	UNREFERENCED_PARAMETER(ptinfo);
+	UNREFERENCED_PARAMETER(nfile);
 
 	afs.Open(filename);
 	if (afs.fp == INVALID_HANDLE_VALUE)

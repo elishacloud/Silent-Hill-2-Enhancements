@@ -13,6 +13,9 @@ private:
 	bool GammaSet = false;
 	D3DGAMMARAMP Ramp;
 
+	bool AnisotropyFlag = (bool)AnisotropicFiltering;
+	DWORD MaxAnisotropy = 0;
+
 	bool IsGetFrontBufferCalled = false;
 	bool IsSnapshotTextureSet = false;
 	bool IsNoiseFilterVertexSet = false;
@@ -163,23 +166,24 @@ private:
 		UINT stream0Stride;
 	};
 
+	// Helper functions
+	HRESULT DrawSoftShadows();
+	void BackupState(D3DSTATE *state);
+	void RestoreState(D3DSTATE *state);
+	template <typename T>
+	void ReleaseInterface(T **ppInterface, UINT ReleaseRefNum = 1);
+	bool CheckSilhouetteTexture();
+	DWORD GetShadowOpacity();
+	DWORD GetShadowIntensity();
+	void SetShadowFading();
+	void CaptureScreenShot();
+
 public:
 	m_IDirect3DDevice8(LPDIRECT3DDEVICE8 pDevice, m_IDirect3D8* pD3D) : ProxyInterface(pDevice), m_pD3D(pD3D)
 	{
 		Logging::LogDebug() << "Creating device " << __FUNCTION__ << "(" << this << ")";
 
 		ProxyAddressLookupTableD3d8 = new AddressLookupTableD3d8<m_IDirect3DDevice8>(this);
-
-		// Enable Anisotropic Filtering
-		if (AnisotropicFiltering)
-		{
-			D3DCAPS8 Caps;
-			ZeroMemory(&Caps, sizeof(D3DCAPS8));
-			if (SUCCEEDED(ProxyInterface->GetDeviceCaps(&Caps)))
-			{
-				MaxAnisotropy = (AnisotropicFiltering == 1) ? Caps.MaxAnisotropy : min((DWORD)AnisotropicFiltering, Caps.MaxAnisotropy);
-			}
-		}
 
 		// Create blank texture for white shader fix
 		if (FAILED(ProxyInterface->CreateTexture(1, 1, 1, NULL, D3DFMT_X8R8G8B8, D3DPOOL_MANAGED, &BlankTexture)))
@@ -302,16 +306,4 @@ public:
 
 	// Extra functions
 	void m_IDirect3DDevice8::AddSurfaceToVector(m_IDirect3DSurface8 *pSourceTarget, IDirect3DSurface8 *pRenderTarget);
-
-private:
-	HRESULT DrawSoftShadows();
-	void BackupState(D3DSTATE *state);
-	void RestoreState(D3DSTATE *state);
-	template <typename T>
-	void ReleaseInterface(T **ppInterface, UINT ReleaseRefNum = 1);
-	bool CheckSilhouetteTexture();
-	DWORD GetShadowOpacity();
-	DWORD GetShadowIntensity();
-	void SetShadowFading();
-	void CaptureScreenShot();
 };

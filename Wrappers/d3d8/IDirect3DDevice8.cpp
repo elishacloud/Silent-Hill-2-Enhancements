@@ -32,7 +32,6 @@ bool IsInBloomEffect = false;
 bool IsInFakeFadeout = false;
 bool ClassReleaseFlag = false;
 DWORD TextureNum = 0;
-DWORD MaxAnisotropy = 0;
 
 struct SCREENSHOTSTRUCT
 {
@@ -1988,23 +1987,46 @@ HRESULT m_IDirect3DDevice8::SetTextureStageState(DWORD Stage, D3DTEXTURESTAGESTA
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	// Setup Anisotropy Filtering
+	if (AnisotropyFlag && (Type == D3DTSS_MAXANISOTROPY || ((Type == D3DTSS_MINFILTER || Type == D3DTSS_MAGFILTER) && Value == D3DTEXF_LINEAR)))
+	{
+		AnisotropyFlag = false;
+
+		D3DCAPS8 Caps;
+		ZeroMemory(&Caps, sizeof(D3DCAPS8));
+		if (SUCCEEDED(ProxyInterface->GetDeviceCaps(&Caps)))
+		{
+			MaxAnisotropy = (AnisotropicFiltering == 1) ? Caps.MaxAnisotropy : min((DWORD)AnisotropicFiltering, Caps.MaxAnisotropy);
+		}
+
+		if (MaxAnisotropy && SUCCEEDED(ProxyInterface->SetTextureStageState(Stage, D3DTSS_MAXANISOTROPY, MaxAnisotropy)))
+		{
+			Logging::Log() << "Setting Anisotropy Filtering at " << MaxAnisotropy << "x";
+		}
+		else
+		{
+			MaxAnisotropy = 0;
+
+			Logging::Log() << "Failed to enable Anisotropy Filtering!";
+		}
+	}
+
 	// Enable Anisotropic Filtering
 	if (MaxAnisotropy)
 	{
 		if (Type == D3DTSS_MAXANISOTROPY)
 		{
-			Value = MaxAnisotropy;
 			if (SUCCEEDED(ProxyInterface->SetTextureStageState(Stage, D3DTSS_MAXANISOTROPY, MaxAnisotropy)))
 			{
 				return D3D_OK;
 			}
 		}
-		else if (Type == D3DTSS_MINFILTER || Type == D3DTSS_MAGFILTER || Type == D3DTSS_MIPFILTER)
+		else if (Stage != 0 && (Type == D3DTSS_MINFILTER || Type == D3DTSS_MAGFILTER) && Value == D3DTEXF_LINEAR)
 		{
-			ProxyInterface->SetTextureStageState(Stage, D3DTSS_MAXANISOTROPY, MaxAnisotropy);
-			if (Value != D3DTEXF_POINT && !(Stage == 0 && (Type == D3DTSS_MINFILTER || Type == D3DTSS_MAGFILTER)))
+			if (SUCCEEDED(ProxyInterface->SetTextureStageState(Stage, D3DTSS_MAXANISOTROPY, MaxAnisotropy)) &&
+				SUCCEEDED(ProxyInterface->SetTextureStageState(Stage, Type, D3DTEXF_ANISOTROPIC)))
 			{
-				Value = D3DTEXF_ANISOTROPIC;
+				return D3D_OK;
 			}
 		}
 	}

@@ -229,7 +229,7 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	{
 		VendorID = dai.VendorId;
 		Logging::Log() << "|---------- VIDEO CARD ----------";
-		Logging::Log() << "| " __FUNCTION__ << " Using video card: " << dai.Description << " (" << Logging::hex(dai.VendorId) << ")";
+		Logging::Log() << "| Using video card: " << dai.Description << " (" << Logging::hex(dai.VendorId) << ")";
 		Logging::Log() << "|--------------------------------";
 	}
 
@@ -280,7 +280,7 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 				// Check if device was created successfully
 				if (SUCCEEDED(hr))
 				{
-					Logging::Log() << __FUNCTION__ << " Setting MultiSample " << d3dpp.MultiSampleType;
+					Logging::Log() << "Setting AntiAliasing MultiSample at " << d3dpp.MultiSampleType;
 					DeviceMultiSampleType = d3dpp.MultiSampleType;
 					break;
 				}
@@ -288,7 +288,7 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 		}
 		if (FAILED(hr))
 		{
-			Logging::Log() << __FUNCTION__ << " Failed to enable AntiAliasing!";
+			Logging::Log() << "Failed to enable AntiAliasing!";
 		}
 	}
 
@@ -306,12 +306,6 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	else
 	{
 		Logging::Log() << __FUNCTION__ << " Failed! Error: " << (D3DERR)hr;
-	}
-
-	// Set single core affinity
-	if (SingleCoreAffinityLegacy)
-	{
-		RUNCODEONCE(SetSingleCoreAffinity());
 	}
 
 	// Create thread to save screenshot file

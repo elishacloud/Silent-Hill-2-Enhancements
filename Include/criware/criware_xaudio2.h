@@ -25,7 +25,7 @@ public:
 	virtual void Release();
 
 	virtual void Play();
-	virtual int  Stop();
+	virtual void Stop();
 	virtual void Update();
 
 	virtual void SendData();

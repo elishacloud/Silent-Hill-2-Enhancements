@@ -37,7 +37,6 @@ public:
 		used = 0;
 		loops = 0;
 		stopped = 0;
-		stopping = 0;
 		volume = 0;
 		memset(&fmt, 0, sizeof(fmt));
 		str = nullptr;
@@ -45,7 +44,7 @@ public:
 	}
 
 	virtual void Play() {}
-	virtual int  Stop() { return 1; }
+	virtual void Stop() {}
 	virtual void Update() {}
 
 	virtual void SendData() {}
@@ -58,8 +57,7 @@ public:
 		offset_played;
 	u_long used : 1,
 		loops : 1,
-		stopped : 1,
-		stopping : 1;
+		stopped : 1;
 	int volume;
 	WAVEFORMATEX fmt;
 	CriFileStream* str;
@@ -67,5 +65,5 @@ public:
 };
 
 SndObjBase* adxs_FindObj();
-void adxs_Update();
+void adxs_Clear(SndObjBase* obj);
 void adxs_Release();

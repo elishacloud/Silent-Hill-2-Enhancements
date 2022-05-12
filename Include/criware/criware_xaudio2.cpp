@@ -110,8 +110,7 @@ void SndObjXAudio::Play()
 
 int SndObjXAudio::Stop()
 {
-	if (stopping)
-		return 1;
+	if (stopping) return;
 
 	stopping = 1;
 	if (pVoice)
@@ -120,9 +119,8 @@ int SndObjXAudio::Stop()
 		pVoice->Stop();
 		ResetEvent(cb.hEndEvent);
 	}
-
-	return 1;
 }
+
 void SndObjXAudio::Update()
 {
 	// inactive objects need to do nothing
@@ -147,9 +145,7 @@ void SndObjXAudio::Update()
 
 		WaitForSingleObject(cb.hEndEvent, INFINITE);	// stay locked until the callback requires more data
 
-		ADX_lock();
 		SendData();
-		ADX_unlock();
 	}
 }
 

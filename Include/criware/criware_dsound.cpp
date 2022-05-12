@@ -12,9 +12,13 @@
 
 LPDIRECTSOUND8 pDS8;
 
-#define BUFFER_SIZE		32768
+#define BUFFER_SIZE		(32 * 1024)
 #define BUFFER_HALF		(BUFFER_SIZE / 2)
 #define BUFFER_QUART	(BUFFER_HALF / 2)
+
+#ifdef _DEBUG
+static int buffer_cnt = 0;
+#endif
 
 void adxs_SetupDSound(LPDIRECTSOUND8 pDS)
 {
@@ -24,10 +28,34 @@ void adxs_SetupDSound(LPDIRECTSOUND8 pDS)
 		sound_obj_tbl[i] = new SndObjDSound();
 }
 
+static const char* get_ds_error(HRESULT err)
+{
+	switch (err)
+	{
+	case DSERR_ALLOCATED: return "DSERR_ALLOCATED";
+	case DSERR_CONTROLUNAVAIL: return "DSERR_CONTROLUNAVAIL";
+	case DSERR_BADFORMAT: return "DSERR_BADFORMAT";
+	case DSERR_INVALIDPARAM: return "DSERR_INVALIDPARAM";
+	case DSERR_NOAGGREGATION: return "DSERR_NOAGGREGATION";
+	case DSERR_OUTOFMEMORY: return "DSERR_OUTOFMEMORY";
+	case DSERR_UNINITIALIZED: return "DSERR_UNINITIALIZED";
+	case DSERR_UNSUPPORTED: return "DSERR_UNSUPPORTED";
+	case DSERR_BUFFERLOST: return "DSERR_BUFFERLOST";
+	case DSERR_INVALIDCALL: return "DSERR_INVALIDCALL";
+	case DSERR_PRIOLEVELNEEDED: return "DSERR_PRIOLEVELNEEDED";
+	}
+
+	return "DSERR_UNKNOWN";
+}
+
+#define DS_CALL_CATCH(x, caption, error)		{ HRESULT hr = (x); \
+	if(FAILED(hr)) ADXD_Error(caption, error, get_ds_error(hr)); \
+	} \
+
 void SndObjDSound::CreateBuffer(CriFileStream* stream)
 {
 	str = stream;
-	
+
 	fmt.cbSize = sizeof(WAVEFORMATEX);
 	fmt.nSamplesPerSec = stream->sample_rate;
 	fmt.nBlockAlign = (WORD)(2 * stream->channel_count);
@@ -41,27 +69,86 @@ void SndObjDSound::CreateBuffer(CriFileStream* stream)
 	desc.lpwfxFormat = &fmt;
 	desc.dwFlags = DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_GLOBALFOCUS | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY | DSBCAPS_LOCSOFTWARE;
 	desc.dwBufferBytes = BUFFER_SIZE;
-	if (FAILED(pDS8->CreateSoundBuffer(&desc, &pBuf, nullptr)))
-		ADXD_Error(__FUNCTION__, "Can't create buffer.");
+	DS_CALL_CATCH((pDS8->CreateSoundBuffer(&desc, &pBuf, nullptr)), __FUNCTION__, "Couldn't create DirectSound buffer (%s).");
+
+#ifdef _DEBUG
+	ADXD_Log("Allocating, %d buffers so far\n", ++buffer_cnt);
+#endif
 
 	Fill(BUFFER_SIZE);
 
 	used = 1;
 	offset = 0;
 	offset_played = 0;
+	stopped = 1;
 }
 
-u_long SndObjDSound::GetPosition()
+void SndObjDSound::Play()
 {
-	DWORD pos;
-	pBuf->GetCurrentPosition(&pos, nullptr);
+	if (used)
+	{
+		if (adx && adx->set_volume)
+		{
+			SetVolume(adx->volume);
+			adx->set_volume = 0;
+		}
 
-	return pos;
+		if (pBuf)
+		{
+			pBuf->Play(0, 0, DSBPLAY_LOOPING);
+			stopped = 0;
+		}
+	}
 }
 
-u_long SndObjDSound::GetPlayedSamples()
+void SndObjDSound::Stop()
 {
-	return (offset_played + GetPosition()) / fmt.nBlockAlign;
+	// this is inactive or stopped already
+	if (used == 0) return;
+	if (stopped == 1) return;
+
+	if (pBuf)
+	{
+		pBuf->Stop();
+
+		//DWORD st;
+		//do { pBuf->GetStatus(&st); } while (st & DSBSTATUS_PLAYING);
+
+		stopped = 1;
+	}
+}
+
+void SndObjDSound::Update()
+{
+	// inactive objects need to do nothing
+	if (used)
+	{
+		if (pBuf && stopped == 0)
+		{
+			// if this stream is not set to loop we need to stop streaming when it's done playing
+			if (loops == 0)
+			{
+				// signal that decoding is done
+				if (adx->state != ADXT_STAT_DECEND && str->sample_index >= str->loop_end_index)
+					adx->state = ADXT_STAT_DECEND;
+				// signal that playback is done and stop filling the buffer
+				if (GetPlayedSamples() >= str->loop_end_index)
+				{
+					Stop();
+					adx->state = ADXT_STAT_PLAYEND;
+				}
+			}
+
+			// check if the volume needs to be changed
+			if (adx && adx->set_volume)
+			{
+				SetVolume(adx->volume);
+				adx->set_volume = 0;
+			}
+
+			SendData();
+		}
+	}
 }
 
 void SndObjDSound::SendData()
@@ -93,85 +180,40 @@ void SndObjDSound::SetVolume(int vol)
 		pBuf->SetVolume(vol * 10);
 }
 
-void SndObjDSound::Play()
+void SndObjDSound::Release()
 {
 	if (used)
 	{
-		if (adx && adx->set_volume)
+		if (stopped == 0)
+			Stop();
+
+		if (pBuf)
 		{
-			SetVolume(adx->volume);
-			adx->set_volume = 0;
+#ifdef _DEBUG
+			ADXD_Log("Dellocating, %d buffers so far\n", --buffer_cnt);
+#endif
+
+			pBuf->Release();
+			pBuf = nullptr;
 		}
 
-		if(pBuf)
-			pBuf->Play(0, 0, DSBPLAY_LOOPING);
+		SndObjBase::Release();
 	}
 }
 
-int SndObjDSound::Stop()
+// -----------------------------
+// non virtual methods
+u_long SndObjDSound::GetPosition()
 {
-	// this is inactive or stopped already
-	if (used == 0) return 1 ;
-	if (stopped == 1) return 1;
+	DWORD pos;
+	pBuf->GetCurrentPosition(&pos, nullptr);
 
-	if (pBuf)
-	{
-		if (stopping == 0)
-		{
-			// queue stop to directsound
-			stopping = 1;
-			pBuf->Stop();
-		}
-
-		// check if directsound is done
-		int s = GetStatus();
-		if (s == DSOS_LOOPING || s == DSOS_PLAYING)
-		{
-			ADXD_Log(__FUNCTION__ ": still playing, can't release...\n");
-			return 0;	// still playing
-		}
-		
-		// ok, we're done!
-		stopped = 1;
-		return 1;
-	}
-
-	return 0;
+	return pos;
 }
 
-void SndObjDSound::Update()
+u_long SndObjDSound::GetPlayedSamples()
 {
-	ADX_lock();
-	// inactive objects need to do nothing
-	if (used)
-	{
-		if (pBuf && stopped == 0)
-		{
-			// if this stream is not set to loop we need to stop streaming when it's done playing
-			if (loops == 0)
-			{
-				// signal that decoding is done
-				if (adx->state != ADXT_STAT_DECEND && str->sample_index >= str->loop_end_index)
-					adx->state = ADXT_STAT_DECEND;
-				// signal that playback is done and stop filling the buffer
-				if (GetPlayedSamples() >= str->loop_end_index)
-				{
-					Stop();
-					adx->state = ADXT_STAT_PLAYEND;
-				}
-			}
-
-			// check if the volume needs to be changed
-			if (adx && adx->set_volume)
-			{
-				SetVolume(adx->volume);
-				adx->set_volume = 0;
-			}
-
-			SendData();
-		}
-	}
-	ADX_unlock();
+	return (offset_played + GetPosition()) / fmt.nBlockAlign;
 }
 
 int SndObjDSound::GetStatus()
@@ -192,23 +234,15 @@ int SndObjDSound::GetStatus()
 	return DSOS_ENDED;
 }
 
-void SndObjDSound::Lock(u_long size)
-{
-	if (FAILED(pBuf->Lock(offset, size, (LPVOID*)&ptr1, &bytes1, (LPVOID*)&ptr2, &bytes2, 0)))
-		ADXD_Error(__FUNCTION__, "Can't lock.");
-}
-
-void SndObjDSound::Unlock()
-{
-	if (FAILED(pBuf->Unlock(ptr1, bytes1, ptr2, bytes2)))
-		ADXD_Error(__FUNCTION__, "Can't unlock.");
-}
-
 void SndObjDSound::Fill(u_long size)
 {
-	Lock(size);
+	short *ptr1, *ptr2;
+	DWORD bytes1, bytes2;
+
+	DS_CALL_CATCH((pBuf->Lock(offset, size, (LPVOID*)&ptr1, &bytes1, (LPVOID*)&ptr2, &bytes2, 0)), __FUNCTION__, "Couldn't lock DirectSound buffer (%s)");
+
 	// just fill with silence if we're stopping or the data was previously over
-	if (stopping || adx->state == ADXT_STAT_DECEND)
+	if (adx->state != ADXT_STAT_PLAYING)
 	{
 		ADXD_Log(__FUNCTION__ ": sending silence...\n");
 		memset(ptr1, 0, bytes1);
@@ -227,23 +261,8 @@ void SndObjDSound::Fill(u_long size)
 			}
 		}
 	}
-	Unlock();
-}
 
-void SndObjDSound::Release()
-{
-	if (used && pBuf)
-	{
-		pBuf->Release();
-		pBuf = nullptr;
-
-		ptr1 = nullptr;
-		bytes1 = 0;
-		ptr2 = nullptr;
-		bytes2 = 0;
-
-		SndObjBase::Release();
-	}
+	DS_CALL_CATCH((pBuf->Unlock(ptr1, bytes1, ptr2, bytes2)), __FUNCTION__, "Couldn't unlock DirectSound buffer (%s)");
 }
 
 #endif

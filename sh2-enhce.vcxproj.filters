@@ -329,9 +329,6 @@
     <ClCompile Include="Include\criware\criware_main.cpp">
       <Filter>Include\criware</Filter>
     </ClCompile>
-    <ClCompile Include="Include\criware\criware_server.cpp">
-      <Filter>Include\criware</Filter>
-    </ClCompile>
     <ClCompile Include="Patches\PatchCriware.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
@@ -342,6 +339,9 @@
       <Filter>Include\criware</Filter>
     </ClCompile>
     <ClCompile Include="Include\criware\criware_xaudio2.cpp">
+      <Filter>Include\criware</Filter>
+    </ClCompile>
+    <ClCompile Include="Include\criware\criware_lock.cpp">
       <Filter>Include\criware</Filter>
     </ClCompile>
   </ItemGroup>
@@ -532,9 +532,6 @@
     <ClInclude Include="Include\criware\criware_file.h">
       <Filter>Include\criware</Filter>
     </ClInclude>
-    <ClInclude Include="Include\criware\criware_server.h">
-      <Filter>Include\criware</Filter>
-    </ClInclude>
     <ClInclude Include="Include\criware\criware_sound.h">
       <Filter>Include\criware</Filter>
     </ClInclude>
@@ -542,6 +539,9 @@
       <Filter>Include\criware</Filter>
     </ClInclude>
     <ClInclude Include="Include\criware\criware_xaudio2.h">
+      <Filter>Include\criware</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\criware\criware_lock.h">
       <Filter>Include\criware</Filter>
     </ClInclude>
   </ItemGroup>

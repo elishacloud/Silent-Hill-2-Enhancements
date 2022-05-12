@@ -15,7 +15,7 @@
 // ------------------------------------------------
 HANDLE ADXF_OpenFile(const char* filename)
 {
-	return CreateFileA(filename, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+	return CreateFileA(filename, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY /*FILE_ATTRIBUTE_NORMAL*/, nullptr);
 }
 
 void ADXF_CloseFile(HANDLE fp)
@@ -233,7 +233,7 @@ int ADXStream::Open(HANDLE _fp, u_long pos)
 
 void ADXStream::Close()
 {
-	if(start == 0)
+	//if(start == 0)
 		CloseHandle(fp);
 }
 
@@ -303,8 +303,8 @@ void AIX_Demuxer::Open(HANDLE _fp, u_long _stream_count, u_long total_size)
 #endif
 
 #if AIX_SEGMENTED
-	// request the necessary amount of data for headers and one block of samples
-	RequestData(2);
+	// request the necessary amount of data for headers and initial buffer filling
+	RequestData(4);
 #else
 	AIX_CHUNK chunk;
 	AIXP_HEADER aixp;
@@ -385,6 +385,13 @@ void AIX_Demuxer::Read(void* buffer, size_t size)
 #endif
 }
 
+void AIX_Demuxer::Skip(size_t size)
+{
+	DWORD read;
+	for (size_t i = 0; i < size; i += 4)
+		Read(&read, 4);
+}
+
 void AIX_Demuxer::RequestData(u_long count)
 {
 #if AIX_SEGMENTED
@@ -401,8 +408,13 @@ void AIX_Demuxer::RequestData(u_long count)
 		case 'P':
 			Read(&aixp, sizeof(aixp));
 			s = stream[aixp.stream_id];
-			Read(&s->data[s->cached], chunk.next.dw() - sizeof(aixp));
-			s->cached += chunk.next.dw() - sizeof(aixp);
+			if (s)
+			{
+				Read(&s->data[s->cached], chunk.next.dw() - sizeof(aixp));
+				s->cached += chunk.next.dw() - sizeof(aixp);
+			}
+			else
+				Skip(chunk.next.dw() - sizeof(aixp));
 			break;
 		case 'E':	// end parsing
 			return;
@@ -428,7 +440,11 @@ void AIXStream::Read(void* buffer, size_t size)
 #else
 	// we're reading ahead of what's cached from AIX
 	if (pos + size > cached)
-		parent->RequestData(1);	// 1 whole read should be safe
+	{
+		Lock();
+		parent->RequestData(1);	// read until filled enough
+		Unlock();
+	}
 	// still inside cache, just copy over
 	memcpy(buffer, &data[pos], size);
 	pos += size;
@@ -442,8 +458,23 @@ void AIXStream::Seek(u_long _pos, u_long mode)
 #if !AIX_SEGMENTED
 	pos = _pos;
 #else
-	while(_pos > cached)
-		parent->RequestData(1);	// request until we're good
+	if (_pos > cached)
+	{
+		Lock();
+		while (_pos > cached)
+			parent->RequestData(1);	// request until we're good
+		Unlock();
+	}
 	pos = _pos;
 #endif
+}
+
+void AIXStream::Lock()
+{
+	EnterCriticalSection(&parent->crit);
+}
+
+void AIXStream::Unlock()
+{
+	LeaveCriticalSection(&parent->crit);
 }

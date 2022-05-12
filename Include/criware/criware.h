@@ -74,7 +74,7 @@ private:
 	BYTE d[4];
 };
 
-#include "criware_server.h"
+#include "criware_lock.h"
 #include "criware_file.h"
 #include "criware_sound.h"
 #if !XAUDIO2

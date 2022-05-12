@@ -9,7 +9,7 @@
 #include "criware.h"
 #include <chrono>
 
-#define MEASURE_ACCESS		0
+#define MEASURE_ACCESS		1
 
 #if MEASURE_ACCESS
 static double TimeGetTime()
@@ -18,7 +18,7 @@ static double TimeGetTime()
 }
 #endif
 
-int OpenAIX(const char* filename, AIX_Demuxer**obj)
+int OpenAIX(const char* filename, AIX_Demuxer** obj)
 {
 	*obj = nullptr;
 
@@ -102,17 +102,19 @@ static DWORD WINAPI aix_load_thread(LPVOID param)
 	for (int i = obj->stream_no; i < _countof(obj->adxt); i++)
 		obj->adxt[i].state = ADXT_STAT_STOP;
 
-	obj->state = AIXP_STAT_PLAYING;
+	for (int i = 0; i < obj->stream_no; i++)
+		obj->adxt[i].ThResume();
+
 	// kick all playback for all streams at once
 	for (int i = 0; i < obj->stream_no; i++)
 	{
 		obj->adxt[i].state = ADXT_STAT_PLAYING;
 		obj->adxt[i].obj->Play();
-		obj->adxt[i].ThResume();
 	}
+	obj->state = AIXP_STAT_PLAYING;
 
 #if MEASURE_ACCESS
-	ADXD_Log(__FUNCTION__ ": AIX done parsing in %f ms.\n", TimeGetTime() - start);
+	ADXD_Log(__FUNCTION__ ": AIX done parsing in %f ms, %d streams.\n", TimeGetTime() - start, obj->stream_no);
 #endif
 
 	obj->th = 0;
@@ -130,33 +132,122 @@ void aix_start(AIXP_Object* obj, const char* fname)
 		obj->adxt[i].is_aix = 1;
 	}
 
+#if 0	// threaded loading
 	// just in case two AIX try to boot on the same object
 	if (obj->th)
 		WaitForSingleObject(obj->th, INFINITE);
 
 	obj->th = CreateThread(nullptr, 0, aix_load_thread, obj, 0, nullptr);
+#else
+
+#if MEASURE_ACCESS
+	double start = TimeGetTime();
+	ADXD_Log(__FUNCTION__ ": preparing AIX %s...\n", obj->fname);
+#endif
+
+	AIX_Demuxer* aix;
+	if (OpenAIX(obj->fname, &aix) == 0)
+	{
+		obj->state = AIXP_STAT_ERROR;
+		for (int i = 0; i < _countof(obj->adxt); i++)
+			obj->adxt[i].state = ADXT_STAT_ERROR;
+		return;
+	}
+	obj->demuxer = aix;
+	obj->stream_no = aix->stream_count;
+
+	// create the necessary buffers
+	//ADX_lock();
+	for (int i = 0; i < obj->stream_no; i++)
+	{
+		ADX_lock();
+		obj->adxt[i].state = ADXT_STAT_PREP;
+		obj->adxt[i].stream = aix->stream[i];
+		obj->adxt[i].obj = adxs_FindObj();
+		obj->adxt[i].obj->loops = true;
+		obj->adxt[i].obj->adx = &obj->adxt[i];
+		ADX_unlock();
+		obj->adxt[i].obj->CreateBuffer(obj->adxt[i].stream);
+	}
+	// flag any unused adxt as stopped
+	for (int i = obj->stream_no; i < _countof(obj->adxt); i++)
+		obj->adxt[i].state = ADXT_STAT_STOP;
+	//ADX_unlock();
+
+	for (int i = 0; i < obj->stream_no; i++)
+	{
+		obj->adxt[i].state = ADXT_STAT_PLAYING;
+		obj->adxt[i].obj->Play();
+		obj->adxt[i].ThResume();
+	}
+
+	obj->state = AIXP_STAT_PLAYING;
+
+#if MEASURE_ACCESS
+	ADXD_Log(__FUNCTION__ ": AIX done parsing in %f ms, %d streams.\n", TimeGetTime() - start, obj->stream_no);
+#endif
+
+#endif
 }
 
 void AIXP_Object::Release()
 {
 	if (state != AIXP_STAT_STOP)
 	{
-		// ensure all stream threads are dead
-		for (int i = 0; i < stream_no; i++)
-			adxt[i].ThKill();
-		// now we can release everything
-		for (int i = 0; i < stream_no; i++)
-			adxt[i].Reset();
+#if MEASURE_ACCESS
+		double start = TimeGetTime();
+#endif
 
-		//memset(adxt, 0, sizeof(adxt));
-
-		if (demuxer)
+#if 1
+		// ensure all stream threads are fully suspended
+		for (int i = 0; i < stream_no; i++)
+			adxt[i].state = ADXT_STAT_STOP;
+#if 0
+		SwitchToThread();
+#else	// possibly faster than SwitchToThread
+		int cnt;
+		do
 		{
+			cnt = 0;
+			for (int i = 0; i < stream_no; i++)
+				cnt += adxt[i].th_wait;
+		} while (cnt > 0);
+#endif
+		for (int i = 0; i < stream_no; i++)
+			adxt[i].ThSuspend();
+		// it's now safe to release sound buffers
+		for (int i = 0; i < stream_no; i++)
+		{
+			if (adxt[i].obj)
+			{
+				ADX_lock();
+				adxs_Clear(adxt[i].obj);
+				adxt[i].obj = nullptr;
+				ADX_unlock();
+			}
+		}
+
+#else
+		for(int i = 0; i < stream_no; i++)
+			ADXT_Stop(&adxt[i]);
+#endif
+		// drop streams and demuxer
+		for (int i = 0; i < stream_no; i++)
+		{
+			if (adxt[i].stream)
+			{
+				delete adxt[i].stream;
+				adxt[i].stream = nullptr;
+			}
 			delete demuxer;
 			demuxer = nullptr;
 		}
 
 		state = AIXP_STAT_STOP;
 		stream_no = 0;
+
+#if MEASURE_ACCESS
+		ADXD_Log(__FUNCTION__ ": AIX releasing in %f ms.\n", TimeGetTime() - start);
+#endif
 	}
 }

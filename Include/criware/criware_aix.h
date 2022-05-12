@@ -84,6 +84,12 @@ public:
 	const char* fname;
 };
 
+typedef struct AIXP_WORK
+{
+	u_long magic;
+	AIXP_Object* obj;
+} AIXP_WORK;
+
 int OpenAIX(const char* filename, AIX_Demuxer** obj);
 
 void aix_start(AIXP_Object* obj, const char* fname);

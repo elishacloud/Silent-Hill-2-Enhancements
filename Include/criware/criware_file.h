@@ -222,17 +222,20 @@ public:
 		pos_cache(0)
 #endif
 	{
-
+		InitializeCriticalSection(&crit);
 	}
 
 	virtual ~AIX_Demuxer()
 	{
+		DeleteCriticalSection(&crit);
+
 		Close();
 	}
 
 	void Open(HANDLE fp, u_long stream_count, u_long total_size);
 	void Close();
 	void Read(void* buffer, size_t size);
+	void Skip(size_t size);
 
 #if STR_AIX_CACHING
 	void InitCache();
@@ -240,6 +243,7 @@ public:
 	void RequestData(u_long count);
 
 	HANDLE fp;
+	CRITICAL_SECTION crit;
 	AIXStream** stream;
 	u_long stream_count;
 #if STR_AIX_CACHING
@@ -276,6 +280,9 @@ public:
 	virtual void Read(void* buffer, size_t size);
 	virtual void Seek(u_long pos, u_long mode);
 	virtual u_long Decode(int16_t* buffer, unsigned samples_needed, bool looping_enabled);
+
+	void Lock();
+	void Unlock();
 
 	AIX_Demuxer* parent;
 	u_long stream_id,

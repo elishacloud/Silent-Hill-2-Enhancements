@@ -9,7 +9,7 @@
 #include "criware.h"
 #include <chrono>
 
-#define MEASURE_ACCESS		0
+#define MEASURE_ACCESS		1
 
 #if MEASURE_ACCESS
 static double TimeGetTime()
@@ -165,19 +165,22 @@ void adx_StartFname(ADXT_Object* obj, const char* fname)
 	ADXStream* stream;
 	OpenADX(fname, &stream);
 
+	ADX_lock();
 	obj->state = ADXT_STAT_PLAYING;
 	obj->stream = stream;
 	obj->obj = adxs_FindObj();
-	obj->obj->loops = true;
+	obj->obj->loops = stream->loop_enabled;
 	obj->obj->adx = obj;
+	ADX_unlock();
+
+	obj->obj->CreateBuffer(stream);
+	obj->ThResume();
+
+	obj->obj->Play();	
 
 #if MEASURE_ACCESS
 	ADXD_Log(__FUNCTION__ ": ADX done parsing in %f ms.\n", TimeGetTime() - start);
 #endif
-
-	obj->obj->CreateBuffer(stream);
-	obj->obj->Play();
-	obj->ThResume();
 }
 
 //-------------------------------------------
@@ -189,11 +192,11 @@ ADXT_Object::ADXT_Object() : work_size(0),
 	volume(0),
 	state(ADXT_STAT_STOP),
 	is_aix(0),
-	is_blocking(0),
 	set_volume(0),
 	th(CreateThread(nullptr, 0, thread, this, CREATE_SUSPENDED, nullptr)),
 	th_suspended(1),
-	th_exit(0)
+	th_exit(0),
+	th_wait(0)
 {
 }
 
@@ -236,17 +239,24 @@ void ADXT_Object::Reset()
 {
 	if (state != ADXT_STAT_STOP)
 	{
+		state = ADXT_STAT_STOP;
+#if 1
+		while (th_wait);
+#else
+		SwitchToThread();	// make sure the thread is in a safe state
+#endif
 		ThSuspend();
 
-		obj->Stop();
-		obj->Release();
-		obj = nullptr;
-		if (stream)
+		if (obj)
+		{
+			adxs_Clear(obj);
+			obj = nullptr;
+		}
+		if (stream && is_aix == 0)
 		{
 			delete stream;
 			stream = nullptr;
 		}
-		state = ADXT_STAT_STOP;
 	}
 }
 
@@ -256,14 +266,27 @@ void ADXT_Object::Thread()
 	{
 		switch (state)
 		{
+		default:
+			th_wait = 0;
+			break;
 		case ADXT_STAT_PLAYING:
 		case ADXT_STAT_DECEND:
+			th_wait = 1;
 			if(obj)
 				obj->Update();
 			break;
 		}
 
-		Sleep(10);
+		switch (state)
+		{
+		case ADXT_STAT_PLAYING:
+		case ADXT_STAT_DECEND:
+			Sleep(1);
+			break;
+		default:
+			Sleep(0);
+			break;
+		}
 	}
 }
 

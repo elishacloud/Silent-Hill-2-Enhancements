@@ -19,10 +19,10 @@ void ADXD_Error(const char* caption, const char* fmt, ...)
 		char buf[256];
 
 		va_start(ap, fmt);
-		vsprintf_s(buf, fmt, ap);
+		vsprintf_s(buf, sizeof(buf), fmt, ap);
 		va_end(ap);
 
-		MessageBoxA(nullptr, buf, caption, MB_ICONERROR);
+		MessageBoxA(nullptr, buf, caption, MB_ICONERROR | MB_DEFAULT_DESKTOP_ONLY);
 		exit(0);
 	}
 }
@@ -35,30 +35,29 @@ void ADXD_Warning(const char* caption, const char* fmt, ...)
 		char buf[256];
 
 		va_start(ap, fmt);
-		vsprintf_s(buf, fmt, ap);
+		vsprintf_s(buf, sizeof(buf), fmt, ap);
 		va_end(ap);
 
-		MessageBoxA(nullptr, buf, caption, MB_ICONEXCLAMATION);
+		MessageBoxA(nullptr, buf, caption, MB_ICONEXCLAMATION | MB_DEFAULT_DESKTOP_ONLY);
 	}
 }
 
 void ADXD_Log(const char* fmt, ...)
 {
-	UNREFERENCED_PARAMETER(fmt);
+	if (dlevel)
+	{
+		va_list ap;
+		char buf[256];
 
-#if _DEBUG
-	va_list ap;
-	char buf[256];
+		va_start(ap, fmt);
+		vsprintf_s(buf, fmt, ap);
+		va_end(ap);
 
-	va_start(ap, fmt);
-	vsprintf_s(buf, fmt, ap);
-	va_end(ap);
-
-	OutputDebugStringA(buf);
-#endif
+		OutputDebugStringA(buf);
+	}
 }
 
 void ADXD_SetLevel(int level)
 {
-	dlevel = level < 2 ? 1 : 0;
+	dlevel = level < 2 ? 0 : 1;
 }

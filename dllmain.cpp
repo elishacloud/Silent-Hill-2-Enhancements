@@ -229,6 +229,12 @@ void DelayedStart()
 		HookDirectInput8Create();
 	}
 
+	// Hook CreateFile API when using UseCustomModFolder
+	if (UseCustomModFolder)
+	{
+		InstallFileSystemHooks(m_hModule);
+	}
+
 	// Enable No-CD Patch
 	if (NoCDPatch)
 	{
@@ -602,18 +608,6 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		if (DisableGameUX)
 		{
 			InstallCreateProcessHooks();
-		}
-
-		// Hook CreateFile API when using UseCustomModFolder
-		if (UseCustomModFolder)
-		{
-			InstallFileSystemHooks(m_hModule);
-		}
-
-		// Set single core affinity
-		if (SingleCoreAffinityLegacy)
-		{
-			SetSingleCoreAffinity();
 		}
 
 		// Set things to load on delayed access

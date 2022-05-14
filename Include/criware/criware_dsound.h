@@ -17,7 +17,7 @@ public:
 	virtual void CreateBuffer(CriFileStream* stream);
 
 	virtual void Play();
-	virtual int  Stop();
+	virtual void Stop();
 	virtual void Update();
 
 	virtual void SendData();
@@ -29,13 +29,9 @@ private:
 	u_long GetPlayedSamples();
 	int GetStatus();
 
-	void Lock(u_long size);
-	void Unlock();
 	void Fill(u_long size);
 
 	LPDIRECTSOUNDBUFFER pBuf;
-	short *ptr1, *ptr2;
-	DWORD bytes1, bytes2;
 };
 
 extern SndObjBase* sound_obj_tbl[SOUND_MAX_OBJ];

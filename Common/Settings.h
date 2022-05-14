@@ -128,7 +128,7 @@
 	visit(SmallFontWidth, 16) \
 	visit(SmallFontHeight, 24) \
 	visit(SpaceSize, 7) \
-	visit(EnableCriWareReimplementation, 2) \
+	visit(EnableCriWareReimplementation, 1) \
 
 #define VISIT_FLOAT_SETTINGS(visit) \
 	visit(fog_layer1_x1, 0.250f) \

@@ -33,13 +33,15 @@ const char* ADXFIC_GetFileName(ADXFIC_Object* obj, u_long index)
 	return obj->files[index].filename.c_str();
 }
 
-// no need to fill these, it's just some leftovers from the XBOX library
+// no need to fill these, it's just some leftovers from the XBOX DVD library
 void ADXWIN_SetupDvdFs(void*) {}
 void ADXWIN_ShutdownDvdFs() {}
 
-// directsound setup
+// setup Windows sound
 void ADXWIN_SetupSound(void* pDS8)
 {
+	ADX_lock_init();
+
 #if !XAUDIO2
 	adxs_SetupDSound((LPDIRECTSOUND8)pDS8);
 #else
@@ -50,27 +52,21 @@ void ADXWIN_SetupSound(void* pDS8)
 #endif
 }
 
-// close directsound
+// close Windows sound
 void ADXWIN_ShutdownSound()
 {
 	adxs_Release();
-}
-
-// initialize the threads used by the ADX server
-void ADXM_SetupThrd(int* priority /* ignored */)
-{
-	UNREFERENCED_PARAMETER(priority);
-
-	ADX_lock_init();
-	server_create();
-}
-
-// destroy the ADX threads
-void ADXM_ShutdownThrd()
-{
-	server_destroy();
 	ADX_lock_close();
 }
+
+// initialize the threads used by the ADX server, leave empty
+void ADXM_SetupThrd(int* priority)
+{
+	UNREFERENCED_PARAMETER(priority);
+}
+
+// destroy the ADX threads, leave empty
+void ADXM_ShutdownThrd() {}
 
 // leave empty
 // this is called inside the performance thread, but it's useless
@@ -182,14 +178,23 @@ AIXP_Object* AIXP_Create(int maxntr, int maxnch, void* work, int worksize)
 {
 	UNREFERENCED_PARAMETER(maxntr);
 
-	AIXP_Object* obj = new AIXP_Object;
+	AIXP_WORK* w = (AIXP_WORK*)work;
 
-	for (int i = 0; i < _countof(obj->adxt); i++)
+	// make sure we initialize the AIXP object only once
+	if (w->magic != 'AIXP')
 	{
-		obj->adxt[i].maxch = (u_short)maxnch;
-		obj->adxt[i].work_size = worksize;
-		obj->adxt[i].work = work;
+		w->magic = 'AIXP';
+		w->obj = new AIXP_Object;
+
+		for (int i = 0; i < _countof(w->obj->adxt); i++)
+		{
+			w->obj->adxt[i].maxch = (u_short)maxnch;
+			w->obj->adxt[i].work_size = worksize;
+			w->obj->adxt[i].work = work;
+		}
 	}
+
+	auto obj = w->obj;
 
 	return obj;
 }
@@ -200,7 +205,7 @@ void AIXP_Destroy(AIXP_Object* obj)
 	if (obj)
 	{
 		AIXP_Stop(obj);
-		delete obj;
+	//	delete obj;
 	}
 }
 
@@ -228,6 +233,9 @@ void AIXP_StartFname(AIXP_Object* obj, const char* fname, void* atr)
 
 	if (obj == nullptr)
 		return;
+
+	if (obj->state != AIXP_STAT_STOP)
+		AIXP_Stop(obj);
 
 	aix_start(obj, fname);
 }

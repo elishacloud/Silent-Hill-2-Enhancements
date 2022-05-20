@@ -95,10 +95,10 @@ public:
 	// state flags
 	u_short is_aix : 1,
 		set_volume : 1,
-	// threading
+		// threading
 		th_suspended : 1,
-		th_exit : 1,
-		th_wait : 1;
+		th_exit : 1;
+	volatile int th_wait;
 	HANDLE th;
 
 private:

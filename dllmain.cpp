@@ -454,6 +454,12 @@ void DelayedStart()
 		PatchSaveGameSound();
 	}
 
+	//Fixes an issue where the game would play the wrong background music when pulling up the inventory screen under certain circumstances
+	if (FixInventoryBGM)
+	{
+		PatchInventoryBGMBug();
+	}
+
 	// Fixes at chainsaw and final Marry boss's mouth attack.
 	if (SpecificSoundLoopFix)
 	{

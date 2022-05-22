@@ -344,6 +344,9 @@
     <ClCompile Include="Include\criware\criware_lock.cpp">
       <Filter>Include\criware</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\PatchInventoryBGM.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">

@@ -6,22 +6,28 @@
 
 void* jmp_return;
 void* jmp_to_loop;
+DWORD EventIndex;
 
 __declspec(naked) void __stdcall FixInventoryBGMBugASM()
 {
 	__asm
 	{
-		cmp eax, 06
-			jne code
-		jmp jmp_return
+		mov [EventIndex],eax
+	}
 
-		code:
-			cmp eax, 04
-				jne jmpPoint
+	if(EventIndex == 0x4 || EventIndex == 0x5 || EventIndex == 0x6 || EventIndex == 0x10)
+	{
+		__asm
+		{
 			jmp jmp_return
-
-		jmpPoint:
+		}
+	}
+	else
+	{
+		__asm
+		{
 			jmp jmp_to_loop
+		}
 	}
 }
 

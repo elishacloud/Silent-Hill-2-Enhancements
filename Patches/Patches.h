@@ -96,6 +96,7 @@ void PatchFogParameters();
 void PatchFullscreenImages();
 void PatchFullscreenVideos();
 void PatchGameLoad();
+void PatchInventoryBGMBug();
 void PatchLockScreenPosition();
 void PatchMainMenu();
 void PatchMainMenuTitlePerLang();

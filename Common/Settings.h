@@ -39,6 +39,7 @@
 	visit(FixFMVResetIssue, true) \
 	visit(FixGPUAntiAliasing, true) \
 	visit(FixHangOnEsc, true) \
+	visit(FixInventoryBGM, true) \
 	visit(FixMemoFading, true) \
 	visit(FixMissingWallChunks, true) \
 	visit(FixSaveBGImage, true) \

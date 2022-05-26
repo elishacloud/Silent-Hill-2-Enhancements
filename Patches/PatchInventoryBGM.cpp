@@ -6,44 +6,48 @@
 
 void* jmp_return;
 void* jmp_to_loop;
+
+DWORD* muteSound;
 DWORD EventIndex;
 
 __declspec(naked) void __stdcall FixInventoryBGMBugASM()
 {
+	EventIndex = GetEventIndex();
+	if (GetMenuEvent() == 0xd || GetMenuEvent() == 0x11 && EventIndex == 0x0)
+	{
+		if (EventIndex == 0xb)
+		{
+			*muteSound = 0xF;
+		}
+
+		if (EventIndex == 0x4 || EventIndex == 0x5 || EventIndex == 0x6 || EventIndex == 0x7 || EventIndex == 0x9 || EventIndex == 0x10 || GetMenuEvent() == 0x11)
+		{
+			__asm
+			{
+				jmp jmp_return
+			}
+		}
+	}
 	__asm
 	{
-		mov [EventIndex],eax
-	}
-
-	if(EventIndex == 0x4 || EventIndex == 0x5 || EventIndex == 0x6 || EventIndex == 0x10)
-	{
-		__asm
-		{
-			jmp jmp_return
-		}
-	}
-	else
-	{
-		__asm
-		{
-			jmp jmp_to_loop
-		}
+		jmp jmp_to_loop
 	}
 }
 
 void PatchInventoryBGMBug()
 {
+	
 	constexpr BYTE BuggyBGMBytes[] = { 0x83, 0xf8, 0x04, 0x75, 0x0d, 0x68 };
-	const DWORD BuggyBGMAddr = SearchAndGetAddresses(0x05166E8, 0x0516A18, 0x0516338, BuggyBGMBytes, sizeof(BuggyBGMBytes), 0);
+	DWORD BuggyBGMAddr = SearchAndGetSpecifiedAddr(0x05166c9, 0x5169F9, 0x516319, BuggyBGMBytes, sizeof(BuggyBGMBytes), 0x1f);
 
 	if (!BuggyBGMAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
+	memcpy(&muteSound, (DWORD*)(BuggyBGMAddr - 4), sizeof(DWORD));
+	jmp_return = reinterpret_cast<void*>(BuggyBGMAddr + 0x24);
+	jmp_to_loop = reinterpret_cast<void*>(BuggyBGMAddr + 0x31);
 
-	jmp_return = reinterpret_cast<void*>(BuggyBGMAddr + 0x5);
-	jmp_to_loop = reinterpret_cast<void*>(BuggyBGMAddr + 0x12);
-
-	WriteJMPtoMemory(reinterpret_cast<BYTE*>(BuggyBGMAddr), *FixInventoryBGMBugASM);
+	WriteJMPtoMemory(reinterpret_cast<BYTE*>(BuggyBGMAddr), *FixInventoryBGMBugASM,0x24);
 }

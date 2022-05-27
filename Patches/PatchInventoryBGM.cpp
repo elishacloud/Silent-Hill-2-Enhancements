@@ -11,18 +11,20 @@ DWORD* muteSound;
 DWORD EventIndex;
 BYTE MenuEventIndex;
 
+// BGM Fading out instructions
 __declspec(naked) void __stdcall FixInventoryBGMBugASM()
 {
 	EventIndex = GetEventIndex();
 	MenuEventIndex = GetMenuEvent();
-
+	// Works only if this conditions are met, if you want to mute sound on specific area you can add a new line or simply you can create
+	// new comparison and send them through jmp_return address
 	if (MenuEventIndex == 0xd || MenuEventIndex == 0x11 && EventIndex == 0x0)
 	{
 		if (EventIndex == 0xb)
 		{
 			*muteSound = 0xF;
 		}
-
+		
 		if (EventIndex > 3 && EventIndex < 10 || EventIndex == 0x10 || MenuEventIndex == 0x11)
 		{
 			__asm
@@ -39,15 +41,16 @@ __declspec(naked) void __stdcall FixInventoryBGMBugASM()
 
 void PatchInventoryBGMBug()
 {
-	
 	constexpr BYTE BuggyBGMBytes[] = { 0x83, 0xf8, 0x04, 0x75, 0x0d, 0x68 };
 	DWORD BuggyBGMAddr = SearchAndGetSpecifiedAddr(0x05166c9, 0x5169F9, 0x516319, BuggyBGMBytes, sizeof(BuggyBGMBytes), 0x1f);
 
+	// Check errors
 	if (!BuggyBGMAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
+	
 	memcpy(&muteSound, (DWORD*)(BuggyBGMAddr - 4), sizeof(DWORD));
 	jmp_return = reinterpret_cast<void*>(BuggyBGMAddr + 0x24);
 	jmp_to_loop = reinterpret_cast<void*>(BuggyBGMAddr + 0x31);

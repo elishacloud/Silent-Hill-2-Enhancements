@@ -9,18 +9,21 @@ void* jmp_to_loop;
 
 DWORD* muteSound;
 DWORD EventIndex;
+BYTE MenuEventIndex;
 
 __declspec(naked) void __stdcall FixInventoryBGMBugASM()
 {
 	EventIndex = GetEventIndex();
-	if (GetMenuEvent() == 0xd || GetMenuEvent() == 0x11 && EventIndex == 0x0)
+	MenuEventIndex = GetMenuEvent();
+
+	if (MenuEventIndex == 0xd || MenuEventIndex == 0x11 && EventIndex == 0x0)
 	{
 		if (EventIndex == 0xb)
 		{
 			*muteSound = 0xF;
 		}
 
-		if (EventIndex == 0x4 || EventIndex == 0x5 || EventIndex == 0x6 || EventIndex == 0x7 || EventIndex == 0x9 || EventIndex == 0x10 || GetMenuEvent() == 0x11)
+		if (EventIndex > 3 && EventIndex < 10 || EventIndex == 0x10 || MenuEventIndex == 0x11)
 		{
 			__asm
 			{

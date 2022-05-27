@@ -8,7 +8,6 @@ void *GetAddressOfData(const void *data, size_t len, DWORD step, DWORD start, DW
 bool CheckMemoryAddress(void *dataAddr, void *dataBytes, size_t dataSize, bool WriteLog = true);
 void *CheckMultiMemoryAddress(void *dataAddr10, void *dataAddr11, void *dataAddrDC, void *dataBytes, size_t dataSize);
 DWORD SearchAndGetAddresses(DWORD dataAddr10, DWORD dataAddr11, DWORD dataAddrDC, const BYTE *dataBytes, size_t dataSize, int ByteDelta);
-DWORD SearchAndGetSpecifiedAddr(DWORD dataAddr10, DWORD dataAddr11, DWORD dataAddrDC, const BYTE* dataBytes, size_t dataSize, int ByteDelta);
 DWORD ReadSearchedAddresses(DWORD dataAddr10, DWORD dataAddr11, DWORD dataAddrDC, const BYTE *dataBytes, size_t dataSize, int ByteDelta);
 void SearchAndLogAddress(DWORD SearchAddress);
 bool UpdateMemoryAddress(void *dataAddr, const void *dataBytes, size_t dataSize);

@@ -32,3 +32,9 @@
 [submodule "external/csvparser"]
 	path = External/csvparser
 	url = https://github.com/d99kris/rapidcsv
+[submodule "External/xxHash"]
+	path = External/xxHash
+	url = https://github.com/Cyan4973/xxHash
+[submodule "External/tinyxml2"]
+	path = External/tinyxml2
+	url = https://github.com/leethomason/tinyxml2

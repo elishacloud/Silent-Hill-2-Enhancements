@@ -15,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "depots", "depots", "{11B782
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "stb", "ReShade\stb\stb.vcxproj", "{723BDEF8-4A39-4961-BDAB-54074012FF47}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Launcher", "Launcher\Launcher.vcxproj", "{35E748A9-07CD-4996-9270-DA4C77DB1DC4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -33,6 +35,10 @@ Global
 		{723BDEF8-4A39-4961-BDAB-54074012FF47}.Debug|Win32.Build.0 = Debug|Win32
 		{723BDEF8-4A39-4961-BDAB-54074012FF47}.Release|Win32.ActiveCfg = Release|Win32
 		{723BDEF8-4A39-4961-BDAB-54074012FF47}.Release|Win32.Build.0 = Release|Win32
+		{35E748A9-07CD-4996-9270-DA4C77DB1DC4}.Debug|Win32.ActiveCfg = Debug|Win32
+		{35E748A9-07CD-4996-9270-DA4C77DB1DC4}.Debug|Win32.Build.0 = Debug|Win32
+		{35E748A9-07CD-4996-9270-DA4C77DB1DC4}.Release|Win32.ActiveCfg = Release|Win32
+		{35E748A9-07CD-4996-9270-DA4C77DB1DC4}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -40,6 +46,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{D1C2099B-BEC7-4993-8947-01D4A1F7EAE2} = {11B78243-91C3-4357-9FDD-4EAFBF4EE52B}
 		{723BDEF8-4A39-4961-BDAB-54074012FF47} = {11B78243-91C3-4357-9FDD-4EAFBF4EE52B}
+		{35E748A9-07CD-4996-9270-DA4C77DB1DC4} = {11B78243-91C3-4357-9FDD-4EAFBF4EE52B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D62E660A-3A0C-4026-8DCB-D3B7959E0951}

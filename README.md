@@ -108,9 +108,11 @@ This project uses code from several other projects. Below is a list of locations
  * [ReShade](https://github.com/crosire/reshade): Includes code from ReShade for supporting custom shaders.
  * [SPIRV](https://github.com/KhronosGroup/SPIRV-Headers): Includes code from SPIRV.
  * [stb](https://github.com/nothings/stb): Includes code from stb.
+ * [TinyXML-2](https://github.com/leethomason/tinyxml2): Used in the Launcher.
  * [utfcpp](https://github.com/nemtrif/utfcpp): Includes code from utfcpp.
  * [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader): Includes code for loading ASI plugins and code for loading modules from a module resource.
  * [Widescreen Fix](https://github.com/ThirteenAG/WidescreenFixesPack/releases/tag/sh2): Includes code from the Widescreen Fix by [ThirteenAG](https://github.com/ThirteenAG) and [AeroWidescreen](https://github.com/AeroWidescreen).
+ * [xxHash](https://github.com/Cyan4973/xxHash): Used in the Launcher.
 
 ### Development
 This project is written in C++ using Microsoft Visual Studio Community 2017.

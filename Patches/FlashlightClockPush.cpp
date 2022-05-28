@@ -24,7 +24,7 @@
 DWORD FlashlightClockValue;
 void *jmpFlashlightClock;
 
-// ASM functions to fix an issue with lighting in a certian room
+// ASM functions to fix an issue with lighting in a certain room
 __declspec(naked) void __stdcall FlashlightClockASM()
 {
 	__asm

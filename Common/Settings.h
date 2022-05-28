@@ -8,14 +8,14 @@
 	visit(AutoUpdateModule, true) \
 	visit(CatacombsMeatRoomFix, true) \
 	visit(ChangeClosetSpawn, true) \
-	visit(CheckForAdminAccess, true) \
 	visit(CheckCompatibilityMode, true) \
+	visit(CheckForAdminAccess, true) \
 	visit(ClosetCutsceneFix, true) \
 	visit(CreateLocalFix, true) \
 	visit(d3d8to9, true) \
 	visit(DisableCutsceneBorders, true) \
-	visit(DisableGameUX, true) \
 	visit(DisableEnlargedText, true) \
+	visit(DisableGameUX, true) \
 	visit(DisableHighDPIScaling, true) \
 	visit(DisableLogging, false) \
 	visit(DisableRedCross, false) \
@@ -47,8 +47,8 @@
 	visit(FlashlightFlickerFix, true) \
 	visit(FogParameterFix, true) \
 	visit(FogSpeedFix, true) \
-	visit(GamepadControlsFix, true) \
 	visit(GameLoadFix, true) \
+	visit(GamepadControlsFix, true) \
 	visit(HalogenLightFix, true) \
 	visit(HookDirect3D, true) \
 	visit(HookDirectSound, true) \
@@ -83,8 +83,8 @@
 	visit(RestoreVibration, true) \
 	visit(Room312ShadowFix, true) \
 	visit(RoomLightingFix, true) \
-	visit(SaveGameSoundFix, true) \
 	visit(RowboatAnimationFix, true) \
+	visit(SaveGameSoundFix, true) \
 	visit(SetBlackPillarBoxes, true) \
 	visit(Southpaw, false) \
 	visit(SpecificSoundLoopFix, true) \
@@ -102,34 +102,34 @@
 	visit(WoodsideRoom205Fix, true)
 
 #define VISIT_INT_SETTINGS(visit) \
-	visit(AudioFadeOutDelayMS, 10) \
-	visit(AntiAliasing, 0) \
 	visit(AnisotropicFiltering, 1) \
+	visit(AntiAliasing, 0) \
+	visit(AudioFadeOutDelayMS, 10) \
+	visit(CustomFontCharHeight, 32) \
+	visit(CustomFontCharWidth, 20) \
 	visit(CustomFontCol, 100) \
 	visit(CustomFontRow, 14) \
-	visit(CustomFontCharWidth, 20) \
-	visit(CustomFontCharHeight, 32) \
+	visit(EnableCriWareReimplementation, 1) \
 	visit(fog_transparency_layer1, 128) \
 	visit(fog_transparency_layer2, 112) \
 	visit(FogFix, 0xFFFF) /* Overloading the old 'fog_custom_on' option */ \
 	visit(FogLayerFix, 0xFFFF) /* Overloading the old 'Fog2DFix' option */ \
+	visit(FPSLimit, 0) \
 	visit(FullscreenImages, 3) \
 	visit(FullscreenVideos, 3) \
+	visit(IncreaseNoiseEffectRes, 768) \
 	visit(LetterSpacing, 2) \
-	visit(NormalFontWidth, 20) \
 	visit(NormalFontHeight, 30) \
+	visit(NormalFontWidth, 20) \
 	visit(PadNumber, 0) \
+	visit(RestoreSearchCamMovement, 1) \
 	visit(ResX, 0) \
 	visit(ResY, 0) \
-	visit(FPSLimit, 0) \
-	visit(IncreaseNoiseEffectRes, 768) \
-	visit(RestoreSearchCamMovement, 1) \
 	visit(ScreenMode, 0xFFFF) /* Overloading the old 'EnableWndMode' and 'FullscreenWndMode' options */ \
 	visit(SingleCoreAffinityLegacy, 0) \
-	visit(SmallFontWidth, 16) \
 	visit(SmallFontHeight, 24) \
-	visit(SpaceSize, 7) \
-	visit(EnableCriWareReimplementation, 1) \
+	visit(SmallFontWidth, 16) \
+	visit(SpaceSize, 7)
 
 #define VISIT_FLOAT_SETTINGS(visit) \
 	visit(fog_layer1_x1, 0.250f) \

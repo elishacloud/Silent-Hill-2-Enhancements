@@ -49,11 +49,11 @@ private:
 	DWORD ShadowFadingCounter = 0;
 	DWORD ShadowFadingIntensity = 0;	// 0 to 100
 
-	// Xbox shadows to help remove self shadows in certian locations
+	// Xbox shadows to help remove self shadows in certain locations
 	bool EnableXboxShadows = false;
 	bool shadowVolumeFlag = false;
 
-	// Remove Environment Flicker by skipping frames in certian cutscenes
+	// Remove Environment Flicker by skipping frames in certain cutscenes
 	bool SkipSceneFlag = false;
 	DWORD LastCutsceneID = 0;
 	float LastCameraPos = 0;

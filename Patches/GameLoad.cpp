@@ -445,7 +445,7 @@ void RunGameLoad()
 		PauseValueUnSet = true;
 	}
 
-	// Disable quick save during certian in-game voice events and during fullscreen image events
+	// Disable quick save during certain in-game voice events and during fullscreen image events
 	if (*InGameVoiceEvent != 0 || GetFullscreenImageEvent() == 2)
 	{
 		DisableQuickSave = true;

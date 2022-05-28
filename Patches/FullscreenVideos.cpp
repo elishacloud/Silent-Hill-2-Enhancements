@@ -35,7 +35,7 @@ namespace
 	DWORD VideoResX;				// New video X size
 	DWORD VideoResY;				// New video Y size
 
-	bool ForceCropped = false;		// Force cropping certian videos
+	bool ForceCropped = false;		// Force cropping certain videos
 
 	void *WidthAddr1;
 	void *WidthAddr2;

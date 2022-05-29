@@ -445,6 +445,16 @@ void RunGameLoad()
 		PauseValueUnSet = true;
 	}
 
+	// Clear InGameVoiceEvent when Room ID changes and upon end of cutscene ID 0x4E (Laura scares James with the piano)
+	static DWORD LastRoomID = 0, LastCutsceneID = 0;
+	DWORD CurrentRoomID = GetRoomID(), CurrentCutsceneID = GetCutsceneID();
+	if (LastRoomID != CurrentRoomID || (LastCutsceneID == 0x4E && CurrentCutsceneID != 0x4E))
+	{
+		*InGameVoiceEvent = 0;
+	}
+	LastRoomID = CurrentRoomID;
+	LastCutsceneID = CurrentCutsceneID;
+
 	// Disable quick save during certain in-game voice events and during fullscreen image events
 	if (*InGameVoiceEvent != 0 || GetFullscreenImageEvent() == 2)
 	{

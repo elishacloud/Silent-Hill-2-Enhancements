@@ -3,8 +3,8 @@
 #include <vector>
 #include <string>
 #include <algorithm>
-#include "..\External\tinyxml2\tinyxml2.h"
-#include "..\External\xxHash\xxh3.h"
+#include "External\tinyxml2\tinyxml2.h"
+#include "External\xxHash\xxh3.h"
 
 using namespace tinyxml2;
 std::wstring MultiToWide_s(const char* multi);

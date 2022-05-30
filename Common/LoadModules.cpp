@@ -147,7 +147,7 @@ void ExtractD3DX9Tools()
 
 		// Append virtual store and Silent Hill 2 to local appdata path
 		wchar_t d3dx9zip[MAX_PATH];
-		wcscpy(d3dx9zip, sh2path);
+		wcscpy_s(d3dx9zip, sh2path);
 		if (!PathAppend(d3dx9zip, L"D3DX9.zip"))
 		{
 			break;

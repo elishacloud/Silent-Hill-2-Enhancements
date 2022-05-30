@@ -22,13 +22,25 @@
 #include "CConfig.h"
 #include <memory>
 #include <shellapi.h>
+#include "Patches\Patches.h"
+#include "Logging\Logging.h"
 
 #define SH2CLASS	L"ConfigToolClass"
 
-HINSTANCE hInst;
+// For Logging
+std::ofstream LOG;
+
+HINSTANCE m_hModule;
 HFONT hFont, hBold;
 bool bIsLooping = true,
 	bLaunch = false;
+
+// Unsued shared variables
+SH2VERSION GameVersion = SH2V_UNKNOWN;
+bool EnableCustomShaders = false;
+bool AutoScaleVideos = false;
+bool AutoScaleImages = false;
+HWND DeviceWindow = nullptr;
 
 // all controls used by the program
 CWnd hWnd;												// program window
@@ -119,12 +131,10 @@ void RestoreChanges()
 	}
 }
 
-void CheckArgumentsForPID();
-void RemoveVirtualStoreFiles();
-void CheckAdminAccess();
-
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
+	Logging::EnableLogging = false;
+
 	// boot in admin mode
 	CheckArgumentsForPID();
 	RemoveVirtualStoreFiles();
@@ -210,7 +220,7 @@ std::shared_ptr<CCombined> MakeControl(CWnd &hParent, int section, int option, i
 	case CConfigOption::TYPE_CHECK:
 		{
 			c = std::make_shared<CFieldCheck>();
-			c->CreateWindow(name.c_str(), X, Y, W - 20, 25, hParent, hInst, hFont);
+			c->CreateWindow(name.c_str(), X, Y, W - 20, 25, hParent, m_hModule, hFont);
 			c->SetHover(name.c_str(), desc.c_str(), &hDesc);
 			// set current value
 			c->SetConfigPtr(&cfg.section[section].option[option]);
@@ -220,7 +230,7 @@ std::shared_ptr<CCombined> MakeControl(CWnd &hParent, int section, int option, i
 	case CConfigOption::TYPE_LIST:
 		{
 			c = std::make_shared<CFieldList>();
-			c->CreateWindow(name.c_str(), X, Y, W - 20, 25, hParent, hInst, hFont);
+			c->CreateWindow(name.c_str(), X, Y, W - 20, 25, hParent, m_hModule, hFont);
 			for (size_t j = 0, sj = cfg.section[section].option[option].value.size(); j < sj; j++)
 				c->AddString(cfg.GetValueString(section, option, (int)j).c_str());
 			c->SetHover(name.c_str(), desc.c_str(), &hDesc);
@@ -232,7 +242,7 @@ std::shared_ptr<CCombined> MakeControl(CWnd &hParent, int section, int option, i
 	case CConfigOption::TYPE_PAD:
 		{
 			c = std::make_shared<CFieldList>();
-			c->CreateWindow(cfg.GetOptionString(section, option).c_str(), X, Y, W - 20, 25, hParent, hInst, hFont);
+			c->CreateWindow(cfg.GetOptionString(section, option).c_str(), X, Y, W - 20, 25, hParent, m_hModule, hFont);
 			// TODO: populate list with controller enumeration
 		}
 		break;
@@ -273,7 +283,7 @@ void PopulateTab(int section)
 
 		// create group control
 		std::shared_ptr<CCtrlGroup> gp = std::make_shared<CCtrlGroup>();
-		gp->CreateWindow(cfg.GetGroupLabel(section, (int)i).c_str(), rect.left + 2, Y + rect.top - 20, rect.right - rect.left - 6, rows * 25 + 30, hTab, hInst, hFont);
+		gp->CreateWindow(cfg.GetGroupLabel(section, (int)i).c_str(), rect.left + 2, Y + rect.top - 20, rect.right - rect.left - 6, rows * 25 + 30, hTab, m_hModule, hFont);
 		hGroup.push_back(gp);
 
 		// calculate size and position of the group
@@ -318,7 +328,7 @@ void UpdateTab(int section)
 
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-	hInst = hInstance; // Store instance handle in our global variable
+	m_hModule = hInstance; // Store instance handle in our global variable
 	hWnd.CreateWindow(SH2CLASS, GetPrgString(STR_TITLE).c_str(), WS_OVERLAPPEDWINDOW & ~(WS_MAXIMIZEBOX | WS_THICKFRAME),
 		CW_USEDEFAULT, CW_USEDEFAULT, 800, 620, nullptr, hInstance);
 	if (!hWnd)

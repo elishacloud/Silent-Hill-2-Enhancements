@@ -17,7 +17,7 @@
 */
 
 #include "CConfig.h"
-#include "Settings.h"	// Elisha's ini loader
+#include "Common\Settings.h"
 
 /////////////////////////////////////////////////
 // Various helpers
@@ -122,10 +122,10 @@ struct cb_parse
 	std::string error;
 };
 
-void __stdcall ParseCallback(char* lpName, char* lpValue, void *lpParam)
+void __stdcall ParseCallback_Config(char* lpName, char* lpValue, void *lpParam)
 {
 	// Check for valid entries
-	if (!Ini_IsValidSettings(lpName, lpValue)) return;
+	if (!IsValidSettings(lpName, lpValue)) return;
 
 	auto p = reinterpret_cast<cb_parse*>(lpParam);
 	for (size_t i = 0, si = p->list.size(); i < si; i++)
@@ -147,7 +147,7 @@ void __stdcall ParseCallback(char* lpName, char* lpValue, void *lpParam)
 void CConfig::SetFromIni(LPCWSTR lpName, LPCWSTR error_caption)
 {
 	// attempt to load the ini
-	auto ini = Ini_Read(lpName);
+	auto ini = Read(lpName);
 	if (ini == nullptr) return;
 
 	cb_parse p;
@@ -158,7 +158,7 @@ void CConfig::SetFromIni(LPCWSTR lpName, LPCWSTR error_caption)
 			p.list.push_back(&section[i].option[j]);
 
 	// do the parsing (can be slightly slow)
-	Ini_Parse(ini, ParseCallback, (void*)&p);
+	Parse(ini, ParseCallback_Config, (void*)&p);
 
 	// done, disengage!
 	free(ini);

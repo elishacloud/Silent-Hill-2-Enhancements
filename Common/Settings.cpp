@@ -50,7 +50,7 @@ bool SetValue(char* name);
 bool IsValidSettings(char* name, char* value);
 
 // Get config settings from string (file)
-void __stdcall ParseCallback(char* lpName, char* lpValue)
+void __stdcall ParseCallback(char* lpName, char* lpValue, void*)
 {
 	// Check for valid entries
 	if (!IsValidSettings(lpName, lpValue)) return;
@@ -79,7 +79,7 @@ void __stdcall ParseCallback(char* lpName, char* lpValue)
 }
 
 // Log config settings from string (file)
-void __stdcall LogCallback(char* lpName, char* lpValue)
+void __stdcall LogCallback(char* lpName, char* lpValue, void*)
 {
 	// Check for valid entries
 	if (!IsValidSettings(lpName, lpValue)) return;
@@ -125,7 +125,7 @@ bool IsValidSettings(char* name, char* value)
 }
 
 // Reads szFileName from disk
-char* Read(wchar_t* szFileName)
+char* Read(const wchar_t* szFileName)
 {
 	HANDLE hFile;
 	DWORD dwBytesToRead;
@@ -204,7 +204,7 @@ void EraseCppComments(char* str)
 //  0x20 - space
 //	0x09 - horizontal tab
 //	0x0D - carriage return
-void Parse(char* str, NV NameValueCallback)
+void Parse(char* str, NV NameValueCallback, void* lpParam)
 {
 	char *next_token = nullptr;
 	EraseCppComments(str);
@@ -237,7 +237,7 @@ void Parse(char* str, NV NameValueCallback)
 
 			if (*lvalue && *rvalue)
 			{
-				NameValueCallback(lvalue, rvalue);
+				NameValueCallback(lvalue, rvalue, lpParam);
 			}
 		}
 	}

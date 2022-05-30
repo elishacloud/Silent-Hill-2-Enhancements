@@ -12,6 +12,7 @@ DWORD EventIndex;
 BYTE MenuEventIndex;
 
 // BGM Fading out instructions
+#pragma warning(suppress: 4740)
 __declspec(naked) void __stdcall FixInventoryBGMBugASM()
 {
 	EventIndex = GetEventIndex();

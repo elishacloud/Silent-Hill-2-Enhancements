@@ -171,7 +171,7 @@ VISIT_FLOAT_SETTINGS(DECLARE_FLOAT_SETTINGS);
 
 VISIT_STR_SETTINGS(DECLARE_STR_SETTINGS);
 
-typedef void(__stdcall* NV)(char* name, char* value);
+typedef void(__stdcall* NV)(char* name, char* value, void* lpParam);
 
 extern HMODULE m_hModule;
 extern bool CustomExeStrSet;
@@ -181,8 +181,9 @@ extern bool m_StopThreadFlag;
 extern bool AutoScaleImages;
 extern bool AutoScaleVideos;
 
-char* Read(wchar_t* szFileName);
-void Parse(char* str, NV NameValueCallback);
-void __stdcall ParseCallback(char* lpName, char* lpValue);
-void __stdcall LogCallback(char* lpName, char* lpValue);
+bool IsValidSettings(char* name, char* value);
+char* Read(const wchar_t* szFileName);
+void Parse(char* str, NV NameValueCallback, void* lpParam = nullptr);
+void __stdcall ParseCallback(char* lpName, char* lpValue, void*);
+void __stdcall LogCallback(char* lpName, char* lpValue, void*);
 void UpdateConfigDefaults();

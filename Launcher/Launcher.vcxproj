@@ -20,7 +20,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v141_xp</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -52,13 +52,11 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin\Intermediate\$(ProjectName)\$(Configuration)\</IntDir>
-    <TargetName>config</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin\Intermediate\$(ProjectName)\$(Configuration)\</IntDir>
-    <TargetName>config</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -78,9 +76,7 @@
     <Manifest>
       <AdditionalManifestFiles>manifest.xml</AdditionalManifestFiles>
     </Manifest>
-    <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)config.xml" "$(TargetDir)" &gt;nul</Command>
-    </PostBuildEvent>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -106,9 +102,7 @@
     <Manifest>
       <AdditionalManifestFiles>manifest.xml</AdditionalManifestFiles>
     </Manifest>
-    <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)config.xml" "$(TargetDir)" &gt;nul</Command>
-    </PostBuildEvent>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\LoadModules.h" />

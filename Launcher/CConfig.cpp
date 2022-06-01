@@ -17,6 +17,7 @@
 */
 
 #include "CConfig.h"
+#include "Launcher.h"
 #include "Common\Settings.h"
 
 /////////////////////////////////////////////////
@@ -65,8 +66,29 @@ std::wstring MultiToWide_s(std::string multi)
 bool CConfig::ParseXml()
 {
 	XMLDocument xml;
-	if (xml.LoadFile("config.xml"))
+	do {
+		HRSRC hResource = FindResource(m_hModule, MAKEINTRESOURCE(IDR_CONFIG_XML), RT_RCDATA);
+		if (hResource)
+		{
+			HGLOBAL hLoadedResource = LoadResource(m_hModule, hResource);
+			if (hLoadedResource)
+			{
+				LPVOID pLockedResource = LockResource(hLoadedResource);
+				if (pLockedResource)
+				{
+					DWORD dwResourceSize = SizeofResource(m_hModule, hResource);
+					if (dwResourceSize != 0)
+					{
+						if (!xml.Parse((char*)pLockedResource, dwResourceSize))
+						{
+							break;
+						}
+					}
+				}
+			}
+		}
 		return true;
+	} while (false);
 
 	auto root = xml.RootElement();
 	auto s = root->FirstChildElement("Sections");

@@ -10,4 +10,4 @@
 #define IDC_STATIC                      -1
 
 // Included resource files
-#define IDR_RESHADE_INI                 901
+#define IDR_CONFIG_XML                 901

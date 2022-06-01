@@ -6,7 +6,7 @@
     name="Microsoft.Windows.ClassicREbirth"
     type="win32" 
 /> 
-<description>Your app description here</description> 
+<description>SH2EE Configuration Tool</description> 
 <dependency> 
     <dependentAssembly> 
         <assemblyIdentity 

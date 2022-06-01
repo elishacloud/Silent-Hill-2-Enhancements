@@ -191,8 +191,6 @@ LRESULT CCtrlStatic::proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 	default:
 		return c->CallProcedure(hWnd, Msg, wParam, lParam);
 	}
-
-	return 0;
 }
 
 ///////////////////////////////////////////////////////

@@ -121,9 +121,7 @@
     <ClInclude Include="..\Logging\Logging.h" />
     <ClInclude Include="CConfig.h" />
     <ClInclude Include="CWnd.h" />
-    <ClInclude Include="framework.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="targetver.h" />
+    <ClInclude Include="Launcher.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Common\LoadModules.cpp" />
@@ -140,6 +138,7 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Launcher.rc" />
+    <ResourceCompile Include="UALx86.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Launcher.ico" />

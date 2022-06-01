@@ -16,8 +16,9 @@
 * Code taken from: https://github.com/Gemini-Loboto3/SH2config
 */
 
-#include "framework.h"
-#include "resource.h"
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include "Launcher.h"
 #include "CWnd.h"
 #include "CConfig.h"
 #include <memory>

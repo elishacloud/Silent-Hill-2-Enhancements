@@ -47,9 +47,7 @@
     </ClInclude>
     <ClInclude Include="CConfig.h" />
     <ClInclude Include="CWnd.h" />
-    <ClInclude Include="framework.h" />
-    <ClInclude Include="targetver.h" />
-    <ClInclude Include="resource.h">
+    <ClInclude Include="Launcher.h">
       <Filter>Resources</Filter>
     </ClInclude>
   </ItemGroup>
@@ -89,6 +87,9 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Launcher.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="UALx86.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
   </ItemGroup>

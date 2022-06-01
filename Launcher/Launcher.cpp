@@ -23,6 +23,7 @@
 #include "CConfig.h"
 #include <memory>
 #include <shellapi.h>
+#include "Common\Settings.h"
 #include "Patches\Patches.h"
 #include "Logging\Logging.h"
 
@@ -134,16 +135,18 @@ void RestoreChanges()
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
+	// Set shared settings
 	Logging::EnableLogging = false;
+	CheckCompatibilityMode = false;
 
-	// boot in admin mode
+	// Boot to admin mode
 	CheckArgumentsForPID();
 	RemoveVirtualStoreFiles();
 	CheckAdminAccess();
 
 	if (cfg.ParseXml())
 	{
-		MessageBoxA(nullptr, "Could not load config.xml.", "INITIALIZATION ERROR", MB_ICONERROR);
+		MessageBoxA(nullptr, "Could not initialize config.", "INITIALIZATION ERROR", MB_ICONERROR);
 		return 0;
 	}
 	cfg.SetFromIni(GetPrgString(STR_INI_NAME).c_str(), GetPrgString(STR_WARNING).c_str());

@@ -115,17 +115,36 @@ public:
 		uType(TYPE_DEFAULT)
 	{}
 
-	virtual void CreateWindow(LPCWSTR lpName, int X, int Y, int Width, int Height, HWND hParent, HINSTANCE hInstance, HFONT hFont) {}
+	virtual void CreateWindow(LPCWSTR lpName, int X, int Y, int Width, int Height, HWND hParent, HINSTANCE hInstance, HFONT hFont)
+	{
+		UNREFERENCED_PARAMETER(lpName);
+		UNREFERENCED_PARAMETER(X);
+		UNREFERENCED_PARAMETER(Y);
+		UNREFERENCED_PARAMETER(Width);
+		UNREFERENCED_PARAMETER(Height);
+		UNREFERENCED_PARAMETER(hParent);
+		UNREFERENCED_PARAMETER(hInstance);
+		UNREFERENCED_PARAMETER(hFont);
+	}
 	virtual void Release() {}
 	virtual void SetHover(std::wstring Text, std::wstring Desc, CCtrlDescription* ctrl) { szText = Text; szDesc = Desc; cCtrl = ctrl; }
 	// lists
 	virtual void Reset() {}
-	virtual void AddString(LPCWSTR lpString) {}
+	virtual void AddString(LPCWSTR lpString)
+	{
+		UNREFERENCED_PARAMETER(lpString);
+	}
 	virtual int GetSelection() { return 0; }
-	virtual void SetSelection(int sel) {}
+	virtual void SetSelection(int sel)
+	{
+		UNREFERENCED_PARAMETER(sel);
+	}
 	// checkboxes
 	virtual bool GetCheck() { return false; }
-	virtual void SetCheck(bool check) {}
+	virtual void SetCheck(bool check)
+	{
+		UNREFERENCED_PARAMETER(check);
+	}
 
 	// random shit with configuration
 	void SetConfigPtr(CConfigOption* c) { cValue = c; }

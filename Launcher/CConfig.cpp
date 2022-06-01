@@ -192,6 +192,9 @@ void CConfig::SetFromIni(LPCWSTR lpName, LPCWSTR error_caption)
 
 void CConfig::SaveIni(LPCWSTR lpName, LPCWSTR error_mes, LPCWSTR error_caption)
 {
+	UNREFERENCED_PARAMETER(error_mes);
+	UNREFERENCED_PARAMETER(error_caption);
+
 	FILE* fp = nullptr;
 	_wfopen_s(&fp, lpName, L"wt");
 	if (fp == nullptr)

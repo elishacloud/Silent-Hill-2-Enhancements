@@ -120,16 +120,16 @@ void CCtrlTab::GetRect(RECT& rect)
 }
 
 ///////////////////////////////////////////////////////
-void CCtrlStatic::CreateWindow(LPCWSTR lpName, int X, int Y, int Width, int Height, HWND hParent, HINSTANCE hInstance, HFONT hFont, UINT Align)
+void CCtrlStatic::CreateWindow(LPCWSTR lpName, int X, int Y, int Width, int Height, HWND hParent, HINSTANCE hInstance, HFONT hFontt, UINT Align)
 {
 	szText = lpName;
-	this->hFont = hFont;
+	this->hFont = hFontt;
 	uAlign = Align;
 	CWnd::CreateWindow(WC_STATICW, lpName, SS_LEFT | WS_VISIBLE | WS_CHILD | WS_CLIPCHILDREN, X, Y, Width, Height, hParent, hInstance);
 	SetWindowLongPtrW(*this, GWLP_USERDATA, (LONG_PTR)this);
 	//old_proc = (WNDPROC)SetWindowLongPtrW(*this, GWLP_WNDPROC, (LONG_PTR)proc);
 	Subclass(proc);
-	SendMessageW(*this, WM_SETFONT, (LPARAM)hFont, TRUE);
+	SendMessageW(*this, WM_SETFONT, (LPARAM)hFontt, TRUE);
 }
 
 bool CCtrlStatic::SetText(LPCWSTR lpText)

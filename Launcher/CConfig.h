@@ -74,11 +74,11 @@ class CConfigOption
 {
 public:
 	void Parse(XMLElement& xml);
-	void SetValueFromName(const char* name)
+	void SetValueFromName(const char* vname)
 	{
 		for (size_t i = 0, si = value.size(); i < si; i++)
 		{
-			if (value[i].val.compare(name) == 0)
+			if (value[i].val.compare(vname) == 0)
 			{
 				cur_val = (int)i;
 				return;

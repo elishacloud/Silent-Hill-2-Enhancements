@@ -135,9 +135,7 @@ void RestoreChanges()
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
-	// Set shared settings
 	Logging::EnableLogging = false;
-	CheckCompatibilityMode = false;
 
 	// Boot to admin mode
 	CheckArgumentsForPID();

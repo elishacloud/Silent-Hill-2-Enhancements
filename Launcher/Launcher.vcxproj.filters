@@ -95,5 +95,8 @@
   </ItemGroup>
   <ItemGroup>
     <Xml Include="config.xml" />
+    <Xml Include="manifest.xml">
+      <Filter>Resources</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

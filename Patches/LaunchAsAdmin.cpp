@@ -18,6 +18,7 @@
 #include <Windows.h>
 #include <psapi.h>
 #include <string>
+#include <regex>
 #include <shellapi.h>
 #include <shlwapi.h>
 #pragma warning( suppress : 4091 )
@@ -166,8 +167,23 @@ void CheckAdminAccess()
 		// Check compatibility options
 		if (CheckCompatibilityMode && GetEnvironmentVariableA("__COMPAT_LAYER", nullptr, 0))
 		{
-			RelaunchSilentHill2();
-			return;
+			// Get compatibility layer variables
+			char str[MAX_PATH] = { '\0' };
+			GetEnvironmentVariableA("__COMPAT_LAYER", str, MAX_PATH);
+
+			// Remove non-applicable compatibility variables
+			std::string string(str);
+			for (auto remove : {" ", "ElevateCreateProcess"})
+			{
+				string = std::regex_replace(string, std::regex(remove), "");
+			}
+
+			// Restart in admin mode if needed
+			if (string.size())
+			{
+				RelaunchSilentHill2();
+				return;
+			}
 		}
 
 		// Get path for temp file

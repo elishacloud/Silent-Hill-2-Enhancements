@@ -101,6 +101,7 @@ This project uses code from several other projects. Below is a list of locations
  * [DSoundCtrl](https://github.com/nRaecheR/DirectSoundControl): Includes code from DirectSoundControl used for fixing pops and clicks in the audio.
  * [DxWnd](https://sourceforge.net/projects/dxwnd/): Includes code from DxWnd used for API hooking.
  * [DxWrapper](https://github.com/elishacloud/dxwrapper): Includes code to create wrapper dlls and resets the display adapter.
+ * [Gemini-Loboto3's SH2config](https://github.com/Gemini-Loboto3/SH2config): Integrated all code for the Launcher.
  * [GetComputerManufacturer](http://www.rohitab.com/discuss/topic/35915-win32-api-to-get-system-information/): Includes code from rohitab.com to get the computer vendor and model.
  * [GetFileVersionInfo](https://stackoverflow.com/a/940743): Includes code from stackoverflow.com for getting the version of a PE file.
  * [md5 hash](http://www.zedwood.com/article/cpp-md5-function): Includes code for computing md5 hash.

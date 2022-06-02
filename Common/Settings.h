@@ -181,6 +181,7 @@ extern bool m_StopThreadFlag;
 extern bool AutoScaleImages;
 extern bool AutoScaleVideos;
 
+bool SetValue(const char* value);
 bool IsValidSettings(char* name, char* value);
 char* Read(const wchar_t* szFileName);
 void Parse(char* str, NV NameValueCallback, void* lpParam = nullptr);

@@ -45,10 +45,6 @@ VISIT_FLOAT_SETTINGS(SET_FLOAT_DEFAULTS);
 
 VISIT_STR_SETTINGS(SET_STR_DEFAULTS);
 
-// Forward declarations
-bool SetValue(char* name);
-bool IsValidSettings(char* name, char* value);
-
 // Get config settings from string (file)
 void __stdcall ParseCallback(char* lpName, char* lpValue, void*)
 {
@@ -98,8 +94,13 @@ void __stdcall LogCallback(char* lpName, char* lpValue, void*)
 }
 
 // Set booloean value from string (file)
-bool SetValue(char* value)
+bool SetValue(const char* value)
 {
+	if (!value || *value == '\0')
+	{
+		return false;
+	}
+
 	return (atoi(value) > 0 ||
 		_stricmp("on", value) == 0 ||
 		_stricmp("yes", value) == 0 ||

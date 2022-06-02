@@ -61,34 +61,41 @@ std::wstring MultiToWide_s(std::string multi)
 	return MultiToWide_s(multi.c_str());
 }
 
+// get xml from resource
+bool GetXMLfromResoruce(XMLDocument &xml)
+{
+	HRSRC hResource = FindResource(m_hModule, MAKEINTRESOURCE(IDR_CONFIG_XML), RT_RCDATA);
+	if (hResource)
+	{
+		HGLOBAL hLoadedResource = LoadResource(m_hModule, hResource);
+		if (hLoadedResource)
+		{
+			LPVOID pLockedResource = LockResource(hLoadedResource);
+			if (pLockedResource)
+			{
+				DWORD dwResourceSize = SizeofResource(m_hModule, hResource);
+				if (dwResourceSize)
+				{
+					if (!xml.Parse((char*)pLockedResource, dwResourceSize))
+					{
+						return false;
+					}
+				}
+			}
+		}
+	}
+	return true;
+}
+
 /////////////////////////////////////////////////
 // Actual configuration
 bool CConfig::ParseXml()
 {
 	XMLDocument xml;
-	do {
-		HRSRC hResource = FindResource(m_hModule, MAKEINTRESOURCE(IDR_CONFIG_XML), RT_RCDATA);
-		if (hResource)
-		{
-			HGLOBAL hLoadedResource = LoadResource(m_hModule, hResource);
-			if (hLoadedResource)
-			{
-				LPVOID pLockedResource = LockResource(hLoadedResource);
-				if (pLockedResource)
-				{
-					DWORD dwResourceSize = SizeofResource(m_hModule, hResource);
-					if (dwResourceSize != 0)
-					{
-						if (!xml.Parse((char*)pLockedResource, dwResourceSize))
-						{
-							break;
-						}
-					}
-				}
-			}
-		}
+	if (GetXMLfromResoruce(xml))
+	{
 		return true;
-	} while (false);
+	}
 
 	auto root = xml.RootElement();
 	auto s = root->FirstChildElement("Sections");
@@ -331,7 +338,7 @@ void CConfigValue::Parse(XMLElement& xml)
 {
 	name = SAFESTR(xml.Attribute("tip"));
 	id = SAFESTR(xml.Attribute("id"));
-	is_default = xml.IntAttribute("default", 0);
+	is_default = SetValue(xml.Attribute("default"));
 	val = SAFESTR(xml.GetText());
 }
 

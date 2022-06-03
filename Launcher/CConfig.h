@@ -7,6 +7,8 @@
 #include "External\tinyxml2\tinyxml2.h"
 #include "External\xxHash\xxh3.h"
 
+class CConfig;
+
 using namespace tinyxml2;
 std::wstring MultiToWide_s(const char* multi);
 
@@ -62,7 +64,7 @@ private:
 class CConfigValue
 {
 public:
-	void Parse(XMLElement& xml);
+	void Parse(XMLElement& xml, CConfig* cfg);
 
 	std::string name;		// default visualized entry name
 	std::string id;			// string id
@@ -73,7 +75,7 @@ public:
 class CConfigOption
 {
 public:
-	void Parse(XMLElement& xml);
+	void Parse(XMLElement& xml, CConfig* cfg);
 	void SetValueFromName(const char* vname)
 	{
 		for (size_t i = 0, si = value.size(); i < si; i++)
@@ -121,7 +123,7 @@ public:
 class CConfigSection
 {
 public:
-	void Parse(XMLElement& xml);
+	void Parse(XMLElement& xml, CConfig* cfg);
 	void SetValueFromName(const char* section, const char* value)
 	{
 		for (size_t i = 0, si = option.size(); i < si; i++)
@@ -244,6 +246,7 @@ class CConfig
 public:
 	bool ParseXml();
 	void SetDefault();
+	const char* SetIDString(const char* id, const char* name);
 	void SetFromIni(LPCWSTR lpName, LPCWSTR error_caption);
 	void SaveIni(LPCWSTR lpName, LPCWSTR error_mes, LPCWSTR error_caption);
 

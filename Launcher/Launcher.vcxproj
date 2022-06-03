@@ -140,7 +140,9 @@
     <Image Include="Launcher.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="config.xml" />
+    <Xml Include="config.xml">
+      <SubType>Designer</SubType>
+    </Xml>
     <Xml Include="manifest.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -61,6 +61,12 @@ std::wstring MultiToWide_s(std::string multi)
 	return MultiToWide_s(multi.c_str());
 }
 
+// gets the name or tip for a value
+inline const char* GetNameValue(const char* name, const char* tip)
+{
+	return name ? name : tip;
+}
+
 // get xml from resource
 bool GetXMLfromResoruce(XMLDocument &xml)
 {
@@ -105,7 +111,7 @@ bool CConfig::ParseXml()
 		auto name = SAFESTR(sec->Attribute("name"));
 		CConfigSection ssec;
 		ssec.name = name;
-		ssec.Parse(*sec);
+		ssec.Parse(*sec, this);
 		section.push_back(ssec);
 
 		sec = sec->NextSiblingElement();
@@ -130,7 +136,6 @@ bool CConfig::ParseXml()
 		auto id = SAFESTR(sec->Attribute("id"));
 
 		string.PushString(str.c_str(), id.c_str());
-		//string.push_back(MultiToWide_s(str));
 
 		sec = sec->NextSiblingElement();
 	}
@@ -143,6 +148,17 @@ void CConfig::SetDefault()
 	for (size_t i = 0, si = section.size(); i < si; i++)
 		for (size_t j = 0, sj = section[i].option.size(); j < sj; j++)
 			section[i].option[j].SetValueDefault();
+}
+
+const char* CConfig::SetIDString(const char* id, const char* name)
+{
+	if (id)
+		return id;
+
+	if (name)
+		string.PushString(name, name);
+
+	return name;
 }
 
 struct cb_parse
@@ -280,27 +296,43 @@ std::wstring CConfig::GetString(const char* name)
 }
 
 /////////////////////////////////////////////////
-void CConfigSection::Parse(XMLElement& xml)
+void CConfigSection::Parse(XMLElement& xml, CConfig* cfg)
 {
 	name = SAFESTR(xml.Attribute("name"));
-	id = SAFESTR(xml.Attribute("id"));
+	id = SAFESTR(cfg->SetIDString(xml.Attribute("id"), name.c_str()));
 
-	auto s = xml.FirstChildElement("Option");
-	while (s)
+	for (auto element : {"Option", "Feature"})
 	{
-		CConfigOption opt;
-		opt.Parse(*s);
-		option.push_back(opt);
+		auto s = xml.FirstChildElement(element);
+		while (s)
+		{
+			CConfigOption opt;
+			opt.Parse(*s, cfg);
+			option.push_back(opt);
 
-		s = s->NextSiblingElement("Option");
+			s = s->NextSiblingElement(element);
+		}
 	}
 }
 
 /////////////////////////////////////////////////
-void CConfigOption::Parse(XMLElement& xml)
+void CConfigOption::Parse(XMLElement& xml, CConfig* cfg)
 {
 	name = SAFESTR(xml.Attribute("name"));
-	auto t = xml.Attribute("type");
+
+	// Check for <Title> otherwise use id
+	auto d = xml.FirstChildElement("Title");
+	id = SAFESTR(d ? cfg->SetIDString(nullptr, d->GetText()) : xml.Attribute("id"));
+
+	// Check for <Description> otherwise use desc
+	d = xml.FirstChildElement("Description");
+	desc = SAFESTR(d ? cfg->SetIDString(nullptr, d->GetText()) : xml.Attribute("desc"));
+
+	d = xml.FirstChildElement("Choices");
+	if (!d)
+		d = &xml;
+
+	auto t = d->Attribute("type");
 	type = TYPE_UNK;
 	if (t)
 	{
@@ -314,15 +346,12 @@ void CConfigOption::Parse(XMLElement& xml)
 			type = TYPE_PAD;
 	}
 
-	id = SAFESTR(xml.Attribute("id"));
-	desc = SAFESTR(xml.Attribute("desc"));
-
-	auto s = xml.FirstChildElement("Value");
+	auto s = d->FirstChildElement("Value");
 	int i = 0;
 	while (s)
 	{
 		CConfigValue val;
-		val.Parse(*s);
+		val.Parse(*s, cfg);
 		// if this is the default value, flag is as the active selection
 		if (val.is_default)
 			cur_val = i;
@@ -334,10 +363,10 @@ void CConfigOption::Parse(XMLElement& xml)
 }
 
 /////////////////////////////////////////////////
-void CConfigValue::Parse(XMLElement& xml)
+void CConfigValue::Parse(XMLElement& xml, CConfig* cfg)
 {
-	name = SAFESTR(xml.Attribute("tip"));
-	id = SAFESTR(xml.Attribute("id"));
+	name = SAFESTR(GetNameValue(xml.Attribute("name"), xml.Attribute("tip")));
+	id = SAFESTR(cfg->SetIDString(xml.Attribute("id"), name.c_str()));
 	is_default = SetValue(xml.Attribute("default"));
 	val = SAFESTR(xml.GetText());
 }
@@ -345,7 +374,6 @@ void CConfigValue::Parse(XMLElement& xml)
 /////////////////////////////////////////////////
 void CConfigGroup::Parse(XMLElement& xml)
 {
-	//auto gp = xml.FirstChildElement("Groups");
 	id = SAFESTR(xml.Attribute("id"));
 
 	auto o = xml.FirstChildElement("Sub");

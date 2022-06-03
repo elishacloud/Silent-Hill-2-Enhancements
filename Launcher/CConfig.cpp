@@ -98,46 +98,71 @@ bool GetXMLfromResoruce(XMLDocument &xml)
 bool CConfig::ParseXml()
 {
 	XMLDocument xml;
-	if (GetXMLfromResoruce(xml))
-	{
+	if (xml.LoadFile("config.xml") && GetXMLfromResoruce(xml))
 		return true;
-	}
 
 	auto root = xml.RootElement();
-	auto s = root->FirstChildElement("Sections");
-	auto sec = s->FirstChildElement("Section");
-	while (sec)
+	auto t = root->FirstChildElement("Tab");
+	while (t)
 	{
-		auto name = SAFESTR(sec->Attribute("name"));
-		CConfigSection ssec;
-		ssec.name = name;
-		ssec.Parse(*sec, this);
-		section.push_back(ssec);
+		auto sec = t->FirstChildElement("Section");
 
-		sec = sec->NextSiblingElement();
+		CConfigGroup gg;
+		gg.ParseTab(*t, *this);
+		group.push_back(gg);
+
+		while (sec)
+		{
+			CConfigSection ssec;
+			ssec.Parse(*sec, *this);
+			section.push_back(ssec);
+
+			sec = sec->NextSiblingElement("Section");
+		}
+		t = t->NextSiblingElement("Tab");
+	}
+
+	auto s = root->FirstChildElement("Sections");
+	if (s)
+	{
+		auto sec = s->FirstChildElement("Section");
+		while (sec)
+		{
+			CConfigSection ssec;
+			ssec.Parse(*sec, *this);
+			section.push_back(ssec);
+
+			sec = sec->NextSiblingElement("Section");
+		}
 	}
 
 	auto g = root->FirstChildElement("Groups");
-	auto gp = g->FirstChildElement("Group");
-	while (gp)
+	if (g)
 	{
-		CConfigGroup gg;
-		gg.Parse(*gp);
-		group.push_back(gg);
+		auto gp = g->FirstChildElement("Group");
+		while (gp)
+		{
+			CConfigGroup gg;
+			gg.Parse(*gp);
+			group.push_back(gg);
 
-		gp = gp->NextSiblingElement("Group");
+			gp = gp->NextSiblingElement("Group");
+		}
 	}
 
 	s = root->FirstChildElement("Strings");
-	sec = s->FirstChildElement("S");
-	while (sec)
+	if (s)
 	{
-		auto str = SAFESTR(sec->GetText());
-		auto id = SAFESTR(sec->Attribute("id"));
+		auto sec = s->FirstChildElement("S");
+		while (sec)
+		{
+			auto str = SAFESTR(sec->GetText());
+			auto id = SAFESTR(sec->Attribute("id"));
 
-		string.PushString(str.c_str(), id.c_str());
+			string.PushString(str.c_str(), id.c_str());
 
-		sec = sec->NextSiblingElement();
+			sec = sec->NextSiblingElement("S");
+		}
 	}
 	string.Sort();
 	return false;
@@ -167,7 +192,7 @@ struct cb_parse
 	std::string error;
 };
 
-void __stdcall ParseCallback_Config(char* lpName, char* lpValue, void *lpParam)
+void __stdcall ParseIniCallback(char* lpName, char* lpValue, void *lpParam)
 {
 	// Check for valid entries
 	if (!IsValidSettings(lpName, lpValue)) return;
@@ -203,7 +228,7 @@ void CConfig::SetFromIni(LPCWSTR lpName, LPCWSTR error_caption)
 			p.list.push_back(&section[i].option[j]);
 
 	// do the parsing (can be slightly slow)
-	Parse(ini, ParseCallback_Config, (void*)&p);
+	Parse(ini, ParseIniCallback, (void*)&p);
 
 	// done, disengage!
 	free(ini);
@@ -296,10 +321,10 @@ std::wstring CConfig::GetString(const char* name)
 }
 
 /////////////////////////////////////////////////
-void CConfigSection::Parse(XMLElement& xml, CConfig* cfg)
+void CConfigSection::Parse(XMLElement& xml, CConfig& cfg)
 {
 	name = SAFESTR(xml.Attribute("name"));
-	id = SAFESTR(cfg->SetIDString(xml.Attribute("id"), name.c_str()));
+	id = SAFESTR(cfg.SetIDString(xml.Attribute("id"), xml.Attribute("name")));
 
 	for (auto element : {"Option", "Feature"})
 	{
@@ -316,17 +341,17 @@ void CConfigSection::Parse(XMLElement& xml, CConfig* cfg)
 }
 
 /////////////////////////////////////////////////
-void CConfigOption::Parse(XMLElement& xml, CConfig* cfg)
+void CConfigOption::Parse(XMLElement& xml, CConfig& cfg)
 {
 	name = SAFESTR(xml.Attribute("name"));
 
 	// Check for <Title> otherwise use id
 	auto d = xml.FirstChildElement("Title");
-	id = SAFESTR(d ? cfg->SetIDString(nullptr, d->GetText()) : xml.Attribute("id"));
+	id = SAFESTR(d ? cfg.SetIDString(nullptr, d->GetText()) : cfg.SetIDString(xml.Attribute("id"), xml.Attribute("name")));
 
 	// Check for <Description> otherwise use desc
 	d = xml.FirstChildElement("Description");
-	desc = SAFESTR(d ? cfg->SetIDString(nullptr, d->GetText()) : xml.Attribute("desc"));
+	desc = SAFESTR(d ? cfg.SetIDString(nullptr, d->GetText()) : xml.Attribute("desc"));
 
 	d = xml.FirstChildElement("Choices");
 	if (!d)
@@ -363,10 +388,10 @@ void CConfigOption::Parse(XMLElement& xml, CConfig* cfg)
 }
 
 /////////////////////////////////////////////////
-void CConfigValue::Parse(XMLElement& xml, CConfig* cfg)
+void CConfigValue::Parse(XMLElement& xml, CConfig& cfg)
 {
 	name = SAFESTR(GetNameValue(xml.Attribute("name"), xml.Attribute("tip")));
-	id = SAFESTR(cfg->SetIDString(xml.Attribute("id"), name.c_str()));
+	id = SAFESTR(cfg.SetIDString(xml.Attribute("id"), xml.Attribute("name")));
 	is_default = SetValue(xml.Attribute("default"));
 	val = SAFESTR(xml.GetText());
 }
@@ -381,15 +406,30 @@ void CConfigGroup::Parse(XMLElement& xml)
 	{
 		CConfigSub s;
 		s.Parse(*o);
-		s.id = SAFESTR(o->Attribute("id"));
 		sub.push_back(s);
 		o = o->NextSiblingElement("Sub");
+	}
+}
+
+void CConfigGroup::ParseTab(XMLElement& xml, CConfig& cfg)
+{
+	id = SAFESTR(cfg.SetIDString(nullptr, xml.Attribute("name")));
+
+	auto o = xml.FirstChildElement("Section");
+	while (o)
+	{
+		CConfigSub s;
+		s.ParseTab(*o);
+		sub.push_back(s);
+		o = o->NextSiblingElement("Section");
 	}
 }
 
 /////////////////////////////////////////////////
 void CConfigGroup::CConfigSub::Parse(XMLElement& xml)
 {
+	id = SAFESTR(xml.Attribute("id"));
+
 	auto o = xml.FirstChildElement("Opt");
 	while (o)
 	{
@@ -399,5 +439,21 @@ void CConfigGroup::CConfigSub::Parse(XMLElement& xml)
 		op.Set(xs, xo);
 		opt.push_back(op);
 		o = o->NextSiblingElement("Opt");
+	}
+}
+
+void CConfigGroup::CConfigSub::ParseTab(XMLElement& xml)
+{
+	id = SAFESTR(xml.Attribute("name"));
+
+	auto o = xml.FirstChildElement("Feature");
+	while (o)
+	{
+		CConfigSubOpt op;
+		std::string xs = SAFESTR(xml.Attribute("name"));
+		std::string xo = SAFESTR(o->Attribute("name"));
+		op.Set(xs, xo);
+		opt.push_back(op);
+		o = o->NextSiblingElement("Feature");
 	}
 }

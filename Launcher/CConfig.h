@@ -64,7 +64,7 @@ private:
 class CConfigValue
 {
 public:
-	void Parse(XMLElement& xml, CConfig* cfg);
+	void Parse(XMLElement& xml, CConfig& cfg);
 
 	std::string name;		// default visualized entry name
 	std::string id;			// string id
@@ -75,7 +75,7 @@ public:
 class CConfigOption
 {
 public:
-	void Parse(XMLElement& xml, CConfig* cfg);
+	void Parse(XMLElement& xml, CConfig& cfg);
 	void SetValueFromName(const char* vname)
 	{
 		for (size_t i = 0, si = value.size(); i < si; i++)
@@ -123,7 +123,7 @@ public:
 class CConfigSection
 {
 public:
-	void Parse(XMLElement& xml, CConfig* cfg);
+	void Parse(XMLElement& xml, CConfig& cfg);
 	void SetValueFromName(const char* section, const char* value)
 	{
 		for (size_t i = 0, si = option.size(); i < si; i++)
@@ -232,10 +232,12 @@ public:
 	{
 	public:
 		void Parse(XMLElement& xml);
+		void ParseTab(XMLElement& xml);
 		std::vector<CConfigSubOpt> opt;
 		std::string id;
 	};
 	void Parse(XMLElement& xml);
+	void ParseTab(XMLElement& xml, CConfig& cfg);
 
 	std::string id;					// string reference id
 	std::vector<CConfigSub> sub;	// list of sub options for this group

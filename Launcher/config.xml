@@ -358,7 +358,7 @@
             
         </Section>
         
-        <Section nme="Vibration">
+        <Section name="Vibration">
             
             <Feature name="RestoreVibration">
                 <Title>Restore Vibration</Title>

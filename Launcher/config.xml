@@ -255,23 +255,6 @@
             
         </Section>
         
-        <Section name="Texture Filtering">
-            
-            <Feature name="AnisotropicFiltering">
-                <Title>Anisotropic Filtering</Title>
-                <Description>Sets anisotropic filtering level.</Description>
-                <Choices type="list">
-                    <Value name="Disable">0</Value>
-                    <Value name="Use best available" default="true">1</Value>
-                    <Value name="x2">2</Value>
-                    <Value name="x4">4</Value>
-                    <Value name="x8">8</Value>
-                    <Value name="x16">16</Value>
-                </Choices>
-            </Feature>
-            
-        </Section>
-        
         <Section name="Performance">
             
             <Feature name="DisableGameUX">

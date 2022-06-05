@@ -102,7 +102,7 @@
 	visit(WoodsideRoom205Fix, true)
 
 #define VISIT_INT_SETTINGS(visit) \
-	visit(AnisotropicFiltering, 1) \
+	visit(AnisotropicFiltering, 0) \
 	visit(AntiAliasing, 0) \
 	visit(AudioFadeOutDelayMS, 10) \
 	visit(CustomFontCharHeight, 32) \
@@ -158,6 +158,7 @@
 	VISIT_LEGACY_BOOL_SETTINGS(visit)
 
 #define VISIT_HIDDEN_SETTING(visit) \
+	visit(AnisotropicFiltering) \
 	visit(AntiAliasing) \
 	visit(AudioFadeOutDelayMS) \
 	visit(CustomFontCharHeight) \

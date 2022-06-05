@@ -38,6 +38,10 @@ struct DUALSTRINGS
 DUALSTRINGS AllValues[] = { VISIT_ALL_SETTING(DECLARE_ALL_SETTINGS) };
 std::string HiddenValues[] = { VISIT_HIDDEN_SETTING(DECLARE_HIDDEN_SETTINGS) };
 
+bool DisableMissingSettingsWarning = false;
+bool DisableExtraSettingsWarning = false;
+bool DisableDefaultValueWarning = false;
+
 /////////////////////////////////////////////////
 // Various helpers
 std::string SAFESTR(const char *X)
@@ -132,6 +136,17 @@ bool CConfig::ParseXml()
 		return true;
 
 	auto root = xml.RootElement();
+
+	auto e = root->FirstChildElement("Error");
+	if (e)
+	{
+		// Sample of xml for this
+		// <Error DisableMissingSettingsWarning="1" DisableExtraSettingsWarning="1" DisableDefaultValueWarning="1" />
+		DisableMissingSettingsWarning = SetValue(e->Attribute("DisableMissingSettingsWarning"));
+		DisableExtraSettingsWarning = SetValue(e->Attribute("DisableExtraSettingsWarning"));
+		DisableDefaultValueWarning = SetValue(e->Attribute("DisableDefaultValueWarning"));
+	}
+
 	auto t = root->FirstChildElement("Tab");
 	while (t)
 	{
@@ -327,60 +342,69 @@ bool CompareSettings(std::string name, std::string setting, std::string xml)
 void CConfig::CheckAllXmlSettings(LPCWSTR error_caption)
 {
 	// Check for missing settings in xml file
-	for (auto item : AllValues)
+	if (!DisableMissingSettingsWarning)
 	{
-		if (!IsHiddenSetting(item.name) && !IsSettingInXml(item.name))
+		for (auto item : AllValues)
 		{
-			p.error += "\"";
-			p.error += item.name;
-			p.error += "\"\n";
+			if (!IsHiddenSetting(item.name) && !IsSettingInXml(item.name))
+			{
+				p.error += "\"";
+				p.error += item.name;
+				p.error += "\"\n";
+			}
 		}
-	}
 
-	if (!p.error.empty())
-	{
-		MessageBoxW(nullptr, MultiToWide_s(std::string("Missing settings:\n\n") + p.error).c_str(), error_caption, MB_OK);
-		p.error.clear();
+		if (!p.error.empty())
+		{
+			MessageBoxW(nullptr, MultiToWide_s(std::string("Missing settings:\n\n") + p.error).c_str(), error_caption, MB_OK);
+			p.error.clear();
+		}
 	}
 
 	// Check for extra settings in xml file
-	for (auto item : p.list)
+	if (!DisableExtraSettingsWarning)
 	{
-		if (!IsVisibleSetting(item->name))
+		for (auto item : p.list)
 		{
-			p.error += "\"";
-			p.error += item->name;
-			p.error += "\"\n";
+			if (!IsVisibleSetting(item->name))
+			{
+				p.error += "\"";
+				p.error += item->name;
+				p.error += "\"\n";
+			}
 		}
-	}
 
-	if (!p.error.empty())
-	{
-		MessageBoxW(nullptr, MultiToWide_s(std::string("Extra settings:\n\n") + p.error).c_str(), error_caption, MB_OK);
-		p.error.clear();
+		if (!p.error.empty())
+		{
+			MessageBoxW(nullptr, MultiToWide_s(std::string("Extra settings:\n\n") + p.error).c_str(), error_caption, MB_OK);
+			p.error.clear();
+		}
 	}
 
 	// Check default value of settings in xml file
-	for (auto item : p.list)
+	if (!DisableDefaultValueWarning)
 	{
-		std::string defval = GetDefaultSetting(item->name);
-		std::string xmldefval = item->GetDefaultValue();
-		if (!CompareSettings(item->name, defval, xmldefval))
+		for (auto item : p.list)
 		{
-			p.error += "\"";
-			p.error += item->name;
-			p.error += "\" ";
-			p.error += defval;
-			p.error += " > ";
-			p.error += xmldefval;
-			p.error += "\n";
+			std::string defval = GetDefaultSetting(item->name);
+			std::string xmldefval = item->GetDefaultValue();
+			if (defval.size() && !CompareSettings(item->name, defval, xmldefval))
+			{
+				p.error += "\"";
+				p.error += item->name;
+				p.error += "\" ";
+				p.error += defval;
+				p.error += " > ";
+				p.error += xmldefval;
+				p.error += "\n";
+			}
 		}
-	}
 
-	if (!p.error.empty())
-	{
-		MessageBoxW(nullptr, MultiToWide_s(std::string("Default settings mismatch:\n\n") + p.error).c_str(), error_caption, MB_OK);
-		p.error.clear();
+		if (!p.error.empty())
+		{
+			MessageBoxW(nullptr, MultiToWide_s(std::string("Default settings mismatch:\n\n") + p.error).c_str(), error_caption, MB_OK);
+			p.error.clear();
+		}
 	}
 }
 

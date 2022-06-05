@@ -362,7 +362,7 @@
             
             <Feature name="RestoreVibration">
                 <Title>Restore Vibration</Title>
-                <Description>Restores vibration for XInput-based controllers.</Description>
+                <Description>Restores vibration for XInput-based controllers. Make sure to enable vibration through the game's options menu as well.</Description>
                 <Choices type="check">
                     <Value name="Disable">0</Value>
                     <Value name="Enable" default="true">1</Value>

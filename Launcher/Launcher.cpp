@@ -96,7 +96,7 @@ std::wstring GetPrgString(UINT id)
 		"PRG_Close", L"Close",
 		"PRG_Default", L"Defaults",
 		"PRG_Save", L"Save",
-		"PRG_Launch", L"Save & Launch Game",
+		"PRG_Launch", L"Save && Launch Game",
 		"PRG_Launch_mess", L"Could not launch sh2pc.exe",
 		"PRG_Launch_exe", L"sh2pc.exe",
 		"PRG_Ini_name", L"d3d8.ini",
@@ -150,7 +150,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 		MessageBoxA(nullptr, "Could not initialize config.", "INITIALIZATION ERROR", MB_ICONERROR);
 		return 0;
 	}
-	cfg.SetFromIni(GetPrgString(STR_INI_NAME).c_str(), GetPrgString(STR_WARNING).c_str());
+	cfg.BuildCacheP();
+	cfg.CheckAllXmlSettings(GetPrgString(STR_WARNING).c_str());
+	cfg.SetFromIni(GetPrgString(STR_INI_NAME).c_str());
 	// Initialize global strings
 	InitCommonControls();
 	MyRegisterClass(hInstance);

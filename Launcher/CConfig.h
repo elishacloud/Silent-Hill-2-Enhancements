@@ -102,6 +102,18 @@ public:
 			}
 		}
 	}
+	std::string GetDefaultValue()
+	{
+		// nothing found, load default
+		for (auto item : value)
+		{
+			if (item.is_default)
+			{
+				return item.val;
+			}
+		}
+		return std::string("");
+	}
 
 	std::string name;		// option name
 	std::string id, desc;	// string references
@@ -126,11 +138,11 @@ public:
 	void Parse(XMLElement& xml, CConfig& cfg);
 	void SetValueFromName(const char* section, const char* value)
 	{
-		for (size_t i = 0, si = option.size(); i < si; i++)
+		for (auto item : option)
 		{
-			if (option[i].name.compare(section) == 0)
+			if (item.name.compare(section) == 0)
 			{
-				option[i].SetValueFromName(value);
+				item.SetValueFromName(value);
 				return;
 			}
 		}
@@ -243,18 +255,31 @@ public:
 	std::vector<CConfigSub> sub;	// list of sub options for this group
 };
 
+struct cb_parse
+{
+	std::vector<CConfigOption*> list;
+	std::string error;
+};
+
 class CConfig
 {
 public:
 	bool ParseXml();
 	void SetDefault();
 	const char* SetIDString(const char* id, const char* name);
-	void SetFromIni(LPCWSTR lpName, LPCWSTR error_caption);
+	void BuildCacheP();
+	void SetFromIni(LPCWSTR lpName);
 	void SaveIni(LPCWSTR lpName, LPCWSTR error_mes, LPCWSTR error_caption);
+	bool IsSettingInXml(std::string setting);
+	std::string GetDefaultSetting(std::string name);
+	bool IsVisibleSetting(std::string name);
+	bool IsHiddenSetting(std::string name);
+	void CheckAllXmlSettings(LPCWSTR error_caption);
 
 	std::vector<CConfigSection> section;	// ini hierarchy used to parse and rebuild d3d8.ini
 	std::vector<CConfigGroup> group;		// ini groups, represented as tabs on interface (it's only for grouping, doesn't influence ini structure)
 	CConfigStrings string;					// unicode string pool
+	cb_parse p;
 
 	void FindSectionAndOption(XXH64_hash_t ss, XXH64_hash_t sh, int &found_sec, int &found_opt)
 	{

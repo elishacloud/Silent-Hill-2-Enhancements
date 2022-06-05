@@ -16,9 +16,27 @@
 * Code taken from: https://github.com/Gemini-Loboto3/SH2config
 */
 
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#include <psapi.h>
 #include "CConfig.h"
 #include "Launcher.h"
 #include "Common\Settings.h"
+
+struct DUALSTRINGS
+{
+	std::string name;
+	std::string val;
+};
+
+#define DECLARE_ALL_SETTINGS(name, val) \
+	{ std::string(#name), std::string(#val) },
+
+#define DECLARE_HIDDEN_SETTINGS(name) \
+	std::string(#name),
+
+DUALSTRINGS AllValues[] = { VISIT_ALL_SETTING(DECLARE_ALL_SETTINGS) };
+std::string HiddenValues[] = { VISIT_HIDDEN_SETTING(DECLARE_HIDDEN_SETTINGS) };
 
 /////////////////////////////////////////////////
 // Various helpers
@@ -93,12 +111,24 @@ bool GetXMLfromResoruce(XMLDocument &xml)
 	return true;
 }
 
+std::string GetProcessNameXml()
+{
+	char path[MAX_PATH] = { '\0' };
+	if (GetProcessImageFileNameA(GetCurrentProcess(), path, MAX_PATH) && strrchr(path, '\\') && strrchr(path, '.'))
+	{
+		strcpy_s(strrchr(path, '.'), MAX_PATH - strlen(path), ".xml");
+		return std::string(strrchr(path, '\\') + 1);
+	}
+
+	return std::string("");
+}
+
 /////////////////////////////////////////////////
 // Actual configuration
 bool CConfig::ParseXml()
 {
 	XMLDocument xml;
-	if (xml.LoadFile("config.xml") && GetXMLfromResoruce(xml))
+	if (xml.LoadFile(GetProcessNameXml().c_str()) && GetXMLfromResoruce(xml))
 		return true;
 
 	auto root = xml.RootElement();
@@ -170,9 +200,9 @@ bool CConfig::ParseXml()
 
 void CConfig::SetDefault()
 {
-	for (size_t i = 0, si = section.size(); i < si; i++)
-		for (size_t j = 0, sj = section[i].option.size(); j < sj; j++)
-			section[i].option[j].SetValueDefault();
+	for (auto sec : section)
+		for (auto opt : sec.option)
+			opt.SetValueDefault();
 }
 
 const char* CConfig::SetIDString(const char* id, const char* name)
@@ -186,11 +216,12 @@ const char* CConfig::SetIDString(const char* id, const char* name)
 	return name;
 }
 
-struct cb_parse
+void CConfig::BuildCacheP()
 {
-	std::vector<CConfigOption*> list;
-	std::string error;
-};
+	for (size_t i = 0, si = section.size(); i < si; i++)
+		for (size_t j = 0, sj = section[i].option.size(); j < sj; j++)
+			p.list.push_back(&section[i].option[j]);
+}
 
 void __stdcall ParseIniCallback(char* lpName, char* lpValue, void *lpParam)
 {
@@ -198,44 +229,27 @@ void __stdcall ParseIniCallback(char* lpName, char* lpValue, void *lpParam)
 	if (!IsValidSettings(lpName, lpValue)) return;
 
 	auto p = reinterpret_cast<cb_parse*>(lpParam);
-	for (size_t i = 0, si = p->list.size(); i < si; i++)
+	for (auto item : p->list)
 	{
-		if (p->list[i]->name.compare(lpName) == 0)
+		if (item->name.compare(lpName) == 0)
 		{
-			p->list[i]->SetValueFromName(lpValue);
+			item->SetValueFromName(lpValue);
 			return;
 		}
 	}
-
-	p->error += "\"";
-	p->error += lpName;
-	p->error += "\" > \"";
-	p->error += lpValue;
-	p->error += "\"\n";
 }
 
-void CConfig::SetFromIni(LPCWSTR lpName, LPCWSTR error_caption)
+void CConfig::SetFromIni(LPCWSTR lpName)
 {
 	// attempt to load the ini
 	auto ini = Read(lpName);
 	if (ini == nullptr) return;
-
-	cb_parse p;
-
-	// build reference to all options for quicker callback parsing
-	for (size_t i = 0, si = section.size(); i < si; i++)
-		for (size_t j = 0, sj = section[i].option.size(); j < sj; j++)
-			p.list.push_back(&section[i].option[j]);
 
 	// do the parsing (can be slightly slow)
 	Parse(ini, ParseIniCallback, (void*)&p);
 
 	// done, disengage!
 	free(ini);
-
-	// print orphaned
-	if(!p.error.empty())
-		MessageBoxW(nullptr, MultiToWide_s(std::string("Orphan sections:\n") + p.error).c_str(), error_caption, MB_OK);
 }
 
 void CConfig::SaveIni(LPCWSTR lpName, LPCWSTR error_mes, LPCWSTR error_caption)
@@ -248,17 +262,126 @@ void CConfig::SaveIni(LPCWSTR lpName, LPCWSTR error_mes, LPCWSTR error_caption)
 	if (fp == nullptr)
 		return;
 
-	for (size_t i = 0, si = section.size(); i < si; i++)
+	for (auto sec : section)
 	{
 		// current section
-		fwprintf(fp, L"[%hs]\n", section[i].name.c_str());
+		fwprintf(fp, L"[%hs]\n", sec.name.c_str());
 		// write all options
-		for (size_t j = 0, sj = section[i].option.size(); j < sj; j++)
-			fwprintf(fp, L"%hs = %hs\n", section[i].option[j].name.c_str(), section[i].option[j].value[section[i].option[j].cur_val].val.c_str());
+		for (auto opt : sec.option)
+			fwprintf(fp, L"%hs = %hs\n", opt.name.c_str(), opt.value[opt.cur_val].val.c_str());
 		// tail
 		fwprintf(fp, L"\n");
 	}
 	fclose(fp);
+}
+
+bool CConfig::IsSettingInXml(std::string lpName)
+{
+	for (auto item : p.list)
+		if (item->name.compare(lpName) == 0)
+			return true;
+
+	return false;
+}
+
+std::string CConfig::GetDefaultSetting(std::string name)
+{
+	for (auto item : AllValues)
+		if (item.name.compare(name) == 0)
+			return item.val;
+
+	return std::string("");
+}
+
+bool CConfig::IsVisibleSetting(std::string name)
+{
+	for (auto item : AllValues)
+		if (item.name.compare(name) == 0)
+			if (!IsHiddenSetting(name))
+				return true;
+
+	return false;
+}
+
+bool CConfig::IsHiddenSetting(std::string name)
+{
+	for (auto item : HiddenValues)
+		if (item.compare(name) == 0)
+			return true;
+
+	return false;
+}
+
+bool CompareSettings(std::string name, std::string setting, std::string xml)
+{
+	if (setting.compare("0xFFFF") == 0)
+		return SetValue(xml.c_str()); // Special handling is needed for 0xFFFF, but for now all the settings default to 'true' or '1'. May need to change this later!
+	else if (setting.compare("true") == 0)
+		return SetValue(xml.c_str());
+	else if (setting.compare("false") == 0)
+		return !SetValue(xml.c_str());
+	else
+		return (setting.compare(xml) == 0);
+}
+
+void CConfig::CheckAllXmlSettings(LPCWSTR error_caption)
+{
+	// Check for missing settings in xml file
+	for (auto item : AllValues)
+	{
+		if (!IsHiddenSetting(item.name) && !IsSettingInXml(item.name))
+		{
+			p.error += "\"";
+			p.error += item.name;
+			p.error += "\"\n";
+		}
+	}
+
+	if (!p.error.empty())
+	{
+		MessageBoxW(nullptr, MultiToWide_s(std::string("Missing settings:\n\n") + p.error).c_str(), error_caption, MB_OK);
+		p.error.clear();
+	}
+
+	// Check for extra settings in xml file
+	for (auto item : p.list)
+	{
+		if (!IsVisibleSetting(item->name))
+		{
+			p.error += "\"";
+			p.error += item->name;
+			p.error += "\"\n";
+		}
+	}
+
+	if (!p.error.empty())
+	{
+		MessageBoxW(nullptr, MultiToWide_s(std::string("Extra settings:\n\n") + p.error).c_str(), error_caption, MB_OK);
+		p.error.clear();
+	}
+
+	// Check default value of settings in xml file
+	for (auto item : p.list)
+	{
+		std::string defval = GetDefaultSetting(item->name);
+		std::string xmldefval = item->GetDefaultValue();
+		if (!CompareSettings(item->name, defval, xmldefval))
+		{
+			p.error += "\"";
+			p.error += item->name;
+			p.error += "\" ";
+			p.error += defval;
+			p.error += " > ";
+			p.error += xmldefval;
+			p.error += "\n";
+		}
+	}
+
+	if (!p.error.empty())
+	{
+		MessageBoxW(nullptr, MultiToWide_s(std::string("Default settings mismatch:\n\n") + p.error).c_str(), error_caption, MB_OK);
+		p.error.clear();
+	}
 }
 
 std::wstring CConfig::GetSectionString(int sec)

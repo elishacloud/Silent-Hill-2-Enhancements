@@ -98,7 +98,7 @@
 	visit(UsePS2LowResTextures, false) \
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
-	visit(WndModeBorder, false) \
+	visit(WndModeBorder, true) \
 	visit(WoodsideRoom205Fix, true)
 
 #define VISIT_INT_SETTINGS(visit) \
@@ -149,6 +149,52 @@
 	visit(fog_custom_on, true) \
 	visit(Fog2DFix, true) \
 	visit(FullscreenWndMode, false)
+
+#define VISIT_ALL_SETTING(visit) \
+	VISIT_BOOL_SETTINGS(visit) \
+	VISIT_INT_SETTINGS(visit) \
+	VISIT_FLOAT_SETTINGS(visit) \
+	VISIT_STR_SETTINGS(visit) \
+	VISIT_LEGACY_BOOL_SETTINGS(visit)
+
+#define VISIT_HIDDEN_SETTING(visit) \
+	visit(AntiAliasing) \
+	visit(AudioFadeOutDelayMS) \
+	visit(CustomFontCharHeight) \
+	visit(CustomFontCharWidth) \
+	visit(CustomFontCol) \
+	visit(CustomFontRow) \
+	visit(CustomModFolder) \
+	visit(DisableLogging) \
+	visit(EnableScreenshots) \
+	visit(EnableWndMode) \
+	visit(FixFMVResetIssue) \
+	visit(fog_custom_on) \
+	visit(fog_layer1_x1) \
+	visit(fog_layer1_x2) \
+	visit(fog_layer1_y1) \
+	visit(fog_layer1_y2) \
+	visit(fog_layer2_complexity) \
+	visit(fog_layer2_density_add) \
+	visit(fog_layer2_density_mult) \
+	visit(fog_transparency_layer1) \
+	visit(fog_transparency_layer2) \
+	visit(Fog2DFix) \
+	visit(FPSLimit) \
+	visit(FullscreenWndMode) \
+	visit(HookDirect3D) \
+	visit(HookDirectSound) \
+	visit(LetterSpacing) \
+	visit(LoadModulesFromMemory) \
+	visit(LockResolution) \
+	visit(NormalFontHeight) \
+	visit(NormalFontWidth) \
+	visit(ResX) \
+	visit(ResY) \
+	visit(SmallFontHeight) \
+	visit(SmallFontWidth) \
+	visit(SpaceSize) \
+	visit(WrapperType)
 
 // Configurable setting defaults
 #define DECLARE_BOOL_SETTINGS(name, unused) \

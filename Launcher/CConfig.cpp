@@ -19,6 +19,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <psapi.h>
+#include <regex>
 #include "CConfig.h"
 #include "Launcher.h"
 #include "Common\Settings.h"
@@ -147,6 +148,16 @@ bool CConfig::ParseXml()
 		DisableDefaultValueWarning = SetValue(e->Attribute("DisableDefaultValueWarning"));
 	}
 
+	auto i = root->FirstChildElement("Ini");
+	if (i)
+	{
+		auto pre = i->FirstChildElement("Preface");
+		if (pre)
+		{
+			Preface.assign(pre->GetText());
+		}
+	}
+
 	auto t = root->FirstChildElement("Tab");
 	while (t)
 	{
@@ -267,6 +278,37 @@ void CConfig::SetFromIni(LPCWSTR lpName)
 	free(ini);
 }
 
+std::string UpdateDescription(std::string desc)
+{
+	size_t size = 0;
+	do {
+		size = desc.size();
+		desc = std::regex_replace(desc, std::regex("\n\n"), "\n");
+	} while (size != desc.size());
+	desc = std::regex_replace(desc, std::regex("\n"), " ");
+
+	// Add line breaks to the description
+	//const size_t LineSize = 150;
+	//size_t pos = 0;
+	//while (false)
+	//{
+	//	size_t rpos = desc.find("\n", pos);
+	//	pos = desc.find(" ", pos + LineSize);
+	//	while (rpos < pos && pos != std::string::npos)
+	//	{
+	//		if (rpos < desc.find(" ", pos + LineSize))
+	//			pos = desc.find(" ", rpos + LineSize);
+	//		else
+	//			break;
+	//		rpos = desc.find("\n", pos);
+	//	}
+	//	if (pos == std::string::npos)
+	//		break;
+	//	desc.insert(pos, "\n;");
+	//}
+	return desc;
+}
+
 void CConfig::SaveIni(LPCWSTR lpName, LPCWSTR error_mes, LPCWSTR error_caption)
 {
 	UNREFERENCED_PARAMETER(error_mes);
@@ -277,15 +319,21 @@ void CConfig::SaveIni(LPCWSTR lpName, LPCWSTR error_mes, LPCWSTR error_caption)
 	if (fp == nullptr)
 		return;
 
+	if (Preface.size())
+	{
+		fwprintf(fp, L"%hs\n\n", Preface.c_str());
+	}
+
 	for (auto sec : section)
 	{
 		// current section
 		fwprintf(fp, L"[%hs]\n", sec.name.c_str());
 		// write all options
 		for (auto opt : sec.option)
-			fwprintf(fp, L"%hs = %hs\n", opt.name.c_str(), opt.value[opt.cur_val].val.c_str());
-		// tail
-		fwprintf(fp, L"\n");
+		{
+			fwprintf(fp, L"; %hs\n", UpdateDescription(opt.desc).c_str());
+			fwprintf(fp, L"%hs = %hs\n\n", opt.name.c_str(), opt.value[opt.cur_val].val.c_str());
+		}
 	}
 	fclose(fp);
 }

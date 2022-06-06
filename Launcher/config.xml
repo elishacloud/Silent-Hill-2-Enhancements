@@ -1,5 +1,9 @@
 <Config>
 
+    <Ini>
+        <Preface>; Configuration file for the SH2 Enhancements module&#x0a;; Learn more about the settings below at http://enhanced.townofsilenthill.com/SH2/config.htm&#x0a;; Silent Hill 2: Enhanced Edition is best experienced in a 16:9 aspect ratio!</Preface>
+    </Ini>
+
     <Tab name="Displays/Visuals">
 
         <Section name="Display">

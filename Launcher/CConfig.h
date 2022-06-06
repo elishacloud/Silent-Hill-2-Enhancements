@@ -279,6 +279,7 @@ public:
 	std::vector<CConfigSection> section;	// ini hierarchy used to parse and rebuild d3d8.ini
 	std::vector<CConfigGroup> group;		// ini groups, represented as tabs on interface (it's only for grouping, doesn't influence ini structure)
 	CConfigStrings string;					// unicode string pool
+	std::string Preface;
 	cb_parse p;
 
 	void FindSectionAndOption(XXH64_hash_t ss, XXH64_hash_t sh, int &found_sec, int &found_opt)

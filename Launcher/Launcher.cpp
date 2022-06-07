@@ -421,6 +421,14 @@ LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
+	case WM_CLOSE:
+		if (bHasChange)
+		{
+			// unsaved settings, ask user what to do
+			if (MessageBoxW(hWnd, GetPrgString(STR_UNSAVED_TEXT).c_str(), GetPrgString(STR_WARNING).c_str(), MB_YESNO) == IDYES)
+				cfg.SaveIni(GetPrgString(STR_INI_NAME).c_str(), GetPrgString(STR_INI_ERROR).c_str(), GetPrgString(STR_ERROR).c_str());
+		}
+		break;
 	case WM_DESTROY:
 		bIsLooping = false;
 		PostQuitMessage(0);

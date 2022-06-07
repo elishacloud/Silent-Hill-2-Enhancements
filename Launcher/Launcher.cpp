@@ -42,6 +42,8 @@ SH2VERSION GameVersion = SH2V_UNKNOWN;
 bool EnableCustomShaders = false;
 bool AutoScaleVideos = false;
 bool AutoScaleImages = false;
+bool m_StopThreadFlag = false;
+bool IsUpdating = false;
 HWND DeviceWindow = nullptr;
 
 // all controls used by the program

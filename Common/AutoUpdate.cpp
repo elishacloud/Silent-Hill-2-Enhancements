@@ -24,6 +24,7 @@
 #include <fstream>
 #include <string>
 #include <regex>
+#include "Common\AutoUpdate.h"
 #include "Common\Utils.h"
 #include "Common\LoadModules.h"
 #include "Wrappers\d3d8\d3d8wrapper.h"
@@ -146,7 +147,7 @@ DWORD MatchCount(std::string &path1, std::string &path2)
 	return size;
 }
 
-std::string ReadFile(std::wstring &path)
+std::string ReadFileContents(std::wstring &path)
 {
 	std::wifstream in(path.c_str());
 	if (!in)
@@ -344,25 +345,11 @@ HRESULT UpdatedllFile(std::wstring &currentDll, std::wstring &tempDll, std::wstr
 	return S_OK;
 }
 
-HRESULT UpdateiniFile(std::wstring &path, std::wstring &name, std::wstring &updatePath)
+std::string MergeiniFile(std::stringstream &s_currentini, std::stringstream &s_ini, bool OverWriteCurrent)
 {
-	// Read configuration file
-	std::wstring configPath(path + L"\\" + name + L".ini");
-	std::istringstream s_currentini(ReadFile(configPath).c_str());
-
-	// Read new ini file
-	std::wstring iniPath(updatePath + L"\\d3d8.ini");
-	std::istringstream s_ini(ReadFile(iniPath).c_str());
-
-	// Check config files
-	if (s_currentini.str().empty() || s_ini.str().empty())
-	{
-		Logging::Log() << __FUNCTION__ " Failed to read ini file!";
-		return E_FAIL;
-	}
-
 	// Merge current settings with new ini file
 	std::string newini, line, tmpline;
+	std::vector<DWORD> linesadded;
 	while (std::getline(s_ini, line))
 	{
 		trim(line);
@@ -373,16 +360,26 @@ HRESULT UpdateiniFile(std::wstring &path, std::wstring &name, std::wstring &upda
 		else
 		{
 			bool found = false;
+			DWORD counter = 0;
 			DWORD loc = line.find_first_of(" =");
 			s_currentini.clear();
 			s_currentini.seekg(0, std::ios::beg);
 			while (std::getline(s_currentini, tmpline))
 			{
+				counter++;
 				trim(tmpline);
 				if (MatchCount(line, tmpline) >= loc)
 				{
 					found = true;
-					newini.append(tmpline + "\n");
+					linesadded.push_back(counter);
+					if (OverWriteCurrent)
+					{
+						newini.append(line + "\n");
+					}
+					else
+					{
+						newini.append(tmpline + "\n");
+					}
 					break;
 				}
 			}
@@ -392,6 +389,86 @@ HRESULT UpdateiniFile(std::wstring &path, std::wstring &name, std::wstring &upda
 			}
 		}
 	}
+
+	// Find extra settings that don't exist in the new ini file
+	DWORD counter = 0;
+	std::string extraini, tmpphrase;
+	s_currentini.clear();
+	s_currentini.seekg(0, std::ios::beg);
+	while (std::getline(s_currentini, line))
+	{
+		counter++;
+		trim(line);
+		if (std::find(linesadded.begin(), linesadded.end(), counter) != linesadded.end())
+		{
+			// Match found
+			tmpphrase.clear();
+		}
+		else
+		{
+			tmpphrase.append(line + "\n");
+			if (!line.size() || line[0] == '[')
+			{
+				tmpphrase.clear();
+			}
+			else if (tmpphrase.size() && line[0] != ';' && line.find("=") != std::string::npos)
+			{
+				extraini.append(tmpphrase + "\n");
+				tmpphrase.clear();
+			}
+		}
+	}
+
+	// Add extra settings to the new ini file
+	size_t pos = newini.find("\n[Extra]");
+	if (pos != std::string::npos)
+	{
+		size_t newpos = newini.find("\n[", pos + 8);
+		if (pos != std::string::npos)
+		{
+			newini.insert(newpos, extraini);
+		}
+		else
+		{
+			newini.append(extraini);
+		}
+	}
+	else
+	{
+		extraini.insert(0, "[Extra]\n");
+		pos = newini.find("\n[");
+		if (pos != std::string::npos)
+		{
+			newini.insert(pos + 1, extraini);
+		}
+		else
+		{
+			newini.append(extraini);
+		}
+	}
+
+	return newini;
+}
+
+HRESULT UpdateiniFile(std::wstring &path, std::wstring &name, std::wstring &updatePath)
+{
+	// Read configuration file
+	std::wstring configPath(path + L"\\" + name + L".ini");
+	std::stringstream s_currentini(ReadFileContents(configPath));
+
+	// Read new ini file
+	std::wstring iniPath(updatePath + L"\\d3d8.ini");
+	std::stringstream s_ini(ReadFileContents(iniPath));
+
+	// Check config files
+	if (s_currentini.str().empty() || s_ini.str().empty())
+	{
+		Logging::Log() << __FUNCTION__ " Failed to read ini file!";
+		return E_FAIL;
+	}
+
+	// Merge ini files
+	std::string newini = MergeiniFile(s_currentini, s_ini);
 
 	// Write updated ini file
 	std::ofstream out(configPath);

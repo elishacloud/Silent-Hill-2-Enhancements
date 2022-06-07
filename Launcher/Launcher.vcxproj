@@ -107,6 +107,7 @@
     <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\Common\AutoUpdate.h" />
     <ClInclude Include="..\Common\LoadModules.h" />
     <ClInclude Include="..\Common\Settings.h" />
     <ClInclude Include="..\Common\Utils.h" />
@@ -120,6 +121,7 @@
     <ClInclude Include="Launcher.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Common\AutoUpdate.cpp" />
     <ClCompile Include="..\Common\LoadModules.cpp" />
     <ClCompile Include="..\Common\Settings.cpp" />
     <ClCompile Include="..\Common\Utils.cpp" />

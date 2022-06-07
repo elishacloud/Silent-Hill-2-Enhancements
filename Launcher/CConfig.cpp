@@ -18,10 +18,13 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <sstream>
+#include <fstream>
 #include <psapi.h>
 #include <regex>
 #include "CConfig.h"
 #include "Launcher.h"
+#include "Common\AutoUpdate.h"
 #include "Common\Settings.h"
 
 struct DUALSTRINGS
@@ -311,31 +314,47 @@ std::string UpdateDescription(std::string desc)
 
 void CConfig::SaveIni(LPCWSTR lpName, LPCWSTR error_mes, LPCWSTR error_caption)
 {
-	UNREFERENCED_PARAMETER(error_mes);
-	UNREFERENCED_PARAMETER(error_caption);
+	// Read current ini file
+	std::wstring name(lpName);
+	std::stringstream s_currentini(ReadFileContents(name));
 
-	FILE* fp = nullptr;
-	_wfopen_s(&fp, lpName, L"wt");
-	if (fp == nullptr)
-		return;
+	// New ini file contents
+	std::string ini;
 
+	// Add ini preface
 	if (Preface.size())
 	{
-		fwprintf(fp, L"%hs\n\n", Preface.c_str());
+		ini.append(Preface + "\n\n");
 	}
 
+	// Write out the rest of the new ini file
 	for (auto sec : section)
 	{
 		// current section
-		fwprintf(fp, L"[%hs]\n", sec.name.c_str());
+		ini.append("[" + sec.name + "]\n");
 		// write all options
 		for (auto opt : sec.option)
 		{
-			fwprintf(fp, L"; %hs\n", UpdateDescription(opt.desc).c_str());
-			fwprintf(fp, L"%hs = %hs\n\n", opt.name.c_str(), opt.value[opt.cur_val].val.c_str());
+			ini.append(";" + UpdateDescription(opt.desc) + " \n");
+			ini.append(opt.name + " = " + opt.value[opt.cur_val].val + " \n\n");
 		}
 	}
-	fclose(fp);
+
+	// Read new ini file
+	std::stringstream s_ini(ini);
+
+	// Merge ini files
+	std::string newini = MergeiniFile(s_currentini, s_ini, true);
+
+	// Write updated ini file
+	std::ofstream out(name);
+	if (!out)
+	{
+		MessageBoxW(nullptr, error_mes, error_caption, MB_OK);
+		return;
+	}
+	out << newini;
+	out.close();
 }
 
 bool CConfig::IsSettingInXml(std::string lpName)

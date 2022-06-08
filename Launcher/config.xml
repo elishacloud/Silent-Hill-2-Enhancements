@@ -9,7 +9,7 @@
     <Section name="Display">
 
       <Feature name="ScreenMode">
-        <Title>Screen Mode</Title>
+        <Title>Screen mode</Title>
         <Description>Sets the screen mode for the game.</Description>
         <Choices type="list">
           <Value name="Windowed" default="true">1</Value>
@@ -28,8 +28,8 @@
       </Feature>
 
       <Feature name="DynamicResolution">
-        <Title>Dynamic resolution</Title>
-        <Description>Detects every resolution your display offers and makes them selectable choices in the game's options menu, along with displaying their aspect ratios beside the resolution.</Description>
+        <Title>Show all resolutions in Options menu</Title>
+        <Description>Detects every resolution your display offers and makes them selectable choices (along with showing their aspect ratios) in the game's Options > Advanced Options menu.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -42,7 +42,7 @@
 
       <Feature name="FullscreenImages">
         <Title>Fullscreen image scaling</Title>
-        <Description>Adds compatibility for the Image Enhancement Pack to have its visuals display correctly. Must be enabled if using the Image Enhancement Pack. The scaling works for both the original and enhanced fullscreen images.&#x0a;&#x0a;Auto: Automatically chooses "fit" or "fill" depending on the aspect ratio for the best presentation.&#x0a;Fit: Displays the fullscreen images without any cropping. Letterboxes or pillarboxes may appear depending on the aspect ratio.&#x0a;Fill: Scales the fullscreen images to fill the display area, removing any letterboxes or pillarboxes, up to a 16:9 aspect ratio.</Description>
+        <Description>Adds compatibility for the project's Image Enhancement Pack to have its visuals display correctly. Must be enabled if using the Image Enhancement Pack. The scaling works for both the original and enhanced fullscreen images.&#x0a;&#x0a;Auto: Automatically chooses "fit" or "fill" depending on the aspect ratio for the best presentation.&#x0a;Fit: Displays the fullscreen images without any cropping. Letterboxes or pillarboxes may appear depending on the aspect ratio.&#x0a;Fill: Scales the fullscreen images to fill the display area, removing any letterboxes or pillarboxes, up to a 16:9 aspect ratio.</Description>
         <Choices type="list">
           <Value name="Disable">0</Value>
           <Value name="Auto" default="true">3</Value>
@@ -53,7 +53,7 @@
 
       <Feature name="FullscreenVideos">
         <Title>FMV scaling</Title>
-        <Description>Adds compatibility for the FMV Enhancement Pack to have its videos display correctly. The scaling works for both the original and enhanced FMVs.&#x0a;&#x0a;Auto: Automatically chooses "fit" or "fill" depending on the aspect ratio for the best presentation.&#x0a;Fit: Displays the FMVs without any cropping. Letterboxes or pillarboxes may appear depending on the aspect ratio.&#x0a;Fill: Scales FMVs to fill the display area, removing any letterboxes or pillarboxes, up to a 16:9 aspect ratio.</Description>
+        <Description>Adds compatibility for the project's FMV Enhancement Pack to have its videos display correctly. The scaling works for both the original and enhanced FMVs.&#x0a;&#x0a;Auto: Automatically chooses "fit" or "fill" depending on the aspect ratio for the best presentation.&#x0a;Fit: Displays the FMVs without any cropping. Letterboxes or pillarboxes may appear depending on the aspect ratio.&#x0a;Fill: Scales FMVs to fill the display area, removing any letterboxes or pillarboxes, up to a 16:9 aspect ratio.</Description>
         <Choices type="list">
           <Value name="Disable">0</Value>
           <Value name="Auto" default="true">3</Value>
@@ -64,16 +64,7 @@
 
       <Feature name="Fix2D">
         <Title>Prevent fullscreen image stretching</Title>
-        <Description>Enabling this feature sets the 2D, full screen images to their original aspect ratios, regardless of aspect ratio used. This will remove stretching on the images when played in widescreen. Disabling this feature stretches the images to fit the screen. This affects all full screen images, such as the main menu, save screens, memo/riddle images, and inventory screen, along with other textures such as subtitles and the flashlight lens glow.&#x0a;&#x0a;Note: Disabling this will also disable Fullscreen Image Scaling.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="SetBlackPillarBoxes">
-        <Title>Restore black pillarboxes</Title>
-        <Description>Primarily fixes issues when viewing the map. This feature forces all dynamically made pillarboxing to be black in color, restores pillarboxing to events which did not have them, and hides map markings behind the pillarboxing.</Description>
+        <Description>Enabling this feature sets the 2D, full screen images to their original aspect ratios, regardless of aspect ratio used. This will remove stretching on the images when played in widescreen. Disabling this feature stretches the images to fit the screen. This affects all full screen images, such as the main menu, save screens, memo/riddle images, and inventory screen, along with other textures such as subtitles and the flashlight lens glow.&#x0a;&#x0a;Note: Disabling this will override and also disable Fullscreen Image Scaling.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -83,6 +74,15 @@
       <Feature name="ReduceCutsceneFOV">
         <Title>Scale cutscene FOV</Title>
         <Description>In-engine cutscenes will be zoomed in to match their original 4:3 horizontal compositions when playing in widescreen. This will hide "frozen" character models that have been loaded in, right outside the 4:3 boundaries, ready and waiting to enter the scene.&#x0a;&#x0a;Note: This feature will zoom up to a 16:9 aspect ratio. It will not zoom past this aspect ratio as too much of the vertical composition would be cropped otherwise. This means that ultra-wide aspect ratios will still see visual anomolies as in-engine cutscenes play out.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="SetBlackPillarBoxes">
+        <Title>Restore black pillarboxes</Title>
+        <Description>Primarily fixes issues when viewing the map. This feature forces all dynamically made pillarboxing to be black in color, restores pillarboxing to events which did not have them, and hides map markings behind the pillarboxing.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -116,7 +116,7 @@
     <Section name="Shaders">
 
       <Feature name="AdjustColorTemp">
-        <Title>Color temperature adjust</Title>
+        <Title>Adjust color temperature</Title>
         <Description>Adjusts the color temperature of the overall game image to give it a slight cool tint.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
@@ -152,19 +152,10 @@
 
       <Feature name="EnableTexAddrHack">
         <Title>Allow for high quality images</Title>
-        <Description>Allows higher quality, upscaled images to be used. Must be enabled if using the Image Enhancement Pack.</Description>
+        <Description>Allows higher quality, upscaled images to be used. Must be enabled if using the project's Image Enhancement Pack.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="UsePS2LowResTextures">
-        <Title>Disable "sh2e\pic\" path</Title>
-        <Description>Disables the "sh2e\pic\" path. This will revert the game to use the original, low resolution full screen images while still using all other files/folders found within the "sh2e" path.&#x0a;&#x0a;Note: Enabling the use of the custom "sh2e" folder is still required to use all other files/folders found with the "sh2e" path.</Description>
-        <Choices type="check">
-          <Value name="Disable" default="true">0</Value>
-          <Value name="Enable">1</Value>
         </Choices>
       </Feature>
 
@@ -182,8 +173,8 @@
       </Feature>
 
       <Feature name="EnableSoftShadows">
-        <Title>Enable soft shadows</Title>
-        <Description>Restores soft shadows, shadow level intensities, shadow fading on flashlight toggles, and self shadows.</Description>
+        <Title>Restore soft shadows</Title>
+        <Description>Restores shadows and shadow behaviors throughout the game. This includes the use of soft shadows, correct shadow level intensities, accurate shadow fading on flashlight toggles, and the restoration of self shadows (shadows being casted upon dynamic objects such as items and characters).</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -192,7 +183,7 @@
 
       <Feature name="RestoreSpecialFX">
         <Title>Restore post-processing effects</Title>
-        <Description>Restores post-processing effects to their original intensities. Effects include depth-of-field blur, motion blur, static blur, and pseudo blooms.</Description>
+        <Description>Restores post-processing effects to their original intensities throughout the game. Effects include depth-of-field blur, motion blur, static blur, and pseudo blooms.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -201,7 +192,7 @@
 
       <Feature name="SpecularFix">
         <Title>Restore specularity</Title>
-        <Description>Restores specularity and specular behavior throughout the game. This gives "shininess" to things such as character eyeballs, Pyramid Head's helmet, Maria's skirt, etc. Shiny things will shine brighter whenever they're under a light source or when James' flashlight is on.</Description>
+        <Description>Restores specularity and specular behavior throughout the game. This gives "shininess" to things such as character eyeballs, Pyramid Head's helmet, Maria's skirt, and will make these things shine brighter whenever they're under a light source or when James' flashlight is on.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -234,16 +225,15 @@
         <Title>Adjust noise filter grain</Title>
         <Description>Adjust the grain size of the noise filter.</Description>
         <Choices type="list">
-          <Value name="Coarse">256</Value>
           <Value name="Default">512</Value>
           <Value name="Fine" default="true">768</Value>
-          <Value name="Finer">1024</Value>
+          <Value name="Ultra Fine">1024</Value>
         </Choices>
       </Feature>
 
       <Feature name="PS2StyleNoiseFilter">
         <Title>Correct noise filter levels</Title>
-        <Description>Restores the levels and opacity of noise filter back to its original look.</Description>
+        <Description>Restores the levels and opacity of the noise filter back to its original look.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -255,8 +245,8 @@
     <Section name="Fog">
 
       <Feature name="FogFix">
-        <Title>Enable fog fix</Title>
-        <Description>Restores the thickness, size, and amount of fog to its original appearance.</Description>
+        <Title>Restore 3D fog levels</Title>
+        <Description>Restores the thickness, size, and amount of fog to its original look.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -265,7 +255,7 @@
 
       <Feature name="FogLayerFix">
         <Title>Restore 2D fog layer</Title>
-        <Description>Fixes an issue on Nvidia graphics cards where the 2D fog layer and the glow around James' flashlight is missing.</Description>
+        <Description>Fixes an issue on Nvidia graphics cards where the 2D fog layer and the glow around James' flashlight did not render.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -298,18 +288,18 @@
 
     <Section name="Audio">
 
-      <Feature name="EnableCriWareReimplementation">
-        <Title>Use custom streaming audio engine</Title>
-        <Description>Replaces the game's bugged CRIWARE streaming audio engine with a custom, made-from-scratch streaming audio engine solution. This fixes the infamous issue where the game's audio would glitch out and play an infinite one second loop, which would inevitably crash the game. This audio issue was the reason why the game would need to be ran on a single processor core prior to this fix. With this fix, the game can now run stable on multiple cores with overall performance improvements (such as less game stutters).</Description>
+      <Feature name="EnableSFXAddrHack">
+        <Title>Allow for high quality audio</Title>
+        <Description>Allows higher quality sound files to be used. Must be enabled if using the project's Audio Enhancement Pack.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
-
-      <Feature name="EnableSFXAddrHack">
-        <Title>Allow for high quality audio</Title>
-        <Description>Allows higher quality sound files to be used. Must be enabled if using the Audio Enhancement Pack.</Description>
+        
+      <Feature name="EnableCriWareReimplementation">
+        <Title>Use custom streaming audio engine</Title>
+        <Description>Replaces the game's bugged CRIWARE streaming audio engine with a custom streaming audio engine solution. This fixes the infamous issue where the game's audio would glitch out and play an infinite one second loop, which would inevitably crash the game. This audio issue was the reason why the game would need to be ran on a single processor core prior to this fix. With this fix, the game can now run stable on multiple cores with overall performance improvements (such as less game stutters).</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -330,7 +320,7 @@
       </Feature>
 
       <Feature name="SpecificSoundLoopFix">
-        <Title>Specific sound looping fix</Title>
+        <Title>Fix specific sound looping bugs</Title>
         <Description>Fixes specific, unique sound looping bugs with the chainsaw and moth attack sounds.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
@@ -339,8 +329,8 @@
       </Feature>
 
       <Feature name="FixInventoryBGM">
-        <Title>Fix incorrect BGM tracks on menu pull-ups</Title>
-        <Description>Fixes an issue where the game would play the wrong background music when pulling up menus (inventory, memo, map, save/load, etc) under certain circumstances.</Description>
+        <Title>Fix incorrect BGM tracks when pulling up menus</Title>
+        <Description>Fixes an issue where the game would play the wrong background music when pulling up menus (Inventory, Memo, Map, Save/Load, etc) under certain circumstances.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -348,7 +338,7 @@
       </Feature>
 
       <Feature name="SaveGameSoundFix">
-        <Title>Restore save game sound through pause menu</Title>
+        <Title>Restore "save game" sound through pause menu</Title>
         <Description>Restores the "save game" sound effect when selecting to save your game through the pause menu.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
@@ -363,25 +353,7 @@
   <Tab name="Controller">
 
     <Section name="Controller">
-
-      <Feature name="DPadMovementFix">
-        <Title>Restore D-pad movement</Title>
-        <Description>Allows the D-pad on DirecInput gamepads to act as an additional movement pad to control James and navigate menu selections.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="GamepadControlsFix">
-        <Title>Assign multiple functions to the same input</Title>
-        <Description>Allows the same controller input to be assigned to multiple game functions.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
+        
       <Feature name="RestoreSearchCamMovement">
         <Title>Controller type for search cam movement</Title>
         <Description>Restores right joystick functionality for controllers to move the search camera around. Change the setting depending on what type of controller you are using.</Description>
@@ -390,6 +362,24 @@
           <Value name="XInput" default="true">1</Value>
           <Value name="DirectInput">2</Value>
           <Value name="DirectInput (Alternate)">3</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="DPadMovementFix">
+        <Title>Restore D-pad movement</Title>
+        <Description>Allows the D-pad on DirecInput gamepads to act as movement inputs to control James and navigate menu selections.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="GamepadControlsFix">
+        <Title>Assign multiple functions to the same input</Title>
+        <Description>Allows the same controller input to be assigned to multiple game functions through the game's Options > Control Options menu.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -408,7 +398,7 @@
 
       <Feature name="RestoreVibration">
         <Title>Restore Vibration</Title>
-        <Description>Restores vibration for XInput-based controllers. Make sure to enable vibration through the game's options menu as well.</Description>
+        <Description>Restores vibration for XInput-based controllers. Make sure to enable vibration through the game's Options menu as well.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -442,7 +432,7 @@
 
       <Feature name="UseCustomFonts">
         <Title>High resolution text</Title>
-        <Description>Uses custom font files to produce high-resolution text in-game. Compatible with all preset language files (English, French, German, Italian, and Spanish) in the game.&#x0a;&#x0a;Note: fontwdata.bin and font000.tga files must be present in "sh2e\font\" for this feature to work.</Description>
+        <Description>Uses custom font files to produce high-resolution text in-game. Compatible with all preset language options (English, French, German, Italian, and Spanish) in the game.&#x0a;&#x0a;Note: fontwdata.bin and font000.tga files must be present in "sh2e\font\" for this feature to work.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -450,8 +440,8 @@
       </Feature>
 
       <Feature name="DisableEnlargedText">
-        <Title>Disable large, floating save menu text</Title>
-        <Description>Disables the enlarged, floating text while navigating the save/load menu, which may otherwise be distracting. Requires high resolution text to be enabled to work.</Description>
+        <Title>Hide large, floating save menu text</Title>
+        <Description>Disables the enlarged, floating text while navigating the save/load menu, which may otherwise be distracting.&#x0a;&#x0a;Note: Requires High Resolution Text to be enabled to work.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -473,7 +463,7 @@
 
       <Feature name="UseCustomExeStr">
         <Title>Restore all languages in options menu</Title>
-        <Description>Restores all language options (English, French, German, Italian, and Spanish) as selectable choices in the game's options menu and creates language-specific pause menu text for the North American executables of the game.&#x0a;&#x0a;Note: d3d8.res must be present in the game's directory for this feature to work.</Description>
+        <Description>Restores all language options (English, French, German, Italian, and Spanish) as selectable choices in the game's Options menu and creates language-specific pause menu text for the North American executables of the game.&#x0a;&#x0a;Note: d3d8.res must be present in the game's directory for this feature to work.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -482,7 +472,7 @@
 
       <Feature name="UnlockJapLang">
         <Title>Unlock Japanese language option</Title>
-        <Description>Unlocks the ability to select Japanese for the game's text/subtitles.&#x0a;&#x0a;Note: It is recommended to keep this disabled for now, as not all Japanese characters are currently supported.</Description>
+        <Description>Restores the ability to select Japanese as a language option through the game's Options menu.&#x0a;&#x0a;Note: It is recommended to keep this disabled for now, as not all Japanese characters are currently supported.</Description>
         <Choices type="check">
           <Value name="Disable" default="true">0</Value>
           <Value name="Enable">1</Value>
@@ -504,7 +494,7 @@
 
       <Feature name="FixAdvancedOptions">
         <Title>Fix Advanced Options screen</Title>
-        <Description>Fixes numerous text display issues in the Advanced Options menu, such as missing and incorrect descriptions when the save confirmation prompt shows up.</Description>
+        <Description>Fixes numerous text display issues on the game's Options > Advanced Options menu, such as missing and incorrect descriptions when the save confirmation prompt is shown.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -513,7 +503,7 @@
 
       <Feature name="FixHangOnEsc">
         <Title>Disable pause screen during fades</Title>
-        <Description>Prevents the player from bringing up the PC pause menu during a fade-in, which would otherwise use a wrong screen grab of the game for the pause menu background image.</Description>
+        <Description>Prevents the player from bringing up the pause menu during a fade-in, which would otherwise use a wrong screen grab of the game for the pause menu background image.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -522,7 +512,7 @@
 
       <Feature name="PauseScreenFix">
         <Title>Pause screen fix</Title>
-        <Description>Removes flicker when accessing the pause menu and restores the noise filter and bloom effects in the pause menu for Hotel Room 312.</Description>
+        <Description>Removes flicker when accessing the pause menu and preserves the noise filter and bloom effect when pulling up the pause menu while in Hotel Room 312.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -539,8 +529,8 @@
       </Feature>
 
       <Feature name="FixMemoFading">
-        <Title>Correctly fade images from memo list</Title>
-        <Description>Fixes an issue where the top-most layer of memo images would not correctly fade/darken with the rest of the image when viewed through your memos list.</Description>
+        <Title>Correctly fade images from Memo list</Title>
+        <Description>Fixes an issue where the top-most layer of memo images would not correctly fade/darken with the rest of the image when viewed through your Memos list.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -549,7 +539,7 @@
 
       <Feature name="LockScreenPosition">
         <Title>Lock Screen Position option</Title>
-        <Description>Disables the screen position feature in the game's options menu which is no longer needed for modern displays and could otherwise cause visual alignment issues.</Description>
+        <Description>Disables the Screen Position feature in the game's Options > Advanced Options menu which is no longer needed for modern displays and could otherwise cause visual alignment issues.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -558,7 +548,7 @@
 
       <Feature name="LockSpeakerConfig">
         <Title>Lock Speaker Config option</Title>
-        <Description>Disables changing the speaker configuration feature in the game's options menu as, after Windows XP, this change must be done through Windows' sound control panel and can no longer be changed within applications (such as this game). If you try to change this through the game's option's menu, it will just revert back to what is being used through Windows' sound control panel.&#x0a;&#x0a;Note: d3d8.res must be present in the game's directory for this feature to work.</Description>
+        <Description>Disables changing the Speaker Configuration feature in the game's Options > Advanced Options menu as, after Windows XP, this change must be done through Windows' Sound Control panel and can no longer be changed within applications (such as this game). If you try to change this through the game's Options menu, it will just revert back to what is being used through Windows' Sound Control panel.&#x0a;&#x0a;Note: d3d8.res must be present in the game's directory for this feature to work.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -914,6 +904,15 @@
           <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
+        
+      <Feature name="UsePS2LowResTextures">
+        <Title>Disable "sh2e\pic\" path</Title>
+        <Description>Disables the "sh2e\pic\" path. This will revert the game to use the original, low resolution full screen images while still using all other files/folders found within the "sh2e" path.&#x0a;&#x0a;Note: Enabling the use of the custom "sh2e" folder is still required to use all other files/folders found with the "sh2e" path.</Description>
+        <Choices type="check">
+          <Value name="Disable" default="true">0</Value>
+          <Value name="Enable">1</Value>
+        </Choices>
+      </Feature>
 
     </Section>
 
@@ -1017,7 +1016,7 @@
         <Title>Single core affinity</Title>
         <Description>Limits the game to run on one CPU core. Note that it is no longer necessary to run the game on a single core if enabling the project's custom streaming audio engine.&#x0a;&#x0a;Note: If the value is set to a number that is greater than the available cores on your computer, it will default to using the first core (CPU 0).</Description>
         <Choices type="list">
-          <Value name="Disabled" default="true">0</Value>
+          <Value name="Disable" default="true">0</Value>
           <Value name="CPU 0">1</Value>
           <Value name="CPU 1">2</Value>
           <Value name="CPU 2">3</Value>

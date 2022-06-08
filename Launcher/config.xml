@@ -1,1079 +1,1091 @@
 <Config>
 
-    <Ini>
-        <Preface>; Configuration file for the SH2 Enhancements module&#x0a;; Learn more about the settings below at http://enhanced.townofsilenthill.com/SH2/config.htm&#x0a;; Silent Hill 2: Enhanced Edition is best experienced in a 16:9 aspect ratio!</Preface>
-    </Ini>
+  <Ini>
+    <Preface>; Configuration file for the SH2 Enhancements module&#x0a;; Learn more about the settings below at http://enhanced.townofsilenthill.com/SH2/config.htm&#x0a;; Silent Hill 2: Enhanced Edition is best experienced in a 16:9 aspect ratio!</Preface>
+  </Ini>
 
-    <Tab name="Displays/Visuals">
+  <Tab name="Display">
 
-        <Section name="Display">
+    <Section name="Display">
 
-            <Feature name="ScreenMode">
-                <Title>Screen Mode</Title>
-                <Description>Sets the screen mode for the game.</Description>
-                <Choices type="list">
-                    <Value name="Windowed" default="true">1</Value>
-                    <Value name="Fulscreen Windowed">2</Value>
-                    <Value name="Fullscreen">3</Value>
-                </Choices>
-            </Feature>
+      <Feature name="ScreenMode">
+        <Title>Screen Mode</Title>
+        <Description>Sets the screen mode for the game.</Description>
+        <Choices type="list">
+          <Value name="Windowed" default="true">1</Value>
+          <Value name="Fulscreen Windowed">2</Value>
+          <Value name="Fullscreen">3</Value>
+        </Choices>
+      </Feature>
 
-            <Feature name="WndModeBorder">
-                <Title>Window border (for windowed mode only)</Title>
-                <Description>Creates a window border for the game. Only works when playing in windowed mode.&#x0a;&#x0a;Note: The game's windowed resolution must not be close to or exactly the same as your display's width and/or height, otherwise the border will not appear. This is a safety measure to ensure the border doesn't get lost outside of your display area.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
+      <Feature name="WndModeBorder">
+        <Title>Window border (for windowed mode only)</Title>
+        <Description>Creates a window border for the game. Only works when playing in windowed mode.&#x0a;&#x0a;Note: The game's windowed resolution must not be close to or exactly the same as your display's width and/or height, otherwise the border will not appear. This is a safety measure to ensure the border doesn't get lost outside of your display area.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
 
-        </Section>
+      <Feature name="DynamicResolution">
+        <Title>Dynamic resolution</Title>
+        <Description>Detects every resolution your display offers and makes them selectable choices in the game's options menu, along with displaying their aspect ratios beside the resolution.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
 
-        <Section name="HUD">
+    </Section>
 
-            <Feature name="DisableRedCrossInCutScenes">
-                <Title>Disable low health indicator during cutscenes</Title>
-                <Description>Hides the low health indicator during cutscenes, which would otherwise be distracting as the cutscenes play out.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
+    <Section name="Fullscreen Media">
 
-            <Feature name="DisableRedCross">
-                <Title>Disable low health indicator completely</Title>
-                <Description>Hides the low health indicator completely.&#x0a;&#x0a;Note: Enabling this option is only recommended if you are using a controller with vibration enabled. Otherwise, you have no way of knowing when you're low on health unless you check the inventory screen.</Description>
-                <Choices type="check">
-                    <Value name="Disable" default="true">0</Value>
-                    <Value name="Enable">1</Value>
-                </Choices>
-            </Feature>
+      <Feature name="FullscreenImages">
+        <Title>Fullscreen image scaling</Title>
+        <Description>Adds compatibility for the Image Enhancement Pack to have its visuals display correctly. Must be enabled if using the Image Enhancement Pack. The scaling works for both the original and enhanced fullscreen images.&#x0a;&#x0a;Auto: Automatically chooses "fit" or "fill" depending on the aspect ratio for the best presentation.&#x0a;Fit: Displays the fullscreen images without any cropping. Letterboxes or pillarboxes may appear depending on the aspect ratio.&#x0a;Fill: Scales the fullscreen images to fill the display area, removing any letterboxes or pillarboxes, up to a 16:9 aspect ratio.</Description>
+        <Choices type="list">
+          <Value name="Disable">0</Value>
+          <Value name="Auto" default="true">3</Value>
+          <Value name="Fit">1</Value>
+          <Value name="Fill">2</Value>
+        </Choices>
+      </Feature>
 
-        </Section>
+      <Feature name="FullscreenVideos">
+        <Title>FMV scaling</Title>
+        <Description>Adds compatibility for the FMV Enhancement Pack to have its videos display correctly. The scaling works for both the original and enhanced FMVs.&#x0a;&#x0a;Auto: Automatically chooses "fit" or "fill" depending on the aspect ratio for the best presentation.&#x0a;Fit: Displays the FMVs without any cropping. Letterboxes or pillarboxes may appear depending on the aspect ratio.&#x0a;Fill: Scales FMVs to fill the display area, removing any letterboxes or pillarboxes, up to a 16:9 aspect ratio.</Description>
+        <Choices type="list">
+          <Value name="Disable">0</Value>
+          <Value name="Auto" default="true">3</Value>
+          <Value name="Fit">1</Value>
+          <Value name="Fill">2</Value>
+        </Choices>
+      </Feature>
 
-        <Section name="Noise Filter">
+      <Feature name="Fix2D">
+        <Title>Prevent fullscreen image stretching</Title>
+        <Description>Enabling this feature sets the 2D, full screen images to their original aspect ratios, regardless of aspect ratio used. This will remove stretching on the images when played in widescreen. Disabling this feature stretches the images to fit the screen. This affects all full screen images, such as the main menu, save screens, memo/riddle images, and inventory screen, along with other textures such as subtitles and the flashlight lens glow.&#x0a;&#x0a;Note: Disabling this will also disable Fullscreen Image Scaling.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
 
-            <Feature name="IncreaseNoiseEffectRes">
-                <Title>Adjust noise filter grain</Title>
-                <Description>Adjust the grain size of the noise filter.</Description>
-                <Choices type="list">
-                    <Value name="Coarse">256</Value>
-                    <Value name="Default">512</Value>
-                    <Value name="Fine" default="true">768</Value>
-                    <Value name="Finer">1024</Value>
-                </Choices>
-            </Feature>
+      <Feature name="SetBlackPillarBoxes">
+        <Title>Restore black pillarboxes</Title>
+        <Description>Primarily fixes issues when viewing the map. This feature forces all dynamically made pillarboxing to be black in color, restores pillarboxing to events which did not have them, and hides map markings behind the pillarboxing.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
 
-        </Section>
+      <Feature name="ReduceCutsceneFOV">
+        <Title>Scale cutscene FOV</Title>
+        <Description>In-engine cutscenes will be zoomed in to match their original 4:3 horizontal compositions when playing in widescreen. This will hide "frozen" character models that have been loaded in, right outside the 4:3 boundaries, ready and waiting to enter the scene.&#x0a;&#x0a;Note: This feature will zoom up to a 16:9 aspect ratio. It will not zoom past this aspect ratio as too much of the vertical composition would be cropped otherwise. This means that ultra-wide aspect ratios will still see visual anomolies as in-engine cutscenes play out.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
 
-        <Section name="Fullscreen Media">
+      <Feature name="DisableCutsceneBorders">
+        <Title>Disable cutscene borders</Title>
+        <Description>Removes in-engine cutscene letterboxing.&#x0a;&#x0a;Note: It is recommended to enable this if playing in a widescreen aspect ratio and enabling cutscene FOV scaling. Otherwise, the letterboxing may crop off character heads when playing in widescreen.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
 
-            <Feature name="FullscreenImages">
-                <Title>Fullscreen image scaling</Title>
-                <Description>Adds compatibility for the Image Enhancement Pack to have its visuals display correctly. Must be enabled if using the Image Enhancement Pack. The scaling works for both the original and enhanced fullscreen images.&#x0a;&#x0a;Auto: Automatically chooses "fit" or "fill" depending on the aspect ratio for the best presentation.&#x0a;Fit: Displays the fullscreen images without any cropping. Letterboxes or pillarboxes may appear depending on the aspect ratio.&#x0a;Fill: Scales the fullscreen images to fill the display area, removing any letterboxes or pillarboxes, up to a 16:9 aspect ratio.</Description>
-                <Choices type="list">
-                    <Value name="Disable">0</Value>
-                    <Value name="Auto" default="true">3</Value>
-                    <Value name="Fit">1</Value>
-                    <Value name="Fill">2</Value>
-                </Choices>
-            </Feature>
+    </Section>
 
-            <Feature name="FullscreenVideos">
-                <Title>FMV scaling</Title>
-                <Description>Adds compatibility for the FMV Enhancement Pack to have its videos display correctly. The scaling works for both the original and enhanced FMVs.&#x0a;&#x0a;Auto: Automatically chooses "fit" or "fill" depending on the aspect ratio for the best presentation.&#x0a;Fit: Displays the FMVs without any cropping. Letterboxes or pillarboxes may appear depending on the aspect ratio.&#x0a;Fill: Scales FMVs to fill the display area, removing any letterboxes or pillarboxes, up to a 16:9 aspect ratio.</Description>
-                <Choices type="list">
-                    <Value name="Disable">0</Value>
-                    <Value name="Auto" default="true">3</Value>
-                    <Value name="Fit">1</Value>
-                    <Value name="Fill">2</Value>
-                </Choices>
-            </Feature>
+    <Section name="DirectX">
 
-        </Section>
+      <Feature name="d3d8to9">
+        <Title>Run the game in DirectX 9 (required to use shaders below)</Title>
+        <Description>Converts the game from DirectX 8 to DirectX 9, allowing for additional features and fixes to be used.&#x0a;&#x0a;Note: Must be enabled to use shaders below.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
 
-        <Section name="Cutscenes">
+    </Section>
 
-            <Feature name="ReduceCutsceneFOV">
-                <Title>Scale cutscene FOV</Title>
-                <Description>In-engine cutscenes will be zoomed in to match their original 4:3 horizontal compositions when playing in widescreen. This will hide "frozen" character models that have been loaded in, right outside the 4:3 boundaries, ready and waiting to enter the scene.&#x0a;&#x0a;Note: This feature will zoom up to a 16:9 aspect ratio. It will not zoom past this aspect ratio as too much of the vertical composition would be cropped otherwise. This means that ultra-wide aspect ratios will still see visual anomolies as in-engine cutscenes play out.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="DisableCutsceneBorders">
-                <Title>Disable cutscene borders</Title>
-                <Description>Removes in-engine cutscene letterboxing.&#x0a;&#x0a;Note: It is recommended to enable this if playing in a widescreen aspect ratio and enabling cutscene FOV scaling. Otherwise, the letterboxing may crop off character heads when playing in widescreen.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
+    <Section name="Shaders">
 
-        </Section>
+      <Feature name="AdjustColorTemp">
+        <Title>Color temperature adjust</Title>
+        <Description>Adjusts the color temperature of the overall game image to give it a slight cool tint.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
 
-        <Section name="Other">
+      <Feature name="RestoreBrightnessSelector">
+        <Title>Restore brightness selector functionality</Title>
+        <Description>Restores the ability to adjust the brightness level in the game's options menu, regardless if playing in windowed or fullscreen mode.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
 
-            <Feature name="UseBestGraphics">
-                <Title>Always launch game using best graphics settings</Title>
-                <Description>Enables all advanced graphics settings from the game's Options > Advanced Options menu (complex fog, shadows, lens flare, etc) by default upon each game launch.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
+      <Feature name="EnableSMAA">
+        <Title>SMAA (anti-aliasing)</Title>
+        <Description>Enables subpixel morphological anti-aliasing (SMAA).&#x0a;&#x0a;Note: It is recommended to disable this if using GPU-based anti-aliasing.</Description>
+        <Choices type="check">
+          <Value name="Disable" default="true">0</Value>
+          <Value name="Enable">1</Value>
+        </Choices>
+      </Feature>
 
-        </Section>
+    </Section>
 
-    </Tab>
-    
-    <Tab name="DirectX/Shaders">
-        
-        <Section name="DirectX">
-            
-            <Feature name="d3d8to9">
-                <Title>Run the game in DirectX 9 (required to use shaders below)</Title>
-                <Description>Converts the game from DirectX 8 to DirectX 9, allowing for additional features and fixes to be used.&#x0a;&#x0a;Note: Must be enabled to use shaders below.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-        </Section>
-        
-        <Section name="Shaders">
-            
-            <Feature name="AdjustColorTemp">
-                <Title>Color temperature adjust</Title>
-                <Description>Adjusts the color temperature of the overall game image to give it a slight cool tint.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="RestoreBrightnessSelector">
-                <Title>Restore brightness selector functionality</Title>
-                <Description>Restores the ability to adjust the brightness level in the game's options menu, regardless if playing in windowed or fullscreen mode.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="EnableSMAA">
-                <Title>SMAA (anti-aliasing)</Title>
-                <Description>Enables subpixel morphological anti-aliasing (SMAA).&#x0a;&#x0a;Note: It is recommended to disable this if using GPU-based anti-aliasing.</Description>
-                <Choices type="check">
-                    <Value name="Disable" default="true">0</Value>
-                    <Value name="Enable">1</Value>
-                </Choices>
-            </Feature>
-            
-        </Section>
-        
-    </Tab>
-    
-    <Tab name="Advanced">
-        
-        <Section name="Resolution">
-            
-            <Feature name="DynamicResolution">
-                <Title>Dynamic resolution</Title>
-                <Description>Detects every resolution your display offers and makes them selectable choices in the game's options menu, along with displaying their aspect ratios beside the resolution.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="WidescreenFix">
-                <Title>Widescreen Fix</Title>
-                <Description>Enables the integrated SH2 Widescreen Fixes Pack and sh2proxy module.&#x0a;&#x0a;Note: If disabled, various other features will also be disabled. This feature should never be disabled.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-        </Section>
-        
-        <Section name="General">
-            
-            <Feature name="CheckCompatibilityMode">
-                <Title>Compatibility mode checker</Title>
-                <Description>Checks if unsupported Windows compatibility options are enabled for the game's executable and disables them.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="CheckForAdminAccess">
-                <Title>Admin privilege checker</Title>
-                <Description>Removes unneeded Windows Virtual Store files for the game and asks for adminstrator access if the game is located in an admin-protected directory. Adminstrator access is required if the game is located within an admin-protected directory in order to save game progress.&#x0a;&#x0a;Note:It is recommended to store the game in a local user directory (not an admin-protected directory) as a general rule.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="DisableScreenSaver">
-                <Title>Disable screen saver</Title>
-                <Description>Disables the screensaver while the game is running.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="UseCustomModFolder">
-                <Title>Use custom "sh2e" folder</Title>
-                <Description>Silent Hill 2: Enhanced Edition will read and use files in the "sh2e" folder, rather than the "data" folder, whenever possible. This allows custom, modified game files to be stored in the "sh2e" folder so as not to replace/overwrite original game files, which are found in the "data" folder. Any game files which have not been modified for the project will still be read from the "data" folder like normal, so you must keep the "data" folder and leave it untouched.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="NoCDPatch">
-                <Title>No CD patch</Title>
-                <Description>Removes the CD check on some versions of the game. Not guaranteed to work on all executables.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="UsePS2LowResTextures">
-                <Title>Disable "sh2e\pic\" path</Title>
-                <Description>Disables the "sh2e\pic\" path. This will revert the game to use the original, low resolution full screen images while still using all other files/folders found within the "sh2e" path.&#x0a;&#x0a;Note: Enabling the use of the custom "sh2e" folder is still required to use all other files/folders found with the "sh2e" path.</Description>
-                <Choices type="check">
-                    <Value name="Disable" default="true">0</Value>
-                    <Value name="Enable">1</Value>
-                </Choices>
-            </Feature>
-            
-        </Section>
-        
-        <Section name="Performance">
-            
-            <Feature name="DisableGameUX">
-                <Title>Disable Windows GameUX.dll</Title>
-                <Description>Disables Microsoft Game Explorer (GameUX.dll) to prevent the game hanging on launch and rundll32.exe high CPU usage.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="FixGPUAntiAliasing">
-                <Title>Fix GPU anti-aliasing</Title>
-                <Description>Fixes issues for Nvidia graphics cards, such as missing/incorrect shadows, when force-enabling anti-aliasing through of your GPU's control panel.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="SingleCoreAffinityLegacy">
-                <Title>Single core affinity</Title>
-                <Description>Limits the game to run on one CPU core. Note that it is no longer necessary to run the game on a single core if enabling the project's custom streaming audio engine.&#x0a;&#x0a;Note: If the value is set to a number that is greater than the available cores on your computer, it will default to using the first core (CPU 0).</Description>
-                <Choices type="list">
-                    <Value name="Disabled" default="true">0</Value>
-                    <Value name="CPU 0">1</Value>
-                    <Value name="CPU 1">2</Value>
-                    <Value name="CPU 2">3</Value>
-                    <Value name="CPU 3">4</Value>
-                    <Value name="CPU 4">5</Value>
-                    <Value name="CPU 5">6</Value>
-                    <Value name="CPU 6">7</Value>
-                    <Value name="CPU 7">8</Value>
-                    <Value name="CPU 8">9</Value>
-                    <Value name="CPU 9">10</Value>
-                </Choices>
-            </Feature>
-            
-        </Section>
-        
-    </Tab>
-    
-    <Tab name="Controller">
-        
-        <Section name="General">
-            
-            <Feature name="DPadMovementFix">
-                <Title>Restore D-pad movement</Title>
-                <Description>Allows the D-pad on DirecInput gamepads to act as an additional movement pad to control James and navigate menu selections.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="GamepadControlsFix">
-                <Title>Assign multiple functions to the same input</Title>
-                <Description>Allows the same controller input to be assigned to multiple game functions.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="RestoreSearchCamMovement">
-                <Title>Controller type for search cam movement</Title>
-                <Description>Restores right joystick functionality for controllers to move the search camera around. Change the setting depending on what type of controller you are using.</Description>
-                <Choices type="list">
-                    <Value name="Disable">0</Value>
-                    <Value name="XInput" default="true">1</Value>
-                    <Value name="DirectInput">2</Value>
-                    <Value name="DirectInput (Alternate)">3</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="Southpaw">
-                <Title>South Paw</Title>
-                <Description>Swaps left joystick and right joystick functions. Useful for left-handed players.</Description>
-                <Choices type="check">
-                    <Value name="Disable" default="true">0</Value>
-                    <Value name="Enable">1</Value>
-                </Choices>
-            </Feature>
-            
-        </Section>
-        
-        <Section name="Vibration">
-            
-            <Feature name="RestoreVibration">
-                <Title>Restore Vibration</Title>
-                <Description>Restores vibration for XInput-based controllers. Make sure to enable vibration through the game's options menu as well.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="PadNumber">
-                <Title>Controller ID to vibrate</Title>
-                <Description>Sets what pad (controller) ID to vibrate. This is typically "0" for the game.</Description>
-                <Choices type="list">
-                    <Value name="0" default="true">0</Value>
-                    <Value name="1">1</Value>
-                    <Value name="2">2</Value>
-                    <Value name="3">3</Value>
-                    <Value name="4">4</Value>
-                    <Value name="5">5</Value>
-                    <Value name="6">6</Value>
-                    <Value name="7">7</Value>
-                    <Value name="8">8</Value>
-                    <Value name="9">9</Value>
-                </Choices>
-            </Feature>
-            
-        </Section>
-        
-    </Tab>
-    
-    <Tab name="Game Fixes 1">
-        
-        <Section name="Fog">
-            
-            <Feature name="FogFix">
-                <Title>Enable fog fix</Title>
-                <Description>Restores the thickness, size, and amount of fog to its original appearance.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="FogLayerFix">
-                <Title>Restore 2D fog layer</Title>
-                <Description>Fixes an issue on Nvidia graphics cards where the 2D fog layer and the glow around James' flashlight is missing.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="FogParameterFix">
-                <Title>Adjust fog-of-war boundaries</Title>
-                <Description>Adjusts the fog-of-war boundaries for specific areas to fix visual errors.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="FogSpeedFix">
-                <Title>Natural fog movement</Title>
-                <Description>Adjusts the speed of the fog for slower, more natural movement to match its original behavior.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-        </Section>
-        
-        <Section name="Font">
-            
-            <Feature name="UseCustomFonts">
-                <Title>High resolution text</Title>
-                <Description>Uses custom font files to produce high-resolution text in-game. Compatible with all preset language files (English, French, German, Italian, and Spanish) in the game.&#x0a;&#x0a;Note: fontwdata.bin and font000.tga files must be present in "sh2e\font\" for this feature to work.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="DisableEnlargedText">
-                <Title>Disable large, floating save menu text</Title>
-                <Description>Disables the enlarged, floating text while navigating the save/load menu, which may otherwise be distracting. Requires high resolution text to be enabled to work.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-        </Section>
-        
-        <Section name="Menu and Language">
-            
-            <Feature name="MainMenuFix">
-                <Title>Fix main menu mouse alignment</Title>
-                <Description>Fixes the mouse hitboxes for the game's main menu selections for the North American version 1.1 executable.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="MainMenuTitlePerLang">
-                <Title>Use translated main menu text</Title>
-                <Description>Loads translated main menu text selections for the North American version 1.0 and 1.1 executables.&#x0a;&#x0a;Note: start01*.tex files must be present in "sh2e\pic\etc\" for this feature to work.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="LockScreenPosition">
-                <Title>Lock Screen Position option</Title>
-                <Description>Disables the screen position feature in the game's options menu which is no longer needed for modern displays and could otherwise cause visual alignment issues.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="LockSpeakerConfig">
-                <Title>Lock Speaker Config option</Title>
-                <Description>Disables changing the speaker configuration feature in the game's options menu as, after Windows XP, this change must be done through Windows' sound control panel and can no longer be changed within applications (such as this game). If you try to change this through the game's option's menu, it will just revert back to what is being used through Windows' sound control panel.&#x0a;&#x0a;Note: d3d8.res must be present in the game's directory for this feature to work.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="UseCustomExeStr">
-                <Title>Restore all languages in options menu</Title>
-                <Description>Restores all language options (English, French, German, Italian, and Spanish) as selectable choices in the game's options menu and creates language-specific pause menu text for the North American executables of the game.&#x0a;&#x0a;Note: d3d8.res must be present in the game's directory for this feature to work.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="UnlockJapLang">
-                <Title>Unlock Japanese language option</Title>
-                <Description>Unlocks the ability to select Japanese for the game's text/subtitles.&#x0a;&#x0a;Note: It is recommended to keep this disabled for now, as not all Japanese characters are currently supported.</Description>
-                <Choices type="check">
-                    <Value name="Disable" default="true">0</Value>
-                    <Value name="Enable">1</Value>
-                </Choices>
-            </Feature>
-            
-        </Section>
-        
-        <Section name="Audio">
-            
-            <Feature name="EnableCriWareReimplementation">
-                <Title>Use custom streaming audio engine</Title>
-                <Description>Replaces the game's bugged CRIWARE streaming audio engine with a custom, made-from-scratch streaming audio engine solution. This fixes the infamous issue where the game's audio would glitch out and play an infinite one second loop, which would inevitably crash the game. This audio issue was the reason why the game would need to be ran on a single processor core prior to this fix. With this fix, the game can now run stable on multiple cores with overall performance improvements (such as less game stutters).</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="EnableSFXAddrHack">
-                <Title>Allow for high quality audio</Title>
-                <Description>Allows higher quality sound files to be used. Must be enabled if using the Audio Enhancement Pack.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="AudioClipDetection">
-                <Title>Audio clip detection</Title>
-                <Description>Detects when any audio event is stopped prematurely and fades out the sound to avoid "popping/clicking" that would otherwise be heard.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-        </Section>
-        
-        <Section name="Images">
-            
-            <Feature name="EnableTexAddrHack">
-                <Title>Allow for high quality images</Title>
-                <Description>Allows higher quality, upscaled images to be used. Must be enabled if using the Image Enhancement Pack.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="Fix2D">
-                <Title>Prevent fullscreen image stretching</Title>
-                <Description>Enabling this feature sets the 2D, full screen images to their original aspect ratios, regardless of aspect ratio used. This will remove stretching on the images when played in widescreen. Disabling this feature stretches the images to fit the screen. This affects all full screen images, such as the main menu, save screens, memo/riddle images, and inventory screen, along with other textures such as subtitles and the flashlight lens glow.&#x0a;&#x0a;Note: Disabling this will also disable Fullscreen Image Scaling.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-        </Section>
-        
-    </Tab>
-    
-    <Tab name="Game Fixes 2">
-        
-        <Section name="Transitions">
-            
-            <Feature name="FastTransitions">
-                <Title>Fast transitions</Title>
-                <Description>Increases the speed of all fade out/fade in transitions. Examples include going between rooms, opening/closing the inventory screen, examining memo/riddle images, and saving.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="FixHangOnEsc">
-                <Title>Disable pause screen during fades</Title>
-                <Description>Prevents the player from bringing up the PC pause menu during a fade-in, which would otherwise use a wrong screen grab of the game for the pause menu background image.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-        </Section>
-        
-        <Section name="General">
-            
-            <Feature name="CatacombsMeatRoomFix">
-                <Title>Catacomb meat room fix</Title>
-                <Description>Corrects color and level values for the Catacomb's meat cold rooms.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="FixChainsawSpawn">
-                <Title>Chainsaw only spawns on New Game+</Title>
-                <Description>Prevents the chainsaw from spawning on a first playthrough, which is a developer-intended design choice.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="ChangeClosetSpawn">
-                <Title>Change closet spawn</Title>
-                <Description>Places James inside the closet after the Wood Side Apartments Room 307 cutscene ends, to help guide the player's attention to the key inside.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="CreateLocalFix">
-                <Title>Create "local.fix" file on game launch</Title>
-                <Description>Creates a local.fix file in the game's directory (if it does not already exist) to allow GPU-based anti-aliasing support for the game.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="FixSaveBGImage">
-                <Title>Consistent save background images</Title>
-                <Description>Ensures the correct background image for the save/load screen is always shown for the campaign currently being played.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="PS2StyleNoiseFilter">
-                <Title>Correct noise filter levels</Title>
-                <Description>Restores the levels and opacity of noise filter back to its original look.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="FixMemoFading">
-                <Title>Correctly fade images from memo list</Title>
-                <Description>Fixes an issue where the top-most layer of memo images would not correctly fade/darken with the rest of the image when viewed through your memos list.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="DisableSafeMode">
-                <Title>Disable safe mode</Title>
-                <Description>Prevents the game from using the lowest visual settings upon relaunch, if the game crashed previously.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="DisableHighDPIScaling">
-                <Title>Disable Windows high DPI scaling</Title>
-                <Description>Disables Windows' high DPI scaling for the game to prevent certain display issues, such as a "burnt-in" image from appearing during fade transitions.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="EnableSoftShadows">
-                <Title>Enable soft shadows</Title>
-                <Description>Restores soft shadows, shadow level intensities, shadow fading on flashlight toggles, and self shadows.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="ImproveStorageSupport">
-                <Title>Fix 2+ TB storage limit</Title>
-                <Description>Allows the game to correctly check free disk space in hard drives larger than 2TB in order to save game files. Changes the displayed unit of measurement for available free space from KB to a scaled, proportionate unit. Example: Changes 99999999+ KB to 108.21 GB.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="FixAdvancedOptions">
-                <Title>Fix Advanced Options screen</Title>
-                <Description>Fixes numerous text display issues in the Advanced Options menu, such as missing and incorrect descriptions when the save confirmation prompt shows up.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="FixAptClockFlashlight">
-                <Title>Fix apartment clock cutscene</Title>
-                <Description>Fixes the flashlight rendering on the apartment grandfather clock at the end of a failed attempt to push it.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="ClosetCutsceneFix">
-                <Title>Fix apartment closet cutscene</Title>
-                <Description>Darkens the closet bars and moves the noise grain layer to be on top of the closet bar blur layer during the first-person segment of the apartment closet cutscene. Also adjusts the visuals during another camera cut to better correctly light the scene.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="PS2CameraSpeed">
-                <Title>Fix camera speed</Title>
-                <Description>Increases the camera speed movement back to its intended value and removes "floaty/bouncy" camera behavior that was present in the PC version.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="RemoveEnvironmentFlicker">
-                <Title>Fix cutscene environment flicker</Title>
-                <Description>Removes flicker from environment settings resetting to default values at the end of certain cutscenes.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="WoodsideRoom205Fix">
-                <Title>Fix enemy spawn in Wood Side Room 205</Title>
-                <Description>Fixes a rare bug where the Mannequin creature in Wood Side Apartments Room 205 may not spawn/behave correctly upon entering the room.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="PS2FlashlightBrightness">
-                <Title>Fix flashlight brightness</Title>
-                <Description>Fixes incorrect flashlight brightness levels by reducing its intensity for environments, but keeping enemies and NPCs bright. Also corrects flashlight levels for Wood Side Apartments Room 205 (the flashlight and mannequin room), along with a handful of other specialized rooms.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="FlashlightFlickerFix">
-                <Title>Fix flashlight flicker</Title>
-                <Description>Fixes a bug that would make James' body flash with light if exiting the pause menu while the flashlight is off.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="HospitalChaseFix">
-                <Title>Fix hospital chase animation</Title>
-                <Description>Correctly syncs Red Pyramid Thing's attack animation to the rest of the cutscene that plays out during the hospital elevator chase sequence.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="FixInventoryBGM">
-                <Title>Fix incorrect BGM tracks on menu pull-ups</Title>
-                <Description>Fixes an issue where the game would play the wrong background music when pulling up menus (inventory, memo, map, save/load, etc) under certain circumstances.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="FixCreatureVehicleSpawn">
-                <Title>Fix Lying Figures exiting from under vehicles</Title>
-                <Description>Fixes an issue where Lying Figures would exit from underneath vehicles incorrectly.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="FixMissingWallChunks">
-                <Title>Fix missing wall chunks</Title>
-                <Description>Fixes an issue on Nvidia graphics cards where chunks of the wall would disappear if the camera got close to their geometry.&#x0a;&#x0a;Note: If playing in an ultra-wide aspect ratio, the camera will likely clip through walls. This is a different issue and is unavoidable due to heavy use of tight camera angles throughout this game.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="PistonRoomFix">
-                <Title>Fix piston room cutscene</Title>
-                <Description>Hides a piston behind the wall that would otherwise be seen when Angela opens the door in the Labyrinth during a cutscene.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="RemoveEffectsFlicker">
-                <Title>Fix post-processing effect flicker</Title>
-                <Description>Removes flicker that appears at the beginning of any motion blur event.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="GameLoadFix">
-                <Title>Fix save/load issues</Title>
-                <Description>Disables free-saving in select rooms that would cause game issues upon file loading back into the rooms. Addresses quick save bugs that could otherwise soft lock the game.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-        </Section>
-        
-    </Tab>
-        
-    <Tab name="Game Fixes 3">
-        
-        <Section name="General">
-            
-            <Feature name="FixTownWestGateEvent">
-                <Title>Fix town west back alley gate commentary</Title>
-                <Description>Changes James' commentary about the back alley Heaven's Night gate at night to properly reflect the gate's status.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="Room312ShadowFix">
-                <Title>Hotel Room 312 shadow fix</Title>
-                <Description>Prevents distracting shadow flickering along the patio glass doors while in Hotel Room 312 and restores the chair's shadow during the cutscene that takes place in this room.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="IncreaseBlood">
-                <Title>Increase blood pool sizes</Title>
-                <Description>Increases the blood pool size of dead enemies back to their original amount.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="IncreaseDrawDistance">
-                <Title>Increase draw distance</Title>
-                <Description>Increases the front draw distance in certain areas to hide the environment loading in.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="LightingFix">
-                <Title>Lighting fix</Title>
-                <Description>Restores proper environmental settings for the "Maria" ending, and restores lighting conditions for the 3D trees in the "Leave" and "Maria" ending.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="LightingTransitionFix">
-                <Title>Lighting transition fix</Title>
-                <Description>Fixes an issue where some light sources would not properly brighten and darken James.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="PauseScreenFix">
-                <Title>Pause screen fix</Title>
-                <Description>Removes flicker when accessing the pause menu and restores the noise filter and bloom effects in the pause menu for Hotel Room 312.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="RestoreAlternateStomp">
-                <Title>Restore alternate stomp</Title>
-                <Description>Restores the secondary/alternate stomp animation. When performing a stomp, there is now a 50/50 chance of receiving either stomp animation.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="SetBlackPillarBoxes">
-                <Title>Restore black pillarboxes</Title>
-                <Description>Primarily fixes issues when viewing the map. This feature forces all dynamically made pillarboxing to be black in color, restores pillarboxing to events which did not have them, and hides map markings behind the pillarboxing.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="RestoreSpecialFX">
-                <Title>Restore post-processing effects</Title>
-                <Description>Restores post-processing effects to their original intensities. Effects include depth-of-field blur, motion blur, static blur, and pseudo blooms.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="SaveGameSoundFix">
-                <Title>Restore save game sound through pause menu</Title>
-                <Description>Restores the "save game" sound effect when selecting to save your game through the pause menu.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="SpecularFix">
-                <Title>Restore specularity</Title>
-                <Description>Restores specularity and specular behavior throughout the game. This gives "shininess" to things such as character eyeballs, Pyramid Head's helmet, Maria's skirt, etc. Shiny things will shine brighter whenever they're under a light source or when James' flashlight is on.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="HalogenLightFix">
-                <Title>Restore unlit vertex shader</Title>
-                <Description>Restores luminance for certain environment assets.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="HotelWaterFix">
-                <Title>Restore water visuals</Title>
-                <Description>Restores lighting values for the water throughout the game.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="RoomLightingFix">
-                <Title>Room lighting fix</Title>
-                <Description>Prevents the game from using wrong environmental and fog lighting values in the cemetery, if you load back into this area from a save point. Also corrects lighting levels in various other rooms/areas.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="RowboatAnimationFix">
-                <Title>Rowboat animation fix</Title>
-                <Description>Fixes an issue with James' character model being placed erratically into the rowboat if you previously entered the rowboat then load an earlier save point to enter the rowboat again.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="SpecificSoundLoopFix">
-                <Title>Specific sound looping fix</Title>
-                <Description>Fixes specific, unique sound looping bugs with the chainsaw and moth attack sounds.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="SteamCrashFix">
-                <Title>Steam crash fix</Title>
-                <Description>Prevents a crash when Steam controller configuration is used or when going to the game's options menu while using certain types of gamepads.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="FixDrawingTextLine">
-                <Title>Thicken hospital diary line</Title>
-                <Description>Thickens the horizontal line in the hospital diary text to make it easier to see at higher rendering resolutions.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="WhiteShaderFix">
-                <Title>White shader fix</Title>
-                <Description>Fixes an issue on Nvidia graphics cards where certain areas would appear white when they should be black.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-        </Section>
-        
-    </Tab>
-    
-    <Tab name="Other">
-        
-        <Section name="General">
-            
-            <Feature name="AutoUpdateModule">
-                <Title>Auto update module</Title>
-                <Description>Upon game launch, the SH2:EE Setup Tool (SH2EEsetup.exe) will check for updates and, if available, will ask the user if they would like to update their files to receive new improvements and features for the project.</Description>
-                <Choices type="check">
-                    <Value name="Disable">0</Value>
-                    <Value name="Enable" default="true">1</Value>
-                </Choices>
-            </Feature>
-            
-        </Section>
-        
-        <Section name="Plugins">
-            
-            <Feature name="LoadPlugins">
-                <Title>Load plugins</Title>
-                <Description>Loads ASI plugins.</Description>
-                <Choices type="check">
-                    <Value name="Disable" default="true">0</Value>
-                    <Value name="Enable">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="LoadFromScriptsOnly">
-                <Title>Load from "scripts" folder</Title>
-                <Description>Loads ASI plugins only from the "scripts" and "plugins" folders.</Description>
-                <Choices type="check">
-                    <Value name="Disable" default="true">0</Value>
-                    <Value name="Enable">1</Value>
-                </Choices>
-            </Feature>
-            
-            <Feature name="LoadD3d8FromScriptsFolder">
-                <Title>Load d3d8.dll from "scripts" folder</Title>
-                <Description>Loads d3d8.dll from the "scripts" and "plugins" folders.&#x0a;&#x0a;Requires disabling the game running in DirectX 9 to work.</Description>
-                <Choices type="check">
-                    <Value name="Disable" default="true">0</Value>
-                    <Value name="Enable">1</Value>
-                </Choices>
-            </Feature>
-            
-        </Section>
-        
-    </Tab>
-    
-    <!-- ##################################################### -->
-    <!-- ================== PROGRAM STRINGS ================== -->
-    <!-- ##################################################### -->
-    
-	<Strings>
-        
-		<S id="PRG_Title">Silent Hill 2: Enhanced Edition Configuration Tool</S>
-		<S id="PRG_Caption_error">ERROR</S>
-		<S id="PRG_Caption_warning">WARNING</S>
-		<S id="PRG_Close">Close</S>
-		<S id="PRG_Default">Default</S>
-		<S id="PRG_Save">Save</S>
-		<S id="PRG_Launch">Save &amp;&amp; Launch Game</S>
-		<S id="PRG_Launch_mess">Could not launch sh2pc.exe.</S>
-		<S id="PRG_Launch_exe">sh2pc.exe</S>
-		<S id="PRG_Ini_name">d3d8.ini</S>
-		<S id="PRG_Ini_error">Coud not save d3d8.ini.</S>
-		<S id="PRG_Unsaved"> [not saved]</S>
-		<S id="PRG_Save_exit">There are unsaved changes. Do you want to save changes before closing?</S>
-        
-    </Strings>
-    
+  </Tab>
+
+  <Tab name="Graphics">
+
+    <Section name="Images">
+
+      <Feature name="EnableTexAddrHack">
+        <Title>Allow for high quality images</Title>
+        <Description>Allows higher quality, upscaled images to be used. Must be enabled if using the Image Enhancement Pack.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="UsePS2LowResTextures">
+        <Title>Disable "sh2e\pic\" path</Title>
+        <Description>Disables the "sh2e\pic\" path. This will revert the game to use the original, low resolution full screen images while still using all other files/folders found within the "sh2e" path.&#x0a;&#x0a;Note: Enabling the use of the custom "sh2e" folder is still required to use all other files/folders found with the "sh2e" path.</Description>
+        <Choices type="check">
+          <Value name="Disable" default="true">0</Value>
+          <Value name="Enable">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Effects">
+
+      <Feature name="UseBestGraphics">
+        <Title>Always launch game using best graphics settings</Title>
+        <Description>Enables all advanced graphics settings from the game's Options > Advanced Options menu (complex fog, shadows, lens flare, etc) by default upon each game launch.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="EnableSoftShadows">
+        <Title>Enable soft shadows</Title>
+        <Description>Restores soft shadows, shadow level intensities, shadow fading on flashlight toggles, and self shadows.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="RestoreSpecialFX">
+        <Title>Restore post-processing effects</Title>
+        <Description>Restores post-processing effects to their original intensities. Effects include depth-of-field blur, motion blur, static blur, and pseudo blooms.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="SpecularFix">
+        <Title>Restore specularity</Title>
+        <Description>Restores specularity and specular behavior throughout the game. This gives "shininess" to things such as character eyeballs, Pyramid Head's helmet, Maria's skirt, etc. Shiny things will shine brighter whenever they're under a light source or when James' flashlight is on.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="IncreaseDrawDistance">
+        <Title>Increase draw distance</Title>
+        <Description>Increases the front draw distance in certain areas to hide the environment loading in.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="IncreaseBlood">
+        <Title>Increase blood pool sizes</Title>
+        <Description>Increases the blood pool size of dead enemies back to their original amount.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Noise Filter">
+
+      <Feature name="IncreaseNoiseEffectRes">
+        <Title>Adjust noise filter grain</Title>
+        <Description>Adjust the grain size of the noise filter.</Description>
+        <Choices type="list">
+          <Value name="Coarse">256</Value>
+          <Value name="Default">512</Value>
+          <Value name="Fine" default="true">768</Value>
+          <Value name="Finer">1024</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="PS2StyleNoiseFilter">
+        <Title>Correct noise filter levels</Title>
+        <Description>Restores the levels and opacity of noise filter back to its original look.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Fog">
+
+      <Feature name="FogFix">
+        <Title>Enable fog fix</Title>
+        <Description>Restores the thickness, size, and amount of fog to its original appearance.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FogLayerFix">
+        <Title>Restore 2D fog layer</Title>
+        <Description>Fixes an issue on Nvidia graphics cards where the 2D fog layer and the glow around James' flashlight is missing.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FogParameterFix">
+        <Title>Adjust fog-of-war boundaries</Title>
+        <Description>Adjusts the fog-of-war boundaries for specific areas to fix visual errors.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FogSpeedFix">
+        <Title>Natural fog movement</Title>
+        <Description>Adjusts the speed of the fog for slower, more natural movement to match its original behavior.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+  </Tab>
+
+  <Tab name="Audio">
+
+    <Section name="Audio">
+
+      <Feature name="EnableCriWareReimplementation">
+        <Title>Use custom streaming audio engine</Title>
+        <Description>Replaces the game's bugged CRIWARE streaming audio engine with a custom, made-from-scratch streaming audio engine solution. This fixes the infamous issue where the game's audio would glitch out and play an infinite one second loop, which would inevitably crash the game. This audio issue was the reason why the game would need to be ran on a single processor core prior to this fix. With this fix, the game can now run stable on multiple cores with overall performance improvements (such as less game stutters).</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="EnableSFXAddrHack">
+        <Title>Allow for high quality audio</Title>
+        <Description>Allows higher quality sound files to be used. Must be enabled if using the Audio Enhancement Pack.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Audio Fixes">
+
+      <Feature name="AudioClipDetection">
+        <Title>Audio clip detection</Title>
+        <Description>Detects when any audio event is stopped prematurely and fades out the sound to avoid "popping/clicking" that would otherwise be heard.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="SpecificSoundLoopFix">
+        <Title>Specific sound looping fix</Title>
+        <Description>Fixes specific, unique sound looping bugs with the chainsaw and moth attack sounds.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FixInventoryBGM">
+        <Title>Fix incorrect BGM tracks on menu pull-ups</Title>
+        <Description>Fixes an issue where the game would play the wrong background music when pulling up menus (inventory, memo, map, save/load, etc) under certain circumstances.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="SaveGameSoundFix">
+        <Title>Restore save game sound through pause menu</Title>
+        <Description>Restores the "save game" sound effect when selecting to save your game through the pause menu.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+  </Tab>
+
+  <Tab name="Controller">
+
+    <Section name="Controller">
+
+      <Feature name="DPadMovementFix">
+        <Title>Restore D-pad movement</Title>
+        <Description>Allows the D-pad on DirecInput gamepads to act as an additional movement pad to control James and navigate menu selections.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="GamepadControlsFix">
+        <Title>Assign multiple functions to the same input</Title>
+        <Description>Allows the same controller input to be assigned to multiple game functions.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="RestoreSearchCamMovement">
+        <Title>Controller type for search cam movement</Title>
+        <Description>Restores right joystick functionality for controllers to move the search camera around. Change the setting depending on what type of controller you are using.</Description>
+        <Choices type="list">
+          <Value name="Disable">0</Value>
+          <Value name="XInput" default="true">1</Value>
+          <Value name="DirectInput">2</Value>
+          <Value name="DirectInput (Alternate)">3</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="Southpaw">
+        <Title>South Paw</Title>
+        <Description>Swaps left joystick and right joystick functions. Useful for left-handed players.</Description>
+        <Choices type="check">
+          <Value name="Disable" default="true">0</Value>
+          <Value name="Enable">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Vibration">
+
+      <Feature name="RestoreVibration">
+        <Title>Restore Vibration</Title>
+        <Description>Restores vibration for XInput-based controllers. Make sure to enable vibration through the game's options menu as well.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="PadNumber">
+        <Title>Controller ID to vibrate</Title>
+        <Description>Sets what pad (controller) ID to vibrate. This is typically "0" for the game.</Description>
+        <Choices type="list">
+          <Value name="0" default="true">0</Value>
+          <Value name="1">1</Value>
+          <Value name="2">2</Value>
+          <Value name="3">3</Value>
+          <Value name="4">4</Value>
+          <Value name="5">5</Value>
+          <Value name="6">6</Value>
+          <Value name="7">7</Value>
+          <Value name="8">8</Value>
+          <Value name="9">9</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+  </Tab>
+
+  <Tab name="Menu">
+
+    <Section name="Font">
+
+      <Feature name="UseCustomFonts">
+        <Title>High resolution text</Title>
+        <Description>Uses custom font files to produce high-resolution text in-game. Compatible with all preset language files (English, French, German, Italian, and Spanish) in the game.&#x0a;&#x0a;Note: fontwdata.bin and font000.tga files must be present in "sh2e\font\" for this feature to work.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="DisableEnlargedText">
+        <Title>Disable large, floating save menu text</Title>
+        <Description>Disables the enlarged, floating text while navigating the save/load menu, which may otherwise be distracting. Requires high resolution text to be enabled to work.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Language">
+
+      <Feature name="MainMenuTitlePerLang">
+        <Title>Use translated main menu text</Title>
+        <Description>Loads translated main menu text selections for the North American version 1.0 and 1.1 executables.&#x0a;&#x0a;Note: start01*.tex files must be present in "sh2e\pic\etc\" for this feature to work.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="UseCustomExeStr">
+        <Title>Restore all languages in options menu</Title>
+        <Description>Restores all language options (English, French, German, Italian, and Spanish) as selectable choices in the game's options menu and creates language-specific pause menu text for the North American executables of the game.&#x0a;&#x0a;Note: d3d8.res must be present in the game's directory for this feature to work.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="UnlockJapLang">
+        <Title>Unlock Japanese language option</Title>
+        <Description>Unlocks the ability to select Japanese for the game's text/subtitles.&#x0a;&#x0a;Note: It is recommended to keep this disabled for now, as not all Japanese characters are currently supported.</Description>
+        <Choices type="check">
+          <Value name="Disable" default="true">0</Value>
+          <Value name="Enable">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Menu Fixes">
+
+      <Feature name="MainMenuFix">
+        <Title>Fix main menu mouse alignment</Title>
+        <Description>Fixes the mouse hitboxes for the game's main menu selections for the North American version 1.1 executable.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FixAdvancedOptions">
+        <Title>Fix Advanced Options screen</Title>
+        <Description>Fixes numerous text display issues in the Advanced Options menu, such as missing and incorrect descriptions when the save confirmation prompt shows up.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FixHangOnEsc">
+        <Title>Disable pause screen during fades</Title>
+        <Description>Prevents the player from bringing up the PC pause menu during a fade-in, which would otherwise use a wrong screen grab of the game for the pause menu background image.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="PauseScreenFix">
+        <Title>Pause screen fix</Title>
+        <Description>Removes flicker when accessing the pause menu and restores the noise filter and bloom effects in the pause menu for Hotel Room 312.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FixSaveBGImage">
+        <Title>Consistent save background images</Title>
+        <Description>Ensures the correct background image for the save/load screen is always shown for the campaign currently being played.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FixMemoFading">
+        <Title>Correctly fade images from memo list</Title>
+        <Description>Fixes an issue where the top-most layer of memo images would not correctly fade/darken with the rest of the image when viewed through your memos list.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="LockScreenPosition">
+        <Title>Lock Screen Position option</Title>
+        <Description>Disables the screen position feature in the game's options menu which is no longer needed for modern displays and could otherwise cause visual alignment issues.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="LockSpeakerConfig">
+        <Title>Lock Speaker Config option</Title>
+        <Description>Disables changing the speaker configuration feature in the game's options menu as, after Windows XP, this change must be done through Windows' sound control panel and can no longer be changed within applications (such as this game). If you try to change this through the game's option's menu, it will just revert back to what is being used through Windows' sound control panel.&#x0a;&#x0a;Note: d3d8.res must be present in the game's directory for this feature to work.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+  </Tab>
+
+  <Tab name="Game Fixes">
+
+    <Section name="Game Fixes">
+
+      <Feature name="CatacombsMeatRoomFix">
+        <Title>Catacomb meat room fix</Title>
+        <Description>Corrects color and level values for the Catacomb's meat cold rooms.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FixChainsawSpawn">
+        <Title>Chainsaw only spawns on New Game+</Title>
+        <Description>Prevents the chainsaw from spawning on a first playthrough, which is a developer-intended design choice.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="ChangeClosetSpawn">
+        <Title>Change closet spawn</Title>
+        <Description>Places James inside the closet after the Wood Side Apartments Room 307 cutscene ends, to help guide the player's attention to the key inside.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FixAptClockFlashlight">
+        <Title>Fix apartment clock cutscene</Title>
+        <Description>Fixes the flashlight rendering on the apartment grandfather clock at the end of a failed attempt to push it.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="ClosetCutsceneFix">
+        <Title>Fix apartment closet cutscene</Title>
+        <Description>Darkens the closet bars and moves the noise grain layer to be on top of the closet bar blur layer during the first-person segment of the apartment closet cutscene. Also adjusts the visuals during another camera cut to better correctly light the scene.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="WoodsideRoom205Fix">
+        <Title>Fix enemy spawn in Wood Side Room 205</Title>
+        <Description>Fixes a rare bug where the Mannequin creature in Wood Side Apartments Room 205 may not spawn/behave correctly upon entering the room.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="HospitalChaseFix">
+        <Title>Fix hospital chase animation</Title>
+        <Description>Correctly syncs Red Pyramid Thing's attack animation to the rest of the cutscene that plays out during the hospital elevator chase sequence.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FixCreatureVehicleSpawn">
+        <Title>Fix Lying Figures exiting from under vehicles</Title>
+        <Description>Fixes an issue where Lying Figures would exit from underneath vehicles incorrectly.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="PistonRoomFix">
+        <Title>Fix piston room cutscene</Title>
+        <Description>Hides a piston behind the wall that would otherwise be seen when Angela opens the door in the Labyrinth during a cutscene.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FixTownWestGateEvent">
+        <Title>Fix town west back alley gate commentary</Title>
+        <Description>Changes James' commentary about the back alley Heaven's Night gate at night to properly reflect the gate's status.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="Room312ShadowFix">
+        <Title>Hotel Room 312 shadow fix</Title>
+        <Description>Prevents distracting shadow flickering along the patio glass doors while in Hotel Room 312 and restores the chair's shadow during the cutscene that takes place in this room.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="RestoreAlternateStomp">
+        <Title>Restore alternate stomp</Title>
+        <Description>Restores the secondary/alternate stomp animation. When performing a stomp, there is now a 50/50 chance of receiving either stomp animation.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="HalogenLightFix">
+        <Title>Restore unlit vertex shader</Title>
+        <Description>Restores luminance for certain environment assets.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="HotelWaterFix">
+        <Title>Restore water visuals</Title>
+        <Description>Restores lighting values for the water throughout the game.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="RowboatAnimationFix">
+        <Title>Rowboat animation fix</Title>
+        <Description>Fixes an issue with James' character model being placed erratically into the rowboat if you previously entered the rowboat then load an earlier save point to enter the rowboat again.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FixDrawingTextLine">
+        <Title>Thicken hospital diary line</Title>
+        <Description>Thickens the horizontal line in the hospital diary text to make it easier to see at higher rendering resolutions.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+  </Tab>
+
+  <Tab name="Misc">
+
+    <Section name="Game Saves">
+
+      <Feature name="GameLoadFix">
+        <Title>Fix save/load issues</Title>
+        <Description>Disables free-saving in select rooms that would cause game issues upon file loading back into the rooms. Addresses quick save bugs that could otherwise soft lock the game.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="ImproveStorageSupport">
+        <Title>Fix 2+ TB storage limit</Title>
+        <Description>Allows the game to correctly check free disk space in hard drives larger than 2TB in order to save game files. Changes the displayed unit of measurement for available free space from KB to a scaled, proportionate unit. Example: Changes 99999999+ KB to 108.21 GB.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Health Indicator">
+
+      <Feature name="DisableRedCrossInCutScenes">
+        <Title>Disable low health indicator during cutscenes</Title>
+        <Description>Hides the low health indicator during cutscenes, which would otherwise be distracting as the cutscenes play out.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="DisableRedCross">
+        <Title>Disable low health indicator completely</Title>
+        <Description>Hides the low health indicator completely.&#x0a;&#x0a;Note: Enabling this option is only recommended if you are using a controller with vibration enabled. Otherwise, you have no way of knowing when you're low on health unless you check the inventory screen.</Description>
+        <Choices type="check">
+          <Value name="Disable" default="true">0</Value>
+          <Value name="Enable">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Environment">
+
+      <Feature name="FixMissingWallChunks">
+        <Title>Fix missing wall chunks</Title>
+        <Description>Fixes an issue on Nvidia graphics cards where chunks of the wall would disappear if the camera got close to their geometry.&#x0a;&#x0a;Note: If playing in an ultra-wide aspect ratio, the camera will likely clip through walls. This is a different issue and is unavoidable due to heavy use of tight camera angles throughout this game.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="WhiteShaderFix">
+        <Title>White shader fix</Title>
+        <Description>Fixes an issue on Nvidia graphics cards where certain areas would appear white when they should be black.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Speed">
+
+      <Feature name="PS2CameraSpeed">
+        <Title>Fix camera speed</Title>
+        <Description>Increases the camera speed movement back to its intended value and removes "floaty/bouncy" camera behavior that was present in the PC version.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FastTransitions">
+        <Title>Fast transitions</Title>
+        <Description>Increases the speed of all fade out/fade in transitions. Examples include going between rooms, opening/closing the inventory screen, examining memo/riddle images, and saving.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Lighting">
+
+      <Feature name="PS2FlashlightBrightness">
+        <Title>Fix flashlight brightness</Title>
+        <Description>Fixes incorrect flashlight brightness levels by reducing its intensity for environments, but keeping enemies and NPCs bright. Also corrects flashlight levels for Wood Side Apartments Room 205 (the flashlight and mannequin room), along with a handful of other specialized rooms.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="RoomLightingFix">
+        <Title>Room lighting fix</Title>
+        <Description>Prevents the game from using wrong environmental and fog lighting values in the cemetery, if you load back into this area from a save point. Also corrects lighting levels in various other rooms/areas.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="LightingFix">
+        <Title>Lighting fix</Title>
+        <Description>Restores proper environmental settings for the "Maria" ending, and restores lighting conditions for the 3D trees in the "Leave" and "Maria" ending.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="LightingTransitionFix">
+        <Title>Lighting transition fix</Title>
+        <Description>Fixes an issue where some light sources would not properly brighten and darken James.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Flicker">
+
+      <Feature name="FlashlightFlickerFix">
+        <Title>Fix flashlight flicker</Title>
+        <Description>Fixes a bug that would make James' body flash with light if exiting the pause menu while the flashlight is off.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="RemoveEnvironmentFlicker">
+        <Title>Fix cutscene environment flicker</Title>
+        <Description>Removes flicker from environment settings resetting to default values at the end of certain cutscenes.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="RemoveEffectsFlicker">
+        <Title>Fix post-processing effect flicker</Title>
+        <Description>Removes flicker that appears at the beginning of any motion blur event.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+  </Tab>
+
+  <Tab name="Advanced">
+
+    <Section name="Module">
+
+      <Feature name="AutoUpdateModule">
+        <Title>Auto update module</Title>
+        <Description>Upon game launch, the SH2:EE Setup Tool (SH2EEsetup.exe) will check for updates and, if available, will ask the user if they would like to update their files to receive new improvements and features for the project.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="UseCustomModFolder">
+        <Title>Use custom "sh2e" folder</Title>
+        <Description>Silent Hill 2: Enhanced Edition will read and use files in the "sh2e" folder, rather than the "data" folder, whenever possible. This allows custom, modified game files to be stored in the "sh2e" folder so as not to replace/overwrite original game files, which are found in the "data" folder. Any game files which have not been modified for the project will still be read from the "data" folder like normal, so you must keep the "data" folder and leave it untouched.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="WidescreenFix">
+        <Title>Widescreen Fix</Title>
+        <Description>Enables the integrated SH2 Widescreen Fixes Pack and sh2proxy module.&#x0a;&#x0a;Note: If disabled, various other features will also be disabled. This feature should never be disabled.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Advanced">
+
+      <Feature name="CheckForAdminAccess">
+        <Title>Admin privilege checker</Title>
+        <Description>Removes unneeded Windows Virtual Store files for the game and asks for adminstrator access if the game is located in an admin-protected directory. Adminstrator access is required if the game is located within an admin-protected directory in order to save game progress.&#x0a;&#x0a;Note:It is recommended to store the game in a local user directory (not an admin-protected directory) as a general rule.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="CheckCompatibilityMode">
+        <Title>Compatibility mode checker</Title>
+        <Description>Checks if unsupported Windows compatibility options are enabled for the game's executable and disables them.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="CreateLocalFix">
+        <Title>Create "local.fix" file on game launch</Title>
+        <Description>Creates a local.fix file in the game's directory (if it does not already exist) to allow GPU-based anti-aliasing support for the game.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="DisableSafeMode">
+        <Title>Disable safe mode</Title>
+        <Description>Prevents the game from using the lowest visual settings upon relaunch, if the game crashed previously.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="DisableScreenSaver">
+        <Title>Disable screen saver</Title>
+        <Description>Disables the screensaver while the game is running.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="DisableHighDPIScaling">
+        <Title>Disable Windows high DPI scaling</Title>
+        <Description>Disables Windows' high DPI scaling for the game to prevent certain display issues, such as a "burnt-in" image from appearing during fade transitions.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="NoCDPatch">
+        <Title>No CD patch</Title>
+        <Description>Removes the CD check on some versions of the game. Not guaranteed to work on all executables.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="SteamCrashFix">
+        <Title>Steam crash fix</Title>
+        <Description>Prevents a crash when Steam controller configuration is used or when going to the game's options menu while using certain types of gamepads.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Performance">
+
+      <Feature name="DisableGameUX">
+        <Title>Disable Windows GameUX.dll</Title>
+        <Description>Disables Microsoft Game Explorer (GameUX.dll) to prevent the game hanging on launch and rundll32.exe high CPU usage.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FixGPUAntiAliasing">
+        <Title>Fix GPU anti-aliasing</Title>
+        <Description>Fixes issues for Nvidia graphics cards, such as missing/incorrect shadows, when force-enabling anti-aliasing through of your GPU's control panel.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="SingleCoreAffinityLegacy">
+        <Title>Single core affinity</Title>
+        <Description>Limits the game to run on one CPU core. Note that it is no longer necessary to run the game on a single core if enabling the project's custom streaming audio engine.&#x0a;&#x0a;Note: If the value is set to a number that is greater than the available cores on your computer, it will default to using the first core (CPU 0).</Description>
+        <Choices type="list">
+          <Value name="Disabled" default="true">0</Value>
+          <Value name="CPU 0">1</Value>
+          <Value name="CPU 1">2</Value>
+          <Value name="CPU 2">3</Value>
+          <Value name="CPU 3">4</Value>
+          <Value name="CPU 4">5</Value>
+          <Value name="CPU 5">6</Value>
+          <Value name="CPU 6">7</Value>
+          <Value name="CPU 7">8</Value>
+          <Value name="CPU 8">9</Value>
+          <Value name="CPU 9">10</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Plugins">
+
+      <Feature name="LoadPlugins">
+        <Title>Load plugins</Title>
+        <Description>Loads ASI plugins.</Description>
+        <Choices type="check">
+          <Value name="Disable" default="true">0</Value>
+          <Value name="Enable">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="LoadFromScriptsOnly">
+        <Title>Load from "scripts" folder</Title>
+        <Description>Loads ASI plugins only from the "scripts" and "plugins" folders.</Description>
+        <Choices type="check">
+          <Value name="Disable" default="true">0</Value>
+          <Value name="Enable">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="LoadD3d8FromScriptsFolder">
+        <Title>Load d3d8.dll from "scripts" folder</Title>
+        <Description>Loads d3d8.dll from the "scripts" and "plugins" folders.&#x0a;&#x0a;Requires disabling the game running in DirectX 9 to work.</Description>
+        <Choices type="check">
+          <Value name="Disable" default="true">0</Value>
+          <Value name="Enable">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+  </Tab>
+
+  <!-- ##################################################### -->
+  <!-- ================== PROGRAM STRINGS ================== -->
+  <!-- ##################################################### -->
+
+  <Strings>
+
+    <S id="PRG_Title">Silent Hill 2: Enhanced Edition Configuration Tool</S>
+    <S id="PRG_Caption_error">ERROR</S>
+    <S id="PRG_Caption_warning">WARNING</S>
+    <S id="PRG_Close">Close</S>
+    <S id="PRG_Default">Default</S>
+    <S id="PRG_Save">Save</S>
+    <S id="PRG_Launch">Save &amp;&amp; Launch Game</S>
+    <S id="PRG_Launch_mess">Could not launch sh2pc.exe.</S>
+    <S id="PRG_Launch_exe">sh2pc.exe</S>
+    <S id="PRG_Ini_name">d3d8.ini</S>
+    <S id="PRG_Ini_error">Coud not save d3d8.ini.</S>
+    <S id="PRG_Unsaved"> [not saved]</S>
+    <S id="PRG_Save_exit">There are unsaved changes. Do you want to save changes before closing?</S>
+
+  </Strings>
+
 </Config>

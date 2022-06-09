@@ -361,14 +361,15 @@ std::string MergeiniFile(std::stringstream &s_currentini, std::stringstream &s_i
 		{
 			bool found = false;
 			DWORD counter = 0;
-			DWORD loc = line.find_first_of(" =");
+			DWORD loc = min(line.find_first_of(" "), line.find_first_of("="));
 			s_currentini.clear();
 			s_currentini.seekg(0, std::ios::beg);
 			while (std::getline(s_currentini, tmpline))
 			{
 				counter++;
 				trim(tmpline);
-				if (MatchCount(line, tmpline) >= loc)
+				DWORD tloc = min(tmpline.find_first_of(" "), tmpline.find_first_of("="));
+				if (loc == tloc && MatchCount(line, tmpline) >= loc)
 				{
 					found = true;
 					linesadded.push_back(counter);

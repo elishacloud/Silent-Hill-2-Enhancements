@@ -335,7 +335,7 @@ void CConfig::SaveIni(LPCWSTR lpName, LPCWSTR error_mes, LPCWSTR error_caption)
 		// write all options
 		for (auto opt : sec.option)
 		{
-			ini.append(";" + UpdateDescription(opt.desc) + " \n");
+			ini.append("; " + UpdateDescription(opt.desc) + " \n");
 			ini.append(opt.name + " = " + opt.value[opt.cur_val].val + " \n\n");
 		}
 	}

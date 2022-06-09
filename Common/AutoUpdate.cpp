@@ -421,30 +421,33 @@ std::string MergeiniFile(std::stringstream &s_currentini, std::stringstream &s_i
 	}
 
 	// Add extra settings to the new ini file
-	size_t pos = newini.find("\n[Extra]");
-	if (pos != std::string::npos)
+	if (extraini.size())
 	{
-		size_t newpos = newini.find("\n[", pos + 8);
+		size_t pos = newini.find("\n[Extra]");
 		if (pos != std::string::npos)
 		{
-			newini.insert(newpos, extraini);
+			size_t newpos = newini.find("\n[", pos + 8);
+			if (pos != std::string::npos)
+			{
+				newini.insert(newpos, extraini);
+			}
+			else
+			{
+				newini.append(extraini);
+			}
 		}
 		else
 		{
-			newini.append(extraini);
-		}
-	}
-	else
-	{
-		extraini.insert(0, "[Extra]\n");
-		pos = newini.find("\n[");
-		if (pos != std::string::npos)
-		{
-			newini.insert(pos + 1, extraini);
-		}
-		else
-		{
-			newini.append(extraini);
+			extraini.insert(0, "[Extra]\n");
+			pos = newini.find("\n[");
+			if (pos != std::string::npos)
+			{
+				newini.insert(pos + 1, extraini);
+			}
+			else
+			{
+				newini.append(extraini);
+			}
 		}
 	}
 

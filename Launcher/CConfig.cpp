@@ -229,8 +229,8 @@ bool CConfig::ParseXml()
 
 void CConfig::SetDefault()
 {
-	for (auto sec : section)
-		for (auto opt : sec.option)
+	for (auto &sec: section)
+		for (auto &opt : sec.option)
 			opt.SetValueDefault();
 }
 
@@ -247,9 +247,9 @@ const char* CConfig::SetIDString(const char* id, const char* name)
 
 void CConfig::BuildCacheP()
 {
-	for (size_t i = 0, si = section.size(); i < si; i++)
-		for (size_t j = 0, sj = section[i].option.size(); j < sj; j++)
-			p.list.push_back(&section[i].option[j]);
+	for (auto &sec : section)
+		for (auto &opt : sec.option)
+			p.list.push_back(&opt);
 }
 
 void __stdcall ParseIniCallback(char* lpName, char* lpValue, void *lpParam)
@@ -258,7 +258,7 @@ void __stdcall ParseIniCallback(char* lpName, char* lpValue, void *lpParam)
 	if (!IsValidSettings(lpName, lpValue)) return;
 
 	auto p = reinterpret_cast<cb_parse*>(lpParam);
-	for (auto item : p->list)
+	for (auto &item : p->list)
 	{
 		if (item->name.compare(lpName) == 0)
 		{
@@ -328,12 +328,12 @@ void CConfig::SaveIni(LPCWSTR lpName, LPCWSTR error_mes, LPCWSTR error_caption)
 	}
 
 	// Write out the rest of the new ini file
-	for (auto sec : section)
+	for (auto &sec : section)
 	{
 		// current section
 		ini.append("[" + sec.name + "]\n");
 		// write all options
-		for (auto opt : sec.option)
+		for (auto &opt : sec.option)
 		{
 			ini.append("; " + UpdateDescription(opt.desc) + " \n");
 			ini.append(opt.name + " = " + opt.value[opt.cur_val].val + " \n\n");
@@ -359,7 +359,7 @@ void CConfig::SaveIni(LPCWSTR lpName, LPCWSTR error_mes, LPCWSTR error_caption)
 
 bool CConfig::IsSettingInXml(std::string lpName)
 {
-	for (auto item : p.list)
+	for (auto &item : p.list)
 		if (item->name.compare(lpName) == 0)
 			return true;
 
@@ -368,7 +368,7 @@ bool CConfig::IsSettingInXml(std::string lpName)
 
 std::string CConfig::GetDefaultSetting(std::string name)
 {
-	for (auto item : AllValues)
+	for (auto &item : AllValues)
 		if (item.name.compare(name) == 0)
 			return item.val;
 
@@ -377,7 +377,7 @@ std::string CConfig::GetDefaultSetting(std::string name)
 
 bool CConfig::IsVisibleSetting(std::string name)
 {
-	for (auto item : AllValues)
+	for (auto &item : AllValues)
 		if (item.name.compare(name) == 0)
 			if (!IsHiddenSetting(name))
 				return true;
@@ -387,7 +387,7 @@ bool CConfig::IsVisibleSetting(std::string name)
 
 bool CConfig::IsHiddenSetting(std::string name)
 {
-	for (auto item : HiddenValues)
+	for (auto &item : HiddenValues)
 		if (item.compare(name) == 0)
 			return true;
 
@@ -411,7 +411,7 @@ void CConfig::CheckAllXmlSettings(LPCWSTR error_caption)
 	// Check for missing settings in xml file
 	if (!DisableMissingSettingsWarning)
 	{
-		for (auto item : AllValues)
+		for (auto &item : AllValues)
 		{
 			if (!IsHiddenSetting(item.name) && !IsSettingInXml(item.name))
 			{
@@ -431,7 +431,7 @@ void CConfig::CheckAllXmlSettings(LPCWSTR error_caption)
 	// Check for extra settings in xml file
 	if (!DisableExtraSettingsWarning)
 	{
-		for (auto item : p.list)
+		for (auto &item : p.list)
 		{
 			if (!IsVisibleSetting(item->name))
 			{
@@ -451,7 +451,7 @@ void CConfig::CheckAllXmlSettings(LPCWSTR error_caption)
 	// Check default value of settings in xml file
 	if (!DisableDefaultValueWarning)
 	{
-		for (auto item : p.list)
+		for (auto &item : p.list)
 		{
 			std::string defval = GetDefaultSetting(item->name);
 			std::string xmldefval = item->GetDefaultValue();
@@ -540,7 +540,7 @@ void CConfigSection::Parse(XMLElement& xml, CConfig& cfg)
 	name = SAFESTR(xml.Attribute("name"));
 	id = SAFESTR(cfg.SetIDString(xml.Attribute("id"), xml.Attribute("name")));
 
-	for (auto element : {"Option", "Feature"})
+	for (auto &element : {"Option", "Feature"})
 	{
 		auto s = xml.FirstChildElement(element);
 		while (s)

@@ -105,7 +105,7 @@ public:
 	std::string GetDefaultValue()
 	{
 		// nothing found, load default
-		for (auto item : value)
+		for (auto &item : value)
 		{
 			if (item.is_default)
 			{
@@ -138,7 +138,7 @@ public:
 	void Parse(XMLElement& xml, CConfig& cfg);
 	void SetValueFromName(const char* section, const char* value)
 	{
-		for (auto item : option)
+		for (auto &item : option)
 		{
 			if (item.name.compare(section) == 0)
 			{

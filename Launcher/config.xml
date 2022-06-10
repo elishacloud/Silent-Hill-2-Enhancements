@@ -946,8 +946,8 @@
       </Feature>
 
       <Feature name="DisableSafeMode">
-        <Title>Disable safe mode</Title>
-        <Description>Prevents the game from using the lowest visual settings upon relaunch, if the game crashed previously.</Description>
+        <Title>Disable crash safety mode</Title>
+        <Description>Prevents the game from overriding and using the lowest visual settings upon relaunch if the game previously crashed.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>

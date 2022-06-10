@@ -65,6 +65,7 @@ CConfig cfg;
 
 ATOM				MyRegisterClass(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
+void				SetExeMRU(std::wstring Name);
 void				GetAllExeFiles();
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK	TabProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
@@ -198,8 +199,13 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	}
 
 	if (bLaunch)
+	{
+		SetExeMRU(ExeList[hDbLaunch.GetSelection()]);
 		if (ShellExecuteW(nullptr, nullptr, ExeList[hDbLaunch.GetSelection()].c_str(), nullptr, nullptr, SW_RESTORE) <= (HINSTANCE)32)
+		{
 			MessageBoxW(nullptr, GetPrgString(STR_LAUNCH_ERROR).c_str(), GetPrgString(STR_ERROR).c_str(), MB_ICONERROR);
+		}
+	}
 
 	return (int)msg.wParam;
 }
@@ -342,6 +348,40 @@ void UpdateTab(int section)
 	}
 }
 
+std::wstring GetExeMRU()
+{
+	// Check if registry key exists
+	HKEY hKey;
+	if (RegOpenKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Konami\\Silent Hill 2\\sh2e", REG_OPTION_NON_VOLATILE, KEY_READ, &hKey) != ERROR_SUCCESS)
+	{
+		return std::wstring(L"");
+	}
+
+	wchar_t Name[MAX_PATH];
+	DWORD Size = MAX_PATH * sizeof(wchar_t);
+	RegGetValue(hKey, nullptr, L"ExeMRU", RRF_RT_REG_SZ, nullptr, Name, &Size);
+
+	RegCloseKey(hKey);
+
+	return std::wstring(Name);
+}
+
+void SetExeMRU(std::wstring Name)
+{
+	// Check if registry key exists
+	HKEY hKey;
+	if (RegCreateKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Konami\\Silent Hill 2\\sh2e", NULL, NULL, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hKey, NULL) != ERROR_SUCCESS)
+	{
+		return;
+	}
+
+	RegSetValueEx(hKey, L"ExeMRU", NULL, RRF_RT_REG_SZ, (BYTE*)Name.c_str(), Name.size() * sizeof(wchar_t) + 1);
+
+	RegCloseKey(hKey);
+
+	return;
+}
+
 void GetAllExeFiles()
 {
 	// Get the tools process name
@@ -425,7 +465,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	if (ExeList.size() > 1)
 	{
 		// populate dropdown
-		size_t entry = 0;
+		std::wstring LastMRU = GetExeMRU();
+		size_t MRU = -1, entry = 0;
 		for (size_t x = 0; x < ExeList.size(); x++)
 		{
 			hDbLaunch.AddString(ExeList[x].c_str());
@@ -433,8 +474,12 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 			{
 				entry = x;
 			}
+			else if (_wcsicmp(ExeList[x].c_str(), LastMRU.c_str()) == 0)
+			{
+				MRU = x;
+			}
 		}
-		hDbLaunch.SetSelection(entry);
+		hDbLaunch.SetSelection((MRU != -1) ? MRU : entry);
 	}
 	else if (ExeList.size() == 0)
 	{

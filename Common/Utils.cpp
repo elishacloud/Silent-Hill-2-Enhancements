@@ -857,8 +857,6 @@ void MigrateRegistry()
 		}
 	}
 
-	RegDeleteKey(hKey, L"sh2e");
-
 	RegCloseKey(hKey);
 
 	return;

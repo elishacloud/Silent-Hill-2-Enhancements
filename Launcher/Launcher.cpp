@@ -18,6 +18,8 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <filesystem>
+#include <psapi.h>
 #include "Launcher.h"
 #include "CWnd.h"
 #include "CConfig.h"
@@ -50,9 +52,11 @@ HWND DeviceWindow = nullptr;
 CWnd hWnd;												// program window
 CCtrlTab hTab;											// tab container
 CCtrlButton hBnClose, hBnDefault, hBnSave, hBnLaunch;	// buttons at the bottom
+CCtrlDropBox hDbLaunch;									// pulldown at the bottom
 CCtrlDescription hDesc;									// option description
 std::vector<std::shared_ptr<CCombined>> hCtrl;			// responsive controls for options
 std::vector<std::shared_ptr<CCtrlGroup>> hGroup;		// group controls inside the tab
+std::vector<std::wstring> ExeList;					// Store all file names
 UINT uCurTab;
 bool bHasChange;
 
@@ -61,6 +65,7 @@ CConfig cfg;
 
 ATOM				MyRegisterClass(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
+void				GetAllExeFiles();
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK	TabProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
@@ -155,6 +160,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	cfg.BuildCacheP();
 	cfg.CheckAllXmlSettings(GetPrgString(STR_WARNING).c_str());
 	cfg.SetFromIni(GetPrgString(STR_INI_NAME).c_str());
+	GetAllExeFiles();
+
 	// Initialize global strings
 	InitCommonControls();
 	MyRegisterClass(hInstance);
@@ -191,7 +198,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	}
 
 	if (bLaunch)
-		if (ShellExecuteW(nullptr, nullptr, GetPrgString(STR_LAUNCH_EXE).c_str(), nullptr, nullptr, SW_RESTORE) <= (HINSTANCE)32)
+		if (ShellExecuteW(nullptr, nullptr, ExeList[hDbLaunch.GetSelection()].c_str(), nullptr, nullptr, SW_RESTORE) <= (HINSTANCE)32)
 			MessageBoxW(nullptr, GetPrgString(STR_LAUNCH_ERROR).c_str(), GetPrgString(STR_ERROR).c_str(), MB_ICONERROR);
 
 	return (int)msg.wParam;
@@ -335,6 +342,46 @@ void UpdateTab(int section)
 	}
 }
 
+void GetAllExeFiles()
+{
+	// Get the tools process name
+	std::wstring toolname;
+	wchar_t path[MAX_PATH] = { '\0' };
+	if (!GetModuleFileNameEx(GetCurrentProcess(),nullptr, path, MAX_PATH) || !wcsrchr(path, '\\'))
+	{
+		return;
+	}
+
+	// Store tool name and path
+	toolname.assign(wcsrchr(path, '\\') + 1);
+	wcscpy_s(wcsrchr(path, '\\'), MAX_PATH - wcslen(path), L"\0");
+
+	// Interate through all files in the folder
+	for (const auto & entry : std::filesystem::directory_iterator(path))
+	{
+		if (!entry.is_directory())
+		{
+			// check exstention and if it matches tool name
+			if (_wcsicmp(entry.path().extension().c_str(), L".exe") == 0)
+			{
+				bool Matches = false;
+				for (auto name : { toolname.c_str(), L"SH2EEconfig.exe", L"SH2EEsetup.exe" })
+				{
+					if (_wcsicmp(entry.path().filename().c_str(), name) == 0)
+					{
+						Matches = true;
+					}
+				}
+				// Store file name
+				if (!Matches)
+				{
+					ExeList.push_back(entry.path().filename());
+				}
+			}
+		}
+	}
+}
+
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	m_hModule = hInstance; // Store instance handle in our global variable
@@ -359,9 +406,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	int Y = r.bottom - 30;
 	hBnClose.CreateWindow(GetPrgString(STR_BN_CLOSE).c_str(), 4, Y, 60, 26, hWnd, hInstance, hFont);
 
-	int X = r.right - 291;
+	int X = r.right - 291 - ((ExeList.size() > 1) ? 144 : 0);
 	hBnDefault.CreateWindow(GetPrgString(STR_BN_DEFAULT).c_str(), X, Y, 80, 26, hWnd, hInstance, hFont); X += 84;
 	hBnSave.CreateWindow(GetPrgString(STR_BN_SAVE).c_str(), X, Y, 60, 26, hWnd, hInstance, hFont); X += 64;
+	if (ExeList.size() > 1) { hDbLaunch.CreateWindow(X, Y + 1, 140, 26, hWnd, hInstance, hFont); X += 144; }
 	hBnLaunch.CreateWindow(GetPrgString(STR_BN_LAUNCH).c_str(), X, Y, 140, 26, hWnd, hInstance, hFont);
 
 	// assign custom IDs to all buttons for easier catching
@@ -374,10 +422,24 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	hBnSave.Enable(false);
 
 	// if sh2pc.exe doesn't exist, don't enable the launch button
-	FILE* fp = nullptr;
-	_wfopen_s(&fp, GetPrgString(STR_LAUNCH_EXE).c_str(), L"rb");
-	if (!fp) EnableWindow(hBnLaunch, false);
-	else fclose(fp);
+	if (ExeList.size() > 1)
+	{
+		// populate dropdown
+		size_t entry = 0;
+		for (size_t x = 0; x < ExeList.size(); x++)
+		{
+			hDbLaunch.AddString(ExeList[x].c_str());
+			if (_wcsicmp(ExeList[x].c_str(), GetPrgString(STR_LAUNCH_EXE).c_str()) == 0)
+			{
+				entry = x;
+			}
+		}
+		hDbLaunch.SetSelection(entry);
+	}
+	else if (ExeList.size() == 0)
+	{
+		EnableWindow(hBnLaunch, false);
+	}
 
 	// populate the first tab
 	PopulateTab(0);

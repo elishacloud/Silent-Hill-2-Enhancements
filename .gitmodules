@@ -38,3 +38,6 @@
 [submodule "External/tinyxml2"]
 	path = External/tinyxml2
 	url = https://github.com/leethomason/tinyxml2
+[submodule "Installer"]
+	path = Installer
+	url = https://github.com/nipkownix/SH2EE-web-installer

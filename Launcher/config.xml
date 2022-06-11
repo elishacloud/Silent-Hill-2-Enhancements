@@ -946,7 +946,7 @@
       </Feature>
 
       <Feature name="DisableSafeMode">
-        <Title>Disable crash safety mode</Title>
+        <Title>Disable crash low visual mode</Title>
         <Description>Prevents the game from overriding and using the lowest visual settings upon relaunch if the game previously crashed.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
@@ -1079,7 +1079,7 @@
     <S id="PRG_Save">Save</S>
     <S id="PRG_Launch">Save &amp;&amp; Launch Game</S>
     <S id="PRG_Launch_label">Launch using:</S>
-    <S id="PRG_Launch_mess">Could not launch sh2pc.exe.</S>
+    <S id="PRG_Launch_mess">Could not launch the game!</S>
     <S id="PRG_Launch_exe">sh2pc.exe</S>
     <S id="PRG_Ini_name">d3d8.ini</S>
     <S id="PRG_Ini_error">Coud not save d3d8.ini.</S>

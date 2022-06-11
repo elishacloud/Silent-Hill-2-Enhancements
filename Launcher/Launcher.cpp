@@ -20,6 +20,7 @@
 #include <windows.h>
 #include <filesystem>
 #include <psapi.h>
+#include <winuser.h>
 #include "Launcher.h"
 #include "CWnd.h"
 #include "CConfig.h"
@@ -79,6 +80,7 @@ enum ProgramStrings
 	STR_BN_DEFAULT,
 	STR_BN_SAVE,
 	STR_BN_LAUNCH,
+	STR_LBL_LAUNCH,
 	STR_LAUNCH_ERROR,
 	STR_LAUNCH_EXE,
 	STR_INI_NAME,
@@ -105,6 +107,7 @@ std::wstring GetPrgString(UINT id)
 		"PRG_Default", L"Defaults",
 		"PRG_Save", L"Save",
 		"PRG_Launch", L"Save && Launch Game",
+		"PRG_Launch_label", L"Launch using:",
 		"PRG_Launch_mess", L"Could not launch sh2pc.exe",
 		"PRG_Launch_exe", L"sh2pc.exe",
 		"PRG_Ini_name", L"d3d8.ini",
@@ -443,14 +446,21 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	hDesc.CreateWindow(4, r.bottom - 150, r.right - 8, 118, hWnd, hInstance, hFont, hBold);
 
 	// create the bottom buttons
-	int Y = r.bottom - 30;
-	hBnClose.CreateWindow(GetPrgString(STR_BN_CLOSE).c_str(), 4, Y, 60, 26, hWnd, hInstance, hFont);
+	int X = 3;
+	int Y = r.bottom - 28;
+	hBnClose.CreateWindow(GetPrgString(STR_BN_CLOSE).c_str(), X, Y, 60, 24, hWnd, hInstance, hFont); X += 64;
+	hBnDefault.CreateWindow(GetPrgString(STR_BN_DEFAULT).c_str(), X, Y, 80, 24, hWnd, hInstance, hFont);
 
-	int X = r.right - 291 - ((ExeList.size() > 1) ? 144 : 0);
-	hBnDefault.CreateWindow(GetPrgString(STR_BN_DEFAULT).c_str(), X, Y, 80, 26, hWnd, hInstance, hFont); X += 84;
-	hBnSave.CreateWindow(GetPrgString(STR_BN_SAVE).c_str(), X, Y, 60, 26, hWnd, hInstance, hFont); X += 64;
-	if (ExeList.size() > 1) { hDbLaunch.CreateWindow(X, Y + 1, 140, 26, hWnd, hInstance, hFont); X += 144; }
-	hBnLaunch.CreateWindow(GetPrgString(STR_BN_LAUNCH).c_str(), X, Y, 140, 26, hWnd, hInstance, hFont);
+	X = r.right - 207;
+	if (ExeList.size() > 1)
+	{
+		X -= 228;
+		HWND hwnd = CreateWindowW(TEXT("static"), GetPrgString(STR_LBL_LAUNCH).c_str(), WS_VISIBLE | WS_CHILD, X, Y + 5, 80, 24, hWnd, (HMENU)3, NULL, NULL); X += 84;
+		SendMessageW(hwnd, WM_SETFONT, (LPARAM)hFont, TRUE);
+		hDbLaunch.CreateWindow(X, Y + 1, 140, 24, hWnd, hInstance, hFont); X += 144;
+	}
+	hBnSave.CreateWindow(GetPrgString(STR_BN_SAVE).c_str(), X, Y, 60, 24, hWnd, hInstance, hFont); X += 64;
+	hBnLaunch.CreateWindow(GetPrgString(STR_BN_LAUNCH).c_str(), X, Y, 140, 24, hWnd, hInstance, hFont);
 
 	// assign custom IDs to all buttons for easier catching
 	hBnClose.SetID  (WM_USER);
@@ -466,7 +476,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	{
 		// populate dropdown
 		std::wstring LastMRU = GetExeMRU();
-		size_t MRU = -1, entry = 0;
+		size_t MRU = (size_t)-1, entry = 0;
 		for (size_t x = 0; x < ExeList.size(); x++)
 		{
 			hDbLaunch.AddString(ExeList[x].c_str());

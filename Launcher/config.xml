@@ -1078,6 +1078,7 @@
     <S id="PRG_Default">Default</S>
     <S id="PRG_Save">Save</S>
     <S id="PRG_Launch">Save &amp;&amp; Launch Game</S>
+    <S id="PRG_Launch_label">Launch using:</S>
     <S id="PRG_Launch_mess">Could not launch sh2pc.exe.</S>
     <S id="PRG_Launch_exe">sh2pc.exe</S>
     <S id="PRG_Ini_name">d3d8.ini</S>

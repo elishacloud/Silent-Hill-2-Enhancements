@@ -33,7 +33,7 @@
 #include "External\csvparser\src\rapidcsv.h"
 
 // Should be updated if we move the .csv
-#define SH2EE_UPDATE_URL "http://etc.townofsilenthill.com/sandbox/ee_itmp/_sh2ee.csv"
+#define SH2EE_UPDATE_URL "http://www.enhanced.townofsilenthill.com/SH2/files/_sh2ee.csv"
 #define SH2EE_SETUP_EXE_FILE "SH2EEsetup.exe"
 #define SH2EE_SETUP_DATA_FILE "SH2EEsetup.dat"
 
@@ -239,6 +239,12 @@ bool NewProjectReleaseAvailable(std::string &path_str)
 		rapidcsv::ConverterParams(),
 		rapidcsv::LineReaderParams(true /* pSkipCommentLines */, '#' /* pCommentPrefix */));
 
+	// Error checking
+	if (localcsv.GetColumnIdx("id") < 0 || localcsv.GetColumnIdx("isInstalled") < 0 || localcsv.GetColumnIdx("version") < 0)
+	{
+		return false;
+	}
+
 	std::vector<std::string> localcsv_id = localcsv.GetColumn<std::string>("id");
 	std::vector<std::string> localcsv_isInstalled = localcsv.GetColumn<std::string>("isInstalled");
 	std::vector<std::string> localcsv_version = localcsv.GetColumn<std::string>("version");
@@ -254,6 +260,12 @@ bool NewProjectReleaseAvailable(std::string &path_str)
 	rapidcsv::Document doc(webcsv_sstream, rapidcsv::LabelParams(), rapidcsv::SeparatorParams(),
 		rapidcsv::ConverterParams(),
 		rapidcsv::LineReaderParams(true /* pSkipCommentLines */, '#' /* pCommentPrefix */));
+
+	// Error checking
+	if (doc.GetColumnIdx("id") < 0 || doc.GetColumnIdx("version") < 0)
+	{
+		return false;
+	}
 
 	std::vector<std::string> webcsv_id = doc.GetColumn<std::string>("id");
 	std::vector<std::string> webcsv_version = doc.GetColumn<std::string>("version");

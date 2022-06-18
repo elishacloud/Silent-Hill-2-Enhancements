@@ -85,6 +85,7 @@ enum ProgramStrings
 	STR_LAUNCH_EXE,
 	STR_INI_NAME,
 	STR_INI_ERROR,
+	STR_DEFAULT_CONFIRM,
 	STR_UNSAVED,
 	STR_UNSAVED_TEXT,
 };
@@ -112,6 +113,7 @@ std::wstring GetPrgString(UINT id)
 		"PRG_Launch_exe", L"sh2pc.exe",
 		"PRG_Ini_name", L"d3d8.ini",
 		"PRG_Ini_error", L"Could not save the configuration ini.",
+		"PRG_Default_confirm", L"Are you sure you want reset all settings to default?",
 		"PRG_Unsaved", L" [unsaved changes]",
 		"PRG_Save_exit", L"There are unsaved changes. Save before closing?",
 	};
@@ -590,9 +592,12 @@ LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 				else SendMessageW(hWnd, WM_DESTROY, 0, 0);
 				break;
 			case WM_USER + 1:	// defaults
-				SetChanges();
-				cfg.SetDefault();
-				UpdateTab(hTab.GetCurSel());
+				if (MessageBoxW(hWnd, GetPrgString(STR_DEFAULT_CONFIRM).c_str(), GetPrgString(STR_WARNING).c_str(), MB_YESNO) == IDYES)
+				{
+					SetChanges();
+					cfg.SetDefault();
+					UpdateTab(hTab.GetCurSel());
+				}
 				break;
 			case WM_USER + 2:	// save
 				RestoreChanges();

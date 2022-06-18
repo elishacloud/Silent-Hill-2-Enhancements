@@ -97,6 +97,8 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 
 	DeviceLost = false;
 
+	BeginSceneFlag = false;
+
 	pCurrentRenderTexture = nullptr;
 
 	pInitialRenderTexture = nullptr;
@@ -231,7 +233,7 @@ HRESULT m_IDirect3DDevice8::EndScene()
 
 	EndSceneCounter++;
 
-	return ProxyInterface->EndScene();
+	return D3D_OK;
 }
 
 void m_IDirect3DDevice8::SetCursorPosition(THIS_ UINT XScreenSpace, UINT YScreenSpace, DWORD Flags)
@@ -913,6 +915,17 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 		return D3D_OK;
 	}
 
+	// Take screenshot
+	if (TakeScreenShot)
+	{
+		TakeScreenShot = false;
+		CaptureScreenShot();
+	}
+
+	// Endscene
+	BeginSceneFlag = false;
+	ProxyInterface->EndScene();
+
 	// Update in progress
 	static bool ClearScreen = true;
 	if (!m_StopThreadFlag && IsUpdating && !IsGetFrontBufferCalled)
@@ -963,15 +976,6 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 		IsSnapshotTextureSet = false;
 	}
 
-	// Take screenshot
-	if (TakeScreenShot)
-	{
-		TakeScreenShot = false;
-		ProxyInterface->BeginScene();
-		CaptureScreenShot();
-		ProxyInterface->EndScene();
-	}
-
 	HRESULT hr = D3D_OK;
 
 	// Disable Transparency Supersampling
@@ -995,6 +999,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 			if (SUCCEEDED(pInitialRenderTexture->GetSurfaceLevel(0, &pSnapshotSurface)))
 			{
 				pSnapshotSurface->Release();
+				BeginSceneFlag = true;
 				ProxyInterface->BeginScene();
 				FakeGetFrontBuffer(pSnapshotSurface);
 			}
@@ -1826,7 +1831,11 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		}
 	}
 
-	HRESULT hr = ProxyInterface->BeginScene();
+	if (!BeginSceneFlag)
+	{
+		BeginSceneFlag = true;
+		ProxyInterface->BeginScene();
+	}
 
 	if (EndSceneCounter == 0)
 	{
@@ -1843,7 +1852,7 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		}
 	}
 
-	return hr;
+	return D3D_OK;
 }
 
 HRESULT m_IDirect3DDevice8::GetStreamSource(THIS_ UINT StreamNumber, IDirect3DVertexBuffer8** ppStreamData, UINT* pStride)

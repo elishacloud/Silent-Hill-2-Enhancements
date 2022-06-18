@@ -10,6 +10,8 @@ private:
 
 	std::vector<BYTE> CachedSurfaceData;
 
+	bool BeginSceneFlag = false;
+
 	bool GammaSet = false;
 	D3DGAMMARAMP Ramp;
 

@@ -16,6 +16,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <psapi.h>
 #include <Shldisp.h>
 #include <shellapi.h>
 #include <Shlwapi.h>
@@ -1008,6 +1009,36 @@ void LogDirectory()
 			Logging::Log() << "|- " << filetime << " " << filesize << " " << filename;
 		}
 	}
+
+	Logging::Log() << "|--------------------------------";
+}
+
+void LogAllModules()
+{
+	HMODULE hMods[1024];
+	HANDLE hProcess = GetCurrentProcess();
+	DWORD cbNeeded;
+
+	Logging::Log() << "|-------- MODULES LOADED --------";
+
+	// Get a list of all the modules in this process
+	if (EnumProcessModules(hProcess, hMods, sizeof(hMods), &cbNeeded))
+	{
+		for (DWORD i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
+		{
+			wchar_t szModName[MAX_PATH];
+
+			// Get the full path to the module's file
+			if (GetModuleFileNameEx(hProcess, hMods[i], szModName, sizeof(szModName) / sizeof(wchar_t)))
+			{
+				// Print the module name and handle value
+				Logging::Log() << "|- " << szModName;
+			}
+		}
+	}
+
+	// Release the handle to the process
+	CloseHandle(hProcess);
 
 	Logging::Log() << "|--------------------------------";
 }

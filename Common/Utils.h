@@ -38,3 +38,4 @@ void GetDesktopRect(RECT &screenRect);
 HRESULT GetSavedResolution(DWORD &Width, DWORD &Height);
 HRESULT SaveResolution(DWORD Width, DWORD Height);
 void LogDirectory();
+void LogAllModules();

@@ -546,7 +546,6 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 	if (EnableXboxShadows && State == D3DRS_STENCILPASS && Value == D3DSTENCILOP_REPLACE)
 	{
 		// Special handling for room 54
-		static bool IsEnabledForCutscene54 = false;
 		if (GetCutsceneID() == 0x54 && (IsEnabledForCutscene54 || GetCutscenePos() == -19521.60742f))
 		{
 			IsEnabledForCutscene54 = true;
@@ -1697,6 +1696,8 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		ClassReleaseFlag = false;
 		LastFrameFullscreenImage = IsInFullscreenImage;
 		IsInFullscreenImage = false;
+
+		RUNCODEONCE(LogAllModules());
 
 		// Enable Xbox shadows
 		if (EnableSoftShadows)

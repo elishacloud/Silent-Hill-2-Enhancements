@@ -25,6 +25,9 @@ private:
 	BYTE HotelEmployeeElevatorRoomFlag = FALSE;
 	bool ReplacedLastRenderTarget = false;
 
+	// Special handling for room 54
+	bool IsEnabledForCutscene54 = false;
+
 	// For detecting fullscreen images and turning pillar boxes to black
 	bool LastFrameFullscreenImage = false;
 	bool DontModifyClear = false;

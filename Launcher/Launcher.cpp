@@ -206,7 +206,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	if (bLaunch)
 	{
 		SetExeMRU(ExeList[hDbLaunch.GetSelection()]);
-		if (ShellExecuteW(nullptr, nullptr, ExeList[hDbLaunch.GetSelection()].c_str(), nullptr, nullptr, SW_RESTORE) <= (HINSTANCE)32)
+		if (ShellExecuteW(nullptr, L"open", ExeList[hDbLaunch.GetSelection()].c_str(), nullptr, nullptr, SW_SHOWDEFAULT) <= (HINSTANCE)32)
 		{
 			MessageBoxW(nullptr, GetPrgString(STR_LAUNCH_ERROR).c_str(), GetPrgString(STR_ERROR).c_str(), MB_ICONERROR);
 		}

@@ -134,7 +134,7 @@ void RelaunchSilentHill2()
 		_itow_s(GetCurrentProcessId(), parameter + ArgSize, 40 - ArgSize, 10);
 
 		// Administrator access required, re-launching with administrator access
-		if ((int)ShellExecute(nullptr, L"runas", sh2path, parameter, nullptr, SW_SHOWDEFAULT) > 32)
+		if (ShellExecute(nullptr, L"runas", sh2path, parameter, nullptr, SW_SHOWDEFAULT) > (HINSTANCE)32)
 		{
 			exit(0);
 		}

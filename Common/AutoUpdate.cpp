@@ -629,7 +629,7 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 				}
 
 				// Run SH2EEsetup.exe
-				if ((int)ShellExecute(nullptr, L"open", SH2EEsetupExePath.data(), param.data(), nullptr, SW_SHOWDEFAULT) > 32)
+				if (ShellExecute(nullptr, L"open", SH2EEsetupExePath.data(), param.data(), nullptr, SW_SHOWDEFAULT) > (HINSTANCE)32)
 				{
 					exit(0);
 					return S_OK;
@@ -729,7 +729,7 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 			{
 				// Get Silent Hill 2 file path and restart
 				wchar_t sh2path[MAX_PATH];
-				if (GetSH2FolderPath(sh2path, MAX_PATH) && (int)ShellExecute(nullptr, L"open", sh2path, nullptr, nullptr, SW_SHOWDEFAULT) > 32)
+				if (GetSH2FolderPath(sh2path, MAX_PATH) && ShellExecute(nullptr, L"open", sh2path, nullptr, nullptr, SW_SHOWDEFAULT) > (HINSTANCE)32)
 				{
 					exit(0);
 					return S_OK;

@@ -468,8 +468,15 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	GetDesktopRect(screenRect);
 
 	// Set window active and focus
-	SetActiveWindow(MainhWnd);
+	HWND hCurWnd = GetForegroundWindow();
+	DWORD dwMyID = GetCurrentThreadId();
+	DWORD dwCurID = GetWindowThreadProcessId(hCurWnd, nullptr);
+	AttachThreadInput(dwCurID, dwMyID, TRUE);
+	SetWindowPos(MainhWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+	SetWindowPos(MainhWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE);
+	SetForegroundWindow(MainhWnd);
 	SetFocus(MainhWnd);
+	SetActiveWindow(MainhWnd);
 
 	// Get window border
 	LONG lStyle = GetWindowLong(MainhWnd, GWL_STYLE) | WS_VISIBLE;
@@ -505,6 +512,9 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 		yLoc = screenRect.top + (screenHeight - newDisplayHeight) / 2;
 	}
 	SetWindowPos(MainhWnd, nullptr, xLoc, yLoc, newDisplayWidth, newDisplayHeight, SWP_NOZORDER);
+
+	// Detach thread input
+	AttachThreadInput(dwCurID, dwMyID, FALSE);
 }
 
 // Get keyboard press

@@ -47,11 +47,11 @@
     </ClInclude>
     <ClInclude Include="CConfig.h" />
     <ClInclude Include="CWnd.h" />
-    <ClInclude Include="Launcher.h">
-      <Filter>Resources</Filter>
-    </ClInclude>
     <ClInclude Include="..\Common\AutoUpdate.h">
       <Filter>Shared</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Resources</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -96,6 +96,9 @@
       <Filter>Resources</Filter>
     </ResourceCompile>
     <ResourceCompile Include="UALx86.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="BuildNo.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
   </ItemGroup>

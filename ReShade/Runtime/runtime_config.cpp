@@ -21,7 +21,7 @@
 #include "runtime.hpp"
 #include "runtime_config.hpp"
 #include "runtime_objects.hpp"
-#include "Resources\sh2-enhce.h"
+#include "Resource.h"
 #include <cassert>
 #include <fstream>
 #include <sstream>

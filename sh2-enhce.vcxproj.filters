@@ -376,9 +376,6 @@
     <ClInclude Include="External\d3d8to9\source\d3dx9.hpp">
       <Filter>External\d3d8to9</Filter>
     </ClInclude>
-    <ClInclude Include="Resources\sh2-enhce.h">
-      <Filter>Resources</Filter>
-    </ClInclude>
     <ClInclude Include="Patches\SfxPatch.h">
       <Filter>Patches</Filter>
     </ClInclude>
@@ -546,6 +543,9 @@
     </ClInclude>
     <ClInclude Include="Include\criware\criware_lock.h">
       <Filter>Include\criware</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\Resource.h">
+      <Filter>Resources</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -21,7 +21,7 @@
 #include <Windows.h>
 #include <Shlwapi.h>
 #include <vector>
-#include "Resources\sh2-enhce.h"
+#include "Resource.h"
 #include "LoadModules.h"
 #include "Patches\Patches.h"
 #include "Settings.h"

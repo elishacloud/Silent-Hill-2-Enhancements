@@ -23,7 +23,7 @@
 #include <psapi.h>
 #include <regex>
 #include "CConfig.h"
-#include "Launcher.h"
+#include "Resource.h"
 #include "Common\AutoUpdate.h"
 #include "Common\Settings.h"
 

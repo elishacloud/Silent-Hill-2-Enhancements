@@ -24,7 +24,7 @@
 #include <memory>
 #include <shellapi.h>
 #include "Common\Utils.h"
-#include "Launcher.h"
+#include "Resource.h"
 #include "CWnd.h"
 #include "CConfig.h"
 #include "Common\Settings.h"

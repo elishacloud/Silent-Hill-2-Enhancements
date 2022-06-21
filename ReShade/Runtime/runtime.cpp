@@ -21,7 +21,7 @@
 #include "runtime.hpp"
 #include "runtime_config.hpp"
 #include "runtime_objects.hpp"
-#include "Resources\sh2-enhce.h"
+#include "Resource.h"
 #include "Logging\Logging.h"
 #include "Common\Settings.h"
 #include "External\reshade\source\effect_parser.hpp"

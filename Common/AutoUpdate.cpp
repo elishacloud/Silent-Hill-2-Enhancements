@@ -29,7 +29,7 @@
 #include "Common\LoadModules.h"
 #include "Wrappers\d3d8\d3d8wrapper.h"
 #include "Logging\Logging.h"
-#include "Resources\sh2-enhce.h"
+#include "Resource.h"
 #include "External\csvparser\src\rapidcsv.h"
 
 // Should be updated if we move the .csv

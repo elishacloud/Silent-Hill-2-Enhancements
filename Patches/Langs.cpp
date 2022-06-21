@@ -17,7 +17,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <shlwapi.h>
-#include "Resources\sh2-enhce.h"
+#include "Resource.h"
 #include "Common\FileSystemHooks.h"
 #include "Common\Utils.h"
 #include "Logging\Logging.h"

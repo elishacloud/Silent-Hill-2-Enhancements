@@ -35,6 +35,8 @@ BOOL GetAppsLightMode();
 HMONITOR GetMonitorHandle();
 void GetDesktopRes(LONG &screenWidth, LONG &screenHeight);
 void GetDesktopRect(RECT &screenRect);
+bool ReadRegistryStruct(const std::wstring& lpzSection, const std::wstring& lpzKey, const LPVOID& lpStruct, UINT uSizeStruct);
+bool WriteRegistryStruct(const std::wstring& lpzSection, const std::wstring& lpzKey, DWORD dwType, const LPVOID lpStruct, UINT uSizeStruct);
 HRESULT GetSavedResolution(DWORD &Width, DWORD &Height);
 HRESULT SaveResolution(DWORD Width, DWORD Height);
 void LogDirectory();

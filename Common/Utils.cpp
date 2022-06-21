@@ -818,6 +818,61 @@ void GetDesktopRect(RECT &screenRect)
 	screenRect.bottom = info.rcMonitor.bottom;
 }
 
+bool ReadRegistryStruct(const std::wstring& lpzSection, const std::wstring& lpzKey, const LPVOID& lpStruct, UINT uSizeStruct)
+{
+	HKEY hKey;
+	std::wstring SubKey(L"SOFTWARE\\" + lpzSection);
+
+	HRESULT hr = RegOpenKey(HKEY_CURRENT_USER, SubKey.c_str(), &hKey);
+
+	if (FAILED(hr))
+	{
+		return false;
+	}
+
+	DWORD DataSize = 0;
+	hr = RegQueryValueEx(hKey, lpzKey.c_str(), 0, 0, 0, &DataSize);
+	if (DataSize > uSizeStruct)
+	{
+		return false;
+	}
+
+	hr = RegQueryValueEx(hKey, lpzKey.c_str(), 0, 0, (BYTE*)lpStruct, &DataSize);
+
+	if (FAILED(hr) || !DataSize)
+	{
+		return false;
+	}
+
+	RegCloseKey(hKey);
+
+	return true;
+}
+
+bool WriteRegistryStruct(const std::wstring& lpzSection, const std::wstring& lpzKey, DWORD dwType, const LPVOID lpStruct, UINT uSizeStruct)
+{
+	HKEY hKey;
+	std::wstring SubKey(L"SOFTWARE\\" + lpzSection);
+
+	HRESULT hr = RegCreateKey(HKEY_CURRENT_USER, SubKey.c_str(), &hKey);
+
+	if (FAILED(hr))
+	{
+		return false;
+	}
+
+	hr = RegSetValueEx(hKey, lpzKey.c_str(), 0, dwType, (BYTE*)lpStruct, uSizeStruct);
+
+	if (FAILED(hr))
+	{
+		return false;
+	}
+
+	RegCloseKey(hKey);
+
+	return true;
+}
+
 HRESULT GetResolutionFromConfig(DWORD &Width, DWORD &Height);
 
 void MigrateRegistry()

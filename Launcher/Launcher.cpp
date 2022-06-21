@@ -21,11 +21,12 @@
 #include <filesystem>
 #include <psapi.h>
 #include <winuser.h>
+#include <memory>
+#include <shellapi.h>
+#include "Common\Utils.h"
 #include "Launcher.h"
 #include "CWnd.h"
 #include "CConfig.h"
-#include <memory>
-#include <shellapi.h>
 #include "Common\Settings.h"
 #include "Patches\Patches.h"
 #include "Logging\Logging.h"
@@ -353,38 +354,72 @@ void UpdateTab(int section)
 	}
 }
 
-std::wstring GetExeMRU()
+BOOL CenterWindow(HWND hwndWindow)
 {
-	// Check if registry key exists
-	HKEY hKey;
-	if (RegOpenKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Konami\\Silent Hill 2\\sh2e", REG_OPTION_NON_VOLATILE, KEY_READ, &hKey) != ERROR_SUCCESS)
+	if (!IsWindow(hwndWindow))
 	{
-		return std::wstring(L"");
+		return FALSE;
 	}
 
+	RECT rectWindow;
+
+	GetWindowRect(hwndWindow, &rectWindow);
+
+	int nWidth = rectWindow.right - rectWindow.left;
+	int nHeight = rectWindow.bottom - rectWindow.top;
+
+	int nScreenWidth = GetSystemMetrics(SM_CXSCREEN);
+	int nScreenHeight = GetSystemMetrics(SM_CYSCREEN);
+
+	int nX = (nScreenWidth - nWidth) / 2;
+	int nY = (nScreenHeight - nHeight) / 2;
+
+	// make sure that the dialog box never moves outside of the screen
+	if (nX < 0) nX = 0;
+	if (nY < 0) nY = 0;
+	if (nX + nWidth > nScreenWidth) nX = nScreenWidth - nWidth;
+	if (nY + nHeight > nScreenHeight) nY = nScreenHeight - nHeight;
+
+	SetWindowPos(hwndWindow, NULL, nX, nY, nWidth, nHeight, SWP_NOSIZE | SWP_NOZORDER);
+
+	return TRUE;
+}
+
+void LoadSettings()
+{
+	WINDOWPLACEMENT wndpl;
+
+	if (ReadRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"WindowPlacement", &wndpl, sizeof(WINDOWPLACEMENT)))
+	{
+		wndpl.length = sizeof(WINDOWPLACEMENT);
+		SetWindowPlacement(hWnd, &wndpl);
+	}
+}
+
+void SaveSettings()
+{
+	WINDOWPLACEMENT wndpl;
+	wndpl.length = sizeof(WINDOWPLACEMENT);
+	GetWindowPlacement(hWnd, &wndpl);
+
+	WriteRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"WindowPlacement", REG_BINARY, &wndpl, sizeof(WINDOWPLACEMENT));
+}
+
+std::wstring GetExeMRU()
+{
 	wchar_t Name[MAX_PATH];
-	DWORD Size = MAX_PATH * sizeof(wchar_t);
-	RegGetValue(hKey, nullptr, L"ExeMRU", RRF_RT_REG_SZ, nullptr, Name, &Size);
 
-	RegCloseKey(hKey);
+	if (ReadRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"ExeMRU", &Name, MAX_PATH * sizeof(wchar_t)))
+	{
+		return std::wstring(Name);
+	}
 
-	return std::wstring(Name);
+	return std::wstring(L"");
 }
 
 void SetExeMRU(std::wstring Name)
 {
-	// Check if registry key exists
-	HKEY hKey;
-	if (RegCreateKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Konami\\Silent Hill 2\\sh2e", NULL, NULL, REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, NULL, &hKey, NULL) != ERROR_SUCCESS)
-	{
-		return;
-	}
-
-	RegSetValueEx(hKey, L"ExeMRU", NULL, RRF_RT_REG_SZ, (BYTE*)Name.c_str(), Name.size() * sizeof(wchar_t) + 1);
-
-	RegCloseKey(hKey);
-
-	return;
+	WriteRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"ExeMRU", RRF_RT_REG_SZ, (BYTE*)Name.c_str(), (Name.size() + 1) * sizeof(wchar_t));
 }
 
 void GetAllExeFiles()
@@ -505,6 +540,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
 
+	// set window location
+	CenterWindow(hWnd);
+	LoadSettings();
+
 	return TRUE;
 }
 
@@ -552,6 +591,7 @@ LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_DESTROY:
 		bIsLooping = false;
+		SaveSettings();
 		PostQuitMessage(0);
 		break;
 	//case WM_MOUSEMOVE:

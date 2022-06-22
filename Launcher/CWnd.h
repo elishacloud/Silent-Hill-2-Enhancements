@@ -27,8 +27,9 @@ public:
 	enum Type
 	{
 		TYPE_WND,
+		TYPE_CHECK,
 		TYPE_LIST,
-		TYPE_CHECKBOX
+		TYPE_TEXT,
 	};
 	Type tType;
 
@@ -94,6 +95,14 @@ public:
 	void SetSelection(int sel);
 };
 
+class CCtrlTextBox : public CWnd
+{
+public:
+	void CreateWindow(int X, int Y, int Width, int Height, HWND hParent, HINSTANCE hInstance, HFONT hFont);
+	void SetString(std::wstring lpString);
+	std::wstring GetString();
+};
+
 class CCtrlDescription
 {
 public:
@@ -145,13 +154,28 @@ public:
 	{
 		UNREFERENCED_PARAMETER(check);
 	}
+	// textboxes
+	virtual std::wstring GetString() { return nullptr; };
+	virtual void SetString(std::wstring lpString)
+	{
+		UNREFERENCED_PARAMETER(lpString);
+	}
 
 	// random shit with configuration
 	void SetConfigPtr(CConfigOption* c) { cValue = c; }
 	void SetConfigValue(int val)
 	{
 		if (cValue)
+		{
 			cValue->cur_val = val;
+		}
+	}
+	void SetConfigValue(std::wstring lpString)
+	{
+		if (cValue)
+		{
+			cValue->value[cValue->cur_val].val = std::string(lpString.begin(), lpString.end());
+		}
 	}
 
 	enum TYPE
@@ -159,7 +183,7 @@ public:
 		TYPE_DEFAULT,
 		TYPE_CHECK,
 		TYPE_LIST,
-		TYPE_PAD
+		TYPE_TEXT
 	};
 
 	UINT uType;
@@ -203,19 +227,19 @@ private:
 	CCtrlDropBox hList;
 };
 
-class CFieldPad : public CCombined
+class CFieldText : public CCombined
 {
 public:
 	virtual void CreateWindow(LPCWSTR lpName, int X, int Y, int Width, int Height, HWND hParent, HINSTANCE hInstance, HFONT hFont);
 	virtual void Release();
 
-	virtual void Reset();
-	virtual void AddString(LPCWSTR lpString);
+	virtual void SetString(std::wstring lpString);
+	virtual std::wstring GetString();
 
-	virtual int GetSelection();
-	virtual void SetSelection(int sel);
+	static LRESULT CALLBACK proc_text(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
+	static LRESULT CALLBACK proc_static(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
 private:
 	CCtrlStatic hStatic;
-	CCtrlDropBox hList;
+	CCtrlTextBox hList;
 };

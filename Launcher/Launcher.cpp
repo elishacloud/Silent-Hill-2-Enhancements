@@ -260,21 +260,26 @@ std::shared_ptr<CCombined> MakeControl(CWnd &hParent, int section, int option, i
 			c = std::make_shared<CFieldList>();
 			c->CreateWindow(name.c_str(), X, Y, W - 20, 25, hParent, m_hModule, hFont);
 			for (size_t j = 0, sj = cfg.section[section].option[option].value.size(); j < sj; j++)
+			{
 				c->AddString(cfg.GetValueString(section, option, (int)j).c_str());
+			}
 			c->SetHover(name.c_str(), desc.c_str(), &hDesc);
 			// set current value
 			c->SetConfigPtr(&cfg.section[section].option[option]);
 			c->SetSelection(c->cValue->cur_val);
 		}
 		break;
-	case CConfigOption::TYPE_PAD:
-		{
-			c = std::make_shared<CFieldList>();
-			c->CreateWindow(cfg.GetOptionString(section, option).c_str(), X, Y, W - 20, 25, hParent, m_hModule, hFont);
-			// TODO: populate list with controller enumeration
-		}
-		break;
 	case CConfigOption::TYPE_TEXT:
+		{
+			c = std::make_shared<CFieldText>();
+			c->CreateWindow(cfg.GetOptionString(section, option).c_str(), X, Y, W - 20, 22, hParent, m_hModule, hFont);
+			c->SetHover(name.c_str(), desc.c_str(), &hDesc);
+			// set current value
+			c->SetString(MultiToWide_s(cfg.section[section].option[option].value[cfg.section[section].option[option].cur_val].val));
+			c->SetConfigPtr(&cfg.section[section].option[option]);
+	}
+		break;
+	case CConfigOption::TYPE_HIDE:
 		c = std::make_shared<CCombined>();
 		break;
 	case CConfigOption::TYPE_UNK:
@@ -291,11 +296,15 @@ void PopulateTab(int section)
 	hDesc.SetCaption(cfg.GetGroupString(section).c_str());
 	hDesc.SetText(L"");
 
-	for (size_t i = 0, si = hCtrl.size(); i < si; i++)
-		hCtrl[i]->Release();
+	for (auto &Ctrl : hCtrl)
+	{
+		Ctrl->Release();
+	}
 	hCtrl.clear();
-	for (size_t i = 0, si = hGroup.size(); i < si; i++)
-		DestroyWindow(*hGroup[i]);
+	for (auto &Group : hGroup)
+	{
+		DestroyWindow(*Group);
+	}
 	hGroup.clear();
 
 	RECT rect;
@@ -348,6 +357,9 @@ void UpdateTab(int section)
 				break;
 			case CCombined::TYPE_LIST:
 				hCtrl[pos]->SetSelection(cfg.section[s].option[o].cur_val);
+				break;
+			case CCombined::TYPE_TEXT:
+				hCtrl[pos]->SetString(MultiToWide_s(cfg.section[section].option[o].value[cfg.section[s].option[o].cur_val].val));
 				break;
 			}
 		}
@@ -476,8 +488,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	// create the main tab
 	hTab.CreateWindow(0, 0, r.right, r.bottom - 152, hWnd, hInstance, hFont);
 	for (size_t i = 0, si = cfg.group.size(); i < si; i++)
+	{
 		hTab.InsertItem((int)i, cfg.GetGroupString((int)i).c_str());
-	hTab.Subclass(TabProc);		// subclass the tab to catch messages for controls inside it
+	}
 
 	// create the description field
 	hDesc.CreateWindow(4, r.bottom - 150, r.right - 8, 118, hWnd, hInstance, hFont, hBold);
@@ -544,6 +557,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	CenterWindow(hWnd);
 	LoadSettings();
 
+	// subclass the tab to catch messages for controls inside it
+	hTab.Subclass(TabProc);	
+
 	return TRUE;
 }
 
@@ -567,6 +583,14 @@ LRESULT CALLBACK TabProc(HWND hWndd, UINT Msg, WPARAM wParam, LPARAM lParam)
 				CCombined* wnd = reinterpret_cast<CCombined*>(GetWindowLongPtrW((HWND)lParam, GWLP_USERDATA));
 				bool checked = wnd->GetCheck();
 				wnd->SetConfigValue(checked);
+				SetChanges();
+			}
+			break;
+		case EN_UPDATE:		// catch textboxes
+			{
+				CCombined* wnd = reinterpret_cast<CCombined*>(GetWindowLongPtrW((HWND)lParam, GWLP_USERDATA));
+				std::wstring val = wnd->GetString();
+				wnd->SetConfigValue(val);
 				SetChanges();
 			}
 			break;

@@ -11,6 +11,7 @@ class CConfig;
 
 using namespace tinyxml2;
 std::wstring MultiToWide_s(const char* multi);
+std::wstring MultiToWide_s(std::string multi);
 
 class CHashString
 {
@@ -78,6 +79,11 @@ public:
 	void Parse(XMLElement& xml, CConfig& cfg);
 	void SetValueFromName(const char* vname)
 	{
+		if (type == TYPE_TEXT)
+		{
+			value[cur_val].val.assign(vname);
+			return;
+		}
 		for (size_t i = 0, si = value.size(); i < si; i++)
 		{
 			if (value[i].val.compare(vname) == 0)
@@ -97,7 +103,14 @@ public:
 		{
 			if (value[i].is_default)
 			{
-				cur_val = (int)i;
+				if (type == TYPE_TEXT)
+				{
+					value[cur_val].val = value[i].val;
+				}
+				else
+				{
+					cur_val = (int)i;
+				}
 				return;
 			}
 		}
@@ -122,10 +135,10 @@ public:
 	enum TYPE
 	{
 		TYPE_UNK,	// undefined behavior
-		TYPE_LIST,	// list of options
 		TYPE_CHECK,	// checkbox with true or false
-		TYPE_PAD,	// controller enumerator
-		TYPE_TEXT	// read only
+		TYPE_LIST,	// list of options
+		TYPE_TEXT,	// textbox
+		TYPE_HIDE,	// hidden options
 	};
 
 	std::vector<CConfigValue> value;	// values for this option

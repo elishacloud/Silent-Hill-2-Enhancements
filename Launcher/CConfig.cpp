@@ -575,29 +575,50 @@ void CConfigOption::Parse(XMLElement& xml, CConfig& cfg)
 	type = TYPE_UNK;
 	if (t)
 	{
-		if (strcmp(t, "list") == 0)
-			type = TYPE_LIST;
-		else if (strcmp(t, "check") == 0)
+		if (strcmp(t, "check") == 0)
 			type = TYPE_CHECK;
-		else if (strcmp(t, "invisible") == 0)
+		else if (strcmp(t, "list") == 0)
+			type = TYPE_LIST;
+		else if (strcmp(t, "text") == 0)
 			type = TYPE_TEXT;
-		else if (strcmp(t, "pad") == 0)
-			type = TYPE_PAD;
+		else if (strcmp(t, "invisible") == 0)
+			type = TYPE_HIDE;
 	}
 
-	auto s = d->FirstChildElement("Value");
+	CConfigValue defval;
+
 	int i = 0;
+	auto s = d->FirstChildElement("Value");
 	while (s)
 	{
 		CConfigValue val;
 		val.Parse(*s, cfg);
 		// if this is the default value, flag is as the active selection
 		if (val.is_default)
+		{
 			cur_val = i;
-		value.push_back(val);
+			defval = val;
+		}
 
-		s = s->NextSiblingElement("Value");
+		if (type != TYPE_TEXT)
+		{
+			value.push_back(val);
+		}
+
 		i++;
+		s = s->NextSiblingElement("Value");
+	}
+
+	if (type == TYPE_TEXT)
+	{
+		// default text
+		defval.is_default = true;
+		value.push_back(defval);
+
+		// current text
+		cur_val = 1;
+		defval.is_default = false;
+		value.push_back(defval);
 	}
 }
 

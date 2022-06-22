@@ -7,6 +7,8 @@
 #include "External\tinyxml2\tinyxml2.h"
 #include "External\xxHash\xxh3.h"
 
+extern bool DisableTabOverloadWarning;
+
 class CConfig;
 
 using namespace tinyxml2;
@@ -268,12 +270,6 @@ public:
 	std::vector<CConfigSub> sub;	// list of sub options for this group
 };
 
-struct cb_parse
-{
-	std::vector<CConfigOption*> list;
-	std::string error;
-};
-
 class CConfig
 {
 public:
@@ -293,9 +289,8 @@ public:
 	std::vector<CConfigGroup> group;		// ini groups, represented as tabs on interface (it's only for grouping, doesn't influence ini structure)
 	CConfigStrings string;					// unicode string pool
 	std::string Preface;
-	cb_parse p;
 
-	void FindSectionAndOption(XXH64_hash_t ss, XXH64_hash_t sh, int &found_sec, int &found_opt)
+	bool FindSectionAndOption(XXH64_hash_t ss, XXH64_hash_t sh, int &found_sec, int &found_opt)
 	{
 		for (size_t i = 0, si = section.size(); i < si; i++)
 		{
@@ -307,12 +302,13 @@ public:
 				{
 					found_sec = (int)i;
 					found_opt = (int)j;
-					return;
+					return true;
 				}
 			}
 		}
 		found_sec = 0;
 		found_opt = 0;
+		return false;
 	}
 
 	std::wstring GetSectionString(int sec);

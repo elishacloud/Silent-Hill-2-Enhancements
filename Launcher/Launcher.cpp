@@ -41,7 +41,7 @@ HFONT hFont, hBold;
 bool bIsLooping = true,
 	bLaunch = false;
 
-// Unsued shared variables
+// Unused shared variables
 SH2VERSION GameVersion = SH2V_UNKNOWN;
 bool EnableCustomShaders = false;
 bool AutoScaleVideos = false;
@@ -58,8 +58,9 @@ CCtrlDropBox hDbLaunch;									// pulldown at the bottom
 CCtrlDescription hDesc;									// option description
 std::vector<std::shared_ptr<CCombined>> hCtrl;			// responsive controls for options
 std::vector<std::shared_ptr<CCtrlGroup>> hGroup;		// group controls inside the tab
-std::vector<std::wstring> ExeList;					// Store all file names
+std::vector<std::wstring> ExeList;						// Store all file names
 UINT uCurTab;
+LONG MaxControlDataWndSize;
 bool bHasChange;
 
 // the xml
@@ -310,7 +311,7 @@ void PopulateTab(int section)
 	RECT rect;
 	hTab.GetRect(rect);
 
-	int Y = 20;
+	LONG Y = 20;
 
 	// process a group
 	for (size_t i = 0, si = cfg.group[section].sub.size(), pos = 0; i < si; i++)
@@ -338,6 +339,11 @@ void PopulateTab(int section)
 		}
 
 		Y += gp_rect.bottom - gp_rect.top;
+	}
+
+	if (!DisableTabOverloadWarning && Y > MaxControlDataWndSize)
+	{
+		MessageBoxW(nullptr, L"Error: too many settings listed in tab!", GetPrgString(STR_WARNING).c_str(), MB_OK);
 	}
 }
 
@@ -486,7 +492,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	GetClientRect(hWnd, &r);
 
 	// create the main tab
-	hTab.CreateWindow(0, 0, r.right, r.bottom - 152, hWnd, hInstance, hFont);
+	MaxControlDataWndSize = r.bottom - 152;
+	hTab.CreateWindow(0, 0, r.right, MaxControlDataWndSize, hWnd, hInstance, hFont);
 	for (size_t i = 0, si = cfg.group.size(); i < si; i++)
 	{
 		hTab.InsertItem((int)i, cfg.GetGroupString((int)i).c_str());

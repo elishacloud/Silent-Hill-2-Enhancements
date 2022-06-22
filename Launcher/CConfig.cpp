@@ -45,6 +45,16 @@ std::string HiddenValues[] = { VISIT_HIDDEN_SETTING(DECLARE_HIDDEN_SETTINGS) };
 bool DisableMissingSettingsWarning = false;
 bool DisableExtraSettingsWarning = false;
 bool DisableDefaultValueWarning = false;
+bool DisableXMLErrorWarning = false;
+bool DisableTabOverloadWarning = false;
+
+struct cb_parse
+{
+	std::vector<CConfigOption*> list;
+	std::string error;
+};
+
+cb_parse p;
 
 /////////////////////////////////////////////////
 // Various helpers
@@ -91,6 +101,19 @@ std::wstring MultiToWide_s(std::string multi)
 inline const char* GetNameValue(const char* name, const char* tip)
 {
 	return name ? name : tip;
+}
+
+inline bool CheckOptValue(CConfigOption &opt)
+{
+	if ((opt.type == CConfigOption::TYPE::TYPE_CHECK && opt.value.size() == 2) ||
+		(opt.type == CConfigOption::TYPE::TYPE_LIST && opt.value.size() > 1) ||
+		(opt.type == CConfigOption::TYPE::TYPE_TEXT && opt.value.size() == 2) ||
+		opt.type == CConfigOption::TYPE::TYPE_HIDE)
+	{
+		return true;
+	}
+
+	return false;
 }
 
 // get xml from resource
@@ -145,10 +168,12 @@ bool CConfig::ParseXml()
 	if (e)
 	{
 		// Sample of xml for this
-		// <Error DisableMissingSettingsWarning="1" DisableExtraSettingsWarning="1" DisableDefaultValueWarning="1" />
+		// <Error DisableMissingSettingsWarning="1" DisableExtraSettingsWarning="1" DisableDefaultValueWarning="1" DisableXMLErrorWarning="1" DisableTabOverloadWarning="1" />
 		DisableMissingSettingsWarning = SetValue(e->Attribute("DisableMissingSettingsWarning"));
 		DisableExtraSettingsWarning = SetValue(e->Attribute("DisableExtraSettingsWarning"));
 		DisableDefaultValueWarning = SetValue(e->Attribute("DisableDefaultValueWarning"));
+		DisableXMLErrorWarning = SetValue(e->Attribute("DisableXMLErrorWarning"));
+		DisableTabOverloadWarning = SetValue(e->Attribute("DisableTabOverloadWarning"));
 	}
 
 	auto i = root->FirstChildElement("Ini");
@@ -257,8 +282,8 @@ void __stdcall ParseIniCallback(char* lpName, char* lpValue, void *lpParam)
 	// Check for valid entries
 	if (!IsValidSettings(lpName, lpValue)) return;
 
-	auto p = reinterpret_cast<cb_parse*>(lpParam);
-	for (auto &item : p->list)
+	auto cb = reinterpret_cast<cb_parse*>(lpParam);
+	for (auto &item : cb->list)
 	{
 		if (item->name.compare(lpName) == 0)
 		{
@@ -408,6 +433,46 @@ bool CompareSettings(std::string name, std::string setting, std::string xml)
 
 void CConfig::CheckAllXmlSettings(LPCWSTR error_caption)
 {
+	// Check if XML errors were found during parsing of the file
+	if (!DisableXMLErrorWarning)
+	{
+		// This needs to be at the beginning, before the other checks
+		if (!p.error.empty())
+		{
+			MessageBoxW(nullptr, MultiToWide_s(std::string("XML error found settings:\n\n") + p.error).c_str(), error_caption, MB_OK);
+			p.error.clear();
+		}
+
+		bool found = false;
+
+		for (size_t s = 0; s < group.size(); s++)
+		{
+			for (size_t i = 0, si = group[s].sub.size(); i < si; i++)
+			{
+				if (found || GetGroupLabel(s, (int)i).size() == 0)
+				{
+					found = true;
+					break;
+				}
+
+				for (size_t j = 0, sj = group[s].sub[i].opt.size(); j < sj; j++)
+				{
+					int sec, opt;
+					if (!FindSectionAndOption(group[s].sub[i].opt[j].sec, group[s].sub[i].opt[j].op, sec, opt))
+					{
+						found = true;
+						break;
+					}
+				}
+			}
+
+			if (found)
+			{
+				MessageBoxW(nullptr, L"Error: orphaned XML found!", error_caption, MB_OK);
+			}
+		}
+	}
+
 	// Check for missing settings in xml file
 	if (!DisableMissingSettingsWarning)
 	{
@@ -547,7 +612,16 @@ void CConfigSection::Parse(XMLElement& xml, CConfig& cfg)
 		{
 			CConfigOption opt;
 			opt.Parse(*s, cfg);
-			option.push_back(opt);
+			if (CheckOptValue(opt))
+			{
+				option.push_back(opt);
+			}
+			else
+			{
+				p.error += "\"";
+				p.error += name;
+				p.error += "\"\n";
+			}
 
 			s = s->NextSiblingElement(element);
 		}

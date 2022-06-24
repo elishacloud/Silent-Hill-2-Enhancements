@@ -31,6 +31,7 @@ bool IsInFullscreenImage = false;
 bool IsInBloomEffect = false;
 bool IsInFakeFadeout = false;
 bool ClassReleaseFlag = false;
+bool TextureSet = false;
 DWORD TextureNum = 0;
 
 struct SCREENSHOTSTRUCT
@@ -1982,6 +1983,7 @@ HRESULT m_IDirect3DDevice8::SetTexture(DWORD Stage, IDirect3DBaseTexture8 *pText
 		default:
 			return D3DERR_INVALIDCALL;
 		}
+		TextureSet = true;	// Used for FakeGetFrontBuffer()
 	}
 
 	// Fix for the white shader issue
@@ -2458,35 +2460,14 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 		CachedSurfaceData.resize((BufferWidth * 4) * BufferHeight);
 	}
 
-	// If in fullscreen exclusive mode then use GetFrontBuffer()
-	if (ScreenMode == 3)
-	{
-		// Create new surface to hold data
-		IDirect3DSurface8 *pSrcSurface = nullptr;
-		if (SUCCEEDED(ProxyInterface->CreateImageSurface(BufferWidth, BufferHeight, D3DFMT_A8R8G8B8, &pSrcSurface)))
-		{
-			// Get front buffer data
-			if (SUCCEEDED(ProxyInterface->GetFrontBuffer(pSrcSurface)))
-			{
-				// Lock destination surface
-				D3DLOCKED_RECT LockedRect = {};
-				if (SUCCEEDED(pSrcSurface->LockRect(&LockedRect, nullptr, 0)))
-				{
-					// Copy surface to cached buffer
-					memcpy(&CachedSurfaceData[0], LockedRect.pBits, LockedRect.Pitch * BufferHeight);
-					pSrcSurface->UnlockRect();
-				}
-			}
+	static DWORD FrontBufferControl = 0;	// 0 = code not run yet; 1 = use GDI; 2 = use DirectX
 
-			// Release surface
-			pSrcSurface->Release();
-		}
-	}
-	// In windowed mode use GDI to get front buffer data
-	else
+	// Use GDI to get front buffer data
+	if (FrontBufferControl == 0 || FrontBufferControl == 1)
 	{
 		// Capture Silent Hill 2 window data
-		HDC hWindowDC = GetDC(DeviceWindow);
+		HWND hDeviceWnd = (ScreenMode == 3) ? GetDesktopWindow() : DeviceWindow;
+		HDC hWindowDC = GetDC(hDeviceWnd);
 		HDC hCaptureDC = CreateCompatibleDC(hWindowDC);
 		HBITMAP hCaptureBitmap = CreateCompatibleBitmap(hWindowDC, BufferWidth, BufferHeight);
 		SelectObject(hCaptureDC, hCaptureBitmap);
@@ -2498,7 +2479,134 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 		// Release DC
 		DeleteObject(hCaptureBitmap);
 		DeleteDC(hCaptureDC);
-		ReleaseDC(DeviceWindow, hWindowDC);
+		ReleaseDC(hDeviceWnd, hWindowDC);
+
+		// Detect if GDI will work for getting front buffer data
+		if (FrontBufferControl == 0)
+		{
+			static bool TestedBlackScreen = false;
+			// Check black (or solid color) screen before texture is set
+			if (!TextureSet)
+			{
+				for (DWORD x = 0; x < CachedSurfaceData.size() - 4; x = x + 4)
+				{
+					if (CachedSurfaceData[0] != CachedSurfaceData[0 + x] && CachedSurfaceData[1] != CachedSurfaceData[1 + x] && CachedSurfaceData[2] != CachedSurfaceData[2 + x])
+					{
+						// Found non-solid color screen, meaning that GDI cannot capture game screen
+						// Need to use DirectX for front buffer
+						FrontBufferControl = 2;
+						break;
+					}
+				}
+				TestedBlackScreen = true;
+			}
+			// Check for white (or solid color) screen after texture is set
+			if (TextureSet)
+			{
+				bool Found = false;
+				if (TestedBlackScreen)
+				{
+					for (DWORD x = 0; x < CachedSurfaceData.size() - 4; x = x + 4)
+					{
+						if (CachedSurfaceData[0] != CachedSurfaceData[0 + x] && CachedSurfaceData[1] != CachedSurfaceData[1 + x] && CachedSurfaceData[2] != CachedSurfaceData[2 + x])
+						{
+							// Found non-solid color screen, meaning GDI correctly captured the game screen
+							Found = true;
+							break;
+						}
+					}
+				}
+				if (Found)
+				{
+					// Ok to use GDI for front buffer
+					FrontBufferControl = 1;
+					Logging::Log() << __FUNCTION__ << " Using GDI to get front buffer data.";
+				}
+				else
+				{
+					// Need to use DirectX for front buffer
+					FrontBufferControl = 2;
+				}
+			}
+		}
+	}
+
+	// Use DirctX to get front buffer data by calling the real GetFrontBuffer()
+	if (FrontBufferControl == 2)
+	{
+		LOG_ONCE(__FUNCTION__ << " Using DirectX to get front buffer data.");
+
+		// Get primary monitor resolution
+		LONG ScreenWidth = GetSystemMetrics(SM_CXSCREEN);
+		LONG ScreenHeight = GetSystemMetrics(SM_CYSCREEN);
+		if (MonitorFromWindow(DeviceWindow, MONITOR_DEFAULTTONEAREST) != MonitorFromWindow(GetDesktopWindow(), MONITOR_DEFAULTTONEAREST))
+		{
+			LOG_ONCE(__FUNCTION__ << " Error: Cannot get front buffer data from DirectX on non-primary monitor.");
+			return D3DERR_INVALIDCALL;
+		}
+
+		// Location of client window
+		LONG Left = 0;
+		LONG Top = 0;
+
+		// Get location of client window if not in exclusive fullscreen mode
+		if (ScreenMode != 3)
+		{
+			RECT RectSrc = { 0, 0, BufferWidth, BufferHeight };
+			RECT rcClient = { 0, 0, BufferWidth, BufferHeight };
+			if (!GetWindowRect(DeviceWindow, &RectSrc) || !GetClientRect(DeviceWindow, &rcClient))
+			{
+				LOG_ONCE(__FUNCTION__ << " Error: Could not get window or client rect for front buffer.");
+				return D3DERR_INVALIDCALL;
+			}
+			int border_thickness = ((RectSrc.right - RectSrc.left) - rcClient.right) / 2;
+			int top_border = (RectSrc.bottom - RectSrc.top) - rcClient.bottom - border_thickness;
+			RectSrc.left += border_thickness;
+			RectSrc.top += top_border;
+			RectSrc.right = RectSrc.left + rcClient.right;
+			RectSrc.bottom = RectSrc.top + rcClient.bottom;
+			Left = RectSrc.left;
+			Top = RectSrc.top;
+		}
+
+		// Create new surface to hold data
+		IDirect3DSurface8 *pSrcSurface = nullptr;
+		if (SUCCEEDED(ProxyInterface->CreateImageSurface(ScreenWidth, ScreenHeight, D3DFMT_A8R8G8B8, &pSrcSurface)))
+		{
+			// Get front buffer data
+			if (SUCCEEDED(ProxyInterface->GetFrontBuffer(pSrcSurface)))
+			{
+				// Lock destination surface
+				D3DLOCKED_RECT LockedRect = {};
+				if (SUCCEEDED(pSrcSurface->LockRect(&LockedRect, nullptr, 0)))
+				{
+					// Copy surface to cached buffer
+					if (LockedRect.Pitch == BufferWidth * 4 && ScreenHeight == BufferHeight && Top == 0 && Left == 0)
+					{
+						memcpy(&CachedSurfaceData[0], LockedRect.pBits, LockedRect.Pitch * BufferHeight);
+					}
+					else
+					{
+						BYTE *pBuffer = (BYTE*)((DWORD)LockedRect.pBits + Top * LockedRect.Pitch + Left * 4);
+						DWORD EndBuffer = (DWORD)LockedRect.pBits + (LockedRect.Pitch * ScreenHeight);
+						LONG Pitch = BufferWidth * 4;
+						for (int x = 0; x < BufferHeight && (DWORD)pBuffer + Pitch <= EndBuffer; x++)
+						{
+							memcpy(&CachedSurfaceData[x * Pitch], pBuffer, Pitch);
+							pBuffer += LockedRect.Pitch;
+						}
+					}
+					pSrcSurface->UnlockRect();
+				}
+			}
+			else
+			{
+				LOG_ONCE(__FUNCTION__ << " Error: Failed to get DirectX front buffer data.");
+			}
+
+			// Release surface
+			pSrcSurface->Release();
+		}
 	}
 
 	HRESULT hr = D3D_OK;

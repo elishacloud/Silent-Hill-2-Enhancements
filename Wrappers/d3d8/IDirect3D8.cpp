@@ -455,8 +455,14 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 		return;
 	}
 
+	if (ScreenMode == 3)
+	{
+		// Don't adjust window or set border when in exclusive fullscreen mode
+		return;
+	}
+
 	// Handle Windows themes
-	if (ScreenMode != 3 && WndModeBorder)
+	if (WndModeBorder)
 	{
 		SetWindowTheme(MainhWnd);
 	}

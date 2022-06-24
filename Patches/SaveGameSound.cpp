@@ -75,7 +75,6 @@ void PatchSaveGameSound()
 	GameSoundReturnAddress = reinterpret_cast<void*>(SoundEffectCallAddr + 16);
 	
 	// Update SH2 code
-	WriteJMPtoMemory(reinterpret_cast<BYTE*>(SoundEffectCallAddr), *SaveGameSoundASM, 16);
-
 	Logging::Log() << "Fixing \"Save Game\" Sound...";
+	WriteJMPtoMemory(reinterpret_cast<BYTE*>(SoundEffectCallAddr), *SaveGameSoundASM, 16);
 }

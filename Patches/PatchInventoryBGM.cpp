@@ -43,7 +43,7 @@ __declspec(naked) void __stdcall FixInventoryBGMBugASM()
 void PatchInventoryBGMBug()
 {
 	constexpr BYTE BuggyBGMBytes[] = { 0x83, 0xf8, 0x04, 0x75, 0x0d, 0x68 };
-	const DWORD BuggyBGMAddr = SearchAndGetAddresses(0x05166c9, 0x5169F9, 0x516319, BuggyBGMBytes, sizeof(BuggyBGMBytes), -0x1f);
+	const DWORD BuggyBGMAddr = SearchAndGetAddresses(0x005166E8, 0x00516A18, 0x00516338, BuggyBGMBytes, sizeof(BuggyBGMBytes), -0x1f);
 
 	// Check errors
 	if (!BuggyBGMAddr)
@@ -56,5 +56,7 @@ void PatchInventoryBGMBug()
 	jmp_return = reinterpret_cast<void*>(BuggyBGMAddr + 0x24);
 	jmp_to_loop = reinterpret_cast<void*>(BuggyBGMAddr + 0x31);
 
+	// Update SH2 code
+	Logging::Log() << "Fixing Inventory BGM...";
 	WriteJMPtoMemory(reinterpret_cast<BYTE*>(BuggyBGMAddr), *FixInventoryBGMBugASM,0x24);
 }

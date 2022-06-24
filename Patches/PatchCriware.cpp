@@ -8,8 +8,6 @@
 
 void PatchCriware()
 {
-	Logging::Log() << "Enabling Criware...";
-
 	// hanging
 	auto pattern = hook::pattern("E8 ? ? ? ? 6A 01 FF ? E8 ? ? ? ? 85 ? 74 ? 33 DB 53 53 E8 ? ? ? ? 53 53");
 	if (pattern.size() != 1)
@@ -268,12 +266,15 @@ void PatchCriware()
 	// patch subtitle being too slow in the bowling fake cutscene
 	// TODO: double check addresses for DC and 1.1 --- Gemini
 	constexpr BYTE CutsceneSearchBytes[]{ 0x2a, 0x00, 0x7b, 0x00, 0x7b, 0x00, 0xba, 0x00, 0xff, 0xff, 0xff, 0xff };
-	BYTE* ptr_sub_fix = (BYTE*)SearchAndGetAddresses(0x008DAEEC, 0x8DB07C, 0x8DB07C, CutsceneSearchBytes, sizeof(CutsceneSearchBytes), 6);
+	BYTE* ptr_sub_fix = (BYTE*)SearchAndGetAddresses(0x008DAEEC, 0x008DEBBC, 0x008DDBBC, CutsceneSearchBytes, sizeof(CutsceneSearchBytes), 6);
 	if (ptr_sub_fix == nullptr)
 	{
 		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
 		return;
 	}
+
+	// Update SH2 code
+	Logging::Log() << "Enabling Criware...";
 
 	// remove lag due to a useless Sleep(1) inside the rendering code
 	UpdateMemoryAddress(ptr_hang, "\x0", 1);

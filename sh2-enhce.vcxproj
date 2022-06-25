@@ -256,10 +256,6 @@
       <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul
 copy /Y "$(ProjectDir)Resources\exe_str.txt" "$(TargetDir)$(TargetName).res" &gt;nul</Command>
     </PostBuildEvent>
-    <PreBuildEvent>
-      <Command>cmd /q /c "cd /D ""$(TargetDir)"" &amp;&amp; SH2EEconfig.exe /compileini"
-copy /y "$(TargetDir)$(TargetName).ini" "$(ProjectDir)Common\Settings.ini"</Command>
-    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

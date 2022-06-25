@@ -62,6 +62,7 @@ std::vector<std::wstring> ExeList;						// Store all file names
 UINT uCurTab;
 LONG MaxControlDataWndSize;
 bool bHasChange;
+bool bIsCompiling;
 
 // the xml
 CConfig cfg;
@@ -148,6 +149,32 @@ void RestoreChanges()
 	}
 }
 
+bool CheckArgumentsForIniCompilation()
+{
+	bool Compilation = false;
+
+	// Retrieve command line arguments
+	LPWSTR *szArgList;
+	int argCount;
+	szArgList = CommandLineToArgvW(GetCommandLine(), &argCount);
+
+	// If arguments
+	if (szArgList && argCount)
+	{
+		for (int i = 0; i < argCount; i++)
+		{
+			if (wcsstr(szArgList[i], L"/compileini"))
+			{
+				Compilation = true;
+				break;
+			}
+		}
+	}
+	LocalFree(szArgList);
+
+	return Compilation;
+}
+
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
@@ -155,18 +182,30 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
 	Logging::EnableLogging = false;
 
+	bIsCompiling = CheckArgumentsForIniCompilation();
+
 	// Boot to admin mode
-	CheckArgumentsForPID();
-	RemoveVirtualStoreFiles();
-	CheckAdminAccess();
+	if (!bIsCompiling)
+	{
+		CheckArgumentsForPID();
+		RemoveVirtualStoreFiles();
+		CheckAdminAccess();
+	}
 
 	if (cfg.ParseXml())
 	{
 		MessageBoxA(nullptr, "Could not initialize config.", "INITIALIZATION ERROR", MB_ICONERROR);
-		return 0;
+		return FALSE;
 	}
 	cfg.BuildCacheP();
 	cfg.CheckAllXmlSettings(GetPrgString(STR_WARNING).c_str());
+
+	if (bIsCompiling)
+	{
+		cfg.SaveIni(GetPrgString(STR_INI_NAME).c_str(), GetPrgString(STR_INI_ERROR).c_str(), GetPrgString(STR_ERROR).c_str());
+		return TRUE;
+	}
+
 	cfg.SetFromIni(GetPrgString(STR_INI_NAME).c_str());
 	GetAllExeFiles();
 

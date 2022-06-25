@@ -20,7 +20,7 @@
 #define RESHADE_FILE_LIST
 #include "d3d9wrapper.h"
 #include <d3dcompiler.h>
-#include "Resources\sh2-enhce.h"
+#include "Resource.h"
 
 namespace reshade::d3d9
 {

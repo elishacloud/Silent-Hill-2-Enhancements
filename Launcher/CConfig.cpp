@@ -42,6 +42,8 @@ struct DUALSTRINGS
 DUALSTRINGS AllValues[] = { VISIT_ALL_SETTING(DECLARE_ALL_SETTINGS) };
 std::string HiddenValues[] = { VISIT_HIDDEN_SETTING(DECLARE_HIDDEN_SETTINGS) };
 
+extern bool bIsCompiling;
+
 bool DisableMissingSettingsWarning = false;
 bool DisableExtraSettingsWarning = false;
 bool DisableDefaultValueWarning = false;
@@ -369,7 +371,15 @@ void CConfig::SaveIni(LPCWSTR lpName, LPCWSTR error_mes, LPCWSTR error_caption)
 	std::stringstream s_ini(ini);
 
 	// Merge ini files
-	std::string newini = MergeiniFile(s_currentini, s_ini, true);
+	std::string newini;
+	if (bIsCompiling)
+	{
+		newini.assign(s_ini.str());
+	}
+	else
+	{
+		newini = MergeiniFile(s_currentini, s_ini, true);
+	}
 
 	// Write updated ini file
 	std::ofstream out(name);

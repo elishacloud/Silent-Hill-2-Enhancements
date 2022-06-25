@@ -14,7 +14,7 @@
 *   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "Resources\sh2-enhce.h"
+#include "Resource.h"
 #include "d3d9wrapper.h"
 #include "Common\Settings.h"
 #include "External\Hooking\Hook.h"

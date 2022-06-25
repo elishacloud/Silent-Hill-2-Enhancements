@@ -294,9 +294,7 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; echo set /p build=^&lt;Bu
 cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; echo set modified=%%build:,=.%% &gt;&gt; build.bat"
 cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; echo echo %%modified%% ^&gt; BuildNo.rc &gt;&gt; build.bat"
 cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; call build.bat"
-cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"
-cmd /q /c "cd /D ""$(TargetDir)"" &amp;&amp; SH2EEconfig.exe /compileini"
-copy /y "$(TargetDir)$(TargetName).ini" "$(ProjectDir)Common\Settings.ini"</Command>
+cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul

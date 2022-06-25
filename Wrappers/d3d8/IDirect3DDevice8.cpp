@@ -2495,8 +2495,8 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 						// Found non-solid color screen, meaning that GDI cannot capture game screen
 						// Need to use DirectX for front buffer
 						FrontBufferControl = 2;
-						break;
 					}
+					*(DWORD*)&CachedSurfaceData[x] = 0x00000000;  // Set the pixel to black
 				}
 				TestedBlackScreen = true;
 			}

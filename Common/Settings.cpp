@@ -295,4 +295,15 @@ void UpdateConfigDefaults()
 			ScreenMode = 3;
 		}
 	}
+
+	// Set front buffer control
+	switch (FrontBufferControl)
+	{
+	case 0:
+	case 1:
+	case 2:
+		break;
+	default:
+		FrontBufferControl = 0;
+	}
 }

@@ -241,6 +241,8 @@ public:
 	STDMETHOD(UpdateSurface)(THIS_ IDirect3DSurface8* pSourceSurface, IDirect3DSurface8* pDestSurface);
 	STDMETHOD(UpdateTexture)(THIS_ IDirect3DBaseTexture8* pSourceTexture, IDirect3DBaseTexture8* pDestinationTexture);
 	STDMETHOD(GetFrontBuffer)(THIS_ IDirect3DSurface8* pDestSurface);
+	STDMETHOD(GetFrontBufferFromGDI)(THIS_ BYTE* lpBuffer, size_t Size);
+	STDMETHOD(GetFrontBufferFromDirectX)(THIS_ BYTE* lpBuffer, size_t Size);
 	STDMETHOD(FakeGetFrontBuffer)(THIS_ IDirect3DSurface8* pDestSurface);
 	STDMETHOD(SetRenderTarget)(THIS_ IDirect3DSurface8* pRenderTarget, IDirect3DSurface8* pNewZStencil);
 	STDMETHOD(GetRenderTarget)(THIS_ IDirect3DSurface8** ppRenderTarget);

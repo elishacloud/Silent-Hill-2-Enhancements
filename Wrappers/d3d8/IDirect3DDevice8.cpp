@@ -915,13 +915,6 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 		return D3D_OK;
 	}
 
-	// Take screenshot
-	if (TakeScreenShot)
-	{
-		TakeScreenShot = false;
-		CaptureScreenShot();
-	}
-
 	// Endscene
 	BeginSceneFlag = false;
 	ProxyInterface->EndScene();
@@ -990,17 +983,32 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 		hr = ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 	}
 
+	// Take screenshot
+	if (TakeScreenShot)
+	{
+		if (!BeginSceneFlag)
+		{
+			BeginSceneFlag = true;
+			ProxyInterface->BeginScene();
+		}
+		TakeScreenShot = false;
+		CaptureScreenShot();
+	}
+
 	// Fix inventory snapshot in Hotel Employee Elevator Room
 	if (HotelEmployeeElevatorRoomFlag)
 	{
 		if (pInitialRenderTexture && GetOnScreen() == 6)
 		{
+			if (!BeginSceneFlag)
+			{
+				BeginSceneFlag = true;
+				ProxyInterface->BeginScene();
+			}
 			IDirect3DSurface8 *pSnapshotSurface = nullptr;
 			if (SUCCEEDED(pInitialRenderTexture->GetSurfaceLevel(0, &pSnapshotSurface)))
 			{
 				pSnapshotSurface->Release();
-				BeginSceneFlag = true;
-				ProxyInterface->BeginScene();
 				FakeGetFrontBuffer(pSnapshotSurface);
 			}
 		}

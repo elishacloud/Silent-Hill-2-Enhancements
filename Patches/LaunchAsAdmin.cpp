@@ -271,10 +271,6 @@ void RemoveCompatibilityRegistry(HKEY hKeyRoot, const wchar_t *sh2path)
 
 			RegCloseKey(hKey);
 		}
-		else
-		{
-			NeedsRestart = true;
-		}
 
 	}
 }

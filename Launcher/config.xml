@@ -113,7 +113,7 @@
 
       <Feature name="FrontBufferControl">
         <Title>How should the game capture front buffer data</Title>
-        <Description>Determines how the game should collect the front buffer data used for fade outs and for the pause and inventry screens.&#x0a;&#x0a;Note: DirectX will only work on your primary monitor.  However, Linux only works with DirectX and some older Windows operating systems may require DirectX when using fullscreen mode.</Description>
+        <Description>Determines how the game should collect the front buffer data used for fade outs and the pause screen.&#x0a;&#x0a;Note: DirectX will only work on your primary monitor. DirectX may be required when playing in fullscreen mode on certain older Windows operating systems. Linux only works with DirectX. It is recommended to keep this on "auto" unless you are experiencing visual issues with fade outs or the pause screen.</Description>
         <Choices type="list">
           <Value name="Auto" default="true">0</Value>
           <Value name="Use GDI">1</Value>

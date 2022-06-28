@@ -449,6 +449,13 @@ void UpdatePresentParameterForMultisample(D3DPRESENT_PARAMETERS* pPresentationPa
 // Adjusting the window position for WindowMode
 void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 {
+	// Set default window background color to black
+	if (IsWindow(MainhWnd))
+	{
+		HBRUSH brush = CreateSolidBrush(RGB(0, 0, 0));
+		SetClassLongPtr(MainhWnd, GCLP_HBRBACKGROUND, (LONG_PTR)brush);
+	}
+
 	if (!MainhWnd || !displayWidth || !displayHeight)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: could not set window size, nullptr.";

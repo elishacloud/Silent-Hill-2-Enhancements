@@ -782,8 +782,8 @@ BOOL GetAppsLightMode()
 	}
 
 	BOOL bFlag = NULL;
-	DWORD size = sizeof(BOOL);
-	if (RegGetValue(hKey, nullptr, L"AppsUseLightTheme", RRF_RT_REG_DWORD, nullptr, &bFlag, &size) != ERROR_SUCCESS)
+	DWORD Size = sizeof(BOOL);
+	if (RegQueryValueEx(hKey, L"AppsUseLightTheme", 0, 0, (BYTE*)&bFlag, &Size) != ERROR_SUCCESS)
 	{
 		LOG_ONCE(__FUNCTION__ << " Error: Failed to read registry value!");
 	}
@@ -881,23 +881,22 @@ void MigrateRegistry()
 
 	// Check if registry key exists
 	HKEY hKey;
-	if (RegOpenKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Konami\\Silent Hill 2\\sh2e", REG_OPTION_NON_VOLATILE, KEY_READ, &hKey) != ERROR_SUCCESS)
-	{
-		return;
-	}
-	RegCloseKey(hKey);
-
-	// Open registry key
-	if (RegOpenKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Konami\\Silent Hill 2", REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE, &hKey) != ERROR_SUCCESS)
+	if (RegOpenKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Konami\\Silent Hill 2\\sh2e", 0, KEY_READ | KEY_WRITE, &hKey) != ERROR_SUCCESS)
 	{
 		return;
 	}
 
+	// Get resolution from registry
 	DWORD Size = sizeof(DWORD);
-	RegGetValue(hKey, L"sh2e", L"Width", RRF_RT_DWORD, nullptr, &Width, &Size);
-
+	RegQueryValueEx(hKey, L"Width", 0, 0, (BYTE*)&Width, &Size);
 	Size = sizeof(DWORD);
-	RegGetValue(hKey, L"sh2e", L"Height", RRF_RT_DWORD, nullptr, &Height, &Size);
+	RegQueryValueEx(hKey, L"Height", 0, 0, (BYTE*)&Height, &Size);
+
+	// Remove resolution from registry
+	RegDeleteValueW(hKey, L"Width");
+	RegDeleteValueW(hKey, L"Height");
+
+	RegCloseKey(hKey);
 
 	if (Width && Height)
 	{
@@ -907,13 +906,10 @@ void MigrateRegistry()
 		{
 			if (FAILED(SaveResolution(Width, Height)))
 			{
-				RegCloseKey(hKey);
 				return;
 			}
 		}
 	}
-
-	RegCloseKey(hKey);
 
 	return;
 }

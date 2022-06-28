@@ -943,7 +943,7 @@ struct CFGDATA
 HRESULT GetResolutionFromConfig(DWORD &Width, DWORD &Height)
 {
 	char ConfigName[MAX_PATH] = {};
-	if (!GetConfigName(ConfigName))
+	if (!GetConfigName(ConfigName) || !PathFileExistsA(ConfigName))
 	{
 		return E_FAIL;
 	}
@@ -956,6 +956,7 @@ HRESULT GetResolutionFromConfig(DWORD &Width, DWORD &Height)
 	hFile = CreateFileA(ConfigName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
+		LOG_LIMIT(100, __FUNCTION__ << " Error: failed to open file: '" << ConfigName << "'");
 		return E_FAIL;
 	}
 
@@ -1004,6 +1005,7 @@ HRESULT SaveResolution(DWORD Width, DWORD Height)
 	hFile = CreateFileA(ConfigName, GENERIC_WRITE, FILE_SHARE_WRITE, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
+		LOG_LIMIT(100, __FUNCTION__ << " Error: failed to open file: '" << ConfigName << "'");
 		return E_FAIL;
 	}
 
@@ -1011,7 +1013,12 @@ HRESULT SaveResolution(DWORD Width, DWORD Height)
 
 	CloseHandle(hFile);
 
-	return (bRet) ? S_OK : E_FAIL;
+	if (bRet)
+	{
+		return S_OK;
+	}
+
+	return E_FAIL;
 }
 
 void LogDirectory()

@@ -56,22 +56,14 @@ __declspec(naked) void __stdcall TexBufferASM()
 	__asm
 	{
 		call callBufferAddr
-		pushf
 		push eax
-		push ebx
 		push ecx
 		push edx
-		push esi
-		push edi
 		mov dword ptr ds : [LoadAddress], ebp
 		call ClearMemoryBuffer
-		pop edi
-		pop esi
 		pop edx
 		pop ecx
-		pop ebx
 		pop eax
-		popf
 		jmp jmpBufferAddr
 	}
 }

@@ -32,7 +32,6 @@ __declspec(naked) void __stdcall NoiseFilterASM()
 	static DWORD tmpVar;
 	__asm
 	{
-		pushf
 		mov tmpAddr, al
 		fild dword ptr tmpAddr
 		fdiv dword ptr BrightnessControl
@@ -42,7 +41,6 @@ __declspec(naked) void __stdcall NoiseFilterASM()
 		mov ecx, dword ptr ds : [FilterPointer]
 		mov byte ptr ds : [ecx], al
 		pop ecx
-		popf
 		jmp jmpFilterAddr
 	}
 }

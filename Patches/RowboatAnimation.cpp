@@ -27,7 +27,6 @@ __declspec(naked) void __stdcall RowboatAnimationASM()
 {
 	__asm
 	{
-		pushf
 		cmp eax, 0x4C
 		jne near RowboatExit
 		push ecx
@@ -40,7 +39,6 @@ __declspec(naked) void __stdcall RowboatAnimationASM()
 		pop ecx
 
 	RowboatExit:
-		popf
 		retn
 	}
 }

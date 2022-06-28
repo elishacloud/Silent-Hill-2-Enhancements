@@ -43,18 +43,12 @@ __declspec(naked) void __stdcall HardDriveASM()
 	__asm
 	{
 		push eax
-		push ebx
 		push ecx
 		push edx
-		push esi
-		push edi
 		call GetDiskSpace
 		cmp eax, 0x08		// Require at least 8KBs of disk space
-		pop edi
-		pop esi
 		pop edx
 		pop ecx
-		pop ebx
 		pop eax
 		ja near EnoughDiskSpace
 		jmp jmpSkipDisk
@@ -70,18 +64,12 @@ __declspec(naked) void __stdcall NewSaveASM()
 	__asm
 	{
 		push eax
-		push ebx
 		push ecx
 		push edx
-		push esi
-		push edi
 		call GetDiskSpace
 		cmp eax, 0x20		// Require at least 32KBs of disk space for new save
-		pop edi
-		pop esi
 		pop edx
 		pop ecx
-		pop ebx
 		pop eax
 		ja near EnoughDiskSpace
 		jmp HardDriveASM
@@ -97,18 +85,12 @@ __declspec(naked) void __stdcall DisplayASM()
 	__asm
 	{
 		push eax
-		push ebx
 		push ecx
 		push edx
-		push esi
-		push edi
 		call GetDiskSpace
 		cmp eax, 0x3FFFFFFF
-		pop edi
-		pop esi
 		pop edx
 		pop ecx
-		pop ebx
 		pop eax
 		jb near SmallDiskSpace
 		jmp jmpSkipDisplay

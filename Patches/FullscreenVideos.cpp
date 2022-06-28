@@ -88,7 +88,6 @@ __declspec(naked) void __stdcall LoadingVideoASM()
 {
 	__asm
 	{
-		pushf
 		push eax
 		push ecx
 		push edx
@@ -97,7 +96,6 @@ __declspec(naked) void __stdcall LoadingVideoASM()
 		pop edx
 		pop ecx
 		pop eax
-		popf
 		call VideoCallAddr
 		jmp JmpVideoAddr
 	}

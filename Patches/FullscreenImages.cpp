@@ -201,21 +201,11 @@ __declspec(naked) void __stdcall LoadTextureASM()
 {
 	__asm
 	{
-		pushf
 		push eax
-		push ebx
-		push ecx
 		push edx
-		push esi
-		push edi
 		call CheckLoadedTexture
-		pop edi
-		pop esi
 		pop edx
-		pop ecx
-		pop ebx
 		pop eax
-		popf
 		mov ecx, dword ptr ds : [esp + 0x40C]
 		jmp jmpLoadTexture
 	}
@@ -226,19 +216,12 @@ __declspec(naked) void __stdcall TexWidthASM()
 {
 	__asm
 	{
-		pushf
-		push ebx
 		push ecx
 		push edx
-		push esi
-		push edi
 		call CheckTexture
 		cmp eax, FALSE
-		pop edi
-		pop esi
 		pop edx
 		pop ecx
-		pop ebx
 		mov eax, dword ptr ds : [GameResX]
 		je near NoScaling
 	// Adjust scale
@@ -249,7 +232,6 @@ __declspec(naked) void __stdcall TexWidthASM()
 		fmul dword ptr ds : [SizeNormal]
 		fmul dword ptr ds : [AspectRatio]
 	Exit:
-		popf
 		ret
 	}
 }
@@ -259,20 +241,13 @@ __declspec(naked) void __stdcall TexHeightASM()
 {
 	__asm
 	{
-		pushf
 		push eax
-		push ebx
 		push ecx
 		push edx
-		push esi
-		push edi
 		call CheckTexture
 		cmp eax, FALSE
-		pop edi
-		pop esi
 		pop edx
 		pop ecx
-		pop ebx
 		pop eax
 		fild dword ptr ds : [GameResY]
 		je near NoScaling
@@ -282,7 +257,6 @@ __declspec(naked) void __stdcall TexHeightASM()
 	NoScaling:
 		fmul dword ptr ds : [SizeNormal]
 	Exit:
-		popf
 		ret
 	}
 }
@@ -292,20 +266,13 @@ __declspec(naked) void __stdcall TexXPosASM()
 {
 	__asm
 	{
-		pushf
 		push eax
-		push ebx
 		push ecx
 		push edx
-		push esi
-		push edi
 		call CheckTexture
 		cmp eax, FALSE
-		pop edi
-		pop esi
 		pop edx
 		pop ecx
-		pop ebx
 		pop eax
 		je near NoScaling
 	// Adjust scale
@@ -329,7 +296,6 @@ __declspec(naked) void __stdcall TexXPosASM()
 		fidiv dword ptr ds : [Deuce]			// divide by 2
 		fistp dword ptr ds : [OffsetX]			// stores final result
 		mov edx, dword ptr ds : [OffsetX]
-		popf
 		ret
 	}
 }
@@ -339,19 +305,12 @@ __declspec(naked) void __stdcall TexYPosASM()
 {
 	__asm
 	{
-		pushf
-		push ebx
 		push ecx
 		push edx
-		push esi
-		push edi
 		call CheckTexture
 		cmp eax, FALSE
-		pop edi
-		pop esi
 		pop edx
 		pop ecx
-		pop ebx
 		je near NoScaling
 	// Adjust scale
 		fild dword ptr ds : [GameResY]			// loads game resolution y
@@ -372,7 +331,6 @@ __declspec(naked) void __stdcall TexYPosASM()
 		fidiv dword ptr ds : [Deuce]			// divide by 2
 		fistp dword ptr ds : [OffsetY]			// stores final result
 		mov eax, dword ptr ds : [OffsetY]
-		popf
 		ret
 	}
 }
@@ -433,18 +391,12 @@ __declspec(naked) void __stdcall MapWidthASM()
 	__asm
 	{
 		push eax
-		push ebx
 		push ecx
 		push edx
-		push esi
-		push edi
 		call CheckMapTexture
 		cmp eax, FALSE
-		pop edi
-		pop esi
 		pop edx
 		pop ecx
-		pop ebx
 		pop eax
 		je near NoScaling
 	// Adjust scale
@@ -470,20 +422,13 @@ __declspec(naked) void __stdcall MapXPosASM()
 {
 	__asm
 	{
-		pushf
 		push eax
-		push ebx
 		push ecx
 		push edx
-		push esi
-		push edi
 		call CheckMapTexture
 		cmp eax, FALSE
-		pop edi
-		pop esi
 		pop edx
 		pop ecx
-		pop ebx
 		pop eax
 		je near NoScaling
 	// Adjust scale
@@ -499,7 +444,6 @@ __declspec(naked) void __stdcall MapXPosASM()
 	NoScaling:
 		mov eax, dword ptr ds : [GameResY]			// moves GameResY to EAX
 	Exit:
-		popf
 		ret
 	}
 }

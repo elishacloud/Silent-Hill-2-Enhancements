@@ -46,7 +46,6 @@ __declspec(naked) void __stdcall FogAdjustmentASM()
 {
 	__asm
 	{
-		pushf
 		push ecx
 		cmp CameraConditionFlag, 0x01
 		je near CheckCutsceneID								// jumps to check cutscene ID if camera conditions were already met
@@ -90,7 +89,6 @@ __declspec(naked) void __stdcall FogAdjustmentASM()
 		mov eax, dword ptr ds : [FogFrontPointer]
 		mov eax, dword ptr ds : [eax]
 		pop ecx
-		popf
 		jmp jmpFogReturnAddr
 	}
 }
@@ -100,7 +98,6 @@ __declspec(naked) void __stdcall BlueCreekFogAdjustmentASM()
 {
 	__asm
 	{
-		pushf
 		push eax
 		push ecx
 		mov eax, dword ptr ds : [RoomIDAddr]
@@ -119,7 +116,6 @@ __declspec(naked) void __stdcall BlueCreekFogAdjustmentASM()
 	ExitFunction:
 		pop ecx
 		pop eax
-		popf
 		jmp jmpBlueCreekFogReturnAddr
 	}
 }

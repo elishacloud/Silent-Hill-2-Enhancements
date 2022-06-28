@@ -256,21 +256,13 @@ __declspec(naked) void __stdcall StartupResASM()
 {
 	__asm
 	{
-		pushf
 		push eax
-		push ebx
 		push ecx
 		push edx
-		push esi
-		push edi
 		call WSFDynamicStartup
-		pop edi
-		pop esi
 		pop edx
 		pop ecx
-		pop ebx
 		pop eax
-		popf
 		jmp jmpStartupRes
 	}
 }
@@ -301,23 +293,17 @@ __declspec(naked) void __stdcall ChangeResASM()
 {
 	__asm
 	{
-		pushf
 		push ebx
 		push eax
 		push ecx
 		push edx
-		push esi
-		push edi
 		call WSFDynamicChange
-		pop edi
-		pop esi
 		pop edx
 		pop ecx
 		pop eax
 		mov ebx, dword ptr ds : [TextResIndex]
 		mov al, byte ptr ds : [ebx]
 		pop ebx
-		popf
 		jmp jmpChangeRes
 	}
 }

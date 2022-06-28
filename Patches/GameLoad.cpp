@@ -96,7 +96,6 @@ __declspec(naked) void __stdcall FlashFixASM()
 {
 	__asm
 	{
-		pushf
 		push ecx
 		mov ecx, dword ptr ds : [EventIndexAddr]
 		cmp byte ptr ds : [ecx], 0x00
@@ -106,7 +105,6 @@ __declspec(naked) void __stdcall FlashFixASM()
 
 	Exit:
 		pop ecx
-		popf
 		jmp jmpFlashFixAddr
 	}
 }
@@ -135,14 +133,11 @@ __declspec(naked) void __stdcall QuickSaveASM()
 {
 	__asm
 	{
-		pushf
 		cmp byte ptr ds : [AllowQuickSaveFlag], TRUE
 		je near AllowQuickSave
 	//DisallowQuickSave:
-		popf
 		jmp near Exit
 	AllowQuickSave:
-		popf
 		mov eax, dword ptr ds : [QuickSaveCmpAddr]
 		cmp dword ptr ds : [eax], esi
 	Exit:
@@ -169,7 +164,6 @@ __declspec(naked) void __stdcall GameResultSaveASM()
 {
 	__asm
 	{
-		pushf
 		push eax
 		push ecx
 		push edx
@@ -179,7 +173,6 @@ __declspec(naked) void __stdcall GameResultSaveASM()
 		pop edx
 		pop ecx
 		pop eax
-		popf
 		jmp jmpIndexCheckAddr
 	}
 }

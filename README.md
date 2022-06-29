@@ -5,11 +5,14 @@ A project designed to enhance Silent Hill 2 (SH2) graphics and audio for the PC.
 ### Features
 Below is a list of features:
 
- * **Anisotropic Filtering** - Enable or disable anisotropic filtering.
+ * **Advanced Options Menu Fix** - Fixes multiple visual text issues in the Advanced Options menu.
  * **Apartment Clock Fix** - Fixes flashlight rendering on the apartment grandfather clock after a failed attempt to push it.
- * [**Audio Script Builder**](AudioScripts) - Allows you to create or update the SH2 audio files.
+ * **Alt+Enter Support** - Adds hotkey for toggling between fullscreen and windowed mode by pressing Alt+Enter.
+ * **Alternate Stomp Fix** - Restores the alternate stomp animation.
  * **Audio Clip Detection** - Detects when the audio is stopped prematurely and fades out to avoid pops in the sound.
- * **AutoUpdater** - Automatically updates the module when new versions comes out.
+ * **Audio Loop Fix** - Fixes audio looping issues with certain sounds, such as the final boss's moth sounds and chainsaw sounds.
+ * [**Audio Script Builder**](AudioScripts) - Allows you to create or update the SH2 audio files.
+ * **AutoUpdater** - Automatically updates the module when new versions come out.
  * **ASI Loader** - Loads custom libraries with the file extension .asi into the game using [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader).
  * **Black Pillar Box Fix** - Forces all dynamically made letterboxing and pillarboxing to be black in color.
  * **Borderless Windowed Mode** - Enable or disable windows border. Requires Windowed Mode to be enabled (WndMode = 1).
@@ -17,7 +20,9 @@ Below is a list of features:
  * **Cemetery Lighting Fix** - Fixes an issue where wrong data is used when saving the game in the cemetery, which can corrupt fog effects.
  * **Chainsaw Spawn Fix** - Prevents the chainsaw from spawning on a first playthrough, which is a developer-intended design choice.
  * **Closet Cutscene Fix** - Adjusts visuals during the apartment closet cutscene to resemble the PS2 version.
+ * **Configuration tool** - A launcher tool that allows you to configure any of the setting for Silent Hill 2 Enhanced Edition.
  * **Creature Vehicle Spawn Fix** - Fixes an issue where creatures would incorrectly exit from underneath a vehicle.
+ * **CriWare Audio Engine** - A complete rewrite of the Silent Hill 2 audio engine.
  * **Custom Hi-Res Font** - Loads custom font texture `font000.tga` and `fontwdata.bin` as width data for the first 224 chars.
  * **Custom Mod Folder Support** - Enables a custom mod folder `sh2e` to store modified game files so as to not overwrite native Silent Hill 2 files.
  * [**d3d8to9**](https://github.com/crosire/d3d8to9) - Converts Silent Hill 2 to use Direct3D9 (d3d9.dll) rather than Direct3D8.
@@ -27,18 +32,23 @@ Below is a list of features:
  * **Disable Screensaver** - Disables the screensaver during gameplay.
  * **DisableGameUX** - Disables the Microsoft Game Explorer (GameUX) to prevent rundll32.exe high CPU.
  * **DPad Movement Fix** - Allows movement with D-pad on DirectInput and XInput gamepads.
+ * **Dynamic Resolution Support** - Dynamically shows all supported resolutions in the in-game's Options menu.  Also shows resolution ratio in Options menu.
  * **Effects Flicker Fix** - Removes the black flicker that appears at the beginning of post-processing effects.
- * **Flashlight Brightness** - Adjusts flashlight brightness to resemble the PS2 version. Reduces flashlight intensity for environments, but keeps enemies and NPCs bright.
+ * **Fad Screen Fixes** - Fixes fading for specific areas in the game.  Corrects wrong background music that would play if changing rooms during menu fade ins.  Fixed background music issue on loading a game save.
+ * **Flashlight & Room Brightness** - Adjusts room lighting and flashlight brightness to resemble the PS2 version. Reduces flashlight intensity for environments, but keeps enemies and NPCs bright.
  * **Flashlight Flicker Fix** - Fixes a bug that would make James' body flash with light if exiting the pause menu while the flashlight is off.
  * **Fog 2D Fix** - Fixes an issue on Nvidia graphics cards where the 2D fog is missing.
  * **Fog Fix** - Makes the game's fog closer resemble the PlayStation 2's version which is considered the best.  Based on [Nemesis2000 Fog Fix](http://ps2wide.net/pc.html#sh2).
  * **Fog Parameter Fix** - Adjusts the fog-of-war boundaries for specific areas to fix visual errors.
+ * **Free Space Display Fix** - Displays free space in KB, MB, GB or TB.
  * **Fullscreen Windowed Mode** - Enables fullscreen windowed mode. Requires Windowed Mode to be enabled (WndMode = 1).
- * **Game Load Fix** - Disables free-saving in a few rooms that would cause game issues upon file loading back into the rooms.
+ * **Game Load Fix** - Fixes multiple errors and crashes in game's quick save feature.  Disables free-saving in a few rooms that would cause game issues upon file loading back into the rooms.
+ * **Game Results Fix** - Fixes an issue where the game would crash when loading game results while in game.
  * **Halogen Light Fix** - Fixes the prison hallway halogen lights
  * **Hang On Pause Fix** - Fixes an issue where the game will hang when Esc is pressed while transition is active.
  * **Hospital Chase Fix** - Correctly syncs an attack animation to the rest of the cutscene that plays out during the Hospital chase.
  * **Hotel Water Fix** - Restores lighting values for the hotel water.
+ * **Image and FMV Scaling** - Dynamically scales fullscreen images and videos to fit whatever screen resolution is being used.
  * **Improved Storage Support** - Allows you to save the game when you have more than 2 TB of free space.
  * **Increase Blood** - Increases the blood pool size of dead enemies to better match the PS2 version.
  * **Increase Draw Distance** - Fixes distant hallway walls (such as those in the Woodside Apartments) from suddenly appearing.  This makes them appear gradually, more naturally.
@@ -54,10 +64,16 @@ Below is a list of features:
  * **Room 312 Pause Menu Fix** - Restores the noise filter and bloom effects in the pause menu for Room 312.
  * **Room 312 Shadow Fix** - Prevents distracting shadow flickering while in Room 312 of the Hotel.
  * **Rowboat Animation Fix** - Fixes an issue with rowboat animation if you exit to the main menu and reload the game.
+ * **Save Game Sound Fix** - Restores missing save game sound FX in certain locations.
+ * **Save / Load Background Images Fix** - Ensures the correct background image is shown in the save and load game menus.
+ * **Secondary Monitor Support** - Allows the game to be played on a secondary monitor.
+ * [**Setup Tool**](https://github.com/nipkownix/SH2EE-web-installer) - Tool that will download and install all files needed for the Silent Hill 2 Enhanced Edition.  Note: Silent Hill 2 needs to be installed separately.
+ * **Screen Capture Support** - Allows taking screenshots at any time while playing.
  * **SFX Address Fix** - Dynamically updates SH2 memory with correct index locations for the SFX from the `sddata.bin` file (required if you are using a modified version of the `sddata.bin` audio file).
- * **Shader Support** - Includes custom shaders for adjusting color, setting ingame brightness and SMAA.
+ * **Shader Support** - Includes custom shaders for adjusting color, setting in game brightness and SMAA.
  * **Soft Shadow Support** - Adds soft shadows, shadow level intensities, shadow fading on flashlight toggles, and self shadows.
  * **Special FX Fix** - Restores post-processing effects, which includes depth-of-field, motion blur, and pseudo blooms.
+ * **Specularity Fix** - Restores specularity throughout the game similar to the PS2 version of the game.
  * **Texture Address Fix** - Dynamically updates SH2 memory to reserve additional space for large texture (required if you are using a large texture files).
  * **Town West Gate Event Fix** - Changes James' commentary about the back alley Heaven's Night gate at night to properly reflect the gate's status.
  * **UAC Control** - Checks if administrator access is required for the game to function correctly and prompts for UAC if needed.
@@ -67,13 +83,13 @@ Below is a list of features:
  * **Windowed Mode** - Runs the game in windowed mode.
  * **Woodside Apartment Object Fix** - Fixes spawning placements for objects in Woodside Apartments Room 205.
 
+### Silent Hill 2 Enhanced Edition Installation Guide
+To learn more, check out the [Silent Hill 2 Enhanced Edition Installation Guide](http://www.enhanced.townofsilenthill.com/SH2/) webpage.
+
 ### Configuration
 To view an ini example see the [settings.ini](https://github.com/elishacloud/Silent-Hill-2-Enhancements/blob/master/Common/Settings.ini) file.
 
 For more details on how to configure the module see the [Configuration Details](http://www.enhanced.townofsilenthill.com/SH2/config.htm) webpage.
-
-### Silent Hill 2 Enhanced Edition Installation Guide
-To learn more, check out the [Silent Hill 2 Enhanced Edition Installation Guide](http://www.enhanced.townofsilenthill.com/SH2/) webpage.
 
 ### Donations
 
@@ -107,6 +123,7 @@ This project uses code from several other projects. Below is a list of locations
  * [md5 hash](http://www.zedwood.com/article/cpp-md5-function): Includes code for computing md5 hash.
  * [Nemesis2000 Fog Fix](http://ps2wide.net/pc.html#sh2): Includes code created by reviewing the Nemesis2000 fog fix.
  * [ReShade](https://github.com/crosire/reshade): Includes code from ReShade for supporting custom shaders.
+ * [SS2EE Web Installer](https://github.com/nipkownix/SH2EE-web-installer) - Included the tool that will download and install all files needed for the Silent Hill 2 Enhanced Edition.
  * [SPIRV](https://github.com/KhronosGroup/SPIRV-Headers): Includes code from SPIRV.
  * [stb](https://github.com/nothings/stb): Includes code from stb.
  * [TinyXML-2](https://github.com/leethomason/tinyxml2): Used in the Launcher.

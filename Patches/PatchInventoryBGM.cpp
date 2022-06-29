@@ -24,6 +24,10 @@ __declspec(naked) void __stdcall FixInventoryBGMBugASM()
 		if (EventIndex == 0xb)
 		{
 			*muteSound = 0xF;
+			__asm
+			{
+				jmp jmp_return
+			}
 		}
 		
 		if (EventIndex > 3 && EventIndex < 10 || EventIndex == 0x10 || MenuEventIndex == 0x11)

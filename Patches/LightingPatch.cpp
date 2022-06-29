@@ -29,6 +29,7 @@ __declspec(naked) void __stdcall CemeteryLightingASM()
 {
 	__asm
 	{
+		pushf
 		cmp ecx, 0x0001000E
 		jne near CemeteryExit
 		mov ecx, 0x0001000D
@@ -38,6 +39,7 @@ __declspec(naked) void __stdcall CemeteryLightingASM()
 		mov eax, dword ptr ds : [CemeteryPointer]
 		mov dword ptr ds : [eax], ecx
 		pop eax
+		popf
 		jmp jmpCemeteryAddr
 	}
 }

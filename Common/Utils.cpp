@@ -1039,11 +1039,11 @@ void LogDirectory()
 		if (entry.is_directory())
 		{
 			// Get file date
-			char filetime[80] = { "\0" };
+			char filetime[80] = { '\0' };
 			GetFileDate(entry.last_write_time(), filetime, sizeof(filetime));
 
 			// Get folder name
-			std::string filename(entry.path().filename().generic_string());
+			std::wstring filename(entry.path().filename());
 
 			Logging::Log() << "|- " << filetime << "    <DIR>          " << filename;
 		}
@@ -1054,15 +1054,15 @@ void LogDirectory()
 		if (!entry.is_directory())
 		{
 			// Get file date
-			char filetime[80] = { "\0" };
+			char filetime[80] = { '\0' };
 			GetFileDate(entry.last_write_time(), filetime, sizeof(filetime));
 
 			// Get file size
-			char filesize[80] = { "\0" };
+			char filesize[80] = { '\0' };
 			GetFileSize(entry.file_size(), filesize, sizeof(filesize));
 
 			// Get file name
-			std::string filename(entry.path().filename().generic_string());
+			std::wstring filename(entry.path().filename());
 
 			Logging::Log() << "|- " << filetime << " " << filesize << " " << filename;
 		}

@@ -13,7 +13,7 @@
         <Description>Sets the screen mode for the game.</Description>
         <Choices type="list">
           <Value name="Windowed" default="true">1</Value>
-          <Value name="Fulscreen Windowed">2</Value>
+          <Value name="Fullscreen Windowed">2</Value>
           <Value name="Fullscreen">3</Value>
         </Choices>
       </Feature>
@@ -64,7 +64,7 @@
 
       <Feature name="Fix2D">
         <Title>Prevent fullscreen image stretching</Title>
-        <Description>Enabling this feature sets the 2D, full screen images to their original aspect ratios, regardless of aspect ratio used. This will remove stretching on the images when played in widescreen. Disabling this feature stretches the images to fit the screen. This affects all full screen images, such as the main menu, save screens, memo/riddle images, and inventory screen, along with other textures such as subtitles and the flashlight lens glow.&#x0a;&#x0a;Note: Disabling this will override and also disable Fullscreen Image Scaling.</Description>
+        <Description>Enabling this feature sets the 2D, full screen images to their original aspect ratios, regardless of the aspect ratio used. This will remove stretching on the images when played in widescreen. Disabling this feature stretches the images to fit the screen. This affects all full screen images, such as the main menu, save screens, memo/riddle images, and inventory screen, along with other textures, such as subtitles and the flashlight lens glow.&#x0a;&#x0a;Note: Disabling this will override and also disable Fullscreen image scaling.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -73,7 +73,7 @@
 
       <Feature name="ReduceCutsceneFOV">
         <Title>Scale cutscene FOV</Title>
-        <Description>In-engine cutscenes will be zoomed in to match their original 4:3 horizontal compositions when playing in widescreen. This will hide "frozen" character models that have been loaded in, right outside the 4:3 boundaries, ready and waiting to enter the scene.&#x0a;&#x0a;Note: This feature will zoom up to a 16:9 aspect ratio. It will not zoom past this aspect ratio as too much of the vertical composition would be cropped otherwise. This means that ultra-wide aspect ratios will still see visual anomolies as in-engine cutscenes play out.</Description>
+        <Description>In-engine cutscenes will be zoomed in to match their original 4:3 horizontal compositions when playing in widescreen. This will hide "frozen" character models that have been loaded in, right outside the 4:3 boundaries, ready and waiting to enter the scene.&#x0a;&#x0a;Note: This feature will zoom up to a 16:9 aspect ratio. It will not zoom past this aspect ratio as too much of the vertical composition would be cropped otherwise. This means that ultra-wide aspect ratios will still see visual anomalies as in-engine cutscenes play out.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -202,7 +202,7 @@
 
       <Feature name="SpecularFix">
         <Title>Restore specularity</Title>
-        <Description>Restores specularity and specular behavior throughout the game. This gives "shininess" to things such as character eyeballs, Pyramid Head's helmet, Maria's skirt, and will make these things shine brighter whenever they're under a light source or when James' flashlight is on.</Description>
+        <Description>Restores specularity and specular behavior throughout the game. This gives "shininess" to things such as character eyeballs, Red Pyramid Thing's helmet, Maria's skirt, and will make these things shine brighter whenever they're under a light source or when James' flashlight is on.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -377,7 +377,7 @@
 
       <Feature name="DPadMovementFix">
         <Title>Restore D-pad movement</Title>
-        <Description>Allows the D-pad on DirecInput gamepads to act as movement inputs to control James and navigate menu selections.</Description>
+        <Description>Allows the D-pad on DirectInput gamepads to act as movement inputs to control James and navigate menu selections.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -394,7 +394,7 @@
       </Feature>
 
       <Feature name="Southpaw">
-        <Title>South Paw</Title>
+        <Title>Southpaw</Title>
         <Description>Swaps left joystick and right joystick functions. Useful for left-handed players.</Description>
         <Choices type="check">
           <Value name="Disable" default="true">0</Value>
@@ -407,7 +407,7 @@
     <Section name="Vibration">
 
       <Feature name="RestoreVibration">
-        <Title>Restore Vibration</Title>
+        <Title>Restore vibration</Title>
         <Description>Restores vibration for XInput-based controllers. Make sure to enable vibration through the game's Options menu as well.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
@@ -531,7 +531,7 @@
 
       <Feature name="FixSaveBGImage">
         <Title>Consistent save background images</Title>
-        <Description>Ensures the correct background image for the save/load screen is always shown for the campaign currently being played.</Description>
+        <Description>Ensures the correct background image for the save/load screen is always shown for the scenario currently being played.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -575,7 +575,7 @@
 
       <Feature name="CatacombsMeatRoomFix">
         <Title>Catacomb meat room fix</Title>
-        <Description>Corrects color and level values for the Catacomb's meat cold rooms.</Description>
+        <Description>Corrects color level values for the Catacomb's meat cold rooms.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -592,7 +592,7 @@
       </Feature>
 
       <Feature name="ChangeClosetSpawn">
-        <Title>Change closet spawn</Title>
+        <Title>Change apartment closet spawn</Title>
         <Description>Places James inside the closet after the Wood Side Apartments Room 307 cutscene ends, to help guide the player's attention to the key inside.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
@@ -833,7 +833,7 @@
 
       <Feature name="LightingFix">
         <Title>Lighting fix</Title>
-        <Description>Restores proper environmental settings for the "Maria" ending, and restores lighting conditions for the 3D trees in the "Leave" and "Maria" ending.</Description>
+        <Description>Restores proper environmental settings for the "Maria" ending, and restores lighting conditions for the 3D trees in the "Leave" and "Maria" endings.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -1092,7 +1092,7 @@
     <S id="PRG_Launch_mess">Could not launch the game!</S>
     <S id="PRG_Launch_exe">sh2pc.exe</S>
     <S id="PRG_Ini_name">d3d8.ini</S>
-    <S id="PRG_Ini_error">Coud not save d3d8.ini.</S>
+    <S id="PRG_Ini_error">Could not save d3d8.ini.</S>
     <S id="PRG_Default_confirm">Are you sure you want reset all settings to default?</S>
     <S id="PRG_Unsaved"> [not saved]</S>
     <S id="PRG_Save_exit">There are unsaved changes. Do you want to save changes before closing?</S>

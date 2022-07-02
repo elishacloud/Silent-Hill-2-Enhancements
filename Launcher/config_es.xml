@@ -1,0 +1,1102 @@
+<Config>
+
+  <Ini>
+  <Preface>; Archivo de configuración del módulo de mejoras de SH2&#x0a;; Para más información sobre estos ajustes, visita http://enhanced.townofsilenthill.com/SH2/config.htm&#x0a;; ¡Se recomienda experimentar Silent Hill 2: Enhanced Edition con una relación de aspecto de 16:9!</Preface>
+  </Ini>
+
+  <Tab name="Visualización">
+
+    <Section name="Visualización">
+
+      <Feature name="ScreenMode">
+        <Title>Modo de pantalla</Title>
+        <Description>Establece el modo de pantalla del juego.</Description>
+        <Choices type="list">
+          <Value name="Ventana" default="true">1</Value>
+          <Value name="Ventana a pantalla completa">2</Value>
+          <Value name="Pantalla completa">3</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="WndModeBorder">
+        <Title>Borde de la ventana (solo para el modo en ventana)</Title>
+        <Description>Crea un borde en la ventana del juego. Solo funciona al usar el modo en ventana.&#x0a;&#x0a;Nota: la resolución de la ventana del juego no debe ser exactamente o casi la misma que el alto y ancho de tu pantalla, de lo contrario, el borde podría no aparecer. Es una medida de seguridad para evitar que el borde no se pierda fuera de tu área de visualización.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="DynamicResolution">
+        <Title>Mostrar todas las resoluciones en el menú de Opciones</Title>
+        <Description>Detecta todas las resoluciones disponibles de tu pantalla y permite selecionarlas (mostrando a la vez sus relaciones de aspecto) dentro del juego, en el menú Opciones > Opciones avanzadas.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Medios a pantalla completa">
+
+      <Feature name="FullscreenImages">
+        <Title>Escalado de imágenes a pantalla completa</Title>
+        <Description>Incorpora la compatibilidad para el Image Enhancement Pack (pack de mejora de imágenes) del proyecto para que se muestre correctamente. Es necesario activar esta opción si se utiliza el Image Enhancement Pack. El escalado funciona tanto para las imágenes originales a pantalla completa como para las mejoradas.&#x0a;&#x0a;Automático: selecciona automáticamente entre las opciones de ajustar a imagen o llenarla según la relación de aspecto, dando prioridad a la mejor presentación.&#x0a;Ajustar a área de visualización: muestra las imágenes en pantalla completa sin recortarlas. Podrían aparecer bandas o columnas negras según la relación de aspecto.&#x0a;Llenar área de visualización: escala las imágenes a pantalla completa para que llenen el área de visualización, eliminando cualquier banda o columna negra, cubriendo una relación de aspecto máxima de 16:9.</Description>
+        <Choices type="list">
+          <Value name="Desactivado">0</Value>
+          <Value name="Automático" default="true">3</Value>
+          <Value name="Ajustar a área de visualización">1</Value>
+          <Value name="Llenar área de visualización">2</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FullscreenVideos">
+        <Title>Escalado de vídeos FMV</Title>
+        <Description>Incorpora la compatibilidad para el FMV Enhancement Pack (pack de mejora de FMVs) del proyecto para que sus vídeos se muestren correctamente. El escalado funciona tanto para los vídeos originales a pantalla completa como para los mejoradas.&#x0a;&#x0a;Automático: selecciona automáticamente entre las opciones de ajustar a imagen o llenarla según la relación de aspecto, dando prioridad a la mejor presentación.&#x0a;Ajustar a área de visualización: muestra los vídeos en pantalla completa sin recortarlos. Podrían aparecer bandas o columnas negras según la relación de aspecto.&#x0a;Llenar área de visualización: escala los vídeos a pantalla completa para que llenen el área de visualización, eliminando cualquier banda o columna negra, cubriendo una relación de aspecto máxima de 16:9.</Description>
+        <Choices type="list">
+          <Value name="Desactivado">0</Value>
+          <Value name="Automático" default="true">3</Value>
+          <Value name="Ajustar a área de visualización">1</Value>
+          <Value name="Llenar área de visualización">2</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="Fix2D">
+        <Title>Evitar el estiramiento de imágenes a pantalla completa</Title>
+        <Description>Esta opción hace que las imágenes 2D a pantalla completa mantengan sus relaciones de aspecto originales sin tener en cuenta la relación que utilices. Hará que las imágenes no se muestren estiradas al mostrarse a pantalla completa. Si se desactiva esta característica, las imágenes se estirarán para ajustarse a la pantalla. Afecta a todas las imágenes a pantalla completa, como son el menú principal, las pantallas de guardado y carga, las imágenes de las notas y los enigmas y la pantalla del inventario, además de afectar a otras texturas, como pueden ser los subtítulos y los destellos de la linterna.&#x0a;&#x0a;Nota: al desactivar esta opción, se ignorará y desactivará también la opción Escalado de imágenes a pantalla completa.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="ReduceCutsceneFOV">
+        <Title>Escalar el campo visual en las cinemáticas</Title>
+        <Description>Las escenas cinemáticas renderizadas en tiempo real serán ampliadas para que coincidan con sus composiciones horizontales en 4:3 mientras se juegue con un formato panorámico. Ocultará los modelos de personajes paralizados que se hayan cargado justo al otro lado del límite de la relación en 4:3 y que estén esperando a entrar en escena.&#x0a;&#x0a;Nota: esta característica solo ampliará la imagen hasta una relación de aspecto de 16:9. No cubrirá una relación más ancha, ya que se recortaría la composición vertical en exceso. Esto quiere decir que las relaciones de aspecto ultrapanorámicas seguirán mostrando anomalías visuales durante las escenas cinemáticas en tiempo real.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="SetBlackPillarBoxes">
+        <Title>Restaurar las columnas negras</Title>
+        <Description>Corrige principalmente los problemas al abrir el mapa. Esta característica hace que todas las columnas negras que se creen dinámicamente sean de color negro, restaura las columnas en aquellos eventos que no las tuvieran y ayuda a ocultar las marcas en el mapa que deberían estar por debajo de las columnas.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="DisableCutsceneBorders">
+        <Title>Desactivar los bordes en las cinemáticas</Title>
+        <Description>Elimina las bandas negras en las escenas cinemáticas en tiempo real.&#x0a;&#x0a;Nota: si estás jugando con una relación de aspecto panorámica, se recomienda activar esta opción junto con Escalar campo visual de las cinemáticas. De lo contrario, las bandas negras podrían tapar las cabezas de los personajes con una relación de aspecto panorámica.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="DirectX">
+
+      <Feature name="d3d8to9">
+        <Title>Ejecutar el juego con DirectX 9 (necesario para utilizar los shaders)</Title>
+        <Description>Convierte el juego de DirectX 8 a DirectX 9, lo que permite utilizar características y correcciones adicionales.&#x0a;&#x0a;Nota: es necesario activar esta opción para poder utilizar los shaders que aparecen debajo.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FrontBufferControl">
+        <Title>Forma de capturar los datos del búfer frontal del juego</Title>
+        <Description>Determina cómo debe capturar el juego los datos del búfer frontal que se utilizan para los fundidos a negro y la pantalla de pausa.&#x0a;&#x0a;Nota: DirectX solo funcionará en tu monitor principal. Es posible que necesites utilizar DirectX para jugar a pantalla completa o en ciertas versiones antiguas de Windows. Linux solo es compatible con DirectX. Se recomienda elegir Automático a menos que tengas problemas visuales en los fundidos a negro o en la pantalla de pausa.</Description>
+        <Choices type="list">
+          <Value name="Automática" default="true">0</Value>
+          <Value name="Usar GDI">1</Value>
+          <Value name="Usar DirectX">2</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Shaders">
+
+      <Feature name="AdjustColorTemp">
+        <Title>Ajustar temperatura de los colores</Title>
+        <Description>Ajusta la temperatura de los colores generales de la imagen del juego para darle un aspecto algo más frío.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="RestoreBrightnessSelector">
+        <Title>Restaurar la funcionalidad del selector de brillo</Title>
+        <Description>Restaura la capacidad de ajustar el nivel del brillo dentro del menú de opciones del juego, sin importar si estás jugando en el modo de ventana o a pantalla completa.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="EnableSMAA">
+        <Title>SMAA (suavizado de bordes)</Title>
+        <Description>Activa el SMAA (subpixel morphological anti-aliasing, o suavizado de bordes morfológico por subpíxeles).&#x0a;&#x0a;Nota: se recomienda desactivar esta opción si has activado un suavizado de bordes a través de la GPU.</Description>
+        <Choices type="check">
+          <Value name="Desactivado" default="true">0</Value>
+          <Value name="Activado">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+  </Tab>
+
+  <Tab name="Gráficos">
+
+    <Section name="Imágenes">
+
+      <Feature name="EnableTexAddrHack">
+        <Title>Permitir imágenes de mayor calidad</Title>
+        <Description>Permite el uso de imágenes con una mayor calidad y definición. Es necesario activar esta opción si se utiliza el Image Enhancement Pack (pack de mejora de imágenes) del proyecto.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Efectos">
+
+      <Feature name="UseBestGraphics">
+        <Title>Ejecutar siempre el juego con la mejor configuración de gráficos</Title>
+        <Description>Activa todos los ajustes del menú Opciones > Opciones avanzadas del juego (niebla compleja, sombras, destellos de luz, etc.) de forma predeterminada al ejecutar el juego.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="EnableSoftShadows">
+        <Title>Restaurar las sombras difuminadas</Title>
+        <Description>Restaura las sombras y sus comportamientos en el juego, incluyendo el uso de sombras difuminadas, las intensidades correctas de los niveles de sombras, el fundido correcto de las sombras al encender o apagar la linterna, y la restauración del «self-shadowing» (sombras proyectadas sobre objetos dinámicos, como pueden ser objetos y personajes).</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="RestoreSpecialFX">
+        <Title>Restaurar los efectos de posprocesado</Title>
+        <Description>Restaura la intensidad original de los efectos de posprocesado del juego, entre los cuales se incluyen los desenfoques de campo, de movimiento, estáticos y los pseudoresplandores.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="SpecularFix">
+        <Title>Restaurar la especularidad</Title>
+        <Description>Restaura la especularidad y los comportamientos especulares del juego. Esto produce un efecto de resplandor en elementos tales como los ojos de los personajes, el casco de la cosa con la pirámide en la cabeza o la falda de María, y hará que estos elementos brillen más ante una fuente de luz o cuando la linterna de James esté encendida.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="IncreaseDrawDistance">
+        <Title>Aumentar la distancia de dibujado</Title>
+        <Description>Aumenta la distancia de dibujado frontal en ciertas zonas para ocultar las piezas del entorno que se estén cargando.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="IncreaseBlood">
+        <Title>Aumentar el tamaño de los charcos de sangre</Title>
+        <Description>Aumenta el tamaño de los charcos de sangre de los enemigos muertos a sus dimensiones originales.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Filtro de ruido">
+
+      <Feature name="IncreaseNoiseEffectRes">
+        <Title>Ajuste de los granos del filtro de ruido</Title>
+        <Description>Ajusta el tamaño de los granos del filtro de ruido.</Description>
+        <Choices type="list">
+          <Value name="Predeterminado">512</Value>
+          <Value name="Fino" default="true">768</Value>
+          <Value name="Ultrafino">1024</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="PS2StyleNoiseFilter">
+        <Title>Corregir los niveles del filtro de ruido</Title>
+        <Description>Restaura los niveles y opacidad del filtro de ruido a su aspecto original.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Niebla">
+
+      <Feature name="FogFix">
+        <Title>Restaurar los niveles de niebla 3D</Title>
+        <Description>Restaura el espesor, tamaño y cantidad de niebla a su aspecto original.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FogLayerFix">
+        <Title>Restaurar la capa de niebla 2D</Title>
+        <Description>Corrige un problema con las tarjetas gráficas de Nvidia por el cual no se renderizarían la capa de niebla 2D ni el resplandor que rodea a la linterna de James.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FogParameterFix">
+        <Title>Ajustar los límites de la niebla total</Title>
+        <Description>Ajusta los límites de la niebla total en ciertas áreas para corregir errores visuales.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FogSpeedFix">
+        <Title>Movimiento natural de la niebla</Title>
+      	<Description>Ajusta la velocidad de la niebla para ofrecer un movimiento más lento y natural, acorde al comportamiento original.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+  </Tab>
+
+  <Tab name="Audio">
+
+    <Section name="Audio">
+
+      <Feature name="EnableSFXAddrHack">
+        <Title>Permitir audio de mayor calidad</Title>
+        <Description>Permite el uso de archivos de sonido de mayor calidad. Es necesario activar esta opción si se utiliza el Audio Enhancement Pack (pack de mejora de audio).</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="EnableCriWareReimplementation">
+        <Title>Utilizar el motor personalizado de streaming de audio</Title>
+        <Description>Sustituye el motor de streaming de audio CRIWARE defectuoso del juego con una solución personalizada de streaming de audio. Corrige el tristemente célebre problema en el que el sonido del juego empezaría a tener problemas y reproduciría un bucle infinito de un segundo, lo que acabaría por bloquear el juego. Este problema era el motivo por el que el juego debía ejecutarse en un sólo núcleo de CPU antes de la llegada de esta solución. Con ella, el juego ahora funciona de forma estable en varios núcleos y con mejoras generales de rendimiento (como la reducción de parones).</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Correcciones de audio">
+
+      <Feature name="AudioClipDetection">
+        <Title>Detección de cortes de audio</Title>
+        <Description>Detecta cualquier corte prematuro de un evento de audio y produce un fundido en el sonido para evitar chasquidos.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="SpecificSoundLoopFix">
+        <Title>Corregir fallos concretos en los sonidos en bucle</Title>
+        <Description>Corrige fallos específicos de ciertos sonidos en bucle, como los de la motosierra y los ataques de las polillas.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FixInventoryBGM">
+        <Title>Corregir las músicas incorrectas al abrir un menú</Title>
+        <Description>Corrige un problema por el cual el juego reproduciría una música errónea al abrir menús (Inventario, Notas, Mapa, Guardar/Cargar, etc.) en ciertas circunstancias.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="SaveGameSoundFix">
+        <Title>Restaurar el sonido de guardado en el menú de pausa</Title>
+        <Description>Restaura el efecto de sonido de «partida guardada» al guardar una partida a través del menú de pausa.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+  </Tab>
+
+  <Tab name="Mando">
+
+    <Section name="Mando">
+        
+      <Feature name="RestoreSearchCamMovement">
+        <Title>Tipo de mando para el modo de búsqueda</Title>
+      	<Description>Restaura la función del stick derecho del mando para poder mover la cámara. Cambia este ajuste en función del tipo de mando que utilices.</Description>
+        <Choices type="list">
+          <Value name="Desactivado">0</Value>
+          <Value name="XInput" default="true">1</Value>
+          <Value name="DirectInput">2</Value>
+          <Value name="DirectInput (alternativo)">3</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="DPadMovementFix">
+        <Title>Restaurar movimiento de la cruceta</Title>
+      	<Description>Permite que las crucetas de los mandos con soporte DirectInput sirvan para controlar a James y para navegar por los menús.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="GamepadControlsFix">
+        <Title>Asignar múltiples funciones a la misma entrada</Title>
+        <Description>Permite asignar la misma entrada o botón del mando a varias funciones del juego dentro del menú Opciones > Opciones de control del juego.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="Southpaw">
+        <Title>Modo para zurdos</Title>
+        <Description>Intercambia las funciones de los sticks izquierdo y derecho. Ideal para jugadores zurdos.</Description>
+        <Choices type="check">
+          <Value name="Desactivado" default="true">0</Value>
+          <Value name="Activado">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Vibración">
+
+      <Feature name="RestoreVibration">
+        <Title>Restaurar la vibración</Title>
+      	<Description>Restaura la vibración para mandos basados en XInput. Deberás activar también la vibración dentro del menú de Opciones del juego.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="PadNumber">
+        <Title>ID de mando para la vibración</Title>
+        <Description>Selecciona el ID de mando (controlador) al que enviar las vibraciones. El valor para este juego suele ser 0.</Description>
+        <Choices type="list">
+          <Value name="0" default="true">0</Value>
+          <Value name="1">1</Value>
+          <Value name="2">2</Value>
+          <Value name="3">3</Value>
+          <Value name="4">4</Value>
+          <Value name="5">5</Value>
+          <Value name="6">6</Value>
+          <Value name="7">7</Value>
+          <Value name="8">8</Value>
+          <Value name="9">9</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+  </Tab>
+
+  <Tab name="Menú">
+
+    <Section name="Tipografía">
+
+      <Feature name="UseCustomFonts">
+        <Title>Textos en alta resolución</Title>
+        <Description>Utiliza los archivos personalizados de tipografía para producir textos en alta resolución dentro del juego. Este ajuste es compatible con todas las opciones de idioma originales del juego (inglés, francés, alemán, italiano y español).&#x0a;&#x0a;Nota: los archivos fontwdata.bin y font000.tga deben estar presentes en la carpeta «sh2e\font\» para que esta característica pueda funcionar.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="DisableEnlargedText">
+        <Title>Ocultar los textos grandes y flotantes del menú de guardado</Title>
+        <Description>Desactiva el texto grande y flotante que aparece al navegar por el menú de guardado y carga, el cual puede llegar a distraer.&#x0a;&#x0a;Nota: es necesario activar la opción Textos en alta resolución.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Idioma">
+
+      <Feature name="MainMenuTitlePerLang">
+        <Title>Traducir el menú principal</Title>
+        <Description>Carga los textos traducidos en el menú principal para los ejecutables de las versiones 1.0 y 1.1 norteamericanas.&#x0a;&#x0a;Nota: los archivos start01*.tex deben estar presentes en la carpeta «sh2e\pic\etc\» para que esta característica pueda funcionar.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="UseCustomExeStr">
+        <Title>Restaurar todos los idiomas en el menú de Opciones</Title>
+        <Description>Restaura todas las opciones de idioma (inglés, francés, alemán, italiano y español), permite que estas sean seleccionables dentro del menú de Opciones del juego y genera textos específicos en cada idioma para el menú de pausa de los ejecutables norteamericanos del juego.&#x0a;&#x0a;Nota: el archivo d3d8.res debe estar presente en el directorio del juego para que esta característica pueda funcionar.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="UnlockJapLang">
+        <Title>Desbloquear la opción del idioma japonés</Title>
+        <Description>Restaura la capacidad de seleccionar el idioma japonés en el menú de Opciones del juego.&#x0a;&#x0a;Nota: actualmente se recomienda mantener esta opción desactivada, ya que no todos los caracteres japoneses están soportados.</Description>
+        <Choices type="check">
+          <Value name="Desactivado" default="true">0</Value>
+          <Value name="Activado">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Correcciones de menús">
+
+      <Feature name="MainMenuFix">
+        <Title>Corregir la alineación del ratón en el menú principal</Title>
+        <Description>Corrige las cajas de selección del ratón para el menú principal de la versión 1.1 del ejecutable norteamericano.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FixAdvancedOptions">
+        <Title>Corregir la pantalla de Opciones avanzadas</Title>
+        <Description>Corrige numerosos problemas en la visualización de los textos del menú Opciones > Opciones avanzadas dentro del juego, como las descripciones desaparecidas e incorrectas al mostrar la ventana de confirmación de guardado.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FixHangOnEsc">
+        <Title>Desactivar el menú de pausa durante los fundidos de/a negro</Title>
+        <Description>Evita que el jugador pueda abrir el menú de pausa durante un fundido, lo cual utilizaría una imagen incorrecta del juego para el fondo del menú de pausa.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="PauseScreenFix">
+        <Title>Corregir la pantalla de pausa</Title>
+        <Description>Elimina los parpadeos al acceder al menú de pausa y conserva el filtro de ruido y el efecto de resplandor al abrir el menú de pausa dentro de la habitación 312 del hotel.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FixSaveBGImage">
+        <Title>Imágenes de guardado consistentes</Title>
+        <Description>Garantiza que se muestre siempre la imagen de fondo correcta en la pantalla de guardado/carga según la historia que se esté jugando.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FixMemoFading">
+        <Title>Arreglar los fundidos de las imágenes en la lista de notas</Title>
+        <Description>Corrige un problema en el que la capa superior de las imágenes de las notas no se fundirían u oscurecerían correctamente junto con el resto de la imagen al ver las notas desde la lista del menú correspondiente.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="LockScreenPosition">
+        <Title>Bloquear la opción Posición de pantalla</Title>
+        <Description>Desactiva la opción Posición de pantalla en el menú Opciones > Opciones avanzadas dentro del juego, la cual ya no es necesaria para monitores modernos y podría provocar problemas de alineación visual.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="LockSpeakerConfig">
+        <Title>Bloquear la opción Altavoces</Title>
+        <Description>Impide el cambio del ajuste de altavoces en el menú Opciones > Opciones avanzadas dentro del juego, ya que a partir de Windows XP, este cambio debe realizarse desde el panel de control de sonido de Windows y ya no se permite su cambio desde una aplicación (como este juego). Si intentas cambiar este ajuste desde el menú de Opciones dentro del juego, cambiará directamente a la configuración utilizada en el panel de control de sonido de Windows.&#x0a;&#x0a;Nota: el archivo d3d8.res debe estar presente en el directorio del juego para que esta característica pueda funcionar.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+  </Tab>
+
+  <Tab name="Correcciones del juego">
+
+    <Section name="Correcciones del juego">
+
+      <Feature name="CatacombsMeatRoomFix">
+        <Title>Corregir los refrigeradores de las catacumbas</Title>
+        <Description>Corrige los niveles de color de los refrigeradores de las catacumbas.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FixChainsawSpawn">
+        <Title>Activar la motosierra solo en una Nueva partida+</Title>
+      	<Description>Evita que aparezca la motosierra en una partida inicial, lo que es una decisión de diseño intencionada de los desarrolladores.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="ChangeClosetSpawn">
+        <Title>Cambiar el punto de aparición en el armario</Title>
+        <Description>Sitúa a James dentro del armario al terminar la escena cinemática del apartamento 307 de los apartamentos Wood Side para ayudar al jugador a fijarse en la llave que hay dentro.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FixAptClockFlashlight">
+        <Title>Corregir la cinemática del reloj en los apartamentos</Title>
+      	<Description>Corrige el renderizado de la linterna sobre el reloj de pie de los apartamentos al final de la escena en la que no se puede empujar.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="ClosetCutsceneFix">
+        <Title>Corregir la cinemática del armario en los apartamentos</Title>
+        <Description>Oscurece las barras del armario y recoloca la capa del filtro de ruido sobre la capa de desenfoque de las barras del armario durante el fragmento en primera persona de la escena cinemática del armario de los apartamentos. También cambia elementos visuales durante otro corte de la escena para iluminarla de una forma más adecuada.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="WoodsideRoom205Fix">
+        <Title>Corregir la aparición del enemigo en el apartamento 205 de Wood Side</Title>
+        <Description>Corrige un fallo poco habitual en el que el maniquí del apartamento 205 de los apartamentos Wood Side podría no aparecer o comportarse correctamente nada más entrar en la habitación.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="HospitalChaseFix">
+        <Title>Corregir la animación de la persecución del hospital</Title>
+        <Description>Sincroniza correctamente la animación del ataque de la cosa con la pirámide roja con el resto de la escena cinemática que aparece durante la persecución hacia el ascensor del hospital.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FixCreatureVehicleSpawn">
+        <Title>Corregir la salida de las figuras tendidas desde vehículos</Title>
+        <Description>Corrige un problema en el que las figuras tendidas saldrían incorrectamente de debajo de vehículos.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="PistonRoomFix">
+        <Title>Corregir la cinemática de la sala de pistones</Title>
+        <Description>Oculta un pistón tras la pared que, de lo contrario, se mostraría durante una escena cinemática del laberinto, cuando Angela abre la puerta.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FixTownWestGateEvent">
+        <Title>Corregir el comentario de la reja del callejón de la parte oeste</Title>
+        <Description>Cambia el comentario de James sobre la reja del callejón que da al Heaven's Night por la noche para reflejar correctamente su situación.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="Room312ShadowFix">
+        <Title>Corregir las sombras en la habitación 312 del hotel</Title>
+        <Description>Evita un parpadeo en las sombras que puede llegar a molestar junto a las puertas de cristal de la habitación 312 del hotel y además restaura la sombra de la silla durante la escena cinemática que tiene lugar aquí.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="RestoreAlternateStomp">
+        <Title>Restaurar el pisotón alternativo</Title>
+        <Description>Restaura la animación secundaria/alternativa del pisotón. Al activarla, cada vez que se haga un pisotón habrá un 50 % de posibilidades de que se muestre una de las dos.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="HalogenLightFix">
+        <Title>Restaurar el shader de vértices no iluminados</Title>
+        <Description>Restaura la luminancia de ciertos elementos del entorno.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="HotelWaterFix">
+        <Title>Restaurar los gráficos del agua</Title>
+        <Description>Restaura los valores de la iluminación del agua en todo el juego.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="RowboatAnimationFix">
+        <Title>Corregir la animación de la barca</Title>
+        <Description>Corrige un problema por el cual el modelo de James tendría una posición errática respecto a la barca al subirse a la misma, cargar un punto de guardado anterior y volver a subirse a la barca.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FixDrawingTextLine">
+        <Title>Hacer que la línea del diario del hospital sea más gruesa</Title>
+        <Description>Hace que la línea horizontal del texto del diario del hospital sea más gruesa para hacerla más fácil de ver en resoluciones de renderizado altas.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+  </Tab>
+
+  <Tab name="Miscelánea">
+
+    <Section name="Partidas guardadas">
+
+      <Feature name="GameLoadFix">
+        <Title>Corregir los problemas al guardar y cargar</Title>
+        <Description>Desactiva el guardado libre en ciertos lugares que provocarían problemas dentro del juego al volver a cargar. Es una forma de sortear fallos en el guardado rápido que, de lo contrario, impedirían terminar el juego.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="ImproveStorageSupport">
+        <Title>Corregir el límite de almacenamiento de más de 2 TB</Title>
+        <Description>Permite que el juego pueda comprobar correctamente el espacio libre en los discos duros de más de 2 TB de capacidad para guardar partidas. Cambia la unidad de medida usada para mostrar el espacio libre de KB a una unidad escalable y proporcionada. Por ejemplo: 99999999+ KB pasará a ser 108,21 GB.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Indicador de salud">
+
+      <Feature name="DisableRedCrossInCutScenes">
+        <Title>Desactivar el indicador de salud baja en las cinemáticas</Title>
+        <Description>Oculta el indicador de salud baja en las escenas cinemáticas, el cual puede llegar a distraer en estos casos.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="DisableRedCross">
+        <Title>Desactivar el indicador de salud baja por completo</Title>
+        <Description>Oculta el indicador de salud baja por completo.&#x0a;&#x0a;Nota: únicamente se recomienda activar esta opción si utilizas un mando con función de vibración. De lo contrario, no podrás saber si tienes poca salud hasta que abras la pantalla de inventario.</Description>
+        <Choices type="check">
+          <Value name="Desactivado" default="true">0</Value>
+          <Value name="Activado">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Entornos">
+
+      <Feature name="FixMissingWallChunks">
+        <Title>Corregir los trozos de pared desaparecidos</Title>
+        <Description>Corrige un problema en las tarjetas gráficas de Nvidia por el cual desaparecerían trozos de las paredes si la cámara se acerca demasiado a su geometría.&#x0a;&#x0a;Nota: es probable que la cámara atraviese las paredes si juegas con una relación de aspecto ultrapanorámica. Este problema es otro distinto e imposible de evitar por los ángulos de cámara cerrados que tiene este juego.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="WhiteShaderFix">
+        <Title>Corregir los shaders blancos</Title>
+      	<Description>Corrige un problema en las tarjetas gráficas de Nvidia por el cual ciertas zonas aparecerían con un color blanco y deberían mostrarse en negro.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Velocidad">
+
+      <Feature name="PS2CameraSpeed">
+        <Title>Corregir la velocidad de la cámara</Title>
+        <Description>Aumenta la velocidad del movimiento de la cámara, recuperando el valor original y eliminando las sacudidas o elevaciones presentes en la versión de PC.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FastTransitions">
+        <Title>Acelerar las transiciones</Title>
+        <Description>Aumenta la velocidad de todas las transiciones de fundidos de/a negro. Ejemplos: entrar y salir de habitaciones, abrir y cerrar la pantalla del inventario, examinar las imágenes de las notas y acertijos, y la pantalla de guardado/carga.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Iluminación">
+
+      <Feature name="PS2FlashlightBrightness">
+        <Title>Corregir el brillo de la linterna</Title>
+        <Description>Corrige los niveles incorrectos del brillo de la linterna reduciendo su intensidad para los entornos, pero manteniendo el brillo de enemigos y NPC. También corrige los niveles de la linterna en el apartamento 205 de los apartamentos Wood Side (la habitación con el maniquí con la linterna) y un puñado de lugares específicos.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="RoomLightingFix">
+        <Title>Corregir la iluminación de interiores</Title>
+        <Description>Evita que el juego utilice los valores de iluminación de niebla y del entorno en el cementerio si se accede a él a través de un punto de guardado. También corrige los niveles de iluminación en otros lugares.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="LightingFix">
+        <Title>Corregir la iluminación</Title>
+        <Description>Restaura los parámetros de entorno correctos para el final María y las condiciones de iluminación de los árboles 3D en los finales Marcha y María.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="LightingTransitionFix">
+        <Title>Corregir las transiciones de iluminación</Title>
+        <Description>Corrige un problema por el cual algunas fuentes de luz no iluminarían u oscurecerían a James.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Parpadeos">
+
+      <Feature name="FlashlightFlickerFix">
+        <Title>Corregir el parpadeo de la linterna</Title>
+        <Description>Corrige un fallo que haría que el cuerpo de James parpadease al salir del menú de pausa con la linterna apagada.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="RemoveEnvironmentFlicker">
+        <Title>Corregir los parpadeos del entorno en las cinemáticas</Title>
+      	<Description>Elimina los parpadeos provocados al reiniciar los parámetros del entorno a sus valores originales cuando terminan ciertas escenas cinemáticas.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="RemoveEffectsFlicker">
+        <Title>Corregir el parpadeo de los efectos de posprocesado</Title>
+        <Description>Elimina el parpadeo que aparece al principio de cualquier desenfoque de movimiento.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+  </Tab>
+
+  <Tab name="Avanzadas">
+
+    <Section name="Módulos">
+
+      <Feature name="AutoUpdateModule">
+        <Title>Módulo de actualizaciones automáticas</Title>
+        <Description>Tras ejecutar el juego, la herramienta de configuración de SH2:EE (SH2EEsetup.exe) buscará actualizaciones y, en caso de existir, preguntará al usuario si desea actualizar sus archivos con nuevas mejoras y características del proyecto.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="UseCustomModFolder">
+        <Title>Utilizar la carpeta personalizada «sh2e»</Title>
+        <Description>Silent Hill 2: Enhanced Edition leerá y utilizará los archivos que se encuentren en la carpeta «sh2e» por encima de los que se encuentren en la carpeta data siempre que sea posible. Esto permite almacenar archivos personalizados del juego en la carpeta «sh2e» y así no sobrescribir los archivos originales del juego, que se encuentran en la carpeta «data». Cualquier archivo del juego que no haya sido modificado por el proyecto seguirá siendo buscado en la carpeta «data», como siempre, así que es necesario conservar la carpeta «data» intacta.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="WidescreenFix">
+        <Title>Corrección para pantallas panorámicas</Title>
+      	<Description>Activa el SH2 Widescreen Fixes Pack (pack de correcciones para pantallas panorámicas de SH2) integrado y el módulo sh2proxy.&#x0a;&#x0a;Nota: al desactivar esta opción se desactivarán otras características. Esta opción no debería ser desactivada.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="UsePS2LowResTextures">
+        <Title>Desactivar la ruta «sh2e\pic\»</Title>
+        <Description>Desactiva la ruta «sh2e\pic\». Esto hará que el juego vuelva a utilizar las imágenes a pantalla completa originales y de baja resolución, pero se seguirán utilizando el resto de archivos y carpetas encontrados dentro de la ruta «sh2e».&#x0a;&#x0a;Nota: para poder utilizar el resto de archivos y carpetas que estén en la ruta «sh2e», sigue siendo necesario activar la carpeta personalizada «sh2e».</Description>
+        <Choices type="check">
+          <Value name="Desactivado" default="true">0</Value>
+          <Value name="Activado">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Avanzadas">
+
+      <Feature name="CheckForAdminAccess">
+        <Title>Comprobar privilegios administrativos</Title>
+        <Description>Elimina los archivos innecesarios para el juego del almacén virtual de Windows y solicita permisos de administrador en caso de que el juego se encuentre en un directorio protegido con derechos de administrador. Si el juego se encuentra en un directorio protegido con derechos de administrador, es necesario darle privilegios administrativos para poder guardar partidas.&#x0a;&#x0a;Nota: se recomienda por norma general copiar el juego en un directorio local de usuario (y no en uno protegido con privilegios administrativos).</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="CheckCompatibilityMode">
+        <Title>Comprobador de modos de compatibilidad</Title>
+        <Description>Comprueba si se han activado modos de compatibilidad de Windows que no están admitidos en el ejecutable del juego y los desactiva.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="CreateLocalFix">
+        <Title>Crear el archivo local.fix al ejecutar el juego</Title>
+        <Description>Crea un archivo local.fix en el directorio del juego (en caso de que no exista) para activar el soporte de suavizado de bordes por GPU en el juego.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="DisableSafeMode">
+        <Title>Desactivar el modo de baja calidad gráfica tras un bloqueo del juego</Title>
+        <Description>Evita que el juego anule las opciones de gráficos y utilice la calidad más baja posible al ejecutarlo después de un bloqueo.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="DisableScreenSaver">
+        <Title>Desactivar el salvapantallas</Title>
+        <Description>Desactiva el salvapantallas mientras se esté ejecutando el juego.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="DisableHighDPIScaling">
+        <Title>Desactivar el ajuste de escala de ppp de Windows</Title>
+        <Description>Desactiva el ajuste de escala de ppp de Windows en el juego para evitar ciertos problemas visuales, como imágenes «incrustadas» durante las transiciones de fundidos.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="NoCDPatch">
+        <Title>Parche «no CD»</Title>
+      	<Description>Elimina la comprobación de disco de algunas versiones del juego. No se garantiza su buen funcionamiento en todos los ejecutables.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="SteamCrashFix">
+        <Title>Corregir cuelgues provocados por Steam</Title>
+        <Description>Evita los cuelgues al utilizar una configuración de control de Steam o al acceder al menú de opciones del juego con ciertos tipos de mandos de control.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Rendimiento">
+
+      <Feature name="DisableGameUX">
+        <Title>Desactivar el archivo GameUX.dll de Windows</Title>
+      	<Description>Desactiva el explorador de juegos de Microsoft (el archivo GameUX.dll) para evitar que el juego se bloquee al ejecutarse y el alto consumo de CPU del archivo rundll32.exe.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FixGPUAntiAliasing">
+        <Title>Corregir el suavizado de bordes por GPU</Title>
+        <Description>Corrige problemas en las tarjetas gráficas de Nvidia, tales como sombras que falten o incorrectas, al forzar el uso del suavizado de bordes a través del panel de control de la GPU.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="SingleCoreAffinityLegacy">
+        <Title>Límite de CPU a un núcleo</Title>
+        <Description>Limita el juego para que solo utilice un núcleo de la CPU. Ten en cuenta que si activas el motor personalizado de streaming de audio, ya no es necesario limitar el número de núcleos usados a uno.&#x0a;&#x0a;Nota: si el valor seleccionado es superior al número de núcleos disponibles en tu equipo, se utilizará por defecto el primer núcleo (CPU 0).</Description>
+        <Choices type="list">
+          <Value name="Desactivado" default="true">0</Value>
+          <Value name="CPU 0">1</Value>
+          <Value name="CPU 1">2</Value>
+          <Value name="CPU 2">3</Value>
+          <Value name="CPU 3">4</Value>
+          <Value name="CPU 4">5</Value>
+          <Value name="CPU 5">6</Value>
+          <Value name="CPU 6">7</Value>
+          <Value name="CPU 7">8</Value>
+          <Value name="CPU 8">9</Value>
+          <Value name="CPU 9">10</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Plugins">
+
+      <Feature name="LoadPlugins">
+        <Title>Cargar plugins</Title>
+        <Description>Carga los plugins ASI.</Description>
+        <Choices type="check">
+          <Value name="Desactivado" default="true">0</Value>
+          <Value name="Activado">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="LoadFromScriptsOnly">
+        <Title>Cargar solo de la carpeta «scripts»</Title>
+        <Description>Carga exclusivamente los plugins ASI de las carpetas «scripts» y «plugins».</Description>
+        <Choices type="check">
+          <Value name="Desactivado" default="true">0</Value>
+          <Value name="Activado">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="LoadD3d8FromScriptsFolder">
+        <Title>Cargar el archivo d3d8.dll de la carpeta «scripts»</Title>
+      	<Description>Carga el archivo d3d8.dll de las carpetas «scripts» y «plugins».&#x0a;&#x0a;Es necesario desactivar el modo DirectX 9 del juego para que esta opción funcione.</Description>
+        <Choices type="check">
+          <Value name="Desactivado" default="true">0</Value>
+          <Value name="Activado">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+  </Tab>
+
+  <!-- ##################################################### -->
+  <!-- ================== PROGRAM STRINGS ================== -->
+  <!-- ##################################################### -->
+
+  <Strings>
+
+    <S id="PRG_Title">Herramienta de configuración de Silent Hill 2: Enhanced Edition</S>
+    <S id="PRG_Caption_error">ERROR</S>
+    <S id="PRG_Caption_warning">AVISO</S>
+    <S id="PRG_Close">Cerrar</S>
+    <S id="PRG_Default">Valores predeterminados</S>
+    <S id="PRG_Save">Guardar</S>
+    <S id="PRG_Launch">Guardar y ejecutar juego</S>
+    <S id="PRG_Launch_label">Ejecutar con:</S>
+    <S id="PRG_Launch_mess">¡No se ha podido iniciar el juego!</S>
+    <S id="PRG_Launch_exe">sh2pc.exe</S>
+    <S id="PRG_Ini_name">d3d8.ini</S>
+    <S id="PRG_Ini_error">No se pudo guardar el archivo d3d8.ini.</S>
+    <S id="PRG_Default_confirm">¿Seguro que quieres reiniciar toda la configuración a sus valores predeterminados?</S>
+    <S id="PRG_Unsaved"> [sin guardar]</S>
+    <S id="PRG_Save_exit">Hay cambios sin guardar. ¿Deseas cambiarlos antes de cerrar?</S>
+
+  </Strings>
+
+</Config>

@@ -120,10 +120,15 @@ int __cdecl TextToGame(unsigned __int16* a1, unsigned __int16 a2)
 
 	if (a2 == 147)
 	{
-		BYTE RemoveKBPatch[2] = { 0x00, 0x00 };
-		UpdateMemoryAddress((BYTE*)(TTG + 0x11), RemoveKBPatch, 2);
-	}
+		constexpr BYTE SearchBytes[]{ "\x2B\x22\xFF\xFF" };
+		void *KBText = GetAddressOfData(SearchBytes, sizeof(SearchBytes), 1, (DWORD)TTG, 50);
 
+		if (KBText)
+		{
+			BYTE RemoveKBPatch[2] = { 0x00, 0x00 };
+			UpdateMemoryAddress(KBText, RemoveKBPatch, 2);
+		}
+	}
 	return TTG;
 }
 

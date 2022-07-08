@@ -22,7 +22,6 @@
     <ClCompile Include="Common\md5.cpp" />
     <ClCompile Include="Common\Settings.cpp" />
     <ClCompile Include="Common\Utils.cpp" />
-    <ClCompile Include="d3dx9.cpp" />
     <ClCompile Include="External\d3d8to9\source\d3d8to9_base.cpp" />
     <ClCompile Include="External\d3d8to9\source\d3d8to9_device.cpp" />
     <ClCompile Include="External\d3d8to9\source\d3d8to9_index_buffer.cpp" />
@@ -122,6 +121,7 @@
     <ClCompile Include="Wrappers\d3d8\IDirect3DVolume8.cpp" />
     <ClCompile Include="Wrappers\d3d8\IDirect3DVolumeTexture8.cpp" />
     <ClCompile Include="Wrappers\d3d8\InterfaceQuery.cpp" />
+    <ClCompile Include="Wrappers\d3d9\d3dx9.cpp" />
     <ClCompile Include="Wrappers\dinput8\dinput8wrapper.cpp" />
     <ClCompile Include="Wrappers\dinput8\IDirectInput8A.cpp" />
     <ClCompile Include="Wrappers\dinput8\IDirectInputDevice8A.cpp" />
@@ -140,7 +140,6 @@
     <ClInclude Include="Common\md5.h" />
     <ClInclude Include="Common\Settings.h" />
     <ClInclude Include="Common\Utils.h" />
-    <ClInclude Include="d3dx9.h" />
     <ClInclude Include="External\csvparser\src\rapidcsv.h" />
     <ClInclude Include="External\d3d8to9\source\d3d8to9.hpp" />
     <ClInclude Include="External\d3d8to9\source\d3d8types.hpp" />
@@ -187,6 +186,7 @@
     <ClInclude Include="Wrappers\d3d8\IDirect3DVolume8.h" />
     <ClInclude Include="Wrappers\d3d8\IDirect3DVolumeTexture8.h" />
     <ClInclude Include="Wrappers\d3d8\AddressLookupTable.h" />
+    <ClInclude Include="Wrappers\d3d9\d3dx9.h" />
     <ClInclude Include="Wrappers\dinput8.h" />
     <ClInclude Include="Wrappers\dinput8\AddressLookupTable.h" />
     <ClInclude Include="Wrappers\dinput8\dinput8wrapper.h" />

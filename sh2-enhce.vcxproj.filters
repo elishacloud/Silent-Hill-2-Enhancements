@@ -350,7 +350,7 @@
     <ClCompile Include="External\MemoryModule\MemoryModule.c">
       <Filter>External\MemoryModule</Filter>
     </ClCompile>
-    <ClCompile Include="d3dx9.cpp">
+    <ClCompile Include="Wrappers\d3d9\d3dx9.cpp">
       <Filter>Wrappers\d3d9</Filter>
     </ClCompile>
   </ItemGroup>
@@ -556,7 +556,7 @@
     <ClInclude Include="External\MemoryModule\MemoryModule.h">
       <Filter>External\MemoryModule</Filter>
     </ClInclude>
-    <ClInclude Include="d3dx9.h">
+    <ClInclude Include="Wrappers\d3d9\d3dx9.h">
       <Filter>Wrappers\d3d9</Filter>
     </ClInclude>
   </ItemGroup>

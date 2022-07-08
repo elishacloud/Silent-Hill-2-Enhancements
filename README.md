@@ -121,6 +121,7 @@ This project uses code from several other projects. Below is a list of locations
  * [GetComputerManufacturer](http://www.rohitab.com/discuss/topic/35915-win32-api-to-get-system-information/): Includes code from rohitab.com to get the computer vendor and model.
  * [GetFileVersionInfo](https://stackoverflow.com/a/940743): Includes code from stackoverflow.com for getting the version of a PE file.
  * [md5 hash](http://www.zedwood.com/article/cpp-md5-function): Includes code for computing md5 hash.
+ * [MemoryModule](https://github.com/fancycode/MemoryModule): Includes code for loading libraries from memory.
  * [Nemesis2000 Fog Fix](http://ps2wide.net/pc.html#sh2): Includes code created by reviewing the Nemesis2000 fog fix.
  * [ReShade](https://github.com/crosire/reshade): Includes code from ReShade for supporting custom shaders.
  * [SS2EE Web Installer](https://github.com/nipkownix/SH2EE-web-installer) - Included the tool that will download and install all files needed for the Silent Hill 2 Enhanced Edition.

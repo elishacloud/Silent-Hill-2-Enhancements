@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <Shldisp.h>
+#include "External\MemoryModule\MemoryModule.h"
 
 void *GetAddressOfData(const void *data, size_t len, DWORD step = 1);
 void *GetAddressOfData(const void *data, size_t len, DWORD step, DWORD start, DWORD distance = 0x0FFFFFFF);
@@ -22,6 +23,7 @@ void SetWindowTheme(HWND hWnd);
 void AddHandleToVector(HMODULE dll);
 void UnloadAllModules();
 DWORD ConvertFloat(float num);
+HMEMORYMODULE LoadResourceToMemory(DWORD ResID);
 template <typename T>
 void ExtractFileFromResource(DWORD ResID, T lpFilepath);
 HRESULT UnZipFile(BSTR sourceZip, BSTR destFolder);

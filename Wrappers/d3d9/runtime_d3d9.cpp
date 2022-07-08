@@ -19,7 +19,7 @@
 
 #define RESHADE_FILE_LIST
 #include "d3d9wrapper.h"
-#include <d3dcompiler.h>
+#include "d3dx9.h"
 #include "Resource.h"
 
 namespace reshade::d3d9
@@ -266,25 +266,9 @@ void reshade::d3d9::runtime_d3d9::on_present()
 
 bool reshade::d3d9::runtime_d3d9::init_effect(size_t index)
 {
-	if (_d3d_compiler == nullptr)
-		_d3d_compiler = GetModuleHandleW(L"d3dcompiler_43.dll");
-	if (_d3d_compiler == nullptr)
-		_d3d_compiler = LoadLibraryW(L"d3dcompiler_47.dll");
-	if (_d3d_compiler == nullptr)
-		_d3d_compiler = LoadLibraryW(L"d3dcompiler_43.dll");
-
-	if (_d3d_compiler == nullptr)
-	{
-		Logging::Log() << "Unable to load HLSL compiler (\"d3dcompiler_47.dll\")." << " Make sure you have the DirectX end-user runtime (June 2010) installed or a newer version of the library in the application directory.";
-		return false;
-	}
-
 	effect &effect = _effects[index];
 
 	bool is_gamma = (_gamma_set && effect.source_file.compare(GammaEffectName + ".fx") == 0);
-
-	const auto D3DCompile = reinterpret_cast<pD3DCompile>(GetProcAddress(_d3d_compiler, "D3DCompile"));
-	const auto D3DDisassemble = reinterpret_cast<pD3DDisassemble>(GetProcAddress(_d3d_compiler, "D3DDisassemble"));
 
 	// Add specialization constant defines to source code
 	effect.preamble +=
@@ -340,14 +324,25 @@ bool reshade::d3d9::runtime_d3d9::init_effect(size_t index)
 				&compiled, &d3d_errors);
 
 			if (d3d_errors != nullptr) // Append warnings to the output error string as well
+			{
 				effect.errors.append(static_cast<const char *>(d3d_errors->GetBufferPointer()), d3d_errors->GetBufferSize() - 1); // Subtracting one to not append the null-terminator as well
+			}
 
 			// No need to setup resources if any of the shaders failed to compile
 			if (FAILED(hr))
+			{
+				Logging::Log() << "Error: Failed to failed to compile shader! HRESULT is: " << Logging::hex(hr) << '.';
 				return false;
-
+			}
+			
 			if (com_ptr<ID3DBlob> d3d_disassembled; SUCCEEDED(D3DDisassemble(compiled->GetBufferPointer(), compiled->GetBufferSize(), 0, nullptr, &d3d_disassembled)))
+			{
 				effect.assembly[entry_point.name] = std::string(static_cast<const char *>(d3d_disassembled->GetBufferPointer()));
+			}
+			else
+			{
+				Logging::Log() << "Error: Failed to failed to disassemble shader! HRESULT is: " << Logging::hex(hr) << '.';
+			}
 
 			// Cashe shader
 			compile_cache[entry_index].resize(compiled->GetBufferSize());
@@ -373,7 +368,7 @@ bool reshade::d3d9::runtime_d3d9::init_effect(size_t index)
 
 		if (FAILED(hr))
 		{
-			Logging::Log() << "Failed to create shader for entry point '" << entry_point.name << "'! HRESULT is " << hr << '.';
+			Logging::Log() << "Error: Failed to create shader for entry point '" << entry_point.name << "'! HRESULT is " << Logging::hex(hr) << '.';
 			return false;
 		}
 
@@ -395,7 +390,7 @@ bool reshade::d3d9::runtime_d3d9::init_effect(size_t index)
 	{
 		if (info.binding >= ARRAYSIZE(technique_init.sampler_states))
 		{
-			Logging::Log() << "Cannot bind sampler '" << info.unique_name << "' since it exceeds the maximum number of allowed sampler slots in " << "D3D9" << " (" << info.binding << ", allowed are up to " << ARRAYSIZE(technique_init.sampler_states) << ").";
+			Logging::Log() << "Error: Cannot bind sampler '" << info.unique_name << "' since it exceeds the maximum number of allowed sampler slots in " << "D3D9" << " (" << info.binding << ", allowed are up to " << ARRAYSIZE(technique_init.sampler_states) << ").";
 			return false;
 		}
 
@@ -451,7 +446,7 @@ bool reshade::d3d9::runtime_d3d9::init_effect(size_t index)
 			{
 				if (k > _num_simultaneous_rendertargets)
 				{
-					Logging::Log() << "Device only supports " << _num_simultaneous_rendertargets << " simultaneous render targets, but pass " << pass_index << " in technique '" << technique.name << "' uses more, which are ignored.";
+					Logging::Log() << "Error: Device only supports " << _num_simultaneous_rendertargets << " simultaneous render targets, but pass " << pass_index << " in technique '" << technique.name << "' uses more, which are ignored.";
 					break;
 				}
 
@@ -618,7 +613,7 @@ bool reshade::d3d9::runtime_d3d9::init_effect(size_t index)
 
 			if (FAILED(hr))
 			{
-				Logging::Log() << "Failed to create state block for pass " << pass_index << " in technique '" << technique.name << "'! HRESULT is " << hr << '.';
+				Logging::Log() << "Error: Failed to create state block for pass " << pass_index << " in technique '" << technique.name << "'! HRESULT is " << hr << '.';
 				return false;
 			}
 		}
@@ -742,7 +737,7 @@ bool reshade::d3d9::runtime_d3d9::init_texture(texture &texture)
 		}
 		else
 		{
-			Logging::Log() << "Auto-generated mipmap levels are not supported for format " << static_cast<unsigned int>(texture.format) << " of texture '" << texture.unique_name << "'.";
+			Logging::Log() << "Error: Auto-generated mipmap levels are not supported for format " << static_cast<unsigned int>(texture.format) << " of texture '" << texture.unique_name << "'.";
 		}
 	}
 
@@ -755,14 +750,14 @@ bool reshade::d3d9::runtime_d3d9::init_texture(texture &texture)
 		}
 		else
 		{
-			Logging::Log() << "Render target usage is not supported for format " << static_cast<unsigned int>(texture.format) << " of texture '" << texture.unique_name << "'.";
+			Logging::Log() << "Error: Render target usage is not supported for format " << static_cast<unsigned int>(texture.format) << " of texture '" << texture.unique_name << "'.";
 		}
 	}
 
 	HRESULT hr = _device->CreateTexture(texture.width, texture.height, levels, usage, format, D3DPOOL_DEFAULT, &impl->texture, nullptr);
 	if (FAILED(hr))
 	{
-		Logging::Log() << "Failed to create texture '" << texture.unique_name << "'! HRESULT is " << hr << '.';
+		Logging::Log() << "Error: Failed to create texture '" << texture.unique_name << "'! HRESULT is " << hr << '.';
 		Logging::Log() << "> Details: Width = " << texture.width << ", Height = " << texture.height << ", Levels = " << levels << ", Usage = " << usage << ", Format = " << format;
 		return false;
 	}
@@ -785,7 +780,7 @@ void reshade::d3d9::runtime_d3d9::upload_texture(const texture &texture, const u
 	com_ptr<IDirect3DTexture9> intermediate;
 	if (HRESULT hr = _device->CreateTexture(texture.width, texture.height, 1, 0, desc.Format, D3DPOOL_SYSTEMMEM, &intermediate, nullptr); FAILED(hr))
 	{
-		Logging::Log() << "Failed to create system memory texture for updating texture '" << texture.unique_name << "'! HRESULT is " << hr << '.';
+		Logging::Log() << "Error: Failed to create system memory texture for updating texture '" << texture.unique_name << "'! HRESULT is " << hr << '.';
 		Logging::Log() << "> Details: Width = " << texture.width << ", Height = " << texture.height << ", Levels = " << "1" << ", Usage = " << "0" << ", Format = " << desc.Format;
 		return;
 	}
@@ -822,7 +817,7 @@ void reshade::d3d9::runtime_d3d9::upload_texture(const texture &texture, const u
 				mapped_data[x + 3] = pixels[x + 3];
 		break;
 	default:
-		Logging::Log() << "Texture upload is not supported for format " << static_cast<unsigned int>(texture.format) << " of texture '" << texture.unique_name << "'!";
+		Logging::Log() << "Error: Texture upload is not supported for format " << static_cast<unsigned int>(texture.format) << " of texture '" << texture.unique_name << "'!";
 		break;
 	}
 
@@ -830,7 +825,7 @@ void reshade::d3d9::runtime_d3d9::upload_texture(const texture &texture, const u
 
 	if (HRESULT hr = _device->UpdateTexture(intermediate.get(), impl->texture.get()); FAILED(hr))
 	{
-		Logging::Log() << "Failed to update texture '" << texture.unique_name << "' from system memory texture! HRESULT is " << hr << '.';
+		Logging::Log() << "Error: Failed to update texture '" << texture.unique_name << "' from system memory texture! HRESULT is " << hr << '.';
 		return;
 	}
 }
@@ -986,7 +981,7 @@ void reshade::d3d9::runtime_d3d9::update_depth_texture_bindings(com_ptr<IDirect3
 	{
 		if (HRESULT hr = _depth_surface->GetContainer(IID_PPV_ARGS(&_depth_texture)); FAILED(hr))
 		{
-			Logging::Log() << "Failed to retrieve texture from depth surface! HRESULT is " << hr << '.';
+			Logging::Log() << "Error: Failed to retrieve texture from depth surface! HRESULT is " << hr << '.';
 		}
 		else
 		{

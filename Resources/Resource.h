@@ -14,7 +14,8 @@
 #define IDR_SEARCHTEX_DDS               301
 #define IDR_AREATEX_DDS                 302
 
-#define IDR_D3DX9_TOOLS                 401
+#define IDR_D3DX9_DLL                   401
+#define IDR_D3DCOMPILE_DLL              402
 
 // Main resource file details
 #define APP_NAME				"Silent Hill 2: Enhanced Edition"

@@ -25,7 +25,6 @@
 #include "d3d8to9.h"
 #include "External\Hooking\Hook.h"
 #include "Common\Utils.h"
-#include "Common\LoadModules.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
 #include "BuildNo.rc"
@@ -36,9 +35,13 @@
 
 Direct3DCreate9Proc p_Direct3DCreate9 = nullptr;
 
-PFN_D3DXAssembleShader D3DXAssembleShader = nullptr;
-PFN_D3DXDisassembleShader D3DXDisassembleShader = nullptr;
-PFN_D3DXLoadSurfaceFromSurface D3DXLoadSurfaceFromSurface = nullptr;
+extern PFN_D3DXAssembleShader f_D3DXAssembleShader;
+extern PFN_D3DXDisassembleShader f_D3DXDisassembleShader;
+extern PFN_D3DXLoadSurfaceFromSurface f_D3DXLoadSurfaceFromSurface;
+
+PFN_D3DXAssembleShader D3DXAssembleShader = f_D3DXAssembleShader;
+PFN_D3DXDisassembleShader D3DXDisassembleShader = f_D3DXDisassembleShader;
+PFN_D3DXLoadSurfaceFromSurface D3DXLoadSurfaceFromSurface = f_D3DXLoadSurfaceFromSurface;
 
 // Redirects or hooks 'Direct3DCreate8' to go to d3d8to9
 void EnableD3d8to9()
@@ -145,45 +148,6 @@ Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: Failed to create 'Direct3DCreate9'!";
 		return nullptr;
-	}
-
-	// Load D3DX
-	if (!D3DXAssembleShader || !D3DXDisassembleShader || !D3DXLoadSurfaceFromSurface)
-	{
-		// Declare module vars
-		static HMODULE d3dx9Module = nullptr;
-
-		// Declare d3dx9_xx.dll name
-		wchar_t d3dx9name[MAX_PATH] = { 0 };
-
-		// Declare d3dx9_xx.dll version
-		for (int x = 99; x > 9 && !d3dx9Module; x--)
-		{
-			// Get dll name
-			swprintf_s(d3dx9name, L"d3dx9_%d.dll", x);
-			// Load dll
-			d3dx9Module = LoadLibrary(d3dx9name);
-		}
-
-		// Extract d3dx9 tools from binary
-		if (!d3dx9Module)
-		{
-			ExtractD3DX9Tools();
-			d3dx9Module = LoadLibrary(L"d3dx9_43.dll");
-		}
-
-		if (d3dx9Module)
-		{
-			Logging::Log() << "Loaded " << d3dx9name;
-			D3DXAssembleShader = reinterpret_cast<PFN_D3DXAssembleShader>(GetProcAddress(d3dx9Module, "D3DXAssembleShader"));
-			D3DXDisassembleShader = reinterpret_cast<PFN_D3DXDisassembleShader>(GetProcAddress(d3dx9Module, "D3DXDisassembleShader"));
-			D3DXLoadSurfaceFromSurface = reinterpret_cast<PFN_D3DXLoadSurfaceFromSurface>(GetProcAddress(d3dx9Module, "D3DXLoadSurfaceFromSurface"));
-		}
-		else
-		{
-			// Should never get here
-			Logging::Log() << __FUNCTION__ << " Error: Failed to load d3dx9_xx.dll! Some features will not work correctly.";
-		}
 	}
 
 	// Check if WineD3D is loaded

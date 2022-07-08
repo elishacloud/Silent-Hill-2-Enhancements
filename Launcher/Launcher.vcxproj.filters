@@ -19,6 +19,9 @@
     <Filter Include="Resources">
       <UniqueIdentifier>{229e4fd5-9d9f-4f73-8003-68c8895c6fff}</UniqueIdentifier>
     </Filter>
+    <Filter Include="External\MemoryModule">
+      <UniqueIdentifier>{6dfa59ae-2996-4666-afd8-a1ecef36f492}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\External\xxHash\xxh3.h">
@@ -53,6 +56,9 @@
     <ClInclude Include="Resource.h">
       <Filter>Resources</Filter>
     </ClInclude>
+    <ClInclude Include="..\External\MemoryModule\MemoryModule.h">
+      <Filter>External\MemoryModule</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\External\xxHash\xxhash.c">
@@ -84,6 +90,9 @@
     <ClCompile Include="Launcher.cpp" />
     <ClCompile Include="..\Common\AutoUpdate.cpp">
       <Filter>Shared</Filter>
+    </ClCompile>
+    <ClCompile Include="..\External\MemoryModule\MemoryModule.c">
+      <Filter>External\MemoryModule</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

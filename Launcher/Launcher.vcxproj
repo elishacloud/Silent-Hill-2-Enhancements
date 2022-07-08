@@ -63,7 +63,6 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;PSAPI_VERSION=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(SolutionDir)bin\Intermediate\$(ProjectName)\$(Configuration)\Object\%(RelativeDir)</ObjectFileName>
       <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir);$(SolutionDir)Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -83,7 +82,6 @@
       <WarningLevel>Level4</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;PSAPI_VERSION=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <ObjectFileName>$(SolutionDir)bin\Intermediate\$(ProjectName)\$(Configuration)\Object\%(RelativeDir)</ObjectFileName>
@@ -111,6 +109,7 @@ copy /y "$(TargetDir)d3d8.ini" "$(SolutionDir)Common\Settings.ini"</Command>
     <ClInclude Include="..\Common\Settings.h" />
     <ClInclude Include="..\Common\Utils.h" />
     <ClInclude Include="..\External\Logging\Logging.h" />
+    <ClInclude Include="..\External\MemoryModule\MemoryModule.h" />
     <ClInclude Include="..\External\tinyxml2\tinyxml2.h" />
     <ClInclude Include="..\External\xxHash\xxh3.h" />
     <ClInclude Include="..\External\xxHash\xxhash.h" />
@@ -125,6 +124,7 @@ copy /y "$(TargetDir)d3d8.ini" "$(SolutionDir)Common\Settings.ini"</Command>
     <ClCompile Include="..\Common\Settings.cpp" />
     <ClCompile Include="..\Common\Utils.cpp" />
     <ClCompile Include="..\External\Logging\Logging.cpp" />
+    <ClCompile Include="..\External\MemoryModule\MemoryModule.c" />
     <ClCompile Include="..\External\tinyxml2\tinyxml2.cpp" />
     <ClCompile Include="..\External\xxHash\xxhash.c" />
     <ClCompile Include="..\Logging\Logging.cpp" />

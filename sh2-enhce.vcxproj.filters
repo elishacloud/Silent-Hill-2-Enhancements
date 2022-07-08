@@ -347,6 +347,12 @@
     <ClCompile Include="Patches\PatchInventoryBGM.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="External\MemoryModule\MemoryModule.c">
+      <Filter>External\MemoryModule</Filter>
+    </ClCompile>
+    <ClCompile Include="d3dx9.cpp">
+      <Filter>Wrappers\d3d9</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">
@@ -547,6 +553,12 @@
     <ClInclude Include="Resources\Resource.h">
       <Filter>Resources</Filter>
     </ClInclude>
+    <ClInclude Include="External\MemoryModule\MemoryModule.h">
+      <Filter>External\MemoryModule</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx9.h">
+      <Filter>Wrappers\d3d9</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\sh2-enhce.rc">
@@ -636,6 +648,9 @@
     </Filter>
     <Filter Include="Include\criware">
       <UniqueIdentifier>{5448b3d6-8d77-4320-8d53-37aed07543cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\MemoryModule">
+      <UniqueIdentifier>{3ce3eff9-8225-4947-963d-ff492c58ebba}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

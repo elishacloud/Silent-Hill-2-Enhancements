@@ -258,7 +258,7 @@ bool reshade::d3d9::buffer_detection::update_depthstencil_replacement(com_ptr<ID
 
 	if (desc.Format == D3DFMT_UNKNOWN)
 	{
-		Logging::Log() << "Your graphics card is missing support for at least one of the 'INTZ', 'DF24' or 'DF16' texture formats. Cannot create depth replacement texture.";
+		Logging::Log() << "Error: Your graphics card is missing support for at least one of the 'INTZ', 'DF24' or 'DF16' texture formats. Cannot create depth replacement texture.";
 		return false;
 	}
 
@@ -266,7 +266,7 @@ bool reshade::d3d9::buffer_detection::update_depthstencil_replacement(com_ptr<ID
 
 	if (HRESULT hr = _device->CreateTexture(desc.Width, desc.Height, 1, D3DUSAGE_DEPTHSTENCIL, desc.Format, D3DPOOL_DEFAULT, &texture, nullptr); FAILED(hr))
 	{
-		Logging::Log() << "Failed to create depth replacement texture! HRESULT is " << hr << '.';
+		Logging::Log() << "Error: Failed to create depth replacement texture! HRESULT is " << hr << '.';
 		return false;
 	}
 

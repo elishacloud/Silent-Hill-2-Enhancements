@@ -41,3 +41,6 @@
 [submodule "Installer"]
 	path = Installer
 	url = https://github.com/nipkownix/SH2EE-web-installer
+[submodule "External/MemoryModule"]
+	path = External/MemoryModule
+	url = https://github.com/fancycode/MemoryModule

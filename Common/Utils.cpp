@@ -550,6 +550,28 @@ void GetFileSize(uintmax_t fsize, char *strOutput, size_t size)
 	strcpy_s(strOutput, size, strSize.c_str());
 }
 
+HMEMORYMODULE LoadResourceToMemory(DWORD ResID)
+{
+	HRSRC hResource = FindResource(m_hModule, MAKEINTRESOURCE(ResID), RT_RCDATA);
+	if (hResource)
+	{
+		HGLOBAL hLoadedResource = LoadResource(m_hModule, hResource);
+		if (hLoadedResource)
+		{
+			LPVOID pLockedResource = LockResource(hLoadedResource);
+			if (pLockedResource)
+			{
+				DWORD dwResourceSize = SizeofResource(m_hModule, hResource);
+				if (dwResourceSize != 0)
+				{
+					return MemoryLoadLibrary(pLockedResource, dwResourceSize);
+				}
+			}
+		}
+	}
+	return nullptr;
+}
+
 template void ExtractFileFromResource<LPCSTR>(DWORD, LPCSTR);
 template void ExtractFileFromResource<LPCWSTR>(DWORD, LPCWSTR);
 template <typename T>

@@ -129,10 +129,10 @@ HRESULT WINAPI D3DXDisassembleShader(const DWORD *pShader, BOOL EnableColorCode,
 	}
 	else if (pShader[0] == 0x20202020 &&
 		(((byte*)pShader)[4] == 0x70 || ((byte*)pShader)[4] == 0x76) &&		// 0x70 = p, 0x76 = v
-		((byte*)pShader)[5] <= 0x73 &&										// 0x73 = s
-		((byte*)pShader)[6] <= 0x5f &&										// 0x5f = _
+		((byte*)pShader)[5] == 0x73 &&										// 0x73 = s
+		((byte*)pShader)[6] == 0x5f &&										// 0x5f = _
 		(((byte*)pShader)[7] >= 0x30 && ((byte*)pShader)[7] <= 0x34) &&		// Major version
-		((byte*)pShader)[8] <= 0x5f &&										// 0x5f = _
+		((byte*)pShader)[8] == 0x5f &&										// 0x5f = _
 		(((byte*)pShader)[9] >= 0x30 && ((byte*)pShader)[9] <= 0x34))		// Minor version
 	{
 		while (TRUE)

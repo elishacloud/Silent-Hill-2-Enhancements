@@ -35,13 +35,13 @@
 
 Direct3DCreate9Proc p_Direct3DCreate9 = nullptr;
 
-extern PFN_D3DXAssembleShader f_D3DXAssembleShader;
-extern PFN_D3DXDisassembleShader f_D3DXDisassembleShader;
-extern PFN_D3DXLoadSurfaceFromSurface f_D3DXLoadSurfaceFromSurface;
+extern FARPROC f_D3DXAssembleShader;
+extern FARPROC f_D3DXDisassembleShader;
+extern FARPROC f_D3DXLoadSurfaceFromSurface;
 
-PFN_D3DXAssembleShader D3DXAssembleShader = f_D3DXAssembleShader;
-PFN_D3DXDisassembleShader D3DXDisassembleShader = f_D3DXDisassembleShader;
-PFN_D3DXLoadSurfaceFromSurface D3DXLoadSurfaceFromSurface = f_D3DXLoadSurfaceFromSurface;
+PFN_D3DXAssembleShader D3DXAssembleShader = (PFN_D3DXAssembleShader)f_D3DXAssembleShader;
+PFN_D3DXDisassembleShader D3DXDisassembleShader = (PFN_D3DXDisassembleShader)f_D3DXDisassembleShader;
+PFN_D3DXLoadSurfaceFromSurface D3DXLoadSurfaceFromSurface = (PFN_D3DXLoadSurfaceFromSurface)f_D3DXLoadSurfaceFromSurface;
 
 // Redirects or hooks 'Direct3DCreate8' to go to d3d8to9
 void EnableD3d8to9()

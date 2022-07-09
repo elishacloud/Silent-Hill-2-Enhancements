@@ -21,9 +21,6 @@
 #include "Logging\Logging.h"
 #include "Resource.h"
 
-typedef interface ID3DXConstantTable ID3DXConstantTable;
-typedef interface ID3DXConstantTable *LPD3DXCONSTANTTABLE;
-
 typedef HRESULT(WINAPI *PFN_D3DXAssembleShader)(LPCSTR pSrcData, UINT SrcDataLen, const D3DXMACRO *pDefines, LPD3DXINCLUDE pInclude, DWORD Flags, LPD3DXBUFFER *ppShader, LPD3DXBUFFER *ppErrorMsgs);
 typedef HRESULT(WINAPI *PFN_D3DXDisassembleShader)(const DWORD *pShader, BOOL EnableColorCode, LPCSTR pComments, LPD3DXBUFFER *ppDisassembly);
 typedef HRESULT(WINAPI *PFN_D3DXLoadSurfaceFromSurface)(LPDIRECT3DSURFACE9 pDestSurface, const PALETTEENTRY *pDestPalette, const RECT *pDestRect, LPDIRECT3DSURFACE9 pSrcSurface, const PALETTEENTRY *pSrcPalette, const RECT *pSrcRect, DWORD Filter, D3DCOLOR ColorKey);
@@ -38,18 +35,20 @@ HMEMORYMODULE d3dCompileModule = nullptr;
 PFN_D3DXAssembleShader p_D3DXAssembleShader = nullptr;
 PFN_D3DXDisassembleShader p_D3DXDisassembleShader = nullptr;
 PFN_D3DXLoadSurfaceFromSurface p_D3DXLoadSurfaceFromSurface = nullptr;
-// Some operating systems, like Windows XP, won't work with d3dcompile_47, so failover to d3dcompile_43 for these cases
-PFN_D3DAssemble p_D3DAssemble43 = nullptr;
-PFN_D3DCompile p_D3DCompile43 = nullptr;
-PFN_D3DDisassemble p_D3DDisassemble43 = nullptr;
+
 // These use d3dcompile_47
 PFN_D3DAssemble p_D3DAssemble = nullptr;
 PFN_D3DCompile p_D3DCompile = nullptr;
 PFN_D3DDisassemble p_D3DDisassemble = nullptr;
 
-PFN_D3DXAssembleShader f_D3DXAssembleShader = *D3DXAssembleShader;
-PFN_D3DXDisassembleShader f_D3DXDisassembleShader = *D3DXDisassembleShader;
-PFN_D3DXLoadSurfaceFromSurface f_D3DXLoadSurfaceFromSurface = *D3DXLoadSurfaceFromSurface;
+// These use d3dcompile_43, some operating systems (like Windows XP) won't work with d3dcompile_47, so failover to d3dcompile_43 for these cases
+PFN_D3DAssemble p_D3DAssemble43 = nullptr;
+PFN_D3DCompile p_D3DCompile43 = nullptr;
+PFN_D3DDisassemble p_D3DDisassemble43 = nullptr;
+
+FARPROC f_D3DXAssembleShader = (FARPROC)*D3DXAssembleShader;
+FARPROC f_D3DXDisassembleShader = (FARPROC)*D3DXDisassembleShader;
+FARPROC f_D3DXLoadSurfaceFromSurface = (FARPROC)*D3DXLoadSurfaceFromSurface;
 
 void LoadD3dx9()
 {
@@ -68,17 +67,17 @@ void LoadD3dx9()
 			p_D3DXDisassembleShader = reinterpret_cast<PFN_D3DXDisassembleShader>(MemoryGetProcAddress(d3dx9Module, "D3DXDisassembleShader"));
 			p_D3DXLoadSurfaceFromSurface = reinterpret_cast<PFN_D3DXLoadSurfaceFromSurface>(MemoryGetProcAddress(d3dx9Module, "D3DXLoadSurfaceFromSurface"));
 		}
-		if (d3dCompile43Module)
-		{
-			p_D3DAssemble43 = reinterpret_cast<PFN_D3DAssemble>(MemoryGetProcAddress(d3dCompile43Module, "D3DAssemble"));
-			p_D3DCompile43 = reinterpret_cast<PFN_D3DCompile>(MemoryGetProcAddress(d3dCompile43Module, "D3DCompile"));
-			p_D3DDisassemble43 = reinterpret_cast<PFN_D3DDisassemble>(MemoryGetProcAddress(d3dCompile43Module, "D3DDisassemble"));
-		}
 		if (d3dCompileModule)
 		{
 			p_D3DAssemble = reinterpret_cast<PFN_D3DAssemble>(MemoryGetProcAddress(d3dCompileModule, "D3DAssemble"));
 			p_D3DCompile = reinterpret_cast<PFN_D3DCompile>(MemoryGetProcAddress(d3dCompileModule, "D3DCompile"));
 			p_D3DDisassemble = reinterpret_cast<PFN_D3DDisassemble>(MemoryGetProcAddress(d3dCompileModule, "D3DDisassemble"));
+		}
+		if (d3dCompile43Module)
+		{
+			p_D3DAssemble43 = reinterpret_cast<PFN_D3DAssemble>(MemoryGetProcAddress(d3dCompile43Module, "D3DAssemble"));
+			p_D3DCompile43 = reinterpret_cast<PFN_D3DCompile>(MemoryGetProcAddress(d3dCompile43Module, "D3DCompile"));
+			p_D3DDisassemble43 = reinterpret_cast<PFN_D3DDisassemble>(MemoryGetProcAddress(d3dCompile43Module, "D3DDisassemble"));
 		}
 	}
 }
@@ -109,7 +108,8 @@ HRESULT WINAPI D3DXDisassembleShader(const DWORD *pShader, BOOL EnableColorCode,
 		(((byte*)pShader)[2] == 0xFF || ((byte*)pShader)[2] == 0xFE) &&	// 0xFF = ps_x_x, 0xFE = vs_x_x
 		((byte*)pShader)[3] == 0xFF)
 	{
-		while (TRUE)
+		SrcDataSize = 4;
+		while (true)
 		{
 			if (((byte*)pShader)[SrcDataSize + 0] == 0xFF &&
 				((byte*)pShader)[SrcDataSize + 1] == 0xFF &&
@@ -127,28 +127,7 @@ HRESULT WINAPI D3DXDisassembleShader(const DWORD *pShader, BOOL EnableColorCode,
 			}
 		}
 	}
-	else if (pShader[0] == 0x20202020 &&
-		(((byte*)pShader)[4] == 0x70 || ((byte*)pShader)[4] == 0x76) &&		// 0x70 = p, 0x76 = v
-		((byte*)pShader)[5] == 0x73 &&										// 0x73 = s
-		((byte*)pShader)[6] == 0x5f &&										// 0x5f = _
-		(((byte*)pShader)[7] >= 0x30 && ((byte*)pShader)[7] <= 0x34) &&		// Major version
-		((byte*)pShader)[8] == 0x5f &&										// 0x5f = _
-		(((byte*)pShader)[9] >= 0x30 && ((byte*)pShader)[9] <= 0x34))		// Minor version
-	{
-		while (TRUE)
-		{
-			if (((byte*)pShader)[SrcDataSize + 1] == 0x00)
-			{
-				break;
-			}
-			SrcDataSize++;
-			if (SrcDataSize > 50000)
-			{
-				Logging::Log() << __FUNCTION__ " Error: Shader buffer exceeded!";
-				return E_OUTOFMEMORY;
-			}
-		}
-	}
+	// Shader byte header not recognized, cannot get shader size
 	else
 	{
 		// Log the byte header

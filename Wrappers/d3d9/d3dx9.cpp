@@ -94,22 +94,75 @@ HRESULT WINAPI D3DXDisassembleShader(const DWORD *pShader, BOOL EnableColorCode,
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	if (!pShader)
+	{
+		return D3DERR_INVALIDCALL;
+	}
+
+	// Get ASM flags
 	UINT Flags = (EnableColorCode) ? D3D_DISASM_ENABLE_COLOR_CODE : 0;
 
-	// ToDo: Update to get correct shader size
+	// Get shader size
 	SIZE_T SrcDataSize = 0;
-	DWORD x = 0;
-	while (TRUE)
+	if (((byte*)pShader)[0] <= 0x04 &&	// Minor version
+		((byte*)pShader)[1] <= 0x02 &&	// Majer version
+		(((byte*)pShader)[2] == 0xFF || ((byte*)pShader)[2] == 0xFE) &&	// 0xFF = ps_x_x, 0xFE = vs_x_x
+		((byte*)pShader)[3] == 0xFF)
 	{
-		if (pShader[x] != 0)
+		while (TRUE)
 		{
-			SrcDataSize += 4;
+			if (((byte*)pShader)[SrcDataSize + 0] == 0xFF &&
+				((byte*)pShader)[SrcDataSize + 1] == 0xFF &&
+				((byte*)pShader)[SrcDataSize + 2] == 0x00 &&
+				((byte*)pShader)[SrcDataSize + 3] == 0x00)
+			{
+				SrcDataSize += 4;
+				break;
+			}
+			SrcDataSize++;
+			if (SrcDataSize > 50000)
+			{
+				Logging::Log() << __FUNCTION__ " Error: Shader buffer exceeded!";
+				return E_OUTOFMEMORY;
+			}
 		}
-		else
+	}
+	else if (pShader[0] == 0x20202020 &&
+		(((byte*)pShader)[4] == 0x70 || ((byte*)pShader)[4] == 0x76) &&		// 0x70 = p, 0x76 = v
+		((byte*)pShader)[5] <= 0x73 &&										// 0x73 = s
+		((byte*)pShader)[6] <= 0x5f &&										// 0x5f = _
+		(((byte*)pShader)[7] >= 0x30 && ((byte*)pShader)[7] <= 0x34) &&		// Major version
+		((byte*)pShader)[8] <= 0x5f &&										// 0x5f = _
+		(((byte*)pShader)[9] >= 0x30 && ((byte*)pShader)[9] <= 0x34))		// Minor version
+	{
+		while (TRUE)
 		{
-			break;
+			if (((byte*)pShader)[SrcDataSize + 1] == 0x00)
+			{
+				break;
+			}
+			SrcDataSize++;
+			if (SrcDataSize > 50000)
+			{
+				Logging::Log() << __FUNCTION__ " Error: Shader buffer exceeded!";
+				return E_OUTOFMEMORY;
+			}
 		}
-		x++;
+	}
+	else
+	{
+		// Log the byte header
+		Logging::Log() << __FUNCTION__ " Error: Shader format not recognized!";
+		std::string strerr;
+		for (UINT x = 0; x < 11; x++)
+		{
+			strerr.append(", x");
+			char str[20] = { '\0' };
+			sprintf(str, "%x", ((byte*)pShader)[x]);
+			strerr.append(str);
+		}
+		Logging::Log() << __FUNCTION__ " Beginning bytes: " << strerr.c_str();
+		return D3DERR_INVALIDCALL;
 	}
 
 	return D3DDisassemble(pShader, SrcDataSize, Flags, pComments, ppDisassembly);
@@ -147,6 +200,11 @@ HRESULT WINAPI D3DAssemble(const void *pSrcData, SIZE_T SrcDataSize, const char 
 		hr = p_D3DAssemble43(pSrcData, SrcDataSize, pFileName, pDefines, pInclude, Flags, ppShader, ppErrorMsgs);
 	}
 
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to Assemble shader!";
+	}
+
 	return hr;
 }
 
@@ -168,6 +226,11 @@ HRESULT WINAPI D3DCompile(LPCVOID pSrcData, SIZE_T SrcDataSize, LPCSTR pSourceNa
 		hr = p_D3DCompile43(pSrcData, SrcDataSize, pSourceName, pDefines, pInclude, pEntrypoint, pTarget, Flags1, Flags2, ppCode, ppErrorMsgs);
 	}
 
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to Compile shader!";
+	}
+
 	return hr;
 }
 
@@ -187,6 +250,11 @@ HRESULT WINAPI D3DDisassemble(LPCVOID pSrcData, SIZE_T SrcDataSize, UINT Flags, 
 	if (p_D3DDisassemble43 && FAILED(hr))
 	{
 		hr = p_D3DDisassemble43(pSrcData, SrcDataSize, Flags, szComments, ppDisassembly);
+	}
+
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to Disassemble shader!";
 	}
 
 	return hr;

@@ -32,11 +32,17 @@ typedef HRESULT(WINAPI *PFN_D3DCompile)(LPCVOID pSrcData, SIZE_T SrcDataSize, LP
 typedef HRESULT(WINAPI *PFN_D3DDisassemble)(LPCVOID pSrcData, SIZE_T SrcDataSize, UINT Flags, LPCSTR szComments, ID3DBlob **ppDisassembly);
 
 HMEMORYMODULE d3dx9Module = nullptr;
+HMEMORYMODULE d3dCompile43Module = nullptr;
 HMEMORYMODULE d3dCompileModule = nullptr;
 
 PFN_D3DXAssembleShader p_D3DXAssembleShader = nullptr;
 PFN_D3DXDisassembleShader p_D3DXDisassembleShader = nullptr;
 PFN_D3DXLoadSurfaceFromSurface p_D3DXLoadSurfaceFromSurface = nullptr;
+// Some operating systems, like Windows XP, won't work with d3dcompile_47, so failover to d3dcompile_43 for these cases
+PFN_D3DAssemble p_D3DAssemble43 = nullptr;
+PFN_D3DCompile p_D3DCompile43 = nullptr;
+PFN_D3DDisassemble p_D3DDisassemble43 = nullptr;
+// These use d3dcompile_47
 PFN_D3DAssemble p_D3DAssemble = nullptr;
 PFN_D3DCompile p_D3DCompile = nullptr;
 PFN_D3DDisassemble p_D3DDisassemble = nullptr;
@@ -53,6 +59,7 @@ void LoadD3dx9()
 		RunOnce = false;
 
 		d3dx9Module = LoadResourceToMemory(IDR_D3DX9_DLL);
+		d3dCompile43Module = LoadResourceToMemory(IDR_D3DCOMPI43_DLL);
 		d3dCompileModule = LoadResourceToMemory(IDR_D3DCOMPILE_DLL);
 
 		if (d3dx9Module)
@@ -60,6 +67,12 @@ void LoadD3dx9()
 			p_D3DXAssembleShader = reinterpret_cast<PFN_D3DXAssembleShader>(MemoryGetProcAddress(d3dx9Module, "D3DXAssembleShader"));
 			p_D3DXDisassembleShader = reinterpret_cast<PFN_D3DXDisassembleShader>(MemoryGetProcAddress(d3dx9Module, "D3DXDisassembleShader"));
 			p_D3DXLoadSurfaceFromSurface = reinterpret_cast<PFN_D3DXLoadSurfaceFromSurface>(MemoryGetProcAddress(d3dx9Module, "D3DXLoadSurfaceFromSurface"));
+		}
+		if (d3dCompile43Module)
+		{
+			p_D3DAssemble43 = reinterpret_cast<PFN_D3DAssemble>(MemoryGetProcAddress(d3dCompile43Module, "D3DAssemble"));
+			p_D3DCompile43 = reinterpret_cast<PFN_D3DCompile>(MemoryGetProcAddress(d3dCompile43Module, "D3DCompile"));
+			p_D3DDisassemble43 = reinterpret_cast<PFN_D3DDisassemble>(MemoryGetProcAddress(d3dCompile43Module, "D3DDisassemble"));
 		}
 		if (d3dCompileModule)
 		{
@@ -122,12 +135,19 @@ HRESULT WINAPI D3DAssemble(const void *pSrcData, SIZE_T SrcDataSize, const char 
 
 	LoadD3dx9();
 
-	if (p_D3DCompile)
+	HRESULT hr = D3DERR_INVALIDCALL;
+
+	if (p_D3DAssemble)
 	{
-		return p_D3DAssemble(pSrcData, SrcDataSize, pFileName, pDefines, pInclude, Flags, ppShader, ppErrorMsgs);
+		hr = p_D3DAssemble(pSrcData, SrcDataSize, pFileName, pDefines, pInclude, Flags, ppShader, ppErrorMsgs);
 	}
 
-	return D3DERR_INVALIDCALL;
+	if (p_D3DAssemble43 && FAILED(hr))
+	{
+		hr = p_D3DAssemble43(pSrcData, SrcDataSize, pFileName, pDefines, pInclude, Flags, ppShader, ppErrorMsgs);
+	}
+
+	return hr;
 }
 
 HRESULT WINAPI D3DCompile(LPCVOID pSrcData, SIZE_T SrcDataSize, LPCSTR pSourceName, const D3D_SHADER_MACRO *pDefines, ID3DInclude *pInclude, LPCSTR pEntrypoint, LPCSTR pTarget, UINT Flags1, UINT Flags2, ID3DBlob **ppCode, ID3DBlob **ppErrorMsgs)
@@ -136,12 +156,19 @@ HRESULT WINAPI D3DCompile(LPCVOID pSrcData, SIZE_T SrcDataSize, LPCSTR pSourceNa
 
 	LoadD3dx9();
 
+	HRESULT hr = D3DERR_INVALIDCALL;
+
 	if (p_D3DCompile)
 	{
-		return p_D3DCompile(pSrcData, SrcDataSize, pSourceName, pDefines, pInclude, pEntrypoint, pTarget, Flags1, Flags2, ppCode, ppErrorMsgs);
+		hr = p_D3DCompile(pSrcData, SrcDataSize, pSourceName, pDefines, pInclude, pEntrypoint, pTarget, Flags1, Flags2, ppCode, ppErrorMsgs);
 	}
 
-	return D3DERR_INVALIDCALL;
+	if (p_D3DCompile43 && FAILED(hr))
+	{
+		hr = p_D3DCompile43(pSrcData, SrcDataSize, pSourceName, pDefines, pInclude, pEntrypoint, pTarget, Flags1, Flags2, ppCode, ppErrorMsgs);
+	}
+
+	return hr;
 }
 
 HRESULT WINAPI D3DDisassemble(LPCVOID pSrcData, SIZE_T SrcDataSize, UINT Flags, LPCSTR szComments, ID3DBlob **ppDisassembly)
@@ -150,10 +177,17 @@ HRESULT WINAPI D3DDisassemble(LPCVOID pSrcData, SIZE_T SrcDataSize, UINT Flags, 
 
 	LoadD3dx9();
 
+	HRESULT hr = D3DERR_INVALIDCALL;
+
 	if (p_D3DDisassemble)
 	{
-		return p_D3DDisassemble(pSrcData, SrcDataSize, Flags, szComments, ppDisassembly);
+		hr = p_D3DDisassemble(pSrcData, SrcDataSize, Flags, szComments, ppDisassembly);
 	}
 
-	return D3DERR_INVALIDCALL;
+	if (p_D3DDisassemble43 && FAILED(hr))
+	{
+		hr = p_D3DDisassemble43(pSrcData, SrcDataSize, Flags, szComments, ppDisassembly);
+	}
+
+	return hr;
 }

@@ -120,13 +120,22 @@ int __cdecl TextToGame(unsigned __int16* a1, unsigned __int16 a2)
 
 	if (a2 == 147)
 	{
-		constexpr BYTE SearchBytes[]{ "\x2B\x22\xFF\xFF" };
-		void *KBText = GetAddressOfData(SearchBytes, sizeof(SearchBytes), 1, (DWORD)TTG, 50);
-
-		if (KBText)
+		for (DWORD x = 0; x < 50; x++)
 		{
-			BYTE RemoveKBPatch[2] = { 0x00, 0x00 };
-			UpdateMemoryAddress(KBText, RemoveKBPatch, 2);
+			if (((char*)TTG)[x + 0] == '\x2B' &&
+				((char*)TTG)[x + 1] == '\x22' &&
+				((char*)TTG)[x + 2] == '\xFF' &&
+				((char*)TTG)[x + 3] == '\xFF')
+			{
+				constexpr byte RemoveKBPatch[] = { 0x00, 0x00 };
+				UpdateMemoryAddress((void*)(TTG + x), RemoveKBPatch, sizeof(RemoveKBPatch));
+				break;
+			}
+			if (((char*)TTG)[x + 0] == '\xFF' &&
+				((char*)TTG)[x + 1] == '\xFF')
+			{
+				break;
+			}
 		}
 	}
 	return TTG;

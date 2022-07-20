@@ -42,7 +42,7 @@
 
       <Feature name="FullscreenImages">
         <Title>Escalado de imágenes a pantalla completa</Title>
-        <Description>Incorpora la compatibilidad para el Image Enhancement Pack (pack de mejora de imágenes) del proyecto para que se muestre correctamente. Es necesario activar esta opción si se utiliza el Image Enhancement Pack. El escalado funciona tanto para las imágenes originales a pantalla completa como para las mejoradas.&#x0a;&#x0a;Automático: selecciona automáticamente entre las opciones de ajustar a imagen o llenarla según la relación de aspecto, dando prioridad a la mejor presentación.&#x0a;Ajustar a área de visualización: muestra las imágenes en pantalla completa sin recortarlas. Podrían aparecer bandas o columnas negras según la relación de aspecto.&#x0a;Llenar área de visualización: escala las imágenes a pantalla completa para que llenen el área de visualización, eliminando cualquier banda o columna negra, cubriendo una relación de aspecto máxima de 16:9.</Description>
+        <Description>Incorpora la compatibilidad para el Image Enhancement Pack (paquete de mejora de imágenes) del proyecto para que se muestre correctamente. Es necesario activar esta opción si se utiliza el Image Enhancement Pack. El escalado funciona tanto para las imágenes originales a pantalla completa como para las mejoradas.&#x0a;&#x0a;Automático: selecciona automáticamente entre las opciones de ajustar a imagen o llenarla según la relación de aspecto, dando prioridad a la mejor presentación.&#x0a;Ajustar a área de visualización: muestra las imágenes en pantalla completa sin recortarlas. Podrían aparecer bandas o columnas negras según la relación de aspecto.&#x0a;Llenar área de visualización: escala las imágenes a pantalla completa para que llenen el área de visualización, eliminando cualquier banda o columna negra, cubriendo una relación de aspecto máxima de 16:9.</Description>
         <Choices type="list">
           <Value name="Desactivado">0</Value>
           <Value name="Automático" default="true">3</Value>
@@ -53,7 +53,7 @@
 
       <Feature name="FullscreenVideos">
         <Title>Escalado de vídeos FMV</Title>
-        <Description>Incorpora la compatibilidad para el FMV Enhancement Pack (pack de mejora de FMVs) del proyecto para que sus vídeos se muestren correctamente. El escalado funciona tanto para los vídeos originales a pantalla completa como para los mejoradas.&#x0a;&#x0a;Automático: selecciona automáticamente entre las opciones de ajustar a imagen o llenarla según la relación de aspecto, dando prioridad a la mejor presentación.&#x0a;Ajustar a área de visualización: muestra los vídeos en pantalla completa sin recortarlos. Podrían aparecer bandas o columnas negras según la relación de aspecto.&#x0a;Llenar área de visualización: escala los vídeos a pantalla completa para que llenen el área de visualización, eliminando cualquier banda o columna negra, cubriendo una relación de aspecto máxima de 16:9.</Description>
+        <Description>Incorpora la compatibilidad para el FMV Enhancement Pack (paquete de mejora de FMVs) del proyecto para que sus vídeos se muestren correctamente. El escalado funciona tanto para los vídeos originales a pantalla completa como para los mejoradas.&#x0a;&#x0a;Automático: selecciona automáticamente entre las opciones de ajustar a imagen o llenarla según la relación de aspecto, dando prioridad a la mejor presentación.&#x0a;Ajustar a área de visualización: muestra los vídeos en pantalla completa sin recortarlos. Podrían aparecer bandas o columnas negras según la relación de aspecto.&#x0a;Llenar área de visualización: escala los vídeos a pantalla completa para que llenen el área de visualización, eliminando cualquier banda o columna negra, cubriendo una relación de aspecto máxima de 16:9.</Description>
         <Choices type="list">
           <Value name="Desactivado">0</Value>
           <Value name="Automático" default="true">3</Value>
@@ -162,7 +162,7 @@
 
       <Feature name="EnableTexAddrHack">
         <Title>Permitir imágenes de mayor calidad</Title>
-        <Description>Permite el uso de imágenes con una mayor calidad y definición. Es necesario activar esta opción si se utiliza el Image Enhancement Pack (pack de mejora de imágenes) del proyecto.</Description>
+        <Description>Permite el uso de imágenes con una mayor calidad y definición. Es necesario activar esta opción si se utiliza el Image Enhancement Pack (paquete de mejora de imágenes) del proyecto.</Description>
         <Choices type="check">
           <Value name="Desactivado">0</Value>
           <Value name="Activado" default="true">1</Value>
@@ -300,7 +300,7 @@
 
       <Feature name="EnableSFXAddrHack">
         <Title>Permitir audio de mayor calidad</Title>
-        <Description>Permite el uso de archivos de sonido de mayor calidad. Es necesario activar esta opción si se utiliza el Audio Enhancement Pack (pack de mejora de audio).</Description>
+        <Description>Permite el uso de archivos de sonido de mayor calidad. Es necesario activar esta opción si se utiliza el Audio Enhancement Pack (paquete de mejora de audio).</Description>
         <Choices type="check">
           <Value name="Desactivado">0</Value>
           <Value name="Activado" default="true">1</Value>
@@ -908,7 +908,7 @@
 
       <Feature name="WidescreenFix">
         <Title>Corrección para pantallas panorámicas</Title>
-      	<Description>Activa el SH2 Widescreen Fixes Pack (pack de correcciones para pantallas panorámicas de SH2) integrado y el módulo sh2proxy.&#x0a;&#x0a;Nota: al desactivar esta opción se desactivarán otras características. Esta opción no debería ser desactivada.</Description>
+      	<Description>Activa el SH2 Widescreen Fixes Pack (paquete de correcciones para pantallas panorámicas de SH2) integrado y el módulo sh2proxy.&#x0a;&#x0a;Nota: al desactivar esta opción se desactivarán otras características. Esta opción no debería ser desactivada.</Description>
         <Choices type="check">
           <Value name="Desactivado">0</Value>
           <Value name="Activado" default="true">1</Value>

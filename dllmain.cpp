@@ -181,6 +181,9 @@ void DelayedStart()
 	// Replace window title
 	PatchWindowTitle();
 
+	// Fix window icon
+	PatchWindowIcon();
+
 	// Get wrapper mode
 	Wrapper::GetWrapperMode();
 

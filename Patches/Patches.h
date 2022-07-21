@@ -119,6 +119,7 @@ void PatchSpecificSoundLoopFix();
 void PatchTexAddr();
 void PatchTownWestGateEvent();
 void PatchTreeLighting();
+void PatchWindowIcon();
 void PatchWindowTitle();
 void PatchXInputVibration();
 void PatchSaveGameSound();

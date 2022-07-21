@@ -16,21 +16,24 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include "resource.h"
+#include "Common\Settings.h"
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
-#include "External/Hooking.Patterns/Hooking.Patterns.h"
-
-HWND __stdcall CreateWindowExA_Hook(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
-{
-	UNREFERENCED_PARAMETER(lpWindowName);
-
-	return CreateWindowExA(dwExStyle, lpClassName, "Silent Hill 2: Enhanced Edition" , dwStyle, X, Y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
-}
+#include "External\Hooking.Patterns\Hooking.Patterns.h"
 
 // Replace the vanilla "SH2PC Title" with ours
 void PatchWindowTitle()
 {
-	Logging::Log() << "Patching window title...";
+	struct ClassHandler
+	{
+		static HWND WINAPI CreateWindowExAHandler(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
+		{
+			UNREFERENCED_PARAMETER(lpWindowName);
+
+			return CreateWindowExA(dwExStyle, lpClassName, "Silent Hill 2: Enhanced Edition", dwStyle, X, Y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
+		}
+	};
 
 	auto pattern = hook::pattern("FF 15 ? ? ? ? 85 C0 A3 ? ? ? ? 74 ? 8B 0D ? ? ? ? 6A");
 	if (pattern.size() != 1)
@@ -39,5 +42,41 @@ void PatchWindowTitle()
 		return;
 	}
 
-	WriteCalltoMemory((BYTE*)pattern.count(1).get(0).get<uint32_t*>(0), CreateWindowExA_Hook, 6);
+	Logging::Log() << "Patching window title...";
+
+	WriteCalltoMemory((BYTE*)pattern.count(1).get(0).get<uint32_t*>(0), ClassHandler::CreateWindowExAHandler, 6);
+}
+
+// Add icon to the Windows taskbar
+void PatchWindowIcon()
+{
+	struct ClassHandler
+	{
+		static ATOM WINAPI RegisterClassExAHandler(WNDCLASSEXA* lpwcx)
+		{
+			lpwcx->hIcon = LoadIconA(m_hModule, MAKEINTRESOURCEA(OIC_SH2_ICON));
+			lpwcx->hIconSm = LoadIconA(m_hModule, MAKEINTRESOURCEA(OIC_SH2_ICON));
+			lpwcx->hbrBackground = CreateSolidBrush(RGB(0, 0, 0));
+			if (!lpwcx->hIcon || !lpwcx->hIconSm)
+			{
+				Logging::Log() << __FUNCTION__ " Error: failed to create icon!";
+			}
+
+			return RegisterClassExA(lpwcx);
+		}
+	};
+
+	// Get RegisterClass address
+	constexpr BYTE SearchBytesRegisterClass[]{ 0x8D, 0x4C, 0x24, 0x04, 0x51, 0x89, 0x44, 0x24, 0x24, 0xC7, 0x44, 0x24, 0x28, 0x06, 0x00, 0x00, 0x00, 0x89, 0x74, 0x24, 0x2C, 0xC7, 0x44, 0x24, 0x30 };
+	DWORD RegisterClassAddr = SearchAndGetAddresses(0x0040699E, 0x0040699E, 0x004069AE, SearchBytesRegisterClass, sizeof(SearchBytesRegisterClass), 0x21);
+
+	if (!RegisterClassAddr)
+	{
+		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+		return;
+	}
+
+	Logging::Log() << "Patching window icon...";
+
+	WriteCalltoMemory((BYTE*)RegisterClassAddr, ClassHandler::RegisterClassExAHandler, 6);
 }

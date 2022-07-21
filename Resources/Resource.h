@@ -3,6 +3,8 @@
 #include "BuildNo.rc"
 
 // Included resource files
+#define OIC_SH2_ICON                    151
+
 #define IDR_RESHADE_INI                 101
 #define IDR_SETTINGS_INI                102
 #define IDR_LANG_RES                    103

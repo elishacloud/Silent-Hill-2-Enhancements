@@ -29,9 +29,11 @@ void PatchWindowTitle()
 	{
 		static HWND WINAPI CreateWindowExAHandler(DWORD dwExStyle, LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
 		{
-			UNREFERENCED_PARAMETER(lpWindowName);
+			lpWindowName = "Silent Hill 2: Enhanced Edition";
+			X = 0;
+			Y = 0;
 
-			return CreateWindowExA(dwExStyle, lpClassName, "Silent Hill 2: Enhanced Edition", dwStyle, X, Y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
+			return CreateWindowExA(dwExStyle, lpClassName, lpWindowName, dwStyle, X, Y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
 		}
 	};
 

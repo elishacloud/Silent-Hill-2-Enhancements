@@ -61,6 +61,10 @@ void LoadD3dx9()
 		d3dCompile43Module = LoadResourceToMemory(IDR_D3DCOMPI43_DLL);
 		d3dCompileModule = LoadResourceToMemory(IDR_D3DCOMPILE_DLL);
 
+		if (!d3dx9Module || (!d3dCompileModule && !d3dCompile43Module))
+		{
+			Logging::Log() << __FUNCTION__ << "Error: failed to load d3dx9 modules!";
+		}
 		if (d3dx9Module)
 		{
 			p_D3DXAssembleShader = reinterpret_cast<PFN_D3DXAssembleShader>(MemoryGetProcAddress(d3dx9Module, "D3DXAssembleShader"));
@@ -155,10 +159,18 @@ HRESULT WINAPI D3DXLoadSurfaceFromSurface(LPDIRECT3DSURFACE9 pDestSurface, const
 
 	if (p_D3DXLoadSurfaceFromSurface)
 	{
-		return p_D3DXLoadSurfaceFromSurface(pDestSurface, pDestPalette, pDestRect, pSrcSurface, pSrcPalette, pSrcRect, Filter, ColorKey);
+		LOG_ONCE(__FUNCTION__ << " Error: Could not find ProcAddress!");
+		return D3DERR_INVALIDCALL;
 	}
 
-	return D3DERR_INVALIDCALL;
+	HRESULT hr = p_D3DXLoadSurfaceFromSurface(pDestSurface, pDestPalette, pDestRect, pSrcSurface, pSrcPalette, pSrcRect, Filter, ColorKey);
+
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to Copy surface!";
+	}
+
+	return hr;
 }
 
 HRESULT WINAPI D3DAssemble(const void *pSrcData, SIZE_T SrcDataSize, const char *pFileName, const D3D_SHADER_MACRO *pDefines, ID3DInclude *pInclude, UINT Flags, ID3DBlob **ppShader, ID3DBlob **ppErrorMsgs)
@@ -166,6 +178,12 @@ HRESULT WINAPI D3DAssemble(const void *pSrcData, SIZE_T SrcDataSize, const char 
 	Logging::LogDebug() << __FUNCTION__;
 
 	LoadD3dx9();
+
+	if (!p_D3DAssemble && !p_D3DAssemble43)
+	{
+		LOG_ONCE(__FUNCTION__ << " Error: Could not find ProcAddress!");
+		return D3DERR_INVALIDCALL;
+	}
 
 	HRESULT hr = D3DERR_INVALIDCALL;
 
@@ -193,6 +211,12 @@ HRESULT WINAPI D3DCompile(LPCVOID pSrcData, SIZE_T SrcDataSize, LPCSTR pSourceNa
 
 	LoadD3dx9();
 
+	if (!p_D3DCompile && !p_D3DCompile43)
+	{
+		LOG_ONCE(__FUNCTION__ << " Error: Could not find ProcAddress!");
+		return D3DERR_INVALIDCALL;
+	}
+
 	HRESULT hr = D3DERR_INVALIDCALL;
 
 	if (p_D3DCompile)
@@ -218,6 +242,12 @@ HRESULT WINAPI D3DDisassemble(LPCVOID pSrcData, SIZE_T SrcDataSize, UINT Flags, 
 	Logging::LogDebug() << __FUNCTION__;
 
 	LoadD3dx9();
+
+	if (!p_D3DDisassemble && !p_D3DDisassemble43)
+	{
+		LOG_ONCE(__FUNCTION__ << " Error: Could not find ProcAddress!");
+		return D3DERR_INVALIDCALL;
+	}
 
 	HRESULT hr = D3DERR_INVALIDCALL;
 

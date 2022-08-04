@@ -27,14 +27,16 @@ HMODULE GetD3d8ScriptDll()
 
 	// Get script paths
 	wchar_t scriptpath[MAX_PATH];
-	if (GetSH2FolderPath(scriptpath, MAX_PATH) && wcsrchr(scriptpath, '\\'))
+	bool ret = GetSH2FolderPath(scriptpath, MAX_PATH);
+	wchar_t* pdest = wcsrchr(scriptpath, '\\');
+	if (ret && pdest)
 	{
-		wcscpy_s(wcsrchr(scriptpath, '\\'), MAX_PATH - wcslen(scriptpath), L"\0");
+		*(pdest + 1) = '\0';
 	}
-	std::wstring script_path(scriptpath + std::wstring(L"\\scripts"));
-	std::wstring script_path_dll(script_path + L"\\d3d8.dll");
-	std::wstring plugin_path(scriptpath + std::wstring(L"\\plugins"));
-	std::wstring plugin_path_dll(plugin_path + L"\\d3d8.dll");
+	std::wstring script_path(scriptpath + std::wstring(L"scripts"));
+	std::wstring script_path_dll(script_path + L"d3d8.dll");
+	std::wstring plugin_path(scriptpath + std::wstring(L"plugins"));
+	std::wstring plugin_path_dll(plugin_path + L"d3d8.dll");
 
 	// Store the current folder
 	wchar_t currentDir[MAX_PATH] = { 0 };

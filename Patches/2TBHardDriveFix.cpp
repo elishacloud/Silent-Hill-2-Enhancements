@@ -149,9 +149,11 @@ DWORD GetDiskSpace()
 
 	if (GetFolder)
 	{
-		if (GetSH2FolderPath(DirectoryName, MAX_PATH) && wcsrchr(DirectoryName, '\\'))
+		bool ret = GetSH2FolderPath(DirectoryName, MAX_PATH);
+		wchar_t* pdest = wcsrchr(DirectoryName, '\\');
+		if (ret && pdest)
 		{
-			wcscpy_s(wcsrchr(DirectoryName, '\\'), MAX_PATH - wcslen(DirectoryName), L"\0");
+			*pdest = '\0';
 		}
 
 		GetFolder = false;

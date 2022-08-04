@@ -16,10 +16,8 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include <psapi.h>
 #include <Shldisp.h>
 #include <shellapi.h>
-#include <Shlwapi.h>
 #include <string>
 #include <iostream>
 #include <filesystem>
@@ -28,6 +26,7 @@
 #include "Wrappers\d3d8\d3d8wrapper.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
+#include "Unicode.h"
 
 #ifndef _DPI_AWARENESS_CONTEXTS_
 
@@ -572,10 +571,8 @@ HMEMORYMODULE LoadResourceToMemory(DWORD ResID)
 	return nullptr;
 }
 
-template void ExtractFileFromResource<LPCSTR>(DWORD, LPCSTR);
-template void ExtractFileFromResource<LPCWSTR>(DWORD, LPCWSTR);
 template <typename T>
-void ExtractFileFromResource(DWORD ResID, T lpFilepath)
+void ExtractFileFromResourceT(DWORD ResID, T *lpFilepath)
 {
 	do {
 		HRSRC hResource = FindResource(m_hModule, MAKEINTRESOURCE(ResID), RT_RCDATA);
@@ -609,6 +606,15 @@ void ExtractFileFromResource(DWORD ResID, T lpFilepath)
 	} while (false);
 
 	Logging::Log() << __FUNCTION__ << " Error: could not extract the " << lpFilepath << " file!";
+}
+
+void ExtractFileFromResource(DWORD ResID, char* lpFilepath)
+{
+	return ExtractFileFromResourceT<char>(ResID, lpFilepath);
+}
+void ExtractFileFromResource(DWORD ResID, wchar_t* lpFilepath)
+{
+	return ExtractFileFromResourceT<wchar_t>(ResID, lpFilepath);
 }
 
 HRESULT UnZipFile(BSTR sourceZip, BSTR destFolder)
@@ -707,38 +713,75 @@ HRESULT UnZipFile(BSTR sourceZip, BSTR destFolder)
 
 bool GetModulePath(char *path, rsize_t size)
 {
-	static char modpath[MAX_PATH] = { '\0' };
+	static char modpath[MAX_PATH] = {};
 
-	static bool ret = (GetModuleFileNameA(m_hModule, modpath, MAX_PATH) != 0);
+	static bool ret = (GetModuleFileName(m_hModule, modpath, MAX_PATH) != 0);
 
 	return (strcpy_s(path, size, modpath) == 0 && ret);
 }
 
 bool GetModulePath(wchar_t *path, rsize_t size)
 {
-	static wchar_t modpath[MAX_PATH] = { '\0' };
+	static wchar_t modpath[MAX_PATH] = {};
 
-	static bool ret = (GetModuleFileNameW(m_hModule, modpath, MAX_PATH) != 0);
+	static bool ret = (GetModuleFileName(m_hModule, modpath, MAX_PATH) != 0);
 
 	return (wcscpy_s(path, size, modpath) == 0 && ret);
 }
 
 bool GetSH2FolderPath(char *path, rsize_t size)
 {
-	static char sh2path[MAX_PATH] = { '\0' };
+	static char sh2path[MAX_PATH] = {};
 
-	static bool ret = (GetModuleFileNameA(nullptr, sh2path, MAX_PATH) != 0);
+	static bool ret = (GetModuleFileName(nullptr, sh2path, MAX_PATH) != 0);
 
 	return (strcpy_s(path, size, sh2path) == 0 && ret);
 }
 
 bool GetSH2FolderPath(wchar_t *path, rsize_t size)
 {
-	static wchar_t sh2path[MAX_PATH] = { '\0' };
+	static wchar_t sh2path[MAX_PATH] = {};
 
-	static bool ret = (GetModuleFileNameW(nullptr, sh2path, MAX_PATH) != 0);
+	static bool ret = (GetModuleFileName(nullptr, sh2path, MAX_PATH) != 0);
 
 	return (wcscpy_s(path, size, sh2path) == 0 && ret);
+}
+
+template <typename T>
+bool GetConfigNameT(T* ConfigName, T* ext)
+{
+	bool ret = GetModulePath(ConfigName, MAX_PATH);
+	T* pdest = strrchr(ConfigName, '\\');
+	if (ret && pdest)
+	{
+		T name[MAX_PATH] = {};
+		strcpy_s(name, MAX_PATH, pdest + 1);
+
+		pdest = strrchr(name, '.');
+		if (pdest)
+		{
+			*pdest = '\0';
+		}
+
+		pdest = strrchr(ConfigName, '\\');
+		if (pdest)
+		{
+			*(pdest + 1) = '\0';
+		}
+		strcat_s(ConfigName, MAX_PATH, tostring(TransformLower(name) + ext).c_str());
+
+		return true;
+	}
+	return false;
+}
+
+bool GetConfigName(char* ConfigName, char* ext)
+{
+	return GetConfigNameT<char>(ConfigName, ext);
+}
+bool GetConfigName(wchar_t* ConfigName, wchar_t* ext)
+{
+	return GetConfigNameT<wchar_t>(ConfigName, ext);
 }
 
 bool CheckPathNameMatch(LPCSTR lpFileName1, LPCSTR lpFileName2)
@@ -895,7 +938,51 @@ bool WriteRegistryStruct(const std::wstring& lpzSection, const std::wstring& lpz
 	return true;
 }
 
-HRESULT GetResolutionFromConfig(DWORD &Width, DWORD &Height);
+struct CFGDATA
+{
+	DWORD Width = 0;
+	DWORD Height = 0;
+};
+
+HRESULT GetResolutionFromConfig(DWORD &Width, DWORD &Height)
+{
+	wchar_t ConfigName[MAX_PATH] = {};
+	if (!GetConfigName(ConfigName, L".cfg") || !PathFileExists(ConfigName))
+	{
+		return E_FAIL;
+	}
+
+	HANDLE hFile;
+	const DWORD BytesToRead = sizeof(CFGDATA);
+	DWORD dwBytesRead;
+
+	CFGDATA ConfigData;
+	hFile = CreateFile(ConfigName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		LOG_LIMIT(100, __FUNCTION__ << " Error: failed to open file: '" << ConfigName << "'");
+		return E_FAIL;
+	}
+
+	BOOL hRet = ReadFile(hFile, (void*)&ConfigData, BytesToRead, &dwBytesRead, nullptr);
+	if (dwBytesRead != BytesToRead || hRet == FALSE)
+	{
+		CloseHandle(hFile);
+		return E_FAIL;
+	}
+
+	if (ConfigData.Width && ConfigData.Height)
+	{
+		Width = ConfigData.Width;
+		Height = ConfigData.Height;
+
+		CloseHandle(hFile);
+		return S_OK;
+	}
+
+	CloseHandle(hFile);
+	return E_FAIL;
+}
 
 void MigrateRegistry()
 {
@@ -936,72 +1023,6 @@ void MigrateRegistry()
 	return;
 }
 
-bool GetConfigName(char *ConfigName)
-{
-	if (GetModulePath(ConfigName, MAX_PATH) && strrchr(ConfigName, '\\'))
-	{
-		char t_name[MAX_PATH] = {};
-		strcpy_s(t_name, MAX_PATH - strlen(ConfigName) - 1, strrchr(ConfigName, '\\') + 1);
-		if (strrchr(ConfigName, '.'))
-		{
-			strcpy_s(strrchr(t_name, '.'), MAX_PATH - strlen(t_name), "\0");
-		}
-		strcpy_s(strrchr(ConfigName, '\\'), MAX_PATH - strlen(ConfigName), "\0");
-		std::string name(t_name);
-		std::transform(name.begin(), name.end(), name.begin(), [](char c) { return (char)towlower(c); });
-		strcpy_s(ConfigName, MAX_PATH, std::string(std::string(ConfigName) + "\\" + name + ".cfg").c_str());
-
-		return true;
-	}
-	return false;
-}
-
-struct CFGDATA
-{
-	DWORD Width = 0;
-	DWORD Height = 0;
-};
-
-HRESULT GetResolutionFromConfig(DWORD &Width, DWORD &Height)
-{
-	char ConfigName[MAX_PATH] = {};
-	if (!GetConfigName(ConfigName) || !PathFileExistsA(ConfigName))
-	{
-		return E_FAIL;
-	}
-
-	HANDLE hFile;
-	const DWORD BytesToRead = sizeof(CFGDATA);
-	DWORD dwBytesRead;
-
-	CFGDATA ConfigData;
-	hFile = CreateFileA(ConfigName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
-	if (hFile == INVALID_HANDLE_VALUE)
-	{
-		LOG_LIMIT(100, __FUNCTION__ << " Error: failed to open file: '" << ConfigName << "'");
-		return E_FAIL;
-	}
-
-	BOOL hRet = ReadFile(hFile, (void*)&ConfigData, BytesToRead, &dwBytesRead, nullptr);
-	if (dwBytesRead != BytesToRead || hRet == FALSE)
-	{
-		CloseHandle(hFile);
-		return E_FAIL;
-	}
-
-	if (ConfigData.Width && ConfigData.Height)
-	{
-		Width = ConfigData.Width;
-		Height = ConfigData.Height;
-
-		CloseHandle(hFile);
-		return S_OK;
-	}
-
-	CloseHandle(hFile);
-	return E_FAIL;
-}
-
 HRESULT GetSavedResolution(DWORD &Width, DWORD &Height)
 {
 	// Migrate old registry keys to config file 
@@ -1013,8 +1034,8 @@ HRESULT GetSavedResolution(DWORD &Width, DWORD &Height)
 
 HRESULT SaveResolution(DWORD Width, DWORD Height)
 {
-	char ConfigName[MAX_PATH] = {};
-	if (!GetConfigName(ConfigName))
+	wchar_t ConfigName[MAX_PATH] = {};
+	if (!GetConfigName(ConfigName, L".cfg"))
 	{
 		return E_FAIL;
 	}
@@ -1024,7 +1045,7 @@ HRESULT SaveResolution(DWORD Width, DWORD Height)
 	DWORD dwBytesWritten;
 
 	CFGDATA ConfigData = { Width, Height };
-	hFile = CreateFileA(ConfigName, GENERIC_WRITE, FILE_SHARE_WRITE, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+	hFile = CreateFile(ConfigName, GENERIC_WRITE, FILE_SHARE_WRITE, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
 		LOG_LIMIT(100, __FUNCTION__ << " Error: failed to open file: '" << ConfigName << "'");
@@ -1046,9 +1067,11 @@ HRESULT SaveResolution(DWORD Width, DWORD Height)
 void LogDirectory()
 {
 	wchar_t path[MAX_PATH];
-	if (GetSH2FolderPath(path, MAX_PATH) && wcsrchr(path, '\\'))
+	bool ret = GetSH2FolderPath(path, MAX_PATH);
+	wchar_t* pdest = wcsrchr(path, '\\');
+	if (ret && pdest)
 	{
-		wcscpy_s(wcsrchr(path, '\\'), MAX_PATH - wcslen(path), L"\0");
+		*pdest = '\0';
 	}
 
 	Logging::Log() << "|- ";

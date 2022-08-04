@@ -24,13 +24,15 @@ void AddHandleToVector(HMODULE dll);
 void UnloadAllModules();
 DWORD ConvertFloat(float num);
 HMEMORYMODULE LoadResourceToMemory(DWORD ResID);
-template <typename T>
-void ExtractFileFromResource(DWORD ResID, T lpFilepath);
+void ExtractFileFromResource(DWORD ResID, char* lpFilepath);
+void ExtractFileFromResource(DWORD ResID, wchar_t* lpFilepath);
 HRESULT UnZipFile(BSTR sourceZip, BSTR destFolder);
 bool GetModulePath(char *path, rsize_t size);
 bool GetModulePath(wchar_t *path, rsize_t size);
 bool GetSH2FolderPath(char *path, rsize_t size);
 bool GetSH2FolderPath(wchar_t *path, rsize_t size);
+bool GetConfigName(char* ConfigName, char* ext);
+bool GetConfigName(wchar_t* ConfigName, wchar_t* ext);
 bool CheckPathNameMatch(LPCSTR lpFileName1, LPCSTR lpFileName2);
 void CopyReplaceSlash(char* DestStr, size_t Size, LPCSTR SrcStr);
 BOOL GetAppsLightMode();

@@ -484,14 +484,16 @@ void GetAllExeFiles()
 	// Get the tools process name
 	std::wstring toolname;
 	wchar_t path[MAX_PATH] = { '\0' };
-	if (!GetModuleFileNameEx(GetCurrentProcess(),nullptr, path, MAX_PATH) || !wcsrchr(path, '\\'))
+	bool ret = (GetModuleFileNameEx(GetCurrentProcess(), nullptr, path, MAX_PATH) != 0);
+	wchar_t* pdest = wcsrchr(path, '\\');
+	if (!ret || !pdest)
 	{
 		return;
 	}
 
 	// Store tool name and path
-	toolname.assign(wcsrchr(path, '\\') + 1);
-	wcscpy_s(wcsrchr(path, '\\'), MAX_PATH - wcslen(path), L"\0");
+	toolname.assign(pdest + 1);
+	*pdest = '\0';
 
 	// Interate through all files in the folder
 	for (const auto & entry : std::filesystem::directory_iterator(path))

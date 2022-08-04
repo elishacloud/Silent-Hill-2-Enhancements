@@ -20,7 +20,6 @@
 #include <urlmon.h>
 #include <sstream>
 #include <iostream>
-#include <shlwapi.h>
 #include <fstream>
 #include <string>
 #include <regex>
@@ -31,6 +30,7 @@
 #include "Logging\Logging.h"
 #include "Resource.h"
 #include "External\csvparser\src\rapidcsv.h"
+#include "Unicode.h"
 
 // Should be updated if we move the .csv
 #define SH2EE_UPDATE_URL "http://www.enhanced.townofsilenthill.com/SH2/files/_sh2ee.csv"
@@ -296,37 +296,28 @@ bool NewProjectReleaseAvailable(std::string &path_str)
 	return false;
 }
 
-void GetSH2Path(std::string &path, std::string &name)
+template<typename T, typename D>
+void GetSH2Path(T &path, T &name)
 {
-	char t_path[MAX_PATH] = {}, t_name[MAX_PATH] = {};
-	if (GetModulePath(t_path, MAX_PATH) && strrchr(t_path, '\\'))
+	D t_path[MAX_PATH] = {}, t_name[MAX_PATH] = {};
+	bool ret = GetModulePath(t_path, MAX_PATH);
+	D* pdest = strrchr(t_path, '\\');
+	if (ret && pdest)
 	{
-		strcpy_s(t_name, MAX_PATH - strlen(t_path) - 1, strrchr(t_path, '\\') + 1);
-		if (strrchr(t_path, '.'))
+		strcpy_s(t_name, MAX_PATH - strlen(t_path), pdest + 1);
+		pdest = strrchr(t_name, '.');
+		if (pdest)
 		{
-			strcpy_s(strrchr(t_name, '.'), MAX_PATH - strlen(t_name), "\0");
+			*pdest = '\0';
 		}
-		strcpy_s(strrchr(t_path, '\\'), MAX_PATH - strlen(t_path), "\0");
+		pdest = strrchr(t_path, '\\');
+		if (pdest)
+		{
+			*(pdest + 1) = '\0';
+		}
 		path.assign(t_path);
 		name.assign(t_name);
-		std::transform(name.begin(), name.end(), name.begin(), [](char c) { return (char)towlower(c); });
-	}
-}
-
-void GetSH2Path(std::wstring &path, std::wstring &name)
-{
-	wchar_t t_path[MAX_PATH] = {}, t_name[MAX_PATH] = {};
-	if (GetModulePath(t_path, MAX_PATH) && wcsrchr(t_path, '\\'))
-	{
-		wcscpy_s(t_name, MAX_PATH - wcslen(t_path) - 1, wcsrchr(t_path, '\\') + 1);
-		if (wcsrchr(t_path, '.'))
-		{
-			wcscpy_s(wcsrchr(t_name, '.'), MAX_PATH - wcslen(t_name), L"\0");
-		}
-		wcscpy_s(wcsrchr(t_path, '\\'), MAX_PATH - wcslen(t_path), L"\0");
-		path.assign(t_path);
-		name.assign(t_name);
-		std::transform(name.begin(), name.end(), name.begin(), [](wchar_t c) { return towlower(c); });
+		std::transform(name.begin(), name.end(), name.begin(), [](D c) { return (D)towlower(c); });
 	}
 }
 
@@ -560,7 +551,7 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 {
 	// Get Silent Hill 2 folder paths
 	std::wstring path, name;
-	GetSH2Path(path, name);
+	GetSH2Path<std::wstring, wchar_t>(path, name);
 	if (m_StopThreadFlag || path.empty() || name.empty())
 	{
 		Logging::Log() << __FUNCTION__ " Failed to get module path or name!";
@@ -578,7 +569,7 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 	// Check if file exists in the path
 	std::string urlDownload;
 	std::string path_str, name_str;
-	GetSH2Path(path_str, name_str);
+	GetSH2Path<std::string, char>(path_str, name_str);
 	if (PathFileExistsA(std::string(path_str + "\\" + SH2EE_SETUP_DATA_FILE).c_str()) && PathFileExistsA(std::string(path_str + "\\" + SH2EE_SETUP_EXE_FILE).c_str()))
 	{
 		Logging::Log() << __FUNCTION__ " " << SH2EE_SETUP_DATA_FILE << " exists, using CSV for update checking...";

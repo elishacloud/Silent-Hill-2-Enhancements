@@ -189,7 +189,11 @@ void CheckAdminAccess()
 		// Get path for temp file
 		wchar_t tmpfile[MAX_PATH];
 		wcscpy_s(tmpfile, MAX_PATH, sh2path);
-		wcscpy_s(wcsrchr(tmpfile, '\\'), MAX_PATH - wcslen(tmpfile), L"\0");
+		wchar_t* pdest = wcsrchr(tmpfile, '\\');
+		if (pdest)
+		{
+			*pdest = '\0';
+		}
 		wcscat_s(tmpfile, MAX_PATH, L"\\~sh2check.dll");		// Needs to be a dll or exe file to bypass Windows' VirtualStore
 
 		// Check if file can be created in Silent Hill 2 folder

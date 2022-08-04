@@ -49,25 +49,13 @@ wchar_t configpath[MAX_PATH] = {};
 
 void GetConfig()
 {
-	// Get config file path	
-	if (GetModulePath(configpath, MAX_PATH) && wcsrchr(configpath, '\\'))
-	{
-		wchar_t t_name[MAX_PATH] = {};
-		wcscpy_s(t_name, MAX_PATH - wcslen(configpath) - 1, wcsrchr(configpath, '\\') + 1);
-		if (wcsrchr(configpath, '.'))
-		{
-			wcscpy_s(wcsrchr(t_name, '.'), MAX_PATH - wcslen(t_name), L"\0");
-		}
-		wcscpy_s(wcsrchr(configpath, '\\'), MAX_PATH - wcslen(configpath), L"\0");
-		std::wstring name(t_name);
-		std::transform(name.begin(), name.end(), name.begin(), [](wchar_t c) { return towlower(c); });
-		wcscpy_s(configpath, MAX_PATH, std::wstring(std::wstring(configpath) + L"\\" + name + L".ini").c_str());
-	}
+	// Get config file path
+	GetConfigName(configpath, L".ini");
 
 	// Check if config file does not exist
 	if (!PathFileExists(configpath))
 	{
-		ExtractFileFromResource<LPCWSTR>(IDR_SETTINGS_INI, configpath);
+		ExtractFileFromResource(IDR_SETTINGS_INI, configpath);
 	}
 
 	// Read config file
@@ -79,9 +67,13 @@ void GetConfig()
 		IsLoadConfig = true;
 		Parse(szCfg, ParseCallback);
 		free(szCfg);
-
-		UpdateConfigDefaults();
 	}
+	else
+	{
+		MessageBox(0, L"Error loading ini file!", L"Silent Hill 2: Enhanced Edition", 0);
+	}
+
+	UpdateConfigDefaults();
 }
 
 void StartLogging()
@@ -89,9 +81,18 @@ void StartLogging()
 	// Get log file path and open log file
 	wchar_t logpath[MAX_PATH];
 	wcscpy_s(logpath, MAX_PATH, configpath);
-	wcscpy_s(wcsrchr(logpath, '.'), MAX_PATH - wcslen(logpath), L".log");
-	Logging::EnableLogging = !DisableLogging;
-	Logging::Open(logpath);
+
+	wchar_t* pdest = wcsrchr(logpath, '.');
+	if (pdest)
+	{
+		wcscpy_s(pdest + 1, MAX_PATH - wcslen(logpath), L"log");
+		Logging::EnableLogging = !DisableLogging;
+		Logging::Open(logpath);
+	}
+	else
+	{
+		MessageBox(0, L"Error creating log file!", L"Silent Hill 2: Enhanced Edition", 0);
+	}
 
 	// Starting
 	Logging::Log() << "Starting Silent Hill 2 Enhancements! v" << APP_VERSION;
@@ -230,6 +231,12 @@ void DelayedStart()
 	if (RestoreVibration)
 	{
 		HookDirectInput8Create();
+	}
+
+	// Hook CreateFile API when using UseCustomModFolder
+	if (UseCustomModFolder)
+	{
+		InstallFileSystemHooks(m_hModule);
 	}
 
 	// Enable No-CD Patch
@@ -613,12 +620,6 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			InstallCreateProcessHooks();
 		}
 
-		// Hook CreateFile API when using UseCustomModFolder
-		if (UseCustomModFolder)
-		{
-			InstallFileSystemHooks(m_hModule);
-		}
-
 		// Set single core affinity
 		if (SingleCoreAffinityLegacy)
 		{
@@ -627,9 +628,8 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 
 		// Set things to load on delayed access
 		SetDelayedStart();
-
-		break;
 	}
+	break;
 	case DLL_THREAD_ATTACH:
 		break;
 	case DLL_THREAD_DETACH:
@@ -657,7 +657,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		if (wrapper_dll)
 		{
 			FreeModule(wrapper_dll);
-		}
+	}
 #endif // DEBUG
 
 		// Reenabling screensaver
@@ -672,9 +672,8 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 
 		// Quitting
 		Logging::Log() << "Unloading Silent Hill 2 Enhancements!";
-
-		break;
 	}
+	break;
 	}
 
 	return true;

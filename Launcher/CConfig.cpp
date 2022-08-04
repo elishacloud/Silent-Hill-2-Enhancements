@@ -147,10 +147,16 @@ bool GetXMLfromResoruce(XMLDocument &xml)
 std::string GetProcessNameXml()
 {
 	char path[MAX_PATH] = { '\0' };
-	if (GetProcessImageFileNameA(GetCurrentProcess(), path, MAX_PATH) && strrchr(path, '\\') && strrchr(path, '.'))
+	bool ret = (GetProcessImageFileNameA(GetCurrentProcess(), path, MAX_PATH) != 0);
+	char* pdest = strrchr(path, '.');
+	if (ret && pdest)
 	{
-		strcpy_s(strrchr(path, '.'), MAX_PATH - strlen(path), ".xml");
-		return std::string(strrchr(path, '\\') + 1);
+		strcpy_s(pdest, MAX_PATH - strlen(path), ".xml");
+		pdest = strrchr(path, '\\');
+		if (pdest)
+		{
+			return std::string(pdest + 1);
+		}
 	}
 
 	return std::string("");

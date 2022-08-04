@@ -157,7 +157,7 @@ HRESULT WINAPI D3DXLoadSurfaceFromSurface(LPDIRECT3DSURFACE9 pDestSurface, const
 
 	LoadD3dx9();
 
-	if (p_D3DXLoadSurfaceFromSurface)
+	if (!p_D3DXLoadSurfaceFromSurface)
 	{
 		LOG_ONCE(__FUNCTION__ << " Error: Could not find ProcAddress!");
 		return D3DERR_INVALIDCALL;

@@ -81,9 +81,11 @@ void LoadASIPlugins(bool LoadFromScriptsOnlyFlag)
 	GetCurrentDirectory(MAX_PATH, oldDir);
 
 	wchar_t selfPath[MAX_PATH] = { 0 };
-	if (GetModulePath(selfPath, MAX_PATH) && wcsrchr(selfPath, '\\'))
+	bool ret = GetModulePath(selfPath, MAX_PATH);
+	wchar_t* pdest = wcsrchr(selfPath, '\\');
+	if (ret && pdest)
 	{
-		*wcsrchr(selfPath, '\\') = '\0';
+		*pdest = '\0';
 	}
 	SetCurrentDirectory(selfPath);
 

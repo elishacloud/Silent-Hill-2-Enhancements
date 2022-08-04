@@ -51,13 +51,6 @@
 	visit(bgm_117, aix, L"\\sound\\adx\\town") \
 	visit(voice, afs, L"\\sound\\adx\\voice")
 
-extern bool FileEnabled;
-extern char ConfigNameA[MAX_PATH];
-extern wchar_t ConfigNameW[MAX_PATH];
-
-extern char ModPathA[MAX_PATH];
-extern wchar_t ModPathW[MAX_PATH];
-
 template<typename T, typename D>
 T UpdateModPath(T sh2, D str);
 

@@ -559,6 +559,9 @@
     <ClInclude Include="Wrappers\d3d9\d3dx9.h">
       <Filter>Wrappers\d3d9</Filter>
     </ClInclude>
+    <ClInclude Include="Common\Unicode.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\sh2-enhce.rc">

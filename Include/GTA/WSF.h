@@ -144,10 +144,7 @@ public:
 		{
 			// Get config file path
 			char configpath[MAX_PATH];
-			if (GetModulePath(configpath, MAX_PATH) && strrchr(configpath, '.'))
-			{
-				strcpy_s(strrchr(configpath, '.'), MAX_PATH - strlen(configpath), ".ini");
-			}
+			GetConfigName(configpath, ".ini");
 			m_szFileName.assign(configpath);
 		}
 		return m_szFileName;

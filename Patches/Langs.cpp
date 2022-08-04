@@ -706,15 +706,12 @@ HRESULT PatchCustomExeStr()
 	gLangID = (BYTE *)*(DWORD *)((BYTE*)DLangAddrA - 2);
 
 	char txtpath[MAX_PATH];
-	if (GetModulePath(txtpath, MAX_PATH) && strrchr(txtpath, '.'))
-	{
-		strcpy_s(strrchr(txtpath, '.'), MAX_PATH - strlen(txtpath), ".res");
-	}
+	GetConfigName(txtpath, ".res");
 
 	// Check if config file does not exist
 	if (!PathFileExistsA(txtpath))
 	{
-		ExtractFileFromResource<LPCSTR>(IDR_LANG_RES, txtpath);
+		ExtractFileFromResource(IDR_LANG_RES, txtpath);
 	}
 
 	ifstream file(txtpath);

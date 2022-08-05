@@ -706,7 +706,7 @@ HRESULT PatchCustomExeStr()
 	gLangID = (BYTE *)*(DWORD *)((BYTE*)DLangAddrA - 2);
 
 	char txtpath[MAX_PATH];
-	GetConfigName(txtpath, ".res");
+	GetConfigName(txtpath, MAX_PATH, ".res");
 
 	// Check if config file does not exist
 	if (!PathFileExistsA(txtpath))

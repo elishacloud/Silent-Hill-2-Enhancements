@@ -471,7 +471,7 @@ void SetWindowTheme(HWND hWnd)
 	if (DwmSetWindowAttribute && hWnd)
 	{
 		LOG_ONCE("Setting Window Attributes...");
-		BOOL fBool = !GetAppsLightMode();
+		BOOL fBool = (GetAppsLightMode() == 0);
 		DwmSetWindowAttribute(hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &fBool, sizeof(BOOL));
 	}
 }
@@ -711,22 +711,58 @@ HRESULT UnZipFile(BSTR sourceZip, BSTR destFolder)
 	return hr;
 }
 
+DWORD WINAPI GetModuleFileNameT(HMODULE hModule, LPSTR lpFilename, DWORD nSize)
+{
+	DWORD val = GetModuleFileNameA(hModule, lpFilename, nSize);
+	if (!PathFileExistsA(lpFilename) && hModule == m_hModule)
+	{
+		bool ret = GetModuleFileNameA(nullptr, lpFilename, nSize);
+		char* pdest = strrchr(lpFilename, '\\');
+		if (ret && pdest)
+		{
+			*(pdest + 1) = '\0';
+			strcat_s(lpFilename, nSize, "d3d8.dll");
+			return strlen(lpFilename);
+		}
+		return 0;
+	}
+	return val;
+}
+
+DWORD WINAPI GetModuleFileNameT(HMODULE hModule, LPWSTR lpFilename, DWORD nSize)
+{
+	DWORD val = GetModuleFileNameW(hModule, lpFilename, nSize);
+	if (!PathFileExistsW(lpFilename) && hModule == m_hModule)
+	{
+		bool ret = GetModuleFileNameW(nullptr, lpFilename, nSize);
+		wchar_t* pdest = wcsrchr(lpFilename, '\\');
+		if (ret && pdest)
+		{
+			*(pdest + 1) = '\0';
+			wcscat_s(lpFilename, nSize, L"d3d8.dll");
+			return wcslen(lpFilename);
+		}
+		return 0;
+	}
+	return val;
+}
+
 bool GetModulePath(char *path, rsize_t size)
 {
 	static char modpath[MAX_PATH] = {};
 
-	static bool ret = (GetModuleFileName(m_hModule, modpath, MAX_PATH) != 0);
+	static bool ret = (GetModuleFileNameT(m_hModule, modpath, MAX_PATH) != 0);
 
-	return (strcpy_s(path, size, modpath) == 0 && ret);
+	return (ret && strcpy_s(path, size, modpath) == 0);
 }
 
 bool GetModulePath(wchar_t *path, rsize_t size)
 {
 	static wchar_t modpath[MAX_PATH] = {};
 
-	static bool ret = (GetModuleFileName(m_hModule, modpath, MAX_PATH) != 0);
+	static bool ret = (GetModuleFileNameT(m_hModule, modpath, MAX_PATH) != 0);
 
-	return (wcscpy_s(path, size, modpath) == 0 && ret);
+	return (ret && wcscpy_s(path, size, modpath) == 0);
 }
 
 bool GetSH2FolderPath(char *path, rsize_t size)
@@ -735,7 +771,7 @@ bool GetSH2FolderPath(char *path, rsize_t size)
 
 	static bool ret = (GetModuleFileName(nullptr, sh2path, MAX_PATH) != 0);
 
-	return (strcpy_s(path, size, sh2path) == 0 && ret);
+	return (ret && strcpy_s(path, size, sh2path) == 0);
 }
 
 bool GetSH2FolderPath(wchar_t *path, rsize_t size)
@@ -744,13 +780,13 @@ bool GetSH2FolderPath(wchar_t *path, rsize_t size)
 
 	static bool ret = (GetModuleFileName(nullptr, sh2path, MAX_PATH) != 0);
 
-	return (wcscpy_s(path, size, sh2path) == 0 && ret);
+	return (ret && wcscpy_s(path, size, sh2path) == 0);
 }
 
 template <typename T>
-bool GetConfigNameT(T* ConfigName, T* ext)
+bool GetConfigNameLowerT(T* ConfigName, rsize_t size)
 {
-	bool ret = GetModulePath(ConfigName, MAX_PATH);
+	bool ret = GetModulePath(ConfigName, size);
 	T* pdest = strrchr(ConfigName, '\\');
 	if (ret && pdest)
 	{
@@ -768,20 +804,33 @@ bool GetConfigNameT(T* ConfigName, T* ext)
 		{
 			*(pdest + 1) = '\0';
 		}
-		strcat_s(ConfigName, MAX_PATH, tostring(TransformLower(name) + ext).c_str());
+		strcat_s(ConfigName, size, TransformLower(name).c_str());
 
 		return true;
 	}
 	return false;
 }
 
-bool GetConfigName(char* ConfigName, char* ext)
+bool GetConfigName(char* ConfigName, rsize_t size, char* ext)
 {
-	return GetConfigNameT<char>(ConfigName, ext);
+	static char modpath[MAX_PATH] = {};
+
+	static bool ret = GetConfigNameLowerT<char>(modpath, size);
+
+	bool rt = (ret && strcpy_s(ConfigName, size, modpath) == 0);
+
+	return (ret && rt && strcat_s(ConfigName, size, ext) == 0);
 }
-bool GetConfigName(wchar_t* ConfigName, wchar_t* ext)
+
+bool GetConfigName(wchar_t* ConfigName, rsize_t size, wchar_t* ext)
 {
-	return GetConfigNameT<wchar_t>(ConfigName, ext);
+	static wchar_t modpath[MAX_PATH] = {};
+
+	static bool ret = GetConfigNameLowerT<wchar_t>(modpath, size);
+
+	bool rt = (ret && wcscpy_s(ConfigName, size, modpath) == 0);
+
+	return (ret && rt && wcscat_s(ConfigName, size, ext) == 0);
 }
 
 bool CheckPathNameMatch(LPCSTR lpFileName1, LPCSTR lpFileName2)
@@ -947,7 +996,7 @@ struct CFGDATA
 HRESULT GetResolutionFromConfig(DWORD &Width, DWORD &Height)
 {
 	wchar_t ConfigName[MAX_PATH] = {};
-	if (!GetConfigName(ConfigName, L".cfg") || !PathFileExists(ConfigName))
+	if (!GetConfigName(ConfigName, MAX_PATH, L".cfg") || !PathFileExists(ConfigName))
 	{
 		return E_FAIL;
 	}
@@ -1035,7 +1084,7 @@ HRESULT GetSavedResolution(DWORD &Width, DWORD &Height)
 HRESULT SaveResolution(DWORD Width, DWORD Height)
 {
 	wchar_t ConfigName[MAX_PATH] = {};
-	if (!GetConfigName(ConfigName, L".cfg"))
+	if (!GetConfigName(ConfigName, MAX_PATH, L".cfg"))
 	{
 		return E_FAIL;
 	}

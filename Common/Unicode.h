@@ -49,14 +49,14 @@ inline std::wstring tostring(std::wstring name)
 	return name;
 }
 
-inline std::string TransformLower(char name[])
+inline std::string TransformLower(char* name)
 {
 	std::string l_name(name);
 	std::transform(l_name.begin(), l_name.end(), l_name.begin(), [](char c) { return (char)towlower(c); });
 	return l_name;
 }
 
-inline std::wstring TransformLower(wchar_t name[])
+inline std::wstring TransformLower(wchar_t* name)
 {
 	std::wstring l_name(name);
 	std::transform(l_name.begin(), l_name.end(), l_name.begin(), [](wchar_t c) { return (wchar_t)towlower(c); });

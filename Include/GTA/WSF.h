@@ -144,7 +144,7 @@ public:
 		{
 			// Get config file path
 			char configpath[MAX_PATH];
-			GetConfigName(configpath, ".ini");
+			GetConfigName(configpath, MAX_PATH, ".ini");
 			m_szFileName.assign(configpath);
 		}
 		return m_szFileName;

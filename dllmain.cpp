@@ -50,7 +50,7 @@ wchar_t configpath[MAX_PATH] = {};
 void GetConfig()
 {
 	// Get config file path
-	GetConfigName(configpath, L".ini");
+	GetConfigName(configpath, MAX_PATH, L".ini");
 
 	// Check if config file does not exist
 	if (!PathFileExists(configpath))
@@ -68,31 +68,19 @@ void GetConfig()
 		Parse(szCfg, ParseCallback);
 		free(szCfg);
 	}
-	else
-	{
-		MessageBox(0, L"Error loading ini file!", L"Silent Hill 2: Enhanced Edition", 0);
-	}
 
 	UpdateConfigDefaults();
 }
 
 void StartLogging()
 {
-	// Get log file path and open log file
+	// Get log file path
 	wchar_t logpath[MAX_PATH];
-	wcscpy_s(logpath, MAX_PATH, configpath);
+	GetConfigName(logpath, MAX_PATH, L".log");
 
-	wchar_t* pdest = wcsrchr(logpath, '.');
-	if (pdest)
-	{
-		wcscpy_s(pdest + 1, MAX_PATH - wcslen(logpath), L"log");
-		Logging::EnableLogging = !DisableLogging;
-		Logging::Open(logpath);
-	}
-	else
-	{
-		MessageBox(0, L"Error creating log file!", L"Silent Hill 2: Enhanced Edition", 0);
-	}
+	// Open log file
+	Logging::EnableLogging = !DisableLogging;
+	Logging::Open(logpath);
 
 	// Starting
 	Logging::Log() << "Starting Silent Hill 2 Enhancements! v" << APP_VERSION;

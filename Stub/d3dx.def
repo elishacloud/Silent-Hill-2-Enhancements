@@ -1,0 +1,5 @@
+LIBRARY d3dx
+EXPORTS
+
+Direct3DCreate8
+GetMemoryModuleHandle

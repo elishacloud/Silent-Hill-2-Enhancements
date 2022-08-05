@@ -18,6 +18,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "stb", "ReShade\stb\stb.vcxp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Launcher", "Launcher\Launcher.vcxproj", "{35E748A9-07CD-4996-9270-DA4C77DB1DC4}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "d3dx", "Stub\d3dx.vcxproj", "{5117B33A-8FA9-4074-A340-8E4E11C9568D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -40,6 +42,10 @@ Global
 		{35E748A9-07CD-4996-9270-DA4C77DB1DC4}.Debug|Win32.Build.0 = Debug|Win32
 		{35E748A9-07CD-4996-9270-DA4C77DB1DC4}.Release|Win32.ActiveCfg = Release|Win32
 		{35E748A9-07CD-4996-9270-DA4C77DB1DC4}.Release|Win32.Build.0 = Release|Win32
+		{5117B33A-8FA9-4074-A340-8E4E11C9568D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5117B33A-8FA9-4074-A340-8E4E11C9568D}.Debug|Win32.Build.0 = Debug|Win32
+		{5117B33A-8FA9-4074-A340-8E4E11C9568D}.Release|Win32.ActiveCfg = Release|Win32
+		{5117B33A-8FA9-4074-A340-8E4E11C9568D}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -48,6 +54,7 @@ Global
 		{D1C2099B-BEC7-4993-8947-01D4A1F7EAE2} = {11B78243-91C3-4357-9FDD-4EAFBF4EE52B}
 		{723BDEF8-4A39-4961-BDAB-54074012FF47} = {11B78243-91C3-4357-9FDD-4EAFBF4EE52B}
 		{35E748A9-07CD-4996-9270-DA4C77DB1DC4} = {11B78243-91C3-4357-9FDD-4EAFBF4EE52B}
+		{5117B33A-8FA9-4074-A340-8E4E11C9568D} = {11B78243-91C3-4357-9FDD-4EAFBF4EE52B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D62E660A-3A0C-4026-8DCB-D3B7959E0951}

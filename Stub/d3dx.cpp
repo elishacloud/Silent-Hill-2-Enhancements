@@ -61,8 +61,8 @@ bool WINAPI DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
 		{
 			// Get log file path and open log file
 			wchar_t logpath[MAX_PATH];
-			bool ret = (GetModuleFileNameW(hModule, logpath, MAX_PATH) != 0);
-			wchar_t* pdest = wcsrchr(logpath, '.');
+			ret = (GetModuleFileNameW(hModule, logpath, MAX_PATH) != 0);
+			pdest = wcsrchr(logpath, '.');
 			if (ret && pdest)
 			{
 				wcscpy_s(pdest + 1, MAX_PATH - wcslen(logpath), L"log");

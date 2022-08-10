@@ -714,17 +714,37 @@ HRESULT UnZipFile(BSTR sourceZip, BSTR destFolder)
 DWORD WINAPI GetModuleFileNameT(HMODULE hModule, LPSTR lpFilename, DWORD nSize)
 {
 	DWORD val = GetModuleFileNameA(hModule, lpFilename, nSize);
-	if (!PathFileExistsA(lpFilename) && hModule == m_hModule)
+	if (hModule == m_hModule)
 	{
-		bool ret = GetModuleFileNameA(nullptr, lpFilename, nSize);
-		char* pdest = strrchr(lpFilename, '\\');
+		// Get SH2 path
+		char sh2path[MAX_PATH] = {};
+		bool ret = (GetModuleFileNameA(nullptr, sh2path, MAX_PATH) != 0);
+		char* pdest = strrchr(sh2path, '\\');
 		if (ret && pdest)
 		{
 			*(pdest + 1) = '\0';
-			strcat_s(lpFilename, nSize, "d3d8.dll");
-			return strlen(lpFilename);
 		}
-		return 0;
+
+		// Get module path
+		char modpath[MAX_PATH] = {};
+		ret = (strcpy_s(modpath, MAX_PATH, lpFilename) == 0);
+		pdest = strrchr(modpath, '\\');
+		if (ret && pdest)
+		{
+			*(pdest + 1) = '\0';
+		}
+
+		// Check if should return static d3d8.dll path
+		if (!PathFileExistsA(lpFilename) || _stricmp(modpath, sh2path) != 0)
+		{
+			ret = (strcat_s(sh2path, MAX_PATH, "d3d8.dll") == 0);
+			pdest = strrchr(sh2path, '\\');
+			if (ret && pdest)
+			{
+				strcpy_s(lpFilename, nSize, sh2path);
+				return strlen(lpFilename);
+			}
+		}
 	}
 	return val;
 }
@@ -732,17 +752,37 @@ DWORD WINAPI GetModuleFileNameT(HMODULE hModule, LPSTR lpFilename, DWORD nSize)
 DWORD WINAPI GetModuleFileNameT(HMODULE hModule, LPWSTR lpFilename, DWORD nSize)
 {
 	DWORD val = GetModuleFileNameW(hModule, lpFilename, nSize);
-	if (!PathFileExistsW(lpFilename) && hModule == m_hModule)
+	if (hModule == m_hModule)
 	{
-		bool ret = GetModuleFileNameW(nullptr, lpFilename, nSize);
-		wchar_t* pdest = wcsrchr(lpFilename, '\\');
+		// Get SH2 path
+		wchar_t sh2path[MAX_PATH] = {};
+		bool ret = (GetModuleFileNameW(nullptr, sh2path, MAX_PATH) != 0);
+		wchar_t* pdest = wcsrchr(sh2path, '\\');
 		if (ret && pdest)
 		{
 			*(pdest + 1) = '\0';
-			wcscat_s(lpFilename, nSize, L"d3d8.dll");
-			return wcslen(lpFilename);
 		}
-		return 0;
+
+		// Get module path
+		wchar_t modpath[MAX_PATH] = {};
+		ret = (wcscpy_s(modpath, MAX_PATH, lpFilename) == 0);
+		pdest = wcsrchr(modpath, '\\');
+		if (ret && pdest)
+		{
+			*(pdest + 1) = '\0';
+		}
+
+		// Check if should return static d3d8.dll path
+		if (!PathFileExistsW(lpFilename) || _wcsicmp(modpath, sh2path) != 0)
+		{
+			ret = (wcscat_s(sh2path, MAX_PATH, L"d3d8.dll") == 0);
+			pdest = wcsrchr(sh2path, '\\');
+			if (ret && pdest)
+			{
+				wcscpy_s(lpFilename, nSize, sh2path);
+				return wcslen(lpFilename);
+			}
+		}
 	}
 	return val;
 }

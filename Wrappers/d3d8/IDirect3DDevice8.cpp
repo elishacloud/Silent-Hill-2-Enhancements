@@ -3349,9 +3349,9 @@ void m_IDirect3DDevice8::DrawDebugOverlay(LPDIRECT3DDEVICE8 Interface)
 
 	D3DRECT BlackRectangle = { rectx1, recty1, rectx2, recty2 };
 	Interface->Clear(1, &BlackRectangle, D3DCLEAR_TARGET, D3DCOLOR_ARGB(255, 0, 0, 0), 0.0f, 0);
-
-	LPRECT TextRectangle;
-	SetRect(TextRectangle, rectx1 + padding, recty1 + padding, rectx2 - padding, recty2 - padding);
+	
+	RECT TextRectangle;
+	SetRect(&TextRectangle, rectx1 + padding, recty1 + padding, rectx2 - padding, recty2 - padding);
 
 	uint8_t RoomID = *(uint8_t*)(0x00AC7228);
 	uint8_t CutsceneID = *(uint8_t*)(0x01F7A7C4);
@@ -3366,30 +3366,34 @@ void m_IDirect3DDevice8::DrawDebugOverlay(LPDIRECT3DDEVICE8 Interface)
 
 	D3D8TEXT TextStruct;
 	TextStruct.String = OvlString.c_str();
-	TextStruct.Colour = D3DCOLOR_ARGB(255, 0, 0, 0);
-	TextStruct.Format = DT_NOCLIP | DT_LEFT;
-	TextStruct.Rect = TextRectangle;
+	TextStruct.Colour = D3DCOLOR_ARGB(255, 153, 255, 153);
+	TextStruct.Format = DT_NOCLIP | DT_SINGLELINE;
+	TextStruct.Rect.left = 100;
+	TextStruct.Rect.top = 50;
+	TextStruct.Rect.right =400;
+	TextStruct.Rect.bottom = 400;
 
 	DrawDebugText(Interface, TextStruct);
-
+	
 }
 
 
 void m_IDirect3DDevice8::DrawDebugText(LPDIRECT3DDEVICE8 Interface, D3D8TEXT FontStruct)
 {
+	Logging::LogDebug() << __FUNCTION__;
+
 	if (Interface != NULL && font == NULL)
 	{
-		HFONT FontCharacteristics = CreateFontA(10, 0, 0, 0, 400, 0, 0, 0, 0, 0, 0, 2, 0, "Arial Black");
-
+		HFONT FontCharacteristics = CreateFontA(40, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, 2, 0, "Arial");
 		if (FontCharacteristics != NULL)
 		{
 			D3DXCreateFont(Interface, FontCharacteristics, &font);
 			DeleteObject(FontCharacteristics);
 		}
+	}
 
-		if (font != NULL)
-		{
-			font->DrawTextA(FontStruct.String, 1, FontStruct.Rect, FontStruct.Format, FontStruct.Colour);
-		}
+	if (font != NULL)
+	{
+		font->DrawTextA(FontStruct.String, -1, &FontStruct.Rect, FontStruct.Format, FontStruct.Colour);
 	}
 }

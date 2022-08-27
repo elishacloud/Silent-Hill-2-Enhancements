@@ -183,6 +183,8 @@ private:
 	void SetShadowFading();
 	void CaptureScreenShot();
 
+	void DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface);
+
 public:
 	m_IDirect3DDevice8(LPDIRECT3DDEVICE8 pDevice, m_IDirect3D8* pD3D) : ProxyInterface(pDevice), m_pD3D(pD3D)
 	{

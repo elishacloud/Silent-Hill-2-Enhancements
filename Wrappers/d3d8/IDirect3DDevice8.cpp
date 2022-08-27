@@ -915,6 +915,9 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 		return D3D_OK;
 	}
 
+	// Debug Overlay
+	DrawDebugOverlay(ProxyInterface);
+
 	// Endscene
 	BeginSceneFlag = false;
 	ProxyInterface->EndScene();
@@ -3336,4 +3339,23 @@ void m_IDirect3DDevice8::CaptureScreenShot()
 	pDestSurface->Release();
 
 	return;
+}
+
+void m_IDirect3DDevice8::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
+{
+	uint8_t RoomID = *(uint8_t*)(0x00AC7228);
+	uint8_t CutsceneID = *(uint8_t*)(0x01F7A7C4);
+
+	std::string OvlString = "Room ID: ";
+	OvlString.append(std::to_string(RoomID));
+	OvlString.append("\n");
+
+	OvlString.append("Cutscene ID: ");
+	OvlString.append(std::to_string(CutsceneID));
+	OvlString.append("\n");
+
+	int padding = 2;
+	int rectx1 = 100, rectx2 = 300, recty1 = 50, recty2 = 100;
+	D3DRECT rectangle = { rectx1, recty1, rectx2, recty2 };
+	ProxyInterface->Clear(1, &rectangle, D3DCLEAR_TARGET, D3DCOLOR_ARGB(255, 0, 0, 0), 0.0f, 0);
 }

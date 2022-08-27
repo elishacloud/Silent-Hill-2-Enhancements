@@ -237,6 +237,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	// Main message loop:
 	while (bIsLooping)
 	{
+		WaitMessage();
 		while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&msg);

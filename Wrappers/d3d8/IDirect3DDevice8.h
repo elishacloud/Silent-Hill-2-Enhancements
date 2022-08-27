@@ -171,6 +171,14 @@ private:
 		UINT stream0Stride;
 	};
 
+	struct D3D8TEXT
+	{
+		LPCSTR   String;
+		LPRECT     Rect;
+		DWORD    Format;
+		D3DCOLOR Colour;
+	};
+
 	// Helper functions
 	HRESULT DrawSoftShadows();
 	void BackupState(D3DSTATE *state);
@@ -183,7 +191,8 @@ private:
 	void SetShadowFading();
 	void CaptureScreenShot();
 
-	void DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface);
+	void DrawDebugOverlay(LPDIRECT3DDEVICE8 Interface);
+	void DrawDebugText(LPDIRECT3DDEVICE8 Interface, D3D8TEXT TextStruct);
 
 public:
 	m_IDirect3DDevice8(LPDIRECT3DDEVICE8 pDevice, m_IDirect3D8* pD3D) : ProxyInterface(pDevice), m_pD3D(pD3D)

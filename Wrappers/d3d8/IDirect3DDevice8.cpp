@@ -33,6 +33,7 @@ bool IsInFakeFadeout = false;
 bool ClassReleaseFlag = false;
 bool TextureSet = false;
 DWORD TextureNum = 0;
+LPD3DXFONT font;
 
 struct SCREENSHOTSTRUCT
 {
@@ -3341,8 +3342,17 @@ void m_IDirect3DDevice8::CaptureScreenShot()
 	return;
 }
 
-void m_IDirect3DDevice8::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
+void m_IDirect3DDevice8::DrawDebugOverlay(LPDIRECT3DDEVICE8 Interface)
 {
+	int padding = 2;
+	int rectx1 = 100, rectx2 = 300, recty1 = 50, recty2 = 100;
+
+	D3DRECT BlackRectangle = { rectx1, recty1, rectx2, recty2 };
+	Interface->Clear(1, &BlackRectangle, D3DCLEAR_TARGET, D3DCOLOR_ARGB(255, 0, 0, 0), 0.0f, 0);
+
+	LPRECT TextRectangle;
+	SetRect(TextRectangle, rectx1 + padding, recty1 + padding, rectx2 - padding, recty2 - padding);
+
 	uint8_t RoomID = *(uint8_t*)(0x00AC7228);
 	uint8_t CutsceneID = *(uint8_t*)(0x01F7A7C4);
 
@@ -3354,8 +3364,32 @@ void m_IDirect3DDevice8::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append(std::to_string(CutsceneID));
 	OvlString.append("\n");
 
-	int padding = 2;
-	int rectx1 = 100, rectx2 = 300, recty1 = 50, recty2 = 100;
-	D3DRECT rectangle = { rectx1, recty1, rectx2, recty2 };
-	ProxyInterface->Clear(1, &rectangle, D3DCLEAR_TARGET, D3DCOLOR_ARGB(255, 0, 0, 0), 0.0f, 0);
+	D3D8TEXT TextStruct;
+	TextStruct.String = OvlString.c_str();
+	TextStruct.Colour = D3DCOLOR_ARGB(255, 0, 0, 0);
+	TextStruct.Format = DT_NOCLIP | DT_LEFT;
+	TextStruct.Rect = TextRectangle;
+
+	DrawDebugText(Interface, TextStruct);
+
+}
+
+
+void m_IDirect3DDevice8::DrawDebugText(LPDIRECT3DDEVICE8 Interface, D3D8TEXT FontStruct)
+{
+	if (Interface != NULL && font == NULL)
+	{
+		HFONT FontCharacteristics = CreateFontA(10, 0, 0, 0, 400, 0, 0, 0, 0, 0, 0, 2, 0, "Arial Black");
+
+		if (FontCharacteristics != NULL)
+		{
+			D3DXCreateFont(Interface, FontCharacteristics, &font);
+			DeleteObject(FontCharacteristics);
+		}
+
+		if (font != NULL)
+		{
+			font->DrawTextA(FontStruct.String, 1, FontStruct.Rect, FontStruct.Format, FontStruct.Colour);
+		}
+	}
 }

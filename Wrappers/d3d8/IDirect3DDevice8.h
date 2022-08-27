@@ -174,7 +174,7 @@ private:
 	struct D3D8TEXT
 	{
 		LPCSTR   String;
-		LPRECT     Rect;
+		RECT       Rect;
 		DWORD    Format;
 		D3DCOLOR Colour;
 	};

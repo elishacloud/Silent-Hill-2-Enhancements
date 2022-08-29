@@ -193,6 +193,8 @@ private:
 
 	void DrawDebugOverlay(LPDIRECT3DDEVICE8 Interface);
 	void DrawDebugText(LPDIRECT3DDEVICE8 Interface, D3D8TEXT TextStruct);
+	std::string IntToHexStr(int IntValue);
+	std::string FloatToStr(float FloatValue);
 
 public:
 	m_IDirect3DDevice8(LPDIRECT3DDEVICE8 pDevice, m_IDirect3D8* pD3D) : ProxyInterface(pDevice), m_pD3D(pD3D)
@@ -324,4 +326,5 @@ public:
 
 	// Extra functions
 	void m_IDirect3DDevice8::AddSurfaceToVector(m_IDirect3DSurface8 *pSourceTarget, IDirect3DSurface8 *pRenderTarget);
+	void ToggleShowDebugOverlay();
 };

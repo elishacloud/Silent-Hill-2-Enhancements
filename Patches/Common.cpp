@@ -722,7 +722,7 @@ float *GetFPSCounterPointer()
 
 	// Get FPS Counter address
 	constexpr BYTE FPSCounterSearchBytes[]{ 0x89, 0x4c, 0x24, 0x18, 0x89, 0x44, 0x24, 0x1c };
-	float *FPSCounter = (float*)ReadSearchedAddresses(0x004F6D1F, 0x0, 0x0, FPSCounterSearchBytes, sizeof(FPSCounterSearchBytes), 0x81);
+	float *FPSCounter = (float*)ReadSearchedAddresses(0x004F6D1F, 0x004F6FCF, 0x004F688F, FPSCounterSearchBytes, sizeof(FPSCounterSearchBytes), 0x81);
 
 	// Checking address pointer
 	if (!FPSCounter)
@@ -730,6 +730,7 @@ float *GetFPSCounterPointer()
 		Logging::Log() << __FUNCTION__ << " Error: failed to find FPS Counter address!";
 		return nullptr;
 	}
+
 	FPSCounter = (float*)((DWORD)FPSCounter + 0x0);
 
 	return FPSCounter;

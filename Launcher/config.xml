@@ -154,6 +154,19 @@
 
     </Section>
 
+    <Section name="Debug">
+
+      <Feature name="EnableDebugOverlay">
+        <Title>Enable Debug Overlay</Title>
+        <Description>Enables Debug Overlay, hotkey: CTRL + D.</Description>
+        <Choices type="check">
+          <Value name="Disable" default="false">0</Value>
+          <Value name="Enable">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
   </Tab>
 
   <Tab name="Graphics">
@@ -1067,19 +1080,6 @@
         <Description>Loads d3d8.dll from the "scripts" and "plugins" folders.&#x0a;&#x0a;Requires disabling the game running in DirectX 9 to work.</Description>
         <Choices type="check">
           <Value name="Disable" default="true">0</Value>
-          <Value name="Enable">1</Value>
-        </Choices>
-      </Feature>
-
-    </Section>
-
-    <Section name="Debug">
-
-      <Feature name="EnableDebugOverlay">
-        <Title>Enable Debug Overlay</Title>
-        <Description>Enables Debug Overlay, hotkey: CTRL + D.</Description>
-        <Choices type="check">
-          <Value name="Disable" default="false">0</Value>
           <Value name="Enable">1</Value>
         </Choices>
       </Feature>

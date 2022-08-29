@@ -579,7 +579,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
 			if (GetAsyncKeyState(VK_CONTROL)) 
 			{
-				if (IDirect3DDevice8Ptr)
+				if (IDirect3DDevice8Ptr && EnableDebugOverlay)
 				{
 					IDirect3DDevice8Ptr->ToggleShowDebugOverlay();
 				}

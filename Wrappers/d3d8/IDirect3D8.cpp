@@ -33,6 +33,7 @@ bool CopyRenderTarget = false;
 bool SetSSAA = false;
 bool TakeScreenShot = false;
 D3DMULTISAMPLE_TYPE DeviceMultiSampleType = D3DMULTISAMPLE_NONE;
+m_IDirect3DDevice8* IDirect3DDevice8Ptr = nullptr;
 
 HRESULT m_IDirect3D8::QueryInterface(REFIID riid, LPVOID *ppvObj)
 {
@@ -302,6 +303,7 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 		LOG_LIMIT(1, __FUNCTION__ << " Created device!");
 
 		*ppReturnedDeviceInterface = new m_IDirect3DDevice8(*ppReturnedDeviceInterface, this);
+		IDirect3DDevice8Ptr = (m_IDirect3DDevice8*)*ppReturnedDeviceInterface;
 	}
 	else
 	{
@@ -575,6 +577,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		LastMonitorHandle = MonitorHandle;
 		break;
 	}
+	case WM_KEYDOWN:
+	{
+		switch (wParam)
+		{
+		case 0x44: // Letter D
+		{
+			if (GetAsyncKeyState(VK_CONTROL)) 
+			{
+				if (IDirect3DDevice8Ptr)
+				{
+					IDirect3DDevice8Ptr->ToggleShowDebugOverlay();
+				}
+			}
+			break;
+		}
+
+		}
+		break;
+	}
+
 	}
 
 	if (!OriginalWndProc)

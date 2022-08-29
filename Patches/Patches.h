@@ -34,6 +34,7 @@ float GetInGameCameraPosY();
 BYTE GetInventoryStatus();
 DWORD GetLoadingScreen();
 BYTE GetPauseMenuButtonIndex();
+float GetFPSCounter();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -58,6 +59,7 @@ float *GetInGameCameraPosYPointer();
 BYTE *GetInventoryStatusPointer();
 DWORD *GetLoadingScreenPointer();
 BYTE *GetPauseMenuButtonIndexPointer();
+float *GetFPSCounterPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -209,6 +211,7 @@ extern bool UseFakeLight;
 extern bool InSpecialLightZone;
 extern bool IsInGameResults;
 extern BYTE *PauseMenuButtonIndexAddr;
+extern float *FPSCounterAddr;
 
 // Run code only once
 #define RUNONCE() \

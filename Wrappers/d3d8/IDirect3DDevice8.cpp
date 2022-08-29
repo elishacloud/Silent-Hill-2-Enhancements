@@ -3369,8 +3369,6 @@ void m_IDirect3DDevice8::DrawDebugOverlay(LPDIRECT3DDEVICE8 Interface)
 	RECT TextRectangle;
 	SetRect(&TextRectangle, rectx1 + padding, recty1 + padding, rectx2 - padding, recty2 - padding);
 
-	float CurrentFPS = *(float*)(0x00A33364);
-
 	Interface->GetCreationParameters(&Params);
 	GetWindowRect(Params.hFocusWindow, &rect);
 
@@ -3404,7 +3402,7 @@ void m_IDirect3DDevice8::DrawDebugOverlay(LPDIRECT3DDEVICE8 Interface)
 	DrawDebugText(Interface, TextStruct);
 
 	OvlString = "FPS: ";
-	OvlString.append(FloatToStr(CurrentFPS));
+	OvlString.append(FloatToStr(GetFPSCounter()));
 
 	TextStruct.String = OvlString.c_str();
 	TextStruct.Rect.top += 15;

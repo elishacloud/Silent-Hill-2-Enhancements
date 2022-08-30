@@ -191,8 +191,8 @@ private:
 	void SetShadowFading();
 	void CaptureScreenShot();
 
-	void DrawDebugOverlay(LPDIRECT3DDEVICE8 Interface);
-	void DrawDebugText(LPDIRECT3DDEVICE8 Interface, D3D8TEXT TextStruct);
+	void DrawDebugOverlay();
+	void DrawDebugText(D3D8TEXT TextStruct);
 	std::string IntToHexStr(int IntValue);
 	std::string FloatToStr(float FloatValue);
 

@@ -35,7 +35,8 @@ bool ClassReleaseFlag = false;
 bool TextureSet = false;
 auto LastOverlayToggle = std::chrono::system_clock::now();
 DWORD TextureNum = 0;
-LPD3DXFONT font;
+LPD3DXFONT font = NULL;
+bool ResetFont = false;
 
 struct SCREENSHOTSTRUCT
 {
@@ -168,6 +169,12 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 	if (silhouetteTexture)
 	{
 		ReleaseInterface(&silhouetteTexture);
+	}
+
+	if (font)
+	{
+		font->OnLostDevice();
+		ResetFont = true;
 	}
 
 	// Update presentation parameters
@@ -921,8 +928,9 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	// Debug Overlay
 	if (ShowDebugOverlay)//TODO check config file
 	{
-		DrawDebugOverlay(ProxyInterface);
+		DrawDebugOverlay();
 	}
+
 	// Endscene
 	BeginSceneFlag = false;
 	ProxyInterface->EndScene();
@@ -3346,7 +3354,7 @@ void m_IDirect3DDevice8::CaptureScreenShot()
 	return;
 }
 
-void m_IDirect3DDevice8::DrawDebugOverlay(LPDIRECT3DDEVICE8 Interface)
+void m_IDirect3DDevice8::DrawDebugOverlay()
 {
 	D3DDEVICE_CREATION_PARAMETERS Params;
 	RECT rect;
@@ -3363,16 +3371,16 @@ void m_IDirect3DDevice8::DrawDebugOverlay(LPDIRECT3DDEVICE8 Interface)
 	TextStruct.Rect.bottom = 60;
 
 	D3DRECT BlackRectangle = { rectx1, recty1, rectx2, recty2 };
-	Interface->Clear(1, &BlackRectangle, D3DCLEAR_TARGET, D3DCOLOR_ARGB(255, 0, 0, 0), 0.0f, 0);
+	ProxyInterface->Clear(1, &BlackRectangle, D3DCLEAR_TARGET, D3DCOLOR_ARGB(255, 0, 0, 0), 0.0f, 0);
 	
 	RECT TextRectangle;
 	SetRect(&TextRectangle, rectx1 + padding, recty1 + padding, rectx2 - padding, recty2 - padding);
-
-	Interface->GetCreationParameters(&Params);
+	
+	ProxyInterface->GetCreationParameters(&Params);
 	GetWindowRect(Params.hFocusWindow, &rect);
 	int WindowWidth = rect.right - rect.left;
 	int WindowHeight = rect.bottom - rect.top;
-
+	
 	std::string OvlString = "Screen Resolution: ";
 	OvlString.append(std::to_string(WindowWidth));
 	OvlString.append("x");
@@ -3382,8 +3390,8 @@ void m_IDirect3DDevice8::DrawDebugOverlay(LPDIRECT3DDEVICE8 Interface)
 	TextStruct.Rect.top += 15;
 	TextStruct.Rect.bottom += 15;
 
-	DrawDebugText(Interface, TextStruct);
-
+	DrawDebugText(TextStruct);
+	
 	OvlString = "Room ID: 0x";
 	OvlString.append(IntToHexStr(GetRoomID()));
 	
@@ -3391,7 +3399,7 @@ void m_IDirect3DDevice8::DrawDebugOverlay(LPDIRECT3DDEVICE8 Interface)
 	TextStruct.Rect.top += 15;
 	TextStruct.Rect.bottom += 15;
 
-	DrawDebugText(Interface, TextStruct);
+	DrawDebugText(TextStruct);
 
 	OvlString = "Cutscene ID: 0x";
 	OvlString.append(IntToHexStr(GetCutsceneID()));
@@ -3400,7 +3408,7 @@ void m_IDirect3DDevice8::DrawDebugOverlay(LPDIRECT3DDEVICE8 Interface)
 	TextStruct.Rect.top += 15;
 	TextStruct.Rect.bottom += 15;
 
-	DrawDebugText(Interface, TextStruct);
+	DrawDebugText(TextStruct);
 
 	OvlString = "FPS: ";
 	OvlString.append(FloatToStr(GetFPSCounter()));
@@ -3409,7 +3417,7 @@ void m_IDirect3DDevice8::DrawDebugOverlay(LPDIRECT3DDEVICE8 Interface)
 	TextStruct.Rect.top += 15;
 	TextStruct.Rect.bottom += 15;
 
-	DrawDebugText(Interface, TextStruct);
+	DrawDebugText(TextStruct);
 
 	OvlString = "James X Position: ";
 	OvlString.append(FloatToStr(GetJamesPosX()));
@@ -3418,7 +3426,7 @@ void m_IDirect3DDevice8::DrawDebugOverlay(LPDIRECT3DDEVICE8 Interface)
 	TextStruct.Rect.top += 15;
 	TextStruct.Rect.bottom += 15;
 
-	DrawDebugText(Interface, TextStruct);
+	DrawDebugText(TextStruct);
 
 	OvlString = "James Y Position: ";
 	OvlString.append(FloatToStr(GetJamesPosY()));
@@ -3427,7 +3435,7 @@ void m_IDirect3DDevice8::DrawDebugOverlay(LPDIRECT3DDEVICE8 Interface)
 	TextStruct.Rect.top += 15;
 	TextStruct.Rect.bottom += 15;
 
-	DrawDebugText(Interface, TextStruct);
+	DrawDebugText(TextStruct);
 
 	OvlString = "James Z Position: ";
 	OvlString.append(FloatToStr(GetJamesPosZ()));
@@ -3436,21 +3444,33 @@ void m_IDirect3DDevice8::DrawDebugOverlay(LPDIRECT3DDEVICE8 Interface)
 	TextStruct.Rect.top += 15;
 	TextStruct.Rect.bottom += 15;
 	
-	DrawDebugText(Interface, TextStruct);
+	DrawDebugText(TextStruct);
 
 }
 
 
-void m_IDirect3DDevice8::DrawDebugText(LPDIRECT3DDEVICE8 Interface, D3D8TEXT FontStruct)
+void m_IDirect3DDevice8::DrawDebugText(D3D8TEXT FontStruct)
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	if (Interface != NULL && font == NULL)
+	LPDIRECT3DDEVICE8 *CurrentDevice = NULL;
+
+	if (ResetFont)
+	{
+		ResetFont = false;
+		
+		font->OnResetDevice();
+		Logging::LogDebug() << __FUNCTION__ << " Resetting font";
+		
+	}
+
+	if (ProxyInterface != NULL && font == NULL)
 	{
 		HFONT FontCharacteristics = CreateFontA(10, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, 2, 0, "Arial");
 		if (FontCharacteristics != NULL)
 		{
-			D3DXCreateFont(Interface, FontCharacteristics, &font);
+			Logging::LogDebug() << __FUNCTION__ << " Creating font...";
+			D3DXCreateFont(ProxyInterface, FontCharacteristics, &font);
 			DeleteObject(FontCharacteristics);
 		}
 	}

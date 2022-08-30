@@ -227,7 +227,7 @@ HRESULT m_IDirect3DDevice9::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 
 	if (FAILED(hr))
 	{
-		Logging::Log() << "IDirect3DDevice9::Reset" << " failed with error code " << hr << '!';
+		Logging::Log() << "IDirect3DDevice9::Reset" << " failed with error code " << Logging::hex(hr) << '!';
 		return hr;
 	}
 

@@ -45,6 +45,7 @@ BYTE *InventoryStatusAddr = nullptr;
 DWORD *LoadingScreenAddr = nullptr;
 BYTE *PauseMenuButtonIndexAddr = nullptr;
 float *FPSCounterAddr = nullptr;
+bool ShowDebugOverlay = false;
 
 DWORD GetRoomID()
 {

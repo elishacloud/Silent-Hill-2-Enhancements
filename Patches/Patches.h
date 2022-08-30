@@ -212,6 +212,7 @@ extern bool InSpecialLightZone;
 extern bool IsInGameResults;
 extern BYTE *PauseMenuButtonIndexAddr;
 extern float *FPSCounterAddr;
+extern bool ShowDebugOverlay;
 
 // Run code only once
 #define RUNONCE() \

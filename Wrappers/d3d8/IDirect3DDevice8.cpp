@@ -33,7 +33,6 @@ bool IsInBloomEffect = false;
 bool IsInFakeFadeout = false;
 bool ClassReleaseFlag = false;
 bool TextureSet = false;
-bool ShowDebugOverlay = false;
 auto LastOverlayToggle = std::chrono::system_clock::now();
 DWORD TextureNum = 0;
 LPD3DXFONT font;
@@ -3371,11 +3370,13 @@ void m_IDirect3DDevice8::DrawDebugOverlay(LPDIRECT3DDEVICE8 Interface)
 
 	Interface->GetCreationParameters(&Params);
 	GetWindowRect(Params.hFocusWindow, &rect);
+	int WindowWidth = rect.right - rect.left;
+	int WindowHeight = rect.bottom - rect.top;
 
 	std::string OvlString = "Screen Resolution: ";
-	OvlString.append(std::to_string(rect.right - rect.left));
+	OvlString.append(std::to_string(WindowWidth));
 	OvlString.append("x");
-	OvlString.append(std::to_string(rect.bottom - rect.top));
+	OvlString.append(std::to_string(WindowHeight));
 
 	TextStruct.String = OvlString.c_str();
 	TextStruct.Rect.top += 15;
@@ -3478,15 +3479,4 @@ std::string m_IDirect3DDevice8::FloatToStr(float FloatValue)
 	std::string OutputString(Stream.str());
 
 	return OutputString;
-}
-
-void m_IDirect3DDevice8::ToggleShowDebugOverlay()
-{
-	auto CurrentTime = std::chrono::system_clock::now();
-	std::chrono::duration<double> TimeDiff = CurrentTime - LastOverlayToggle;
-
-	if (TimeDiff.count() > 1)
-	{
-		ShowDebugOverlay = !ShowDebugOverlay;
-	}
 }

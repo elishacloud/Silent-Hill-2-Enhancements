@@ -35,6 +35,7 @@ BYTE GetInventoryStatus();
 DWORD GetLoadingScreen();
 BYTE GetPauseMenuButtonIndex();
 float GetFPSCounter();
+void SaveDebugResolutionValue(int width, int height);
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -213,6 +214,8 @@ extern bool IsInGameResults;
 extern BYTE *PauseMenuButtonIndexAddr;
 extern float *FPSCounterAddr;
 extern bool ShowDebugOverlay;
+extern int ResolutionWidth;
+extern int ResolutionHeight;
 
 // Run code only once
 #define RUNONCE() \

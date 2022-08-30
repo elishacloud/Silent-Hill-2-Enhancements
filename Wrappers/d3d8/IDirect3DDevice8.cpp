@@ -3376,15 +3376,10 @@ void m_IDirect3DDevice8::DrawDebugOverlay()
 	RECT TextRectangle;
 	SetRect(&TextRectangle, rectx1 + padding, recty1 + padding, rectx2 - padding, recty2 - padding);
 	
-	ProxyInterface->GetCreationParameters(&Params);
-	GetWindowRect(Params.hFocusWindow, &rect);
-	int WindowWidth = rect.right - rect.left;
-	int WindowHeight = rect.bottom - rect.top;
-	
 	std::string OvlString = "Screen Resolution: ";
-	OvlString.append(std::to_string(WindowWidth));
+	OvlString.append(std::to_string(ResolutionWidth));
 	OvlString.append("x");
-	OvlString.append(std::to_string(WindowHeight));
+	OvlString.append(std::to_string(ResolutionHeight));
 
 	TextStruct.String = OvlString.c_str();
 	TextStruct.Rect.top += 15;
@@ -3458,9 +3453,7 @@ void m_IDirect3DDevice8::DrawDebugText(D3D8TEXT FontStruct)
 	if (ResetFont)
 	{
 		ResetFont = false;
-		
 		font->OnResetDevice();
-		Logging::LogDebug() << __FUNCTION__ << " Resetting font";
 		
 	}
 

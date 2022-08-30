@@ -46,6 +46,8 @@ DWORD *LoadingScreenAddr = nullptr;
 BYTE *PauseMenuButtonIndexAddr = nullptr;
 float *FPSCounterAddr = nullptr;
 bool ShowDebugOverlay = false;
+int ResolutionWidth = 0;
+int ResolutionHeight = 0;
 
 DWORD GetRoomID()
 {
@@ -735,4 +737,10 @@ float *GetFPSCounterPointer()
 	FPSCounter = (float*)((DWORD)FPSCounter + 0x0);
 
 	return FPSCounter;
+}
+
+void SaveDebugResolutionValue(int width, int height)
+{
+	ResolutionWidth = width;
+	ResolutionHeight = height;
 }

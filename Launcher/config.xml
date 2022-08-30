@@ -154,19 +154,6 @@
 
     </Section>
 
-    <Section name="Debug">
-
-      <Feature name="EnableDebugOverlay">
-        <Title>Enable Debug Overlay</Title>
-        <Description>Enables Debug Overlay, hotkey: CTRL + D.</Description>
-        <Choices type="check">
-          <Value name="Disable" default="false">0</Value>
-          <Value name="Enable">1</Value>
-        </Choices>
-      </Feature>
-
-    </Section>
-
   </Tab>
 
   <Tab name="Graphics">

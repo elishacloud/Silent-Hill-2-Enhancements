@@ -197,7 +197,8 @@
 	visit(SmallFontHeight) \
 	visit(SmallFontWidth) \
 	visit(SpaceSize) \
-	visit(WrapperType)
+	visit(WrapperType) \
+	visit(EnableDebugOverlay)
 
 // Configurable setting defaults
 #define DECLARE_BOOL_SETTINGS(name, unused) \

@@ -18,7 +18,6 @@
 #include <shlwapi.h>
 #include <chrono>
 #include <ctime>
-#include <sstream>
 #include "Common\Utils.h"
 #include "stb_image.h"
 #include "stb_image_dds.h"
@@ -35,8 +34,7 @@ bool ClassReleaseFlag = false;
 bool TextureSet = false;
 auto LastOverlayToggle = std::chrono::system_clock::now();
 DWORD TextureNum = 0;
-LPD3DXFONT font = NULL;
-bool ResetFont = false;
+Overlay OverlayRef;
 
 struct SCREENSHOTSTRUCT
 {
@@ -171,11 +169,7 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 		ReleaseInterface(&silhouetteTexture);
 	}
 
-	if (font)
-	{
-		font->OnLostDevice();
-		ResetFont = true;
-	}
+	OverlayRef.ResetFont();
 
 	// Update presentation parameters
 	UpdatePresentParameter(pPresentationParameters, nullptr, true);
@@ -926,9 +920,9 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	}
 
 	// Debug Overlay
-	if (ShowDebugOverlay)//TODO check config file
+	if (ShowDebugOverlay)
 	{
-		DrawDebugOverlay();
+		OverlayRef.DrawDebugOverlay(ProxyInterface);
 	}
 
 	// Endscene
@@ -3354,180 +3348,3 @@ void m_IDirect3DDevice8::CaptureScreenShot()
 	return;
 }
 
-void m_IDirect3DDevice8::DrawDebugOverlay()
-{
-	Logging::LogDebug() << __FUNCTION__;
-
-	int rectOffset = 40, FloatPrecision = 4;
-	float CharYPos = GetJamesPosY();
-	float AntiJitterValue = 0.0001;
-
-	// Lock value at 0 if close enough, to avoid a rapidly changing number.
-	if (CharYPos > -AntiJitterValue && CharYPos < AntiJitterValue)
-	{
-		CharYPos = 0;
-	}
-
-	D3D8TEXT TextStruct;
-	TextStruct.Format = DT_NOCLIP | DT_SINGLELINE;
-	TextStruct.Rect.left = rectOffset;
-	TextStruct.Rect.top = rectOffset;
-	TextStruct.Rect.right = rectOffset + 300;
-	TextStruct.Rect.bottom = rectOffset + 15;
-	
-	std::string OvlString = "DEBUG MENU (Crtl + D) ";
-
-	TextStruct.String = OvlString.c_str();
-
-	DrawDebugText(TextStruct);
-
-	OvlString = "Game Resolution: ";
-	OvlString.append(std::to_string(ResolutionWidth));
-	OvlString.append("x");
-	OvlString.append(std::to_string(ResolutionHeight));
-
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
-
-	DrawDebugText(TextStruct);
-	
-	OvlString = "Room ID: 0x";
-	OvlString.append(IntToHexStr(GetRoomID()));
-	
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
-
-	DrawDebugText(TextStruct);
-
-	OvlString = "Cutscene ID: 0x";
-	OvlString.append(IntToHexStr(GetCutsceneID()));
-	
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
-
-	DrawDebugText(TextStruct);
-
-	OvlString = "FPS: ";
-	OvlString.append(FloatToStr(GetFPSCounter(), FloatPrecision));
-
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
-
-	DrawDebugText(TextStruct);
-
-	OvlString = "Char X Position: ";
-	OvlString.append(FloatToStr(GetJamesPosX(), FloatPrecision));
-
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
-
-	DrawDebugText(TextStruct);
-
-	OvlString = "Char Y Position: ";
-	OvlString.append(FloatToStr(CharYPos, FloatPrecision));
-
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
-
-	DrawDebugText(TextStruct);
-
-	OvlString = "Char Z Position: ";
-	OvlString.append(FloatToStr(GetJamesPosZ(), FloatPrecision));
-
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
-	
-	DrawDebugText(TextStruct);
-
-	int ShootingKills = GetShootingKills();
-	int MeleeKills = GetMeleeKills();
-
-	OvlString = "Kills Gun/Melee/Total: ";
-	OvlString.append(std::to_string(ShootingKills));
-	OvlString.append(" / ");
-	OvlString.append(std::to_string(MeleeKills));
-	OvlString.append(" / ");
-	OvlString.append(std::to_string(ShootingKills + MeleeKills));
-
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
-
-	DrawDebugText(TextStruct);
-
-	OvlString = "Boat Max Speed: ";
-	OvlString.append(FloatToStr(GetBoatMaxSpeed(), 2));
-
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
-
-	DrawDebugText(TextStruct);
-
-}
-
-
-void m_IDirect3DDevice8::DrawDebugText(D3D8TEXT FontStruct)
-{
-	Logging::LogDebug() << __FUNCTION__;
-
-	D3DCOLOR GreenColor = D3DCOLOR_ARGB(255, 153, 255, 153);
-	D3DCOLOR BlackColor = D3DCOLOR_ARGB(255, 0, 0, 0);
-	int DropShadowOffset = 1;
-
-	RECT DropShadowRect = FontStruct.Rect;
-	DropShadowRect.top = DropShadowRect.top + DropShadowOffset;
-	DropShadowRect.left = DropShadowRect.left + DropShadowOffset;
-
-	if (ResetFont)
-	{
-		ResetFont = false;
-		font->OnResetDevice();
-		
-	}
-
-	if (ProxyInterface != NULL && font == NULL)
-	{
-		HFONT FontCharacteristics = CreateFontA(14, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, 2, 0, "Arial");
-		if (FontCharacteristics != NULL)
-		{
-			Logging::LogDebug() << __FUNCTION__ << " Creating font...";
-			D3DXCreateFont(ProxyInterface, FontCharacteristics, &font);
-			DeleteObject(FontCharacteristics);
-		}
-	}
-
-	if (font != NULL)
-	{
-		font->DrawTextA(FontStruct.String, -1, &DropShadowRect, FontStruct.Format, BlackColor);
-		font->DrawTextA(FontStruct.String, -1, &FontStruct.Rect, FontStruct.Format, GreenColor);
-	}
-}
-
-std::string m_IDirect3DDevice8::IntToHexStr(int IntValue)
-{
-	std::stringstream Stream;
-	Stream << std::hex << IntValue;
-
-	std::string OutputString(Stream.str());
-
-	return OutputString;
-}
-
-std::string m_IDirect3DDevice8::FloatToStr(float FloatValue, int precision)
-{
-	std::stringstream Stream;
-	Stream.precision(precision);
-	Stream << std::fixed << FloatValue;
-
-	std::string OutputString(Stream.str());
-
-	return OutputString;
-}

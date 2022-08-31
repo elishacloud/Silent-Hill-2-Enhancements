@@ -596,6 +596,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}
 			break;
 		}
+		case 0x49: // Letter I
+		{
+			if (GetAsyncKeyState(VK_CONTROL))
+			{
+				if (EnableInfoOverlay) //TODOT
+				{
+					ShowInfoOverlay = !ShowInfoOverlay;
+				}
+			}
+			break;
+		}
 
 		}
 		break;

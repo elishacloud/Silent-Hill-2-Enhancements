@@ -100,7 +100,8 @@
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, true) \
 	visit(WoodsideRoom205Fix, true) \
-	visit(EnableDebugOverlay, false)
+	visit(EnableDebugOverlay, true) \
+	visit(EnableInfoOverlay, true)
 
 #define VISIT_INT_SETTINGS(visit) \
 	visit(AnisotropicFiltering, 0) \
@@ -198,7 +199,8 @@
 	visit(SmallFontWidth) \
 	visit(SpaceSize) \
 	visit(WrapperType) \
-	visit(EnableDebugOverlay)
+	visit(EnableDebugOverlay) \
+	visit(EnableInfoOverlay)
 
 // Configurable setting defaults
 #define DECLARE_BOOL_SETTINGS(name, unused) \

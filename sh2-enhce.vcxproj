@@ -121,6 +121,7 @@
     <ClCompile Include="Wrappers\d3d8\IDirect3DVolume8.cpp" />
     <ClCompile Include="Wrappers\d3d8\IDirect3DVolumeTexture8.cpp" />
     <ClCompile Include="Wrappers\d3d8\InterfaceQuery.cpp" />
+    <ClCompile Include="Wrappers\d3d8\Overlay.cpp" />
     <ClCompile Include="Wrappers\d3d9\d3dx9.cpp" />
     <ClCompile Include="Wrappers\dinput8\dinput8wrapper.cpp" />
     <ClCompile Include="Wrappers\dinput8\IDirectInput8A.cpp" />
@@ -187,6 +188,7 @@
     <ClInclude Include="Wrappers\d3d8\IDirect3DVolume8.h" />
     <ClInclude Include="Wrappers\d3d8\IDirect3DVolumeTexture8.h" />
     <ClInclude Include="Wrappers\d3d8\AddressLookupTable.h" />
+    <ClInclude Include="Wrappers\d3d8\Overlay.h" />
     <ClInclude Include="Wrappers\d3d9\d3dx9.h" />
     <ClInclude Include="Wrappers\dinput8.h" />
     <ClInclude Include="Wrappers\dinput8\AddressLookupTable.h" />

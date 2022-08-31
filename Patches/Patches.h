@@ -223,6 +223,7 @@ extern float *FPSCounterAddr;
 extern bool ShowDebugOverlay;
 extern int ResolutionWidth;
 extern int ResolutionHeight;
+extern bool ShowInfoOverlay;
 
 // Run code only once
 #define RUNONCE() \

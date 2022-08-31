@@ -52,6 +52,7 @@ float *BoatMaxSpeedAddr = nullptr;
 bool ShowDebugOverlay = false;
 int ResolutionWidth = 0;
 int ResolutionHeight = 0;
+bool ShowInfoOverlay = false;
 
 DWORD GetRoomID()
 {

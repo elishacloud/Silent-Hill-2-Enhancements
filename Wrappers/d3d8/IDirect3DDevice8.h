@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Patches\Patches.h"
+#include "Overlay.h"
 
 class m_IDirect3DDevice8 : public IDirect3DDevice8
 {
@@ -171,29 +172,6 @@ private:
 		UINT stream0Stride;
 	};
 
-	struct D3D8TEXT
-	{
-		LPCSTR   String;
-		RECT       Rect;
-		DWORD    Format;
-	};
-
-	std::string ActionDifficulty[4]
-	{
-		"Beginner",
-		"Easy",
-		"Normal",
-		"Hard"
-	};
-
-	std::string RiddleDifficulty[4]
-	{
-		"Easy",
-		"Normal",
-		"Hard",
-		"Extra"
-	};
-
 	// Helper functions
 	HRESULT DrawSoftShadows();
 	void BackupState(D3DSTATE *state);
@@ -205,11 +183,6 @@ private:
 	DWORD GetShadowIntensity();
 	void SetShadowFading();
 	void CaptureScreenShot();
-
-	void DrawDebugOverlay();
-	void DrawDebugText(D3D8TEXT TextStruct);
-	std::string IntToHexStr(int IntValue);
-	std::string FloatToStr(float FloatValue, int precision);
 
 public:
 	m_IDirect3DDevice8(LPDIRECT3DDEVICE8 pDevice, m_IDirect3D8* pD3D) : ProxyInterface(pDevice), m_pD3D(pD3D)

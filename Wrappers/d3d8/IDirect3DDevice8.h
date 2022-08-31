@@ -178,6 +178,22 @@ private:
 		DWORD    Format;
 	};
 
+	std::string ActionDifficulty[4]
+	{
+		"Beginner",
+		"Easy",
+		"Normal",
+		"Hard"
+	};
+
+	std::string RiddleDifficulty[4]
+	{
+		"Easy",
+		"Normal",
+		"Hard",
+		"Extra"
+	};
+
 	// Helper functions
 	HRESULT DrawSoftShadows();
 	void BackupState(D3DSTATE *state);
@@ -193,7 +209,7 @@ private:
 	void DrawDebugOverlay();
 	void DrawDebugText(D3D8TEXT TextStruct);
 	std::string IntToHexStr(int IntValue);
-	std::string FloatToStr(float FloatValue);
+	std::string FloatToStr(float FloatValue, int precision);
 
 public:
 	m_IDirect3DDevice8(LPDIRECT3DDEVICE8 pDevice, m_IDirect3D8* pD3D) : ProxyInterface(pDevice), m_pD3D(pD3D)

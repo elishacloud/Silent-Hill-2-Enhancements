@@ -3358,7 +3358,7 @@ void m_IDirect3DDevice8::DrawDebugOverlay()
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	int rectOffset = 40;
+	int rectOffset = 40, FloatPrecision = 4;
 	float CharYPos = GetJamesPosY();
 	float AntiJitterValue = 0.0001;
 
@@ -3411,7 +3411,7 @@ void m_IDirect3DDevice8::DrawDebugOverlay()
 	DrawDebugText(TextStruct);
 
 	OvlString = "FPS: ";
-	OvlString.append(FloatToStr(GetFPSCounter()));
+	OvlString.append(FloatToStr(GetFPSCounter(), FloatPrecision));
 
 	TextStruct.String = OvlString.c_str();
 	TextStruct.Rect.top += 15;
@@ -3420,7 +3420,7 @@ void m_IDirect3DDevice8::DrawDebugOverlay()
 	DrawDebugText(TextStruct);
 
 	OvlString = "Char X Position: ";
-	OvlString.append(FloatToStr(GetJamesPosX()));
+	OvlString.append(FloatToStr(GetJamesPosX(), FloatPrecision));
 
 	TextStruct.String = OvlString.c_str();
 	TextStruct.Rect.top += 15;
@@ -3429,7 +3429,7 @@ void m_IDirect3DDevice8::DrawDebugOverlay()
 	DrawDebugText(TextStruct);
 
 	OvlString = "Char Y Position: ";
-	OvlString.append(FloatToStr(CharYPos));
+	OvlString.append(FloatToStr(CharYPos, FloatPrecision));
 
 	TextStruct.String = OvlString.c_str();
 	TextStruct.Rect.top += 15;
@@ -3438,7 +3438,7 @@ void m_IDirect3DDevice8::DrawDebugOverlay()
 	DrawDebugText(TextStruct);
 
 	OvlString = "Char Z Position: ";
-	OvlString.append(FloatToStr(GetJamesPosZ()));
+	OvlString.append(FloatToStr(GetJamesPosZ(), FloatPrecision));
 
 	TextStruct.String = OvlString.c_str();
 	TextStruct.Rect.top += 15;
@@ -3463,7 +3463,7 @@ void m_IDirect3DDevice8::DrawDebugOverlay()
 	DrawDebugText(TextStruct);
 
 	OvlString = "Boat Max Speed: ";
-	OvlString.append(FloatToStr(GetBoatMaxSpeed()));
+	OvlString.append(FloatToStr(GetBoatMaxSpeed(), 2));
 
 	TextStruct.String = OvlString.c_str();
 	TextStruct.Rect.top += 15;
@@ -3521,10 +3521,11 @@ std::string m_IDirect3DDevice8::IntToHexStr(int IntValue)
 	return OutputString;
 }
 
-std::string m_IDirect3DDevice8::FloatToStr(float FloatValue)
+std::string m_IDirect3DDevice8::FloatToStr(float FloatValue, int precision)
 {
 	std::stringstream Stream;
-	Stream << FloatValue;
+	Stream.precision(precision);
+	Stream << std::fixed << FloatValue;
 
 	std::string OutputString(Stream.str());
 

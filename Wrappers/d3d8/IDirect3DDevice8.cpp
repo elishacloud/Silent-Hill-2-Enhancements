@@ -3356,19 +3356,18 @@ void m_IDirect3DDevice8::CaptureScreenShot()
 
 void m_IDirect3DDevice8::DrawDebugOverlay()
 {
-	D3DDEVICE_CREATION_PARAMETERS Params;
-	RECT rect;
+	Logging::LogDebug() << __FUNCTION__;
 
 	int padding = 2;
-	int rectx1 = 100, rectx2 = 250, recty1 = 50, recty2 = 200;
+	int rectx1 = 50, rectx2 = 220, recty1 = 50, recty2 = 170;
 
 	D3D8TEXT TextStruct;
 	TextStruct.Colour = D3DCOLOR_ARGB(255, 153, 255, 153);
 	TextStruct.Format = DT_NOCLIP | DT_SINGLELINE;
-	TextStruct.Rect.left = 110;
-	TextStruct.Rect.top = 50;
-	TextStruct.Rect.right = 410;
-	TextStruct.Rect.bottom = 60;
+	TextStruct.Rect.left = rectx1 + 10;
+	TextStruct.Rect.top = 55;
+	TextStruct.Rect.right = TextStruct.Rect.left + 300;
+	TextStruct.Rect.bottom = 65;
 
 	D3DRECT BlackRectangle = { rectx1, recty1, rectx2, recty2 };
 	ProxyInterface->Clear(1, &BlackRectangle, D3DCLEAR_TARGET, D3DCOLOR_ARGB(255, 0, 0, 0), 0.0f, 0);
@@ -3376,14 +3375,12 @@ void m_IDirect3DDevice8::DrawDebugOverlay()
 	RECT TextRectangle;
 	SetRect(&TextRectangle, rectx1 + padding, recty1 + padding, rectx2 - padding, recty2 - padding);
 	
-	std::string OvlString = "Screen Resolution: ";
+	std::string OvlString = "Game Resolution: ";
 	OvlString.append(std::to_string(ResolutionWidth));
 	OvlString.append("x");
 	OvlString.append(std::to_string(ResolutionHeight));
 
 	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
 
 	DrawDebugText(TextStruct);
 	
@@ -3448,8 +3445,6 @@ void m_IDirect3DDevice8::DrawDebugText(D3D8TEXT FontStruct)
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	LPDIRECT3DDEVICE8 *CurrentDevice = NULL;
-
 	if (ResetFont)
 	{
 		ResetFont = false;
@@ -3459,7 +3454,7 @@ void m_IDirect3DDevice8::DrawDebugText(D3D8TEXT FontStruct)
 
 	if (ProxyInterface != NULL && font == NULL)
 	{
-		HFONT FontCharacteristics = CreateFontA(10, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, 2, 0, "Arial");
+		HFONT FontCharacteristics = CreateFontA(14, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, 2, 0, "Arial");
 		if (FontCharacteristics != NULL)
 		{
 			Logging::LogDebug() << __FUNCTION__ << " Creating font...";

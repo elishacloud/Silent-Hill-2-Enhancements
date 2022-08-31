@@ -925,6 +925,12 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 		OverlayRef.DrawDebugOverlay(ProxyInterface);
 	}
 
+	// Info Overlay
+	if (ShowInfoOverlay)
+	{
+		OverlayRef.DrawInfoOverlay(ProxyInterface);
+	}
+
 	// Endscene
 	BeginSceneFlag = false;
 	ProxyInterface->EndScene();

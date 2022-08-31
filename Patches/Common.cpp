@@ -48,6 +48,16 @@ float *FPSCounterAddr = nullptr;
 int16_t *ShootingKillsAddr = nullptr;
 int16_t *MeleeKillsAddr = nullptr;
 float *BoatMaxSpeedAddr = nullptr;
+int8_t *ActionDifficultyAddr;
+int8_t *RiddleDifficultyAddr;
+int8_t *NumberOfSavesAddr;
+float *InGameTimeAddr;
+float *WalkingDistanceAddr;
+float *RunningDistanceAddr;
+int16_t *ItemsCollectedAddr;
+float *DamagePointsTakenAddr;
+int8_t *SecretItemsCollectedAddr;
+float *BoatStageTimeAddr;
 
 bool ShowDebugOverlay = false;
 int ResolutionWidth = 0;
@@ -783,7 +793,7 @@ int16_t GetMeleeKills()
 
 int16_t *GetMeleeKillsPointer()
 {
-	if (FPSCounterAddr)
+	if (MeleeKillsAddr)
 	{
 		return MeleeKillsAddr;
 	}
@@ -832,6 +842,306 @@ float *GetBoatMaxSpeedPointer()
 	BoatMaxSpeed = (float*)((DWORD)BoatMaxSpeed);
 
 	return BoatMaxSpeed;
+}
+
+int8_t GetActionDifficulty()
+{
+	int8_t *pActionDifficulty = GetActionDifficultyPointer();
+
+	return (pActionDifficulty) ? *pActionDifficulty : 0;
+}
+
+int8_t *GetActionDifficultyPointer()
+{
+	if (ActionDifficultyAddr)
+	{
+		return ActionDifficultyAddr;
+	}
+
+	// Get Action Difficulty address
+	constexpr BYTE ActionDifficultySearchBytes[]{ 0x83, 0xC4, 0x18, 0x83, 0xF8, 0x1C, 0x74, 0x25 };
+	int8_t *ActionDifficulty = (int8_t*)ReadSearchedAddresses(0x0055768D, 0x005579BD, 0x005572DD, ActionDifficultySearchBytes, sizeof(ActionDifficultySearchBytes), 0x0A);
+
+	// Checking address pointer
+	if (!ActionDifficulty)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Action Difficulty address!";
+		return nullptr;
+	}
+
+	ActionDifficulty = (int8_t*)((DWORD)ActionDifficulty);
+
+	return ActionDifficulty;
+}
+
+int8_t GetRiddleDifficulty()
+{
+	int8_t *pRiddleDifficulty = GetRiddleDifficultyPointer();
+
+	return (pRiddleDifficulty) ? *pRiddleDifficulty : 0;
+}
+
+int8_t *GetRiddleDifficultyPointer()
+{
+	if (RiddleDifficultyAddr)
+	{
+		return RiddleDifficultyAddr;
+	}
+
+	// Get Riddle Difficulty address
+	constexpr BYTE RiddleDifficultySearchBytes[]{ 0xEB, 0x27, 0x66, 0x3D, 0x32, 0x00, 0x75, 0x11 };
+	int8_t *RiddleDifficulty = (int8_t*)ReadSearchedAddresses(0x0046BF90, 0x0046C230, 0x0046C440, RiddleDifficultySearchBytes, sizeof(RiddleDifficultySearchBytes), 0x0A);
+
+	// Checking address pointer
+	if (!RiddleDifficulty)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Riddle Difficulty address!";
+		return nullptr;
+	}
+
+	RiddleDifficulty = (int8_t*)((DWORD)RiddleDifficulty);
+
+	return RiddleDifficulty;
+}
+
+int8_t GetNumberOfSaves()
+{
+	int8_t *pNumberOfSaves = GetNumberOfSavesPointer();
+
+	return (pNumberOfSaves) ? *pNumberOfSaves : 0;
+}
+
+int8_t *GetNumberOfSavesPointer()
+{
+	if (NumberOfSavesAddr)
+	{
+		return NumberOfSavesAddr;
+	}
+
+	// Get Number of Saves address
+	constexpr BYTE NumberOfSavesSearchBytes[]{ 0xE8, 0xEB, 0xED, 0xFF, 0xFF, 0x83, 0xF8, 0x02 };
+	int8_t *NumberOfSaves = (int8_t*)ReadSearchedAddresses(0x00454340, 0x004545A0, 0x004545A0, NumberOfSavesSearchBytes, sizeof(NumberOfSavesSearchBytes), 0x0D);
+
+	// Checking address pointer
+	if (!NumberOfSaves)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Number of Saves address!";
+		return nullptr;
+	}
+
+	NumberOfSaves = (int8_t*)((DWORD)NumberOfSaves);
+
+	return NumberOfSaves;
+}
+
+float GetInGameTime()
+{
+	float *pInGameTime = GetInGameTimePointer();
+
+	return (pInGameTime) ? *pInGameTime : 0;
+}
+
+float *GetInGameTimePointer()
+{
+	if (InGameTimeAddr)
+	{
+		return InGameTimeAddr;
+	}
+
+	// Get In Game Timer address
+	constexpr BYTE InGameTimeSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x41, 0x7A, 0x07, 0xB8, 0x0A, 0x00 };
+	float *InGameTime = (float*)ReadSearchedAddresses(0x00539E27, 0x0053A157, 0x00539A77, InGameTimeSearchBytes, sizeof(InGameTimeSearchBytes), -0x14);
+
+	// Checking address pointer
+	if (!InGameTime)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find In Game Timer address!";
+		return nullptr;
+	}
+
+	InGameTime = (float*)((DWORD)InGameTime);
+
+	return InGameTime;
+}
+
+float GetWalkingDistance()
+{
+	float *pWalkingDistance = GetWalkingDistancePointer();
+
+	return (pWalkingDistance) ? *pWalkingDistance : 0;
+}
+
+float *GetWalkingDistancePointer()
+{
+	if (WalkingDistanceAddr)
+	{
+		return WalkingDistanceAddr;
+	}
+
+	// Get Walking Distance address
+	constexpr BYTE WalkingDistanceSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x05, 0x7A, 0x2D, 0x8B, 0x44, 0x24 };
+	float *WalkingDistance = (float*)ReadSearchedAddresses(0x00539ACD, 0x00539DFD, 0x0053971D, WalkingDistanceSearchBytes, sizeof(WalkingDistanceSearchBytes), 0x28);
+
+	// Checking address pointer
+	if (!WalkingDistance)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Walking Distance address!";
+		return nullptr;
+	}
+
+	WalkingDistance = (float*)((DWORD)WalkingDistance);
+
+	return WalkingDistance;
+}
+
+float GetRunningDistance()
+{
+	float *pRunningDistance = GetRunningDistancePointer();
+
+	return (pRunningDistance) ? *pRunningDistance : 0;
+}
+
+float *GetRunningDistancePointer()
+{
+	if (RunningDistanceAddr)
+	{
+		return RunningDistanceAddr;
+	}
+
+	// Get Running Distance address
+	constexpr BYTE RunningDistanceSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x05, 0x7A, 0x2D, 0x8B, 0x44, 0x24 };
+	float *RunningDistance = (float*)ReadSearchedAddresses(0x00539ACD, 0x00539DFD, 0x0053971D, RunningDistanceSearchBytes, sizeof(RunningDistanceSearchBytes), 0x17);
+
+	// Checking address pointer
+	if (!RunningDistance)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Running Distance address!";
+		return nullptr;
+	}
+
+	RunningDistance = (float*)((DWORD)RunningDistance);
+
+	return RunningDistance;
+}
+
+int16_t GetItemsCollected()
+{
+	int16_t *pItemsCollected = GetItemsCollectedPointer();
+
+	return (pItemsCollected) ? *pItemsCollected : 0;
+}
+
+int16_t *GetItemsCollectedPointer()
+{
+	if (FPSCounterAddr)
+	{
+		return ItemsCollectedAddr;
+	}
+
+	// Get Items Collected address
+	constexpr BYTE ItemsCollectedSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x41, 0x75, 0x09, 0x8B, 0x44, 0x24, 0x04 };
+	int16_t *ItemsCollected = (int16_t*)ReadSearchedAddresses(0x00539B8A, 0x00539EBA, 0x005397DA, ItemsCollectedSearchBytes, sizeof(ItemsCollectedSearchBytes), 0x19);
+
+	// Checking address pointer
+	if (!ItemsCollected)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Items Collected address!";
+		return nullptr;
+	}
+
+	ItemsCollected = (int16_t*)((DWORD)ItemsCollected);
+
+	return ItemsCollected;
+}
+
+float GetDamagePointsTaken()
+{
+	float *pDamagePointsTaken = GetDamagePointsTakenPointer();
+
+	return (pDamagePointsTaken) ? *pDamagePointsTaken : 0;
+}
+
+float *GetDamagePointsTakenPointer()
+{
+	if (DamagePointsTakenAddr)
+	{
+		return DamagePointsTakenAddr;
+	}
+
+	// Get Damage Points Taken address
+	constexpr BYTE DamagePointsTakenSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x41, 0x75, 0x09, 0x8B, 0x44, 0x24, 0x04 };
+	float *DamagePointsTaken = (float*)ReadSearchedAddresses(0x00539B8A, 0x00539EBA, 0x005397DA, DamagePointsTakenSearchBytes, sizeof(DamagePointsTakenSearchBytes), 0x28);
+
+	// Checking address pointer
+	if (!DamagePointsTaken)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Damage Points Taken address!";
+		return nullptr;
+	}
+
+	DamagePointsTaken = (float*)((DWORD)DamagePointsTaken);
+
+	return DamagePointsTaken;
+}
+
+int8_t GetSecretItemsCollected()
+{
+	int8_t *pSecretItemsCollected = GetSecretItemsCollectedPointer();
+
+	return (pSecretItemsCollected) ? *pSecretItemsCollected : 0;
+}
+
+int8_t *GetSecretItemsCollectedPointer()
+{
+	if (SecretItemsCollectedAddr)
+	{
+		return SecretItemsCollectedAddr;
+	}
+
+	// Get Secret Items Collected address
+	constexpr BYTE SecretItemsCollectedSearchBytes[]{ 0xF6, 0xC1, 0x02, 0x74, 0x01, 0x40, 0xF6, 0xC1, 0x04, 0x74, 0x01, 0x40 };
+	int8_t *SecretItemsCollected = (int8_t*)ReadSearchedAddresses(0x00539D46, 0x0053A076, 0x00539996, SecretItemsCollectedSearchBytes, sizeof(SecretItemsCollectedSearchBytes), -0x16);
+
+	// Checking address pointer
+	if (!SecretItemsCollected)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Secret Items Collected address!";
+		return nullptr;
+	}
+
+	SecretItemsCollected = (int8_t*)((DWORD)SecretItemsCollected);
+
+	return SecretItemsCollected;
+}
+
+float GetBoatStageTime()
+{
+	float *pBoatStageTime = GetBoatStageTimePointer();
+
+	return (pBoatStageTime) ? *pBoatStageTime : 0;
+}
+
+float *GetBoatStageTimePointer()
+{
+	if (BoatStageTimeAddr)
+	{
+		return BoatStageTimeAddr;
+	}
+
+	// Get Boat Stage Time address
+	constexpr BYTE BoatStageTimeSearchBytes[]{ 0xB9, 0x3C, 0x00, 0x00, 0x00, 0xF7, 0xF9, 0x8B, 0xE8, 0x8B, 0xFA };
+	float *BoatStageTime = (float*)ReadSearchedAddresses(0x00447159, 0x004472F9, 0x004472F9, BoatStageTimeSearchBytes, sizeof(BoatStageTimeSearchBytes), -0x0B);
+
+	// Checking address pointer
+	if (!BoatStageTime)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Boat Stage Time address!";
+		return nullptr;
+	}
+
+	BoatStageTime = (float*)((DWORD)BoatStageTime);
+
+	return BoatStageTime;
 }
 
 void SaveDebugResolutionValue(int width, int height)

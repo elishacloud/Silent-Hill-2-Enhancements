@@ -13,6 +13,7 @@ public:
 	};
 
 	void DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface);
+	void DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface);
 	void ResetFont();
 
 private:
@@ -35,6 +36,7 @@ private:
 	void DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, D3D8TEXT TextStruct);
 	std::string IntToHexStr(int IntValue);
 	std::string FloatToStr(float FloatValue, int precision);
-	
+	std::string SecondsToTimeString(int time);
+	std::string SecondsToMsTimeString(float time);
 };
 

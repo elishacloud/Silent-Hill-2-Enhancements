@@ -3,6 +3,140 @@
 LPD3DXFONT font = NULL;
 bool ResetFontFlag = false;
 
+void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
+{
+	Logging::LogDebug() << __FUNCTION__;
+
+	int rectOffset = 40, FloatPrecision = 4, KMConstant = 500000;
+
+	D3D8TEXT TextStruct;
+	TextStruct.Format = DT_NOCLIP | DT_SINGLELINE;
+	TextStruct.Rect.left = ResolutionWidth - 185;
+	TextStruct.Rect.top = rectOffset;
+	TextStruct.Rect.right = ResolutionWidth;
+	TextStruct.Rect.bottom = rectOffset + 15;
+
+	std::string OvlString = "INFO MENU (Crtl + I) ";
+
+	TextStruct.String = OvlString.c_str();
+
+	DrawDebugText(ProxyInterface, TextStruct);
+
+	OvlString = "Action Difficulty: ";
+	OvlString.append(ActionDifficulty[GetActionDifficulty()]);
+
+	TextStruct.String = OvlString.c_str();
+	TextStruct.Rect.top += 15;
+	TextStruct.Rect.bottom += 15;
+
+	DrawDebugText(ProxyInterface, TextStruct);
+
+	OvlString = "Riddle Difficulty: ";
+	OvlString.append(RiddleDifficulty[GetRiddleDifficulty()]);
+
+	TextStruct.String = OvlString.c_str();
+	TextStruct.Rect.top += 15;
+	TextStruct.Rect.bottom += 15;
+
+	DrawDebugText(ProxyInterface, TextStruct);
+
+	OvlString = "Saves: ";
+	OvlString.append(std::to_string(GetNumberOfSaves()));
+
+	TextStruct.String = OvlString.c_str();
+	TextStruct.Rect.top += 15;
+	TextStruct.Rect.bottom += 15;
+
+	DrawDebugText(ProxyInterface, TextStruct);
+
+	OvlString = "Total Time: ";
+	OvlString.append(SecondsToTimeString(GetInGameTime()));
+
+	TextStruct.String = OvlString.c_str();
+	TextStruct.Rect.top += 15;
+	TextStruct.Rect.bottom += 15;
+
+	DrawDebugText(ProxyInterface, TextStruct);
+
+	OvlString = "Walking Distance: ";
+	OvlString.append(FloatToStr(GetWalkingDistance() / KMConstant, 2));
+	OvlString.append("km");
+
+	TextStruct.String = OvlString.c_str();
+	TextStruct.Rect.top += 15;
+	TextStruct.Rect.bottom += 15;
+
+	DrawDebugText(ProxyInterface, TextStruct);
+
+	OvlString = "Running Distance: ";
+	OvlString.append(FloatToStr(GetRunningDistance() / KMConstant, 2));
+	OvlString.append("km");
+
+	TextStruct.String = OvlString.c_str();
+	TextStruct.Rect.top += 15;
+	TextStruct.Rect.bottom += 15;
+
+	DrawDebugText(ProxyInterface, TextStruct);
+
+	OvlString = "Items: ";
+	OvlString.append(std::to_string(GetItemsCollected()));
+	OvlString.append("(+");
+	OvlString.append(std::to_string(GetSecretItemsCollected()));
+	OvlString.append(")");
+
+	TextStruct.String = OvlString.c_str();
+	TextStruct.Rect.top += 15;
+	TextStruct.Rect.bottom += 15;
+
+	DrawDebugText(ProxyInterface, TextStruct);
+
+	OvlString = "Shooting Kills: ";
+	OvlString.append(std::to_string(GetShootingKills()));
+
+	TextStruct.String = OvlString.c_str();
+	TextStruct.Rect.top += 15;
+	TextStruct.Rect.bottom += 15;
+
+	DrawDebugText(ProxyInterface, TextStruct);
+
+	OvlString = "Fighting Kills: ";
+	OvlString.append(std::to_string(GetMeleeKills()));
+
+	TextStruct.String = OvlString.c_str();
+	TextStruct.Rect.top += 15;
+	TextStruct.Rect.bottom += 15;
+
+	DrawDebugText(ProxyInterface, TextStruct);
+
+	OvlString = "Boat Stage Time: ";
+	OvlString.append(SecondsToMsTimeString(GetBoatStageTime()));
+
+	TextStruct.String = OvlString.c_str();
+	TextStruct.Rect.top += 15;
+	TextStruct.Rect.bottom += 15;
+
+	DrawDebugText(ProxyInterface, TextStruct);
+
+	OvlString = "Boat Max Speed: ";
+	OvlString.append(FloatToStr(GetBoatMaxSpeed(), 2));
+	OvlString.append("m/s");
+
+	TextStruct.String = OvlString.c_str();
+	TextStruct.Rect.top += 15;
+	TextStruct.Rect.bottom += 15;
+
+	DrawDebugText(ProxyInterface, TextStruct);
+
+	OvlString = "Total Damage: ";
+	OvlString.append(FloatToStr(GetDamagePointsTaken(), 2));
+
+	TextStruct.String = OvlString.c_str();
+	TextStruct.Rect.top += 15;
+	TextStruct.Rect.bottom += 15;
+
+	DrawDebugText(ProxyInterface, TextStruct);
+}
+
 void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 {
 	Logging::LogDebug() << __FUNCTION__;
@@ -17,7 +151,7 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 		CharYPos = 0;
 	}
 
-	Overlay::D3D8TEXT TextStruct;
+	D3D8TEXT TextStruct;
 	TextStruct.Format = DT_NOCLIP | DT_SINGLELINE;
 	TextStruct.Rect.left = rectOffset;
 	TextStruct.Rect.top = rectOffset;
@@ -95,31 +229,6 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 
 	DrawDebugText(ProxyInterface, TextStruct);
 
-	int ShootingKills = GetShootingKills();
-	int MeleeKills = GetMeleeKills();
-
-	OvlString = "Kills Gun/Melee/Total: ";
-	OvlString.append(std::to_string(ShootingKills));
-	OvlString.append(" / ");
-	OvlString.append(std::to_string(MeleeKills));
-	OvlString.append(" / ");
-	OvlString.append(std::to_string(ShootingKills + MeleeKills));
-
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
-
-	DrawDebugText(ProxyInterface, TextStruct);
-
-	OvlString = "Boat Max Speed: ";
-	OvlString.append(FloatToStr(GetBoatMaxSpeed(), 2));
-
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
-
-	DrawDebugText(ProxyInterface, TextStruct);
-
 }
 
 
@@ -188,4 +297,44 @@ void Overlay::ResetFont()
 		font->OnLostDevice();
 		ResetFontFlag = true;
 	}
+}
+
+std::string Overlay::SecondsToTimeString(int time)
+{
+	std::string TimeString = "";
+	int hours, minutes, seconds;
+
+	hours = time / 3600;
+	time -= hours * 3600;
+	minutes = time / 60;
+	time -= minutes * 60;
+	seconds = time;
+
+	TimeString.append(std::to_string(hours));
+	TimeString.append("h ");
+	TimeString.append(std::to_string(minutes));
+	TimeString.append("m ");
+	TimeString.append(std::to_string(seconds));
+	TimeString.append("s");
+
+	return TimeString;
+}
+
+std::string Overlay::SecondsToMsTimeString(float time)
+{
+	std::string TimeString = "";
+	int minutes, seconds, tenths;
+
+	minutes = time / 60;
+	time -= minutes * 60;
+	seconds = time;
+	tenths = (time - seconds) * 100;
+
+	TimeString.append(std::to_string(minutes));
+	TimeString.append("m ");
+	TimeString.append(std::to_string(seconds));
+	TimeString.append("s ");
+	TimeString.append(std::to_string(tenths));
+
+	return TimeString;
 }

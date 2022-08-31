@@ -600,7 +600,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
 			if (GetAsyncKeyState(VK_CONTROL))
 			{
-				if (EnableInfoOverlay) //TODOT
+				if (EnableInfoOverlay)
 				{
 					ShowInfoOverlay = !ShowInfoOverlay;
 				}

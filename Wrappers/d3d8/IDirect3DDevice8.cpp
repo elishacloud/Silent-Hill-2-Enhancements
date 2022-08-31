@@ -3359,21 +3359,23 @@ void m_IDirect3DDevice8::DrawDebugOverlay()
 	Logging::LogDebug() << __FUNCTION__;
 
 	int padding = 2;
-	int rectx1 = 50, rectx2 = 220, recty1 = 50, recty2 = 170;
+	int rectOffset = 40;
+	int rectX1 = rectOffset, rectX2 = rectOffset + 185;
+	int rectY1 = rectOffset, rectY2 = rectOffset + 150;
 
 	D3D8TEXT TextStruct;
 	TextStruct.Colour = D3DCOLOR_ARGB(255, 153, 255, 153);
 	TextStruct.Format = DT_NOCLIP | DT_SINGLELINE;
-	TextStruct.Rect.left = rectx1 + 10;
-	TextStruct.Rect.top = 55;
+	TextStruct.Rect.left = rectX1 + 10;
+	TextStruct.Rect.top = rectOffset + 5;
 	TextStruct.Rect.right = TextStruct.Rect.left + 300;
-	TextStruct.Rect.bottom = 65;
+	TextStruct.Rect.bottom = rectOffset + 15;
 
-	D3DRECT BlackRectangle = { rectx1, recty1, rectx2, recty2 };
+	D3DRECT BlackRectangle = { rectX1, rectY1, rectX2, rectY2 };
 	ProxyInterface->Clear(1, &BlackRectangle, D3DCLEAR_TARGET, D3DCOLOR_ARGB(255, 0, 0, 0), 0.0f, 0);
 	
 	RECT TextRectangle;
-	SetRect(&TextRectangle, rectx1 + padding, recty1 + padding, rectx2 - padding, recty2 - padding);
+	SetRect(&TextRectangle, rectX1 + padding, rectY1 + padding, rectX2 - padding, rectY2 - padding);
 	
 	std::string OvlString = "Game Resolution: ";
 	OvlString.append(std::to_string(ResolutionWidth));
@@ -3436,6 +3438,31 @@ void m_IDirect3DDevice8::DrawDebugOverlay()
 	TextStruct.Rect.top += 15;
 	TextStruct.Rect.bottom += 15;
 	
+	DrawDebugText(TextStruct);
+
+	int ShootingKills = GetShootingKills();
+	int MeleeKills = GetMeleeKills();
+
+	OvlString = "Kills Gun/Melee/Total: ";
+	OvlString.append(std::to_string(ShootingKills));
+	OvlString.append(" / ");
+	OvlString.append(std::to_string(MeleeKills));
+	OvlString.append(" / ");
+	OvlString.append(std::to_string(ShootingKills + MeleeKills));
+
+	TextStruct.String = OvlString.c_str();
+	TextStruct.Rect.top += 15;
+	TextStruct.Rect.bottom += 15;
+
+	DrawDebugText(TextStruct);
+
+	OvlString = "Boat Max Speed: ";
+	OvlString.append(FloatToStr(GetBoatMaxSpeed()));
+
+	TextStruct.String = OvlString.c_str();
+	TextStruct.Rect.top += 15;
+	TextStruct.Rect.bottom += 15;
+
 	DrawDebugText(TextStruct);
 
 }

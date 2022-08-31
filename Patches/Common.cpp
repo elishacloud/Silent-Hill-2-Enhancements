@@ -45,6 +45,10 @@ BYTE *InventoryStatusAddr = nullptr;
 DWORD *LoadingScreenAddr = nullptr;
 BYTE *PauseMenuButtonIndexAddr = nullptr;
 float *FPSCounterAddr = nullptr;
+int16_t *ShootingKillsAddr = nullptr;
+int16_t *MeleeKillsAddr = nullptr;
+float *BoatMaxSpeedAddr = nullptr;
+
 bool ShowDebugOverlay = false;
 int ResolutionWidth = 0;
 int ResolutionHeight = 0;
@@ -737,6 +741,96 @@ float *GetFPSCounterPointer()
 	FPSCounter = (float*)((DWORD)FPSCounter + 0x0);
 
 	return FPSCounter;
+}
+
+int16_t GetShootingKills()
+{
+	int16_t *pShootingKills = GetShootingKillsPointer();
+
+	return (pShootingKills) ? *pShootingKills : 0;
+}
+
+int16_t *GetShootingKillsPointer()
+{
+	if (FPSCounterAddr)
+	{
+		return ShootingKillsAddr;
+	}
+
+	// Get Shooting Kills address
+	constexpr BYTE ShootingKillsSearchBytes[]{ 0x0F, 0xB7, 0x44, 0x24, 0x04, 0x48, 0x83, 0xF8, 0x19 };
+	int16_t *ShootingKills = (int16_t*)ReadSearchedAddresses(0x00539B10, 0x00539E40, 0x00539760, ShootingKillsSearchBytes, sizeof(ShootingKillsSearchBytes), 0x1C);
+
+	// Checking address pointer
+	if (!ShootingKills)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Shooting Kills address!";
+		return nullptr;
+	}
+
+	ShootingKills = (int16_t*)((DWORD)ShootingKills);
+
+	return ShootingKills;
+}
+
+int16_t GetMeleeKills()
+{
+	int16_t *pMeleeKills = GetMeleeKillsPointer();
+
+	return (pMeleeKills) ? *pMeleeKills : 0;
+}
+
+int16_t *GetMeleeKillsPointer()
+{
+	if (FPSCounterAddr)
+	{
+		return MeleeKillsAddr;
+	}
+
+	// Get Melee Kills address
+	constexpr BYTE MeleeKillsSearchBytes[]{ 0x0F, 0xB7, 0x44, 0x24, 0x04, 0x48, 0x83, 0xF8, 0x19 };
+	int16_t *MeleeKills = (int16_t*)ReadSearchedAddresses(0x00539B10, 0x00539E40, 0x00539760, MeleeKillsSearchBytes, sizeof(MeleeKillsSearchBytes), 0x24);
+
+	// Checking address pointer
+	if (!MeleeKills)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Melee Kills address!";
+		return nullptr;
+	}
+
+	MeleeKills = (int16_t*)((DWORD)MeleeKills);
+
+	return MeleeKills;
+}
+
+float GetBoatMaxSpeed()
+{
+	float *pBoatMaxSpeed = GetBoatMaxSpeedPointer();
+
+	return (pBoatMaxSpeed) ? *pBoatMaxSpeed : 0;
+}
+
+float *GetBoatMaxSpeedPointer()
+{
+	if (BoatMaxSpeedAddr)
+	{
+		return BoatMaxSpeedAddr;
+	}
+
+	// Get Boat Max Speed address
+	constexpr BYTE BoatMaxSpeedSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x41, 0x75, 0x09, 0x8B, 0x44, 0x24, 0x04 };
+	float *BoatMaxSpeed = (float*)ReadSearchedAddresses(0x00539B8A, 0x00539EBA, 0x005397DA, BoatMaxSpeedSearchBytes, sizeof(BoatMaxSpeedSearchBytes), 0x0C);
+
+	// Checking address pointer
+	if (!BoatMaxSpeed)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Boat Max Speed address!";
+		return nullptr;
+	}
+
+	BoatMaxSpeed = (float*)((DWORD)BoatMaxSpeed);
+
+	return BoatMaxSpeed;
 }
 
 void SaveDebugResolutionValue(int width, int height)

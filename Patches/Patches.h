@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 
 typedef enum _SH2VERSION {
 	SH2V_UNKNOWN = 0,
@@ -35,6 +36,9 @@ BYTE GetInventoryStatus();
 DWORD GetLoadingScreen();
 BYTE GetPauseMenuButtonIndex();
 float GetFPSCounter();
+int16_t GetShootingKills();
+int16_t GetMeleeKills();
+float GetBoatMaxSpeed();
 void SaveDebugResolutionValue(int width, int height);
 
 // Shared pointer function declaration
@@ -61,6 +65,9 @@ BYTE *GetInventoryStatusPointer();
 DWORD *GetLoadingScreenPointer();
 BYTE *GetPauseMenuButtonIndexPointer();
 float *GetFPSCounterPointer();
+int16_t *GetShootingKillsPointer();
+int16_t *GetMeleeKillsPointer();
+float *GetBoatMaxSpeedPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

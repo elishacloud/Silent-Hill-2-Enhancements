@@ -176,7 +176,6 @@ private:
 		LPCSTR   String;
 		RECT       Rect;
 		DWORD    Format;
-		D3DCOLOR Colour;
 	};
 
 	// Helper functions

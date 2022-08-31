@@ -3358,31 +3358,37 @@ void m_IDirect3DDevice8::DrawDebugOverlay()
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	int padding = 2;
 	int rectOffset = 40;
-	int rectX1 = rectOffset, rectX2 = rectOffset + 185;
-	int rectY1 = rectOffset, rectY2 = rectOffset + 150;
+	float CharYPos = GetJamesPosY();
+	float AntiJitterValue = 0.0001;
+
+	// Lock value at 0 if close enough, to avoid a rapidly changing number.
+	if (CharYPos > -AntiJitterValue && CharYPos < AntiJitterValue)
+	{
+		CharYPos = 0;
+	}
 
 	D3D8TEXT TextStruct;
-	TextStruct.Colour = D3DCOLOR_ARGB(255, 153, 255, 153);
 	TextStruct.Format = DT_NOCLIP | DT_SINGLELINE;
-	TextStruct.Rect.left = rectX1 + 10;
-	TextStruct.Rect.top = rectOffset + 5;
-	TextStruct.Rect.right = TextStruct.Rect.left + 300;
+	TextStruct.Rect.left = rectOffset;
+	TextStruct.Rect.top = rectOffset;
+	TextStruct.Rect.right = rectOffset + 300;
 	TextStruct.Rect.bottom = rectOffset + 15;
+	
+	std::string OvlString = "DEBUG MENU (Crtl + D) ";
 
-	D3DRECT BlackRectangle = { rectX1, rectY1, rectX2, rectY2 };
-	ProxyInterface->Clear(1, &BlackRectangle, D3DCLEAR_TARGET, D3DCOLOR_ARGB(255, 0, 0, 0), 0.0f, 0);
-	
-	RECT TextRectangle;
-	SetRect(&TextRectangle, rectX1 + padding, rectY1 + padding, rectX2 - padding, rectY2 - padding);
-	
-	std::string OvlString = "Game Resolution: ";
+	TextStruct.String = OvlString.c_str();
+
+	DrawDebugText(TextStruct);
+
+	OvlString = "Game Resolution: ";
 	OvlString.append(std::to_string(ResolutionWidth));
 	OvlString.append("x");
 	OvlString.append(std::to_string(ResolutionHeight));
 
 	TextStruct.String = OvlString.c_str();
+	TextStruct.Rect.top += 15;
+	TextStruct.Rect.bottom += 15;
 
 	DrawDebugText(TextStruct);
 	
@@ -3413,7 +3419,7 @@ void m_IDirect3DDevice8::DrawDebugOverlay()
 
 	DrawDebugText(TextStruct);
 
-	OvlString = "James X Position: ";
+	OvlString = "Char X Position: ";
 	OvlString.append(FloatToStr(GetJamesPosX()));
 
 	TextStruct.String = OvlString.c_str();
@@ -3422,8 +3428,8 @@ void m_IDirect3DDevice8::DrawDebugOverlay()
 
 	DrawDebugText(TextStruct);
 
-	OvlString = "James Y Position: ";
-	OvlString.append(FloatToStr(GetJamesPosY()));
+	OvlString = "Char Y Position: ";
+	OvlString.append(FloatToStr(CharYPos));
 
 	TextStruct.String = OvlString.c_str();
 	TextStruct.Rect.top += 15;
@@ -3431,7 +3437,7 @@ void m_IDirect3DDevice8::DrawDebugOverlay()
 
 	DrawDebugText(TextStruct);
 
-	OvlString = "James Z Position: ";
+	OvlString = "Char Z Position: ";
 	OvlString.append(FloatToStr(GetJamesPosZ()));
 
 	TextStruct.String = OvlString.c_str();
@@ -3472,6 +3478,14 @@ void m_IDirect3DDevice8::DrawDebugText(D3D8TEXT FontStruct)
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	D3DCOLOR GreenColor = D3DCOLOR_ARGB(255, 153, 255, 153);
+	D3DCOLOR BlackColor = D3DCOLOR_ARGB(255, 0, 0, 0);
+	int DropShadowOffset = 1;
+
+	RECT DropShadowRect = FontStruct.Rect;
+	DropShadowRect.top = DropShadowRect.top + DropShadowOffset;
+	DropShadowRect.left = DropShadowRect.left + DropShadowOffset;
+
 	if (ResetFont)
 	{
 		ResetFont = false;
@@ -3492,7 +3506,8 @@ void m_IDirect3DDevice8::DrawDebugText(D3D8TEXT FontStruct)
 
 	if (font != NULL)
 	{
-		font->DrawTextA(FontStruct.String, -1, &FontStruct.Rect, FontStruct.Format, FontStruct.Colour);
+		font->DrawTextA(FontStruct.String, -1, &DropShadowRect, FontStruct.Format, BlackColor);
+		font->DrawTextA(FontStruct.String, -1, &FontStruct.Rect, FontStruct.Format, GreenColor);
 	}
 }
 

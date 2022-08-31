@@ -20,31 +20,38 @@
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 #include "Common\Settings.h"
+#include "Wrappers\d3d8\d3d8wrapper.h"
 
-enum TGA_image_type {
-	CMI = 1,		// colour map image
-	RGBA,			// RGB(A) uncompressed
-	GREY,			// greyscale uncompressed
-	GREY_RLE = 9,	// greyscale RLE (compressed)
-	RGBA_RLE,		// RGB(A) RLE (compressed)
-};
-
-#pragma pack(push, 1)
 typedef struct {
-	BYTE id;				// id
-	BYTE color_map_type;	// colour map type
-	BYTE image_type;		// image type
-	WORD cm_first_entry;	// colour map first entry
-	WORD cm_length;			// colour map length
-	BYTE map_entry_size;	// map entry size, colour map depth (16, 24 , 32)
-	WORD h_origin;			// horizontal origin
-	WORD v_origin;			// vertical origin
-	WORD width;				// width
-	WORD height;			// height
-	BYTE pixel_depth;		// pixel depth
-	BYTE image_desc;		// image descriptor
-} TGA_FILEHEADER;
-#pragma pack(pop)
+	DWORD dwSize;
+	DWORD dwFlags;
+	DWORD dwFourCC;
+	DWORD dwRGBBitCount;
+	DWORD dwRBitMask;
+	DWORD dwGBitMask;
+	DWORD dwBBitMask;
+	DWORD dwRGBAlphaBitMask;
+} DDPIXELFORMAT;
+
+typedef struct {
+	DWORD dwCaps1;
+	DWORD dwCaps2;
+	DWORD Reserved[2];
+} DDCAPS2;
+
+typedef struct {
+	DWORD dwSize;
+	DWORD dwFlags;
+	DWORD dwHeight;
+	DWORD dwWidth;
+	DWORD dwPitchOrLinearSize;
+	DWORD dwDepth;
+	DWORD dwMipMapCount;
+	DWORD dwReserved1[11];
+	DDPIXELFORMAT ddpfPixelFormat;
+	DDCAPS2 ddsCaps;
+	DWORD dwReserved2;
+} DDS_HEADER;
 
 using namespace std;
 
@@ -56,45 +63,67 @@ constexpr BYTE DFontFuncBlockD[] = { 0x00, 0x5F, 0x7F, 0x9F, 0xBF, 0xDF, 0xFF, 0
 constexpr BYTE DFontFuncBlockE[] = { 0x8B, 0x44, 0x24, 0x08, 0x81, 0xEC, 0x80, 0x00, 0x00, 0x00, 0x53, 0x55, 0x56, 0x57, 0x33, 0xFF, 0x83, 0xC9, 0xFF };
 constexpr BYTE DFontFuncBlockF[] = { 0x83, 0xEC, 0x0C, 0x55, 0x8B, 0x6C, 0x24, 0x18, 0x33, 0xD2, 0x3B, 0xEA, 0x75, 0x07, 0x33, 0xC0, 0x5D, 0x83, 0xC4 };
 
-unsigned int fontTexWidth = 550;
-unsigned int fontTexHeight = 544;
-float fontTexScaleW = 1.0f;
-float fontTexScaleH = 1.0f;
-BYTE charW = 22;
-BYTE charH = 32;
-BYTE charIX = 100;
-BYTE charIY = 150;
-WORD nFontW = 20;
-WORD nFontH = 30;
-WORD sFontW = 16;
-WORD sFontH = 24;
-BYTE letterSpc = 2;
-BYTE spaceSize = 7;
+static unsigned int fontTexWidth = 550;
+static unsigned int fontTexHeight = 544;
+static float fontTexScaleW = 1.0f;
+static float fontTexScaleH = 1.0f;
+static BYTE charW = 22;
+static BYTE charH = 32;
+static BYTE charIX = 100;
+static BYTE charIY = 150;
+static WORD nFontW = 20;
+static WORD nFontH = 30;
+static WORD sFontW = 16;
+static WORD sFontH = 24;
+static BYTE letterSpc = 2;
+static BYTE spaceSize = 7;
 
-TGA_FILEHEADER tga;
-BYTE *fontData;
+static D3DFORMAT fontFormat = D3DFMT_A8R8G8B8;
+static BYTE *fontData;
+static DWORD fontDataSize;
 
-void UpdateFontTex(BYTE *ptr, int size)
+static BOOL LoadDDSFont(void);
+
+static void UpdateFontTextureData(BYTE *ptr, int size)
 {
 	Logging::LogDebug() << __FUNCTION__ << " - address: " << (DWORD)ptr << ", size: " << size;
 
 	if (fontData)
-		memcpy(ptr, fontData, size);
+	{
+		memcpy(ptr, fontData, fontDataSize);
+	}
 
 	return;
 }
 
-int ReturnFontIdx(int fontSize, WORD charID)
+static int ReturnFontIdx(int fontSize, WORD charID)
 {
 	int charMax = (charIX * charIY) / 2;
 
 	if (charID > charMax)
+	{
 		return 0;
+	}
 
 	return charID + fontSize * charMax;
 }
 
-void* SpaceSizeRetAddr;
+static void* CreateFontTextureRetAddr;
+
+__declspec(naked) void __stdcall CreateFontTextureASM()
+{
+	__asm
+	{
+		push	1
+		mov		edi, fontFormat
+		push	edi
+		push	0
+		push	1
+		jmp		CreateFontTextureRetAddr
+	}
+}
+
+static void* SpaceSizeRetAddr;
 
 __declspec(naked) void __stdcall SpaceSizeASM()
 {
@@ -110,7 +139,7 @@ __declspec(naked) void __stdcall SpaceSizeASM()
 	}
 }
 
-void* SpaceSizeRetAddr2;
+static void* SpaceSizeRetAddr2;
 
 __declspec(naked) void __stdcall SpaceSizeASM2()
 {
@@ -126,7 +155,7 @@ __declspec(naked) void __stdcall SpaceSizeASM2()
 	}
 }
 
-void* SpaceSizeRetAddr3;
+static void* SpaceSizeRetAddr3;
 
 __declspec(naked) void __stdcall SpaceSizeASM3()
 {
@@ -166,30 +195,7 @@ void PatchCustomFonts()
 	letterSpc = (BYTE)LetterSpacing;
 	spaceSize = (BYTE)SpaceSize;
 
-	ifstream file("data\\font\\font000.tga", ios::in | ios::binary | ios::ate);
-
-	if (file.is_open())
-	{
-		file.seekg(0, ios::beg);
-		file.read((char *)&tga, sizeof(TGA_FILEHEADER));
-
-		if (tga.image_type != RGBA || tga.pixel_depth != 32 || tga.image_desc != 40)
-		{
-			Logging::Log() << __FUNCTION__ << " Error: Unsupported tga format!";
-			file.close();
-			return;
-		}
-
-		fontTexWidth = tga.width;
-		fontTexHeight = tga.height;
-		int texSize = fontTexWidth * fontTexHeight * 4;
-		fontData = new BYTE[texSize];
-
-		file.seekg((std::streamoff)sizeof(TGA_FILEHEADER) + (std::streamoff)tga.cm_length * 4, ios::beg);
-		file.read((char *)fontData, texSize);
-		file.close();
-	}
-	else
+	if (!LoadDDSFont())
 	{
 		Logging::Log() << __FUNCTION__ << " Error: Could not find font file";
 		return;
@@ -204,11 +210,14 @@ void PatchCustomFonts()
 	UpdateMemoryAddress((void *)((BYTE*)DFontAddrA + 0x31), (void *)&fontTexScaleW, 4);
 	UpdateMemoryAddress((void *)((BYTE*)DFontAddrA + 0x3B), (void *)&fontTexScaleH, 4);
 
+	CreateFontTextureRetAddr = (void*)((BYTE*)DFontAddrA + 0xB4);
+	WriteJMPtoMemory((BYTE*)DFontAddrA + 0xAC, *CreateFontTextureASM, 8);
+
 	BYTE codeA[] = { 0x51, 0x57, 0xBA, 0xEF, 0xBE, 0xAD, 0xDE, 0xFF, 0xD2, 0x83, 0xc4, 0x08, 0x90, 0x90, 0x90, 0x90 };
-	codeA[3] = (BYTE)((DWORD)*UpdateFontTex & 0xFF);
-	codeA[4] = (BYTE)((DWORD)*UpdateFontTex >> 8);
-	codeA[5] = (BYTE)((DWORD)*UpdateFontTex >> 16);
-	codeA[6] = (BYTE)((DWORD)*UpdateFontTex >> 24);
+	codeA[3] = (BYTE)((DWORD)*UpdateFontTextureData & 0xFF);
+	codeA[4] = (BYTE)((DWORD)*UpdateFontTextureData >> 8);
+	codeA[5] = (BYTE)((DWORD)*UpdateFontTextureData >> 16);
+	codeA[6] = (BYTE)((DWORD)*UpdateFontTextureData >> 24);
 	UpdateMemoryAddress((void *)((BYTE*)DFontAddrA + 0xFE), (void *)&codeA, sizeof(codeA));
 
 	BYTE codeB[] = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x8B, 0x54, 0x24, 0x30, 0x52, 0xBA, 0xEF, 0xBE, 0xAD, 0xDE };
@@ -318,4 +327,38 @@ void PatchCustomFonts()
 		WriteJMPtoMemory((BYTE*)DFontAddrF + 0x04F2, *SpaceSizeASM2, 6);
 		WriteJMPtoMemory((BYTE*)DFontAddrG + 0x85, *SpaceSizeASM3, 6);
 	}
+}
+
+static BOOL LoadDDSFont(void) {
+	DDS_HEADER dds;
+	ifstream file("data\\font\\font000.dds", ios::in | ios::binary | ios::ate);
+	if (file.is_open())
+	{
+		char type[4];
+		file.seekg(0, ios::beg);
+		file.read(type, 4);
+
+		if (strncmp(type, "DDS ", 4) != 0) {
+			Logging::Log() << __FUNCTION__ << " No dds file type found, read type = " << type;
+			return false;
+		}
+
+		file.read((char*)&dds, sizeof(DDS_HEADER));
+		fontTexWidth = dds.dwWidth;
+		fontTexHeight = dds.dwHeight;
+
+		if (dds.ddpfPixelFormat.dwFourCC != 0) {
+			fontFormat = (D3DFORMAT)dds.ddpfPixelFormat.dwFourCC;
+			fontDataSize = dds.dwPitchOrLinearSize;
+		}
+		else {
+			fontDataSize = dds.dwPitchOrLinearSize * fontTexHeight;
+		}
+
+		fontData = new BYTE[fontDataSize];
+		file.read((char*)fontData, fontDataSize);
+		file.close();
+		return true;
+	}
+	return false;
 }

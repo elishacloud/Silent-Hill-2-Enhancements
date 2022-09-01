@@ -56,7 +56,7 @@ float *WalkingDistanceAddr;
 float *RunningDistanceAddr;
 int16_t *ItemsCollectedAddr;
 float *DamagePointsTakenAddr;
-int8_t *SecretItemsCollectedAddr;
+uint8_t *SecretItemsCollectedAddr;
 float *BoatStageTimeAddr;
 
 bool ShowDebugOverlay = false;
@@ -1084,14 +1084,14 @@ float *GetDamagePointsTakenPointer()
 	return DamagePointsTaken;
 }
 
-int8_t GetSecretItemsCollected()
+uint8_t GetSecretItemsCollected()
 {
-	int8_t *pSecretItemsCollected = GetSecretItemsCollectedPointer();
+	uint8_t *pSecretItemsCollected = GetSecretItemsCollectedPointer();
 
 	return (pSecretItemsCollected) ? *pSecretItemsCollected : 0;
 }
 
-int8_t *GetSecretItemsCollectedPointer()
+uint8_t *GetSecretItemsCollectedPointer()
 {
 	if (SecretItemsCollectedAddr)
 	{
@@ -1100,7 +1100,7 @@ int8_t *GetSecretItemsCollectedPointer()
 
 	// Get Secret Items Collected address
 	constexpr BYTE SecretItemsCollectedSearchBytes[]{ 0xF6, 0xC1, 0x02, 0x74, 0x01, 0x40, 0xF6, 0xC1, 0x04, 0x74, 0x01, 0x40 };
-	int8_t *SecretItemsCollected = (int8_t*)ReadSearchedAddresses(0x00539D46, 0x0053A076, 0x00539996, SecretItemsCollectedSearchBytes, sizeof(SecretItemsCollectedSearchBytes), -0x16);
+	uint8_t *SecretItemsCollected = (uint8_t*)ReadSearchedAddresses(0x00539D46, 0x0053A076, 0x00539996, SecretItemsCollectedSearchBytes, sizeof(SecretItemsCollectedSearchBytes), -0x16);
 
 	// Checking address pointer
 	if (!SecretItemsCollected)
@@ -1109,7 +1109,7 @@ int8_t *GetSecretItemsCollectedPointer()
 		return nullptr;
 	}
 
-	SecretItemsCollected = (int8_t*)((DWORD)SecretItemsCollected);
+	SecretItemsCollected = (uint8_t*)((DWORD)SecretItemsCollected);
 
 	return SecretItemsCollected;
 }

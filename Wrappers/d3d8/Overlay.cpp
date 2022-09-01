@@ -11,12 +11,13 @@ void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 
 	D3D8TEXT TextStruct;
 	TextStruct.Format = DT_NOCLIP | DT_SINGLELINE;
-	TextStruct.Rect.left = ResolutionWidth - 185;
+	TextStruct.Rect.left = ResolutionWidth - 205;
 	TextStruct.Rect.top = rectOffset;
 	TextStruct.Rect.right = ResolutionWidth;
 	TextStruct.Rect.bottom = rectOffset + 15;
+	TextStruct.Color = D3DCOLOR_ARGB(255, 153, 217, 234);
 
-	std::string OvlString = "INFO MENU (Crtl + I) ";
+	std::string OvlString = "INFO MENU (CTRL + I) ";
 
 	TextStruct.String = OvlString.c_str();
 
@@ -81,7 +82,7 @@ void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString = "Items: ";
 	OvlString.append(std::to_string(GetItemsCollected()));
 	OvlString.append("(+");
-	OvlString.append(std::to_string(GetSecretItemsCollected()));
+	OvlString.append(std::to_string(bitCount(GetSecretItemsCollected())));
 	OvlString.append(")");
 
 	TextStruct.String = OvlString.c_str();
@@ -157,8 +158,9 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	TextStruct.Rect.top = rectOffset;
 	TextStruct.Rect.right = rectOffset + 300;
 	TextStruct.Rect.bottom = rectOffset + 15;
+	TextStruct.Color = D3DCOLOR_ARGB(255, 153, 255, 153);
 
-	std::string OvlString = "DEBUG MENU (Crtl + D) ";
+	std::string OvlString = "DEBUG MENU (CTRL + D) ";
 
 	TextStruct.String = OvlString.c_str();
 
@@ -236,8 +238,8 @@ void Overlay::DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT 
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	D3DCOLOR GreenColor = D3DCOLOR_ARGB(255, 153, 255, 153);
 	D3DCOLOR BlackColor = D3DCOLOR_ARGB(255, 0, 0, 0);
+	
 	int DropShadowOffset = 1;
 
 	RECT DropShadowRect = FontStruct.Rect;
@@ -253,7 +255,7 @@ void Overlay::DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT 
 
 	if (ProxyInterface != NULL && font == NULL)
 	{
-		HFONT FontCharacteristics = CreateFontA(14, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, 2, 0, "Arial");
+		HFONT FontCharacteristics = CreateFontA(16, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, 2, 0, "Arial");
 		if (FontCharacteristics != NULL)
 		{
 			Logging::LogDebug() << __FUNCTION__ << " Creating font...";
@@ -265,7 +267,7 @@ void Overlay::DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT 
 	if (font != NULL)
 	{
 		font->DrawTextA(FontStruct.String, -1, &DropShadowRect, FontStruct.Format, BlackColor);
-		font->DrawTextA(FontStruct.String, -1, &FontStruct.Rect, FontStruct.Format, GreenColor);
+		font->DrawTextA(FontStruct.String, -1, &FontStruct.Rect, FontStruct.Format, FontStruct.Color);
 	}
 }
 
@@ -337,4 +339,15 @@ std::string Overlay::SecondsToMsTimeString(float time)
 	TimeString.append(std::to_string(tenths));
 
 	return TimeString;
+}
+
+int Overlay::bitCount(uint8_t num)
+{
+	int count = 0;
+	while (num > 0) {          
+		if ((num & 0x1) == 1)    
+			count++;
+		num >>= 1;             
+	}
+	return count;	
 }

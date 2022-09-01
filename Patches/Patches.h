@@ -47,7 +47,7 @@ float GetWalkingDistance();
 float GetRunningDistance();
 int16_t GetItemsCollected();
 float GetDamagePointsTaken();
-int8_t GetSecretItemsCollected();
+uint8_t GetSecretItemsCollected();
 float GetBoatStageTime();
 void SaveDebugResolutionValue(int width, int height);
 
@@ -86,7 +86,7 @@ float *GetWalkingDistancePointer();
 float *GetRunningDistancePointer();
 int16_t *GetItemsCollectedPointer();
 float *GetDamagePointsTakenPointer();
-int8_t *GetSecretItemsCollectedPointer();
+uint8_t *GetSecretItemsCollectedPointer();
 float *GetBoatStageTimePointer();
 
 // Function patch declaration
@@ -251,7 +251,7 @@ extern float *WalkingDistanceAddr;
 extern float *RunningDistanceAddr;
 extern int16_t *ItemsCollectedAddr;
 extern float *DamagePointsTakenAddr;
-extern int8_t *SecretItemsCollectedAddr;
+extern uint8_t *SecretItemsCollectedAddr;
 extern float *BoatStageTimeAddr;
 extern bool ShowDebugOverlay;
 extern int ResolutionWidth;

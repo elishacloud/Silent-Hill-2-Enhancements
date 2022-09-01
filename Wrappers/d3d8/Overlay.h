@@ -10,6 +10,7 @@ public:
 		LPCSTR   String;
 		RECT       Rect;
 		DWORD    Format;
+		D3DCOLOR  Color;
 	};
 
 	void DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface);
@@ -38,5 +39,6 @@ private:
 	std::string FloatToStr(float FloatValue, int precision);
 	std::string SecondsToTimeString(int time);
 	std::string SecondsToMsTimeString(float time);
+	int bitCount(uint8_t num);
 };
 

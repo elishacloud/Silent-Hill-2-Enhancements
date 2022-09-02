@@ -32,7 +32,6 @@ bool IsInBloomEffect = false;
 bool IsInFakeFadeout = false;
 bool ClassReleaseFlag = false;
 bool TextureSet = false;
-auto LastOverlayToggle = std::chrono::system_clock::now();
 DWORD TextureNum = 0;
 Overlay OverlayRef;
 

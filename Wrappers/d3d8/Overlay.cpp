@@ -2,82 +2,107 @@
 
 LPD3DXFONT font = NULL;
 bool ResetFontFlag = false;
+auto LastColorChange = std::chrono::system_clock::now();
+unsigned long frames = 0;
+Overlay::D3D8TEXT MenuTestTextStruct;
+Overlay::D3D8TEXT InfoOverlayTextStruct;
+Overlay::D3D8TEXT DebugOverlayTextStruct;
+// LowWhite, MediumWhite, FullWhite
+D3DCOLOR WhiteArray[3] = { D3DCOLOR_ARGB(255, 50, 50, 50), D3DCOLOR_ARGB(255, 128, 128, 128), D3DCOLOR_ARGB(255, 255, 255, 255) };
+int WhiteArrayIndex = 2;
+
+void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
+{
+	Logging::LogDebug() << __FUNCTION__;
+
+	InitializeDataStructs();
+
+	// Debug Overlay
+	if (ShowDebugOverlay)
+	{
+		DrawDebugOverlay(ProxyInterface);
+	}
+
+	// Info Overlay
+	if (ShowInfoOverlay)
+	{
+		DrawInfoOverlay(ProxyInterface);
+	}
+
+	// Menu Test
+	if (EnableMenuTest)
+	{
+		DrawMenuTestOverlay(ProxyInterface);
+	}
+}
 
 void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	int rectOffset = 40, FloatPrecision = 4, KMConstant = 500000;
-
-	D3D8TEXT TextStruct;
-	TextStruct.Format = DT_NOCLIP | DT_SINGLELINE;
-	TextStruct.Rect.left = ResolutionWidth - 205;
-	TextStruct.Rect.top = rectOffset;
-	TextStruct.Rect.right = ResolutionWidth;
-	TextStruct.Rect.bottom = rectOffset + 15;
-	TextStruct.Color = D3DCOLOR_ARGB(255, 153, 217, 234);
+	int FloatPrecision = 4, KMConstant = 500000;
 
 	std::string OvlString = "INFO MENU (CTRL + I) ";
 
-	TextStruct.String = OvlString.c_str();
+	InfoOverlayTextStruct.String = OvlString.c_str();
 
-	DrawDebugText(ProxyInterface, TextStruct);
+	DrawDropShadowedText(ProxyInterface, InfoOverlayTextStruct);
 
 	OvlString = "Action Difficulty: ";
 	OvlString.append(ActionDifficulty[GetActionDifficulty()]);
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	InfoOverlayTextStruct.String = OvlString.c_str();
+	InfoOverlayTextStruct.Rect.top += 15;
+	InfoOverlayTextStruct.Rect.bottom += 15;
 
-	DrawDebugText(ProxyInterface, TextStruct);
+	DrawDropShadowedText(ProxyInterface, InfoOverlayTextStruct);
 
 	OvlString = "Riddle Difficulty: ";
 	OvlString.append(RiddleDifficulty[GetRiddleDifficulty()]);
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	InfoOverlayTextStruct.String = OvlString.c_str();
+	InfoOverlayTextStruct.Rect.top += 15;
+	InfoOverlayTextStruct.Rect.bottom += 15;
 
-	DrawDebugText(ProxyInterface, TextStruct);
+	DrawDropShadowedText(ProxyInterface, InfoOverlayTextStruct);
 
 	OvlString = "Saves: ";
 	OvlString.append(std::to_string(GetNumberOfSaves()));
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	InfoOverlayTextStruct.String = OvlString.c_str();
+	InfoOverlayTextStruct.Rect.top += 15;
+	InfoOverlayTextStruct.Rect.bottom += 15;
 
-	DrawDebugText(ProxyInterface, TextStruct);
+	DrawDropShadowedText(ProxyInterface, InfoOverlayTextStruct);
 
 	OvlString = "Total Time: ";
 	OvlString.append(SecondsToTimeString(GetInGameTime()));
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	InfoOverlayTextStruct.String = OvlString.c_str();
+	InfoOverlayTextStruct.Rect.top += 15;
+	InfoOverlayTextStruct.Rect.bottom += 15;
 
-	DrawDebugText(ProxyInterface, TextStruct);
+	DrawDropShadowedText(ProxyInterface, InfoOverlayTextStruct);
 
 	OvlString = "Walking Distance: ";
 	OvlString.append(FloatToStr(GetWalkingDistance() / KMConstant, 2));
 	OvlString.append("km");
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	InfoOverlayTextStruct.String = OvlString.c_str();
+	InfoOverlayTextStruct.Rect.top += 15;
+	InfoOverlayTextStruct.Rect.bottom += 15;
 
-	DrawDebugText(ProxyInterface, TextStruct);
+	DrawDropShadowedText(ProxyInterface, InfoOverlayTextStruct);
 
 	OvlString = "Running Distance: ";
 	OvlString.append(FloatToStr(GetRunningDistance() / KMConstant, 2));
 	OvlString.append("km");
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	InfoOverlayTextStruct.String = OvlString.c_str();
+	InfoOverlayTextStruct.Rect.top += 15;
+	InfoOverlayTextStruct.Rect.bottom += 15;
 
-	DrawDebugText(ProxyInterface, TextStruct);
+	DrawDropShadowedText(ProxyInterface, InfoOverlayTextStruct);
 
 	OvlString = "Items: ";
 	OvlString.append(std::to_string(GetItemsCollected()));
@@ -85,64 +110,106 @@ void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append(std::to_string(bitCount(GetSecretItemsCollected())));
 	OvlString.append(")");
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	InfoOverlayTextStruct.String = OvlString.c_str();
+	InfoOverlayTextStruct.Rect.top += 15;
+	InfoOverlayTextStruct.Rect.bottom += 15;
 
-	DrawDebugText(ProxyInterface, TextStruct);
+	DrawDropShadowedText(ProxyInterface, InfoOverlayTextStruct);
 
 	OvlString = "Shooting Kills: ";
 	OvlString.append(std::to_string(GetShootingKills()));
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	InfoOverlayTextStruct.String = OvlString.c_str();
+	InfoOverlayTextStruct.Rect.top += 15;
+	InfoOverlayTextStruct.Rect.bottom += 15;
 
-	DrawDebugText(ProxyInterface, TextStruct);
+	DrawDropShadowedText(ProxyInterface, InfoOverlayTextStruct);
 
 	OvlString = "Fighting Kills: ";
 	OvlString.append(std::to_string(GetMeleeKills()));
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	InfoOverlayTextStruct.String = OvlString.c_str();
+	InfoOverlayTextStruct.Rect.top += 15;
+	InfoOverlayTextStruct.Rect.bottom += 15;
 
-	DrawDebugText(ProxyInterface, TextStruct);
+	DrawDropShadowedText(ProxyInterface, InfoOverlayTextStruct);
 
 	OvlString = "Boat Stage Time: ";
 	OvlString.append(SecondsToMsTimeString(GetBoatStageTime()));
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	InfoOverlayTextStruct.String = OvlString.c_str();
+	InfoOverlayTextStruct.Rect.top += 15;
+	InfoOverlayTextStruct.Rect.bottom += 15;
 
-	DrawDebugText(ProxyInterface, TextStruct);
+	DrawDropShadowedText(ProxyInterface, InfoOverlayTextStruct);
 
 	OvlString = "Boat Max Speed: ";
 	OvlString.append(FloatToStr(GetBoatMaxSpeed(), 2));
 	OvlString.append("m/s");
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	InfoOverlayTextStruct.String = OvlString.c_str();
+	InfoOverlayTextStruct.Rect.top += 15;
+	InfoOverlayTextStruct.Rect.bottom += 15;
 
-	DrawDebugText(ProxyInterface, TextStruct);
+	DrawDropShadowedText(ProxyInterface, InfoOverlayTextStruct);
 
 	OvlString = "Total Damage: ";
 	OvlString.append(FloatToStr(GetDamagePointsTaken(), 2));
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	InfoOverlayTextStruct.String = OvlString.c_str();
+	InfoOverlayTextStruct.Rect.top += 15;
+	InfoOverlayTextStruct.Rect.bottom += 15;
 
-	DrawDebugText(ProxyInterface, TextStruct);
+	DrawDropShadowedText(ProxyInterface, InfoOverlayTextStruct);
+}
+
+void Overlay::DrawMenuTestOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
+{
+	Logging::LogDebug() << __FUNCTION__;
+
+	int FloatPrecision = 4;
+
+	frames++;
+
+	if (ChangeMenuTestColor())
+	{
+		switch (WhiteArrayIndex)
+		{
+		case 0:
+		case 1:
+			WhiteArrayIndex++;
+			break;
+		case 2:
+			WhiteArrayIndex = 0;
+			break;
+		}
+
+	}
+
+	MenuTestTextStruct.Color = WhiteArray[WhiteArrayIndex];
+
+	std::string OvlString = "Menu Test v0.1";
+
+	MenuTestTextStruct.String = OvlString.c_str();
+
+	DrawDropShadowedText(ProxyInterface, MenuTestTextStruct);
+
+	OvlString = "Frames: ";
+	OvlString.append(std::to_string(frames));
+
+	MenuTestTextStruct.String = OvlString.c_str();
+	MenuTestTextStruct.Rect.top += 15;
+	MenuTestTextStruct.Rect.bottom += 15;
+
+	DrawDropShadowedText(ProxyInterface, MenuTestTextStruct);
+
 }
 
 void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	int rectOffset = 40, FloatPrecision = 4;
+	int FloatPrecision = 4;
 	float CharYPos = GetJamesPosY();
 	float AntiJitterValue = 0.0001;
 
@@ -152,89 +219,81 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 		CharYPos = 0;
 	}
 
-	D3D8TEXT TextStruct;
-	TextStruct.Format = DT_NOCLIP | DT_SINGLELINE;
-	TextStruct.Rect.left = rectOffset;
-	TextStruct.Rect.top = rectOffset;
-	TextStruct.Rect.right = rectOffset + 300;
-	TextStruct.Rect.bottom = rectOffset + 15;
-	TextStruct.Color = D3DCOLOR_ARGB(255, 153, 255, 153);
-
 	std::string OvlString = "DEBUG MENU (CTRL + D) ";
 
-	TextStruct.String = OvlString.c_str();
+	DebugOverlayTextStruct.String = OvlString.c_str();
 
-	DrawDebugText(ProxyInterface, TextStruct);
+	DrawDropShadowedText(ProxyInterface, DebugOverlayTextStruct);
 
 	OvlString = "Game Resolution: ";
 	OvlString.append(std::to_string(ResolutionWidth));
 	OvlString.append("x");
 	OvlString.append(std::to_string(ResolutionHeight));
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	DebugOverlayTextStruct.String = OvlString.c_str();
+	DebugOverlayTextStruct.Rect.top += 15;
+	DebugOverlayTextStruct.Rect.bottom += 15;
 
-	DrawDebugText(ProxyInterface, TextStruct);
+	DrawDropShadowedText(ProxyInterface, DebugOverlayTextStruct);
 
 	OvlString = "Room ID: 0x";
 	OvlString.append(IntToHexStr(GetRoomID()));
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	DebugOverlayTextStruct.String = OvlString.c_str();
+	DebugOverlayTextStruct.Rect.top += 15;
+	DebugOverlayTextStruct.Rect.bottom += 15;
 
-	DrawDebugText(ProxyInterface, TextStruct);
+	DrawDropShadowedText(ProxyInterface, DebugOverlayTextStruct);
 
 	OvlString = "Cutscene ID: 0x";
 	OvlString.append(IntToHexStr(GetCutsceneID()));
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	DebugOverlayTextStruct.String = OvlString.c_str();
+	DebugOverlayTextStruct.Rect.top += 15;
+	DebugOverlayTextStruct.Rect.bottom += 15;
 
-	DrawDebugText(ProxyInterface, TextStruct);
+	DrawDropShadowedText(ProxyInterface, DebugOverlayTextStruct);
 
 	OvlString = "FPS: ";
 	OvlString.append(FloatToStr(GetFPSCounter(), FloatPrecision));
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	DebugOverlayTextStruct.String = OvlString.c_str();
+	DebugOverlayTextStruct.Rect.top += 15;
+	DebugOverlayTextStruct.Rect.bottom += 15;
 
-	DrawDebugText(ProxyInterface, TextStruct);
+	DrawDropShadowedText(ProxyInterface, DebugOverlayTextStruct);
 
 	OvlString = "Char X Position: ";
 	OvlString.append(FloatToStr(GetJamesPosX(), FloatPrecision));
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	DebugOverlayTextStruct.String = OvlString.c_str();
+	DebugOverlayTextStruct.Rect.top += 15;
+	DebugOverlayTextStruct.Rect.bottom += 15;
 
-	DrawDebugText(ProxyInterface, TextStruct);
+	DrawDropShadowedText(ProxyInterface, DebugOverlayTextStruct);
 
 	OvlString = "Char Y Position: ";
 	OvlString.append(FloatToStr(CharYPos, FloatPrecision));
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	DebugOverlayTextStruct.String = OvlString.c_str();
+	DebugOverlayTextStruct.Rect.top += 15;
+	DebugOverlayTextStruct.Rect.bottom += 15;
 
-	DrawDebugText(ProxyInterface, TextStruct);
+	DrawDropShadowedText(ProxyInterface, DebugOverlayTextStruct);
 
 	OvlString = "Char Z Position: ";
 	OvlString.append(FloatToStr(GetJamesPosZ(), FloatPrecision));
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	DebugOverlayTextStruct.String = OvlString.c_str();
+	DebugOverlayTextStruct.Rect.top += 15;
+	DebugOverlayTextStruct.Rect.bottom += 15;
 
-	DrawDebugText(ProxyInterface, TextStruct);
+	DrawDropShadowedText(ProxyInterface, DebugOverlayTextStruct);
 
 }
 
 
-void Overlay::DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT FontStruct)
+void Overlay::DrawDropShadowedText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT FontStruct)
 {
 	Logging::LogDebug() << __FUNCTION__;
 
@@ -350,4 +409,48 @@ int Overlay::bitCount(uint8_t num)
 		num >>= 1;             
 	}
 	return count;	
+}
+
+bool Overlay::ChangeMenuTestColor()
+{
+	auto Now = std::chrono::system_clock::now();
+	auto Ms = std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastColorChange);
+
+	// Every third of a second
+	if (Ms.count() >= 300)
+	{
+		LastColorChange = Now;
+		return true;
+	}
+
+	return false;
+}
+
+void Overlay::InitializeDataStructs()
+{
+	Logging::LogDebug() << __FUNCTION__;
+
+	int rectOffset = 40;
+
+	InfoOverlayTextStruct.Format = DT_NOCLIP | DT_SINGLELINE;
+	InfoOverlayTextStruct.Rect.left = ResolutionWidth - 205;
+	InfoOverlayTextStruct.Rect.top = rectOffset;
+	InfoOverlayTextStruct.Rect.right = ResolutionWidth;
+	InfoOverlayTextStruct.Rect.bottom = rectOffset + 15;
+	InfoOverlayTextStruct.Color = D3DCOLOR_ARGB(255, 153, 217, 234);
+
+	MenuTestTextStruct.Format = DT_NOCLIP | DT_SINGLELINE;
+	MenuTestTextStruct.Rect.left = ResolutionWidth - 205;
+	MenuTestTextStruct.Rect.top = ResolutionHeight - rectOffset;
+	MenuTestTextStruct.Rect.right = ResolutionWidth;
+	MenuTestTextStruct.Rect.bottom = MenuTestTextStruct.Rect.top + 15;
+	MenuTestTextStruct.Color = WhiteArray[2];
+
+	DebugOverlayTextStruct.Format = DT_NOCLIP | DT_SINGLELINE;
+	DebugOverlayTextStruct.Rect.left = rectOffset;
+	DebugOverlayTextStruct.Rect.top = rectOffset;
+	DebugOverlayTextStruct.Rect.right = rectOffset + 300;
+	DebugOverlayTextStruct.Rect.bottom = rectOffset + 15;
+	DebugOverlayTextStruct.Color = D3DCOLOR_ARGB(255, 153, 255, 153);
+
 }

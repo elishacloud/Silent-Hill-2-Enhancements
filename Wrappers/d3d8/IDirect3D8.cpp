@@ -367,12 +367,6 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 		{
 			SetFullscreenVideoRes(BufferWidth, BufferHeight);
 		}
-
-		// Save Resolution to display in Debug Overlay
-		if (EnableDebugOverlay)
-		{
-			SaveDebugResolutionValue(BufferWidth, BufferHeight);
-		}
 	}
 
 	// Check if window is minimized and restore it

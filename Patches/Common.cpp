@@ -60,8 +60,6 @@ uint8_t *SecretItemsCollectedAddr;
 float *BoatStageTimeAddr;
 
 bool ShowDebugOverlay = false;
-int ResolutionWidth = 0;
-int ResolutionHeight = 0;
 bool ShowInfoOverlay = false;
 
 DWORD GetRoomID()
@@ -1142,10 +1140,4 @@ float *GetBoatStageTimePointer()
 	BoatStageTime = (float*)((DWORD)BoatStageTime);
 
 	return BoatStageTime;
-}
-
-void SaveDebugResolutionValue(int width, int height)
-{
-	ResolutionWidth = width;
-	ResolutionHeight = height;
 }

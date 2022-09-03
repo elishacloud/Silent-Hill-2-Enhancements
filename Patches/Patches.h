@@ -49,7 +49,6 @@ int16_t GetItemsCollected();
 float GetDamagePointsTaken();
 uint8_t GetSecretItemsCollected();
 float GetBoatStageTime();
-void SaveDebugResolutionValue(int width, int height);
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -254,8 +253,6 @@ extern float *DamagePointsTakenAddr;
 extern uint8_t *SecretItemsCollectedAddr;
 extern float *BoatStageTimeAddr;
 extern bool ShowDebugOverlay;
-extern int ResolutionWidth;
-extern int ResolutionHeight;
 extern bool ShowInfoOverlay;
 
 // Run code only once

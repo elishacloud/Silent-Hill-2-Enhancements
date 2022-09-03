@@ -24,6 +24,8 @@
 	visit(DisableScreenSaver, true) \
 	visit(DPadMovementFix, true) \
 	visit(DynamicResolution, true) \
+	visit(EnableDebugOverlay, true) \
+	visit(EnableInfoOverlay, true) \
 	visit(EnableScreenshots, true) \
 	visit(EnableSFXAddrHack, true) \
 	visit(EnableSMAA, false) \
@@ -99,9 +101,7 @@
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, true) \
-	visit(WoodsideRoom205Fix, true) \
-	visit(EnableDebugOverlay, true) \
-	visit(EnableInfoOverlay, true)
+	visit(WoodsideRoom205Fix, true)
 
 #define VISIT_INT_SETTINGS(visit) \
 	visit(AnisotropicFiltering, 0) \
@@ -170,6 +170,8 @@
 	visit(CustomFontRow) \
 	visit(CustomModFolder) \
 	visit(DisableLogging) \
+	visit(EnableDebugOverlay) \
+	visit(EnableInfoOverlay) \
 	visit(EnableScreenshots) \
 	visit(EnableWndMode) \
 	visit(FixFMVResetIssue) \
@@ -198,9 +200,7 @@
 	visit(SmallFontHeight) \
 	visit(SmallFontWidth) \
 	visit(SpaceSize) \
-	visit(WrapperType) \
-	visit(EnableDebugOverlay) \
-	visit(EnableInfoOverlay)
+	visit(WrapperType)
 
 // Configurable setting defaults
 #define DECLARE_BOOL_SETTINGS(name, unused) \

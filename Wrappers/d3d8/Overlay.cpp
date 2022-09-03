@@ -1,19 +1,24 @@
 #include "Overlay.h"
 
-LPD3DXFONT font = NULL;
+const int rectOffset		= 40;
+const int TextSpacing		= 15;
+const int FloatPrecision	= 4;
+const int KMConstant		= 500000;
+const float AntiJitterValue	= 0.0001f;
+const int DropShadowOffset	= 1;
+
+LPD3DXFONT font = nullptr;
 bool ResetFontFlag = false;
 
 void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	int rectOffset = 40, FloatPrecision = 4, KMConstant = 500000;
-
 	D3D8TEXT TextStruct;
 	TextStruct.Format = DT_NOCLIP | DT_SINGLELINE;
-	TextStruct.Rect.left = ResolutionWidth - 205;
+	TextStruct.Rect.left = BufferWidth - 205;
 	TextStruct.Rect.top = rectOffset;
-	TextStruct.Rect.right = ResolutionWidth;
+	TextStruct.Rect.right = BufferWidth;
 	TextStruct.Rect.bottom = rectOffset + 15;
 	TextStruct.Color = D3DCOLOR_ARGB(255, 153, 217, 234);
 
@@ -27,8 +32,8 @@ void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append(ActionDifficulty[GetActionDifficulty()]);
 
 	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	TextStruct.Rect.top += TextSpacing;
+	TextStruct.Rect.bottom += TextSpacing;
 
 	DrawDebugText(ProxyInterface, TextStruct);
 
@@ -36,8 +41,8 @@ void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append(RiddleDifficulty[GetRiddleDifficulty()]);
 
 	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	TextStruct.Rect.top += TextSpacing;
+	TextStruct.Rect.bottom += TextSpacing;
 
 	DrawDebugText(ProxyInterface, TextStruct);
 
@@ -45,17 +50,17 @@ void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append(std::to_string(GetNumberOfSaves()));
 
 	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	TextStruct.Rect.top += TextSpacing;
+	TextStruct.Rect.bottom += TextSpacing;
 
 	DrawDebugText(ProxyInterface, TextStruct);
 
 	OvlString = "Total Time: ";
-	OvlString.append(SecondsToTimeString(GetInGameTime()));
+	OvlString.append(SecondsToTimeString((int)GetInGameTime()));
 
 	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	TextStruct.Rect.top += TextSpacing;
+	TextStruct.Rect.bottom += TextSpacing;
 
 	DrawDebugText(ProxyInterface, TextStruct);
 
@@ -64,8 +69,8 @@ void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append("km");
 
 	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	TextStruct.Rect.top += TextSpacing;
+	TextStruct.Rect.bottom += TextSpacing;
 
 	DrawDebugText(ProxyInterface, TextStruct);
 
@@ -74,8 +79,8 @@ void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append("km");
 
 	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	TextStruct.Rect.top += TextSpacing;
+	TextStruct.Rect.bottom += TextSpacing;
 
 	DrawDebugText(ProxyInterface, TextStruct);
 
@@ -86,8 +91,8 @@ void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append(")");
 
 	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	TextStruct.Rect.top += TextSpacing;
+	TextStruct.Rect.bottom += TextSpacing;
 
 	DrawDebugText(ProxyInterface, TextStruct);
 
@@ -95,8 +100,8 @@ void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append(std::to_string(GetShootingKills()));
 
 	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	TextStruct.Rect.top += TextSpacing;
+	TextStruct.Rect.bottom += TextSpacing;
 
 	DrawDebugText(ProxyInterface, TextStruct);
 
@@ -104,17 +109,17 @@ void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append(std::to_string(GetMeleeKills()));
 
 	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	TextStruct.Rect.top += TextSpacing;
+	TextStruct.Rect.bottom += TextSpacing;
 
 	DrawDebugText(ProxyInterface, TextStruct);
 
 	OvlString = "Boat Stage Time: ";
-	OvlString.append(SecondsToMsTimeString(GetBoatStageTime()));
+	OvlString.append(SecondsToMsTimeString((int)GetBoatStageTime()));
 
 	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	TextStruct.Rect.top += TextSpacing;
+	TextStruct.Rect.bottom += TextSpacing;
 
 	DrawDebugText(ProxyInterface, TextStruct);
 
@@ -123,8 +128,8 @@ void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append("m/s");
 
 	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	TextStruct.Rect.top += TextSpacing;
+	TextStruct.Rect.bottom += TextSpacing;
 
 	DrawDebugText(ProxyInterface, TextStruct);
 
@@ -132,8 +137,8 @@ void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append(FloatToStr(GetDamagePointsTaken(), 2));
 
 	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	TextStruct.Rect.top += TextSpacing;
+	TextStruct.Rect.bottom += TextSpacing;
 
 	DrawDebugText(ProxyInterface, TextStruct);
 }
@@ -142,9 +147,7 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	int rectOffset = 40, FloatPrecision = 4;
 	float CharYPos = GetJamesPosY();
-	float AntiJitterValue = 0.0001;
 
 	// Lock value at 0 if close enough, to avoid a rapidly changing number.
 	if (CharYPos > -AntiJitterValue && CharYPos < AntiJitterValue)
@@ -167,13 +170,13 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	DrawDebugText(ProxyInterface, TextStruct);
 
 	OvlString = "Game Resolution: ";
-	OvlString.append(std::to_string(ResolutionWidth));
+	OvlString.append(std::to_string(BufferWidth));
 	OvlString.append("x");
-	OvlString.append(std::to_string(ResolutionHeight));
+	OvlString.append(std::to_string(BufferHeight));
 
 	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	TextStruct.Rect.top += TextSpacing;
+	TextStruct.Rect.bottom += TextSpacing;
 
 	DrawDebugText(ProxyInterface, TextStruct);
 
@@ -181,8 +184,8 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append(IntToHexStr(GetRoomID()));
 
 	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	TextStruct.Rect.top += TextSpacing;
+	TextStruct.Rect.bottom += TextSpacing;
 
 	DrawDebugText(ProxyInterface, TextStruct);
 
@@ -190,8 +193,8 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append(IntToHexStr(GetCutsceneID()));
 
 	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	TextStruct.Rect.top += TextSpacing;
+	TextStruct.Rect.bottom += TextSpacing;
 
 	DrawDebugText(ProxyInterface, TextStruct);
 
@@ -199,8 +202,8 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append(FloatToStr(GetFPSCounter(), FloatPrecision));
 
 	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	TextStruct.Rect.top += TextSpacing;
+	TextStruct.Rect.bottom += TextSpacing;
 
 	DrawDebugText(ProxyInterface, TextStruct);
 
@@ -208,8 +211,8 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append(FloatToStr(GetJamesPosX(), FloatPrecision));
 
 	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	TextStruct.Rect.top += TextSpacing;
+	TextStruct.Rect.bottom += TextSpacing;
 
 	DrawDebugText(ProxyInterface, TextStruct);
 
@@ -217,8 +220,8 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append(FloatToStr(CharYPos, FloatPrecision));
 
 	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	TextStruct.Rect.top += TextSpacing;
+	TextStruct.Rect.bottom += TextSpacing;
 
 	DrawDebugText(ProxyInterface, TextStruct);
 
@@ -226,13 +229,11 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append(FloatToStr(GetJamesPosZ(), FloatPrecision));
 
 	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += 15;
-	TextStruct.Rect.bottom += 15;
+	TextStruct.Rect.top += TextSpacing;
+	TextStruct.Rect.bottom += TextSpacing;
 
 	DrawDebugText(ProxyInterface, TextStruct);
-
 }
-
 
 void Overlay::DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT FontStruct)
 {
@@ -240,8 +241,6 @@ void Overlay::DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT 
 
 	D3DCOLOR BlackColor = D3DCOLOR_ARGB(255, 0, 0, 0);
 	
-	int DropShadowOffset = 1;
-
 	RECT DropShadowRect = FontStruct.Rect;
 	DropShadowRect.top = DropShadowRect.top + DropShadowOffset;
 	DropShadowRect.left = DropShadowRect.left + DropShadowOffset;
@@ -253,10 +252,10 @@ void Overlay::DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT 
 
 	}
 
-	if (ProxyInterface != NULL && font == NULL)
+	if (ProxyInterface != nullptr && font == nullptr)
 	{
 		HFONT FontCharacteristics = CreateFontA(16, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, 2, 0, "Arial");
-		if (FontCharacteristics != NULL)
+		if (FontCharacteristics != nullptr)
 		{
 			Logging::LogDebug() << __FUNCTION__ << " Creating font...";
 			D3DXCreateFont(ProxyInterface, FontCharacteristics, &font);
@@ -264,7 +263,7 @@ void Overlay::DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT 
 		}
 	}
 
-	if (font != NULL)
+	if (font != nullptr)
 	{
 		font->DrawTextA(FontStruct.String, -1, &DropShadowRect, FontStruct.Format, BlackColor);
 		font->DrawTextA(FontStruct.String, -1, &FontStruct.Rect, FontStruct.Format, FontStruct.Color);
@@ -322,7 +321,7 @@ std::string Overlay::SecondsToTimeString(int time)
 	return TimeString;
 }
 
-std::string Overlay::SecondsToMsTimeString(float time)
+std::string Overlay::SecondsToMsTimeString(int time)
 {
 	std::string TimeString = "";
 	int minutes, seconds, tenths;

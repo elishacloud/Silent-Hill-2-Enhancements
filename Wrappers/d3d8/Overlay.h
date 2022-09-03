@@ -38,7 +38,6 @@ private:
 	std::string IntToHexStr(int IntValue);
 	std::string FloatToStr(float FloatValue, int precision);
 	std::string SecondsToTimeString(int time);
-	std::string SecondsToMsTimeString(float time);
+	std::string SecondsToMsTimeString(int time);
 	int bitCount(uint8_t num);
 };
-

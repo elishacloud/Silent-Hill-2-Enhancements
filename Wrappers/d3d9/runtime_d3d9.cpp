@@ -331,7 +331,7 @@ bool reshade::d3d9::runtime_d3d9::init_effect(size_t index)
 			// No need to setup resources if any of the shaders failed to compile
 			if (FAILED(hr))
 			{
-				Logging::Log() << "Error: Failed to failed to compile shader! HRESULT is: " << Logging::hex(hr) << '.';
+				Logging::Log() << "Error: Failed to failed to compile shader! HRESULT is: " << (D3DERR)hr << '.';
 				return false;
 			}
 			
@@ -341,7 +341,7 @@ bool reshade::d3d9::runtime_d3d9::init_effect(size_t index)
 			}
 			else
 			{
-				Logging::Log() << "Error: Failed to failed to disassemble shader! HRESULT is: " << Logging::hex(hr) << '.';
+				Logging::Log() << "Error: Failed to failed to disassemble shader! HRESULT is: " << (D3DERR)hr << '.';
 			}
 
 			// Cashe shader
@@ -368,7 +368,7 @@ bool reshade::d3d9::runtime_d3d9::init_effect(size_t index)
 
 		if (FAILED(hr))
 		{
-			Logging::Log() << "Error: Failed to create shader for entry point '" << entry_point.name << "'! HRESULT is " << Logging::hex(hr) << '.';
+			Logging::Log() << "Error: Failed to create shader for entry point '" << entry_point.name << "'! HRESULT is " << (D3DERR)hr << '.';
 			return false;
 		}
 
@@ -613,7 +613,7 @@ bool reshade::d3d9::runtime_d3d9::init_effect(size_t index)
 
 			if (FAILED(hr))
 			{
-				Logging::Log() << "Error: Failed to create state block for pass " << pass_index << " in technique '" << technique.name << "'! HRESULT is " << hr << '.';
+				Logging::Log() << "Error: Failed to create state block for pass " << pass_index << " in technique '" << technique.name << "'! HRESULT is " << (D3DERR)hr << '.';
 				return false;
 			}
 		}
@@ -757,7 +757,7 @@ bool reshade::d3d9::runtime_d3d9::init_texture(texture &texture)
 	HRESULT hr = _device->CreateTexture(texture.width, texture.height, levels, usage, format, D3DPOOL_DEFAULT, &impl->texture, nullptr);
 	if (FAILED(hr))
 	{
-		Logging::Log() << "Error: Failed to create texture '" << texture.unique_name << "'! HRESULT is " << hr << '.';
+		Logging::Log() << "Error: Failed to create texture '" << texture.unique_name << "'! HRESULT is " << (D3DERR)hr << '.';
 		Logging::Log() << "> Details: Width = " << texture.width << ", Height = " << texture.height << ", Levels = " << levels << ", Usage = " << usage << ", Format = " << format;
 		return false;
 	}
@@ -780,7 +780,7 @@ void reshade::d3d9::runtime_d3d9::upload_texture(const texture &texture, const u
 	com_ptr<IDirect3DTexture9> intermediate;
 	if (HRESULT hr = _device->CreateTexture(texture.width, texture.height, 1, 0, desc.Format, D3DPOOL_SYSTEMMEM, &intermediate, nullptr); FAILED(hr))
 	{
-		Logging::Log() << "Error: Failed to create system memory texture for updating texture '" << texture.unique_name << "'! HRESULT is " << hr << '.';
+		Logging::Log() << "Error: Failed to create system memory texture for updating texture '" << texture.unique_name << "'! HRESULT is " << (D3DERR)hr << '.';
 		Logging::Log() << "> Details: Width = " << texture.width << ", Height = " << texture.height << ", Levels = " << "1" << ", Usage = " << "0" << ", Format = " << desc.Format;
 		return;
 	}
@@ -825,7 +825,7 @@ void reshade::d3d9::runtime_d3d9::upload_texture(const texture &texture, const u
 
 	if (HRESULT hr = _device->UpdateTexture(intermediate.get(), impl->texture.get()); FAILED(hr))
 	{
-		Logging::Log() << "Error: Failed to update texture '" << texture.unique_name << "' from system memory texture! HRESULT is " << hr << '.';
+		Logging::Log() << "Error: Failed to update texture '" << texture.unique_name << "' from system memory texture! HRESULT is " << (D3DERR)hr << '.';
 		return;
 	}
 }
@@ -981,7 +981,7 @@ void reshade::d3d9::runtime_d3d9::update_depth_texture_bindings(com_ptr<IDirect3
 	{
 		if (HRESULT hr = _depth_surface->GetContainer(IID_PPV_ARGS(&_depth_texture)); FAILED(hr))
 		{
-			Logging::Log() << "Error: Failed to retrieve texture from depth surface! HRESULT is " << hr << '.';
+			Logging::Log() << "Error: Failed to retrieve texture from depth surface! HRESULT is " << (D3DERR)hr << '.';
 		}
 		else
 		{

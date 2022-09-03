@@ -3352,4 +3352,3 @@ void m_IDirect3DDevice8::CaptureScreenShot()
 
 	return;
 }
-

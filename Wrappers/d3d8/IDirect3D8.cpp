@@ -575,6 +575,37 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		LastMonitorHandle = MonitorHandle;
 		break;
 	}
+	case WM_KEYDOWN:
+	{
+		switch (wParam)
+		{
+		case 0x44: // Letter D
+		{
+			if (GetAsyncKeyState(VK_CONTROL)) 
+			{
+				if (EnableDebugOverlay)
+				{
+					ShowDebugOverlay = !ShowDebugOverlay;
+				}
+			}
+			break;
+		}
+		case 0x49: // Letter I
+		{
+			if (GetAsyncKeyState(VK_CONTROL))
+			{
+				if (EnableInfoOverlay)
+				{
+					ShowInfoOverlay = !ShowInfoOverlay;
+				}
+			}
+			break;
+		}
+
+		}
+		break;
+	}
+
 	}
 
 	if (!OriginalWndProc)

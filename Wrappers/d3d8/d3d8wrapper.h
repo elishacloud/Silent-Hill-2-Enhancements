@@ -3,6 +3,7 @@
 #define INITGUID
 
 #include "DirectX81SDK\include\d3d8.h"
+#include "DirectX81SDK\include\d3dx8.h"
 #include "DirectX81SDK\include\d3d8types.h"
 #include "DirectX81SDK\include\d3d8caps.h"
 

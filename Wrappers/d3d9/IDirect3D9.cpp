@@ -156,7 +156,7 @@ HRESULT m_IDirect3D9::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 
 	if (FAILED(hr))
 	{
-		Logging::Log() << "IDirect3D9::CreateDevice" << " failed with error code " << hr << '!';
+		Logging::Log() << "IDirect3D9::CreateDevice" << " failed with error code " << (D3DERR)hr << '!';
 		return hr;
 	}
 

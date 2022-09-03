@@ -141,7 +141,7 @@ HRESULT m_IDirect3DDevice9::CreateAdditionalSwapChain(D3DPRESENT_PARAMETERS *pPr
 
 	if (FAILED(hr))
 	{
-		Logging::Log() << "IDirect3DDevice9::CreateAdditionalSwapChain" << " failed with error code " << hr << '!';
+		Logging::Log() << "IDirect3DDevice9::CreateAdditionalSwapChain" << " failed with error code " << (D3DERR)hr << '!';
 		return hr;
 	}
 
@@ -227,7 +227,7 @@ HRESULT m_IDirect3DDevice9::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 
 	if (FAILED(hr))
 	{
-		Logging::Log() << "IDirect3DDevice9::Reset" << " failed with error code " << hr << '!';
+		Logging::Log() << "IDirect3DDevice9::Reset" << " failed with error code " << (D3DERR)hr << '!';
 		return hr;
 	}
 

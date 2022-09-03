@@ -24,6 +24,8 @@
 	visit(DisableScreenSaver, true) \
 	visit(DPadMovementFix, true) \
 	visit(DynamicResolution, true) \
+	visit(EnableDebugOverlay, true) \
+	visit(EnableInfoOverlay, true) \
 	visit(EnableScreenshots, true) \
 	visit(EnableSFXAddrHack, true) \
 	visit(EnableSMAA, false) \
@@ -168,6 +170,8 @@
 	visit(CustomFontRow) \
 	visit(CustomModFolder) \
 	visit(DisableLogging) \
+	visit(EnableDebugOverlay) \
+	visit(EnableInfoOverlay) \
 	visit(EnableScreenshots) \
 	visit(EnableWndMode) \
 	visit(FixFMVResetIssue) \

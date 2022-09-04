@@ -202,8 +202,7 @@ void Overlay::DrawMenuTestOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 
 	ControlMenuTestTextStruct.Color = WhiteArray[WhiteArrayIndex];
 
-	std::string OvlString = "IGT: ";
-	OvlString.append(GetIGTString());
+	std::string OvlString = GetIGTString();
 
 	MenuTestTextStruct.String = OvlString.c_str();
 
@@ -414,8 +413,13 @@ void Overlay::ResetFont()
 	if (DebugFont)
 	{
 		DebugFont->OnLostDevice();
-		MenuTestFont->OnLostDevice();
 		ResetDebugFontFlag = true;
+	}
+
+	if (MenuTestFont)
+	{
+		MenuTestFont->OnLostDevice();
+		ResetMenuTestFontFlag = true;
 	}
 }
 
@@ -489,7 +493,7 @@ void Overlay::InitializeDataStructs()
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	int rectOffset = 40;
+	int rectOffset = 40, MenuTestLeftOffset = 150;
 
 	InfoOverlayTextStruct.Format = DT_NOCLIP | DT_SINGLELINE;
 	InfoOverlayTextStruct.Rect.left = ResolutionWidth - 205;
@@ -499,15 +503,15 @@ void Overlay::InitializeDataStructs()
 	InfoOverlayTextStruct.Color = D3DCOLOR_ARGB(255, 153, 217, 234);
 
 	MenuTestTextStruct.Format = DT_NOCLIP | DT_SINGLELINE;
-	MenuTestTextStruct.Rect.left = ResolutionWidth - 205;
-	MenuTestTextStruct.Rect.top = ResolutionHeight - rectOffset;
+	MenuTestTextStruct.Rect.left = ResolutionWidth - MenuTestLeftOffset;
+	MenuTestTextStruct.Rect.top = ResolutionHeight - rectOffset - 15;
 	MenuTestTextStruct.Rect.right = ResolutionWidth;
 	MenuTestTextStruct.Rect.bottom = MenuTestTextStruct.Rect.top + 15;
 	MenuTestTextStruct.Color = WhiteArray[2];
 
 	ControlMenuTestTextStruct.Format = DT_NOCLIP | DT_SINGLELINE;
-	ControlMenuTestTextStruct.Rect.left = ResolutionWidth - 205 + 87;
-	ControlMenuTestTextStruct.Rect.top = ResolutionHeight - rectOffset + 15;
+	ControlMenuTestTextStruct.Rect.left = ResolutionWidth - MenuTestLeftOffset + 75;
+	ControlMenuTestTextStruct.Rect.top = ResolutionHeight - rectOffset;
 	ControlMenuTestTextStruct.Rect.right = ResolutionWidth;
 	ControlMenuTestTextStruct.Rect.bottom = MenuTestTextStruct.Rect.top + 15 + 15;
 	ControlMenuTestTextStruct.Color = WhiteArray[2];
@@ -535,8 +539,20 @@ std::string Overlay::GetIGTString()
 
 	TimeString.append(std::to_string(hours));
 	TimeString.append(":");
+	
+	if (minutes < 10)
+	{
+		TimeString.append("0");
+	}
+
 	TimeString.append(std::to_string(minutes));
 	TimeString.append(":");
+	
+	if (time < 10)
+	{
+		TimeString.append("0");
+	}
+
 	TimeString.append(FloatToStr(time, 3));
 
 	return TimeString;

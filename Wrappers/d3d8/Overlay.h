@@ -35,6 +35,13 @@ private:
 		"Extra"
 	};
 
+	// LowWhite, MediumWhite, FullWhite
+	D3DCOLOR WhiteArray[3] = { 
+		D3DCOLOR_ARGB(255, 50, 50, 50), 
+		D3DCOLOR_ARGB(255, 128, 128, 128), 
+		D3DCOLOR_ARGB(255, 255, 255, 255) 
+	};
+
 	void DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface);
 	void DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface);
 	void DrawMenuTestOverlay(LPDIRECT3DDEVICE8 ProxyInterface);

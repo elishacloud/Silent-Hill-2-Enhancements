@@ -24,11 +24,16 @@ Overlay::D3D8TEXT ControlMenuTestTextStruct;
 void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 {
 	Logging::LogDebug() << __FUNCTION__;
+	DWORD* FogEnableValue;
 
 	InitializeDataStructs();
 
 	// In the pause menu, skip drawing
 	if (GetEventIndex() == 0x10) return;
+
+	// nVidia fix
+	ProxyInterface->GetRenderState(D3DRS_FOGENABLE, FogEnableValue);
+	ProxyInterface->SetRenderState(D3DRS_FOGENABLE, 0x0);
 
 	// Debug Overlay
 	if (ShowDebugOverlay)
@@ -47,6 +52,8 @@ void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 	{
 		DrawMenuTestOverlay(ProxyInterface);
 	}
+
+	ProxyInterface->SetRenderState(D3DRS_FOGENABLE, *FogEnableValue);
 }
 
 void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)

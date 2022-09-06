@@ -17,6 +17,7 @@ public:
 
 	void DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface);
 	void ResetFont();
+	void ReleaseFont();
 
 private:
 	std::string ActionDifficulty[4]
@@ -58,5 +59,9 @@ private:
 
 	bool ChangeMenuTestColor();
 	void InitializeDataStructs();
+
+	std::string GetFontPath();
+	std::string RemoveExeName(char* path);
+	void SetFont();
 };
 

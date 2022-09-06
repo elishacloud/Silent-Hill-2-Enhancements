@@ -45,8 +45,10 @@ private:
 	void DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface);
 	void DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface);
 	void DrawMenuTestOverlay(LPDIRECT3DDEVICE8 ProxyInterface);
+
 	void DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, D3D8TEXT TextStruct);
 	void DrawMenuTestText(LPDIRECT3DDEVICE8 ProxyInterface, D3D8TEXT TextStruct);
+
 	std::string IntToHexStr(int IntValue);
 	std::string FloatToStr(float FloatValue, int precision);
 	std::string SecondsToTimeString(int time);
@@ -54,6 +56,7 @@ private:
 	std::string GetIGTString();
 	std::string BoatStageTimeString(float time);
 	int bitCount(uint8_t num);
+
 	bool ChangeMenuTestColor();
 	void InitializeDataStructs();
 };

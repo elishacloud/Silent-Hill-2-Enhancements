@@ -540,6 +540,12 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	// nVidia Overlay Fix
+	if (State == D3DRS_FOGENABLE)
+	{
+		return D3D_OK;
+	}
+
 	// Fix for 2D Fog and glow around the flashlight lens for Nvidia cards
 	if (FogLayerFix && State == D3DRS_ZBIAS)
 	{

@@ -28,12 +28,17 @@ Overlay::D3D8TEXT DebugOverlayTextStruct;
 Overlay::D3D8TEXT ControlMenuTestTextStruct;
 
 DWORD FogEnableValue;
+char dir[MAX_PATH] = { 0 };
+LPCSTR FontName = "Arial";
+LPCSTR AlternateFontName = "Skygraze.otf";
+LPCSTR AlternateFontNameNoExt = "Skygraze"; //TODOT automate
 
 void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 {
 	Logging::LogDebug() << __FUNCTION__;
 
 	InitializeDataStructs();
+	SetFont();
 
 	// In the pause menu, skip drawing
 	if (GetEventIndex() == 0x10) return;
@@ -221,10 +226,10 @@ void Overlay::DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT 
 
 	if (ProxyInterface != nullptr && font == nullptr)
 	{
-		HFONT FontCharacteristics = CreateFontA(16, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, 2, 0, "Arial");
-		if (FontCharacteristics != nullptr)
+		HFONT FontCharacteristics = CreateFontA(16, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, 2, 0, FontName);
+		if (FontCharacteristics != NULL)
 		{
-			Logging::LogDebug() << __FUNCTION__ << " Creating Debug font...";
+			Logging::LogDebug() << __FUNCTION__ << " Creating Debug font: " << FontName;
 			D3DXCreateFont(ProxyInterface, FontCharacteristics, &DebugFont);
 			DeleteObject(FontCharacteristics);
 		}
@@ -256,10 +261,10 @@ void Overlay::DrawMenuTestText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TE
 
 	if (ProxyInterface != NULL && MenuTestFont == NULL)
 	{
-		HFONT FontCharacteristics = CreateFontA(18, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, 2, 0, "Arial");
+		HFONT FontCharacteristics = CreateFontA(18, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, 2, 0, FontName);
 		if (FontCharacteristics != NULL)
 		{
-			Logging::LogDebug() << __FUNCTION__ << " Creating  Menu Test font...";
+			Logging::LogDebug() << __FUNCTION__ << " Creating Menu Test font: " << FontName;
 			D3DXCreateFont(ProxyInterface, FontCharacteristics, &MenuTestFont);
 			DeleteObject(FontCharacteristics);
 		}
@@ -408,7 +413,7 @@ void Overlay::InitializeDataStructs()
 	DebugOverlayTextStruct.Rect.right = rectOffset + 300;
 	DebugOverlayTextStruct.Rect.bottom = rectOffset + 15;
 	DebugOverlayTextStruct.Color = TextColors.Green;
-
+	
 }
 
 std::string Overlay::GetIGTString()
@@ -441,4 +446,59 @@ std::string Overlay::GetIGTString()
 	TimeString.append(FloatToStr(time, 3));
 
 	return TimeString;
+}
+
+std::string Overlay::GetFontPath()
+{
+	int LastSlashIndex = -1;
+	std::string output = "";
+
+	GetSH2FolderPath(dir, MAX_PATH);
+
+	output = RemoveExeName(dir);
+	output.append("sh2e\\font\\");
+	output.append(AlternateFontName);
+
+	return output;
+}
+
+std::string Overlay::RemoveExeName(char* path)
+{
+	int LastSlashIndex = -1;
+	std::string output = "";
+
+	for (int i = 0; i < strlen(path); i++)
+	{
+		if (path[i] == '\\' || path[i] == '/')
+			LastSlashIndex = i;
+	}
+
+	if (LastSlashIndex > 0)
+	{
+		dir[LastSlashIndex + 1] = '\0';
+	}
+
+	output.append(path);
+
+	return output;
+}
+
+void Overlay::SetFont()
+{
+	std::string path = GetFontPath();
+	Logging::LogDebug() << __FUNCTION__ << path;
+
+	if (AddFontResourceExA(path.c_str(), FR_PRIVATE, 0) > 0) 
+	{
+		FontName = AlternateFontNameNoExt;
+	}
+
+	Logging::LogDebug() << __FUNCTION__ << " Font path: " << path << " Font name: " << FontName;
+}
+
+void Overlay::ReleaseFont()
+{
+	if (FontName == AlternateFontNameNoExt)
+		RemoveFontResourceExA(GetFontPath().c_str(), FR_PRIVATE, 0);
+		
 }

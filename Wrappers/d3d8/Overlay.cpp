@@ -27,10 +27,11 @@ Overlay::D3D8TEXT InfoOverlayTextStruct;
 Overlay::D3D8TEXT DebugOverlayTextStruct;
 Overlay::D3D8TEXT ControlMenuTestTextStruct;
 
+DWORD FogEnableValue;
+
 void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 {
 	Logging::LogDebug() << __FUNCTION__;
-	DWORD* FogEnableValue;
 
 	InitializeDataStructs();
 
@@ -38,7 +39,7 @@ void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 	if (GetEventIndex() == 0x10) return;
 
 	// nVidia fix
-	ProxyInterface->GetRenderState(D3DRS_FOGENABLE, FogEnableValue);
+	ProxyInterface->GetRenderState(D3DRS_FOGENABLE, &FogEnableValue);
 	ProxyInterface->SetRenderState(D3DRS_FOGENABLE, 0x0);
 
 	// Debug Overlay
@@ -59,7 +60,7 @@ void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 		DrawMenuTestOverlay(ProxyInterface);
 	}
 
-	ProxyInterface->SetRenderState(D3DRS_FOGENABLE, *FogEnableValue);
+	ProxyInterface->SetRenderState(D3DRS_FOGENABLE, FogEnableValue);
 }
 
 void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)

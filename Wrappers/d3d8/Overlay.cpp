@@ -224,7 +224,7 @@ void Overlay::DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT 
 
 	if (ProxyInterface != NULL && DebugFont == NULL)
 	{
-		HFONT FontCharacteristics = CreateFontA(16, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, 2, 0, FontName);
+		HFONT FontCharacteristics = CreateFontA(16, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, PROOF_QUALITY, 0, FontName);
 		if (FontCharacteristics != NULL)
 		{
 			Logging::LogDebug() << __FUNCTION__ << " Creating Debug font: " << FontName;
@@ -258,7 +258,7 @@ void Overlay::DrawMenuTestText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TE
 
 	if (ProxyInterface != NULL && MenuTestFont == NULL)
 	{
-		HFONT FontCharacteristics = CreateFontA(14, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, 2, 0, FontName);
+		HFONT FontCharacteristics = CreateFontA(14, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, PROOF_QUALITY, 0, FontName);
 		if (FontCharacteristics != NULL)
 		{
 			Logging::LogDebug() << __FUNCTION__ << " Creating Menu Test font: " << FontName;
@@ -292,7 +292,7 @@ void Overlay::DrawIGTText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT Fo
 
 	if (ProxyInterface != NULL && IGTFont == NULL)
 	{
-		HFONT FontCharacteristics = CreateFontA(22, 0, 0, 0, FW_REGULAR, 0, 0, 0, 0, 0, 0, 2, 0, IGTFontName);
+		HFONT FontCharacteristics = CreateFontA(22, 0, 0, 0, FW_REGULAR, 0, 0, 0, 0, 0, 0, CLEARTYPE_QUALITY, 0, IGTFontName);
 		if (FontCharacteristics != NULL)
 		{
 			Logging::LogDebug() << __FUNCTION__ << " Creating Menu Test font: " << FontName;

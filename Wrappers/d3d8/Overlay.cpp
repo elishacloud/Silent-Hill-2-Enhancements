@@ -30,8 +30,6 @@ LPCSTR IGTFontName = "Arial";
 LPCSTR AlternateIGTFontName = "Noto Sans Mono Thin.ttf";
 LPCSTR AlternateIGTFontNameNoExt = "Noto Sans Mono Thin";
 
-DWORD FogEnableValue;
-
 void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 {
 	Logging::LogDebug() << __FUNCTION__;

@@ -8,9 +8,11 @@ struct OverlayTextColors {
 
 LPD3DXFONT DebugFont = NULL;
 LPD3DXFONT MenuTestFont = NULL;
+LPD3DXFONT IGTFont = NULL;
 
 bool ResetDebugFontFlag = false;
 bool ResetMenuTestFontFlag = false;
+bool ResetIGTFontFlag = false;
 
 auto LastColorChange = std::chrono::system_clock::now();
 int WhiteArrayIndex = 2;
@@ -22,12 +24,18 @@ Overlay::D3D8TEXT DebugOverlayTextStruct;
 Overlay::D3D8TEXT ControlMenuTestTextStruct;
 
 DWORD FogEnableValue;
+char dir[MAX_PATH] = { 0 };
+LPCSTR FontName = "Arial";
+LPCSTR IGTFontName = "Arial";
+LPCSTR AlternateIGTFontName = "Noto Sans Mono Thin.ttf";
+LPCSTR AlternateIGTFontNameNoExt = "Noto Sans Mono Thin";
 
 void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 {
 	Logging::LogDebug() << __FUNCTION__;
 
 	InitializeDataStructs();
+	SetIGTFont();
 
 	// In the pause menu, skip drawing
 	if (GetEventIndex() == 0x10) return;
@@ -136,23 +144,20 @@ void Overlay::DrawMenuTestOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	ControlMenuTestTextStruct.Color = WhiteArray[WhiteArrayIndex];
 
 	std::string OvlString = GetIGTString();
-	OvlString.append("\rv0.1");
 
 	MenuTestTextStruct.String = OvlString.c_str();
 
+	DrawIGTText(ProxyInterface, MenuTestTextStruct);
+	
+	OvlString = "0.1";
+
+	MenuTestTextStruct.String = OvlString.c_str();
+	MenuTestTextStruct.Rect.top += 22;
+	MenuTestTextStruct.Rect.left += 85;
 	DrawMenuTestText(ProxyInterface, MenuTestTextStruct);
+
 	DrawMenuTestText(ProxyInterface, ControlMenuTestTextStruct);
 
-	/*
-	OvlString = "Frames: ";
-	OvlString.append(std::to_string(frames));
-
-	MenuTestTextStruct.String = OvlString.c_str();
-	MenuTestTextStruct.Rect.top += 15;
-	MenuTestTextStruct.Rect.bottom += 15;
-
-	DrawMenuTestText(ProxyInterface, MenuTestTextStruct);
-	*/
 }
 
 void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
@@ -199,7 +204,6 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 
 }
 
-
 void Overlay::DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT FontStruct)
 {
 	Logging::LogDebug() << __FUNCTION__;
@@ -214,15 +218,14 @@ void Overlay::DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT 
 	{
 		ResetDebugFontFlag = false;
 		DebugFont->OnResetDevice();
-
 	}
 
 	if (ProxyInterface != NULL && DebugFont == NULL)
 	{
-		HFONT FontCharacteristics = CreateFontA(16, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, 2, 0, "Arial");
+		HFONT FontCharacteristics = CreateFontA(16, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, PROOF_QUALITY, 0, FontName);
 		if (FontCharacteristics != NULL)
 		{
-			Logging::LogDebug() << __FUNCTION__ << " Creating Debug font...";
+			Logging::LogDebug() << __FUNCTION__ << " Creating Debug font: " << FontName;
 			D3DXCreateFont(ProxyInterface, FontCharacteristics, &DebugFont);
 			DeleteObject(FontCharacteristics);
 		}
@@ -249,15 +252,14 @@ void Overlay::DrawMenuTestText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TE
 	{
 		ResetMenuTestFontFlag = false;
 		MenuTestFont->OnResetDevice();
-
 	}
 
 	if (ProxyInterface != NULL && MenuTestFont == NULL)
 	{
-		HFONT FontCharacteristics = CreateFontA(18, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, 2, 0, "Arial");
+		HFONT FontCharacteristics = CreateFontA(14, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, PROOF_QUALITY, 0, FontName);
 		if (FontCharacteristics != NULL)
 		{
-			Logging::LogDebug() << __FUNCTION__ << " Creating  Menu Test font...";
+			Logging::LogDebug() << __FUNCTION__ << " Creating Menu Test font: " << FontName;
 			D3DXCreateFont(ProxyInterface, FontCharacteristics, &MenuTestFont);
 			DeleteObject(FontCharacteristics);
 		}
@@ -267,6 +269,40 @@ void Overlay::DrawMenuTestText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TE
 	{
 		MenuTestFont->DrawTextA(FontStruct.String, -1, &DropShadowRect, FontStruct.Format, TextColors.Black);
 		MenuTestFont->DrawTextA(FontStruct.String, -1, &FontStruct.Rect, FontStruct.Format, FontStruct.Color);
+	}
+}
+
+void Overlay::DrawIGTText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT FontStruct)
+{
+	Logging::LogDebug() << __FUNCTION__;
+
+	int DropShadowOffset = 1;
+
+	RECT DropShadowRect = FontStruct.Rect;
+	DropShadowRect.top = DropShadowRect.top + DropShadowOffset;
+	DropShadowRect.left = DropShadowRect.left + DropShadowOffset;
+
+	if (ResetIGTFontFlag)
+	{
+		ResetIGTFontFlag = false;
+		IGTFont->OnResetDevice();
+	}
+
+	if (ProxyInterface != NULL && IGTFont == NULL)
+	{
+		HFONT FontCharacteristics = CreateFontA(22, 0, 0, 0, FW_REGULAR, 0, 0, 0, 0, 0, 0, PROOF_QUALITY, 0, IGTFontName);
+		if (FontCharacteristics != NULL)
+		{
+			Logging::LogDebug() << __FUNCTION__ << " Creating Menu Test font: " << FontName;
+			D3DXCreateFont(ProxyInterface, FontCharacteristics, &IGTFont);
+			DeleteObject(FontCharacteristics);
+		}
+	}
+
+	if (IGTFont != NULL)
+	{
+		IGTFont->DrawTextA(FontStruct.String, -1, &DropShadowRect, FontStruct.Format, TextColors.Black);
+		IGTFont->DrawTextA(FontStruct.String, -1, &FontStruct.Rect, FontStruct.Format, FontStruct.Color);
 	}
 }
 
@@ -376,7 +412,7 @@ void Overlay::InitializeDataStructs()
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	int rectOffset = 40, MenuTestLeftOffset = 150;
+	int rectOffset = 40, MenuTestLeftOffset = 130;
 
 	InfoOverlayTextStruct.Format = DT_NOCLIP | DT_LEFT;
 	InfoOverlayTextStruct.Rect.left = ResolutionWidth - 205;
@@ -393,10 +429,10 @@ void Overlay::InitializeDataStructs()
 	MenuTestTextStruct.Color = WhiteArray[2];
 
 	ControlMenuTestTextStruct.Format = DT_NOCLIP | DT_LEFT;
-	ControlMenuTestTextStruct.Rect.left = ResolutionWidth - MenuTestLeftOffset + 75;
-	ControlMenuTestTextStruct.Rect.top = ResolutionHeight - rectOffset;
+	ControlMenuTestTextStruct.Rect.left = ResolutionWidth - MenuTestLeftOffset + 105;
+	ControlMenuTestTextStruct.Rect.top = ResolutionHeight - rectOffset + 7;
 	ControlMenuTestTextStruct.Rect.right = ResolutionWidth;
-	ControlMenuTestTextStruct.Rect.bottom = MenuTestTextStruct.Rect.top + 15 + 15;
+	ControlMenuTestTextStruct.Rect.bottom = MenuTestTextStruct.Rect.top + 15 + 35;
 	ControlMenuTestTextStruct.Color = WhiteArray[2];
 	ControlMenuTestTextStruct.String = ".";
 
@@ -406,7 +442,7 @@ void Overlay::InitializeDataStructs()
 	DebugOverlayTextStruct.Rect.right = rectOffset + 300;
 	DebugOverlayTextStruct.Rect.bottom = rectOffset + 15;
 	DebugOverlayTextStruct.Color = TextColors.Green;
-
+	
 }
 
 std::string Overlay::GetIGTString()
@@ -439,4 +475,58 @@ std::string Overlay::GetIGTString()
 	TimeString.append(FloatToStr(time, 3));
 
 	return TimeString;
+}
+
+std::string Overlay::GetFontPath()
+{
+	int LastSlashIndex = -1;
+	std::string output = "";
+
+	GetSH2FolderPath(dir, MAX_PATH);
+
+	output = RemoveExeName(dir);
+	output.append("sh2e\\font\\");
+	output.append(AlternateIGTFontName);
+
+	return output;
+}
+
+std::string Overlay::RemoveExeName(char* path)
+{
+	int LastSlashIndex = -1;
+	std::string output = "";
+
+	for (int i = 0; i < strlen(path); i++)
+	{
+		if (path[i] == '\\' || path[i] == '/')
+			LastSlashIndex = i;
+	}
+
+	if (LastSlashIndex > 0)
+	{
+		dir[LastSlashIndex + 1] = '\0';
+	}
+
+	output.append(path);
+
+	return output;
+}
+
+void Overlay::SetIGTFont()
+{
+	std::string path = GetFontPath();
+	Logging::LogDebug() << __FUNCTION__ << path;
+
+	if (AddFontResourceExA(path.c_str(), FR_PRIVATE, 0) > 0) 
+	{
+		IGTFontName = AlternateIGTFontNameNoExt;
+	}
+
+}
+
+void Overlay::ReleaseFont()
+{
+	if (FontName == AlternateIGTFontNameNoExt)
+		RemoveFontResourceExA(GetFontPath().c_str(), FR_PRIVATE, 0);
+		
 }

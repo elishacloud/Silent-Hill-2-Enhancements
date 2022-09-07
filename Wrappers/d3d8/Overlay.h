@@ -49,6 +49,7 @@ private:
 
 	void DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, D3D8TEXT TextStruct);
 	void DrawMenuTestText(LPDIRECT3DDEVICE8 ProxyInterface, D3D8TEXT TextStruct);
+	void DrawIGTText(LPDIRECT3DDEVICE8 ProxyInterface, D3D8TEXT TextStruct);
 
 	std::string IntToHexStr(int IntValue);
 	std::string FloatToStr(float FloatValue, int precision);
@@ -62,6 +63,6 @@ private:
 
 	std::string GetFontPath();
 	std::string RemoveExeName(char* path);
-	void SetFont();
+	void SetIGTFont();
 };
 

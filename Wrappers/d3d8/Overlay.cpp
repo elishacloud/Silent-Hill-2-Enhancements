@@ -27,6 +27,7 @@ DWORD FogEnableValue;
 char dir[MAX_PATH] = { 0 };
 LPCSTR FontName = "Arial";
 LPCSTR IGTFontName = "Arial";
+bool UseAlternateIGTFontName = false;
 LPCSTR AlternateIGTFontName = "Noto Sans Mono Thin.ttf";
 LPCSTR AlternateIGTFontNameNoExt = "Noto Sans Mono Thin";
 
@@ -35,7 +36,10 @@ void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 	Logging::LogDebug() << __FUNCTION__;
 
 	InitializeDataStructs();
-	SetIGTFont();
+	if (UseAlternateIGTFontName)
+	{
+		SetIGTFont();
+	}
 
 	// In the pause menu, skip drawing
 	if (GetEventIndex() == 0x10) return;
@@ -153,7 +157,7 @@ void Overlay::DrawMenuTestOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 
 	MenuTestTextStruct.String = OvlString.c_str();
 	MenuTestTextStruct.Rect.top += 22;
-	MenuTestTextStruct.Rect.left += 85;
+	MenuTestTextStruct.Rect.left += 80;
 	DrawMenuTestText(ProxyInterface, MenuTestTextStruct);
 
 	DrawMenuTestText(ProxyInterface, ControlMenuTestTextStruct);
@@ -429,10 +433,10 @@ void Overlay::InitializeDataStructs()
 	MenuTestTextStruct.Color = WhiteArray[2];
 
 	ControlMenuTestTextStruct.Format = DT_NOCLIP | DT_LEFT;
-	ControlMenuTestTextStruct.Rect.left = ResolutionWidth - MenuTestLeftOffset + 105;
+	ControlMenuTestTextStruct.Rect.left = ResolutionWidth - MenuTestLeftOffset + 100;
 	ControlMenuTestTextStruct.Rect.top = ResolutionHeight - rectOffset + 7;
 	ControlMenuTestTextStruct.Rect.right = ResolutionWidth;
-	ControlMenuTestTextStruct.Rect.bottom = MenuTestTextStruct.Rect.top + 15 + 35;
+	ControlMenuTestTextStruct.Rect.bottom = MenuTestTextStruct.Rect.top + 15 + 30;
 	ControlMenuTestTextStruct.Color = WhiteArray[2];
 	ControlMenuTestTextStruct.String = ".";
 

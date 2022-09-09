@@ -1,3 +1,4 @@
+#pragma warning( disable : 4244 )
 #include "Overlay.h"
 
 const int rectOffset		= 40;
@@ -19,6 +20,7 @@ bool ResetIGTFontFlag = false;
 auto LastColorChange = std::chrono::system_clock::now();
 int WhiteArrayIndex = 2;
 
+bool InitializedTextStructsFlag = false;
 Overlay::D3D8TEXT MenuTestTextStruct;
 Overlay::D3D8TEXT InfoOverlayTextStruct;
 Overlay::D3D8TEXT DebugOverlayTextStruct;
@@ -26,13 +28,12 @@ Overlay::D3D8TEXT ControlMenuTestTextStruct;
 
 DWORD FogEnableValue;
 
-
-
 void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	InitializeDataStructs();
+	if (!InitializedTextStructsFlag)
+		InitializeDataStructs();
 
 	// In the pause menu, skip drawing
 	if (GetEventIndex() == 0x10) return;
@@ -151,7 +152,10 @@ void Overlay::DrawMenuTestOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	MenuTestTextStruct.Rect.top += 22;
 	MenuTestTextStruct.Rect.left += 80;
 	DrawMenuTestText(ProxyInterface, MenuTestTextStruct);
+	MenuTestTextStruct.Rect.top -= 22;
+	MenuTestTextStruct.Rect.left -= 80;
 
+	// Pulsating dot
 	DrawMenuTestText(ProxyInterface, ControlMenuTestTextStruct);
 
 }
@@ -437,6 +441,7 @@ void Overlay::InitializeDataStructs()
 	DebugOverlayTextStruct.Rect.bottom = rectOffset + 15;
 	DebugOverlayTextStruct.Color = TextColors.Green;
 	
+	InitializedTextStructsFlag = true;
 }
 
 std::string Overlay::GetIGTString()

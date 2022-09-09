@@ -468,22 +468,3 @@ std::string Overlay::GetIGTString()
 
 	return TimeString;
 }
-
-std::string Overlay::BoatStageTimeString(float time)
-{
-	std::string TimeString = "";
-	int minutes, seconds, tenths;
-
-	minutes = time / 60;
-	time -= minutes * 60;
-	seconds = time;
-	tenths = (time - seconds) * 100;
-
-	TimeString.append(std::to_string(minutes));
-	TimeString.append("m ");
-	TimeString.append(std::to_string(seconds));
-	TimeString.append("s ");
-	TimeString.append(std::to_string(tenths));
-
-	return TimeString;
-}

@@ -17,6 +17,7 @@ public:
 
 	void DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface);
 	void ResetFont();
+	void ReleaseFont();
 
 private:
 	std::string ActionDifficulty[4]
@@ -61,7 +62,6 @@ private:
 	std::string SecondsToTimeString(int time);
 	std::string SecondsToMsTimeString(int time);
 	std::string GetIGTString();
-	std::string BoatStageTimeString(float time);
 	int bitCount(uint8_t num);
 
 	bool ChangeMenuTestColor();

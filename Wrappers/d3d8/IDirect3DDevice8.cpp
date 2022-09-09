@@ -84,6 +84,7 @@ ULONG m_IDirect3DDevice8::Release()
 	Logging::LogDebug() << __FUNCTION__;
 
 	ULONG count = ProxyInterface->Release();
+	OverlayRef.ReleaseFont();
 
 	if (count == 0)
 	{

@@ -17,7 +17,6 @@ public:
 
 	void DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface);
 	void ResetFont();
-	void ReleaseFont();
 
 private:
 	std::string ActionDifficulty[4]
@@ -60,7 +59,7 @@ private:
 	std::string IntToHexStr(int IntValue);
 	std::string FloatToStr(float FloatValue, int precision);
 	std::string SecondsToTimeString(int time);
-	std::string SecondsToMsTimeString(int time);
+	std::string SecondsToMsTimeString(float time);
 	std::string GetIGTString();
 	int bitCount(uint8_t num);
 

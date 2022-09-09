@@ -6,6 +6,8 @@ const int KMConstant		= 500000;
 const float AntiJitterValue	= 0.0001f;
 const int DropShadowOffset	= 1;
 
+LPCSTR FontName = "Arial";
+
 LPD3DXFONT DebugFont = nullptr;
 LPD3DXFONT MenuTestFont = nullptr;
 LPD3DXFONT IGTFont = nullptr;
@@ -24,7 +26,7 @@ Overlay::D3D8TEXT ControlMenuTestTextStruct;
 
 DWORD FogEnableValue;
 
-LPCSTR FontName = "Arial";
+
 
 void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 {
@@ -104,7 +106,7 @@ void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append(std::to_string(GetMeleeKills()));
 
 	OvlString.append("\rBoat Stage Time: ");
-	OvlString.append(BoatStageTimeString(GetBoatStageTime()));
+	OvlString.append(SecondsToMsTimeString(GetBoatStageTime()));
 
 	OvlString.append("\rBoat Max Speed: ");
 	OvlString.append(FloatToStr(GetBoatMaxSpeed(), 2));
@@ -120,8 +122,6 @@ void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 void Overlay::DrawMenuTestOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 {
 	Logging::LogDebug() << __FUNCTION__;
-
-	int FloatPrecision = 4;
 
 	if (ChangeMenuTestColor())
 	{
@@ -234,8 +234,6 @@ void Overlay::DrawMenuTestText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TE
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	int DropShadowOffset = 1;
-
 	RECT DropShadowRect = FontStruct.Rect;
 	DropShadowRect.top = DropShadowRect.top + DropShadowOffset;
 	DropShadowRect.left = DropShadowRect.left + DropShadowOffset;
@@ -267,8 +265,6 @@ void Overlay::DrawMenuTestText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TE
 void Overlay::DrawIGTText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT FontStruct)
 {
 	Logging::LogDebug() << __FUNCTION__;
-
-	int DropShadowOffset = 1;
 
 	RECT DropShadowRect = FontStruct.Rect;
 	DropShadowRect.top = DropShadowRect.top + DropShadowOffset;
@@ -332,6 +328,12 @@ void Overlay::ResetFont()
 		MenuTestFont->OnLostDevice();
 		ResetMenuTestFontFlag = true;
 	}
+
+	if (IGTFont)
+	{
+		IGTFont->OnLostDevice();
+		ResetIGTFontFlag = true;
+	}
 }
 
 std::string Overlay::SecondsToTimeString(int time)
@@ -355,7 +357,7 @@ std::string Overlay::SecondsToTimeString(int time)
 	return TimeString;
 }
 
-std::string Overlay::SecondsToMsTimeString(int time)
+std::string Overlay::SecondsToMsTimeString(float time)
 {
 	std::string TimeString = "";
 	int minutes, seconds, tenths;
@@ -404,7 +406,7 @@ void Overlay::InitializeDataStructs()
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	int rectOffset = 40, MenuTestLeftOffset = 130;
+	int MenuTestLeftOffset = 130;
 
 	InfoOverlayTextStruct.Format = DT_NOCLIP | DT_LEFT;
 	InfoOverlayTextStruct.Rect.left = BufferWidth - 205;
@@ -441,7 +443,7 @@ std::string Overlay::GetIGTString()
 {
 	float time = GetInGameTime();
 	std::string TimeString = "";
-	int hours, minutes, seconds, milliseconds;
+	int hours, minutes;
 
 	hours = time / 3600;
 	time -= hours * 3600;

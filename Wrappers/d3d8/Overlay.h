@@ -17,7 +17,6 @@ public:
 
 	void DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface);
 	void ResetFont();
-	void ReleaseFont();
 
 private:
 	std::string ActionDifficulty[4]
@@ -43,6 +42,12 @@ private:
 		D3DCOLOR_ARGB(255, 255, 255, 255) 
 	};
 
+	struct OverlayTextColors {
+		D3DCOLOR Black = D3DCOLOR_ARGB(255, 0, 0, 0);
+		D3DCOLOR Green = D3DCOLOR_ARGB(255, 153, 255, 153);
+		D3DCOLOR Tiel = D3DCOLOR_ARGB(255, 153, 217, 234);
+	} TextColors;
+
 	void DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface);
 	void DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface);
 	void DrawMenuTestOverlay(LPDIRECT3DDEVICE8 ProxyInterface);
@@ -62,7 +67,4 @@ private:
 	bool ChangeMenuTestColor();
 	void InitializeDataStructs();
 
-	std::string GetFontPath();
-	std::string RemoveExeName(char* path);
-	void SetIGTFont();
 };

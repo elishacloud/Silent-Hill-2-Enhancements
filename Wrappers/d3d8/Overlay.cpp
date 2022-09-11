@@ -141,11 +141,16 @@ void Overlay::DrawMenuTestOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 
 	ControlMenuTestTextStruct.Color = WhiteArray[WhiteArrayIndex];
 
-	std::string OvlString = GetIGTString();
+	std::string OvlString = "";
 
-	MenuTestTextStruct.String = OvlString.c_str();
-	DrawIGTText(ProxyInterface, MenuTestTextStruct);
-	
+	if (EnableMenuTestIGT)
+	{
+		OvlString = GetIGTString();
+
+		MenuTestTextStruct.String = OvlString.c_str();
+		DrawIGTText(ProxyInterface, MenuTestTextStruct);
+	}
+
 	OvlString = "0.1";
 
 	MenuTestTextStruct.String = OvlString.c_str();

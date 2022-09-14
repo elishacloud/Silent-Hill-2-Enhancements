@@ -26,6 +26,8 @@
 	visit(DynamicResolution, true) \
 	visit(EnableDebugOverlay, true) \
 	visit(EnableInfoOverlay, true) \
+	visit(EnableMenuTest, false) \
+	visit(EnableMenuTestIGT, true) \
 	visit(EnableScreenshots, true) \
 	visit(EnableSFXAddrHack, true) \
 	visit(EnableSMAA, false) \
@@ -172,6 +174,8 @@
 	visit(DisableLogging) \
 	visit(EnableDebugOverlay) \
 	visit(EnableInfoOverlay) \
+	visit(EnableMenuTest) \
+	visit(EnableMenuTestIGT) \
 	visit(EnableScreenshots) \
 	visit(EnableWndMode) \
 	visit(FixFMVResetIssue) \

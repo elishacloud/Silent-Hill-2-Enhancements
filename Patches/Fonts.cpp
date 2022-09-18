@@ -21,37 +21,13 @@
 #include "Logging\Logging.h"
 #include "Common\Settings.h"
 #include "Wrappers\d3d8\d3d8wrapper.h"
+#include "stb_image.h"
+#include "stb_image_dds.h"
 
-typedef struct {
-	DWORD dwSize;
-	DWORD dwFlags;
-	DWORD dwFourCC;
-	DWORD dwRGBBitCount;
-	DWORD dwRBitMask;
-	DWORD dwGBitMask;
-	DWORD dwBBitMask;
-	DWORD dwRGBAlphaBitMask;
-} DDPIXELFORMAT;
-
-typedef struct {
-	DWORD dwCaps1;
-	DWORD dwCaps2;
-	DWORD Reserved[2];
-} DDCAPS2;
-
-typedef struct {
-	DWORD dwSize;
-	DWORD dwFlags;
-	DWORD dwHeight;
-	DWORD dwWidth;
-	DWORD dwPitchOrLinearSize;
-	DWORD dwDepth;
-	DWORD dwMipMapCount;
-	DWORD dwReserved1[11];
-	DDPIXELFORMAT ddpfPixelFormat;
-	DDCAPS2 ddsCaps;
-	DWORD dwReserved2;
-} DDS_HEADER;
+typedef enum {
+	FONT_NORMAL = 0,
+	FONT_SMALL
+} FontType;
 
 using namespace std;
 
@@ -63,64 +39,49 @@ constexpr BYTE DFontFuncBlockD[] = { 0x00, 0x5F, 0x7F, 0x9F, 0xBF, 0xDF, 0xFF, 0
 constexpr BYTE DFontFuncBlockE[] = { 0x8B, 0x44, 0x24, 0x08, 0x81, 0xEC, 0x80, 0x00, 0x00, 0x00, 0x53, 0x55, 0x56, 0x57, 0x33, 0xFF, 0x83, 0xC9, 0xFF };
 constexpr BYTE DFontFuncBlockF[] = { 0x83, 0xEC, 0x0C, 0x55, 0x8B, 0x6C, 0x24, 0x18, 0x33, 0xD2, 0x3B, 0xEA, 0x75, 0x07, 0x33, 0xC0, 0x5D, 0x83, 0xC4 };
 
+//game font parameters
 static unsigned int fontTexWidth = 550;
 static unsigned int fontTexHeight = 544;
 static float fontTexScaleW = 1.0f;
 static float fontTexScaleH = 1.0f;
 static BYTE charW = 22;
 static BYTE charH = 32;
-static BYTE charIX = 100;
-static BYTE charIY = 150;
+static BYTE charIX = 25;
+static BYTE charIY = 17;
 static WORD nFontW = 20;
 static WORD nFontH = 30;
 static WORD sFontW = 16;
 static WORD sFontH = 24;
 static BYTE letterSpc = 2;
 static BYTE spaceSize = 7;
+static IDirect3DTexture8 **fontTexture;
 
-static D3DFORMAT fontFormat = D3DFMT_A8R8G8B8;
+//external font texture
 static BYTE *fontData;
-static DWORD fontDataSize;
+static DWORD fontWidth;
+static DWORD fontHeight;
+static DWORD fontColumnNumber;
+static DWORD fontRowNumber;
 
-static BOOL LoadDDSFont(void);
+static void copyFontData(BYTE *out, SHORT index, WORD charId, FontType type);
 
-static void UpdateFontTextureData(BYTE *ptr, int size)
-{
-	Logging::LogDebug() << __FUNCTION__ << " - address: " << (DWORD)ptr << ", size: " << size;
+static int UpdateFontTexture(SHORT index, FontType type, WORD charId) {
+	static SHORT emptyChar = 0;
+	int charMax = (fontColumnNumber * fontRowNumber) / 2;
 
-	if (fontData)
-	{
-		memcpy(ptr, fontData, fontDataSize);
+	if (charId == 0) {
+		emptyChar = index;
 	}
-
-	return;
-}
-
-static int ReturnFontIdx(int fontSize, WORD charID)
-{
-	int charMax = (charIX * charIY) / 2;
-
-	if (charID > charMax)
-	{
-		return 0;
+	if (charId >= charMax || *fontTexture == NULL) {
+		Logging::LogDebug() << __FUNCTION__ << "Error updating font texture: charId " << charId << " type " << type << " index " << index;
+		return emptyChar;
 	}
-
-	return charID + fontSize * charMax;
-}
-
-static void* CreateFontTextureRetAddr;
-
-__declspec(naked) void __stdcall CreateFontTextureASM()
-{
-	__asm
-	{
-		push	1
-		mov		edi, fontFormat
-		push	edi
-		push	0
-		push	1
-		jmp		CreateFontTextureRetAddr
-	}
+	(*fontTexture)->UnlockRect(0);
+	D3DLOCKED_RECT rect;
+	(*fontTexture)->LockRect(0, &rect, NULL, 0);
+	copyFontData((BYTE*)rect.pBits, index, charId, type);
+	(*fontTexture)->UnlockRect(0);
+	return index;
 }
 
 static void* SpaceSizeRetAddr;
@@ -195,56 +156,87 @@ void PatchCustomFonts()
 	letterSpc = (BYTE)LetterSpacing;
 	spaceSize = (BYTE)SpaceSize;
 
-	if (!LoadDDSFont())
+	#define FORMATS 4
+	const char* formats[FORMATS] = { "tga", "png", "jpg", "dds" };
+	for (int i = 0; i < FORMATS; i++) {
+		char path[256];
+		snprintf(path, 256, "data\\font\\font000.%s", formats[i]);
+		ifstream file(path, ios::in | ios::binary | ios::ate);
+		if (file.is_open())
+		{
+			file.seekg(0, ios::end);
+			DWORD size = (DWORD)file.tellg();
+			file.seekg(0, ios::beg);
+
+			BYTE* data = new BYTE[size];
+			file.read((char*)data, size);
+			file.close();
+
+			int channels;
+			if (i == 3) {
+				fontData = stbi_dds_load_from_memory(data, size, (int*)&fontWidth, (int*)&fontHeight, &channels, 0);
+			}
+			else {
+				fontData = stbi_load_from_memory(data, size, (int*)&fontWidth, (int*)&fontHeight, &channels, 0);
+			}
+			if (!fontData) {
+				delete[] data;
+				continue;
+			}
+
+			BYTE* extra = (BYTE *)(data + size - 16);
+			if (strncmp((char *)extra, "SH2EEFNT", 8) == 0) {
+				fontColumnNumber = extra[8] | extra[9] << 8 | extra[10] << 16 | extra[11] << 24;
+				fontRowNumber = extra[12] | extra[13] << 8 | extra[14] << 16 | extra[15] << 24;
+			}
+			else {
+				fontColumnNumber = fontWidth / 44;
+				fontRowNumber = fontHeight / 64;
+			}
+			Logging::Log() << __FUNCTION__ << ": Using font file: " << path << " fontColumnNumber " << fontColumnNumber << " fontRowNumber " << fontRowNumber;
+			delete[] data;
+
+			break;
+		}
+	}
+	if (!fontData)
 	{
-		Logging::Log() << __FUNCTION__ << " Error: Could not find font file";
+		Logging::Log() << __FUNCTION__ << " Error: Could not load font file";
 		return;
 	}
 
 	Logging::Log() << "Enabling Custom Fonts...";
+
 	fontTexScaleW = 550.0f / (float)(charIX * charW);
 	fontTexScaleH = 544.0f / (float)(charIY * charH);
+	fontTexWidth = fontWidth / fontColumnNumber * charIX;
+	fontTexHeight = fontHeight / fontRowNumber * charIY;
 
 	UpdateMemoryAddress((void *)((BYTE*)DFontAddrA + 0x17), (void *)&fontTexWidth, 4);
 	UpdateMemoryAddress((void *)((BYTE*)DFontAddrA + 0x1C), (void *)&fontTexHeight, 4);
 	UpdateMemoryAddress((void *)((BYTE*)DFontAddrA + 0x31), (void *)&fontTexScaleW, 4);
 	UpdateMemoryAddress((void *)((BYTE*)DFontAddrA + 0x3B), (void *)&fontTexScaleH, 4);
 
-	CreateFontTextureRetAddr = (void*)((BYTE*)DFontAddrA + 0xB4);
-	WriteJMPtoMemory((BYTE*)DFontAddrA + 0xAC, *CreateFontTextureASM, 8);
-
-	BYTE codeA[] = { 0x51, 0x57, 0xBA, 0xEF, 0xBE, 0xAD, 0xDE, 0xFF, 0xD2, 0x83, 0xc4, 0x08, 0x90, 0x90, 0x90, 0x90 };
-	codeA[3] = (BYTE)((DWORD)*UpdateFontTextureData & 0xFF);
-	codeA[4] = (BYTE)((DWORD)*UpdateFontTextureData >> 8);
-	codeA[5] = (BYTE)((DWORD)*UpdateFontTextureData >> 16);
-	codeA[6] = (BYTE)((DWORD)*UpdateFontTextureData >> 24);
-	UpdateMemoryAddress((void *)((BYTE*)DFontAddrA + 0xFE), (void *)&codeA, sizeof(codeA));
-
-	BYTE codeB[] = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x8B, 0x54, 0x24, 0x30, 0x52, 0xBA, 0xEF, 0xBE, 0xAD, 0xDE };
-	codeB[19] = (BYTE)((DWORD)*ReturnFontIdx & 0xFF);
-	codeB[20] = (BYTE)((DWORD)*ReturnFontIdx >> 8);
-	codeB[21] = (BYTE)((DWORD)*ReturnFontIdx >> 16);
-	codeB[22] = (BYTE)((DWORD)*ReturnFontIdx >> 24);
-	UpdateMemoryAddress((void *)((BYTE*)DFontAddrA + 0x120), (void *)&codeB, sizeof(codeB));
-
-	BYTE codeC[] = { 0x50, 0xFF, 0xD2, 0x83, 0xC4, 0x08, 0x5F, 0x5E, 0x83, 0xC4, 0x24, 0xC3 };
-	UpdateMemoryAddress((void *)((BYTE*)DFontAddrA + 0x120 + sizeof(codeB) + 5), (void *)&codeC, sizeof(codeC));
+	fontTexture = (IDirect3DTexture8**)*(DWORD*)((BYTE*)DFontAddrA - 0x03);
 	
-	UpdateMemoryAddress((void *)((BYTE*)DFontAddrB), (void *)&charIX, 1);
-	BYTE codeD[] = { 0x6B, 0xC0, 0x05 };
+	BYTE codeA[] = { 0x8B, 0x74, 0x24, 0x38, 0x56, 0x50, 0x52, 0xBA, 0xEF, 0xBE, 0xAD, 0xDE, 0xFF, 0xD2, 0x83, 0xC4, 0x14, 0x5F, 0x5E, 0x83, 0xC4, 0x24, 0xC3 };
+	codeA[8] = (BYTE)((DWORD)*UpdateFontTexture & 0xFF);
+	codeA[9] = (BYTE)((DWORD)*UpdateFontTexture >> 8);
+	codeA[10] = (BYTE)((DWORD)*UpdateFontTexture >> 16);
+	codeA[11] = (BYTE)((DWORD)*UpdateFontTexture >> 24);
+	UpdateMemoryAddress((void*)((BYTE*)DFontAddrA + 0x298), (void*)&codeA, sizeof(codeA));
+
 	if (DisableEnlargedText)
 	{
-		codeD[2] = 0;
-		UpdateMemoryAddress((void *)((BYTE*)DFontAddrB + 0x15), (void *)&codeD[2], 1);
-		UpdateMemoryAddress((void *)((BYTE*)DFontAddrB + 0x16), (void *)&codeD, sizeof(codeD));
+		BYTE codeB[] = { 0x90, 0x90, 0x31, 0xD2 };
+		UpdateMemoryAddress((void*)((BYTE*)DFontAddrB - 0xB7), (void*)&codeB, sizeof(codeB));
 	}
-	else
-	{
-		codeD[2] = (BYTE)charH;
-		UpdateMemoryAddress((void *)((BYTE*)DFontAddrB + 0x15), (void *)&charW, 1);
-		UpdateMemoryAddress((void *)((BYTE*)DFontAddrB + 0x16), (void *)&codeD, sizeof(codeD));
-	}
+
+	UpdateMemoryAddress((void *)((BYTE*)DFontAddrB), (void *)&charIX, 1);
+	BYTE codeD[] = { 0x6B, 0xC0, 0x05 };
 	codeD[2] = (BYTE)charH;
+	UpdateMemoryAddress((void*)((BYTE*)DFontAddrB + 0x15), (void*)&charW, 1);
+	UpdateMemoryAddress((void*)((BYTE*)DFontAddrB + 0x16), (void*)&codeD, sizeof(codeD));
 
 	void *DFontAddrC = (void*)SearchAndGetAddresses(0x0047E048, 0x0047E2E8, 0x0047E4F8, DFontFuncBlockC, sizeof(DFontFuncBlockC), 0x00);
 
@@ -329,36 +321,12 @@ void PatchCustomFonts()
 	}
 }
 
-static BOOL LoadDDSFont(void) {
-	DDS_HEADER dds;
-	ifstream file("data\\font\\font000.dds", ios::in | ios::binary | ios::ate);
-	if (file.is_open())
-	{
-		char type[4];
-		file.seekg(0, ios::beg);
-		file.read(type, 4);
-
-		if (strncmp(type, "DDS ", 4) != 0) {
-			Logging::Log() << __FUNCTION__ << " No dds file type found, read type = " << type;
-			return false;
-		}
-
-		file.read((char*)&dds, sizeof(DDS_HEADER));
-		fontTexWidth = dds.dwWidth;
-		fontTexHeight = dds.dwHeight;
-
-		if (dds.ddpfPixelFormat.dwFourCC != 0) {
-			fontFormat = (D3DFORMAT)dds.ddpfPixelFormat.dwFourCC;
-			fontDataSize = dds.dwPitchOrLinearSize;
-		}
-		else {
-			fontDataSize = dds.dwPitchOrLinearSize * fontTexHeight;
-		}
-
-		fontData = new BYTE[fontDataSize];
-		file.read((char*)fontData, fontDataSize);
-		file.close();
-		return true;
+static void copyFontData(BYTE *out, SHORT index, WORD charId, FontType type) {
+	int charWidth = fontWidth / fontColumnNumber;
+	int charHeight = fontHeight / fontRowNumber;
+	int fontStart = index / charIX * fontTexWidth * charHeight * 4 + index % charIX * charWidth * 4;
+	int customFontStart = type * fontWidth * fontHeight * 4 / 2 + charId / fontColumnNumber * fontWidth * charHeight * 4 + charId % fontColumnNumber * charWidth * 4;
+	for (int y = 0; y < charHeight; y++) {
+		memcpy(out + fontStart + fontTexWidth * 4 * y, fontData + customFontStart + fontWidth * 4 * y, charWidth * 4);
 	}
-	return false;
 }

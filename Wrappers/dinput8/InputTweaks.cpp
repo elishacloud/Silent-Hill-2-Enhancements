@@ -16,6 +16,8 @@
 
 #include "InputTweaks.h"
 
+BYTE* KeyboardData = nullptr;
+
 void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbData, LPVOID lpvData)
 {
 	// For keyboard
@@ -23,13 +25,37 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 	{
 		Logging::LogDebug() << __FUNCTION__ << " Tweaking Keyboard...";
 
-		BYTE* KeyBoardData = (BYTE*)lpvData;
+		KeyboardData = (BYTE*)lpvData;
+		
+		// Ignore Alt + Enter combo
+		if ((IsKeyPressed(DIK_LMENU) || IsKeyPressed(DIK_RMENU) && IsKeyPressed(DIK_RETURN)))
+		{
+			ClearKey(DIK_LMENU);
+			ClearKey(DIK_RMENU);
+			ClearKey(DIK_RETURN);
+			Logging::LogDebug() << __FUNCTION__ << " Ignoring ALT + ENTER...";
+		}
 
-		for (int i = 0; i < 255; i++)
-			if (KeyBoardData[i] != 0)
-				Logging::LogDebug() << __FUNCTION__ << " key: " << Logging::hex(i) << " value: " << (uint8_t)KeyBoardData[i];
+		// Ignore Ctrl + D combo
+		if (IsKeyPressed(DIK_LCONTROL) && IsKeyPressed(DIK_D))
+		{
+			ClearKey(DIK_LCONTROL);
+			ClearKey(DIK_D);
+			Logging::LogDebug() << __FUNCTION__ << " Ignoring CTRL + D...";
+		}
+
+		// Ignore Ctrl + I combo
+		if (IsKeyPressed(DIK_LCONTROL) && IsKeyPressed(DIK_I))
+		{
+			ClearKey(DIK_LCONTROL);
+			ClearKey(DIK_I);
+			Logging::LogDebug() << __FUNCTION__ << " Ignoring CTRL + I...";
+		}
+
 	}
 
+	// Clear 
+	KeyboardData = nullptr;
 }
 
 void InputTweaks::TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD dwFlags)
@@ -40,6 +66,22 @@ void InputTweaks::TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD
 		Logging::LogDebug() << __FUNCTION__ << " Tweaking Mouse...";
 
 	}
+}
+
+void InputTweaks::ClearKey(int keyIndex)
+{
+	if (keyIndex > 256 || !KeyboardData)
+		return;
+
+	KeyboardData[keyIndex] = 0x00;
+}
+
+bool InputTweaks::IsKeyPressed(int keyIndex)
+{
+	if (keyIndex > 256 || !KeyboardData)
+		return false;
+
+	return KeyboardData[keyIndex] == 0x80 ? true : false;
 }
 
 void InputTweaks::SetKeyboardInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface)

@@ -113,6 +113,8 @@ HRESULT m_IDirectInputDevice8A::Unacquire()
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
 
+	InpTweaks.RemoveAddr(ProxyInterface);
+
 	return ProxyInterface->Unacquire();
 }
 

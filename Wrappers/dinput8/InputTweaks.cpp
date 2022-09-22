@@ -17,6 +17,8 @@
 #include "InputTweaks.h"
 
 BYTE* KeyboardData = nullptr;
+LPDIDEVICEOBJECTDATA MouseData = nullptr;
+DWORD MouseDataSize = NULL;
 
 void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbData, LPVOID lpvData)
 {
@@ -65,6 +67,14 @@ void InputTweaks::TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD
 	{
 		Logging::LogDebug() << __FUNCTION__ << " Tweaking Mouse...";
 
+		MouseData = rgdod;
+		MouseDataSize = *pdwInOut;
+
+		Logging::LogDebug() << __FUNCTION__ << " Mouse X change: " << GetMouseRelXChange();
+		Logging::LogDebug() << __FUNCTION__ << " Mouse Y change: " << GetMouseRelYChange();
+
+		MouseData = nullptr;
+		MouseDataSize = NULL;
 	}
 }
 
@@ -92,4 +102,49 @@ void InputTweaks::SetKeyboardInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface)
 void InputTweaks::SetMouseInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface)
 {
 	MouseInterfaceAddress = ProxyInterface;
+}
+
+void InputTweaks::RemoveAddr(LPDIRECTINPUTDEVICE8A ProxyInterface)
+{
+	if (MouseInterfaceAddress == ProxyInterface)
+		MouseInterfaceAddress = nullptr;
+	if (KeyboardInterfaceAddress == ProxyInterface)
+		KeyboardInterfaceAddress = nullptr;
+}
+
+int InputTweaks::isMouseButtonPressed(int buttonIndex)
+{
+	// Returns 1 if pressed, 0 if released, -1 if no info
+	if (buttonIndex > 0x13 || !MouseData || MouseDataSize == 0)
+		return -1;
+
+	//TODO handle multiple button events in same call
+}
+
+int32_t InputTweaks::GetMouseRelXChange()
+{
+	int32_t AxisSum = 0;
+
+	if (!MouseData || MouseDataSize == 0)
+		return AxisSum;
+
+	for (int i = 0; i < MouseDataSize; i++)
+		if (MouseData->dwOfs == DIMOFS_X)
+			AxisSum += (int32_t) MouseData->dwData;
+
+	return AxisSum;
+}
+
+int32_t InputTweaks::GetMouseRelYChange()
+{
+	int32_t AxisSum = 0;
+
+	if (!MouseData || MouseDataSize == 0)
+		return AxisSum;
+
+	for (int i = 0; i < MouseDataSize; i++)
+		if (MouseData->dwOfs == DIMOFS_Y)
+			AxisSum += (int32_t)MouseData->dwData;
+
+	return AxisSum;
 }

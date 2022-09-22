@@ -127,6 +127,7 @@
     <ClCompile Include="Wrappers\dinput8\IDirectInput8A.cpp" />
     <ClCompile Include="Wrappers\dinput8\IDirectInputDevice8A.cpp" />
     <ClCompile Include="Wrappers\dinput8\IDirectInputEffect.cpp" />
+    <ClCompile Include="Wrappers\dinput8\InputTweaks.cpp" />
     <ClCompile Include="Wrappers\dinput8\InterfaceQuery.cpp" />
     <ClCompile Include="Wrappers\dsound\dsoundwrapper.cpp" />
     <ClCompile Include="Wrappers\dsound\IDirectSound8.cpp" />
@@ -196,6 +197,7 @@
     <ClInclude Include="Wrappers\dinput8\IDirectInput8A.h" />
     <ClInclude Include="Wrappers\dinput8\IDirectInputDevice8A.h" />
     <ClInclude Include="Wrappers\dinput8\IDirectInputEffect.h" />
+    <ClInclude Include="Wrappers\dinput8\InputTweaks.h" />
     <ClInclude Include="Wrappers\dsound.h" />
     <ClInclude Include="Wrappers\dsound\AddressLookupTable.h" />
     <ClInclude Include="Wrappers\dsound\dsoundwrapper.h" />

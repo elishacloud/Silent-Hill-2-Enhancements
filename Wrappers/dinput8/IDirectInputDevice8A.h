@@ -1,5 +1,7 @@
 #pragma once
 
+#include "InputTweaks.h"
+
 class m_IDirectInputDevice8A : public IDirectInputDevice8A, public AddressLookupTableDinput8Object
 {
 private:

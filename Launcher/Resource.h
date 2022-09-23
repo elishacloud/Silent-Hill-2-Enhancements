@@ -11,8 +11,9 @@
 #define IDC_COMBO1                      1000
 #define IDC_STATIC                      -1
 
-// Included resource files
-#define IDR_CONFIG_XML                 901
+// Included resource files (do NOT change these number associations, used in reg keys)
+#define IDR_CONFIG_XML_EN                901
+#define IDR_CONFIG_XML_ES                902
 
 // Main resource file details
 #define APP_NAME				"SH2EE Configuration Tool"

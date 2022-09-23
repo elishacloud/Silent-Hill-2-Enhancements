@@ -19,14 +19,13 @@
 BYTE* KeyboardData = nullptr;
 LPDIDEVICEOBJECTDATA MouseData = nullptr;
 DWORD MouseDataSize = NULL;
+int TurnJamesFlag = 0;
 
 void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbData, LPVOID lpvData)
 {
 	// For keyboard
 	if (ProxyInterface == KeyboardInterfaceAddress)
 	{
-		Logging::LogDebug() << __FUNCTION__ << " Tweaking Keyboard...";
-
 		KeyboardData = (BYTE*)lpvData;
 		
 		// Ignore Alt + Enter combo
@@ -56,6 +55,8 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 
 	}
 
+	//TurnJames();
+
 	// Clear 
 	KeyboardData = nullptr;
 }
@@ -65,33 +66,40 @@ void InputTweaks::TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD
 	// For mouse
 	if (ProxyInterface == MouseInterfaceAddress)
 	{
-		Logging::LogDebug() << __FUNCTION__ << " Tweaking Mouse...";
 
 		MouseData = rgdod;
 		MouseDataSize = *pdwInOut;
 
-		Logging::LogDebug() << __FUNCTION__ << " Mouse X change: " << GetMouseRelXChange();
-		Logging::LogDebug() << __FUNCTION__ << " Mouse Y change: " << GetMouseRelYChange();
+		TurnJamesFlag += GetMouseRelXChange();
+		Logging::LogDebug() << " turnjames: " << TurnJamesFlag;
 
 		MouseData = nullptr;
 		MouseDataSize = NULL;
 	}
 }
 
-void InputTweaks::ClearKey(int keyIndex)
+void InputTweaks::ClearKey(int KeyIndex)
 {
-	if (keyIndex > 256 || !KeyboardData)
+	if (KeyIndex > 256 || !KeyboardData)
 		return;
 
-	KeyboardData[keyIndex] = 0x00;
+	KeyboardData[KeyIndex] = 0x00;
 }
 
-bool InputTweaks::IsKeyPressed(int keyIndex)
+void InputTweaks::SetKey(int KeyIndex)
 {
-	if (keyIndex > 256 || !KeyboardData)
+	if (KeyIndex > 256 || !KeyboardData)
+		return;
+
+	KeyboardData[KeyIndex] = 0x80;
+}
+
+bool InputTweaks::IsKeyPressed(int KeyIndex)
+{
+	if (KeyIndex > 256 || !KeyboardData)
 		return false;
 
-	return KeyboardData[keyIndex] == 0x80 ? true : false;
+	return KeyboardData[KeyIndex] == 0x80 ? true : false;
 }
 
 void InputTweaks::SetKeyboardInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface)
@@ -112,10 +120,10 @@ void InputTweaks::RemoveAddr(LPDIRECTINPUTDEVICE8A ProxyInterface)
 		KeyboardInterfaceAddress = nullptr;
 }
 
-int InputTweaks::isMouseButtonPressed(int buttonIndex)
+int InputTweaks::isMouseButtonPressed(int ButtonIndex)
 {
 	// Returns 1 if pressed, 0 if released, -1 if no info
-	if (buttonIndex > 0x13 || !MouseData || MouseDataSize == 0)
+	if (ButtonIndex > 0x13 || !MouseData || MouseDataSize == 0)
 		return -1;
 
 	//TODO handle multiple button events in same call
@@ -147,4 +155,21 @@ int32_t InputTweaks::GetMouseRelYChange()
 			AxisSum += (int32_t)MouseData->dwData;
 
 	return AxisSum;
+}
+
+void InputTweaks::TurnJames()
+{
+	bool sign = TurnJamesFlag > 0;
+	int Sustain = 5;
+
+	if (TurnJamesFlag > 0)
+		SetKey(DIK_D);
+	if (TurnJamesFlag < 0)
+		SetKey(DIK_A);
+
+	TurnJamesFlag > 0 ? TurnJamesFlag -= Sustain : TurnJamesFlag += Sustain;
+
+	if ((TurnJamesFlag < 0 && sign) || (TurnJamesFlag > 0 && !sign))
+		TurnJamesFlag = 0;
+
 }

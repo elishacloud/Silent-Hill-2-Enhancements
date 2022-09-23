@@ -42,7 +42,7 @@
 
       <Feature name="FullscreenImages">
         <Title>Escalado de imágenes a pantalla completa</Title>
-        <Description>Incorpora la compatibilidad para el Image Enhancement Pack (paquete de mejora de imágenes) del proyecto para que se muestre correctamente. Es necesario activar esta opción si se utiliza el Image Enhancement Pack. El escalado funciona tanto para las imágenes originales a pantalla completa como para las mejoradas.&#x0a;&#x0a;Automático: selecciona automáticamente entre las opciones de ajustar a imagen o llenarla según la relación de aspecto, dando prioridad a la mejor presentación.&#x0a;Ajustar a área de visualización: muestra las imágenes en pantalla completa sin recortarlas. Podrían aparecer bandas o columnas negras según la relación de aspecto.&#x0a;Llenar área de visualización: escala las imágenes a pantalla completa para que llenen el área de visualización, eliminando cualquier banda o columna negra, cubriendo una relación de aspecto máxima de 16:9.</Description>
+        <Description>Incorpora la compatibilidad para el Image Enhancement Pack (paquete de mejora de imágenes) del proyecto para que se muestre correctamente. Es necesario activar esta opción si se utiliza el Image Enhancement Pack. Se aplicará tanto para las imágenes originales a pantalla completa como para las mejoradas.&#x0a;&#x0a;Automático: selecciona automáticamente entre las opciones de ajustar a imagen o llenarla según la relación de aspecto, dando prioridad a la mejor presentación.&#x0a;Ajustar a área de visualización: muestra las imágenes en pantalla completa sin recortarlas. Podrían aparecer bandas o columnas negras.&#x0a;Llenar área de visualización: escala las imágenes a pantalla completa para que llenen el área de visualización, eliminando cualquier banda o columna negra y cubriendo una relación de aspecto máxima de 16:9.</Description>
         <Choices type="list">
           <Value name="Desactivado">0</Value>
           <Value name="Automático" default="true">3</Value>
@@ -73,7 +73,7 @@
 
       <Feature name="ReduceCutsceneFOV">
         <Title>Escalar el campo visual en las cinemáticas</Title>
-        <Description>Las escenas cinemáticas renderizadas en tiempo real serán ampliadas para que coincidan con sus composiciones horizontales en 4:3 mientras se juegue con un formato panorámico. Ocultará los modelos de personajes paralizados que se hayan cargado justo al otro lado del límite de la relación en 4:3 y que estén esperando a entrar en escena.&#x0a;&#x0a;Nota: esta característica solo ampliará la imagen hasta una relación de aspecto de 16:9. No cubrirá una relación más ancha, ya que se recortaría la composición vertical en exceso. Esto quiere decir que las relaciones de aspecto ultrapanorámicas seguirán mostrando anomalías visuales durante las escenas cinemáticas en tiempo real.</Description>
+        <Description>Las escenas cinemáticas renderizadas en tiempo real serán ampliadas para que coincidan con sus composiciones horizontales en 4:3 mientras se juegue con un formato panorámico. Ocultará los modelos de personajes paralizados que se hayan cargado justo al otro lado del límite de la relación en 4:3 y que estén esperando a entrar en escena.&#x0a;&#x0a;Nota: esta característica solo ampliará la imagen hasta una relación de aspecto de 16:9. No cubrirá relaciones más anchas, ya que se recortaría la composición vertical en exceso, es decir, las relaciones de aspecto ultrapanorámicas seguirán mostrando anomalías visuales durante las escenas en tiempo real.</Description>
         <Choices type="check">
           <Value name="Desactivado">0</Value>
           <Value name="Activado" default="true">1</Value>
@@ -1093,6 +1093,8 @@
     <S id="PRG_Launch_exe">sh2pc.exe</S>
     <S id="PRG_Ini_name">d3d8.ini</S>
     <S id="PRG_Ini_error">No se pudo guardar el archivo d3d8.ini.</S>
+    <S id="PRG_Lang_confirm">¿Deseas cambiar de idioma al %s?&#x0a;&#x0a;Do you want to switch to language %s?</S>
+    <S id="PRG_Lang_error">¡Error al reiniciar el iniciador!</S>
     <S id="PRG_Default_confirm">¿Seguro que quieres reiniciar toda la configuración a sus valores predeterminados?</S>
     <S id="PRG_Unsaved"> [sin guardar]</S>
     <S id="PRG_Save_exit">Hay cambios sin guardar. ¿Deseas cambiarlos antes de cerrar?</S>

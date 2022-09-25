@@ -87,6 +87,7 @@ int16_t *GetItemsCollectedPointer();
 float *GetDamagePointsTakenPointer();
 uint8_t *GetSecretItemsCollectedPointer();
 float *GetBoatStageTimePointer();
+float *GetWaterAnimationSpeedPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -144,6 +145,7 @@ void PatchSpeakerConfigLock();
 void PatchSpecialFX();
 void PatchSpecular();
 void PatchSFXAddr();
+void PatchSixtyFPS();
 void PatchSpecificSoundLoopFix();
 void PatchTexAddr();
 void PatchTownWestGateEvent();

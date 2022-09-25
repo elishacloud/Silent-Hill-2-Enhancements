@@ -120,6 +120,7 @@ BYTE *GetBoatFlagPointer();
 BYTE *GetRunOptionPointer();
 int32_t *GetIsWritingQuicksavePointer();
 int32_t *GetTextAddrPointer();
+float *GetWaterAnimationSpeedPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -177,6 +178,7 @@ void PatchSpeakerConfigLock();
 void PatchSpecialFX();
 void PatchSpecular();
 void PatchSFXAddr();
+void PatchSixtyFPS();
 void PatchSpecificSoundLoopFix();
 void PatchTexAddr();
 void PatchTownWestGateEvent();

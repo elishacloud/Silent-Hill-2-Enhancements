@@ -76,6 +76,7 @@ BYTE *TalkShowHostStateAddr;
 BYTE *BoatFlagAddr;
 int32_t *IsWritingQuicksaveAddr;
 int32_t *TextAddrAddr;
+float *WaterAnimationSpeedPointer;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -1678,4 +1679,25 @@ int32_t *GetTextAddrPointer()
 	TextAddrAddr = (int32_t*)((DWORD)TextAddr + 0x04);
 
 	return TextAddrAddr;
+float *GetWaterAnimationSpeedPointer()
+{
+	if (WaterAnimationSpeedPointer)
+	{
+		return WaterAnimationSpeedPointer;
+	}
+	
+	// Get Water Animation Speed address
+	constexpr BYTE WaterAnimationSpeedSearchBytes[]{ 0x88, 0x5E, 0x08, 0xC7, 0x46, 0x0C, 0x00, 0x00, 0x20, 0x41 };
+	float *WaterAnimationSpeed = (float*)ReadSearchedAddresses(0x004D4300, 0x004D45B0, 0x004D3E70, WaterAnimationSpeedSearchBytes, sizeof(WaterAnimationSpeedSearchBytes), -0x28);
+
+	// Checking address pointer
+	if (!WaterAnimationSpeed)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Water Animation Speed address!";
+		return nullptr;
+	}
+
+	WaterAnimationSpeedPointer = (float*)((DWORD)WaterAnimationSpeed);
+
+	return WaterAnimationSpeedPointer;
 }

@@ -363,6 +363,11 @@ void DelayedStart()
 		PatchClosetSpawn();
 	}
 
+	if (FPSLimit == 60)
+	{
+		PatchSixtyFPS();
+	}
+
 	// Fix flashlight flicker
 	if (FlashlightFlickerFix)
 	{

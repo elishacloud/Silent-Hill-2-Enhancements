@@ -82,6 +82,7 @@
     <ClCompile Include="Patches\ReplaceWindowTitle.cpp" />
     <ClCompile Include="Patches\RotatingMannequinGlitch.cpp" />
     <ClCompile Include="Patches\SaveBGImage.cpp" />
+    <ClCompile Include="Patches\SixtyFPSPatch.cpp" />
     <ClCompile Include="Patches\SpecialFX.cpp" />
     <ClCompile Include="Patches\Specular.cpp" />
     <ClCompile Include="Patches\TexPatch.cpp" />

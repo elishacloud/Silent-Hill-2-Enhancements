@@ -27,9 +27,17 @@ void PatchWater()
 void PatchFlashlightOnSpeed()
 {
 	int16_t* FlashlightOnSpeedPtr = GetFlashlightOnSpeedPointer();
-	int8_t NewValue = 0x78;
+	int16_t NewValue = 0x78;
 
-	UpdateMemoryAddress(FlashlightOnSpeedPtr, &NewValue, sizeof(int8_t));
+	UpdateMemoryAddress(FlashlightOnSpeedPtr, &NewValue, sizeof(int16_t));
+}
+
+void PatchLowHealthIndicatorFlash()
+{
+	float* LowHealthIndicatorSpeedPtr = GetLowHealthIndicatorFlashSpeedPointer();
+	float NewValue = 0.0166665;
+	
+	UpdateMemoryAddress(LowHealthIndicatorSpeedPtr, &NewValue, sizeof(float));
 }
 
 float __cdecl GetHalvedAnimationRate_Hook()
@@ -44,6 +52,7 @@ float __cdecl GetDoubledAnimationRate_Hook()
 
 void PatchSixtyFPS()
 {
+	//TODO patterns for 1.1 and DC
 	auto pattern = hook::pattern("E8 0B E7 FB FF");
 	GetFogAnimationRate.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), GetHalvedAnimationRate_Hook, true).get();
 
@@ -62,4 +71,6 @@ void PatchSixtyFPS()
 	PatchWater();
 
 	PatchFlashlightOnSpeed();
+
+	PatchLowHealthIndicatorFlash();
 }

@@ -89,6 +89,7 @@ uint8_t *GetSecretItemsCollectedPointer();
 float *GetBoatStageTimePointer();
 float *GetWaterAnimationSpeedPointer();
 int16_t *GetFlashlightOnSpeedPointer();
+float * GetLowHealthIndicatorFlashSpeedPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

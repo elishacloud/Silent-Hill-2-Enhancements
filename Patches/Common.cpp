@@ -77,6 +77,7 @@ BYTE *BoatFlagAddr;
 int32_t *IsWritingQuicksaveAddr;
 int32_t *TextAddrAddr;
 float *WaterAnimationSpeedPointer;
+int16_t *FlashlightOnSpeedPointer;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -1088,7 +1089,7 @@ int16_t GetItemsCollected()
 
 int16_t *GetItemsCollectedPointer()
 {
-	if (FPSCounterAddr)
+	if (ItemsCollectedAddr)
 	{
 		return ItemsCollectedAddr;
 	}
@@ -1700,4 +1701,27 @@ float *GetWaterAnimationSpeedPointer()
 	WaterAnimationSpeedPointer = (float*)((DWORD)WaterAnimationSpeed);
 
 	return WaterAnimationSpeedPointer;
+}
+
+int16_t *GetFlashlightOnSpeedPointer()
+{
+	if (FlashlightOnSpeedPointer)
+	{
+		return FlashlightOnSpeedPointer;
+	}
+	
+	// Get Items Collected address
+	constexpr BYTE FlashlightOnSpeedSearchBytes[]{ 0x74, 0x11, 0x6A, 0x00, 0xE8, 0xAD, 0x79 };
+	int16_t *FlashlightOnSpeed = (int16_t*)SearchAndGetAddresses(0x0050A59A, 0x0050A8CA, 0x0050A8CA, FlashlightOnSpeedSearchBytes, sizeof(FlashlightOnSpeedSearchBytes), 0x23);
+
+	// Checking address pointer
+	if (!FlashlightOnSpeed)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Items Collected address!";
+		return nullptr;
+	}
+
+	FlashlightOnSpeedPointer = (int16_t*)((DWORD)FlashlightOnSpeed);
+
+	return FlashlightOnSpeedPointer;
 }

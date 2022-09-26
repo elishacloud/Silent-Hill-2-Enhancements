@@ -95,6 +95,7 @@ DWORD* MeatLockerHangerFixOneAddr;
 DWORD* MeatLockerHangerFixTwoAddr;
 float *WaterAnimationSpeedPointer;
 int16_t *FlashlightOnSpeedPointer;
+float* LowHealthIndicatorFlashSpeedPointer;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;

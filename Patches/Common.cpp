@@ -60,6 +60,7 @@ uint8_t *SecretItemsCollectedAddr;
 float *BoatStageTimeAddr;
 float *WaterAnimationSpeedPointer;
 int16_t *FlashlightOnSpeedPointer;
+float* LowHealthIndicatorFlashSpeedPointer;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -1181,11 +1182,34 @@ int16_t *GetFlashlightOnSpeedPointer()
 	// Checking address pointer
 	if (!FlashlightOnSpeed)
 	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find Items Collected address!";
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Flashlight On Speed address!";
 		return nullptr;
 	}
 
 	FlashlightOnSpeedPointer = (int16_t*)((DWORD)FlashlightOnSpeed);
 
 	return FlashlightOnSpeedPointer;
+}
+
+float *GetLowHealthIndicatorFlashSpeedPointer()
+{
+	if (LowHealthIndicatorFlashSpeedPointer)
+	{
+		return LowHealthIndicatorFlashSpeedPointer;
+	}
+
+	// Get Water Animation Speed address
+	constexpr BYTE LowHealthIndicatorFlashSpeedSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x41, 0x75, 0x18, 0xC7, 0x05 };
+	float *LowHealthIndicatorFlashSpeed = (float*)ReadSearchedAddresses(0x00476323, 0x004765C3, 0x004767D3, LowHealthIndicatorFlashSpeedSearchBytes, sizeof(LowHealthIndicatorFlashSpeedSearchBytes), 0x13);
+
+	// Checking address pointer
+	if (!LowHealthIndicatorFlashSpeed)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Low Health Indicator Speed address!";
+		return nullptr;
+	}
+
+	LowHealthIndicatorFlashSpeedPointer = (float*)((DWORD)LowHealthIndicatorFlashSpeed);
+
+	return LowHealthIndicatorFlashSpeedPointer;
 }

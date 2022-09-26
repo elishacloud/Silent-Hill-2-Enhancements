@@ -27,6 +27,7 @@
 #include "Resource.h"
 #include "CWnd.h"
 #include "CConfig.h"
+#include "Common\Unicode.h"
 #include "Common\Settings.h"
 #include "Patches\Patches.h"
 #include "Logging\Logging.h"
@@ -141,8 +142,18 @@ std::wstring GetPrgString(UINT id)
 	};
 
 	auto s = cfg.GetString(str[id].name);
+
+	// Validate language string confirmation
+	if (id == STR_LANG_CONFIRM && (CharCount(s, '%') != 1 || s.find(L"%s") == std::string::npos))
+	{
+		MessageBox(nullptr, L"Error with PRG_Lang_confirm text!", L"Language Error", MB_DEFBUTTON1);
+		return std::wstring(str[id].def);
+	}
+
 	if (s.size())
+	{
 		return s;
+	}
 
 	// return default if no string matches
 	return std::wstring(str[id].def);
@@ -637,7 +648,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	}
 
 	// create the description field
-	hDesc.CreateWindow(4, r.bottom - 150, r.right - 8, 118, hWnd, hInstance, hFont, hBold);
+	hDesc.CreateWindow(4, r.bottom - 160, r.right - 8, 128, hWnd, hInstance, hFont, hBold);
 
 	// create the bottom buttons
 	int X = 3;

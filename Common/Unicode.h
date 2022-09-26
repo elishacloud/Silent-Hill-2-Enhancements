@@ -82,3 +82,27 @@ inline DWORD WINAPI GetModuleFileNameA(HMODULE hModule, LPWSTR lpFilename, DWORD
 {
 	return GetModuleFileNameW(hModule, lpFilename, nSize);
 }
+
+inline int CharCount(std::string s, char ch)
+{
+	int count = 0;
+
+	for (int i = 0; (i = s.find(ch, i)) != std::string::npos; i++)
+	{
+		count++;
+	}
+
+	return count;
+}
+
+inline int CharCount(std::wstring s, wchar_t ch)
+{
+	int count = 0;
+
+	for (int i = 0; (i = s.find(ch, i)) != std::wstring::npos; i++)
+	{
+		count++;
+	}
+
+	return count;
+}

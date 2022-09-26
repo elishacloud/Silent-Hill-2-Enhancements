@@ -58,9 +58,9 @@ int16_t *ItemsCollectedAddr;
 float *DamagePointsTakenAddr;
 uint8_t *SecretItemsCollectedAddr;
 float *BoatStageTimeAddr;
-float *WaterAnimationSpeedPointer;
-int16_t *FlashlightOnSpeedPointer;
-float* LowHealthIndicatorFlashSpeedPointer;
+float *WaterAnimationSpeedAddr;
+int16_t *FlashlightOnSpeedAddr;
+float* LowHealthIndicatorFlashSpeedAddr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -1147,9 +1147,9 @@ float *GetBoatStageTimePointer()
 
 float *GetWaterAnimationSpeedPointer()
 {
-	if (WaterAnimationSpeedPointer)
+	if (WaterAnimationSpeedAddr)
 	{
-		return WaterAnimationSpeedPointer;
+		return WaterAnimationSpeedAddr;
 	}
 	
 	// Get Water Animation Speed address
@@ -1163,16 +1163,16 @@ float *GetWaterAnimationSpeedPointer()
 		return nullptr;
 	}
 
-	WaterAnimationSpeedPointer = (float*)((DWORD)WaterAnimationSpeed);
+	WaterAnimationSpeedAddr = (float*)((DWORD)WaterAnimationSpeed);
 
-	return WaterAnimationSpeedPointer;
+	return WaterAnimationSpeedAddr;
 }
 
 int16_t *GetFlashlightOnSpeedPointer()
 {
-	if (FlashlightOnSpeedPointer)
+	if (FlashlightOnSpeedAddr)
 	{
-		return FlashlightOnSpeedPointer;
+		return FlashlightOnSpeedAddr;
 	}
 	
 	// Get Items Collected address
@@ -1186,16 +1186,16 @@ int16_t *GetFlashlightOnSpeedPointer()
 		return nullptr;
 	}
 
-	FlashlightOnSpeedPointer = (int16_t*)((DWORD)FlashlightOnSpeed);
+	FlashlightOnSpeedAddr = (int16_t*)((DWORD)FlashlightOnSpeed);
 
-	return FlashlightOnSpeedPointer;
+	return FlashlightOnSpeedAddr;
 }
 
 float *GetLowHealthIndicatorFlashSpeedPointer()
 {
-	if (LowHealthIndicatorFlashSpeedPointer)
+	if (LowHealthIndicatorFlashSpeedAddr)
 	{
-		return LowHealthIndicatorFlashSpeedPointer;
+		return LowHealthIndicatorFlashSpeedAddr;
 	}
 
 	// Get Water Animation Speed address
@@ -1209,7 +1209,7 @@ float *GetLowHealthIndicatorFlashSpeedPointer()
 		return nullptr;
 	}
 
-	LowHealthIndicatorFlashSpeedPointer = (float*)((DWORD)LowHealthIndicatorFlashSpeed);
+	LowHealthIndicatorFlashSpeedAddr = (float*)((DWORD)LowHealthIndicatorFlashSpeed);
 
-	return LowHealthIndicatorFlashSpeedPointer;
+	return LowHealthIndicatorFlashSpeedAddr;
 }

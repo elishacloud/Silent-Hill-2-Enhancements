@@ -52,21 +52,63 @@ float __cdecl GetDoubledAnimationRate_Hook()
 
 void PatchSixtyFPS()
 {
-	//TODO patterns for 1.1 and DC
-	auto pattern = hook::pattern("E8 0B E7 FB FF");
-	GetFogAnimationRate.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), GetHalvedAnimationRate_Hook, true).get();
+	Logging::Log() << "Fixing 60 FPS...";
 
-	pattern = hook::pattern("E8 7F 69 F5 FF");
-	GetBulletShellAnimationRateOne.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), GetDoubledAnimationRate_Hook, true).get();
-
-	pattern = hook::pattern("E8 36 69 F5 FF");
-	GetBulletShellAnimationRateTwo.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), GetDoubledAnimationRate_Hook, true).get();
+	constexpr BYTE FogAnimationRateSearchBytes[]{ 0x83, 0xC4, 0x04, 0x84, 0xDB, 0x5B, 0x8A, 0x54, 0x24, 0x0C };
+	DWORD* AnimationRate = (DWORD*)SearchAndGetAddresses(0x4890D0, 0x489370, 0x489580, FogAnimationRateSearchBytes, sizeof(FogAnimationRateSearchBytes), 0x50);
+	if (AnimationRate)
+	{
+		GetFogAnimationRate.fun = injector::MakeCALL(AnimationRate, GetHalvedAnimationRate_Hook, true).get();
+	}
+	else 
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Animation Rate Function address!";
+	}
 	
-	pattern = hook::pattern("E8 19 69 F5 FF");
-	GetBulletShellAnimationRateThree.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), GetDoubledAnimationRate_Hook, true).get();
 
-	pattern = hook::pattern("E8 08 69 F5 FF");
-	GetBulletShellAnimationRateFour.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), GetDoubledAnimationRate_Hook, true).get();
+	constexpr BYTE BulletAnimationOneSearchBytes[]{ 0x88, 0x8C, 0x24, 0xB6, 0x00, 0x00, 0x00, 0x89 };
+	DWORD* BulletAnimationOne = (DWORD*)SearchAndGetAddresses(0x4F0E12, 0x4F10C2, 0x4F0982, BulletAnimationOneSearchBytes, sizeof(BulletAnimationOneSearchBytes), 0xE3);
+	if (BulletAnimationOne)
+	{
+		GetBulletShellAnimationRateOne.fun = injector::MakeCALL(BulletAnimationOne, GetDoubledAnimationRate_Hook, true).get();
+	}
+	else
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Bullet Animation Rate One Function address!";
+	}
+
+	constexpr BYTE BulletAnimationTwoSearchBytes[]{ 0xD8, 0x45, 0x08, 0xD9, 0x5D, 0x08, 0xD9, 0x44, 0x24, 0x1C };
+	DWORD* BulletAnimationTwo = (DWORD*)SearchAndGetAddresses(0x4F0EE5, 0x4F1195, 0x4F0A55, BulletAnimationTwoSearchBytes, sizeof(BulletAnimationTwoSearchBytes), -0x39);
+	if (BulletAnimationTwo)
+	{
+		GetBulletShellAnimationRateTwo.fun = injector::MakeCALL(BulletAnimationTwo, GetDoubledAnimationRate_Hook, true).get();
+	}
+	else
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Bullet Animation Rate Two Function address!";
+	}
+	
+	constexpr BYTE BulletAnimationThreeSearchBytes[]{ 0xD8, 0x45, 0x08, 0xD9, 0x5D, 0x08, 0xD9, 0x44, 0x24, 0x1C };
+	DWORD* BulletAnimationThree = (DWORD*)SearchAndGetAddresses(0x4F0EE5, 0x4F1195, 0x4F0A55, BulletAnimationThreeSearchBytes, sizeof(BulletAnimationThreeSearchBytes), 0x2D);
+	if (BulletAnimationThree)
+	{
+		GetBulletShellAnimationRateThree.fun = injector::MakeCALL(BulletAnimationThree, GetDoubledAnimationRate_Hook, true).get();
+	}
+	else
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Bullet Animation Rate Three Function address!";
+	}
+
+	constexpr BYTE BulletAnimationFourSearchBytes[]{ 0xD8, 0x45, 0x08, 0xD9, 0x5D, 0x08, 0xD9, 0x44, 0x24, 0x1C };
+	DWORD* BulletAnimationFour = (DWORD*)SearchAndGetAddresses(0x4F0EE5, 0x4F1195, 0x4F0A55, BulletAnimationFourSearchBytes, sizeof(BulletAnimationFourSearchBytes), 0x3E);
+	if (BulletAnimationFour)
+	{
+		GetBulletShellAnimationRateFour.fun = injector::MakeCALL(BulletAnimationFour, GetDoubledAnimationRate_Hook, true).get();
+	}
+	else
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Bullet Animation Rate Four Function address!";
+	}
 	
 	PatchWater();
 

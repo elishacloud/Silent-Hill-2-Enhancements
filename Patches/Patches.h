@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 
 typedef enum _SH2VERSION {
 	SH2V_UNKNOWN = 0,
@@ -34,6 +35,20 @@ float GetInGameCameraPosY();
 BYTE GetInventoryStatus();
 DWORD GetLoadingScreen();
 BYTE GetPauseMenuButtonIndex();
+float GetFPSCounter();
+int16_t GetShootingKills();
+int16_t GetMeleeKills();
+float GetBoatMaxSpeed();
+int8_t GetActionDifficulty();
+int8_t GetRiddleDifficulty();
+int8_t GetNumberOfSaves();
+float GetInGameTime();
+float GetWalkingDistance();
+float GetRunningDistance();
+int16_t GetItemsCollected();
+float GetDamagePointsTaken();
+uint8_t GetSecretItemsCollected();
+float GetBoatStageTime();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -58,6 +73,20 @@ float *GetInGameCameraPosYPointer();
 BYTE *GetInventoryStatusPointer();
 DWORD *GetLoadingScreenPointer();
 BYTE *GetPauseMenuButtonIndexPointer();
+float *GetFPSCounterPointer();
+int16_t *GetShootingKillsPointer();
+int16_t *GetMeleeKillsPointer();
+float *GetBoatMaxSpeedPointer();
+int8_t *GetActionDifficultyPointer();
+int8_t *GetRiddleDifficultyPointer();
+int8_t *GetNumberOfSavesPointer();
+float *GetInGameTimePointer();
+float *GetWalkingDistancePointer();
+float *GetRunningDistancePointer();
+int16_t *GetItemsCollectedPointer();
+float *GetDamagePointsTakenPointer();
+uint8_t *GetSecretItemsCollectedPointer();
+float *GetBoatStageTimePointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -209,6 +238,22 @@ extern bool UseFakeLight;
 extern bool InSpecialLightZone;
 extern bool IsInGameResults;
 extern BYTE *PauseMenuButtonIndexAddr;
+extern float *FPSCounterAddr;
+extern int16_t *ShootingKillsAddr;
+extern int16_t *MeleeKillsAddr;
+extern float *BoatMaxSpeedAddr;
+extern int8_t *ActionDifficultyAddr;
+extern int8_t *RiddleDifficultyAddr;
+extern int8_t *NumberOfSavesAddr;
+extern float *InGameTimerAddr;
+extern float *WalkingDistanceAddr;
+extern float *RunningDistanceAddr;
+extern int16_t *ItemsCollectedAddr;
+extern float *DamagePointsTakenAddr;
+extern uint8_t *SecretItemsCollectedAddr;
+extern float *BoatStageTimeAddr;
+extern bool ShowDebugOverlay;
+extern bool ShowInfoOverlay;
 
 // Run code only once
 #define RUNONCE() \

@@ -8,6 +8,7 @@
 #include "External\xxHash\xxh3.h"
 
 extern bool DisableTabOverloadWarning;
+extern DWORD DefaultLang;
 
 class CConfig;
 

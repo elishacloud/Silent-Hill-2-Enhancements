@@ -313,7 +313,7 @@ void GetSH2Path(T &path, T &name)
 		pdest = strrchr(t_path, '\\');
 		if (pdest)
 		{
-			*(pdest + 1) = '\0';
+			*pdest = '\0';
 		}
 		path.assign(t_path);
 		name.assign(t_name);

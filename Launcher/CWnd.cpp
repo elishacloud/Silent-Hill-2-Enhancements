@@ -42,6 +42,8 @@ void CWnd::Destroy()
 	hWnd = 0;
 }
 
+HWND CWnd::GetWnd() { return hWnd; }
+
 void CWnd::SetWnd(HWND wnd) { hWnd = wnd; }
 
 void CWnd::SetText(LPCWSTR lpString) { SetWindowTextW(hWnd, lpString); }

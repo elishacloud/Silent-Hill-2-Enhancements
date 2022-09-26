@@ -492,10 +492,12 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	SetActiveWindow(MainhWnd);
 
 	// Get window border
+	bool HasBorder = false;
 	LONG lStyle = GetWindowLong(MainhWnd, GWL_STYLE) | WS_VISIBLE;
 	if (ScreenMode == 1 && WndModeBorder && screenWidth > displayWidth + (GetSystemMetrics(SM_CXSIZEFRAME) * 2) &&
 		screenHeight > displayHeight + (GetSystemMetrics(SM_CYSIZEFRAME) * 2) + GetSystemMetrics(SM_CYCAPTION))
 	{
+		HasBorder = true;
 		lStyle = (lStyle | WS_OVERLAPPEDWINDOW) & ~(WS_MAXIMIZEBOX | WS_THICKFRAME);
 	}
 	else
@@ -505,26 +507,30 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 
 	// Set window border
 	SetWindowLong(MainhWnd, GWL_STYLE, lStyle);
-	SetWindowPos(MainhWnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+	SetWindowPos(MainhWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 
 	// Set window size
-	SetWindowPos(MainhWnd, nullptr, 0, 0, displayWidth, displayHeight, SWP_NOMOVE | SWP_NOZORDER);
+	SetWindowPos(MainhWnd, HWND_TOP, 0, 0, displayWidth, displayHeight, SWP_NOMOVE | SWP_NOZORDER);
 
 	// Adjust for window decoration to ensure client area matches display size
-	RECT tempRect;
-	GetClientRect(MainhWnd, &tempRect);
-	LONG newDisplayWidth = (displayWidth - tempRect.right) + displayWidth;
-	LONG newDisplayHeight = (displayHeight - tempRect.bottom) + displayHeight;
+	RECT cRect, wRect;
+	LONG xBorder = 0, yBorder = 0;
+	if (HasBorder && GetClientRect(MainhWnd, &cRect) && GetWindowRect(MainhWnd, &wRect))
+	{
+		xBorder = (wRect.right - wRect.left) - (cRect.right - cRect.left);
+		yBorder = (wRect.bottom - wRect.top) - (cRect.bottom - cRect.top);
+	}
+	LONG newDisplayWidth = displayWidth + xBorder;
+	LONG newDisplayHeight = displayHeight + yBorder;
 
 	// Move window to center and adjust size
-	LONG xLoc = 0;
-	LONG yLoc = 0;
+	LONG xLoc = 0, yLoc = 0;
 	if (ScreenMode == 1 && screenWidth >= newDisplayWidth && screenHeight >= newDisplayHeight)
 	{
 		xLoc = screenRect.left + (screenWidth - newDisplayWidth) / 2;
 		yLoc = screenRect.top + (screenHeight - newDisplayHeight) / 2;
 	}
-	SetWindowPos(MainhWnd, nullptr, xLoc, yLoc, newDisplayWidth, newDisplayHeight, SWP_NOZORDER);
+	SetWindowPos(MainhWnd, HWND_TOP, xLoc, yLoc, newDisplayWidth, newDisplayHeight, SWP_NOZORDER);
 
 	// Detach thread input
 	AttachThreadInput(dwCurID, dwMyID, FALSE);
@@ -569,6 +575,37 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		LastMonitorHandle = MonitorHandle;
 		break;
 	}
+	case WM_KEYDOWN:
+	{
+		switch (wParam)
+		{
+		case 0x44: // Letter D
+		{
+			if (GetAsyncKeyState(VK_CONTROL)) 
+			{
+				if (EnableDebugOverlay)
+				{
+					ShowDebugOverlay = !ShowDebugOverlay;
+				}
+			}
+			break;
+		}
+		case 0x49: // Letter I
+		{
+			if (GetAsyncKeyState(VK_CONTROL))
+			{
+				if (EnableInfoOverlay)
+				{
+					ShowInfoOverlay = !ShowInfoOverlay;
+				}
+			}
+			break;
+		}
+
+		}
+		break;
+	}
+
 	}
 
 	if (!OriginalWndProc)

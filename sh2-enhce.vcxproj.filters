@@ -353,6 +353,9 @@
     <ClCompile Include="Wrappers\d3d9\d3dx9.cpp">
       <Filter>Wrappers\d3d9</Filter>
     </ClCompile>
+    <ClCompile Include="Wrappers\d3d8\Overlay.cpp">
+      <Filter>Wrappers\d3d8</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">
@@ -561,6 +564,9 @@
     </ClInclude>
     <ClInclude Include="Common\Unicode.h">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Wrappers\d3d8\Overlay.h">
+      <Filter>Wrappers\d3d8</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

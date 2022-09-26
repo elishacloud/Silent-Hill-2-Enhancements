@@ -121,7 +121,7 @@ inline bool CheckOptValue(CConfigOption &opt)
 // get xml from resource
 bool GetXMLfromResoruce(XMLDocument &xml)
 {
-	HRSRC hResource = FindResource(m_hModule, MAKEINTRESOURCE(IDR_CONFIG_XML), RT_RCDATA);
+	HRSRC hResource = FindResource(m_hModule, MAKEINTRESOURCE(DefaultLang), RT_RCDATA);
 	if (hResource)
 	{
 		HGLOBAL hLoadedResource = LoadResource(m_hModule, hResource);

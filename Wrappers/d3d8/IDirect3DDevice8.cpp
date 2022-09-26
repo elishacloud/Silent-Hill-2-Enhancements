@@ -33,6 +33,7 @@ bool IsInFakeFadeout = false;
 bool ClassReleaseFlag = false;
 bool TextureSet = false;
 DWORD TextureNum = 0;
+Overlay OverlayRef;
 
 struct SCREENSHOTSTRUCT
 {
@@ -166,6 +167,8 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 	{
 		ReleaseInterface(&silhouetteTexture);
 	}
+
+	OverlayRef.ResetFont();
 
 	// Update presentation parameters
 	UpdatePresentParameter(pPresentationParameters, nullptr, true);
@@ -913,6 +916,18 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	if (SkipSceneFlag)
 	{
 		return D3D_OK;
+	}
+
+	// Debug Overlay
+	if (ShowDebugOverlay)
+	{
+		OverlayRef.DrawDebugOverlay(ProxyInterface);
+	}
+
+	// Info Overlay
+	if (ShowInfoOverlay)
+	{
+		OverlayRef.DrawInfoOverlay(ProxyInterface);
 	}
 
 	// Endscene

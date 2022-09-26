@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Patches\Patches.h"
+#include "Overlay.h"
 
 class m_IDirect3DDevice8 : public IDirect3DDevice8
 {
@@ -313,4 +314,5 @@ public:
 
 	// Extra functions
 	void m_IDirect3DDevice8::AddSurfaceToVector(m_IDirect3DSurface8 *pSourceTarget, IDirect3DSurface8 *pRenderTarget);
+
 };

@@ -26,8 +26,10 @@ typedef int(__cdecl *oTextToGameAsmProc)(unsigned __int16* a1, unsigned __int16 
 DWORD GetDiskSpace();
 
 // Variables
+const int StringSize = 12;
 bool DiskSizeSet = false;
-char szNewFreeSpaceString[MAX_PATH] = { '\0' };
+char szNewFreeSpaceString[StringSize] = { '\0' };
+char* szNewFreeSpaceStringUnits = nullptr;
 
 // Variables for ASM
 void *jmpSkipDisk;
@@ -122,6 +124,7 @@ int __cdecl TextToGame(unsigned __int16* a1, unsigned __int16 a2)
 	{
 		for (DWORD x = 0; x < 50; x++)
 		{
+			// ASCII chars
 			if (((char*)TTG)[x + 0] == '\x2B' &&
 				((char*)TTG)[x + 1] == '\x22' &&
 				((char*)TTG)[x + 2] == '\xFF' &&
@@ -131,6 +134,19 @@ int __cdecl TextToGame(unsigned __int16* a1, unsigned __int16 a2)
 				UpdateMemoryAddress((void*)(TTG + x), RemoveKBPatch, sizeof(RemoveKBPatch));
 				break;
 			}
+			// Shift-JIS chars
+			if (((char*)TTG)[x + 0] == '\x86' &&
+				((char*)TTG)[x + 1] == '\x01' &&
+				((char*)TTG)[x + 2] == '\x7D' &&
+				((char*)TTG)[x + 3] == '\x01' &&
+				((char*)TTG)[x + 4] == '\xFF' &&
+				((char*)TTG)[x + 5] == '\xFF')
+			{
+				constexpr byte RemoveKBPatch[] = { 0x00, 0x00, 0x00, 0x00 };
+				UpdateMemoryAddress((void*)(TTG + x), RemoveKBPatch, sizeof(RemoveKBPatch));
+				break;
+			}
+			// End of string
 			if (((char*)TTG)[x + 0] == '\xFF' &&
 				((char*)TTG)[x + 1] == '\xFF')
 			{
@@ -171,19 +187,23 @@ DWORD GetDiskSpace()
 	DiskSizeSet = true;
 	if (FreeBytesAvailableToCaller.QuadPart < 0xF4240)
 	{
-		_snprintf_s(szNewFreeSpaceString, MAX_PATH, _TRUNCATE, "\\h%f KB", (double)FreeBytesAvailableToCaller.QuadPart);
+		szNewFreeSpaceStringUnits = "KB";
+		_snprintf_s(szNewFreeSpaceString, StringSize, _TRUNCATE, "%f", (double)FreeBytesAvailableToCaller.QuadPart);
 	}
 	else if (FreeBytesAvailableToCaller.QuadPart / 1024 < 0xF4240)
 	{
-		_snprintf_s(szNewFreeSpaceString, MAX_PATH, _TRUNCATE, "\\h%f MB", (double)FreeBytesAvailableToCaller.QuadPart / 1024.0f / 1024.0f);
+		szNewFreeSpaceStringUnits = "MB";
+		_snprintf_s(szNewFreeSpaceString, StringSize, _TRUNCATE, "%f", (double)FreeBytesAvailableToCaller.QuadPart / 1024.0f / 1024.0f);
 	}
 	else if (FreeBytesAvailableToCaller.QuadPart / 1024 < 0x3B9ACA00)
 	{
-		_snprintf_s(szNewFreeSpaceString, MAX_PATH, _TRUNCATE, "\\h%.1f GB", (double)FreeBytesAvailableToCaller.QuadPart / 1024.0f / 1024.0f / 1024.0f);
+		szNewFreeSpaceStringUnits = "GB";
+		_snprintf_s(szNewFreeSpaceString, StringSize, _TRUNCATE, "%.1f", (double)FreeBytesAvailableToCaller.QuadPart / 1024.0f / 1024.0f / 1024.0f);
 	}
 	else if (FreeBytesAvailableToCaller.QuadPart / 1024 >= 0x3B9ACA00)
 	{
-		_snprintf_s(szNewFreeSpaceString, MAX_PATH, _TRUNCATE, "\\h%.2f TB", (double)FreeBytesAvailableToCaller.QuadPart / 1024.0f / 1024.0f / 1024.0f / 1024.0f);
+		szNewFreeSpaceStringUnits = "TB";
+		_snprintf_s(szNewFreeSpaceString, StringSize, _TRUNCATE, "%.2f", (double)FreeBytesAvailableToCaller.QuadPart / 1024.0f / 1024.0f / 1024.0f / 1024.0f);
 	}
 
 	ULONGLONG FreeSpace = FreeBytesAvailableToCaller.QuadPart / 1024;
@@ -205,22 +225,23 @@ int PrintFreeDiskSpace(char* Buffer, const char* a1, ...)
 		return sprintf(Buffer, a1);
 	}
 
-	char FullMessageBufferReturn[MAX_PATH] = { 0 };
+	char FullMessageBufferReturn[StringSize] = { 0 };
 
 	va_list vaReturn;
 	va_start(vaReturn, a1);
 
-	_vsnprintf_s(FullMessageBufferReturn, MAX_PATH, _TRUNCATE, a1, vaReturn);
+	_vsnprintf_s(FullMessageBufferReturn, StringSize, _TRUNCATE, a1, vaReturn);
 	va_end(vaReturn);
+
+	bool UsingHEX = (FullMessageBufferReturn[0] == '\\' && FullMessageBufferReturn[1] == 'h');
 
 	if (DiskSizeSet)
 	{
-		return sprintf(Buffer, szNewFreeSpaceString);
+		return sprintf_s(Buffer, StringSize, UsingHEX ? "\\h%s %s" : "%s%s", szNewFreeSpaceString, szNewFreeSpaceStringUnits);
 	}
 	else
 	{
-		strcat_s(FullMessageBufferReturn, MAX_PATH, " KB");
-		return sprintf(Buffer, FullMessageBufferReturn);
+		return sprintf_s(Buffer, StringSize, UsingHEX ? "%s %s" : "%s%s", FullMessageBufferReturn, "KB");
 	}
 }
 

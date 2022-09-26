@@ -28,14 +28,12 @@ void PatchWater()
 
 float __cdecl GetHalvedAnimationRate_Hook()
 {
-
 	return GetFogAnimationRate.fun() / 2;
 }
 
 float __cdecl GetDoubledAnimationRate_Hook()
 {
-
-	return GetFogAnimationRate.fun() / 2;
+	return GetFogAnimationRate.fun() * 2;
 }
 
 void PatchSixtyFPS()

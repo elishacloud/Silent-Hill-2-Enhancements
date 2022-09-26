@@ -88,6 +88,7 @@ float *GetDamagePointsTakenPointer();
 uint8_t *GetSecretItemsCollectedPointer();
 float *GetBoatStageTimePointer();
 float *GetWaterAnimationSpeedPointer();
+int16_t *GetFlashlightOnSpeedPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

@@ -1093,7 +1093,7 @@
     <S id="PRG_Launch_exe">sh2pc.exe</S>
     <S id="PRG_Ini_name">d3d8.ini</S>
     <S id="PRG_Ini_error">No se pudo guardar el archivo d3d8.ini.</S>
-    <S id="PRG_Lang_confirm">¿Deseas cambiar de idioma al %s?&#x0a;&#x0a;Do you want to switch to language %s?</S>
+    <S id="PRG_Lang_confirm">¿Deseas cambiar de idioma a: %s?</S>
     <S id="PRG_Lang_error">¡Error al reiniciar el iniciador!</S>
     <S id="PRG_Default_confirm">¿Seguro que quieres reiniciar toda la configuración a sus valores predeterminados?</S>
     <S id="PRG_Unsaved"> [sin guardar]</S>

@@ -46,8 +46,9 @@ void PatchWater()
 	Logging::Log() << "Patching water animation speed...";
 
 	float* WaterAnimationSpeedPtr = GetWaterAnimationSpeedPointer();
+	float NewValue = 0.0166665;
 
-	UpdateMemoryAddress(WaterAnimationSpeedPtr, &WaterOvrd, sizeof(float));
+	UpdateMemoryAddress(WaterAnimationSpeedPtr, &NewValue, sizeof(float));
 }
 
 void PatchFlashlightOnSpeed()

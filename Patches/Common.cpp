@@ -94,6 +94,7 @@ DWORD* MeatLockerFogFixTwoAddr;
 DWORD* MeatLockerHangerFixOneAddr;
 DWORD* MeatLockerHangerFixTwoAddr;
 float *WaterAnimationSpeedPointer;
+int16_t *FlashlightOnSpeedPointer;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;

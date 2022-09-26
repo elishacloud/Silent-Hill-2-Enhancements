@@ -20,31 +20,14 @@
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 #include "Common\Settings.h"
+#include "Wrappers\d3d8\d3d8wrapper.h"
+#include "stb_image.h"
+#include "stb_image_dds.h"
 
-enum TGA_image_type {
-	CMI = 1,		// colour map image
-	RGBA,			// RGB(A) uncompressed
-	GREY,			// greyscale uncompressed
-	GREY_RLE = 9,	// greyscale RLE (compressed)
-	RGBA_RLE,		// RGB(A) RLE (compressed)
-};
-
-#pragma pack(push, 1)
-typedef struct {
-	BYTE id;				// id
-	BYTE color_map_type;	// colour map type
-	BYTE image_type;		// image type
-	WORD cm_first_entry;	// colour map first entry
-	WORD cm_length;			// colour map length
-	BYTE map_entry_size;	// map entry size, colour map depth (16, 24 , 32)
-	WORD h_origin;			// horizontal origin
-	WORD v_origin;			// vertical origin
-	WORD width;				// width
-	WORD height;			// height
-	BYTE pixel_depth;		// pixel depth
-	BYTE image_desc;		// image descriptor
-} TGA_FILEHEADER;
-#pragma pack(pop)
+typedef enum {
+	FONT_NORMAL = 0,
+	FONT_SMALL
+} FontType;
 
 using namespace std;
 
@@ -56,45 +39,52 @@ constexpr BYTE DFontFuncBlockD[] = { 0x00, 0x5F, 0x7F, 0x9F, 0xBF, 0xDF, 0xFF, 0
 constexpr BYTE DFontFuncBlockE[] = { 0x8B, 0x44, 0x24, 0x08, 0x81, 0xEC, 0x80, 0x00, 0x00, 0x00, 0x53, 0x55, 0x56, 0x57, 0x33, 0xFF, 0x83, 0xC9, 0xFF };
 constexpr BYTE DFontFuncBlockF[] = { 0x83, 0xEC, 0x0C, 0x55, 0x8B, 0x6C, 0x24, 0x18, 0x33, 0xD2, 0x3B, 0xEA, 0x75, 0x07, 0x33, 0xC0, 0x5D, 0x83, 0xC4 };
 
-unsigned int fontTexWidth = 550;
-unsigned int fontTexHeight = 544;
-float fontTexScaleW = 1.0f;
-float fontTexScaleH = 1.0f;
-BYTE charW = 22;
-BYTE charH = 32;
-BYTE charIX = 100;
-BYTE charIY = 150;
-WORD nFontW = 20;
-WORD nFontH = 30;
-WORD sFontW = 16;
-WORD sFontH = 24;
-BYTE letterSpc = 2;
-BYTE spaceSize = 7;
+//games font parameters and data pointers
+static unsigned int fontTexWidth = 550;
+static unsigned int fontTexHeight = 544;
+static float fontTexScaleW = 1.0f;
+static float fontTexScaleH = 1.0f;
+static BYTE charW = 22;
+static BYTE charH = 32;
+static BYTE charIX = 25;
+static BYTE charIY = 17;
+static WORD nFontW = 20;
+static WORD nFontH = 30;
+static WORD sFontW = 16;
+static WORD sFontH = 24;
+static BYTE letterSpc = 2;
+static BYTE spaceSize = 7;
+static IDirect3DTexture8 **fontTexture;
+static DWORD *updateFlags;
+static BYTE *fontWidthTable[2];
 
-TGA_FILEHEADER tga;
-BYTE *fontData;
+//external font texture
+static BYTE *fontData = NULL;
+static BYTE *fontWidthData = NULL;
+static DWORD fontWidth;
+static DWORD fontHeight;
+static DWORD fontColumnNumber;
+static DWORD fontRowNumber;
 
-void UpdateFontTex(BYTE *ptr, int size)
-{
-	Logging::LogDebug() << __FUNCTION__ << " - address: " << (DWORD)ptr << ", size: " << size;
+static BOOL loadExternalFontData(void);
+static inline void copyFontData(BYTE *out, int pitch, SHORT index, WORD charId, FontType type);
 
-	if (fontData)
-		memcpy(ptr, fontData, size);
-
-	return;
+static int UpdateFontTexture(D3DLOCKED_RECT *rect, SHORT index, FontType type, WORD charId) {
+	int charMax = (fontColumnNumber * fontRowNumber) / 2;
+	WORD id = charId;
+	if (id >= charMax) {
+		Logging::LogDebug() << __FUNCTION__ << "Error updating font texture: charId " << charId << " type " << type << " index " << index;
+		id = 0;
+	}
+	if (id >= 0xE0 || fontWidthTable[type][id] != 0) {
+		*updateFlags |= 4;
+	}
+	copyFontData((BYTE *)rect->pBits, rect->Pitch, index, id, type);
+	(*fontTexture)->UnlockRect(0);
+	return index;
 }
 
-int ReturnFontIdx(int fontSize, WORD charID)
-{
-	int charMax = (charIX * charIY) / 2;
-
-	if (charID > charMax)
-		return 0;
-
-	return charID + fontSize * charMax;
-}
-
-void* SpaceSizeRetAddr;
+static void* SpaceSizeRetAddr;
 
 __declspec(naked) void __stdcall SpaceSizeASM()
 {
@@ -110,7 +100,7 @@ __declspec(naked) void __stdcall SpaceSizeASM()
 	}
 }
 
-void* SpaceSizeRetAddr2;
+static void* SpaceSizeRetAddr2;
 
 __declspec(naked) void __stdcall SpaceSizeASM2()
 {
@@ -126,7 +116,7 @@ __declspec(naked) void __stdcall SpaceSizeASM2()
 	}
 }
 
-void* SpaceSizeRetAddr3;
+static void* SpaceSizeRetAddr3;
 
 __declspec(naked) void __stdcall SpaceSizeASM3()
 {
@@ -166,76 +156,45 @@ void PatchCustomFonts()
 	letterSpc = (BYTE)LetterSpacing;
 	spaceSize = (BYTE)SpaceSize;
 
-	ifstream file("data\\font\\font000.tga", ios::in | ios::binary | ios::ate);
-
-	if (file.is_open())
+	if (!loadExternalFontData())
 	{
-		file.seekg(0, ios::beg);
-		file.read((char *)&tga, sizeof(TGA_FILEHEADER));
-
-		if (tga.image_type != RGBA || tga.pixel_depth != 32 || tga.image_desc != 40)
-		{
-			Logging::Log() << __FUNCTION__ << " Error: Unsupported tga format!";
-			file.close();
-			return;
-		}
-
-		fontTexWidth = tga.width;
-		fontTexHeight = tga.height;
-		int texSize = fontTexWidth * fontTexHeight * 4;
-		fontData = new BYTE[texSize];
-
-		file.seekg((std::streamoff)sizeof(TGA_FILEHEADER) + (std::streamoff)tga.cm_length * 4, ios::beg);
-		file.read((char *)fontData, texSize);
-		file.close();
-	}
-	else
-	{
-		Logging::Log() << __FUNCTION__ << " Error: Could not find font file";
+		Logging::Log() << __FUNCTION__ << " Error: Could not load font file";
 		return;
 	}
 
 	Logging::Log() << "Enabling Custom Fonts...";
+
 	fontTexScaleW = 550.0f / (float)(charIX * charW);
 	fontTexScaleH = 544.0f / (float)(charIY * charH);
+	fontTexWidth = fontWidth / fontColumnNumber * charIX;
+	fontTexHeight = fontHeight / fontRowNumber * charIY;
 
 	UpdateMemoryAddress((void *)((BYTE*)DFontAddrA + 0x17), (void *)&fontTexWidth, 4);
 	UpdateMemoryAddress((void *)((BYTE*)DFontAddrA + 0x1C), (void *)&fontTexHeight, 4);
 	UpdateMemoryAddress((void *)((BYTE*)DFontAddrA + 0x31), (void *)&fontTexScaleW, 4);
 	UpdateMemoryAddress((void *)((BYTE*)DFontAddrA + 0x3B), (void *)&fontTexScaleH, 4);
 
-	BYTE codeA[] = { 0x51, 0x57, 0xBA, 0xEF, 0xBE, 0xAD, 0xDE, 0xFF, 0xD2, 0x83, 0xc4, 0x08, 0x90, 0x90, 0x90, 0x90 };
-	codeA[3] = (BYTE)((DWORD)*UpdateFontTex & 0xFF);
-	codeA[4] = (BYTE)((DWORD)*UpdateFontTex >> 8);
-	codeA[5] = (BYTE)((DWORD)*UpdateFontTex >> 16);
-	codeA[6] = (BYTE)((DWORD)*UpdateFontTex >> 24);
-	UpdateMemoryAddress((void *)((BYTE*)DFontAddrA + 0xFE), (void *)&codeA, sizeof(codeA));
-
-	BYTE codeB[] = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x8B, 0x54, 0x24, 0x30, 0x52, 0xBA, 0xEF, 0xBE, 0xAD, 0xDE };
-	codeB[19] = (BYTE)((DWORD)*ReturnFontIdx & 0xFF);
-	codeB[20] = (BYTE)((DWORD)*ReturnFontIdx >> 8);
-	codeB[21] = (BYTE)((DWORD)*ReturnFontIdx >> 16);
-	codeB[22] = (BYTE)((DWORD)*ReturnFontIdx >> 24);
-	UpdateMemoryAddress((void *)((BYTE*)DFontAddrA + 0x120), (void *)&codeB, sizeof(codeB));
-
-	BYTE codeC[] = { 0x50, 0xFF, 0xD2, 0x83, 0xC4, 0x08, 0x5F, 0x5E, 0x83, 0xC4, 0x24, 0xC3 };
-	UpdateMemoryAddress((void *)((BYTE*)DFontAddrA + 0x120 + sizeof(codeB) + 5), (void *)&codeC, sizeof(codeC));
+	fontTexture = (IDirect3DTexture8**)*(DWORD*)((BYTE*)DFontAddrA - 0x03);
+	updateFlags = (DWORD*)*(DWORD*)((BYTE*)DFontAddrA + 0x4DC);
 	
-	UpdateMemoryAddress((void *)((BYTE*)DFontAddrB), (void *)&charIX, 1);
-	BYTE codeD[] = { 0x6B, 0xC0, 0x05 };
+	BYTE codeA[] = { 0x8B, 0x74, 0x24, 0x38, 0x56, 0x50, 0x52, 0x8D, 0x54, 0x24, 0x38, 0x52, 0xBA, 0xEF, 0xBE, 0xAD, 0xDE, 0xFF, 0xD2, 0x83, 0xC4, 0x10, 0x5D, 0x5B, 0x5F, 0x5E, 0x83, 0xC4, 0x24, 0xC3 };
+	codeA[13] = (BYTE)((DWORD)*UpdateFontTexture & 0xFF);
+	codeA[14] = (BYTE)((DWORD)*UpdateFontTexture >> 8);
+	codeA[15] = (BYTE)((DWORD)*UpdateFontTexture >> 16);
+	codeA[16] = (BYTE)((DWORD)*UpdateFontTexture >> 24);
+	UpdateMemoryAddress((void*)((BYTE*)DFontAddrA + 0x298), (void*)&codeA, sizeof(codeA));
+
 	if (DisableEnlargedText)
 	{
-		codeD[2] = 0;
-		UpdateMemoryAddress((void *)((BYTE*)DFontAddrB + 0x15), (void *)&codeD[2], 1);
-		UpdateMemoryAddress((void *)((BYTE*)DFontAddrB + 0x16), (void *)&codeD, sizeof(codeD));
+		BYTE codeB[] = { 0x90, 0x90, 0x31, 0xD2 };
+		UpdateMemoryAddress((void*)((BYTE*)DFontAddrB - 0xB7), (void*)&codeB, sizeof(codeB));
 	}
-	else
-	{
-		codeD[2] = (BYTE)charH;
-		UpdateMemoryAddress((void *)((BYTE*)DFontAddrB + 0x15), (void *)&charW, 1);
-		UpdateMemoryAddress((void *)((BYTE*)DFontAddrB + 0x16), (void *)&codeD, sizeof(codeD));
-	}
+
+	UpdateMemoryAddress((void *)((BYTE*)DFontAddrB), (void *)&charIX, 1);
+	BYTE codeD[] = { 0x6B, 0xC0, 0x05 };
 	codeD[2] = (BYTE)charH;
+	UpdateMemoryAddress((void*)((BYTE*)DFontAddrB + 0x15), (void*)&charW, 1);
+	UpdateMemoryAddress((void*)((BYTE*)DFontAddrB + 0x16), (void*)&codeD, sizeof(codeD));
 
 	void *DFontAddrC = (void*)SearchAndGetAddresses(0x0047E048, 0x0047E2E8, 0x0047E4F8, DFontFuncBlockC, sizeof(DFontFuncBlockC), 0x00);
 
@@ -263,19 +222,15 @@ void PatchCustomFonts()
 		UpdateMemoryAddress((void *)((BYTE*)DFontAddrE - 0x10 + 2), (void *)&nFontH, 2);
 		UpdateMemoryAddress((void *)((BYTE*)DFontAddrE - 0x10 + 4), (void *)&sFontW, 2);
 		UpdateMemoryAddress((void *)((BYTE*)DFontAddrE - 0x10 + 6), (void *)&sFontH, 2);
-			
-		ifstream wfile("data\\font\\fontwdata.bin", ios::in | ios::binary | ios::ate);
 
-		if (wfile.is_open())
+		fontWidthTable[0] = (BYTE*)(*(DWORD*)((BYTE*)DFontAddrE - 8) + 16);
+		fontWidthTable[1] = (BYTE*)(*(DWORD*)((BYTE*)DFontAddrE - 4) + 16);
+
+		if (fontWidthData)
 		{
-			BYTE *fwidth = new BYTE[0xE0];
-			wfile.seekg(0, ios::beg);
-			wfile.read((char *)fwidth, 0xE0);
-			UpdateMemoryAddress((void *)(*(DWORD *)((BYTE*)DFontAddrE - 8) + 16), (void *)fwidth, 0xE0);
-			wfile.read((char *)fwidth, 0xE0);
-			UpdateMemoryAddress((void *)(*(DWORD *)((BYTE*)DFontAddrE - 4) + 16), (void *)fwidth, 0xE0);
-			wfile.close();
-			delete[] fwidth;
+			UpdateMemoryAddress((void *)fontWidthTable[0], (void *)fontWidthData, 0xE0);
+			UpdateMemoryAddress((void *)fontWidthTable[1], (void *)(fontWidthData + 0xE0), 0xE0);
+			delete[] fontWidthData;
 		}
 		else
 		{
@@ -317,5 +272,76 @@ void PatchCustomFonts()
 		WriteJMPtoMemory((BYTE*)DFontAddrF + 0x0139, *SpaceSizeASM, 6);
 		WriteJMPtoMemory((BYTE*)DFontAddrF + 0x04F2, *SpaceSizeASM2, 6);
 		WriteJMPtoMemory((BYTE*)DFontAddrG + 0x85, *SpaceSizeASM3, 6);
+	}
+}
+
+static BOOL loadExternalFontData(void) {
+#define FONT_FORMATS 4
+#define FONT_IDS 4
+	const char* formats[FONT_FORMATS] = { "png", "jpg", "tga", "dds" };
+	for (int j = FONT_IDS; j > -1; j--) {
+		for (int i = 0; i < FONT_FORMATS; i++) {
+			char path[32];
+			snprintf(path, 32, "data\\font\\font%03d.%s", j, formats[i]);
+			ifstream file(path, ios::in | ios::binary | ios::ate);
+			if (file.is_open())
+			{
+				file.seekg(0, ios::end);
+				DWORD size = (DWORD)file.tellg();
+				file.seekg(0, ios::beg);
+
+				BYTE* data = new BYTE[size];
+				file.read((char*)data, size);
+				file.close();
+
+				int channels;
+				if (strncmp(formats[i], "dds", 3) == 0) {
+					fontData = stbi_dds_load_from_memory(data, size, (int*)&fontWidth, (int*)&fontHeight, &channels, 0);
+				}
+				else {
+					fontData = stbi_load_from_memory(data, size, (int*)&fontWidth, (int*)&fontHeight, &channels, 0);
+				}
+				if (!fontData) {
+					delete[] data;
+					continue;
+				}
+
+				BYTE* extra = (BYTE*)(data + size - 16);
+				if (strncmp((char*)extra, "SH2EEFNT", 8) == 0) {
+					fontColumnNumber = extra[8] | extra[9] << 8 | extra[10] << 16 | extra[11] << 24;
+					fontRowNumber = extra[12] | extra[13] << 8 | extra[14] << 16 | extra[15] << 24;
+				}
+				else {
+					fontColumnNumber = fontWidth / 44;
+					fontRowNumber = fontHeight / 64;
+				}
+				Logging::Log() << __FUNCTION__ << ": Using font file: " << path << " fontColumnNumber " << fontColumnNumber << " fontRowNumber " << fontRowNumber;
+				delete[] data;
+
+				char wpath[32];
+				snprintf(wpath, 32, "data\\font\\fontwdata%03d.bin", j);
+				ifstream wfile(wpath, ios::in | ios::binary | ios::ate);
+				if (!wfile.is_open()) {
+					wfile.open("data\\font\\fontwdata.bin", ios::in | ios::binary | ios::ate); //try default
+				}
+				if (wfile.is_open()) {
+					fontWidthData = new BYTE[0xE0 * 2];
+					wfile.seekg(0, ios::beg);
+					wfile.read((char*)fontWidthData, 0xE0 * 2);
+				}
+				break;
+			}
+		}
+	}
+	return (fontData != NULL);
+}
+
+static inline void copyFontData(BYTE *out, int pitch, SHORT index, WORD charId, FontType type) {
+	int charWidth = fontWidth / fontColumnNumber;
+	int charHeight = fontHeight / fontRowNumber;
+	int fontStart = index / charIX * pitch * charHeight + index % charIX * charWidth * 4;
+	int customFontStart = type * fontWidth * fontHeight * 4 / 2 + charId / fontColumnNumber * fontWidth * charHeight * 4 + charId % fontColumnNumber * charWidth * 4;
+	for (int y = 0; y < charHeight; y++) {
+		memcpy(out + fontStart + pitch * y, fontData + customFontStart + fontWidth * 4 * y, charWidth * 4);
 	}
 }

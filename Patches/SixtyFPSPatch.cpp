@@ -5,6 +5,7 @@
 #include "External\Hooking.Patterns\Hooking.Patterns.h"
 #include "Logging\Logging.h"
 #include "Patches.h"
+#include "Common/Utils.h"
 
 injector::hook_back<float(__cdecl*)(void)> GetFogAnimationRate;
 injector::hook_back<float(__cdecl*)(void)> GetBulletShellAnimationRateOne;
@@ -16,14 +17,19 @@ bool once = true;
 
 void PatchWater()
 {
-	DWORD OldProtect, Back, dwRelAddr;
+
 	float* WaterAnimationSpeedPtr = GetWaterAnimationSpeedPointer();
+	float NewValue = 0.0166665;
 
-	VirtualProtect(WaterAnimationSpeedPtr, 0x04, PAGE_EXECUTE_READWRITE, &OldProtect);
-	
-	*WaterAnimationSpeedPtr = 0.0166665;
+	UpdateMemoryAddress(WaterAnimationSpeedPtr, &NewValue, sizeof(float));
+}
 
-	VirtualProtect(WaterAnimationSpeedPtr, 0x04, OldProtect, &Back);
+void PatchFlashlightOnSpeed()
+{
+	int16_t* FlashlightOnSpeedPtr = GetFlashlightOnSpeedPointer();
+	int8_t NewValue = 0x78;
+
+	UpdateMemoryAddress(FlashlightOnSpeedPtr, &NewValue, sizeof(int8_t));
 }
 
 float __cdecl GetHalvedAnimationRate_Hook()
@@ -54,4 +60,6 @@ void PatchSixtyFPS()
 	GetBulletShellAnimationRateFour.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), GetDoubledAnimationRate_Hook, true).get();
 	
 	PatchWater();
+
+	PatchFlashlightOnSpeed();
 }

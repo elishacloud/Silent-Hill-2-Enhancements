@@ -17,6 +17,8 @@ public:
 	void CreateWindow(LPCWSTR lpClassName, LPCWSTR lpWindowName, DWORD dwStyle, int X, int Y, int Width, int Height, HWND hParent, HINSTANCE hInstance);
 	void Destroy();
 
+	HWND GetWnd();
+
 	void SetWnd(HWND wnd);
 	void SetText(LPCWSTR lpString);
 	void Enable(bool enable = true);

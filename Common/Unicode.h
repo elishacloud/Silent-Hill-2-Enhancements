@@ -24,7 +24,7 @@ inline wchar_t* WINAPI strrchr(wchar_t* _String, wchar_t _Ch)
 	return wcsrchr(_String, _Ch);
 }
 
-inline size_t WINAPI strlen(wchar_t* _Str)
+inline size_t WINAPI strlen(const wchar_t* _Str)
 {
 	return wcslen(_Str);
 }
@@ -81,4 +81,28 @@ inline DWORD WINAPI GetModuleFileNameW(HMODULE hModule, LPSTR lpFilename, DWORD 
 inline DWORD WINAPI GetModuleFileNameA(HMODULE hModule, LPWSTR lpFilename, DWORD nSize)
 {
 	return GetModuleFileNameW(hModule, lpFilename, nSize);
+}
+
+inline int CharCount(std::string s, char ch)
+{
+	int count = 0;
+
+	for (int i = 0; (i = s.find(ch, i)) != std::string::npos; i++)
+	{
+		count++;
+	}
+
+	return count;
+}
+
+inline int CharCount(std::wstring s, wchar_t ch)
+{
+	int count = 0;
+
+	for (int i = 0; (i = s.find(ch, i)) != std::wstring::npos; i++)
+	{
+		count++;
+	}
+
+	return count;
 }

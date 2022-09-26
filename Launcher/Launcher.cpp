@@ -27,6 +27,7 @@
 #include "Resource.h"
 #include "CWnd.h"
 #include "CConfig.h"
+#include "Common\Unicode.h"
 #include "Common\Settings.h"
 #include "Patches\Patches.h"
 #include "Logging\Logging.h"
@@ -55,6 +56,7 @@ CWnd hWnd;												// program window
 CCtrlTab hTab;											// tab container
 CCtrlButton hBnClose, hBnDefault, hBnSave, hBnLaunch;	// buttons at the bottom
 CCtrlDropBox hDbLaunch;									// pulldown at the bottom
+CCtrlDropBox hDbLanguage;								// language selector
 CCtrlDescription hDesc;									// option description
 std::vector<std::shared_ptr<CCombined>> hCtrl;			// responsive controls for options
 std::vector<std::shared_ptr<CCtrlGroup>> hGroup;		// group controls inside the tab
@@ -74,6 +76,20 @@ void				GetAllExeFiles();
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK	TabProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
+struct LANGSTRUCT
+{
+	wchar_t* Lang;
+	DWORD RcData;
+};
+
+constexpr LANGSTRUCT LangList[] = {
+	{ L"English", IDR_CONFIG_XML_EN },
+	{ L"Spanish", IDR_CONFIG_XML_ES }
+};
+DWORD DefaultLang = IDR_CONFIG_XML_EN;
+
+void GetLanguage();
+
 enum ProgramStrings
 {
 	STR_TITLE,
@@ -88,6 +104,8 @@ enum ProgramStrings
 	STR_LAUNCH_EXE,
 	STR_INI_NAME,
 	STR_INI_ERROR,
+	STR_LANG_CONFIRM,
+	STR_LANG_ERROR,
 	STR_DEFAULT_CONFIRM,
 	STR_UNSAVED,
 	STR_UNSAVED_TEXT,
@@ -116,14 +134,26 @@ std::wstring GetPrgString(UINT id)
 		"PRG_Launch_exe", L"sh2pc.exe",
 		"PRG_Ini_name", L"d3d8.ini",
 		"PRG_Ini_error", L"Could not save the configuration ini.",
+		"PRG_Lang_confirm", L"Do you want to switch to language %s?",
+		"PRG_Lang_error", L"Error restarting the launcher!",
 		"PRG_Default_confirm", L"Are you sure you want reset all settings to default?",
 		"PRG_Unsaved", L" [unsaved changes]",
 		"PRG_Save_exit", L"There are unsaved changes. Save before closing?",
 	};
 
 	auto s = cfg.GetString(str[id].name);
+
+	// Validate language string confirmation
+	if (id == STR_LANG_CONFIRM && (CharCount(s, '%') != 1 || s.find(L"%s") == std::string::npos))
+	{
+		MessageBox(nullptr, L"Error with PRG_Lang_confirm text!", L"Language Error", MB_DEFBUTTON1);
+		return std::wstring(str[id].def);
+	}
+
 	if (s.size())
+	{
 		return s;
+	}
 
 	// return default if no string matches
 	return std::wstring(str[id].def);
@@ -190,6 +220,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 		CheckArgumentsForPID();
 		RemoveVirtualStoreFiles();
 		CheckAdminAccess();
+		GetLanguage();
 	}
 
 	if (cfg.ParseXml())
@@ -227,7 +258,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 		lf.lfPitchAndFamily, lf.lfFaceName);
 
 	// Perform application initialization:
-	if (!InitInstance (hInstance, nCmdShow))
+	if (!InitInstance(hInstance, nCmdShow))
 	{
 		return FALSE;
 	}
@@ -443,7 +474,7 @@ BOOL CenterWindow(HWND hwndWindow)
 	return TRUE;
 }
 
-void LoadSettings()
+void LoadWindowSettings()
 {
 	WINDOWPLACEMENT wndpl;
 
@@ -451,16 +482,33 @@ void LoadSettings()
 	{
 		wndpl.length = sizeof(WINDOWPLACEMENT);
 		SetWindowPlacement(hWnd, &wndpl);
+
+		// Remove resolution from registry
+		HKEY hKey;
+		if (RegOpenKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Konami\\Silent Hill 2\\sh2e", 0, KEY_READ | KEY_WRITE, &hKey) == ERROR_SUCCESS)
+		{
+			RegDeleteValueW(hKey, L"WindowPlacement");
+
+			RegCloseKey(hKey);
+		}
+
+		return;
+	}
+
+	if (ReadRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"LauncherWindowPlacement", &wndpl, sizeof(WINDOWPLACEMENT)))
+	{
+		wndpl.length = sizeof(WINDOWPLACEMENT);
+		SetWindowPlacement(hWnd, &wndpl);
 	}
 }
 
-void SaveSettings()
+void SaveWindowSettings()
 {
 	WINDOWPLACEMENT wndpl;
 	wndpl.length = sizeof(WINDOWPLACEMENT);
 	GetWindowPlacement(hWnd, &wndpl);
 
-	WriteRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"WindowPlacement", REG_BINARY, &wndpl, sizeof(WINDOWPLACEMENT));
+	WriteRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"LauncherWindowPlacement", REG_BINARY, &wndpl, sizeof(WINDOWPLACEMENT));
 }
 
 std::wstring GetExeMRU()
@@ -478,6 +526,37 @@ std::wstring GetExeMRU()
 void SetExeMRU(std::wstring Name)
 {
 	WriteRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"ExeMRU", RRF_RT_REG_SZ, (BYTE*)Name.c_str(), (Name.size() + 1) * sizeof(wchar_t));
+}
+
+void GetLanguage()
+{
+	DWORD val = 0;
+	if (ReadRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"LauncherLanguage", &val, MAX_PATH * sizeof(DWORD)))
+	{		
+		for (auto item : LangList)
+		{
+			if (item.RcData == val)
+			{
+				DefaultLang = item.RcData;
+			}
+		}
+	}
+}
+
+void SetLanguage(DWORD RcData)
+{
+	WriteRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"LauncherLanguage", RRF_RT_REG_DWORD, (BYTE*)&RcData, sizeof(RcData));
+}
+
+void CheckForIniSave()
+{
+	if (bHasChange)
+	{
+		if (MessageBoxW(hWnd, GetPrgString(STR_UNSAVED_TEXT).c_str(), GetPrgString(STR_WARNING).c_str(), MB_YESNO) == IDYES)
+		{
+			cfg.SaveIni(GetPrgString(STR_INI_NAME).c_str(), GetPrgString(STR_INI_ERROR).c_str(), GetPrgString(STR_ERROR).c_str());
+		}
+	}
 }
 
 void GetAllExeFiles()
@@ -522,6 +601,33 @@ void GetAllExeFiles()
 	}
 }
 
+void SetLanguageSelection()
+{
+	int x = 0;
+	for (auto item : LangList)
+	{
+		if (item.RcData == DefaultLang)
+		{
+			hDbLanguage.SetSelection(x);
+		}
+		x++;
+	}
+}
+
+bool RelaunchApp()
+{
+	wchar_t LauncherPath[MAX_PATH];
+	if (GetModuleFileName(nullptr, LauncherPath, MAX_PATH) != 0)
+	{
+		if (ShellExecuteW(nullptr, L"open", LauncherPath, nullptr, nullptr, SW_SHOWDEFAULT) > (HINSTANCE)32)
+		{
+			SendMessageW(hWnd, WM_DESTROY, 0, 0);
+			return true;
+		}
+	}
+	return false;
+}
+
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	m_hModule = hInstance; // Store instance handle in our global variable
@@ -542,37 +648,30 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	}
 
 	// create the description field
-	hDesc.CreateWindow(4, r.bottom - 150, r.right - 8, 118, hWnd, hInstance, hFont, hBold);
+	hDesc.CreateWindow(4, r.bottom - 160, r.right - 8, 128, hWnd, hInstance, hFont, hBold);
 
 	// create the bottom buttons
 	int X = 3;
 	int Y = r.bottom - 28;
-	hBnClose.CreateWindow(GetPrgString(STR_BN_CLOSE).c_str(), X, Y, 60, 24, hWnd, hInstance, hFont); X += 64;
-	hBnDefault.CreateWindow(GetPrgString(STR_BN_DEFAULT).c_str(), X, Y, 80, 24, hWnd, hInstance, hFont);
+	hBnClose.CreateWindow(GetPrgString(STR_BN_CLOSE).c_str(), X, Y, 90, 24, hWnd, hInstance, hFont); X += 94;
+	hBnDefault.CreateWindow(GetPrgString(STR_BN_DEFAULT).c_str(), X, Y, 140, 24, hWnd, hInstance, hFont);
 
-	X = r.right - 207;
-	if (ExeList.size() > 1)
-	{
-		X -= 228;
-		HWND hwnd = CreateWindowW(TEXT("static"), GetPrgString(STR_LBL_LAUNCH).c_str(), WS_VISIBLE | WS_CHILD, X, Y + 5, 80, 24, hWnd, (HMENU)3, NULL, NULL); X += 84;
-		SendMessageW(hwnd, WM_SETFONT, (LPARAM)hFont, TRUE);
-		hDbLaunch.CreateWindow(X, Y + 1, 140, 24, hWnd, hInstance, hFont); X += 144;
-	}
-	hBnSave.CreateWindow(GetPrgString(STR_BN_SAVE).c_str(), X, Y, 60, 24, hWnd, hInstance, hFont); X += 64;
-	hBnLaunch.CreateWindow(GetPrgString(STR_BN_LAUNCH).c_str(), X, Y, 140, 24, hWnd, hInstance, hFont);
-
-	// assign custom IDs to all buttons for easier catching
-	hBnClose.SetID  (WM_USER);
-	hBnDefault.SetID(WM_USER + 1);
-	hBnSave.SetID   (WM_USER + 2);
-	hBnLaunch.SetID (WM_USER + 3);
+	X = r.right - 2;
+	X -= 164; hBnLaunch.CreateWindow(GetPrgString(STR_BN_LAUNCH).c_str(), X, Y, 160, 24, hWnd, hInstance, hFont);
+	X -= 94; hBnSave.CreateWindow(GetPrgString(STR_BN_SAVE).c_str(), X, Y, 90, 24, hWnd, hInstance, hFont);
 
 	// make save button start as disabled
 	hBnSave.Enable(false);
 
-	// if sh2pc.exe doesn't exist, don't enable the launch button
+	// enable launch selector
 	if (ExeList.size() > 1)
 	{
+		X -= 144; hDbLaunch.CreateWindow(X, Y + 1, 140, 24, hWnd, hInstance, hFont);
+
+		// add launcher label
+		X -= 108; HWND hwnd = CreateWindowW(TEXT("static"), GetPrgString(STR_LBL_LAUNCH).c_str(), WS_VISIBLE | WS_CHILD | SS_RIGHT, X, Y + 5, 100, 24, hWnd, (HMENU)3, NULL, NULL);
+		SendMessageW(hwnd, WM_SETFONT, (LPARAM)hFont, TRUE);
+
 		// populate dropdown
 		std::wstring LastMRU = GetExeMRU();
 		size_t MRU = (size_t)-1, entry = 0;
@@ -590,10 +689,27 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		}
 		hDbLaunch.SetSelection((MRU != -1) ? MRU : entry);
 	}
+	// if sh2pc.exe doesn't exist, don't enable the launch button
 	else if (ExeList.size() == 0)
 	{
 		EnableWindow(hBnLaunch, false);
 	}
+
+	// create language pulldown
+	hDbLanguage.CreateWindow(r.right - 142, r.top, 140, 24, hWnd, hInstance, hFont);
+	for (auto item : LangList)
+	{
+		hDbLanguage.AddString(item.Lang);
+	}
+	SetLanguageSelection();
+
+	// assign custom IDs to all buttons for easier catching
+	hBnClose.SetID(WM_USER);
+	hBnDefault.SetID(WM_USER + 1);
+	hBnSave.SetID(WM_USER + 2);
+	hBnLaunch.SetID(WM_USER + 3);
+	hDbLaunch.SetID(WM_USER + 4);
+	hDbLanguage.SetID(WM_USER + 5);
 
 	// populate the first tab
 	PopulateTab(0);
@@ -604,10 +720,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	// set window location
 	CenterWindow(hWnd);
-	LoadSettings();
+	LoadWindowSettings();
 
 	// subclass the tab to catch messages for controls inside it
-	hTab.Subclass(TabProc);	
+	hTab.Subclass(TabProc);
 
 	return TRUE;
 }
@@ -655,22 +771,17 @@ LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message)
 	{
 	case WM_CLOSE:
-		if (bHasChange)
-		{
-			// unsaved settings, ask user what to do
-			if (MessageBoxW(hWnd, GetPrgString(STR_UNSAVED_TEXT).c_str(), GetPrgString(STR_WARNING).c_str(), MB_YESNO) == IDYES)
-				cfg.SaveIni(GetPrgString(STR_INI_NAME).c_str(), GetPrgString(STR_INI_ERROR).c_str(), GetPrgString(STR_ERROR).c_str());
-		}
+		CheckForIniSave();
 		break;
 	case WM_DESTROY:
 		bIsLooping = false;
-		SaveSettings();
+		SaveWindowSettings();
 		PostQuitMessage(0);
 		break;
-	//case WM_MOUSEMOVE:
-	//	hDesc.SetCaption(cfg.GetGroupString(uCurTab).c_str());
-	//	hDesc.SetText(L"");
-	//	break;
+		//case WM_MOUSEMOVE:
+		//	hDesc.SetCaption(cfg.GetGroupString(uCurTab).c_str());
+		//	hDesc.SetText(L"");
+		//	break;
 	case WM_NOTIFY:
 		switch (((LPNMHDR)lParam)->code)
 		{
@@ -721,6 +832,30 @@ LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 				cfg.SaveIni(GetPrgString(STR_INI_NAME).c_str(), GetPrgString(STR_INI_ERROR).c_str(), GetPrgString(STR_ERROR).c_str());
 				SendMessageW(hWnd, WM_DESTROY, 0, 0);
 				break;
+			}
+			break;
+		case CBN_SELCHANGE:
+			switch (LOWORD(wParam))
+			{
+			case (WM_USER + 5):	// language
+			{
+				wchar_t LanguageString[MAX_PATH];
+				_snwprintf_s(LanguageString, MAX_PATH, _TRUNCATE, GetPrgString(STR_LANG_CONFIRM).c_str(), LangList[hDbLanguage.GetSelection()].Lang);
+				if (MessageBoxW(hWnd, LanguageString, GetPrgString(STR_WARNING).c_str(), MB_YESNO) == IDYES)
+				{
+					SetLanguage(LangList[hDbLanguage.GetSelection()].RcData);
+					CheckForIniSave();
+					if (!RelaunchApp())
+					{
+						MessageBoxW(hWnd, GetPrgString(STR_LANG_ERROR).c_str(), GetPrgString(STR_ERROR).c_str(), MB_OK);
+					}
+				}
+				else
+				{
+					SetLanguageSelection();
+				}
+				break;
+			}
 			}
 			break;
 		}

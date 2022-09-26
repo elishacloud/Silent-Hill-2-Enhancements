@@ -107,6 +107,7 @@ copy /y "$(TargetDir)d3d8.ini" "$(SolutionDir)Common\Settings.ini"</Command>
     <ClInclude Include="..\Common\AutoUpdate.h" />
     <ClInclude Include="..\Common\LoadModules.h" />
     <ClInclude Include="..\Common\Settings.h" />
+    <ClInclude Include="..\Common\Unicode.h" />
     <ClInclude Include="..\Common\Utils.h" />
     <ClInclude Include="..\External\Logging\Logging.h" />
     <ClInclude Include="..\External\MemoryModule\MemoryModule.h" />

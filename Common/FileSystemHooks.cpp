@@ -54,7 +54,6 @@ wchar_t ModPathW[MAX_PATH];
 char *ModPicPathA = "ps2";
 wchar_t *ModPicPathW = L"ps2";
 DWORD modLoc = 0;
-DWORD modLen = 0;
 DWORD picLen = 0;
 DWORD MaxModFileLen = 0;
 
@@ -67,6 +66,8 @@ inline LPCSTR ModPath(LPCSTR) { return ModPathA; }
 inline LPCWSTR ModPath(LPCWSTR) { return ModPathW; }
 inline LPCSTR ModPicPath(LPCSTR) { return ModPicPathA; }
 inline LPCWSTR ModPicPath(LPCWSTR) { return ModPicPathW; }
+inline LPCSTR LangPath(LPCSTR) { return "lang"; }
+inline LPCWSTR LangPath(LPCWSTR) { return L"lang"; }
 inline LPCSTR GetEnding1(LPCSTR) { return "\\movie\\end.bik"; }
 inline LPCWSTR GetEnding1(LPCWSTR) { return L"\\movie\\end.bik"; }
 inline LPCSTR GetEnding2(LPCSTR) { return "\\movie\\ending.bik"; }
@@ -246,56 +247,62 @@ T UpdateModPath(T sh2, D str)
 		return sh2;
 	}
 
-	// Update path with new mod path
-	strcpy_s(str + padding, MAX_PATH - padding, ModPath(sh2));
-	strcpy_s(str + padding + modLen, MAX_PATH - padding - modLen, sh2 + padding + 4);
-
-	// Handle end.bik/ending.bik (favor end.bik)
-	if (isEndVideoPath(sh2 + padding + 5))
+	for (auto NewPath : { LangPath(sh2), ModPath(sh2) })
 	{
-		// Check mod path
-		strcpy_s(str + padding + modLen, MAX_PATH - padding - modLen, GetEnding1(sh2));
-		if (PathFileExists(str))
+		// Get len of NewPath
+		size_t PathLen = strlen(NewPath);
+
+		// Update path with new mod path
+		strcpy_s(str + padding, MAX_PATH - padding, NewPath);
+		strcpy_s(str + padding + PathLen, MAX_PATH - padding - PathLen, sh2 + padding + 4);
+
+		// Handle end.bik/ending.bik (favor end.bik)
+		if (isEndVideoPath(sh2 + padding + 5))
 		{
-			return str;
-		}
-		strcpy_s(str + padding + modLen, MAX_PATH - padding - modLen, GetEnding2(sh2));
-		if (PathFileExists(str))
-		{
-			return str;
+			// Check mod path
+			strcpy_s(str + padding + PathLen, MAX_PATH - padding - PathLen, GetEnding1(sh2));
+			if (PathFileExists(str))
+			{
+				return str;
+			}
+			strcpy_s(str + padding + PathLen, MAX_PATH - padding - PathLen, GetEnding2(sh2));
+			if (PathFileExists(str))
+			{
+				return str;
+			}
+
+			// Check data path
+			strcpy_s(str, MAX_PATH, sh2);
+			strcpy_s(str + padding + 4, MAX_PATH - padding - 4, GetEnding1(sh2));
+			if (PathFileExists(str))
+			{
+				return str;
+			}
+			strcpy_s(str + padding + 4, MAX_PATH - padding - 4, GetEnding2(sh2));
+			if (PathFileExists(str))
+			{
+				return str;
+			}
+			return sh2;
 		}
 
-		// Check data path
-		strcpy_s(str, MAX_PATH, sh2);
-		strcpy_s(str + padding + 4, MAX_PATH - padding - 4, GetEnding1(sh2));
+		// Handle PS2 low texture mod
+		if (UsePS2LowResTextures)
+		{
+			T sh2_pic = sh2 + padding + 5;
+			DWORD PicPath = getPicPath(sh2_pic);
+			if (PicPath)
+			{
+				strcpy_s(str + padding + PathLen + 1, MAX_PATH - padding - PathLen, ModPicPath(sh2));
+				strcpy_s(str + padding + PathLen + picLen + 1, MAX_PATH - padding - PathLen - picLen - 1, sh2_pic + PicPath);
+			}
+		}
+
+		// If mod path exists then use it
 		if (PathFileExists(str))
 		{
 			return str;
 		}
-		strcpy_s(str + padding + 4, MAX_PATH - padding - 4, GetEnding2(sh2));
-		if (PathFileExists(str))
-		{
-			return str;
-		}
-		return sh2;
-	}
-
-	// Handle PS2 low texture mod
-	if (UsePS2LowResTextures)
-	{
-		T sh2_pic = sh2 + padding + 5;
-		DWORD PicPath = getPicPath(sh2_pic);
-		if (PicPath)
-		{
-			strcpy_s(str + padding + modLen + 1, MAX_PATH - padding - modLen, ModPicPath(sh2));
-			strcpy_s(str + padding + modLen + picLen + 1, MAX_PATH - padding - modLen - picLen - 1, sh2_pic + PicPath);
-		}
-	}
-
-	// If mod path exists then use it
-	if (PathFileExists(str))
-	{
-		return str;
 	}
 
 	return sh2;
@@ -605,7 +612,7 @@ void InstallFileSystemHooks(HMODULE hModule)
 		*pdest = '\0';
 	}
 	modLoc = wcslen(tmpPath) + 1;
-	modLen = strlen(ModPathA);
+	size_t modLen = strlen(ModPathA);
 	picLen = strlen(ModPicPathA);
 	if (modLoc + modLen > MAX_PATH)
 	{

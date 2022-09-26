@@ -1093,6 +1093,8 @@
     <S id="PRG_Launch_exe">sh2pc.exe</S>
     <S id="PRG_Ini_name">d3d8.ini</S>
     <S id="PRG_Ini_error">Could not save d3d8.ini.</S>
+    <S id="PRG_Lang_confirm">Do you want to switch to language %s?</S>
+    <S id="PRG_Lang_error">Error restarting the launcher!</S>
     <S id="PRG_Default_confirm">Are you sure you want reset all settings to default?</S>
     <S id="PRG_Unsaved"> [not saved]</S>
     <S id="PRG_Save_exit">There are unsaved changes. Do you want to save changes before closing?</S>

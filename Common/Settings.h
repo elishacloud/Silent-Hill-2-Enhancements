@@ -111,8 +111,8 @@
 	visit(AudioFadeOutDelayMS, 10) \
 	visit(CustomFontCharHeight, 32) \
 	visit(CustomFontCharWidth, 20) \
-	visit(CustomFontCol, 100) \
-	visit(CustomFontRow, 14) \
+	visit(CustomFontCol, 25) \
+	visit(CustomFontRow, 17) \
 	visit(EnableCriWareReimplementation, 1) \
 	visit(fog_transparency_layer1, 128) \
 	visit(fog_transparency_layer2, 112) \

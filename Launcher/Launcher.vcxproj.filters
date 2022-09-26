@@ -59,6 +59,9 @@
     <ClInclude Include="..\External\MemoryModule\MemoryModule.h">
       <Filter>External\MemoryModule</Filter>
     </ClInclude>
+    <ClInclude Include="..\Common\Unicode.h">
+      <Filter>Shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\External\xxHash\xxhash.c">

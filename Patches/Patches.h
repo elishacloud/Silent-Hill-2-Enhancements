@@ -122,6 +122,7 @@ int32_t *GetIsWritingQuicksavePointer();
 int32_t *GetTextAddrPointer();
 float *GetWaterAnimationSpeedPointer();
 int16_t *GetFlashlightOnSpeedPointer();
+float * GetLowHealthIndicatorFlashSpeedPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

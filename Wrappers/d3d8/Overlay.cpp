@@ -1,146 +1,169 @@
+#pragma warning( disable : 4244 )
 #include "Overlay.h"
 
 const int rectOffset		= 40;
-const int TextSpacing		= 15;
 const int FloatPrecision	= 4;
 const int KMConstant		= 500000;
 const float AntiJitterValue	= 0.0001f;
 const int DropShadowOffset	= 1;
 
-LPD3DXFONT font = nullptr;
-bool ResetFontFlag = false;
+LPCSTR FontName = "Arial";
+
+LPD3DXFONT DebugFont = nullptr;
+LPD3DXFONT MenuTestFont = nullptr;
+LPD3DXFONT IGTFont = nullptr;
+
+bool ResetDebugFontFlag = false;
+bool ResetMenuTestFontFlag = false;
+bool ResetIGTFontFlag = false;
+
+auto LastColorChange = std::chrono::system_clock::now();
+int WhiteArrayIndex = 2;
+
+Overlay::D3D8TEXT MenuTestTextStruct;
+Overlay::D3D8TEXT InfoOverlayTextStruct;
+Overlay::D3D8TEXT DebugOverlayTextStruct;
+Overlay::D3D8TEXT ControlMenuTestTextStruct;
+LONG LastBufferWidth = 0;
+LONG LastBufferHeight = 0;
+
+DWORD FogEnableValue;
+
+void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
+{
+	Logging::LogDebug() << __FUNCTION__;
+
+	if (LastBufferWidth != BufferWidth || LastBufferHeight != BufferHeight)
+		InitializeDataStructs();
+
+	// In the pause menu, skip drawing
+	if (GetEventIndex() == 0x10) return;
+
+	// nVidia fix
+	ProxyInterface->GetRenderState(D3DRS_FOGENABLE, &FogEnableValue);
+	ProxyInterface->SetRenderState(D3DRS_FOGENABLE, 0x0);
+
+	// Debug Overlay
+	if (ShowDebugOverlay)
+	{
+		DrawDebugOverlay(ProxyInterface);
+	}
+
+	// Info Overlay
+	if (ShowInfoOverlay)
+	{
+		DrawInfoOverlay(ProxyInterface);
+	}
+
+	// Menu Test
+	if (EnableMenuTest)
+	{
+		DrawMenuTestOverlay(ProxyInterface);
+	}
+
+	ProxyInterface->SetRenderState(D3DRS_FOGENABLE, FogEnableValue);
+}
 
 void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	D3D8TEXT TextStruct;
-	TextStruct.Format = DT_NOCLIP | DT_SINGLELINE;
-	TextStruct.Rect.left = BufferWidth - 205;
-	TextStruct.Rect.top = rectOffset;
-	TextStruct.Rect.right = BufferWidth;
-	TextStruct.Rect.bottom = rectOffset + 15;
-	TextStruct.Color = D3DCOLOR_ARGB(255, 153, 217, 234);
+	int SpecialItems = bitCount(GetSecretItemsCollected());
 
 	std::string OvlString = "INFO MENU (CTRL + I) ";
-
-	TextStruct.String = OvlString.c_str();
-
-	DrawDebugText(ProxyInterface, TextStruct);
-
-	OvlString = "Action Difficulty: ";
+	OvlString.append("\rAction Difficulty: ");
 	OvlString.append(ActionDifficulty[GetActionDifficulty()]);
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += TextSpacing;
-	TextStruct.Rect.bottom += TextSpacing;
-
-	DrawDebugText(ProxyInterface, TextStruct);
-
-	OvlString = "Riddle Difficulty: ";
+	OvlString.append("\rRiddle Difficulty: ");
 	OvlString.append(RiddleDifficulty[GetRiddleDifficulty()]);
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += TextSpacing;
-	TextStruct.Rect.bottom += TextSpacing;
-
-	DrawDebugText(ProxyInterface, TextStruct);
-
-	OvlString = "Saves: ";
+	OvlString.append("\rSaves: ");
 	OvlString.append(std::to_string(GetNumberOfSaves()));
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += TextSpacing;
-	TextStruct.Rect.bottom += TextSpacing;
-
-	DrawDebugText(ProxyInterface, TextStruct);
-
-	OvlString = "Total Time: ";
-	OvlString.append(SecondsToTimeString((int)GetInGameTime()));
-
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += TextSpacing;
-	TextStruct.Rect.bottom += TextSpacing;
-
-	DrawDebugText(ProxyInterface, TextStruct);
-
-	OvlString = "Walking Distance: ";
+	OvlString.append("\rTotal Time: ");
+	OvlString.append(SecondsToTimeString(GetInGameTime()));
+	
+	OvlString.append("\rWalking Distance: ");
 	OvlString.append(FloatToStr(GetWalkingDistance() / KMConstant, 2));
 	OvlString.append("km");
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += TextSpacing;
-	TextStruct.Rect.bottom += TextSpacing;
-
-	DrawDebugText(ProxyInterface, TextStruct);
-
-	OvlString = "Running Distance: ";
+	OvlString.append("\rRunning Distance: ");
 	OvlString.append(FloatToStr(GetRunningDistance() / KMConstant, 2));
 	OvlString.append("km");
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += TextSpacing;
-	TextStruct.Rect.bottom += TextSpacing;
-
-	DrawDebugText(ProxyInterface, TextStruct);
-
-	OvlString = "Items: ";
+	OvlString.append("\rItems: ");
 	OvlString.append(std::to_string(GetItemsCollected()));
-	OvlString.append("(+");
-	OvlString.append(std::to_string(bitCount(GetSecretItemsCollected())));
-	OvlString.append(")");
+	
+	if (SpecialItems > 0)
+	{
+		OvlString.append("(+");
+		OvlString.append(std::to_string(SpecialItems));
+		OvlString.append(")");
+	}
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += TextSpacing;
-	TextStruct.Rect.bottom += TextSpacing;
-
-	DrawDebugText(ProxyInterface, TextStruct);
-
-	OvlString = "Shooting Kills: ";
+	OvlString.append("\rShooting Kills: ");
 	OvlString.append(std::to_string(GetShootingKills()));
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += TextSpacing;
-	TextStruct.Rect.bottom += TextSpacing;
-
-	DrawDebugText(ProxyInterface, TextStruct);
-
-	OvlString = "Fighting Kills: ";
+	OvlString.append("\rFighting Kills: ");
 	OvlString.append(std::to_string(GetMeleeKills()));
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += TextSpacing;
-	TextStruct.Rect.bottom += TextSpacing;
+	OvlString.append("\rBoat Stage Time: ");
+	OvlString.append(SecondsToMsTimeString(GetBoatStageTime()));
 
-	DrawDebugText(ProxyInterface, TextStruct);
-
-	OvlString = "Boat Stage Time: ";
-	OvlString.append(SecondsToMsTimeString((int)GetBoatStageTime()));
-
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += TextSpacing;
-	TextStruct.Rect.bottom += TextSpacing;
-
-	DrawDebugText(ProxyInterface, TextStruct);
-
-	OvlString = "Boat Max Speed: ";
+	OvlString.append("\rBoat Max Speed: ");
 	OvlString.append(FloatToStr(GetBoatMaxSpeed(), 2));
 	OvlString.append("m/s");
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += TextSpacing;
-	TextStruct.Rect.bottom += TextSpacing;
-
-	DrawDebugText(ProxyInterface, TextStruct);
-
-	OvlString = "Total Damage: ";
+	OvlString.append("\rTotal Damage: ");
 	OvlString.append(FloatToStr(GetDamagePointsTaken(), 2));
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += TextSpacing;
-	TextStruct.Rect.bottom += TextSpacing;
+	InfoOverlayTextStruct.String = OvlString.c_str();
+	DrawDebugText(ProxyInterface, InfoOverlayTextStruct);
+}
 
-	DrawDebugText(ProxyInterface, TextStruct);
+void Overlay::DrawMenuTestOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
+{
+	Logging::LogDebug() << __FUNCTION__;
+
+	if (ChangeMenuTestColor())
+	{
+		switch (WhiteArrayIndex)
+		{
+		case 0:
+		case 1:
+			WhiteArrayIndex++;
+			break;
+		case 2:
+			WhiteArrayIndex = 0;
+			break;
+		}
+
+	}
+
+	ControlMenuTestTextStruct.Color = WhiteArray[WhiteArrayIndex];
+
+	std::string OvlString = "";
+
+	if (EnableMenuTestIGT)
+	{
+		OvlString = GetIGTString();
+
+		MenuTestTextStruct.String = OvlString.c_str();
+		DrawIGTText(ProxyInterface, MenuTestTextStruct);
+	}
+
+	OvlString = "0.1";
+
+	MenuTestTextStruct.String = OvlString.c_str();
+	MenuTestTextStruct.Rect.top += 22;
+	MenuTestTextStruct.Rect.left += 80;
+	DrawMenuTestText(ProxyInterface, MenuTestTextStruct);
+	MenuTestTextStruct.Rect.top -= 22;
+	MenuTestTextStruct.Rect.left -= 80;
+
+	// Pulsating dot
+	DrawMenuTestText(ProxyInterface, ControlMenuTestTextStruct);
+
 }
 
 void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
@@ -155,118 +178,129 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 		CharYPos = 0;
 	}
 
-	D3D8TEXT TextStruct;
-	TextStruct.Format = DT_NOCLIP | DT_SINGLELINE;
-	TextStruct.Rect.left = rectOffset;
-	TextStruct.Rect.top = rectOffset;
-	TextStruct.Rect.right = rectOffset + 300;
-	TextStruct.Rect.bottom = rectOffset + 15;
-	TextStruct.Color = D3DCOLOR_ARGB(255, 153, 255, 153);
-
 	std::string OvlString = "DEBUG MENU (CTRL + D) ";
 
-	TextStruct.String = OvlString.c_str();
-
-	DrawDebugText(ProxyInterface, TextStruct);
-
-	OvlString = "Game Resolution: ";
+	OvlString.append("\rGame Resolution: ");
 	OvlString.append(std::to_string(BufferWidth));
 	OvlString.append("x");
 	OvlString.append(std::to_string(BufferHeight));
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += TextSpacing;
-	TextStruct.Rect.bottom += TextSpacing;
-
-	DrawDebugText(ProxyInterface, TextStruct);
-
-	OvlString = "Room ID: 0x";
+	OvlString.append("\rRoom ID: 0x");
 	OvlString.append(IntToHexStr(GetRoomID()));
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += TextSpacing;
-	TextStruct.Rect.bottom += TextSpacing;
-
-	DrawDebugText(ProxyInterface, TextStruct);
-
-	OvlString = "Cutscene ID: 0x";
+	OvlString.append("\rCutscene ID: 0x");
 	OvlString.append(IntToHexStr(GetCutsceneID()));
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += TextSpacing;
-	TextStruct.Rect.bottom += TextSpacing;
-
-	DrawDebugText(ProxyInterface, TextStruct);
-
-	OvlString = "FPS: ";
+	OvlString.append("\rFPS: ");
 	OvlString.append(FloatToStr(GetFPSCounter(), FloatPrecision));
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += TextSpacing;
-	TextStruct.Rect.bottom += TextSpacing;
-
-	DrawDebugText(ProxyInterface, TextStruct);
-
-	OvlString = "Char X Position: ";
+	OvlString.append("\rChar X Position: ");
 	OvlString.append(FloatToStr(GetJamesPosX(), FloatPrecision));
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += TextSpacing;
-	TextStruct.Rect.bottom += TextSpacing;
-
-	DrawDebugText(ProxyInterface, TextStruct);
-
-	OvlString = "Char Y Position: ";
+	OvlString.append("\rChar Y Position: ");
 	OvlString.append(FloatToStr(CharYPos, FloatPrecision));
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += TextSpacing;
-	TextStruct.Rect.bottom += TextSpacing;
-
-	DrawDebugText(ProxyInterface, TextStruct);
-
-	OvlString = "Char Z Position: ";
+	OvlString.append("\rChar Z Position: ");
 	OvlString.append(FloatToStr(GetJamesPosZ(), FloatPrecision));
 
-	TextStruct.String = OvlString.c_str();
-	TextStruct.Rect.top += TextSpacing;
-	TextStruct.Rect.bottom += TextSpacing;
+	DebugOverlayTextStruct.String = OvlString.c_str();
+	DrawDebugText(ProxyInterface, DebugOverlayTextStruct);
 
-	DrawDebugText(ProxyInterface, TextStruct);
 }
 
 void Overlay::DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT FontStruct)
 {
 	Logging::LogDebug() << __FUNCTION__;
-
-	D3DCOLOR BlackColor = D3DCOLOR_ARGB(255, 0, 0, 0);
 	
 	RECT DropShadowRect = FontStruct.Rect;
 	DropShadowRect.top = DropShadowRect.top + DropShadowOffset;
 	DropShadowRect.left = DropShadowRect.left + DropShadowOffset;
 
-	if (ResetFontFlag)
+	if (ResetDebugFontFlag)
 	{
-		ResetFontFlag = false;
-		font->OnResetDevice();
-
+		ResetDebugFontFlag = false;
+		DebugFont->OnResetDevice();
 	}
 
-	if (ProxyInterface != nullptr && font == nullptr)
+	if (ProxyInterface != nullptr && DebugFont == nullptr)
 	{
-		HFONT FontCharacteristics = CreateFontA(16, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, 2, 0, "Arial");
-		if (FontCharacteristics != nullptr)
+		HFONT FontCharacteristics = CreateFontA(16, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, PROOF_QUALITY, 0, FontName);
+		if (FontCharacteristics != NULL)
 		{
-			Logging::LogDebug() << __FUNCTION__ << " Creating font...";
-			D3DXCreateFont(ProxyInterface, FontCharacteristics, &font);
+			Logging::LogDebug() << __FUNCTION__ << " Creating Debug font: " << FontName;
+			D3DXCreateFont(ProxyInterface, FontCharacteristics, &DebugFont);
 			DeleteObject(FontCharacteristics);
 		}
 	}
 
-	if (font != nullptr)
+	if (DebugFont != nullptr)
 	{
-		font->DrawTextA(FontStruct.String, -1, &DropShadowRect, FontStruct.Format, BlackColor);
-		font->DrawTextA(FontStruct.String, -1, &FontStruct.Rect, FontStruct.Format, FontStruct.Color);
+		DebugFont->DrawTextA(FontStruct.String, -1, &DropShadowRect, FontStruct.Format, TextColors.Black);
+		DebugFont->DrawTextA(FontStruct.String, -1, &FontStruct.Rect, FontStruct.Format, FontStruct.Color);
+	}
+}
+
+void Overlay::DrawMenuTestText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT FontStruct)
+{
+	Logging::LogDebug() << __FUNCTION__;
+
+	RECT DropShadowRect = FontStruct.Rect;
+	DropShadowRect.top = DropShadowRect.top + DropShadowOffset;
+	DropShadowRect.left = DropShadowRect.left + DropShadowOffset;
+
+	if (ResetMenuTestFontFlag)
+	{
+		ResetMenuTestFontFlag = false;
+		MenuTestFont->OnResetDevice();
+	}
+
+	if (ProxyInterface != NULL && MenuTestFont == NULL)
+	{
+		HFONT FontCharacteristics = CreateFontA(14, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, PROOF_QUALITY, 0, FontName);
+		if (FontCharacteristics != NULL)
+		{
+			Logging::LogDebug() << __FUNCTION__ << " Creating Menu Test font: " << FontName;
+			D3DXCreateFont(ProxyInterface, FontCharacteristics, &MenuTestFont);
+			DeleteObject(FontCharacteristics);
+		}
+	}
+
+	if (MenuTestFont != NULL)
+	{
+		MenuTestFont->DrawTextA(FontStruct.String, -1, &DropShadowRect, FontStruct.Format, TextColors.Black);
+		MenuTestFont->DrawTextA(FontStruct.String, -1, &FontStruct.Rect, FontStruct.Format, FontStruct.Color);
+	}
+}
+
+void Overlay::DrawIGTText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT FontStruct)
+{
+	Logging::LogDebug() << __FUNCTION__;
+
+	RECT DropShadowRect = FontStruct.Rect;
+	DropShadowRect.top = DropShadowRect.top + DropShadowOffset;
+	DropShadowRect.left = DropShadowRect.left + DropShadowOffset;
+
+	if (ResetIGTFontFlag)
+	{
+		ResetIGTFontFlag = false;
+		IGTFont->OnResetDevice();
+	}
+
+	if (ProxyInterface != NULL && IGTFont == NULL)
+	{
+		HFONT FontCharacteristics = CreateFontA(22, 0, 0, 0, FW_REGULAR, 0, 0, 0, 0, 0, 0, PROOF_QUALITY, 0, FontName);
+		if (FontCharacteristics != NULL)
+		{
+			Logging::LogDebug() << __FUNCTION__ << " Creating IGT font: " << FontName;
+			D3DXCreateFont(ProxyInterface, FontCharacteristics, &IGTFont);
+			DeleteObject(FontCharacteristics);
+		}
+	}
+
+	if (IGTFont != NULL)
+	{
+		IGTFont->DrawTextA(FontStruct.String, -1, &DropShadowRect, FontStruct.Format, TextColors.Black);
+		IGTFont->DrawTextA(FontStruct.String, -1, &FontStruct.Rect, FontStruct.Format, FontStruct.Color);
 	}
 }
 
@@ -293,10 +327,22 @@ std::string Overlay::FloatToStr(float FloatValue, int precision)
 
 void Overlay::ResetFont()
 {
-	if (font)
+	if (DebugFont)
 	{
-		font->OnLostDevice();
-		ResetFontFlag = true;
+		DebugFont->OnLostDevice();
+		ResetDebugFontFlag = true;
+	}
+
+	if (MenuTestFont)
+	{
+		MenuTestFont->OnLostDevice();
+		ResetMenuTestFontFlag = true;
+	}
+
+	if (IGTFont)
+	{
+		IGTFont->OnLostDevice();
+		ResetIGTFontFlag = true;
 	}
 }
 
@@ -321,7 +367,7 @@ std::string Overlay::SecondsToTimeString(int time)
 	return TimeString;
 }
 
-std::string Overlay::SecondsToMsTimeString(int time)
+std::string Overlay::SecondsToMsTimeString(float time)
 {
 	std::string TimeString = "";
 	int minutes, seconds, tenths;
@@ -349,4 +395,90 @@ int Overlay::bitCount(uint8_t num)
 		num >>= 1;             
 	}
 	return count;	
+}
+
+bool Overlay::ChangeMenuTestColor()
+{
+	auto Now = std::chrono::system_clock::now();
+	auto DeltaMs = std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastColorChange);
+
+	// Every third of a second
+	if (DeltaMs.count() >= 300)
+	{
+		LastColorChange = Now;
+		return true;
+	}
+
+	return false;
+}
+
+void Overlay::InitializeDataStructs()
+{
+	Logging::LogDebug() << __FUNCTION__;
+
+	int MenuTestLeftOffset = 130;
+
+	InfoOverlayTextStruct.Format = DT_NOCLIP | DT_LEFT;
+	InfoOverlayTextStruct.Rect.left = BufferWidth - 205;
+	InfoOverlayTextStruct.Rect.top = rectOffset;
+	InfoOverlayTextStruct.Rect.right = BufferWidth;
+	InfoOverlayTextStruct.Rect.bottom = rectOffset + 15;
+	InfoOverlayTextStruct.Color = TextColors.Tiel;
+
+	MenuTestTextStruct.Format = DT_NOCLIP | DT_LEFT;
+	MenuTestTextStruct.Rect.left = BufferWidth - MenuTestLeftOffset;
+	MenuTestTextStruct.Rect.top = BufferHeight - rectOffset - 15;
+	MenuTestTextStruct.Rect.right = BufferWidth;
+	MenuTestTextStruct.Rect.bottom = MenuTestTextStruct.Rect.top + 15;
+	MenuTestTextStruct.Color = WhiteArray[2];
+
+	ControlMenuTestTextStruct.Format = DT_NOCLIP | DT_LEFT;
+	ControlMenuTestTextStruct.Rect.left = BufferWidth - MenuTestLeftOffset + 100;
+	ControlMenuTestTextStruct.Rect.top = BufferHeight - rectOffset + 7;
+	ControlMenuTestTextStruct.Rect.right = BufferWidth;
+	ControlMenuTestTextStruct.Rect.bottom = MenuTestTextStruct.Rect.top + 15 + 30;
+	ControlMenuTestTextStruct.Color = WhiteArray[2];
+	ControlMenuTestTextStruct.String = ".";
+
+	DebugOverlayTextStruct.Format = DT_NOCLIP | DT_LEFT;
+	DebugOverlayTextStruct.Rect.left = rectOffset;
+	DebugOverlayTextStruct.Rect.top = rectOffset;
+	DebugOverlayTextStruct.Rect.right = rectOffset + 300;
+	DebugOverlayTextStruct.Rect.bottom = rectOffset + 15;
+	DebugOverlayTextStruct.Color = TextColors.Green;
+	
+	LastBufferWidth = BufferWidth;
+	LastBufferHeight = BufferHeight;
+}
+
+std::string Overlay::GetIGTString()
+{
+	float time = GetInGameTime();
+	std::string TimeString = "";
+	int hours, minutes;
+
+	hours = time / 3600;
+	time -= hours * 3600;
+	minutes = time / 60;
+	time -= minutes * 60;
+
+	TimeString.append(std::to_string(hours));
+	TimeString.append(":");
+	
+	if (minutes < 10)
+	{
+		TimeString.append("0");
+	}
+
+	TimeString.append(std::to_string(minutes));
+	TimeString.append(":");
+	
+	if (time < 10)
+	{
+		TimeString.append("0");
+	}
+
+	TimeString.append(FloatToStr(time, 3));
+
+	return TimeString;
 }

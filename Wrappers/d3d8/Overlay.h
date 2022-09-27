@@ -53,7 +53,7 @@ private:
 	void DrawMenuTestOverlay(LPDIRECT3DDEVICE8 ProxyInterface);
 
 	void DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, D3D8TEXT TextStruct);
-	void DrawMenuTestText(LPDIRECT3DDEVICE8 ProxyInterface, D3D8TEXT TextStruct);
+	void DrawMenuText(LPDIRECT3DDEVICE8 ProxyInterface, D3D8TEXT TextStruct);
 	void DrawIGTText(LPDIRECT3DDEVICE8 ProxyInterface, D3D8TEXT TextStruct);
 
 	std::string IntToHexStr(int IntValue);

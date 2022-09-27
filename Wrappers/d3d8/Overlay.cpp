@@ -20,11 +20,12 @@ bool ResetIGTFontFlag = false;
 auto LastColorChange = std::chrono::system_clock::now();
 int WhiteArrayIndex = 2;
 
-bool InitializedTextStructsFlag = false;
 Overlay::D3D8TEXT MenuTestTextStruct;
 Overlay::D3D8TEXT InfoOverlayTextStruct;
 Overlay::D3D8TEXT DebugOverlayTextStruct;
 Overlay::D3D8TEXT ControlMenuTestTextStruct;
+LONG LastBufferWidth = 0;
+LONG LastBufferHeight = 0;
 
 DWORD FogEnableValue;
 
@@ -32,7 +33,7 @@ void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	if (!InitializedTextStructsFlag)
+	if (LastBufferWidth != BufferWidth || LastBufferHeight != BufferHeight)
 		InitializeDataStructs();
 
 	// In the pause menu, skip drawing
@@ -446,7 +447,8 @@ void Overlay::InitializeDataStructs()
 	DebugOverlayTextStruct.Rect.bottom = rectOffset + 15;
 	DebugOverlayTextStruct.Color = TextColors.Green;
 	
-	InitializedTextStructsFlag = true;
+	LastBufferWidth = BufferWidth;
+	LastBufferHeight = BufferHeight;
 }
 
 std::string Overlay::GetIGTString()

@@ -16,11 +16,6 @@
 
 #include "InputTweaks.h"
 
-BYTE* KeyboardData = nullptr;
-LPDIDEVICEOBJECTDATA MouseData = nullptr;
-DWORD MouseDataSize = NULL;
-int TurnJamesFlag = 0;
-
 void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbData, LPVOID lpvData)
 {
 	// For keyboard
@@ -80,7 +75,7 @@ void InputTweaks::TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD
 
 void InputTweaks::ClearKey(int KeyIndex)
 {
-	if (KeyIndex > 256 || !KeyboardData)
+	if (KeyIndex > 0x100 || !KeyboardData)
 		return;
 
 	KeyboardData[KeyIndex] = 0x00;
@@ -88,7 +83,7 @@ void InputTweaks::ClearKey(int KeyIndex)
 
 void InputTweaks::SetKey(int KeyIndex)
 {
-	if (KeyIndex > 256 || !KeyboardData)
+	if (KeyIndex > 0x100 || !KeyboardData)
 		return;
 
 	KeyboardData[KeyIndex] = 0x80;
@@ -96,10 +91,10 @@ void InputTweaks::SetKey(int KeyIndex)
 
 bool InputTweaks::IsKeyPressed(int KeyIndex)
 {
-	if (KeyIndex > 256 || !KeyboardData)
+	if (KeyIndex > 0x100 || !KeyboardData)
 		return false;
 
-	return KeyboardData[KeyIndex] == 0x80 ? true : false;
+	return KeyboardData[KeyIndex] == 0x80;
 }
 
 void InputTweaks::SetKeyboardInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface)
@@ -118,15 +113,6 @@ void InputTweaks::RemoveAddr(LPDIRECTINPUTDEVICE8A ProxyInterface)
 		MouseInterfaceAddress = nullptr;
 	if (KeyboardInterfaceAddress == ProxyInterface)
 		KeyboardInterfaceAddress = nullptr;
-}
-
-int InputTweaks::isMouseButtonPressed(int ButtonIndex)
-{
-	// Returns 1 if pressed, 0 if released, -1 if no info
-	if (ButtonIndex > 0x13 || !MouseData || MouseDataSize == 0)
-		return -1;
-
-	//TODO handle multiple button events in same call
 }
 
 int32_t InputTweaks::GetMouseRelXChange()
@@ -155,21 +141,4 @@ int32_t InputTweaks::GetMouseRelYChange()
 			AxisSum += (int32_t)MouseData->dwData;
 
 	return AxisSum;
-}
-
-void InputTweaks::TurnJames()
-{
-	bool sign = TurnJamesFlag > 0;
-	int Sustain = 5;
-
-	if (TurnJamesFlag > 0)
-		SetKey(DIK_D);
-	if (TurnJamesFlag < 0)
-		SetKey(DIK_A);
-
-	TurnJamesFlag > 0 ? TurnJamesFlag -= Sustain : TurnJamesFlag += Sustain;
-
-	if ((TurnJamesFlag < 0 && sign) || (TurnJamesFlag > 0 && !sign))
-		TurnJamesFlag = 0;
-
 }

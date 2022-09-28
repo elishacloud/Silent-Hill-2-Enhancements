@@ -9,13 +9,15 @@ private:
 	LPDIRECTINPUTDEVICE8A KeyboardInterfaceAddress = nullptr;
 	LPDIRECTINPUTDEVICE8A MouseInterfaceAddress = nullptr;
 
+	BYTE* KeyboardData = nullptr;
+	LPDIDEVICEOBJECTDATA MouseData = nullptr;
+	DWORD MouseDataSize = 0;
+
 	bool IsKeyPressed(int KeyIndex);
 	void ClearKey(int KeyIndex);
 	void SetKey(int KeyIndex);
 	int32_t GetMouseRelXChange();
 	int32_t GetMouseRelYChange();
-	int isMouseButtonPressed(int ButtonIndex);
-	void TurnJames();
 
 public:
 	void SetKeyboardInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);

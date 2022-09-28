@@ -18,7 +18,6 @@
 
 InputTweaks InpTweaks;
 
-
 HRESULT m_IDirectInputDevice8A::QueryInterface(REFIID riid, LPVOID * ppvObj)
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
@@ -95,8 +94,6 @@ HRESULT m_IDirectInputDevice8A::Acquire()
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
 
-	HRESULT hr = ProxyInterface->Acquire();
-
 	LPDIDEVICEINSTANCEA deviceInfo = new DIDEVICEINSTANCEA;
 	deviceInfo->dwSize = sizeof(DIDEVICEINSTANCEA);
 	ProxyInterface->GetDeviceInfo(deviceInfo);
@@ -106,7 +103,7 @@ HRESULT m_IDirectInputDevice8A::Acquire()
 	if (deviceInfo->guidProduct == GUID_SysKeyboard)
 		InpTweaks.SetKeyboardInterfaceAddr(ProxyInterface);
 
-	return hr;
+	return ProxyInterface->Acquire();
 }
 
 HRESULT m_IDirectInputDevice8A::Unacquire()

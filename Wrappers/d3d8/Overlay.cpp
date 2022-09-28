@@ -31,8 +31,6 @@ DWORD FogEnableValue;
 
 void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 {
-	Logging::LogDebug() << __FUNCTION__;
-
 	if (LastBufferWidth != BufferWidth || LastBufferHeight != BufferHeight)
 		InitializeDataStructs();
 
@@ -66,8 +64,6 @@ void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 
 void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 {
-	Logging::LogDebug() << __FUNCTION__;
-
 	int SpecialItems = bitCount(GetSecretItemsCollected());
 
 	std::string OvlString = "INFO MENU (CTRL + I) ";
@@ -123,8 +119,6 @@ void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 
 void Overlay::DrawMenuTestOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 {
-	Logging::LogDebug() << __FUNCTION__;
-
 	if (ChangeMenuTestColor())
 	{
 		switch (WhiteArrayIndex)
@@ -168,8 +162,6 @@ void Overlay::DrawMenuTestOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 
 void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 {
-	Logging::LogDebug() << __FUNCTION__;
-
 	float CharYPos = GetJamesPosY();
 
 	// Lock value at 0 if close enough, to avoid a rapidly changing number.
@@ -210,8 +202,6 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 
 void Overlay::DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT FontStruct)
 {
-	Logging::LogDebug() << __FUNCTION__;
-	
 	RECT DropShadowRect = FontStruct.Rect;
 	DropShadowRect.top = DropShadowRect.top + DropShadowOffset;
 	DropShadowRect.left = DropShadowRect.left + DropShadowOffset;
@@ -242,8 +232,6 @@ void Overlay::DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT 
 
 void Overlay::DrawMenuTestText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT FontStruct)
 {
-	Logging::LogDebug() << __FUNCTION__;
-
 	RECT DropShadowRect = FontStruct.Rect;
 	DropShadowRect.top = DropShadowRect.top + DropShadowOffset;
 	DropShadowRect.left = DropShadowRect.left + DropShadowOffset;
@@ -274,8 +262,6 @@ void Overlay::DrawMenuTestText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TE
 
 void Overlay::DrawIGTText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT FontStruct)
 {
-	Logging::LogDebug() << __FUNCTION__;
-
 	RECT DropShadowRect = FontStruct.Rect;
 	DropShadowRect.top = DropShadowRect.top + DropShadowOffset;
 	DropShadowRect.left = DropShadowRect.left + DropShadowOffset;
@@ -414,7 +400,7 @@ bool Overlay::ChangeMenuTestColor()
 
 void Overlay::InitializeDataStructs()
 {
-	Logging::LogDebug() << __FUNCTION__;
+	Logging::LogDebug() << __FUNCTION__ << " Initializing Overlay Text Structs...";
 
 	int MenuTestLeftOffset = 130;
 

@@ -29,7 +29,8 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		KeyboardData = (BYTE*)lpvData;
 		
 		// Ignore Alt + Enter combo
-		if ((IsKeyPressed(DIK_LMENU) || IsKeyPressed(DIK_RMENU) && IsKeyPressed(DIK_RETURN)))
+		if ((IsKeyPressed(DIK_LMENU) || IsKeyPressed(DIK_RMENU) && IsKeyPressed(DIK_RETURN)) && 
+			DynamicResolution && ScreenMode != 3)
 		{
 			ClearKey(DIK_LMENU);
 			ClearKey(DIK_RMENU);
@@ -38,7 +39,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		}
 
 		// Ignore Ctrl + D combo
-		if (IsKeyPressed(DIK_LCONTROL) && IsKeyPressed(DIK_D))
+		if (IsKeyPressed(DIK_LCONTROL) && IsKeyPressed(DIK_D) && EnableDebugOverlay)
 		{
 			ClearKey(DIK_LCONTROL);
 			ClearKey(DIK_D);
@@ -46,7 +47,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		}
 
 		// Ignore Ctrl + I combo
-		if (IsKeyPressed(DIK_LCONTROL) && IsKeyPressed(DIK_I))
+		if (IsKeyPressed(DIK_LCONTROL) && IsKeyPressed(DIK_I) && EnableInfoOverlay)
 		{
 			ClearKey(DIK_LCONTROL);
 			ClearKey(DIK_I);
@@ -70,8 +71,7 @@ void InputTweaks::TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD
 		MouseData = rgdod;
 		MouseDataSize = *pdwInOut;
 
-		TurnJamesFlag += GetMouseRelXChange();
-		Logging::LogDebug() << " turnjames: " << TurnJamesFlag;
+		// Tweak Mouse Input
 
 		MouseData = nullptr;
 		MouseDataSize = NULL;

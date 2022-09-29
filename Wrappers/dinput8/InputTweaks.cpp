@@ -15,6 +15,60 @@
 */
 
 #include "InputTweaks.h"
+#include "External\injector\include\injector\injector.hpp"
+#include "External/injector/include/injector/hooking.hpp"
+#include "External/injector/include/injector/utility.hpp"
+#include "External/Hooking.Patterns/Hooking.Patterns.h"
+
+BYTE* KeyboardData = nullptr;
+LPDIDEVICEOBJECTDATA MouseData = nullptr;
+DWORD MouseDataSize = NULL;
+
+bool once = false;
+
+injector::hook_back<int32_t(__cdecl*)(DWORD*)> orgGetControllerLXAxis;
+injector::hook_back<int32_t(__cdecl*)(DWORD*)> orgGetControllerLYAxis;
+injector::hook_back<int32_t(__cdecl*)(DWORD*)> orgGetControllerRXAxis;
+injector::hook_back<int32_t(__cdecl*)(DWORD*)> orgGetControllerRYAxis;
+
+int32_t GetControllerLXAxis(DWORD* arg)
+{
+
+	return orgGetControllerRXAxis.fun(arg);
+}
+
+int32_t GetControllerLYAxis(DWORD* arg)
+{
+
+
+	return orgGetControllerLYAxis.fun(arg);
+}
+
+int32_t GetControllerRXAxis(DWORD* arg)
+{
+
+	return orgGetControllerRXAxis.fun(arg);
+}
+
+int32_t GetControllerRYAxis(DWORD* arg)
+{
+
+	return orgGetControllerRYAxis.fun(arg);
+}
+
+/*
+	Animation ids:
+		Standing Still:
+			Idling = 1
+			Rotating left = 6
+			Rotating right = 7
+		Walking:
+			Backwards = 8
+			Forwards = 9
+		Running:
+			Low Stamina = 13
+			Full Speed = 14
+	*/
 
 void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbData, LPVOID lpvData)
 {
@@ -48,13 +102,27 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			ClearKey(DIK_I);
 			Logging::LogDebug() << __FUNCTION__ << " Ignoring CTRL + I...";
 		}
-
+		
+		// Clear 
+		KeyboardData = nullptr;
 	}
 
-	//TurnJames();
+	if (!once)
+	{
+		once = true;
 
-	// Clear 
-	KeyboardData = nullptr;
+		//TODO make exe agnostic
+		auto pattern = hook::pattern("e8 36 16 04 00");
+		orgGetControllerLXAxis.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), GetControllerLXAxis, true).get();
+		pattern = hook::pattern("e8 26 16 04 00");
+		orgGetControllerLYAxis.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), GetControllerLYAxis, true).get();
+		pattern = hook::pattern("e8 13 16 04 00");
+		orgGetControllerRXAxis.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), GetControllerRXAxis, true).get();
+		pattern = hook::pattern("e8 03 16 04 00");
+		orgGetControllerRYAxis.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), GetControllerRYAxis, true).get();
+	}
+
+	
 }
 
 void InputTweaks::TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD dwFlags)
@@ -66,7 +134,12 @@ void InputTweaks::TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD
 		MouseData = rgdod;
 		MouseDataSize = *pdwInOut;
 
-		// Tweak Mouse Input
+		//int32_t* AnalogFlag = (int32_t*)0x01FB806A;
+		//float* TurnAmount = (float*)0x01fb8054;
+
+		//*enableMovementHook = 0x1;
+		//*RotValue = 1.;
+
 
 		MouseData = nullptr;
 		MouseDataSize = NULL;
@@ -142,3 +215,4 @@ int32_t InputTweaks::GetMouseRelYChange()
 
 	return AxisSum;
 }
+

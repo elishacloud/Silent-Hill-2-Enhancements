@@ -50,6 +50,23 @@ ULONG m_IDirect3D9::Release()
 	return count;
 }
 
+void m_IDirect3D9::LogAdapterNames()
+{
+	Logging::Log() << "|------------- GPUs -------------";
+
+	UINT Adapter = ProxyInterface->GetAdapterCount();
+	for (UINT x = 0; x < Adapter; x++)
+	{
+		D3DADAPTER_IDENTIFIER9 Identifier = {};
+		if (SUCCEEDED(ProxyInterface->GetAdapterIdentifier(x, NULL, &Identifier)))
+		{
+			Logging::Log() << __FUNCTION__ << " | - Adapter: " << x << " " << Identifier.DeviceName << " " << Identifier.Description;
+		}
+	}
+
+	Logging::Log() << "|--------------------------------";
+}
+
 HRESULT m_IDirect3D9::EnumAdapterModes(THIS_ UINT Adapter, D3DFORMAT Format, UINT Mode, D3DDISPLAYMODE* pMode)
 {
 	return ProxyInterface->EnumAdapterModes(Adapter, Format, Mode, pMode);

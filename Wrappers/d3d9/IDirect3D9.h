@@ -5,6 +5,8 @@ class m_IDirect3D9 : public IDirect3D9
 private:
 	LPDIRECT3D9 ProxyInterface;
 
+	void LogAdapterNames();
+
 	template <typename T>
 	static void init_runtime_d3d(T *&device, D3DDEVTYPE device_type, D3DPRESENT_PARAMETERS pp, bool use_software_rendering);
 
@@ -12,6 +14,8 @@ public:
 	m_IDirect3D9(LPDIRECT3D9 pDirect3D) : ProxyInterface(pDirect3D)
 	{
 		Logging::LogDebug() << "Creating device " << __FUNCTION__ << "(" << this << ")";
+
+		LogAdapterNames();
 	}
 	~m_IDirect3D9()
 	{

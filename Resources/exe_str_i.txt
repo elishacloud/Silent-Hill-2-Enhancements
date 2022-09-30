@@ -1,0 +1,29 @@
+// Italian
+
+\hPAUSA
+\hRiprendi
+\hSalva partita
+\hCarica partita
+\hOpzioni
+\hAbbandona
+\hTorna al menu principale?
+\hSì
+\hNo
+\c\hSi prega di inserire il disco Silent Hill 2
+\c\hIn pausa
+\c\hDisco sbagliato
+\c\hController non connesso
+\c\hDisc not inserted
+\c\hDisco non inserito
+\c\hIn caricamento
+\c\hAttendere prego
+\c\hControllo del disco
+\c\hTorna al menu principale?
+\c\hSì
+\c\hNo
+Tasto %d
+\hPARTITA SALVATA
+\hSALVATAGGIO NON RIUSCITO
+\hNESSUN SALVATAGGIO VELOCE
+\hImposta la risoluzione nel file d3d8.ini
+\hConfigura attraverso Windows

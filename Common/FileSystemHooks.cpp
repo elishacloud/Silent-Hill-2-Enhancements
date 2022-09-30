@@ -62,6 +62,9 @@ DWORD MaxModFileLen = 0;
 
 VISIT_BGM_FILES(DEFINE_BGM_FILES);
 
+LPCSTR GetModPath(LPCSTR) { return ModPathA; }
+LPCWSTR GetModPath(LPCWSTR) { return ModPathW; }
+
 inline LPCSTR ModPath(LPCSTR) { return ModPathA; }
 inline LPCWSTR ModPath(LPCWSTR) { return ModPathW; }
 inline LPCSTR ModPicPath(LPCSTR) { return ModPicPathA; }

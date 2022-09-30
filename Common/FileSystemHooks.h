@@ -54,5 +54,8 @@
 template<typename T, typename D>
 T UpdateModPath(T sh2, D str);
 
+LPCSTR GetModPath(LPCSTR);
+LPCWSTR GetModPath(LPCWSTR);
+
 void InstallCreateProcessHooks();
 void InstallFileSystemHooks(HMODULE hModule);

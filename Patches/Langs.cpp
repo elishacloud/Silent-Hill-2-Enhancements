@@ -20,6 +20,7 @@
 #include "Resource.h"
 #include "Common\FileSystemHooks.h"
 #include "Common\Utils.h"
+#include "Common\FileSystemHooks.h"
 #include "Logging\Logging.h"
 #include "Common\Settings.h"
 #include <string>
@@ -37,6 +38,22 @@ constexpr BYTE LangSearchBytesH[] = { 0xA3, 0x00, 0x8B, 0x51, 0x08, 0x83, 0xC0, 
 constexpr BYTE LangSearchBytesI[] = { 0x01, 0x00, 0x00, 0x6B, 0xC0, 0x1B, 0x2D, 0x8C, 0x00, 0x00, 0x00, 0x50, 0x6A, 0xFB, 0xE8, 0xCD, 0xCC, 0xFF, 0xFF, 0x0F };
 constexpr BYTE LangSearchBytesJ[] = { 0x03, 0x00, 0x00, 0x6B, 0xC0, 0x1B, 0x2D, 0x8C, 0x00, 0x00, 0x00, 0x50, 0x6A, 0xFB, 0xE8, 0x37, 0xCE, 0xFF, 0xFF, 0x0F };
 constexpr BYTE LangSearchBytesK[] = { 0x75, 0x0E, 0x68, 0xD0, 0x00, 0x00, 0x00, 0x68, 0x0E, 0x01, 0x00, 0x00, 0x6A, 0x46, 0xEB, 0x42, 0x3C };
+
+struct LANGSTRUCT
+{
+	char* Name;
+	DWORD RcData;
+};
+
+// Order of languages in array is important
+constexpr LANGSTRUCT LangList[] = {
+	{ "r_menu_j.res", IDR_LANG_RES_JA },
+	{ "r_menu_e.res", IDR_LANG_RES_EN },
+	{ "r_menu_f.res", IDR_LANG_RES_FR },
+	{ "r_menu_g.res", IDR_LANG_RES_DE },
+	{ "r_menu_i.res", IDR_LANG_RES_IT },
+	{ "r_menu_s.res", IDR_LANG_RES_ES },
+};
 
 #define STR_PER_LANG 27
 
@@ -705,38 +722,96 @@ HRESULT PatchCustomExeStr()
 	langMin = (UnlockJapLang == false);
 	gLangID = (BYTE *)*(DWORD *)((BYTE*)DLangAddrA - 2);
 
-	char txtpath[MAX_PATH];
-	GetConfigName(txtpath, MAX_PATH, ".res");
-
-	// Check if config file does not exist
-	if (!PathFileExistsA(txtpath))
+	// Check if resource files need to be created
 	{
-		ExtractFileFromResource(IDR_LANG_RES, txtpath);
-	}
-
-	ifstream file(txtpath);
-
-	if (!file.is_open())
-	{
-		Logging::Log() << __FUNCTION__ << " Error: Could not find text file";
-		return E_FAIL;
-	}
-
-	string line;
-	int i = 0;
-	while (getline(file, line) && i < (STR_PER_LANG * 6))
-	{
-		if (!line.empty() && !((*(char *)line.c_str() == '/') && (*(char *)(line.c_str() + 1) == '/')))
+		char txtpath[MAX_PATH];
+		strcpy_s(txtpath, MAX_PATH, GetModPath("data"));
+		if (!PathFileExistsA(txtpath))
 		{
-			exeStrPtr[i] = (char *)malloc(line.length() + 10);
-			if (exeStrPtr[i])
+			Logging::Log() << __FUNCTION__ << " Error: Could not find mod path!";
+			return E_FAIL;
+		}
+		strcat_s(txtpath, MAX_PATH, "\\etc");
+		if (!PathFileExistsA(txtpath) && !CreateDirectoryA(txtpath, nullptr))
+		{
+			Logging::Log() << __FUNCTION__ << " Error: Creating '" << txtpath << "'!";
+			return E_FAIL;
+		}
+		strcat_s(txtpath, MAX_PATH, "\\resource");
+		if (!PathFileExistsA(txtpath) && !CreateDirectoryA(txtpath, nullptr))
+		{
+			Logging::Log() << __FUNCTION__ << " Error: Creating '" << txtpath << "'!";
+			return E_FAIL;
+		}
+		strcat_s(txtpath, MAX_PATH, "\\");
+		for (auto item : LangList)
+		{
+			// Get modpath
+			char txtmodname[MAX_PATH];
+			strcpy_s(txtmodname, MAX_PATH, txtpath);
+			strcat_s(txtmodname, MAX_PATH, item.Name);
+
+			// Check if config file does not exist
+			if (!PathFileExistsA(txtmodname))
 			{
-				strcpy_s(exeStrPtr[i], line.length() + 10, line.c_str());
+				ExtractFileFromResource(item.RcData, txtmodname);
 			}
-			i++;
 		}
 	}
-	file.close();
+
+	int i = 0;
+	for (auto item : LangList)
+	{
+		char txtname[MAX_PATH];
+		strcpy_s(txtname, MAX_PATH, "data\\etc\\resource\\");
+		strcat_s(txtname, MAX_PATH, item.Name);
+
+		ifstream file(txtname);
+
+		if (!file.is_open())
+		{
+			Logging::Log() << __FUNCTION__ << " Error: Could not find text file: " << item.Name;
+			return E_FAIL;
+		}
+
+		// Read each file into array
+		int l = 0;
+		string line;
+		while (getline(file, line))
+		{
+			if (!line.empty() && !((*(char*)line.c_str() == '/') && (*(char*)(line.c_str() + 1) == '/')))
+			{
+				if (l >= STR_PER_LANG)
+				{
+					Logging::Log() << __FUNCTION__ << " Error: Too many lines in text file: " << item.Name;
+					break;
+				}
+				exeStrPtr[i] = (char*)malloc(line.length() + 10);
+				if (exeStrPtr[i])
+				{
+					strcpy_s(exeStrPtr[i], line.length() + 10, line.c_str());
+				}
+				i++;
+				l++;
+			}
+		}
+		file.close();
+
+		// Add any missing lines
+		if (l < STR_PER_LANG - 1)
+		{
+			Logging::Log() << __FUNCTION__ << " Error: Missing lines in text file: " << item.Name;
+			line.assign("Blank");
+			for (int x = l; x < STR_PER_LANG; x++)
+			{
+				exeStrPtr[i] = (char*)malloc(line.length() + 10);
+				if (exeStrPtr[i])
+				{
+					strcpy_s(exeStrPtr[i], line.length() + 10, line.c_str());
+				}
+			}
+		}
+	}
 
 	if (i != (STR_PER_LANG * 6))
 	{

@@ -1,0 +1,29 @@
+// French
+
+\hPAUSE
+\hReprendre
+\hSauvegarder partie
+\hCharger partie
+\hOptions
+\hQuitter
+\hQuitter vers le menu principal?
+\hOui
+\hNon
+\c\hVeuillez insérer le disque de Silent Hill 2
+\c\hEn pause
+\c\hMauvais disque
+\c\hLa  manette n'est pas connectée
+\c\hDisque non inséré
+\c\hLecteur de disque ouvert
+\c\hChargement
+\c\hVeuillez patienter
+\c\hVérification du disque
+\c\hQuitter vers le menu principal?
+\c\hOui
+\c\hNon
+Bouton %d
+\hPARTIE SAUVEGARDEE
+\hSAUVEGARDE IMPOSSIBLE
+\hAUCUNE SAUVEGARDE RAPIDE
+\hRégler la résolution dans d3d8.ini
+\hChanger ce réglage dans Windows

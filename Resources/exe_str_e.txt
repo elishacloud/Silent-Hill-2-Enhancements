@@ -1,0 +1,29 @@
+// English
+
+\hPAUSED
+\hResume
+\hSave Game
+\hLoad Game
+\hOptions
+\hQuit
+\hExit to Main Menu?
+\hYes
+\hNo
+\c\hPlease insert Silent Hill 2 disc
+\c\hPaused
+\c\hWrong disc
+\c\hController not connected
+\c\hDisc not inserted
+\c\hDisc tray open
+\c\hNow loading
+\c\hPlease wait
+\c\hChecking disc
+\c\hExit to main menu?
+\c\hYes
+\c\hNo
+Button %d
+\hGAME SAVED
+\hCAN'T SAVE
+\hNO QUICK SAVE
+\hConfigure in d3d8.ini file
+\hConfigure in Windows Sound Settings

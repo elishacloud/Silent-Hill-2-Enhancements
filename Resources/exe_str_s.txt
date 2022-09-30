@@ -1,0 +1,29 @@
+// Spanish
+
+\hPAUSA
+\hReanudar
+\hGuardar partida
+\hCargar partida
+\hOpciones
+\hSalir
+\h¿Salir al menú principal?
+\hSí
+\hNo
+\c\hIntroduzca el disco de Silent Hill 2
+\c\hPausa
+\c\hDisco incorrecto
+\c\hMando no conectado
+\c\hDisco no insertado
+\c\hBandeja de disco abierta
+\c\hCargando
+\c\hEspere, por favor...
+\c\hComprobando disco
+\c\h¿Salir al menú principal?
+\c\hSí
+\c\hNo
+Botón %d
+\hPARTIDA GUARDADA
+\hNO SE PUEDE GUARDAR
+\hNO HAY GUARDADO RÁPIDO
+\hCambiar resolución en d3d8.ini
+\hConfigurar a través de Windows

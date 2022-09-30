@@ -7,7 +7,6 @@
 
 #define IDR_RESHADE_INI                 101
 #define IDR_SETTINGS_INI                102
-#define IDR_LANG_RES                    103
 
 #define IDR_SMAA_FX                     201
 #define IDR_COLORGRAD_FX                202
@@ -19,6 +18,13 @@
 #define IDR_D3DX9_DLL                   401
 #define IDR_D3DCOMPI43_DLL              402
 #define IDR_D3DCOMPILE_DLL              403
+
+#define IDR_LANG_RES_JA                 501
+#define IDR_LANG_RES_EN                 502
+#define IDR_LANG_RES_FR                 503
+#define IDR_LANG_RES_DE                 504
+#define IDR_LANG_RES_IT                 505
+#define IDR_LANG_RES_ES                 506
 
 // Main resource file details
 #define APP_NAME				"Silent Hill 2: Enhanced Edition"

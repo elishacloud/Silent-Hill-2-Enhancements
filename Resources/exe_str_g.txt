@@ -1,0 +1,29 @@
+// German
+
+\hPAUSE
+\hWeiter
+\hSpiel speichern
+\hSpiel laden
+\hOptionen
+\hBeenden
+\hZurück zum Hauptmenü?
+\hJa
+\hNein
+\c\hBitte Silent Hill 2 Disc einlegen
+\c\hPausiert
+\c\hFalsche CD
+\c\hController nicht angeschlossen
+\c\hDisc nicht eingelegt
+\c\hDisc-Fach geöffnet
+\c\hWird jetzt geladen
+\c\hBitte warten
+\c\hDisc wird überprüft
+\c\hZurück zum Hauptmenü?
+\c\hJa
+\c\hNein
+Taste %d
+\hSPIEL GESPEICHERT
+\hKANN NICHT SPEICHERN
+\hKEINE SCHNELLSPEICHERUNG
+\hAuflösung in d3d8.ini einstellen
+\hAudioeinst. in Windows vornehmen

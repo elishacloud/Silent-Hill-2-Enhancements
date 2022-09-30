@@ -809,6 +809,7 @@ HRESULT PatchCustomExeStr()
 				{
 					strcpy_s(exeStrPtr[i], line.length() + 10, line.c_str());
 				}
+				i++;
 			}
 		}
 	}

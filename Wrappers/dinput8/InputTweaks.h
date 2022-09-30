@@ -14,6 +14,7 @@ private:
 	DWORD MouseDataSize = 0;
 
 	bool IsKeyPressed(int KeyIndex);
+	void ReadMouseButtons();
 	void ClearKey(int KeyIndex);
 	void SetKey(int KeyIndex);
 	int32_t GetMouseRelXChange();
@@ -27,3 +28,5 @@ public:
 	void TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbData, LPVOID lpvData);
 	void TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD dwFlags);
 };
+
+int8_t ClampByteValue(int Value);

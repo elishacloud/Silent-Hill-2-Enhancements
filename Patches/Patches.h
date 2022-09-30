@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <string>
 
 typedef enum _SH2VERSION {
 	SH2V_UNKNOWN = 0,
@@ -254,6 +255,7 @@ extern uint8_t *SecretItemsCollectedAddr;
 extern float *BoatStageTimeAddr;
 extern bool ShowDebugOverlay;
 extern bool ShowInfoOverlay;
+extern std::string AdditionalDebugInfo;
 
 // Run code only once
 #define RUNONCE() \

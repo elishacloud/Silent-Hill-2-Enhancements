@@ -61,6 +61,7 @@ float *BoatStageTimeAddr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
+std::string AdditionalDebugInfo = "";
 
 DWORD GetRoomID()
 {

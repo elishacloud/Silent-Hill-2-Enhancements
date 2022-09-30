@@ -19,56 +19,82 @@
 #include "External/injector/include/injector/hooking.hpp"
 #include "External/injector/include/injector/utility.hpp"
 #include "External/Hooking.Patterns/Hooking.Patterns.h"
+#include <chrono>
+#include "Patches\Patches.h"
 
 BYTE* KeyboardData = nullptr;
 LPDIDEVICEOBJECTDATA MouseData = nullptr;
 DWORD MouseDataSize = NULL;
 
 bool once = false;
+auto LastMouseXRead = std::chrono::system_clock::now();
+int MouseXAxis = 0;
+int AnalogX = 0;
+bool LeftMouseButtonState = false;
+bool RightMouseButtonState = false;
 
-injector::hook_back<int32_t(__cdecl*)(DWORD*)> orgGetControllerLXAxis;
-injector::hook_back<int32_t(__cdecl*)(DWORD*)> orgGetControllerLYAxis;
-injector::hook_back<int32_t(__cdecl*)(DWORD*)> orgGetControllerRXAxis;
-injector::hook_back<int32_t(__cdecl*)(DWORD*)> orgGetControllerRYAxis;
+long int frame = 0;
 
-int32_t GetControllerLXAxis(DWORD* arg)
+injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLXAxis;
+injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLYAxis;
+injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerRXAxis;
+injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerRYAxis;
+
+int8_t GetControllerLXAxis(DWORD* arg)
 {
+	int  FlipBack = 30;
+	int RetValue = MouseXAxis;
+	MouseXAxis = 0;
 
-	return orgGetControllerRXAxis.fun(arg);
+	if (RetValue > 0)
+	{
+		AnalogX = RetValue > 50 ? 126 : 80;
+		return RetValue > 50 ? 126 : 80;
+	}
+	else if (RetValue < 0)
+	{
+		AnalogX = RetValue < -50 ? -126 : -80;
+		return RetValue < -50 ? -126 : -80;
+	}
+	else
+	{
+		if (AnalogX > 0)
+		{
+			AnalogX -= FlipBack;
+			if (AnalogX < 0)
+				AnalogX = 0;
+
+			return AnalogX;
+		} else if (AnalogX > 0)
+		{
+			AnalogX -= FlipBack;
+			if (AnalogX < 0)
+				AnalogX = 0;
+
+			return AnalogX;
+		}
+		else 
+		{
+			return orgGetControllerRXAxis.fun(arg);
+		}
+	}
+	
 }
 
-int32_t GetControllerLYAxis(DWORD* arg)
+int8_t GetControllerLYAxis(DWORD* arg)
 {
-
-
 	return orgGetControllerLYAxis.fun(arg);
 }
 
-int32_t GetControllerRXAxis(DWORD* arg)
+int8_t GetControllerRXAxis(DWORD* arg)
 {
-
 	return orgGetControllerRXAxis.fun(arg);
 }
 
-int32_t GetControllerRYAxis(DWORD* arg)
+int8_t GetControllerRYAxis(DWORD* arg)
 {
-
 	return orgGetControllerRYAxis.fun(arg);
 }
-
-/*
-	Animation ids:
-		Standing Still:
-			Idling = 1
-			Rotating left = 6
-			Rotating right = 7
-		Walking:
-			Backwards = 8
-			Forwards = 9
-		Running:
-			Low Stamina = 13
-			Full Speed = 14
-	*/
 
 void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbData, LPVOID lpvData)
 {
@@ -102,7 +128,23 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			ClearKey(DIK_I);
 			Logging::LogDebug() << __FUNCTION__ << " Ignoring CTRL + I...";
 		}
-		
+
+		//TODO exe agnostic
+		int8_t RunButton = *(int8_t*)0x01DB8450;
+		int8_t AimButton = *(int8_t*)0x01DB8480;
+		int8_t ActionButton = *(int8_t*)0x01DB8438;
+
+		AdditionalDebugInfo = "\rLeft Button: ";
+		AdditionalDebugInfo.append(LeftMouseButtonState ? "True" : "False");
+
+		if (LeftMouseButtonState)
+			SetKey(ActionButton);
+		if (RightMouseButtonState)
+			SetKey(AimButton);
+
+		AdditionalDebugInfo.append("\rRight Button: ");
+		AdditionalDebugInfo.append(RightMouseButtonState ? "True" : "False");
+
 		// Clear 
 		KeyboardData = nullptr;
 	}
@@ -134,11 +176,8 @@ void InputTweaks::TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD
 		MouseData = rgdod;
 		MouseDataSize = *pdwInOut;
 
-		//int32_t* AnalogFlag = (int32_t*)0x01FB806A;
-		//float* TurnAmount = (float*)0x01fb8054;
-
-		//*enableMovementHook = 0x1;
-		//*RotValue = 1.;
+		MouseXAxis = GetMouseRelXChange();
+		ReadMouseButtons();
 
 
 		MouseData = nullptr;
@@ -190,6 +229,13 @@ void InputTweaks::RemoveAddr(LPDIRECTINPUTDEVICE8A ProxyInterface)
 
 int32_t InputTweaks::GetMouseRelXChange()
 {
+	auto Now = std::chrono::system_clock::now();
+	auto DeltaMs = std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastMouseXRead);
+	LastMouseXRead = Now;
+
+	if (DeltaMs.count() == 0)
+		return MouseXAxis;
+
 	int32_t AxisSum = 0;
 
 	if (!MouseData || MouseDataSize == 0)
@@ -198,7 +244,10 @@ int32_t InputTweaks::GetMouseRelXChange()
 	for (int i = 0; i < MouseDataSize; i++)
 		if (MouseData->dwOfs == DIMOFS_X)
 			AxisSum += (int32_t) MouseData->dwData;
-
+	/*
+	if (AxisSum != 0)
+		Logging::LogDebug() << __FUNCTION__ << " X Axis: " << AxisSum;
+	*/
 	return AxisSum;
 }
 
@@ -216,3 +265,39 @@ int32_t InputTweaks::GetMouseRelYChange()
 	return AxisSum;
 }
 
+void InputTweaks::ReadMouseButtons()
+{
+	if (!MouseData) return;
+
+	for (int i = 0; i < MouseDataSize; i++)
+		switch (MouseData->dwOfs)
+		{
+		case DIMOFS_BUTTON0:
+		{
+			LeftMouseButtonState = MouseData->dwData == 0x80;
+			break;
+		}
+		case DIMOFS_BUTTON1:
+		{
+			RightMouseButtonState = MouseData->dwData == 0x80;
+			break;
+		}
+
+		default:
+		{
+			break;
+		}
+
+		}
+		
+}
+
+static int8_t ClampByteValue(int Value)
+{
+	if (Value >= 126)
+		return 126;
+	else if (Value <= -126)
+		return -126;
+	else
+		return Value;
+}

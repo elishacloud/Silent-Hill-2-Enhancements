@@ -195,6 +195,8 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append("\rChar Z Position: ");
 	OvlString.append(FloatToStr(GetJamesPosZ(), FloatPrecision));
 
+	OvlString.append(AdditionalDebugInfo);
+
 	DebugOverlayTextStruct.String = OvlString.c_str();
 	DrawDebugText(ProxyInterface, DebugOverlayTextStruct);
 

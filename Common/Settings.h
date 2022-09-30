@@ -94,7 +94,7 @@
 	visit(SpecificSoundLoopFix, true) \
 	visit(SpecularFix, true) \
 	visit(SteamCrashFix, true) \
-	visit(UnlockJapLang, false) \
+	visit(UnlockJapLang, true) \
 	visit(UseBestGraphics, true) \
 	visit(UseCustomExeStr, true) \
 	visit(UseCustomFonts, true) \

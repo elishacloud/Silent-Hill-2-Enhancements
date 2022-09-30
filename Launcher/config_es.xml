@@ -484,8 +484,8 @@
         <Title>Desbloquear la opción del idioma japonés</Title>
         <Description>Restaura la capacidad de seleccionar el idioma japonés en el menú de Opciones del juego.&#x0a;&#x0a;Nota: actualmente se recomienda mantener esta opción desactivada, ya que no todos los caracteres japoneses están soportados.</Description>
         <Choices type="check">
-          <Value name="Desactivado" default="true">0</Value>
-          <Value name="Activado">1</Value>
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
         </Choices>
       </Feature>
 

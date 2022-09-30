@@ -84,7 +84,7 @@ struct LANGSTRUCT
 
 constexpr LANGSTRUCT LangList[] = {
 	{ L"English", IDR_CONFIG_XML_EN },
-	{ L"Spanish", IDR_CONFIG_XML_ES }
+	{ L"Spanish", IDR_CONFIG_XML_ES },
 };
 DWORD DefaultLang = IDR_CONFIG_XML_EN;
 
@@ -179,14 +179,14 @@ void RestoreChanges()
 	}
 }
 
-bool CheckArgumentsForIniCompilation()
+bool CheckArgumentsForIniCompilation(LPCWSTR lpCmdLine)
 {
 	bool Compilation = false;
 
 	// Retrieve command line arguments
 	LPWSTR *szArgList;
 	int argCount;
-	szArgList = CommandLineToArgvW(GetCommandLine(), &argCount);
+	szArgList = CommandLineToArgvW(lpCmdLine, &argCount);
 
 	// If arguments
 	if (szArgList && argCount)
@@ -208,11 +208,10 @@ bool CheckArgumentsForIniCompilation()
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
-	UNREFERENCED_PARAMETER(lpCmdLine);
 
 	Logging::EnableLogging = false;
 
-	bIsCompiling = CheckArgumentsForIniCompilation();
+	bIsCompiling = CheckArgumentsForIniCompilation(lpCmdLine);
 
 	// Boot to admin mode
 	if (!bIsCompiling)

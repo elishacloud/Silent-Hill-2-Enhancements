@@ -169,18 +169,18 @@ void SetDymanicScale(float AspectRatio)
 	// Update FMV and fullscreen images
 	if (AspectRatio <= 1.34f) // 4:3 (4:3, 5:4, etc.)
 	{
-		FullscreenImages = (AutoScaleImages) ? 1 : FullscreenImages;
-		FullscreenVideos = (AutoScaleVideos) ? 1 : FullscreenVideos;
+		FullscreenImages = (AutoScaleImages) ? FIT_MEDIA : FullscreenImages;
+		FullscreenVideos = (AutoScaleVideos) ? FIT_MEDIA : FullscreenVideos;
 	}
 	else if (AspectRatio < 1.76f) // 16:9 (16:10, 3:2, etc.)
 	{
-		FullscreenImages = (AutoScaleImages) ? 2 : FullscreenImages;
-		FullscreenVideos = (AutoScaleVideos) ? 2 : FullscreenVideos;
+		FullscreenImages = (AutoScaleImages) ? FILL_MEDIA : FullscreenImages;
+		FullscreenVideos = (AutoScaleVideos) ? FILL_MEDIA : FullscreenVideos;
 	}
 	else // AspectRatio >= 16:9 (16:9, 21:9, etc.)
 	{
-		FullscreenImages = (AutoScaleImages) ? 2 : FullscreenImages;
-		FullscreenVideos = (AutoScaleVideos) ? 2 : FullscreenVideos;
+		FullscreenImages = (AutoScaleImages) ? FILL_MEDIA : FullscreenImages;
+		FullscreenVideos = (AutoScaleVideos) ? FILL_MEDIA : FullscreenVideos;
 	}
 }
 
@@ -324,7 +324,7 @@ void AddResolutionToList(DWORD Width, DWORD Height, bool force = false)
 			break;
 		}
 	}
-	bool NotTooLarge = ((ScreenMode == 1) ? (Width <= (DWORD)MaxWidth && Height <= (DWORD)MaxHeight) : true);
+	bool NotTooLarge = ((ScreenMode == WINDOWED) ? (Width <= (DWORD)MaxWidth && Height <= (DWORD)MaxHeight) : true);
 	bool NotTooSmall = (Width >= MinWidth && Height >= MinHeight);
 	if (!found && (force || NotTooSmall) && NotTooLarge)
 	{
@@ -341,7 +341,7 @@ void GetCustomResolutions()
 	GetDesktopRes(MaxWidth, MaxHeight);
 
 	// Exclusive fullscreen mode
-	if (ScreenMode == 3)
+	if (ScreenMode == EXCLUSIVE_FULLSCREEN)
 	{
 		IDirect3D8 *pDirect3D = Direct3DCreate8Wrapper(D3D_SDK_VERSION);
 

@@ -675,7 +675,7 @@ void m_IDirect3DDevice8::SetGammaRamp(THIS_ DWORD Flags, CONST D3DGAMMARAMP* pRa
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	if (ScreenMode != 1 || (RestoreBrightnessSelector && d3d8to9))
+	if (ScreenMode != WINDOWED || (RestoreBrightnessSelector && d3d8to9))
 	{
 		ProxyInterface->SetGammaRamp(Flags, pRamp);
 	}
@@ -2460,7 +2460,7 @@ HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface
 HRESULT m_IDirect3DDevice8::GetFrontBufferFromGDI(THIS_ BYTE* lpBuffer, size_t Size)
 {
 	// Capture Silent Hill 2 window data
-	HWND hDeviceWnd = (ScreenMode == 3) ? GetDesktopWindow() : DeviceWindow;
+	HWND hDeviceWnd = (ScreenMode == EXCLUSIVE_FULLSCREEN) ? GetDesktopWindow() : DeviceWindow;
 	HDC hWindowDC = GetDC(hDeviceWnd);
 	HDC hCaptureDC = CreateCompatibleDC(hWindowDC);
 	HBITMAP hCaptureBitmap = CreateCompatibleBitmap(hWindowDC, BufferWidth, BufferHeight);
@@ -2510,7 +2510,7 @@ HRESULT m_IDirect3DDevice8::GetFrontBufferFromDirectX(THIS_ BYTE* lpBuffer, size
 	LONG Top = 0;
 
 	// Get location of client window if not in exclusive fullscreen mode
-	if (ScreenMode != 3)
+	if (ScreenMode != EXCLUSIVE_FULLSCREEN)
 	{
 		RECT RectSrc = { 0, 0, BufferWidth, BufferHeight };
 		RECT rcClient = { 0, 0, BufferWidth, BufferHeight };
@@ -2594,14 +2594,14 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 	bool SkipGetFrontBuffer = false;
 
 	// Detect if GDI will work for getting front buffer data
-	if (FrontBufferControl == 0)
+	if (FrontBufferControl == AUTO_BUFFER)
 	{
 		if (FAILED(GetFrontBufferFromGDI(&CachedSurfaceData[0], CachedSurfaceData.size())))
 		{
-			FrontBufferControl = 2;
+			FrontBufferControl = BUFFER_FROM_DIRECTX;
 		}
 
-		if (FrontBufferControl == 0)
+		if (FrontBufferControl == AUTO_BUFFER)
 		{
 			static bool TestedBlackScreen = false;
 
@@ -2613,7 +2613,7 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 				TempSurfaceData.resize(CachedSurfaceData.size());
 				if (FAILED(GetFrontBufferFromDirectX(&TempSurfaceData[0], TempSurfaceData.size())))
 				{
-					FrontBufferControl = 1;
+					FrontBufferControl = BUFFER_FROM_GDI;
 					SkipGetFrontBuffer = true;
 				}
 				else
@@ -2636,7 +2636,7 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 						{
 							// Found that GDI does not show a solid screen and does not match DirectX, meaning that GDI cannot capture game screen correctly
 							// Need to use DirectX for front buffer
-							FrontBufferControl = 2;
+							FrontBufferControl = BUFFER_FROM_DIRECTX;
 							break;
 						}
 						*(DWORD*)&CachedSurfaceData[x] = 0x00000000;  // Set the pixel to black
@@ -2664,20 +2664,20 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 				if (Found)
 				{
 					// Ok to use GDI for front buffer
-					FrontBufferControl = 1;
+					FrontBufferControl = BUFFER_FROM_GDI;
 					SkipGetFrontBuffer = true;
 				}
 				else
 				{
 					// Need to use DirectX for front buffer
-					FrontBufferControl = 2;
+					FrontBufferControl = BUFFER_FROM_DIRECTX;
 				}
 			}
 		}
 	}
 
 	// Use GDI to get front buffer data
-	if (FrontBufferControl == 1 && !SkipGetFrontBuffer)
+	if (FrontBufferControl == BUFFER_FROM_GDI && !SkipGetFrontBuffer)
 	{
 		LOG_ONCE(__FUNCTION__ << " Using GDI to get front buffer data.");
 
@@ -2690,7 +2690,7 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 	}
 
 	// Use DirectX to get front buffer data by calling the real GetFrontBuffer()
-	if (FrontBufferControl == 2 && !SkipGetFrontBuffer)
+	if (FrontBufferControl == BUFFER_FROM_DIRECTX && !SkipGetFrontBuffer)
 	{
 		LOG_ONCE(__FUNCTION__ << " Using DirectX to get front buffer data.");
 

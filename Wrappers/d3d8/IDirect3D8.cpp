@@ -145,7 +145,7 @@ HRESULT m_IDirect3D8::CheckDeviceMultiSampleType(THIS_ UINT Adapter, D3DDEVTYPE 
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	if (ScreenMode != 3)
+	if (ScreenMode != EXCLUSIVE_FULLSCREEN)
 	{
 		Windowed = true;
 	}
@@ -157,7 +157,7 @@ HRESULT m_IDirect3D8::CheckDeviceType(UINT Adapter, D3DDEVTYPE CheckType, D3DFOR
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	if (ScreenMode != 3)
+	if (ScreenMode != EXCLUSIVE_FULLSCREEN)
 	{
 		Windowed = true;
 	}
@@ -312,7 +312,7 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	RUNCODEONCE(CreateThread(nullptr, 0, SaveScreenshotFile, nullptr, 0, nullptr));
 
 	// Get WndProc
-	if (DeviceWindow && (ScreenMode != 3 || EnableScreenshots || DynamicResolution) && !OriginalWndProc)
+	if (HookWndProc && DeviceWindow && !OriginalWndProc)
 	{
 		OriginalWndProc = (WNDPROC)GetWindowLongA(DeviceWindow, GWL_WNDPROC);
 		if (OriginalWndProc)
@@ -376,7 +376,7 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 	}
 
 	// Set window size if window mode is enabled
-	if (ScreenMode != 3 && (pPresentationParameters->hDeviceWindow || DeviceWindow || hFocusWindow))
+	if (ScreenMode != EXCLUSIVE_FULLSCREEN && (pPresentationParameters->hDeviceWindow || DeviceWindow || hFocusWindow))
 	{
 		pPresentationParameters->Windowed = true;
 		pPresentationParameters->FullScreen_RefreshRateInHz = 0;
@@ -388,7 +388,7 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 			bool AnyChange = (ScreenMode != LastScreenMode || BufferWidth != LastBufferWidth || BufferHeight != LastBufferHeight);
 
 			// Reset display size
-			if ((ScreenMode == 1 && ScreenMode != LastScreenMode) || (ScreenMode == 2 && AnyChange))
+			if ((ScreenMode == WINDOWED && ScreenMode != LastScreenMode) || (ScreenMode == WINDOWED_FULLSCREEN && AnyChange))
 			{
 				ChangeDisplaySettingsEx(nullptr, nullptr, nullptr, CDS_RESET, nullptr);
 			}
@@ -400,7 +400,7 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 			}
 
 			// Set new display size 
-			if (ScreenMode == 2 && AnyChange)
+			if (ScreenMode == WINDOWED_FULLSCREEN && AnyChange)
 			{
 				// Get monitor info
 				MONITORINFOEX infoex = {};
@@ -462,7 +462,7 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 		return;
 	}
 
-	if (ScreenMode == 3)
+	if (ScreenMode == EXCLUSIVE_FULLSCREEN)
 	{
 		// Don't adjust window or set border when in exclusive fullscreen mode
 		return;
@@ -494,7 +494,7 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	// Get window border
 	bool HasBorder = false;
 	LONG lStyle = GetWindowLong(MainhWnd, GWL_STYLE) | WS_VISIBLE;
-	if (ScreenMode == 1 && WndModeBorder && screenWidth > displayWidth + (GetSystemMetrics(SM_CXSIZEFRAME) * 2) &&
+	if (ScreenMode == WINDOWED && WndModeBorder && screenWidth > displayWidth + (GetSystemMetrics(SM_CXSIZEFRAME) * 2) &&
 		screenHeight > displayHeight + (GetSystemMetrics(SM_CYSIZEFRAME) * 2) + GetSystemMetrics(SM_CYCAPTION))
 	{
 		HasBorder = true;
@@ -525,7 +525,7 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 
 	// Move window to center and adjust size
 	LONG xLoc = 0, yLoc = 0;
-	if (ScreenMode == 1 && screenWidth >= newDisplayWidth && screenHeight >= newDisplayHeight)
+	if (ScreenMode == WINDOWED && screenWidth >= newDisplayWidth && screenHeight >= newDisplayHeight)
 	{
 		xLoc = screenRect.left + (screenWidth - newDisplayWidth) / 2;
 		yLoc = screenRect.top + (screenHeight - newDisplayHeight) / 2;
@@ -546,15 +546,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	switch (uMsg)
 	{
 	case  WM_WININICHANGE:
-		if (lParam && WndModeBorder && ScreenMode != 3 && !_stricmp((char*)lParam, "ImmersiveColorSet"))
+		if (lParam && WndModeBorder && ScreenMode != EXCLUSIVE_FULLSCREEN && !_stricmp((char*)lParam, "ImmersiveColorSet"))
 		{
 			SetWindowTheme(DeviceWindow);
 		}
 	case WM_SYSKEYDOWN:
-		if (wParam == VK_RETURN && DynamicResolution && ScreenMode != 3)
+		if (wParam == VK_RETURN && DynamicResolution && ScreenMode != EXCLUSIVE_FULLSCREEN)
 		{
 			DeviceLost = true;
-			ScreenMode = (ScreenMode == 1) ? 2 : 1;
+			ScreenMode = (ScreenMode == WINDOWED) ? WINDOWED_FULLSCREEN : WINDOWED;
 		}
 		break;
 	case WM_KEYUP:

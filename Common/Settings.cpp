@@ -262,48 +262,60 @@ void UpdateConfigDefaults()
 	}
 
 	// Set FullscreenImages
-	if ((DWORD)FullscreenImages >= 3)
+	switch (FullscreenImages)
 	{
+	case DISABLE_MEDIA_CONTROL:
+	case FIT_MEDIA:
+	case FILL_MEDIA:
+		break;
+	default:
+		FullscreenImages = AUTO_MEDIA_CONTROL;
 		AutoScaleImages = true;
 	}
 
 	// Set FullscreenVideos
-	if ((DWORD)FullscreenVideos >= 3)
+	switch (FullscreenVideos)
 	{
+	case DISABLE_MEDIA_CONTROL:
+	case FIT_MEDIA:
+	case FILL_MEDIA:
+		break;
+	default:
+		FullscreenVideos = AUTO_MEDIA_CONTROL;
 		AutoScaleVideos = true;
 	}
 
 	// Set screen mode
 	switch (ScreenMode)
 	{
-	case 1:
-	case 2:
-	case 3:
+	case WINDOWED:
+	case WINDOWED_FULLSCREEN:
+	case EXCLUSIVE_FULLSCREEN:
 		break;
 	case 0xFFFF:
 	default:
 		if (EnableWndMode && !FullscreenWndMode)
 		{
-			ScreenMode = 1;
+			ScreenMode = WINDOWED;
 		}
 		else if (EnableWndMode && FullscreenWndMode)
 		{
-			ScreenMode = 2;
+			ScreenMode = WINDOWED_FULLSCREEN;
 		}
 		else
 		{
-			ScreenMode = 3;
+			ScreenMode = EXCLUSIVE_FULLSCREEN;
 		}
 	}
 
 	// Set front buffer control
 	switch (FrontBufferControl)
 	{
-	case 0:
-	case 1:
-	case 2:
+	case AUTO_BUFFER:
+	case BUFFER_FROM_GDI:
+	case BUFFER_FROM_DIRECTX:
 		break;
 	default:
-		FrontBufferControl = 0;
+		FrontBufferControl = AUTO_BUFFER;
 	}
 }

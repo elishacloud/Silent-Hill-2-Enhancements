@@ -597,7 +597,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		}
 
 		// Allows application to use Windows themes
-		if (ScreenMode != 3 && WndModeBorder)
+		if (ScreenMode != EXCLUSIVE_FULLSCREEN && WndModeBorder)
 		{
 			SetAppTheme();
 		}

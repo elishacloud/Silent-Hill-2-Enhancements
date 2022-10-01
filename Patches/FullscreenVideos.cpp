@@ -220,13 +220,13 @@ void SetVideoScaling()
 	static float FMVHeight = 0.0f;
 
 	// Set scale ratio
-	switch ((ForceCropped) ? 2 : FullscreenVideos)
+	switch ((ForceCropped) ? FILL_MEDIA : FullscreenVideos)
 	{
 	case 0: // original [Size = 1.0f]
 		FMVWidth = TextOffset - (((fHeight * (5.0f / 3.0f)) - fHeight * (4.0f / 3.0f)) / 2.0f);
 		FMVHeight = 0.0f;
 		break;
-	case 1: // pillarboxed / letterboxed [no cropping]
+	case FIT_MEDIA: // pillarboxed / letterboxed [no cropping]
 		if (GameRatio > VideoRatio)
 		{
 			FMVWidth = TextOffset - (((fHeight * VideoRatio) - fHeight * (4.0f / 3.0f)) / 2.0f);
@@ -239,7 +239,7 @@ void SetVideoScaling()
 		}
 		break;
 	default:
-	case 2: // cropped [zoom to fill screen]
+	case FILL_MEDIA: // cropped [zoom to fill screen]
 		if (GameRatio > VideoRatio)
 		{
 			float MaxGameRatio = min(16.0f / 9.0f, GameRatio);

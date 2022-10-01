@@ -56,6 +56,7 @@
 	visit(HalogenLightFix, true) \
 	visit(HookDirect3D, true) \
 	visit(HookDirectSound, true) \
+	visit(HookWndProc, true) \
 	visit(HospitalChaseFix, true) \
 	visit(HotelWaterFix, true) \
 	visit(ImproveStorageSupport, true) \
@@ -194,6 +195,7 @@
 	visit(FullscreenWndMode) \
 	visit(HookDirect3D) \
 	visit(HookDirectSound) \
+	visit(HookWndProc) \
 	visit(LetterSpacing) \
 	visit(LoadModulesFromMemory) \
 	visit(LockResolution) \
@@ -205,6 +207,25 @@
 	visit(SmallFontWidth) \
 	visit(SpaceSize) \
 	visit(WrapperType)
+
+typedef enum _SCREENMODE {
+	WINDOWED = 1,
+	WINDOWED_FULLSCREEN = 2,
+	EXCLUSIVE_FULLSCREEN = 3,
+} SCREENMODE;
+
+typedef enum _FULLSCREENMEDIA {
+	DISABLE_MEDIA_CONTROL = 0,
+	FIT_MEDIA = 1,
+	FILL_MEDIA = 2,
+	AUTO_MEDIA_CONTROL = 3,
+} FULLSCREENMEDIA;
+
+typedef enum _FRONTBUFFERCONTROL {
+	AUTO_BUFFER = 0,
+	BUFFER_FROM_GDI = 1,
+	BUFFER_FROM_DIRECTX = 2,
+} FRONTBUFFERCONTROL;
 
 // Configurable setting defaults
 #define DECLARE_BOOL_SETTINGS(name, unused) \

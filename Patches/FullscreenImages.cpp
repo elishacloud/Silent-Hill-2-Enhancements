@@ -561,11 +561,11 @@ void SetFullscreenImagesRes(DWORD Width, DWORD Height)
 	case 0: // original [Size = 1.0f]
 		SizeFullscreen = 1.0f;
 		break;
-	case 1: // pillarboxed / letterboxed [no cropping]
+	case FIT_MEDIA: // pillarboxed / letterboxed [no cropping]
 		SizeFullscreen = min(1.25f, alg3);
 		break;
 	default:
-	case 2: // cropped [zoom to fill screen]
+	case FILL_MEDIA: // cropped [zoom to fill screen]
 		SizeFullscreen = min(alg2 * 0.75f, alg4);
 		break;
 	}

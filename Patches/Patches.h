@@ -255,7 +255,8 @@ extern uint8_t *SecretItemsCollectedAddr;
 extern float *BoatStageTimeAddr;
 extern bool ShowDebugOverlay;
 extern bool ShowInfoOverlay;
-extern std::string AdditionalDebugInfo;
+extern std::string AuxDebugOvlString;
+extern HWND GameWindowHandle;
 
 // Run code only once
 #define RUNONCE() \

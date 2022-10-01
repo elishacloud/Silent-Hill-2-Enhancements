@@ -61,7 +61,9 @@ float *BoatStageTimeAddr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
-std::string AdditionalDebugInfo = "";
+std::string AuxDebugOvlString = "";
+
+HWND GameWindowHandle = NULL;
 
 DWORD GetRoomID()
 {

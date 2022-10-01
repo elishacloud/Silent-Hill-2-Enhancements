@@ -1,5 +1,3 @@
-// German
-
 \hPAUSE
 \hWeiter
 \hSpiel speichern

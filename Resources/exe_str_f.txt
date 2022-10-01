@@ -1,5 +1,3 @@
-// French
-
 \hPAUSE
 \hReprendre
 \hSauvegarder partie

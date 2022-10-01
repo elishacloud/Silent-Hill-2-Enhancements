@@ -1,6 +1,4 @@
-// Japanese
-
-\hPAUSED
+PAUSE
 \hResume
 \hSave Game
 \hLoad Game
@@ -9,21 +7,21 @@
 \hExit to Main Menu?
 \hYes
 \hNo
-\c\hPlease insert Silent Hill 2 disc
-\c\hPaused
-\c\hWrong disc
-\c\hController not connected
-\c\hDisc not inserted
-\c\hDisc tray open
+\cサイレントヒル 2のディスクを挿入して下さい
+\cポーズ
+\c異なるディスクです
+\cゲームパッドが未接続です
+\cディスクが見つかりません
+\c再度お試し下さい
 \c\hNow loading
-\c\hPlease wait
-\c\hChecking disc
-\c\hExit to main menu?
-\c\hYes
-\c\hNo
+\cお待ちください…
+\cディスクを確認中
+\cタイトル画面に戻りますか？
+\cはい　
+\c　いいえ
 Button %d
-\hGAME SAVED
-\hCAN'T SAVE
-\hNO QUICK SAVE
-\hConfigure in d3d8.ini file
-\hConfigure in Windows Sound Settings
+セーブしました
+セーブできません
+クイックセーブ不可
+d3d8.iniファイルを設定
+Windows側でのみ音響調整可

@@ -1,5 +1,3 @@
-// Spanish
-
 \hPAUSA
 \hReanudar
 \hGuardar partida

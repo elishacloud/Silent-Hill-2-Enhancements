@@ -1,5 +1,3 @@
-// English
-
 \hPAUSED
 \hResume
 \hSave Game

@@ -1,5 +1,3 @@
-// Italian
-
 \hPAUSA
 \hRiprendi
 \hSalva partita

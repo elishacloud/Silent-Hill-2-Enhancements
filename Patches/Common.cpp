@@ -58,6 +58,12 @@ int16_t *ItemsCollectedAddr;
 float *DamagePointsTakenAddr;
 uint8_t *SecretItemsCollectedAddr;
 float *BoatStageTimeAddr;
+int32_t* EnableInputAddr;
+BYTE* AimButtonAddr;
+BYTE* ActionButtonAddr;
+int32_t* MouseVerticalPositionAddr;
+int32_t* MouseHorizontalPositionAddr;
+BYTE* TurnLeftButtonAddr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -750,9 +756,9 @@ float *GetFPSCounterPointer()
 		return nullptr;
 	}
 
-	FPSCounter = (float*)((DWORD)FPSCounter + 0x0);
+	FPSCounterAddr = (float*)((DWORD)FPSCounter + 0x0);
 
-	return FPSCounter;
+	return FPSCounterAddr;
 }
 
 int16_t GetShootingKills()
@@ -780,9 +786,9 @@ int16_t *GetShootingKillsPointer()
 		return nullptr;
 	}
 
-	ShootingKills = (int16_t*)((DWORD)ShootingKills);
+	ShootingKillsAddr = (int16_t*)((DWORD)ShootingKills);
 
-	return ShootingKills;
+	return ShootingKillsAddr;
 }
 
 int16_t GetMeleeKills()
@@ -810,9 +816,9 @@ int16_t *GetMeleeKillsPointer()
 		return nullptr;
 	}
 
-	MeleeKills = (int16_t*)((DWORD)MeleeKills);
+	MeleeKillsAddr = (int16_t*)((DWORD)MeleeKills);
 
-	return MeleeKills;
+	return MeleeKillsAddr;
 }
 
 float GetBoatMaxSpeed()
@@ -840,9 +846,9 @@ float *GetBoatMaxSpeedPointer()
 		return nullptr;
 	}
 
-	BoatMaxSpeed = (float*)((DWORD)BoatMaxSpeed);
+	BoatMaxSpeedAddr = (float*)((DWORD)BoatMaxSpeed);
 
-	return BoatMaxSpeed;
+	return BoatMaxSpeedAddr;
 }
 
 int8_t GetActionDifficulty()
@@ -870,9 +876,9 @@ int8_t *GetActionDifficultyPointer()
 		return nullptr;
 	}
 
-	ActionDifficulty = (int8_t*)((DWORD)ActionDifficulty);
+	ActionDifficultyAddr = (int8_t*)((DWORD)ActionDifficulty);
 
-	return ActionDifficulty;
+	return ActionDifficultyAddr;
 }
 
 int8_t GetRiddleDifficulty()
@@ -900,9 +906,9 @@ int8_t *GetRiddleDifficultyPointer()
 		return nullptr;
 	}
 
-	RiddleDifficulty = (int8_t*)((DWORD)RiddleDifficulty);
+	RiddleDifficultyAddr = (int8_t*)((DWORD)RiddleDifficulty);
 
-	return RiddleDifficulty;
+	return RiddleDifficultyAddr;
 }
 
 int8_t GetNumberOfSaves()
@@ -930,9 +936,9 @@ int8_t *GetNumberOfSavesPointer()
 		return nullptr;
 	}
 
-	NumberOfSaves = (int8_t*)((DWORD)NumberOfSaves);
+	NumberOfSavesAddr = (int8_t*)((DWORD)NumberOfSaves);
 
-	return NumberOfSaves;
+	return NumberOfSavesAddr;
 }
 
 float GetInGameTime()
@@ -960,9 +966,9 @@ float *GetInGameTimePointer()
 		return nullptr;
 	}
 
-	InGameTime = (float*)((DWORD)InGameTime);
+	InGameTimeAddr = (float*)((DWORD)InGameTime);
 
-	return InGameTime;
+	return InGameTimeAddr;
 }
 
 float GetWalkingDistance()
@@ -990,9 +996,9 @@ float *GetWalkingDistancePointer()
 		return nullptr;
 	}
 
-	WalkingDistance = (float*)((DWORD)WalkingDistance);
+	WalkingDistanceAddr = (float*)((DWORD)WalkingDistance);
 
-	return WalkingDistance;
+	return WalkingDistanceAddr;
 }
 
 float GetRunningDistance()
@@ -1020,9 +1026,9 @@ float *GetRunningDistancePointer()
 		return nullptr;
 	}
 
-	RunningDistance = (float*)((DWORD)RunningDistance);
+	RunningDistanceAddr = (float*)((DWORD)RunningDistance);
 
-	return RunningDistance;
+	return RunningDistanceAddr;
 }
 
 int16_t GetItemsCollected()
@@ -1050,9 +1056,9 @@ int16_t *GetItemsCollectedPointer()
 		return nullptr;
 	}
 
-	ItemsCollected = (int16_t*)((DWORD)ItemsCollected);
+	ItemsCollectedAddr = (int16_t*)((DWORD)ItemsCollected);
 
-	return ItemsCollected;
+	return ItemsCollectedAddr;
 }
 
 float GetDamagePointsTaken()
@@ -1080,9 +1086,9 @@ float *GetDamagePointsTakenPointer()
 		return nullptr;
 	}
 
-	DamagePointsTaken = (float*)((DWORD)DamagePointsTaken);
+	DamagePointsTakenAddr = (float*)((DWORD)DamagePointsTaken);
 
-	return DamagePointsTaken;
+	return DamagePointsTakenAddr;
 }
 
 uint8_t GetSecretItemsCollected()
@@ -1110,9 +1116,9 @@ uint8_t *GetSecretItemsCollectedPointer()
 		return nullptr;
 	}
 
-	SecretItemsCollected = (uint8_t*)((DWORD)SecretItemsCollected);
+	SecretItemsCollectedAddr = (uint8_t*)((DWORD)SecretItemsCollected);
 
-	return SecretItemsCollected;
+	return SecretItemsCollectedAddr;
 }
 
 float GetBoatStageTime()
@@ -1140,7 +1146,191 @@ float *GetBoatStageTimePointer()
 		return nullptr;
 	}
 
-	BoatStageTime = (float*)((DWORD)BoatStageTime);
+	BoatStageTimeAddr = (float*)((DWORD)BoatStageTime);
 
-	return BoatStageTime;
+	return BoatStageTimeAddr;
+}
+
+int32_t GetEnableInput()
+{
+	int32_t *pEnableInput = GetEnableInputPointer();
+
+	return (pEnableInput) ? *pEnableInput : 0;
+}
+
+int32_t *GetEnableInputPointer()
+{
+	if (EnableInputAddr)
+	{
+		return EnableInputAddr;
+	}
+	return (int32_t*)0x94CC58;//TODO
+	// Get EnableInput address
+	constexpr BYTE EnableInputSearchBytes[]{ 0x83, 0xC4, 0x18, 0x83, 0xF8, 0x1C, 0x74, 0x25 }; 
+	int32_t *EnableInput = (int32_t*)ReadSearchedAddresses(0x0055768D, 0x005579BD, 0x005572DD, EnableInputSearchBytes, sizeof(EnableInputSearchBytes), 0x0A);
+
+	// Checking address pointer
+	if (!EnableInput)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find EnableInput address!";
+		return nullptr;
+	}
+
+	EnableInputAddr = (int32_t*)((DWORD)EnableInput);
+	
+	return EnableInputAddr;
+}
+
+BYTE GetAimButton()
+{
+	BYTE *pAimButton = GetAimButtonPointer();
+
+	return (pAimButton) ? *pAimButton : 0;
+}
+
+BYTE *GetAimButtonPointer()
+{
+	AimButtonAddr = (BYTE*)0x01DB8480; //TODO 
+	Logging::LogDebug() << __FUNCTION__ << " aim addr: " << AimButtonAddr;
+	if (AimButtonAddr)
+	{
+		return AimButtonAddr;
+	}
+	
+	// Get Action Button address
+	constexpr BYTE AimButtonSearchBytes[]{ 0x83, 0xC4, 0x18, 0x83, 0xF8, 0x1C, 0x74, 0x25 }; 
+	BYTE *AimButton = (BYTE*)ReadSearchedAddresses(0x0055768D, 0x005579BD, 0x005572DD, AimButtonSearchBytes, sizeof(AimButtonSearchBytes), 0x0A);
+
+	// Checking address pointer
+	if (!AimButton)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Aim Button address!";
+		return nullptr;
+	}
+
+	AimButtonAddr = (BYTE*)((DWORD)AimButton);
+
+	return AimButtonAddr;
+}
+
+BYTE GetActionButton()
+{
+	BYTE *pActionButton = GetActionButtonPointer();
+
+	return (pActionButton) ? *pActionButton : 0;
+}
+
+BYTE *GetActionButtonPointer()
+{
+	ActionButtonAddr = (BYTE*)(DWORD)0x01DB8438;//TODO
+	if (ActionButtonAddr)
+	{
+		return ActionButtonAddr;
+	}
+
+	// Get Action Button address
+	constexpr BYTE ActionButtonSearchBytes[]{ 0x83, 0xC4, 0x18, 0x83, 0xF8, 0x1C, 0x74, 0x25 }; 
+	BYTE *ActionButton = (BYTE*)ReadSearchedAddresses(0x0055768D, 0x005579BD, 0x005572DD, ActionButtonSearchBytes, sizeof(ActionButtonSearchBytes), 0x0A);
+
+	// Checking address pointer
+	if (!ActionButton)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Action Button address!";
+		return nullptr;
+	}
+
+	ActionButtonAddr = (BYTE*)((DWORD)ActionButton);
+
+	return ActionButtonAddr;
+}
+
+BYTE GetTurnLeftButton()
+{
+	BYTE *pTurnLeftButton = GetTurnLeftButtonPointer();
+
+	return (pTurnLeftButton) ? *pTurnLeftButton : 0;
+}
+
+BYTE *GetTurnLeftButtonPointer()
+{
+	TurnLeftButtonAddr = (BYTE*)(DWORD)0x01DB8408;//TODO
+	if (TurnLeftButtonAddr)
+	{
+		return TurnLeftButtonAddr;
+	}
+
+	// Get Turn Left Button address
+	constexpr BYTE TurnLeftButtonSearchBytes[]{ 0x83, 0xC4, 0x18, 0x83, 0xF8, 0x1C, 0x74, 0x25 };
+	BYTE *TurnLeftButton = (BYTE*)ReadSearchedAddresses(0x0055768D, 0x005579BD, 0x005572DD, TurnLeftButtonSearchBytes, sizeof(TurnLeftButtonSearchBytes), 0x0A);
+
+	// Checking address pointer
+	if (!TurnLeftButton)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Turn Left Button address!";
+		return nullptr;
+	}
+
+	TurnLeftButtonAddr = (BYTE*)((DWORD)TurnLeftButton);
+
+	return TurnLeftButtonAddr;
+}
+
+int32_t GetMouseVerticalPosition()
+{
+	int32_t *pMouseVerticalPosition = GetMouseVerticalPositionPointer();
+
+	return (pMouseVerticalPosition) ? *pMouseVerticalPosition : 0;
+}
+
+int32_t *GetMouseVerticalPositionPointer()
+{
+	if (MouseVerticalPositionAddr)
+	{
+		return MouseVerticalPositionAddr;
+	}
+	return (int32_t*)0x0094135C;//TODO
+	// Get MouseVerticalPosition address
+	constexpr BYTE MouseVerticalPositionSearchBytes[]{ 0x83, 0xC4, 0x18, 0x83, 0xF8, 0x1C, 0x74, 0x25 };
+	int32_t *MouseVerticalPosition = (int32_t*)ReadSearchedAddresses(0x0055768D, 0x005579BD, 0x005572DD, MouseVerticalPositionSearchBytes, sizeof(MouseVerticalPositionSearchBytes), 0x0A);
+
+	// Checking address pointer
+	if (!MouseVerticalPosition)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find MouseVerticalPosition address!";
+		return nullptr;
+	}
+
+	MouseVerticalPositionAddr = (int32_t*)((DWORD)MouseVerticalPosition);
+
+	return MouseVerticalPositionAddr;
+}
+
+int32_t GetMouseHorizontalPosition()
+{
+	int32_t *pMouseHorizontalPosition = GetMouseHorizontalPositionPointer();
+
+	return (pMouseHorizontalPosition) ? *pMouseHorizontalPosition : 0;
+}
+
+int32_t *GetMouseHorizontalPositionPointer()
+{
+	if (MouseHorizontalPositionAddr)
+	{
+		return MouseHorizontalPositionAddr;
+	}
+	return (int32_t*)0x00941358;//TODO
+	// Get MouseHorizontalPosition address
+	constexpr BYTE MouseHorizontalPositionSearchBytes[]{ 0x83, 0xC4, 0x18, 0x83, 0xF8, 0x1C, 0x74, 0x25 };
+	int32_t *MouseHorizontalPosition = (int32_t*)ReadSearchedAddresses(0x0055768D, 0x005579BD, 0x005572DD, MouseHorizontalPositionSearchBytes, sizeof(MouseHorizontalPositionSearchBytes), 0x0A);
+
+	// Checking address pointer
+	if (!MouseHorizontalPosition)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find MouseHorizontalPosition address!";
+		return nullptr;
+	}
+
+	MouseHorizontalPositionAddr = (int32_t*)((DWORD)MouseHorizontalPosition);
+
+	return MouseHorizontalPositionAddr;
 }

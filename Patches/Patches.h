@@ -50,6 +50,13 @@ int16_t GetItemsCollected();
 float GetDamagePointsTaken();
 uint8_t GetSecretItemsCollected();
 float GetBoatStageTime();
+int32_t GetEnableInput();
+BYTE GetAimButton();
+BYTE GetActionButton();
+int32_t GetMouseVerticalPosition();
+int32_t GetMouseHorizontalPosition();
+BYTE GetTurnLeftButton();
+
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -88,6 +95,12 @@ int16_t *GetItemsCollectedPointer();
 float *GetDamagePointsTakenPointer();
 uint8_t *GetSecretItemsCollectedPointer();
 float *GetBoatStageTimePointer();
+int32_t* GetEnableInputPointer(); 
+BYTE* GetAimButtonPointer();
+BYTE* GetActionButtonPointer();
+int32_t* GetMouseVerticalPositionPointer();
+int32_t* GetMouseHorizontalPositionPointer();
+BYTE* GetTurnLeftButtonPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

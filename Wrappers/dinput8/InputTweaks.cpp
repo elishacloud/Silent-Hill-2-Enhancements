@@ -15,12 +15,10 @@
 */
 
 #include "InputTweaks.h"
-#include "External\injector\include\injector\injector.hpp"
-#include "External/injector/include/injector/hooking.hpp"
-#include "External/injector/include/injector/utility.hpp"
-#include "External/Hooking.Patterns/Hooking.Patterns.h"
-#include <chrono>
-#include "Patches\Patches.h"
+
+const int AnalogThreshold = 30;
+const int  StickFlipBack = 30;
+const int MousePauseDebounce = 300;
 
 BYTE* KeyboardData = nullptr;
 LPDIDEVICEOBJECTDATA MouseData = nullptr;
@@ -28,40 +26,48 @@ DWORD MouseDataSize = NULL;
 
 bool once = false;
 auto LastMouseXRead = std::chrono::system_clock::now();
+auto LastMouseYRead = std::chrono::system_clock::now();
+
+auto LastMousePauseChange = std::chrono::system_clock::now();
+int LastMouseVerticalPos = 0xF0;
+int LastMouseHorizontalPos = 0xFC;
+
 int MouseXAxis = 0;
+int MouseYAxis = 0;
 int AnalogX = 0;
+
 bool LeftMouseButtonState = false;
 bool RightMouseButtonState = false;
-const int  StickFlipBack = 30;
-
-int32_t* EnableInputPtr = (int32_t*)0x94CC58;
-
+bool LeftPressState = false;
+bool PauseVerticalChanged = false;
+bool PauseHorizontalChanged = false;
 
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLXAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLYAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerRXAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerRYAxis;
+injector::hook_back<void(__cdecl*)(void)> orgUpdateMousePosition;
 
-int8_t GetControllerLXAxis(DWORD* arg)
+int8_t GetControllerLXAxis_Hook(DWORD* arg)
 {
 	int RetValue = MouseXAxis;
 	MouseXAxis = 0;
-
+	//TODO check james speed while mouse turning
 	// Fix for James spinning after Alt+ Tab
-	if (GetForegroundWindow() != GameWindowHandle || *EnableInputPtr != 0xFFFFFFFF)
+	if (GetForegroundWindow() != GameWindowHandle || GetEnableInput() != 0xFFFFFFFF)
 	{
 		return orgGetControllerLXAxis.fun(arg);
 	}
 
 	if (RetValue > 0)
 	{
-		AnalogX = RetValue > 50 ? 126 : 80;
-		return RetValue > 50 ? 126 : 80;
+		AnalogX = RetValue > AnalogThreshold ? 126 : 80;
+		return RetValue > AnalogThreshold ? 126 : 80;
 	}
 	else if (RetValue < 0)
 	{
-		AnalogX = RetValue < -50 ? -126 : -80;
-		return RetValue < -50 ? -126 : -80;
+		AnalogX = RetValue < -AnalogThreshold ? -126 : -80;
+		return RetValue < -AnalogThreshold ? -126 : -80;
 	}
 	
 	// If no mouse input is detected this frame
@@ -87,19 +93,96 @@ int8_t GetControllerLXAxis(DWORD* arg)
 	
 }
 
-int8_t GetControllerLYAxis(DWORD* arg)
+int8_t GetControllerLYAxis_Hook(DWORD* arg)
 {
 	return orgGetControllerLYAxis.fun(arg);
 }
 
-int8_t GetControllerRXAxis(DWORD* arg)
+int8_t GetControllerRXAxis_Hook(DWORD* arg)
 {
 	return orgGetControllerRXAxis.fun(arg);
 }
 
-int8_t GetControllerRYAxis(DWORD* arg)
+int8_t GetControllerRYAxis_Hook(DWORD* arg)
 {
 	return orgGetControllerRYAxis.fun(arg);
+}
+
+void UpdateMousePosition_Hook()
+{
+	orgUpdateMousePosition.fun();
+
+	// In the pause menu
+	if (GetEventIndex() == 0x10)
+	{
+		auto Now = std::chrono::system_clock::now();
+		auto DeltaMs = std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastMousePauseChange);
+
+		if (PauseVerticalChanged && DeltaMs.count() > MousePauseDebounce)
+		{
+			LastMouseVerticalPos = GetMouseVerticalPosition();
+
+			PauseVerticalChanged = false;
+		}
+
+		if (PauseHorizontalChanged && DeltaMs.count() > MousePauseDebounce)
+		{
+			LastMouseHorizontalPos = GetMouseHorizontalPosition();
+
+			PauseHorizontalChanged = false;
+		}
+
+		if (LastMouseVerticalPos != GetMouseVerticalPosition() && !PauseVerticalChanged)
+		{
+			if (GetMouseVerticalPosition() > LastMouseVerticalPos)
+			{
+				switch (GetPauseMenuButtonIndex())
+				{
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+					*GetPauseMenuButtonIndexPointer() += 1;
+					break;
+				case 4:
+					*GetPauseMenuButtonIndexPointer() = 0;
+					break;
+				}
+			}
+			else
+			{
+				switch (GetPauseMenuButtonIndex())
+				{
+				case 0:
+					*GetPauseMenuButtonIndexPointer() = 4;
+					break;
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+					*GetPauseMenuButtonIndexPointer() -= 1;
+					break;
+				}
+			}
+
+			LastMousePauseChange = Now;
+			PauseVerticalChanged = true;
+
+		}
+
+		if (LastMouseHorizontalPos != GetMouseHorizontalPosition() && !PauseHorizontalChanged)
+		{
+			LeftPressState = true;
+
+			LastMousePauseChange = Now;
+			PauseHorizontalChanged = true;
+		}
+
+		if (GetMouseHorizontalPosition() > 0x15F || GetMouseHorizontalPosition() < 0x10)
+			*GetMouseHorizontalPositionPointer() = 0xFC;
+		if (GetMouseVerticalPosition() > 0x1D0 || GetMouseVerticalPosition() < 0x10)
+			*GetMouseVerticalPositionPointer() = 0xF0;
+	}
 }
 
 void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbData, LPVOID lpvData)
@@ -135,14 +218,15 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			Logging::LogDebug() << __FUNCTION__ << " Ignoring CTRL + I...";
 		}
 
-		//TODO exe agnostic
-		int8_t AimButton = *(int8_t*)0x01DB8480;
-		int8_t ActionButton = *(int8_t*)0x01DB8438;
-
 		if (LeftMouseButtonState)
-			SetKey(ActionButton);
+			SetKey(GetActionButton());
 		if (RightMouseButtonState)
-			SetKey(AimButton);
+			SetKey(GetAimButton());
+		if (LeftPressState)
+		{
+			SetKey(GetTurnLeftButton());
+			LeftPressState = false;
+		}
 
 		// Clear 
 		KeyboardData = nullptr;
@@ -154,18 +238,17 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 
 		//TODO make exe agnostic
 		auto pattern = hook::pattern("e8 36 16 04 00");
-		orgGetControllerLXAxis.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), GetControllerLXAxis, true).get();
+		orgGetControllerLXAxis.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), GetControllerLXAxis_Hook, true).get();
 		pattern = hook::pattern("e8 26 16 04 00");
-		orgGetControllerLYAxis.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), GetControllerLYAxis, true).get();
-		/*
-		auto pattern = hook::pattern("e8 13 16 04 00");
-		orgGetControllerRXAxis.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), GetControllerRXAxis, true).get();
+		orgGetControllerLYAxis.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), GetControllerLYAxis_Hook, true).get();
+		pattern = hook::pattern("e8 13 16 04 00");
+		orgGetControllerRXAxis.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), GetControllerRXAxis_Hook, true).get();
 		pattern = hook::pattern("e8 03 16 04 00");
-		orgGetControllerRYAxis.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), GetControllerRYAxis, true).get();
-		*/
+		orgGetControllerRYAxis.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), GetControllerRYAxis_Hook, true).get();
+		pattern = hook::pattern("e8 aa 1b 00 00");
+		orgUpdateMousePosition.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), UpdateMousePosition_Hook, true).get();
 	}
 
-	
 }
 
 void InputTweaks::TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD dwFlags)
@@ -173,13 +256,11 @@ void InputTweaks::TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD
 	// For mouse
 	if (ProxyInterface == MouseInterfaceAddress)
 	{
-
 		MouseData = rgdod;
 		MouseDataSize = *pdwInOut;
 
 		MouseXAxis = GetMouseRelXChange();
 		ReadMouseButtons();
-
 
 		MouseData = nullptr;
 		MouseDataSize = NULL;
@@ -251,6 +332,13 @@ int32_t InputTweaks::GetMouseRelXChange()
 
 int32_t InputTweaks::GetMouseRelYChange()
 {
+	auto Now = std::chrono::system_clock::now();
+	auto DeltaMs = std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastMouseYRead);
+	LastMouseYRead = Now;
+
+	if (DeltaMs.count() == 0)
+		return MouseYAxis;
+
 	int32_t AxisSum = 0;
 
 	if (!MouseData || MouseDataSize == 0)

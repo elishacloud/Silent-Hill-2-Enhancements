@@ -36,6 +36,7 @@ float GetInGameCameraPosY();
 BYTE GetInventoryStatus();
 DWORD GetLoadingScreen();
 BYTE GetPauseMenuButtonIndex();
+BYTE GetPauseMenuQuitIndex();
 float GetFPSCounter();
 int16_t GetShootingKills();
 int16_t GetMeleeKills();
@@ -51,12 +52,15 @@ float GetDamagePointsTaken();
 uint8_t GetSecretItemsCollected();
 float GetBoatStageTime();
 int32_t GetEnableInput();
-BYTE GetAimButton();
-BYTE GetActionButton();
 int32_t GetMouseVerticalPosition();
 int32_t GetMouseHorizontalPosition();
-BYTE GetTurnLeftButton();
-
+BYTE GetAimKeyBind();
+BYTE GetActionKeyBind();
+BYTE GetCancelKeyBind();
+BYTE GetTurnLeftKeyBind();
+BYTE GetTurnRightKeyBind();
+BYTE GetWalkForwardKeyBind();
+BYTE GetWalkBackwardsKeyBind();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -81,6 +85,7 @@ float *GetInGameCameraPosYPointer();
 BYTE *GetInventoryStatusPointer();
 DWORD *GetLoadingScreenPointer();
 BYTE *GetPauseMenuButtonIndexPointer();
+BYTE *GetPauseMenuQuitIndexPointer();
 float *GetFPSCounterPointer();
 int16_t *GetShootingKillsPointer();
 int16_t *GetMeleeKillsPointer();
@@ -95,12 +100,16 @@ int16_t *GetItemsCollectedPointer();
 float *GetDamagePointsTakenPointer();
 uint8_t *GetSecretItemsCollectedPointer();
 float *GetBoatStageTimePointer();
-int32_t* GetEnableInputPointer(); 
-BYTE* GetAimButtonPointer();
-BYTE* GetActionButtonPointer();
-int32_t* GetMouseVerticalPositionPointer();
-int32_t* GetMouseHorizontalPositionPointer();
-BYTE* GetTurnLeftButtonPointer();
+int32_t *GetEnableInputPointer(); 
+int32_t *GetMouseVerticalPositionPointer();
+int32_t *GetMouseHorizontalPositionPointer();
+BYTE *GetAimKeyBindPointer();
+BYTE *GetActionKeyBindPointer();
+BYTE *GetCancelKeyBindPointer();
+BYTE *GetTurnLeftKeyBindPointer();
+BYTE *GetTurnRightKeyBindPointer();
+BYTE *GetWalkForwardKeyBindPointer();
+BYTE *GetWalkBackwardsKeyBindPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

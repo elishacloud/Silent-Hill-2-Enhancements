@@ -44,6 +44,7 @@ float *InGameCameraPosYAddr = nullptr;
 BYTE *InventoryStatusAddr = nullptr;
 DWORD *LoadingScreenAddr = nullptr;
 BYTE *PauseMenuButtonIndexAddr = nullptr;
+BYTE *PauseMenuQuitIndexAddr = nullptr;
 float *FPSCounterAddr = nullptr;
 int16_t *ShootingKillsAddr = nullptr;
 int16_t *MeleeKillsAddr = nullptr;
@@ -59,11 +60,15 @@ float *DamagePointsTakenAddr;
 uint8_t *SecretItemsCollectedAddr;
 float *BoatStageTimeAddr;
 int32_t* EnableInputAddr;
-BYTE* AimButtonAddr;
-BYTE* ActionButtonAddr;
 int32_t* MouseVerticalPositionAddr;
 int32_t* MouseHorizontalPositionAddr;
-BYTE* TurnLeftButtonAddr;
+BYTE* AimKeyBindAddr;
+BYTE* ActionKeyBindAddr;
+BYTE* CancelKeyBindAddr;
+BYTE* TurnLeftKeyBindAddr;
+BYTE* TurnRightKeyBindAddr;
+BYTE* WalkForwardKeyBindAddr;
+BYTE* WalkBackwardsKeyBindAddr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -731,6 +736,40 @@ BYTE *GetPauseMenuButtonIndexPointer()
 	return PauseMenuButtonIndexAddr;
 }
 
+BYTE GetPauseMenuQuitIndex()
+{
+	BYTE *PauseMenuIndex = GetPauseMenuQuitIndexPointer();
+
+	return (PauseMenuIndex) ? *PauseMenuIndex : 0;
+}
+
+BYTE *GetPauseMenuQuitIndexPointer()
+{
+	return (BYTE*)0x009326B0;
+	if (PauseMenuQuitIndexAddr)
+	{
+		return PauseMenuQuitIndexAddr;
+	}
+
+	// Get Pause Menu Quit Index address
+	constexpr BYTE PauseMenuQuitIndexBytes[]{ 0x68, 0xFF, 0x00, 0x00, 0x00, 0x6A, 0x7F, 0x6A, 0x7F, 0x6A, 0x7F };
+	auto PauseMenuIndexAddr = reinterpret_cast<void*>(SearchAndGetAddresses(0x00407497, 0x00407497, 0x004074A7, PauseMenuQuitIndexBytes,
+		sizeof(PauseMenuQuitIndexBytes), 0x10));
+
+	// Checking address pointer
+	if (!PauseMenuIndexAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Quit Index Pointer address!";
+		return nullptr;
+	}
+
+	PauseMenuIndexAddr = reinterpret_cast<void*>(reinterpret_cast<DWORD>(PauseMenuIndexAddr) + 0x01);
+
+	memcpy(&PauseMenuQuitIndexAddr, PauseMenuIndexAddr, sizeof(DWORD));
+
+	return PauseMenuQuitIndexAddr;
+}
+
 float GetFPSCounter()
 {
 	float *pFPSCounter = GetFPSCounterPointer();
@@ -1181,20 +1220,20 @@ int32_t *GetEnableInputPointer()
 	return EnableInputAddr;
 }
 
-BYTE GetAimButton()
+BYTE GetAimKeyBind()
 {
-	BYTE *pAimButton = GetAimButtonPointer();
+	BYTE *pAimButton = GetAimKeyBindPointer();
 
 	return (pAimButton) ? *pAimButton : 0;
 }
 
-BYTE *GetAimButtonPointer()
+BYTE *GetAimKeyBindPointer()
 {
-	AimButtonAddr = (BYTE*)0x01DB8480; //TODO 
-	Logging::LogDebug() << __FUNCTION__ << " aim addr: " << AimButtonAddr;
-	if (AimButtonAddr)
+	AimKeyBindAddr = (BYTE*)0x01DB8480; //TODO 
+	Logging::LogDebug() << __FUNCTION__ << " aim addr: " << AimKeyBindAddr;
+	if (AimKeyBindAddr)
 	{
-		return AimButtonAddr;
+		return AimKeyBindAddr;
 	}
 	
 	// Get Action Button address
@@ -1208,24 +1247,24 @@ BYTE *GetAimButtonPointer()
 		return nullptr;
 	}
 
-	AimButtonAddr = (BYTE*)((DWORD)AimButton);
+	AimKeyBindAddr = (BYTE*)((DWORD)AimButton);
 
-	return AimButtonAddr;
+	return AimKeyBindAddr;
 }
 
-BYTE GetActionButton()
+BYTE GetActionKeyBind()
 {
-	BYTE *pActionButton = GetActionButtonPointer();
+	BYTE *pActionButton = GetActionKeyBindPointer();
 
 	return (pActionButton) ? *pActionButton : 0;
 }
 
-BYTE *GetActionButtonPointer()
+BYTE *GetActionKeyBindPointer()
 {
-	ActionButtonAddr = (BYTE*)(DWORD)0x01DB8438;//TODO
-	if (ActionButtonAddr)
+	ActionKeyBindAddr = (BYTE*)(DWORD)0x01DB8438;//TODO
+	if (ActionKeyBindAddr)
 	{
-		return ActionButtonAddr;
+		return ActionKeyBindAddr;
 	}
 
 	// Get Action Button address
@@ -1239,24 +1278,55 @@ BYTE *GetActionButtonPointer()
 		return nullptr;
 	}
 
-	ActionButtonAddr = (BYTE*)((DWORD)ActionButton);
+	ActionKeyBindAddr = (BYTE*)((DWORD)ActionButton);
 
-	return ActionButtonAddr;
+	return ActionKeyBindAddr;
 }
 
-BYTE GetTurnLeftButton()
+BYTE GetCancelKeyBind()
 {
-	BYTE *pTurnLeftButton = GetTurnLeftButtonPointer();
+	BYTE *pCancelButton = GetCancelKeyBindPointer();
+
+	return (pCancelButton) ? *pCancelButton : 0;
+}
+
+BYTE *GetCancelKeyBindPointer()
+{
+	CancelKeyBindAddr = (BYTE*)(DWORD)0x01DB8440;//TODO
+	if (CancelKeyBindAddr)
+	{
+		return CancelKeyBindAddr;
+	}
+
+	// Get Cancel Button address
+	constexpr BYTE CancelButtonSearchBytes[]{ 0x83, 0xC4, 0x18, 0x83, 0xF8, 0x1C, 0x74, 0x25 };
+	BYTE *CancelButton = (BYTE*)ReadSearchedAddresses(0x0055768D, 0x005579BD, 0x005572DD, CancelButtonSearchBytes, sizeof(CancelButtonSearchBytes), 0x0A);
+
+	// Checking address pointer
+	if (!CancelButton)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Cancel Button address!";
+		return nullptr;
+	}
+
+	CancelKeyBindAddr = (BYTE*)((DWORD)CancelButton);
+
+	return CancelKeyBindAddr;
+}
+
+BYTE GetTurnLeftKeyBind()
+{
+	BYTE *pTurnLeftButton = GetTurnLeftKeyBindPointer();
 
 	return (pTurnLeftButton) ? *pTurnLeftButton : 0;
 }
 
-BYTE *GetTurnLeftButtonPointer()
+BYTE *GetTurnLeftKeyBindPointer()
 {
-	TurnLeftButtonAddr = (BYTE*)(DWORD)0x01DB8408;//TODO
-	if (TurnLeftButtonAddr)
+	TurnLeftKeyBindAddr = (BYTE*)(DWORD)0x01DB8408;//TODO
+	if (TurnLeftKeyBindAddr)
 	{
-		return TurnLeftButtonAddr;
+		return TurnLeftKeyBindAddr;
 	}
 
 	// Get Turn Left Button address
@@ -1270,9 +1340,102 @@ BYTE *GetTurnLeftButtonPointer()
 		return nullptr;
 	}
 
-	TurnLeftButtonAddr = (BYTE*)((DWORD)TurnLeftButton);
+	TurnLeftKeyBindAddr = (BYTE*)((DWORD)TurnLeftButton);
 
-	return TurnLeftButtonAddr;
+	return TurnLeftKeyBindAddr;
+}
+
+BYTE GetTurnRightKeyBind()
+{
+	BYTE *pTurnRightButton = GetTurnRightKeyBindPointer();
+
+	return (pTurnRightButton) ? *pTurnRightButton : 0;
+}
+
+BYTE *GetTurnRightKeyBindPointer()
+{
+	TurnRightKeyBindAddr = (BYTE*)(DWORD)0x01DB8410;//TODO
+	if (TurnRightKeyBindAddr)
+	{
+		return TurnRightKeyBindAddr;
+	}
+
+	// Get Turn Right Button address
+	constexpr BYTE TurnRightButtonSearchBytes[]{ 0x83, 0xC4, 0x18, 0x83, 0xF8, 0x1C, 0x74, 0x25 };
+	BYTE *TurnRightButton = (BYTE*)ReadSearchedAddresses(0x0055768D, 0x005579BD, 0x005572DD, TurnRightButtonSearchBytes, sizeof(TurnRightButtonSearchBytes), 0x0A);
+
+	// Checking address pointer
+	if (!TurnRightButton)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Turn Right Button address!";
+		return nullptr;
+	}
+
+	TurnRightKeyBindAddr = (BYTE*)((DWORD)TurnRightButton);
+
+	return TurnRightKeyBindAddr;
+}
+
+BYTE GetWalkForwardKeyBind()
+{
+	BYTE *pForwardButton = GetWalkForwardKeyBindPointer();
+
+	return (pForwardButton) ? *pForwardButton : 0;
+}
+
+BYTE *GetWalkForwardKeyBindPointer()
+{
+	WalkForwardKeyBindAddr = (BYTE*)(DWORD)0x01DB8418;//TODO
+	if (WalkForwardKeyBindAddr)
+	{
+		return WalkForwardKeyBindAddr;
+	}
+
+	// Get Walk Forward Button address
+	constexpr BYTE ForwardButtonSearchBytes[]{ 0x83, 0xC4, 0x18, 0x83, 0xF8, 0x1C, 0x74, 0x25 };
+	BYTE *ForwardButton = (BYTE*)ReadSearchedAddresses(0x0055768D, 0x005579BD, 0x005572DD, ForwardButtonSearchBytes, sizeof(ForwardButtonSearchBytes), 0x0A);
+
+	// Checking address pointer
+	if (!ForwardButton)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Walk Forward Button address!";
+		return nullptr;
+	}
+
+	WalkForwardKeyBindAddr = (BYTE*)((DWORD)ForwardButton);
+
+	return WalkForwardKeyBindAddr;
+}
+
+BYTE GetWalkBackwardsKeyBind()
+{
+	BYTE *pBackwardButton = GetWalkBackwardsKeyBindPointer();
+
+	return (pBackwardButton) ? *pBackwardButton : 0;
+}
+
+BYTE *GetWalkBackwardsKeyBindPointer()
+{
+	WalkBackwardsKeyBindAddr = (BYTE*)(DWORD)0x01DB8420;//TODO
+	if (WalkBackwardsKeyBindAddr)
+	{
+		return WalkBackwardsKeyBindAddr;
+	}
+
+	// Get Walk Backward Button address
+	constexpr BYTE BackwardButtonSearchBytes[]{ 0x83, 0xC4, 0x18, 0x83, 0xF8, 0x1C, 0x74, 0x25 };
+	BYTE *BackwardButton = (BYTE*)ReadSearchedAddresses(0x0055768D, 0x005579BD, 0x005572DD, BackwardButtonSearchBytes, sizeof(BackwardButtonSearchBytes), 0x0A);
+
+	// Checking address pointer
+	if (!BackwardButton)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Walk Backward Button address!";
+		return nullptr;
+	}
+
+	WalkBackwardsKeyBindAddr = (BYTE*)((DWORD)BackwardButton);
+
+	return WalkBackwardsKeyBindAddr;
 }
 
 int32_t GetMouseVerticalPosition()

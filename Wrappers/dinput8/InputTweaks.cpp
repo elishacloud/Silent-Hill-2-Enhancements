@@ -18,11 +18,7 @@
 
 const int AnalogThreshold = 30;
 const int  StickFlipBack = 30;
-const int MousePauseDebounce = 300;
-
-BYTE* KeyboardData = nullptr;
-LPDIDEVICEOBJECTDATA MouseData = nullptr;
-DWORD MouseDataSize = NULL;
+const int MousePauseDebounce = 50;
 
 bool once = false;
 auto LastMouseXRead = std::chrono::system_clock::now();
@@ -38,7 +34,10 @@ int AnalogX = 0;
 
 bool LeftMouseButtonState = false;
 bool RightMouseButtonState = false;
-bool LeftPressState = false;
+bool LeftKeyState = false;
+bool RightKeyState = false;
+bool UpKeyState = false;
+bool DownKeyState = false;
 bool PauseVerticalChanged = false;
 bool PauseHorizontalChanged = false;
 
@@ -112,12 +111,13 @@ void UpdateMousePosition_Hook()
 {
 	orgUpdateMousePosition.fun();
 
-	// In the pause menu
-	if (GetEventIndex() == 0x10)
+	// In the pause menu or memo screen
+	if (GetEventIndex() == 0x10 || GetEventIndex() == 0x08)
 	{
 		auto Now = std::chrono::system_clock::now();
 		auto DeltaMs = std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastMousePauseChange);
 
+		// Vertical navigation
 		if (PauseVerticalChanged && DeltaMs.count() > MousePauseDebounce)
 		{
 			LastMouseVerticalPos = GetMouseVerticalPosition();
@@ -125,44 +125,15 @@ void UpdateMousePosition_Hook()
 			PauseVerticalChanged = false;
 		}
 
-		if (PauseHorizontalChanged && DeltaMs.count() > MousePauseDebounce)
-		{
-			LastMouseHorizontalPos = GetMouseHorizontalPosition();
-
-			PauseHorizontalChanged = false;
-		}
-
 		if (LastMouseVerticalPos != GetMouseVerticalPosition() && !PauseVerticalChanged)
 		{
 			if (GetMouseVerticalPosition() > LastMouseVerticalPos)
 			{
-				switch (GetPauseMenuButtonIndex())
-				{
-				case 0:
-				case 1:
-				case 2:
-				case 3:
-					*GetPauseMenuButtonIndexPointer() += 1;
-					break;
-				case 4:
-					*GetPauseMenuButtonIndexPointer() = 0;
-					break;
-				}
+				DownKeyState = true;
 			}
 			else
 			{
-				switch (GetPauseMenuButtonIndex())
-				{
-				case 0:
-					*GetPauseMenuButtonIndexPointer() = 4;
-					break;
-				case 1:
-				case 2:
-				case 3:
-				case 4:
-					*GetPauseMenuButtonIndexPointer() -= 1;
-					break;
-				}
+				UpKeyState = true;
 			}
 
 			LastMousePauseChange = Now;
@@ -170,18 +141,40 @@ void UpdateMousePosition_Hook()
 
 		}
 
+		// Horizontal navigation
+		if (PauseHorizontalChanged && DeltaMs.count() > MousePauseDebounce)
+		{
+			LastMouseHorizontalPos = GetMouseHorizontalPosition();
+
+			PauseHorizontalChanged = false;
+		}
+
 		if (LastMouseHorizontalPos != GetMouseHorizontalPosition() && !PauseHorizontalChanged)
 		{
-			LeftPressState = true;
+			if (GetMouseHorizontalPosition() > LastMouseHorizontalPos && GetPauseMenuQuitIndex() == 0)
+			{
+				RightKeyState = true;
+			}
+			else if (GetMouseHorizontalPosition() < LastMouseHorizontalPos && GetPauseMenuQuitIndex() == 1)
+			{
+				LeftKeyState = true;
+			}
 
 			LastMousePauseChange = Now;
 			PauseHorizontalChanged = true;
+			
 		}
 
 		if (GetMouseHorizontalPosition() > 0x15F || GetMouseHorizontalPosition() < 0x10)
+		{
 			*GetMouseHorizontalPositionPointer() = 0xFC;
+			LastMouseHorizontalPos = 0xFC;
+		}
 		if (GetMouseVerticalPosition() > 0x1D0 || GetMouseVerticalPosition() < 0x10)
+		{
 			*GetMouseVerticalPositionPointer() = 0xF0;
+			LastMouseVerticalPos = 0xF0;
+		}
 	}
 }
 
@@ -218,14 +211,52 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			Logging::LogDebug() << __FUNCTION__ << " Ignoring CTRL + I...";
 		}
 
-		if (LeftMouseButtonState)
-			SetKey(GetActionButton());
-		if (RightMouseButtonState)
-			SetKey(GetAimButton());
-		if (LeftPressState)
+		if (GetEventIndex() != 0x5 && GetEventIndex() != 0x6 && GetEventIndex() != 0x7)
 		{
-			SetKey(GetTurnLeftButton());
-			LeftPressState = false;
+			if (LeftMouseButtonState)
+				SetKey(GetActionKeyBind());
+			if (RightMouseButtonState)
+			{
+				// If in game
+				if (GetEventIndex() == 0x4)
+					SetKey(GetAimKeyBind());
+				else
+					SetKey(GetCancelKeyBind());
+			}
+		}
+
+		if (UpKeyState)
+		{
+			SetKey(GetWalkForwardKeyBind());
+			UpKeyState = false;
+		}
+
+		if (DownKeyState)
+		{
+			SetKey(GetWalkBackwardsKeyBind());
+			DownKeyState = false;
+		}
+
+		if (LeftKeyState)
+		{
+			SetKey(GetTurnLeftKeyBind());
+			LeftKeyState = false;
+		}
+
+		if (RightKeyState)
+		{
+			SetKey(GetTurnRightKeyBind());
+			RightKeyState = false;
+		}
+
+		if (GetEventIndex() == 0x8)
+		{
+			if (IsKeyPressed(DIK_UP))
+				SetKey(GetWalkForwardKeyBind());
+			if (IsKeyPressed(DIK_DOWN))
+				SetKey(GetWalkBackwardsKeyBind());
+			if (IsKeyPressed(DIK_RETURN))
+				SetKey(GetActionKeyBind());
 		}
 
 		// Clear 

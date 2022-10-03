@@ -9,6 +9,25 @@
 #include <chrono>
 #include <bitset>
 
+#define EVENT_LOAD_SCR        0x00
+#define EVENT_LOAD_ROOM       0x01
+#define EVENT_MAIN_MENU       0x02
+#define EVENT_IN_GAME         0x04
+#define EVENT_MAP             0x05
+#define EVENT_INVENTORY       0x06
+#define EVENT_OPTION_FMV      0x07
+#define EVENT_MEMO_LIST       0x08
+#define EVENT_SAVE_SCREEN     0x09
+#define EVENT_GAME_RESULT_ONE 0x0A
+#define EVENT_GAME_RESULT_TWO 0x0B
+#define EVENT_COMING_SOON     0x0C
+#define EVENT_GAME_OVER       0x0D
+#define EVENT_FMV             0x0F
+#define EVENT_PAUSE_MENU      0x10
+
+#define KEY_SET   0x80
+#define KEY_CLEAR 0x00
+
 class InputTweaks
 {
 private:

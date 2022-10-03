@@ -17,29 +17,29 @@
 #include "InputTweaks.h"
 
 const int AnalogThreshold = 30;
-const int  StickFlipBack = 30;
+const int StickFlipBack = 30;
 const int MousePauseDebounce = 50;
+const int PauseMenuMouseThreshold = 15;
 
 bool once = false;
+
 auto LastMouseXRead = std::chrono::system_clock::now();
 auto LastMouseYRead = std::chrono::system_clock::now();
-
 auto LastMousePauseChange = std::chrono::system_clock::now();
 int LastMouseVerticalPos = 0xF0;
 int LastMouseHorizontalPos = 0xFC;
-
 int MouseXAxis = 0;
 int MouseYAxis = 0;
 int AnalogX = 0;
+bool PauseMenuVerticalChanged = false;
+bool PauseMenuHorizontalChanged = false;
 
-bool LeftMouseButtonState = false;
-bool RightMouseButtonState = false;
-bool LeftKeyState = false;
-bool RightKeyState = false;
-bool UpKeyState = false;
-bool DownKeyState = false;
-bool PauseVerticalChanged = false;
-bool PauseHorizontalChanged = false;
+bool SetLeftMouseButton = false;
+bool SetRightMouseButton = false;
+bool SetLeftKey = false;
+bool SetRightKey = false;
+bool SetUpKey = false;
+bool SetDownKey = false;
 
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLXAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLYAxis;
@@ -118,51 +118,58 @@ void UpdateMousePosition_Hook()
 		auto DeltaMs = std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastMousePauseChange);
 
 		// Vertical navigation
-		if (PauseVerticalChanged && DeltaMs.count() > MousePauseDebounce)
+		if (PauseMenuVerticalChanged && DeltaMs.count() > MousePauseDebounce)
 		{
 			LastMouseVerticalPos = GetMouseVerticalPosition();
 
-			PauseVerticalChanged = false;
+			PauseMenuVerticalChanged = false;
 		}
 
-		if (LastMouseVerticalPos != GetMouseVerticalPosition() && !PauseVerticalChanged)
+		if (std::abs(GetMouseVerticalPosition() - LastMouseVerticalPos) > PauseMenuMouseThreshold && !PauseMenuVerticalChanged)
 		{
-			if (GetMouseVerticalPosition() > LastMouseVerticalPos)
+			if (GetMouseVerticalPosition() > LastMouseVerticalPos && (GetPauseMenuButtonIndex() != 0x04 || GetEventIndex() != 0x10))
 			{
-				DownKeyState = true;
+				SetDownKey = true;
 			}
-			else
+			else if (GetMouseVerticalPosition() < LastMouseVerticalPos && (GetPauseMenuButtonIndex() != 0x00 || GetEventIndex() != 0x10))
 			{
-				UpKeyState = true;
-			}
+				SetUpKey = true;
+			} 
 
 			LastMousePauseChange = Now;
-			PauseVerticalChanged = true;
-
+			PauseMenuVerticalChanged = true;
+			
+		}
+		else
+		{
+			LastMouseVerticalPos = GetMouseVerticalPosition();
 		}
 
 		// Horizontal navigation
-		if (PauseHorizontalChanged && DeltaMs.count() > MousePauseDebounce)
+		if (PauseMenuHorizontalChanged && DeltaMs.count() > MousePauseDebounce)
 		{
 			LastMouseHorizontalPos = GetMouseHorizontalPosition();
 
-			PauseHorizontalChanged = false;
+			PauseMenuHorizontalChanged = false;
 		}
 
-		if (LastMouseHorizontalPos != GetMouseHorizontalPosition() && !PauseHorizontalChanged)
+		if (std::abs(GetMouseHorizontalPosition() - LastMouseHorizontalPos) > PauseMenuMouseThreshold && !PauseMenuHorizontalChanged)
 		{
 			if (GetMouseHorizontalPosition() > LastMouseHorizontalPos && GetPauseMenuQuitIndex() == 0)
 			{
-				RightKeyState = true;
+				SetRightKey = true;
 			}
 			else if (GetMouseHorizontalPosition() < LastMouseHorizontalPos && GetPauseMenuQuitIndex() == 1)
 			{
-				LeftKeyState = true;
+				SetLeftKey = true;
 			}
-
-			LastMousePauseChange = Now;
-			PauseHorizontalChanged = true;
 			
+			LastMousePauseChange = Now;
+			PauseMenuHorizontalChanged = true;
+		}
+		else
+		{
+			LastMouseHorizontalPos = GetMouseHorizontalPosition();
 		}
 
 		if (GetMouseHorizontalPosition() > 0x15F || GetMouseHorizontalPosition() < 0x10)
@@ -213,9 +220,9 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 
 		if (GetEventIndex() != 0x5 && GetEventIndex() != 0x6 && GetEventIndex() != 0x7)
 		{
-			if (LeftMouseButtonState)
+			if (SetLeftMouseButton)
 				SetKey(GetActionKeyBind());
-			if (RightMouseButtonState)
+			if (SetRightMouseButton)
 			{
 				// If in game
 				if (GetEventIndex() == 0x4)
@@ -225,28 +232,28 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			}
 		}
 
-		if (UpKeyState)
+		if (SetUpKey)
 		{
 			SetKey(GetWalkForwardKeyBind());
-			UpKeyState = false;
+			SetUpKey = false;
 		}
 
-		if (DownKeyState)
+		if (SetDownKey)
 		{
 			SetKey(GetWalkBackwardsKeyBind());
-			DownKeyState = false;
+			SetDownKey = false;
 		}
 
-		if (LeftKeyState)
+		if (SetLeftKey)
 		{
 			SetKey(GetTurnLeftKeyBind());
-			LeftKeyState = false;
+			SetLeftKey = false;
 		}
 
-		if (RightKeyState)
+		if (SetRightKey)
 		{
 			SetKey(GetTurnRightKeyBind());
-			RightKeyState = false;
+			SetRightKey = false;
 		}
 
 		if (GetEventIndex() == 0x8)
@@ -391,12 +398,12 @@ void InputTweaks::ReadMouseButtons()
 		{
 		case DIMOFS_BUTTON0:
 		{
-			LeftMouseButtonState = MouseData->dwData == 0x80;
+			SetLeftMouseButton = MouseData->dwData == 0x80;
 			break;
 		}
 		case DIMOFS_BUTTON1:
 		{
-			RightMouseButtonState = MouseData->dwData == 0x80;
+			SetRightMouseButton = MouseData->dwData == 0x80;
 			break;
 		}
 

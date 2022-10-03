@@ -274,7 +274,6 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 	{
 		once = true;
 
-		//TODO make exe agnostic
 		auto pattern = hook::pattern("e8 36 16 04 00");
 		orgGetControllerLXAxis.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), GetControllerLXAxis_Hook, true).get();
 		pattern = hook::pattern("e8 26 16 04 00");
@@ -414,14 +413,4 @@ void InputTweaks::ReadMouseButtons()
 
 		}
 		
-}
-
-static int8_t ClampByteValue(int Value)
-{
-	if (Value >= 126)
-		return 126;
-	else if (Value <= -126)
-		return -126;
-	else
-		return Value;
 }

@@ -1203,10 +1203,10 @@ int32_t *GetEnableInputPointer()
 	{
 		return EnableInputAddr;
 	}
-	return (int32_t*)0x94CC58;//TODO
+
 	// Get EnableInput address
-	constexpr BYTE EnableInputSearchBytes[]{ 0x83, 0xC4, 0x18, 0x83, 0xF8, 0x1C, 0x74, 0x25 }; 
-	int32_t *EnableInput = (int32_t*)ReadSearchedAddresses(0x0055768D, 0x005579BD, 0x005572DD, EnableInputSearchBytes, sizeof(EnableInputSearchBytes), 0x0A);
+	constexpr BYTE EnableInputSearchBytes[]{ 0xC1, 0xE0, 0x04, 0x03, 0xC1, 0x8B, 0x40, 0x0C, 0x8B, 0xF0 };
+	int32_t *EnableInput = (int32_t*)ReadSearchedAddresses(0x48C005, 0x48C2A5, 0x48C4B5, EnableInputSearchBytes, sizeof(EnableInputSearchBytes), -0x12);
 
 	// Checking address pointer
 	if (!EnableInput)
@@ -1216,7 +1216,7 @@ int32_t *GetEnableInputPointer()
 	}
 
 	EnableInputAddr = (int32_t*)((DWORD)EnableInput);
-	
+
 	return EnableInputAddr;
 }
 
@@ -1229,16 +1229,14 @@ BYTE GetAimKeyBind()
 
 BYTE *GetAimKeyBindPointer()
 {
-	AimKeyBindAddr = (BYTE*)0x01DB8480; //TODO 
-	Logging::LogDebug() << __FUNCTION__ << " aim addr: " << AimKeyBindAddr;
 	if (AimKeyBindAddr)
 	{
 		return AimKeyBindAddr;
 	}
 	
 	// Get Action Button address
-	constexpr BYTE AimButtonSearchBytes[]{ 0x83, 0xC4, 0x18, 0x83, 0xF8, 0x1C, 0x74, 0x25 }; 
-	BYTE *AimButton = (BYTE*)ReadSearchedAddresses(0x0055768D, 0x005579BD, 0x005572DD, AimButtonSearchBytes, sizeof(AimButtonSearchBytes), 0x0A);
+	constexpr BYTE AimButtonSearchBytes[]{ 0x56, 0x8B, 0x74, 0x24, 0x08, 0x83, 0xFE, 0x16, 0x7D, 0x3F };
+	BYTE *AimButton = (BYTE*)ReadSearchedAddresses(0x5AEF90, 0x5AF8C0, 0x5AF1E0, AimButtonSearchBytes, sizeof(AimButtonSearchBytes), 0x1D);
 
 	// Checking address pointer
 	if (!AimButton)
@@ -1247,7 +1245,7 @@ BYTE *GetAimKeyBindPointer()
 		return nullptr;
 	}
 
-	AimKeyBindAddr = (BYTE*)((DWORD)AimButton);
+	AimKeyBindAddr = (BYTE*)((DWORD)AimButton + 0x78);
 
 	return AimKeyBindAddr;
 }
@@ -1261,15 +1259,14 @@ BYTE GetActionKeyBind()
 
 BYTE *GetActionKeyBindPointer()
 {
-	ActionKeyBindAddr = (BYTE*)(DWORD)0x01DB8438;//TODO
 	if (ActionKeyBindAddr)
 	{
 		return ActionKeyBindAddr;
 	}
 
 	// Get Action Button address
-	constexpr BYTE ActionButtonSearchBytes[]{ 0x83, 0xC4, 0x18, 0x83, 0xF8, 0x1C, 0x74, 0x25 }; 
-	BYTE *ActionButton = (BYTE*)ReadSearchedAddresses(0x0055768D, 0x005579BD, 0x005572DD, ActionButtonSearchBytes, sizeof(ActionButtonSearchBytes), 0x0A);
+	constexpr BYTE ActionButtonSearchBytes[]{ 0x56, 0x8B, 0x74, 0x24, 0x08, 0x83, 0xFE, 0x16, 0x7D, 0x3F };
+	BYTE *ActionButton = (BYTE*)ReadSearchedAddresses(0x5AEF90, 0x5AF8C0, 0x5AF1E0, ActionButtonSearchBytes, sizeof(ActionButtonSearchBytes), 0x1D);
 
 	// Checking address pointer
 	if (!ActionButton)
@@ -1278,7 +1275,7 @@ BYTE *GetActionKeyBindPointer()
 		return nullptr;
 	}
 
-	ActionKeyBindAddr = (BYTE*)((DWORD)ActionButton);
+	ActionKeyBindAddr = (BYTE*)((DWORD)ActionButton + 0x30);
 
 	return ActionKeyBindAddr;
 }
@@ -1292,15 +1289,14 @@ BYTE GetCancelKeyBind()
 
 BYTE *GetCancelKeyBindPointer()
 {
-	CancelKeyBindAddr = (BYTE*)(DWORD)0x01DB8440;//TODO
 	if (CancelKeyBindAddr)
 	{
 		return CancelKeyBindAddr;
 	}
 
 	// Get Cancel Button address
-	constexpr BYTE CancelButtonSearchBytes[]{ 0x83, 0xC4, 0x18, 0x83, 0xF8, 0x1C, 0x74, 0x25 };
-	BYTE *CancelButton = (BYTE*)ReadSearchedAddresses(0x0055768D, 0x005579BD, 0x005572DD, CancelButtonSearchBytes, sizeof(CancelButtonSearchBytes), 0x0A);
+	constexpr BYTE CancelButtonSearchBytes[]{ 0x56, 0x8B, 0x74, 0x24, 0x08, 0x83, 0xFE, 0x16, 0x7D, 0x3F };
+	BYTE *CancelButton = (BYTE*)ReadSearchedAddresses(0x5AEF90, 0x5AF8C0, 0x5AF1E0, CancelButtonSearchBytes, sizeof(CancelButtonSearchBytes), 0x1D);
 
 	// Checking address pointer
 	if (!CancelButton)
@@ -1309,7 +1305,7 @@ BYTE *GetCancelKeyBindPointer()
 		return nullptr;
 	}
 
-	CancelKeyBindAddr = (BYTE*)((DWORD)CancelButton);
+	CancelKeyBindAddr = (BYTE*)((DWORD)CancelButton + 0x38);
 
 	return CancelKeyBindAddr;
 }
@@ -1323,15 +1319,14 @@ BYTE GetTurnLeftKeyBind()
 
 BYTE *GetTurnLeftKeyBindPointer()
 {
-	TurnLeftKeyBindAddr = (BYTE*)(DWORD)0x01DB8408;//TODO
 	if (TurnLeftKeyBindAddr)
 	{
 		return TurnLeftKeyBindAddr;
 	}
 
 	// Get Turn Left Button address
-	constexpr BYTE TurnLeftButtonSearchBytes[]{ 0x83, 0xC4, 0x18, 0x83, 0xF8, 0x1C, 0x74, 0x25 };
-	BYTE *TurnLeftButton = (BYTE*)ReadSearchedAddresses(0x0055768D, 0x005579BD, 0x005572DD, TurnLeftButtonSearchBytes, sizeof(TurnLeftButtonSearchBytes), 0x0A);
+	constexpr BYTE TurnLeftButtonSearchBytes[]{ 0x56, 0x8B, 0x74, 0x24, 0x08, 0x83, 0xFE, 0x16, 0x7D, 0x3F };
+	BYTE *TurnLeftButton = (BYTE*)ReadSearchedAddresses(0x5AEF90, 0x5AF8C0, 0x5AF1E0, TurnLeftButtonSearchBytes, sizeof(TurnLeftButtonSearchBytes), 0x1D);
 
 	// Checking address pointer
 	if (!TurnLeftButton)
@@ -1341,7 +1336,7 @@ BYTE *GetTurnLeftKeyBindPointer()
 	}
 
 	TurnLeftKeyBindAddr = (BYTE*)((DWORD)TurnLeftButton);
-
+	
 	return TurnLeftKeyBindAddr;
 }
 
@@ -1354,15 +1349,14 @@ BYTE GetTurnRightKeyBind()
 
 BYTE *GetTurnRightKeyBindPointer()
 {
-	TurnRightKeyBindAddr = (BYTE*)(DWORD)0x01DB8410;//TODO
 	if (TurnRightKeyBindAddr)
 	{
 		return TurnRightKeyBindAddr;
 	}
 
 	// Get Turn Right Button address
-	constexpr BYTE TurnRightButtonSearchBytes[]{ 0x83, 0xC4, 0x18, 0x83, 0xF8, 0x1C, 0x74, 0x25 };
-	BYTE *TurnRightButton = (BYTE*)ReadSearchedAddresses(0x0055768D, 0x005579BD, 0x005572DD, TurnRightButtonSearchBytes, sizeof(TurnRightButtonSearchBytes), 0x0A);
+	constexpr BYTE TurnRightButtonSearchBytes[]{ 0x56, 0x8B, 0x74, 0x24, 0x08, 0x83, 0xFE, 0x16, 0x7D, 0x3F };
+	BYTE *TurnRightButton = (BYTE*)ReadSearchedAddresses(0x5AEF90, 0x5AF8C0, 0x5AF1E0, TurnRightButtonSearchBytes, sizeof(TurnRightButtonSearchBytes), 0x1D);
 
 	// Checking address pointer
 	if (!TurnRightButton)
@@ -1371,7 +1365,7 @@ BYTE *GetTurnRightKeyBindPointer()
 		return nullptr;
 	}
 
-	TurnRightKeyBindAddr = (BYTE*)((DWORD)TurnRightButton);
+	TurnRightKeyBindAddr = (BYTE*)((DWORD)TurnRightButton + 0x08);
 
 	return TurnRightKeyBindAddr;
 }
@@ -1385,15 +1379,14 @@ BYTE GetWalkForwardKeyBind()
 
 BYTE *GetWalkForwardKeyBindPointer()
 {
-	WalkForwardKeyBindAddr = (BYTE*)(DWORD)0x01DB8418;//TODO
 	if (WalkForwardKeyBindAddr)
 	{
 		return WalkForwardKeyBindAddr;
 	}
 
 	// Get Walk Forward Button address
-	constexpr BYTE ForwardButtonSearchBytes[]{ 0x83, 0xC4, 0x18, 0x83, 0xF8, 0x1C, 0x74, 0x25 };
-	BYTE *ForwardButton = (BYTE*)ReadSearchedAddresses(0x0055768D, 0x005579BD, 0x005572DD, ForwardButtonSearchBytes, sizeof(ForwardButtonSearchBytes), 0x0A);
+	constexpr BYTE ForwardButtonSearchBytes[]{ 0x56, 0x8B, 0x74, 0x24, 0x08, 0x83, 0xFE, 0x16, 0x7D, 0x3F };
+	BYTE *ForwardButton = (BYTE*)ReadSearchedAddresses(0x5AEF90, 0x5AF8C0, 0x5AF1E0, ForwardButtonSearchBytes, sizeof(ForwardButtonSearchBytes), 0x1D);
 
 	// Checking address pointer
 	if (!ForwardButton)
@@ -1402,8 +1395,8 @@ BYTE *GetWalkForwardKeyBindPointer()
 		return nullptr;
 	}
 
-	WalkForwardKeyBindAddr = (BYTE*)((DWORD)ForwardButton);
-
+	WalkForwardKeyBindAddr = (BYTE*)((DWORD)ForwardButton + 0x10);
+	
 	return WalkForwardKeyBindAddr;
 }
 
@@ -1416,15 +1409,14 @@ BYTE GetWalkBackwardsKeyBind()
 
 BYTE *GetWalkBackwardsKeyBindPointer()
 {
-	WalkBackwardsKeyBindAddr = (BYTE*)(DWORD)0x01DB8420;//TODO
 	if (WalkBackwardsKeyBindAddr)
 	{
 		return WalkBackwardsKeyBindAddr;
 	}
 
 	// Get Walk Backward Button address
-	constexpr BYTE BackwardButtonSearchBytes[]{ 0x83, 0xC4, 0x18, 0x83, 0xF8, 0x1C, 0x74, 0x25 };
-	BYTE *BackwardButton = (BYTE*)ReadSearchedAddresses(0x0055768D, 0x005579BD, 0x005572DD, BackwardButtonSearchBytes, sizeof(BackwardButtonSearchBytes), 0x0A);
+	constexpr BYTE BackwardButtonSearchBytes[]{ 0x56, 0x8B, 0x74, 0x24, 0x08, 0x83, 0xFE, 0x16, 0x7D, 0x3F };
+	BYTE *BackwardButton = (BYTE*)ReadSearchedAddresses(0x5AEF90, 0x5AF8C0, 0x5AF1E0, BackwardButtonSearchBytes, sizeof(BackwardButtonSearchBytes), 0x1D);
 
 	// Checking address pointer
 	if (!BackwardButton)
@@ -1433,7 +1425,7 @@ BYTE *GetWalkBackwardsKeyBindPointer()
 		return nullptr;
 	}
 
-	WalkBackwardsKeyBindAddr = (BYTE*)((DWORD)BackwardButton);
+	WalkBackwardsKeyBindAddr = (BYTE*)((DWORD)BackwardButton + 0x18);
 
 	return WalkBackwardsKeyBindAddr;
 }
@@ -1451,10 +1443,10 @@ int32_t *GetMouseVerticalPositionPointer()
 	{
 		return MouseVerticalPositionAddr;
 	}
-	return (int32_t*)0x0094135C;//TODO
+
 	// Get MouseVerticalPosition address
-	constexpr BYTE MouseVerticalPositionSearchBytes[]{ 0x83, 0xC4, 0x18, 0x83, 0xF8, 0x1C, 0x74, 0x25 };
-	int32_t *MouseVerticalPosition = (int32_t*)ReadSearchedAddresses(0x0055768D, 0x005579BD, 0x005572DD, MouseVerticalPositionSearchBytes, sizeof(MouseVerticalPositionSearchBytes), 0x0A);
+	constexpr BYTE MouseVerticalPositionSearchBytes[]{ 0x8B, 0x08, 0x50, 0xFF, 0x51, 0x18, 0x85, 0xC0, 0x7C, 0x33 };
+	int32_t *MouseVerticalPosition = (int32_t*)ReadSearchedAddresses(0x45A49F, 0x45A6FF, 0x45A6FF, MouseVerticalPositionSearchBytes, sizeof(MouseVerticalPositionSearchBytes), 0x1C);
 
 	// Checking address pointer
 	if (!MouseVerticalPosition)
@@ -1481,10 +1473,10 @@ int32_t *GetMouseHorizontalPositionPointer()
 	{
 		return MouseHorizontalPositionAddr;
 	}
-	return (int32_t*)0x00941358;//TODO
+
 	// Get MouseHorizontalPosition address
-	constexpr BYTE MouseHorizontalPositionSearchBytes[]{ 0x83, 0xC4, 0x18, 0x83, 0xF8, 0x1C, 0x74, 0x25 };
-	int32_t *MouseHorizontalPosition = (int32_t*)ReadSearchedAddresses(0x0055768D, 0x005579BD, 0x005572DD, MouseHorizontalPositionSearchBytes, sizeof(MouseHorizontalPositionSearchBytes), 0x0A);
+	constexpr BYTE MouseHorizontalPositionSearchBytes[]{ 0x8B, 0x08, 0x50, 0xFF, 0x51, 0x18, 0x85, 0xC0, 0x7C, 0x33 };
+	int32_t *MouseHorizontalPosition = (int32_t*)ReadSearchedAddresses(0x45A49F, 0x45A6FF, 0x45A6FF, MouseHorizontalPositionSearchBytes, sizeof(MouseHorizontalPositionSearchBytes), 0x17);
 
 	// Checking address pointer
 	if (!MouseHorizontalPosition)

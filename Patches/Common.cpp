@@ -69,6 +69,8 @@ BYTE* TurnLeftKeyBindAddr;
 BYTE* TurnRightKeyBindAddr;
 BYTE* WalkForwardKeyBindAddr;
 BYTE* WalkBackwardsKeyBindAddr;
+BYTE* NextWeaponKeyBindAddr;
+BYTE* PreviousWeaponKeyBindAddr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -1308,6 +1310,66 @@ BYTE *GetCancelKeyBindPointer()
 	CancelKeyBindAddr = (BYTE*)((DWORD)CancelButton + 0x38);
 
 	return CancelKeyBindAddr;
+}
+
+BYTE GetPreviousWeaponKeyBind()
+{
+	BYTE *pPreviousWeaponButton = GetPreviousWeaponKeyBindPointer();
+
+	return (pPreviousWeaponButton) ? *pPreviousWeaponButton : 0;
+}
+
+BYTE *GetPreviousWeaponKeyBindPointer()
+{
+	if (PreviousWeaponKeyBindAddr)
+	{
+		return PreviousWeaponKeyBindAddr;
+	}
+
+	// Get Previous Weapon Button address
+	constexpr BYTE PreviousWeaponButtonSearchBytes[]{ 0x56, 0x8B, 0x74, 0x24, 0x08, 0x83, 0xFE, 0x16, 0x7D, 0x3F };
+	BYTE *PreviousWeaponButton = (BYTE*)ReadSearchedAddresses(0x5AEF90, 0x5AF8C0, 0x5AF1E0, PreviousWeaponButtonSearchBytes, sizeof(PreviousWeaponButtonSearchBytes), 0x1D);
+
+	// Checking address pointer
+	if (!PreviousWeaponButton)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Previous Weapon Button address!";
+		return nullptr;
+	}
+
+	PreviousWeaponKeyBindAddr = (BYTE*)((DWORD)PreviousWeaponButton + 0x88);
+
+	return PreviousWeaponKeyBindAddr;
+}
+
+BYTE GetNextWeaponKeyBind()
+{
+	BYTE *pNextWeaponButton = GetNextWeaponKeyBindPointer();
+
+	return (pNextWeaponButton) ? *pNextWeaponButton : 0;
+}
+
+BYTE *GetNextWeaponKeyBindPointer()
+{
+	if (NextWeaponKeyBindAddr)
+	{
+		return NextWeaponKeyBindAddr;
+	}
+
+	// Get Next Weapon Button address
+	constexpr BYTE NextWeaponButtonSearchBytes[]{ 0x56, 0x8B, 0x74, 0x24, 0x08, 0x83, 0xFE, 0x16, 0x7D, 0x3F };
+	BYTE *NextWeaponButton = (BYTE*)ReadSearchedAddresses(0x5AEF90, 0x5AF8C0, 0x5AF1E0, NextWeaponButtonSearchBytes, sizeof(NextWeaponButtonSearchBytes), 0x1D);
+
+	// Checking address pointer
+	if (!NextWeaponButton)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Next Weapon Button address!";
+		return nullptr;
+	}
+
+	NextWeaponKeyBindAddr = (BYTE*)((DWORD)NextWeaponButton + 0x80);
+
+	return NextWeaponKeyBindAddr;
 }
 
 BYTE GetTurnLeftKeyBind()

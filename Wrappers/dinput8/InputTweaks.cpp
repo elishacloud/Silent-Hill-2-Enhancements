@@ -18,18 +18,20 @@
 
 const int AnalogThreshold = 30;
 const int StickFlipBack = 30;
-const int MousePauseDebounce = 50;
+const int InputDebounce = 50;
 const int PauseMenuMouseThreshold = 15;
 
 bool once = false;
 
 auto LastMouseXRead = std::chrono::system_clock::now();
 auto LastMouseYRead = std::chrono::system_clock::now();
+auto LastWeaponSwap = std::chrono::system_clock::now();
 auto LastMousePauseChange = std::chrono::system_clock::now();
 int LastMouseVerticalPos = 0xF0;
 int LastMouseHorizontalPos = 0xFC;
 int MouseXAxis = 0;
 int MouseYAxis = 0;
+long int MouseWheel = 0;
 int AnalogX = 0;
 bool PauseMenuVerticalChanged = false;
 bool PauseMenuHorizontalChanged = false;
@@ -111,14 +113,13 @@ void UpdateMousePosition_Hook()
 {
 	orgUpdateMousePosition.fun();
 
-	// In the pause menu or memo screen
-	if (GetEventIndex() == 0x10 || GetEventIndex() == 0x08)
+	if (GetEventIndex() == EVENT_PAUSE_MENU || GetEventIndex() == EVENT_MEMO_LIST)
 	{
 		auto Now = std::chrono::system_clock::now();
 		auto DeltaMs = std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastMousePauseChange);
 
 		// Vertical navigation
-		if (PauseMenuVerticalChanged && DeltaMs.count() > MousePauseDebounce)
+		if (PauseMenuVerticalChanged && DeltaMs.count() > InputDebounce)
 		{
 			LastMouseVerticalPos = GetMouseVerticalPosition();
 
@@ -127,11 +128,11 @@ void UpdateMousePosition_Hook()
 
 		if (std::abs(GetMouseVerticalPosition() - LastMouseVerticalPos) > PauseMenuMouseThreshold && !PauseMenuVerticalChanged)
 		{
-			if (GetMouseVerticalPosition() > LastMouseVerticalPos && (GetPauseMenuButtonIndex() != 0x04 || GetEventIndex() != 0x10))
+			if (GetMouseVerticalPosition() > LastMouseVerticalPos && (GetPauseMenuButtonIndex() != 0x04 || GetEventIndex() != EVENT_PAUSE_MENU))
 			{
 				SetDownKey = true;
 			}
-			else if (GetMouseVerticalPosition() < LastMouseVerticalPos && (GetPauseMenuButtonIndex() != 0x00 || GetEventIndex() != 0x10))
+			else if (GetMouseVerticalPosition() < LastMouseVerticalPos && (GetPauseMenuButtonIndex() != 0x00 || GetEventIndex() != EVENT_PAUSE_MENU))
 			{
 				SetUpKey = true;
 			} 
@@ -146,7 +147,7 @@ void UpdateMousePosition_Hook()
 		}
 
 		// Horizontal navigation
-		if (PauseMenuHorizontalChanged && DeltaMs.count() > MousePauseDebounce)
+		if (PauseMenuHorizontalChanged && DeltaMs.count() > InputDebounce)
 		{
 			LastMouseHorizontalPos = GetMouseHorizontalPosition();
 
@@ -172,6 +173,7 @@ void UpdateMousePosition_Hook()
 			LastMouseHorizontalPos = GetMouseHorizontalPosition();
 		}
 
+		// Reset mouse position to avoid edges
 		if (GetMouseHorizontalPosition() > 0x15F || GetMouseHorizontalPosition() < 0x10)
 		{
 			*GetMouseHorizontalPositionPointer() = 0xFC;
@@ -190,6 +192,9 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 	// For keyboard
 	if (ProxyInterface == KeyboardInterfaceAddress)
 	{
+		auto Now = std::chrono::system_clock::now();
+		auto DeltaMsWeaponSwap = std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastWeaponSwap);
+
 		KeyboardData = (BYTE*)lpvData;
 		
 		// Ignore Alt + Enter combo
@@ -218,14 +223,15 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			Logging::LogDebug() << __FUNCTION__ << " Ignoring CTRL + I...";
 		}
 
-		if (GetEventIndex() != 0x5 && GetEventIndex() != 0x6 && GetEventIndex() != 0x7)
+		// Inject Key Presses
+		if (GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTION_FMV)
 		{
 			if (SetLeftMouseButton)
 				SetKey(GetActionKeyBind());
 			if (SetRightMouseButton)
 			{
 				// If in game
-				if (GetEventIndex() == 0x4)
+				if (GetEventIndex() == EVENT_IN_GAME)
 					SetKey(GetAimKeyBind());
 				else
 					SetKey(GetCancelKeyBind());
@@ -256,7 +262,18 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			SetRightKey = false;
 		}
 
-		if (GetEventIndex() == 0x8)
+		if (MouseWheel != 0 && DeltaMsWeaponSwap.count() > InputDebounce && GetEventIndex() == EVENT_IN_GAME)
+		{
+			if (MouseWheel > 0)
+				SetKey(GetNextWeaponKeyBind());
+			else 
+				SetKey(GetPreviousWeaponKeyBind());
+
+			LastWeaponSwap = Now;
+			MouseWheel = 0;
+		}
+
+		if (GetEventIndex() == EVENT_MEMO_LIST)
 		{
 			if (IsKeyPressed(DIK_UP))
 				SetKey(GetWalkForwardKeyBind());
@@ -309,7 +326,7 @@ void InputTweaks::ClearKey(int KeyIndex)
 	if (KeyIndex > 0x100 || !KeyboardData)
 		return;
 
-	KeyboardData[KeyIndex] = 0x00;
+	KeyboardData[KeyIndex] = KEY_CLEAR;
 }
 
 void InputTweaks::SetKey(int KeyIndex)
@@ -317,7 +334,7 @@ void InputTweaks::SetKey(int KeyIndex)
 	if (KeyIndex > 0x100 || !KeyboardData)
 		return;
 
-	KeyboardData[KeyIndex] = 0x80;
+	KeyboardData[KeyIndex] = KEY_SET;
 }
 
 bool InputTweaks::IsKeyPressed(int KeyIndex)
@@ -325,7 +342,7 @@ bool InputTweaks::IsKeyPressed(int KeyIndex)
 	if (KeyIndex > 0x100 || !KeyboardData)
 		return false;
 
-	return KeyboardData[KeyIndex] == 0x80;
+	return KeyboardData[KeyIndex] == KEY_SET;
 }
 
 void InputTweaks::SetKeyboardInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface)
@@ -397,13 +414,17 @@ void InputTweaks::ReadMouseButtons()
 		{
 		case DIMOFS_BUTTON0:
 		{
-			SetLeftMouseButton = MouseData->dwData == 0x80;
+			SetLeftMouseButton = MouseData->dwData == KEY_SET;
 			break;
 		}
 		case DIMOFS_BUTTON1:
 		{
-			SetRightMouseButton = MouseData->dwData == 0x80;
+			SetRightMouseButton = MouseData->dwData == KEY_SET;
 			break;
+		}
+		case DIMOFS_Z:
+		{
+			MouseWheel = MouseData->dwData;
 		}
 
 		default:

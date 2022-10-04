@@ -71,6 +71,12 @@ BYTE* WalkForwardKeyBindAddr;
 BYTE* WalkBackwardsKeyBindAddr;
 BYTE* NextWeaponKeyBindAddr;
 BYTE* PreviousWeaponKeyBindAddr;
+BYTE* AnalogXAddr;
+DWORD* LeftAnalogXFunctionAddr;
+DWORD* LeftAnalogYFunctionAddr;
+DWORD* RightAnalogXFunctionAddr;
+DWORD* RightAnalogYFunctionAddr;
+DWORD* UpdateMousePositionFunctionAddr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -1550,4 +1556,154 @@ int32_t *GetMouseHorizontalPositionPointer()
 	MouseHorizontalPositionAddr = (int32_t*)((DWORD)MouseHorizontalPosition);
 
 	return MouseHorizontalPositionAddr;
+}
+
+BYTE GetAnalogX()
+{
+	BYTE *pCancelButton = GetAnalogXPointer();
+
+	return (pCancelButton) ? *pCancelButton : 0;
+}
+
+BYTE *GetAnalogXPointer()
+{
+	if (AnalogXAddr)
+	{
+		return AnalogXAddr;
+	}
+
+	// Get Analog X address
+	constexpr BYTE AnalogXSearchBytes[]{ 0X83, 0xC4, 0x10, 0xDF, 0xE0, 0xF6, 0xC4, 0x05, 0x0F, 0x8A, 0x96 };
+	BYTE *AnalogX = (BYTE*)ReadSearchedAddresses(0x54efdf, 0x54f30f, 0x54ec2f, AnalogXSearchBytes, sizeof(AnalogXSearchBytes), 0x26);
+
+	// Checking address pointer
+	if (!AnalogX)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Analog X address!";
+		return nullptr;
+	}
+
+	AnalogXAddr = (BYTE*)((DWORD)AnalogX);
+
+	return AnalogXAddr;
+}
+
+DWORD *GetLeftAnalogXFunctionPointer()
+{
+	if (LeftAnalogXFunctionAddr)
+	{
+		return LeftAnalogXFunctionAddr;
+	}
+
+	// Get Analog Stick function address
+	constexpr BYTE LeftAnalogXFunctionSearchBytes[]{ 0xF6, 0xC4, 0x05, 0x7A, 0x06, 0xDD, 0xD8, 0xD9, 0xC0, 0xEB, 0x15 };
+	void *LeftAnalogXAddr = (void*)SearchAndGetAddresses(0x52E7D3, 0x52EB03, 0x52E423, LeftAnalogXFunctionSearchBytes, sizeof(LeftAnalogXFunctionSearchBytes), -0x14E);
+
+	// Checking address pointer
+	if (!LeftAnalogXAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Analog Stick function address!";
+		return nullptr;
+	}
+
+
+	LeftAnalogXFunctionAddr = (DWORD*)LeftAnalogXAddr;
+
+	return LeftAnalogXFunctionAddr;
+}
+
+DWORD *GetLeftAnalogYFunctionPointer()
+{
+	if (LeftAnalogYFunctionAddr)
+	{
+		return LeftAnalogYFunctionAddr;
+	}
+
+	// Get Analog Stick function address
+	constexpr BYTE LeftAnalogYFunctionSearchBytes[]{ 0xF6, 0xC4, 0x05, 0x7A, 0x06, 0xDD, 0xD8, 0xD9, 0xC0, 0xEB, 0x15 };
+	void *LeftAnalogYAddr = (void*)SearchAndGetAddresses(0x52E7D3, 0x52EB03, 0x52E423, LeftAnalogYFunctionSearchBytes, sizeof(LeftAnalogYFunctionSearchBytes), -0x13E);
+
+	// Checking address pointer
+	if (!LeftAnalogYAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Analog Stick function address!";
+		return nullptr;
+	}
+
+
+	LeftAnalogYFunctionAddr = (DWORD*)LeftAnalogYAddr;
+
+	return LeftAnalogYFunctionAddr;
+}
+
+DWORD *GetRightAnalogXFunctionPointer()
+{
+	if (RightAnalogXFunctionAddr)
+	{
+		return RightAnalogXFunctionAddr;
+	}
+
+	// Get Analog Stick function address
+	constexpr BYTE RightAnalogXFunctionSearchBytes[]{ 0xF6, 0xC4, 0x05, 0x7A, 0x06, 0xDD, 0xD8, 0xD9, 0xC0, 0xEB, 0x15 };
+	void *RightAnalogXAddr = (void*)SearchAndGetAddresses(0x52E7D3, 0x52EB03, 0x52E423, RightAnalogXFunctionSearchBytes, sizeof(RightAnalogXFunctionSearchBytes), -0x12B);
+
+	// Checking address pointer
+	if (!RightAnalogXAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Analog Stick function address!";
+		return nullptr;
+	}
+
+
+	RightAnalogXFunctionAddr = (DWORD*)RightAnalogXAddr;
+
+	return RightAnalogXFunctionAddr;
+}
+
+DWORD *GetRightAnalogYFunctionPointer()
+{
+	if (RightAnalogYFunctionAddr)
+	{
+		return RightAnalogYFunctionAddr;
+	}
+
+	// Get Analog Stick function address
+	constexpr BYTE RightAnalogYFunctionSearchBytes[]{ 0xF6, 0xC4, 0x05, 0x7A, 0x06, 0xDD, 0xD8, 0xD9, 0xC0, 0xEB, 0x15 };
+	void *RightAnalogYAddr = (void*)SearchAndGetAddresses(0x52E7D3, 0x52EB03, 0x52E423, RightAnalogYFunctionSearchBytes, sizeof(RightAnalogYFunctionSearchBytes), -0x11B);
+
+	// Checking address pointer
+	if (!RightAnalogYAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Analog Stick function address!";
+		return nullptr;
+	}
+
+
+	RightAnalogYFunctionAddr = (DWORD*)RightAnalogYAddr;
+
+	return RightAnalogYFunctionAddr;
+}
+
+DWORD *GetUpdateMousePositionFunctionPointer()
+{
+	if (UpdateMousePositionFunctionAddr)
+	{
+		return UpdateMousePositionFunctionAddr;
+	}
+
+	// Get Update Mouse Position function address
+	constexpr BYTE UpdateMousePositionFunctionSearchBytes[]{ 0x89, 0x74, 0x24, 0x58, 0x89, 0x74 };
+	void *UpdateMousePositionAddr = (void*)SearchAndGetAddresses(0x4588F1, 0x458B51, 0x458B51, UpdateMousePositionFunctionSearchBytes, sizeof(UpdateMousePositionFunctionSearchBytes), 0x40);
+
+	// Checking address pointer
+	if (!UpdateMousePositionAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Update Mouse Position function address!";
+		return nullptr;
+	}
+
+
+	UpdateMousePositionFunctionAddr = (DWORD*)UpdateMousePositionAddr;
+
+	return UpdateMousePositionFunctionAddr;
 }

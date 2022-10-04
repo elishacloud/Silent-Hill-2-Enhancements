@@ -16,10 +16,11 @@
 
 #include "InputTweaks.h"
 
-const int AnalogThreshold = 30;
-const int StickFlipBack = 30;
+const int AnalogThreshold = 10;
 const int InputDebounce = 50;
 const int PauseMenuMouseThreshold = 15;
+const int AnalogHalfTilt = 90;
+const int AnalogFullTilt = 126;
 
 bool once = false;
 
@@ -42,6 +43,7 @@ bool SetLeftKey = false;
 bool SetRightKey = false;
 bool SetUpKey = false;
 bool SetDownKey = false;
+bool FirstFrameNoInputFlag = false;
 
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLXAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLYAxis;
@@ -49,49 +51,42 @@ injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerRXAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerRYAxis;
 injector::hook_back<void(__cdecl*)(void)> orgUpdateMousePosition;
 
+
 int8_t GetControllerLXAxis_Hook(DWORD* arg)
 {
 	int RetValue = MouseXAxis;
 	MouseXAxis = 0;
-	//TODO check james speed while mouse turning
+
 	// Fix for James spinning after Alt+ Tab
 	if (GetForegroundWindow() != GameWindowHandle || GetEnableInput() != 0xFFFFFFFF)
 	{
 		return orgGetControllerLXAxis.fun(arg);
 	}
 
-	if (RetValue > 0)
+	if (RetValue != 0)
 	{
-		AnalogX = RetValue > AnalogThreshold ? 126 : 80;
-		return RetValue > AnalogThreshold ? 126 : 80;
-	}
-	else if (RetValue < 0)
-	{
-		AnalogX = RetValue < -AnalogThreshold ? -126 : -80;
-		return RetValue < -AnalogThreshold ? -126 : -80;
-	}
-	
-	// If no mouse input is detected this frame
-	if (AnalogX > 0)
-	{
-		AnalogX -= StickFlipBack;
-		if (AnalogX < 0)
-			AnalogX = 0;
+		FirstFrameNoInputFlag = true;
 
-		return AnalogX;
-	} else if (AnalogX > 0)
+		if (RetValue > 0)
+		{
+			AnalogX = RetValue > AnalogThreshold ? AnalogFullTilt : AnalogHalfTilt;
+			return AnalogX;
+		}
+		else if (RetValue < 0)
+		{
+			AnalogX = RetValue < -AnalogThreshold ? -AnalogFullTilt : -AnalogHalfTilt;
+			return AnalogX;
+		}
+	} 
+	else
 	{
-		AnalogX -= StickFlipBack;
-		if (AnalogX < 0)
-			AnalogX = 0;
+		if (FirstFrameNoInputFlag)
+		{
+			FirstFrameNoInputFlag = false;
+			return AnalogX;
+		}
+	}
 
-		return AnalogX;
-	}
-	else 
-	{
-		return orgGetControllerRXAxis.fun(arg);
-	}
-	
 }
 
 int8_t GetControllerLYAxis_Hook(DWORD* arg)
@@ -195,6 +190,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		auto Now = std::chrono::system_clock::now();
 		auto DeltaMsWeaponSwap = std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastWeaponSwap);
 
+		// Save Keyboard Data
 		KeyboardData = (BYTE*)lpvData;
 		
 		// Ignore Alt + Enter combo
@@ -283,7 +279,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 				SetKey(GetActionKeyBind());
 		}
 
-		// Clear 
+		// Clear Keyboard Data
 		KeyboardData = nullptr;
 	}
 
@@ -291,16 +287,12 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 	{
 		once = true;
 
-		auto pattern = hook::pattern("e8 36 16 04 00");
-		orgGetControllerLXAxis.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), GetControllerLXAxis_Hook, true).get();
-		pattern = hook::pattern("e8 26 16 04 00");
-		orgGetControllerLYAxis.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), GetControllerLYAxis_Hook, true).get();
-		pattern = hook::pattern("e8 13 16 04 00");
-		orgGetControllerRXAxis.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), GetControllerRXAxis_Hook, true).get();
-		pattern = hook::pattern("e8 03 16 04 00");
-		orgGetControllerRYAxis.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), GetControllerRYAxis_Hook, true).get();
-		pattern = hook::pattern("e8 aa 1b 00 00");
-		orgUpdateMousePosition.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), UpdateMousePosition_Hook, true).get();
+		orgGetControllerLXAxis.fun = injector::MakeCALL(GetLeftAnalogXFunctionPointer(), GetControllerLXAxis_Hook, true).get();
+		orgGetControllerLYAxis.fun = injector::MakeCALL(GetLeftAnalogYFunctionPointer(), GetControllerLYAxis_Hook, true).get();
+		orgGetControllerRXAxis.fun = injector::MakeCALL(GetRightAnalogXFunctionPointer(), GetControllerRXAxis_Hook, true).get();
+		orgGetControllerRYAxis.fun = injector::MakeCALL(GetRightAnalogYFunctionPointer(), GetControllerRYAxis_Hook, true).get();
+
+		orgUpdateMousePosition.fun = injector::MakeCALL(GetUpdateMousePositionFunctionPointer(), UpdateMousePosition_Hook, true).get();
 	}
 
 }
@@ -310,12 +302,14 @@ void InputTweaks::TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD
 	// For mouse
 	if (ProxyInterface == MouseInterfaceAddress)
 	{
+		// Save Mouse Data
 		MouseData = rgdod;
 		MouseDataSize = *pdwInOut;
 
 		MouseXAxis = GetMouseRelXChange();
 		ReadMouseButtons();
 
+		// Clear Mouse Data
 		MouseData = nullptr;
 		MouseDataSize = NULL;
 	}
@@ -378,8 +372,8 @@ int32_t InputTweaks::GetMouseRelXChange()
 		return AxisSum;
 
 	for (int i = 0; i < MouseDataSize; i++)
-		if (MouseData->dwOfs == DIMOFS_X)
-			AxisSum += (int32_t) MouseData->dwData;
+		if (MouseData[i].dwOfs == DIMOFS_X)
+			AxisSum += (int32_t) MouseData[i].dwData;
 
 	return AxisSum;
 }
@@ -399,8 +393,8 @@ int32_t InputTweaks::GetMouseRelYChange()
 		return AxisSum;
 
 	for (int i = 0; i < MouseDataSize; i++)
-		if (MouseData->dwOfs == DIMOFS_Y)
-			AxisSum += (int32_t)MouseData->dwData;
+		if (MouseData[i].dwOfs == DIMOFS_Y)
+			AxisSum += (int32_t)MouseData[i].dwData;
 
 	return AxisSum;
 }
@@ -410,21 +404,21 @@ void InputTweaks::ReadMouseButtons()
 	if (!MouseData) return;
 
 	for (int i = 0; i < MouseDataSize; i++)
-		switch (MouseData->dwOfs)
+		switch (MouseData[i].dwOfs)
 		{
 		case DIMOFS_BUTTON0:
 		{
-			SetLeftMouseButton = MouseData->dwData == KEY_SET;
+			SetLeftMouseButton = MouseData[i].dwData == KEY_SET;
 			break;
 		}
 		case DIMOFS_BUTTON1:
 		{
-			SetRightMouseButton = MouseData->dwData == KEY_SET;
+			SetRightMouseButton = MouseData[i].dwData == KEY_SET;
 			break;
 		}
 		case DIMOFS_Z:
 		{
-			MouseWheel = MouseData->dwData;
+			MouseWheel = MouseData[i].dwData;
 		}
 
 		default:

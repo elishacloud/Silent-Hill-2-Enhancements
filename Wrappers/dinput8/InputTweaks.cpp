@@ -83,9 +83,16 @@ int8_t GetControllerLXAxis_Hook(DWORD* arg)
 		if (FirstFrameNoInputFlag)
 		{
 			FirstFrameNoInputFlag = false;
-			return AnalogX;
 		}
+		else
+		{
+			AnalogX = 0;
+		}
+
+		return AnalogX;
 	}
+
+	
 
 }
 

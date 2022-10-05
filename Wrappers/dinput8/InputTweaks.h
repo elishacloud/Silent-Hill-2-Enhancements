@@ -59,6 +59,11 @@ struct AnalogStick {
 		XAxis = 0;
 		YAxis = 0;
 	}
+
+	bool IsCentered()
+	{
+		return XAxis == 0 && YAxis == 0;
+	}
 };
 
 class InputTweaks

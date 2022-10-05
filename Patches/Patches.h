@@ -64,6 +64,7 @@ BYTE GetWalkBackwardsKeyBind();
 BYTE GetNextWeaponKeyBind();
 BYTE GetPreviousWeaponKeyBind();
 BYTE GetAnalogX();
+BYTE GetSearchViewFlag();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -121,6 +122,7 @@ DWORD *GetLeftAnalogYFunctionPointer();
 DWORD *GetRightAnalogXFunctionPointer();
 DWORD *GetRightAnalogYFunctionPointer();
 DWORD *GetUpdateMousePositionFunctionPointer();
+BYTE *GetSearchViewFlagPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

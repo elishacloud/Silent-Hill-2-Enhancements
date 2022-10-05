@@ -34,6 +34,7 @@ int MouseXAxis = 0;
 int MouseYAxis = 0;
 long int MouseWheel = 0;
 int AnalogX = 0;
+AnalogStick VirtualRightStick;
 bool PauseMenuVerticalChanged = false;
 bool PauseMenuHorizontalChanged = false;
 
@@ -54,29 +55,28 @@ injector::hook_back<void(__cdecl*)(void)> orgUpdateMousePosition;
 
 int8_t GetControllerLXAxis_Hook(DWORD* arg)
 {
-	int RetValue = MouseXAxis;
+	int TempXAxis = MouseXAxis;
 	MouseXAxis = 0;
 
 	// Fix for James spinning after Alt+ Tab
-	if (GetForegroundWindow() != GameWindowHandle || GetEnableInput() != 0xFFFFFFFF)
+	if (GetForegroundWindow() != GameWindowHandle || GetEnableInput() != 0xFFFFFFFF || GetSearchViewFlag() == 0x6)
 	{
 		return orgGetControllerLXAxis.fun(arg);
 	}
 
-	if (RetValue != 0)
+	if (TempXAxis != 0)
 	{
 		FirstFrameNoInputFlag = true;
 
-		if (RetValue > 0)
+		if (TempXAxis > 0)
 		{
-			AnalogX = RetValue > AnalogThreshold ? AnalogFullTilt : AnalogHalfTilt;
-			return AnalogX;
+			AnalogX = TempXAxis > AnalogThreshold ? AnalogFullTilt : AnalogHalfTilt;
 		}
-		else if (RetValue < 0)
+		else if (TempXAxis < 0)
 		{
-			AnalogX = RetValue < -AnalogThreshold ? -AnalogFullTilt : -AnalogHalfTilt;
-			return AnalogX;
+			AnalogX = TempXAxis < -AnalogThreshold ? -AnalogFullTilt : -AnalogHalfTilt;
 		}
+
 	} 
 	else
 	{
@@ -89,11 +89,9 @@ int8_t GetControllerLXAxis_Hook(DWORD* arg)
 			AnalogX = 0;
 		}
 
-		return AnalogX;
 	}
-
 	
-
+	return AnalogX;
 }
 
 int8_t GetControllerLYAxis_Hook(DWORD* arg)
@@ -103,12 +101,28 @@ int8_t GetControllerLYAxis_Hook(DWORD* arg)
 
 int8_t GetControllerRXAxis_Hook(DWORD* arg)
 {
-	return orgGetControllerRXAxis.fun(arg);
+	if (GetSearchViewFlag() == 0x6)
+	{
+		VirtualRightStick.AddXValue(orgGetControllerRXAxis.fun(arg));
+		return VirtualRightStick.XAxis;
+	}
+	else
+	{
+		return orgGetControllerRXAxis.fun(arg);
+	}
 }
 
 int8_t GetControllerRYAxis_Hook(DWORD* arg)
 {
-	return orgGetControllerRYAxis.fun(arg);
+	if (GetSearchViewFlag() == 0x6)
+	{
+		VirtualRightStick.AddYValue(orgGetControllerRYAxis.fun(arg));
+		return VirtualRightStick.YAxis;
+	}
+	else
+	{
+		return orgGetControllerRYAxis.fun(arg);
+	}
 }
 
 void UpdateMousePosition_Hook()
@@ -202,7 +216,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		
 		// Ignore Alt + Enter combo
 		if ((IsKeyPressed(DIK_LMENU) || IsKeyPressed(DIK_RMENU)) && IsKeyPressed(DIK_RETURN) && 
-			DynamicResolution && ScreenMode != 3)
+			DynamicResolution && ScreenMode != EXCLUSIVE_FULLSCREEN)
 		{
 			ClearKey(DIK_LMENU);
 			ClearKey(DIK_RMENU);
@@ -286,7 +300,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 				SetKey(GetActionKeyBind());
 		}
 
-		// Clear Keyboard Data
+		// Clear Keyboard Data pointer
 		KeyboardData = nullptr;
 	}
 
@@ -315,6 +329,16 @@ void InputTweaks::TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD
 
 		MouseXAxis = GetMouseRelXChange();
 		ReadMouseButtons();
+
+		if (GetSearchViewFlag() == 0x6)
+		{
+			VirtualRightStick.AddXValue(MouseXAxis);
+			VirtualRightStick.AddYValue(GetMouseRelYChange());
+		}
+		else
+		{
+			VirtualRightStick.Recenter();
+		}
 
 		// Clear Mouse Data
 		MouseData = nullptr;

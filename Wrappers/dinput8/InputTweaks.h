@@ -28,6 +28,39 @@
 #define KEY_SET   0x80
 #define KEY_CLEAR 0x00
 
+struct AnalogStick {
+	int8_t XAxis = 0;
+	int8_t YAxis = 0;
+
+	void AddXValue(int Value)
+	{
+		int temp = XAxis + Value;
+		if (temp > 126)
+			XAxis = 126;
+		else if (temp < -126)
+			XAxis = -126;
+		else
+			XAxis = temp;
+	}
+
+	void AddYValue(int Value)
+	{
+		int temp = YAxis + Value;
+		if (temp > 126)
+			YAxis = 126;
+		else if (temp < -126)
+			YAxis = -126;
+		else
+			YAxis = temp;
+	}
+
+	void Recenter()
+	{
+		XAxis = 0;
+		YAxis = 0;
+	}
+};
+
 class InputTweaks
 {
 private:

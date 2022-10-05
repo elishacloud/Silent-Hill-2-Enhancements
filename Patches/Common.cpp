@@ -77,6 +77,7 @@ DWORD* LeftAnalogYFunctionAddr;
 DWORD* RightAnalogXFunctionAddr;
 DWORD* RightAnalogYFunctionAddr;
 DWORD* UpdateMousePositionFunctionAddr;
+BYTE* SearchViewFlagAddr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -1706,4 +1707,34 @@ DWORD *GetUpdateMousePositionFunctionPointer()
 	UpdateMousePositionFunctionAddr = (DWORD*)UpdateMousePositionAddr;
 
 	return UpdateMousePositionFunctionAddr;
+}
+
+BYTE GetSearchViewFlag()
+{
+	BYTE *pCancelButton = GetSearchViewFlagPointer();
+
+	return (pCancelButton) ? *pCancelButton : 0;
+}
+
+BYTE *GetSearchViewFlagPointer()
+{
+	if (SearchViewFlagAddr)
+	{
+		return SearchViewFlagAddr;
+	}
+
+	// Get Search View Flag address
+	constexpr BYTE SearchViewFlagSearchBytes[]{ 0x83, 0xC4, 0x08, 0x5F, 0x5E, 0x83, 0xC8, 0x20, 0x5D };
+	BYTE *SearchViewFlag = (BYTE*)ReadSearchedAddresses(0x51F7A2, 0x51FAD2, 0x51F3F2, SearchViewFlagSearchBytes, sizeof(SearchViewFlagSearchBytes), 0x0A);
+
+	// Checking address pointer
+	if (!SearchViewFlag)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Search View Flag address!";
+		return nullptr;
+	}
+
+	SearchViewFlagAddr = (BYTE*)((DWORD)SearchViewFlag + 1);
+
+	return SearchViewFlagAddr;
 }

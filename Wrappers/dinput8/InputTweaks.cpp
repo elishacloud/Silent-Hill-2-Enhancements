@@ -19,7 +19,7 @@
 const int AnalogThreshold = 10;
 const int InputDebounce = 50;
 const int PauseMenuMouseThreshold = 15;
-const int AnalogHalfTilt = 90;
+const int AnalogHalfTilt = 80;
 const int AnalogFullTilt = 126;
 
 bool once = false;
@@ -52,7 +52,6 @@ injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerRXAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerRYAxis;
 injector::hook_back<void(__cdecl*)(void)> orgUpdateMousePosition;
 
-
 int8_t GetControllerLXAxis_Hook(DWORD* arg)
 {
 	int TempXAxis = MouseXAxis;
@@ -76,7 +75,7 @@ int8_t GetControllerLXAxis_Hook(DWORD* arg)
 		{
 			AnalogX = TempXAxis < -AnalogThreshold ? -AnalogFullTilt : -AnalogHalfTilt;
 		}
-
+		
 	} 
 	else
 	{
@@ -87,10 +86,11 @@ int8_t GetControllerLXAxis_Hook(DWORD* arg)
 		else
 		{
 			AnalogX = 0;
+			return orgGetControllerLXAxis.fun(arg);
 		}
 
 	}
-	
+
 	return AnalogX;
 }
 

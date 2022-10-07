@@ -62,7 +62,7 @@ void ProcessDInputData_Hook(GamePadState* state)
 		}
 
 		// Mouse turning
-		if (joystickState.lX == 0 && GetSearchViewFlag() != 0x6)
+		if (joystickState.lX == 0)
 			joystickState.lX = static_cast<LONG>(InputTweaksRef.GetMouseAnalogX() * 32767.0);
 	}
 	

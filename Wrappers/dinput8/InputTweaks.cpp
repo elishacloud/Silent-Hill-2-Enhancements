@@ -424,8 +424,11 @@ void InputTweaks::ReadMouseButtons()
 
 float InputTweaks::GetMouseAnalogX()
 {
-	if (MouseXAxis == 0)
+	if (MouseXAxis == 0 || GetSearchViewFlag() == 0x06)
+	{
+		MouseXAxis = 0;
 		return 0;
+	}
 
 	int TempAxis = MouseXAxis;
 	MouseXAxis = 0;

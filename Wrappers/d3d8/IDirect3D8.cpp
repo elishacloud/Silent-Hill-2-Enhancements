@@ -321,8 +321,6 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 		}
 	}
 
-	GameWindowHandle = DeviceWindow;
-
 	return hr;
 }
 

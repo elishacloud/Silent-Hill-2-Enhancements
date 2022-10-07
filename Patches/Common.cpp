@@ -59,7 +59,6 @@ int16_t *ItemsCollectedAddr;
 float *DamagePointsTakenAddr;
 uint8_t *SecretItemsCollectedAddr;
 float *BoatStageTimeAddr;
-int32_t* EnableInputAddr;
 int32_t* MouseVerticalPositionAddr;
 int32_t* MouseHorizontalPositionAddr;
 BYTE* AimKeyBindAddr;
@@ -71,7 +70,6 @@ BYTE* WalkForwardKeyBindAddr;
 BYTE* WalkBackwardsKeyBindAddr;
 BYTE* NextWeaponKeyBindAddr;
 BYTE* PreviousWeaponKeyBindAddr;
-BYTE* AnalogXAddr;
 DWORD* LeftAnalogXFunctionAddr;
 DWORD* LeftAnalogYFunctionAddr;
 DWORD* RightAnalogXFunctionAddr;
@@ -82,8 +80,6 @@ BYTE* SearchViewFlagAddr;
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
 std::string AuxDebugOvlString = "";
-
-HWND GameWindowHandle = NULL;
 
 DWORD GetRoomID()
 {
@@ -1199,36 +1195,6 @@ float *GetBoatStageTimePointer()
 	return BoatStageTimeAddr;
 }
 
-int32_t GetEnableInput()
-{
-	int32_t *pEnableInput = GetEnableInputPointer();
-
-	return (pEnableInput) ? *pEnableInput : 0;
-}
-
-int32_t *GetEnableInputPointer()
-{
-	if (EnableInputAddr)
-	{
-		return EnableInputAddr;
-	}
-
-	// Get EnableInput address
-	constexpr BYTE EnableInputSearchBytes[]{ 0xC1, 0xE0, 0x04, 0x03, 0xC1, 0x8B, 0x40, 0x0C, 0x8B, 0xF0 };
-	int32_t *EnableInput = (int32_t*)ReadSearchedAddresses(0x48C005, 0x48C2A5, 0x48C4B5, EnableInputSearchBytes, sizeof(EnableInputSearchBytes), -0x12);
-
-	// Checking address pointer
-	if (!EnableInput)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find EnableInput address!";
-		return nullptr;
-	}
-
-	EnableInputAddr = (int32_t*)((DWORD)EnableInput);
-
-	return EnableInputAddr;
-}
-
 BYTE GetAimKeyBind()
 {
 	BYTE *pAimButton = GetAimKeyBindPointer();
@@ -1557,36 +1523,6 @@ int32_t *GetMouseHorizontalPositionPointer()
 	MouseHorizontalPositionAddr = (int32_t*)((DWORD)MouseHorizontalPosition);
 
 	return MouseHorizontalPositionAddr;
-}
-
-BYTE GetAnalogX()
-{
-	BYTE *pCancelButton = GetAnalogXPointer();
-
-	return (pCancelButton) ? *pCancelButton : 0;
-}
-
-BYTE *GetAnalogXPointer()
-{
-	if (AnalogXAddr)
-	{
-		return AnalogXAddr;
-	}
-
-	// Get Analog X address
-	constexpr BYTE AnalogXSearchBytes[]{ 0X83, 0xC4, 0x10, 0xDF, 0xE0, 0xF6, 0xC4, 0x05, 0x0F, 0x8A, 0x96 };
-	BYTE *AnalogX = (BYTE*)ReadSearchedAddresses(0x54efdf, 0x54f30f, 0x54ec2f, AnalogXSearchBytes, sizeof(AnalogXSearchBytes), 0x26);
-
-	// Checking address pointer
-	if (!AnalogX)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find Analog X address!";
-		return nullptr;
-	}
-
-	AnalogXAddr = (BYTE*)((DWORD)AnalogX);
-
-	return AnalogXAddr;
 }
 
 DWORD *GetLeftAnalogXFunctionPointer()

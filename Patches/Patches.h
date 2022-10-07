@@ -51,7 +51,6 @@ int16_t GetItemsCollected();
 float GetDamagePointsTaken();
 uint8_t GetSecretItemsCollected();
 float GetBoatStageTime();
-int32_t GetEnableInput();
 int32_t GetMouseVerticalPosition();
 int32_t GetMouseHorizontalPosition();
 BYTE GetAimKeyBind();
@@ -63,7 +62,6 @@ BYTE GetWalkForwardKeyBind();
 BYTE GetWalkBackwardsKeyBind();
 BYTE GetNextWeaponKeyBind();
 BYTE GetPreviousWeaponKeyBind();
-BYTE GetAnalogX();
 BYTE GetSearchViewFlag();
 
 // Shared pointer function declaration
@@ -104,7 +102,6 @@ int16_t *GetItemsCollectedPointer();
 float *GetDamagePointsTakenPointer();
 uint8_t *GetSecretItemsCollectedPointer();
 float *GetBoatStageTimePointer();
-int32_t *GetEnableInputPointer(); 
 int32_t *GetMouseVerticalPositionPointer();
 int32_t *GetMouseHorizontalPositionPointer();
 BYTE *GetAimKeyBindPointer();
@@ -116,7 +113,6 @@ BYTE *GetWalkForwardKeyBindPointer();
 BYTE *GetWalkBackwardsKeyBindPointer();
 BYTE *GetNextWeaponKeyBindPointer();
 BYTE *GetPreviousWeaponKeyBindPointer();
-BYTE *GetAnalogXPointer();
 DWORD *GetLeftAnalogXFunctionPointer();
 DWORD *GetLeftAnalogYFunctionPointer();
 DWORD *GetRightAnalogXFunctionPointer();
@@ -291,7 +287,6 @@ extern float *BoatStageTimeAddr;
 extern bool ShowDebugOverlay;
 extern bool ShowInfoOverlay;
 extern std::string AuxDebugOvlString;
-extern HWND GameWindowHandle;
 
 // Run code only once
 #define RUNONCE() \

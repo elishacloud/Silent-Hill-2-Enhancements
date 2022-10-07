@@ -21,6 +21,7 @@
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
 #include "External/Hooking.Patterns/Hooking.Patterns.h"
+#include "Wrappers\dinput8\InputTweaks.h"
 
 
 #define DIRECTINPUT_VERSION 0x0800
@@ -60,7 +61,7 @@ void ProcessDInputData_Hook(GamePadState* state)
 			joystickState.lY = static_cast<LONG>(std::cos(angleRadians) * -32767.0);
 		}
 	}
-
+	
 	// Populate right stick with data
 	switch (RestoreSearchCamMovement)
 	{

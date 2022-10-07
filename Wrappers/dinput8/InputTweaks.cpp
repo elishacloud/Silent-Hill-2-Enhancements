@@ -16,6 +16,8 @@
 
 #include "InputTweaks.h"
 
+InputTweaks InputTweaksRef;
+
 const int AnalogThreshold = 10;
 const int InputDebounce = 50;
 const int PauseMenuMouseThreshold = 15;

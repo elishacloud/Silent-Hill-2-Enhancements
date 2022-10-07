@@ -16,8 +16,6 @@
 
 #include "dinput8wrapper.h"
 
-InputTweaks InpTweaks;
-
 HRESULT m_IDirectInputDevice8A::QueryInterface(REFIID riid, LPVOID * ppvObj)
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
@@ -99,9 +97,9 @@ HRESULT m_IDirectInputDevice8A::Acquire()
 	ProxyInterface->GetDeviceInfo(deviceInfo);
 	
 	if (deviceInfo->guidProduct == GUID_SysMouse)
-		InpTweaks.SetMouseInterfaceAddr(ProxyInterface);
+		InputTweaksRef.SetMouseInterfaceAddr(ProxyInterface);
 	if (deviceInfo->guidProduct == GUID_SysKeyboard)
-		InpTweaks.SetKeyboardInterfaceAddr(ProxyInterface);
+		InputTweaksRef.SetKeyboardInterfaceAddr(ProxyInterface);
 
 	return ProxyInterface->Acquire();
 }
@@ -110,7 +108,7 @@ HRESULT m_IDirectInputDevice8A::Unacquire()
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
 
-	InpTweaks.RemoveAddr(ProxyInterface);
+	InputTweaksRef.RemoveAddr(ProxyInterface);
 
 	return ProxyInterface->Unacquire();
 }
@@ -121,7 +119,7 @@ HRESULT m_IDirectInputDevice8A::GetDeviceState(DWORD cbData, LPVOID lpvData)
 
 	HRESULT res = ProxyInterface->GetDeviceState(cbData, lpvData);
 
-	InpTweaks.TweakGetDeviceState(ProxyInterface, cbData, lpvData);
+	InputTweaksRef.TweakGetDeviceState(ProxyInterface, cbData, lpvData);
 
 	return res;
 }
@@ -132,7 +130,7 @@ HRESULT m_IDirectInputDevice8A::GetDeviceData(DWORD cbObjectData, LPDIDEVICEOBJE
 
 	HRESULT hr = ProxyInterface->GetDeviceData(cbObjectData, rgdod, pdwInOut, dwFlags);
 
-	InpTweaks.TweakGetDeviceData(ProxyInterface, cbObjectData, rgdod, pdwInOut, dwFlags);
+	InputTweaksRef.TweakGetDeviceData(ProxyInterface, cbObjectData, rgdod, pdwInOut, dwFlags);
 
 	return hr;
 }

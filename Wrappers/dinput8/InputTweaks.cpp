@@ -460,3 +460,17 @@ void InputTweaks::ReadMouseButtons()
 		}
 		
 }
+
+float InputTweaks::GetMouseAnalogX()
+{
+	if (MouseXAxis == 0)
+		return 0;
+
+	int TempAxis = MouseXAxis;
+	MouseXAxis = 0;
+
+	if (TempAxis > 0)
+		return TempAxis > 20 ? 1.0 : 0.5;
+
+	return TempAxis < -20 ? -1.0 : -0.5;
+}

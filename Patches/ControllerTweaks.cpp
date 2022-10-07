@@ -48,7 +48,7 @@ void ProcessDInputData_Hook(GamePadState* state)
 {
 	DIJOYSTATE2& joystickState = *dinputJoyState;
 
-	if (DPadMovementFix)
+	if (DPadMovementFix) //TODO put or mouse turning setting
 	{
 		const DWORD povAngle = joystickState.rgdwPOV[0];
 		const bool centered = LOWORD(povAngle) == 0xFFFF;
@@ -60,6 +60,9 @@ void ProcessDInputData_Hook(GamePadState* state)
 			joystickState.lX = static_cast<LONG>(std::sin(angleRadians) * 32767.0);
 			joystickState.lY = static_cast<LONG>(std::cos(angleRadians) * -32767.0);
 		}
+
+		// Mouse turning
+		joystickState.lX = static_cast<LONG>(InputTweaksRef.GetMouseAnalogX() * 32767.0);
 	}
 	
 	// Populate right stick with data

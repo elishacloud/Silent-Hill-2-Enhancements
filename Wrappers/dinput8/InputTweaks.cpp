@@ -18,11 +18,11 @@
 
 InputTweaks InputTweaksRef;
 
-const int AnalogThreshold = 10;
+const int AnalogThreshold = 15;
 const int InputDebounce = 50;
 const int PauseMenuMouseThreshold = 15;
-const int AnalogHalfTilt = 80;
-const int AnalogFullTilt = 126;
+const float AnalogHalfTilt = 0.5;
+const float AnalogFullTilt = 1;
 
 bool once = false;
 
@@ -35,7 +35,6 @@ int LastMouseHorizontalPos = 0xFC;
 int MouseXAxis = 0;
 int MouseYAxis = 0;
 long int MouseWheel = 0;
-int AnalogX = 0;
 AnalogStick VirtualRightStick;
 bool PauseMenuVerticalChanged = false;
 bool PauseMenuHorizontalChanged = false;
@@ -46,7 +45,6 @@ bool SetLeftKey = false;
 bool SetRightKey = false;
 bool SetUpKey = false;
 bool SetDownKey = false;
-bool FirstFrameNoInputFlag = false;
 
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLXAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLYAxis;
@@ -56,44 +54,7 @@ injector::hook_back<void(__cdecl*)(void)> orgUpdateMousePosition;
 
 int8_t GetControllerLXAxis_Hook(DWORD* arg)
 {
-	int TempXAxis = MouseXAxis;
-	MouseXAxis = 0;
-
-	// Fix for James spinning after Alt+ Tab
-	if (GetForegroundWindow() != GameWindowHandle || GetEnableInput() != 0xFFFFFFFF || GetSearchViewFlag() == 0x6)
-	{
-		return orgGetControllerLXAxis.fun(arg);
-	}
-
-	if (TempXAxis != 0)
-	{
-		FirstFrameNoInputFlag = true;
-
-		if (TempXAxis > 0)
-		{
-			AnalogX = TempXAxis > AnalogThreshold ? AnalogFullTilt : AnalogHalfTilt;
-		}
-		else if (TempXAxis < 0)
-		{
-			AnalogX = TempXAxis < -AnalogThreshold ? -AnalogFullTilt : -AnalogHalfTilt;
-		}
-		
-	} 
-	else
-	{
-		if (FirstFrameNoInputFlag)
-		{
-			FirstFrameNoInputFlag = false;
-		}
-		else
-		{
-			AnalogX = 0;
-			return orgGetControllerLXAxis.fun(arg);
-		}
-
-	}
-
-	return AnalogX;
+	return orgGetControllerLXAxis.fun(arg);
 }
 
 int8_t GetControllerLYAxis_Hook(DWORD* arg)
@@ -459,4 +420,18 @@ void InputTweaks::ReadMouseButtons()
 
 		}
 		
+}
+
+float InputTweaks::GetMouseAnalogX()
+{
+	if (MouseXAxis == 0)
+		return 0;
+
+	int TempAxis = MouseXAxis;
+	MouseXAxis = 0;
+
+	if (TempAxis > 0)
+		return TempAxis > AnalogThreshold ? AnalogFullTilt : AnalogHalfTilt;
+
+	return TempAxis < -AnalogThreshold ? -AnalogFullTilt : -AnalogHalfTilt;
 }

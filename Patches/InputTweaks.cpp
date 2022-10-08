@@ -57,6 +57,8 @@ int8_t GetControllerLXAxis_Hook(DWORD* arg)
 	// Alt Tab Rotating Fix
 	if (GetForegroundWindow() != GameWindowHandle)
 	{
+		SetLeftMouseButton = false;
+		SetRightMouseButton = false;
 		return 0;
 	}
 		
@@ -214,7 +216,6 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 				SetKey(GetActionKeyBind());
 			if (SetRightMouseButton)
 			{
-				// If in game
 				if (GetEventIndex() == EVENT_IN_GAME && !IsInFullscreenImage)
 					SetKey(GetAimKeyBind());
 				else
@@ -255,6 +256,12 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 
 			LastWeaponSwap = Now;
 			MouseWheel = 0;
+		}
+
+		if (GetForegroundWindow() != GameWindowHandle)
+		{
+			ClearKey(GetActionKeyBind());
+			ClearKey(GetAimKeyBind());
 		}
 
 		if (MemoScreenFix && GetEventIndex() == EVENT_MEMO_LIST)
@@ -398,8 +405,8 @@ int32_t InputTweaks::GetMouseRelYChange()
 }
 
 void InputTweaks::ReadMouseButtons()
-{
-	if (!MouseData) return;
+{		
+	if (!MouseData || GetForegroundWindow() != GameWindowHandle) return;
 
 	for (int i = 0; i < MouseDataSize; i++)
 		switch (MouseData[i].dwOfs)

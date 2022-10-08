@@ -214,7 +214,6 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 				SetKey(GetActionKeyBind());
 			if (SetRightMouseButton)
 			{
-				// If in game
 				if (GetEventIndex() == EVENT_IN_GAME && !IsInFullscreenImage)
 					SetKey(GetAimKeyBind());
 				else

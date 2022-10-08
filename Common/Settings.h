@@ -25,6 +25,7 @@
 	visit(DPadMovementFix, true) \
 	visit(DynamicResolution, true) \
 	visit(EnableDebugOverlay, true) \
+	visit(EnableEnhancedMouse, true) \
 	visit(EnableInfoOverlay, true) \
 	visit(EnableMenuTest, false) \
 	visit(EnableMenuTestIGT, true) \
@@ -73,6 +74,7 @@
 	visit(LockSpeakerConfig, true) \
 	visit(MainMenuFix, true) \
 	visit(MainMenuTitlePerLang, true) \
+	visit(MemoScreenFix, true) \
 	visit(NoCDPatch, true) \
 	visit(PauseScreenFix, true) \
 	visit(PistonRoomFix, true) \

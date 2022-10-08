@@ -360,7 +360,7 @@
 
   </Tab>
 
-  <Tab name="Controller">
+  <Tab name="Input">
 
     <Section name="Controller">
         
@@ -432,6 +432,18 @@
         </Choices>
       </Feature>
 
+    </Section>
+
+    <Section name="Mouse">
+      
+      <Feature name="EnableEnhancedMouse">
+        <Title>Enhance mouse input</Title>
+        <Description>Enables turning James with the mouse, action with left mouse, aim and cancel with right mouse.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
     </Section>
 
   </Tab>
@@ -711,6 +723,15 @@
       <Feature name="FixDrawingTextLine">
         <Title>Thicken hospital diary line</Title>
         <Description>Thickens the horizontal line in the hospital diary text to make it easier to see at higher rendering resolutions.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="MemoScreenFix">
+        <Title>Fixe navigation for the memo screen</Title>
+        <Description>Enables arrow navigation and Enter selection in the memo screen.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>

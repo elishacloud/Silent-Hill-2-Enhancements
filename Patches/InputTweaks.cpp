@@ -208,7 +208,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		}
 
 		// Inject Key Presses
-		if (GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTION_FMV)
+		if (EnableEnhancedMouse && GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTION_FMV)
 		{
 			if (SetLeftMouseButton)
 				SetKey(GetActionKeyBind());
@@ -257,7 +257,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			MouseWheel = 0;
 		}
 
-		if (GetEventIndex() == EVENT_MEMO_LIST)
+		if (MemoScreenFix && GetEventIndex() == EVENT_MEMO_LIST)
 		{
 			if (IsKeyPressed(DIK_UP))
 				SetKey(GetWalkForwardKeyBind());
@@ -430,7 +430,7 @@ void InputTweaks::ReadMouseButtons()
 
 float InputTweaks::GetMouseAnalogX()
 {
-	if (MouseXAxis == 0 || GetSearchViewFlag() == 0x06 || GetEventIndex() == EVENT_OPTION_FMV)
+	if (MouseXAxis == 0 || GetSearchViewFlag() == 0x06 || GetEventIndex() != EVENT_IN_GAME)
 	{
 		MouseXAxis = 0;
 		return 0;

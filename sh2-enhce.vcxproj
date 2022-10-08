@@ -53,6 +53,7 @@
     <ClCompile Include="Include\criware\criware_xaudio2.cpp" />
     <ClCompile Include="Patches\AlternateStomp.cpp" />
     <ClCompile Include="Patches\ChangeClosetSpawn.cpp" />
+    <ClCompile Include="Patches\InputTweaks.cpp" />
     <ClCompile Include="Patches\PatchCriware.cpp" />
     <ClCompile Include="Patches\SaveGameSound.cpp" />
     <ClCompile Include="Logging\Logging.cpp" />
@@ -127,7 +128,6 @@
     <ClCompile Include="Wrappers\dinput8\IDirectInput8A.cpp" />
     <ClCompile Include="Wrappers\dinput8\IDirectInputDevice8A.cpp" />
     <ClCompile Include="Wrappers\dinput8\IDirectInputEffect.cpp" />
-    <ClCompile Include="Wrappers\dinput8\InputTweaks.cpp" />
     <ClCompile Include="Wrappers\dinput8\InterfaceQuery.cpp" />
     <ClCompile Include="Wrappers\dsound\dsoundwrapper.cpp" />
     <ClCompile Include="Wrappers\dsound\IDirectSound8.cpp" />
@@ -170,6 +170,7 @@
     <ClInclude Include="Include\winapifamily.h" />
     <ClInclude Include="Logging\Logging.h" />
     <ClInclude Include="Patches\FullscreenImages.h" />
+    <ClInclude Include="Patches\InputTweaks.h" />
     <ClInclude Include="Patches\ModelID.h" />
     <ClInclude Include="Patches\Patches.h" />
     <ClInclude Include="Patches\SfxPatch.h" />
@@ -197,7 +198,6 @@
     <ClInclude Include="Wrappers\dinput8\IDirectInput8A.h" />
     <ClInclude Include="Wrappers\dinput8\IDirectInputDevice8A.h" />
     <ClInclude Include="Wrappers\dinput8\IDirectInputEffect.h" />
-    <ClInclude Include="Wrappers\dinput8\InputTweaks.h" />
     <ClInclude Include="Wrappers\dsound.h" />
     <ClInclude Include="Wrappers\dsound\AddressLookupTable.h" />
     <ClInclude Include="Wrappers\dsound\dsoundwrapper.h" />

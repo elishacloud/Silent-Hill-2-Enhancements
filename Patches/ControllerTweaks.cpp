@@ -21,7 +21,7 @@
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
 #include "External/Hooking.Patterns/Hooking.Patterns.h"
-#include "Wrappers\dinput8\InputTweaks.h"
+#include "InputTweaks.h"
 
 
 #define DIRECTINPUT_VERSION 0x0800
@@ -48,7 +48,7 @@ void ProcessDInputData_Hook(GamePadState* state)
 {
 	DIJOYSTATE2& joystickState = *dinputJoyState;
 
-	if (DPadMovementFix) //TODO put or mouse turning setting
+	if (DPadMovementFix)
 	{
 		const DWORD povAngle = joystickState.rgdwPOV[0];
 		const bool centered = LOWORD(povAngle) == 0xFFFF;

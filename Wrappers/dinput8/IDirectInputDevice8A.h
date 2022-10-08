@@ -1,6 +1,6 @@
 #pragma once
 
-#include "InputTweaks.h"
+#include "Patches\InputTweaks.h"
 
 class m_IDirectInputDevice8A : public IDirectInputDevice8A, public AddressLookupTableDinput8Object
 {

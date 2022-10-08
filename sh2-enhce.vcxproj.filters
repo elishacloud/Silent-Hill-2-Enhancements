@@ -356,8 +356,8 @@
     <ClCompile Include="Wrappers\d3d8\Overlay.cpp">
       <Filter>Wrappers\d3d8</Filter>
     </ClCompile>
-    <ClCompile Include="Wrappers\dinput8\InputTweaks.cpp">
-      <Filter>Wrappers\dinput8</Filter>
+    <ClCompile Include="Patches\InputTweaks.cpp">
+      <Filter>Patches</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -571,8 +571,8 @@
     <ClInclude Include="Wrappers\d3d8\Overlay.h">
       <Filter>Wrappers\d3d8</Filter>
     </ClInclude>
-    <ClInclude Include="Wrappers\dinput8\InputTweaks.h">
-      <Filter>Wrappers\dinput8</Filter>
+    <ClInclude Include="Patches\InputTweaks.h">
+      <Filter>Patches</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

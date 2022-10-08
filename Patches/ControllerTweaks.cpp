@@ -23,7 +23,6 @@
 #include "External/Hooking.Patterns/Hooking.Patterns.h"
 #include "InputTweaks.h"
 
-
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 
@@ -63,7 +62,7 @@ void ProcessDInputData_Hook(GamePadState* state)
 	}
 	
 	// Mouse turning
-	if (joystickState.lX == 0 || !ControllerConnectedFlag)
+	if ((joystickState.lX == 0 || !ControllerConnectedFlag) && GetEnableInput() == 0xFFFFFFFF)
 		joystickState.lX = static_cast<LONG>(InputTweaksRef.GetMouseAnalogX() * 32767.0);
 
 	// Populate right stick with data

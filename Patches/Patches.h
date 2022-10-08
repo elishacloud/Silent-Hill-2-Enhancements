@@ -63,6 +63,8 @@ BYTE GetWalkBackwardsKeyBind();
 BYTE GetNextWeaponKeyBind();
 BYTE GetPreviousWeaponKeyBind();
 BYTE GetSearchViewFlag();
+int32_t GetEnableInput();
+BYTE GetAnalogX();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -119,6 +121,8 @@ DWORD *GetRightAnalogXFunctionPointer();
 DWORD *GetRightAnalogYFunctionPointer();
 DWORD *GetUpdateMousePositionFunctionPointer();
 BYTE *GetSearchViewFlagPointer();
+int32_t *GetEnableInputPointer();
+BYTE *GetAnalogXPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -288,6 +292,7 @@ extern bool ShowDebugOverlay;
 extern bool ShowInfoOverlay;
 extern std::string AuxDebugOvlString;
 extern bool ControllerConnectedFlag;
+extern HWND GameWindowHandle;
 
 // Run code only once
 #define RUNONCE() \

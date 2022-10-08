@@ -54,6 +54,12 @@ injector::hook_back<void(__cdecl*)(void)> orgUpdateMousePosition;
 
 int8_t GetControllerLXAxis_Hook(DWORD* arg)
 {
+	// Alt Tab Rotating Fix
+	if (GetForegroundWindow() != GameWindowHandle)
+	{
+		return 0;
+	}
+		
 	return orgGetControllerLXAxis.fun(arg);
 }
 
@@ -186,11 +192,11 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		}
 
 		// Ignore Ctrl + D combo
-		if (IsKeyPressed(DIK_LCONTROL) && IsKeyPressed(DIK_D) && EnableDebugOverlay)
+		if (IsKeyPressed(DIK_LCONTROL) && IsKeyPressed(DIK_G) && EnableDebugOverlay)
 		{
 			ClearKey(DIK_LCONTROL);
-			ClearKey(DIK_D);
-			Logging::LogDebug() << __FUNCTION__ << " Ignoring CTRL + D...";
+			ClearKey(DIK_G);
+			Logging::LogDebug() << __FUNCTION__ << " Ignoring CTRL + G...";
 		}
 
 		// Ignore Ctrl + I combo
@@ -244,7 +250,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		{
 			if (MouseWheel > 0)
 				SetKey(GetNextWeaponKeyBind());
-			else 
+			else
 				SetKey(GetPreviousWeaponKeyBind());
 
 			LastWeaponSwap = Now;
@@ -424,7 +430,7 @@ void InputTweaks::ReadMouseButtons()
 
 float InputTweaks::GetMouseAnalogX()
 {
-	if (MouseXAxis == 0 || GetSearchViewFlag() == 0x06)
+	if (MouseXAxis == 0 || GetSearchViewFlag() == 0x06 || GetEventIndex() == EVENT_OPTION_FMV)
 	{
 		MouseXAxis = 0;
 		return 0;

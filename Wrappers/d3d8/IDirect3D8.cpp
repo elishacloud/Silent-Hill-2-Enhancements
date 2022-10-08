@@ -321,6 +321,8 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 		}
 	}
 
+	GameWindowHandle = DeviceWindow;
+
 	return hr;
 }
 
@@ -579,7 +581,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		switch (wParam)
 		{
-		case 0x44: // Letter D
+		case 0x47: // Letter G
 		{
 			if (GetAsyncKeyState(VK_CONTROL)) 
 			{

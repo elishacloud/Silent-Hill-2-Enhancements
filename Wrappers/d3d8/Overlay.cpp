@@ -34,9 +34,6 @@ void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 	if (LastBufferWidth != BufferWidth || LastBufferHeight != BufferHeight)
 		InitializeDataStructs();
 
-	// In the pause menu, skip drawing
-	if (GetEventIndex() == 0x10) return;
-
 	// nVidia fix
 	ProxyInterface->GetRenderState(D3DRS_FOGENABLE, &FogEnableValue);
 	ProxyInterface->SetRenderState(D3DRS_FOGENABLE, 0x0);
@@ -52,6 +49,9 @@ void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 	{
 		DrawInfoOverlay(ProxyInterface);
 	}
+
+	// In the pause menu, skip drawing
+	if (GetEventIndex() == 0x10) return;
 
 	// Menu Test
 	if (EnableMenuTest)
@@ -170,7 +170,7 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 		CharYPos = 0;
 	}
 
-	std::string OvlString = "DEBUG MENU (CTRL + D) ";
+	std::string OvlString = "DEBUG MENU (CTRL + G) ";
 
 	OvlString.append("\rGame Resolution: ");
 	OvlString.append(std::to_string(BufferWidth));

@@ -287,6 +287,7 @@ extern float *BoatStageTimeAddr;
 extern bool ShowDebugOverlay;
 extern bool ShowInfoOverlay;
 extern std::string AuxDebugOvlString;
+extern bool ControllerConnectedFlag;
 
 // Run code only once
 #define RUNONCE() \

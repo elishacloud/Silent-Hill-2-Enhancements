@@ -80,6 +80,7 @@ BYTE* SearchViewFlagAddr;
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
 std::string AuxDebugOvlString = "";
+bool ControllerConnectedFlag = false;
 
 DWORD GetRoomID()
 {

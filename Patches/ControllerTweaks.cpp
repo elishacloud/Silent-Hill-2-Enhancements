@@ -60,12 +60,12 @@ void ProcessDInputData_Hook(GamePadState* state)
 			joystickState.lX = static_cast<LONG>(std::sin(angleRadians) * 32767.0);
 			joystickState.lY = static_cast<LONG>(std::cos(angleRadians) * -32767.0);
 		}
-
-		// Mouse turning
-		if (joystickState.lX == 0)
-			joystickState.lX = static_cast<LONG>(InputTweaksRef.GetMouseAnalogX() * 32767.0);
 	}
 	
+	// Mouse turning
+	if (joystickState.lX == 0 || !ControllerConnectedFlag)
+		joystickState.lX = static_cast<LONG>(InputTweaksRef.GetMouseAnalogX() * 32767.0);
+
 	// Populate right stick with data
 	switch (RestoreSearchCamMovement)
 	{

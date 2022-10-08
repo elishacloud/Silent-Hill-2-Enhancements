@@ -78,6 +78,7 @@ DWORD* UpdateMousePositionFunctionAddr;
 BYTE* SearchViewFlagAddr;
 int32_t* EnableInputAddr;
 BYTE* AnalogXAddr;
+BYTE* ControlTypeAddr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -1737,4 +1738,34 @@ BYTE *GetAnalogXPointer()
 	AnalogXAddr = (BYTE*)((DWORD)AnalogX);
 
 	return AnalogXAddr;
+}
+
+BYTE GetControlType()
+{
+	BYTE *pCancelButton = GetControlTypePointer();
+
+	return (pCancelButton) ? *pCancelButton : 0;
+}
+
+BYTE *GetControlTypePointer()
+{
+	if (ControlTypeAddr)
+	{
+		return ControlTypeAddr;
+	}
+
+	// Get Control Type address
+	constexpr BYTE ControlTypeSearchBytes[]{ 0x83, 0xC4, 0x10, 0x68, 0xB8, 0x01, 0x00, 0x00, 0x6A, 0x1E };
+	BYTE *ControlType = (BYTE*)ReadSearchedAddresses(0x4676E9, 0x467989, 0x467B99, ControlTypeSearchBytes, sizeof(ControlTypeSearchBytes), 0x16);
+
+	// Checking address pointer
+	if (!ControlType)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Control Type address!";
+		return nullptr;
+	}
+
+	ControlTypeAddr = (BYTE*)((DWORD)ControlType);
+
+	return ControlTypeAddr;
 }

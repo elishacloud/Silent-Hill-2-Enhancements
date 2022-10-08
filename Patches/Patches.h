@@ -65,6 +65,7 @@ BYTE GetPreviousWeaponKeyBind();
 BYTE GetSearchViewFlag();
 int32_t GetEnableInput();
 BYTE GetAnalogX();
+BYTE GetControlType();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -123,6 +124,7 @@ DWORD *GetUpdateMousePositionFunctionPointer();
 BYTE *GetSearchViewFlagPointer();
 int32_t *GetEnableInputPointer();
 BYTE *GetAnalogXPointer();
+BYTE *GetControlTypePointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

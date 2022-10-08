@@ -438,7 +438,7 @@
       
       <Feature name="EnableEnhancedMouse">
         <Title>Enhance mouse input</Title>
-        <Description>Enables turning James with the mouse, action with left mouse, aim and cancel with right mouse.</Description>
+        <Description>Enables mouse support during regular gameplay. Mouse movement = Controls the character and search camera. Left click = Action/Confirm. Right click = Ready Weapon/Cancel. Mouse wheel = Change weapon.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>

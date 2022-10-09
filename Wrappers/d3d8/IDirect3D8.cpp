@@ -15,6 +15,7 @@
 */
 
 #include "d3d8wrapper.h"
+#include "Patches\InputTweaks.h"
 
 #define ATI_VENDOR_ID		0x1002	/* ATI Technologies Inc.			*/
 #define NVIDIA_VENDOR_ID	0x10DE	/* NVIDIA Corporation				*/
@@ -606,6 +607,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		}
 		break;
+	}
+	case WM_SETFOCUS:
+	{
+		InputTweaksRef.ClearMouseInputs();
 	}
 
 	}

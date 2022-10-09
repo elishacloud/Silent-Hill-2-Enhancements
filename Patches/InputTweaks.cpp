@@ -45,6 +45,7 @@ bool SetLeftKey = false;
 bool SetRightKey = false;
 bool SetUpKey = false;
 bool SetDownKey = false;
+bool CleanKeys = false;
 
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLXAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLYAxis;
@@ -216,7 +217,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 				SetKey(GetActionKeyBind());
 			if (SetRightMouseButton)
 			{
-				if (GetEventIndex() == EVENT_IN_GAME && !IsInFullscreenImage)
+				if (GetEventIndex() == EVENT_IN_GAME && GetFullscreenImageEvent() != 0x2)
 					SetKey(GetAimKeyBind());
 				else
 					SetKey(GetCancelKeyBind());
@@ -272,6 +273,14 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 				SetKey(GetWalkBackwardsKeyBind());
 			if (IsKeyPressed(DIK_RETURN))
 				SetKey(GetActionKeyBind());
+		}
+
+		// Fix for input sticking after alt+tab while holding aim and action
+		if (CleanKeys)
+		{
+			ClearKey(GetActionKeyBind());
+			ClearKey(GetAimKeyBind());
+			CleanKeys = false;
 		}
 
 		// Clear Keyboard Data pointer
@@ -450,4 +459,11 @@ float InputTweaks::GetMouseAnalogX()
 		return TempAxis > AnalogThreshold ? AnalogFullTilt : AnalogHalfTilt;
 
 	return TempAxis < -AnalogThreshold ? -AnalogFullTilt : -AnalogHalfTilt;
+}
+
+void InputTweaks::ClearMouseInputs()
+{
+	SetLeftMouseButton = false;
+	SetRightMouseButton = false;
+	CleanKeys = true;
 }

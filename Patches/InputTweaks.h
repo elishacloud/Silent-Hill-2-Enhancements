@@ -83,12 +83,16 @@ private:
 	LPDIDEVICEOBJECTDATA MouseData = nullptr;
 	DWORD MouseDataSize = 0;
 
+	int DefaultNumberKeyBinds[10] = {0xB, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA};
+
 	bool IsKeyPressed(int KeyIndex);
 	void ReadMouseButtons();
 	void ClearKey(int KeyIndex);
 	void SetKey(int KeyIndex);
 	int32_t GetMouseRelXChange();
 	int32_t GetMouseRelYChange();
+	void CheckNumberKeyBinds();
+	bool IsANumberKey(BYTE Value);
 
 public:
 	void SetKeyboardInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);

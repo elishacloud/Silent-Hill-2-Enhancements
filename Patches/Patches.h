@@ -66,6 +66,8 @@ BYTE GetSearchViewFlag();
 int32_t GetEnableInput();
 BYTE GetAnalogX();
 BYTE GetControlType();
+BYTE GetNumKeysWeaponBindStart();
+BYTE GetTalkShowHostState();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -125,6 +127,8 @@ BYTE *GetSearchViewFlagPointer();
 int32_t *GetEnableInputPointer();
 BYTE *GetAnalogXPointer();
 BYTE *GetControlTypePointer();
+BYTE *GetNumKeysWeaponBindStartPointer();
+BYTE *GetTalkShowHostStatePointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -290,11 +294,36 @@ extern int16_t *ItemsCollectedAddr;
 extern float *DamagePointsTakenAddr;
 extern uint8_t *SecretItemsCollectedAddr;
 extern float *BoatStageTimeAddr;
+extern int32_t* MouseVerticalPositionAddr;
+extern int32_t* MouseHorizontalPositionAddr;
+extern BYTE* AimKeyBindAddr;
+extern BYTE* ActionKeyBindAddr;
+extern BYTE* CancelKeyBindAddr;
+extern BYTE* TurnLeftKeyBindAddr;
+extern BYTE* TurnRightKeyBindAddr;
+extern BYTE* WalkForwardKeyBindAddr;
+extern BYTE* WalkBackwardsKeyBindAddr;
+extern BYTE* NextWeaponKeyBindAddr;
+extern BYTE* PreviousWeaponKeyBindAddr;
+extern DWORD* LeftAnalogXFunctionAddr;
+extern DWORD* LeftAnalogYFunctionAddr;
+extern DWORD* RightAnalogXFunctionAddr;
+extern DWORD* RightAnalogYFunctionAddr;
+extern DWORD* UpdateMousePositionFunctionAddr;
+extern BYTE* SearchViewFlagAddr;
+extern int32_t* EnableInputAddr;
+extern BYTE* AnalogXAddr;
+extern BYTE* ControlTypeAddr;
+extern BYTE* NumKeysWeaponBindStartAddr;
+extern BYTE *TalkShowHostStateAddr;
+
 extern bool ShowDebugOverlay;
 extern bool ShowInfoOverlay;
 extern std::string AuxDebugOvlString;
 extern bool ControllerConnectedFlag;
 extern HWND GameWindowHandle;
+extern BYTE* ElevatorRunning;
+extern BYTE *InGameVoiceEvent;
 
 // Run code only once
 #define RUNONCE() \

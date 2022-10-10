@@ -38,6 +38,7 @@ long int MouseWheel = 0;
 AnalogStick VirtualRightStick;
 bool PauseMenuVerticalChanged = false;
 bool PauseMenuHorizontalChanged = false;
+bool InPauseMenu = false;
 
 bool SetLeftMouseButton = false;
 bool SetRightMouseButton = false;
@@ -175,6 +176,12 @@ void UpdateMousePosition_Hook()
 
 void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbData, LPVOID lpvData)
 {
+	/*
+	if (GetEventIndex() == EVENT_PAUSE_MENU)
+		InPauseMenu = true;
+	if (GetEventIndex() != EVENT_PAUSE_MENU && InPauseMenu)
+		CheckNumberKeyBinds();
+	*/
 	// For keyboard
 	if (ProxyInterface == KeyboardInterfaceAddress)
 	{
@@ -210,8 +217,14 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			Logging::LogDebug() << __FUNCTION__ << " Ignoring CTRL + I...";
 		}
 
+		if (GetEventIndex() == EVENT_IN_GAME && GetFullscreenImageEvent() != 0x2)
+			AuxDebugOvlString = "\rReady Weapon";
+		else
+			AuxDebugOvlString = "\rCancel";
+
 		// Inject Key Presses
-		if (EnableEnhancedMouse && GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTION_FMV)
+		if (EnableEnhancedMouse && GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTION_FMV && //TODO check new condition
+			GetEventIndex() != EVENT_FMV && GetCutsceneID() == 0x0) // && !((GetRoomID() == 0x46 && *InGameVoiceEvent > 0) || (GetRoomID() == 0x88 && *ElevatorRunning > 0)))
 		{
 			if (SetLeftMouseButton)
 				SetKey(GetActionKeyBind());
@@ -220,7 +233,9 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 				if (GetEventIndex() == EVENT_IN_GAME && GetFullscreenImageEvent() != 0x2)
 					SetKey(GetAimKeyBind());
 				else
+				{
 					SetKey(GetCancelKeyBind());
+				}
 			}
 		}
 
@@ -297,6 +312,8 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		orgGetControllerRYAxis.fun = injector::MakeCALL(GetRightAnalogYFunctionPointer(), GetControllerRYAxis_Hook, true).get();
 
 		orgUpdateMousePosition.fun = injector::MakeCALL(GetUpdateMousePositionFunctionPointer(), UpdateMousePosition_Hook, true).get();
+
+		//CheckNumberKeyBinds();
 	}
 
 }
@@ -466,4 +483,49 @@ void InputTweaks::ClearMouseInputs()
 	SetLeftMouseButton = false;
 	SetRightMouseButton = false;
 	CleanKeys = true;
+}
+
+void InputTweaks::CheckNumberKeyBinds()
+{
+	BYTE* NumberKeyBinds = GetNumKeysWeaponBindStartPointer();
+	BYTE* ActionKeyBinds = GetTurnLeftKeyBindPointer();
+	boolean FoundNumber = false;
+
+	for (int i = 0; i < 10; i++)
+	{
+		FoundNumber = false;
+
+		for (int j = 0; j < 16; j++)
+		{
+			if (*(ActionKeyBinds + (j * 0x8)) == *(NumberKeyBinds + (i * 0x8)))
+			{
+				FoundNumber = true;
+				break;
+			}
+		}
+
+		if (FoundNumber)
+		{
+			*(NumberKeyBinds + (i * 0x8)) = 0x0;
+		}
+		else
+		{
+			*(NumberKeyBinds + (i * 0x8)) = DefaultNumberKeyBinds[i];
+		}
+	}
+}
+
+bool InputTweaks::IsANumberKey(BYTE Value)
+{
+	if (Value >= DIK_1 && Value <= DIK_0)
+		return true;
+	
+	if (Value >= DIK_NUMPAD7 && Value <= DIK_NUMPAD9)
+		return true;
+	if (Value >= DIK_NUMPAD4 && Value <= DIK_NUMPAD6)
+		return true;
+	if (Value >= DIK_NUMPAD1 && Value <= DIK_NUMPAD0)
+		return true;
+
+		return false;
 }

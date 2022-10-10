@@ -79,6 +79,8 @@ BYTE* SearchViewFlagAddr;
 int32_t* EnableInputAddr;
 BYTE* AnalogXAddr;
 BYTE* ControlTypeAddr;
+BYTE* NumKeysWeaponBindStartAddr;
+BYTE *TalkShowHostStateAddr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -1768,4 +1770,66 @@ BYTE *GetControlTypePointer()
 	ControlTypeAddr = (BYTE*)((DWORD)ControlType);
 
 	return ControlTypeAddr;
+}
+
+BYTE GetNumKeysWeaponBindStart()
+{
+	BYTE *pNumKeysWeaponBindStart = GetNumKeysWeaponBindStartPointer();
+
+	return (pNumKeysWeaponBindStart) ? *pNumKeysWeaponBindStart : 0;
+}
+
+// Get start of Numpad weapon keybinds  address
+BYTE *GetNumKeysWeaponBindStartPointer()
+{
+	if (NumKeysWeaponBindStartAddr)
+	{
+		return NumKeysWeaponBindStartAddr;
+	}
+
+	// Get address for start of Numpad weapon keybinds 
+	constexpr BYTE FullscreenImageSearchBytes[]{ 0x83, 0xC0, 0x08, 0x3D, 0xB0, 0x00, 0x00, 0x00, 0x7C, 0xDE, 0x33, 0xC0, 0x8B };
+	NumKeysWeaponBindStartAddr = (BYTE*)ReadSearchedAddresses(0x5AECE8, 0x5AF598, 0x5AEEB8, FullscreenImageSearchBytes, sizeof(FullscreenImageSearchBytes), 0x20);
+
+	// Checking address pointer
+	if (!NumKeysWeaponBindStartAddr)
+	{
+		Logging::Log() << __FUNCTION__ " Error: failed to find start of Numpad weapon keybinds memory address!";
+		return nullptr;
+	}
+
+	NumKeysWeaponBindStartAddr += 0x3C;
+
+	return NumKeysWeaponBindStartAddr;
+}
+
+BYTE GetTalkShowHostState()
+{
+	BYTE *pTalkShowHostState = GetTalkShowHostStatePointer();
+
+	return (pTalkShowHostState) ? *pTalkShowHostState : 0;
+}
+
+// Get talk show host state address
+BYTE *GetTalkShowHostStatePointer()
+{
+	if (TalkShowHostStateAddr)
+	{
+		return TalkShowHostStateAddr;
+	}
+
+	// Get address for start of Numpad weapon keybinds 
+	constexpr BYTE FullscreenImageSearchBytes[]{ 0x83, 0xC4, 0x04, 0x83, 0xF8, 0xFF, 0x75, 0x03 };
+	TalkShowHostStateAddr = (BYTE*)ReadSearchedAddresses(0x517DFA, 0x51812A, 0x517A4A, FullscreenImageSearchBytes, sizeof(FullscreenImageSearchBytes), 0x11);
+
+	// Checking address pointer
+	if (!TalkShowHostStateAddr)
+	{
+		Logging::Log() << __FUNCTION__ " Error: failed to find talk show host state memory address!";
+		return nullptr;
+	}
+
+	TalkShowHostStateAddr += 0x08;
+
+	return TalkShowHostStateAddr;
 }

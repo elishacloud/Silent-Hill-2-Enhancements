@@ -93,7 +93,12 @@ private:
 	int32_t GetMouseRelYChange();
 	void CheckNumberKeyBinds();
 
-	bool HotelFixCondition();
+	bool HotelFixFix();
+	bool JamesVaultingBuildingsFix();
+	bool RosewaterParkFix();
+	bool HospitalMonologueFix();
+	bool FleshRoomFix();
+	bool SetAimFunction();
 
 public:
 	void SetKeyboardInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);

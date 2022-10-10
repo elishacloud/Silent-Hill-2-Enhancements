@@ -24,6 +24,7 @@ const int PauseMenuMouseThreshold = 15;
 const float AnalogHalfTilt = 0.5;
 const float AnalogFullTilt = 1;
 const float FloatTolerance = 0.10;
+const int RMBFunctionStateDelay = 33;
 
 bool once = false;
 
@@ -31,6 +32,7 @@ auto LastMouseXRead = std::chrono::system_clock::now();
 auto LastMouseYRead = std::chrono::system_clock::now();
 auto LastWeaponSwap = std::chrono::system_clock::now();
 auto LastMousePauseChange = std::chrono::system_clock::now();
+auto LastRMBSwitch = std::chrono::system_clock::now();
 int LastMouseVerticalPos = 0xF0;
 int LastMouseHorizontalPos = 0xFC;
 int MouseXAxis = 0;
@@ -41,8 +43,8 @@ bool PauseMenuVerticalChanged = false;
 bool PauseMenuHorizontalChanged = false;
 bool CheckKeyBindsFlag = false;
 
-bool SetLeftMouseButton = false;
-bool SetRightMouseButton = false;
+bool SetLMButton = false;
+bool SetRMButton = false;
 bool SetLeftKey = false;
 bool SetRightKey = false;
 bool SetUpKey = false;
@@ -60,8 +62,8 @@ int8_t GetControllerLXAxis_Hook(DWORD* arg)
 	// Alt Tab Rotating Fix
 	if (GetForegroundWindow() != GameWindowHandle)
 	{
-		SetLeftMouseButton = false;
-		SetRightMouseButton = false;
+		SetLMButton = false;
+		SetRMButton = false;
 		return 0;
 	}
 		
@@ -185,11 +187,13 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		CheckKeyBindsFlag = false;
 		CheckNumberKeyBinds();
 	}
+
 	// For keyboard
 	if (ProxyInterface == KeyboardInterfaceAddress)
 	{
 		auto Now = std::chrono::system_clock::now();
 		auto DeltaMsWeaponSwap = std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastWeaponSwap);
+		auto DeltaMsRightMouseSwitch = std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastRMBSwitch);
 
 		// Save Keyboard Data
 		KeyboardData = (BYTE*)lpvData;
@@ -224,14 +228,22 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		if (EnableEnhancedMouse && GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTION_FMV && 
 			GetEventIndex() != EVENT_FMV && GetCutsceneID() == 0x0) 
 		{
-			if (SetLeftMouseButton)
+			if (SetLMButton)
 				SetKey(GetActionKeyBind());
-			if (SetRightMouseButton)
+			if (SetRMButton)
 			{
-				if (GetEventIndex() == EVENT_IN_GAME && (ElevatorFixCondition() || (HotelFixCondition())) || GetFullscreenImageEvent() != 0x02)
+				if (SetAimFunction())
+				{
 					SetKey(GetAimKeyBind());
+					LastRMBSwitch = std::chrono::system_clock::now();
+				}
 				else
-					SetKey(GetCancelKeyBind());
+				{
+					if ((DeltaMsRightMouseSwitch.count() > RMBFunctionStateDelay)) {
+						SetKey(GetCancelKeyBind());
+						LastRMBSwitch = std::chrono::system_clock::now();
+					}
+				}
 			}
 		}
 
@@ -265,7 +277,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 				SetKey(GetNextWeaponKeyBind());
 			else
 				SetKey(GetPreviousWeaponKeyBind());
-
+			
 			LastWeaponSwap = Now;
 			MouseWheel = 0;
 		}
@@ -352,7 +364,7 @@ void InputTweaks::ClearKey(int KeyIndex)
 
 void InputTweaks::SetKey(int KeyIndex)
 {
-	if (KeyIndex > 0x100 || !KeyboardData)
+	if (KeyIndex > 0x100 || !KeyboardData || KeyIndex == 0x0)
 		return;
 
 	KeyboardData[KeyIndex] = KEY_SET;
@@ -435,12 +447,12 @@ void InputTweaks::ReadMouseButtons()
 		{
 		case DIMOFS_BUTTON0:
 		{
-			SetLeftMouseButton = MouseData[i].dwData == KEY_SET;
+			SetLMButton = MouseData[i].dwData == KEY_SET;
 			break;
 		}
 		case DIMOFS_BUTTON1:
 		{
-			SetRightMouseButton = MouseData[i].dwData == KEY_SET;
+			SetRMButton = MouseData[i].dwData == KEY_SET;
 			break;
 		}
 		case DIMOFS_Z:
@@ -476,8 +488,8 @@ float InputTweaks::GetMouseAnalogX()
 
 void InputTweaks::ClearMouseInputs()
 {
-	SetLeftMouseButton = false;
-	SetRightMouseButton = false;
+	SetLMButton = false;
+	SetRMButton = false;
 	CleanKeys = true;
 }
 
@@ -518,7 +530,7 @@ bool InputTweaks::ElevatorFixCondition()
 	return (GetRoomID() == 0x46 && GetTalkShowHostState() == 0x01);
 }
 
-bool InputTweaks::HotelFixCondition()
+bool InputTweaks::HotelFixFix()
 {
 	return (GetRoomID() == 0xB8 && 
 		(((std::abs(GetInGameCameraPosY() - (-840.)) < FloatTolerance) || (std::abs(GetInGameCameraPosY() - (-1350.)) < FloatTolerance))) &&
@@ -529,13 +541,38 @@ std::string InputTweaks::GetRightClickState()
 {
 	std::string Output = "Cancel";
 
-	if ((GetEventIndex() == EVENT_IN_GAME && (ElevatorFixCondition() || (HotelFixCondition())) || GetFullscreenImageEvent() != 0x02) &&
-		(GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTION_FMV &&
-		GetEventIndex() != EVENT_FMV && GetCutsceneID() == 0x0))
+	if (SetAimFunction())
 		Output = "Ready Weapon";
 
 	if (!EnableEnhancedMouse)
 		Output = "Not Enabled";
 
 	return Output;
+}
+
+bool InputTweaks::JamesVaultingBuildingsFix()
+{
+	return (GetRoomID() == 0x07 && std::abs(GetInGameCameraPosY() - (-3315.999)) < FloatTolerance);
+}
+
+bool InputTweaks::RosewaterParkFix()
+{
+	return (GetRoomID() == 0x08 && std::abs(GetInGameCameraPosY() - (150.)) < FloatTolerance && std::abs(GetJamesPosZ() - (78547.117)) < FloatTolerance);
+}
+
+bool InputTweaks::HospitalMonologueFix()
+{
+	return (GetRoomID() == 0x08 && std::abs(GetJamesPosZ() - (-6000.)) < FloatTolerance && GetFullscreenImageEvent() == 0x02);
+}
+
+bool InputTweaks::FleshRoomFix()
+{
+	return (GetRoomID() == 0x79 || GetRoomID() == 0x8C);
+}
+
+bool InputTweaks::SetAimFunction()
+{
+	return (GetEventIndex() == EVENT_IN_GAME &&
+		(ElevatorFixCondition() || (HotelFixFix())) || JamesVaultingBuildingsFix() || RosewaterParkFix() || HospitalMonologueFix() || FleshRoomFix() ||
+		GetFullscreenImageEvent() != 0x02);
 }

@@ -1798,7 +1798,7 @@ BYTE *GetNumKeysWeaponBindStartPointer()
 		return nullptr;
 	}
 
-	NumKeysWeaponBindStartAddr += 0x3C;
+	NumKeysWeaponBindStartAddr += 0x44;
 
 	return NumKeysWeaponBindStartAddr;
 }

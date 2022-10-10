@@ -39,7 +39,7 @@ long int MouseWheel = 0;
 AnalogStick VirtualRightStick;
 bool PauseMenuVerticalChanged = false;
 bool PauseMenuHorizontalChanged = false;
-bool InPauseMenu = false;
+bool CheckKeyBindsFlag = false;
 
 bool SetLeftMouseButton = false;
 bool SetRightMouseButton = false;
@@ -177,12 +177,14 @@ void UpdateMousePosition_Hook()
 
 void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbData, LPVOID lpvData)
 {
-	/*
-	if (GetEventIndex() == EVENT_PAUSE_MENU)
-		InPauseMenu = true;
-	if (GetEventIndex() != EVENT_PAUSE_MENU && InPauseMenu)
+
+	if (GetEventIndex() == EVENT_OPTION_FMV)
+		CheckKeyBindsFlag = true;
+	if (GetEventIndex() != EVENT_OPTION_FMV && CheckKeyBindsFlag)
+	{
+		CheckKeyBindsFlag = false;
 		CheckNumberKeyBinds();
-	*/
+	}
 	// For keyboard
 	if (ProxyInterface == KeyboardInterfaceAddress)
 	{
@@ -307,7 +309,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 
 		orgUpdateMousePosition.fun = injector::MakeCALL(GetUpdateMousePositionFunctionPointer(), UpdateMousePosition_Hook, true).get();
 
-		//CheckNumberKeyBinds();
+		CheckNumberKeyBinds();
 	}
 
 }
@@ -485,10 +487,12 @@ void InputTweaks::CheckNumberKeyBinds()
 	BYTE* ActionKeyBinds = GetTurnLeftKeyBindPointer();
 	boolean FoundNumber = false;
 
+	// Iterate over Number Keybinds
 	for (int i = 0; i < 10; i++)
 	{
 		FoundNumber = false;
 
+		// Iterate over Action Keybinds
 		for (int j = 0; j < 16; j++)
 		{
 			if (*(ActionKeyBinds + (j * 0x8)) == *(NumberKeyBinds + (i * 0x8)))
@@ -500,28 +504,13 @@ void InputTweaks::CheckNumberKeyBinds()
 
 		if (FoundNumber)
 		{
-			*(NumberKeyBinds + (i * 0x8)) = 0x0;
+			*(NumberKeyBinds + (i * 0x8)) = 0x00;
 		}
 		else
 		{
 			*(NumberKeyBinds + (i * 0x8)) = DefaultNumberKeyBinds[i];
 		}
 	}
-}
-
-bool InputTweaks::IsANumberKey(BYTE Value)
-{
-	if (Value >= DIK_1 && Value <= DIK_0)
-		return true;
-	
-	if (Value >= DIK_NUMPAD7 && Value <= DIK_NUMPAD9)
-		return true;
-	if (Value >= DIK_NUMPAD4 && Value <= DIK_NUMPAD6)
-		return true;
-	if (Value >= DIK_NUMPAD1 && Value <= DIK_NUMPAD0)
-		return true;
-
-		return false;
 }
 
 bool InputTweaks::ElevatorFixCondition()

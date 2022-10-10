@@ -92,7 +92,6 @@ private:
 	int32_t GetMouseRelXChange();
 	int32_t GetMouseRelYChange();
 	void CheckNumberKeyBinds();
-	bool IsANumberKey(BYTE Value);
 
 	bool HotelFixCondition();
 

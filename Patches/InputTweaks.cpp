@@ -23,6 +23,7 @@ const int InputDebounce = 50;
 const int PauseMenuMouseThreshold = 15;
 const float AnalogHalfTilt = 0.5;
 const float AnalogFullTilt = 1;
+const float FloatTolerance = 0.10;
 
 bool once = false;
 
@@ -217,20 +218,22 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			Logging::LogDebug() << __FUNCTION__ << " Ignoring CTRL + I...";
 		}
 
-		if (GetEventIndex() == EVENT_IN_GAME && GetFullscreenImageEvent() != 0x2)
-			AuxDebugOvlString = "\rReady Weapon";
-		else
-			AuxDebugOvlString = "\rCancel";
-
 		// Inject Key Presses
-		if (EnableEnhancedMouse && GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTION_FMV && //TODO check new condition
-			GetEventIndex() != EVENT_FMV && GetCutsceneID() == 0x0) // && !((GetRoomID() == 0x46 && *InGameVoiceEvent > 0) || (GetRoomID() == 0x88 && *ElevatorRunning > 0)))
+		if (EnableEnhancedMouse && GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTION_FMV && 
+			GetEventIndex() != EVENT_FMV && GetCutsceneID() == 0x0) 
 		{
 			if (SetLeftMouseButton)
 				SetKey(GetActionKeyBind());
 			if (SetRightMouseButton)
 			{
-				if (GetEventIndex() == EVENT_IN_GAME && GetFullscreenImageEvent() != 0x2)
+				if (GetEventIndex() == EVENT_IN_GAME &&
+					(
+						(
+						(GetRoomID() == 0x46 && GetTalkShowHostState() == 0x01) ||
+						(GetRoomID() == 0xB8 && (((std::abs(GetInGameCameraPosY() - (-840.)) < FloatTolerance) || (std::abs(GetInGameCameraPosY() - (-1350.)) < FloatTolerance)) && GetFullscreenImageEvent() == 0x02))
+						) || GetFullscreenImageEvent() != 0x02
+					)
+					)
 					SetKey(GetAimKeyBind());
 				else
 				{

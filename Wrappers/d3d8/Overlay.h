@@ -1,5 +1,6 @@
 #pragma once
 #include "d3d8wrapper.h"
+#include "Patches\InputTweaks.h"
 #include <sstream>
 #include <chrono>
 #include <iomanip>

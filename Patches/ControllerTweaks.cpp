@@ -62,10 +62,12 @@ void ProcessDInputData_Hook(GamePadState* state)
 	}
 	
 	// Mouse turning
-	if (EnableEnhancedMouse && (joystickState.lX == 0 || !ControllerConnectedFlag) && 
-		(GetEnableInput() == 0xFFFFFFFF || GetRoomID() == 0x46 && GetTalkShowHostState() == 0x01) &&
+	if (EnableEnhancedMouse && (joystickState.lX == 0 || !ControllerConnectedFlag) &&
+		(GetEnableInput() == 0xFFFFFFFF || InputTweaksRef.ElevatorFixCondition()) &&
 		GetControlType() == ROTATIONAL_CONTROL)
+	{
 		joystickState.lX = static_cast<LONG>(InputTweaksRef.GetMouseAnalogX() * 32767.0);
+	}
 
 	// Populate right stick with data
 	switch (RestoreSearchCamMovement)

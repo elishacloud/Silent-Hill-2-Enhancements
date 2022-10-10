@@ -94,6 +94,8 @@ private:
 	void CheckNumberKeyBinds();
 	bool IsANumberKey(BYTE Value);
 
+	bool HotelFixCondition();
+
 public:
 	void SetKeyboardInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);
 	void SetMouseInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);
@@ -103,6 +105,9 @@ public:
 	void TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD dwFlags);
 	float GetMouseAnalogX();
 	void ClearMouseInputs();
+
+	bool ElevatorFixCondition();
+	std::string GetRightClickState();
 };
 
 extern InputTweaks InputTweaksRef;

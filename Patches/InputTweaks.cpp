@@ -226,19 +226,10 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 				SetKey(GetActionKeyBind());
 			if (SetRightMouseButton)
 			{
-				if (GetEventIndex() == EVENT_IN_GAME &&
-					(
-						(
-						(GetRoomID() == 0x46 && GetTalkShowHostState() == 0x01) ||
-						(GetRoomID() == 0xB8 && (((std::abs(GetInGameCameraPosY() - (-840.)) < FloatTolerance) || (std::abs(GetInGameCameraPosY() - (-1350.)) < FloatTolerance)) && GetFullscreenImageEvent() == 0x02))
-						) || GetFullscreenImageEvent() != 0x02
-					)
-					)
+				if (GetEventIndex() == EVENT_IN_GAME && (ElevatorFixCondition() || (HotelFixCondition())) || GetFullscreenImageEvent() != 0x02)
 					SetKey(GetAimKeyBind());
 				else
-				{
 					SetKey(GetCancelKeyBind());
-				}
 			}
 		}
 
@@ -531,4 +522,31 @@ bool InputTweaks::IsANumberKey(BYTE Value)
 		return true;
 
 		return false;
+}
+
+bool InputTweaks::ElevatorFixCondition()
+{
+	return (GetRoomID() == 0x46 && GetTalkShowHostState() == 0x01);
+}
+
+bool InputTweaks::HotelFixCondition()
+{
+	return (GetRoomID() == 0xB8 && 
+		(((std::abs(GetInGameCameraPosY() - (-840.)) < FloatTolerance) || (std::abs(GetInGameCameraPosY() - (-1350.)) < FloatTolerance))) &&
+		GetFullscreenImageEvent() == 0x02);
+}
+
+std::string InputTweaks::GetRightClickState()
+{
+	std::string Output = "Cancel";
+
+	if ((GetEventIndex() == EVENT_IN_GAME && (ElevatorFixCondition() || (HotelFixCondition())) || GetFullscreenImageEvent() != 0x02) &&
+		(GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTION_FMV &&
+		GetEventIndex() != EVENT_FMV && GetCutsceneID() == 0x0))
+		Output = "Ready Weapon";
+
+	if (!EnableEnhancedMouse)
+		Output = "Not Enabled";
+
+	return Output;
 }

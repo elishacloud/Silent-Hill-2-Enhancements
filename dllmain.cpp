@@ -221,10 +221,23 @@ void DelayedStart()
 		HookDirectInput8Create();
 	}
 
-	// Hook CreateFile API when using UseCustomModFolder
+	// XInput based vibration
+	if (RestoreVibration)
+	{
+		PatchXInputVibration();
+	}
+
+	// Widescreen Fix (needs to be before 'UseCustomModFolder')
+	if (WidescreenFix)
+	{
+		Logging::Log() << "Loading the \"WidescreenFixesPack\" module...";
+		WSFInit();
+	}
+
+	// Hook CreateFile APIs (needs to be before all other patches that check files in 'data' or 'sh2e' folders)
 	if (UseCustomModFolder)
 	{
-		InstallFileSystemHooks(m_hModule);
+		InstallFileSystemHooks();
 	}
 
 	// Enable No-CD Patch
@@ -374,12 +387,6 @@ void DelayedStart()
 		PatchPauseScreen();
 	}
 
-	// XInput based vibration
-	if (RestoreVibration)
-	{
-		PatchXInputVibration();
-	}
-
 	// DPad movement
 	if (DPadMovementFix || RestoreSearchCamMovement != 0)
 	{
@@ -486,13 +493,6 @@ void DelayedStart()
 	if (FogFix)
 	{
 		PatchCustomFog();
-	}
-
-	// Widescreen Fix
-	if (WidescreenFix)
-	{
-		Logging::Log() << "Loading the \"WidescreenFixesPack\" module...";
-		WSFInit();
 	}
 
 	// Update fullscreen images

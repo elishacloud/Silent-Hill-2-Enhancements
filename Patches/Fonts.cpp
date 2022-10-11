@@ -283,7 +283,8 @@ static BOOL loadExternalFontData(void) {
 		for (int i = 0; i < FONT_FORMATS; i++) {
 			char path[32];
 			snprintf(path, 32, "data\\font\\font%03d.%s", j, formats[i]);
-			ifstream file(path, ios::in | ios::binary | ios::ate);
+			char Filename[MAX_PATH];
+			ifstream file(GetFileModPath(path, Filename), ios::in | ios::binary | ios::ate);
 			if (file.is_open())
 			{
 				file.seekg(0, ios::end);
@@ -320,9 +321,9 @@ static BOOL loadExternalFontData(void) {
 
 				char wpath[32];
 				snprintf(wpath, 32, "data\\font\\fontwdata%03d.bin", j);
-				ifstream wfile(wpath, ios::in | ios::binary | ios::ate);
+				ifstream wfile(GetFileModPath(wpath, Filename), ios::in | ios::binary | ios::ate);
 				if (!wfile.is_open()) {
-					wfile.open("data\\font\\fontwdata.bin", ios::in | ios::binary | ios::ate); //try default
+					wfile.open(GetFileModPath("data\\font\\fontwdata.bin", Filename), ios::in | ios::binary | ios::ate); //try default
 				}
 				if (wfile.is_open()) {
 					fontWidthData = new BYTE[0xE0 * 2];

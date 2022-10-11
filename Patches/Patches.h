@@ -189,8 +189,8 @@ bool IsMariaExcludingEyes(ModelID id);
 bool IsMariaEyes(ModelID id);
 bool isConfirmationPromptOpen();
 
-void OnFileLoadTex(HANDLE hFile, LPCSTR lpFileName);
-void OnFileLoadVid(HANDLE hFile, LPCSTR lpFileName);
+void OnFileLoadTex(LPCSTR lpFileName);
+void OnFileLoadVid(LPCSTR lpFileName);
 
 void RunBloodSize();
 void RunClosetCutscene();

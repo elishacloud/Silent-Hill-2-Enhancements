@@ -403,7 +403,7 @@ void RunGameLoad()
 		ValueSet = true;
 	}
 	// Disable game saves for specific rooms
-	else if (GetRoomID() == 0x13 || GetRoomID() == 0x17 || GetRoomID() == 0x2A || GetRoomID() == 0x46 || GetRoomID() == 0xAA || GetRoomID() == 0xC7 ||
+	else if (GetRoomID() == 0x09 || GetRoomID() == 0x0A || GetRoomID() == 0x0B || GetRoomID() == 0x13 || GetRoomID() == 0x17 || GetRoomID() == 0x2A || GetRoomID() == 0x46 || GetRoomID() == 0xAA || GetRoomID() == 0xC7 ||
 		(GetRoomID() == 0x04 && GetJamesPosZ() > 49000.0f) ||
 		(GetRoomID() == 0x78 && GetJamesPosX() < -18600.0f) ||
 		(GetRoomID() == 0x9D && GetJamesPosX() < 60650.0f) ||

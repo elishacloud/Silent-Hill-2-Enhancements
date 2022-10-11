@@ -19,6 +19,7 @@
 #include <fstream>
 #include <string>
 #include "SfxPatch.h"
+#include "Common\FileSystemHooks.h"
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
@@ -46,7 +47,8 @@ void PatchSFXAddr()
 
 	// Open sddata.bin file
 	std::ifstream infile;
-	infile.open(myPath, std::ios::binary | std::ios::in | std::ios::ate);
+	char Filename[MAX_PATH];
+	infile.open(GetFileModPath(myPath, Filename), std::ios::binary | std::ios::in | std::ios::ate);
 	if (!infile.is_open())
 	{
 		Logging::Log() << __FUNCTION__ << " Error: Could not open sddata.bin file! " << myPath;

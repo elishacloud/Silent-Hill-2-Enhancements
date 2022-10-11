@@ -766,7 +766,8 @@ HRESULT PatchCustomExeStr()
 		strcpy_s(txtname, MAX_PATH, "data\\etc\\resource\\");
 		strcat_s(txtname, MAX_PATH, item.Name);
 
-		ifstream file(txtname);
+		char Filename[MAX_PATH];
+		ifstream file(GetFileModPath(txtname, Filename));
 
 		if (!file.is_open())
 		{

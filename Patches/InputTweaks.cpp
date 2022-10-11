@@ -232,7 +232,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 				SetKey(GetActionKeyBind());
 			if (SetRMButton)
 			{
-				if (SetAimFunction())
+				if (SetRMBAimFunction())
 				{
 					SetKey(GetAimKeyBind());
 					LastRMBSwitch = std::chrono::system_clock::now();
@@ -525,12 +525,12 @@ void InputTweaks::CheckNumberKeyBinds()
 	}
 }
 
-bool InputTweaks::ElevatorFixCondition()
+bool InputTweaks::ElevatorFix()
 {
 	return (GetRoomID() == 0x46 && GetTalkShowHostState() == 0x01);
 }
 
-bool InputTweaks::HotelFixFix()
+bool InputTweaks::HotelFix()
 {
 	return (GetRoomID() == 0xB8 && 
 		(((std::abs(GetInGameCameraPosY() - (-840.)) < FloatTolerance) || (std::abs(GetInGameCameraPosY() - (-1350.)) < FloatTolerance))) &&
@@ -541,7 +541,7 @@ std::string InputTweaks::GetRightClickState()
 {
 	std::string Output = "Cancel";
 
-	if (SetAimFunction())
+	if (SetRMBAimFunction())
 		Output = "Ready Weapon";
 
 	if (!EnableEnhancedMouse)
@@ -567,12 +567,13 @@ bool InputTweaks::HospitalMonologueFix()
 
 bool InputTweaks::FleshRoomFix()
 {
-	return (GetRoomID() == 0x79 || GetRoomID() == 0x8C);
+	return (GetRoomID() == 0x79 || GetRoomID() == 0x8A || GetRoomID() == 0x8C);
 }
 
-bool InputTweaks::SetAimFunction()
+bool InputTweaks::SetRMBAimFunction()
 {
 	return (GetEventIndex() == EVENT_IN_GAME &&
-		(ElevatorFixCondition() || (HotelFixFix())) || JamesVaultingBuildingsFix() || RosewaterParkFix() || HospitalMonologueFix() || FleshRoomFix() ||
+		(ElevatorFix() || (HotelFix())) || JamesVaultingBuildingsFix() || 
+		RosewaterParkFix() || HospitalMonologueFix() || FleshRoomFix() ||
 		GetFullscreenImageEvent() != 0x02);
 }

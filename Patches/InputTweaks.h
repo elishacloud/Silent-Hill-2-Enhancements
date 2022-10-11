@@ -93,12 +93,13 @@ private:
 	int32_t GetMouseRelYChange();
 	void CheckNumberKeyBinds();
 
-	bool HotelFixFix();
+	// Fixes to pressing right click to skip cutscenes that aren't technically considered cutscenes by the game
+	bool HotelFix();
 	bool JamesVaultingBuildingsFix();
 	bool RosewaterParkFix();
 	bool HospitalMonologueFix();
 	bool FleshRoomFix();
-	bool SetAimFunction();
+	bool SetRMBAimFunction();
 
 public:
 	void SetKeyboardInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);
@@ -109,9 +110,10 @@ public:
 	void TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD dwFlags);
 	float GetMouseAnalogX();
 	void ClearMouseInputs();
-
-	bool ElevatorFixCondition();
 	std::string GetRightClickState();
+
+	// Additional fix for cutscenes
+	bool ElevatorFix();
 };
 
 extern InputTweaks InputTweaksRef;

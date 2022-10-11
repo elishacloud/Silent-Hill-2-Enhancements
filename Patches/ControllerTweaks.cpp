@@ -63,7 +63,7 @@ void ProcessDInputData_Hook(GamePadState* state)
 	
 	// Mouse turning
 	if (EnableEnhancedMouse && (joystickState.lX == 0 || !ControllerConnectedFlag) &&
-		(GetEnableInput() == 0xFFFFFFFF || InputTweaksRef.ElevatorFixCondition()) &&
+		(GetEnableInput() == 0xFFFFFFFF || InputTweaksRef.ElevatorFix()) &&
 		GetControlType() == ROTATIONAL_CONTROL)
 	{
 		joystickState.lX = static_cast<LONG>(InputTweaksRef.GetMouseAnalogX() * 32767.0);

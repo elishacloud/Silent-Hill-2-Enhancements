@@ -313,7 +313,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 	if (!once)
 	{
 		once = true;
-
+		
 		orgGetControllerLXAxis.fun = injector::MakeCALL(GetLeftAnalogXFunctionPointer(), GetControllerLXAxis_Hook, true).get();
 		orgGetControllerLYAxis.fun = injector::MakeCALL(GetLeftAnalogYFunctionPointer(), GetControllerLYAxis_Hook, true).get();
 		orgGetControllerRXAxis.fun = injector::MakeCALL(GetRightAnalogXFunctionPointer(), GetControllerRXAxis_Hook, true).get();
@@ -500,14 +500,14 @@ void InputTweaks::CheckNumberKeyBinds()
 	boolean FoundNumber = false;
 
 	// Iterate over Number Keybinds
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < 0xA; i++)
 	{
 		FoundNumber = false;
 
 		// Iterate over Action Keybinds
-		for (int j = 0; j < 16; j++)
+		for (int j = 0; j < 0x16; j++)
 		{
-			if (*(ActionKeyBinds + (j * 0x8)) == *(NumberKeyBinds + (i * 0x8)))
+			if (*(ActionKeyBinds + (j * 0x8)) == DefaultNumberKeyBinds[i])
 			{
 				FoundNumber = true;
 				break;

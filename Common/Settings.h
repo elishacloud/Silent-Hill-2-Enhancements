@@ -34,6 +34,7 @@
 	visit(EnableSMAA, false) \
 	visit(EnableSoftShadows, true) \
 	visit(EnableTexAddrHack, true) \
+	visit(EnableToggleSprint, true) \
 	visit(FastTransitions, true) \
 	visit(Fix2D, true) \
 	visit(FixAdvancedOptions, true) \

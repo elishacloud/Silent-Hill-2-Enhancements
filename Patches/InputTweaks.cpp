@@ -51,6 +51,10 @@ bool SetUpKey = false;
 bool SetDownKey = false;
 bool CleanKeys = false;
 
+bool ToggleSprint = false;
+bool HoldingSprint = false;
+bool LastFrameSprint = false;
+
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLXAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLYAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerRXAxis;
@@ -224,9 +228,19 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		}
 
 		// Check if RMB is held down
-
 		HoldingRMB = LastFrameSetRMButton && SetRMButton;
 		LastFrameSetRMButton = SetRMButton;
+
+		// Check if Sprint is held down
+		HoldingSprint = LastFrameSprint && IsKeyPressed(GetRunKeyBind());
+		LastFrameSprint = IsKeyPressed(GetRunKeyBind());
+
+		// Check for toggle sprint
+		if (EnableToggleSprint && GetRunKeyBind() == 0x0) //TODO
+		{
+			if (IsKeyPressed(GetRunKeyBind() && !HoldingSprint))
+				ToggleSprint != ToggleSprint;
+		}
 
 		// Inject Key Presses
 		if (EnableEnhancedMouse && GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTION_FMV && 
@@ -264,13 +278,18 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		if (SetLeftKey)
 		{
 			SetKey(GetTurnLeftKeyBind());
-			SetLeftKey = false;
+			SetLeftKey = false; 
 		}
 
 		if (SetRightKey)
 		{
 			SetKey(GetTurnRightKeyBind());
 			SetRightKey = false;
+		}
+
+		if (ToggleSprint && GetRunKeyBind() == 0x0) //TODO
+		{
+			SetKey(GetRunKeyBind());
 		}
 
 		if (MouseWheel != 0 && DeltaMsWeaponSwap.count() > InputDebounce && GetEventIndex() == EVENT_IN_GAME)
@@ -324,6 +343,11 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		orgUpdateMousePosition.fun = injector::MakeCALL(GetUpdateMousePositionFunctionPointer(), UpdateMousePosition_Hook, true).get();
 
 		CheckNumberKeyBinds();
+
+		if (EnableToggleSprint)
+		{
+			//TODO change string
+		}
 	}
 
 }

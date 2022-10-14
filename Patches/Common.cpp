@@ -68,6 +68,7 @@ BYTE* TurnLeftKeyBindAddr;
 BYTE* TurnRightKeyBindAddr;
 BYTE* WalkForwardKeyBindAddr;
 BYTE* WalkBackwardsKeyBindAddr;
+BYTE* RunKeyBindAddr;
 BYTE* NextWeaponKeyBindAddr;
 BYTE* PreviousWeaponKeyBindAddr;
 DWORD* LeftAnalogXFunctionAddr;
@@ -79,6 +80,7 @@ BYTE* SearchViewFlagAddr;
 int32_t* EnableInputAddr;
 BYTE* AnalogXAddr;
 BYTE* ControlTypeAddr;
+BYTE* RunOptionAddr;
 BYTE* NumKeysWeaponBindStartAddr;
 BYTE *TalkShowHostStateAddr;
 
@@ -1472,6 +1474,37 @@ BYTE *GetWalkBackwardsKeyBindPointer()
 	return WalkBackwardsKeyBindAddr;
 }
 
+BYTE GetRunKeyBind()
+{
+	BYTE *pRunButton = GetRunKeyBindPointer();
+
+	return (pRunButton) ? *pRunButton : 0;
+}
+
+BYTE *GetRunKeyBindPointer()
+{
+	if (RunKeyBindAddr)
+	{
+		return RunKeyBindAddr;
+	}
+
+	// Get Run Button address
+	constexpr BYTE RunButtonSearchBytes[]{ 0x56, 0x8B, 0x74, 0x24, 0x08, 0x83, 0xFE, 0x16, 0x7D, 0x3F };
+	BYTE *RunButton = (BYTE*)ReadSearchedAddresses(0x5AEF90, 0x5AF8C0, 0x5AF1E0, RunButtonSearchBytes, sizeof(RunButtonSearchBytes), 0x1D);
+
+	// Checking address pointer
+	if (!RunButton)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Run Button address!";
+		return nullptr;
+	}
+
+	RunKeyBindAddr = (BYTE*)((DWORD)RunButton + 0x48);
+
+	return RunKeyBindAddr;
+}
+
+
 int32_t GetMouseVerticalPosition()
 {
 	int32_t *pMouseVerticalPosition = GetMouseVerticalPositionPointer();
@@ -1770,6 +1803,36 @@ BYTE *GetControlTypePointer()
 	ControlTypeAddr = (BYTE*)((DWORD)ControlType);
 
 	return ControlTypeAddr;
+}
+
+BYTE GetRunOption()
+{
+	BYTE *pCancelButton = GetRunOptionPointer();
+
+	return (pCancelButton) ? *pCancelButton : 0;
+}
+
+BYTE *GetRunOptionPointer()
+{
+	if (RunOptionAddr)
+	{
+		return RunOptionAddr;
+	}
+
+	// Get Run Option address
+	constexpr BYTE RunOptionSearchBytes[]{ 0x83, 0xC4, 0x10, 0x68, 0xB8, 0x01, 0x00, 0x00, 0x6A, 0x1E };
+	BYTE *RunOption = (BYTE*)ReadSearchedAddresses(0x4676E9, 0x467989, 0x467B99, RunOptionSearchBytes, sizeof(RunOptionSearchBytes), 0x16);
+
+	// Checking address pointer
+	if (!RunOption)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Run Option address!";
+		return nullptr;
+	}
+
+	RunOptionAddr = (BYTE*)((DWORD)RunOption) - 0x06;
+
+	return RunOptionAddr;
 }
 
 BYTE GetNumKeysWeaponBindStart()

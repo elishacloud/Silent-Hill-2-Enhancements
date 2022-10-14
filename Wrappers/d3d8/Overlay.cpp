@@ -183,6 +183,12 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append("\rCutscene ID: 0x");
 	OvlString.append(IntToHexStr(GetCutsceneID()));
 
+	OvlString.append("\rEvent ID: 0x");
+	OvlString.append(IntToHexStr(GetEventIndex()));
+
+	OvlString.append("\rFullscreen Image Event: 0x");
+	OvlString.append(IntToHexStr(GetFullscreenImageEvent()));
+
 	OvlString.append("\rFPS: ");
 	OvlString.append(FloatToStr(GetFPSCounter(), FloatPrecision));
 

@@ -24,7 +24,6 @@ const int PauseMenuMouseThreshold = 15;
 const float AnalogHalfTilt = 0.5;
 const float AnalogFullTilt = 1;
 const float FloatTolerance = 0.10;
-const int RMBFunctionStateDelay = 33;
 
 bool once = false;
 
@@ -32,7 +31,6 @@ auto LastMouseXRead = std::chrono::system_clock::now();
 auto LastMouseYRead = std::chrono::system_clock::now();
 auto LastWeaponSwap = std::chrono::system_clock::now();
 auto LastMousePauseChange = std::chrono::system_clock::now();
-auto LastRMBSwitch = std::chrono::system_clock::now();
 int LastMouseVerticalPos = 0xF0;
 int LastMouseHorizontalPos = 0xFC;
 int MouseXAxis = 0;
@@ -42,6 +40,8 @@ AnalogStick VirtualRightStick;
 bool PauseMenuVerticalChanged = false;
 bool PauseMenuHorizontalChanged = false;
 bool CheckKeyBindsFlag = false;
+bool HoldingRMB = false;
+bool LastFrameSetRMButton = false;
 
 bool SetLMButton = false;
 bool SetRMButton = false;
@@ -193,7 +193,6 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 	{
 		auto Now = std::chrono::system_clock::now();
 		auto DeltaMsWeaponSwap = std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastWeaponSwap);
-		auto DeltaMsRightMouseSwitch = std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastRMBSwitch);
 
 		// Save Keyboard Data
 		KeyboardData = (BYTE*)lpvData;
@@ -224,6 +223,11 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			Logging::LogDebug() << __FUNCTION__ << " Ignoring CTRL + I...";
 		}
 
+		// Check if RMB is held down
+
+		HoldingRMB = LastFrameSetRMButton && SetRMButton;
+		LastFrameSetRMButton = SetRMButton;
+
 		// Inject Key Presses
 		if (EnableEnhancedMouse && GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTION_FMV && 
 			GetEventIndex() != EVENT_FMV && GetCutsceneID() == 0x0) 
@@ -235,13 +239,11 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 				if (SetRMBAimFunction())
 				{
 					SetKey(GetAimKeyBind());
-					LastRMBSwitch = std::chrono::system_clock::now();
 				}
 				else
 				{
-					if ((DeltaMsRightMouseSwitch.count() > RMBFunctionStateDelay)) {
+					if (!HoldingRMB) {
 						SetKey(GetCancelKeyBind());
-						LastRMBSwitch = std::chrono::system_clock::now();
 					}
 				}
 			}

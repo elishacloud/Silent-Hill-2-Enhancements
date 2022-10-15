@@ -362,6 +362,19 @@
 
   <Tab name="Input">
 
+    <Section name="General">
+      
+      <Feature name="EnableToggleSprint">
+        <Title>Enable Toggle Sprint</Title>
+        <Description>Enables the Toggle run option, toggles run when pressing the run button.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+      
+    </Section>
+
     <Section name="Controller">
         
       <Feature name="RestoreSearchCamMovement">

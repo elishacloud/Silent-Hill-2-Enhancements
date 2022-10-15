@@ -6,6 +6,7 @@
 #include "External\injector\include\injector\utility.hpp"
 #include "External\Hooking.Patterns\Hooking.Patterns.h"
 #include "Patches\Patches.h"
+#include "Common\Utils.h"
 #include <chrono>
 #include <bitset>
 
@@ -31,6 +32,12 @@ typedef enum _CONTROL_TYPE {
 	ROTATIONAL_CONTROL,
 	DIRECTIONAL_CONTROL,
 } CONTROL_TYPE;
+
+typedef enum _RUN_SETTING {
+	OPT_WALK,
+	OPT_ANALOG,
+	OPT_RUN,
+} RUN_SETTING;
 
 #define KEY_SET   0x80
 #define KEY_CLEAR 0x00
@@ -101,6 +108,8 @@ private:
 	bool FleshRoomFix();
 	bool SetRMBAimFunction();
 
+	bool GetAnalogStringAddr();
+
 public:
 	void SetKeyboardInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);
 	void SetMouseInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);
@@ -111,6 +120,7 @@ public:
 	float GetMouseAnalogX();
 	void ClearMouseInputs();
 	std::string GetRightClickState();
+	std::string GetToggleSprintState();
 
 	// Additional fix for cutscenes
 	bool ElevatorFix();

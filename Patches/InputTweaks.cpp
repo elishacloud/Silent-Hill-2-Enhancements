@@ -40,27 +40,18 @@ AnalogStick VirtualRightStick;
 bool PauseMenuVerticalChanged = false;
 bool PauseMenuHorizontalChanged = false;
 bool CheckKeyBindsFlag = false;
-bool HoldingRMB = false;
-bool LastFrameSetRMButton = false;
 
 bool SetLMButton = false;
-bool SetRMButton = false;
 bool SetLeftKey = false;
 bool SetRightKey = false;
 bool SetUpKey = false;
 bool SetDownKey = false;
 bool CleanKeys = false;
 
-bool ToggleSprint = false;
-bool HoldingSprint = false;
-bool LastFrameSprint = false;
-
-bool DebugCombo = false;
-bool HoldingDebugCombo = false;
-bool LastFrameDebugCombo = false;
-bool InfoCombo = false;
-bool HoldingInfoCombo = false;
-bool LastFrameInfoCombo = false;
+Input Sprint;
+Input RMB;
+Input DebugCombo;
+Input InfoCombo;
 
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLXAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLYAxis;
@@ -78,7 +69,7 @@ int8_t GetControllerLXAxis_Hook(DWORD* arg)
 	if (GetForegroundWindow() != GameWindowHandle)
 	{
 		SetLMButton = false;
-		SetRMButton = false;
+		RMB.State = false;
 		return 0;
 	}
 		
@@ -227,12 +218,12 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		{
 			ClearKey(DIK_LCONTROL);
 			ClearKey(DIK_G);
-			DebugCombo = true;
+			DebugCombo.State = true;
 			Logging::LogDebug() << __FUNCTION__ << " Detected CTRL + G...";
 		}
 		else
 		{
-			DebugCombo = false;
+			DebugCombo.State = false;
 		}
 
 		// Ignore Ctrl + I combo
@@ -240,43 +231,39 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		{
 			ClearKey(DIK_LCONTROL);
 			ClearKey(DIK_I);
-			InfoCombo = true;
+			InfoCombo.State = true;
 			Logging::LogDebug() << __FUNCTION__ << " Detected CTRL + I...";
 		}
 		else
 		{
-			InfoCombo = false;
+			InfoCombo.State = false;
 		}
 
 		// Check if Debug Combo is held down
-		HoldingDebugCombo = LastFrameDebugCombo && DebugCombo;
-		LastFrameDebugCombo = DebugCombo;
+		DebugCombo.UpdateHolding();
 
 		// Check if Info Combo is held down
-		HoldingInfoCombo = LastFrameInfoCombo && InfoCombo;
-		LastFrameInfoCombo = InfoCombo;
+		InfoCombo.UpdateHolding();
 
 		// Check if RMB is held down
-		HoldingRMB = LastFrameSetRMButton && SetRMButton;
-		LastFrameSetRMButton = SetRMButton;
+		RMB.UpdateHolding();
 
 		// Check if Sprint is held down
-		HoldingSprint = LastFrameSprint && IsKeyPressed(GetRunKeyBind());
-		LastFrameSprint = IsKeyPressed(GetRunKeyBind());
+		Sprint.UpdateHoldingByValue(IsKeyPressed(GetRunKeyBind()));
 
 		// Check for toggle sprint
 		if (EnableToggleSprint && GetRunOption() == OPT_ANALOG)
 		{
-			if (IsKeyPressed(GetRunKeyBind()) && !HoldingSprint && GetEventIndex() == EVENT_IN_GAME)
+			if (IsKeyPressed(GetRunKeyBind()) && !Sprint.Holding && GetEventIndex() == EVENT_IN_GAME)
 			{
-				ToggleSprint = !ToggleSprint;
+				Sprint.ToggleState();
 			}
 		}
 
 		// Activate Overlays
-		if (DebugCombo && !HoldingDebugCombo && EnableDebugOverlay)
+		if (DebugCombo.State && !DebugCombo.Holding && EnableDebugOverlay)
 			ShowDebugOverlay = !ShowDebugOverlay;
-		if (InfoCombo && !HoldingInfoCombo && EnableInfoOverlay)
+		if (InfoCombo.State && !InfoCombo.Holding && EnableInfoOverlay)
 			ShowInfoOverlay = !ShowInfoOverlay;
 
 		// Inject Key Presses
@@ -285,7 +272,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		{
 			if (SetLMButton)
 				SetKey(GetActionKeyBind());
-			if (SetRMButton)
+			if (RMB.State)
 			{
 				if (SetRMBAimFunction())
 				{
@@ -293,7 +280,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 				}
 				else
 				{
-					if (!HoldingRMB) {
+					if (!RMB.Holding) {
 						SetKey(GetCancelKeyBind());
 					}
 				}
@@ -329,7 +316,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			ClearKey(GetRunKeyBind());
 		}
 
-		if (EnableToggleSprint && ToggleSprint && GetRunOption() == OPT_ANALOG && IsKeyPressed(GetWalkForwardKeyBind()))
+		if (EnableToggleSprint && Sprint.State && GetRunOption() == OPT_ANALOG && IsKeyPressed(GetWalkForwardKeyBind()))
 		{
 			SetKey(GetRunKeyBind());
 		}
@@ -525,7 +512,7 @@ void InputTweaks::ReadMouseButtons()
 		}
 		case DIMOFS_BUTTON1:
 		{
-			SetRMButton = MouseData[i].dwData == KEY_SET;
+			RMB.State = MouseData[i].dwData == KEY_SET;
 			break;
 		}
 		case DIMOFS_Z:
@@ -562,7 +549,7 @@ float InputTweaks::GetMouseAnalogX()
 void InputTweaks::ClearMouseInputs()
 {
 	SetLMButton = false;
-	SetRMButton = false;
+	RMB.State = false;
 	CleanKeys = true;
 }
 
@@ -627,7 +614,7 @@ std::string InputTweaks::GetToggleSprintState()
 {
 	std::string Output = "Not Active";
 
-	if (ToggleSprint)
+	if (Sprint.State)
 		Output = "Active";
 
 	if (!EnableToggleSprint)

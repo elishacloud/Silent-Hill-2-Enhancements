@@ -80,6 +80,29 @@ struct AnalogStick {
 	}
 };
 
+struct Input {
+	bool State = false;
+	bool LastState = false;
+	bool Holding = false;
+
+	void UpdateHolding()
+	{
+		Holding = LastState && State;
+		LastState = State;
+	}
+
+	void UpdateHoldingByValue(bool Value)
+	{
+		Holding = LastState && Value;
+		LastState = Value;
+	}
+
+	void ToggleState()
+	{
+		State = !State;
+	}
+};
+
 class InputTweaks
 {
 private:

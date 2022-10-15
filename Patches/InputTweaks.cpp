@@ -55,6 +55,13 @@ bool ToggleSprint = false;
 bool HoldingSprint = false;
 bool LastFrameSprint = false;
 
+bool DebugCombo = false;
+bool HoldingDebugCombo = false;
+bool LastFrameDebugCombo = false;
+bool InfoCombo = false;
+bool HoldingInfoCombo = false;
+bool LastFrameInfoCombo = false;
+
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLXAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLYAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerRXAxis;
@@ -204,7 +211,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 
 		// Save Keyboard Data
 		KeyboardData = (BYTE*)lpvData;
-		
+
 		// Ignore Alt + Enter combo
 		if ((IsKeyPressed(DIK_LMENU) || IsKeyPressed(DIK_RMENU)) && IsKeyPressed(DIK_RETURN) && 
 			DynamicResolution && ScreenMode != EXCLUSIVE_FULLSCREEN)
@@ -212,15 +219,20 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			ClearKey(DIK_LMENU);
 			ClearKey(DIK_RMENU);
 			ClearKey(DIK_RETURN);
-			Logging::LogDebug() << __FUNCTION__ << " Ignoring ALT + ENTER...";
+			Logging::LogDebug() << __FUNCTION__ << " Detected ALT + ENTER...";
 		}
 
-		// Ignore Ctrl + D combo
+		// Ignore Ctrl + G combo
 		if (IsKeyPressed(DIK_LCONTROL) && IsKeyPressed(DIK_G) && EnableDebugOverlay)
 		{
 			ClearKey(DIK_LCONTROL);
 			ClearKey(DIK_G);
-			Logging::LogDebug() << __FUNCTION__ << " Ignoring CTRL + G...";
+			DebugCombo = true;
+			Logging::LogDebug() << __FUNCTION__ << " Detected CTRL + G...";
+		}
+		else
+		{
+			DebugCombo = false;
 		}
 
 		// Ignore Ctrl + I combo
@@ -228,8 +240,21 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		{
 			ClearKey(DIK_LCONTROL);
 			ClearKey(DIK_I);
-			Logging::LogDebug() << __FUNCTION__ << " Ignoring CTRL + I...";
+			InfoCombo = true;
+			Logging::LogDebug() << __FUNCTION__ << " Detected CTRL + I...";
 		}
+		else
+		{
+			InfoCombo = false;
+		}
+
+		// Check if Debug Combo is held down
+		HoldingDebugCombo = LastFrameDebugCombo && DebugCombo;
+		LastFrameDebugCombo = DebugCombo;
+
+		// Check if Info Combo is held down
+		HoldingInfoCombo = LastFrameInfoCombo && InfoCombo;
+		LastFrameInfoCombo = InfoCombo;
 
 		// Check if RMB is held down
 		HoldingRMB = LastFrameSetRMButton && SetRMButton;
@@ -247,6 +272,12 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 				ToggleSprint = !ToggleSprint;
 			}
 		}
+
+		// Activate Overlays
+		if (DebugCombo && !HoldingDebugCombo && EnableDebugOverlay)
+			ShowDebugOverlay = !ShowDebugOverlay;
+		if (InfoCombo && !HoldingInfoCombo && EnableInfoOverlay)
+			ShowInfoOverlay = !ShowInfoOverlay;
 
 		// Inject Key Presses
 		if (EnableEnhancedMouse && GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTION_FMV && 

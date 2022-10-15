@@ -61,6 +61,10 @@ injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerRXAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerRYAxis;
 injector::hook_back<void(__cdecl*)(void)> orgUpdateMousePosition;
 
+BYTE* AnalogStringOne;
+BYTE* AnalogStringTwo;
+BYTE* AnalogStringThree;
+
 int8_t GetControllerLXAxis_Hook(DWORD* arg)
 {
 	// Alt Tab Rotating Fix
@@ -236,10 +240,12 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		LastFrameSprint = IsKeyPressed(GetRunKeyBind());
 
 		// Check for toggle sprint
-		if (EnableToggleSprint && GetRunKeyBind() == 0x0) //TODO
+		if (EnableToggleSprint && GetRunOption() == OPT_ANALOG)
 		{
-			if (IsKeyPressed(GetRunKeyBind() && !HoldingSprint))
-				ToggleSprint != ToggleSprint;
+			if (IsKeyPressed(GetRunKeyBind()) && !HoldingSprint)
+			{
+				ToggleSprint = !ToggleSprint;
+			}
 		}
 
 		// Inject Key Presses
@@ -287,7 +293,12 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			SetRightKey = false;
 		}
 
-		if (ToggleSprint && GetRunKeyBind() == 0x0) //TODO
+		if (EnableToggleSprint)
+		{
+			ClearKey(GetRunKeyBind());
+		}
+
+		if (EnableToggleSprint && ToggleSprint && GetRunOption() == OPT_ANALOG)
 		{
 			SetKey(GetRunKeyBind());
 		}
@@ -346,7 +357,12 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 
 		if (EnableToggleSprint)
 		{
-			//TODO change string
+			if (!GetAnalogStringAddr()) return;
+
+			// Change the Analog string (0x68) with Toggle (0x2F)
+			UpdateMemoryAddress((void*)AnalogStringOne, "\x2F", 1);
+			UpdateMemoryAddress((void*)AnalogStringTwo, "\x2F", 1);
+			UpdateMemoryAddress((void*)AnalogStringThree, "\x2F", 1);
 		}
 	}
 
@@ -576,6 +592,19 @@ std::string InputTweaks::GetRightClickState()
 	return Output;
 }
 
+std::string InputTweaks::GetToggleSprintState()
+{
+	std::string Output = "Not Active";
+
+	if (ToggleSprint)
+		Output = "Active";
+
+	if (!EnableToggleSprint)
+		Output = "Not Enabled";
+
+	return Output;
+}
+
 bool InputTweaks::JamesVaultingBuildingsFix()
 {
 	return (GetRoomID() == 0x07 && std::abs(GetInGameCameraPosY() - (-3315.999)) < FloatTolerance);
@@ -602,4 +631,48 @@ bool InputTweaks::SetRMBAimFunction()
 		(ElevatorFix() || (HotelFix())) || JamesVaultingBuildingsFix() || 
 		RosewaterParkFix() || HospitalMonologueFix() || FleshRoomFix() ||
 		GetFullscreenImageEvent() != 0x02);
+}
+
+bool InputTweaks::GetAnalogStringAddr()
+{
+	constexpr BYTE AnalogStringOneSearchBytes[]{ 0x68, 0x9A, 0x00, 0x00, 0x00, 0x56, 0x6A, 0x68 };
+	BYTE *AnalogString = (BYTE*)SearchAndGetAddresses(0x461F63, 0x4621D5, 0x4621D5, AnalogStringOneSearchBytes, sizeof(AnalogStringOneSearchBytes), 0x07);
+
+	if (!AnalogString)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Analog String One address!";
+		return false;
+	}
+	else
+	{
+		AnalogStringOne = (BYTE*)((DWORD)AnalogString);
+	}
+
+	constexpr BYTE AnalogStringTwoSearchBytes[]{ 0x68, 0x98, 0x00, 0x00, 0x00, 0x81, 0xC7, 0x0C, 0x01, 0x00, 0x00, 0x57, 0x6A, 0x68 };
+	AnalogString = (BYTE*)SearchAndGetAddresses(0x4621D1, 0x462433, 0x462433, AnalogStringTwoSearchBytes, sizeof(AnalogStringTwoSearchBytes), 0x0D);
+
+	if (!AnalogString)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Analog String Two address!";
+		return false;
+	}
+	else
+	{
+		AnalogStringTwo = (BYTE*)((DWORD)AnalogString);
+	}
+
+	constexpr BYTE AnalogStringThreeSearchBytes[]{ 0x00, 0x6A, 0x68 };
+	AnalogString = (BYTE*)SearchAndGetAddresses(0x464465, 0x4646DE, 0x4648E6, AnalogStringThreeSearchBytes, sizeof(AnalogStringThreeSearchBytes), 0x02);
+
+	if (!AnalogString)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Analog String Three address!";
+		return false;
+	}
+	else
+	{
+		AnalogStringThree = (BYTE*)((DWORD)AnalogString);
+	}
+
+	return true;
 }

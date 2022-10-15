@@ -204,6 +204,9 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append("\rRight Click Function: ");
 	OvlString.append(InputTweaksRef.GetRightClickState());
 
+	OvlString.append("\rToggle Sprint: ");
+	OvlString.append(InputTweaksRef.GetToggleSprintState());
+
 	OvlString.append(AuxDebugOvlString);
 
 	DebugOverlayTextStruct.String = OvlString.c_str();

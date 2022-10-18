@@ -355,6 +355,15 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			SetKey(GetRunKeyBind());
 		}
 
+		// Strafe keys become movement keys on 2d controls
+		if (GetControlType() == DIRECTIONAL_CONTROL)
+		{
+			if (IsKeyPressed(GetStrafeLeftKeyBind()))
+				SetKey(GetTurnLeftKeyBind());
+			if (IsKeyPressed(GetStrafeRightKeyBind()))
+				SetKey(GetTurnRightKeyBind());
+		}
+
 		// Mouse wheel weapon swapping
 		if (EnableMouseWheelSwap && MouseWheel != 0 && DeltaMsWeaponSwap.count() > InputDebounce && GetEventIndex() == EVENT_IN_GAME)
 		{

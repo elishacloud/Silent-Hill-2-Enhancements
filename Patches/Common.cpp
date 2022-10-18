@@ -68,6 +68,8 @@ BYTE* TurnLeftKeyBindAddr;
 BYTE* TurnRightKeyBindAddr;
 BYTE* WalkForwardKeyBindAddr;
 BYTE* WalkBackwardsKeyBindAddr;
+BYTE* StrafeLeftKeyBindAddr;
+BYTE* StrafeRightKeyBindAddr;
 BYTE* RunKeyBindAddr;
 BYTE* NextWeaponKeyBindAddr;
 BYTE* PreviousWeaponKeyBindAddr;
@@ -1473,6 +1475,66 @@ BYTE *GetWalkBackwardsKeyBindPointer()
 	WalkBackwardsKeyBindAddr = (BYTE*)((DWORD)BackwardButton + 0x18);
 
 	return WalkBackwardsKeyBindAddr;
+}
+
+BYTE GetStrafeLeftKeyBind()
+{
+	BYTE *pBackwardButton = GetStrafeLeftKeyBindPointer();
+
+	return (pBackwardButton) ? *pBackwardButton : 0;
+}
+
+BYTE *GetStrafeLeftKeyBindPointer()
+{
+	if (StrafeLeftKeyBindAddr)
+	{
+		return StrafeLeftKeyBindAddr;
+	}
+
+	// Get Strafe Left Button address
+	constexpr BYTE BackwardButtonSearchBytes[]{ 0x56, 0x8B, 0x74, 0x24, 0x08, 0x83, 0xFE, 0x16, 0x7D, 0x3F };
+	BYTE *BackwardButton = (BYTE*)ReadSearchedAddresses(0x5AEF90, 0x5AF8C0, 0x5AF1E0, BackwardButtonSearchBytes, sizeof(BackwardButtonSearchBytes), 0x1D);
+
+	// Checking address pointer
+	if (!BackwardButton)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Strafe Left Button address!";
+		return nullptr;
+	}
+
+	StrafeLeftKeyBindAddr = (BYTE*)((DWORD)BackwardButton + 0x20);
+
+	return StrafeLeftKeyBindAddr;
+}
+
+BYTE GetStrafeRightKeyBind()
+{
+	BYTE *pBackwardButton = GetStrafeRightKeyBindPointer();
+
+	return (pBackwardButton) ? *pBackwardButton : 0;
+}
+
+BYTE *GetStrafeRightKeyBindPointer()
+{
+	if (StrafeRightKeyBindAddr)
+	{
+		return StrafeRightKeyBindAddr;
+	}
+
+	// Get Strafe Right Button address
+	constexpr BYTE BackwardButtonSearchBytes[]{ 0x56, 0x8B, 0x74, 0x24, 0x08, 0x83, 0xFE, 0x16, 0x7D, 0x3F };
+	BYTE *BackwardButton = (BYTE*)ReadSearchedAddresses(0x5AEF90, 0x5AF8C0, 0x5AF1E0, BackwardButtonSearchBytes, sizeof(BackwardButtonSearchBytes), 0x1D);
+
+	// Checking address pointer
+	if (!BackwardButton)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Strafe Right Button address!";
+		return nullptr;
+	}
+
+	StrafeRightKeyBindAddr = (BYTE*)((DWORD)BackwardButton + 0x28);
+
+	return StrafeRightKeyBindAddr;
 }
 
 BYTE GetRunKeyBind()

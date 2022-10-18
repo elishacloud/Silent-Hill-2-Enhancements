@@ -83,6 +83,7 @@ BYTE* ControlTypeAddr;
 BYTE* RunOptionAddr;
 BYTE* NumKeysWeaponBindStartAddr;
 BYTE *TalkShowHostStateAddr;
+BYTE *BoatFlagAddr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -1895,4 +1896,34 @@ BYTE *GetTalkShowHostStatePointer()
 	TalkShowHostStateAddr += 0x08;
 
 	return TalkShowHostStateAddr;
+}
+
+BYTE GetBoatFlag()
+{
+	BYTE *pActionButton = GetBoatFlagPointer();
+
+	return (pActionButton) ? *pActionButton : 0;
+}
+
+BYTE *GetBoatFlagPointer()
+{
+	if (BoatFlagAddr)
+	{
+		return BoatFlagAddr;
+	}
+
+	// Get Boat Flag address
+	constexpr BYTE ActionButtonSearchBytes[]{ 0x66, 0x89, 0x72, 0xFE };
+	BYTE *BoatFlag = (BYTE*)ReadSearchedAddresses(0x5A58D1, 0x5A6181, 0x5A5AA1, ActionButtonSearchBytes, sizeof(ActionButtonSearchBytes), -0x3C);
+
+	// Checking address pointer
+	if (!BoatFlag)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Boat Flag address!";
+		return nullptr;
+	}
+
+	BoatFlagAddr = (BYTE*)((DWORD)BoatFlag + 0xB2);
+
+	return BoatFlagAddr;
 }

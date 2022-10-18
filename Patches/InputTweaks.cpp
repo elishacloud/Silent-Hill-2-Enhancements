@@ -36,7 +36,9 @@ int LastMouseHorizontalPos = 0xFC;
 int MouseXAxis = 0;
 int MouseYAxis = 0;
 long int MouseWheel = 0;
+
 AnalogStick VirtualRightStick;
+
 bool PauseMenuVerticalChanged = false;
 bool PauseMenuHorizontalChanged = false;
 bool CheckKeyBindsFlag = false;
@@ -52,6 +54,9 @@ Input Sprint;
 Input RMB;
 Input DebugCombo;
 Input InfoCombo;
+
+int ForwardBackwardsAxis = 0;
+int LeftRightAxis = 0;
 
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLXAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLYAxis;
@@ -260,6 +265,35 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			}
 		}
 
+		// Check for forward/backwards movement to fix boat stage
+		ForwardBackwardsAxis = 0;
+		LeftRightAxis = 0;
+
+		if (GetBoatFlag() == 0x01 && GetRoomID() == 0x0E)
+		{
+			if (IsKeyPressed(GetWalkForwardKeyBind()))
+			{
+				ForwardBackwardsAxis += 1;
+				ClearKey(GetWalkForwardKeyBind());
+			}
+			if (IsKeyPressed(GetWalkBackwardsKeyBind()))
+			{
+				ForwardBackwardsAxis -= 1;
+				ClearKey(GetWalkForwardKeyBind());
+			}
+
+			if (IsKeyPressed(GetTurnLeftKeyBind()))
+			{
+				LeftRightAxis += 1;
+				ClearKey(GetTurnLeftKeyBind());
+			}
+			if (IsKeyPressed(GetTurnRightKeyBind()))
+			{
+				LeftRightAxis -= 1;
+				ClearKey(GetTurnRightKeyBind());
+			}
+		}
+
 		// Activate Overlays
 		if (DebugCombo.State && !DebugCombo.Holding && EnableDebugOverlay)
 			ShowDebugOverlay = !ShowDebugOverlay;
@@ -321,7 +355,8 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			SetKey(GetRunKeyBind());
 		}
 
-		if (MouseWheel != 0 && DeltaMsWeaponSwap.count() > InputDebounce && GetEventIndex() == EVENT_IN_GAME)
+		// Mouse wheel weapon swapping
+		if (EnableMouseWheelSwap && MouseWheel != 0 && DeltaMsWeaponSwap.count() > InputDebounce && GetEventIndex() == EVENT_IN_GAME)
 		{
 			if (MouseWheel > 0)
 				SetKey(GetNextWeaponKeyBind());
@@ -544,6 +579,16 @@ float InputTweaks::GetMouseAnalogX()
 		return TempAxis > AnalogThreshold ? AnalogFullTilt : AnalogHalfTilt;
 
 	return TempAxis < -AnalogThreshold ? -AnalogFullTilt : -AnalogHalfTilt;
+}
+
+float InputTweaks::GetForwardAnalog()
+{
+	return ForwardBackwardsAxis > 0 ? -1. : ForwardBackwardsAxis < 0 ? 1. : 0;
+}
+
+float InputTweaks::GetTurningAnalog()
+{
+	return LeftRightAxis > 0 ? -1. : LeftRightAxis < 0 ? 1. : 0;
 }
 
 void InputTweaks::ClearMouseInputs()

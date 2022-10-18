@@ -70,6 +70,7 @@ BYTE GetControlType();
 BYTE GetRunOption();
 BYTE GetNumKeysWeaponBindStart();
 BYTE GetTalkShowHostState();
+BYTE GetBoatFlag();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -133,6 +134,7 @@ BYTE *GetControlTypePointer();
 BYTE *GetRunOptionPointer();
 BYTE *GetNumKeysWeaponBindStartPointer();
 BYTE *GetTalkShowHostStatePointer();
+BYTE *GetBoatFlagPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

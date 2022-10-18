@@ -10,6 +10,9 @@
 #include <chrono>
 #include <bitset>
 
+#define KEY_SET   0x80
+#define KEY_CLEAR 0x00
+
 typedef enum _EVENT_INDEX {
 	EVENT_LOAD_SCR,
 	EVENT_LOAD_ROOM,
@@ -38,9 +41,6 @@ typedef enum _RUN_SETTING {
 	OPT_ANALOG,
 	OPT_RUN,
 } RUN_SETTING;
-
-#define KEY_SET   0x80
-#define KEY_CLEAR 0x00
 
 struct AnalogStick {
 	int8_t XAxis = 0;
@@ -141,6 +141,8 @@ public:
 	void TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbData, LPVOID lpvData);
 	void TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD dwFlags);
 	float GetMouseAnalogX();
+	float GetForwardAnalog();
+	float GetTurningAnalog();
 	void ClearMouseInputs();
 	std::string GetRightClickState();
 	std::string GetToggleSprintState();

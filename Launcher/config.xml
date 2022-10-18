@@ -457,6 +457,16 @@
           <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
+
+    <Feature name="EnableMouseWheelSwap">
+      <Title>Enable mouse weapon swap</Title>
+      <Description>Enables Mousewheel to swap weapons</Description>
+      <Choices type="check">
+        <Value name="Disable" default="false">0</Value>
+        <Value name="Enable">1</Value>
+      </Choices>
+    </Feature>
+    
     </Section>
 
   </Tab>

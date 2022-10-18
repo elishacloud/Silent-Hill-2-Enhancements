@@ -67,6 +67,15 @@ void ProcessDInputData_Hook(GamePadState* state)
 		GetControlType() == ROTATIONAL_CONTROL)
 	{
 		joystickState.lX = static_cast<LONG>(InputTweaksRef.GetMouseAnalogX() * 32767.0);
+		
+		// Boat stage movement fix
+		if (GetBoatFlag() == 0x01)
+		{
+			joystickState.lY = static_cast<LONG>(InputTweaksRef.GetForwardAnalog() * 32767.0);
+
+			if (InputTweaksRef.GetTurningAnalog() != 0)
+				joystickState.lX = static_cast<LONG>(InputTweaksRef.GetTurningAnalog() * 32767.0);
+		}
 	}
 
 	// Populate right stick with data

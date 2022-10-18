@@ -42,6 +42,32 @@ typedef enum _RUN_SETTING {
 	OPT_RUN,
 } RUN_SETTING;
 
+typedef enum _KEY_INDEXES
+{
+	KEY_TURN_LEFT,
+	KEY_TURN_RIGHT,
+	KEY_MOVE_FORWARDS,
+	KEY_MOVE_BACKWARDS,
+	KEY_STRAFE_LEFT,
+	KEY_STRAFE_RIGHT,
+	KEY_ACTION,
+	KEY_CANCEL,
+	KEY_SKIP,
+	KEY_RUN,
+	KEY_SEARCH_VIEW,
+	KEY_INVENTORY,
+	KEY_FLASHLIGHT,
+	KEY_MAP,
+	KEY_USE_HEALTH,
+	KEY_READY_WEAPON,
+	KEY_NEXT_WEAPON,
+	KEY_PREV_WEAPON,
+	KEY_RELOAD,
+	KEY_UNEQUIP_WEAPON,
+	KEY_QUICK_SAVE,
+	KEY_QUICK_LOAD,
+} KEY_INDEXES;
+
 struct AnalogStick {
 	int8_t XAxis = 0;
 	int8_t YAxis = 0;
@@ -149,6 +175,16 @@ public:
 
 	// Additional fix for cutscenes
 	bool ElevatorFix();
+};
+
+class KeyBindsHandler
+{
+private:
+	BYTE* KeyBindsAddr;
+
+public:
+	BYTE GetKeyBind(int KeyIndex);
+	BYTE* GetKeyBindsPointer();
 };
 
 extern InputTweaks InputTweaksRef;

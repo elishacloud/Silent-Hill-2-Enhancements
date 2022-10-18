@@ -17,6 +17,9 @@
 #include "InputTweaks.h"
 
 InputTweaks InputTweaksRef;
+KeyBindsHandler KeyBinds;
+
+BYTE* KeyBindsAddr = nullptr;
 
 const int AnalogThreshold = 15;
 const int InputDebounce = 50;
@@ -254,12 +257,12 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		RMB.UpdateHolding();
 
 		// Check if Sprint is held down
-		Sprint.UpdateHoldingByValue(IsKeyPressed(GetRunKeyBind()));
+		Sprint.UpdateHoldingByValue(IsKeyPressed(KeyBinds.GetKeyBind(KEY_RUN)));
 
 		// Check for toggle sprint
 		if (EnableToggleSprint && GetRunOption() == OPT_ANALOG)
 		{
-			if (IsKeyPressed(GetRunKeyBind()) && !Sprint.Holding && GetEventIndex() == EVENT_IN_GAME)
+			if (IsKeyPressed(KeyBinds.GetKeyBind(KEY_RUN)) && !Sprint.Holding && GetEventIndex() == EVENT_IN_GAME)
 			{
 				Sprint.ToggleState();
 			}
@@ -271,26 +274,26 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 
 		if (GetBoatFlag() == 0x01 && GetRoomID() == 0x0E)
 		{
-			if (IsKeyPressed(GetWalkForwardKeyBind()))
+			if (IsKeyPressed(KeyBinds.GetKeyBind(KEY_MOVE_FORWARDS)))
 			{
 				ForwardBackwardsAxis += 1;
-				ClearKey(GetWalkForwardKeyBind());
+				ClearKey(KeyBinds.GetKeyBind(KEY_MOVE_FORWARDS));
 			}
-			if (IsKeyPressed(GetWalkBackwardsKeyBind()))
+			if (IsKeyPressed(KeyBinds.GetKeyBind(KEY_MOVE_BACKWARDS)))
 			{
 				ForwardBackwardsAxis -= 1;
-				ClearKey(GetWalkForwardKeyBind());
+				ClearKey(KeyBinds.GetKeyBind(KEY_MOVE_BACKWARDS));
 			}
 
-			if (IsKeyPressed(GetTurnLeftKeyBind()))
+			if (IsKeyPressed(KeyBinds.GetKeyBind(KEY_TURN_LEFT)))
 			{
 				LeftRightAxis += 1;
-				ClearKey(GetTurnLeftKeyBind());
+				ClearKey(KeyBinds.GetKeyBind(KEY_TURN_LEFT));
 			}
-			if (IsKeyPressed(GetTurnRightKeyBind()))
+			if (IsKeyPressed(KeyBinds.GetKeyBind(KEY_TURN_RIGHT)))
 			{
 				LeftRightAxis -= 1;
-				ClearKey(GetTurnRightKeyBind());
+				ClearKey(KeyBinds.GetKeyBind(KEY_TURN_RIGHT));
 			}
 		}
 
@@ -305,17 +308,17 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			GetEventIndex() != EVENT_FMV && GetCutsceneID() == 0x0) 
 		{
 			if (SetLMButton)
-				SetKey(GetActionKeyBind());
+				SetKey(KeyBinds.GetKeyBind(KEY_ACTION));
 			if (RMB.State)
 			{
 				if (SetRMBAimFunction())
 				{
-					SetKey(GetAimKeyBind());
+					SetKey(KeyBinds.GetKeyBind(KEY_READY_WEAPON));
 				}
 				else
 				{
 					if (!RMB.Holding) {
-						SetKey(GetCancelKeyBind());
+						SetKey(KeyBinds.GetKeyBind(KEY_CANCEL));
 					}
 				}
 			}
@@ -323,54 +326,54 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 
 		if (SetUpKey)
 		{
-			SetKey(GetWalkForwardKeyBind());
+			SetKey(KeyBinds.GetKeyBind(KEY_MOVE_FORWARDS));
 			SetUpKey = false;
 		}
 
 		if (SetDownKey)
 		{
-			SetKey(GetWalkBackwardsKeyBind());
+			SetKey(KeyBinds.GetKeyBind(KEY_MOVE_BACKWARDS));
 			SetDownKey = false;
 		}
 
 		if (SetLeftKey)
 		{
-			SetKey(GetTurnLeftKeyBind());
+			SetKey(KeyBinds.GetKeyBind(KEY_TURN_LEFT));
 			SetLeftKey = false; 
 		}
 
 		if (SetRightKey)
 		{
-			SetKey(GetTurnRightKeyBind());
+			SetKey(KeyBinds.GetKeyBind(KEY_TURN_RIGHT));
 			SetRightKey = false;
 		}
 
 		if (EnableToggleSprint)
 		{
-			ClearKey(GetRunKeyBind());
+			ClearKey(KeyBinds.GetKeyBind(KEY_RUN));
 		}
 
-		if (EnableToggleSprint && Sprint.State && GetRunOption() == OPT_ANALOG && IsKeyPressed(GetWalkForwardKeyBind()))
+		if (EnableToggleSprint && Sprint.State && GetRunOption() == OPT_ANALOG && IsKeyPressed(KeyBinds.GetKeyBind(KEY_MOVE_FORWARDS)))
 		{
-			SetKey(GetRunKeyBind());
+			SetKey(KeyBinds.GetKeyBind(KEY_RUN));
 		}
 
 		// Strafe keys become movement keys on 2d controls
-		if (GetControlType() == DIRECTIONAL_CONTROL)
+		if (GetControlType() == DIRECTIONAL_CONTROL && GetEventIndex() != EVENT_IN_GAME || (GetEventIndex() == EVENT_IN_GAME && GetFullscreenImageEvent() == 0x2))
 		{
-			if (IsKeyPressed(GetStrafeLeftKeyBind()))
-				SetKey(GetTurnLeftKeyBind());
-			if (IsKeyPressed(GetStrafeRightKeyBind()))
-				SetKey(GetTurnRightKeyBind());
+			if (IsKeyPressed(KeyBinds.GetKeyBind(KEY_STRAFE_LEFT)))
+				SetKey(KeyBinds.GetKeyBind(KEY_TURN_LEFT));
+			if (IsKeyPressed(KeyBinds.GetKeyBind(KEY_STRAFE_RIGHT)))
+				SetKey(KeyBinds.GetKeyBind(KEY_TURN_RIGHT));
 		}
 
 		// Mouse wheel weapon swapping
 		if (EnableMouseWheelSwap && MouseWheel != 0 && DeltaMsWeaponSwap.count() > InputDebounce && GetEventIndex() == EVENT_IN_GAME)
 		{
 			if (MouseWheel > 0)
-				SetKey(GetNextWeaponKeyBind());
+				SetKey(KeyBinds.GetKeyBind(KEY_NEXT_WEAPON));
 			else
-				SetKey(GetPreviousWeaponKeyBind());
+				SetKey(KeyBinds.GetKeyBind(KEY_PREV_WEAPON));
 			
 			LastWeaponSwap = Now;
 			MouseWheel = 0;
@@ -378,25 +381,25 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 
 		if (GetForegroundWindow() != GameWindowHandle)
 		{
-			ClearKey(GetActionKeyBind());
-			ClearKey(GetAimKeyBind());
+			ClearKey(KeyBinds.GetKeyBind(KEY_ACTION));
+			ClearKey(KeyBinds.GetKeyBind(KEY_READY_WEAPON));
 		}
 
 		if (MemoScreenFix && GetEventIndex() == EVENT_MEMO_LIST)
 		{
 			if (IsKeyPressed(DIK_UP))
-				SetKey(GetWalkForwardKeyBind());
+				SetKey(KeyBinds.GetKeyBind(KEY_MOVE_FORWARDS));
 			if (IsKeyPressed(DIK_DOWN))
-				SetKey(GetWalkBackwardsKeyBind());
+				SetKey(KeyBinds.GetKeyBind(KEY_MOVE_BACKWARDS));
 			if (IsKeyPressed(DIK_RETURN))
-				SetKey(GetActionKeyBind());
+				SetKey(KeyBinds.GetKeyBind(KEY_ACTION));
 		}
 
 		// Fix for input sticking after alt+tab while holding aim and action
 		if (CleanKeys)
 		{
-			ClearKey(GetActionKeyBind());
-			ClearKey(GetAimKeyBind());
+			ClearKey(KeyBinds.GetKeyBind(KEY_ACTION));
+			ClearKey(KeyBinds.GetKeyBind(KEY_READY_WEAPON));
 			CleanKeys = false;
 		}
 
@@ -610,7 +613,7 @@ void InputTweaks::ClearMouseInputs()
 void InputTweaks::CheckNumberKeyBinds()
 {
 	BYTE* NumberKeyBinds = GetNumKeysWeaponBindStartPointer();
-	BYTE* ActionKeyBinds = GetTurnLeftKeyBindPointer();
+	BYTE* ActionKeyBinds = KeyBinds.GetKeyBindsPointer();
 	boolean FoundNumber = false;
 
 	// Iterate over Number Keybinds
@@ -747,4 +750,36 @@ bool InputTweaks::GetAnalogStringAddr()
 	}
 
 	return true;
+}
+
+
+
+BYTE KeyBindsHandler::GetKeyBind(int KeyIndex)
+{
+	BYTE *pButton = GetKeyBindsPointer();
+
+	return (pButton) ? *(pButton + (KeyIndex * 0x08)) : 0;
+}
+
+BYTE* KeyBindsHandler::GetKeyBindsPointer()
+{
+	if (KeyBindsAddr)
+	{
+		return KeyBindsAddr;
+	}
+
+	// Get Turn Left Button address
+	constexpr BYTE TurnLeftButtonSearchBytes[]{ 0x56, 0x8B, 0x74, 0x24, 0x08, 0x83, 0xFE, 0x16, 0x7D, 0x3F };
+	BYTE *Binds = (BYTE*)ReadSearchedAddresses(0x5AEF90, 0x5AF8C0, 0x5AF1E0, TurnLeftButtonSearchBytes, sizeof(TurnLeftButtonSearchBytes), 0x1D);
+
+	// Checking address pointer
+	if (!Binds)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find KeyBinds address!";
+		return nullptr;
+	}
+
+	KeyBindsAddr = (BYTE*)((DWORD)Binds);
+
+	return KeyBindsAddr;
 }

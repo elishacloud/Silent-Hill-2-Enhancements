@@ -62,7 +62,7 @@ void ProcessDInputData_Hook(GamePadState* state)
 	}
 	
 	// Mouse turning
-	if (EnableEnhancedMouse && (joystickState.lX == 0 || !ControllerConnectedFlag) &&
+	if (EnableEnhancedMouse && (joystickState.lX == 0 || !IsControllerConnected) &&
 		(GetEnableInput() == 0xFFFFFFFF || InputTweaksRef.ElevatorFix()) &&
 		GetControlType() == ROTATIONAL_CONTROL)
 	{

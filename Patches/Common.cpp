@@ -78,7 +78,7 @@ BYTE *BoatFlagAddr;
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
 std::string AuxDebugOvlString = "";
-bool ControllerConnectedFlag = false;
+bool IsControllerConnected = false;
 HWND GameWindowHandle = NULL;
 
 DWORD GetRoomID()

@@ -324,6 +324,15 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			}
 		}
 
+		// Strafe keys become movement keys on 2d controls
+		if (GetControlType() == DIRECTIONAL_CONTROL && GetEventIndex() != EVENT_IN_GAME || (GetEventIndex() == EVENT_IN_GAME && !IsInFullScreenImageEvent()))
+		{
+			if (IsKeyPressed(KeyBinds.GetKeyBind(KEY_STRAFE_LEFT)))
+				SetKey(KeyBinds.GetKeyBind(KEY_TURN_LEFT));
+			if (IsKeyPressed(KeyBinds.GetKeyBind(KEY_STRAFE_RIGHT)))
+				SetKey(KeyBinds.GetKeyBind(KEY_TURN_RIGHT));
+		}
+
 		if (SetUpKey)
 		{
 			SetKey(KeyBinds.GetKeyBind(KEY_MOVE_FORWARDS));
@@ -353,18 +362,9 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			ClearKey(KeyBinds.GetKeyBind(KEY_RUN));
 		}
 
-		if (EnableToggleSprint && Sprint.State && GetRunOption() == OPT_ANALOG && IsKeyPressed(KeyBinds.GetKeyBind(KEY_MOVE_FORWARDS)))
+		if (EnableToggleSprint && Sprint.State && GetRunOption() == OPT_ANALOG && IsMovementPressed())
 		{
 			SetKey(KeyBinds.GetKeyBind(KEY_RUN));
-		}
-
-		// Strafe keys become movement keys on 2d controls
-		if (GetControlType() == DIRECTIONAL_CONTROL && GetEventIndex() != EVENT_IN_GAME || (GetEventIndex() == EVENT_IN_GAME && GetFullscreenImageEvent() == 0x2))
-		{
-			if (IsKeyPressed(KeyBinds.GetKeyBind(KEY_STRAFE_LEFT)))
-				SetKey(KeyBinds.GetKeyBind(KEY_TURN_LEFT));
-			if (IsKeyPressed(KeyBinds.GetKeyBind(KEY_STRAFE_RIGHT)))
-				SetKey(KeyBinds.GetKeyBind(KEY_TURN_RIGHT));
 		}
 
 		// Mouse wheel weapon swapping
@@ -651,7 +651,7 @@ bool InputTweaks::HotelFix()
 {
 	return (GetRoomID() == 0xB8 && 
 		(((std::abs(GetInGameCameraPosY() - (-840.)) < FloatTolerance) || (std::abs(GetInGameCameraPosY() - (-1350.)) < FloatTolerance))) &&
-		GetFullscreenImageEvent() == 0x02);
+		IsInFullScreenImageEvent());
 }
 
 std::string InputTweaks::GetRightClickState()
@@ -692,7 +692,7 @@ bool InputTweaks::RosewaterParkFix()
 
 bool InputTweaks::HospitalMonologueFix()
 {
-	return (GetRoomID() == 0x08 && std::abs(GetJamesPosZ() - (-6000.)) < FloatTolerance && GetFullscreenImageEvent() == 0x02);
+	return (GetRoomID() == 0x08 && std::abs(GetJamesPosZ() - (-6000.)) < FloatTolerance && IsInFullScreenImageEvent());
 }
 
 bool InputTweaks::FleshRoomFix()
@@ -705,7 +705,12 @@ bool InputTweaks::SetRMBAimFunction()
 	return (GetEventIndex() == EVENT_IN_GAME &&
 		(ElevatorFix() || (HotelFix())) || JamesVaultingBuildingsFix() || 
 		RosewaterParkFix() || HospitalMonologueFix() || FleshRoomFix() ||
-		GetFullscreenImageEvent() != 0x02);
+		!IsInFullScreenImageEvent());
+}
+
+bool InputTweaks::IsInFullScreenImageEvent()
+{
+	return GetFullscreenImageEvent() == 0x02;
 }
 
 bool InputTweaks::GetAnalogStringAddr()
@@ -752,11 +757,18 @@ bool InputTweaks::GetAnalogStringAddr()
 	return true;
 }
 
-
+bool InputTweaks::IsMovementPressed()
+{
+	return IsKeyPressed(KeyBinds.GetKeyBind(KEY_MOVE_FORWARDS)) || IsKeyPressed(KeyBinds.GetKeyBind(KEY_MOVE_BACKWARDS)) ||
+		IsKeyPressed(KeyBinds.GetKeyBind(KEY_TURN_LEFT)) || IsKeyPressed(KeyBinds.GetKeyBind(KEY_TURN_RIGHT));
+}
 
 BYTE KeyBindsHandler::GetKeyBind(int KeyIndex)
 {
 	BYTE *pButton = GetKeyBindsPointer();
+
+	if (pButton && *(pButton + (KeyIndex * 0x08)) == 0)
+		Logging::Log() << "Null keybind, on index: " << KeyIndex;
 
 	return (pButton) ? *(pButton + (KeyIndex * 0x08)) : 0;
 }

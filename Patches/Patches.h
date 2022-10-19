@@ -297,7 +297,7 @@ extern BYTE *TalkShowHostStateAddr;
 extern bool ShowDebugOverlay;
 extern bool ShowInfoOverlay;
 extern std::string AuxDebugOvlString;
-extern bool ControllerConnectedFlag;
+extern bool IsControllerConnected;
 extern HWND GameWindowHandle;
 extern BYTE* ElevatorRunning;
 extern BYTE *InGameVoiceEvent;

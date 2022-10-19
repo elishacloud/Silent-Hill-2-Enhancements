@@ -156,6 +156,8 @@ private:
 	bool HospitalMonologueFix();
 	bool FleshRoomFix();
 	bool SetRMBAimFunction();
+	bool IsMovementPressed();
+	bool IsInFullScreenImageEvent();
 
 	bool GetAnalogStringAddr();
 

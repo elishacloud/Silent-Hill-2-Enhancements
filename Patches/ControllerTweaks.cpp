@@ -41,6 +41,7 @@ struct GamePadState // Very incomplete
 static_assert( sizeof(AnalogState) == 0xC, "Wrong size: AnalogState" );
 
 DIJOYSTATE2* dinputJoyState;
+bool BoatStageReached = false;
 
 static void (*orgProcessDInputData)(GamePadState*);
 void ProcessDInputData_Hook(GamePadState* state)
@@ -62,19 +63,26 @@ void ProcessDInputData_Hook(GamePadState* state)
 	}
 	
 	// Mouse turning
-	if (EnableEnhancedMouse && (joystickState.lX == 0 || !IsControllerConnected) &&
+	if (EnableEnhancedMouse && ((joystickState.lX == 0 && joystickState.lY == 0)|| !IsControllerConnected) &&
 		(GetEnableInput() == 0xFFFFFFFF || InputTweaksRef.ElevatorFix()) &&
 		GetControlType() == ROTATIONAL_CONTROL)
 	{
 		joystickState.lX = static_cast<LONG>(InputTweaksRef.GetMouseAnalogX() * 32767.0);
-		
+
 		// Boat stage movement fix
-		if (GetBoatFlag() == 0x01)
+		if (GetBoatFlag() == 0x01 && GetRoomID() == 0x0E)
 		{
+			BoatStageReached = true;
+			
 			joystickState.lY = static_cast<LONG>(InputTweaksRef.GetForwardAnalog() * 32767.0);
 
 			if (InputTweaksRef.GetTurningAnalog() != 0)
 				joystickState.lX = static_cast<LONG>(InputTweaksRef.GetTurningAnalog() * 32767.0);
+		}
+		else if (BoatStageReached) // right after dismounting the boat, clear the analog stick
+		{
+			joystickState.lY = 0;
+			BoatStageReached = false;
 		}
 	}
 

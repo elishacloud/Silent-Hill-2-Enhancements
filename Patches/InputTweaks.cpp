@@ -324,8 +324,8 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			}
 		}
 
-		// Strafe keys become movement keys on 2d controls
-		if (GetControlType() == DIRECTIONAL_CONTROL && GetEventIndex() != EVENT_IN_GAME || (GetEventIndex() == EVENT_IN_GAME && !IsInFullScreenImageEvent()))
+		// Strafe keys become movement keys on menus
+		if (GetEventIndex() != EVENT_IN_GAME || (GetEventIndex() == EVENT_IN_GAME && IsInFullScreenImageEvent()))
 		{
 			if (IsKeyPressed(KeyBinds.GetKeyBind(KEY_STRAFE_LEFT)))
 				SetKey(KeyBinds.GetKeyBind(KEY_TURN_LEFT));
@@ -357,7 +357,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			SetRightKey = false;
 		}
 
-		if (EnableToggleSprint)
+		if (EnableToggleSprint && GetRunOption() == OPT_ANALOG)
 		{
 			ClearKey(KeyBinds.GetKeyBind(KEY_RUN));
 		}
@@ -600,6 +600,7 @@ float InputTweaks::GetForwardAnalog()
 
 float InputTweaks::GetTurningAnalog()
 {
+
 	return LeftRightAxis > 0 ? -1. : LeftRightAxis < 0 ? 1. : 0;
 }
 
@@ -760,7 +761,8 @@ bool InputTweaks::GetAnalogStringAddr()
 bool InputTweaks::IsMovementPressed()
 {
 	return IsKeyPressed(KeyBinds.GetKeyBind(KEY_MOVE_FORWARDS)) || IsKeyPressed(KeyBinds.GetKeyBind(KEY_MOVE_BACKWARDS)) ||
-		IsKeyPressed(KeyBinds.GetKeyBind(KEY_TURN_LEFT)) || IsKeyPressed(KeyBinds.GetKeyBind(KEY_TURN_RIGHT));
+		IsKeyPressed(KeyBinds.GetKeyBind(KEY_TURN_LEFT)) || IsKeyPressed(KeyBinds.GetKeyBind(KEY_TURN_RIGHT)) || 
+		IsKeyPressed(KeyBinds.GetKeyBind(KEY_STRAFE_RIGHT)) || IsKeyPressed(KeyBinds.GetKeyBind(KEY_STRAFE_LEFT));
 }
 
 BYTE KeyBindsHandler::GetKeyBind(int KeyIndex)

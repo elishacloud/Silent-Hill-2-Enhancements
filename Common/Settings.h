@@ -110,6 +110,7 @@
 	visit(AnisotropicFiltering, 0) \
 	visit(AntiAliasing, 0) \
 	visit(AudioFadeOutDelayMS, 10) \
+	visit(CRTShader, 0) \
 	visit(CustomFontCharHeight, 32) \
 	visit(CustomFontCharWidth, 20) \
 	visit(CustomFontCol, 25) \
@@ -227,6 +228,12 @@ typedef enum _FRONTBUFFERCONTROL {
 	BUFFER_FROM_DIRECTX = 2,
 } FRONTBUFFERCONTROL;
 
+typedef enum _CRTSHADER {
+	CRT_SHADER_DISABLED = 0,
+	CRT_SHADER_ENABLED = 1,
+	CRT_SHADER_ENABLED_CURVATURE = 2,
+} CRTSHADER;
+
 // Configurable setting defaults
 #define DECLARE_BOOL_SETTINGS(name, unused) \
 	extern bool name;
@@ -257,11 +264,14 @@ extern bool IsUpdating;
 extern bool m_StopThreadFlag;
 extern bool AutoScaleImages;
 extern bool AutoScaleVideos;
+extern bool EnableCRTShader;
+extern bool CRTCurveShader;
+extern bool CRTNonCurveShader;
 
 bool SetValue(const char* value);
 bool IsValidSettings(char* name, char* value);
 char* Read(const wchar_t* szFileName);
 void Parse(char* str, NV NameValueCallback, void* lpParam = nullptr);
 void __stdcall ParseCallback(char* lpName, char* lpValue, void*);
-void __stdcall LogCallback(char* lpName, char* lpValue, void*);
+void LogSettings();
 void UpdateConfigDefaults();

@@ -237,7 +237,6 @@
 
 // For compatible with ComboBox
 #define __UNIFORM_LIST_BOOL1  __UNIFORM_COMBO_ANY
-
 //
 // End "ReShadeUI.fxh"
 //-------------------------------------------------------------

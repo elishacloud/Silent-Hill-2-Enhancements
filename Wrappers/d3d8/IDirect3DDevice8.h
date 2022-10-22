@@ -13,9 +13,6 @@ private:
 
 	bool BeginSceneFlag = false;
 
-	bool GammaSet = false;
-	D3DGAMMARAMP Ramp;
-
 	bool AnisotropyFlag = (bool)AnisotropicFiltering;
 	DWORD MaxAnisotropy = 0;
 

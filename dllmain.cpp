@@ -149,13 +149,7 @@ void DelayedStart()
 		Logging::Log() << "Config file: " << configpath;
 		Logging::Log() << "|----------- SETTINGS -----------";
 
-		// Log config settings
-		char* szCfg = Read(configpath);
-		if (szCfg)
-		{
-			Parse(szCfg, LogCallback);
-			free(szCfg);
-		}
+		LogSettings();
 
 		Logging::Log() << "|--------------------------------";
 	}

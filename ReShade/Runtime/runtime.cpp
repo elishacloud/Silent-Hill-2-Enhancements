@@ -498,7 +498,10 @@ void reshade::runtime::load_effects()
 	std::vector<FILELIST> effects_no;
 	for (auto &item : shaderList)
 	{
-		effects_no.push_back(item);
+		if (*item.enabled)
+		{
+			effects_no.push_back(item);
+		}
 	}
 
 	_reload_total_effects = effects_no.size();
@@ -635,7 +638,7 @@ void reshade::runtime::unload_effect(size_t effect_index)
 		}), _techniques.end());
 
 	// Do not clear source file, so that an 'unload_effect' immediately followed by a 'load_effect' which accesses that works
-	effect &effect = _effects[effect_index];;
+	effect &effect = _effects[effect_index];
 	effect.rendering = false;
 	effect.compiled = false;
 	effect.errors.clear();
@@ -1064,10 +1067,7 @@ void reshade::runtime::load_current_preset()
 		// Ignore preset if "enabled" annotation is set
 		if ((technique.annotation_as_int("enabled") ||
 			std::find(technique_list.begin(), technique_list.end(), unique_name) != technique_list.end() ||
-			std::find(technique_list.begin(), technique_list.end(), technique.name) != technique_list.end()) &&
-			!((!RestoreBrightnessSelector && technique.name.compare(GammaEffectName) == 0) ||
-				(!AdjustColorTemp && technique.name.compare(BrightnessEffectName) == 0) ||
-				(!EnableSMAA && technique.name.compare(SMAAEffectName) == 0)))
+			std::find(technique_list.begin(), technique_list.end(), technique.name) != technique_list.end()))
 		{
 			enable_technique(technique);
 		}

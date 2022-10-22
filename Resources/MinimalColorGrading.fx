@@ -223,7 +223,6 @@
 
 // For compatible with ComboBox
 #define __UNIFORM_LIST_BOOL1  __UNIFORM_COMBO_ANY
-
 //
 // End "ReShadeUI.fxh"
 //-------------------------------------------------------------
@@ -232,8 +231,6 @@
 //
 // End "ReShade.fxh"
 //
-#pragma once
-
 #if !defined(__RESHADE__) || __RESHADE__ < 30000
 	#error "ReShade 3.0+ is required to use this header file"
 #endif

@@ -275,69 +275,87 @@ void PatchCustomFonts()
 	}
 }
 
-static BOOL loadExternalFontData(void) {
-#define FONT_FORMATS 4
-#define FONT_IDS 4
-	const char* formats[FONT_FORMATS] = { "png", "jpg", "tga", "dds" };
-	for (int j = FONT_IDS; j > -1; j--) {
-		for (int i = 0; i < FONT_FORMATS; i++) {
-			char path[32];
-			snprintf(path, 32, "data\\font\\font%03d.%s", j, formats[i]);
-			char Filename[MAX_PATH];
-			ifstream file(GetFileModPath(path, Filename), ios::in | ios::binary | ios::ate);
-			if (file.is_open())
+static BOOL loadExternalFontData(void)
+{
+	char Filename[MAX_PATH];
+	const bool IsUsingModPath = (GetFileModPath("data\\font", Filename) == Filename) ? true : false;
+
+	const char* DataPath = "data";
+	for (auto &IntPath : { "lang", GetModPath(DataPath), DataPath })
+	{
+		if (IsUsingModPath || IntPath == DataPath)
+		{
+			for (int j : { 4, 3, 2, 1, 0 })
 			{
-				file.seekg(0, ios::end);
-				DWORD size = (DWORD)file.tellg();
-				file.seekg(0, ios::beg);
+				for (auto format : { "png", "jpg", "tga", "dds" })
+				{
+					char path[32];
+					snprintf(path, 32, "%s\\font\\font%03d.%s", IntPath, j, format);
+					ifstream file(path, ios::in | ios::binary | ios::ate);
+					if (file.is_open())
+					{
+						file.seekg(0, ios::end);
+						DWORD size = (DWORD)file.tellg();
+						file.seekg(0, ios::beg);
 
-				BYTE* data = new BYTE[size];
-				file.read((char*)data, size);
-				file.close();
+						BYTE* data = new BYTE[size];
+						file.read((char*)data, size);
+						file.close();
 
-				int channels;
-				if (strncmp(formats[i], "dds", 3) == 0) {
-					fontData = stbi_dds_load_from_memory(data, size, (int*)&fontWidth, (int*)&fontHeight, &channels, 0);
-				}
-				else {
-					fontData = stbi_load_from_memory(data, size, (int*)&fontWidth, (int*)&fontHeight, &channels, 0);
-				}
-				if (!fontData) {
-					delete[] data;
-					continue;
-				}
+						int channels;
+						if (strncmp(format, "dds", 3) == 0)
+						{
+							fontData = stbi_dds_load_from_memory(data, size, (int*)&fontWidth, (int*)&fontHeight, &channels, 0);
+						}
+						else
+						{
+							fontData = stbi_load_from_memory(data, size, (int*)&fontWidth, (int*)&fontHeight, &channels, 0);
+						}
+						if (!fontData)
+						{
+							delete[] data;
+							continue;
+						}
 
-				BYTE* extra = (BYTE*)(data + size - 16);
-				if (strncmp((char*)extra, "SH2EEFNT", 8) == 0) {
-					fontColumnNumber = extra[8] | extra[9] << 8 | extra[10] << 16 | extra[11] << 24;
-					fontRowNumber = extra[12] | extra[13] << 8 | extra[14] << 16 | extra[15] << 24;
-				}
-				else {
-					fontColumnNumber = fontWidth / 44;
-					fontRowNumber = fontHeight / 64;
-				}
-				Logging::Log() << __FUNCTION__ << ": Using font file: " << path << " fontColumnNumber " << fontColumnNumber << " fontRowNumber " << fontRowNumber;
-				delete[] data;
+						BYTE* extra = (BYTE*)(data + size - 16);
+						if (strncmp((char*)extra, "SH2EEFNT", 8) == 0)
+						{
+							fontColumnNumber = extra[8] | extra[9] << 8 | extra[10] << 16 | extra[11] << 24;
+							fontRowNumber = extra[12] | extra[13] << 8 | extra[14] << 16 | extra[15] << 24;
+						}
+						else
+						{
+							fontColumnNumber = fontWidth / 44;
+							fontRowNumber = fontHeight / 64;
+						}
+						Logging::Log() << __FUNCTION__ << ": Using font file: " << path << " fontColumnNumber " << fontColumnNumber << " fontRowNumber " << fontRowNumber;
+						delete[] data;
 
-				char wpath[32];
-				snprintf(wpath, 32, "data\\font\\fontwdata%03d.bin", j);
-				ifstream wfile(GetFileModPath(wpath, Filename), ios::in | ios::binary | ios::ate);
-				if (!wfile.is_open()) {
-					wfile.open(GetFileModPath("data\\font\\fontwdata.bin", Filename), ios::in | ios::binary | ios::ate); //try default
+						char wpath[32];
+						snprintf(wpath, 32, "%s\\font\\fontwdata%03d.bin", IntPath, j);
+						ifstream wfile(wpath, ios::in | ios::binary | ios::ate);
+						if (!wfile.is_open())
+						{
+							snprintf(wpath, 32, "%s\\font\\fontwdata.bin", IntPath);
+							wfile.open(wpath, ios::in | ios::binary | ios::ate); //try default
+						}
+						if (wfile.is_open())
+						{
+							fontWidthData = new BYTE[0xE0 * 2];
+							wfile.seekg(0, ios::beg);
+							wfile.read((char*)fontWidthData, 0xE0 * 2);
+						}
+						return (fontData != NULL);
+					}
 				}
-				if (wfile.is_open()) {
-					fontWidthData = new BYTE[0xE0 * 2];
-					wfile.seekg(0, ios::beg);
-					wfile.read((char*)fontWidthData, 0xE0 * 2);
-				}
-				break;
 			}
 		}
 	}
 	return (fontData != NULL);
 }
 
-static inline void copyFontData(BYTE *out, int pitch, SHORT index, WORD charId, FontType type) {
+static inline void copyFontData(BYTE *out, int pitch, SHORT index, WORD charId, FontType type)
+{
 	int charWidth = fontWidth / fontColumnNumber;
 	int charHeight = fontHeight / fontRowNumber;
 	int fontStart = index / charIX * pitch * charHeight + index % charIX * charWidth * 4;

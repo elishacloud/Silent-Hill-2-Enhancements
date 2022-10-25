@@ -272,7 +272,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		ForwardBackwardsAxis = 0;
 		LeftRightAxis = 0;
 
-		if (GetBoatFlag() == 0x01 && GetRoomID() == 0x0E)
+		if ((GetBoatFlag() == 0x01 && GetRoomID() == 0x0E) || GetSearchViewFlag() == 0x06)
 		{
 			if (IsKeyPressed(KeyBinds.GetKeyBind(KEY_MOVE_FORWARDS)))
 			{
@@ -362,7 +362,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			ClearKey(KeyBinds.GetKeyBind(KEY_RUN));
 		}
 
-		if (EnableToggleSprint && Sprint.State && GetRunOption() == OPT_ANALOG && IsMovementPressed())
+		if (EnableToggleSprint && Sprint.State && GetRunOption() == OPT_ANALOG && IsMovementPressed() && GetEventIndex() == EVENT_IN_GAME)
 		{
 			SetKey(KeyBinds.GetKeyBind(KEY_RUN));
 		}

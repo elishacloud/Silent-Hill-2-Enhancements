@@ -21,7 +21,7 @@
 
 Direct3DCreate9Proc m_pDirect3DCreate9 = nullptr;
 
-IDirect3D9 *WINAPI rs_Direct3DCreate9(UINT SDKVersion)
+IDirect3D9 *WINAPI Direct3DCreate9Wrapper(UINT SDKVersion)
 {
 	if (!m_pDirect3DCreate9)
 	{

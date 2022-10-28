@@ -152,16 +152,6 @@
         </Choices>
       </Feature>
 
-      <Feature name="CRTShader">
-        <Title>Simulate a CRT Screen</Title>
-        <Description>Enables shaders that simulate what the game would look like on a CRT television. These shaders look more accurate at lower resolutions. For the best CRT nostalgic experience, play the game in a 4:3 aspect ratio.&#x0a;&#x0a;Note: It is not recommended to enable this option if you are streaming the game, as the CRT effect may not display correctly to your viewers. It is also not recommended to enable this option if you have a low-end computer system.</Description>
-        <Choices type="list">
-          <Value name="Disabled" default="true">0</Value>
-          <Value name="Enabled">1</Value>
-          <Value name="Enabled with Curvature">2</Value>
-        </Choices>
-      </Feature>
-
     </Section>
 
   </Tab>
@@ -529,8 +519,8 @@
         <Title>Unlock Japanese language option</Title>
         <Description>Restores the ability to select Japanese as a language option through the game's Options menu.&#x0a;&#x0a;Note: It is recommended to keep this disabled for now, as not all Japanese characters are currently supported.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disable" default="true">0</Value>
+          <Value name="Enable">1</Value>
         </Choices>
       </Feature>
 

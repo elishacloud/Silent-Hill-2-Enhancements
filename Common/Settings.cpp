@@ -247,6 +247,11 @@ void Parse(char* str, NV NameValueCallback, void* lpParam)
 
 void UpdateConfigDefaults()
 {
+	// Temporaroly disable settings
+	CRTShader = 0;
+	EnableDebugOverlay = 0;
+	EnableInfoOverlay = 0;
+	
 	// Set CRT shader
 	switch (CRTShader)
 	{

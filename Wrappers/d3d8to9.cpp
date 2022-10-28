@@ -68,7 +68,7 @@ void EnableD3d8to9()
 	}
 	else
 	{
-		p_Direct3DCreate9 = rs_Direct3DCreate9;
+		p_Direct3DCreate9 = Direct3DCreate9Wrapper;
 	}
 }
 

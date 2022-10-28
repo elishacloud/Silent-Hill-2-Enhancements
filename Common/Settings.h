@@ -95,7 +95,7 @@
 	visit(SpecificSoundLoopFix, true) \
 	visit(SpecularFix, true) \
 	visit(SteamCrashFix, true) \
-	visit(UnlockJapLang, true) \
+	visit(UnlockJapLang, false) \
 	visit(UseBestGraphics, true) \
 	visit(UseCustomExeStr, true) \
 	visit(UseCustomFonts, true) \
@@ -168,6 +168,7 @@
 	visit(AnisotropicFiltering) \
 	visit(AntiAliasing) \
 	visit(AudioFadeOutDelayMS) \
+	visit(CRTShader) \
 	visit(CustomFontCharHeight) \
 	visit(CustomFontCharWidth) \
 	visit(CustomFontCol) \

@@ -273,6 +273,8 @@ bool NewProjectReleaseAvailable(std::string &path_str)
 	// Check if there is an update available for the Setup Tool
 	if (localcsv_version[0] != webcsv_version[0])
 	{
+		Logging::Log() << "Setup Tool update found. Current version: " << localcsv_version[0] << ", New version: " << webcsv_version[0];
+
 		IsSetupToolUpdateAvailable = true;
 		return true;
 	}
@@ -286,11 +288,14 @@ bool NewProjectReleaseAvailable(std::string &path_str)
 			{
 				if (localcsv_version[i] != webcsv_version[i])
 				{
+					Logging::Log() << "\"" << localcsv_id[i] << "\"" << " update found. Current version: " << localcsv_version[i] << ", New version: " << webcsv_version[i];
 					IsProjectUpdateAvailable = true;
-					return true;
 				}
 			}
 		}
+
+		if (IsProjectUpdateAvailable)
+			return true;
 	}
 
 	return false;

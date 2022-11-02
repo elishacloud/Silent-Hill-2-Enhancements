@@ -81,9 +81,12 @@ void OnFileLoadVid(LPCSTR lpFileName)
 // Check if loading a Game Result save
 void UpdateLoadedVideo()
 {
-	CheckingVideo = true;
-	GetVideoOnLoad();
-	CheckingVideo = false;
+	if (!CheckingVideo)
+	{
+		CheckingVideo = true;
+		GetVideoOnLoad();
+		CheckingVideo = false;
+	}
 }
 
 // ASM function to Fix Game Result Saves

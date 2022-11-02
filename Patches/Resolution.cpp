@@ -340,74 +340,83 @@ void GetCustomResolutions()
 {
 	GetDesktopRes(MaxWidth, MaxHeight);
 
-	// Exclusive fullscreen mode
-	if (ScreenMode == EXCLUSIVE_FULLSCREEN)
-	{
-		IDirect3D8 *pDirect3D = Direct3DCreate8Wrapper(D3D_SDK_VERSION);
-
-		if (!pDirect3D)
+	do {
+		// Exclusive fullscreen mode
+		if (ScreenMode == EXCLUSIVE_FULLSCREEN)
 		{
-			Logging::Log() << __FUNCTION__ << " Error: failed to create Direct3D8!";
-			return;
-		}
+			IDirect3D8* pDirect3D = Direct3DCreate8Wrapper(D3D_SDK_VERSION);
 
-		// Add custom resolution to list
-		if (ResY && ResX)
-		{
-			AddResolutionToList(ResX, ResY, true);
-		}
-
-		// Setup display mode
-		D3DDISPLAYMODE d3ddispmode;
-
-		// Enumerate modes for format XRGB
-		UINT modeCount = pDirect3D->GetAdapterModeCount(D3DADAPTER_DEFAULT);
-
-		// Loop through each mode
-		for (UINT i = 0; i < modeCount; i++)
-		{
-			// Get next resolution
-			if (FAILED(pDirect3D->EnumAdapterModes(D3DADAPTER_DEFAULT, i, &d3ddispmode)))
+			if (!pDirect3D)
 			{
+				Logging::Log() << __FUNCTION__ << " Error: failed to create Direct3D8!";
 				break;
 			}
 
-			// Add resolution to list
-			AddResolutionToList(d3ddispmode.Width, d3ddispmode.Height);
-		}
+			// Add custom resolution to list
+			if (ResY && ResX)
+			{
+				AddResolutionToList(ResX, ResY, true);
+			}
 
-		// Release Direct3D8
-		pDirect3D->Release();
-	}
-	// Windowed and windowed fullscreen modes
-	else
-	{
-		// Add custom resolution to list
-		if (ResY && ResX)
+			// Setup display mode
+			D3DDISPLAYMODE d3ddispmode;
+
+			// Enumerate modes for format XRGB
+			UINT modeCount = pDirect3D->GetAdapterModeCount(D3DADAPTER_DEFAULT);
+
+			// Loop through each mode
+			for (UINT i = 0; i < modeCount; i++)
+			{
+				// Get next resolution
+				if (FAILED(pDirect3D->EnumAdapterModes(D3DADAPTER_DEFAULT, i, &d3ddispmode)))
+				{
+					break;
+				}
+
+				// Add resolution to list
+				AddResolutionToList(d3ddispmode.Width, d3ddispmode.Height);
+			}
+
+			// Release Direct3D8
+			pDirect3D->Release();
+		}
+		// Windowed and windowed fullscreen modes
+		else
 		{
-			AddResolutionToList(ResX, ResY, true);
-		}
+			// Add custom resolution to list
+			if (ResY && ResX)
+			{
+				AddResolutionToList(ResX, ResY, true);
+			}
 
-		// Get monitor info
-		MONITORINFOEX infoex = {};
-		infoex.cbSize = sizeof(MONITORINFOEX);
-		BOOL bRet = GetMonitorInfo(GetMonitorHandle(), &infoex);
+			// Get monitor info
+			MONITORINFOEX infoex = {};
+			infoex.cbSize = sizeof(MONITORINFOEX);
+			BOOL bRet = GetMonitorInfo(GetMonitorHandle(), &infoex);
 
-		// Get resolution list for specified monitor
-		DEVMODE dm = {};
-		dm.dmSize = sizeof(dm);
-		for (int x = 0; EnumDisplaySettings(bRet ? infoex.szDevice : nullptr, x, &dm) != 0; x++)
-		{
-			// Add resolution to list
-			AddResolutionToList(dm.dmPelsWidth, dm.dmPelsHeight);
+			// Get resolution list for specified monitor
+			DEVMODE dm = {};
+			dm.dmSize = sizeof(dm);
+			for (int x = 0; EnumDisplaySettings(bRet ? infoex.szDevice : nullptr, x, &dm) != 0; x++)
+			{
+				// Add resolution to list
+				AddResolutionToList(dm.dmPelsWidth, dm.dmPelsHeight);
+			}
 		}
-	}
+	} while (FALSE);
 
 	// Check if any resolutions were found
 	if (ResolutionVector.empty())
 	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to get resolution list!";
-		return;
+		Logging::Log() << __FUNCTION__ << " Error: failed to get resolution list!  Adding default resolutions.";
+
+		// Add default resolution list
+		AddResolutionToList(640, 480);
+		AddResolutionToList(800, 600);
+		AddResolutionToList(1024, 768);
+		AddResolutionToList(1280, 1024);
+		AddResolutionToList(1600, 1200);
+		AddResolutionToList(MaxWidth, MaxHeight);
 	}
 }
 

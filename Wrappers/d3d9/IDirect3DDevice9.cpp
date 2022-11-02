@@ -21,6 +21,7 @@
 
 extern bool DisableShaderOnPresent;
 
+bool ShadersReady = false;
 DWORD GammaLevel = 3;
 
 HRESULT m_IDirect3DDevice9::QueryInterface(REFIID riid, void** ppvObj)
@@ -251,7 +252,7 @@ HRESULT m_IDirect3DDevice9::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 HRESULT m_IDirect3DDevice9::Present(const RECT *pSourceRect, const RECT *pDestRect, HWND hDestWindowOverride, const RGNDATA *pDirtyRegion)
 {
 	// Only call into runtime if the entire surface is presented, to avoid partial updates messing up effects and the GUI
-	if (EnableCustomShaders && !DisableShaderOnPresent && m_IDirect3DSwapChain9::is_presenting_entire_surface(pSourceRect, hDestWindowOverride))
+	if (ShadersReady && !DisableShaderOnPresent && m_IDirect3DSwapChain9::is_presenting_entire_surface(pSourceRect, hDestWindowOverride))
 	{
 		_implicit_swapchain->_runtime->on_present();
 	}
@@ -310,9 +311,7 @@ void m_IDirect3DDevice9::SetGammaRamp(UINT iSwapChain, DWORD Flags, const D3DGAM
 
 		const auto runtime = _implicit_swapchain->_runtime;
 
-		runtime->reset_gamma(GammaSet);
-
-		GammaSet = true;
+		runtime->reset_gamma(true);
 
 		return;
 	}

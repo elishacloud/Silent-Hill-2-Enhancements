@@ -137,10 +137,10 @@ inline bool isInString(LPCWSTR strCheck, LPCSTR, LPCWSTR strW, size_t size)
 template<typename T>
 inline bool isDataPath(T sh2)
 {
-	if ((sh2[0] == 'd' || sh2[0] == 'D') &&
-		(sh2[1] == 'a' || sh2[1] == 'A') &&
-		(sh2[2] == 't' || sh2[2] == 'T') &&
-		(sh2[3] == 'a' || sh2[3] == 'A'))
+	if (sh2[0] != '\0' && (sh2[0] == 'd' || sh2[0] == 'D') &&
+		sh2[1] != '\0' && (sh2[1] == 'a' || sh2[1] == 'A') &&
+		sh2[2] != '\0' && (sh2[2] == 't' || sh2[2] == 'T') &&
+		sh2[3] != '\0' && (sh2[3] == 'a' || sh2[3] == 'A'))
 	{
 		return true;
 	}
@@ -150,34 +150,38 @@ inline bool isDataPath(T sh2)
 template<typename T>
 inline bool isEndVideoPath(T sh2)
 {
-	if ((sh2[0] == 'm' || sh2[0] == 'M') &&
-		(sh2[1] == 'o' || sh2[1] == 'O') &&
-		(sh2[2] == 'v' || sh2[2] == 'V') &&
-		(sh2[3] == 'i' || sh2[3] == 'I') &&
-		(sh2[4] == 'e' || sh2[4] == 'E') &&
-		(sh2[6] == 'e' || sh2[6] == 'E') &&
-		(sh2[7] == 'n' || sh2[7] == 'N') &&
-		(sh2[8] == 'd' || sh2[8] == 'D') &&
-		(sh2[9] == 'i' || sh2[9] == 'I') &&
-		(sh2[10] == 'n' || sh2[10] == 'N') &&
-		(sh2[11] == 'g' || sh2[11] == 'G') &&
-		(sh2[13] == 'b' || sh2[13] == 'B') &&
-		(sh2[14] == 'i' || sh2[14] == 'I') &&
-		(sh2[15] == 'k' || sh2[15] == 'K'))
+	if (sh2[0] != '\0' && (sh2[0] == 'm' || sh2[0] == 'M') &&
+		sh2[1] != '\0' && (sh2[1] == 'o' || sh2[1] == 'O') &&
+		sh2[2] != '\0' && (sh2[2] == 'v' || sh2[2] == 'V') &&
+		sh2[3] != '\0' && (sh2[3] == 'i' || sh2[3] == 'I') &&
+		sh2[4] != '\0' && (sh2[4] == 'e' || sh2[4] == 'E') &&
+		sh2[5] != '\0' &&
+		sh2[6] != '\0' && (sh2[6] == 'e' || sh2[6] == 'E') &&
+		sh2[7] != '\0' && (sh2[7] == 'n' || sh2[7] == 'N') &&
+		sh2[8] != '\0' && (sh2[8] == 'd' || sh2[8] == 'D') &&
+		sh2[9] != '\0' && (sh2[9] == 'i' || sh2[9] == 'I') &&
+		sh2[10] != '\0' && (sh2[10] == 'n' || sh2[10] == 'N') &&
+		sh2[11] != '\0' && (sh2[11] == 'g' || sh2[11] == 'G') &&
+		sh2[12] != '\0' &&
+		sh2[13] != '\0' && (sh2[13] == 'b' || sh2[13] == 'B') &&
+		sh2[14] != '\0' && (sh2[14] == 'i' || sh2[14] == 'I') &&
+		sh2[15] != '\0' && (sh2[15] == 'k' || sh2[15] == 'K'))
 	{
 		return true;
 	}
-	if ((sh2[0] == 'm' || sh2[0] == 'M') &&
-		(sh2[1] == 'o' || sh2[1] == 'O') &&
-		(sh2[2] == 'v' || sh2[2] == 'V') &&
-		(sh2[3] == 'i' || sh2[3] == 'I') &&
-		(sh2[4] == 'e' || sh2[4] == 'E') &&
-		(sh2[6] == 'e' || sh2[6] == 'E') &&
-		(sh2[7] == 'n' || sh2[7] == 'N') &&
-		(sh2[8] == 'd' || sh2[8] == 'D') &&
-		(sh2[10] == 'b' || sh2[10] == 'B') &&
-		(sh2[11] == 'i' || sh2[11] == 'I') &&
-		(sh2[12] == 'k' || sh2[12] == 'K'))
+	if (sh2[0] != '\0' && (sh2[0] == 'm' || sh2[0] == 'M') &&
+		sh2[1] != '\0' && (sh2[1] == 'o' || sh2[1] == 'O') &&
+		sh2[2] != '\0' && (sh2[2] == 'v' || sh2[2] == 'V') &&
+		sh2[3] != '\0' && (sh2[3] == 'i' || sh2[3] == 'I') &&
+		sh2[4] != '\0' && (sh2[4] == 'e' || sh2[4] == 'E') &&
+		sh2[5] != '\0' &&
+		sh2[6] != '\0' && (sh2[6] == 'e' || sh2[6] == 'E') &&
+		sh2[7] != '\0' && (sh2[7] == 'n' || sh2[7] == 'N') &&
+		sh2[8] != '\0' && (sh2[8] == 'd' || sh2[8] == 'D') &&
+		sh2[9] != '\0' &&
+		sh2[10] != '\0' && (sh2[10] == 'b' || sh2[10] == 'B') &&
+		sh2[11] != '\0' && (sh2[11] == 'i' || sh2[11] == 'I') &&
+		sh2[12] != '\0' && (sh2[12] == 'k' || sh2[12] == 'K'))
 	{
 		return true;
 	}
@@ -187,30 +191,32 @@ inline bool isEndVideoPath(T sh2)
 template<typename T>
 inline DWORD getPicPath(T sh2)
 {
-	if ((sh2[0] == 'p' || sh2[0] == 'P') &&
-		(sh2[1] == 'i' || sh2[1] == 'I') &&
-		(sh2[2] == 'c' || sh2[2] == 'C'))
+	if (sh2[0] != '\0' && (sh2[0] == 'p' || sh2[0] == 'P') &&
+		sh2[1] != '\0' && (sh2[1] == 'i' || sh2[1] == 'I') &&
+		sh2[2] != '\0' && (sh2[2] == 'c' || sh2[2] == 'C'))
 	{
 		return 3;
 	}
-	if ((sh2[0] == 'm' || sh2[0] == 'M') &&
-		(sh2[1] == 'e' || sh2[1] == 'E') &&
-		(sh2[2] == 'n' || sh2[2] == 'N') &&
-		(sh2[3] == 'u' || sh2[3] == 'U') &&
-		(sh2[5] == 'm' || sh2[5] == 'M') &&
-		(sh2[6] == 'c' || sh2[6] == 'C'))
+	if (sh2[0] != '\0' && (sh2[0] == 'm' || sh2[0] == 'M') &&
+		sh2[1] != '\0' && (sh2[1] == 'e' || sh2[1] == 'E') &&
+		sh2[2] != '\0' && (sh2[2] == 'n' || sh2[2] == 'N') &&
+		sh2[3] != '\0' && (sh2[3] == 'u' || sh2[3] == 'U') &&
+		sh2[4] != '\0' &&
+		sh2[5] != '\0' && (sh2[5] == 'm' || sh2[5] == 'M') &&
+		sh2[6] != '\0' && (sh2[6] == 'c' || sh2[6] == 'C'))
 	{
 		return 4;
 	}
-	if ((sh2[0] == 'e' || sh2[0] == 'E') &&
-		(sh2[1] == 't' || sh2[1] == 'T') &&
-		(sh2[2] == 'c' || sh2[2] == 'C') &&
-		(sh2[4] == 'e' || sh2[4] == 'E') &&
-		(sh2[5] == 'f' || sh2[5] == 'F') &&
-		(sh2[6] == 'f' || sh2[6] == 'F') &&
-		(sh2[7] == 'e' || sh2[7] == 'E') &&
-		(sh2[8] == 'c' || sh2[8] == 'C') &&
-		(sh2[9] == 't' || sh2[9] == 'T'))
+	if (sh2[0] != '\0' && (sh2[0] == 'e' || sh2[0] == 'E') &&
+		sh2[1] != '\0' && (sh2[1] == 't' || sh2[1] == 'T') &&
+		sh2[2] != '\0' && (sh2[2] == 'c' || sh2[2] == 'C') &&
+		sh2[3] != '\0' &&
+		sh2[4] != '\0' && (sh2[4] == 'e' || sh2[4] == 'E') &&
+		sh2[5] != '\0' && (sh2[5] == 'f' || sh2[5] == 'F') &&
+		sh2[6] != '\0' && (sh2[6] == 'f' || sh2[6] == 'F') &&
+		sh2[7] != '\0' && (sh2[7] == 'e' || sh2[7] == 'E') &&
+		sh2[8] != '\0' && (sh2[8] == 'c' || sh2[8] == 'C') &&
+		sh2[9] != '\0' && (sh2[9] == 't' || sh2[9] == 'T'))
 	{
 		return 3;
 	}
@@ -225,14 +231,22 @@ inline T UpdateModPath(T sh2, D str)
 		return sh2;
 	}
 
+	DWORD StrSize = strlen(sh2);
 	DWORD padding = 0;
+	bool isEnding = false;
 
 	// Check if data path is found and store location
 	if (isDataPath(sh2))
 	{
 		// Data path found at location '0', do nothing
 	}
-	else if (isDataPath(sh2 + modLoc))
+	else if (StrSize + strlen(ModPath(sh2)) + 4 > MAX_PATH)
+	{
+		// Game path is too long
+		LOG_ONCE(__FUNCTION__ " Error: Game path is too long: '" << sh2 << "'");
+		return sh2;
+	}
+	else if (StrSize > modLoc && isDataPath(sh2 + modLoc))
 	{
 		// Data path found at mod location, update padding and initialize
 		padding = modLoc;
@@ -254,8 +268,11 @@ inline T UpdateModPath(T sh2, D str)
 		strcpy_s(str + padding + PathLen, MAX_PATH - padding - PathLen, sh2 + padding + 4);
 
 		// Handle end.bik/ending.bik (favor end.bik)
-		if (isEndVideoPath(sh2 + padding + 5))
+		if ((StrSize > padding + PathLen + 1) && isEndVideoPath(sh2 + padding + PathLen + 1))
 		{
+			Logging::Log() << __FUNCTION__ " " << sh2;
+			isEnding = true;
+
 			// Check mod path
 			strcpy_s(str + padding + PathLen, MAX_PATH - padding - PathLen, GetEnding1(sh2));
 			if (PathFileExists(str))
@@ -267,20 +284,6 @@ inline T UpdateModPath(T sh2, D str)
 			{
 				return str;
 			}
-
-			// Check data path
-			strcpy_s(str, MAX_PATH, sh2);
-			strcpy_s(str + padding + 4, MAX_PATH - padding - 4, GetEnding1(sh2));
-			if (PathFileExists(str))
-			{
-				return str;
-			}
-			strcpy_s(str + padding + 4, MAX_PATH - padding - 4, GetEnding2(sh2));
-			if (PathFileExists(str))
-			{
-				return str;
-			}
-			return sh2;
 		}
 
 		// Handle PS2 low texture mod
@@ -296,6 +299,23 @@ inline T UpdateModPath(T sh2, D str)
 		}
 
 		// If mod path exists then use it
+		if (PathFileExists(str))
+		{
+			return str;
+		}
+	}
+
+	// Handle end.bik/ending.bik (favor end.bik)
+	if (isEnding)
+	{
+		// Check data path
+		strcpy_s(str, MAX_PATH, sh2);
+		strcpy_s(str + padding + 4, MAX_PATH - padding - 4, GetEnding1(sh2));
+		if (PathFileExists(str))
+		{
+			return str;
+		}
+		strcpy_s(str + padding + 4, MAX_PATH - padding - 4, GetEnding2(sh2));
 		if (PathFileExists(str))
 		{
 			return str;
@@ -669,9 +689,9 @@ void InstallFileSystemHooks()
 	modLoc = wcslen(tmpPath) + 1;
 	size_t modLen = strlen(ModPathA);
 	picLen = strlen(ModPicPathA);
-	if (modLoc + modLen > MAX_PATH)
+	if (modLoc + modLen + 42 > MAX_PATH)	// Check max length of a file in the game
 	{
-		Logging::Log() << __FUNCTION__ " Error: custom mod path length is too long! " << modLoc + modLen;
+		Logging::Log() << __FUNCTION__ " Error: Game path is too long: " << modLoc + modLen;
 		DisableFileSystemHooking();
 		return;
 	}

@@ -295,7 +295,9 @@ bool NewProjectReleaseAvailable(std::string &path_str)
 		}
 
 		if (IsProjectUpdateAvailable)
+		{
 			return true;
+		}
 	}
 
 	return false;

@@ -261,6 +261,7 @@ typedef void(__stdcall* NV)(char* name, char* value, void* lpParam);
 extern HMODULE m_hModule;
 extern bool CustomExeStrSet;
 extern bool EnableCustomShaders;
+extern bool ShadersReady;
 extern bool IsUpdating;
 extern bool m_StopThreadFlag;
 extern bool AutoScaleImages;

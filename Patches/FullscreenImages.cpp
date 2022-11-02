@@ -101,8 +101,9 @@ bool GetTextureRes(char *TexName, DWORD &TextureX, DWORD &TextureY);
 
 struct ImageCache
 {
-	void *Name;
+	void *Addr;
 	BOOL Flag;
+	std::string Name;
 };
 
 std::vector<ImageCache> ScaleList, MapList;
@@ -112,17 +113,20 @@ BOOL CheckTexture()
 	static BOOL flag = FALSE;
 	static void *last = nullptr;
 
-	if (!TexNameAddr || !*TexNameAddr  || last == *TexNameAddr ||
-		std::any_of(ScaleList.begin(), ScaleList.end(), [](const ImageCache & TexCache) { if (TexCache.Name == *TexNameAddr) { flag = TexCache.Flag; return true; } return false; })
-		|| strcmp(*TexNameAddr, "data/etc/effect/lens_flare.tbn2") == 0)
+	if (!TexNameAddr || !*TexNameAddr || strcmp(*TexNameAddr, "data/etc/effect/lens_flare.tbn2") == 0)
 	{
-		last = (TexNameAddr) ? *TexNameAddr : nullptr;
+		return FALSE;
+	}
+
+	if (last == *TexNameAddr ||
+		std::any_of(ScaleList.begin(), ScaleList.end(), [](const ImageCache& TexCache) { if (TexCache.Addr == *TexNameAddr && strcmp(*TexNameAddr, TexCache.Name.c_str()) == 0) { flag = TexCache.Flag; return true; } return false; }))
+	{
 		return flag;
 	}
 
 	flag = (std::any_of(std::begin(DefaultTextureList), std::end(DefaultTextureList), [](const TexSize & TexItem) { return TexItem.IsScaled && strcmp(TexItem.Name, *TexNameAddr) == 0; }));
 	
-	ScaleList.push_back({ *TexNameAddr , flag });
+	ScaleList.push_back({ *TexNameAddr, flag, std::string(*TexNameAddr) });
 	last = *TexNameAddr;
 
 	return flag;
@@ -133,17 +137,20 @@ BOOL CheckMapTexture()
 	static BOOL flag = FALSE;
 	static void *last = nullptr;
 
-	if (!TexNameAddr || !*TexNameAddr || last == *TexNameAddr ||
-		std::any_of(MapList.begin(), MapList.end(), [](const ImageCache & TexCache) { if (TexCache.Name == *TexNameAddr) { flag = TexCache.Flag; return true; } return false; })
-		|| strcmp(*TexNameAddr, "data/etc/effect/lens_flare.tbn2") == 0)
+	if (!TexNameAddr || !*TexNameAddr || strcmp(*TexNameAddr, "data/etc/effect/lens_flare.tbn2") == 0)
 	{
-		last = (TexNameAddr) ? *TexNameAddr : nullptr;
+		return FALSE;
+	}
+
+	if (last == *TexNameAddr ||
+		std::any_of(MapList.begin(), MapList.end(), [](const ImageCache& TexCache) { if (TexCache.Addr == *TexNameAddr && strcmp(*TexNameAddr, TexCache.Name.c_str()) == 0) { flag = TexCache.Flag; return true; } return false; }))
+	{
 		return flag;
 	}
 
 	flag = (std::any_of(std::begin(DefaultTextureList), std::end(DefaultTextureList), [](const TexSize & TexItem) { return TexItem.IsMap && strcmp(TexItem.Name, *TexNameAddr) == 0; }));
 	
-	MapList.push_back({ *TexNameAddr , flag });
+	MapList.push_back({ *TexNameAddr, flag, std::string(*TexNameAddr) });
 	last = *TexNameAddr;
 
 	return flag;
@@ -194,9 +201,12 @@ void OnFileLoadTex(LPCSTR lpFileName)
 // Runs each time a texture is loaded
 void CheckLoadedTexture()
 {
-	CheckingTexture = true;
-	GetTextureOnLoad();
-	CheckingTexture = false;
+	if (!CheckingTexture)
+	{
+		CheckingTexture = true;
+		GetTextureOnLoad();
+		CheckingTexture = false;
+	}
 }
 
 // ASM function to check texture on load

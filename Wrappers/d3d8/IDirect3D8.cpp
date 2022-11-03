@@ -369,10 +369,25 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 		}
 	}
 
-	// Check if window is minimized and restore it
-	if (IsWindow(DeviceWindow) && IsIconic(DeviceWindow))
+	if (IsWindow(DeviceWindow))
 	{
-		ShowWindow(DeviceWindow, SW_RESTORE);
+		// Check if window is minimized and restore it
+		if (IsIconic(DeviceWindow))
+		{
+			ShowWindow(DeviceWindow, SW_RESTORE);
+		}
+
+		// Set default window background color to black
+		{
+			HBRUSH brush = CreateSolidBrush(RGB(0, 0, 0));
+			SetClassLongPtr(DeviceWindow, GCLP_HBRBACKGROUND, (LONG_PTR)brush);
+		}
+
+		// Handle Windows themes
+		if (WndModeBorder)
+		{
+			SetWindowTheme(DeviceWindow);
+		}
 	}
 
 	// Set window size if window mode is enabled
@@ -449,30 +464,18 @@ void UpdatePresentParameterForMultisample(D3DPRESENT_PARAMETERS* pPresentationPa
 // Adjusting the window position for WindowMode
 void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 {
-	// Set default window background color to black
-	if (IsWindow(MainhWnd))
+	if (!IsWindow(MainhWnd) || !displayWidth || !displayHeight)
 	{
-		HBRUSH brush = CreateSolidBrush(RGB(0, 0, 0));
-		SetClassLongPtr(MainhWnd, GCLP_HBRBACKGROUND, (LONG_PTR)brush);
-	}
-
-	if (!MainhWnd || !displayWidth || !displayHeight)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: could not set window size, nullptr.";
+		LOG_LIMIT(100, __FUNCTION__ << " Error: could not set window size, nullptr.");
 		return;
 	}
 
-	if (ScreenMode == EXCLUSIVE_FULLSCREEN)
-	{
-		// Don't adjust window or set border when in exclusive fullscreen mode
-		return;
-	}
-
-	// Handle Windows themes
-	if (WndModeBorder)
-	{
-		SetWindowTheme(MainhWnd);
-	}
+	// Set window active and focus
+	SetWindowPos(MainhWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+	SetWindowPos(MainhWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE);
+	SetForegroundWindow(MainhWnd);
+	SetFocus(MainhWnd);
+	SetActiveWindow(MainhWnd);
 
 	// Get screen width and height
 	LONG screenWidth = 0, screenHeight = 0;
@@ -480,24 +483,15 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	RECT screenRect = {};
 	GetDesktopRect(screenRect);
 
-	// Set window active and focus
-	HWND hCurWnd = GetForegroundWindow();
-	DWORD dwMyID = GetCurrentThreadId();
-	DWORD dwCurID = GetWindowThreadProcessId(hCurWnd, nullptr);
-	AttachThreadInput(dwCurID, dwMyID, TRUE);
-	SetWindowPos(MainhWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-	SetWindowPos(MainhWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE);
-	SetForegroundWindow(MainhWnd);
-	SetFocus(MainhWnd);
-	SetActiveWindow(MainhWnd);
-
-	// Get window border
-	bool HasBorder = false;
+	// Get window style
 	LONG lStyle = GetWindowLong(MainhWnd, GWL_STYLE) | WS_VISIBLE;
-	if (ScreenMode == WINDOWED && WndModeBorder && screenWidth > displayWidth + (GetSystemMetrics(SM_CXSIZEFRAME) * 2) &&
-		screenHeight > displayHeight + (GetSystemMetrics(SM_CYSIZEFRAME) * 2) + GetSystemMetrics(SM_CYCAPTION))
+	LONG lExStyle = GetWindowLong(MainhWnd, GWL_EXSTYLE);
+
+	// Get new style
+	RECT Rect = { 0, 0, displayWidth, displayHeight };
+	AdjustWindowRectEx(&Rect, (lStyle | WS_OVERLAPPEDWINDOW) & ~(WS_MAXIMIZEBOX | WS_THICKFRAME), GetMenu(MainhWnd) != NULL, lExStyle);
+	if (ScreenMode == WINDOWED && WndModeBorder && screenWidth > Rect.right - Rect.left && screenHeight > Rect.bottom - Rect.top)
 	{
-		HasBorder = true;
 		lStyle = (lStyle | WS_OVERLAPPEDWINDOW) & ~(WS_MAXIMIZEBOX | WS_THICKFRAME);
 	}
 	else
@@ -505,35 +499,23 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 		lStyle &= ~WS_OVERLAPPEDWINDOW;
 	}
 
-	// Set window border
+	// Set window style
 	SetWindowLong(MainhWnd, GWL_STYLE, lStyle);
 	SetWindowPos(MainhWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 
-	// Set window size
-	SetWindowPos(MainhWnd, HWND_TOP, 0, 0, displayWidth, displayHeight, SWP_NOMOVE | SWP_NOZORDER);
-
-	// Adjust for window decoration to ensure client area matches display size
-	RECT cRect, wRect;
-	LONG xBorder = 0, yBorder = 0;
-	if (HasBorder && GetClientRect(MainhWnd, &cRect) && GetWindowRect(MainhWnd, &wRect))
-	{
-		xBorder = (wRect.right - wRect.left) - (cRect.right - cRect.left);
-		yBorder = (wRect.bottom - wRect.top) - (cRect.bottom - cRect.top);
-	}
-	LONG newDisplayWidth = displayWidth + xBorder;
-	LONG newDisplayHeight = displayHeight + yBorder;
+	// Get new window rect
+	Rect = { 0, 0, displayWidth, displayHeight };
+	AdjustWindowRectEx(&Rect, lStyle, GetMenu(MainhWnd) != NULL, lExStyle);
+	Rect = { 0, 0, Rect.right - Rect.left, Rect.bottom - Rect.top };
 
 	// Move window to center and adjust size
 	LONG xLoc = 0, yLoc = 0;
-	if (ScreenMode == WINDOWED && screenWidth >= newDisplayWidth && screenHeight >= newDisplayHeight)
+	if (ScreenMode == WINDOWED && screenWidth >= Rect.right && screenHeight >= Rect.bottom)
 	{
-		xLoc = screenRect.left + (screenWidth - newDisplayWidth) / 2;
-		yLoc = screenRect.top + (screenHeight - newDisplayHeight) / 2;
+		xLoc = (screenWidth - Rect.right) / 2;
+		yLoc = (screenHeight - Rect.bottom) / 2;
 	}
-	SetWindowPos(MainhWnd, HWND_TOP, xLoc, yLoc, newDisplayWidth, newDisplayHeight, SWP_NOZORDER);
-
-	// Detach thread input
-	AttachThreadInput(dwCurID, dwMyID, FALSE);
+	SetWindowPos(MainhWnd, HWND_TOP, xLoc, yLoc, Rect.right, Rect.bottom, SWP_SHOWWINDOW | SWP_NOZORDER);
 }
 
 // Get keyboard press

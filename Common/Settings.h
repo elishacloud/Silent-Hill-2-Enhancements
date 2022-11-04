@@ -51,6 +51,7 @@
 	visit(FlashlightFlickerFix, true) \
 	visit(FogParameterFix, true) \
 	visit(FogSpeedFix, true) \
+	visit(ForceTopMost, true) \
 	visit(GameLoadFix, true) \
 	visit(GamepadControlsFix, true) \
 	visit(HalogenLightFix, true) \
@@ -95,7 +96,7 @@
 	visit(SpecificSoundLoopFix, true) \
 	visit(SpecularFix, true) \
 	visit(SteamCrashFix, true) \
-	visit(UnlockJapLang, false) \
+	visit(UnlockJapLang, true) \
 	visit(UseBestGraphics, true) \
 	visit(UseCustomExeStr, true) \
 	visit(UseCustomFonts, true) \
@@ -168,7 +169,6 @@
 	visit(AnisotropicFiltering) \
 	visit(AntiAliasing) \
 	visit(AudioFadeOutDelayMS) \
-	visit(CRTShader) \
 	visit(CustomFontCharHeight) \
 	visit(CustomFontCharWidth) \
 	visit(CustomFontCol) \

@@ -475,7 +475,10 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 
 	// Set window active and focus
 	SetWindowPos(MainhWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-	SetWindowPos(MainhWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE);
+	if (!ForceTopMost)
+	{
+		SetWindowPos(MainhWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE);
+	}
 	SetForegroundWindow(MainhWnd);
 	SetFocus(MainhWnd);
 	SetActiveWindow(MainhWnd);

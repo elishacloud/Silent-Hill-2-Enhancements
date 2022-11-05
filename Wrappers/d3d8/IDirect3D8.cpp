@@ -473,6 +473,9 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 		return;
 	}
 
+	// Remember first run
+	static bool FristRun = true;
+
 	// Set window active and focus
 	SetWindowPos(MainhWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 	if (!ForceTopMost)
@@ -518,10 +521,58 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	LONG xLoc = 0, yLoc = 0;
 	if (ScreenMode == WINDOWED && screenWidth >= Rect.right && screenHeight >= Rect.bottom)
 	{
-		xLoc = (screenWidth - Rect.right) / 2;
-		yLoc = (screenHeight - Rect.bottom) / 2;
+		// Center window on load
+		if (FristRun)
+		{
+			xLoc = (screenWidth - Rect.right) / 2;
+			yLoc = (screenHeight - Rect.bottom) / 2;
+		}
+		// Keep exsiting location after window changes
+		else
+		{
+			RECT wRect = {};
+			GetWindowRect(MainhWnd,&wRect);
+			xLoc = wRect.left;
+			yLoc = wRect.top;
+			if (xLoc + Rect.right > screenWidth && screenWidth >= Rect.right)
+			{
+				xLoc = screenWidth - Rect.right;
+			}
+			if (yLoc + Rect.bottom > screenHeight && screenHeight >= Rect.bottom)
+			{
+				yLoc = screenHeight - Rect.bottom;
+			}
+		}
 	}
 	SetWindowPos(MainhWnd, HWND_TOP, xLoc, yLoc, Rect.right, Rect.bottom, SWP_SHOWWINDOW | SWP_NOZORDER);
+
+	// Load and set window placement
+	WINDOWPLACEMENT wndpl;
+	if (ReadRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"GameWindowPlacement", &wndpl, sizeof(WINDOWPLACEMENT)))
+	{
+		wndpl.length = sizeof(WINDOWPLACEMENT);
+		if (wndpl.rcNormalPosition.right - wndpl.rcNormalPosition.left == Rect.right &&
+			wndpl.rcNormalPosition.bottom - wndpl.rcNormalPosition.top == Rect.bottom)
+		{
+			SetWindowPlacement(MainhWnd, &wndpl);
+		}
+	}
+
+	// Unset frist run
+	FristRun = false;
+}
+
+void SaveWindowPlacement()
+{
+	// Save window placement
+	if (IsWindow(DeviceWindow))
+	{
+		WINDOWPLACEMENT wndpl;
+		wndpl.length = sizeof(WINDOWPLACEMENT);
+		GetWindowPlacement(DeviceWindow, &wndpl);
+
+		WriteRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"GameWindowPlacement", REG_BINARY, &wndpl, sizeof(WINDOWPLACEMENT));
+	}
 }
 
 // Get keyboard press
@@ -533,7 +584,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	switch (uMsg)
 	{
-	case  WM_WININICHANGE:
+	case WM_WININICHANGE:
 		if (lParam && WndModeBorder && ScreenMode != EXCLUSIVE_FULLSCREEN && !_stricmp((char*)lParam, "ImmersiveColorSet"))
 		{
 			SetWindowTheme(DeviceWindow);
@@ -561,6 +612,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			SetResolutionList(BufferWidth, BufferHeight);
 		}
 		LastMonitorHandle = MonitorHandle;
+		if (hWnd == DeviceWindow)
+		{
+			SaveWindowPlacement();
+		}
 		break;
 	}
 	case WM_SETFOCUS:

@@ -224,10 +224,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="ReShade\stb\Windows.props" />
     <Import Project="ReShade\stb\stb.props" />
-    <Import Project="ReShade\stb\utfcpp.props" />
-    <Import Project="ReShade\stb\SPIRV.props" />
   </ImportGroup>
   <PropertyGroup>
     <ExecutablePath>$(ExecutablePath);$(UniversalCRTSdkDir_10)\bin\x86;$(UniversalCRTSdkDir_10)\bin\x64</ExecutablePath>

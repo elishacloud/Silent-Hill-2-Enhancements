@@ -17,14 +17,6 @@
 [submodule "External/reshade"]
 	path = External/reshade
 	url = https://github.com/elishacloud/reshade
-[submodule "External/spirv"]
-	path = External/spirv
-	url = https://github.com/KhronosGroup/SPIRV-Headers
-[submodule "External/stb"]
-	path = External/stb
-	url = https://github.com/nothings/stb
-[submodule "External/utfcpp"]
-	path = External/utfcpp
 	url = https://github.com/nemtrif/utfcpp
 [submodule "External/WidescreenFixesPack"]
 	path = External/WidescreenFixesPack

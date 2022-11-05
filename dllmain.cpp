@@ -639,7 +639,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		if (wrapper_dll)
 		{
 			FreeModule(wrapper_dll);
-	}
+		}
 #endif // DEBUG
 
 		// Reenabling screensaver

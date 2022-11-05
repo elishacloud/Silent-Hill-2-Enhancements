@@ -103,7 +103,6 @@ struct ImageCache
 {
 	void *Addr;
 	BOOL Flag;
-	std::string Name;
 };
 
 std::vector<ImageCache> TexList, MapList;
@@ -111,7 +110,7 @@ std::vector<ImageCache> TexList, MapList;
 BOOL CheckTexture()
 {
 	static BOOL flag = FALSE;
-	static void *last = nullptr;
+	static void* last = nullptr;
 
 	if (!TexNameAddr || !*TexNameAddr)
 	{
@@ -128,7 +127,7 @@ BOOL CheckTexture()
 	flag = (strcmp(*TexNameAddr, "data/etc/effect/lens_flare.tbn2") == 0) ? FALSE :
 		(std::any_of(std::begin(DefaultTextureList), std::end(DefaultTextureList), [](const TexSize & TexItem) { return TexItem.IsScaled && strcmp(TexItem.Name, *TexNameAddr) == 0; }));
 	
-	TexList.push_back({ *TexNameAddr, flag, std::string(*TexNameAddr) });
+	TexList.push_back({ *TexNameAddr, flag });
 	last = *TexNameAddr;
 
 	return flag;
@@ -137,7 +136,7 @@ BOOL CheckTexture()
 BOOL CheckMapTexture()
 {
 	static BOOL flag = FALSE;
-	static void *last = nullptr;
+	static void* last = nullptr;
 
 	if (!TexNameAddr || !*TexNameAddr)
 	{
@@ -154,7 +153,7 @@ BOOL CheckMapTexture()
 	flag = flag = (strcmp(*TexNameAddr, "data/etc/effect/lens_flare.tbn2") == 0) ? FALSE :
 		(std::any_of(std::begin(DefaultTextureList), std::end(DefaultTextureList), [](const TexSize & TexItem) { return TexItem.IsMap && strcmp(TexItem.Name, *TexNameAddr) == 0; }));
 	
-	MapList.push_back({ *TexNameAddr, flag, std::string(*TexNameAddr) });
+	MapList.push_back({ *TexNameAddr, flag });
 	last = *TexNameAddr;
 
 	return flag;

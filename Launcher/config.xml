@@ -40,8 +40,8 @@
         <Title>Game window always on top</Title>
         <Description>Forces the game window to be above all other windows, inlcude the Start Menu bar.&#x0a;&#x0a;Note: Only works when windowed mode is enabled.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disable" default="true">0</Value>
+          <Value name="Enable">1</Value>
         </Choices>
       </Feature>
 

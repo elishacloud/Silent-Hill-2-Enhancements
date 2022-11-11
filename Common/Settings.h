@@ -51,11 +51,12 @@
 	visit(FlashlightFlickerFix, true) \
 	visit(FogParameterFix, true) \
 	visit(FogSpeedFix, true) \
-	visit(ForceTopMost, true) \
+	visit(ForceTopMost, false) \
 	visit(GameLoadFix, true) \
 	visit(GamepadControlsFix, true) \
 	visit(HalogenLightFix, true) \
 	visit(HookDirect3D, true) \
+	visit(HookDirectInput, true) \
 	visit(HookDirectSound, true) \
 	visit(HookWndProc, true) \
 	visit(HospitalChaseFix, true) \
@@ -196,6 +197,7 @@
 	visit(FPSLimit) \
 	visit(FullscreenWndMode) \
 	visit(HookDirect3D) \
+	visit(HookDirectInput) \
 	visit(HookDirectSound) \
 	visit(HookWndProc) \
 	visit(LetterSpacing) \

@@ -1768,8 +1768,6 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		LastFrameFullscreenImage = IsInFullscreenImage;
 		IsInFullscreenImage = false;
 
-		RUNCODEONCE(LogAllModules());
-
 		// Enable Xbox shadows
 		if (EnableSoftShadows)
 		{

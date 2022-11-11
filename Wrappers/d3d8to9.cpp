@@ -144,6 +144,8 @@ Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 
 	IDirect3D9 *const d3d = p_Direct3DCreate9(D3D_SDK_VERSION);
 
+	LogDelayedOneTimeItems();
+
 	if (d3d == nullptr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: Failed to create 'Direct3DCreate9'!";

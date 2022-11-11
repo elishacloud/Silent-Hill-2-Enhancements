@@ -164,7 +164,7 @@ __declspec(naked) void __stdcall ResArrowASM()
 	}
 }
 
-void SetDymanicScale(float AspectRatio)
+void SetDynamicScale(float AspectRatio)
 {
 	// Update FMV and fullscreen images
 	if (AspectRatio <= 1.34f) // 4:3 (4:3, 5:4, etc.)
@@ -184,6 +184,45 @@ void SetDymanicScale(float AspectRatio)
 	}
 }
 
+void UpdateResolutionPatches(LONG Width, LONG Height)
+{
+	static LONG OldWidth = 0, OldHeight = 0;
+
+	// Check if resolution changed
+	if (OldWidth != Width || OldHeight != Height)
+	{
+		Logging::Log() << "Setting resolution: " << Width << "x" << Height;
+
+		// Set correct resolution for Room 312
+		if (PauseScreenFix)
+		{
+			SetRoom312Resolution(&Width);
+		}
+
+		// Set dynamic scaling
+		if (AutoScaleImages || AutoScaleVideos)
+		{
+			SetDynamicScale((float)Width / (float)Height);
+		}
+
+		// Set fullscreen image resolution
+		if (FullscreenImages)
+		{
+			SetFullscreenImagesRes(Width, Height);
+		}
+
+		// Set fullscreen video resolution
+		if (FullscreenVideos)
+		{
+			SetFullscreenVideoRes(Width, Height);
+		}
+	}
+
+	// Store new resolution
+	OldWidth = Width;
+	OldHeight = Height;
+}
+
 void UpdateWSF()
 {
 	// Set aspect ratio
@@ -194,6 +233,9 @@ void UpdateWSF()
 
 	// Flush cache
 	FlushInstructionCache(GetCurrentProcess(), nullptr, 0);
+
+	// Update patches for resolution change
+	UpdateResolutionPatches((LONG)ResX, (LONG)ResY);
 }
 
 void WSFDynamicStartup()

@@ -40,11 +40,6 @@
 		procName ## _var =  prodAddr; \
 	}
 
-#define	STORE_ORIGINAL_PROC(procName, prodAddr) \
-	tmpMap.Proc = (FARPROC)*(procName); \
-	tmpMap.val = &(procName ## _var); \
-	jmpArray.push_back(tmpMap);
-
 #define PROC_CLASS(className, Extension, VISIT_PROCS) \
 	namespace className \
 	{ \
@@ -73,11 +68,6 @@
 			} \
 			return dll; \
 		} \
-		void AddToArray() \
-		{ \
-			wrapper_map tmpMap; \
-			VISIT_PROCS(STORE_ORIGINAL_PROC); \
-		} \
 	}
 
 namespace Wrapper
@@ -95,7 +85,6 @@ namespace Wrapper
 	// Variable declaration
 	const FARPROC jmpaddr = (FARPROC)*_jmpaddr;
 	const FARPROC jmpaddrvoid = (FARPROC)*_jmpaddrvoid;
-	std::vector<wrapper_map> jmpArray;
 }
 
 #include "wrapper.h"
@@ -121,35 +110,6 @@ __declspec(naked) HRESULT __stdcall Wrapper::_jmpaddr()
 		retn 16
 	}
 }
-
-bool Wrapper::ValidProcAddress(FARPROC ProcAddress)
-{
-	for (wrapper_map i : jmpArray)
-	{
-		if (i.Proc == ProcAddress)
-		{
-			if (*(i.val) == jmpaddr || *(i.val) == jmpaddrvoid || *(i.val) == nullptr)
-			{
-				return false;
-			}
-		}
-	}
-	return (ProcAddress != nullptr &&
-		ProcAddress != jmpaddr &&
-		ProcAddress != jmpaddrvoid);
-}
-
-void Wrapper::ShimProc(FARPROC &var, FARPROC in, FARPROC &out)
-{
-	if (ValidProcAddress(var))
-	{
-		out = var;
-		var = in;
-	}
-}
-
-#define ADD_PROC_TO_ARRAY(dllName) \
-	dllName::AddToArray();
 
 #define CHECK_FOR_WRAPPER(dllName) \
 	{ using namespace dllName; if (_wcsicmp(WrapperMode, Name) == 0) { dll = Load(ProxyDll, hWrapper); return dll; }}
@@ -200,9 +160,6 @@ HMODULE Wrapper::CreateWrapper(HMODULE hWrapper)
 	// Declare vars
 	HMODULE dll = nullptr;
 	wchar_t *ProxyDll = nullptr;
-
-	// Add all procs to array
-	VISIT_DLLS(ADD_PROC_TO_ARRAY);
 
 	// Check dll name and load correct wrapper
 	VISIT_DLLS(CHECK_FOR_WRAPPER);

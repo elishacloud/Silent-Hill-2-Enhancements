@@ -20,8 +20,6 @@ static constexpr int dtypeArraySize = (sizeof(dtypename) / sizeof(*dtypename));
 namespace Wrapper
 {
 	extern DLLTYPE dtype;
-	bool ValidProcAddress(FARPROC ProcAddress);
-	void ShimProc(FARPROC &var, FARPROC in, FARPROC &out);
 	void GetWrapperMode();
 	HMODULE CreateWrapper(HMODULE hWrapper);
 }

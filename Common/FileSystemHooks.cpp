@@ -570,8 +570,8 @@ void InstallCreateProcessHooks()
 
 	// Hook CreateProcess APIs
 	HMODULE h_kernel32 = GetModuleHandle(L"kernel32.dll");
-	InterlockedExchangePointer((PVOID)&p_CreateProcessA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "CreateProcessA"), "CreateProcessA", *CreateProcessAHandler));
-	InterlockedExchangePointer((PVOID)&p_CreateProcessW, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "CreateProcessW"), "CreateProcessW", *CreateProcessWHandler));
+	InterlockedExchangePointer((PVOID*)&p_CreateProcessA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "CreateProcessA"), "CreateProcessA", *CreateProcessAHandler));
+	InterlockedExchangePointer((PVOID*)&p_CreateProcessW, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "CreateProcessW"), "CreateProcessW", *CreateProcessWHandler));
 }
 
 void DisableFileSystemHooking()

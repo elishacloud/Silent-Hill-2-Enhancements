@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <vector>
 #include <Shldisp.h>
 #include "External\MemoryModule\MemoryModule.h"

@@ -352,6 +352,34 @@ DWORD ReplaceMemoryBytes(void *dataSrc, void *dataDest, size_t size, DWORD start
 	return counter;
 }
 
+// Log process affinity
+void LogAffinity()
+{
+	DWORD_PTR ProcessAffinityMask, SystemAffinityMask;
+	if (GetProcessAffinityMask(GetCurrentProcess(), &ProcessAffinityMask, &SystemAffinityMask))
+	{
+		DWORD pBits = 0, sBits = 0;
+		for (UINT x = 0; x < sizeof(DWORD_PTR); x++)
+		{
+			if (ProcessAffinityMask & 0x00000001)
+			{
+				pBits++;
+			}
+			ProcessAffinityMask >>= 1;
+		}
+		for (UINT x = 0; x < sizeof(DWORD_PTR); x++)
+		{
+			if (SystemAffinityMask & 0x00000001)
+			{
+				sBits++;
+			}
+			SystemAffinityMask >>= 1;
+		}
+
+		Logging::Log() << __FUNCTION__ << " System has '" << sBits << "' cores and Silent Hill 2 is using '" << pBits << "' cores.";
+	}
+}
+
 // Get processor mask
 DWORD_PTR GetProcessMask()
 {
@@ -1233,4 +1261,11 @@ void LogAllModules()
 	CloseHandle(hProcess);
 
 	Logging::Log() << "|--------------------------------";
+}
+
+void LogDelayedOneTimeItems()
+{
+	RUNCODEONCE(LogAffinity());
+
+	RUNCODEONCE(LogAllModules());
 }

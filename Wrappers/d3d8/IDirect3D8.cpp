@@ -310,7 +310,10 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	}
 
 	// Create thread to save screenshot file
-	RUNCODEONCE(CreateThread(nullptr, 0, SaveScreenshotFile, nullptr, 0, nullptr));
+	if (EnableScreenshots)
+	{
+		RUNCODEONCE(CreateThread(nullptr, 0, SaveScreenshotFile, nullptr, 0, nullptr));
+	}
 
 	// Get WndProc
 	if (HookWndProc && DeviceWindow && !OriginalWndProc)
@@ -335,42 +338,14 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 		return;
 	}
 
-	LONG OldBufferWidth = BufferWidth, OldBufferHeight = BufferHeight;
-
 	BufferWidth = (pPresentationParameters->BackBufferWidth) ? pPresentationParameters->BackBufferWidth : BufferWidth;
 	BufferHeight = (pPresentationParameters->BackBufferHeight) ? pPresentationParameters->BackBufferHeight : BufferHeight;
 
 	DeviceWindow = (pPresentationParameters->hDeviceWindow) ? pPresentationParameters->hDeviceWindow :
 		(hFocusWindow) ? hFocusWindow : DeviceWindow;
 
-	// Check if resolution changed
-	if (OldBufferWidth != BufferWidth || OldBufferHeight != BufferHeight)
-	{
-		Logging::Log() << "Setting resolution: " << BufferWidth << "x" << BufferHeight;
-
-		// Set correct resolution for Room 312
-		if (PauseScreenFix)
-		{
-			SetRoom312Resolution(&BufferWidth);
-		}
-
-		if (AutoScaleImages || AutoScaleVideos)
-		{
-			SetDymanicScale((float)BufferWidth / (float)BufferHeight);
-		}
-
-		// Set fullscreen image resolution
-		if (FullscreenImages)
-		{
-			SetFullscreenImagesRes(BufferWidth, BufferHeight);
-		}
-
-		// Set fullscreen video resolution
-		if (FullscreenVideos)
-		{
-			SetFullscreenVideoRes(BufferWidth, BufferHeight);
-		}
-	}
+	// Update patches for resolution change
+	UpdateResolutionPatches(BufferWidth, BufferHeight);
 
 	if (IsWindow(DeviceWindow))
 	{

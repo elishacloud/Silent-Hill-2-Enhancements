@@ -210,7 +210,7 @@ void DelayedStart()
 	}
 
 	// Hook DirectInput8
-	if (RestoreVibration)
+	if (HookDirectInput)
 	{
 		HookDirectInput8Create();
 	}
@@ -502,7 +502,7 @@ void DelayedStart()
 	}
 
 	// Patch resolution list in the Options menu
-	if (((DynamicResolution && WidescreenFix) || LockResolution) && CustomExeStrSet)
+	if (((DynamicResolution || LockResolution) && WidescreenFix) && CustomExeStrSet)
 	{
 		SetResolutionPatch();
 	}

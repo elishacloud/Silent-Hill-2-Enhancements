@@ -16,6 +16,7 @@
 
 #include "Resource.h"
 #include "d3d9wrapper.h"
+#include "Common\Utils.h"
 #include "Common\Settings.h"
 #include "External\Hooking\Hook.h"
 
@@ -32,6 +33,8 @@ IDirect3D9 *WINAPI Direct3DCreate9Wrapper(UINT SDKVersion)
 	LOG_ONCE("Initializing crosire's ReShade version '" RESHADE_STRING_FILE "' (32-bit) built on '" RESHADE_DATE " " RESHADE_TIME "' loaded ...");
 
 	IDirect3D9 *pD3D9 = m_pDirect3DCreate9(SDKVersion);
+
+	LogDelayedOneTimeItems();
 
 	if (pD3D9)
 	{

@@ -247,6 +247,22 @@ void Parse(char* str, NV NameValueCallback, void* lpParam)
 
 void UpdateConfigDefaults()
 {
+	// Prevent UseCustomFolders from causing a crash when audio or texture files are too large
+	if (UseCustomModFolder)
+	{
+		EnableSFXAddrHack = true;
+		EnableTexAddrHack = true;
+		FullscreenImages = (FullscreenImages) ? FullscreenImages : AUTO_MEDIA_CONTROL;
+		FullscreenVideos = (FullscreenVideos) ? FullscreenVideos : AUTO_MEDIA_CONTROL;
+	}
+
+	// Check if FullscreenImages or FullscreenVideos should be disabled
+	if (!DynamicResolution && !WidescreenFix)
+	{
+		FullscreenImages = DISABLE_MEDIA_CONTROL;
+		FullscreenVideos = DISABLE_MEDIA_CONTROL;
+	}
+
 	// Set CRT shader
 	switch (CRTShader)
 	{

@@ -20,6 +20,7 @@
 #include "WidescreenFixesPack.h"
 #include <vector>
 #include "Common\Utils.h"
+#include "Patches\Patches.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
 
@@ -32,6 +33,10 @@ std::tuple<int32_t, int32_t> GetDesktopRes()
 {
 	LONG screenWidth = 0, screenHeight = 0;
 	GetDesktopRes(screenWidth, screenHeight);
+
+	// Update patches for resolution change
+	UpdateResolutionPatches(screenWidth, screenHeight);
+
 	return std::make_tuple((int32_t)screenWidth, (int32_t)screenHeight);
 }
 

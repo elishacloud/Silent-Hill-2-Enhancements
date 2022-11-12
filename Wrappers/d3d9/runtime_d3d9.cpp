@@ -206,6 +206,8 @@ void reshade::d3d9::runtime_d3d9::on_reset()
 
 	_has_depth_texture = false;
 	_depth_surface_override = nullptr;
+
+	_compile_cache.clear();
 }
 
 void reshade::d3d9::runtime_d3d9::on_present()
@@ -313,7 +315,7 @@ bool reshade::d3d9::runtime_d3d9::init_effect(size_t index)
 
 		HRESULT hr = D3D_OK;
 
-		if (compile_cache[entry_index].size() == 0 || is_gamma)
+		if (_compile_cache[entry_index].size() == 0 || is_gamma)
 		{
 			hr = D3DCompile(
 				hlsl, hlsl_size,
@@ -345,14 +347,14 @@ bool reshade::d3d9::runtime_d3d9::init_effect(size_t index)
 			}
 
 			// Cashe shader
-			compile_cache[entry_index].resize(compiled->GetBufferSize());
-			memcpy(&compile_cache[entry_index][0], compiled->GetBufferPointer(), compiled->GetBufferSize());
+			_compile_cache[entry_index].resize(compiled->GetBufferSize());
+			memcpy(&_compile_cache[entry_index][0], compiled->GetBufferPointer(), compiled->GetBufferSize());
 
 			compiled_buffer = compiled->GetBufferPointer();
 		}
 		else
 		{
-			compiled_buffer = &compile_cache[entry_index][0];
+			compiled_buffer = &_compile_cache[entry_index][0];
 		}
 
 		// Create runtime shader objects from the compiled DX byte code

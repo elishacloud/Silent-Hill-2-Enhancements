@@ -69,7 +69,7 @@ namespace reshade::d3d9
 		com_ptr<IDirect3DVertexBuffer9> _effect_vertex_buffer;
 		com_ptr<IDirect3DVertexDeclaration9> _effect_vertex_layout;
 
-		std::unordered_map<DWORD, std::vector<BYTE>> compile_cache;
+		std::unordered_map<DWORD, std::vector<BYTE>> _compile_cache;
 
 		void update_depth_texture_bindings(com_ptr<IDirect3DSurface9> surface);
 

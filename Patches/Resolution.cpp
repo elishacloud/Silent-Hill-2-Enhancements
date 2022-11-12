@@ -196,7 +196,9 @@ void UpdateResolutionPatches(LONG Width, LONG Height)
 		// Set correct resolution for Room 312
 		if (PauseScreenFix)
 		{
-			SetRoom312Resolution(&Width);
+			static LONG CachedWidth;
+			CachedWidth = Width;
+			SetRoom312Resolution(&CachedWidth);
 		}
 
 		// Set dynamic scaling

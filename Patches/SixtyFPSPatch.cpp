@@ -98,6 +98,14 @@ void PatchBugRoomFlashlight()
 	UpdateMemoryAddress(BugRoomFlashlightPtr, &BugRoomFlashlightOvrd, sizeof(float));
 }
 
+void PatchStaircaseFlamesLighting()
+{
+	float* StaircaseFlamesLightingPtr = GetStaircaseFlamesLightingPointer();
+	float NewValue = 0.00027777222565;
+
+	UpdateMemoryAddress(StaircaseFlamesLightingPtr, &NewValue, sizeof(float));
+}
+
 float __cdecl GetHalvedAnimationRate_Hook()
 {
 	return GetFogAnimationRate.fun() / 2;

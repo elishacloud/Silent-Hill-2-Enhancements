@@ -141,6 +141,8 @@ private:
 
 	int DefaultNumberKeyBinds[10] = {0xB, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA};
 
+	bool OverrideSprint;
+
 	bool IsKeyPressed(int KeyIndex);
 	void ReadMouseButtons();
 	void ClearKey(int KeyIndex);
@@ -174,6 +176,8 @@ public:
 	void ClearMouseInputs();
 	std::string GetRightClickState();
 	std::string GetToggleSprintState();
+	void SetOverrideSprint();
+	void ClearOverrideSprint();
 
 	// Additional fix for cutscenes
 	bool ElevatorFix();

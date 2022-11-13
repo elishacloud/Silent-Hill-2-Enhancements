@@ -60,6 +60,7 @@ Input InfoCombo;
 
 int ForwardBackwardsAxis = 0;
 int LeftRightAxis = 0;
+bool OverrideSprint = false;
 
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLXAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLYAxis;
@@ -362,7 +363,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			ClearKey(KeyBinds.GetKeyBind(KEY_RUN));
 		}
 
-		if (EnableToggleSprint && Sprint.State && GetRunOption() == OPT_ANALOG && IsMovementPressed() && GetEventIndex() == EVENT_IN_GAME)
+		if (EnableToggleSprint && Sprint.State && ((GetRunOption() == OPT_ANALOG && IsMovementPressed()) || OverrideSprint) && GetEventIndex() == EVENT_IN_GAME)
 		{
 			SetKey(KeyBinds.GetKeyBind(KEY_RUN));
 		}
@@ -672,7 +673,7 @@ std::string InputTweaks::GetToggleSprintState()
 {
 	std::string Output = "Not Active";
 
-	if (Sprint.State)
+	if (Sprint.State && GetRunOption() == OPT_ANALOG)
 		Output = "Active";
 
 	if (!EnableToggleSprint)
@@ -796,4 +797,14 @@ BYTE* KeyBindsHandler::GetKeyBindsPointer()
 	KeyBindsAddr = (BYTE*)((DWORD)Binds);
 
 	return KeyBindsAddr;
+}
+
+void InputTweaks::SetOverrideSprint()
+{
+	OverrideSprint = true;
+}
+
+void InputTweaks::ClearOverrideSprint()
+{
+	OverrideSprint = false;
 }

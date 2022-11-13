@@ -42,6 +42,7 @@ static_assert( sizeof(AnalogState) == 0xC, "Wrong size: AnalogState" );
 
 DIJOYSTATE2* dinputJoyState;
 bool OverriddenKeyboard = false;
+bool OverriddenRunOption = false;
 const int StickTolerance = 20;
 
 static void (*orgProcessDInputData)(GamePadState*);
@@ -66,17 +67,25 @@ void ProcessDInputData_Hook(GamePadState* state)
 	// Mouse turning
 	if (EnableEnhancedMouse && 
 		(((std::abs(joystickState.lX) < StickTolerance) && (std::abs(joystickState.lY) < StickTolerance))|| !IsControllerConnected) &&
-		(GetEnableInput() == 0xFFFFFFFF || InputTweaksRef.ElevatorFix()) &&
-		GetControlType() == ROTATIONAL_CONTROL)
+		(GetEnableInput() == 0xFFFFFFFF || InputTweaksRef.ElevatorFix()))
 	{
-		joystickState.lX = static_cast<LONG>(InputTweaksRef.GetMouseAnalogX() * 32767.0);
-
-		// Boat stage movement fix
-		if ((GetBoatFlag() == 0x01 && GetRoomID() == 0x0E) || GetSearchViewFlag() == 0x06)
+		if (GetControlType() == ROTATIONAL_CONTROL)
 		{
-			OverriddenKeyboard = true;
-			
+			joystickState.lX = static_cast<LONG>(InputTweaksRef.GetMouseAnalogX() * 32767.0);
+		}
+		
+		// Boat stage movement fix
+		if (EnableEnhancedMouse && ((GetBoatFlag() == 0x01 && GetRoomID() == 0x0E) || GetSearchViewFlag() == 0x06))
+		{
+			if (GetRunOption() == OPT_ANALOG && EnableToggleSprint)
+			{
+				*GetRunOptionPointer() = OPT_WALK;
+				InputTweaksRef.SetOverrideSprint();
+				OverriddenRunOption = true;
+			}
+
 			joystickState.lY = static_cast<LONG>(InputTweaksRef.GetForwardAnalog() * 32767.0);
+			OverriddenKeyboard = true;
 
 			if (InputTweaksRef.GetTurningAnalog() != 0)
 				joystickState.lX = static_cast<LONG>(InputTweaksRef.GetTurningAnalog() * 32767.0);
@@ -85,7 +94,15 @@ void ProcessDInputData_Hook(GamePadState* state)
 		{
 			joystickState.lY = 0;
 			OverriddenKeyboard = false;
+
+			if (OverriddenRunOption)
+			{
+				*GetRunOptionPointer() = OPT_ANALOG;
+				InputTweaksRef.ClearOverrideSprint();
+				OverriddenRunOption = false;
+			}
 		}
+		
 	}
 
 	// Populate right stick with data

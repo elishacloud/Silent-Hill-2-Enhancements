@@ -1211,7 +1211,7 @@ int32_t *GetMouseVerticalPositionPointer()
 
 	// Get MouseVerticalPosition address
 	constexpr BYTE MouseVerticalPositionSearchBytes[]{ 0x8B, 0x08, 0x50, 0xFF, 0x51, 0x18, 0x85, 0xC0, 0x7C, 0x33 };
-	int32_t *MouseVerticalPosition = (int32_t*)ReadSearchedAddresses(0x45A49F, 0x45A6FF, 0x45A6FF, MouseVerticalPositionSearchBytes, sizeof(MouseVerticalPositionSearchBytes), 0x1C);
+	int32_t *MouseVerticalPosition = (int32_t*)ReadSearchedAddresses(0x0045A49F, 0x0045A6FF, 0x0045A6FF, MouseVerticalPositionSearchBytes, sizeof(MouseVerticalPositionSearchBytes), 0x1C);
 
 	// Checking address pointer
 	if (!MouseVerticalPosition)
@@ -1241,7 +1241,7 @@ int32_t *GetMouseHorizontalPositionPointer()
 
 	// Get MouseHorizontalPosition address
 	constexpr BYTE MouseHorizontalPositionSearchBytes[]{ 0x8B, 0x08, 0x50, 0xFF, 0x51, 0x18, 0x85, 0xC0, 0x7C, 0x33 };
-	int32_t *MouseHorizontalPosition = (int32_t*)ReadSearchedAddresses(0x45A49F, 0x45A6FF, 0x45A6FF, MouseHorizontalPositionSearchBytes, sizeof(MouseHorizontalPositionSearchBytes), 0x17);
+	int32_t *MouseHorizontalPosition = (int32_t*)ReadSearchedAddresses(0x0045A49F, 0x0045A6FF, 0x0045A6FF, MouseHorizontalPositionSearchBytes, sizeof(MouseHorizontalPositionSearchBytes), 0x17);
 
 	// Checking address pointer
 	if (!MouseHorizontalPosition)
@@ -1264,7 +1264,7 @@ DWORD *GetLeftAnalogXFunctionPointer()
 
 	// Get Analog Stick function address
 	constexpr BYTE LeftAnalogXFunctionSearchBytes[]{ 0xF6, 0xC4, 0x05, 0x7A, 0x06, 0xDD, 0xD8, 0xD9, 0xC0, 0xEB, 0x15 };
-	void *LeftAnalogXAddr = (void*)SearchAndGetAddresses(0x52E7D3, 0x52EB03, 0x52E423, LeftAnalogXFunctionSearchBytes, sizeof(LeftAnalogXFunctionSearchBytes), -0x14E);
+	void *LeftAnalogXAddr = (void*)SearchAndGetAddresses(0x0052E7D3, 0x0052EB03, 0x0052E423, LeftAnalogXFunctionSearchBytes, sizeof(LeftAnalogXFunctionSearchBytes), -0x14E);
 
 	// Checking address pointer
 	if (!LeftAnalogXAddr)
@@ -1288,7 +1288,7 @@ DWORD *GetLeftAnalogYFunctionPointer()
 
 	// Get Analog Stick function address
 	constexpr BYTE LeftAnalogYFunctionSearchBytes[]{ 0xF6, 0xC4, 0x05, 0x7A, 0x06, 0xDD, 0xD8, 0xD9, 0xC0, 0xEB, 0x15 };
-	void *LeftAnalogYAddr = (void*)SearchAndGetAddresses(0x52E7D3, 0x52EB03, 0x52E423, LeftAnalogYFunctionSearchBytes, sizeof(LeftAnalogYFunctionSearchBytes), -0x13E);
+	void *LeftAnalogYAddr = (void*)SearchAndGetAddresses(0x0052E7D3, 0x0052EB03, 0x0052E423, LeftAnalogYFunctionSearchBytes, sizeof(LeftAnalogYFunctionSearchBytes), -0x13E);
 
 	// Checking address pointer
 	if (!LeftAnalogYAddr)
@@ -1312,7 +1312,7 @@ DWORD *GetRightAnalogXFunctionPointer()
 
 	// Get Analog Stick function address
 	constexpr BYTE RightAnalogXFunctionSearchBytes[]{ 0xF6, 0xC4, 0x05, 0x7A, 0x06, 0xDD, 0xD8, 0xD9, 0xC0, 0xEB, 0x15 };
-	void *RightAnalogXAddr = (void*)SearchAndGetAddresses(0x52E7D3, 0x52EB03, 0x52E423, RightAnalogXFunctionSearchBytes, sizeof(RightAnalogXFunctionSearchBytes), -0x12B);
+	void *RightAnalogXAddr = (void*)SearchAndGetAddresses(0x0052E7D3, 0x0052EB03, 0x0052E423, RightAnalogXFunctionSearchBytes, sizeof(RightAnalogXFunctionSearchBytes), -0x12B);
 
 	// Checking address pointer
 	if (!RightAnalogXAddr)
@@ -1336,7 +1336,7 @@ DWORD *GetRightAnalogYFunctionPointer()
 
 	// Get Analog Stick function address
 	constexpr BYTE RightAnalogYFunctionSearchBytes[]{ 0xF6, 0xC4, 0x05, 0x7A, 0x06, 0xDD, 0xD8, 0xD9, 0xC0, 0xEB, 0x15 };
-	void *RightAnalogYAddr = (void*)SearchAndGetAddresses(0x52E7D3, 0x52EB03, 0x52E423, RightAnalogYFunctionSearchBytes, sizeof(RightAnalogYFunctionSearchBytes), -0x11B);
+	void *RightAnalogYAddr = (void*)SearchAndGetAddresses(0x0052E7D3, 0x0052EB03, 0x0052E423, RightAnalogYFunctionSearchBytes, sizeof(RightAnalogYFunctionSearchBytes), -0x11B);
 
 	// Checking address pointer
 	if (!RightAnalogYAddr)
@@ -1360,7 +1360,7 @@ DWORD *GetUpdateMousePositionFunctionPointer()
 
 	// Get Update Mouse Position function address
 	constexpr BYTE UpdateMousePositionFunctionSearchBytes[]{ 0x89, 0x74, 0x24, 0x58, 0x89, 0x74 };
-	void *UpdateMousePositionAddr = (void*)SearchAndGetAddresses(0x4588F1, 0x458B51, 0x458B51, UpdateMousePositionFunctionSearchBytes, sizeof(UpdateMousePositionFunctionSearchBytes), 0x40);
+	void *UpdateMousePositionAddr = (void*)SearchAndGetAddresses(0x004588F1, 0x00458B51, 0x00458B51, UpdateMousePositionFunctionSearchBytes, sizeof(UpdateMousePositionFunctionSearchBytes), 0x40);
 
 	// Checking address pointer
 	if (!UpdateMousePositionAddr)
@@ -1391,7 +1391,7 @@ BYTE *GetSearchViewFlagPointer()
 
 	// Get Search View Flag address
 	constexpr BYTE SearchViewFlagSearchBytes[]{ 0x83, 0xC4, 0x08, 0x5F, 0x5E, 0x83, 0xC8, 0x20, 0x5D };
-	BYTE *SearchViewFlag = (BYTE*)ReadSearchedAddresses(0x51F7A2, 0x51FAD2, 0x51F3F2, SearchViewFlagSearchBytes, sizeof(SearchViewFlagSearchBytes), 0x0A);
+	BYTE *SearchViewFlag = (BYTE*)ReadSearchedAddresses(0x0051F7A2, 0x0051FAD2, 0x0051F3F2, SearchViewFlagSearchBytes, sizeof(SearchViewFlagSearchBytes), 0x0A);
 
 	// Checking address pointer
 	if (!SearchViewFlag)
@@ -1421,7 +1421,7 @@ int32_t *GetEnableInputPointer()
 
 	// Get EnableInput address
 	constexpr BYTE EnableInputSearchBytes[]{ 0xC1, 0xE0, 0x04, 0x03, 0xC1, 0x8B, 0x40, 0x0C, 0x8B, 0xF0 };
-	int32_t *EnableInput = (int32_t*)ReadSearchedAddresses(0x48C005, 0x48C2A5, 0x48C4B5, EnableInputSearchBytes, sizeof(EnableInputSearchBytes), -0x12);
+	int32_t *EnableInput = (int32_t*)ReadSearchedAddresses(0x0048C005, 0x0048C2A5, 0x0048C4B5, EnableInputSearchBytes, sizeof(EnableInputSearchBytes), -0x12);
 
 	// Checking address pointer
 	if (!EnableInput)
@@ -1451,7 +1451,7 @@ BYTE *GetAnalogXPointer()
 
 	// Get Analog X address
 	constexpr BYTE AnalogXSearchBytes[]{ 0X83, 0xC4, 0x10, 0xDF, 0xE0, 0xF6, 0xC4, 0x05, 0x0F, 0x8A, 0x96 };
-	BYTE *AnalogX = (BYTE*)ReadSearchedAddresses(0x54efdf, 0x54f30f, 0x54ec2f, AnalogXSearchBytes, sizeof(AnalogXSearchBytes), 0x26);
+	BYTE *AnalogX = (BYTE*)ReadSearchedAddresses(0x0054EFDF, 0x0054F30F, 0x0054EC2F, AnalogXSearchBytes, sizeof(AnalogXSearchBytes), 0x26);
 
 	// Checking address pointer
 	if (!AnalogX)
@@ -1481,7 +1481,7 @@ BYTE *GetControlTypePointer()
 
 	// Get Control Type address
 	constexpr BYTE ControlTypeSearchBytes[]{ 0x83, 0xC4, 0x10, 0x68, 0xB8, 0x01, 0x00, 0x00, 0x6A, 0x1E };
-	BYTE *ControlType = (BYTE*)ReadSearchedAddresses(0x4676E9, 0x467989, 0x467B99, ControlTypeSearchBytes, sizeof(ControlTypeSearchBytes), 0x16);
+	BYTE *ControlType = (BYTE*)ReadSearchedAddresses(0x004676E9, 0x00467989, 0x00467B99, ControlTypeSearchBytes, sizeof(ControlTypeSearchBytes), 0x16);
 
 	// Checking address pointer
 	if (!ControlType)
@@ -1511,7 +1511,7 @@ BYTE *GetRunOptionPointer()
 
 	// Get Run Option address
 	constexpr BYTE RunOptionSearchBytes[]{ 0x83, 0xC4, 0x10, 0x68, 0xB8, 0x01, 0x00, 0x00, 0x6A, 0x1E };
-	BYTE *RunOption = (BYTE*)ReadSearchedAddresses(0x4676E9, 0x467989, 0x467B99, RunOptionSearchBytes, sizeof(RunOptionSearchBytes), 0x16);
+	BYTE *RunOption = (BYTE*)ReadSearchedAddresses(0x004676E9, 0x00467989, 0x00467B99, RunOptionSearchBytes, sizeof(RunOptionSearchBytes), 0x16);
 
 	// Checking address pointer
 	if (!RunOption)
@@ -1542,7 +1542,7 @@ BYTE *GetNumKeysWeaponBindStartPointer()
 
 	// Get address for start of Numpad weapon keybinds 
 	constexpr BYTE FullscreenImageSearchBytes[]{ 0x83, 0xC0, 0x08, 0x3D, 0xB0, 0x00, 0x00, 0x00, 0x7C, 0xDE, 0x33, 0xC0, 0x8B };
-	NumKeysWeaponBindStartAddr = (BYTE*)ReadSearchedAddresses(0x5AECE8, 0x5AF598, 0x5AEEB8, FullscreenImageSearchBytes, sizeof(FullscreenImageSearchBytes), 0x20);
+	NumKeysWeaponBindStartAddr = (BYTE*)ReadSearchedAddresses(0x005AECE8, 0x005AF598, 0x005AEEB8, FullscreenImageSearchBytes, sizeof(FullscreenImageSearchBytes), 0x20);
 
 	// Checking address pointer
 	if (!NumKeysWeaponBindStartAddr)
@@ -1573,7 +1573,7 @@ BYTE *GetTalkShowHostStatePointer()
 
 	// Get address for start of Numpad weapon keybinds 
 	constexpr BYTE FullscreenImageSearchBytes[]{ 0x83, 0xC4, 0x04, 0x83, 0xF8, 0xFF, 0x75, 0x03 };
-	TalkShowHostStateAddr = (BYTE*)ReadSearchedAddresses(0x517DFA, 0x51812A, 0x517A4A, FullscreenImageSearchBytes, sizeof(FullscreenImageSearchBytes), 0x11);
+	TalkShowHostStateAddr = (BYTE*)ReadSearchedAddresses(0x00517DFA, 0x0051812A, 0x00517A4A, FullscreenImageSearchBytes, sizeof(FullscreenImageSearchBytes), 0x11);
 
 	// Checking address pointer
 	if (!TalkShowHostStateAddr)
@@ -1603,7 +1603,7 @@ BYTE *GetBoatFlagPointer()
 
 	// Get Boat Flag address
 	constexpr BYTE ActionButtonSearchBytes[]{ 0x66, 0x89, 0x72, 0xFE };
-	BYTE *BoatFlag = (BYTE*)ReadSearchedAddresses(0x5A58D1, 0x5A6181, 0x5A5AA1, ActionButtonSearchBytes, sizeof(ActionButtonSearchBytes), -0x3C);
+	BYTE *BoatFlag = (BYTE*)ReadSearchedAddresses(0x005A58D1, 0x005A6181, 0x005A5AA1, ActionButtonSearchBytes, sizeof(ActionButtonSearchBytes), -0x3C);
 
 	// Checking address pointer
 	if (!BoatFlag)

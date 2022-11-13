@@ -115,6 +115,7 @@ BYTE *GetRunOptionPointer();
 BYTE *GetNumKeysWeaponBindStartPointer();
 BYTE *GetTalkShowHostStatePointer();
 BYTE *GetBoatFlagPointer();
+BYTE *GetRunOptionPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

@@ -82,6 +82,7 @@ float* LowHealthIndicatorFlashSpeedPointer;
 float *WaterAnimationSpeedAddr;
 int16_t *FlashlightOnSpeedAddr;
 float* LowHealthIndicatorFlashSpeedAddr;
+float* StaircaseFlamesLightingSpeedAddr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -1751,4 +1752,27 @@ float *GetLowHealthIndicatorFlashSpeedPointer()
 	LowHealthIndicatorFlashSpeedAddr = (float*)((DWORD)LowHealthIndicatorFlashSpeed);
 
 	return LowHealthIndicatorFlashSpeedAddr;
+}
+
+float *GetStaircaseFlamesLightingPointer()
+{
+	if (StaircaseFlamesLightingSpeedAddr)
+	{
+		return StaircaseFlamesLightingSpeedAddr;
+	}
+
+	// Get Staircase Flames Lighting Speed address
+	constexpr BYTE StaircaseFlamesLightingSpeedSearchBytes[]{ 0x8D, 0x04, 0x0A, 0x99, 0x52, 0x50, 0x33, 0xDB };
+	float *StaircaseFlamesLightingSpeed = (float*)ReadSearchedAddresses(0x00576CE1, 0x00577591, 0x00576EB1, StaircaseFlamesLightingSpeedSearchBytes, sizeof(StaircaseFlamesLightingSpeedSearchBytes), 0x131);
+
+	// Checking address pointer
+	if (!StaircaseFlamesLightingSpeed)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Staircase Flames Lighting Speed address!";
+		return nullptr;
+	}
+
+	StaircaseFlamesLightingSpeedAddr = (float*)((DWORD)StaircaseFlamesLightingSpeed);
+
+	return StaircaseFlamesLightingSpeedAddr;
 }

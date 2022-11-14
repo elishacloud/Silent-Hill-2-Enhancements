@@ -124,6 +124,8 @@ float *GetWaterAnimationSpeedPointer();
 int16_t *GetFlashlightOnSpeedPointer();
 float *GetLowHealthIndicatorFlashSpeedPointer();
 float *GetStaircaseFlamesLightingPointer();
+float *GetWaterLevelLoweringStepsPointer();
+float *GetWaterLevelRisingStepsPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

@@ -62,6 +62,8 @@ float *WaterAnimationSpeedAddr;
 int16_t *FlashlightOnSpeedAddr;
 float* LowHealthIndicatorFlashSpeedAddr;
 float* StaircaseFlamesLightingSpeedAddr;
+float* WaterLevelLoweringStepsAddr;
+float* WaterLevelRisingStepsAddr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -1236,4 +1238,50 @@ float *GetStaircaseFlamesLightingPointer()
 	StaircaseFlamesLightingSpeedAddr = (float*)((DWORD)StaircaseFlamesLightingSpeed);
 
 	return StaircaseFlamesLightingSpeedAddr;
+}
+
+float *GetWaterLevelLoweringStepsPointer()
+{
+	if (WaterLevelLoweringStepsAddr)
+	{
+		return WaterLevelLoweringStepsAddr;
+	}
+
+	// Get Water Level Lowering Steps address
+	constexpr BYTE WaterLevelLoweringStepsSearchBytes[]{ 0x83, 0xC4, 0x08, 0xA9, 0x00, 0x00, 0x08, 0x00, 0xB9, 0x00, 0x00, 0x10, 0x00 };
+	float *WaterLevelLoweringSteps = (float*)ReadSearchedAddresses(0x004E317C, 0x004E342C, 0x004E2CEC, WaterLevelLoweringStepsSearchBytes, sizeof(WaterLevelLoweringStepsSearchBytes), 0x1A);
+
+	// Checking address pointer
+	if (!WaterLevelLoweringSteps)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Staircase Water Level Lowering Steps address!";
+		return nullptr;
+	}
+
+	WaterLevelLoweringStepsAddr = (float*)((DWORD)WaterLevelLoweringSteps);
+
+	return WaterLevelLoweringStepsAddr;
+}
+
+float *GetWaterLevelRisingStepsPointer()
+{
+	if (WaterLevelRisingStepsAddr)
+	{
+		return WaterLevelRisingStepsAddr;
+	}
+
+	// Get Water Level Rising Steps address
+	constexpr BYTE WaterLevelRisingStepsSearchBytes[]{ 0xE8, 0x30, 0xDB, 0xFE, 0xFF };
+	float *WaterLevelRisingSteps = (float*)ReadSearchedAddresses(0x004E3F7B, 0x004E422B, 0x004E3AEB, WaterLevelRisingStepsSearchBytes, sizeof(WaterLevelRisingStepsSearchBytes), 0x1D);
+
+	// Checking address pointer
+	if (!WaterLevelRisingSteps)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Staircase Water Level Rising Steps address!";
+		return nullptr;
+	}
+
+	WaterLevelRisingStepsAddr = (float*)((DWORD)WaterLevelRisingSteps);
+
+	return WaterLevelRisingStepsAddr;
 }

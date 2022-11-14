@@ -37,11 +37,11 @@
       </Feature>
 
       <Feature name="ForceTopMost">
-        <Title>Game window always on top</Title>
-        <Description>Forces the game window to be above all other windows, inlcuding the Start Menu bar.&#x0a;&#x0a;Note: Only works when windowed mode is enabled.</Description>
+        <Title>Mantener la ventana del juego en primer plano</Title>
+        <Description>Fuerza a la ventana del juego a situarse por delante del resto de ventanas, incluyendo la barra del menú Inicio.&#x0a;&#x0a;Nota: esta opción solo funcionará si el modo de pantalla en ventana está activado.</Description>
         <Choices type="check">
-          <Value name="Disable" default="true">0</Value>
-          <Value name="Enable">1</Value>
+          <Value name="Desactivado" default="true">0</Value>
+          <Value name="Activado">1</Value>
         </Choices>
       </Feature>
 
@@ -162,12 +162,12 @@
       </Feature>
 
       <Feature name="CRTShader">
-        <Title>Simulate a CRT Screen</Title>
-        <Description>Enables shaders that simulate what the game would look like on a CRT television. These shaders look more accurate at lower resolutions. For the best CRT nostalgic experience, play the game in a 4:3 aspect ratio.&#x0a;&#x0a;Note: It is not recommended to enable this option if you are streaming the game, as the CRT effect may not display correctly to your viewers. It is also not recommended to enable this option if you have a low-end computer system.</Description>
+        <Title>Simular una pantalla de tubo (CRT)</Title>
+        <Description>Activa unos shaders que simulan el aspecto que tendría el juego en un televisor CRT. Los shaders serán más fieles a resoluciones más bajas. Si buscas la mejor experiencia nostálgica de las teles de tubo, recomendamos jugar con una relación de aspecto de 4:3.&#x0a;&#x0a;Nota: no se recomienda activar esta opción si vas a retransmitir el juego, ya que el efecto CRT podría no mostrarse correctamente para tus espectadores. Tampoco se recomienda activar esta opción si tu equipo es de gama baja.</Description>
         <Choices type="list">
-          <Value name="Disabled" default="true">0</Value>
-          <Value name="Enabled">1</Value>
-          <Value name="Enabled with Curvature">2</Value>
+          <Value name="Desactivado" default="true">0</Value>
+          <Value name="Activado">1</Value>
+          <Value name="Activado (más curvatura)">2</Value>
         </Choices>
       </Feature>
 
@@ -385,11 +385,11 @@
         
       <Feature name="RestoreSearchCamMovement">
         <Title>Tipo de mando para el modo de búsqueda</Title>
-      	<Description>Restaura la función del stick derecho del mando para poder mover la cámara. Cambia este ajuste en función del tipo de mando que utilices.</Description>
+      	<Description>Restaura la función del stick derecho del mando para poder mover la cámara. Cambia este ajuste en función del tipo de mando que utilices.&#x0a;&#x0a;Nota: si utilizas Xidi (un software para la compatibilidad con mandos) debes seleccionar DirectInput.</Description>
         <Choices type="list">
           <Value name="Desactivado">0</Value>
-          <Value name="XInput" default="true">1</Value>
-          <Value name="DirectInput">2</Value>
+          <Value name="XInput">1</Value>
+          <Value name="DirectInput" default="true">2</Value>
           <Value name="DirectInput (alternativo)">3</Value>
         </Choices>
       </Feature>

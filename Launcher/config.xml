@@ -165,9 +165,9 @@
         <Title>Simulate a CRT Screen</Title>
         <Description>Enables shaders that simulate what the game would look like on a CRT television. These shaders look more accurate at lower resolutions. For the best CRT nostalgic experience, play the game in a 4:3 aspect ratio.&#x0a;&#x0a;Note: It is not recommended to enable this option if you are streaming the game, as the CRT effect may not display correctly to your viewers. It is also not recommended to enable this option if you have a low-end computer system.</Description>
         <Choices type="list">
-          <Value name="Disabled" default="true">0</Value>
-          <Value name="Enabled">1</Value>
-          <Value name="Enabled with Curvature">2</Value>
+          <Value name="Disable" default="true">0</Value>
+          <Value name="Enable">1</Value>
+          <Value name="Enable with Curvature">2</Value>
         </Choices>
       </Feature>
 
@@ -385,11 +385,11 @@
         
       <Feature name="RestoreSearchCamMovement">
         <Title>Controller type for search cam movement</Title>
-        <Description>Restores right joystick functionality for controllers to move the search camera around. Change the setting depending on what type of controller you are using.</Description>
+        <Description>Restores right joystick functionality for controllers to move the search camera around. Change the setting depending on what type of controller you are using.&#x0a;&#x0a;Note: If using Xidi (controller support software), set this option to "DirectInput".</Description>
         <Choices type="list">
           <Value name="Disable">0</Value>
-          <Value name="XInput" default="true">1</Value>
-          <Value name="DirectInput">2</Value>
+          <Value name="XInput">1</Value>
+          <Value name="DirectInput" default="true">2</Value>
           <Value name="DirectInput (Alternate)">3</Value>
         </Choices>
       </Feature>

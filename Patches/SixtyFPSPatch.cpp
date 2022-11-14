@@ -106,6 +106,18 @@ void PatchStaircaseFlamesLighting()
 	UpdateMemoryAddress(StaircaseFlamesLightingPtr, &NewValue, sizeof(float));
 }
 
+void PatchWaterLevelSpeed()
+{
+	float* LoweringStepsPtr = GetWaterLevelLoweringStepsPointer();
+	float* RisingStepsPtr = GetWaterLevelRisingStepsPointer();
+
+	float NewLowValue = 20.;
+	float NewRiseValue = 5.333333492;
+
+	UpdateMemoryAddress(LoweringStepsPtr, &NewLowValue, sizeof(float));
+	UpdateMemoryAddress(RisingStepsPtr, &NewRiseValue, sizeof(float));
+}
+
 float __cdecl GetHalvedAnimationRate_Hook()
 {
 	return GetFogAnimationRate.fun() / 2;

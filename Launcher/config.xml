@@ -385,11 +385,11 @@
         
       <Feature name="RestoreSearchCamMovement">
         <Title>Controller type for search cam movement</Title>
-        <Description>Restores right joystick functionality for controllers to move the search camera around. Change the setting depending on what type of controller you are using.</Description>
+        <Description>Restores right joystick functionality for controllers to move the search camera around. Change the setting depending on what type of controller you are using.&#x0a;&#x0a;Note: If using Xidi (controller support software), set this option to "DirectInput".</Description>
         <Choices type="list">
           <Value name="Disable">0</Value>
-          <Value name="XInput" default="true">1</Value>
-          <Value name="DirectInput">2</Value>
+          <Value name="XInput">1</Value>
+          <Value name="DirectInput" default="true">2</Value>
           <Value name="DirectInput (Alternate)">3</Value>
         </Choices>
       </Feature>

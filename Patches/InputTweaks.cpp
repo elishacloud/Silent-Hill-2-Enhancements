@@ -296,6 +296,8 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 				LeftRightAxis -= 1;
 				ClearKey(KeyBinds.GetKeyBind(KEY_TURN_RIGHT));
 			}
+
+			OverrideSprint = true;
 		}
 
 		// Activate Overlays
@@ -673,7 +675,7 @@ std::string InputTweaks::GetToggleSprintState()
 {
 	std::string Output = "Not Active";
 
-	if (Sprint.State && GetRunOption() == OPT_ANALOG)
+	if (Sprint.State && (GetRunOption() == OPT_ANALOG || OverrideSprint))
 		Output = "Active";
 
 	if (!EnableToggleSprint)

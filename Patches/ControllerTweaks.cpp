@@ -70,30 +70,38 @@ void ProcessDInputData_Hook(GamePadState* state)
 		(((std::abs(joystickState.lX) < StickTolerance) && (std::abs(joystickState.lY) < StickTolerance)) || !IsControllerConnected) &&
 		(GetEnableInput() == 0xFFFFFFFF || InputTweaksRef.ElevatorFix()))
 	{
+		float MouseX = InputTweaksRef.GetMouseAnalogX();
+
 		if (GetControlType() == ROTATIONAL_CONTROL)
 		{
-			joystickState.lX = static_cast<LONG>(InputTweaksRef.GetMouseAnalogX() * 32767.0);
+			joystickState.lX = static_cast<LONG>(MouseX * 32767.0);
 		}
 		
-		// Boat stage movement fix
+		// Boat stage and search view movement fix
 		if (((GetBoatFlag() == 0x01 && GetRoomID() == 0x0E) || GetSearchViewFlag() == 0x06))
 		{
 			if (GetRunOption() == OPT_ANALOG && EnableToggleSprint)
 			{
 				*GetRunOptionPointer() = OPT_WALK;
-				InputTweaksRef.SetOverrideSprint();
 				OverriddenRunOption = true;
 			}
 
 			joystickState.lY = static_cast<LONG>(InputTweaksRef.GetForwardAnalog() * 32767.0);
-			OverriddenKeyboard = true;
+			joystickState.lX = static_cast<LONG>(InputTweaksRef.GetTurningAnalog() * 32767.0);
 
-			if (InputTweaksRef.GetTurningAnalog() != 0)
-				joystickState.lX = static_cast<LONG>(InputTweaksRef.GetTurningAnalog() * 32767.0);
+			if (GetControlType() == ROTATIONAL_CONTROL && MouseX != 0)
+			{
+				joystickState.lX = static_cast<LONG>(MouseX * 32767.0);
+			}
+
+			OverriddenKeyboard = true;
+	
 		}
 		else if (OverriddenKeyboard) // right after dismounting the boat or exiting search view, clear the analog stick
 		{
 			joystickState.lY = 0;
+			joystickState.lX = 0;
+
 			OverriddenKeyboard = false;
 
 			if (OverriddenRunOption)

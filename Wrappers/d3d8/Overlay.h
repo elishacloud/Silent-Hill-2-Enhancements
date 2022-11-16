@@ -68,3 +68,7 @@ private:
 	void InitializeDataStructs();
 
 };
+
+extern bool ControllerConnectedFlag;
+extern int JoystickX;
+extern int JoystickY;

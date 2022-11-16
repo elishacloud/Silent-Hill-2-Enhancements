@@ -293,7 +293,7 @@ extern int32_t* EnableInputAddr;
 extern BYTE* AnalogXAddr;
 extern BYTE* ControlTypeAddr;
 extern BYTE* NumKeysWeaponBindStartAddr;
-extern BYTE *TalkShowHostStateAddr;
+extern BYTE* TalkShowHostStateAddr;
 
 extern bool ShowDebugOverlay;
 extern bool ShowInfoOverlay;
@@ -301,7 +301,7 @@ extern std::string AuxDebugOvlString;
 extern bool IsControllerConnected;
 extern HWND GameWindowHandle;
 extern BYTE* ElevatorRunning;
-extern BYTE *InGameVoiceEvent;
+extern BYTE* InGameVoiceEvent;
 
 // Run code only once
 #define RUNONCE() \

@@ -22,6 +22,7 @@
 #include "Logging\Logging.h"
 #include "External/Hooking.Patterns/Hooking.Patterns.h"
 #include "InputTweaks.h"
+#include "Wrappers\d3d8\Overlay.h"
 
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
@@ -43,7 +44,7 @@ static_assert( sizeof(AnalogState) == 0xC, "Wrong size: AnalogState" );
 DIJOYSTATE2* dinputJoyState;
 bool OverriddenKeyboard = false;
 bool OverriddenRunOption = false;
-const int StickTolerance = 20;
+const int StickTolerance = 13000;
 
 static void (*orgProcessDInputData)(GamePadState*);
 void ProcessDInputData_Hook(GamePadState* state)
@@ -63,10 +64,10 @@ void ProcessDInputData_Hook(GamePadState* state)
 			joystickState.lY = static_cast<LONG>(std::cos(angleRadians) * -32767.0);
 		}
 	}
-	
+
 	// Mouse turning
 	if (EnableEnhancedMouse && 
-		(((std::abs(joystickState.lX) < StickTolerance) && (std::abs(joystickState.lY) < StickTolerance))|| !IsControllerConnected) &&
+		(((std::abs(joystickState.lX) < StickTolerance) && (std::abs(joystickState.lY) < StickTolerance)) || !IsControllerConnected) &&
 		(GetEnableInput() == 0xFFFFFFFF || InputTweaksRef.ElevatorFix()))
 	{
 		if (GetControlType() == ROTATIONAL_CONTROL)
@@ -75,7 +76,7 @@ void ProcessDInputData_Hook(GamePadState* state)
 		}
 		
 		// Boat stage movement fix
-		if (EnableEnhancedMouse && ((GetBoatFlag() == 0x01 && GetRoomID() == 0x0E) || GetSearchViewFlag() == 0x06))
+		if (((GetBoatFlag() == 0x01 && GetRoomID() == 0x0E) || GetSearchViewFlag() == 0x06))
 		{
 			if (GetRunOption() == OPT_ANALOG && EnableToggleSprint)
 			{
@@ -104,6 +105,11 @@ void ProcessDInputData_Hook(GamePadState* state)
 		}
 		
 	}
+
+	// Populate debug values
+	ControllerConnectedFlag = IsControllerConnected;
+	JoystickX = joystickState.lX;
+	JoystickY = joystickState.lY;
 
 	// Populate right stick with data
 	switch (RestoreSearchCamMovement)

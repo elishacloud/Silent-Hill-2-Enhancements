@@ -7,6 +7,10 @@ const int KMConstant		= 500000;
 const float AntiJitterValue	= 0.0001f;
 const int DropShadowOffset	= 1;
 
+bool ControllerConnectedFlag = false;
+int JoystickX = 0;
+int JoystickY = 0;
+
 LPCSTR FontName = "Arial";
 
 LPD3DXFONT DebugFont = nullptr;
@@ -207,6 +211,16 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append("\rToggle Sprint: ");
 	OvlString.append(InputTweaksRef.GetToggleSprintState());
 
+	OvlString.append("\rController connected: ");
+	OvlString.append(ControllerConnectedFlag ? "True" : "False");
+
+	OvlString.append("\rJoystick Y: ");
+	OvlString.append(std::to_string(JoystickY));
+
+	OvlString.append("\rJoystick X: ");
+	OvlString.append(std::to_string(JoystickX));
+
+	// Temporary Debug String, to use wherever
 	OvlString.append(AuxDebugOvlString);
 
 	DebugOverlayTextStruct.String = OvlString.c_str();

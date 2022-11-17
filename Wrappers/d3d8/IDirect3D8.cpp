@@ -353,6 +353,7 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 		}
 
 		// Set default window background color to black
+		if (WhiteShaderFix)
 		{
 			HBRUSH brush = CreateSolidBrush(RGB(0, 0, 0));
 			SetClassLongPtr(DeviceWindow, GCLP_HBRBACKGROUND, (LONG_PTR)brush);

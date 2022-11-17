@@ -15,6 +15,7 @@
 */
 
 #include "dinput8wrapper.h"
+#include "Common\FileSystemHooks.h"
 
 HRESULT m_IDirectInput8A::QueryInterface(REFIID riid, LPVOID * ppvObj)
 {
@@ -89,6 +90,8 @@ HRESULT m_IDirectInput8A::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBACKA 
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
 
+	static bool IsUsingXidi = false;
+
 	// Log attached gamepads
 	static bool RunOnceFlag = true;
 	if (RunOnceFlag)
@@ -103,6 +106,11 @@ HRESULT m_IDirectInput8A::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBACKA 
 
 				Logging::Log() << "|- Name: '" << lpddi->tszProductName << "' GUID: " << lpddi->guidInstance;
 
+				if (RemoveForceFeedbackFilter == AUTO_REMOVE_FORCEFEEDBACK && isInString<const char*>(lpddi->tszProductName, "Xidi Virtual Controller", strlen(lpddi->tszProductName)))
+				{
+					IsUsingXidi = true;
+				}
+
 				return DIENUM_CONTINUE;
 			}
 		};
@@ -110,6 +118,12 @@ HRESULT m_IDirectInput8A::EnumDevices(DWORD dwDevType, LPDIENUMDEVICESCALLBACKA 
 		Logging::Log() << "|----------- GAMEPADS -----------";
 		ProxyInterface->EnumDevices(dwDevType, EnumDevice::EnumDeviceCallback, nullptr, DIEDFL_ATTACHEDONLY);
 		Logging::Log() << "|--------------------------------";
+	}
+
+	if ((RemoveForceFeedbackFilter == REMOVE_FORCEFEEDBACK || IsUsingXidi) && (dwFlags & DIEDFL_FORCEFEEDBACK))
+	{
+		Logging::Log() << "Removing Force Feedback filter!";
+		dwFlags &= ~DIEDFL_FORCEFEEDBACK;
 	}
 
 	return ProxyInterface->EnumDevices(dwDevType, lpCallback, pvRef, dwFlags);

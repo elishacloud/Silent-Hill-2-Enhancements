@@ -11,7 +11,7 @@ private:
 
 	std::vector<BYTE> CachedSurfaceData;
 
-	bool BeginSceneFlag = false;
+	bool isInScene = false;
 
 	bool AnisotropyFlag = (bool)AnisotropicFiltering;
 	DWORD MaxAnisotropy = 0;

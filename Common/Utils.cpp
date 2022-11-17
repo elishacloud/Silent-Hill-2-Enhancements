@@ -352,13 +352,14 @@ DWORD ReplaceMemoryBytes(void *dataSrc, void *dataDest, size_t size, DWORD start
 	return counter;
 }
 
-// Log process affinity
-void LogAffinity()
+bool GetCoreCount(DWORD& pBits, DWORD& sBits)
 {
+	pBits = 0;
+	sBits = 0;
+
 	DWORD_PTR ProcessAffinityMask, SystemAffinityMask;
 	if (GetProcessAffinityMask(GetCurrentProcess(), &ProcessAffinityMask, &SystemAffinityMask))
 	{
-		DWORD pBits = 0, sBits = 0;
 		for (UINT x = 0; x < sizeof(DWORD_PTR); x++)
 		{
 			if (ProcessAffinityMask & 0x00000001)
@@ -375,7 +376,20 @@ void LogAffinity()
 			}
 			SystemAffinityMask >>= 1;
 		}
+		if (pBits && sBits)
+		{
+			return true;
+		}
+	}
+	return false;
+}
 
+// Log process affinity
+void LogAffinity()
+{
+	DWORD pBits, sBits;
+	if (GetCoreCount(pBits, sBits))
+	{
 		Logging::Log() << __FUNCTION__ << " System has '" << sBits << "' cores and Silent Hill 2 is using '" << pBits << "' cores.";
 	}
 }
@@ -404,7 +418,7 @@ DWORD_PTR GetProcessMask()
 		}
 	}
 
-	Logging::Log() << __FUNCTION__ << " Setting CPU mask: " << Logging::hex(nMask);
+	Logging::Log() << __FUNCTION__ << " Using CPU mask: " << Logging::hex(nMask);
 	return nMask;
 }
 
@@ -413,6 +427,21 @@ void SetSingleCoreAffinity()
 {
 	Logging::Log() << "Setting SingleCoreAffinity...";
 	SetProcessAffinityMask(GetCurrentProcess(), GetProcessMask());
+}
+
+// Set Multi Core Affinity
+void SetMultiCoreAffinity()
+{
+	DWORD pBits, sBits;
+	if (GetCoreCount(pBits, sBits) && pBits != sBits)
+	{
+		DWORD_PTR ProcessAffinityMask, SystemAffinityMask;
+		if (GetProcessAffinityMask(GetCurrentProcess(), &ProcessAffinityMask, &SystemAffinityMask))
+		{
+			Logging::Log() << __FUNCTION__ << " Setting Multi CPU mask: " << Logging::hex(SystemAffinityMask);
+			SetProcessAffinityMask(GetCurrentProcess(), SystemAffinityMask);
+		}
+	}
 }
 
 // Sets application DPI aware which disables DPI virtulization/High DPI scaling for this process
@@ -1263,9 +1292,21 @@ void LogAllModules()
 	Logging::Log() << "|--------------------------------";
 }
 
-void LogDelayedOneTimeItems()
+void RunDelayedOneTimeItems()
 {
-	RUNCODEONCE(LogAffinity());
+	RUNCODEONCE(
 
-	RUNCODEONCE(LogAllModules());
+		// Set Multi Core Affinity
+		if (EnableCriWareReimplementation && !SingleCoreAffinityLegacy)
+		{
+			SetMultiCoreAffinity();
+		}
+
+		// Log number of cores used
+		LogAffinity();
+
+		// Log all attached modules
+		LogAllModules();
+
+	);
 }

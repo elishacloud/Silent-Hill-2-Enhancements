@@ -34,7 +34,7 @@ IDirect3D9 *WINAPI Direct3DCreate9Wrapper(UINT SDKVersion)
 
 	IDirect3D9 *pD3D9 = m_pDirect3DCreate9(SDKVersion);
 
-	LogDelayedOneTimeItems();
+	RunDelayedOneTimeItems();
 
 	if (pD3D9)
 	{

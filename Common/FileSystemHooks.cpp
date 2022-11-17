@@ -77,7 +77,7 @@ inline LPCSTR GetEnding2(LPCSTR) { return "\\movie\\ending.bik"; }
 inline LPCWSTR GetEnding2(LPCWSTR) { return L"\\movie\\ending.bik"; }
 
 template<typename T>
-inline bool isInString(T strCheck, T str, size_t size)
+bool isInString(T strCheck, T str, size_t size)
 {
 	if (!strCheck || !str)
 	{

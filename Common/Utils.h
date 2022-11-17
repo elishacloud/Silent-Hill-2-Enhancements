@@ -19,6 +19,7 @@ DWORD ReplaceMemoryBytes(void *dataSrc, void *dataDest, size_t size, DWORD start
 void LogAffinity();
 DWORD_PTR GetProcessMask();
 void SetSingleCoreAffinity();
+void SetMultiCoreAffinity();
 void SetDPIAware();
 HMODULE SetAppTheme();
 void SetWindowTheme(HWND hWnd);
@@ -47,4 +48,4 @@ HRESULT GetSavedResolution(DWORD &Width, DWORD &Height);
 HRESULT SaveResolution(DWORD Width, DWORD Height);
 void LogDirectory();
 void LogAllModules();
-void LogDelayedOneTimeItems();
+void RunDelayedOneTimeItems();

@@ -28,6 +28,7 @@ class m_IDirect3DDevice9 : public IDirect3DDevice9
 {
 private:
 	LPDIRECT3DDEVICE9 ProxyInterface;
+	bool isInScene = false;
 	bool UseSoftwareRendering;
 	D3DGAMMARAMP Ramp = {};
 

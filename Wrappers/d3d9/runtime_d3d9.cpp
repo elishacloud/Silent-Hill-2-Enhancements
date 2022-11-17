@@ -167,6 +167,10 @@ bool reshade::d3d9::runtime_d3d9::on_init(const D3DPRESENT_PARAMETERS &pp)
 
 	return runtime::on_init(pp.hDeviceWindow);
 }
+bool reshade::d3d9::runtime_d3d9::get_gamma()
+{
+	return _gamma_set;
+}
 void reshade::d3d9::runtime_d3d9::reset_gamma(bool reload)
 {
 	subscribe_to_save_config([this, reload](ini_file &config) {
@@ -212,7 +216,7 @@ void reshade::d3d9::runtime_d3d9::on_reset()
 
 void reshade::d3d9::runtime_d3d9::on_present()
 {
-	if (!_is_initialized || FAILED(_device->BeginScene()))
+	if (!_is_initialized)
 	{
 		return;
 	}
@@ -262,8 +266,6 @@ void reshade::d3d9::runtime_d3d9::on_present()
 		_buffer_detection->reset(true);
 		_reset_buffer_detection = false;
 	}
-
-	_device->EndScene();
 }
 
 bool reshade::d3d9::runtime_d3d9::init_effect(size_t index)

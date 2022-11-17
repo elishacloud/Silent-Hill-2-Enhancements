@@ -517,20 +517,20 @@ void reshade::runtime::load_effects()
 
 	// Now that we have a list of files, load them in parallel
 	// Split workload into batches instead of launching a thread for every file to avoid launch overhead and stutters due to too many threads being in flight
-	const size_t num_splits = std::min<size_t>(effects_no.size(), std::max<size_t>(std::thread::hardware_concurrency(), 2u) - 1);
+	//const size_t num_splits = std::min<size_t>(effects_no.size(), std::max<size_t>(std::thread::hardware_concurrency(), 2u) - 1);
 
 	// Keep track of the spawned threads, so the runtime cannot be destroyed while they are still running
-	for (size_t n = 0; n < num_splits; ++n)
-		_worker_threads.emplace_back([this, effects_no, num_splits, n](){
+	//for (size_t n = 0; n < num_splits; ++n)
+		//_worker_threads.emplace_back([this, effects_no, num_splits, n](){
 			// Abort loading when initialization state changes (indicating that 'on_reset' was called in the meantime)
 			for (size_t i = 0; i < effects_no.size() && _is_initialized; ++i)
 			{
-				if (i * num_splits / effects_no.size() == n)
+				//if (i * num_splits / effects_no.size() == n)
 				{
 					load_effect(effects_no[i].name, effects_no[i].value, i);
 				}
 			}
-		});
+		//});
 }
 void reshade::runtime::load_textures()
 {

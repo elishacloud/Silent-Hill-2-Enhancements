@@ -32,6 +32,7 @@ namespace reshade::d3d9
 		~runtime_d3d9();
 
 		bool on_init(const D3DPRESENT_PARAMETERS &pp);
+		bool get_gamma();
 		void reset_gamma(bool reload);
 		void on_reset();
 		void on_present();

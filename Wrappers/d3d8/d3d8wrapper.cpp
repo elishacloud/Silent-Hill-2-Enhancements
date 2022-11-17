@@ -103,7 +103,7 @@ IDirect3D8 *WINAPI Direct3DCreate8Wrapper(UINT SDKVersion)
 
 	LPDIRECT3D8 pD3D8 = m_pDirect3DCreate8(SDKVersion);
 
-	LogDelayedOneTimeItems();
+	RunDelayedOneTimeItems();
 
 	if (pD3D8)
 	{

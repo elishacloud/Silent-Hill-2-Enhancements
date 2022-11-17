@@ -135,7 +135,8 @@
 	visit(NormalFontHeight, 30) \
 	visit(NormalFontWidth, 20) \
 	visit(PadNumber, 0) \
-	visit(RestoreSearchCamMovement, 1) \
+	visit(RemoveForceFeedbackFilter, 1) \
+	visit(RestoreSearchCamMovement, 2) \
 	visit(ResX, 0) \
 	visit(ResY, 0) \
 	visit(ScreenMode, 0xFFFF) /* Overloading the old 'EnableWndMode' and 'FullscreenWndMode' options */ \
@@ -240,6 +241,12 @@ typedef enum _CRTSHADER {
 	CRT_SHADER_ENABLED = 1,
 	CRT_SHADER_ENABLED_CURVATURE = 2,
 } CRTSHADER;
+
+typedef enum _REMOVEFORCEFEEDBACK {
+	DISABLE_FORCEFEEDBACK_CONTROL = 0,
+	AUTO_REMOVE_FORCEFEEDBACK = 1,
+	REMOVE_FORCEFEEDBACK = 2,
+} REMOVEFORCEFEEDBACK;
 
 // Configurable setting defaults
 #define DECLARE_BOOL_SETTINGS(name, unused) \

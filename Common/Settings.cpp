@@ -350,4 +350,15 @@ void UpdateConfigDefaults()
 	default:
 		FrontBufferControl = AUTO_BUFFER;
 	}
+
+	// Set force feedback control
+	switch (RemoveForceFeedbackFilter)
+	{
+	case DISABLE_FORCEFEEDBACK_CONTROL:
+	case REMOVE_FORCEFEEDBACK:
+		break;
+	case AUTO_REMOVE_FORCEFEEDBACK:
+	default:
+		RemoveForceFeedbackFilter = AUTO_REMOVE_FORCEFEEDBACK;
+	}
 }

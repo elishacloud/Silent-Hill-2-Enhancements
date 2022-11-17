@@ -50,7 +50,7 @@ HRESULT WINAPI DirectInput8CreateWrapper(HINSTANCE hinst, DWORD dwVersion, REFII
 
 	HRESULT hr = m_pDirectInput8Create(hinst, dwVersion, riidltf, ppvOut, punkOuter);
 
-	LogDelayedOneTimeItems();
+	RunDelayedOneTimeItems();
 
 	if (SUCCEEDED(hr))
 	{

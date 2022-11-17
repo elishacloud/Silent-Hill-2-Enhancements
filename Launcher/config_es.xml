@@ -451,6 +451,16 @@
         </Choices>
       </Feature>
 
+      <Feature name="RemoveForceFeedbackFilter">
+        <Title>Remove Force Feedback filter</Title>
+        <Description>Allows non-force feedback controllers to be detected during the game's controller scan.  Use this option if a non-force feedback controller is not detected by the Silent Hill 2.</Description>
+        <Choices type="list">
+          <Value name="Disable">0</Value>
+          <Value name="Auto" default="true">1</Value>
+          <Value name="Enable">2</Value>
+        </Choices>
+      </Feature>
+
     </Section>
 
   </Tab>

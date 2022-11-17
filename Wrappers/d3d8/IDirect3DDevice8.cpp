@@ -99,7 +99,7 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 
 	DeviceLost = false;
 
-	BeginSceneFlag = false;
+	isInScene = false;
 
 	pCurrentRenderTexture = nullptr;
 
@@ -978,7 +978,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	OverlayRef.DrawOverlays(ProxyInterface);
 
 	// Endscene
-	BeginSceneFlag = false;
+	isInScene = false;
 	ProxyInterface->EndScene();
 
 	// Update in progress
@@ -1048,9 +1048,9 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	// Take screenshot
 	if (TakeScreenShot)
 	{
-		if (!BeginSceneFlag)
+		if (!isInScene)
 		{
-			BeginSceneFlag = true;
+			isInScene = true;
 			ProxyInterface->BeginScene();
 		}
 		TakeScreenShot = false;
@@ -1062,9 +1062,9 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	{
 		if (pInitialRenderTexture && GetOnScreen() == 6)
 		{
-			if (!BeginSceneFlag)
+			if (!isInScene)
 			{
-				BeginSceneFlag = true;
+				isInScene = true;
 				ProxyInterface->BeginScene();
 			}
 			IDirect3DSurface8 *pSnapshotSurface = nullptr;
@@ -1901,9 +1901,9 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		}
 	}
 
-	if (!BeginSceneFlag)
+	if (!isInScene)
 	{
-		BeginSceneFlag = true;
+		isInScene = true;
 		ProxyInterface->BeginScene();
 	}
 

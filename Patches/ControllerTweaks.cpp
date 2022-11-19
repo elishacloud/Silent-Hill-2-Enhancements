@@ -76,7 +76,7 @@ void ProcessDInputData_Hook(GamePadState* state)
 		{
 			joystickState.lX = static_cast<LONG>(MouseX * 32767.0);
 		}
-		
+
 		// Boat stage and search view movement fix
 		if (((GetBoatFlag() == 0x01 && GetRoomID() == 0x0E) || GetSearchViewFlag() == 0x06))
 		{
@@ -112,6 +112,14 @@ void ProcessDInputData_Hook(GamePadState* state)
 			}
 		}
 		
+	}
+
+	// Full screen images mouse movement fix
+	if (EnableEnhancedMouse &&
+		(((std::abs(joystickState.lX) < StickTolerance) && (std::abs(joystickState.lY) < StickTolerance)) || !IsControllerConnected) &&
+		GetFullscreenImageEvent() == 0x02)
+	{
+		joystickState.lX = static_cast<LONG>(0);
 	}
 
 	// Populate debug values

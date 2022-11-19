@@ -212,6 +212,10 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		// Save Keyboard Data
 		KeyboardData = (BYTE*)lpvData;
 
+		// Reset Sprint toggle
+		if (EnableToggleSprint && GetRunOption() != OPT_ANALOG && !OverrideSprint)
+			Sprint.State = false;
+
 		// Ignore Alt + Enter combo
 		if ((IsKeyPressed(DIK_LMENU) || IsKeyPressed(DIK_RMENU)) && IsKeyPressed(DIK_RETURN) && 
 			DynamicResolution && ScreenMode != EXCLUSIVE_FULLSCREEN)
@@ -261,7 +265,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		Sprint.UpdateHoldingByValue(IsKeyPressed(KeyBinds.GetKeyBind(KEY_RUN)));
 
 		// Check for toggle sprint
-		if (EnableToggleSprint && GetRunOption() == OPT_ANALOG)
+		if (EnableToggleSprint && (GetRunOption() == OPT_ANALOG || OverrideSprint))
 		{
 			if (IsKeyPressed(KeyBinds.GetKeyBind(KEY_RUN)) && !Sprint.Holding && GetEventIndex() == EVENT_IN_GAME)
 			{
@@ -360,7 +364,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			SetRightKey = false;
 		}
 
-		if (EnableToggleSprint && GetRunOption() == OPT_ANALOG)
+		if (EnableToggleSprint && (GetRunOption() == OPT_ANALOG || OverrideSprint))
 		{
 			ClearKey(KeyBinds.GetKeyBind(KEY_RUN));
 		}

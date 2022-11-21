@@ -49,32 +49,32 @@ __declspec(naked) void __stdcall IsSprayAllocActiveASM()
         mov edx, dword ptr ds : [eax + 4]
         cmp eax, edx  // At least 1 particle allocated?
         jnz CheckFrameCount
-        mov dword ptr ds : [IsSprayActive] , 1
+        mov dword ptr ds : [IsSprayActive], 1
         jmp ExitASM
 
-        CheckFrameCount :
+    CheckFrameCount:
         mov eax, dword ptr ds : [FrameCounterAddr]
-            mov eax, dword ptr ds : [eax]
-            mov edx, dword ptr ds : [SprayFrameCounter]
-            cmp eax, edx  // Is this a new frame?
-            jz LoadActive
-            mov dword ptr ds : [SprayFrameCounter] , eax
-            mov eax, dword ptr ds : [IsSprayActive]
-            xor eax, 1
-            mov dword ptr ds : [IsSprayActive] , eax
-            jmp CheckActive
-
-            LoadActive :
+        mov eax, dword ptr ds : [eax]
+        mov edx, dword ptr ds : [SprayFrameCounter]
+        cmp eax, edx  // Is this a new frame?
+        jz LoadActive
+        mov dword ptr ds : [SprayFrameCounter], eax
         mov eax, dword ptr ds : [IsSprayActive]
-            test eax, eax
-            CheckActive :
-        jnz ExitASM
-            mov eax, 0  // Inactive
-            ret
+        xor eax, 1
+        mov dword ptr ds : [IsSprayActive], eax
+        jmp CheckActive
 
-            ExitASM :
+    LoadActive:
+        mov eax, dword ptr ds : [IsSprayActive]
+        test eax, eax
+    CheckActive:
+        jnz ExitASM
+        mov eax, 0  // Inactive
+        ret
+
+    ExitASM:
         mov eax, 1  // Active
-            ret
+        ret
     }
 }
 
@@ -87,12 +87,12 @@ __declspec(naked) void __stdcall LyingFigureSprayAllocASM()
         jnz ExitASM
         ret  // Skip allocating a new particle this frame
 
-        ExitASM :
+    ExitASM:
         push esi
-            push 5
-            mov eax, dword ptr ds : [LyingFigureSprayHandlerAddr]
-            push eax
-            jmp LyingFigureSprayAllocReturnAddr
+        push 5
+        mov eax, dword ptr ds : [LyingFigureSprayHandlerAddr]
+        push eax
+        jmp LyingFigureSprayAllocReturnAddr
     }
 }
 
@@ -105,12 +105,12 @@ __declspec(naked) void __stdcall HyperSprayAllocASM()
         jnz ExitASM
         ret  // Skip allocating a new particle this frame
 
-        ExitASM :
+    ExitASM:
         push esi
-            push 5
-            mov eax, dword ptr ds : [HyperSprayHandlerAddr]
-            push eax
-            jmp HyperSprayAllocReturnAddr
+        push 5
+        mov eax, dword ptr ds : [HyperSprayHandlerAddr]
+        push eax
+        jmp HyperSprayAllocReturnAddr
     }
 }
 

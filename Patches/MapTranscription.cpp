@@ -67,11 +67,11 @@ __declspec(naked) void __stdcall ActiveMarkerStateASM()
         pop eax
         jz HandlerExit
         mov ecx, dword ptr ds : [ZoomOrPanStateAddr]
-        mov dword ptr ds : [ecx] , eax
+        mov dword ptr ds : [ecx], eax
         mov ecx, dword ptr ds : [ActiveMarkerStateAddr]
-        mov dword ptr ds : [ecx] , 0x02
+        mov dword ptr ds : [ecx], 0x02
         mov ecx, dword ptr ds : [PauseCounterAddr]
-        mov dword ptr ds : [ecx] , 0x00
+        mov dword ptr ds : [ecx], 0x00
         jmp HandlerExit
 
     ActiveMarkerState2:
@@ -84,12 +84,12 @@ __declspec(naked) void __stdcall ActiveMarkerStateASM()
         pop eax
         jz HandlerExit
         mov ecx, dword ptr ds : [ZoomOrPanStateAddr]
-        cmp dword ptr ds : [ecx] , 0x02
+        cmp dword ptr ds : [ecx], 0x02
         jnz HandlerExit
         mov ecx, dword ptr ds : [ActiveMarkerStateAddr]
-        mov dword ptr ds : [ecx] , 0x03
+        mov dword ptr ds : [ecx], 0x03
         mov ecx, dword ptr ds : [PauseCounterAddr]
-        mov dword ptr ds : [ecx] , 0x00
+        mov dword ptr ds : [ecx], 0x00
         jmp HandlerExit
 
     ActiveMarkerState3:
@@ -108,9 +108,9 @@ __declspec(naked) void __stdcall ActiveMarkerStateASM()
         pop ebx
         pop eax
         jb HandlerExit
-        mov byte ptr ds : [ecx + edx * 0x08 + 0x04] , 0x80
+        mov byte ptr ds : [ecx + edx * 0x08 + 0x04], 0x80
         mov ecx, dword ptr ds : [ActiveMarkerStateAddr]
-        mov dword ptr ds : [ecx] , 0x04
+        mov dword ptr ds : [ecx], 0x04
         jmp HandlerExit
 
     ActiveMarkerState4:
@@ -132,7 +132,7 @@ __declspec(naked) void __stdcall ActiveMarkerStateASM()
         mov edx, dword ptr ds : [DeltaFrameAddr]
         add ecx, dword ptr ds : [edx]
         pop edx
-        mov dword ptr ds : [eax] , ecx
+        mov dword ptr ds : [eax], ecx
         mov eax, 0x00
         cmp ecx, [esp + 0x8]
         pop ecx

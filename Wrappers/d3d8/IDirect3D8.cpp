@@ -470,11 +470,12 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	LONG lExStyle = GetWindowLong(MainhWnd, GWL_EXSTYLE);
 
 	// Get new style
+	LONG lNewStyle = (lStyle | WS_OVERLAPPEDWINDOW) & ~(WS_MAXIMIZEBOX | WS_THICKFRAME);
 	RECT Rect = { 0, 0, displayWidth, displayHeight };
-	AdjustWindowRectEx(&Rect, (lStyle | WS_OVERLAPPEDWINDOW) & ~(WS_MAXIMIZEBOX | WS_THICKFRAME), GetMenu(MainhWnd) != NULL, lExStyle);
+	AdjustWindowRectEx(&Rect, lNewStyle, GetMenu(MainhWnd) != NULL, lExStyle);
 	if (ScreenMode == WINDOWED && WndModeBorder && screenWidth > Rect.right - Rect.left && screenHeight > Rect.bottom - Rect.top)
 	{
-		lStyle = (lStyle | WS_OVERLAPPEDWINDOW) & ~(WS_MAXIMIZEBOX | WS_THICKFRAME);
+		lStyle = lNewStyle;
 	}
 	else
 	{
@@ -551,7 +552,7 @@ void SaveWindowPlacement()
 // Get keyboard press
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	Logging::LogDebug() << __FUNCTION__ << " " << Logging::hex(wParam);
+	Logging::LogDebug() << __FUNCTION__ << " " << Logging::hex(uMsg);
 
 	static HMONITOR LastMonitorHandle = nullptr;
 

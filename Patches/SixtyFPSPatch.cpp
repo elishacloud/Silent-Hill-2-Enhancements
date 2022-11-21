@@ -143,4 +143,6 @@ void PatchSixtyFPS()
 	PatchPrisonerTimer();
 
 	PatchSprayEffect();
+
+	PatchMapTranscription();
 }

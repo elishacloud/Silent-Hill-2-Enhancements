@@ -139,4 +139,6 @@ void PatchSixtyFPS()
 	PatchStaircaseFlamesLighting();
 
 	PatchWaterLevelSpeed();
+
+	PatchPrisonerTimer();
 }

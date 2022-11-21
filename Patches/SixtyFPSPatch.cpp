@@ -141,4 +141,6 @@ void PatchSixtyFPS()
 	PatchWaterLevelSpeed();
 
 	PatchPrisonerTimer();
+
+	PatchSprayEffect();
 }

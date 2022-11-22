@@ -53,7 +53,9 @@
     <ClCompile Include="Include\criware\criware_xaudio2.cpp" />
     <ClCompile Include="Patches\AlternateStomp.cpp" />
     <ClCompile Include="Patches\ChangeClosetSpawn.cpp" />
+    <ClCompile Include="Patches\MapTranscription.cpp" />
     <ClCompile Include="Patches\PatchCriware.cpp" />
+    <ClCompile Include="Patches\PrisonerTimer.cpp" />
     <ClCompile Include="Patches\SaveGameSound.cpp" />
     <ClCompile Include="Logging\Logging.cpp" />
     <ClCompile Include="Patches\2TBHardDriveFix.cpp" />
@@ -85,6 +87,7 @@
     <ClCompile Include="Patches\SixtyFPSPatch.cpp" />
     <ClCompile Include="Patches\SpecialFX.cpp" />
     <ClCompile Include="Patches\Specular.cpp" />
+    <ClCompile Include="Patches\SprayEffect.cpp" />
     <ClCompile Include="Patches\TexPatch.cpp" />
     <ClCompile Include="Patches\FogAdjustments.cpp" />
     <ClCompile Include="Patches\Fonts.cpp" />

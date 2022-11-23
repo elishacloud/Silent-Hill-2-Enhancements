@@ -138,7 +138,7 @@ void RunClosetCutscene()
 
 	// Darken & blur more closet bars
 	static bool ValueSet1 = false;
-	if (GetCutsceneID() == 0x0E && GetCutscenePos() == -21376.56445f)
+	if (GetCutsceneID() == 0x0E)
 	{
 		if (!ValueSet1)
 		{
@@ -152,36 +152,6 @@ void RunClosetCutscene()
 		BYTE ByteValue = 11;
 		UpdateMemoryAddress((void*)Address1, &ByteValue, sizeof(BYTE));		// "Time of Day"
 		ValueSet1 = false;
-	}
-
-	// Adjust room/dynamic objects for one shot
-	static bool ValueSet2 = false;
-	if (GetCutsceneID() == 0x0E  && GetCutscenePos() == -20133.99805f)
-	{
-		if (!ValueSet2)
-		{
-			float Value = -0.7f;
-			UpdateMemoryAddress((void*)(Address3 + 0x00), &Value, sizeof(float));		// PC location textures + models color R (set 1)
-			UpdateMemoryAddress((void*)(Address3 + 0x04), &Value, sizeof(float));		// PC location textures + models color G (set 1)
-			UpdateMemoryAddress((void*)(Address3 + 0x08), &Value, sizeof(float));		// PC location textures + models color B (set 1)
-			Value = 0.3f;
-			UpdateMemoryAddress((void*)(Address3 + 0x20), &Value, sizeof(float));		// PC location textures + models color R (set 2)
-			UpdateMemoryAddress((void*)(Address3 + 0x24), &Value, sizeof(float));		// PC location textures + models color G (set 2)
-			UpdateMemoryAddress((void*)(Address3 + 0x28), &Value, sizeof(float));		// PC location textures + models color B (set 2)
-		}
-		ValueSet2 = true;
-	}
-	else if (ValueSet2)
-	{
-		float Value = 0.150000006f;
-		UpdateMemoryAddress((void*)(Address3 + 0x00), &Value, sizeof(float));		// PC location textures + models color R (set 1)
-		UpdateMemoryAddress((void*)(Address3 + 0x04), &Value, sizeof(float));		// PC location textures + models color G (set 1)
-		UpdateMemoryAddress((void*)(Address3 + 0x08), &Value, sizeof(float));		// PC location textures + models color B (set 1)
-		Value = 0.04500000179f;
-		UpdateMemoryAddress((void*)(Address3 + 0x20), &Value, sizeof(float));		// PC location textures + models color R (set 2)
-		UpdateMemoryAddress((void*)(Address3 + 0x24), &Value, sizeof(float));		// PC location textures + models color G (set 2)
-		UpdateMemoryAddress((void*)(Address3 + 0x28), &Value, sizeof(float));		// PC location textures + models color B (set 2)
-		ValueSet2 = false;
 	}
 
 	// Disable the flashlight during cutscene

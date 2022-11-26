@@ -64,6 +64,9 @@ float* LowHealthIndicatorFlashSpeedAddr;
 float* StaircaseFlamesLightingSpeedAddr;
 float* WaterLevelLoweringStepsAddr;
 float* WaterLevelRisingStepsAddr;
+float* BugRoomFlashlightFixAddr;
+uint8_t* SixtyFPSFMVFixAddr;
+uint8_t* GrabDamageAddr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -1284,4 +1287,73 @@ float *GetWaterLevelRisingStepsPointer()
 	WaterLevelRisingStepsAddr = (float*)((DWORD)WaterLevelRisingSteps);
 
 	return WaterLevelRisingStepsAddr;
+}
+
+float *GetBugRoomFlashlightFixPointer()
+{
+	if (BugRoomFlashlightFixAddr)
+	{
+		return BugRoomFlashlightFixAddr;
+	}
+
+	// Get Water Level Rising Steps address
+	constexpr BYTE BugRoomFlashlightFixSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x41, 0x7A, 0x15, 0xC7 };
+	float *BugRoomFlashlightFix = (float*)ReadSearchedAddresses(0x0050AA78, 0x0050ADA8, 0x0050A6C8, BugRoomFlashlightFixSearchBytes, sizeof(BugRoomFlashlightFixSearchBytes), -0x10);
+
+	// Checking address pointer
+	if (!BugRoomFlashlightFix)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Bug Room Flashlight Fix address!";
+		return nullptr;
+	}
+
+	BugRoomFlashlightFixAddr = (float*)((DWORD)BugRoomFlashlightFix);
+
+	return BugRoomFlashlightFixAddr;
+}
+
+uint8_t *GetSixtyFPSFMVFixPointer()
+{
+	if (SixtyFPSFMVFixAddr)
+	{
+		return SixtyFPSFMVFixAddr;
+	}
+
+	// Get Sixty FPS FMV Fix address
+	constexpr BYTE SixtyFPSFMVFixSearchBytes[]{ 0xE8, 0x4C, 0xF6, 0xFF, 0xFF, 0xE8 };
+	uint8_t *SixtyFPSFMVFix = (uint8_t*)SearchAndGetAddresses(0x0043E4DF, 0x0043E69F, 0x0043E69F, SixtyFPSFMVFixSearchBytes, sizeof(SixtyFPSFMVFixSearchBytes), -0x74F);
+
+	// Checking address pointer
+	if (!SixtyFPSFMVFix)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Sixty FPS FMV Fix address!";
+		return nullptr;
+	}
+
+	SixtyFPSFMVFix = (uint8_t*)((DWORD)SixtyFPSFMVFix);
+
+	return SixtyFPSFMVFix;
+}
+
+uint8_t *GetGrabDamagePointer()
+{
+	if (GrabDamageAddr)
+	{
+		return GrabDamageAddr;
+	}
+
+	// Get Sixty Grab Damage address
+	constexpr BYTE GrabDamageSearchBytes[]{ 0x89, 0xBE, 0x1C, 0x01, 0x00, 0x00, 0xD9, 0x86 };
+	uint8_t *GrabDamage = (uint8_t*)SearchAndGetAddresses(0x005359BC, 0x00535CEC, 0x0053560C, GrabDamageSearchBytes, sizeof(GrabDamageSearchBytes), 0x19);
+
+	// Checking address pointer
+	if (!GrabDamage)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Grab Damage address!";
+		return nullptr;
+	}
+
+	GrabDamage = (uint8_t*)((DWORD)GrabDamage);
+
+	return GrabDamage;
 }

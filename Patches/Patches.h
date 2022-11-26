@@ -93,6 +93,9 @@ float *GetLowHealthIndicatorFlashSpeedPointer();
 float *GetStaircaseFlamesLightingPointer();
 float *GetWaterLevelLoweringStepsPointer();
 float *GetWaterLevelRisingStepsPointer();
+float *GetBugRoomFlashlightFixPointer();
+uint8_t *GetSixtyFPSFMVFixPointer();
+uint8_t *GetGrabDamagePointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

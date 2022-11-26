@@ -20,12 +20,12 @@
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 #include "External/Hooking.Patterns/Hooking.Patterns.h"
+#include "Patches\SixtyFPSPatch.h"
 
 // Variables for ASM
 constexpr float CustomAddress1Value = 0.04f;
 constexpr float PointThreeBarValue = 0.3333333333f;
 constexpr float PointSixBarValue = 0.6666666666f;
-constexpr float MotionBlurValue = 0.25f;
 float IntroCutsceneValue1 = 0;
 float IntroCutsceneValue2 = 0;
 float PyramidHeadCutsceneValue1 = 0;

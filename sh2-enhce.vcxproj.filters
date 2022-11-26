@@ -580,6 +580,9 @@
     <ClInclude Include="Wrappers\d3d8\Overlay.h">
       <Filter>Wrappers\d3d8</Filter>
     </ClInclude>
+    <ClInclude Include="Patches\SixtyFPSPatch.h">
+      <Filter>Patches</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\sh2-enhce.rc">

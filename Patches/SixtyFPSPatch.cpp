@@ -22,6 +22,17 @@
 #include "Logging\Logging.h"
 #include "Patches.h"
 #include "Common/Utils.h"
+#include "SixtyFPSPatch.h"
+
+const float MotionBlurOvrd = 0.125f;
+const float WaterOvrd = 0.0166665f;
+const float LowHealthOvrd = 0.0166665f;
+const float StaircaseLightingOvrd = 0.00027777222565f;
+const float WaterLowOvrd = 20.f;
+const float WaterRisOvrd = 5.333333492f;
+const float BugRoomFlashlightOvrd = 0.093333332985f;
+const int16_t FlashlightOnOvrd= 0x78;
+
 
 injector::hook_back<float(__cdecl*)(void)> GetFogAnimationRate;
 injector::hook_back<float(__cdecl*)(void)> GetBulletShellAnimationRateOne;
@@ -31,49 +42,71 @@ injector::hook_back<float(__cdecl*)(void)> GetBulletShellAnimationRateFour;
 
 bool once = true;
 
+float MotionBlurValue = 0.25f;
+
 void PatchWater()
 {
+	Logging::Log() << "Patching water animation speed...";
 
 	float* WaterAnimationSpeedPtr = GetWaterAnimationSpeedPointer();
-	float NewValue = 0.0166665;
 
-	UpdateMemoryAddress(WaterAnimationSpeedPtr, &NewValue, sizeof(float));
+	UpdateMemoryAddress(WaterAnimationSpeedPtr, &WaterOvrd, sizeof(float));
 }
 
 void PatchFlashlightOnSpeed()
 {
-	int16_t* FlashlightOnSpeedPtr = GetFlashlightOnSpeedPointer();
-	int16_t NewValue = 0x78;
+	Logging::Log() << "Patching flashlight speed...";
 
-	UpdateMemoryAddress(FlashlightOnSpeedPtr, &NewValue, sizeof(int16_t));
+	int16_t* FlashlightOnSpeedPtr = GetFlashlightOnSpeedPointer();
+
+	UpdateMemoryAddress(FlashlightOnSpeedPtr, &FlashlightOnOvrd, sizeof(int16_t));
 }
 
 void PatchLowHealthIndicatorFlash()
 {
+	Logging::Log() << "Patching low health indicator flashing speed...";
+
 	float* LowHealthIndicatorSpeedPtr = GetLowHealthIndicatorFlashSpeedPointer();
-	float NewValue = 0.0166665;
 	
-	UpdateMemoryAddress(LowHealthIndicatorSpeedPtr, &NewValue, sizeof(float));
+	UpdateMemoryAddress(LowHealthIndicatorSpeedPtr, &LowHealthOvrd, sizeof(float));
 }
 
 void PatchStaircaseFlamesLighting()
 {
-	float* StaircaseFlamesLightingPtr = GetStaircaseFlamesLightingPointer();
-	float NewValue = 0.00027777222565;
+	Logging::Log() << "Patching flame staircase lighting...";
 
-	UpdateMemoryAddress(StaircaseFlamesLightingPtr, &NewValue, sizeof(float));
+	float* StaircaseFlamesLightingPtr = GetStaircaseFlamesLightingPointer();
+
+	UpdateMemoryAddress(StaircaseFlamesLightingPtr, &StaircaseLightingOvrd, sizeof(float));
 }
 
 void PatchWaterLevelSpeed()
 {
+	Logging::Log() << "Patching water level speed...";
+
 	float* LoweringStepsPtr = GetWaterLevelLoweringStepsPointer();
 	float* RisingStepsPtr = GetWaterLevelRisingStepsPointer();
 
-	float NewLowValue = 20.;
-	float NewRiseValue = 5.333333492;
+	UpdateMemoryAddress(LoweringStepsPtr, &WaterLowOvrd, sizeof(float));
+	UpdateMemoryAddress(RisingStepsPtr, &WaterRisOvrd, sizeof(float));
+}
 
-	UpdateMemoryAddress(LoweringStepsPtr, &NewLowValue, sizeof(float));
-	UpdateMemoryAddress(RisingStepsPtr, &NewRiseValue, sizeof(float));
+void PatchBugRoomFlashlight()
+{
+	Logging::Log() << "Patching bug room flashlight...";
+
+	float* BugRoomFlashlightPtr = GetBugRoomFlashlightFixPointer();
+
+	UpdateMemoryAddress(BugRoomFlashlightPtr, &BugRoomFlashlightOvrd, sizeof(float));
+}
+
+void PatchFMV()
+{
+	Logging::Log() << "Patching fmv speed...";
+
+	uint8_t* FMVFixAddr = GetSixtyFPSFMVFixPointer();
+	
+	UpdateMemoryAddress(FMVFixAddr, "\x90\x90\x90\x90\x90", 5);
 }
 
 float __cdecl GetHalvedAnimationRate_Hook()
@@ -86,10 +119,28 @@ float __cdecl GetDoubledAnimationRate_Hook()
 	return GetFogAnimationRate.fun() * 2;
 }
 
+/*
+__declspec(naked) void __cdecl DivideGrabDamageByTwoASM()
+{
+	__asm
+	{
+		fld dword ptr[esi + 0x11C]
+		fmul dword ptr[]  // Multiply damage by 0.5f
+		fld dword ptr[esi + 0x13C]
+		fsub st, st(1)
+		fstp dword ptr[esi + 0x13C]
+		mov edx, [esi + 0x13C]
+		push edx
+		jmp 0x400000 + 0x1359EE // TODO change base address?
+	}
+}
+*/
+
 void PatchSixtyFPS()
 {
-	Logging::Log() << "Fixing 60 FPS...";
+	Logging::Log() << "Applying Fixes for 60 FPS...";
 
+	Logging::Log() << "Hooking Fog Animation...";
 	constexpr BYTE FogAnimationRateSearchBytes[]{ 0x83, 0xC4, 0x04, 0x84, 0xDB, 0x5B, 0x8A, 0x54, 0x24, 0x0C };
 	DWORD* AnimationRate = (DWORD*)SearchAndGetAddresses(0x4890D0, 0x489370, 0x489580, FogAnimationRateSearchBytes, sizeof(FogAnimationRateSearchBytes), 0x50);
 	if (AnimationRate)
@@ -101,7 +152,7 @@ void PatchSixtyFPS()
 		Logging::Log() << __FUNCTION__ << " Error: failed to find Animation Rate Function address!";
 	}
 	
-
+	Logging::Log() << "Hooking Bullet Animation...";
 	constexpr BYTE BulletAnimationOneSearchBytes[]{ 0x88, 0x8C, 0x24, 0xB6, 0x00, 0x00, 0x00, 0x89 };
 	DWORD* BulletAnimationOne = (DWORD*)SearchAndGetAddresses(0x4F0E12, 0x4F10C2, 0x4F0982, BulletAnimationOneSearchBytes, sizeof(BulletAnimationOneSearchBytes), 0xE3);
 	if (BulletAnimationOne)
@@ -145,7 +196,12 @@ void PatchSixtyFPS()
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find Bullet Animation Rate Four Function address!";
 	}
-	
+
+	//WriteJMPtoMemory((BYTE*)GetGrabDamagePointer(), *DivideGrabDamageByTwoASM, 5);
+
+	Logging::Log() << "Patching motion blur...";
+	MotionBlurValue = MotionBlurOvrd;
+
 	PatchWater();
 
 	PatchFlashlightOnSpeed();
@@ -161,4 +217,11 @@ void PatchSixtyFPS()
 	PatchSprayEffect();
 
 	PatchMapTranscription();
+
+	PatchBugRoomFlashlight();
+
+	PatchFMV();
+
+	Logging::Log() << "Done applying 60 FPS fixes...";
+
 }

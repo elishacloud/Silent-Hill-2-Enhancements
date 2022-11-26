@@ -179,6 +179,7 @@
     <ClInclude Include="Patches\ModelID.h" />
     <ClInclude Include="Patches\Patches.h" />
     <ClInclude Include="Patches\SfxPatch.h" />
+    <ClInclude Include="Patches\SixtyFPSPatch.h" />
     <ClInclude Include="Resources\Resource.h" />
     <ClInclude Include="WidescreenFixesPack\WidescreenFixesPack.h" />
     <ClInclude Include="Wrappers\d3d8.h" />

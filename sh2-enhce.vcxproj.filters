@@ -589,6 +589,9 @@
     <ClInclude Include="Patches\InputTweaks.h">
       <Filter>Patches</Filter>
     </ClInclude>
+    <ClInclude Include="Patches\SixtyFPSPatch.h">
+      <Filter>Patches</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\sh2-enhce.rc">

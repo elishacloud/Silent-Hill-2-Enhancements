@@ -46,9 +46,8 @@ void PatchWater()
 	Logging::Log() << "Patching water animation speed...";
 
 	float* WaterAnimationSpeedPtr = GetWaterAnimationSpeedPointer();
-	float NewValue = 0.0166665;
 
-	UpdateMemoryAddress(WaterAnimationSpeedPtr, &NewValue, sizeof(float));
+	UpdateMemoryAddress(WaterAnimationSpeedPtr, &WaterOvrd, sizeof(float));
 }
 
 void PatchFlashlightOnSpeed()
@@ -100,22 +99,40 @@ void PatchBugRoomFlashlight()
 
 void PatchStaircaseFlamesLighting()
 {
-	float* StaircaseFlamesLightingPtr = GetStaircaseFlamesLightingPointer();
-	float NewValue = 0.00027777222565;
+	Logging::Log() << "Patching flame staircase lighting...";
 
-	UpdateMemoryAddress(StaircaseFlamesLightingPtr, &NewValue, sizeof(float));
+	float* StaircaseFlamesLightingPtr = GetStaircaseFlamesLightingPointer();
+
+	UpdateMemoryAddress(StaircaseFlamesLightingPtr, &StaircaseLightingOvrd, sizeof(float));
 }
 
 void PatchWaterLevelSpeed()
 {
+	Logging::Log() << "Patching water level speed...";
+
 	float* LoweringStepsPtr = GetWaterLevelLoweringStepsPointer();
 	float* RisingStepsPtr = GetWaterLevelRisingStepsPointer();
 
-	float NewLowValue = 20.;
-	float NewRiseValue = 5.333333492;
+	UpdateMemoryAddress(LoweringStepsPtr, &WaterLowOvrd, sizeof(float));
+	UpdateMemoryAddress(RisingStepsPtr, &WaterRisOvrd, sizeof(float));
+}
 
-	UpdateMemoryAddress(LoweringStepsPtr, &NewLowValue, sizeof(float));
-	UpdateMemoryAddress(RisingStepsPtr, &NewRiseValue, sizeof(float));
+void PatchBugRoomFlashlight()
+{
+	Logging::Log() << "Patching bug room flashlight...";
+
+	float* BugRoomFlashlightPtr = GetBugRoomFlashlightFixPointer();
+
+	UpdateMemoryAddress(BugRoomFlashlightPtr, &BugRoomFlashlightOvrd, sizeof(float));
+}
+
+void PatchFMV()
+{
+	Logging::Log() << "Patching fmv speed...";
+
+	uint8_t* FMVFixAddr = GetSixtyFPSFMVFixPointer();
+	
+	UpdateMemoryAddress(FMVFixAddr, "\x90\x90\x90\x90\x90", 5);
 }
 
 float __cdecl GetHalvedAnimationRate_Hook()
@@ -127,6 +144,23 @@ float __cdecl GetDoubledAnimationRate_Hook()
 {
 	return GetFogAnimationRate.fun() * 2;
 }
+
+/*
+__declspec(naked) void __cdecl DivideGrabDamageByTwoASM()
+{
+	__asm
+	{
+		fld dword ptr[esi + 0x11C]
+		fmul dword ptr[]  // Multiply damage by 0.5f
+		fld dword ptr[esi + 0x13C]
+		fsub st, st(1)
+		fstp dword ptr[esi + 0x13C]
+		mov edx, [esi + 0x13C]
+		push edx
+		jmp 0x400000 + 0x1359EE // TODO change base address?
+	}
+}
+*/
 
 void PatchSixtyFPS()
 {
@@ -149,7 +183,6 @@ void PatchSixtyFPS()
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find Animation Rate Function address!";
 	}
-
 	Logging::Log() << "Hooking Bullet Animation...";
 	constexpr BYTE BulletAnimationOneSearchBytes[]{ 0x88, 0x8C, 0x24, 0xB6, 0x00, 0x00, 0x00, 0x89 };
 	DWORD* BulletAnimationOne = (DWORD*)SearchAndGetAddresses(0x4F0E12, 0x4F10C2, 0x4F0982, BulletAnimationOneSearchBytes, sizeof(BulletAnimationOneSearchBytes), 0xE3);

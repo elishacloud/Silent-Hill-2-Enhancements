@@ -54,6 +54,7 @@
     <ClCompile Include="Patches\AlternateStomp.cpp" />
     <ClCompile Include="Patches\ChangeClosetSpawn.cpp" />
     <ClCompile Include="Patches\InputTweaks.cpp" />
+    <ClCompile Include="Patches\HoldDamage.cpp" />
     <ClCompile Include="Patches\MapTranscription.cpp" />
     <ClCompile Include="Patches\PatchCriware.cpp" />
     <ClCompile Include="Patches\QuickSaveTweaks.cpp" />

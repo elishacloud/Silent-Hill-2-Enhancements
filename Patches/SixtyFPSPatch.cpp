@@ -119,23 +119,6 @@ float __cdecl GetDoubledAnimationRate_Hook()
 	return GetFogAnimationRate.fun() * 2;
 }
 
-/*
-__declspec(naked) void __cdecl DivideGrabDamageByTwoASM()
-{
-	__asm
-	{
-		fld dword ptr[esi + 0x11C]
-		fmul dword ptr[]  // Multiply damage by 0.5f
-		fld dword ptr[esi + 0x13C]
-		fsub st, st(1)
-		fstp dword ptr[esi + 0x13C]
-		mov edx, [esi + 0x13C]
-		push edx
-		jmp 0x400000 + 0x1359EE // TODO change base address?
-	}
-}
-*/
-
 void PatchSixtyFPS()
 {
 	Logging::Log() << "Applying Fixes for 60 FPS...";
@@ -197,8 +180,6 @@ void PatchSixtyFPS()
 		Logging::Log() << __FUNCTION__ << " Error: failed to find Bullet Animation Rate Four Function address!";
 	}
 
-	//WriteJMPtoMemory((BYTE*)GetGrabDamagePointer(), *DivideGrabDamageByTwoASM, 5);
-
 	Logging::Log() << "Patching motion blur...";
 	MotionBlurValue = MotionBlurOvrd;
 
@@ -219,6 +200,8 @@ void PatchSixtyFPS()
 	PatchMapTranscription();
 
 	PatchBugRoomFlashlight();
+
+    PatchHoldDamage();
 
 	PatchFMV();
 

@@ -134,6 +134,7 @@ void PatchFogParameters();
 void PatchFullscreenImages();
 void PatchFullscreenVideos();
 void PatchGameLoad();
+void PatchHoldDamage();
 void PatchInventoryBGMBug();
 void PatchLockScreenPosition();
 void PatchMainMenu();

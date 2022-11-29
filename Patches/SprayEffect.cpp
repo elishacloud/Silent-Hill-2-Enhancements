@@ -121,25 +121,25 @@ bool WritePointerToMemory(void* dataAddr, const void* dataPtr) {
 DWORD* GetParticleTableAddr()
 {
     constexpr BYTE ParticleTableAddrSearchBytes[]{ 0x0F, 0xB6, 0x44, 0x24, 0x08, 0x8B, 0x0C, 0x85 };
-    DWORD* addr = (DWORD*)ReadSearchedAddresses(0x00570B80, 0x00571430, 0x00570D50, ParticleTableAddrSearchBytes, sizeof(ParticleTableAddrSearchBytes), 0x8);
-    if (addr == nullptr)
+    DWORD* Addr = (DWORD*)ReadSearchedAddresses(0x00570B80, 0x00571430, 0x00570D50, ParticleTableAddrSearchBytes, sizeof(ParticleTableAddrSearchBytes), 0x08);
+    if (Addr == nullptr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find memory address for the particle table!";
         return nullptr;
     }
-    return addr;
+    return Addr;
 }
 
 DWORD* GetFrameCounterAddr()
 {
     constexpr BYTE FrameCounterAddrSearchBytes[]{ 0x8B, 0xC8, 0x2B, 0xC2, 0x89, 0x0D };
-    DWORD* addr = (DWORD*)ReadSearchedAddresses(0x0044932B, 0x004494CB, 0x004494CB, FrameCounterAddrSearchBytes, sizeof(FrameCounterAddrSearchBytes), 0x6);
-    if (addr == nullptr)
+    DWORD* Addr = (DWORD*)ReadSearchedAddresses(0x0044932B, 0x004494CB, 0x004494CB, FrameCounterAddrSearchBytes, sizeof(FrameCounterAddrSearchBytes), 0x06);
+    if (Addr == nullptr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find memory address for the frame counter!";
         return nullptr;
     }
-    return addr;
+    return Addr;
 }
 
 // Reduce the speed of Lying Figure spray particles by half
@@ -154,7 +154,7 @@ void PatchLyingFigureSprayEffectSpeed()
     }
 
     constexpr BYTE State1SearchBytes[]{ 0x6A, 0x06, 0xD8, 0x7C, 0x24, 0x1C, 0xD9, 0x5C, 0x24, 0x34, 0xD9, 0x46, 0x48, 0xD8, 0x0D };
-    const DWORD SpraySpeedFactorState1Addr = SearchAndGetAddresses(0x004A401A, 0x004A42CA, 0x004A3B8A, State1SearchBytes, sizeof(State1SearchBytes), 0xF);
+    const DWORD SpraySpeedFactorState1Addr = SearchAndGetAddresses(0x004A401A, 0x004A42CA, 0x004A3B8A, State1SearchBytes, sizeof(State1SearchBytes), 0x0F);
     if (!SpraySpeedFactorState1Addr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find memory address for state 1!";
@@ -163,7 +163,7 @@ void PatchLyingFigureSprayEffectSpeed()
     const DWORD SprayYAdjustState1Addr = SpraySpeedFactorState1Addr + 0x39;
 
     constexpr BYTE State2SearchBytes[]{ 0x6A, 0x0A, 0xD8, 0x7C, 0x24, 0x1C, 0xD9, 0x5C, 0x24, 0x38, 0xD9, 0x46, 0x48, 0xD8, 0x0D };
-    const DWORD SpraySpeedFactorState2Addr = SearchAndGetAddresses(0x004A3F15, 0x004A41C5, 0x004A3A85, State2SearchBytes, sizeof(State2SearchBytes), 0xF);
+    const DWORD SpraySpeedFactorState2Addr = SearchAndGetAddresses(0x004A3F15, 0x004A41C5, 0x004A3A85, State2SearchBytes, sizeof(State2SearchBytes), 0x0F);
     if (!SpraySpeedFactorState2Addr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find memory address for state 2!";
@@ -182,15 +182,15 @@ void PatchLyingFigureSprayEffectSpeed()
 void PatchLyingFigureSprayEffectSpawnRate()
 {
     constexpr BYTE SprayAllocAddrSearchBytes[]{ 0x8B, 0xF0, 0x83, 0xC4, 0x08, 0x85, 0xF6, 0x0F };
-    DWORD SprayAllocAddr = SearchAndGetAddresses(0x004A4A1D, 0x004A4CCD, 0x004A458D, SprayAllocAddrSearchBytes, sizeof(SprayAllocAddrSearchBytes), -0xD);
+    DWORD SprayAllocAddr = SearchAndGetAddresses(0x004A4A1D, 0x004A4CCD, 0x004A458D, SprayAllocAddrSearchBytes, sizeof(SprayAllocAddrSearchBytes), -0x0D);
     if (!SprayAllocAddr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find memory address for Lying Figure spray alloc handler!";
         return;
     }
-    LyingFigureSprayAllocReturnAddr = (DWORD*)(SprayAllocAddr + 0x8);
+    LyingFigureSprayAllocReturnAddr = (DWORD*)(SprayAllocAddr + 0x08);
 
-    LyingFigureSprayHandlerAddr = (DWORD*)ReadSearchedAddresses(0x004A4A1D, 0x004A4CCD, 0x004A458D, SprayAllocAddrSearchBytes, sizeof(SprayAllocAddrSearchBytes), -0x9);
+    LyingFigureSprayHandlerAddr = (DWORD*)ReadSearchedAddresses(0x004A4A1D, 0x004A4CCD, 0x004A458D, SprayAllocAddrSearchBytes, sizeof(SprayAllocAddrSearchBytes), -0x09);
     if (!LyingFigureSprayHandlerAddr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find memory address for Lying Figure spray handler!";
@@ -204,7 +204,7 @@ void PatchLyingFigureSprayEffectSpawnRate()
 void PatchHyperSprayEffectSpeed()
 {
     constexpr BYTE State0SearchBytes[]{ 0xDB, 0x46, 0x18, 0xD8, 0xC9, 0xD9, 0xC9, 0xD8, 0x4E, 0x54, 0xD8, 0x0D };
-    const DWORD SpraySpeedFactorState0Addr = SearchAndGetAddresses(0x004A4579, 0x004A4829, 0x004A40E9, State0SearchBytes, sizeof(State0SearchBytes), 0xC);
+    const DWORD SpraySpeedFactorState0Addr = SearchAndGetAddresses(0x004A4579, 0x004A4829, 0x004A40E9, State0SearchBytes, sizeof(State0SearchBytes), 0x0C);
     if (!SpraySpeedFactorState0Addr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find memory address for state 0!";
@@ -221,7 +221,7 @@ void PatchHyperSprayEffectSpeed()
     const DWORD SprayYAdjustState1Addr = SpraySpeedFactorState1Addr + 0x24;
 
     constexpr BYTE State2SearchBytes[]{ 0xDB, 0x44, 0x24, 0x18, 0xD8, 0xC9, 0xD9, 0x5C, 0x24, 0x18, 0xD8, 0x4E, 0x54, 0xD8, 0x0D };
-    const DWORD SpraySpeedFactorState2Addr = SearchAndGetAddresses(0x004A442C, 0x004A46DC, 0x004A3F9C, State2SearchBytes, sizeof(State2SearchBytes), 0xF);
+    const DWORD SpraySpeedFactorState2Addr = SearchAndGetAddresses(0x004A442C, 0x004A46DC, 0x004A3F9C, State2SearchBytes, sizeof(State2SearchBytes), 0x0F);
     if (!SpraySpeedFactorState2Addr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find memory address for state 2!";
@@ -241,7 +241,7 @@ void PatchHyperSprayEffectSpawnRate()
 {
     constexpr BYTE SprayAllocAddrSearchBytes[]{ 0x8B, 0xF0, 0x33, 0xC9, 0x83, 0xC4, 0x08, 0x3B, 0xF1, 0x0F };
 
-    DWORD SprayAllocAddr = SearchAndGetAddresses(0x004A509D, 0x004A534D, 0x004A4C0D, SprayAllocAddrSearchBytes, sizeof(SprayAllocAddrSearchBytes), -0xD);
+    DWORD SprayAllocAddr = SearchAndGetAddresses(0x004A509D, 0x004A534D, 0x004A4C0D, SprayAllocAddrSearchBytes, sizeof(SprayAllocAddrSearchBytes), -0x0D);
     if (!SprayAllocAddr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find memory address for Lying Figure spray alloc handler!";
@@ -249,7 +249,7 @@ void PatchHyperSprayEffectSpawnRate()
     }
     HyperSprayAllocReturnAddr = (DWORD*)(SprayAllocAddr + 0x8);
 
-    HyperSprayHandlerAddr = (DWORD*)ReadSearchedAddresses(0x004A509D, 0x004A534D, 0x004A4C0D, SprayAllocAddrSearchBytes, sizeof(SprayAllocAddrSearchBytes), -0x9);
+    HyperSprayHandlerAddr = (DWORD*)ReadSearchedAddresses(0x004A509D, 0x004A534D, 0x004A4C0D, SprayAllocAddrSearchBytes, sizeof(SprayAllocAddrSearchBytes), -0x09);
     if (!HyperSprayHandlerAddr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find memory address for Lying Figure spray handler!";
@@ -266,7 +266,9 @@ void PatchSprayEffect()
     ParticleTableAddr = GetParticleTableAddr();
     FrameCounterAddr = GetFrameCounterAddr();
     if (ParticleTableAddr == nullptr || FrameCounterAddr == nullptr)
+    {
         return;
+    }
     PatchLyingFigureSprayEffectSpeed();
     PatchLyingFigureSprayEffectSpawnRate();
 

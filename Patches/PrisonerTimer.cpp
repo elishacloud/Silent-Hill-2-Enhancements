@@ -30,7 +30,7 @@ __declspec(naked) void __stdcall PrisonerTimerResetASM()
     }
 }
 
-// Modify the value of the "Ritual" prisoner timer to fix the footstep rate
+// Modify the value of the "Ritual" prisoner timer to fix the footstep rate at 60 FPS
 void PatchPrisonerTimer()
 {
     // Get Prisoner Timer Reset address
@@ -43,5 +43,5 @@ void PatchPrisonerTimer()
     }
 
     Logging::Log() << "Enabling Prisoner Timer Fix...";
-    WriteJMPtoMemory((BYTE*)PrisonerTimerResetAddr, *PrisonerTimerResetASM, 0x5);
+    WriteJMPtoMemory((BYTE*)PrisonerTimerResetAddr, *PrisonerTimerResetASM, 0x05);
 }

@@ -72,6 +72,8 @@ BYTE* AnalogStringOne;
 BYTE* AnalogStringTwo;
 BYTE* AnalogStringThree;
 
+uint8_t keyNotSetWarning[21] = { 0 };
+
 int8_t GetControllerLXAxis_Hook(DWORD* arg)
 {
 	// Alt Tab Rotating Fix
@@ -776,8 +778,11 @@ BYTE KeyBindsHandler::GetKeyBind(int KeyIndex)
 {
 	BYTE *pButton = GetKeyBindsPointer();
 
-	if (pButton && *(pButton + (KeyIndex * 0x08)) == 0)
-		Logging::Log() << "Null keybind, on index: " << KeyIndex;
+	if ((pButton && *(pButton + (KeyIndex * 0x08)) == 0) && keyNotSetWarning[KeyIndex] == 0)
+	{
+		Logging::Log() << "ERROR: Keybind " << KEY_NAMES[KeyIndex] << " not set";
+		keyNotSetWarning[KeyIndex] = 1;
+	}
 
 	return (pButton) ? *(pButton + (KeyIndex * 0x08)) : 0;
 }

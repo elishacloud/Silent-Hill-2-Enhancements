@@ -29,7 +29,45 @@
 #define KEY_SET   0x80
 #define KEY_CLEAR 0x00
 
-typedef enum _EVENT_INDEX {
+#define FOREACH_KEY(KEY) \
+        KEY(KEY_TURN_LEFT) \
+        KEY(KEY_TURN_RIGHT) \
+        KEY(KEY_MOVE_FORWARDS) \
+        KEY(KEY_MOVE_BACKWARDS) \
+        KEY(KEY_STRAFE_LEFT) \
+        KEY(KEY_STRAFE_RIGHT) \
+        KEY(KEY_ACTION) \
+        KEY(KEY_CANCEL) \
+        KEY(KEY_SKIP) \
+        KEY(KEY_RUN) \
+        KEY(KEY_SEARCH_VIEW) \
+        KEY(KEY_INVENTORY) \
+        KEY(KEY_FLASHLIGHT) \
+        KEY(KEY_MAP) \
+        KEY(KEY_USE_HEALTH) \
+        KEY(KEY_READY_WEAPON) \
+        KEY(KEY_NEXT_WEAPON) \
+        KEY(KEY_PREV_WEAPON) \
+        KEY(KEY_RELOAD) \
+        KEY(KEY_UNEQUIP_WEAPON) \
+        KEY(KEY_QUICK_SAVE) \
+        KEY(KEY_QUICK_LOAD) \
+
+#define GENERATE_ENUM(ENUM) ENUM,
+#define GENERATE_STRING(STRING) #STRING,
+
+typedef enum _KEY_INDEXES
+{
+	FOREACH_KEY(GENERATE_ENUM)
+} KEY_INDEXES;
+
+static const char *KEY_NAMES[] =
+{
+	FOREACH_KEY(GENERATE_STRING)
+};
+
+typedef enum _EVENT_INDEX 
+{
 	EVENT_LOAD_SCR,
 	EVENT_LOAD_ROOM,
 	EVENT_MAIN_MENU,
@@ -47,44 +85,21 @@ typedef enum _EVENT_INDEX {
 	EVENT_PAUSE_MENU,
 } EVENT_INDEX;
 
-typedef enum _CONTROL_TYPE {
+typedef enum _CONTROL_TYPE 
+{
 	ROTATIONAL_CONTROL,
 	DIRECTIONAL_CONTROL,
 } CONTROL_TYPE;
 
-typedef enum _RUN_SETTING {
+typedef enum _RUN_SETTING 
+{
 	OPT_WALK,
 	OPT_ANALOG,
 	OPT_RUN,
 } RUN_SETTING;
 
-typedef enum _KEY_INDEXES
+struct AnalogStick 
 {
-	KEY_TURN_LEFT,
-	KEY_TURN_RIGHT,
-	KEY_MOVE_FORWARDS,
-	KEY_MOVE_BACKWARDS,
-	KEY_STRAFE_LEFT,
-	KEY_STRAFE_RIGHT,
-	KEY_ACTION,
-	KEY_CANCEL,
-	KEY_SKIP,
-	KEY_RUN,
-	KEY_SEARCH_VIEW,
-	KEY_INVENTORY,
-	KEY_FLASHLIGHT,
-	KEY_MAP,
-	KEY_USE_HEALTH,
-	KEY_READY_WEAPON,
-	KEY_NEXT_WEAPON,
-	KEY_PREV_WEAPON,
-	KEY_RELOAD,
-	KEY_UNEQUIP_WEAPON,
-	KEY_QUICK_SAVE,
-	KEY_QUICK_LOAD,
-} KEY_INDEXES;
-
-struct AnalogStick {
 	int8_t XAxis = 0;
 	int8_t YAxis = 0;
 
@@ -122,7 +137,8 @@ struct AnalogStick {
 	}
 };
 
-struct Input {
+struct Input 
+{
 	bool State = false;
 	bool LastState = false;
 	bool Holding = false;

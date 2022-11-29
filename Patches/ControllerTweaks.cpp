@@ -103,11 +103,11 @@ void ProcessDInputData_Hook(GamePadState* state)
 			joystickState.lX = 0;
 
 			OverriddenKeyboard = false;
+			InputTweaksRef.ClearOverrideSprint();
 
 			if (OverriddenRunOption)
 			{
 				*GetRunOptionPointer() = OPT_ANALOG;
-				InputTweaksRef.ClearOverrideSprint();
 				OverriddenRunOption = false;
 			}
 		}

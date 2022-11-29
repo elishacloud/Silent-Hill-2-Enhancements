@@ -303,7 +303,8 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 				ClearKey(KeyBinds.GetKeyBind(KEY_TURN_RIGHT));
 			}
 
-			OverrideSprint = true;
+			if (GetRunOption() == OPT_ANALOG)
+				OverrideSprint = true;
 		}
 
 		// Activate Overlays

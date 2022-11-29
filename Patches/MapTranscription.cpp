@@ -134,7 +134,7 @@ __declspec(naked) void __stdcall ActiveMarkerStateASM()
         pop edx
         mov dword ptr ds : [eax], ecx
         mov eax, 0x00
-        cmp ecx, [esp + 0x8]
+        cmp ecx, [esp + 0x08]
         pop ecx
         jge PauseForFramesDone
         ret
@@ -159,15 +159,13 @@ __declspec(naked) void __stdcall ActiveMarkerStateASM()
 DWORD GetDeltaFrameAddress()
 {
     constexpr BYTE SearchBytesDeltaFrame[]{ 0x8B, 0x44, 0x24, 0x04, 0x8B, 0xC8, 0xA3 };
-    DWORD addr = SearchAndGetAddresses(0x004477DD, 0x0044797D, 0x0044797D, SearchBytesDeltaFrame, sizeof(SearchBytesDeltaFrame), -0x4);
-    if (!addr)
+    DWORD Addr = ReadSearchedAddresses(0x004477DD, 0x0044797D, 0x0044797D, SearchBytesDeltaFrame, sizeof(SearchBytesDeltaFrame), -0x04);
+    if (!Addr)
     {
         Logging::Log() << __FUNCTION__ << "Error: failed to find memory address!";
         return 0;
     }
-    DWORD result = 0;
-    memcpy(&result, (DWORD*)addr, sizeof(DWORD));
-    return result;
+    return Addr;
 }
 
 // Patch map transcription animation to play at the correct rate at 60 FPS.
@@ -199,7 +197,8 @@ void PatchMapTranscription()
     float* ZoomPanTimerMaxValuePtr = &ZoomPanTimerMaxValue;
 
     DeltaFrameAddr = GetDeltaFrameAddress();
-    if (DeltaFrameAddr == 0) {
+    if (DeltaFrameAddr == 0)
+    {
         return;
     }
 

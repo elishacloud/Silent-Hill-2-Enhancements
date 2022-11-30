@@ -44,6 +44,7 @@
 	visit(FixCreatureVehicleSpawn, true) \
 	visit(FixDrawingTextLine, true) \
 	visit(FixFMVResetIssue, true) \
+	visit(FixFMVSpeed, true) \
 	visit(FixGPUAntiAliasing, true) \
 	visit(FixHangOnEsc, true) \
 	visit(FixInventoryBGM, true) \

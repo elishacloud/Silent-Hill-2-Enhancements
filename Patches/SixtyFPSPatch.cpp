@@ -100,15 +100,6 @@ void PatchBugRoomFlashlight()
 	UpdateMemoryAddress(BugRoomFlashlightPtr, &BugRoomFlashlightOvrd, sizeof(float));
 }
 
-void PatchFMV()
-{
-	Logging::Log() << "Patching fmv speed...";
-
-	uint8_t* FMVFixAddr = GetSixtyFPSFMVFixPointer();
-	
-	UpdateMemoryAddress(FMVFixAddr, "\x90\x90\x90\x90\x90", 5);
-}
-
 float __cdecl GetHalvedAnimationRate_Hook()
 {
 	return GetFogAnimationRate.fun() / 2;
@@ -202,8 +193,6 @@ void PatchSixtyFPS()
 	PatchBugRoomFlashlight();
 
     PatchHoldDamage();
-
-	PatchFMV();
 
 	Logging::Log() << "Done applying 60 FPS fixes...";
 

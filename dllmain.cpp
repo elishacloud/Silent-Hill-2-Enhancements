@@ -547,6 +547,11 @@ void DelayedStart()
 		PatchCriware();
 	}
 
+	if (FixFMVSpeed)
+	{
+		PatchFMVFramerate();
+	}
+
 	// Remove the "Now loading..." message
 	switch (GameVersion)
 	{

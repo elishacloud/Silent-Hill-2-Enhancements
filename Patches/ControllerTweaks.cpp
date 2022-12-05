@@ -65,13 +65,14 @@ void ProcessDInputData_Hook(GamePadState* state)
 		}
 	}
 
-	// Mouse turning
+	// Input Tweaks
 	if (EnableEnhancedMouse && 
 		(((std::abs(joystickState.lX) < StickTolerance) && (std::abs(joystickState.lY) < StickTolerance)) || !IsControllerConnected) &&
 		(GetEnableInput() == 0xFFFFFFFF || InputTweaksRef.ElevatorFix()))
 	{
 		float MouseX = InputTweaksRef.GetMouseAnalogX();
 
+		// Mouse turning
 		if (GetControlType() == ROTATIONAL_CONTROL)
 		{
 			joystickState.lX = static_cast<LONG>(MouseX * 32767.0);

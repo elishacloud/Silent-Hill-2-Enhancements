@@ -94,6 +94,7 @@ int8_t GetControllerLYAxis_Hook(DWORD* arg)
 
 int8_t GetControllerRXAxis_Hook(DWORD* arg)
 {
+	// Injecting the virtual analog stick for search view
 	if (GetSearchViewFlag() == 0x6 && !VirtualRightStick.IsCentered())
 	{
 		return VirtualRightStick.XAxis;
@@ -106,6 +107,7 @@ int8_t GetControllerRXAxis_Hook(DWORD* arg)
 
 int8_t GetControllerRYAxis_Hook(DWORD* arg)
 {
+	// Injecting the virtual analog stick for search view
 	if (GetSearchViewFlag() == 0x6 && !VirtualRightStick.IsCentered())
 	{
 		return VirtualRightStick.YAxis;
@@ -120,6 +122,7 @@ void UpdateMousePosition_Hook()
 {
 	orgUpdateMousePosition.fun();
 
+	// Handling of vertical and horizontal navigation for Pause and Memo screens
 	if (GetEventIndex() == EVENT_PAUSE_MENU || GetEventIndex() == EVENT_MEMO_LIST)
 	{
 		auto Now = std::chrono::system_clock::now();
@@ -197,6 +200,7 @@ void UpdateMousePosition_Hook()
 void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbData, LPVOID lpvData)
 {
 
+	// Check number keybinds after exiting the Options screen
 	if (GetEventIndex() == EVENT_OPTION_FMV)
 		CheckKeyBindsFlag = true;
 	if (GetEventIndex() != EVENT_OPTION_FMV && CheckKeyBindsFlag)
@@ -367,6 +371,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			SetRightKey = false;
 		}
 
+		// Setting sprint button for the Toggle Sprint function
 		if (EnableToggleSprint && (GetRunOption() == OPT_ANALOG || OverrideSprint))
 		{
 			ClearKey(KeyBinds.GetKeyBind(KEY_RUN));
@@ -389,12 +394,14 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			MouseWheel = 0;
 		}
 
+		// Fix for Alt-Tabbing issues
 		if (GetForegroundWindow() != GameWindowHandle)
 		{
 			ClearKey(KeyBinds.GetKeyBind(KEY_ACTION));
 			ClearKey(KeyBinds.GetKeyBind(KEY_READY_WEAPON));
 		}
 
+		// Fix for memo screen arrow keys navigation
 		if (MemoScreenFix && GetEventIndex() == EVENT_MEMO_LIST)
 		{
 			if (IsKeyPressed(DIK_UP))
@@ -417,10 +424,12 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		KeyboardData = nullptr;
 	}
 
+	// Setup for the input functions
 	if (!once)
 	{
 		once = true;
 		
+		// Hooking controller input functions
 		orgGetControllerLXAxis.fun = injector::MakeCALL(GetLeftAnalogXFunctionPointer(), GetControllerLXAxis_Hook, true).get();
 		orgGetControllerLYAxis.fun = injector::MakeCALL(GetLeftAnalogYFunctionPointer(), GetControllerLYAxis_Hook, true).get();
 		orgGetControllerRXAxis.fun = injector::MakeCALL(GetRightAnalogXFunctionPointer(), GetControllerRXAxis_Hook, true).get();
@@ -452,6 +461,7 @@ void InputTweaks::TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD
 		MouseData = rgdod;
 		MouseDataSize = *pdwInOut;
 
+		// Save current mouse state
 		MouseXAxis = GetMouseRelXChange();
 		ReadMouseButtons();
 
@@ -623,6 +633,7 @@ void InputTweaks::ClearMouseInputs()
 
 void InputTweaks::CheckNumberKeyBinds()
 {
+	// Fix for binding actions to the number keys
 	BYTE* NumberKeyBinds = GetNumKeysWeaponBindStartPointer();
 	BYTE* ActionKeyBinds = KeyBinds.GetKeyBindsPointer();
 	boolean FoundNumber = false;

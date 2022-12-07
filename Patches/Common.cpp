@@ -67,6 +67,11 @@ float* WaterLevelRisingStepsAddr;
 float* BugRoomFlashlightFixAddr;
 uint8_t* SixtyFPSFMVFixAddr;
 uint8_t* GrabDamageAddr;
+float* FrametimeAddr;
+DWORD* MeatLockerFogFixOneAddr;
+DWORD* MeatLockerFogFixTwoAddr;
+DWORD* MeatLockerHangerFixOneAddr;
+DWORD* MeatLockerHangerFixTwoAddr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -1296,7 +1301,7 @@ float *GetBugRoomFlashlightFixPointer()
 		return BugRoomFlashlightFixAddr;
 	}
 
-	// Get Water Level Rising Steps address
+	// Get Bug Room Flashlight Fix Steps address
 	constexpr BYTE BugRoomFlashlightFixSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x41, 0x7A, 0x15, 0xC7 };
 	float *BugRoomFlashlightFix = (float*)ReadSearchedAddresses(0x0050AA78, 0x0050ADA8, 0x0050A6C8, BugRoomFlashlightFixSearchBytes, sizeof(BugRoomFlashlightFixSearchBytes), -0x10);
 
@@ -1356,4 +1361,118 @@ uint8_t *GetGrabDamagePointer()
 	GrabDamage = (uint8_t*)((DWORD)GrabDamage);
 
 	return GrabDamage;
+}
+
+float GetFrametime()
+{
+	float *pFrameTime = GetFrametimePointer();
+
+	return (pFrameTime) ? *pFrameTime : 0;
+}
+
+float *GetFrametimePointer()
+{
+	if (FrametimeAddr)
+	{
+		return FrametimeAddr;
+	}
+
+	// Get Frametime address
+	constexpr BYTE FrametimeSearchBytes[]{ 0x68, 0xFF, 0x00, 0x00, 0x00, 0xEB, 0x02 };
+	float *Frametime = (float*)ReadSearchedAddresses(0x0044770E, 0x004478AE, 0x004478AE, FrametimeSearchBytes, sizeof(FrametimeSearchBytes), 0xE2);
+
+	// Checking address pointer
+	if (!Frametime)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Frametime  address!";
+		return nullptr;
+	}
+
+	FrametimeAddr = (float*)((DWORD)Frametime);
+
+	return FrametimeAddr;
+}
+
+DWORD *GetMeatLockerFogFixOnePointer()
+{
+	if (MeatLockerFogFixOneAddr)
+	{
+		return MeatLockerFogFixOneAddr;
+	}
+
+	// Get Meat Locker Fog Fix Address
+	constexpr BYTE MeatLockerFogFixOneSearchBytes[]{ 0xE8, 0xAC, 0xFB, 0xFF, 0xFF, 0x83 };
+	MeatLockerFogFixOneAddr = (DWORD*)SearchAndGetAddresses(0x00489E7F, 0x0048A11F, 0x0048A32F, MeatLockerFogFixOneSearchBytes, sizeof(MeatLockerFogFixOneSearchBytes), 0x0C);
+
+	// Checking address pointer
+	if (!MeatLockerFogFixOneAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Meat Locker Fog Fix memory address!";
+		return nullptr;
+	}
+
+	return MeatLockerFogFixOneAddr;
+}
+
+DWORD *GetMeatLockerFogFixTwoPointer()
+{
+	if (MeatLockerFogFixTwoAddr)
+	{
+		return MeatLockerFogFixTwoAddr;
+	}
+
+	// Get Meat Locker Fog Fix Address
+	constexpr BYTE MeatLockerFogFixTwoSearchBytes[]{ 0xE8, 0xAC, 0xFB, 0xFF, 0xFF, 0x83 };
+	MeatLockerFogFixTwoAddr = (DWORD*)SearchAndGetAddresses(0x00489E7F, 0x0048A11F, 0x0048A32F, MeatLockerFogFixTwoSearchBytes, sizeof(MeatLockerFogFixTwoSearchBytes), 0x1D);
+
+	// Checking address pointer
+	if (!MeatLockerFogFixTwoAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Meat Locker Fog Fix memory address!";
+		return nullptr;
+	}
+
+	return MeatLockerFogFixTwoAddr;
+}
+
+DWORD *GetMeatLockerHangerFixOnePointer()
+{
+	if (MeatLockerHangerFixOneAddr)
+	{
+		return MeatLockerHangerFixOneAddr;
+	}
+
+	// Get Meat Locker Hanger Fix Address
+	constexpr BYTE MeatLockerHangerFixOneSearchBytes[]{ 0xD9, 0x44, 0x24, 0x18, 0xD8, 0x86 };
+	MeatLockerHangerFixOneAddr = (DWORD*)SearchAndGetAddresses(0x004B240E, 0x004B26BE, 0x004B1F7E, MeatLockerHangerFixOneSearchBytes, sizeof(MeatLockerHangerFixOneSearchBytes), 0x18);
+
+	// Checking address pointer
+	if (!MeatLockerHangerFixOneAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Meat Locker Hanger Fix memory address!";
+		return nullptr;
+	}
+
+	return MeatLockerHangerFixOneAddr;
+}
+
+DWORD *GetMeatLockerHangerFixTwoPointer()
+{
+	if (MeatLockerHangerFixTwoAddr)
+	{
+		return MeatLockerHangerFixTwoAddr;
+	}
+
+	// Get Meat Locker Hanger Fix Address
+	constexpr BYTE MeatLockerHangerFixTwoSearchBytes[]{ 0xD9, 0x44, 0x24, 0x18, 0xD8, 0x86 };
+	MeatLockerHangerFixTwoAddr = (DWORD*)SearchAndGetAddresses(0x004B240E, 0x004B26BE, 0x004B1F7E, MeatLockerHangerFixTwoSearchBytes, sizeof(MeatLockerHangerFixTwoSearchBytes), 0x86);
+
+	// Checking address pointer
+	if (!MeatLockerHangerFixTwoAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Meat Locker Hanger Fix memory address!";
+		return nullptr;
+	}
+
+	return MeatLockerHangerFixTwoAddr;
 }

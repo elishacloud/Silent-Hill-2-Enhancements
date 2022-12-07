@@ -41,6 +41,13 @@ bool once = true;
 float MotionBlurValue = 0.25f;
 BYTE EddieBossTimeLimit = 0x28;
 
+float FrameTime;
+DWORD* MeatLockerFogFixOnePtr;
+DWORD* MeatLockerFogFixTwoPtr;
+DWORD* MeatLockerHangerFixOnePtr;
+DWORD* MeatLockerHangerFixTwoPtr;
+float FPSLimitRatio;
+
 void PatchWater()
 {
 	Logging::Log() << "Patching water animation speed...";
@@ -143,6 +150,26 @@ float __cdecl GetHalvedAnimationRate_Hook()
 float __cdecl GetDoubledAnimationRate_Hook()
 {
 	return GetFogAnimationRate.fun() * 2;
+}
+
+__declspec(naked) void __stdcall MultiplyFrametimeASM()
+{
+	__asm
+	{
+		fld dword ptr[FrameTime]
+		fmul dword ptr[FPSLimitRatio] // 60 / 30 = 2.0f (FPSLimit / 30 = Float)
+		ret
+	}
+}
+
+__declspec(naked) void __stdcall DivideFrametimeASM()
+{
+	__asm
+	{
+		fld dword ptr[FrameTime]
+		fdiv dword ptr[FPSLimitRatio] // 60 / 30 = 2.0f (FPSLimit / 30 = Float)
+		ret
+	}
 }
 
 void PatchSixtyFPS()

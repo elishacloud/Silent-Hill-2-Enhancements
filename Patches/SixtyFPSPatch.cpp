@@ -25,6 +25,7 @@
 #include "SixtyFPSPatch.h"
 
 const float MotionBlurOvrd = 0.125f;
+const BYTE EddieBossTimeLimitOvrd = 0x50;
 const float WaterOvrd = 0.0166665f;
 const float LowHealthOvrd = 0.0166665f;
 const float StaircaseLightingOvrd = 0.00027777222565f;
@@ -43,6 +44,7 @@ injector::hook_back<float(__cdecl*)(void)> GetBulletShellAnimationRateFour;
 bool once = true;
 
 float MotionBlurValue = 0.25f;
+BYTE EddieBossTimeLimit = 0x28;
 
 void PatchWater()
 {
@@ -172,7 +174,10 @@ void PatchSixtyFPS()
 	}
 
 	Logging::Log() << "Patching motion blur...";
+	
 	MotionBlurValue = MotionBlurOvrd;
+	
+	EddieBossTimeLimit = EddieBossTimeLimitOvrd;
 
 	PatchWater();
 

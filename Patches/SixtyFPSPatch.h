@@ -16,3 +16,4 @@
 
 
 extern float MotionBlurValue;
+extern BYTE EddieBossTimeLimit;

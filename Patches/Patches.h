@@ -49,6 +49,7 @@ int16_t GetItemsCollected();
 float GetDamagePointsTaken();
 uint8_t GetSecretItemsCollected();
 float GetBoatStageTime();
+float GetFrametime();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -96,6 +97,11 @@ float *GetWaterLevelRisingStepsPointer();
 float *GetBugRoomFlashlightFixPointer();
 uint8_t *GetSixtyFPSFMVFixPointer();
 uint8_t *GetGrabDamagePointer();
+float *GetFrametimePointer();
+DWORD *GetMeatLockerFogFixOnePointer();
+DWORD *GetMeatLockerHangerFixOnePointer();
+DWORD *GetMeatLockerFogFixTwoPointer();
+DWORD *GetMeatLockerHangerFixTwoPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

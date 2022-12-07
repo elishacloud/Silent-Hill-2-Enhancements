@@ -1,5 +1,5 @@
 /**
-* Copyright (C) 2022 mercury501, Murugo
+* Copyright (C) 2022 mercury501, Murugo, Aero_, Polymega
 *
 * This software is  provided 'as-is', without any express  or implied  warranty. In no event will the
 * authors be held liable for any damages arising from the use of this software.
@@ -14,6 +14,15 @@
 *   3. This notice may not be removed or altered from any source distribution.
 */
 
+#include "External\injector\include\injector\injector.hpp"
+#include "External\injector\include\injector\calling.hpp"
+#include "External\injector\include\injector\hooking.hpp"
+#include "External\injector\include\injector\utility.hpp"
+#include "External\Hooking.Patterns\Hooking.Patterns.h"
+#include "Logging\Logging.h"
+#include "Patches.h"
+#include "Common/Utils.h"
+#include "Common\Settings.h"
 
 extern float MotionBlurValue;
 extern BYTE EddieBossTimeLimit;

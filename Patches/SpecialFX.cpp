@@ -221,7 +221,7 @@ __declspec(naked) void __stdcall EddieBossDeathASM()
 {
 	__asm {
 		mov al, [esi + 0x03]
-		cmp al, 0x28				// motion blur timer
+		cmp al, EddieBossTimeLimit				// motion blur timer
 		jg NEAR MotionTimer
 		push 0x05					// animation delay
 		push esi

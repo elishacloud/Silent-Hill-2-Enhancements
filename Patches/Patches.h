@@ -63,6 +63,7 @@ BYTE GetTalkShowHostState();
 BYTE GetBoatFlag();
 int32_t GetIsWritingQuicksave();
 int32_t GetTextAddr();
+float GetFrametime();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -129,6 +130,11 @@ float *GetWaterLevelRisingStepsPointer();
 float *GetBugRoomFlashlightFixPointer();
 uint8_t *GetSixtyFPSFMVFixPointer();
 uint8_t *GetGrabDamagePointer();
+float *GetFrametimePointer();
+DWORD *GetMeatLockerFogFixOnePointer();
+DWORD *GetMeatLockerHangerFixOnePointer();
+DWORD *GetMeatLockerFogFixTwoPointer();
+DWORD *GetMeatLockerHangerFixTwoPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

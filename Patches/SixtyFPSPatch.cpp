@@ -1,5 +1,5 @@
 /**
-* Copyright (C) 2022 mercury501, Murugo
+* Copyright (C) 2022 mercury501, Murugo, Aero_, Polymega
 *
 * This software is  provided 'as-is', without any express  or implied  warranty. In no event will the
 * authors be held liable for any damages arising from the use of this software.
@@ -14,14 +14,6 @@
 *   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "External\injector\include\injector\injector.hpp"
-#include "External\injector\include\injector\calling.hpp"
-#include "External\injector\include\injector\hooking.hpp"
-#include "External\injector\include\injector\utility.hpp"
-#include "External\Hooking.Patterns\Hooking.Patterns.h"
-#include "Logging\Logging.h"
-#include "Patches.h"
-#include "Common/Utils.h"
 #include "SixtyFPSPatch.h"
 
 const float MotionBlurOvrd = 0.125f;
@@ -34,7 +26,6 @@ const float WaterRisOvrd = 5.333333492f;
 const float BugRoomFlashlightOvrd = 0.093333332985f;
 const int16_t FlashlightOnOvrd= 0x78;
 
-
 injector::hook_back<float(__cdecl*)(void)> GetFogAnimationRate;
 injector::hook_back<float(__cdecl*)(void)> GetBulletShellAnimationRateOne;
 injector::hook_back<float(__cdecl*)(void)> GetBulletShellAnimationRateTwo;
@@ -45,6 +36,13 @@ bool once = true;
 
 float MotionBlurValue = 0.25f;
 BYTE EddieBossTimeLimit = 0x28;
+
+float FrameTime;
+DWORD* MeatLockerFogFixOnePtr;
+DWORD* MeatLockerFogFixTwoPtr;
+DWORD* MeatLockerHangerFixOnePtr;
+DWORD* MeatLockerHangerFixTwoPtr;
+float FPSLimitRatio;
 
 void PatchWater()
 {
@@ -112,9 +110,58 @@ float __cdecl GetDoubledAnimationRate_Hook()
 	return GetFogAnimationRate.fun() * 2;
 }
 
+__declspec(naked) void __stdcall MultiplyFrametimeASM()
+{
+	__asm
+	{
+		fld dword ptr[FrameTime]
+		fmul dword ptr[FPSLimitRatio] // 60 / 30 = 2.0f (FPSLimit / 30 = Float)
+		ret
+	}
+}
+
+__declspec(naked) void __stdcall DivideFrametimeASM()
+{
+	__asm
+	{
+		fld dword ptr[FrameTime]
+		fdiv dword ptr[FPSLimitRatio] // 60 / 30 = 2.0f (FPSLimit / 30 = Float)
+		ret
+	}
+}
+
 void PatchSixtyFPS()
 {
 	Logging::Log() << "Applying Fixes for 60 FPS...";
+
+	Logging::Log() << "Applying Meat Locker Fixes...";
+	
+	/*
+	// Meat Locker Fog
+	00489E8B:
+	call MultiplyFrametime
+	00489E9C:
+	call DivideFrametime
+
+	// Meat Hanger
+	004B2426:
+	call DivideFrametime
+	004B2494:
+	call MultiplyFrametime
+	*/
+
+	FrameTime = GetFrametime();
+	MeatLockerFogFixOnePtr = GetMeatLockerFogFixOnePointer();
+	MeatLockerFogFixTwoPtr = GetMeatLockerFogFixTwoPointer();
+	MeatLockerHangerFixOnePtr = GetMeatLockerHangerFixOnePointer();
+	MeatLockerHangerFixTwoPtr = GetMeatLockerHangerFixTwoPointer();
+	FPSLimitRatio = FPSLimit / 30;
+
+	WriteCalltoMemory((BYTE*)MeatLockerFogFixOnePtr, *MultiplyFrametimeASM, 0x05);
+	WriteCalltoMemory((BYTE*)MeatLockerFogFixTwoPtr, *DivideFrametimeASM, 0x05);
+
+	WriteCalltoMemory((BYTE*)MeatLockerHangerFixOnePtr, *DivideFrametimeASM, 0x05);
+	WriteCalltoMemory((BYTE*)MeatLockerHangerFixTwoPtr, *MultiplyFrametimeASM, 0x05);
 
 	Logging::Log() << "Hooking Fog Animation...";
 	constexpr BYTE FogAnimationRateSearchBytes[]{ 0x83, 0xC4, 0x04, 0x84, 0xDB, 0x5B, 0x8A, 0x54, 0x24, 0x0C };

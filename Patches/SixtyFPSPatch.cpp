@@ -31,18 +31,15 @@ injector::hook_back<float(__cdecl*)(void)> GetBulletShellAnimationRateOne;
 injector::hook_back<float(__cdecl*)(void)> GetBulletShellAnimationRateTwo;
 injector::hook_back<float(__cdecl*)(void)> GetBulletShellAnimationRateThree;
 injector::hook_back<float(__cdecl*)(void)> GetBulletShellAnimationRateFour;
+injector::hook_back<float(__cdecl*)(void)> GetMeatLockerFogAnimationRateOne;
+injector::hook_back<float(__cdecl*)(void)> GetMeatLockerFogAnimationRateTwo;
+injector::hook_back<float(__cdecl*)(void)> GetMeatLockerHangerAnimationRateOne;
+injector::hook_back<float(__cdecl*)(void)> GetMeatLockerHangerAnimationRateTwo;
 
 bool once = true;
 
 float MotionBlurValue = 0.25f;
 BYTE EddieBossTimeLimit = 0x28;
-
-float FrameTime;
-DWORD* MeatLockerFogFixOnePtr;
-DWORD* MeatLockerFogFixTwoPtr;
-DWORD* MeatLockerHangerFixOnePtr;
-DWORD* MeatLockerHangerFixTwoPtr;
-float FPSLimitRatio;
 
 void PatchWater()
 {
@@ -110,60 +107,17 @@ float __cdecl GetDoubledAnimationRate_Hook()
 	return GetFogAnimationRate.fun() * 2;
 }
 
-__declspec(naked) void __stdcall MultiplyFrametimeASM()
-{
-	__asm
-	{
-		fld dword ptr[FrameTime]
-		fmul dword ptr[FPSLimitRatio] // 60 / 30 = 2.0f (FPSLimit / 30 = Float)
-		ret
-	}
-}
-
-__declspec(naked) void __stdcall DivideFrametimeASM()
-{
-	__asm
-	{
-		fld dword ptr[FrameTime]
-		fdiv dword ptr[FPSLimitRatio] // 60 / 30 = 2.0f (FPSLimit / 30 = Float)
-		ret
-	}
-}
-
 void PatchSixtyFPS()
 {
 	Logging::Log() << "Applying Fixes for 60 FPS...";
 
 	Logging::Log() << "Applying Meat Locker Fixes...";
+	GetMeatLockerFogAnimationRateOne.fun = injector::MakeCALL(GetMeatLockerFogFixOnePointer(), GetDoubledAnimationRate_Hook, true).get();
+	GetMeatLockerFogAnimationRateTwo.fun = injector::MakeCALL(GetMeatLockerFogFixTwoPointer(), GetHalvedAnimationRate_Hook, true).get();
+	GetMeatLockerHangerAnimationRateOne.fun = injector::MakeCALL(GetMeatLockerHangerFixOnePointer(), GetHalvedAnimationRate_Hook, true).get();
+	GetMeatLockerHangerAnimationRateTwo.fun = injector::MakeCALL(GetMeatLockerHangerFixTwoPointer(), GetDoubledAnimationRate_Hook, true).get();
 	
-	/*
-	// Meat Locker Fog
-	00489E8B:
-	call MultiplyFrametime
-	00489E9C:
-	call DivideFrametime
-
-	// Meat Hanger
-	004B2426:
-	call DivideFrametime
-	004B2494:
-	call MultiplyFrametime
-	*/
-
-	FrameTime = GetFrametime();
-	MeatLockerFogFixOnePtr = GetMeatLockerFogFixOnePointer();
-	MeatLockerFogFixTwoPtr = GetMeatLockerFogFixTwoPointer();
-	MeatLockerHangerFixOnePtr = GetMeatLockerHangerFixOnePointer();
-	MeatLockerHangerFixTwoPtr = GetMeatLockerHangerFixTwoPointer();
-	FPSLimitRatio = FPSLimit / 30;
-
-	WriteCalltoMemory((BYTE*)MeatLockerFogFixOnePtr, *MultiplyFrametimeASM, 0x05);
-	WriteCalltoMemory((BYTE*)MeatLockerFogFixTwoPtr, *DivideFrametimeASM, 0x05);
-
-	WriteCalltoMemory((BYTE*)MeatLockerHangerFixOnePtr, *DivideFrametimeASM, 0x05);
-	WriteCalltoMemory((BYTE*)MeatLockerHangerFixTwoPtr, *MultiplyFrametimeASM, 0x05);
-
-	Logging::Log() << "Hooking Fog Animation...";
+	Logging::Log() << "Hooking Fog Animation Rate...";
 	constexpr BYTE FogAnimationRateSearchBytes[]{ 0x83, 0xC4, 0x04, 0x84, 0xDB, 0x5B, 0x8A, 0x54, 0x24, 0x0C };
 	DWORD* AnimationRate = (DWORD*)SearchAndGetAddresses(0x4890D0, 0x489370, 0x489580, FogAnimationRateSearchBytes, sizeof(FogAnimationRateSearchBytes), 0x50);
 	if (AnimationRate)
@@ -174,7 +128,7 @@ void PatchSixtyFPS()
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find Animation Rate Function address!";
 	}
-	
+
 	Logging::Log() << "Hooking Bullet Animation...";
 	constexpr BYTE BulletAnimationOneSearchBytes[]{ 0x88, 0x8C, 0x24, 0xB6, 0x00, 0x00, 0x00, 0x89 };
 	DWORD* BulletAnimationOne = (DWORD*)SearchAndGetAddresses(0x4F0E12, 0x4F10C2, 0x4F0982, BulletAnimationOneSearchBytes, sizeof(BulletAnimationOneSearchBytes), 0xE3);

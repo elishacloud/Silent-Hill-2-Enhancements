@@ -114,7 +114,7 @@ void PatchSixtyFPS()
 	Logging::Log() << "Applying Meat Locker Fixes...";
 	GetMeatLockerFogAnimationRateOne.fun = injector::MakeCALL(GetMeatLockerFogFixOnePointer(), GetDoubledAnimationRate_Hook, true).get();
 	GetMeatLockerFogAnimationRateTwo.fun = injector::MakeCALL(GetMeatLockerFogFixTwoPointer(), GetHalvedAnimationRate_Hook, true).get();
-
+	
 	GetMeatLockerHangerAnimationRateOne.fun = injector::MakeCALL(GetMeatLockerHangerFixOnePointer(), GetHalvedAnimationRate_Hook, true).get();
 	GetMeatLockerHangerAnimationRateTwo.fun = injector::MakeCALL(GetMeatLockerHangerFixTwoPointer(), GetDoubledAnimationRate_Hook, true).get();
 	

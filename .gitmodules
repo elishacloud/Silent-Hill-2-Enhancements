@@ -17,7 +17,6 @@
 [submodule "External/reshade"]
 	path = External/reshade
 	url = https://github.com/elishacloud/reshade
-	url = https://github.com/nemtrif/utfcpp
 [submodule "External/WidescreenFixesPack"]
 	path = External/WidescreenFixesPack
 	url = https://github.com/ThirteenAG/WidescreenFixesPack

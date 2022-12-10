@@ -363,7 +363,7 @@ void DelayedStart()
 		PatchClosetSpawn();
 	}
 
-	if (FPSLimit == 60)
+	if (EnableSixtyFPS)
 	{
 		PatchSixtyFPS();
 	}

@@ -117,7 +117,7 @@ int GetValue(std::string_view, std::string_view szKey, int)
 	}
 	else if (szKey.compare("FPSLimit") == 0)
 	{
-		ret = FPSLimit;
+		ret = EnableSixtyFPS ? 60 : 30;
 	}
 	else if (szKey.compare("PS2CameraSpeed") == 0)
 	{

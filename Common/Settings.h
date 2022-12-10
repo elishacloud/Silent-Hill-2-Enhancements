@@ -32,6 +32,7 @@
 	visit(EnableMouseWheelSwap, false) \
 	visit(EnableScreenshots, true) \
 	visit(EnableSFXAddrHack, true) \
+	visit(EnableSixtyFPS, false) \
 	visit(EnableSMAA, false) \
 	visit(EnableSoftShadows, true) \
 	visit(EnableTexAddrHack, true) \
@@ -128,7 +129,6 @@
 	visit(fog_transparency_layer2, 112) \
 	visit(FogFix, 0xFFFF) /* Overloading the old 'fog_custom_on' option */ \
 	visit(FogLayerFix, 0xFFFF) /* Overloading the old 'Fog2DFix' option */ \
-	visit(FPSLimit, 0) \
 	visit(FrontBufferControl, 0) \
 	visit(FullscreenImages, 3) \
 	visit(FullscreenVideos, 3) \
@@ -201,7 +201,6 @@
 	visit(fog_transparency_layer1) \
 	visit(fog_transparency_layer2) \
 	visit(Fog2DFix) \
-	visit(FPSLimit) \
 	visit(FullscreenWndMode) \
 	visit(HookDirect3D) \
 	visit(HookDirectInput) \

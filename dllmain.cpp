@@ -363,7 +363,7 @@ void DelayedStart()
 		PatchClosetSpawn();
 	}
 
-	if (EnableSixtyFPS)
+	if (SetSixtyFPS)
 	{
 		PatchSixtyFPS();
 	}

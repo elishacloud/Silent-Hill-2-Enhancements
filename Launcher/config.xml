@@ -45,6 +45,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="SetSixtyFPS">
+        <Title>Framerate (FPS)</Title>
+        <Description>Selecting the 60 FPS option will result in an overall smoother gameplay experience, while fixing many high framerate issues that would otherwise occur.</Description>
+        <Choices type="list">
+          <Value name="30 FPS">0</Value>
+          <Value name="60 FPS" default="true">1</Value>
+        </Choices>
+      </Feature>
+
     </Section>
 
     <Section name="Fullscreen Media">
@@ -752,15 +761,6 @@
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="EnableSixtyFPS">
-        <Title>Sixty FPS mode</Title>
-        <Description>Enables sixty FPS mode</Description>
-        <Choices type="check">
-          <Value name="Disable" default="false">0</Value>
-          <Value name="Enable">1</Value>
         </Choices>
       </Feature>
 

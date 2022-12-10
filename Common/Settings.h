@@ -30,7 +30,6 @@
 	visit(EnableMenuTestIGT, true) \
 	visit(EnableScreenshots, true) \
 	visit(EnableSFXAddrHack, true) \
-	visit(EnableSixtyFPS, false) \
 	visit(EnableSMAA, false) \
 	visit(EnableSoftShadows, true) \
 	visit(EnableTexAddrHack, true) \
@@ -95,6 +94,7 @@
 	visit(RowboatAnimationFix, true) \
 	visit(SaveGameSoundFix, true) \
 	visit(SetBlackPillarBoxes, true) \
+	visit(SetSixtyFPS, true) \
 	visit(Southpaw, false) \
 	visit(SpecificSoundLoopFix, true) \
 	visit(SpecularFix, true) \

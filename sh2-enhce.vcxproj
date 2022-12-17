@@ -53,6 +53,7 @@
     <ClCompile Include="Include\criware\criware_xaudio2.cpp" />
     <ClCompile Include="Patches\AlternateStomp.cpp" />
     <ClCompile Include="Patches\ChangeClosetSpawn.cpp" />
+    <ClCompile Include="Patches\DelayedFadeIn.cpp" />
     <ClCompile Include="Patches\PatchCriware.cpp" />
     <ClCompile Include="Patches\SaveGameSound.cpp" />
     <ClCompile Include="Logging\Logging.cpp" />

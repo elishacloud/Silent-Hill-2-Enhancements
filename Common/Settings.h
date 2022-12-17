@@ -13,6 +13,7 @@
 	visit(ClosetCutsceneFix, true) \
 	visit(CreateLocalFix, true) \
 	visit(d3d8to9, true) \
+    visit(DelayedFadeIn, true) \
 	visit(DisableCutsceneBorders, true) \
 	visit(DisableEnlargedText, true) \
 	visit(DisableGameUX, true) \
@@ -176,6 +177,7 @@
 	visit(CustomFontCol) \
 	visit(CustomFontRow) \
 	visit(CustomModFolder) \
+    visit(DelayedFadeIn) \
 	visit(DisableLogging) \
 	visit(EnableDebugOverlay) \
 	visit(EnableInfoOverlay) \

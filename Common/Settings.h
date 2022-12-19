@@ -110,7 +110,8 @@
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, true) \
-	visit(WoodsideRoom205Fix, true)
+	visit(WoodsideRoom205Fix, true) \
+	visit(QuickSaveTweaks, true)
 
 #define VISIT_INT_SETTINGS(visit) \
 	visit(AnisotropicFiltering, 0) \
@@ -210,6 +211,7 @@
 	visit(LockResolution) \
 	visit(NormalFontHeight) \
 	visit(NormalFontWidth) \
+	visit(QuickSaveTweaks) \
 	visit(ResX) \
 	visit(ResY) \
 	visit(SmallFontHeight) \

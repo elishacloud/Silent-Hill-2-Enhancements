@@ -181,6 +181,7 @@ void PatchWindowIcon();
 void PatchWindowTitle();
 void PatchXInputVibration();
 void PatchSaveGameSound();
+void PatchQuickSavePos();
 
 void FindGetModelID();
 int GetCurrentMaterialIndex();

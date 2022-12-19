@@ -356,6 +356,7 @@
     <ClCompile Include="Wrappers\d3d8\Overlay.cpp">
       <Filter>Wrappers\d3d8</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\QuickSaveTweaks.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">

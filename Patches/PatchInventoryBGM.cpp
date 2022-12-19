@@ -29,7 +29,7 @@ __declspec(naked) void __stdcall FixInventoryBGMBugASM()
 				jmp jmp_return
 			}
 		}
-		
+
 		if (EventIndex > 3 && EventIndex < 10 || EventIndex == 0x10 || MenuEventIndex == 0x11)
 		{
 			__asm
@@ -55,12 +55,12 @@ void PatchInventoryBGMBug()
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
-	
+
 	memcpy(&muteSound, (DWORD*)(BuggyBGMAddr - 4), sizeof(DWORD));
 	jmp_return = reinterpret_cast<void*>(BuggyBGMAddr + 0x24);
 	jmp_to_loop = reinterpret_cast<void*>(BuggyBGMAddr + 0x31);
 
 	// Update SH2 code
 	Logging::Log() << "Fixing Inventory BGM...";
-	WriteJMPtoMemory(reinterpret_cast<BYTE*>(BuggyBGMAddr), *FixInventoryBGMBugASM,0x24);
+	WriteJMPtoMemory(reinterpret_cast<BYTE*>(BuggyBGMAddr), *FixInventoryBGMBugASM, 0x24);
 }

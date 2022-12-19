@@ -20,6 +20,8 @@
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
+extern bool ClearFontBeforePrint;
+
 typedef void(__cdecl* LoadMariaProc)(int a1);
 typedef void(__cdecl* MariaFunctionProc)();
 
@@ -237,6 +239,25 @@ void PatchGameLoad()
 	WriteJMPtoMemory((BYTE*)IndexCheckAddr, *GameResultSaveASM, 6);
 }
 
+DWORD space = 0x0402437;
+DWORD quickSaveToggle;
+void* DontPauseGame = (void*)0x040243d;
+
+__declspec(naked) void __stdcall LockESCWhileRenderedText()
+{
+	if (*(DWORD*)quickSaveToggle == 1 || *(DWORD*)0x093203C == 1 || *(float*)0x093268C > 0)
+	{
+	}
+	else
+	{
+		*EventIndexAddr = 0x10;
+	}
+	__asm
+	{
+		jmp DontPauseGame
+	}
+}
+
 void SetGameLoad()
 {
 	// Get elevator room save address
@@ -327,6 +348,12 @@ void SetGameLoad()
 	WriteJMPtoMemory((BYTE*)TextOverlapFunction, *TextOverlapASM, 6);
 	WriteJMPtoMemory((BYTE*)QuickSaveFunction, *QuickSaveASM, 6);
 	WriteJMPtoMemory((BYTE*)MariaFunctionAddr, *NewMariaFunction, 6);
+
+	memcpy(&quickSaveToggle, (DWORD*)(0x04024bd),sizeof(DWORD));
+
+	ClearFontBeforePrint = true;
+
+	WriteJMPtoMemory((BYTE*)space, *LockESCWhileRenderedText, 6); 
 }
 
 void RunGameLoad()

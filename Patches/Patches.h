@@ -61,6 +61,8 @@ BYTE GetRunOption();
 BYTE GetNumKeysWeaponBindStart();
 BYTE GetTalkShowHostState();
 BYTE GetBoatFlag();
+int32_t GetIsWritingQuicksave();
+int32_t GetTextAddr();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -116,6 +118,8 @@ BYTE *GetNumKeysWeaponBindStartPointer();
 BYTE *GetTalkShowHostStatePointer();
 BYTE *GetBoatFlagPointer();
 BYTE *GetRunOptionPointer();
+int32_t *GetIsWritingQuicksavePointer();
+int32_t *GetTextAddrPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

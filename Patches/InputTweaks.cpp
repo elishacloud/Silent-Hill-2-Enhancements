@@ -258,6 +258,13 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			InfoCombo.State = false;
 		}
 
+		// Clear the ESC and SKIP key if a quicksave is in progress
+		if (GetIsWritingQuicksave() == 1 || GetTextAddr() == 1) 
+		{
+			ClearKey(KeyBinds.GetKeyBind(KEY_SKIP));
+			ClearKey(KeyBinds.GetKeyBind(KEY_CANCEL));
+		}
+
 		// Check if Debug Combo is held down
 		DebugCombo.UpdateHolding();
 

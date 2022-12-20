@@ -359,7 +359,9 @@
     <ClCompile Include="Patches\InputTweaks.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
-    <ClCompile Include="Patches\QuickSaveTweaks.cpp" />
+    <ClCompile Include="Patches\QuickSaveTweaks.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">

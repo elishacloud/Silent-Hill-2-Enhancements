@@ -166,6 +166,7 @@ class InputTweaks
 private:
 	LPDIRECTINPUTDEVICE8A KeyboardInterfaceAddress = nullptr;
 	LPDIRECTINPUTDEVICE8A MouseInterfaceAddress = nullptr;
+	LPDIRECTINPUTDEVICE8A ControllerInterfaceAddress = nullptr;
 
 	BYTE* KeyboardData = nullptr;
 	LPDIDEVICEOBJECTDATA MouseData = nullptr;
@@ -198,6 +199,7 @@ private:
 public:
 	void SetKeyboardInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);
 	void SetMouseInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);
+	void SetControllerInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);
 	void RemoveAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);
 	
 	void TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbData, LPVOID lpvData);

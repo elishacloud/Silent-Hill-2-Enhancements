@@ -13,6 +13,7 @@ BYTE MenuEventIndex;
 
 // BGM Fading out instructions
 #pragma warning(suppress: 4740)
+/*
 __declspec(naked) void __stdcall FixInventoryBGMBugASM()
 {
 	EventIndex = GetEventIndex();
@@ -42,6 +43,38 @@ __declspec(naked) void __stdcall FixInventoryBGMBugASM()
 	{
 		jmp jmp_to_loop
 	}
+}*/
+
+__declspec(naked) void __stdcall FixInventoryBGMBugASM()
+{
+	EventIndex = GetEventIndex();
+	MenuEventIndex = GetMenuEvent();
+	// Works only if this conditions are met, if you want to mute sound on specific area you can add a new line or simply you can create
+	// new comparison and send them through jmp_return address
+	if (MenuEventIndex == 13 /*[normal gameplay]*/ || MenuEventIndex == 17 /*[load game menu]*/ && EventIndex == 0 /*[load game menu]*/)
+	{
+		if (EventIndex == 11 /*[game result screen]*/)
+		{
+			*muteSound = 0xF;
+			__asm
+			{
+				jmp jmp_return
+			}
+		}
+
+		if (EventIndex > 3 && EventIndex < 10 /*[just about every type of menu]*/ || EventIndex == 16 /*[pause menu]*/ || MenuEventIndex == 17 /*[normal gameplay]*/)
+		{
+			__asm
+			{
+				jmp jmp_return
+			}
+		}
+	}
+	__asm
+	{
+		jmp jmp_to_loop
+	}
+
 }
 
 void PatchInventoryBGMBug()

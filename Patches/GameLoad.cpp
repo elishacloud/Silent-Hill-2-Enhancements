@@ -239,24 +239,7 @@ void PatchGameLoad()
 	WriteJMPtoMemory((BYTE*)IndexCheckAddr, *GameResultSaveASM, 6);
 }
 
-DWORD space = 0x0402437;
-DWORD quickSaveToggle;
-void* DontPauseGame = (void*)0x040243d;
-
-__declspec(naked) void __stdcall LockESCWhileRenderedText()
-{
-	if (*(DWORD*)quickSaveToggle == 1 || *(DWORD*)0x093203C == 1 || *(float*)0x093268C > 0)
-	{
-	}
-	else
-	{
-		*EventIndexAddr = 0x10;
-	}
-	__asm
-	{
-		jmp DontPauseGame
-	}
-}
+DWORD quickSaveToggle; // 0x04024bd
 
 void SetGameLoad()
 {
@@ -353,7 +336,6 @@ void SetGameLoad()
 
 	ClearFontBeforePrint = true;
 
-	WriteJMPtoMemory((BYTE*)space, *LockESCWhileRenderedText, 6); 
 }
 
 void RunGameLoad()

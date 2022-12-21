@@ -209,6 +209,20 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		CheckNumberKeyBinds();
 	}
 
+	// For controller
+	if (ProxyInterface == ControllerInterfaceAddress)
+	{
+		// Save controller data
+		ControllerData = (DIJOYSTATE*)lpvData;
+
+		if (GetIsWritingQuicksave() == 1 || GetTextAddr() == 1)
+			ControllerData->rgbButtons[KeyBinds.GetPauseButtonBind()] = KEY_CLEAR;
+
+		// Clear controller data
+		ControllerData = nullptr;
+		
+	}
+
 	// For keyboard
 	if (ProxyInterface == KeyboardInterfaceAddress)
 	{
@@ -522,6 +536,11 @@ void InputTweaks::SetMouseInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface)
 	MouseInterfaceAddress = ProxyInterface;
 }
 
+void InputTweaks::SetControllerInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface)
+{
+	ControllerInterfaceAddress = ProxyInterface;
+}
+
 void InputTweaks::RemoveAddr(LPDIRECTINPUTDEVICE8A ProxyInterface)
 {
 	if (MouseInterfaceAddress == ProxyInterface)
@@ -827,6 +846,11 @@ BYTE* KeyBindsHandler::GetKeyBindsPointer()
 	KeyBindsAddr = (BYTE*)((DWORD)Binds);
 
 	return KeyBindsAddr;
+}
+
+BYTE KeyBindsHandler::GetPauseButtonBind()
+{
+	return *(this->GetKeyBindsPointer() + 0xF0);
 }
 
 void InputTweaks::SetOverrideSprint()

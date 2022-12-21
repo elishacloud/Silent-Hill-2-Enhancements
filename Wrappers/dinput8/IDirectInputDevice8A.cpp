@@ -98,8 +98,10 @@ HRESULT m_IDirectInputDevice8A::Acquire()
 	
 	if (deviceInfo->guidProduct == GUID_SysMouse)
 		InputTweaksRef.SetMouseInterfaceAddr(ProxyInterface);
-	if (deviceInfo->guidProduct == GUID_SysKeyboard)
+	else if (deviceInfo->guidProduct == GUID_SysKeyboard)
 		InputTweaksRef.SetKeyboardInterfaceAddr(ProxyInterface);
+	else
+		InputTweaksRef.SetControllerInterfaceAddr(ProxyInterface);
 
 	return ProxyInterface->Acquire();
 }

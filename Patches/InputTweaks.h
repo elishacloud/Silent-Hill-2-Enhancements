@@ -171,6 +171,7 @@ private:
 	BYTE* KeyboardData = nullptr;
 	LPDIDEVICEOBJECTDATA MouseData = nullptr;
 	DWORD MouseDataSize = 0;
+	LPDIJOYSTATE ControllerData = nullptr;
 
 	int DefaultNumberKeyBinds[10] = {0xB, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA};
 
@@ -225,6 +226,7 @@ private:
 public:
 	BYTE GetKeyBind(int KeyIndex);
 	BYTE* GetKeyBindsPointer();
+	BYTE GetPauseButtonBind();
 };
 
 extern InputTweaks InputTweaksRef;

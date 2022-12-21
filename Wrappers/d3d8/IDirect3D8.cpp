@@ -310,7 +310,10 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	}
 
 	// Create thread to save screenshot file
-	RUNCODEONCE(CreateThread(nullptr, 0, SaveScreenshotFile, nullptr, 0, nullptr));
+	if (EnableScreenshots)
+	{
+		RUNCODEONCE(CreateThread(nullptr, 0, SaveScreenshotFile, nullptr, 0, nullptr));
+	}
 
 	// Get WndProc
 	if (HookWndProc && DeviceWindow && !OriginalWndProc)
@@ -335,47 +338,35 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 		return;
 	}
 
-	LONG OldBufferWidth = BufferWidth, OldBufferHeight = BufferHeight;
-
 	BufferWidth = (pPresentationParameters->BackBufferWidth) ? pPresentationParameters->BackBufferWidth : BufferWidth;
 	BufferHeight = (pPresentationParameters->BackBufferHeight) ? pPresentationParameters->BackBufferHeight : BufferHeight;
 
 	DeviceWindow = (pPresentationParameters->hDeviceWindow) ? pPresentationParameters->hDeviceWindow :
 		(hFocusWindow) ? hFocusWindow : DeviceWindow;
 
-	// Check if resolution changed
-	if (OldBufferWidth != BufferWidth || OldBufferHeight != BufferHeight)
+	// Update patches for resolution change
+	UpdateResolutionPatches(BufferWidth, BufferHeight);
+
+	if (IsWindow(DeviceWindow))
 	{
-		Logging::Log() << "Setting resolution: " << BufferWidth << "x" << BufferHeight;
-
-		// Set correct resolution for Room 312
-		if (PauseScreenFix)
+		// Check if window is minimized and restore it
+		if (IsIconic(DeviceWindow))
 		{
-			SetRoom312Resolution(&BufferWidth);
+			ShowWindow(DeviceWindow, SW_RESTORE);
 		}
 
-		if (AutoScaleImages || AutoScaleVideos)
+		// Set default window background color to black
+		if (WhiteShaderFix)
 		{
-			SetDymanicScale((float)BufferWidth / (float)BufferHeight);
+			HBRUSH brush = CreateSolidBrush(RGB(0, 0, 0));
+			SetClassLongPtr(DeviceWindow, GCLP_HBRBACKGROUND, (LONG_PTR)brush);
 		}
 
-		// Set fullscreen image resolution
-		if (FullscreenImages)
+		// Handle Windows themes
+		if (WndModeBorder)
 		{
-			SetFullscreenImagesRes(BufferWidth, BufferHeight);
+			SetWindowTheme(DeviceWindow);
 		}
-
-		// Set fullscreen video resolution
-		if (FullscreenVideos)
-		{
-			SetFullscreenVideoRes(BufferWidth, BufferHeight);
-		}
-	}
-
-	// Check if window is minimized and restore it
-	if (IsWindow(DeviceWindow) && IsIconic(DeviceWindow))
-	{
-		ShowWindow(DeviceWindow, SW_RESTORE);
 	}
 
 	// Set window size if window mode is enabled
@@ -452,30 +443,24 @@ void UpdatePresentParameterForMultisample(D3DPRESENT_PARAMETERS* pPresentationPa
 // Adjusting the window position for WindowMode
 void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 {
-	// Set default window background color to black
-	if (IsWindow(MainhWnd))
+	if (!IsWindow(MainhWnd) || !displayWidth || !displayHeight)
 	{
-		HBRUSH brush = CreateSolidBrush(RGB(0, 0, 0));
-		SetClassLongPtr(MainhWnd, GCLP_HBRBACKGROUND, (LONG_PTR)brush);
-	}
-
-	if (!MainhWnd || !displayWidth || !displayHeight)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: could not set window size, nullptr.";
+		LOG_LIMIT(100, __FUNCTION__ << " Error: could not set window size, nullptr.");
 		return;
 	}
 
-	if (ScreenMode == EXCLUSIVE_FULLSCREEN)
-	{
-		// Don't adjust window or set border when in exclusive fullscreen mode
-		return;
-	}
+	// Remember first run
+	static bool FristRun = true;
 
-	// Handle Windows themes
-	if (WndModeBorder)
+	// Set window active and focus
+	SetWindowPos(MainhWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+	if (!ForceTopMost)
 	{
-		SetWindowTheme(MainhWnd);
+		SetWindowPos(MainhWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE);
 	}
+	SetForegroundWindow(MainhWnd);
+	SetFocus(MainhWnd);
+	SetActiveWindow(MainhWnd);
 
 	// Get screen width and height
 	LONG screenWidth = 0, screenHeight = 0;
@@ -483,24 +468,15 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	RECT screenRect = {};
 	GetDesktopRect(screenRect);
 
-	// Set window active and focus
-	HWND hCurWnd = GetForegroundWindow();
-	DWORD dwMyID = GetCurrentThreadId();
-	DWORD dwCurID = GetWindowThreadProcessId(hCurWnd, nullptr);
-	AttachThreadInput(dwCurID, dwMyID, TRUE);
-	SetWindowPos(MainhWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-	SetWindowPos(MainhWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE);
-	SetForegroundWindow(MainhWnd);
-	SetFocus(MainhWnd);
-	SetActiveWindow(MainhWnd);
-
-	// Get window border
-	bool HasBorder = false;
+	// Get window style
 	LONG lStyle = GetWindowLong(MainhWnd, GWL_STYLE) | WS_VISIBLE;
-	if (ScreenMode == WINDOWED && WndModeBorder && screenWidth > displayWidth + (GetSystemMetrics(SM_CXSIZEFRAME) * 2) &&
-		screenHeight > displayHeight + (GetSystemMetrics(SM_CYSIZEFRAME) * 2) + GetSystemMetrics(SM_CYCAPTION))
+	LONG lExStyle = GetWindowLong(MainhWnd, GWL_EXSTYLE);
+
+	// Get new style
+	RECT Rect = { 0, 0, displayWidth, displayHeight };
+	AdjustWindowRectEx(&Rect, (lStyle | WS_OVERLAPPEDWINDOW) & ~(WS_MAXIMIZEBOX | WS_THICKFRAME), GetMenu(MainhWnd) != NULL, lExStyle);
+	if (ScreenMode == WINDOWED && WndModeBorder && screenWidth > Rect.right - Rect.left && screenHeight > Rect.bottom - Rect.top)
 	{
-		HasBorder = true;
 		lStyle = (lStyle | WS_OVERLAPPEDWINDOW) & ~(WS_MAXIMIZEBOX | WS_THICKFRAME);
 	}
 	else
@@ -508,35 +484,71 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 		lStyle &= ~WS_OVERLAPPEDWINDOW;
 	}
 
-	// Set window border
+	// Set window style
 	SetWindowLong(MainhWnd, GWL_STYLE, lStyle);
 	SetWindowPos(MainhWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 
-	// Set window size
-	SetWindowPos(MainhWnd, HWND_TOP, 0, 0, displayWidth, displayHeight, SWP_NOMOVE | SWP_NOZORDER);
-
-	// Adjust for window decoration to ensure client area matches display size
-	RECT cRect, wRect;
-	LONG xBorder = 0, yBorder = 0;
-	if (HasBorder && GetClientRect(MainhWnd, &cRect) && GetWindowRect(MainhWnd, &wRect))
-	{
-		xBorder = (wRect.right - wRect.left) - (cRect.right - cRect.left);
-		yBorder = (wRect.bottom - wRect.top) - (cRect.bottom - cRect.top);
-	}
-	LONG newDisplayWidth = displayWidth + xBorder;
-	LONG newDisplayHeight = displayHeight + yBorder;
+	// Get new window rect
+	Rect = { 0, 0, displayWidth, displayHeight };
+	AdjustWindowRectEx(&Rect, lStyle, GetMenu(MainhWnd) != NULL, lExStyle);
+	Rect = { 0, 0, Rect.right - Rect.left, Rect.bottom - Rect.top };
 
 	// Move window to center and adjust size
 	LONG xLoc = 0, yLoc = 0;
-	if (ScreenMode == WINDOWED && screenWidth >= newDisplayWidth && screenHeight >= newDisplayHeight)
+	if (ScreenMode == WINDOWED && screenWidth >= Rect.right && screenHeight >= Rect.bottom)
 	{
-		xLoc = screenRect.left + (screenWidth - newDisplayWidth) / 2;
-		yLoc = screenRect.top + (screenHeight - newDisplayHeight) / 2;
+		// Center window on load
+		if (FristRun)
+		{
+			xLoc = (screenWidth - Rect.right) / 2;
+			yLoc = (screenHeight - Rect.bottom) / 2;
+		}
+		// Keep exsiting location after window changes
+		else
+		{
+			RECT wRect = {};
+			GetWindowRect(MainhWnd,&wRect);
+			xLoc = wRect.left;
+			yLoc = wRect.top;
+			if (xLoc + Rect.right > screenWidth && screenWidth >= Rect.right)
+			{
+				xLoc = screenWidth - Rect.right;
+			}
+			if (yLoc + Rect.bottom > screenHeight && screenHeight >= Rect.bottom)
+			{
+				yLoc = screenHeight - Rect.bottom;
+			}
+		}
 	}
-	SetWindowPos(MainhWnd, HWND_TOP, xLoc, yLoc, newDisplayWidth, newDisplayHeight, SWP_NOZORDER);
+	SetWindowPos(MainhWnd, HWND_TOP, xLoc, yLoc, Rect.right, Rect.bottom, SWP_SHOWWINDOW | SWP_NOZORDER);
 
-	// Detach thread input
-	AttachThreadInput(dwCurID, dwMyID, FALSE);
+	// Load and set window placement
+	WINDOWPLACEMENT wndpl;
+	if (ReadRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"GameWindowPlacement", &wndpl, sizeof(WINDOWPLACEMENT)))
+	{
+		wndpl.length = sizeof(WINDOWPLACEMENT);
+		if (wndpl.rcNormalPosition.right - wndpl.rcNormalPosition.left == Rect.right &&
+			wndpl.rcNormalPosition.bottom - wndpl.rcNormalPosition.top == Rect.bottom)
+		{
+			SetWindowPlacement(MainhWnd, &wndpl);
+		}
+	}
+
+	// Unset frist run
+	FristRun = false;
+}
+
+void SaveWindowPlacement()
+{
+	// Save window placement
+	if (IsWindow(DeviceWindow))
+	{
+		WINDOWPLACEMENT wndpl;
+		wndpl.length = sizeof(WINDOWPLACEMENT);
+		GetWindowPlacement(DeviceWindow, &wndpl);
+
+		WriteRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"GameWindowPlacement", REG_BINARY, &wndpl, sizeof(WINDOWPLACEMENT));
+	}
 }
 
 // Get keyboard press
@@ -548,7 +560,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	switch (uMsg)
 	{
-	case  WM_WININICHANGE:
+	case WM_WININICHANGE:
 		if (lParam && WndModeBorder && ScreenMode != EXCLUSIVE_FULLSCREEN && !_stricmp((char*)lParam, "ImmersiveColorSet"))
 		{
 			SetWindowTheme(DeviceWindow);
@@ -576,6 +588,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			SetResolutionList(BufferWidth, BufferHeight);
 		}
 		LastMonitorHandle = MonitorHandle;
+		if (hWnd == DeviceWindow)
+		{
+			SaveWindowPlacement();
+		}
 		break;
 	}
 	case WM_SETFOCUS:

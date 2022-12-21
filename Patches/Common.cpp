@@ -74,12 +74,15 @@ BYTE* RunOptionAddr;
 BYTE* NumKeysWeaponBindStartAddr;
 BYTE *TalkShowHostStateAddr;
 BYTE *BoatFlagAddr;
+int32_t *IsWritingQuicksaveAddr;
+int32_t *TextAddrAddr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
 std::string AuxDebugOvlString = "";
 bool IsControllerConnected = false;
 HWND GameWindowHandle = NULL;
+int LastEventIndex = 0x00;
 
 DWORD GetRoomID()
 {
@@ -1615,4 +1618,64 @@ BYTE *GetBoatFlagPointer()
 	BoatFlagAddr = (BYTE*)((DWORD)BoatFlag + 0xB2);
 
 	return BoatFlagAddr;
+}
+
+int32_t GetIsWritingQuicksave()
+{
+	int32_t *pIsWritingQuicksave = GetIsWritingQuicksavePointer();
+
+	return (pIsWritingQuicksave) ? *pIsWritingQuicksave : 0;
+}
+
+int32_t *GetIsWritingQuicksavePointer()
+{
+	if (IsWritingQuicksaveAddr)
+	{
+		return IsWritingQuicksaveAddr;
+	}
+
+	// Get IsWritingQuicksave address
+	constexpr BYTE IsWritingQuicksaveSearchBytes[]{ 0x85, 0xC0, 0x74, 0x18, 0x89 };
+	int32_t *IsWritingQuicksave = (int32_t*)ReadSearchedAddresses(0x00402530, 0x00402530, 0x00402530, IsWritingQuicksaveSearchBytes, sizeof(IsWritingQuicksaveSearchBytes), 0x06);
+
+	// Checking address pointer
+	if (!IsWritingQuicksave)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find IsWritingQuicksave address!";
+		return nullptr;
+	}
+
+	IsWritingQuicksaveAddr = (int32_t*)((DWORD)IsWritingQuicksave);
+
+	return IsWritingQuicksaveAddr;
+}
+
+int32_t GetTextAddr()
+{
+	int32_t *pTextAddr = GetTextAddrPointer();
+
+	return (pTextAddr) ? *pTextAddr : 0;
+}
+
+int32_t *GetTextAddrPointer()
+{
+	if (TextAddrAddr)
+	{
+		return TextAddrAddr;
+	}
+
+	// Get TextAddr address
+	constexpr BYTE TextAddrSearchBytes[]{ 0x85, 0xC0, 0x74, 0x18, 0x89 };
+	int32_t *TextAddr = (int32_t*)ReadSearchedAddresses(0x00402530, 0x00402530, 0x00402530, TextAddrSearchBytes, sizeof(TextAddrSearchBytes), 0x06);
+
+	// Checking address pointer
+	if (!TextAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find TextAddr address!";
+		return nullptr;
+	}
+
+	TextAddrAddr = (int32_t*)((DWORD)TextAddr + 0x04);
+
+	return TextAddrAddr;
 }

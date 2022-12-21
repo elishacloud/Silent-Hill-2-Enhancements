@@ -99,7 +99,7 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 
 	DeviceLost = false;
 
-	BeginSceneFlag = false;
+	isInScene = false;
 
 	pCurrentRenderTexture = nullptr;
 
@@ -266,7 +266,7 @@ BOOL m_IDirect3DDevice8::ShowCursor(BOOL bShow)
 	return ProxyInterface->ShowCursor(bShow);
 }
 
-HRESULT m_IDirect3DDevice8::CreateAdditionalSwapChain(D3DPRESENT_PARAMETERS *pPresentationParameters, IDirect3DSwapChain8 **ppSwapChain)
+HRESULT m_IDirect3DDevice8::CreateAdditionalSwapChain(D3DPRESENT_PARAMETERS *pPresentationParameters, IDirect3DSwapChain8** ppSwapChain)
 {
 	Logging::LogDebug() << __FUNCTION__;
 
@@ -299,6 +299,13 @@ HRESULT m_IDirect3DDevice8::CreateAdditionalSwapChain(D3DPRESENT_PARAMETERS *pPr
 		*ppSwapChain = new m_IDirect3DSwapChain8(*ppSwapChain, this);
 	}
 
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to create swap chain! " <<
+			(pPresentationParameters ? pPresentationParameters->BackBufferWidth : 0) << "x" <<
+			(pPresentationParameters ? pPresentationParameters->BackBufferHeight : 0);
+	}
+
 	return hr;
 }
 
@@ -311,6 +318,11 @@ HRESULT m_IDirect3DDevice8::CreateCubeTexture(THIS_ UINT EdgeLength, UINT Levels
 	if (SUCCEEDED(hr) && ppCubeTexture)
 	{
 		*ppCubeTexture = new m_IDirect3DCubeTexture8(*ppCubeTexture, this);
+	}
+
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to create cubed texture! " << EdgeLength;
 	}
 
 	return hr;
@@ -329,6 +341,11 @@ HRESULT m_IDirect3DDevice8::CreateDepthStencilSurface(THIS_ UINT Width, UINT Hei
 		*ppSurface = new m_IDirect3DSurface8(*ppSurface, this);
 	}
 
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to create depth stencil surface! " << Width << "x" << Height;
+	}
+
 	return hr;
 }
 
@@ -341,6 +358,11 @@ HRESULT m_IDirect3DDevice8::CreateIndexBuffer(THIS_ UINT Length, DWORD Usage, D3
 	if (SUCCEEDED(hr) && ppIndexBuffer)
 	{
 		*ppIndexBuffer = new m_IDirect3DIndexBuffer8(*ppIndexBuffer, this);
+	}
+
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to create index buffer! " << Length;
 	}
 
 	return hr;
@@ -361,6 +383,11 @@ HRESULT m_IDirect3DDevice8::CreateRenderTarget(THIS_ UINT Width, UINT Height, D3
 	if (SUCCEEDED(hr) && ppSurface)
 	{
 		*ppSurface = new m_IDirect3DSurface8(*ppSurface, this);
+	}
+
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to create render target! " << Width << "x" << Height;
 	}
 
 	return hr;
@@ -414,6 +441,11 @@ HRESULT m_IDirect3DDevice8::CreateTexture(THIS_ UINT Width, UINT Height, UINT Le
 		}
 	}
 
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to create texture! " << Width << "x" << Height;
+	}
+
 	return hr;
 }
 
@@ -428,6 +460,11 @@ HRESULT m_IDirect3DDevice8::CreateVertexBuffer(THIS_ UINT Length, DWORD Usage, D
 		*ppVertexBuffer = new m_IDirect3DVertexBuffer8(*ppVertexBuffer, this);
 	}
 
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to create vertex buffer! " << Length;
+	}
+
 	return hr;
 }
 
@@ -440,6 +477,11 @@ HRESULT m_IDirect3DDevice8::CreateVolumeTexture(THIS_ UINT Width, UINT Height, U
 	if (SUCCEEDED(hr) && ppVolumeTexture)
 	{
 		*ppVolumeTexture = new m_IDirect3DVolumeTexture8(*ppVolumeTexture, this);
+	}
+
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to create volume texture! " << Width << "x" << Height;
 	}
 
 	return hr;
@@ -517,6 +559,11 @@ HRESULT m_IDirect3DDevice8::GetRenderTarget(THIS_ IDirect3DSurface8** ppRenderTa
 	if (SUCCEEDED(hr) && ppRenderTarget)
 	{
 		*ppRenderTarget = ProxyAddressLookupTableD3d8->FindAddress<m_IDirect3DSurface8>(*ppRenderTarget);
+	}
+
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to get render target!";
 	}
 
 	return hr;
@@ -675,6 +722,9 @@ void m_IDirect3DDevice8::SetGammaRamp(THIS_ DWORD Flags, CONST D3DGAMMARAMP* pRa
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	// Don't enable shaders until the game calls SetGamma to make sure all the shader settings are initialized
+	ShadersReady = EnableCustomShaders;
+
 	if (ScreenMode != WINDOWED || (RestoreBrightnessSelector && d3d8to9))
 	{
 		ProxyInterface->SetGammaRamp(Flags, pRamp);
@@ -713,6 +763,11 @@ HRESULT m_IDirect3DDevice8::GetIndices(THIS_ IDirect3DIndexBuffer8** ppIndexData
 		*ppIndexData = ProxyAddressLookupTableD3d8->FindAddress<m_IDirect3DIndexBuffer8>(*ppIndexData);
 	}
 
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to get index buffer!";
+	}
+
 	return hr;
 }
 
@@ -749,12 +804,13 @@ HRESULT m_IDirect3DDevice8::GetDeviceCaps(D3DCAPS8 *pCaps)
 	return ProxyInterface->GetDeviceCaps(pCaps);
 }
 
-HRESULT m_IDirect3DDevice8::GetDirect3D(IDirect3D8 **ppD3D9)
+HRESULT m_IDirect3DDevice8::GetDirect3D(IDirect3D8** ppD3D9)
 {
 	Logging::LogDebug() << __FUNCTION__;
 
 	if (!ppD3D9)
 	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to get Direct3D!";
 		return D3DERR_INVALIDCALL;
 	}
 
@@ -922,7 +978,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	OverlayRef.DrawOverlays(ProxyInterface);
 
 	// Endscene
-	BeginSceneFlag = false;
+	isInScene = false;
 	ProxyInterface->EndScene();
 
 	// Update in progress
@@ -992,9 +1048,9 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	// Take screenshot
 	if (TakeScreenShot)
 	{
-		if (!BeginSceneFlag)
+		if (!isInScene)
 		{
-			BeginSceneFlag = true;
+			isInScene = true;
 			ProxyInterface->BeginScene();
 		}
 		TakeScreenShot = false;
@@ -1006,9 +1062,9 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	{
 		if (pInitialRenderTexture && GetOnScreen() == 6)
 		{
-			if (!BeginSceneFlag)
+			if (!isInScene)
 			{
-				BeginSceneFlag = true;
+				isInScene = true;
 				ProxyInterface->BeginScene();
 			}
 			IDirect3DSurface8 *pSnapshotSurface = nullptr;
@@ -1712,8 +1768,6 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		LastFrameFullscreenImage = IsInFullscreenImage;
 		IsInFullscreenImage = false;
 
-		RUNCODEONCE(LogAllModules());
-
 		// Enable Xbox shadows
 		if (EnableSoftShadows)
 		{
@@ -1847,9 +1901,9 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		}
 	}
 
-	if (!BeginSceneFlag)
+	if (!isInScene)
 	{
-		BeginSceneFlag = true;
+		isInScene = true;
 		ProxyInterface->BeginScene();
 	}
 
@@ -1882,6 +1936,11 @@ HRESULT m_IDirect3DDevice8::GetStreamSource(THIS_ UINT StreamNumber, IDirect3DVe
 		*ppStreamData = ProxyAddressLookupTableD3d8->FindAddress<m_IDirect3DVertexBuffer8>(*ppStreamData);
 	}
 
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to get stream source!";
+	}
+
 	return hr;
 }
 
@@ -1908,10 +1967,15 @@ HRESULT m_IDirect3DDevice8::GetBackBuffer(THIS_ UINT iBackBuffer, D3DBACKBUFFER_
 		*ppBackBuffer = ProxyAddressLookupTableD3d8->FindAddress<m_IDirect3DSurface8>(*ppBackBuffer);
 	}
 
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to get backbuffer!";
+	}
+
 	return hr;
 }
 
-HRESULT m_IDirect3DDevice8::GetDepthStencilSurface(IDirect3DSurface8 **ppZStencilSurface)
+HRESULT m_IDirect3DDevice8::GetDepthStencilSurface(IDirect3DSurface8** ppZStencilSurface)
 {
 	Logging::LogDebug() << __FUNCTION__;
 
@@ -1922,10 +1986,15 @@ HRESULT m_IDirect3DDevice8::GetDepthStencilSurface(IDirect3DSurface8 **ppZStenci
 		*ppZStencilSurface = ProxyAddressLookupTableD3d8->FindAddress<m_IDirect3DSurface8>(*ppZStencilSurface);
 	}
 
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to get stencil surface!";
+	}
+
 	return hr;
 }
 
-HRESULT m_IDirect3DDevice8::GetTexture(DWORD Stage, IDirect3DBaseTexture8 **ppTexture)
+HRESULT m_IDirect3DDevice8::GetTexture(DWORD Stage, IDirect3DBaseTexture8** ppTexture)
 {
 	Logging::LogDebug() << __FUNCTION__;
 
@@ -1945,8 +2014,14 @@ HRESULT m_IDirect3DDevice8::GetTexture(DWORD Stage, IDirect3DBaseTexture8 **ppTe
 			*ppTexture = ProxyAddressLookupTableD3d8->FindAddress<m_IDirect3DCubeTexture8>(*ppTexture);
 			break;
 		default:
+			Logging::Log() << __FUNCTION__ << " Error: Failed to get texture type!";
 			return D3DERR_INVALIDCALL;
 		}
+	}
+
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to get texture!";
 	}
 
 	return hr;
@@ -2416,6 +2491,11 @@ HRESULT m_IDirect3DDevice8::CreateImageSurface(THIS_ UINT Width, UINT Height, D3
 		*ppSurface = new m_IDirect3DSurface8(*ppSurface, this);
 	}
 
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to create image surface! " << Width << "x" << Height;
+	}
+
 	return hr;
 }
 
@@ -2763,7 +2843,7 @@ HRESULT m_IDirect3DDevice8::DrawSoftShadows()
 
 	// Variables for soft shadows
 	const DWORD SHADOW_OPACITY = (ShadowMode == SHADOW_FADING_NONE) ? GetShadowOpacity() : (GetShadowOpacity() * ShadowFadingIntensity) / 100;
-	const float SHADOW_DIVISOR = 2.0f * ((float)BufferHeight / 720.0f);
+	const float SHADOW_DIVISOR = round(((float)BufferHeight / 720.0f) + 0.5f);	// Round number to prevent shadow from being misplaced
 	const int BLUR_PASSES = 4;
 
 	IDirect3DSurface8 *pBackBuffer = nullptr, *pStencilBuffer = nullptr;
@@ -3043,7 +3123,7 @@ void m_IDirect3DDevice8::RestoreState(D3DSTATE *state)
 }
 
 template <typename T>
-void m_IDirect3DDevice8::ReleaseInterface(T **ppInterface, UINT ReleaseRefNum)
+void m_IDirect3DDevice8::ReleaseInterface(T** ppInterface, UINT ReleaseRefNum)
 {
 	if (ppInterface && *ppInterface && ReleaseRefNum)
 	{

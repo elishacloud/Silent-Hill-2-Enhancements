@@ -54,10 +54,12 @@
 	visit(FlashlightFlickerFix, true) \
 	visit(FogParameterFix, true) \
 	visit(FogSpeedFix, true) \
+	visit(ForceTopMost, false) \
 	visit(GameLoadFix, true) \
 	visit(GamepadControlsFix, true) \
 	visit(HalogenLightFix, true) \
 	visit(HookDirect3D, true) \
+	visit(HookDirectInput, true) \
 	visit(HookDirectSound, true) \
 	visit(HookWndProc, true) \
 	visit(HospitalChaseFix, true) \
@@ -108,12 +110,14 @@
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, true) \
-	visit(WoodsideRoom205Fix, true)
+	visit(WoodsideRoom205Fix, true) \
+	visit(QuickSaveTweaks, true)
 
 #define VISIT_INT_SETTINGS(visit) \
 	visit(AnisotropicFiltering, 0) \
 	visit(AntiAliasing, 0) \
 	visit(AudioFadeOutDelayMS, 10) \
+	visit(CRTShader, 0) \
 	visit(CustomFontCharHeight, 32) \
 	visit(CustomFontCharWidth, 20) \
 	visit(CustomFontCol, 25) \
@@ -132,7 +136,8 @@
 	visit(NormalFontHeight, 30) \
 	visit(NormalFontWidth, 20) \
 	visit(PadNumber, 0) \
-	visit(RestoreSearchCamMovement, 1) \
+	visit(RemoveForceFeedbackFilter, 1) \
+	visit(RestoreSearchCamMovement, 2) \
 	visit(ResX, 0) \
 	visit(ResY, 0) \
 	visit(ScreenMode, 0xFFFF) /* Overloading the old 'EnableWndMode' and 'FullscreenWndMode' options */ \
@@ -198,6 +203,7 @@
 	visit(FPSLimit) \
 	visit(FullscreenWndMode) \
 	visit(HookDirect3D) \
+	visit(HookDirectInput) \
 	visit(HookDirectSound) \
 	visit(HookWndProc) \
 	visit(LetterSpacing) \
@@ -205,6 +211,7 @@
 	visit(LockResolution) \
 	visit(NormalFontHeight) \
 	visit(NormalFontWidth) \
+	visit(QuickSaveTweaks) \
 	visit(ResX) \
 	visit(ResY) \
 	visit(SmallFontHeight) \
@@ -230,6 +237,18 @@ typedef enum _FRONTBUFFERCONTROL {
 	BUFFER_FROM_GDI = 1,
 	BUFFER_FROM_DIRECTX = 2,
 } FRONTBUFFERCONTROL;
+
+typedef enum _CRTSHADER {
+	CRT_SHADER_DISABLED = 0,
+	CRT_SHADER_ENABLED = 1,
+	CRT_SHADER_ENABLED_CURVATURE = 2,
+} CRTSHADER;
+
+typedef enum _REMOVEFORCEFEEDBACK {
+	DISABLE_FORCEFEEDBACK_CONTROL = 0,
+	AUTO_REMOVE_FORCEFEEDBACK = 1,
+	REMOVE_FORCEFEEDBACK = 2,
+} REMOVEFORCEFEEDBACK;
 
 // Configurable setting defaults
 #define DECLARE_BOOL_SETTINGS(name, unused) \
@@ -257,15 +276,19 @@ typedef void(__stdcall* NV)(char* name, char* value, void* lpParam);
 extern HMODULE m_hModule;
 extern bool CustomExeStrSet;
 extern bool EnableCustomShaders;
+extern bool ShadersReady;
 extern bool IsUpdating;
 extern bool m_StopThreadFlag;
 extern bool AutoScaleImages;
 extern bool AutoScaleVideos;
+extern bool EnableCRTShader;
+extern bool CRTCurveShader;
+extern bool CRTNonCurveShader;
 
 bool SetValue(const char* value);
 bool IsValidSettings(char* name, char* value);
 char* Read(const wchar_t* szFileName);
 void Parse(char* str, NV NameValueCallback, void* lpParam = nullptr);
 void __stdcall ParseCallback(char* lpName, char* lpValue, void*);
-void __stdcall LogCallback(char* lpName, char* lpValue, void*);
+void LogSettings();
 void UpdateConfigDefaults();

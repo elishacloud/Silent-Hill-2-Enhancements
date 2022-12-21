@@ -209,6 +209,22 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		CheckNumberKeyBinds();
 	}
 
+	LastEventIndex = GetEventIndex();
+
+	// For controller
+	if (ProxyInterface == ControllerInterfaceAddress)
+	{
+		// Save controller data
+		ControllerData = (DIJOYSTATE*)lpvData;
+
+		if (GetIsWritingQuicksave() == 1 || GetTextAddr() == 1)
+			ControllerData->rgbButtons[KeyBinds.GetPauseButtonBind()] = KEY_CLEAR;
+
+		// Clear controller data
+		ControllerData = nullptr;
+		
+	}
+
 	// For keyboard
 	if (ProxyInterface == KeyboardInterfaceAddress)
 	{
@@ -256,6 +272,13 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		else
 		{
 			InfoCombo.State = false;
+		}
+
+		// Clear the ESC and SKIP key if a quicksave is in progress
+		if (GetIsWritingQuicksave() == 1 || GetTextAddr() == 1) 
+		{
+			ClearKey(KeyBinds.GetKeyBind(KEY_SKIP));
+			ClearKey(KeyBinds.GetKeyBind(KEY_CANCEL));
 		}
 
 		// Check if Debug Combo is held down
@@ -448,6 +471,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			UpdateMemoryAddress((void*)AnalogStringTwo, "\x2F", 1);
 			UpdateMemoryAddress((void*)AnalogStringThree, "\x2F", 1);
 		}
+
 	}
 
 }
@@ -513,6 +537,11 @@ void InputTweaks::SetKeyboardInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface)
 void InputTweaks::SetMouseInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface)
 {
 	MouseInterfaceAddress = ProxyInterface;
+}
+
+void InputTweaks::SetControllerInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface)
+{
+	ControllerInterfaceAddress = ProxyInterface;
 }
 
 void InputTweaks::RemoveAddr(LPDIRECTINPUTDEVICE8A ProxyInterface)
@@ -820,6 +849,11 @@ BYTE* KeyBindsHandler::GetKeyBindsPointer()
 	KeyBindsAddr = (BYTE*)((DWORD)Binds);
 
 	return KeyBindsAddr;
+}
+
+BYTE KeyBindsHandler::GetPauseButtonBind()
+{
+	return *(this->GetKeyBindsPointer() + 0xF0);
 }
 
 void InputTweaks::SetOverrideSprint()

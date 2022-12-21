@@ -28,8 +28,8 @@ class m_IDirect3DDevice9 : public IDirect3DDevice9
 {
 private:
 	LPDIRECT3DDEVICE9 ProxyInterface;
+	bool isInScene = false;
 	bool UseSoftwareRendering;
-	bool GammaSet = false;
 	D3DGAMMARAMP Ramp = {};
 
 public:

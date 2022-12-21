@@ -61,6 +61,8 @@ BYTE GetRunOption();
 BYTE GetNumKeysWeaponBindStart();
 BYTE GetTalkShowHostState();
 BYTE GetBoatFlag();
+int32_t GetIsWritingQuicksave();
+int32_t GetTextAddr();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -116,6 +118,8 @@ BYTE *GetNumKeysWeaponBindStartPointer();
 BYTE *GetTalkShowHostStatePointer();
 BYTE *GetBoatFlagPointer();
 BYTE *GetRunOptionPointer();
+int32_t *GetIsWritingQuicksavePointer();
+int32_t *GetTextAddrPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -124,9 +128,9 @@ void CheckAdminAccess();
 void RemoveVirtualStoreFiles();
 void RemoveCompatibilityMode();
 void SetDelayedStart();
-void SetDymanicScale(float AspectRatio);
 void SetFullscreenImagesRes(DWORD Width, DWORD Height);
 void SetFullscreenVideoRes(DWORD Width, DWORD Height);
+void UpdateResolutionPatches(LONG Width, LONG Height);
 void SetResolutionList(DWORD Width, DWORD Height);
 void SetResolutionPatch();
 void SetRoom312Resolution(void *WidthAddress);
@@ -181,6 +185,7 @@ void PatchWindowIcon();
 void PatchWindowTitle();
 void PatchXInputVibration();
 void PatchSaveGameSound();
+void PatchQuickSavePos();
 
 void FindGetModelID();
 int GetCurrentMaterialIndex();
@@ -189,8 +194,8 @@ bool IsMariaExcludingEyes(ModelID id);
 bool IsMariaEyes(ModelID id);
 bool isConfirmationPromptOpen();
 
-void OnFileLoadTex(HANDLE hFile, LPCSTR lpFileName);
-void OnFileLoadVid(HANDLE hFile, LPCSTR lpFileName);
+void OnFileLoadTex(LPCSTR lpFileName);
+void OnFileLoadVid(LPCSTR lpFileName);
 
 void RunBloodSize();
 void RunClosetCutscene();
@@ -302,6 +307,7 @@ extern bool IsControllerConnected;
 extern HWND GameWindowHandle;
 extern BYTE* ElevatorRunning;
 extern BYTE* InGameVoiceEvent;
+extern int LastEventIndex;
 
 // Run code only once
 #define RUNONCE() \

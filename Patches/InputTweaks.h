@@ -166,10 +166,12 @@ class InputTweaks
 private:
 	LPDIRECTINPUTDEVICE8A KeyboardInterfaceAddress = nullptr;
 	LPDIRECTINPUTDEVICE8A MouseInterfaceAddress = nullptr;
+	LPDIRECTINPUTDEVICE8A ControllerInterfaceAddress = nullptr;
 
 	BYTE* KeyboardData = nullptr;
 	LPDIDEVICEOBJECTDATA MouseData = nullptr;
 	DWORD MouseDataSize = 0;
+	LPDIJOYSTATE ControllerData = nullptr;
 
 	int DefaultNumberKeyBinds[10] = {0xB, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA};
 
@@ -198,6 +200,7 @@ private:
 public:
 	void SetKeyboardInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);
 	void SetMouseInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);
+	void SetControllerInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);
 	void RemoveAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);
 	
 	void TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbData, LPVOID lpvData);
@@ -223,6 +226,7 @@ private:
 public:
 	BYTE GetKeyBind(int KeyIndex);
 	BYTE* GetKeyBindsPointer();
+	BYTE GetPauseButtonBind();
 };
 
 extern InputTweaks InputTweaksRef;

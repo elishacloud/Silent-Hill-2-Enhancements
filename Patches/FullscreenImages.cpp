@@ -20,6 +20,7 @@
 #include <regex>
 #include "Patches.h"
 #include "FullscreenImages.h"
+#include "Common\FileSystemHooks.h"
 #include "Common\Utils.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
@@ -96,32 +97,37 @@ char **TexNameAddr = nullptr;
 
 void SetImageScaling();
 void SetMapImageScaling();
-bool GetTextureRes(char *TexName, DWORD &TextureX, DWORD &TextureY, HANDLE hFile = nullptr);
+bool GetTextureRes(char *TexName, DWORD &TextureX, DWORD &TextureY);
 
 struct ImageCache
 {
-	void *Name;
+	void *Addr;
 	BOOL Flag;
 };
 
-std::vector<ImageCache> ScaleList, MapList;
+std::vector<ImageCache> TexList, MapList;
 
 BOOL CheckTexture()
 {
 	static BOOL flag = FALSE;
-	static void *last = nullptr;
+	static void* last = nullptr;
 
-	if (!TexNameAddr || !*TexNameAddr  || last == *TexNameAddr ||
-		std::any_of(ScaleList.begin(), ScaleList.end(), [](const ImageCache & TexCache) { if (TexCache.Name == *TexNameAddr) { flag = TexCache.Flag; return true; } return false; })
-		|| strcmp(*TexNameAddr, "data/etc/effect/lens_flare.tbn2") == 0)
+	if (!TexNameAddr || !*TexNameAddr)
 	{
-		last = (TexNameAddr) ? *TexNameAddr : nullptr;
+		return FALSE;
+	}
+
+	if (last == *TexNameAddr ||
+		std::any_of(TexList.begin(), TexList.end(), [](const ImageCache& TexCache) { if (TexCache.Addr == *TexNameAddr) { flag = TexCache.Flag; return true; } return false; }))
+	{
+		last = *TexNameAddr;
 		return flag;
 	}
 
-	flag = (std::any_of(std::begin(DefaultTextureList), std::end(DefaultTextureList), [](const TexSize & TexItem) { return TexItem.IsScaled && strcmp(TexItem.Name, *TexNameAddr) == 0; }));
+	flag = (strcmp(*TexNameAddr, "data/etc/effect/lens_flare.tbn2") == 0) ? FALSE :
+		(std::any_of(std::begin(DefaultTextureList), std::end(DefaultTextureList), [](const TexSize & TexItem) { return TexItem.IsScaled && strcmp(TexItem.Name, *TexNameAddr) == 0; }));
 	
-	ScaleList.push_back({ *TexNameAddr , flag });
+	TexList.push_back({ *TexNameAddr, flag });
 	last = *TexNameAddr;
 
 	return flag;
@@ -130,25 +136,30 @@ BOOL CheckTexture()
 BOOL CheckMapTexture()
 {
 	static BOOL flag = FALSE;
-	static void *last = nullptr;
+	static void* last = nullptr;
 
-	if (!TexNameAddr || !*TexNameAddr || last == *TexNameAddr ||
-		std::any_of(MapList.begin(), MapList.end(), [](const ImageCache & TexCache) { if (TexCache.Name == *TexNameAddr) { flag = TexCache.Flag; return true; } return false; })
-		|| strcmp(*TexNameAddr, "data/etc/effect/lens_flare.tbn2") == 0)
+	if (!TexNameAddr || !*TexNameAddr)
 	{
-		last = (TexNameAddr) ? *TexNameAddr : nullptr;
+		return FALSE;
+	}
+
+	if (last == *TexNameAddr ||
+		std::any_of(MapList.begin(), MapList.end(), [](const ImageCache& TexCache) { if (TexCache.Addr == *TexNameAddr) { flag = TexCache.Flag; return true; } return false; }))
+	{
+		last = *TexNameAddr;
 		return flag;
 	}
 
-	flag = (std::any_of(std::begin(DefaultTextureList), std::end(DefaultTextureList), [](const TexSize & TexItem) { return TexItem.IsMap && strcmp(TexItem.Name, *TexNameAddr) == 0; }));
+	flag = flag = (strcmp(*TexNameAddr, "data/etc/effect/lens_flare.tbn2") == 0) ? FALSE :
+		(std::any_of(std::begin(DefaultTextureList), std::end(DefaultTextureList), [](const TexSize & TexItem) { return TexItem.IsMap && strcmp(TexItem.Name, *TexNameAddr) == 0; }));
 	
-	MapList.push_back({ *TexNameAddr , flag });
+	MapList.push_back({ *TexNameAddr, flag });
 	last = *TexNameAddr;
 
 	return flag;
 }
 
-void GetTextureOnLoad(HANDLE hFile)
+void GetTextureOnLoad()
 {
 	if (TexNameAddr && *TexNameAddr)
 	{
@@ -156,9 +167,7 @@ void GetTextureOnLoad(HANDLE hFile)
 		{
 			if (TexItem.IsReference && strcmp(TexItem.Name, *TexNameAddr) == 0)
 			{
-				CheckingTexture = true;
-				GetTextureRes(*TexNameAddr, TextureResX, TextureResY, hFile);
-				CheckingTexture = false;
+				GetTextureRes(*TexNameAddr, TextureResX, TextureResY);
 				ORG_TextureResX = TexItem.X;
 				ORG_TextureResY = TexItem.Y;
 				SetImageScaling();
@@ -182,18 +191,25 @@ void GetTextureOnLoad(HANDLE hFile)
 }
 
 // Check if passed filename is the texture being loaded
-void OnFileLoadTex(HANDLE hFile, LPCSTR lpFileName)
+void OnFileLoadTex(LPCSTR lpFileName)
 {
 	if (!CheckingTexture && lpFileName && TexNameAddr && *TexNameAddr && CheckPathNameMatch(lpFileName, *TexNameAddr))
 	{
-		GetTextureOnLoad(hFile);
+		CheckingTexture = true;
+		GetTextureOnLoad();
+		CheckingTexture = false;
 	}
 }
 
 // Runs each time a texture is loaded
 void CheckLoadedTexture()
 {
-	GetTextureOnLoad(nullptr);
+	if (!CheckingTexture)
+	{
+		CheckingTexture = true;
+		GetTextureOnLoad();
+		CheckingTexture = false;
+	}
 }
 
 // ASM function to check texture on load
@@ -449,12 +465,9 @@ __declspec(naked) void __stdcall MapXPosASM()
 }
 
 // Get texture resolution
-bool GetTextureRes(char *TexName, DWORD &TextureX, DWORD &TextureY, HANDLE hFile)
+bool GetTextureRes(char *TexName, DWORD &TextureX, DWORD &TextureY)
 {
-	bool Opened = false;
 	bool Result = false;
-	LONG lDistanceToMove = 0;
-	LONG lDistanceToMoveHigh = 0;
 
 	const DWORD BytesToRead = 128;
 	DWORD dwBytesRead;
@@ -462,21 +475,10 @@ bool GetTextureRes(char *TexName, DWORD &TextureX, DWORD &TextureY, HANDLE hFile
 	char TexPath[MAX_PATH];
 	CopyReplaceSlash(TexPath, MAX_PATH, TexName);
 
-	// Get current file pointer
-	if (hFile)
-	{
-		lDistanceToMove = SetFilePointer(hFile, 0, &lDistanceToMoveHigh, FILE_CURRENT);
-		if (lDistanceToMove == INVALID_SET_FILE_POINTER)
-		{
-			lDistanceToMove = 0;
-		}
-	}
-	// Open file if not already open
-	else
-	{
-		Opened = true;
-		hFile = CreateFileA(TexPath, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
-	}
+	// Open file
+	char Filename[MAX_PATH];
+	HANDLE hFile = CreateFileA(GetFileModPath(TexPath, Filename), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+
 	// Check file handle
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
@@ -510,14 +512,9 @@ bool GetTextureRes(char *TexName, DWORD &TextureX, DWORD &TextureY, HANDLE hFile
 		}
 	} while (FALSE);
 
-	if (Opened)
-	{
-		CloseHandle(hFile);
-	}
-	else
-	{
-		SetFilePointer(hFile, lDistanceToMove, &lDistanceToMoveHigh, FILE_BEGIN);
-	}
+	// Close file handle
+	CloseHandle(hFile);
+
 	return Result;
 }
 

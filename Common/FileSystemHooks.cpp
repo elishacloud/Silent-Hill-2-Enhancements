@@ -20,35 +20,35 @@
 #include "Patches\Patches.h"
 #include "FileSystemHooks.h"
 #include "External\Hooking\Hook.h"
+#include "External\Hooking.Patterns\Hooking.Patterns.h"
 #include "Settings.h"
 #include "Logging\Logging.h"
 #include "Unicode.h"
 
 // API typedef
+typedef int(WINAPI* PFN_BinkOpen)(char* name, DWORD flags);
+typedef FILE(WINAPIV *PFN_fopen)(char const* lpFileName, char const* lpMode);
 typedef HANDLE(WINAPI *PFN_CreateFileA)(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile);
 typedef HANDLE(WINAPI *PFN_CreateFileW)(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile);
 typedef HANDLE(WINAPI *PFN_FindFirstFileA)(LPCSTR lpFileName, LPWIN32_FIND_DATAA lpFindFileData);
 typedef BOOL(WINAPI *PFN_FindNextFileA)(HANDLE hFindFile, LPWIN32_FIND_DATAA lpFindFileData);
-typedef DWORD(WINAPI *PFN_GetPrivateProfileStringA)(LPCSTR lpAppName, LPCSTR lpKeyName, LPCSTR lpDefault, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName);
-typedef DWORD(WINAPI *PFN_GetPrivateProfileStringW)(LPCWSTR lpAppName, LPCWSTR lpKeyName, LPCWSTR lpDefault, LPWSTR lpReturnedString, DWORD nSize, LPCWSTR lpFileName);
 typedef BOOL(WINAPI *PFN_CreateProcessA)(LPCSTR lpApplicationName, LPSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags,
 	LPVOID lpEnvironment, LPCSTR lpCurrentDirectory, LPSTARTUPINFOA lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation);
 typedef BOOL(WINAPI *PFN_CreateProcessW)(LPCWSTR lpApplicationName, LPWSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags,
 	LPVOID lpEnvironment, LPCWSTR lpCurrentDirectory, LPSTARTUPINFOW lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation);
 
 // Proc addresses
+FARPROC p_BinkOpen = nullptr;
+FARPROC p_fopen = nullptr;
 FARPROC p_CreateFileA = nullptr;
 FARPROC p_CreateFileW = nullptr;
 FARPROC p_FindFirstFileA = nullptr;
 FARPROC p_FindNextFileA = nullptr;
-FARPROC p_GetPrivateProfileStringA = nullptr;
-FARPROC p_GetPrivateProfileStringW = nullptr;
 FARPROC p_CreateProcessA = nullptr;
 FARPROC p_CreateProcessW = nullptr;
 
 // Variable used in hooked modules
 bool IsFileSystemHooking = false;
-HMODULE moduleHandle = nullptr;
 char ModPathA[MAX_PATH];
 wchar_t ModPathW[MAX_PATH];
 char *ModPicPathA = "ps2";
@@ -137,10 +137,10 @@ inline bool isInString(LPCWSTR strCheck, LPCSTR, LPCWSTR strW, size_t size)
 template<typename T>
 inline bool isDataPath(T sh2)
 {
-	if ((sh2[0] == 'd' || sh2[0] == 'D') &&
-		(sh2[1] == 'a' || sh2[1] == 'A') &&
-		(sh2[2] == 't' || sh2[2] == 'T') &&
-		(sh2[3] == 'a' || sh2[3] == 'A'))
+	if (sh2[0] != '\0' && (sh2[0] == 'd' || sh2[0] == 'D') &&
+		sh2[1] != '\0' && (sh2[1] == 'a' || sh2[1] == 'A') &&
+		sh2[2] != '\0' && (sh2[2] == 't' || sh2[2] == 'T') &&
+		sh2[3] != '\0' && (sh2[3] == 'a' || sh2[3] == 'A'))
 	{
 		return true;
 	}
@@ -150,34 +150,38 @@ inline bool isDataPath(T sh2)
 template<typename T>
 inline bool isEndVideoPath(T sh2)
 {
-	if ((sh2[0] == 'm' || sh2[0] == 'M') &&
-		(sh2[1] == 'o' || sh2[1] == 'O') &&
-		(sh2[2] == 'v' || sh2[2] == 'V') &&
-		(sh2[3] == 'i' || sh2[3] == 'I') &&
-		(sh2[4] == 'e' || sh2[4] == 'E') &&
-		(sh2[6] == 'e' || sh2[6] == 'E') &&
-		(sh2[7] == 'n' || sh2[7] == 'N') &&
-		(sh2[8] == 'd' || sh2[8] == 'D') &&
-		(sh2[9] == 'i' || sh2[9] == 'I') &&
-		(sh2[10] == 'n' || sh2[10] == 'N') &&
-		(sh2[11] == 'g' || sh2[11] == 'G') &&
-		(sh2[13] == 'b' || sh2[13] == 'B') &&
-		(sh2[14] == 'i' || sh2[14] == 'I') &&
-		(sh2[15] == 'k' || sh2[15] == 'K'))
+	if (sh2[0] != '\0' && (sh2[0] == 'm' || sh2[0] == 'M') &&
+		sh2[1] != '\0' && (sh2[1] == 'o' || sh2[1] == 'O') &&
+		sh2[2] != '\0' && (sh2[2] == 'v' || sh2[2] == 'V') &&
+		sh2[3] != '\0' && (sh2[3] == 'i' || sh2[3] == 'I') &&
+		sh2[4] != '\0' && (sh2[4] == 'e' || sh2[4] == 'E') &&
+		sh2[5] != '\0' &&
+		sh2[6] != '\0' && (sh2[6] == 'e' || sh2[6] == 'E') &&
+		sh2[7] != '\0' && (sh2[7] == 'n' || sh2[7] == 'N') &&
+		sh2[8] != '\0' && (sh2[8] == 'd' || sh2[8] == 'D') &&
+		sh2[9] != '\0' && (sh2[9] == 'i' || sh2[9] == 'I') &&
+		sh2[10] != '\0' && (sh2[10] == 'n' || sh2[10] == 'N') &&
+		sh2[11] != '\0' && (sh2[11] == 'g' || sh2[11] == 'G') &&
+		sh2[12] != '\0' &&
+		sh2[13] != '\0' && (sh2[13] == 'b' || sh2[13] == 'B') &&
+		sh2[14] != '\0' && (sh2[14] == 'i' || sh2[14] == 'I') &&
+		sh2[15] != '\0' && (sh2[15] == 'k' || sh2[15] == 'K'))
 	{
 		return true;
 	}
-	if ((sh2[0] == 'm' || sh2[0] == 'M') &&
-		(sh2[1] == 'o' || sh2[1] == 'O') &&
-		(sh2[2] == 'v' || sh2[2] == 'V') &&
-		(sh2[3] == 'i' || sh2[3] == 'I') &&
-		(sh2[4] == 'e' || sh2[4] == 'E') &&
-		(sh2[6] == 'e' || sh2[6] == 'E') &&
-		(sh2[7] == 'n' || sh2[7] == 'N') &&
-		(sh2[8] == 'd' || sh2[8] == 'D') &&
-		(sh2[10] == 'b' || sh2[10] == 'B') &&
-		(sh2[11] == 'i' || sh2[11] == 'I') &&
-		(sh2[12] == 'k' || sh2[12] == 'K'))
+	if (sh2[0] != '\0' && (sh2[0] == 'm' || sh2[0] == 'M') &&
+		sh2[1] != '\0' && (sh2[1] == 'o' || sh2[1] == 'O') &&
+		sh2[2] != '\0' && (sh2[2] == 'v' || sh2[2] == 'V') &&
+		sh2[3] != '\0' && (sh2[3] == 'i' || sh2[3] == 'I') &&
+		sh2[4] != '\0' && (sh2[4] == 'e' || sh2[4] == 'E') &&
+		sh2[5] != '\0' &&
+		sh2[6] != '\0' && (sh2[6] == 'e' || sh2[6] == 'E') &&
+		sh2[7] != '\0' && (sh2[7] == 'n' || sh2[7] == 'N') &&
+		sh2[8] != '\0' && (sh2[8] == 'd' || sh2[8] == 'D') &&
+		sh2[9] != '\0' &&
+		sh2[10] != '\0' && (sh2[10] == 'b' || sh2[10] == 'B') &&
+		sh2[11] != '\0' && (sh2[11] == 'i' || sh2[11] == 'I') &&
+		sh2[12] != '\0' && (sh2[12] == 'k' || sh2[12] == 'K'))
 	{
 		return true;
 	}
@@ -187,30 +191,32 @@ inline bool isEndVideoPath(T sh2)
 template<typename T>
 inline DWORD getPicPath(T sh2)
 {
-	if ((sh2[0] == 'p' || sh2[0] == 'P') &&
-		(sh2[1] == 'i' || sh2[1] == 'I') &&
-		(sh2[2] == 'c' || sh2[2] == 'C'))
+	if (sh2[0] != '\0' && (sh2[0] == 'p' || sh2[0] == 'P') &&
+		sh2[1] != '\0' && (sh2[1] == 'i' || sh2[1] == 'I') &&
+		sh2[2] != '\0' && (sh2[2] == 'c' || sh2[2] == 'C'))
 	{
 		return 3;
 	}
-	if ((sh2[0] == 'm' || sh2[0] == 'M') &&
-		(sh2[1] == 'e' || sh2[1] == 'E') &&
-		(sh2[2] == 'n' || sh2[2] == 'N') &&
-		(sh2[3] == 'u' || sh2[3] == 'U') &&
-		(sh2[5] == 'm' || sh2[5] == 'M') &&
-		(sh2[6] == 'c' || sh2[6] == 'C'))
+	if (sh2[0] != '\0' && (sh2[0] == 'm' || sh2[0] == 'M') &&
+		sh2[1] != '\0' && (sh2[1] == 'e' || sh2[1] == 'E') &&
+		sh2[2] != '\0' && (sh2[2] == 'n' || sh2[2] == 'N') &&
+		sh2[3] != '\0' && (sh2[3] == 'u' || sh2[3] == 'U') &&
+		sh2[4] != '\0' &&
+		sh2[5] != '\0' && (sh2[5] == 'm' || sh2[5] == 'M') &&
+		sh2[6] != '\0' && (sh2[6] == 'c' || sh2[6] == 'C'))
 	{
 		return 4;
 	}
-	if ((sh2[0] == 'e' || sh2[0] == 'E') &&
-		(sh2[1] == 't' || sh2[1] == 'T') &&
-		(sh2[2] == 'c' || sh2[2] == 'C') &&
-		(sh2[4] == 'e' || sh2[4] == 'E') &&
-		(sh2[5] == 'f' || sh2[5] == 'F') &&
-		(sh2[6] == 'f' || sh2[6] == 'F') &&
-		(sh2[7] == 'e' || sh2[7] == 'E') &&
-		(sh2[8] == 'c' || sh2[8] == 'C') &&
-		(sh2[9] == 't' || sh2[9] == 'T'))
+	if (sh2[0] != '\0' && (sh2[0] == 'e' || sh2[0] == 'E') &&
+		sh2[1] != '\0' && (sh2[1] == 't' || sh2[1] == 'T') &&
+		sh2[2] != '\0' && (sh2[2] == 'c' || sh2[2] == 'C') &&
+		sh2[3] != '\0' &&
+		sh2[4] != '\0' && (sh2[4] == 'e' || sh2[4] == 'E') &&
+		sh2[5] != '\0' && (sh2[5] == 'f' || sh2[5] == 'F') &&
+		sh2[6] != '\0' && (sh2[6] == 'f' || sh2[6] == 'F') &&
+		sh2[7] != '\0' && (sh2[7] == 'e' || sh2[7] == 'E') &&
+		sh2[8] != '\0' && (sh2[8] == 'c' || sh2[8] == 'C') &&
+		sh2[9] != '\0' && (sh2[9] == 't' || sh2[9] == 'T'))
 	{
 		return 3;
 	}
@@ -218,27 +224,29 @@ inline DWORD getPicPath(T sh2)
 }
 
 template<typename T, typename D>
-T UpdateModPath(T sh2, D str)
+inline T UpdateModPath(T sh2, D str)
 {
-	if (!sh2 || !str || !IsFileSystemHooking)
+	if (!sh2 || !str || !IsFileSystemHooking || !UseCustomModFolder)
 	{
 		return sh2;
 	}
 
-	// Check if CustomModFolder is enabled
-	if (!UseCustomModFolder)
-	{
-		return sh2;
-	}
-
+	DWORD StrSize = strlen(sh2);
 	DWORD padding = 0;
+	bool isEnding = false;
 
 	// Check if data path is found and store location
 	if (isDataPath(sh2))
 	{
 		// Data path found at location '0', do nothing
 	}
-	else if (isDataPath(sh2 + modLoc))
+	else if (StrSize + strlen(ModPath(sh2)) + 4 > MAX_PATH)
+	{
+		// Game path is too long
+		LOG_ONCE(__FUNCTION__ " Error: Game path is too long: '" << sh2 << "'");
+		return sh2;
+	}
+	else if (StrSize > modLoc && isDataPath(sh2 + modLoc))
 	{
 		// Data path found at mod location, update padding and initialize
 		padding = modLoc;
@@ -260,8 +268,11 @@ T UpdateModPath(T sh2, D str)
 		strcpy_s(str + padding + PathLen, MAX_PATH - padding - PathLen, sh2 + padding + 4);
 
 		// Handle end.bik/ending.bik (favor end.bik)
-		if (isEndVideoPath(sh2 + padding + 5))
+		if ((StrSize > padding + PathLen + 1) && isEndVideoPath(sh2 + padding + PathLen + 1))
 		{
+			Logging::Log() << __FUNCTION__ " " << sh2;
+			isEnding = true;
+
 			// Check mod path
 			strcpy_s(str + padding + PathLen, MAX_PATH - padding - PathLen, GetEnding1(sh2));
 			if (PathFileExists(str))
@@ -273,20 +284,6 @@ T UpdateModPath(T sh2, D str)
 			{
 				return str;
 			}
-
-			// Check data path
-			strcpy_s(str, MAX_PATH, sh2);
-			strcpy_s(str + padding + 4, MAX_PATH - padding - 4, GetEnding1(sh2));
-			if (PathFileExists(str))
-			{
-				return str;
-			}
-			strcpy_s(str + padding + 4, MAX_PATH - padding - 4, GetEnding2(sh2));
-			if (PathFileExists(str))
-			{
-				return str;
-			}
-			return sh2;
 		}
 
 		// Handle PS2 low texture mod
@@ -308,7 +305,75 @@ T UpdateModPath(T sh2, D str)
 		}
 	}
 
+	// Handle end.bik/ending.bik (favor end.bik)
+	if (isEnding)
+	{
+		// Check data path
+		strcpy_s(str, MAX_PATH, sh2);
+		strcpy_s(str + padding + 4, MAX_PATH - padding - 4, GetEnding1(sh2));
+		if (PathFileExists(str))
+		{
+			return str;
+		}
+		strcpy_s(str + padding + 4, MAX_PATH - padding - 4, GetEnding2(sh2));
+		if (PathFileExists(str))
+		{
+			return str;
+		}
+	}
+
 	return sh2;
+}
+
+char* GetFileModPath(const char* sh2, const char* str)
+{
+	OnFileLoadTex(sh2);
+	OnFileLoadVid(sh2);
+
+	return UpdateModPath<char*, char*>((char*)sh2, (char*)str);
+}
+wchar_t* GetFileModPath(const wchar_t* sh2, const wchar_t* str)
+{
+	return UpdateModPath<wchar_t*, wchar_t*>((wchar_t*)sh2, (wchar_t*)str);
+}
+
+int WINAPI BinkOpenHandler(char* lpFileName, DWORD dwFlags)
+{
+	static PFN_BinkOpen org_BinkOpen = (PFN_BinkOpen)InterlockedCompareExchangePointer((PVOID*)&p_BinkOpen, nullptr, nullptr);
+
+	if (!org_BinkOpen)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
+		return NULL;
+	}
+
+	if (!IsFileSystemHooking)
+	{
+		return org_BinkOpen(lpFileName, dwFlags);
+	}
+
+	char Filename[MAX_PATH];
+	return org_BinkOpen(GetFileModPath(lpFileName, Filename), dwFlags);
+}
+
+FILE WINAPIV fopenHandler(char const* lpFileName, char const* lpMode)
+{
+	static PFN_fopen org_fopen = (PFN_fopen)InterlockedCompareExchangePointer((PVOID*)&p_fopen, nullptr, nullptr);
+
+	if (!org_fopen)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
+		FILE file = {};
+		return file;
+	}
+
+	if (!IsFileSystemHooking)
+	{
+		return org_fopen(lpFileName, lpMode);
+	}
+
+	char Filename[MAX_PATH];
+	return org_fopen(GetFileModPath(lpFileName, Filename), lpMode);
 }
 
 // CreateFileA wrapper function
@@ -329,15 +394,7 @@ HANDLE WINAPI CreateFileAHandler(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD
 	}
 
 	char Filename[MAX_PATH];
-	HANDLE hFile = org_CreateFile(UpdateModPath(lpFileName, Filename), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
-
-	if (hFile != INVALID_HANDLE_VALUE)
-	{
-		OnFileLoadTex(hFile, lpFileName);
-		OnFileLoadVid(hFile, lpFileName);
-	}
-
-	return hFile;
+	return org_CreateFile(GetFileModPath(lpFileName, Filename), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 }
 
 // CreateFileW wrapper function
@@ -358,7 +415,7 @@ HANDLE WINAPI CreateFileWHandler(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWOR
 	}
 
 	wchar_t Filename[MAX_PATH];
-	return org_CreateFile(UpdateModPath(lpFileName, Filename), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+	return org_CreateFile(GetFileModPath(lpFileName, Filename), dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 }
 
 void UpdateFindData(LPWIN32_FIND_DATAA lpFindFileData)
@@ -426,48 +483,6 @@ BOOL WINAPI FindNextFileAHandler(HANDLE hFindFile, LPWIN32_FIND_DATAA lpFindFile
 	UpdateFindData(lpFindFileData);
 
 	return ret;
-}
-
-// GetPrivateProfileStringA wrapper function
-DWORD WINAPI GetPrivateProfileStringAHandler(LPCSTR lpAppName, LPCSTR lpKeyName, LPCSTR lpDefault, LPSTR lpReturnedString, DWORD nSize, LPCSTR lpFileName)
-{
-	static PFN_GetPrivateProfileStringA org_GetPrivateProfileString = (PFN_GetPrivateProfileStringA)InterlockedCompareExchangePointer((PVOID*)&p_GetPrivateProfileStringA, nullptr, nullptr);
-
-	if (!org_GetPrivateProfileString)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
-		SetLastError(2);
-		return NULL;
-	}
-
-	if (!IsFileSystemHooking)
-	{
-		return org_GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, lpFileName);
-	}
-
-	char Filename[MAX_PATH];
-	return org_GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, UpdateModPath(lpFileName, Filename));
-}
-
-// GetPrivateProfileStringW wrapper function
-DWORD WINAPI GetPrivateProfileStringWHandler(LPCWSTR lpAppName, LPCWSTR lpKeyName, LPCWSTR lpDefault, LPWSTR lpReturnedString, DWORD nSize, LPCWSTR lpFileName)
-{
-	static PFN_GetPrivateProfileStringW org_GetPrivateProfileString = (PFN_GetPrivateProfileStringW)InterlockedCompareExchangePointer((PVOID*)&p_GetPrivateProfileStringW, nullptr, nullptr);
-
-	if (!org_GetPrivateProfileString)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: invalid proc address!";
-		SetLastError(2);
-		return NULL;
-	}
-
-	if (!IsFileSystemHooking)
-	{
-		return org_GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, lpFileName);
-	}
-
-	wchar_t Filename[MAX_PATH];
-	return org_GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, lpReturnedString, nSize, UpdateModPath(lpFileName, Filename));
 }
 
 BOOL WINAPI CreateProcessAHandler(LPCSTR lpApplicationName, LPSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes, LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags,
@@ -555,8 +570,8 @@ void InstallCreateProcessHooks()
 
 	// Hook CreateProcess APIs
 	HMODULE h_kernel32 = GetModuleHandle(L"kernel32.dll");
-	InterlockedExchangePointer((PVOID)&p_CreateProcessA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "CreateProcessA"), "CreateProcessA", *CreateProcessAHandler));
-	InterlockedExchangePointer((PVOID)&p_CreateProcessW, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "CreateProcessW"), "CreateProcessW", *CreateProcessWHandler));
+	InterlockedExchangePointer((PVOID*)&p_CreateProcessA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "CreateProcessA"), "CreateProcessA", *CreateProcessAHandler));
+	InterlockedExchangePointer((PVOID*)&p_CreateProcessW, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "CreateProcessW"), "CreateProcessW", *CreateProcessWHandler));
 }
 
 void DisableFileSystemHooking()
@@ -566,31 +581,88 @@ void DisableFileSystemHooking()
 	wcscpy_s(ModPathW, MAX_PATH, L"data");
 }
 
-void InstallFileSystemHooks(HMODULE hModule)
+void InstallFileSystemHooks()
 {
 	// Logging
 	Logging::Log() << "Hooking the FileSystem APIs...";
 
-	// Store handle
-	moduleHandle = hModule;
-
 	// Hook FileSystem APIs
+	HMODULE h_binkw32 = GetModuleHandle(L"binkw32.dll");
+	p_BinkOpen = GetProcAddress(h_binkw32, "_BinkOpen@8");
+	HMODULE h_msvcr70 = GetModuleHandle(L"msvcr70.dll");
+	p_fopen = GetProcAddress(h_msvcr70, "fopen");
 	HMODULE h_kernel32 = GetModuleHandle(L"kernel32.dll");
-	InterlockedExchangePointer((PVOID)&p_CreateFileA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "CreateFileA"), "CreateFileA", *CreateFileAHandler));
-	InterlockedExchangePointer((PVOID)&p_CreateFileW, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "CreateFileW"), "CreateFileW", *CreateFileWHandler));
-	InterlockedExchangePointer((PVOID)&p_FindFirstFileA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "FindFirstFileA"), "FindFirstFileA", *FindFirstFileAHandler));
-	InterlockedExchangePointer((PVOID)&p_FindNextFileA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "FindNextFileA"), "FindNextFileA", *FindNextFileAHandler));
-	InterlockedExchangePointer((PVOID)&p_GetPrivateProfileStringA, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "GetPrivateProfileStringA"), "GetPrivateProfileStringA", *GetPrivateProfileStringAHandler));
-	InterlockedExchangePointer((PVOID)&p_GetPrivateProfileStringW, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "GetPrivateProfileStringW"), "GetPrivateProfileStringW", *GetPrivateProfileStringWHandler));
+	p_CreateFileA = GetProcAddress(h_kernel32, "CreateFileA");
+	p_CreateFileW = GetProcAddress(h_kernel32, "CreateFileW");
+	p_FindFirstFileA = GetProcAddress(h_kernel32, "FindFirstFileA");
+	p_FindNextFileA = GetProcAddress(h_kernel32, "FindNextFileA");
 
-	// Check for hook failures
-	if (!p_CreateFileA || !p_CreateFileW ||
-		!p_FindFirstFileA || !p_FindNextFileA ||
-		!p_GetPrivateProfileStringA || !p_GetPrivateProfileStringW)
+	// Check for failures
+	if (!p_BinkOpen || !p_fopen ||
+		!p_CreateFileA || !p_CreateFileW ||
+		!p_FindFirstFileA || !p_FindNextFileA)
 	{
-		Logging::Log() << "FAILED to hook the FileSystem APIs, disabling 'UseCustomModFolder'!";
+		Logging::Log() << __FUNCTION__ << " Error: FAILED to hook the FileSystem APIs, disabling 'UseCustomModFolder'!";
 		DisableFileSystemHooking();
 		return;
+	}
+
+	if (GameVersion == SH2V_UNKNOWN)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: unknown version of Silent Hill 2!";
+		DisableFileSystemHooking();
+		return;
+	}
+
+	char* BinkOpen_bytes = "E8 ? ? 13 00 85 C0 89 45 00";
+	char* fopen_bytes =
+		(GameVersion == SH2V_10) ? "FF 15 60 6A 4A 02" :
+		(GameVersion == SH2V_11) ? "FF 15 30 AA 4A 02" :
+		(GameVersion == SH2V_DC) ? "FF 15 38 9A 4A 02" : "";
+	char* CreateFileA_bytes =
+		(GameVersion == SH2V_10) ? "FF 15 A0 67 4A 02" :
+		(GameVersion == SH2V_11) ? "FF 15 88 A7 4A 02" :
+		(GameVersion == SH2V_DC) ? "FF 15 8C 97 4A 02" : "";
+	char* CreateFileW_bytes =
+		(GameVersion == SH2V_10) ? "FF 15 A4 67 4A 02" :
+		(GameVersion == SH2V_11) ? "FF 15 8C A7 4A 02" :
+		(GameVersion == SH2V_DC) ? "FF 15 90 97 4A 02" : "";
+	char* FindFirstFileA_bytes =
+		(GameVersion == SH2V_10) ? "FF 15 7C 68 4A 02" :
+		(GameVersion == SH2V_11) ? "FF 15 10 A8 4A 02" :
+		(GameVersion == SH2V_DC) ? "FF 15 18 98 4A 02" : "";
+	char* FindNextFileA_bytes =
+		(GameVersion == SH2V_10) ? "FF 15 80 68 4A 02" :
+		(GameVersion == SH2V_11) ? "FF 15 14 A8 4A 02" :
+		(GameVersion == SH2V_DC) ? "FF 15 1C 98 4A 02" : "";
+
+	struct HOOKSTRUCT
+	{
+		char* Bytes;
+		void* ProcAddr;
+		int AddrSize;
+	};
+
+	HOOKSTRUCT HookList[] = {
+		{ BinkOpen_bytes, BinkOpenHandler, 5 },
+		{ fopen_bytes, fopenHandler, 6 },
+		{ CreateFileA_bytes, CreateFileAHandler, 6 },
+		{ CreateFileW_bytes, CreateFileWHandler, 6 },
+		{ FindFirstFileA_bytes, FindFirstFileAHandler, 6 },
+		{ FindNextFileA_bytes, FindNextFileAHandler, 6 },
+	};
+
+	for (auto item : HookList)
+	{
+		auto pattern = hook::pattern(item.Bytes);
+		if (!pattern.size())
+		{
+			Logging::Log() << __FUNCTION__ << " Error: could not find a hook! '" << item.Bytes << "'";
+		}
+		for (DWORD x = 0; x < pattern.size(); x++)
+		{
+			WriteCalltoMemory((byte*)pattern.get(x).get<uint32_t*>(0), item.ProcAddr, item.AddrSize);
+		}
 	}
 
 	// Set module name
@@ -617,9 +689,9 @@ void InstallFileSystemHooks(HMODULE hModule)
 	modLoc = wcslen(tmpPath) + 1;
 	size_t modLen = strlen(ModPathA);
 	picLen = strlen(ModPicPathA);
-	if (modLoc + modLen > MAX_PATH)
+	if (modLoc + modLen + 42 > MAX_PATH)	// Check max length of a file in the game
 	{
-		Logging::Log() << __FUNCTION__ " Error: custom mod path length is too long! " << modLoc + modLen;
+		Logging::Log() << __FUNCTION__ " Error: Game path is too long: " << modLoc + modLen;
 		DisableFileSystemHooking();
 		return;
 	}

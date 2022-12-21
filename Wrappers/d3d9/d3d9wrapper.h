@@ -15,7 +15,7 @@ class m_IDirect3DSwapChain9;
 
 typedef IDirect3D9 *(WINAPI *Direct3DCreate9Proc)(UINT);
 
-IDirect3D9 *WINAPI rs_Direct3DCreate9(UINT SDKVersion);
+IDirect3D9 *WINAPI Direct3DCreate9Wrapper(UINT SDKVersion);
 
 #include "IDirect3D9.h"
 #include "IDirect3DDevice9.h"

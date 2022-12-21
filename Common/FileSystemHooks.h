@@ -51,11 +51,14 @@
 	visit(bgm_117, aix, L"\\sound\\adx\\town") \
 	visit(voice, afs, L"\\sound\\adx\\voice")
 
-template<typename T, typename D>
-T UpdateModPath(T sh2, D str);
+template<typename T>
+bool isInString(T strCheck, T str, size_t size);
+
+char* GetFileModPath(const char* sh2, const char* str);
+wchar_t* GetFileModPath(const wchar_t* sh2, const wchar_t* str);
 
 LPCSTR GetModPath(LPCSTR);
 LPCWSTR GetModPath(LPCWSTR);
 
 void InstallCreateProcessHooks();
-void InstallFileSystemHooks(HMODULE hModule);
+void InstallFileSystemHooks();

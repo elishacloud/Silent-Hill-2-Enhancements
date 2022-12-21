@@ -21,6 +21,7 @@
 
 extern bool DisableShaderOnPresent;
 
+bool ShadersReady = false;
 DWORD GammaLevel = 3;
 
 HRESULT m_IDirect3DDevice9::QueryInterface(REFIID riid, void** ppvObj)
@@ -204,6 +205,8 @@ HRESULT m_IDirect3DDevice9::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 		return D3DERR_INVALIDCALL;
 	}
 
+	isInScene = false;
+
 	com_ptr<IDirect3D9> d3d;
 	ProxyInterface->GetDirect3D(&d3d);
 	D3DDEVICE_CREATION_PARAMETERS cp = {};
@@ -250,12 +253,25 @@ HRESULT m_IDirect3DDevice9::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 
 HRESULT m_IDirect3DDevice9::Present(const RECT *pSourceRect, const RECT *pDestRect, HWND hDestWindowOverride, const RGNDATA *pDirtyRegion)
 {
+	bool SkipScene = false;
 	// Only call into runtime if the entire surface is presented, to avoid partial updates messing up effects and the GUI
-	if (GammaSet && !DisableShaderOnPresent && m_IDirect3DSwapChain9::is_presenting_entire_surface(pSourceRect, hDestWindowOverride))
+	if (ShadersReady && !DisableShaderOnPresent && m_IDirect3DSwapChain9::is_presenting_entire_surface(pSourceRect, hDestWindowOverride))
 	{
+		SkipScene = _implicit_swapchain->_runtime->get_gamma();
 		_implicit_swapchain->_runtime->on_present();
 	}
+
+	// Endscene
+	isInScene = false;
+	ProxyInterface->EndScene();
+
 	_buffer_detection.reset(false);
+
+	if (SkipScene)
+	{
+		Logging::Log() << __FUNCTION__ << " Skipping frame after gamma change!";
+		return D3D_OK;
+	}
 
 	return ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 }
@@ -310,9 +326,7 @@ void m_IDirect3DDevice9::SetGammaRamp(UINT iSwapChain, DWORD Flags, const D3DGAM
 
 		const auto runtime = _implicit_swapchain->_runtime;
 
-		runtime->reset_gamma(GammaSet);
-
-		GammaSet = true;
+		runtime->reset_gamma(true);
 
 		return;
 	}
@@ -457,12 +471,18 @@ HRESULT m_IDirect3DDevice9::GetDepthStencilSurface(IDirect3DSurface9 **ppZStenci
 
 HRESULT m_IDirect3DDevice9::BeginScene()
 {
-	return ProxyInterface->BeginScene();
+	if (!isInScene)
+	{
+		isInScene = true;
+		ProxyInterface->BeginScene();
+	}
+
+	return D3D_OK;
 }
 
 HRESULT m_IDirect3DDevice9::EndScene()
 {
-	return ProxyInterface->EndScene();
+	return D3D_OK;
 }
 
 HRESULT m_IDirect3DDevice9::Clear(DWORD Count, const D3DRECT *pRects, DWORD Flags, D3DCOLOR Color, float Z, DWORD Stencil)

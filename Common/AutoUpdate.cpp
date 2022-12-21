@@ -273,6 +273,8 @@ bool NewProjectReleaseAvailable(std::string &path_str)
 	// Check if there is an update available for the Setup Tool
 	if (localcsv_version[0] != webcsv_version[0])
 	{
+		Logging::Log() << "Setup Tool update found. Current version: " << localcsv_version[0] << ", New version: " << webcsv_version[0];
+
 		IsSetupToolUpdateAvailable = true;
 		return true;
 	}
@@ -286,10 +288,15 @@ bool NewProjectReleaseAvailable(std::string &path_str)
 			{
 				if (localcsv_version[i] != webcsv_version[i])
 				{
+					Logging::Log() << "\"" << localcsv_id[i] << "\"" << " update found. Current version: " << localcsv_version[i] << ", New version: " << webcsv_version[i];
 					IsProjectUpdateAvailable = true;
-					return true;
 				}
 			}
+		}
+
+		if (IsProjectUpdateAvailable)
+		{
+			return true;
 		}
 	}
 
@@ -606,7 +613,7 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 			std::wstring param;
 
 			// Ask user for update
-			int Response = MessageBox(DeviceWindow, L"There is an update for Silent Hill 2: Enhanced Edition. Would you like to close the game and launch the updater?", MsgTitle.c_str(), MB_YESNO | MB_ICONINFORMATION);
+			int Response = MessageBox(DeviceWindow, L"There is an update for Silent Hill 2: Enhanced Edition. Would you like to close the game and launch the updater?", MsgTitle.c_str(), MB_YESNO | MB_ICONINFORMATION | MB_SYSTEMMODAL);
 			if (Response == IDYES)
 			{
 				// Decide which parameter to use
@@ -640,7 +647,7 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 			IsUpdating = true;
 
 			// Ask user for update
-			int Response = MessageBox(DeviceWindow, L"There is an update for the SH2 Enhancements module. Would you like to update?", MsgTitle.c_str(), MB_YESNO | MB_ICONINFORMATION);
+			int Response = MessageBox(DeviceWindow, L"There is an update for the SH2 Enhancements module. Would you like to update?", MsgTitle.c_str(), MB_YESNO | MB_ICONINFORMATION | MB_SYSTEMMODAL);
 			if (Response == IDNO)
 			{
 				Logging::Log() << __FUNCTION__ " User chose not to update the build!";
@@ -651,7 +658,7 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 
 			// Notify user to download other packages
 			HHOOK hook = SetWindowsHookEx(WH_CBT, ChangeCaptionButtons, GetModuleHandle(nullptr), GetCurrentThreadId());
-			MessageBox(DeviceWindow, L"Note: This only updates the SH2 Enhancements module. You must manually download and update other enhancement packages from the project's website.", MsgTitle.c_str(), MB_OK | MB_ICONWARNING);
+			MessageBox(DeviceWindow, L"Note: This only updates the SH2 Enhancements module. You must manually download and update other enhancement packages from the project's website.", MsgTitle.c_str(), MB_OK | MB_ICONWARNING | MB_SYSTEMMODAL);
 			UnhookWindowsHookEx(hook);
 		}
 	}
@@ -715,7 +722,7 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 		{
 			Logging::Log() << __FUNCTION__ " Successfully updated module!";
 
-			int Response = MessageBox(DeviceWindow, L"Update complete! You must restart the game for the update to take effect. Would you like to restart the game now?", MsgTitle.c_str(), MB_YESNO | MB_ICONINFORMATION);
+			int Response = MessageBox(DeviceWindow, L"Update complete! You must restart the game for the update to take effect. Would you like to restart the game now?", MsgTitle.c_str(), MB_YESNO | MB_ICONINFORMATION | MB_SYSTEMMODAL);
 			if (Response == IDYES)
 			{
 				// Get Silent Hill 2 file path and restart
@@ -734,11 +741,11 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 			
 			if (!IsProjectUpdateAvailable)
 			{
-				MessageBox(DeviceWindow, L"Update FAILED! You will need to manually update the SH2 Enhancements module!", MsgTitle.c_str(), MB_OK | MB_ICONERROR);
+				MessageBox(DeviceWindow, L"Update FAILED! You will need to manually update the SH2 Enhancements module!", MsgTitle.c_str(), MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
 			}
 			else
 			{
-				MessageBox(DeviceWindow, std::wstring(L"Failed to launch the updater! Please try to manually run " + std::wstring(TEXT(SH2EE_SETUP_EXE_FILE)) + L" and update from there.").c_str(), MsgTitle.c_str(), MB_OK | MB_ICONERROR);
+				MessageBox(DeviceWindow, std::wstring(L"Failed to launch the updater! Please try to manually run " + std::wstring(TEXT(SH2EE_SETUP_EXE_FILE)) + L" and update from there.").c_str(), MsgTitle.c_str(), MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
 			}
 		}
 	}

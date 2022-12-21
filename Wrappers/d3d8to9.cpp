@@ -68,7 +68,7 @@ void EnableD3d8to9()
 	}
 	else
 	{
-		p_Direct3DCreate9 = rs_Direct3DCreate9;
+		p_Direct3DCreate9 = Direct3DCreate9Wrapper;
 	}
 }
 
@@ -143,6 +143,8 @@ Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 	Logging::Log() << "Redirecting 'Direct3DCreate8' to --> 'Direct3DCreate9' (" << SDKVersion << ")";
 
 	IDirect3D9 *const d3d = p_Direct3DCreate9(D3D_SDK_VERSION);
+
+	RunDelayedOneTimeItems();
 
 	if (d3d == nullptr)
 	{

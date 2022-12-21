@@ -112,7 +112,8 @@ void UpdateTitlePath()
 	sprintf_s((char *)start00CustomPath, sizeof(start00CustomPath), "data\\pic\\etc\\start00%c.tex", lang);
 	start00Offset.unk1 = -1;
 	start00Offset.unk3 = 0;
-	ifstream file(start00CustomPath);
+	char Filename[MAX_PATH];
+	ifstream file(GetFileModPath(start00CustomPath, Filename));
 	if (!file.is_open())
 	{
 		start00Offset.pathPtr = "data\\pic\\etc\\start00.tex";
@@ -126,7 +127,8 @@ void UpdateTitlePath()
 	sprintf_s((char *)start01CustomPath, sizeof(start01CustomPath), "data\\pic\\etc\\start01%c.tex", lang);
 	start01Offset.size = -1;
 	start01Offset.unk3 = 0;
-	ifstream file(start01CustomPath);
+	char Filename[MAX_PATH];
+	ifstream file(GetFileModPath(start01CustomPath, Filename));
 	if (!file.is_open())
 	{
 		start01Offset.pathPtr = "data\\pic\\etc\\start01.tex";

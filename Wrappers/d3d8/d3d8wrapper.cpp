@@ -103,6 +103,8 @@ IDirect3D8 *WINAPI Direct3DCreate8Wrapper(UINT SDKVersion)
 
 	LPDIRECT3D8 pD3D8 = m_pDirect3DCreate8(SDKVersion);
 
+	RunDelayedOneTimeItems();
+
 	if (pD3D8)
 	{
 		return new m_IDirect3D8(pD3D8);
@@ -110,7 +112,6 @@ IDirect3D8 *WINAPI Direct3DCreate8Wrapper(UINT SDKVersion)
 	else
 	{
 		Logging::Log() << "'Direct3DCreate8' Failed!";
+		return nullptr;
 	}
-
-	return nullptr;
 }

@@ -149,13 +149,7 @@ void DelayedStart()
 		Logging::Log() << "Config file: " << configpath;
 		Logging::Log() << "|----------- SETTINGS -----------";
 
-		// Log config settings
-		char* szCfg = Read(configpath);
-		if (szCfg)
-		{
-			Parse(szCfg, LogCallback);
-			free(szCfg);
-		}
+		LogSettings();
 
 		Logging::Log() << "|--------------------------------";
 	}
@@ -216,15 +210,28 @@ void DelayedStart()
 	}
 
 	// Hook DirectInput8
-	if (RestoreVibration)
+	if (HookDirectInput)
 	{
 		HookDirectInput8Create();
 	}
 
-	// Hook CreateFile API when using UseCustomModFolder
+	// XInput based vibration
+	if (RestoreVibration)
+	{
+		PatchXInputVibration();
+	}
+
+	// Widescreen Fix (needs to be before 'UseCustomModFolder')
+	if (WidescreenFix)
+	{
+		Logging::Log() << "Loading the \"WidescreenFixesPack\" module...";
+		WSFInit();
+	}
+
+	// Hook CreateFile APIs (needs to be before all other patches that check files in 'data' or 'sh2e' folders)
 	if (UseCustomModFolder)
 	{
-		InstallFileSystemHooks(m_hModule);
+		InstallFileSystemHooks();
 	}
 
 	// Enable No-CD Patch
@@ -374,12 +381,6 @@ void DelayedStart()
 		PatchPauseScreen();
 	}
 
-	// XInput based vibration
-	if (RestoreVibration)
-	{
-		PatchXInputVibration();
-	}
-
 	// DPad movement
 	if (DPadMovementFix || RestoreSearchCamMovement != 0)
 	{
@@ -446,6 +447,11 @@ void DelayedStart()
 		PatchGameLoad();
 	}
 
+	if (QuickSaveTweaks)
+	{
+		PatchQuickSavePos();
+	}
+
 	// Game Save Sound Fix
 	if (SaveGameSoundFix)
 	{
@@ -488,13 +494,6 @@ void DelayedStart()
 		PatchCustomFog();
 	}
 
-	// Widescreen Fix
-	if (WidescreenFix)
-	{
-		Logging::Log() << "Loading the \"WidescreenFixesPack\" module...";
-		WSFInit();
-	}
-
 	// Update fullscreen images
 	if (FullscreenImages)
 	{
@@ -508,7 +507,7 @@ void DelayedStart()
 	}
 
 	// Patch resolution list in the Options menu
-	if (((DynamicResolution && WidescreenFix) || LockResolution) && CustomExeStrSet)
+	if (((DynamicResolution || LockResolution) && WidescreenFix) && CustomExeStrSet)
 	{
 		SetResolutionPatch();
 	}
@@ -645,7 +644,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		if (wrapper_dll)
 		{
 			FreeModule(wrapper_dll);
-	}
+		}
 #endif // DEBUG
 
 		// Reenabling screensaver

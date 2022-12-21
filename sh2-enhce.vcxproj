@@ -55,6 +55,7 @@
     <ClCompile Include="Patches\ChangeClosetSpawn.cpp" />
     <ClCompile Include="Patches\InputTweaks.cpp" />
     <ClCompile Include="Patches\PatchCriware.cpp" />
+    <ClCompile Include="Patches\QuickSaveTweaks.cpp" />
     <ClCompile Include="Patches\SaveGameSound.cpp" />
     <ClCompile Include="Logging\Logging.cpp" />
     <ClCompile Include="Patches\2TBHardDriveFix.cpp" />
@@ -220,17 +221,11 @@
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v141_xp</PlatformToolset>
   </PropertyGroup>
-  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="ReShade\stb\Windows.props" />
     <Import Project="ReShade\stb\stb.props" />
-    <Import Project="ReShade\stb\utfcpp.props" />
-    <Import Project="ReShade\stb\SPIRV.props" />
   </ImportGroup>
   <PropertyGroup>
     <ExecutablePath>$(ExecutablePath);$(UniversalCRTSdkDir_10)\bin\x86;$(UniversalCRTSdkDir_10)\bin\x64</ExecutablePath>
@@ -279,9 +274,6 @@
       <ObjectFileName>$(SolutionDir)bin\Intermediate\$(ProjectName)\$(Configuration)\Object\%(RelativeDir)</ObjectFileName>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>Wrappers\wrapper.def</ModuleDefinitionFile>

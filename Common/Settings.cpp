@@ -23,6 +23,10 @@
 #include "Settings.h"
 #include "Logging\Logging.h"
 
+bool EnableCRTShader = false;
+bool CRTCurveShader = false;
+bool CRTNonCurveShader = false;
+
 // Configurable setting defaults
 #define SET_BOOL_DEFAULTS(name, value) \
 	bool name = value;
@@ -74,23 +78,20 @@ void __stdcall ParseCallback(char* lpName, char* lpValue, void*)
 	VISIT_STR_SETTINGS(GET_STR_VALUES);
 }
 
-// Log config settings from string (file)
-void __stdcall LogCallback(char* lpName, char* lpValue, void*)
+// Log config settings
+void LogSettings()
 {
-	// Check for valid entries
-	if (!IsValidSettings(lpName, lpValue)) return;
-
-	// Log settings
 #define LOG_VALUES(name, unused) \
-	if (!_stricmp(lpName, #name)) \
-	{ \
-		Logging::Log() << "|- " << #name << ": " << lpValue; \
-	}
+	Logging::Log() << "|- " << #name << ": " << name; \
 
 	VISIT_BOOL_SETTINGS(LOG_VALUES);
 	VISIT_INT_SETTINGS(LOG_VALUES);
 	VISIT_FLOAT_SETTINGS(LOG_VALUES);
 	VISIT_STR_SETTINGS(LOG_VALUES);
+
+	LOG_VALUES(AutoScaleImages, 0);
+	LOG_VALUES(AutoScaleVideos, 0);
+	LOG_VALUES(EnableCustomShaders, 0);
 }
 
 // Set booloean value from string (file)
@@ -246,8 +247,39 @@ void Parse(char* str, NV NameValueCallback, void* lpParam)
 
 void UpdateConfigDefaults()
 {
+	// Prevent UseCustomFolders from causing a crash when audio or texture files are too large
+	if (UseCustomModFolder)
+	{
+		EnableSFXAddrHack = true;
+		EnableTexAddrHack = true;
+		FullscreenImages = (FullscreenImages) ? FullscreenImages : AUTO_MEDIA_CONTROL;
+		FullscreenVideos = (FullscreenVideos) ? FullscreenVideos : AUTO_MEDIA_CONTROL;
+	}
+
+	// Check if FullscreenImages or FullscreenVideos should be disabled
+	if (!DynamicResolution && !WidescreenFix)
+	{
+		FullscreenImages = DISABLE_MEDIA_CONTROL;
+		FullscreenVideos = DISABLE_MEDIA_CONTROL;
+	}
+
+	// Set CRT shader
+	switch (CRTShader)
+	{
+	default:
+	case CRT_SHADER_DISABLED:
+		break;
+	case CRT_SHADER_ENABLED:
+		EnableCRTShader = true;
+		CRTNonCurveShader = true;
+		break;
+	case CRT_SHADER_ENABLED_CURVATURE:
+		EnableCRTShader = true;
+		CRTCurveShader = true;
+	}
+
 	// Set shaders default
-	EnableCustomShaders = ((AdjustColorTemp || RestoreBrightnessSelector || EnableSMAA) && d3d8to9);
+	EnableCustomShaders = ((EnableSMAA || AdjustColorTemp || RestoreBrightnessSelector || EnableCRTShader) && d3d8to9);
 
 	// Set FogFix
 	if (FogFix == 0xFFFF)
@@ -317,5 +349,16 @@ void UpdateConfigDefaults()
 		break;
 	default:
 		FrontBufferControl = AUTO_BUFFER;
+	}
+
+	// Set force feedback control
+	switch (RemoveForceFeedbackFilter)
+	{
+	case DISABLE_FORCEFEEDBACK_CONTROL:
+	case REMOVE_FORCEFEEDBACK:
+		break;
+	case AUTO_REMOVE_FORCEFEEDBACK:
+	default:
+		RemoveForceFeedbackFilter = AUTO_REMOVE_FORCEFEEDBACK;
 	}
 }

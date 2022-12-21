@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <vector>
 #include <Shldisp.h>
 #include "External\MemoryModule\MemoryModule.h"
@@ -15,8 +16,10 @@ bool UpdateMemoryAddress(void *dataAddr, const void *dataBytes, size_t dataSize)
 bool WriteCalltoMemory(BYTE *dataAddr, const void *JMPAddr, DWORD count = 5);
 bool WriteJMPtoMemory(BYTE *dataAddr, const void *JMPAddr, DWORD count = 5);
 DWORD ReplaceMemoryBytes(void *dataSrc, void *dataDest, size_t size, DWORD start, DWORD distance, DWORD count = 0);
+void LogAffinity();
 DWORD_PTR GetProcessMask();
 void SetSingleCoreAffinity();
+void SetMultiCoreAffinity();
 void SetDPIAware();
 HMODULE SetAppTheme();
 void SetWindowTheme(HWND hWnd);
@@ -45,3 +48,4 @@ HRESULT GetSavedResolution(DWORD &Width, DWORD &Height);
 HRESULT SaveResolution(DWORD Width, DWORD Height);
 void LogDirectory();
 void LogAllModules();
+void RunDelayedOneTimeItems();

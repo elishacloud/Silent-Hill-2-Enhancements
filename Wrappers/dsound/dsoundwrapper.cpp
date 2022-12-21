@@ -60,6 +60,8 @@ HRESULT WINAPI DirectSoundCreate8Wrapper(LPCGUID pcGuidDevice, LPDIRECTSOUND8 *p
 		}
 	} while (FAILED(hr) && ++x < 100);
 
+	RunDelayedOneTimeItems();
+
 	if (SUCCEEDED(hr) && ppDS8)
 	{
 		*ppDS8 = new m_IDirectSound8(*ppDS8);

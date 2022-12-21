@@ -20,6 +20,8 @@
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
+extern bool ClearFontBeforePrint;
+
 typedef void(__cdecl* LoadMariaProc)(int a1);
 typedef void(__cdecl* MariaFunctionProc)();
 
@@ -237,6 +239,8 @@ void PatchGameLoad()
 	WriteJMPtoMemory((BYTE*)IndexCheckAddr, *GameResultSaveASM, 6);
 }
 
+DWORD quickSaveToggle;
+
 void SetGameLoad()
 {
 	// Get elevator room save address
@@ -327,6 +331,11 @@ void SetGameLoad()
 	WriteJMPtoMemory((BYTE*)TextOverlapFunction, *TextOverlapASM, 6);
 	WriteJMPtoMemory((BYTE*)QuickSaveFunction, *QuickSaveASM, 6);
 	WriteJMPtoMemory((BYTE*)MariaFunctionAddr, *NewMariaFunction, 6);
+
+	memcpy(&quickSaveToggle, (DWORD*)(0x04024bd),sizeof(DWORD));
+
+	ClearFontBeforePrint = true;
+
 }
 
 void RunGameLoad()
@@ -403,7 +412,7 @@ void RunGameLoad()
 		ValueSet = true;
 	}
 	// Disable game saves for specific rooms
-	else if (GetRoomID() == 0x13 || GetRoomID() == 0x17 || GetRoomID() == 0x2A || GetRoomID() == 0x46 || GetRoomID() == 0xAA || GetRoomID() == 0xC7 ||
+	else if (GetRoomID() == 0x09 || GetRoomID() == 0x0A || GetRoomID() == 0x0B || GetRoomID() == 0x13 || GetRoomID() == 0x17 || GetRoomID() == 0x2A || GetRoomID() == 0x46 || GetRoomID() == 0xAA || GetRoomID() == 0xC7 ||
 		(GetRoomID() == 0x04 && GetJamesPosZ() > 49000.0f) ||
 		(GetRoomID() == 0x78 && GetJamesPosX() < -18600.0f) ||
 		(GetRoomID() == 0x9D && GetJamesPosX() < 60650.0f) ||

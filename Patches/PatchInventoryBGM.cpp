@@ -13,6 +13,7 @@ BYTE MenuEventIndex;
 
 // BGM Fading out instructions
 #pragma warning(suppress: 4740)
+/*
 __declspec(naked) void __stdcall FixInventoryBGMBugASM()
 {
 	EventIndex = GetEventIndex();
@@ -29,7 +30,7 @@ __declspec(naked) void __stdcall FixInventoryBGMBugASM()
 				jmp jmp_return
 			}
 		}
-		
+
 		if (EventIndex > 3 && EventIndex < 10 || EventIndex == 0x10 || MenuEventIndex == 0x11)
 		{
 			__asm
@@ -42,6 +43,38 @@ __declspec(naked) void __stdcall FixInventoryBGMBugASM()
 	{
 		jmp jmp_to_loop
 	}
+}*/
+
+__declspec(naked) void __stdcall FixInventoryBGMBugASM()
+{
+	EventIndex = GetEventIndex();
+	MenuEventIndex = GetMenuEvent();
+	// Works only if this conditions are met, if you want to mute sound on specific area you can add a new line or simply you can create
+	// new comparison and send them through jmp_return address
+	if (MenuEventIndex == 0x0D /*[normal gameplay]*/ || (MenuEventIndex == 0x11 /*[load game menu]*/ && EventIndex == 0x00 /*[load game menu]*/) && LastEventIndex == 0x10)
+	{
+		if (EventIndex == 0x0B /*[game result screen]*/)
+		{
+			*muteSound = 0x0F;
+			__asm
+			{
+				jmp jmp_return
+			}
+		}
+
+		if (EventIndex > 0x03 && EventIndex < 0x0A /*[just about every type of menu]*/ || EventIndex == 0x10 /*[pause menu]*/ || MenuEventIndex == 0x11 /*[normal gameplay]*/)
+		{
+			__asm
+			{
+				jmp jmp_return
+			}
+		}
+	}
+	__asm
+	{
+		jmp jmp_to_loop
+	}
+
 }
 
 void PatchInventoryBGMBug()
@@ -55,12 +88,12 @@ void PatchInventoryBGMBug()
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
-	
+
 	memcpy(&muteSound, (DWORD*)(BuggyBGMAddr - 4), sizeof(DWORD));
 	jmp_return = reinterpret_cast<void*>(BuggyBGMAddr + 0x24);
 	jmp_to_loop = reinterpret_cast<void*>(BuggyBGMAddr + 0x31);
 
 	// Update SH2 code
 	Logging::Log() << "Fixing Inventory BGM...";
-	WriteJMPtoMemory(reinterpret_cast<BYTE*>(BuggyBGMAddr), *FixInventoryBGMBugASM,0x24);
+	WriteJMPtoMemory(reinterpret_cast<BYTE*>(BuggyBGMAddr), *FixInventoryBGMBugASM, 0x24);
 }

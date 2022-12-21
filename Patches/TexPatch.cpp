@@ -98,7 +98,7 @@ DWORD GetTexBufferSize()
 					WIN32_FILE_ATTRIBUTE_DATA FileInformation = {};
 
 					wchar_t Filename[MAX_PATH];
-					if (GetFileAttributesEx(UpdateModPath(entry.path().c_str(), Filename), GetFileExInfoStandard, &FileInformation) && size < FileInformation.nFileSizeLow)
+					if (GetFileAttributesEx(GetFileModPath(entry.path().c_str(), Filename), GetFileExInfoStandard, &FileInformation) && size < FileInformation.nFileSizeLow)
 					{
 						size = FileInformation.nFileSizeLow;
 					}

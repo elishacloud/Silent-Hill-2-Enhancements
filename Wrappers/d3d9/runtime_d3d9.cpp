@@ -167,6 +167,10 @@ bool reshade::d3d9::runtime_d3d9::on_init(const D3DPRESENT_PARAMETERS &pp)
 
 	return runtime::on_init(pp.hDeviceWindow);
 }
+bool reshade::d3d9::runtime_d3d9::get_gamma()
+{
+	return _gamma_set;
+}
 void reshade::d3d9::runtime_d3d9::reset_gamma(bool reload)
 {
 	subscribe_to_save_config([this, reload](ini_file &config) {
@@ -206,11 +210,13 @@ void reshade::d3d9::runtime_d3d9::on_reset()
 
 	_has_depth_texture = false;
 	_depth_surface_override = nullptr;
+
+	_compile_cache.clear();
 }
 
 void reshade::d3d9::runtime_d3d9::on_present()
 {
-	if (!_is_initialized || FAILED(_device->BeginScene()))
+	if (!_is_initialized)
 	{
 		return;
 	}
@@ -260,8 +266,6 @@ void reshade::d3d9::runtime_d3d9::on_present()
 		_buffer_detection->reset(true);
 		_reset_buffer_detection = false;
 	}
-
-	_device->EndScene();
 }
 
 bool reshade::d3d9::runtime_d3d9::init_effect(size_t index)
@@ -313,7 +317,7 @@ bool reshade::d3d9::runtime_d3d9::init_effect(size_t index)
 
 		HRESULT hr = D3D_OK;
 
-		if (compile_cache[entry_index].size() == 0 || is_gamma)
+		if (_compile_cache[entry_index].size() == 0 || is_gamma)
 		{
 			hr = D3DCompile(
 				hlsl, hlsl_size,
@@ -345,14 +349,14 @@ bool reshade::d3d9::runtime_d3d9::init_effect(size_t index)
 			}
 
 			// Cashe shader
-			compile_cache[entry_index].resize(compiled->GetBufferSize());
-			memcpy(&compile_cache[entry_index][0], compiled->GetBufferPointer(), compiled->GetBufferSize());
+			_compile_cache[entry_index].resize(compiled->GetBufferSize());
+			memcpy(&_compile_cache[entry_index][0], compiled->GetBufferPointer(), compiled->GetBufferSize());
 
 			compiled_buffer = compiled->GetBufferPointer();
 		}
 		else
 		{
-			compiled_buffer = &compile_cache[entry_index][0];
+			compiled_buffer = &_compile_cache[entry_index][0];
 		}
 
 		// Create runtime shader objects from the compiled DX byte code

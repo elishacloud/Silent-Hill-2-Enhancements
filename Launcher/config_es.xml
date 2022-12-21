@@ -36,6 +36,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="ForceTopMost">
+        <Title>Mantener la ventana del juego en primer plano</Title>
+        <Description>Fuerza a la ventana del juego a situarse por delante del resto de ventanas, incluyendo la barra del menú Inicio.&#x0a;&#x0a;Nota: esta opción solo funcionará si el modo de pantalla en ventana está activado.</Description>
+        <Choices type="check">
+          <Value name="Desactivado" default="true">0</Value>
+          <Value name="Activado">1</Value>
+        </Choices>
+      </Feature>
+
     </Section>
 
     <Section name="Medios a pantalla completa">
@@ -149,6 +158,16 @@
         <Choices type="check">
           <Value name="Desactivado" default="true">0</Value>
           <Value name="Activado">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="CRTShader">
+        <Title>Simular una pantalla de tubo (CRT)</Title>
+        <Description>Activa unos shaders que simulan el aspecto que tendría el juego en un televisor CRT. Los shaders serán más fieles a resoluciones más bajas. Si buscas la mejor experiencia nostálgica de las teles de tubo, recomendamos jugar con una relación de aspecto de 4:3.&#x0a;&#x0a;Nota: no se recomienda activar esta opción si vas a retransmitir el juego, ya que el efecto CRT podría no mostrarse correctamente para tus espectadores. Tampoco se recomienda activar esta opción si tu equipo es de gama baja.</Description>
+        <Choices type="list">
+          <Value name="Desactivado" default="true">0</Value>
+          <Value name="Activado">1</Value>
+          <Value name="Activado (más curvatura)">2</Value>
         </Choices>
       </Feature>
 
@@ -366,11 +385,11 @@
         
       <Feature name="RestoreSearchCamMovement">
         <Title>Tipo de mando para el modo de búsqueda</Title>
-      	<Description>Restaura la función del stick derecho del mando para poder mover la cámara. Cambia este ajuste en función del tipo de mando que utilices.</Description>
+      	<Description>Restaura la función del stick derecho del mando para poder mover la cámara. Cambia este ajuste en función del tipo de mando que utilices.&#x0a;&#x0a;Nota: si utilizas Xidi (un software para la compatibilidad con mandos) debes seleccionar DirectInput.</Description>
         <Choices type="list">
           <Value name="Desactivado">0</Value>
-          <Value name="XInput" default="true">1</Value>
-          <Value name="DirectInput">2</Value>
+          <Value name="XInput">1</Value>
+          <Value name="DirectInput" default="true">2</Value>
           <Value name="DirectInput (alternativo)">3</Value>
         </Choices>
       </Feature>
@@ -429,6 +448,16 @@
           <Value name="7">7</Value>
           <Value name="8">8</Value>
           <Value name="9">9</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="RemoveForceFeedbackFilter">
+        <Title>Remove Force Feedback filter</Title>
+        <Description>Allows non-force feedback controllers to be detected during the game's controller scan.  Use this option if a non-force feedback controller is not detected by the Silent Hill 2.</Description>
+        <Choices type="list">
+          <Value name="Disable">0</Value>
+          <Value name="Auto" default="true">1</Value>
+          <Value name="Enable">2</Value>
         </Choices>
       </Feature>
 

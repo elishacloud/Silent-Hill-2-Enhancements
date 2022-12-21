@@ -498,7 +498,10 @@ void reshade::runtime::load_effects()
 	std::vector<FILELIST> effects_no;
 	for (auto &item : shaderList)
 	{
-		effects_no.push_back(item);
+		if (*item.enabled)
+		{
+			effects_no.push_back(item);
+		}
 	}
 
 	_reload_total_effects = effects_no.size();
@@ -514,20 +517,20 @@ void reshade::runtime::load_effects()
 
 	// Now that we have a list of files, load them in parallel
 	// Split workload into batches instead of launching a thread for every file to avoid launch overhead and stutters due to too many threads being in flight
-	const size_t num_splits = std::min<size_t>(effects_no.size(), std::max<size_t>(std::thread::hardware_concurrency(), 2u) - 1);
+	//const size_t num_splits = std::min<size_t>(effects_no.size(), std::max<size_t>(std::thread::hardware_concurrency(), 2u) - 1);
 
 	// Keep track of the spawned threads, so the runtime cannot be destroyed while they are still running
-	for (size_t n = 0; n < num_splits; ++n)
-		_worker_threads.emplace_back([this, effects_no, num_splits, n](){
+	//for (size_t n = 0; n < num_splits; ++n)
+		//_worker_threads.emplace_back([this, effects_no, num_splits, n](){
 			// Abort loading when initialization state changes (indicating that 'on_reset' was called in the meantime)
 			for (size_t i = 0; i < effects_no.size() && _is_initialized; ++i)
 			{
-				if (i * num_splits / effects_no.size() == n)
+				//if (i * num_splits / effects_no.size() == n)
 				{
 					load_effect(effects_no[i].name, effects_no[i].value, i);
 				}
 			}
-		});
+		//});
 }
 void reshade::runtime::load_textures()
 {
@@ -635,7 +638,7 @@ void reshade::runtime::unload_effect(size_t effect_index)
 		}), _techniques.end());
 
 	// Do not clear source file, so that an 'unload_effect' immediately followed by a 'load_effect' which accesses that works
-	effect &effect = _effects[effect_index];;
+	effect &effect = _effects[effect_index];
 	effect.rendering = false;
 	effect.compiled = false;
 	effect.errors.clear();
@@ -1064,10 +1067,7 @@ void reshade::runtime::load_current_preset()
 		// Ignore preset if "enabled" annotation is set
 		if ((technique.annotation_as_int("enabled") ||
 			std::find(technique_list.begin(), technique_list.end(), unique_name) != technique_list.end() ||
-			std::find(technique_list.begin(), technique_list.end(), technique.name) != technique_list.end()) &&
-			!((!RestoreBrightnessSelector && technique.name.compare(GammaEffectName) == 0) ||
-				(!AdjustColorTemp && technique.name.compare(BrightnessEffectName) == 0) ||
-				(!EnableSMAA && technique.name.compare(SMAAEffectName) == 0)))
+			std::find(technique_list.begin(), technique_list.end(), technique.name) != technique_list.end()))
 		{
 			enable_technique(technique);
 		}

@@ -307,6 +307,7 @@ extern bool IsControllerConnected;
 extern HWND GameWindowHandle;
 extern BYTE* ElevatorRunning;
 extern BYTE* InGameVoiceEvent;
+extern int LastEventIndex;
 
 // Run code only once
 #define RUNONCE() \

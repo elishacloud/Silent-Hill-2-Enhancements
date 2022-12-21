@@ -209,6 +209,8 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		CheckNumberKeyBinds();
 	}
 
+	LastEventIndex = GetEventIndex();
+
 	// For controller
 	if (ProxyInterface == ControllerInterfaceAddress)
 	{
@@ -469,6 +471,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			UpdateMemoryAddress((void*)AnalogStringTwo, "\x2F", 1);
 			UpdateMemoryAddress((void*)AnalogStringThree, "\x2F", 1);
 		}
+
 	}
 
 }

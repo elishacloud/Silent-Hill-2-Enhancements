@@ -51,18 +51,18 @@ __declspec(naked) void __stdcall FixInventoryBGMBugASM()
 	MenuEventIndex = GetMenuEvent();
 	// Works only if this conditions are met, if you want to mute sound on specific area you can add a new line or simply you can create
 	// new comparison and send them through jmp_return address
-	if (MenuEventIndex == 13 /*[normal gameplay]*/ || MenuEventIndex == 17 /*[load game menu]*/ && EventIndex == 0 /*[load game menu]*/)
+	if (MenuEventIndex == 0x0D /*[normal gameplay]*/ || (MenuEventIndex == 0x11 /*[load game menu]*/ && EventIndex == 0x00 /*[load game menu]*/) && LastEventIndex == 0x10)
 	{
-		if (EventIndex == 11 /*[game result screen]*/)
+		if (EventIndex == 0x0B /*[game result screen]*/)
 		{
-			*muteSound = 0xF;
+			*muteSound = 0x0F;
 			__asm
 			{
 				jmp jmp_return
 			}
 		}
 
-		if (EventIndex > 3 && EventIndex < 10 /*[just about every type of menu]*/ || EventIndex == 16 /*[pause menu]*/ || MenuEventIndex == 17 /*[normal gameplay]*/)
+		if (EventIndex > 0x03 && EventIndex < 0x0A /*[just about every type of menu]*/ || EventIndex == 0x10 /*[pause menu]*/ || MenuEventIndex == 0x11 /*[normal gameplay]*/)
 		{
 			__asm
 			{

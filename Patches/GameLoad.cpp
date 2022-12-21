@@ -239,7 +239,7 @@ void PatchGameLoad()
 	WriteJMPtoMemory((BYTE*)IndexCheckAddr, *GameResultSaveASM, 6);
 }
 
-DWORD quickSaveToggle; // 0x04024bd
+DWORD quickSaveToggle;
 
 void SetGameLoad()
 {

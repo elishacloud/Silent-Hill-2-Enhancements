@@ -96,6 +96,7 @@ HRESULT m_IDirectInputDevice8A::Acquire()
 	deviceInfo->dwSize = sizeof(DIDEVICEINSTANCEA);
 	ProxyInterface->GetDeviceInfo(deviceInfo);
 	
+	// Saving mouse, kb and controller's addresses to handle them in InputTweaks
 	if (deviceInfo->guidProduct == GUID_SysMouse)
 		InputTweaksRef.SetMouseInterfaceAddr(ProxyInterface);
 	else if (deviceInfo->guidProduct == GUID_SysKeyboard)

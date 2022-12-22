@@ -209,6 +209,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		CheckNumberKeyBinds();
 	}
 
+	// Saving the last event index for InventoryBGM fix
 	LastEventIndex = GetEventIndex();
 
 	// For controller

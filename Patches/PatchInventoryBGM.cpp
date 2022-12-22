@@ -1,3 +1,19 @@
+/**
+* Copyright (C) 2022 The Machine Ambassador, mercury501
+*
+* This software is  provided 'as-is', without any express  or implied  warranty. In no event will the
+* authors be held liable for any damages arising from the use of this software.
+* Permission  is granted  to anyone  to use  this software  for  any  purpose,  including  commercial
+* applications, and to alter it and redistribute it freely, subject to the following restrictions:
+*
+*   1. The origin of this software must not be misrepresented; you must not claim that you  wrote the
+*      original  software. If you use this  software  in a product, an  acknowledgment in the product
+*      documentation would be appreciated but is not required.
+*   2. Altered source versions must  be plainly  marked as such, and  must not be  misrepresented  as
+*      being the original software.
+*   3. This notice may not be removed or altered from any source distribution.
+*/
+
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include "Patches.h"
@@ -13,45 +29,13 @@ BYTE MenuEventIndex;
 
 // BGM Fading out instructions
 #pragma warning(suppress: 4740)
-/*
 __declspec(naked) void __stdcall FixInventoryBGMBugASM()
 {
 	EventIndex = GetEventIndex();
 	MenuEventIndex = GetMenuEvent();
-	// Works only if this conditions are met, if you want to mute sound on specific area you can add a new line or simply you can create
-	// new comparison and send them through jmp_return address
-	if (MenuEventIndex == 0xd || MenuEventIndex == 0x11 && EventIndex == 0x0)
-	{
-		if (EventIndex == 0xb)
-		{
-			*muteSound = 0xF;
-			__asm
-			{
-				jmp jmp_return
-			}
-		}
 
-		if (EventIndex > 3 && EventIndex < 10 || EventIndex == 0x10 || MenuEventIndex == 0x11)
-		{
-			__asm
-			{
-				jmp jmp_return
-			}
-		}
-	}
-	__asm
-	{
-		jmp jmp_to_loop
-	}
-}*/
-
-__declspec(naked) void __stdcall FixInventoryBGMBugASM()
-{
-	EventIndex = GetEventIndex();
-	MenuEventIndex = GetMenuEvent();
-	// Works only if this conditions are met, if you want to mute sound on specific area you can add a new line or simply you can create
-	// new comparison and send them through jmp_return address
-	if (MenuEventIndex == 0x0D /*[normal gameplay]*/ || (MenuEventIndex == 0x11 /*[load game menu]*/ && EventIndex == 0x00 /*[load game menu]*/) && LastEventIndex == 0x10)
+	if (MenuEventIndex == 0x0D /*[normal gameplay]*/ || (MenuEventIndex == 0x11 /*[load game menu]*/ && 
+		EventIndex == 0x00 /*[load game menu]*/) && LastEventIndex == 0x10)
 	{
 		if (EventIndex == 0x0B /*[game result screen]*/)
 		{
@@ -62,7 +46,8 @@ __declspec(naked) void __stdcall FixInventoryBGMBugASM()
 			}
 		}
 
-		if (EventIndex > 0x03 && EventIndex < 0x0A /*[just about every type of menu]*/ || EventIndex == 0x10 /*[pause menu]*/ || MenuEventIndex == 0x11 /*[normal gameplay]*/)
+		if (EventIndex > 0x03 && EventIndex < 0x0A /*[just about every type of menu]*/ || 
+			EventIndex == 0x10 /*[pause menu]*/ || MenuEventIndex == 0x11 /*[normal gameplay]*/)
 		{
 			__asm
 			{
@@ -79,8 +64,8 @@ __declspec(naked) void __stdcall FixInventoryBGMBugASM()
 
 void PatchInventoryBGMBug()
 {
-	constexpr BYTE BuggyBGMBytes[] = { 0x83, 0xf8, 0x04, 0x75, 0x0d, 0x68 };
-	const DWORD BuggyBGMAddr = SearchAndGetAddresses(0x005166E8, 0x00516A18, 0x00516338, BuggyBGMBytes, sizeof(BuggyBGMBytes), -0x1f);
+	constexpr BYTE BuggyBGMBytes[] = { 0x83, 0xF8, 0x04, 0x75, 0x0D, 0x68 };
+	const DWORD BuggyBGMAddr = SearchAndGetAddresses(0x005166E8, 0x00516A18, 0x00516338, BuggyBGMBytes, sizeof(BuggyBGMBytes), -0x1F);
 
 	// Check errors
 	if (!BuggyBGMAddr)
@@ -89,7 +74,7 @@ void PatchInventoryBGMBug()
 		return;
 	}
 
-	memcpy(&muteSound, (DWORD*)(BuggyBGMAddr - 4), sizeof(DWORD));
+	memcpy(&muteSound, (DWORD*)(BuggyBGMAddr - 0x04), sizeof(DWORD));
 	jmp_return = reinterpret_cast<void*>(BuggyBGMAddr + 0x24);
 	jmp_to_loop = reinterpret_cast<void*>(BuggyBGMAddr + 0x31);
 

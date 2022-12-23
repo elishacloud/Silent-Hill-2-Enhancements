@@ -86,7 +86,7 @@ void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 {
 	int SpecialItems = bitCount(GetSecretItemsCollected());
 
-	std::string OvlString = "INFO MENU (CTRL + I) ";
+	std::string OvlString = "STATS INFO (CTRL + I) ";
 	OvlString.append("\rAction Difficulty: ");
 	OvlString.append(ActionDifficulty[GetActionDifficulty()]);
 
@@ -190,7 +190,7 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 		CharYPos = 0;
 	}
 
-	std::string OvlString = "DEBUG MENU (CTRL + G) ";
+	std::string OvlString = "DEBUG INFO (CTRL + G) ";
 
 	OvlString.append("\rGame Resolution: ");
 	OvlString.append(std::to_string(BufferWidth));

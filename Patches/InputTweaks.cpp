@@ -218,7 +218,8 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		// Save controller data
 		ControllerData = (DIJOYSTATE*)lpvData;
 
-		if (GetIsWritingQuicksave() == 1 || GetTextAddr() == 1)
+		// Clear the the pause button if a quicksave is in progress
+		if (GameLoadFix && (GetIsWritingQuicksave() == 1 || GetTextAddr() == 1))
 			ControllerData->rgbButtons[KeyBinds.GetPauseButtonBind()] = KEY_CLEAR;
 
 		// Clear controller data
@@ -276,7 +277,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		}
 
 		// Clear the ESC and SKIP key if a quicksave is in progress
-		if (GetIsWritingQuicksave() == 1 || GetTextAddr() == 1) 
+		if (GameLoadFix && (GetIsWritingQuicksave() == 1 || GetTextAddr() == 1))
 		{
 			ClearKey(KeyBinds.GetKeyBind(KEY_SKIP));
 			ClearKey(KeyBinds.GetKeyBind(KEY_CANCEL));
@@ -342,6 +343,8 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			ShowInfoOverlay = !ShowInfoOverlay;
 
 		// Inject Key Presses
+
+		// Inject ready weapon or cancel based on context, on RMB press
 		if (EnableEnhancedMouse && GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTION_FMV && 
 			GetEventIndex() != EVENT_FMV && GetCutsceneID() == 0x0) 
 		{

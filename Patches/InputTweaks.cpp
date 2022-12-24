@@ -410,14 +410,37 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		}
 
 		// Mouse wheel weapon swapping
-		if (EnableMouseWheelSwap && MouseWheel != 0 && DeltaMsWeaponSwap.count() > InputDebounce && GetEventIndex() == EVENT_IN_GAME)
+		if (MouseWheel != 0 && DeltaMsWeaponSwap.count() > InputDebounce)
 		{
-			if (MouseWheel > 0)
-				SetKey(KeyBinds.GetKeyBind(KEY_NEXT_WEAPON));
-			else
-				SetKey(KeyBinds.GetKeyBind(KEY_PREV_WEAPON));
+			// Inject up and down in the memo screen
+			switch (GetEventIndex()) 
+			{
 			
-			LastWeaponSwap = Now;
+			case EVENT_MEMO_LIST:
+				if (MouseWheel > 0)
+					SetKey(KeyBinds.GetKeyBind(KEY_MOVE_FORWARDS));
+				else
+					SetKey(KeyBinds.GetKeyBind(KEY_MOVE_BACKWARDS));
+
+				break;
+
+			case EVENT_IN_GAME:
+				if (EnableMouseWheelSwap)
+				{
+					if (MouseWheel > 0)
+						SetKey(KeyBinds.GetKeyBind(KEY_NEXT_WEAPON));
+					else
+						SetKey(KeyBinds.GetKeyBind(KEY_PREV_WEAPON));
+
+					LastWeaponSwap = Now;
+				}
+				break;
+
+			default:
+				break;
+
+			}
+					   			
 			MouseWheel = 0;
 		}
 

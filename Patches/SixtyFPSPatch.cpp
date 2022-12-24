@@ -25,6 +25,8 @@ const float WaterLowOvrd = 20.f;
 const float WaterRisOvrd = 5.333333492f;
 const float BugRoomFlashlightOvrd = 0.093333332985f;
 const int16_t FlashlightOnOvrd= 0x78;
+float MotionBlurValue = 0.25f;
+BYTE EddieBossTimeLimit = 0x28;
 
 injector::hook_back<float(__cdecl*)(void)> GetFogAnimationRate;
 injector::hook_back<float(__cdecl*)(void)> GetBulletShellAnimationRateOne;
@@ -35,11 +37,6 @@ injector::hook_back<float(__cdecl*)(void)> GetMeatLockerFogAnimationRateOne;
 injector::hook_back<float(__cdecl*)(void)> GetMeatLockerFogAnimationRateTwo;
 injector::hook_back<float(__cdecl*)(void)> GetMeatLockerHangerAnimationRateOne;
 injector::hook_back<float(__cdecl*)(void)> GetMeatLockerHangerAnimationRateTwo;
-
-bool once = true;
-
-float MotionBlurValue = 0.25f;
-BYTE EddieBossTimeLimit = 0x28;
 
 void PatchWater()
 {
@@ -66,35 +63,6 @@ void PatchLowHealthIndicatorFlash()
 	float* LowHealthIndicatorSpeedPtr = GetLowHealthIndicatorFlashSpeedPointer();
 	
 	UpdateMemoryAddress(LowHealthIndicatorSpeedPtr, &LowHealthOvrd, sizeof(float));
-}
-
-void PatchStaircaseFlamesLighting()
-{
-	Logging::Log() << "Patching flame staircase lighting...";
-
-	float* StaircaseFlamesLightingPtr = GetStaircaseFlamesLightingPointer();
-
-	UpdateMemoryAddress(StaircaseFlamesLightingPtr, &StaircaseLightingOvrd, sizeof(float));
-}
-
-void PatchWaterLevelSpeed()
-{
-	Logging::Log() << "Patching water level speed...";
-
-	float* LoweringStepsPtr = GetWaterLevelLoweringStepsPointer();
-	float* RisingStepsPtr = GetWaterLevelRisingStepsPointer();
-
-	UpdateMemoryAddress(LoweringStepsPtr, &WaterLowOvrd, sizeof(float));
-	UpdateMemoryAddress(RisingStepsPtr, &WaterRisOvrd, sizeof(float));
-}
-
-void PatchBugRoomFlashlight()
-{
-	Logging::Log() << "Patching bug room flashlight...";
-
-	float* BugRoomFlashlightPtr = GetBugRoomFlashlightFixPointer();
-
-	UpdateMemoryAddress(BugRoomFlashlightPtr, &BugRoomFlashlightOvrd, sizeof(float));
 }
 
 void PatchStaircaseFlamesLighting()

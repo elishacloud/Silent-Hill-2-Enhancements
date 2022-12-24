@@ -93,9 +93,6 @@ DWORD* MeatLockerFogFixOneAddr;
 DWORD* MeatLockerFogFixTwoAddr;
 DWORD* MeatLockerHangerFixOneAddr;
 DWORD* MeatLockerHangerFixTwoAddr;
-float *WaterAnimationSpeedPointer;
-int16_t *FlashlightOnSpeedPointer;
-float* LowHealthIndicatorFlashSpeedPointer;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -1698,6 +1695,8 @@ int32_t *GetTextAddrPointer()
 	TextAddrAddr = (int32_t*)((DWORD)TextAddr + 0x04);
 
 	return TextAddrAddr;
+}
+
 float *GetWaterAnimationSpeedPointer()
 {
 	if (WaterAnimationSpeedAddr)

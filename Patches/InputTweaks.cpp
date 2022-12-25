@@ -781,9 +781,9 @@ bool InputTweaks::FleshRoomFix()
 bool InputTweaks::SetRMBAimFunction()
 {
 	return (GetEventIndex() == EVENT_IN_GAME &&
-		(ElevatorFix() || (HotelFix())) || JamesVaultingBuildingsFix() || 
+		(ElevatorFix() || HotelFix() || JamesVaultingBuildingsFix() || 
 		RosewaterParkFix() || HospitalMonologueFix() || FleshRoomFix() ||
-		!IsInFullScreenImageEvent());
+		!IsInFullScreenImageEvent()));
 }
 
 bool InputTweaks::IsInFullScreenImageEvent()

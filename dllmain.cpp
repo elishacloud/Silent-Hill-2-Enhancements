@@ -363,6 +363,7 @@ void DelayedStart()
 		PatchClosetSpawn();
 	}
 
+	// Applies patches to fix 60fps specific bugs
 	if (SetSixtyFPS)
 	{
 		PatchSixtyFPS();
@@ -452,9 +453,10 @@ void DelayedStart()
 		PatchGameLoad();
 	}
 
+	// Fixes quick save text position and the text fading too quickly bug
 	if (QuickSaveTweaks)
 	{
-		PatchQuickSavePos();
+		PatchQuickSaveTweaks();
 	}
 
 	// Game Save Sound Fix
@@ -547,11 +549,13 @@ void DelayedStart()
 		PatchSpecular();
 	}
 
+	// Enables a complete rewrite of the game's audio engine
 	if (EnableCriWareReimplementation)
 	{
 		PatchCriware();
 	}
 
+	// Makes the FMVs play with consistent speed
 	if (FixFMVSpeed)
 	{
 		PatchFMVFramerate();

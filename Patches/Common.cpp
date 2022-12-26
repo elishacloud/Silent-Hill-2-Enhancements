@@ -93,6 +93,7 @@ DWORD* MeatLockerFogFixOneAddr;
 DWORD* MeatLockerFogFixTwoAddr;
 DWORD* MeatLockerHangerFixOneAddr;
 DWORD* MeatLockerHangerFixTwoAddr;
+BYTE* ClearTextAddr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -2016,4 +2017,27 @@ DWORD *GetMeatLockerHangerFixTwoPointer()
 	}
 
 	return MeatLockerHangerFixTwoAddr;
+}
+
+BYTE *GetClearTextPointer()
+{
+	if (ClearTextAddr)
+	{
+		return ClearTextAddr;
+	}
+
+	// Get Clear Text address
+	constexpr BYTE ClearTextSearchBytes[]{ 0x00, 0xC3, 0x90, 0x90, 0x90, 0x90, 0x90, 0x66, 0x83, 0x3D };
+	BYTE *ClearText = (uint8_t*)ReadSearchedAddresses(0x0047EB59, 0x0047EDF9, 0x0047F009, ClearTextSearchBytes, sizeof(ClearTextSearchBytes), 0x0A);
+
+	// Checking address pointer
+	if (!ClearText)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Clear Text address!";
+		return nullptr;
+	}
+
+	ClearText = (BYTE*)((DWORD)ClearText);
+
+	return ClearText;
 }

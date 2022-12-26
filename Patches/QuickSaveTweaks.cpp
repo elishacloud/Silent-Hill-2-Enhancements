@@ -23,6 +23,9 @@
 #include <d3d9types.h>
 #include <sstream>
 #include "External\injector\include\injector\injector.hpp"
+#include "External\injector\include\injector\hooking.hpp"
+#include "External\injector\include\injector\utility.hpp"
+#include "External\Hooking.Patterns\Hooking.Patterns.h"
 
 DWORD GameSavedTextColorAddr;
 DWORD CantSavedTextColorAddr;
@@ -115,8 +118,25 @@ void __stdcall print_no_quick_save_string(void)
 	PrintNoSave();
 }
 
+injector::hook_back<void(__cdecl*)(void)> ClearTextFun;
+void __cdecl ClearTextHook()
+{
+	UpdateMemoryAddress(GetClearTextPointer(), "\x00", 1);
+
+	return ClearTextFun.fun();
+}
+
+
+void PatchQuickSaveTweaks()
+{
+	PatchQuickSavePos();
+	PatchQuickSaveText();
+}
+
 void PatchQuickSavePos()
 {
+	Logging::Log() << "Patching Quick Save Text Position...";
+
 	constexpr BYTE textPosLockBypassBytes[] = { 0x7C, 0x18, 0x85, 0xC9, 0x7C, 0x14, 0xb8, 0x01, 0x00, 0x00, 0x00 };
 	DWORD textPosLockBypassAddr = SearchAndGetAddresses(0x0048051F, 0x004807BF, 0x004809CF, textPosLockBypassBytes, sizeof(textPosLockBypassBytes), 0x00);
 
@@ -187,4 +207,15 @@ void PatchQuickSavePos()
 
 	const auto NoAutoSavedFunction = (void* (__cdecl*)(void))(printNoQuickSavedFunction);
 	PrintNoSave = (printNoSaveString)NoAutoSavedFunction;
+}
+
+void PatchQuickSaveText()
+{
+	Logging::Log() << "Patching Quick Save Text Fading Too Quickly...";
+
+	// Hooking in this way since the calling function is very different between versions
+	auto pattern = hook::pattern("E8 3C E4 FF FF");
+
+	ClearTextFun.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), ClearTextHook, true).get();
+
 }

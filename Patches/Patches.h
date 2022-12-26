@@ -135,6 +135,7 @@ DWORD *GetMeatLockerFogFixOnePointer();
 DWORD *GetMeatLockerHangerFixOnePointer();
 DWORD *GetMeatLockerFogFixTwoPointer();
 DWORD *GetMeatLockerHangerFixTwoPointer();
+BYTE *GetClearTextPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -207,7 +208,9 @@ void PatchWindowIcon();
 void PatchWindowTitle();
 void PatchXInputVibration();
 void PatchSaveGameSound();
+void PatchQuickSaveTweaks();
 void PatchQuickSavePos();
+void PatchQuickSaveText();
 
 void FindGetModelID();
 int GetCurrentMaterialIndex();

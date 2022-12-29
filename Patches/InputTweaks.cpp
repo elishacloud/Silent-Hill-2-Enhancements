@@ -348,8 +348,6 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		if (EnableEnhancedMouse && GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTION_FMV && 
 			GetEventIndex() != EVENT_FMV && GetCutsceneID() == 0x0) 
 		{
-			if (SetLMButton)
-				SetKey(KeyBinds.GetKeyBind(KEY_ACTION));
 			if (RMB.State)
 			{
 				if (SetRMBAimFunction())
@@ -363,6 +361,14 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 					}
 				}
 			}
+		}
+
+		// Inject action, same condition as RMB but without CutsceneID == 0x00 to enable input on FIE in the middle of cutscenes, eg Laura's letter in the hotel
+		if (EnableEnhancedMouse && GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTION_FMV &&
+			GetEventIndex() != EVENT_FMV)
+		{
+			if (SetLMButton)
+				SetKey(KeyBinds.GetKeyBind(KEY_ACTION));
 		}
 
 		// Strafe keys become movement keys on menus

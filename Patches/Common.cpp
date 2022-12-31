@@ -94,6 +94,8 @@ DWORD* MeatLockerFogFixTwoAddr;
 DWORD* MeatLockerHangerFixOneAddr;
 DWORD* MeatLockerHangerFixTwoAddr;
 BYTE* ClearTextAddr;
+float* CutsceneFogCounterOneAddr;
+float* CutsceneFogCounterTwoAddr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -2040,4 +2042,50 @@ BYTE *GetClearTextPointer()
 	ClearText = (BYTE*)((DWORD)ClearText);
 
 	return ClearText;
+}
+
+float *GetCutsceneFogCounterOnePointer()
+{
+	if (CutsceneFogCounterOneAddr)
+	{
+		return CutsceneFogCounterOneAddr;
+	}
+
+	// Get CutsceneFogCounterOne address
+	constexpr BYTE CutsceneFogCounterOneSearchBytes[]{ 0x83, 0xC4, 0x04, 0xDF, 0xE0, 0xF6, 0xC4, 0x05, 0x7A, 0x1C };
+	float *CutsceneFogCounterOne = (float*)ReadSearchedAddresses(0x00594593, 0x00594E43, 0x00594763, CutsceneFogCounterOneSearchBytes, sizeof(CutsceneFogCounterOneSearchBytes), -0x04);
+
+	// Checking address pointer
+	if (!CutsceneFogCounterOne)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find CutsceneFogCounterOne  address!";
+		return nullptr;
+	}
+
+	CutsceneFogCounterOneAddr = (float*)((DWORD)CutsceneFogCounterOne);
+
+	return CutsceneFogCounterOneAddr;
+}
+
+float *GetCutsceneFogCounterTwoPointer()
+{
+	if (CutsceneFogCounterTwoAddr)
+	{
+		return CutsceneFogCounterTwoAddr;
+	}
+
+	// Get CutsceneFogCounterTwo address
+	constexpr BYTE CutsceneFogCounterTwoSearchBytes[]{ 0x83, 0xC4, 0x04, 0xDF, 0xE0, 0xF6, 0xC4, 0x05, 0x7A, 0x1C };
+	float *CutsceneFogCounterTwo = (float*)ReadSearchedAddresses(0x00594593, 0x00594E43, 0x00594763, CutsceneFogCounterTwoSearchBytes, sizeof(CutsceneFogCounterTwoSearchBytes), -0x04);
+
+	// Checking address pointer
+	if (!CutsceneFogCounterTwo)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find CutsceneFogCounterTwo  address!";
+		return nullptr;
+	}
+
+	CutsceneFogCounterTwoAddr = (float*)((DWORD)CutsceneFogCounterTwo - 0x04);
+
+	return CutsceneFogCounterTwoAddr;
 }

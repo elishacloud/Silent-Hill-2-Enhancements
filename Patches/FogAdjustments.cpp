@@ -364,3 +364,14 @@ void RunFogSpeed()
 		}
 	}
 }
+
+void PatchFMVFog()
+{
+
+	// Fix fog for cutscene 0x16	
+	// 968 to 965.5
+	UpdateMemoryAddress(GetCutsceneFogCounterOnePointer(), "\x00\x60\x71\x44", 0x04);
+	// 1463 to 1460
+	UpdateMemoryAddress(GetCutsceneFogCounterTwoPointer(), "\x00\x80\xb6\x44", 0x04);
+
+}

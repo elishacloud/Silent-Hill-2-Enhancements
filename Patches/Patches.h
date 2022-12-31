@@ -136,6 +136,8 @@ DWORD *GetMeatLockerHangerFixOnePointer();
 DWORD *GetMeatLockerFogFixTwoPointer();
 DWORD *GetMeatLockerHangerFixTwoPointer();
 BYTE *GetClearTextPointer();
+float *GetCutsceneFogCounterOnePointer();
+float *GetCutsceneFogCounterTwoPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -170,6 +172,7 @@ void PatchControllerTweaks();
 void PatchDrawDistance();
 void PatchFlashlightClockPush();
 void PatchFlashlightFlicker();
+void PatchFMVFog();
 void PatchFMVFramerate();
 void PatchFogParameters();
 void PatchFullscreenImages();

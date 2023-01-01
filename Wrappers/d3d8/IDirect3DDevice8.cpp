@@ -210,8 +210,6 @@ HRESULT m_IDirect3DDevice8::EndScene()
 			(LastCutsceneID == 0x4C && SkipSceneCounter < 1 && (SkipSceneCounter || GetCutsceneID() != LastCutsceneID)) ||
 			(LastCutsceneID == 0x4D && SkipSceneCounter < 2 && (SkipSceneCounter || GetCutsceneID() != LastCutsceneID || ClassReleaseFlag)) ||
 			(LastCutsceneID == 0x4D && SkipSceneCounter < 3 && (SkipSceneCounter || GetCutscenePos() != LastCameraPos) && GetCutscenePos() == *(float*)"\x59\xCC\x06\xC6" && GetCutsceneID() == 0x4D) ||
-			(LastCutsceneID == 0x0E && SkipSceneCounter < 4 && (SkipSceneCounter || LastCameraPos == -22134.503f && GetCutscenePos() != LastCameraPos) && SetSixtyFPS) ||
-			(LastCutsceneID == 0x0E && SkipSceneCounter < 2 && (SkipSceneCounter || LastCameraPos == -21376.564f && GetCutscenePos() != LastCameraPos) && SetSixtyFPS) ||
 			(LastCutsceneID == 0x44 && GetCutsceneID() == 0x00 && SkipSceneCounter < 6))
 		{
 			LOG_LIMIT(1, "Skipping frame during cutscene!");

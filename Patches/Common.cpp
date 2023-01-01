@@ -94,8 +94,10 @@ DWORD* MeatLockerFogFixTwoAddr;
 DWORD* MeatLockerHangerFixOneAddr;
 DWORD* MeatLockerHangerFixTwoAddr;
 BYTE* ClearTextAddr;
-float* CutsceneFogCounterOneAddr;
-float* CutsceneFogCounterTwoAddr;
+float* MeetingMariaCutsceneFogCounterOneAddr;
+float* MeetingMariaCutsceneFogCounterTwoAddr;
+float* RPTClosetCutsceneMannequinDespawnAddr;
+float* RPTClosetCutsceneBlurredBarsDespawnAddr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -2044,48 +2046,94 @@ BYTE *GetClearTextPointer()
 	return ClearText;
 }
 
-float *GetCutsceneFogCounterOnePointer()
+float *GetMeetingMariaCutsceneFogCounterOnePointer()
 {
-	if (CutsceneFogCounterOneAddr)
+	if (MeetingMariaCutsceneFogCounterOneAddr)
 	{
-		return CutsceneFogCounterOneAddr;
+		return MeetingMariaCutsceneFogCounterOneAddr;
 	}
 
-	// Get CutsceneFogCounterOne address
-	constexpr BYTE CutsceneFogCounterOneSearchBytes[]{ 0x83, 0xC4, 0x04, 0xDF, 0xE0, 0xF6, 0xC4, 0x05, 0x7A, 0x1C };
-	float *CutsceneFogCounterOne = (float*)ReadSearchedAddresses(0x00594593, 0x00594E43, 0x00594763, CutsceneFogCounterOneSearchBytes, sizeof(CutsceneFogCounterOneSearchBytes), -0x04);
+	// Get MeetingMariaCutsceneFogCounterOne address
+	constexpr BYTE MeetingMariaCutsceneFogCounterOneSearchBytes[]{ 0x83, 0xC4, 0x04, 0xDF, 0xE0, 0xF6, 0xC4, 0x05, 0x7A, 0x1C };
+	float *MeetingMariaCutsceneFogCounterOne = (float*)ReadSearchedAddresses(0x00594593, 0x00594E43, 0x00594763, MeetingMariaCutsceneFogCounterOneSearchBytes, sizeof(MeetingMariaCutsceneFogCounterOneSearchBytes), -0x04);
 
 	// Checking address pointer
-	if (!CutsceneFogCounterOne)
+	if (!MeetingMariaCutsceneFogCounterOne)
 	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find CutsceneFogCounterOne  address!";
+		Logging::Log() << __FUNCTION__ << " Error: failed to find MeetingMariaCutsceneFogCounterOne  address!";
 		return nullptr;
 	}
 
-	CutsceneFogCounterOneAddr = (float*)((DWORD)CutsceneFogCounterOne);
+	MeetingMariaCutsceneFogCounterOneAddr = (float*)((DWORD)MeetingMariaCutsceneFogCounterOne);
 
-	return CutsceneFogCounterOneAddr;
+	return MeetingMariaCutsceneFogCounterOneAddr;
 }
 
-float *GetCutsceneFogCounterTwoPointer()
+float *GetMeetingMariaCutsceneFogCounterTwoPointer()
 {
-	if (CutsceneFogCounterTwoAddr)
+	if (MeetingMariaCutsceneFogCounterTwoAddr)
 	{
-		return CutsceneFogCounterTwoAddr;
+		return MeetingMariaCutsceneFogCounterTwoAddr;
 	}
 
-	// Get CutsceneFogCounterTwo address
-	constexpr BYTE CutsceneFogCounterTwoSearchBytes[]{ 0x83, 0xC4, 0x04, 0xDF, 0xE0, 0xF6, 0xC4, 0x05, 0x7A, 0x1C };
-	float *CutsceneFogCounterTwo = (float*)ReadSearchedAddresses(0x00594593, 0x00594E43, 0x00594763, CutsceneFogCounterTwoSearchBytes, sizeof(CutsceneFogCounterTwoSearchBytes), -0x04);
+	// Get MeetingMariaCutsceneFogCounterTwo address
+	constexpr BYTE MeetingMariaCutsceneFogCounterTwoSearchBytes[]{ 0x83, 0xC4, 0x04, 0xDF, 0xE0, 0xF6, 0xC4, 0x05, 0x7A, 0x1C };
+	float *MeetingMariaCutsceneFogCounterTwo = (float*)ReadSearchedAddresses(0x00594593, 0x00594E43, 0x00594763, MeetingMariaCutsceneFogCounterTwoSearchBytes, sizeof(MeetingMariaCutsceneFogCounterTwoSearchBytes), -0x04);
 
 	// Checking address pointer
-	if (!CutsceneFogCounterTwo)
+	if (!MeetingMariaCutsceneFogCounterTwo)
 	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find CutsceneFogCounterTwo  address!";
+		Logging::Log() << __FUNCTION__ << " Error: failed to find MeetingMariaCutsceneFogCounterTwo  address!";
 		return nullptr;
 	}
 
-	CutsceneFogCounterTwoAddr = (float*)((DWORD)CutsceneFogCounterTwo - 0x04);
+	MeetingMariaCutsceneFogCounterTwoAddr = (float*)((DWORD)MeetingMariaCutsceneFogCounterTwo - 0x04);
 
-	return CutsceneFogCounterTwoAddr;
+	return MeetingMariaCutsceneFogCounterTwoAddr;
+}
+
+float *GetRPTClosetCutsceneMannequinDespawnPointer()
+{
+	if (RPTClosetCutsceneMannequinDespawnAddr)
+	{
+		return RPTClosetCutsceneMannequinDespawnAddr;
+	}
+
+	// Get RPTClosetCutsceneMannequinDespawn address
+	constexpr BYTE RPTClosetCutsceneMannequinDespawnSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x41, 0x7A, 0x07, 0xB8, 0x03, 0x00, 0x00, 0x00 };
+	float *RPTClosetCutsceneMannequinDespawn = (float*)ReadSearchedAddresses(0x00539E57, 0x0053A187, 0x00539AA7, RPTClosetCutsceneMannequinDespawnSearchBytes, sizeof(RPTClosetCutsceneMannequinDespawnSearchBytes), -0x04);
+
+	// Checking address pointer
+	if (!RPTClosetCutsceneMannequinDespawn)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find RPTClosetCutsceneMannequinDespawn  address!";
+		return nullptr;
+	}
+
+	RPTClosetCutsceneMannequinDespawnAddr = (float*)((DWORD)RPTClosetCutsceneMannequinDespawn);
+
+	return RPTClosetCutsceneMannequinDespawnAddr;
+}
+
+float *GetRPTClosetCutsceneBlurredBarsDespawnPointer()
+{
+	if (RPTClosetCutsceneBlurredBarsDespawnAddr)
+	{
+		return RPTClosetCutsceneBlurredBarsDespawnAddr;
+	}
+
+	// Get RPTClosetCutsceneBlurredBarsDespawn address
+	constexpr BYTE RPTClosetCutsceneBlurredBarsDespawnSearchBytes[]{ 0xC7, 0x44, 0x24, 0x50, 0x00, 0x00, 0x80, 0x3F, 0xC7, 0x44, 0x24, 0x54, 0x00, 0x00, 0x00, 0x00 };
+	float *RPTClosetCutsceneBlurredBarsDespawn = (float*)ReadSearchedAddresses(0x005995CF, 0x00599E7F, 0x0059979F, RPTClosetCutsceneBlurredBarsDespawnSearchBytes, sizeof(RPTClosetCutsceneBlurredBarsDespawnSearchBytes), 0x4F);
+
+	// Checking address pointer
+	if (!RPTClosetCutsceneBlurredBarsDespawn)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find RPTClosetCutsceneBlurredBarsDespawn  address!";
+		return nullptr;
+	}
+
+	RPTClosetCutsceneBlurredBarsDespawnAddr = (float*)((DWORD)RPTClosetCutsceneBlurredBarsDespawn);
+
+	return RPTClosetCutsceneBlurredBarsDespawnAddr;
 }

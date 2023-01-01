@@ -365,13 +365,19 @@ void RunFogSpeed()
 	}
 }
 
-void PatchFMVFog()
+void PatchFMV()
 {
 
 	// Fix fog for cutscene 0x16	
 	// 968 to 965.5
-	UpdateMemoryAddress(GetCutsceneFogCounterOnePointer(), "\x00\x60\x71\x44", 0x04);
+	UpdateMemoryAddress(GetMeetingMariaCutsceneFogCounterOnePointer(), "\x00\x60\x71\x44", 0x04);
 	// 1463 to 1460
-	UpdateMemoryAddress(GetCutsceneFogCounterTwoPointer(), "\x00\x80\xb6\x44", 0x04);
+	UpdateMemoryAddress(GetMeetingMariaCutsceneFogCounterTwoPointer(), "\x00\x80\xb6\x44", 0x04);
 
+	// Fix for closet cutscene
+	// 360 to 359
+	UpdateMemoryAddress(GetRPTClosetCutsceneMannequinDespawnPointer(), "\x00\x80\xB3\x43", 0x04);
+	// 1696 to 1695 
+	UpdateMemoryAddress(GetRPTClosetCutsceneBlurredBarsDespawnPointer(), "\x00\xE0\xD3\x44", 0x04);
+	 
 }

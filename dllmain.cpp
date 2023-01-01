@@ -378,7 +378,7 @@ void DelayedStart()
 	// Fix Fog issues in FMVs
 	if (RemoveEnvironmentFlicker)
 	{
-		PatchFMVFog();
+		PatchFMV();
 	}
 
 	// Fix memo brightness

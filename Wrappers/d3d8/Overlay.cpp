@@ -230,10 +230,10 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append("\rController connected: ");
 	OvlString.append(ControllerConnectedFlag ? "True" : "False");
 
-	OvlString.append("\rJoystick Y: ");
+	OvlString.append("\rJoystick LY: ");
 	OvlString.append(std::to_string(JoystickY));
 
-	OvlString.append("\rJoystick X: ");
+	OvlString.append("\rJoystick LX: ");
 	OvlString.append(std::to_string(JoystickX));
 
 	// Temporary Debug String, to use wherever
@@ -250,6 +250,7 @@ void Overlay::DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT 
 	DropShadowRect.top = DropShadowRect.top + DropShadowOffset;
 	DropShadowRect.left = DropShadowRect.left + DropShadowOffset;
 
+	// This flag is set when changing resolution, we have to reload the font
 	if (ResetDebugFontFlag)
 	{
 		ResetDebugFontFlag = false;

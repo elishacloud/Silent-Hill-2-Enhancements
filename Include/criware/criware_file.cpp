@@ -8,6 +8,7 @@
 * ===============================================================
 */
 #include "criware.h"
+#include "Common\FileSystemHooks.h"
 #include <mmreg.h>
 
 // ------------------------------------------------
@@ -15,7 +16,8 @@
 // ------------------------------------------------
 HANDLE ADXF_OpenFile(const char* filename)
 {
-	return CreateFileA(filename, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY /*FILE_ATTRIBUTE_NORMAL*/, nullptr);
+	char tmpfilename[MAX_PATH];
+	return CreateFileA(GetFileModPath(filename, tmpfilename), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY /*FILE_ATTRIBUTE_NORMAL*/, nullptr);
 }
 
 void ADXF_CloseFile(HANDLE fp)

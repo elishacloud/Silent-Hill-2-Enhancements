@@ -118,6 +118,7 @@ HRESULT PatchCustomExeStr();
 void PatchCustomFog();
 void PatchCustomFonts();
 void PatchControllerTweaks();
+void PatchDelayedFadeIn();
 void PatchDrawDistance();
 void PatchFlashlightClockPush();
 void PatchFlashlightFlicker();

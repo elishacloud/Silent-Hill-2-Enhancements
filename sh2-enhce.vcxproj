@@ -57,6 +57,7 @@
     <ClCompile Include="Patches\FMVPatches.cpp" />
     <ClCompile Include="Patches\HoldDamage.cpp" />
     <ClCompile Include="Patches\MapTranscription.cpp" />
+    <ClCompile Include="Patches\DelayedFadeIn.cpp" />
     <ClCompile Include="Patches\PatchCriware.cpp" />
     <ClCompile Include="Patches\QuickSaveTweaks.cpp" />
     <ClCompile Include="Patches\PrisonerTimer.cpp" />

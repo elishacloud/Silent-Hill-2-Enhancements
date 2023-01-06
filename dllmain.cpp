@@ -566,6 +566,12 @@ void DelayedStart()
 	{
 		PatchFMVFramerate();
 	}
+  
+    // Patch delayed fade-in to hide animation artifacts
+    if (DelayedFadeIn)
+    {
+        PatchDelayedFadeIn();
+    }
 
 	// Remove the "Now loading..." message
 	switch (GameVersion)

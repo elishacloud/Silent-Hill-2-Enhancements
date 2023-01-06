@@ -24,9 +24,9 @@ BYTE* KeyBindsAddr = nullptr;
 const int AnalogThreshold = 15;
 const int InputDebounce = 50;
 const int PauseMenuMouseThreshold = 15;
-const float AnalogHalfTilt = 0.5;
-const float AnalogFullTilt = 1;
-const float FloatTolerance = 0.10;
+const float AnalogHalfTilt = 0.5f;
+const float AnalogFullTilt = 1.0f;
+const float FloatTolerance = 0.10f;
 
 bool once = false;
 
@@ -199,6 +199,7 @@ void UpdateMousePosition_Hook()
 
 void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbData, LPVOID lpvData)
 {
+	UNREFERENCED_PARAMETER(cbData);
 
 	// Check number keybinds after exiting the Options screen
 	if (GetEventIndex() == EVENT_OPTION_FMV)
@@ -511,6 +512,9 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 
 void InputTweaks::TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD dwFlags)
 {
+	UNREFERENCED_PARAMETER(dwFlags);
+	UNREFERENCED_PARAMETER(cbObjectData);
+
 	// For mouse
 	if (ProxyInterface == MouseInterfaceAddress)
 	{
@@ -599,7 +603,7 @@ int32_t InputTweaks::GetMouseRelXChange()
 	if (!MouseData || MouseDataSize == 0)
 		return AxisSum;
 
-	for (int i = 0; i < MouseDataSize; i++)
+	for (UINT i = 0; i < MouseDataSize; i++)
 		if (MouseData[i].dwOfs == DIMOFS_X)
 			AxisSum += (int32_t) MouseData[i].dwData;
 
@@ -620,7 +624,7 @@ int32_t InputTweaks::GetMouseRelYChange()
 	if (!MouseData || MouseDataSize == 0)
 		return AxisSum;
 
-	for (int i = 0; i < MouseDataSize; i++)
+	for (UINT i = 0; i < MouseDataSize; i++)
 		if (MouseData[i].dwOfs == DIMOFS_Y)
 			AxisSum += (int32_t)MouseData[i].dwData;
 
@@ -631,7 +635,7 @@ void InputTweaks::ReadMouseButtons()
 {		
 	if (!MouseData || GetForegroundWindow() != GameWindowHandle) return;
 
-	for (int i = 0; i < MouseDataSize; i++)
+	for (UINT i = 0; i < MouseDataSize; i++)
 		switch (MouseData[i].dwOfs)
 		{
 		case DIMOFS_BUTTON0:
@@ -677,13 +681,13 @@ float InputTweaks::GetMouseAnalogX()
 
 float InputTweaks::GetForwardAnalog()
 {
-	return ForwardBackwardsAxis > 0 ? -1. : ForwardBackwardsAxis < 0 ? 1. : 0;
+	return ForwardBackwardsAxis > 0 ? -1.0f : ForwardBackwardsAxis < 0 ? 1.0f : 0.0f;
 }
 
 float InputTweaks::GetTurningAnalog()
 {
 
-	return LeftRightAxis > 0 ? -1. : LeftRightAxis < 0 ? 1. : 0;
+	return LeftRightAxis > 0 ? -1.0f : LeftRightAxis < 0 ? 1.0f : 0.0f;
 }
 
 void InputTweaks::ClearMouseInputs()
@@ -721,7 +725,7 @@ void InputTweaks::CheckNumberKeyBinds()
 		}
 		else
 		{
-			*(NumberKeyBinds + (i * 0x8)) = DefaultNumberKeyBinds[i];
+			*(NumberKeyBinds + (i * 0x8)) = (BYTE)DefaultNumberKeyBinds[i];
 		}
 	}
 }

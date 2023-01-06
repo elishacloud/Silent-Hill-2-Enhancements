@@ -111,7 +111,7 @@ struct AnalogStick
 		else if (temp < -126)
 			XAxis = -126;
 		else
-			XAxis = temp;
+			XAxis = (int8_t)temp;
 	}
 
 	void AddYValue(int Value)
@@ -122,7 +122,7 @@ struct AnalogStick
 		else if (temp < -126)
 			YAxis = -126;
 		else
-			YAxis = temp;
+			YAxis = (int8_t)temp;
 	}
 
 	void Recenter()

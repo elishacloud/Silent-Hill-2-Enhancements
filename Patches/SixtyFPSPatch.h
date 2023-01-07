@@ -14,14 +14,9 @@
 *   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "External\injector\include\injector\injector.hpp"
-#include "External\injector\include\injector\calling.hpp"
-#include "External\injector\include\injector\hooking.hpp"
-#include "External\injector\include\injector\utility.hpp"
-#include "External\Hooking.Patterns\Hooking.Patterns.h"
 #include "Logging\Logging.h"
 #include "Patches.h"
-#include "Common/Utils.h"
+#include "Common\Utils.h"
 #include "Common\Settings.h"
 
 extern float MotionBlurValue;

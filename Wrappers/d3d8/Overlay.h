@@ -82,7 +82,6 @@ private:
 
 	bool ChangeMenuTestColor();
 	void InitializeDataStructs();
-
 };
 
 extern bool ControllerConnectedFlag;

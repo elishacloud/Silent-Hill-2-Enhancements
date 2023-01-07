@@ -149,7 +149,6 @@ void UpdateMousePosition_Hook()
 
 			LastMousePauseChange = Now;
 			PauseMenuVerticalChanged = true;
-			
 		}
 		else
 		{
@@ -225,7 +224,6 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 
 		// Clear controller data
 		ControllerData = nullptr;
-		
 	}
 
 	// For keyboard
@@ -422,7 +420,6 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			// Inject up and down in the memo screen
 			switch (GetEventIndex()) 
 			{
-			
 			case EVENT_MEMO_LIST:
 				if (MouseWheel > 0)
 					SetKey(KeyBinds.GetKeyBind(KEY_MOVE_FORWARDS));
@@ -447,7 +444,6 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 				break;
 
 			}
-					   			
 			MouseWheel = 0;
 		}
 
@@ -505,9 +501,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			UpdateMemoryAddress((void*)AnalogStringTwo, "\x2F", 1);
 			UpdateMemoryAddress((void*)AnalogStringThree, "\x2F", 1);
 		}
-
 	}
-
 }
 
 void InputTweaks::TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD dwFlags)
@@ -657,9 +651,7 @@ void InputTweaks::ReadMouseButtons()
 		{
 			break;
 		}
-
 		}
-		
 }
 
 float InputTweaks::GetMouseAnalogX()

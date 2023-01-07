@@ -151,7 +151,6 @@ void Overlay::DrawMenuTestOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 			WhiteArrayIndex = 0;
 			break;
 		}
-
 	}
 
 	ControlMenuTestTextStruct.Color = WhiteArray[WhiteArrayIndex];
@@ -177,7 +176,6 @@ void Overlay::DrawMenuTestOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 
 	// Pulsating dot
 	DrawMenuTestText(ProxyInterface, ControlMenuTestTextStruct);
-
 }
 
 void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
@@ -241,7 +239,6 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 
 	DebugOverlayTextStruct.String = OvlString.c_str();
 	DrawDebugText(ProxyInterface, DebugOverlayTextStruct);
-
 }
 
 void Overlay::DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT FontStruct)

@@ -114,7 +114,8 @@ __declspec(naked) void __stdcall HyperSprayAllocASM()
     }
 }
 
-bool WritePointerToMemory(void* dataAddr, const void* dataPtr) {
+bool WritePointerToMemory(void* dataAddr, const void* dataPtr)
+{
     return UpdateMemoryAddress(dataAddr, &dataPtr, sizeof(DWORD*));
 }
 

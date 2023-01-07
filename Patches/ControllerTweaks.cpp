@@ -96,7 +96,6 @@ void ProcessDInputData_Hook(GamePadState* state)
 			}
 
 			OverriddenKeyboard = true;
-	
 		}
 		else if (OverriddenKeyboard) // right after dismounting the boat or exiting search view, clear the analog stick
 		{
@@ -112,7 +111,6 @@ void ProcessDInputData_Hook(GamePadState* state)
 				OverriddenRunOption = false;
 			}
 		}
-		
 	}
 
 	// Full screen images mouse movement fix

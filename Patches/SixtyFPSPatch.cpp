@@ -21,7 +21,7 @@ const BYTE EddieBossTimeLimitOvrd = 0x50;
 const float WaterOvrd = 0.0166665f;
 const float LowHealthOvrd = 0.0166665f;
 const float StaircaseLightingOvrd = 0.00027777222565f;
-const float WaterLowOvrd = 20.f;
+const float WaterLowOvrd = 20.0f;
 const float WaterRisOvrd = 5.333333492f;
 const float BugRoomFlashlightOvrd = 0.093333332985f;
 const int16_t FlashlightOnOvrd= 0x78;
@@ -197,5 +197,4 @@ void PatchSixtyFPS()
     PatchHoldDamage();
 
 	Logging::Log() << "Done applying 60 FPS fixes...";
-
 }

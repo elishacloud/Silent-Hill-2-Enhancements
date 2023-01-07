@@ -16,7 +16,6 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-
 #include "Patches.h"
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
@@ -126,7 +125,6 @@ void __cdecl ClearTextHook()
 	return ClearTextFun.fun();
 }
 
-
 void PatchQuickSaveTweaks()
 {
 	PatchQuickSavePos();
@@ -146,12 +144,10 @@ void PatchQuickSavePos()
 	GameSavedTextColorAddr = SearchAndGetAddresses(   (DWORD)0x0044C688,   (DWORD)0x0044C856, (DWORD)0x0044C856, (BYTE*)quick_saved_addr_bytes,  sizeof(quick_saved_addr_bytes),   0x01);
 	CantSavedTextColorAddr = SearchAndGetAddresses(   (DWORD)0x0044C6d8,   (DWORD)0x0044C8e6, (DWORD)0x0044C8E6, (BYTE*)quick_saved_addr_bytes,  sizeof(quick_saved_addr_bytes),   0x01);
 	NoQuickSaveTextColorAddr = SearchAndGetAddresses( (DWORD)0x0044C728,   (DWORD)0x0044C976, (DWORD)0x0044C976, (BYTE*)quick_saved_addr_bytes,  sizeof(quick_saved_addr_bytes),   0x01);
-	
 
 	// Points to enWaitAllInsect (based on ps2 demo version).
 	constexpr BYTE FontClearBytes[]{ 0x56, 0x33, 0xf6, 0x56, 0x66, 0x89, 0x35 ,0xC6 };
 	const auto FontClearAddr = (DWORD)CheckMultiMemoryAddress((void*)0x0047EEE0, (void*)0x0047F180, (void*)0x0047F390, (void*)FontClearBytes, sizeof(FontClearBytes));
-
 
 	// Sets the stop_moth_sfx function instances address.
 	const auto fontClearAddr = (uintptr_t * (__cdecl*)(void))(FontClearAddr);
@@ -217,5 +213,4 @@ void PatchQuickSaveText()
 	auto pattern = hook::pattern("E8 3C E4 FF FF");
 
 	ClearTextFun.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), ClearTextHook, true).get();
-
 }

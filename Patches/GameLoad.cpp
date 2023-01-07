@@ -335,7 +335,6 @@ void SetGameLoad()
 	memcpy(&quickSaveToggle, (DWORD*)(0x04024bd),sizeof(DWORD));
 
 	ClearFontBeforePrint = true;
-
 }
 
 void RunGameLoad()

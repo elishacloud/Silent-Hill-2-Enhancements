@@ -1298,7 +1298,6 @@ DWORD *GetLeftAnalogXFunctionPointer()
 		return nullptr;
 	}
 
-
 	LeftAnalogXFunctionAddr = (DWORD*)LeftAnalogXAddr;
 
 	return LeftAnalogXFunctionAddr;
@@ -1321,7 +1320,6 @@ DWORD *GetLeftAnalogYFunctionPointer()
 		Logging::Log() << __FUNCTION__ << " Error: failed to find Analog Stick function address!";
 		return nullptr;
 	}
-
 
 	LeftAnalogYFunctionAddr = (DWORD*)LeftAnalogYAddr;
 
@@ -1346,7 +1344,6 @@ DWORD *GetRightAnalogXFunctionPointer()
 		return nullptr;
 	}
 
-
 	RightAnalogXFunctionAddr = (DWORD*)RightAnalogXAddr;
 
 	return RightAnalogXFunctionAddr;
@@ -1370,7 +1367,6 @@ DWORD *GetRightAnalogYFunctionPointer()
 		return nullptr;
 	}
 
-
 	RightAnalogYFunctionAddr = (DWORD*)RightAnalogYAddr;
 
 	return RightAnalogYFunctionAddr;
@@ -1393,7 +1389,6 @@ DWORD *GetUpdateMousePositionFunctionPointer()
 		Logging::Log() << __FUNCTION__ << " Error: failed to find Update Mouse Position function address!";
 		return nullptr;
 	}
-
 
 	UpdateMousePositionFunctionAddr = (DWORD*)UpdateMousePositionAddr;
 

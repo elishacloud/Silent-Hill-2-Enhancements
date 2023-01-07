@@ -31,7 +31,6 @@ void *OriginalEnvFogRGB;
 void *jmpFinalAreaBossAddr1;
 void *jmpFinalAreaBossAddr2;
 
-
 // Fog values
 constexpr float NewFrontFog = 2200.0f;
 constexpr float NewBackFog = 2800.0f;
@@ -379,5 +378,4 @@ void PatchFMV()
 	UpdateMemoryAddress(GetRPTClosetCutsceneMannequinDespawnPointer(), "\x00\x80\xB3\x43", 0x04);
 	// 1696 to 1695 
 	UpdateMemoryAddress(GetRPTClosetCutsceneBlurredBarsDespawnPointer(), "\x00\xE0\xD3\x44", 0x04);
-	 
 }

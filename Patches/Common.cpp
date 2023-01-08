@@ -44,60 +44,59 @@ float *InGameCameraPosYAddr = nullptr;
 BYTE *InventoryStatusAddr = nullptr;
 DWORD *LoadingScreenAddr = nullptr;
 BYTE *PauseMenuButtonIndexAddr = nullptr;
-BYTE *PauseMenuQuitIndexAddr = nullptr;
 float *FPSCounterAddr = nullptr;
 int16_t *ShootingKillsAddr = nullptr;
 int16_t *MeleeKillsAddr = nullptr;
 float *BoatMaxSpeedAddr = nullptr;
-int8_t *ActionDifficultyAddr;
-int8_t *RiddleDifficultyAddr;
-int8_t *NumberOfSavesAddr;
-float *InGameTimeAddr;
-float *WalkingDistanceAddr;
-float *RunningDistanceAddr;
-int16_t *ItemsCollectedAddr;
-float *DamagePointsTakenAddr;
-uint8_t *SecretItemsCollectedAddr;
-float *BoatStageTimeAddr;
-int32_t* MouseVerticalPositionAddr;
-int32_t* MouseHorizontalPositionAddr;
-DWORD* LeftAnalogXFunctionAddr;
-DWORD* LeftAnalogYFunctionAddr;
-DWORD* RightAnalogXFunctionAddr;
-DWORD* RightAnalogYFunctionAddr;
-DWORD* UpdateMousePositionFunctionAddr;
-BYTE* SearchViewFlagAddr;
-int32_t* EnableInputAddr;
-BYTE* AnalogXAddr;
-BYTE* ControlTypeAddr;
-BYTE* RunOptionAddr;
-BYTE* NumKeysWeaponBindStartAddr;
-BYTE *TalkShowHostStateAddr;
-BYTE *BoatFlagAddr;
-int32_t *IsWritingQuicksaveAddr;
-int32_t *TextAddrAddr;
-float *WaterAnimationSpeedPointer;
-int16_t *FlashlightOnSpeedPointer;
-float* LowHealthIndicatorFlashSpeedPointer;
-float *WaterAnimationSpeedAddr;
-int16_t *FlashlightOnSpeedAddr;
-float* LowHealthIndicatorFlashSpeedAddr;
-float* StaircaseFlamesLightingSpeedAddr;
-float* WaterLevelLoweringStepsAddr;
-float* WaterLevelRisingStepsAddr;
-float* BugRoomFlashlightFixAddr;
-uint8_t* SixtyFPSFMVFixAddr;
-uint8_t* GrabDamageAddr;
-float* FrametimeAddr;
-DWORD* MeatLockerFogFixOneAddr;
-DWORD* MeatLockerFogFixTwoAddr;
-DWORD* MeatLockerHangerFixOneAddr;
-DWORD* MeatLockerHangerFixTwoAddr;
-BYTE* ClearTextAddr;
-float* MeetingMariaCutsceneFogCounterOneAddr;
-float* MeetingMariaCutsceneFogCounterTwoAddr;
-float* RPTClosetCutsceneMannequinDespawnAddr;
-float* RPTClosetCutsceneBlurredBarsDespawnAddr;
+int8_t *ActionDifficultyAddr = nullptr;
+int8_t *RiddleDifficultyAddr = nullptr;
+int8_t *NumberOfSavesAddr = nullptr;
+float *InGameTimeAddr = nullptr;
+float *WalkingDistanceAddr = nullptr;
+float *RunningDistanceAddr = nullptr;
+int16_t *ItemsCollectedAddr = nullptr;
+float *DamagePointsTakenAddr = nullptr;
+uint8_t *SecretItemsCollectedAddr = nullptr;
+float *BoatStageTimeAddr = nullptr;
+int32_t* MouseVerticalPositionAddr = nullptr;
+int32_t* MouseHorizontalPositionAddr = nullptr;
+DWORD* LeftAnalogXFunctionAddr = nullptr;
+DWORD* LeftAnalogYFunctionAddr = nullptr;
+DWORD* RightAnalogXFunctionAddr = nullptr;
+DWORD* RightAnalogYFunctionAddr = nullptr;
+DWORD* UpdateMousePositionFunctionAddr = nullptr;
+BYTE* SearchViewFlagAddr = nullptr;
+int32_t* EnableInputAddr = nullptr;
+BYTE* AnalogXAddr = nullptr;
+BYTE* ControlTypeAddr = nullptr;
+BYTE* RunOptionAddr = nullptr;
+BYTE* NumKeysWeaponBindStartAddr = nullptr;
+BYTE *TalkShowHostStateAddr = nullptr;
+BYTE *BoatFlagAddr = nullptr;
+int32_t *IsWritingQuicksaveAddr = nullptr;
+int32_t *TextAddrAddr = nullptr;
+float *WaterAnimationSpeedPointer = nullptr;
+int16_t *FlashlightOnSpeedPointer = nullptr;
+float* LowHealthIndicatorFlashSpeedPointer = nullptr;
+float *WaterAnimationSpeedAddr = nullptr;
+int16_t *FlashlightOnSpeedAddr = nullptr;
+float* LowHealthIndicatorFlashSpeedAddr = nullptr;
+float* StaircaseFlamesLightingSpeedAddr = nullptr;
+float* WaterLevelLoweringStepsAddr = nullptr;
+float* WaterLevelRisingStepsAddr = nullptr;
+float* BugRoomFlashlightFixAddr = nullptr;
+uint8_t* SixtyFPSFMVFixAddr = nullptr;
+uint8_t* GrabDamageAddr = nullptr;
+float* FrametimeAddr = nullptr;
+DWORD* MeatLockerFogFixOneAddr = nullptr;
+DWORD* MeatLockerFogFixTwoAddr = nullptr;
+DWORD* MeatLockerHangerFixOneAddr = nullptr;
+DWORD* MeatLockerHangerFixTwoAddr = nullptr;
+BYTE* ClearTextAddr = nullptr;
+float* MeetingMariaCutsceneFogCounterOneAddr = nullptr;
+float* MeetingMariaCutsceneFogCounterTwoAddr = nullptr;
+float* RPTClosetCutsceneMannequinDespawnAddr = nullptr;
+float* RPTClosetCutsceneBlurredBarsDespawnAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -764,40 +763,6 @@ BYTE *GetPauseMenuButtonIndexPointer()
 	memcpy(&PauseMenuButtonIndexAddr, PauseMenuIndexAddr, sizeof(DWORD));
 
 	return PauseMenuButtonIndexAddr;
-}
-
-BYTE GetPauseMenuQuitIndex()
-{
-	BYTE *PauseMenuIndex = GetPauseMenuQuitIndexPointer();
-
-	return (PauseMenuIndex) ? *PauseMenuIndex : 0;
-}
-
-BYTE *GetPauseMenuQuitIndexPointer()
-{
-	return (BYTE*)0x009326B0;
-	if (PauseMenuQuitIndexAddr)
-	{
-		return PauseMenuQuitIndexAddr;
-	}
-
-	// Get Pause Menu Quit Index address
-	constexpr BYTE PauseMenuQuitIndexBytes[]{ 0x68, 0xFF, 0x00, 0x00, 0x00, 0x6A, 0x7F, 0x6A, 0x7F, 0x6A, 0x7F };
-	auto PauseMenuIndexAddr = reinterpret_cast<void*>(SearchAndGetAddresses(0x00407497, 0x00407497, 0x004074A7, PauseMenuQuitIndexBytes,
-		sizeof(PauseMenuQuitIndexBytes), 0x10));
-
-	// Checking address pointer
-	if (!PauseMenuIndexAddr)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find Quit Index Pointer address!";
-		return nullptr;
-	}
-
-	PauseMenuIndexAddr = reinterpret_cast<void*>(reinterpret_cast<DWORD>(PauseMenuIndexAddr) + 0x01);
-
-	memcpy(&PauseMenuQuitIndexAddr, PauseMenuIndexAddr, sizeof(DWORD));
-
-	return PauseMenuQuitIndexAddr;
 }
 
 float GetFPSCounter()
@@ -1729,7 +1694,7 @@ int16_t *GetFlashlightOnSpeedPointer()
 	
 	// Get Items Collected address
 	constexpr BYTE FlashlightOnSpeedSearchBytes[]{ 0x74, 0x11, 0x6A, 0x00, 0xE8, 0xAD, 0x79 };
-	int16_t *FlashlightOnSpeed = (int16_t*)SearchAndGetAddresses(0x0050A59A, 0x0050A8CA, 0x0050A8CA, FlashlightOnSpeedSearchBytes, sizeof(FlashlightOnSpeedSearchBytes), 0x23);
+	int16_t *FlashlightOnSpeed = (int16_t*)SearchAndGetAddresses(0x0050A59A, 0x0050A8CA, 0x0050A1EA, FlashlightOnSpeedSearchBytes, sizeof(FlashlightOnSpeedSearchBytes), 0x23);
 
 	// Checking address pointer
 	if (!FlashlightOnSpeed)

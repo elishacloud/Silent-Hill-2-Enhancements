@@ -88,7 +88,6 @@ float *GetInGameCameraPosYPointer();
 BYTE *GetInventoryStatusPointer();
 DWORD *GetLoadingScreenPointer();
 BYTE *GetPauseMenuButtonIndexPointer();
-BYTE *GetPauseMenuQuitIndexPointer();
 float *GetFPSCounterPointer();
 int16_t *GetShootingKillsPointer();
 int16_t *GetMeleeKillsPointer();

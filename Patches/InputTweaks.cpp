@@ -16,6 +16,7 @@
 
 #include "External\injector\include\injector\injector.hpp"
 #include "External\injector\include\injector\utility.hpp"
+#include "External\Hooking.Patterns\Hooking.Patterns.h"
 #include "InputTweaks.h"
 
 InputTweaks InputTweaksRef;
@@ -73,6 +74,8 @@ injector::hook_back<void(__cdecl*)(void)> orgUpdateMousePosition;
 BYTE* AnalogStringOne;
 BYTE* AnalogStringTwo;
 BYTE* AnalogStringThree;
+
+BYTE *PauseMenuQuitIndexAddr = nullptr;
 
 uint8_t keyNotSetWarning[21] = { 0 };
 
@@ -895,4 +898,32 @@ void InputTweaks::SetOverrideSprint()
 void InputTweaks::ClearOverrideSprint()
 {
 	OverrideSprint = false;
+}
+
+BYTE GetPauseMenuQuitIndex()
+{
+	if (!PauseMenuQuitIndexAddr)
+	{
+		auto pattern = hook::pattern("56 E8 ? ? ? 00 83 C4 04 50 E8 ? ? ? 00 6A 60 6A 7F 6A 7F 6A 7F E8");
+
+		DWORD PauseMenuQuitAddress = (DWORD)pattern.count(1).get(0).get<uint32_t>(0);
+
+		DWORD searchedAddr = (DWORD)((GameVersion == SH2V_10) ? 0x00407794 : (GameVersion == SH2V_11) ? 0x004076D1 : (GameVersion == SH2V_DC) ? 0x004076E1 : 0x00407794);
+
+		if (PauseMenuQuitAddress != searchedAddr)
+		{
+			Logging::Log() << __FUNCTION__ << " Error: failed to find Pause Menu Quit Index memory address!";
+			return NULL;
+		}
+		 
+		PauseMenuQuitAddress += 0x1D;
+
+		DWORD Address;
+		memcpy(&Address, (void*)PauseMenuQuitAddress, sizeof(DWORD));
+
+		PauseMenuQuitIndexAddr = (BYTE*)Address;
+
+	}
+
+	return *PauseMenuQuitIndexAddr;
 }

@@ -92,14 +92,14 @@ HRESULT m_IDirectInputDevice8A::Acquire()
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
 
-	LPDIDEVICEINSTANCEA deviceInfo = new DIDEVICEINSTANCEA;
-	deviceInfo->dwSize = sizeof(DIDEVICEINSTANCEA);
-	ProxyInterface->GetDeviceInfo(deviceInfo);
+	DIDEVICEINSTANCEA deviceInfo;
+	deviceInfo.dwSize = sizeof(DIDEVICEINSTANCEA);
+	ProxyInterface->GetDeviceInfo(&deviceInfo);
 	
 	// Saving mouse, kb and controller's addresses to handle them in InputTweaks
-	if (deviceInfo->guidProduct == GUID_SysMouse)
+	if (deviceInfo.guidProduct == GUID_SysMouse)
 		InputTweaksRef.SetMouseInterfaceAddr(ProxyInterface);
-	else if (deviceInfo->guidProduct == GUID_SysKeyboard)
+	else if (deviceInfo.guidProduct == GUID_SysKeyboard)
 		InputTweaksRef.SetKeyboardInterfaceAddr(ProxyInterface);
 	else
 		InputTweaksRef.SetControllerInterfaceAddr(ProxyInterface);

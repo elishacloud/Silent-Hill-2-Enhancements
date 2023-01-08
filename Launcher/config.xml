@@ -500,7 +500,7 @@
       <Title>Enable mouse weapon swap</Title>
       <Description>Enables Mousewheel to swap weapons</Description>
       <Choices type="check">
-        <Value name="Disable" default="false">0</Value>
+        <Value name="Disable" default="true">0</Value>
         <Value name="Enable">1</Value>
       </Choices>
     </Feature>
@@ -700,6 +700,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="FixFMVSpeed">
+        <Title>Fix FMV playback speed</Title>
+        <Description>Consistency fix for the game's FMV framerate.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="HospitalChaseFix">
         <Title>Fix hospital chase animation</Title>
         <Description>Correctly syncs Red Pyramid Thing's attack animation to the rest of the cutscene that plays out during the hospital elevator chase sequence.</Description>
@@ -712,6 +721,15 @@
       <Feature name="FixCreatureVehicleSpawn">
         <Title>Fix Lying Figures exiting from under vehicles</Title>
         <Description>Fixes an issue where Lying Figures would exit from underneath vehicles incorrectly.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="MemoScreenFix">
+        <Title>Fix navigation for the memo screen</Title>
+        <Description>Enables arrow navigation and Enter selection in the memo screen.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -784,24 +802,6 @@
       <Feature name="FixDrawingTextLine">
         <Title>Thicken hospital diary line</Title>
         <Description>Thickens the horizontal line in the hospital diary text to make it easier to see at higher rendering resolutions.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="MemoScreenFix">
-        <Title>Fixe navigation for the memo screen</Title>
-        <Description>Enables arrow navigation and Enter selection in the memo screen.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-      
-      <Feature name="FixFMVSpeed">
-        <Title>Fix FMV playback speed</Title>
-        <Description>Consistency fix for the game's FMV framerate.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>

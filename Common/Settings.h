@@ -30,7 +30,7 @@
 	visit(EnableInfoOverlay, true) \
 	visit(EnableMenuTest, false) \
 	visit(EnableMenuTestIGT, true) \
-	visit(EnableMouseWheelSwap, false) \
+	visit(EnableMouseWheelSwap, true) \
 	visit(EnableScreenshots, true) \
 	visit(EnableSFXAddrHack, true) \
 	visit(EnableSMAA, false) \

@@ -500,8 +500,8 @@
       <Title>Enable mouse weapon swap</Title>
       <Description>Enables Mousewheel to swap weapons</Description>
       <Choices type="check">
-        <Value name="Disable" default="true">0</Value>
-        <Value name="Enable">1</Value>
+        <Value name="Disable">0</Value>
+        <Value name="Enable" default="true">1</Value>
       </Choices>
     </Feature>
     

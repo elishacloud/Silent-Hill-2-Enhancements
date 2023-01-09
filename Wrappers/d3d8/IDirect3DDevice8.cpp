@@ -207,10 +207,10 @@ HRESULT m_IDirect3DDevice8::EndScene()
 		if ((LastCutsceneID == 0x01 && SkipSceneCounter < 4 && (SkipSceneCounter || GetJamesPosX() != LastJamesPosX)) ||
 			(LastCutsceneID == 0x03 && SkipSceneCounter < 1 && (SkipSceneCounter || GetJamesPosX() == 330.845f)) ||
 			((LastCutsceneID == 0x15 || LastCutsceneID == 0x16) && SkipSceneCounter < 1 && (SkipSceneCounter || GetCutsceneID() != LastCutsceneID || (ClassReleaseFlag && !(GetCutscenePos() == *(float*)"\xAE\x01\x31\x46" && LastCameraPos == 0))) && !(GetCutsceneID() == 0x16 && LastCutsceneID == 0x15)) ||
-			(LastCutsceneID == 0x16 && SkipSceneCounter < 4 && (SkipSceneCounter || (GetCutscenePos() != LastCameraPos && GetCutscenePos() == *(float*)"\x40\xA1\xA8\x45")) && GetCutsceneID() == 0x16) ||
 			(LastCutsceneID == 0x4C && SkipSceneCounter < 1 && (SkipSceneCounter || GetCutsceneID() != LastCutsceneID)) ||
 			(LastCutsceneID == 0x4D && SkipSceneCounter < 2 && (SkipSceneCounter || GetCutsceneID() != LastCutsceneID || ClassReleaseFlag)) ||
-			(LastCutsceneID == 0x4D && SkipSceneCounter < 3 && (SkipSceneCounter || GetCutscenePos() != LastCameraPos) && GetCutscenePos() == *(float*)"\x59\xCC\x06\xC6" && GetCutsceneID() == 0x4D))
+			(LastCutsceneID == 0x4D && SkipSceneCounter < 3 && (SkipSceneCounter || GetCutscenePos() != LastCameraPos) && GetCutscenePos() == *(float*)"\x59\xCC\x06\xC6" && GetCutsceneID() == 0x4D) ||
+			(LastCutsceneID == 0x44 && GetCutsceneID() == 0x00 && SkipSceneCounter < 6))
 		{
 			LOG_LIMIT(1, "Skipping frame during cutscene!");
 			Logging::LogDebug() << __FUNCTION__ " frame - Counter " << SkipSceneCounter << " Release: " << ClassReleaseFlag << " CutsceneID: " << GetCutsceneID() << " LastCutsceneID: " << LastCutsceneID <<

@@ -363,10 +363,22 @@ void DelayedStart()
 		PatchClosetSpawn();
 	}
 
+	// Applies patches to fix 60fps specific bugs
+	if (SetSixtyFPS)
+	{
+		PatchSixtyFPS();
+	}
+
 	// Fix flashlight flicker
 	if (FlashlightFlickerFix)
 	{
 		PatchFlashlightFlicker();
+	}
+
+	// Fix Fog issues in FMVs
+	if (RemoveEnvironmentFlicker)
+	{
+		PatchFMV();
 	}
 
 	// Fix memo brightness
@@ -445,6 +457,12 @@ void DelayedStart()
 	if (GameLoadFix)
 	{
 		PatchGameLoad();
+	}
+
+	// Fixes quick save text position and the text fading too quickly bug
+	if (QuickSaveTweaks)
+	{
+		PatchQuickSaveTweaks();
 	}
 
 	// Game Save Sound Fix
@@ -537,11 +555,18 @@ void DelayedStart()
 		PatchSpecular();
 	}
 
+	// Enables a complete rewrite of the game's audio engine
 	if (EnableCriWareReimplementation)
 	{
 		PatchCriware();
 	}
 
+	// Makes the FMVs play with consistent speed
+	if (FixFMVSpeed)
+	{
+		PatchFMVFramerate();
+	}
+  
     // Patch delayed fade-in to hide animation artifacts
     if (DelayedFadeIn)
     {

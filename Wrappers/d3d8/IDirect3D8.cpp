@@ -15,6 +15,7 @@
 */
 
 #include "d3d8wrapper.h"
+#include "Patches\InputTweaks.h"
 
 #define ATI_VENDOR_ID		0x1002	/* ATI Technologies Inc.			*/
 #define NVIDIA_VENDOR_ID	0x10DE	/* NVIDIA Corporation				*/
@@ -324,6 +325,8 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 		}
 	}
 
+	GameWindowHandle = DeviceWindow;
+
 	return hr;
 }
 
@@ -592,35 +595,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	}
-	case WM_KEYDOWN:
+	case WM_SETFOCUS:
 	{
-		switch (wParam)
-		{
-		case 0x44: // Letter D
-		{
-			if (GetAsyncKeyState(VK_CONTROL)) 
-			{
-				if (EnableDebugOverlay)
-				{
-					ShowDebugOverlay = !ShowDebugOverlay;
-				}
-			}
-			break;
-		}
-		case 0x49: // Letter I
-		{
-			if (GetAsyncKeyState(VK_CONTROL))
-			{
-				if (EnableInfoOverlay)
-				{
-					ShowInfoOverlay = !ShowInfoOverlay;
-				}
-			}
-			break;
-		}
-
-		}
-		break;
+		InputTweaksRef.ClearMouseInputs();
 	}
 
 	}

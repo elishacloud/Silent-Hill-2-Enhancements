@@ -26,14 +26,17 @@
 	visit(DPadMovementFix, true) \
 	visit(DynamicResolution, true) \
 	visit(EnableDebugOverlay, true) \
+	visit(EnableEnhancedMouse, true) \
 	visit(EnableInfoOverlay, true) \
 	visit(EnableMenuTest, false) \
 	visit(EnableMenuTestIGT, true) \
+	visit(EnableMouseWheelSwap, true) \
 	visit(EnableScreenshots, true) \
 	visit(EnableSFXAddrHack, true) \
 	visit(EnableSMAA, false) \
 	visit(EnableSoftShadows, true) \
 	visit(EnableTexAddrHack, true) \
+	visit(EnableToggleSprint, true) \
 	visit(FastTransitions, true) \
 	visit(Fix2D, true) \
 	visit(FixAdvancedOptions, true) \
@@ -42,6 +45,7 @@
 	visit(FixCreatureVehicleSpawn, true) \
 	visit(FixDrawingTextLine, true) \
 	visit(FixFMVResetIssue, true) \
+	visit(FixFMVSpeed, true) \
 	visit(FixGPUAntiAliasing, true) \
 	visit(FixHangOnEsc, true) \
 	visit(FixInventoryBGM, true) \
@@ -76,12 +80,14 @@
 	visit(LockSpeakerConfig, true) \
 	visit(MainMenuFix, true) \
 	visit(MainMenuTitlePerLang, true) \
+	visit(MemoScreenFix, true) \
 	visit(NoCDPatch, true) \
 	visit(PauseScreenFix, true) \
 	visit(PistonRoomFix, true) \
 	visit(PS2CameraSpeed, true) \
 	visit(PS2FlashlightBrightness, true) \
 	visit(PS2StyleNoiseFilter, true) \
+	visit(QuickSaveTweaks, true) \
 	visit(ReduceCutsceneFOV, true) \
 	visit(RemoveEffectsFlicker, true) \
 	visit(RemoveEnvironmentFlicker, true) \
@@ -94,6 +100,7 @@
 	visit(RowboatAnimationFix, true) \
 	visit(SaveGameSoundFix, true) \
 	visit(SetBlackPillarBoxes, true) \
+	visit(SetSixtyFPS, true) \
 	visit(Southpaw, false) \
 	visit(SpecificSoundLoopFix, true) \
 	visit(SpecularFix, true) \
@@ -123,7 +130,6 @@
 	visit(fog_transparency_layer2, 112) \
 	visit(FogFix, 0xFFFF) /* Overloading the old 'fog_custom_on' option */ \
 	visit(FogLayerFix, 0xFFFF) /* Overloading the old 'Fog2DFix' option */ \
-	visit(FPSLimit, 0) \
 	visit(FrontBufferControl, 0) \
 	visit(FullscreenImages, 3) \
 	visit(FullscreenVideos, 3) \
@@ -197,7 +203,6 @@
 	visit(fog_transparency_layer1) \
 	visit(fog_transparency_layer2) \
 	visit(Fog2DFix) \
-	visit(FPSLimit) \
 	visit(FullscreenWndMode) \
 	visit(HookDirect3D) \
 	visit(HookDirectInput) \
@@ -208,6 +213,7 @@
 	visit(LockResolution) \
 	visit(NormalFontHeight) \
 	visit(NormalFontWidth) \
+	visit(QuickSaveTweaks) \
 	visit(ResX) \
 	visit(ResY) \
 	visit(SmallFontHeight) \

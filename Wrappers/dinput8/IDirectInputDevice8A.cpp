@@ -92,12 +92,26 @@ HRESULT m_IDirectInputDevice8A::Acquire()
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
 
+	DIDEVICEINSTANCEA deviceInfo;
+	deviceInfo.dwSize = sizeof(DIDEVICEINSTANCEA);
+	ProxyInterface->GetDeviceInfo(&deviceInfo);
+	
+	// Saving mouse, kb and controller's addresses to handle them in InputTweaks
+	if (deviceInfo.guidProduct == GUID_SysMouse)
+		InputTweaksRef.SetMouseInterfaceAddr(ProxyInterface);
+	else if (deviceInfo.guidProduct == GUID_SysKeyboard)
+		InputTweaksRef.SetKeyboardInterfaceAddr(ProxyInterface);
+	else
+		InputTweaksRef.SetControllerInterfaceAddr(ProxyInterface);
+
 	return ProxyInterface->Acquire();
 }
 
 HRESULT m_IDirectInputDevice8A::Unacquire()
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
+
+	InputTweaksRef.RemoveAddr(ProxyInterface);
 
 	return ProxyInterface->Unacquire();
 }
@@ -106,14 +120,22 @@ HRESULT m_IDirectInputDevice8A::GetDeviceState(DWORD cbData, LPVOID lpvData)
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
 
-	return ProxyInterface->GetDeviceState(cbData, lpvData);
+	HRESULT res = ProxyInterface->GetDeviceState(cbData, lpvData);
+
+	InputTweaksRef.TweakGetDeviceState(ProxyInterface, cbData, lpvData);
+
+	return res;
 }
 
 HRESULT m_IDirectInputDevice8A::GetDeviceData(DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD dwFlags)
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
 
-	return ProxyInterface->GetDeviceData(cbObjectData, rgdod, pdwInOut, dwFlags);
+	HRESULT hr = ProxyInterface->GetDeviceData(cbObjectData, rgdod, pdwInOut, dwFlags);
+
+	InputTweaksRef.TweakGetDeviceData(ProxyInterface, cbObjectData, rgdod, pdwInOut, dwFlags);
+
+	return hr;
 }
 
 HRESULT m_IDirectInputDevice8A::SetDataFormat(LPCDIDATAFORMAT lpdf)

@@ -390,19 +390,6 @@
 
   <Tab name="Entrada">
 
-    <Section name="General">
-      
-      <Feature name="EnableToggleSprint">
-        <Title>Activar opción para correr alternando</Title>
-        <Description>Cambia la selección de movimiento analógico a «Alternativo», disponible en el menú de Opciones del juego -> Opciones del juego. Esta opción te permitirá alternar entre ir andando y corriendo sin tener que mantener pulsado el botón correspondiente (cuando se active esta opción, se mantendrá el movimiento analógico para los mandos/controladores).</Description>
-        <Choices type="check">
-          <Value name="No">0</Value>
-          <Value name="Sí" default="true">1</Value>
-        </Choices>
-      </Feature>
-      
-    </Section>
-
     <Section name="Mando">
         
       <Feature name="RestoreSearchCamMovement">
@@ -667,6 +654,15 @@
       <Feature name="ChangeClosetSpawn">
         <Title>Cambiar el punto de aparición en el armario</Title>
         <Description>Sitúa a James dentro del armario al terminar la escena cinemática del apartamento 307 de los apartamentos Wood Side para ayudar al jugador a fijarse en la llave que hay dentro.</Description>
+        <Choices type="check">
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="EnableToggleSprint">
+        <Title>Activar opción para correr alternando</Title>
+        <Description>Cambia la selección de movimiento analógico a «Alternativo», disponible en el menú de Opciones del juego -> Opciones del juego. Esta opción te permitirá alternar entre ir andando y corriendo sin tener que mantener pulsado el botón correspondiente (cuando se active esta opción, se mantendrá el movimiento analógico para los mandos/controladores).</Description>
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>

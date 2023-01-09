@@ -409,7 +409,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		}
 
 		// Setting sprint button for the Toggle Sprint function
-		if (EnableToggleSprint && (GetRunOption() == OPT_ANALOG || OverrideSprint))
+		if (EnableToggleSprint && (GetRunOption() == OPT_ANALOG || OverrideSprint) && GetEventIndex() != EVENT_OPTION_FMV)
 		{
 			ClearKey(KeyBinds.GetKeyBind(KEY_RUN));
 		}

@@ -83,7 +83,7 @@ void ChangeSaveColor(void* Addr,RGBA savedColorValue)
 // This aspect ratio calc is made by @Polymega https://github.com/elishacloud/Silent-Hill-2-Enhancements/issues/564#issue-1301079704
 void __stdcall SetAspectRatio()
 {
-	TextPosVecX = ((((BufferHeight * 1.333333333) - BufferWidth) * (static_cast<double>(BufferWidth) / BufferHeight)) / BufferWidth) * 195 + 20;
+	TextPosVecX = (int8_t)(((((BufferHeight * 1.333333333) - BufferWidth) * (static_cast<double>(BufferWidth) / BufferHeight)) / BufferWidth) * 195 + 20);
 }
 
 void __stdcall print_quick_saved_string(void)

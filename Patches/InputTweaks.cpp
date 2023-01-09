@@ -647,6 +647,7 @@ void InputTweaks::ReadMouseButtons()
 			RMB.State = MouseData[i].dwData == KEY_SET;
 			break;
 		}
+#pragma warning(suppress: 4644)
 		case DIMOFS_Z:
 		{
 			MouseWheel = MouseData[i].dwData;

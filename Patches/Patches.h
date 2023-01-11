@@ -122,6 +122,7 @@ void PatchDelayedFadeIn();
 void PatchDrawDistance();
 void PatchFlashlightClockPush();
 void PatchFlashlightFlicker();
+void PatchFmvSubtitles();
 void PatchFogParameters();
 void PatchFullscreenImages();
 void PatchFullscreenVideos();

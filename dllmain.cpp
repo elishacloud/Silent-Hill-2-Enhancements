@@ -548,6 +548,12 @@ void DelayedStart()
         PatchDelayedFadeIn();
     }
 
+    // Patch FMV subtitles to draw on top of noise grain
+    if (FmvSubtitlesNoiseFix)
+    {
+        PatchFmvSubtitles();
+    }
+
 	// Remove the "Now loading..." message
 	switch (GameVersion)
 	{

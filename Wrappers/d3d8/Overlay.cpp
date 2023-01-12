@@ -1,3 +1,19 @@
+/**
+* Copyright (C) 2022 mercury501
+*
+* This software is  provided 'as-is', without any express  or implied  warranty. In no event will the
+* authors be held liable for any damages arising from the use of this software.
+* Permission  is granted  to anyone  to use  this software  for  any  purpose,  including  commercial
+* applications, and to alter it and redistribute it freely, subject to the following restrictions:
+*
+*   1. The origin of this software must not be misrepresented; you must not claim that you  wrote the
+*      original  software. If you use this  software  in a product, an  acknowledgment in the product
+*      documentation would be appreciated but is not required.
+*   2. Altered source versions must  be plainly  marked as such, and  must not be  misrepresented  as
+*      being the original software.
+*   3. This notice may not be removed or altered from any source distribution.
+*/
+
 #pragma warning( disable : 4244 )
 #include "Overlay.h"
 
@@ -6,6 +22,10 @@ const int FloatPrecision	= 4;
 const int KMConstant		= 500000;
 const float AntiJitterValue	= 0.0001f;
 const int DropShadowOffset	= 1;
+
+bool ControllerConnectedFlag = false;
+int JoystickX = 0;
+int JoystickY = 0;
 
 LPCSTR FontName = "Arial";
 
@@ -31,13 +51,8 @@ DWORD FogEnableValue;
 
 void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 {
-	Logging::LogDebug() << __FUNCTION__;
-
 	if (LastBufferWidth != BufferWidth || LastBufferHeight != BufferHeight)
 		InitializeDataStructs();
-
-	// In the pause menu, skip drawing
-	if (GetEventIndex() == 0x10) return;
 
 	// nVidia fix
 	ProxyInterface->GetRenderState(D3DRS_FOGENABLE, &FogEnableValue);
@@ -55,6 +70,9 @@ void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 		DrawInfoOverlay(ProxyInterface);
 	}
 
+	// In the pause menu, skip drawing
+	if (GetEventIndex() == 0x10) return;
+
 	// Menu Test
 	if (EnableMenuTest)
 	{
@@ -66,11 +84,9 @@ void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 
 void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 {
-	Logging::LogDebug() << __FUNCTION__;
-
 	int SpecialItems = bitCount(GetSecretItemsCollected());
 
-	std::string OvlString = "INFO MENU (CTRL + I) ";
+	std::string OvlString = "STATS INFO (CTRL + I) ";
 	OvlString.append("\rAction Difficulty: ");
 	OvlString.append(ActionDifficulty[GetActionDifficulty()]);
 
@@ -123,8 +139,6 @@ void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 
 void Overlay::DrawMenuTestOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 {
-	Logging::LogDebug() << __FUNCTION__;
-
 	if (ChangeMenuTestColor())
 	{
 		switch (WhiteArrayIndex)
@@ -137,7 +151,6 @@ void Overlay::DrawMenuTestOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 			WhiteArrayIndex = 0;
 			break;
 		}
-
 	}
 
 	ControlMenuTestTextStruct.Color = WhiteArray[WhiteArrayIndex];
@@ -163,13 +176,10 @@ void Overlay::DrawMenuTestOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 
 	// Pulsating dot
 	DrawMenuTestText(ProxyInterface, ControlMenuTestTextStruct);
-
 }
 
 void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 {
-	Logging::LogDebug() << __FUNCTION__;
-
 	float CharYPos = GetJamesPosY();
 
 	// Lock value at 0 if close enough, to avoid a rapidly changing number.
@@ -178,7 +188,7 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 		CharYPos = 0;
 	}
 
-	std::string OvlString = "DEBUG MENU (CTRL + D) ";
+	std::string OvlString = "DEBUG INFO (CTRL + G) ";
 
 	OvlString.append("\rGame Resolution: ");
 	OvlString.append(std::to_string(BufferWidth));
@@ -190,6 +200,12 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 
 	OvlString.append("\rCutscene ID: 0x");
 	OvlString.append(IntToHexStr(GetCutsceneID()));
+
+	OvlString.append("\rEvent ID: 0x");
+	OvlString.append(IntToHexStr(GetEventIndex()));
+
+	OvlString.append("\rFullscreen Image Event: 0x");
+	OvlString.append(IntToHexStr(GetFullscreenImageEvent()));
 
 	OvlString.append("\rFPS: ");
 	OvlString.append(FloatToStr(GetFPSCounter(), FloatPrecision));
@@ -203,19 +219,35 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append("\rChar Z Position: ");
 	OvlString.append(FloatToStr(GetJamesPosZ(), FloatPrecision));
 
+	OvlString.append("\rRight Click Function: ");
+	OvlString.append(InputTweaksRef.GetRightClickState());
+
+	OvlString.append("\rToggle Sprint: ");
+	OvlString.append(InputTweaksRef.GetToggleSprintState());
+
+	OvlString.append("\rController connected: ");
+	OvlString.append(ControllerConnectedFlag ? "True" : "False");
+
+	OvlString.append("\rJoystick LY: ");
+	OvlString.append(std::to_string(JoystickY));
+
+	OvlString.append("\rJoystick LX: ");
+	OvlString.append(std::to_string(JoystickX));
+
+	// Temporary Debug String, to use wherever
+	OvlString.append(AuxDebugOvlString);
+
 	DebugOverlayTextStruct.String = OvlString.c_str();
 	DrawDebugText(ProxyInterface, DebugOverlayTextStruct);
-
 }
 
 void Overlay::DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT FontStruct)
 {
-	Logging::LogDebug() << __FUNCTION__;
-	
 	RECT DropShadowRect = FontStruct.Rect;
 	DropShadowRect.top = DropShadowRect.top + DropShadowOffset;
 	DropShadowRect.left = DropShadowRect.left + DropShadowOffset;
 
+	// This flag is set when changing resolution, we have to reload the font
 	if (ResetDebugFontFlag)
 	{
 		ResetDebugFontFlag = false;
@@ -224,7 +256,7 @@ void Overlay::DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT 
 
 	if (ProxyInterface != nullptr && DebugFont == nullptr)
 	{
-		HFONT FontCharacteristics = CreateFontA(16, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, PROOF_QUALITY, 0, FontName);
+		HFONT FontCharacteristics = CreateFontA(16, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, ANTIALIASED_QUALITY, 0, FontName);
 		if (FontCharacteristics != NULL)
 		{
 			Logging::LogDebug() << __FUNCTION__ << " Creating Debug font: " << FontName;
@@ -242,8 +274,6 @@ void Overlay::DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT 
 
 void Overlay::DrawMenuTestText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT FontStruct)
 {
-	Logging::LogDebug() << __FUNCTION__;
-
 	RECT DropShadowRect = FontStruct.Rect;
 	DropShadowRect.top = DropShadowRect.top + DropShadowOffset;
 	DropShadowRect.left = DropShadowRect.left + DropShadowOffset;
@@ -256,7 +286,7 @@ void Overlay::DrawMenuTestText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TE
 
 	if (ProxyInterface != NULL && MenuTestFont == NULL)
 	{
-		HFONT FontCharacteristics = CreateFontA(14, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, PROOF_QUALITY, 0, FontName);
+		HFONT FontCharacteristics = CreateFontA(14, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, ANTIALIASED_QUALITY, 0, FontName);
 		if (FontCharacteristics != NULL)
 		{
 			Logging::LogDebug() << __FUNCTION__ << " Creating Menu Test font: " << FontName;
@@ -274,8 +304,6 @@ void Overlay::DrawMenuTestText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TE
 
 void Overlay::DrawIGTText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT FontStruct)
 {
-	Logging::LogDebug() << __FUNCTION__;
-
 	RECT DropShadowRect = FontStruct.Rect;
 	DropShadowRect.top = DropShadowRect.top + DropShadowOffset;
 	DropShadowRect.left = DropShadowRect.left + DropShadowOffset;
@@ -288,7 +316,7 @@ void Overlay::DrawIGTText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT Fo
 
 	if (ProxyInterface != NULL && IGTFont == NULL)
 	{
-		HFONT FontCharacteristics = CreateFontA(22, 0, 0, 0, FW_REGULAR, 0, 0, 0, 0, 0, 0, PROOF_QUALITY, 0, FontName);
+		HFONT FontCharacteristics = CreateFontA(22, 0, 0, 0, FW_REGULAR, 0, 0, 0, 0, 0, 0, ANTIALIASED_QUALITY, 0, FontName);
 		if (FontCharacteristics != NULL)
 		{
 			Logging::LogDebug() << __FUNCTION__ << " Creating IGT font: " << FontName;
@@ -414,7 +442,7 @@ bool Overlay::ChangeMenuTestColor()
 
 void Overlay::InitializeDataStructs()
 {
-	Logging::LogDebug() << __FUNCTION__;
+	Logging::LogDebug() << __FUNCTION__ << " Initializing Overlay Text Structs...";
 
 	int MenuTestLeftOffset = 130;
 

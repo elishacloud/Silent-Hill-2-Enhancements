@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <string>
 
 typedef enum _SH2VERSION {
 	SH2V_UNKNOWN = 0,
@@ -35,6 +36,7 @@ float GetInGameCameraPosY();
 BYTE GetInventoryStatus();
 DWORD GetLoadingScreen();
 BYTE GetPauseMenuButtonIndex();
+BYTE GetPauseMenuQuitIndex();
 float GetFPSCounter();
 int16_t GetShootingKills();
 int16_t GetMeleeKills();
@@ -49,6 +51,19 @@ int16_t GetItemsCollected();
 float GetDamagePointsTaken();
 uint8_t GetSecretItemsCollected();
 float GetBoatStageTime();
+int32_t GetMouseVerticalPosition();
+int32_t GetMouseHorizontalPosition();
+BYTE GetSearchViewFlag();
+int32_t GetEnableInput();
+BYTE GetAnalogX();
+BYTE GetControlType();
+BYTE GetRunOption();
+BYTE GetNumKeysWeaponBindStart();
+BYTE GetTalkShowHostState();
+BYTE GetBoatFlag();
+int32_t GetIsWritingQuicksave();
+int32_t GetTextAddr();
+float GetFrametime();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -87,6 +102,43 @@ int16_t *GetItemsCollectedPointer();
 float *GetDamagePointsTakenPointer();
 uint8_t *GetSecretItemsCollectedPointer();
 float *GetBoatStageTimePointer();
+int32_t *GetMouseVerticalPositionPointer();
+int32_t *GetMouseHorizontalPositionPointer();
+DWORD *GetLeftAnalogXFunctionPointer();
+DWORD *GetLeftAnalogYFunctionPointer();
+DWORD *GetRightAnalogXFunctionPointer();
+DWORD *GetRightAnalogYFunctionPointer();
+DWORD *GetUpdateMousePositionFunctionPointer();
+BYTE *GetSearchViewFlagPointer();
+int32_t *GetEnableInputPointer();
+BYTE *GetAnalogXPointer();
+BYTE *GetControlTypePointer();
+BYTE *GetRunOptionPointer();
+BYTE *GetNumKeysWeaponBindStartPointer();
+BYTE *GetTalkShowHostStatePointer();
+BYTE *GetBoatFlagPointer();
+BYTE *GetRunOptionPointer();
+int32_t *GetIsWritingQuicksavePointer();
+int32_t *GetTextAddrPointer();
+float *GetWaterAnimationSpeedPointer();
+int16_t *GetFlashlightOnSpeedPointer();
+float *GetLowHealthIndicatorFlashSpeedPointer();
+float *GetStaircaseFlamesLightingPointer();
+float *GetWaterLevelLoweringStepsPointer();
+float *GetWaterLevelRisingStepsPointer();
+float *GetBugRoomFlashlightFixPointer();
+uint8_t *GetSixtyFPSFMVFixPointer();
+uint8_t *GetGrabDamagePointer();
+float *GetFrametimePointer();
+DWORD *GetMeatLockerFogFixOnePointer();
+DWORD *GetMeatLockerHangerFixOnePointer();
+DWORD *GetMeatLockerFogFixTwoPointer();
+DWORD *GetMeatLockerHangerFixTwoPointer();
+BYTE *GetClearTextPointer();
+float *GetMeetingMariaCutsceneFogCounterOnePointer();
+float *GetMeetingMariaCutsceneFogCounterTwoPointer();
+float *GetRPTClosetCutsceneMannequinDespawnPointer();
+float *GetRPTClosetCutsceneBlurredBarsDespawnPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -122,19 +174,24 @@ void PatchDelayedFadeIn();
 void PatchDrawDistance();
 void PatchFlashlightClockPush();
 void PatchFlashlightFlicker();
+void PatchFMV();
+void PatchFMVFramerate();
 void PatchFmvSubtitles();
 void PatchFogParameters();
 void PatchFullscreenImages();
 void PatchFullscreenVideos();
 void PatchGameLoad();
+void PatchHoldDamage();
 void PatchInventoryBGMBug();
 void PatchLockScreenPosition();
 void PatchMainMenu();
 void PatchMainMenuTitlePerLang();
+void PatchMapTranscription();
 void PatchMemoBrightnes();
 void PatchPauseScreen();
 void PatchPistonRoom();
 void PatchPreventChainsawSpawn();
+void PatchPrisonerTimer();
 void PatchPS2Flashlight();
 void PatchPS2NoiseFilter();
 void PatchRedCrossInCutscene();
@@ -142,10 +199,13 @@ void PatchRoom312ShadowFix();
 void PatchRoomLighting();
 void PatchRowboatAnimation();
 void PatchSaveBGImage();
+void PatchSaveGameSound();
 void PatchSpeakerConfigLock();
 void PatchSpecialFX();
 void PatchSpecular();
+void PatchSprayEffect();
 void PatchSFXAddr();
+void PatchSixtyFPS();
 void PatchSpecificSoundLoopFix();
 void PatchTexAddr();
 void PatchTownWestGateEvent();
@@ -154,6 +214,9 @@ void PatchWindowIcon();
 void PatchWindowTitle();
 void PatchXInputVibration();
 void PatchSaveGameSound();
+void PatchQuickSaveTweaks();
+void PatchQuickSavePos();
+void PatchQuickSaveText();
 
 void FindGetModelID();
 int GetCurrentMaterialIndex();
@@ -254,8 +317,26 @@ extern int16_t *ItemsCollectedAddr;
 extern float *DamagePointsTakenAddr;
 extern uint8_t *SecretItemsCollectedAddr;
 extern float *BoatStageTimeAddr;
+extern int32_t* MouseVerticalPositionAddr;
+extern int32_t* MouseHorizontalPositionAddr;
+extern DWORD* LeftAnalogXFunctionAddr;
+extern DWORD* LeftAnalogYFunctionAddr;
+extern DWORD* RightAnalogXFunctionAddr;
+extern DWORD* RightAnalogYFunctionAddr;
+extern DWORD* UpdateMousePositionFunctionAddr;
+extern BYTE* SearchViewFlagAddr;
+extern int32_t* EnableInputAddr;
+extern BYTE* AnalogXAddr;
+extern BYTE* ControlTypeAddr;
+extern BYTE* NumKeysWeaponBindStartAddr;
+extern BYTE* TalkShowHostStateAddr;
+
 extern bool ShowDebugOverlay;
 extern bool ShowInfoOverlay;
+extern std::string AuxDebugOvlString;
+extern bool IsControllerConnected;
+extern HWND GameWindowHandle;
+extern int LastEventIndex;
 
 // Run code only once
 #define RUNONCE() \

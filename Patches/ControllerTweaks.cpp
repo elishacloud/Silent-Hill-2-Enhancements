@@ -21,7 +21,8 @@
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
 #include "External/Hooking.Patterns/Hooking.Patterns.h"
-
+#include "InputTweaks.h"
+#include "Wrappers\d3d8\Overlay.h"
 
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
@@ -41,6 +42,9 @@ struct GamePadState // Very incomplete
 static_assert( sizeof(AnalogState) == 0xC, "Wrong size: AnalogState" );
 
 DIJOYSTATE2* dinputJoyState;
+bool OverriddenKeyboard = false;
+bool OverriddenRunOption = false;
+const int StickTolerance = 13000;
 
 static void (*orgProcessDInputData)(GamePadState*);
 void ProcessDInputData_Hook(GamePadState* state)
@@ -60,6 +64,67 @@ void ProcessDInputData_Hook(GamePadState* state)
 			joystickState.lY = static_cast<LONG>(std::cos(angleRadians) * -32767.0);
 		}
 	}
+
+	// Input Tweaks
+	if (EnableEnhancedMouse && 
+		(((std::abs(joystickState.lX) < StickTolerance) && (std::abs(joystickState.lY) < StickTolerance)) || !IsControllerConnected) &&
+		(GetEnableInput() == 0xFFFFFFFF || InputTweaksRef.ElevatorFix()))
+	{
+		float MouseX = InputTweaksRef.GetMouseAnalogX();
+
+		// Mouse turning
+		if (GetControlType() == ROTATIONAL_CONTROL)
+		{
+			joystickState.lX = static_cast<LONG>(MouseX * 32767.0);
+		}
+
+		// Boat stage and search view movement fix
+		if (((GetBoatFlag() == 0x01 && GetRoomID() == 0x0E) || GetSearchViewFlag() == 0x06))
+		{
+			if (GetRunOption() == OPT_ANALOG && EnableToggleSprint)
+			{
+				*GetRunOptionPointer() = OPT_WALK;
+				OverriddenRunOption = true;
+			}
+
+			joystickState.lY = static_cast<LONG>(InputTweaksRef.GetForwardAnalog() * 32767.0);
+			joystickState.lX = static_cast<LONG>(InputTweaksRef.GetTurningAnalog() * 32767.0);
+
+			if (GetControlType() == ROTATIONAL_CONTROL && MouseX != 0)
+			{
+				joystickState.lX = static_cast<LONG>(MouseX * 32767.0);
+			}
+
+			OverriddenKeyboard = true;
+		}
+		else if (OverriddenKeyboard) // right after dismounting the boat or exiting search view, clear the analog stick
+		{
+			joystickState.lY = 0;
+			joystickState.lX = 0;
+
+			OverriddenKeyboard = false;
+			InputTweaksRef.ClearOverrideSprint();
+
+			if (OverriddenRunOption)
+			{
+				*GetRunOptionPointer() = OPT_ANALOG;
+				OverriddenRunOption = false;
+			}
+		}
+	}
+
+	// Full screen images mouse movement fix
+	if (EnableEnhancedMouse &&
+		(((std::abs(joystickState.lX) < StickTolerance) && (std::abs(joystickState.lY) < StickTolerance)) || !IsControllerConnected) &&
+		GetFullscreenImageEvent() == 0x02)
+	{
+		joystickState.lX = static_cast<LONG>(0);
+	}
+
+	// Populate debug values
+	ControllerConnectedFlag = IsControllerConnected;
+	JoystickX = joystickState.lX;
+	JoystickY = joystickState.lY;
 
 	// Populate right stick with data
 	switch (RestoreSearchCamMovement)

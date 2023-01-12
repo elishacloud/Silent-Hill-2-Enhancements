@@ -9,8 +9,6 @@
 void MothSFXLoopingFix();
 void ChainsawSFXLoopingFix();
 
-void* jmpPauseMenu;
-
 // Function instances 
 typedef uintptr_t* (__cdecl* Stop_Moth_Sfx)(void);
 Stop_Moth_Sfx stop_moth_sfx;
@@ -22,24 +20,22 @@ dunno Dunno = (dunno)0x00401670;
 
 // ASM function to stop moth sfx
 #pragma warning(suppress: 4740)
-__declspec(naked) void __stdcall StopMothSfxOnPauseMenu()
+void __stdcall StopMothSfxOnPauseMenu()
 {
 	// It checks room id, if the id is points to final boss it runs the stop function
 	// Note: This code also a fix for the moths on west side apartments. stop_moth_sfx also kill's the moth but when we clean bytes of reset instuctions they won't coming back.
 	// So we have to be sure this code will work only on final boss.
 	if (GetRoomID() == 0xBB)
 	{
-		__asm
-		{
-			call stop_moth_sfx
-		}
+		stop_moth_sfx();
 	}
 
 	__asm
 	{
 		call Dunno
-		jmp jmpPauseMenu
 	}
+
+	return;
 }
 
 void PatchSpecificSoundLoopFix()
@@ -85,10 +81,8 @@ void MothSFXLoopingFix()
 
 	stop_moth_sfx = (Stop_Moth_Sfx)StopSfxAddr;
 
-	jmpPauseMenu = PauseMenuAddr + 0x5;
-
 	// injects same inventories stop_moth_sfx function to pause menu
-	WriteJMPtoMemory(PauseMenuAddr, *StopMothSfxOnPauseMenu);
+	WriteCalltoMemory(PauseMenuAddr, *StopMothSfxOnPauseMenu);
 
 	Logging::Log() << "Fixing Moth Sound Looping...";
 }

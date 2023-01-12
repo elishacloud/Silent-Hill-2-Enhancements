@@ -67,6 +67,7 @@ HRESULT m_IDirectInput8A::CreateDevice(REFGUID rguid, LPDIRECTINPUTDEVICE8A *lpl
 
 	if (rguid != GUID_SysMouse && rguid != GUID_SysKeyboard)
 	{
+		IsControllerConnected = true;
 		Logging::Log() << "Using gamepad device GUID: " << rguid;
 	}
 

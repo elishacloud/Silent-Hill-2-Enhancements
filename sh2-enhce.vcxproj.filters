@@ -356,6 +356,30 @@
     <ClCompile Include="Wrappers\d3d8\Overlay.cpp">
       <Filter>Wrappers\d3d8</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\InputTweaks.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\QuickSaveTweaks.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\SixtyFPSPatch.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\PrisonerTimer.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\SprayEffect.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\MapTranscription.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\HoldDamage.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\FMVPatches.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
     <ClCompile Include="Patches\DelayedFadeIn.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
@@ -573,6 +597,12 @@
     </ClInclude>
     <ClInclude Include="Wrappers\d3d8\Overlay.h">
       <Filter>Wrappers\d3d8</Filter>
+    </ClInclude>
+    <ClInclude Include="Patches\InputTweaks.h">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Patches\SixtyFPSPatch.h">
+      <Filter>Patches</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

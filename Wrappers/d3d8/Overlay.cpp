@@ -190,6 +190,12 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 
 	std::string OvlString = "DEBUG INFO (CTRL + G) ";
 
+	OvlString.append("\rExecutable Version: ");
+	OvlString.append(GameVersion == SH2V_10 ? "1.0" : 
+					GameVersion == SH2V_11 ? "1.1" : 
+					GameVersion == SH2V_DC ? "DC" : 
+					"Unknown");
+
 	OvlString.append("\rGame Resolution: ");
 	OvlString.append(std::to_string(BufferWidth));
 	OvlString.append("x");

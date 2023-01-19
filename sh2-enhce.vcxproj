@@ -53,6 +53,7 @@
     <ClCompile Include="Include\criware\criware_xaudio2.cpp" />
     <ClCompile Include="Patches\AlternateStomp.cpp" />
     <ClCompile Include="Patches\ChangeClosetSpawn.cpp" />
+    <ClCompile Include="Patches\CommandWindowMouseFix.cpp" />
     <ClCompile Include="Patches\InputTweaks.cpp" />
     <ClCompile Include="Patches\FMVPatches.cpp" />
     <ClCompile Include="Patches\HoldDamage.cpp" />

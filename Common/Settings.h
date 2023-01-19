@@ -11,6 +11,7 @@
 	visit(CheckCompatibilityMode, true) \
 	visit(CheckForAdminAccess, true) \
 	visit(ClosetCutsceneFix, true) \
+    visit(CommandWindowMouseFix, true) \
 	visit(CreateLocalFix, true) \
 	visit(d3d8to9, true) \
     visit(DelayedFadeIn, true) \
@@ -179,6 +180,7 @@
 	visit(AnisotropicFiltering) \
 	visit(AntiAliasing) \
 	visit(AudioFadeOutDelayMS) \
+    visit(CommandWindowMouseFix) \
 	visit(CustomFontCharHeight) \
 	visit(CustomFontCharWidth) \
 	visit(CustomFontCol) \

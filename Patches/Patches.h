@@ -164,6 +164,7 @@ void PatchBinary();
 void PatchCDCheck();
 void PatchCatacombsMeatRoom();
 void PatchClosetSpawn();
+void PatchCommandWindowMouseFix();
 void PatchCreatureVehicleSpawn();
 void PatchCriware();
 HRESULT PatchCustomExeStr();

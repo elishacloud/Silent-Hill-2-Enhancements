@@ -25,6 +25,7 @@ typedef int32_t(__cdecl* GetMouseHorizontalRawPositionProc)();
 GetMouseHorizontalRawPositionProc GetMouseHorizontalRawPosition = nullptr;
 int16_t* SelectionIndex = nullptr;
 void* CommandWindowMouseFixReturnAddr = nullptr;
+DWORD IsMouseMovingFuncAddr = 0;
 
 // Checks the cursor position and updates the selected command in the inventory command window when 3 options are available.
 void Handle3CommandWindow() {
@@ -52,9 +53,17 @@ __declspec(naked) void __stdcall CommandWindowMouseFixASM()
 {
     __asm
     {
+        push eax
+        mov eax, dword ptr ds : [IsMouseMovingFuncAddr]
+        call eax
+        test eax, eax
+        pop eax
+        jz Return
         cmp eax, 0x02
         jnz ExitAsm
         call Handle3CommandWindow
+
+    Return:
         pop edi
         pop esi
         pop ebp
@@ -66,11 +75,13 @@ __declspec(naked) void __stdcall CommandWindowMouseFixASM()
     }
 }
 
-// Patch mouse support for when 3 options are present in the inventory command window.
+// Patch bugs with mouse interaction in the inventory command window:
+// * Allow mouse selection when 3 options are present.
+// * Allow keyboard/gamepad selection if the mouse is hovering over an option in the window.
 void PatchCommandWindowMouseFix()
 {
     constexpr BYTE CommandMouseInputSearchBytes[]{ 0x5F, 0x5E, 0x5D, 0x83, 0xC4, 0x18, 0xC3, 0x83, 0xF8, 0x01 };
-    DWORD CommandMouseInputAddr = SearchAndGetAddresses(0x00472428, 0x004726C8, 0x004728D8, CommandMouseInputSearchBytes, sizeof(CommandMouseInputSearchBytes), 0x07);
+    const DWORD CommandMouseInputAddr = SearchAndGetAddresses(0x00472428, 0x004726C8, 0x004728D8, CommandMouseInputSearchBytes, sizeof(CommandMouseInputSearchBytes), 0x07);
     if (!CommandMouseInputAddr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find pointer address!";
@@ -82,6 +93,17 @@ void PatchCommandWindowMouseFix()
     DWORD GetMouseXRelativeAddr = 0;
     memcpy(&GetMouseXRelativeAddr, (void*)(CommandMouseInputAddr - 0x2E), sizeof(DWORD));
     GetMouseHorizontalRawPosition = (GetMouseHorizontalRawPositionProc)(CommandMouseInputAddr + GetMouseXRelativeAddr - 0x2A);
+
+    constexpr BYTE IsMouseMovingSearchBytes[]{ 0x8B, 0xC8, 0x81, 0xE9, 0x88, 0x00, 0x00, 0x00 };
+    const DWORD IsMouseMovingSearchAddr = SearchAndGetAddresses(0x0044FD38, 0x0044FF98, 0x0044FF98, IsMouseMovingSearchBytes, sizeof(IsMouseMovingSearchBytes), -0x0D);
+    if (!CommandMouseInputAddr)
+    {
+        Logging::Log() << __FUNCTION__ << " Error: failed to find pointer address!";
+        return;
+    }
+    DWORD IsMouseMovingRelativeAddr = 0;
+    memcpy(&IsMouseMovingRelativeAddr, (void*)(IsMouseMovingSearchAddr), sizeof(DWORD));
+    IsMouseMovingFuncAddr = IsMouseMovingRelativeAddr + IsMouseMovingSearchAddr + 0x04;
 
     Logging::Log() << "Patching Command Window Mouse Fix...";
     WriteJMPtoMemory((BYTE*)CommandMouseInputAddr, *CommandWindowMouseFixASM, 0x05);

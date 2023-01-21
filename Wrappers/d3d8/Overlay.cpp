@@ -196,6 +196,9 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 					GameVersion == SH2V_DC ? "DC" : 
 					"Unknown");
 
+	OvlString.append("\rFPS: ");
+	OvlString.append(FloatToStr(GetFPSCounter(), FloatPrecision));
+
 	OvlString.append("\rGame Resolution: ");
 	OvlString.append(std::to_string(BufferWidth));
 	OvlString.append("x");
@@ -212,9 +215,6 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 
 	OvlString.append("\rFullscreen Image Event: 0x");
 	OvlString.append(IntToHexStr(GetFullscreenImageEvent()));
-
-	OvlString.append("\rFPS: ");
-	OvlString.append(FloatToStr(GetFPSCounter(), FloatPrecision));
 
 	OvlString.append("\rChar X Position: ");
 	OvlString.append(FloatToStr(GetJamesPosX(), FloatPrecision));

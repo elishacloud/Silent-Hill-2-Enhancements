@@ -240,6 +240,11 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append("\rJoystick LX: ");
 	OvlString.append(std::to_string(JoystickX));
 
+	OvlString.append("\rLeft Mouse B.: ");
+	OvlString.append(InputTweaksRef.GetLMBState() ? "True" : "False");
+	OvlString.append("\rRight Mouse B.: ");
+	OvlString.append(InputTweaksRef.GetRMBState() ? "True" : "False");
+
 	// Temporary Debug String, to use wherever
 	OvlString.append(AuxDebugOvlString);
 

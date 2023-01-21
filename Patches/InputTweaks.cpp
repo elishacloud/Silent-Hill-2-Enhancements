@@ -240,6 +240,13 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		// Save Keyboard Data
 		KeyboardData = (BYTE*)lpvData;
 
+		// Fix for ALT + TAB
+		if (GetForegroundWindow() != GameWindowHandle)
+		{
+			SetLMButton = false;
+			RMB.State = false;
+		}
+
 		// Reset Sprint toggle
 		if (EnableToggleSprint && GetRunOption() != OPT_ANALOG && !OverrideSprint)
 			Sprint.State = false;
@@ -506,6 +513,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			UpdateMemoryAddress((void*)AnalogStringTwo, "\x2F", 1);
 			UpdateMemoryAddress((void*)AnalogStringThree, "\x2F", 1);
 		}
+
 	}
 }
 
@@ -520,6 +528,8 @@ void InputTweaks::TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD
 		// Save Mouse Data
 		MouseData = rgdod;
 		MouseDataSize = *pdwInOut;
+
+		MouseInterfaceAddress->GetDeviceState(sizeof(MouseState), &MouseState);
 
 		// Save current mouse state
 		MouseXAxis = GetMouseRelXChange();
@@ -637,16 +647,6 @@ void InputTweaks::ReadMouseButtons()
 	for (UINT i = 0; i < MouseDataSize; i++)
 		switch (MouseData[i].dwOfs)
 		{
-		case DIMOFS_BUTTON0:
-		{
-			SetLMButton = MouseData[i].dwData == KEY_SET;
-			break;
-		}
-		case DIMOFS_BUTTON1:
-		{
-			RMB.State = MouseData[i].dwData == KEY_SET;
-			break;
-		}
 #pragma warning(suppress: 4644)
 		case DIMOFS_Z:
 		{
@@ -658,6 +658,10 @@ void InputTweaks::ReadMouseButtons()
 			break;
 		}
 		}
+
+	SetLMButton = (MouseState.rgbButtons[0] == KEY_SET);
+	RMB.State = (MouseState.rgbButtons[1] == KEY_SET);
+	
 }
 
 float InputTweaks::GetMouseAnalogX()
@@ -899,6 +903,16 @@ void InputTweaks::SetOverrideSprint()
 void InputTweaks::ClearOverrideSprint()
 {
 	OverrideSprint = false;
+}
+
+bool InputTweaks::GetRMBState()
+{
+	return RMB.State;
+}
+
+bool InputTweaks::GetLMBState()
+{
+	return SetLMButton;
 }
 
 BYTE GetPauseMenuQuitIndex()

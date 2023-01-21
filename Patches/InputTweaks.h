@@ -169,6 +169,8 @@ private:
 	DWORD MouseDataSize = 0;
 	LPDIJOYSTATE ControllerData = nullptr;
 
+	DIMOUSESTATE MouseState;
+
 	int DefaultNumberKeyBinds[10] = {0xB, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA};
 
 	bool OverrideSprint;
@@ -209,6 +211,9 @@ public:
 	std::string GetToggleSprintState();
 	void SetOverrideSprint();
 	void ClearOverrideSprint();
+
+	bool GetRMBState();
+	bool GetLMBState();
 
 	// Additional fix for cutscenes
 	bool ElevatorFix();

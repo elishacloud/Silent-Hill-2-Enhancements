@@ -732,18 +732,6 @@ void InputTweaks::CheckNumberKeyBinds()
 	}
 }
 
-bool InputTweaks::ElevatorFix()
-{
-	return (GetRoomID() == 0x46 && GetTalkShowHostState() == 0x01);
-}
-
-bool InputTweaks::HotelFix()
-{
-	return (GetRoomID() == 0xB8 && 
-		(((std::abs(GetInGameCameraPosY() - (-840.)) < FloatTolerance) || (std::abs(GetInGameCameraPosY() - (-1350.)) < FloatTolerance))) &&
-		IsInFullScreenImageEvent());
-}
-
 std::string InputTweaks::GetRightClickState()
 {
 	std::string Output = "Cancel";
@@ -768,6 +756,18 @@ std::string InputTweaks::GetToggleSprintState()
 		Output = "Not Enabled";
 
 	return Output;
+}
+
+bool InputTweaks::ElevatorFix()
+{
+	return (GetRoomID() == 0x46 && GetTalkShowHostState() == 0x01);
+}
+
+bool InputTweaks::HotelFix()
+{
+	return (GetRoomID() == 0xB8 && 
+		(((std::abs(GetInGameCameraPosY() - (-840.)) < FloatTolerance) || (std::abs(GetInGameCameraPosY() - (-1350.)) < FloatTolerance))) &&
+		IsInFullScreenImageEvent());
 }
 
 bool InputTweaks::JamesVaultingBuildingsFix()
@@ -854,9 +854,29 @@ bool InputTweaks::IsMovementPressed()
 		IsKeyPressed(KeyBinds.GetKeyBind(KEY_STRAFE_RIGHT)) || IsKeyPressed(KeyBinds.GetKeyBind(KEY_STRAFE_LEFT));
 }
 
+void InputTweaks::SetOverrideSprint()
+{
+	OverrideSprint = true;
+}
+
+void InputTweaks::ClearOverrideSprint()
+{
+	OverrideSprint = false;
+}
+
+bool InputTweaks::GetRMBState()
+{
+	return RMB.State;
+}
+
+bool InputTweaks::GetLMBState()
+{
+	return SetLMButton;
+}
+
 BYTE KeyBindsHandler::GetKeyBind(int KeyIndex)
 {
-	BYTE *pButton = GetKeyBindsPointer();
+	BYTE* pButton = GetKeyBindsPointer();
 
 	if ((pButton && *(pButton + (KeyIndex * 0x08)) == 0) && keyNotSetWarning[KeyIndex] == 0)
 	{
@@ -876,7 +896,7 @@ BYTE* KeyBindsHandler::GetKeyBindsPointer()
 
 	// Get Turn Left Button address
 	constexpr BYTE TurnLeftButtonSearchBytes[]{ 0x56, 0x8B, 0x74, 0x24, 0x08, 0x83, 0xFE, 0x16, 0x7D, 0x3F };
-	BYTE *Binds = (BYTE*)ReadSearchedAddresses(0x5AEF90, 0x5AF8C0, 0x5AF1E0, TurnLeftButtonSearchBytes, sizeof(TurnLeftButtonSearchBytes), 0x1D);
+	BYTE* Binds = (BYTE*)ReadSearchedAddresses(0x5AEF90, 0x5AF8C0, 0x5AF1E0, TurnLeftButtonSearchBytes, sizeof(TurnLeftButtonSearchBytes), 0x1D);
 
 	// Checking address pointer
 	if (!Binds)
@@ -893,26 +913,6 @@ BYTE* KeyBindsHandler::GetKeyBindsPointer()
 BYTE KeyBindsHandler::GetPauseButtonBind()
 {
 	return *(this->GetKeyBindsPointer() + 0xF0);
-}
-
-void InputTweaks::SetOverrideSprint()
-{
-	OverrideSprint = true;
-}
-
-void InputTweaks::ClearOverrideSprint()
-{
-	OverrideSprint = false;
-}
-
-bool InputTweaks::GetRMBState()
-{
-	return RMB.State;
-}
-
-bool InputTweaks::GetLMBState()
-{
-	return SetLMButton;
 }
 
 BYTE GetPauseMenuQuitIndex()

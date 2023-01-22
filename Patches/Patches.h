@@ -176,6 +176,7 @@ void PatchFlashlightClockPush();
 void PatchFlashlightFlicker();
 void PatchFMV();
 void PatchFMVFramerate();
+void PatchFmvSubtitles();
 void PatchFogParameters();
 void PatchFullscreenImages();
 void PatchFullscreenVideos();

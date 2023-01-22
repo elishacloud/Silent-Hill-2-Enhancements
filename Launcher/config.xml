@@ -278,6 +278,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="FmvSubtitlesNoiseFix">
+        <Title>Draw subtitles over noise grain during FMVs</Title>
+        <Description>Changes the draw order of subtitles during FMVs to always appear on top of noise grain.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
     </Section>
 
     <Section name="Fog">

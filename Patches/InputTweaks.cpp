@@ -525,16 +525,18 @@ void InputTweaks::TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD
 	// For mouse
 	if (ProxyInterface == MouseInterfaceAddress)
 	{
-		// Save Mouse Data
+		// Save Mouse Data for axis movement
 		MouseData = rgdod;
 		MouseDataSize = *pdwInOut;
 
+		// Get the current mouse state, to handle LMB/RMB
 		MouseInterfaceAddress->GetDeviceState(sizeof(MouseState), &MouseState);
 
 		// Save current mouse state
 		MouseXAxis = GetMouseRelXChange();
 		ReadMouseButtons();
 
+		// In search view, inject mouse movement into the right analog stick
 		if (GetSearchViewFlag() == 0x6)
 		{
 			VirtualRightStick.AddXValue(MouseXAxis);
@@ -590,7 +592,7 @@ void InputTweaks::SetControllerInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterfac
 	ControllerInterfaceAddress = ProxyInterface;
 }
 
-void InputTweaks::RemoveAddr(LPDIRECTINPUTDEVICE8A ProxyInterface)
+void InputTweaks::RemoveInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface)
 {
 	if (MouseInterfaceAddress == ProxyInterface)
 		MouseInterfaceAddress = nullptr;
@@ -896,7 +898,7 @@ BYTE* KeyBindsHandler::GetKeyBindsPointer()
 
 	// Get Turn Left Button address
 	constexpr BYTE TurnLeftButtonSearchBytes[]{ 0x56, 0x8B, 0x74, 0x24, 0x08, 0x83, 0xFE, 0x16, 0x7D, 0x3F };
-	BYTE* Binds = (BYTE*)ReadSearchedAddresses(0x5AEF90, 0x5AF8C0, 0x5AF1E0, TurnLeftButtonSearchBytes, sizeof(TurnLeftButtonSearchBytes), 0x1D);
+	BYTE* Binds = (BYTE*)ReadSearchedAddresses(0x005AEF90, 0x005AF8C0, 0x005AF1E0, TurnLeftButtonSearchBytes, sizeof(TurnLeftButtonSearchBytes), 0x1D);
 
 	// Checking address pointer
 	if (!Binds)

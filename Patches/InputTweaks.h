@@ -199,7 +199,7 @@ public:
 	void SetKeyboardInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);
 	void SetMouseInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);
 	void SetControllerInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);
-	void RemoveAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);
+	void RemoveInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);
 	
 	void TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbData, LPVOID lpvData);
 	void TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD dwFlags);

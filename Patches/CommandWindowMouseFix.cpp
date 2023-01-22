@@ -26,6 +26,7 @@ GetMouseHorizontalRawPositionProc GetMouseHorizontalRawPosition = nullptr;
 int16_t* SelectionIndex = nullptr;
 void* CommandWindowMouseFixReturnAddr = nullptr;
 DWORD IsMouseMovingFuncAddr = 0;
+DWORD IsMousePressedFuncAddr = 0;
 
 // Checks the cursor position and updates the selected command in the inventory command window when 3 options are available.
 void Handle3CommandWindow() {
@@ -49,6 +50,7 @@ void Handle3CommandWindow() {
         *SelectionIndex = 2;
 }
 
+// Updates the selected command if the mouse is moving, and handles command window input when 3 options are present.
 __declspec(naked) void __stdcall CommandWindowMouseFixASM()
 {
     __asm
@@ -75,9 +77,28 @@ __declspec(naked) void __stdcall CommandWindowMouseFixASM()
     }
 }
 
+// For mouse input only, avoids resetting the command selection to "Use" after clicking "Combine" in the command window.
+__declspec(naked) void __stdcall SkipResetSelectionAfterCombineASM()
+{
+    __asm
+    {
+        push 1
+        mov eax, dword ptr ds : [IsMousePressedFuncAddr]
+        call eax
+        add esp, 0x04
+        test eax, eax
+        jnz ExitAsm
+        mov eax, dword ptr ds : [SelectionIndex]
+        mov word ptr ds : [eax], bp
+
+    ExitAsm:
+        ret
+    }
+}
+
 // Patch bugs with mouse interaction in the inventory command window:
 // * Allow mouse selection when 3 options are present.
-// * Allow keyboard/gamepad selection if the mouse is hovering over an option in the window.
+// * Allow keyboard/gamepad selection if the mouse is hovering over an option in the command window.
 void PatchCommandWindowMouseFix()
 {
     constexpr BYTE CommandMouseInputSearchBytes[]{ 0x5F, 0x5E, 0x5D, 0x83, 0xC4, 0x18, 0xC3, 0x83, 0xF8, 0x01 };
@@ -94,6 +115,10 @@ void PatchCommandWindowMouseFix()
     memcpy(&GetMouseXRelativeAddr, (void*)(CommandMouseInputAddr - 0x2E), sizeof(DWORD));
     GetMouseHorizontalRawPosition = (GetMouseHorizontalRawPositionProc)(CommandMouseInputAddr + GetMouseXRelativeAddr - 0x2A);
 
+    DWORD IsMousePressedRelativeAddr = 0;
+    memcpy(&IsMousePressedRelativeAddr, (void*)(CommandMouseInputAddr - 0x17C), sizeof(DWORD));
+    IsMousePressedFuncAddr = IsMousePressedRelativeAddr + CommandMouseInputAddr - 0x178;
+
     constexpr BYTE IsMouseMovingSearchBytes[]{ 0x8B, 0xC8, 0x81, 0xE9, 0x88, 0x00, 0x00, 0x00 };
     const DWORD IsMouseMovingSearchAddr = SearchAndGetAddresses(0x0044FD38, 0x0044FF98, 0x0044FF98, IsMouseMovingSearchBytes, sizeof(IsMouseMovingSearchBytes), -0x0D);
     if (!CommandMouseInputAddr)
@@ -107,4 +132,8 @@ void PatchCommandWindowMouseFix()
 
     Logging::Log() << "Patching Command Window Mouse Fix...";
     WriteJMPtoMemory((BYTE*)CommandMouseInputAddr, *CommandWindowMouseFixASM, 0x05);
+    WriteCalltoMemory((BYTE*)(CommandMouseInputAddr - 0x1224), *SkipResetSelectionAfterCombineASM, 0x07);
+    WriteCalltoMemory((BYTE*)(CommandMouseInputAddr - 0x11FB), *SkipResetSelectionAfterCombineASM, 0x07);
+    WriteCalltoMemory((BYTE*)(CommandMouseInputAddr - 0x11DF), *SkipResetSelectionAfterCombineASM, 0x07);
+    WriteCalltoMemory((BYTE*)(CommandMouseInputAddr - 0x382), *SkipResetSelectionAfterCombineASM, 0x07);
 }

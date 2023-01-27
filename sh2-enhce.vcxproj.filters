@@ -767,4 +767,9 @@
       <Filter>Logging</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Resources\webcvs.url">
+      <Filter>Resources</Filter>
+    </Text>
+  </ItemGroup>
 </Project>

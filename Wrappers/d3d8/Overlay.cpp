@@ -19,6 +19,7 @@
 
 const int rectOffset		= 40;
 const int FloatPrecision	= 4;
+const int FPSFloatPrecision = 2;
 const int KMConstant		= 500000;
 const float AntiJitterValue	= 0.0001f;
 const int DropShadowOffset	= 1;
@@ -197,7 +198,7 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 					"Unknown");
 
 	OvlString.append("\rFPS: ");
-	OvlString.append(FloatToStr(GetFPSCounter(), FloatPrecision));
+	OvlString.append(FloatToStr(GetFPSCounter(), FPSFloatPrecision));
 
 	OvlString.append("\rGame Resolution: ");
 	OvlString.append(std::to_string(BufferWidth));

@@ -280,7 +280,7 @@
 
       <Feature name="FmvSubtitlesNoiseFix">
         <Title>Draw subtitles over noise grain during FMVs</Title>
-        <Description>Changes the draw order of subtitles during FMVs to always appear on top of noise grain.</Description>
+        <Description>Fixes an issue where the game would render the subtitles behind the noise grain during FMVs.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -524,7 +524,7 @@
 
       <Feature name="UseCustomFonts">
         <Title>High resolution text</Title>
-        <Description>Uses custom font files to produce high-resolution text in-game. Compatible with all preset language options (English, French, German, Italian, and Spanish) in the game.&#x0a;&#x0a;Note: fontwdata.bin and font000.tga files must be present in "sh2e\font\" for this feature to work.</Description>
+        <Description>Uses custom font files to produce high-resolution text in-game. Compatible with all preset language options (English, French, German, Italian, and Spanish) in the game.&#x0a;&#x0a;Note: font000.png must be present in "sh2e\font\" for this feature to work.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>

@@ -214,7 +214,6 @@
 	visit(LockResolution) \
 	visit(NormalFontHeight) \
 	visit(NormalFontWidth) \
-	visit(QuickSaveTweaks) \
 	visit(ResX) \
 	visit(ResY) \
 	visit(SmallFontHeight) \

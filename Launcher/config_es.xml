@@ -827,7 +827,7 @@
 
       <Feature name="GameLoadFix">
         <Title>Corregir los problemas al guardar y cargar</Title>
-        <Description>Desactiva el guardado libre en ciertos lugares que provocarían problemas dentro del juego al volver a cargar. Es una forma de sortear fallos en el guardado rápido que, de lo contrario, impedirían terminar el juego.</Description>
+        <Description>Desactiva el guardado libre en ciertos lugares que provocarían problemas dentro del juego al volver a cargar. Es una forma de sortear fallos en el guardado rápido que no permitirían terminar el juego o dañarían las partidas guardadas.&#x0a;&#x0a;Nota: esta opción afecta a las estrategias de guardado rápido para hacer «speedruns».</Description>
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
@@ -837,6 +837,15 @@
       <Feature name="ImproveStorageSupport">
         <Title>Corregir el límite de almacenamiento de más de 2 TB</Title>
         <Description>Permite que el juego pueda comprobar correctamente el espacio libre en los discos duros de más de 2 TB de capacidad para guardar partidas. Cambia la unidad de medida usada para mostrar el espacio libre de KB a una unidad escalable y proporcionada. Por ejemplo: 99999999+ KB pasará a ser 108,21 GB.</Description>
+        <Choices type="check">
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="QuickSaveTweaks">
+        <Title>Correcciones visuales del guardado rápido</Title>
+      <Description>Soluciones cosméticas para los guardados rápidos del juego: colocará sus notificaciones en la esquina inferior izquierda de la ventana del juego sin importar la relación de aspecto, las coloreará para mejorar su identificación (morado: partida guardada, rojo: no guardada) y solucionará un fallo en el que las notificaciones de guardado rápido solo se mostraban durante unos pocos fotogramas.&#x0a;&#x0a;Nota: esta opción NO AFECTA a las estrategias de guardado rápido para hacer «speedruns», de hecho hasta puede ser útil, ya que el texto ahora se puede mostrar durante más tiempo.</Description>
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>

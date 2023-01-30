@@ -33,7 +33,6 @@
 #include "Unicode.h"
 
 // Should be updated if we move the .csv
-#define SH2EE_UPDATE_URL "http://www.enhanced.townofsilenthill.com/SH2/files/_sh2ee.csv"
 #define SH2EE_SETUP_EXE_FILE "SH2EEsetup.exe"
 #define SH2EE_SETUP_DATA_FILE "SH2EEsetup.dat"
 
@@ -103,7 +102,7 @@ HRESULT URLDownloadToFileHandler(LPUNKNOWN pCaller, LPCWSTR szURL, LPCWSTR szFil
 	return pURLDownloadToFile(pCaller, szURL, szFileName, dwReserved, lpfnCB);
 }
 
-bool GetURLString(char*URL, std::string &data)
+bool GetURLString(const char *URL, std::string &data)
 {
 	IStream* stream;
 	if (FAILED(URLOpenBlockingStreamHandler(nullptr, URL, &stream, 0, nullptr)))
@@ -168,6 +167,7 @@ bool NewModuleReleaseBuildAvailable(std::string &urlDownload)
 	std::string data;
 	if (!GetURLString("https://api.github.com/repos/elishacloud/Silent-Hill-2-Enhancements/releases", data))
 	{
+		Logging::Log() << "Error: failed to get sh2-enhce releases!";
 		return false;
 	}
 
@@ -197,7 +197,7 @@ bool NewModuleReleaseBuildAvailable(std::string &urlDownload)
 	}
 
 	// Get latest release build number from repository
-	if (!GetURLString((char*)urlBuildNo.c_str(), data))
+	if (!GetURLString(urlBuildNo.c_str(), data))
 	{
 		Logging::Log() << __FUNCTION__ " Failed to download release build number: " << urlBuildNo;
 		return false;
@@ -249,10 +249,20 @@ bool NewProjectReleaseAvailable(std::string &path_str)
 	std::vector<std::string> localcsv_isInstalled = localcsv.GetColumn<std::string>("isInstalled");
 	std::vector<std::string> localcsv_version = localcsv.GetColumn<std::string>("version");
 
+	// Get setup URL
+	std::string weburl;
+	if (!GetURLString("https://raw.githubusercontent.com/elishacloud/Silent-Hill-2-Enhancements/master/Resources/webcvs.url", weburl))
+	{
+		Logging::Log() << "Error: failed to get Setup Web URL!";
+		return false;
+	}
+	trim(weburl);
+
 	// Get and parse web CSV
 	std::string webcsv;
-	if (!GetURLString(SH2EE_UPDATE_URL, webcsv))
+	if (!GetURLString(weburl.c_str(), webcsv))
 	{
+		Logging::Log() << "Error: failed to get Setup Web CSV: " << weburl;
 		return false;
 	}
 

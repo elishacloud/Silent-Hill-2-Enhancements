@@ -53,6 +53,7 @@
     <ClCompile Include="Include\criware\criware_xaudio2.cpp" />
     <ClCompile Include="Patches\AlternateStomp.cpp" />
     <ClCompile Include="Patches\ChangeClosetSpawn.cpp" />
+    <ClCompile Include="Patches\CommandWindowMouseFix.cpp" />
     <ClCompile Include="Patches\InputTweaks.cpp" />
     <ClCompile Include="Patches\FMVPatches.cpp" />
     <ClCompile Include="Patches\HoldDamage.cpp" />
@@ -344,6 +345,9 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     <ClInclude Include="Wrappers\d3d9\IDirect3DDevice9.h" />
     <ClInclude Include="Wrappers\d3d9\runtime_d3d9.hpp" />
     <ClInclude Include="Wrappers\d3d9\state_block.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Resources\webcvs.url" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

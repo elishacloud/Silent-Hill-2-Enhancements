@@ -579,6 +579,12 @@ void DelayedStart()
         PatchFmvSubtitles();
     }
 
+    // Patch mouse support for the inventory command window
+    if (CommandWindowMouseFix)
+    {
+        PatchCommandWindowMouseFix();
+    }
+
 	// Remove the "Now loading..." message
 	switch (GameVersion)
 	{

@@ -386,6 +386,9 @@
     <ClCompile Include="Patches\FmvSubtitles.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+	<ClCompile Include="Patches\CommandWindowMouseFix.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">
@@ -766,5 +769,10 @@
     <ClInclude Include="Logging\Logging.h">
       <Filter>Logging</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Resources\webcvs.url">
+      <Filter>Resources</Filter>
+    </Text>
   </ItemGroup>
 </Project>

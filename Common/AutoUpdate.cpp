@@ -251,7 +251,7 @@ bool NewProjectReleaseAvailable(std::string &path_str)
 
 	// Get setup URL
 	std::string weburl;
-	if (!GetURLString("https://raw.githubusercontent.com/elishacloud/Silent-Hill-2-Enhancements/master/Resources/webcvs.url", weburl))
+	if (!GetURLString("https://raw.githubusercontent.com/elishacloud/Silent-Hill-2-Enhancements/master/Resources/webcsv.url", weburl))
 	{
 		Logging::Log() << "Error: failed to get Setup Web URL!";
 		return false;

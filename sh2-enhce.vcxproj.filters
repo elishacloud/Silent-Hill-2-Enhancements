@@ -386,7 +386,7 @@
     <ClCompile Include="Patches\FmvSubtitles.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
-	<ClCompile Include="Patches\CommandWindowMouseFix.cpp">
+    <ClCompile Include="Patches\CommandWindowMouseFix.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
   </ItemGroup>
@@ -771,7 +771,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Resources\webcvs.url">
+    <Text Include="Resources\webcsv.url">
       <Filter>Resources</Filter>
     </Text>
   </ItemGroup>

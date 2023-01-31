@@ -347,7 +347,7 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     <ClInclude Include="Wrappers\d3d9\state_block.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Resources\webcvs.url" />
+    <Text Include="Resources\webcsv.url" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

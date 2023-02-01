@@ -127,5 +127,8 @@
     <Xml Include="config_es.xml">
       <Filter>Config</Filter>
     </Xml>
+    <Xml Include="config_it.xml">
+      <Filter>Config</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

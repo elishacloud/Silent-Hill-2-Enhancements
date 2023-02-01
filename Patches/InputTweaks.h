@@ -169,6 +169,8 @@ private:
 	DWORD MouseDataSize = 0;
 	LPDIJOYSTATE ControllerData = nullptr;
 
+	DIMOUSESTATE MouseState;
+
 	int DefaultNumberKeyBinds[10] = {0xB, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA};
 
 	bool OverrideSprint;
@@ -197,7 +199,7 @@ public:
 	void SetKeyboardInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);
 	void SetMouseInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);
 	void SetControllerInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);
-	void RemoveAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);
+	void RemoveInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);
 	
 	void TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbData, LPVOID lpvData);
 	void TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD dwFlags);
@@ -209,6 +211,9 @@ public:
 	std::string GetToggleSprintState();
 	void SetOverrideSprint();
 	void ClearOverrideSprint();
+
+	bool GetRMBState();
+	bool GetLMBState();
 
 	// Additional fix for cutscenes
 	bool ElevatorFix();

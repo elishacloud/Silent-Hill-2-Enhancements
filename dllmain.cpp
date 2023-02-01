@@ -240,7 +240,7 @@ void DelayedStart()
 		PatchCDCheck();
 	}
 
-	// Patch binray
+	// Patch binary
 	PatchBinary();
 
 	// Update SFX addresses

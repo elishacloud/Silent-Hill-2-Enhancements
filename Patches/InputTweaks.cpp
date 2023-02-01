@@ -240,6 +240,13 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		// Save Keyboard Data
 		KeyboardData = (BYTE*)lpvData;
 
+		// Fix for ALT + TAB
+		if (GetForegroundWindow() != GameWindowHandle)
+		{
+			SetLMButton = false;
+			RMB.State = false;
+		}
+
 		// Reset Sprint toggle
 		if (EnableToggleSprint && GetRunOption() != OPT_ANALOG && !OverrideSprint)
 			Sprint.State = false;
@@ -409,7 +416,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		}
 
 		// Setting sprint button for the Toggle Sprint function
-		if (EnableToggleSprint && (GetRunOption() == OPT_ANALOG || OverrideSprint))
+		if (EnableToggleSprint && (GetRunOption() == OPT_ANALOG || OverrideSprint) && GetEventIndex() != EVENT_OPTION_FMV)
 		{
 			ClearKey(KeyBinds.GetKeyBind(KEY_RUN));
 		}
@@ -506,6 +513,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			UpdateMemoryAddress((void*)AnalogStringTwo, "\x2F", 1);
 			UpdateMemoryAddress((void*)AnalogStringThree, "\x2F", 1);
 		}
+
 	}
 }
 
@@ -517,14 +525,18 @@ void InputTweaks::TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD
 	// For mouse
 	if (ProxyInterface == MouseInterfaceAddress)
 	{
-		// Save Mouse Data
+		// Save Mouse Data for axis movement
 		MouseData = rgdod;
 		MouseDataSize = *pdwInOut;
+
+		// Get the current mouse state, to handle LMB/RMB
+		MouseInterfaceAddress->GetDeviceState(sizeof(MouseState), &MouseState);
 
 		// Save current mouse state
 		MouseXAxis = GetMouseRelXChange();
 		ReadMouseButtons();
 
+		// In search view, inject mouse movement into the right analog stick
 		if (GetSearchViewFlag() == 0x6)
 		{
 			VirtualRightStick.AddXValue(MouseXAxis);
@@ -580,7 +592,7 @@ void InputTweaks::SetControllerInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterfac
 	ControllerInterfaceAddress = ProxyInterface;
 }
 
-void InputTweaks::RemoveAddr(LPDIRECTINPUTDEVICE8A ProxyInterface)
+void InputTweaks::RemoveInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface)
 {
 	if (MouseInterfaceAddress == ProxyInterface)
 		MouseInterfaceAddress = nullptr;
@@ -637,16 +649,6 @@ void InputTweaks::ReadMouseButtons()
 	for (UINT i = 0; i < MouseDataSize; i++)
 		switch (MouseData[i].dwOfs)
 		{
-		case DIMOFS_BUTTON0:
-		{
-			SetLMButton = MouseData[i].dwData == KEY_SET;
-			break;
-		}
-		case DIMOFS_BUTTON1:
-		{
-			RMB.State = MouseData[i].dwData == KEY_SET;
-			break;
-		}
 #pragma warning(suppress: 4644)
 		case DIMOFS_Z:
 		{
@@ -658,6 +660,10 @@ void InputTweaks::ReadMouseButtons()
 			break;
 		}
 		}
+
+	SetLMButton = (MouseState.rgbButtons[0] == KEY_SET);
+	RMB.State = (MouseState.rgbButtons[1] == KEY_SET);
+	
 }
 
 float InputTweaks::GetMouseAnalogX()
@@ -728,18 +734,6 @@ void InputTweaks::CheckNumberKeyBinds()
 	}
 }
 
-bool InputTweaks::ElevatorFix()
-{
-	return (GetRoomID() == 0x46 && GetTalkShowHostState() == 0x01);
-}
-
-bool InputTweaks::HotelFix()
-{
-	return (GetRoomID() == 0xB8 && 
-		(((std::abs(GetInGameCameraPosY() - (-840.)) < FloatTolerance) || (std::abs(GetInGameCameraPosY() - (-1350.)) < FloatTolerance))) &&
-		IsInFullScreenImageEvent());
-}
-
 std::string InputTweaks::GetRightClickState()
 {
 	std::string Output = "Cancel";
@@ -764,6 +758,18 @@ std::string InputTweaks::GetToggleSprintState()
 		Output = "Not Enabled";
 
 	return Output;
+}
+
+bool InputTweaks::ElevatorFix()
+{
+	return (GetRoomID() == 0x46 && GetTalkShowHostState() == 0x01);
+}
+
+bool InputTweaks::HotelFix()
+{
+	return (GetRoomID() == 0xB8 && 
+		(((std::abs(GetInGameCameraPosY() - (-840.)) < FloatTolerance) || (std::abs(GetInGameCameraPosY() - (-1350.)) < FloatTolerance))) &&
+		IsInFullScreenImageEvent());
 }
 
 bool InputTweaks::JamesVaultingBuildingsFix()
@@ -850,9 +856,29 @@ bool InputTweaks::IsMovementPressed()
 		IsKeyPressed(KeyBinds.GetKeyBind(KEY_STRAFE_RIGHT)) || IsKeyPressed(KeyBinds.GetKeyBind(KEY_STRAFE_LEFT));
 }
 
+void InputTweaks::SetOverrideSprint()
+{
+	OverrideSprint = true;
+}
+
+void InputTweaks::ClearOverrideSprint()
+{
+	OverrideSprint = false;
+}
+
+bool InputTweaks::GetRMBState()
+{
+	return RMB.State;
+}
+
+bool InputTweaks::GetLMBState()
+{
+	return SetLMButton;
+}
+
 BYTE KeyBindsHandler::GetKeyBind(int KeyIndex)
 {
-	BYTE *pButton = GetKeyBindsPointer();
+	BYTE* pButton = GetKeyBindsPointer();
 
 	if ((pButton && *(pButton + (KeyIndex * 0x08)) == 0) && keyNotSetWarning[KeyIndex] == 0)
 	{
@@ -872,7 +898,7 @@ BYTE* KeyBindsHandler::GetKeyBindsPointer()
 
 	// Get Turn Left Button address
 	constexpr BYTE TurnLeftButtonSearchBytes[]{ 0x56, 0x8B, 0x74, 0x24, 0x08, 0x83, 0xFE, 0x16, 0x7D, 0x3F };
-	BYTE *Binds = (BYTE*)ReadSearchedAddresses(0x5AEF90, 0x5AF8C0, 0x5AF1E0, TurnLeftButtonSearchBytes, sizeof(TurnLeftButtonSearchBytes), 0x1D);
+	BYTE* Binds = (BYTE*)ReadSearchedAddresses(0x005AEF90, 0x005AF8C0, 0x005AF1E0, TurnLeftButtonSearchBytes, sizeof(TurnLeftButtonSearchBytes), 0x1D);
 
 	// Checking address pointer
 	if (!Binds)
@@ -889,16 +915,6 @@ BYTE* KeyBindsHandler::GetKeyBindsPointer()
 BYTE KeyBindsHandler::GetPauseButtonBind()
 {
 	return *(this->GetKeyBindsPointer() + 0xF0);
-}
-
-void InputTweaks::SetOverrideSprint()
-{
-	OverrideSprint = true;
-}
-
-void InputTweaks::ClearOverrideSprint()
-{
-	OverrideSprint = false;
 }
 
 BYTE GetPauseMenuQuitIndex()

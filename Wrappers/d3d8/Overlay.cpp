@@ -19,6 +19,7 @@
 
 const int rectOffset		= 40;
 const int FloatPrecision	= 4;
+const int FPSFloatPrecision = 2;
 const int KMConstant		= 500000;
 const float AntiJitterValue	= 0.0001f;
 const int DropShadowOffset	= 1;
@@ -190,6 +191,15 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 
 	std::string OvlString = "DEBUG INFO (CTRL + G) ";
 
+	OvlString.append("\rExecutable Version: ");
+	OvlString.append(GameVersion == SH2V_10 ? "1.0" : 
+					GameVersion == SH2V_11 ? "1.1" : 
+					GameVersion == SH2V_DC ? "DC" : 
+					"Unknown");
+
+	OvlString.append("\rFPS: ");
+	OvlString.append(FloatToStr(GetFPSCounter(), FPSFloatPrecision));
+
 	OvlString.append("\rGame Resolution: ");
 	OvlString.append(std::to_string(BufferWidth));
 	OvlString.append("x");
@@ -206,9 +216,6 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 
 	OvlString.append("\rFullscreen Image Event: 0x");
 	OvlString.append(IntToHexStr(GetFullscreenImageEvent()));
-
-	OvlString.append("\rFPS: ");
-	OvlString.append(FloatToStr(GetFPSCounter(), FloatPrecision));
 
 	OvlString.append("\rChar X Position: ");
 	OvlString.append(FloatToStr(GetJamesPosX(), FloatPrecision));
@@ -233,6 +240,11 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 
 	OvlString.append("\rJoystick LX: ");
 	OvlString.append(std::to_string(JoystickX));
+
+	OvlString.append("\rLeft Mouse B.: ");
+	OvlString.append(InputTweaksRef.GetLMBState() ? "True" : "False");
+	OvlString.append("\rRight Mouse B.: ");
+	OvlString.append(InputTweaksRef.GetRMBState() ? "True" : "False");
 
 	// Temporary Debug String, to use wherever
 	OvlString.append(AuxDebugOvlString);

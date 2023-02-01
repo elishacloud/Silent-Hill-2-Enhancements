@@ -1150,8 +1150,8 @@
     <Section name="Plugins">
 
       <Feature name="LoadPlugins">
-        <Title>Cargar plugins</Title>
-        <Description>Carga los plugins ASI.</Description>
+        <Title>Carga de plugins ASI</Title>
+        <Description>Carga bibliotecas personalizadas con la extensión de archivo .asi en el proceso del juego.</Description>
         <Choices type="check">
           <Value name="No" default="true">0</Value>
           <Value name="Sí">1</Value>
@@ -1159,8 +1159,8 @@
       </Feature>
 
       <Feature name="LoadFromScriptsOnly">
-        <Title>Cargar solo de la carpeta «scripts»</Title>
-        <Description>Carga exclusivamente los plugins ASI de las carpetas «scripts» y «plugins».</Description>
+        <Title>Cargar solo los plugins ASI de la carpeta «plugins»</Title>
+      <Description>Carga únicamente los plugins ASI de las carpetas «scripts» y «plugins». No cargará los plugins ASI de la carpeta raíz/actual.</Description>
         <Choices type="check">
           <Value name="No" default="true">0</Value>
           <Value name="Sí">1</Value>
@@ -1168,8 +1168,8 @@
       </Feature>
 
       <Feature name="LoadD3d8FromScriptsFolder">
-        <Title>Cargar el archivo d3d8.dll de la carpeta «scripts»</Title>
-      	<Description>Carga el archivo d3d8.dll de las carpetas «scripts» y «plugins».&#x0a;&#x0a;Es necesario desactivar el modo DirectX 9 del juego para que esta opción funcione.</Description>
+        <Title>Cargar el archivo d3d8.dll personalizado de la carpeta «plugins»</Title>
+      	<Description>Carga un archivo d3d8.dll modificado de las carpetas «scripts» o «plugins».&#x0a;&#x0a;Es necesario desactivar el modo DirectX 9 del juego para que esta opción funcione.</Description>
         <Choices type="check">
           <Value name="No" default="true">0</Value>
           <Value name="Sí">1</Value>

@@ -119,7 +119,7 @@ void __stdcall print_no_quick_save_string(void)
 injector::hook_back<void(__cdecl*)(void)> ClearTextFun;
 void __cdecl ClearTextHook()
 {
-	if (*GetClearTextPointer() == 0x05)
+	if (GetClearTextPointer() && *GetClearTextPointer() == 0x05)
 		UpdateMemoryAddress(GetClearTextPointer(), "\x00", 1);
 
 	return ClearTextFun.fun();

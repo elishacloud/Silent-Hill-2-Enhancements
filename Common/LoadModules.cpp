@@ -97,14 +97,14 @@ void LoadASIPlugins(bool LoadFromScriptsOnlyFlag)
 
 	SetCurrentDirectory(selfPath);
 
-	if (SetCurrentDirectory(L"scripts\\"))
+	if (SetCurrentDirectory(L"\\scripts"))
 	{
 		FindFiles(&fd);
 	}
 
 	SetCurrentDirectory(selfPath);
 
-	if (SetCurrentDirectory(L"plugins\\"))
+	if (SetCurrentDirectory(L"\\plugins"))
 	{
 		FindFiles(&fd);
 	}

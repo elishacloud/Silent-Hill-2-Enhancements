@@ -13,8 +13,8 @@
         <Description>Imposta la modalità schermo per il gioco.</Description>
         <Choices type="list">
           <Value name="In finestra" default="true">1</Value>
-          <Value name="Fullscreen in finestra">2</Value>
-          <Value name="Fullscreen">3</Value>
+          <Value name="Finestra a schermo intero">2</Value>
+          <Value name="Schermo intero">3</Value>
         </Choices>
       </Feature>
 
@@ -63,7 +63,7 @@
         <Description>Aggiunge compatibilità per l'Image Enhancement Pack del progetto, per far visualizzare correttamente le immagini. Deve essere abilitato se si sta usando l'Image Enhancement Pack. La scalabilità funziona sia con le immagini a tutto schermo originali che quelle migliorate.&#x0a;&#x0a;Auto: Sceglie automaticamente "adatta" o "riempi" a seconda delle proporzioni per avere la miglior riuscita.&#x0a;Adatta: Mostra le immagini a tutto schermo senza ritagliarle. Barre nere verticali o orizzontali potrebbero comparire in base alle proporzioni.&#x0a;Riempi: Scala le immagini a tutto schermo per riempire l'area del display, rimuovendo barre nere verticali o orizzontali, fino ad una proporzione di 16:9.</Description>
         <Choices type="list">
           <Value name="Disabilitato">0</Value>
-          <Value name="Auto" default="true">3</Value>
+          <Value name="Automatico" default="true">3</Value>
           <Value name="Adatta">1</Value>
           <Value name="Riempi">2</Value>
         </Choices>
@@ -74,7 +74,7 @@
         <Description>Aggiunge compatibilità per l'FMV Enhancement Pack, perché i video vengano riprodotti correttamente. Lo scaling funziona sia per i video originali che quelli migliorati.&#x0a;&#x0a;Auto: Sceglie automaticamente "adatta" o "riempi" a seconda delle proporzioni per avere la miglior riuscita.&#x0a;Adatta: Mostra i video a tutto schermo senza ritagliarli. Barre nere verticali o orizzontali potrebbero comparire in base alle proporzioni.&#x0a;Riempi: Scala i video per riempire l'area del display, rimuovendo barre nere verticali o orizzontali, fino ad una proporzione di 16:9.</Description>
         <Choices type="list">
           <Value name="Disabilitato">0</Value>
-          <Value name="Auto" default="true">3</Value>
+          <Value name="Automatico" default="true">3</Value>
           <Value name="Adatta">1</Value>
           <Value name="Riempi">2</Value>
         </Choices>
@@ -131,9 +131,9 @@
 
       <Feature name="FrontBufferControl">
         <Title>La modalità in cui il gioco cattura il buffer</Title>
-        <Description>Determina come dovrebbe catturare, il gioco, il front buffer usato per le dissolvenze ed il menu di pausa.&#x0a;&#x0a;Nota: DirectX funzionerà soltanto sul monitor primario. DirectX potrebbe essere necessario giocando a schermo intero su alcuni vecchi sistemi operativi Windows. Su linux funziona soltanto DirectX. E' raccomandato tenere questa opzione su "auto" a meno che non si stanno verificando problemi visivi nelle dissolvenze o nel menu di pausa.</Description>
+        <Description>Determina come dovrebbe catturare, il gioco, il front buffer usato per le dissolvenze ed il menu di pausa.&#x0a;&#x0a;Nota: DirectX funzionerà soltanto sul monitor primario. DirectX potrebbe essere necessario giocando a schermo intero su alcuni vecchi sistemi operativi Windows. Su linux funziona soltanto DirectX. E' raccomandato tenere questa opzione su "Automatico" a meno che non si stanno verificando problemi visivi nelle dissolvenze o nel menu di pausa.</Description>
         <Choices type="list">
-          <Value name="Auto" default="true">0</Value>
+          <Value name="Automatico" default="true">0</Value>
           <Value name="Usa GDI">1</Value>
           <Value name="Usa DirectX">2</Value>
         </Choices>
@@ -474,7 +474,7 @@
         <Description>Permette a controller senza force feedback di essere rilevati dal gioco. Utilizza questa opzione se un controller senza force feedback non viene rilevato dal gioco.</Description>
         <Choices type="list">
           <Value name="Disabilitato">0</Value>
-          <Value name="Auto" default="true">1</Value>
+          <Value name="Automatico" default="true">1</Value>
           <Value name="Abilitato">2</Value>
         </Choices>
       </Feature>

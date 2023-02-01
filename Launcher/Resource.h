@@ -14,6 +14,7 @@
 // Included resource files (do NOT change these number associations, used in reg keys)
 #define IDR_CONFIG_XML_EN                901
 #define IDR_CONFIG_XML_ES                902
+#define IDR_CONFIG_XML_IT                903
 
 // Main resource file details
 #define APP_NAME				"SH2EE Configuration Tool"

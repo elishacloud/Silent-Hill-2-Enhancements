@@ -1150,8 +1150,8 @@
     <Section name="Plugin">
 
       <Feature name="LoadPlugins">
-        <Title>Carica plugin</Title>
-        <Description>Carica plugin di tipo ASI.</Description>
+        <Title>Abilita il caricamento di plugin ASI</Title>
+        <Description>Carica librerie custom con l'estensione .asi nel processo del gioco.</Description>
         <Choices type="check">
           <Value name="Disabilitato" default="true">0</Value>
           <Value name="Abilitato">1</Value>
@@ -1159,8 +1159,8 @@
       </Feature>
 
       <Feature name="LoadFromScriptsOnly">
-        <Title>Carica dalla cartella "scripts"</Title>
-        <Description>Carica plugin di tipo ASI soltanto dalle cartelle "scripts" e "plugins".</Description>
+        <Title>Carica plugin ASI soltanto dalle cartelle dei plugin</Title>
+        <Description>Carica plugin ASI soltanto dalle cartelle "scripts" e "plugins". Non carica plugin ASI dalla cartella corrente.</Description>
         <Choices type="check">
           <Value name="Disabilitato" default="true">0</Value>
           <Value name="Abilitato">1</Value>
@@ -1168,8 +1168,8 @@
       </Feature>
 
       <Feature name="LoadD3d8FromScriptsFolder">
-        <Title>Carica il file d3d8.dll dalla cartella "scripts"</Title>
-        <Description>Carica il file d3d8.dll dalle cartelle "scripts" e "plugins".&#x0a;&#x0a;E' necessario disabilitare l'opzione di lanciare il gioco in modalità DirectX 9 per far funzionare questa opzione.</Description>
+        <Title>Carica un file d3d8.dll di terze parti dalle cartelle dei plugin</Title>
+        <Description>Carica un file d3d8.dll di terze parti dalle cartelle "scripts" o "plugins".&#x0a;&#x0a;E' necessario disabilitare l'opzione di lanciare il gioco in modalità DirectX 9 per far funzionare questa opzione.</Description>
         <Choices type="check">
           <Value name="Disabilitato" default="true">0</Value>
           <Value name="Abilitato">1</Value>

@@ -47,7 +47,7 @@
 
       <Feature name="SetSixtyFPS">
         <Title>Framerate (FPS)</Title>
-        <Description>L'opzione 60 FPS risulta in una esperienza di gameplay più fluida, mentre risolve tanti problemi legati all'alto framerate che si incontrerebbero altrimenti.</Description>
+        <Description>L'opzione 60 FPS risulta in una esperienza di gameplay più fluida, risolvendo tanti problemi legati all'alto framerate che si incontrerebbero altrimenti.</Description>
         <Choices type="list">
           <Value name="30 FPS">0</Value>
           <Value name="60 FPS" default="true">1</Value>
@@ -270,8 +270,8 @@
       </Feature>
 
       <Feature name="PS2StyleNoiseFilter">
-        <Title>Correct noise filter levels</Title>
-        <Description>Restores the levels and opacity of the noise filter back to its original look.</Description>
+        <Title>Correggi i livelli del filtro rumore</Title>
+        <Description>Ripristina i livelli e l'opacità del filtro rumore per riportarli ai loro valori originali.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>
@@ -470,8 +470,8 @@
       </Feature>
 
       <Feature name="RemoveForceFeedbackFilter">
-        <Title>Rimuovi il filtro di force feedback</Title>
-        <Description>Permette a controller senza force feedback di essere rilevati dal gioco. Utilizza questa opzione se un controller senza force feedback non viene rilevato dal gioco.</Description>
+        <Title>Rimuovi il filtro di vibrazione</Title>
+        <Description>Permette a controller senza vibrazione di essere rilevati dal gioco. Utilizza questa opzione se un controller senza force feedback non viene rilevato dal gioco.</Description>
         <Choices type="list">
           <Value name="Disabilitato">0</Value>
           <Value name="Automatico" default="true">1</Value>
@@ -511,7 +511,7 @@
 
       <Feature name="UseCustomFonts">
         <Title>Testo ad alta risoluzione</Title>
-        <Description>Utilizza un font custom per avere testo ad alta risoluzione in gioco. Compatibile con tutte le opzioni di lingua (Inglese, Francese, Tedesco, Italiano e Spagnolo) del gioco.&#x0a;&#x0a;Nota: font000.png deve essere presente in "sh2e\font\" per il funzionamento di questa opzione.</Description>
+        <Description>Utilizza un font custom per avere testo ad alta risoluzione in gioco. Compatibile con tutte le opzioni di lingua (Inglese, Francese, Tedesco, Italiano e Spagnolo) del gioco.&#x0a;&#x0a;Nota: Il file font000.png deve essere presente in "sh2e\font\" per il funzionamento di questa opzione.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>
@@ -724,8 +724,8 @@
       </Feature>
 
       <Feature name="FixCreatureVehicleSpawn">
-        <Title>Correggi Fix Lying Figures exiting from under vehicles</Title>
-        <Description>Fixes an issue where Lying Figures would exit from underneath vehicles incorrectly.</Description>
+        <Title>Correggi le Lying Figure che escono da sotto i veicoli</Title>
+        <Description>Corregge un bug che causa le l'uscita in modo sbagliato delle Lying Figure.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>
@@ -995,7 +995,7 @@
 
       <Feature name="AutoUpdateModule">
         <Title>Aggiorna i moduli automaticamente</Title>
-        <Description>Dopo aver lanciato il gioco, il Setup Tool di SH2:EE (SH2EEsetup.exe) controllerà la presenza di aggiornamenti e, se disponibili, chiederà all'utente se aggiornare i file per ricevere le ultime feature e miglioramenti del progetto.</Description>
+        <Description>Dopo aver lanciato il gioco, lo Strumento di Installazione di SH2:EE (SH2EEsetup.exe) controllerà la presenza di aggiornamenti e, se disponibili, chiederà all'utente se aggiornare i file per ricevere le ultime feature e miglioramenti del progetto.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>

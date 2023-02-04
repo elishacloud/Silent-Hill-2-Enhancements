@@ -1168,7 +1168,7 @@
       </Feature>
 
       <Feature name="LoadD3d8FromScriptsFolder">
-        <Title>Cargar el archivo d3d8.dll personalizado de la carpeta «plugins»</Title>
+        <Title>Cargar d3d8.dll personalizado de «scripts» o «plugins»</Title>
       	<Description>Carga un archivo d3d8.dll modificado de las carpetas «scripts» o «plugins».&#x0a;&#x0a;Es necesario desactivar el modo DirectX 9 del juego para que esta opción funcione.</Description>
         <Choices type="check">
           <Value name="No" default="true">0</Value>

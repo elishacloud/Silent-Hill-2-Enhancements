@@ -29,7 +29,7 @@
 
       <Feature name="DynamicResolution">
         <Title>Mostra tutte le risoluzioni nel menu opzioni</Title>
-        <Description>Percepisce tutte le risoluzioni che offre il monitor, e le rende selezionabili (comprese le proporzioni) nel menu di gioco Opzioni > Opzioni Avanzate.</Description>
+        <Description>Individua tutte le risoluzioni che offre il monitor, e le rende selezionabili (comprese le proporzioni) nel menu di gioco Opzioni > Opzioni Avanzate.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>

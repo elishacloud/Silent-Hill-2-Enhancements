@@ -1150,8 +1150,8 @@
     <Section name="Plugins">
 
       <Feature name="LoadPlugins">
-        <Title>Load plugins</Title>
-        <Description>Loads ASI plugins.</Description>
+        <Title>Enable loading ASI plugins</Title>
+        <Description>Loads custom libraries with the file extension .asi into the game process.</Description>
         <Choices type="check">
           <Value name="Disable" default="true">0</Value>
           <Value name="Enable">1</Value>
@@ -1159,8 +1159,8 @@
       </Feature>
 
       <Feature name="LoadFromScriptsOnly">
-        <Title>Load from "scripts" folder</Title>
-        <Description>Loads ASI plugins only from the "scripts" and "plugins" folders.</Description>
+        <Title>Only load ASI plugins from the plugin folders</Title>
+        <Description>Only loads ASI plugins from the "scripts" and "plugins" folders.  Does not load ASI plugins from the current folder.</Description>
         <Choices type="check">
           <Value name="Disable" default="true">0</Value>
           <Value name="Enable">1</Value>
@@ -1168,8 +1168,8 @@
       </Feature>
 
       <Feature name="LoadD3d8FromScriptsFolder">
-        <Title>Load d3d8.dll from "scripts" folder</Title>
-        <Description>Loads d3d8.dll from the "scripts" and "plugins" folders.&#x0a;&#x0a;Requires disabling the game running in DirectX 9 to work.</Description>
+        <Title>Load 3rd party d3d8.dll from the plugin folders</Title>
+        <Description>Loads a 3rd party d3d8.dll from the "scripts" or "plugins" folder.&#x0a;&#x0a;Requires disabling the game from running in DirectX 9 to work.</Description>
         <Choices type="check">
           <Value name="Disable" default="true">0</Value>
           <Value name="Enable">1</Value>

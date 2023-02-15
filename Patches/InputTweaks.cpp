@@ -99,21 +99,21 @@ int8_t GetControllerLYAxis_Hook(DWORD* arg)
 
 int8_t GetControllerRXAxis_Hook(DWORD* arg)
 {
-	// Injecting the virtual analog stick for search view
-	if (GetSearchViewFlag() == 0x6 && !VirtualRightStick.IsCentered())
-	{
-		return VirtualRightStick.XAxis;
-	}
-	else
-	{
-		return orgGetControllerRXAxis.fun(arg);
-	}
+		// Injecting the virtual analog stick for search view
+		if (GetSearchViewFlag() == 0x6 && !VirtualRightStick.IsCentered() && EnableEnhancedMouse)
+		{
+			return VirtualRightStick.XAxis;
+		}
+		else
+		{
+			return orgGetControllerRXAxis.fun(arg);
+		}	
 }
 
 int8_t GetControllerRYAxis_Hook(DWORD* arg)
 {
 	// Injecting the virtual analog stick for search view
-	if (GetSearchViewFlag() == 0x6 && !VirtualRightStick.IsCentered())
+	if (GetSearchViewFlag() == 0x6 && !VirtualRightStick.IsCentered() && EnableEnhancedMouse)
 	{
 		return VirtualRightStick.YAxis;
 	}
@@ -319,7 +319,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		ForwardBackwardsAxis = 0;
 		LeftRightAxis = 0;
 
-		if ((GetBoatFlag() == 0x01 && GetRoomID() == 0x0E) || GetSearchViewFlag() == 0x06)
+		if (((GetBoatFlag() == 0x01 && GetRoomID() == 0x0E) || GetSearchViewFlag() == 0x06) && EnableEnhancedMouse)
 		{
 			if (IsKeyPressed(KeyBinds.GetKeyBind(KEY_MOVE_FORWARDS)))
 			{

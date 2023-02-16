@@ -44,6 +44,7 @@ std::string HiddenValues[] = { VISIT_HIDDEN_SETTING(DECLARE_HIDDEN_SETTINGS) };
 
 extern bool bIsCompiling;
 
+bool ShowSandboxWarning = false;
 bool DisableMissingSettingsWarning = false;
 bool DisableExtraSettingsWarning = false;
 bool DisableDefaultValueWarning = false;
@@ -135,16 +136,18 @@ bool GetXMLfromResoruce(XMLDocument &xml)
 				{
 					if (!xml.Parse((char*)pLockedResource, dwResourceSize))
 					{
-						return false;
+						ShowSandboxWarning = false;
+						return true;
 					}
 				}
 			}
 		}
 	}
-	return true;
+	return false;
 }
 
-std::string GetProcessNameXml()
+// get xml from local path
+bool GetXMLfromFile(XMLDocument& xml)
 {
 	char path[MAX_PATH] = { '\0' };
 	bool ret = (GetProcessImageFileNameA(GetCurrentProcess(), path, MAX_PATH) != 0);
@@ -155,11 +158,14 @@ std::string GetProcessNameXml()
 		pdest = strrchr(path, '\\');
 		if (pdest)
 		{
-			return std::string(pdest + 1);
+			if (xml.LoadFile(pdest + 1) == S_OK)
+			{
+				ShowSandboxWarning = true;
+				return true;
+			}
 		}
 	}
-
-	return std::string("");
+	return false;
 }
 
 /////////////////////////////////////////////////
@@ -167,8 +173,10 @@ std::string GetProcessNameXml()
 bool CConfig::ParseXml()
 {
 	XMLDocument xml;
-	if (xml.LoadFile(GetProcessNameXml().c_str()) && GetXMLfromResoruce(xml))
+	if (!GetXMLfromFile(xml) && !GetXMLfromResoruce(xml))
+	{
 		return true;
+	}
 
 	auto root = xml.RootElement();
 

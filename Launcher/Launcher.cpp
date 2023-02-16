@@ -151,6 +151,12 @@ std::wstring GetPrgString(UINT id)
 		return std::wstring(str[id].def);
 	}
 
+	// Validate language string confirmation
+	if (id == STR_TITLE && ShowSandboxWarning)
+	{
+		return std::wstring(str[id].def + std::wstring(L" - ") + L"[SANDBOX MODE]");
+	}
+
 	if (s.size())
 	{
 		return s;

@@ -718,7 +718,7 @@ DWORD *GetLoadingScreenPointer()
 		return LoadingScreenAddr;
 	}
 
-	// In-game camera Y
+	// Get loading screen status
 	constexpr BYTE LoadingScreenSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x41, 0x75, 0x23, 0xE8 };
 	LoadingScreenAddr = (DWORD*)ReadSearchedAddresses(0x00406C13, 0x00406C13, 0x00406C23, LoadingScreenSearchBytes, sizeof(LoadingScreenSearchBytes), 0x14);
 

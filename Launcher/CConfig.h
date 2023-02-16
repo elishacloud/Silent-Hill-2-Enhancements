@@ -7,6 +7,7 @@
 #include "External\tinyxml2\tinyxml2.h"
 #include "External\xxHash\xxh3.h"
 
+extern bool ShowSandboxWarning;
 extern bool DisableTabOverloadWarning;
 extern DWORD DefaultLang;
 

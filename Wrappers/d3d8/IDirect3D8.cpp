@@ -30,6 +30,7 @@ WNDPROC OriginalWndProc = nullptr;
 HWND DeviceWindow = nullptr;
 LONG BufferWidth = 0, BufferHeight = 0;
 DWORD VendorID = 0;
+bool UsingWindowBorder = true;
 bool CopyRenderTarget = false;
 bool SetSSAA = false;
 bool TakeScreenShot = false;
@@ -478,10 +479,12 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	AdjustWindowRectEx(&Rect, lNewStyle, GetMenu(MainhWnd) != NULL, lExStyle);
 	if (ScreenMode == WINDOWED && WndModeBorder && screenWidth > Rect.right - Rect.left && screenHeight > Rect.bottom - Rect.top)
 	{
+		UsingWindowBorder = true;
 		lStyle = lNewStyle;
 	}
 	else
 	{
+		UsingWindowBorder = false;
 		lStyle &= ~WS_OVERLAPPEDWINDOW;
 	}
 
@@ -498,8 +501,8 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	LONG xLoc = 0, yLoc = 0;
 	if (ScreenMode == WINDOWED && screenWidth >= Rect.right && screenHeight >= Rect.bottom)
 	{
-		// Center window on load
-		if (FristRun)
+		// Center window on load or if not using window border
+		if (FristRun || !UsingWindowBorder)
 		{
 			xLoc = (screenWidth - Rect.right) / 2;
 			yLoc = (screenHeight - Rect.bottom) / 2;
@@ -523,15 +526,18 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	}
 	SetWindowPos(MainhWnd, HWND_TOP, xLoc, yLoc, Rect.right, Rect.bottom, SWP_SHOWWINDOW | SWP_NOZORDER);
 
-	// Load and set window placement
-	WINDOWPLACEMENT wndpl;
-	if (ReadRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"GameWindowPlacement", &wndpl, sizeof(WINDOWPLACEMENT)))
+	// Load and set window placement if using window border
+	if (UsingWindowBorder)
 	{
-		wndpl.length = sizeof(WINDOWPLACEMENT);
-		if (wndpl.rcNormalPosition.right - wndpl.rcNormalPosition.left == Rect.right &&
-			wndpl.rcNormalPosition.bottom - wndpl.rcNormalPosition.top == Rect.bottom)
+		WINDOWPLACEMENT wndpl;
+		if (ReadRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"GameWindowPlacement", &wndpl, sizeof(WINDOWPLACEMENT)))
 		{
-			SetWindowPlacement(MainhWnd, &wndpl);
+			wndpl.length = sizeof(WINDOWPLACEMENT);
+			if (wndpl.rcNormalPosition.right - wndpl.rcNormalPosition.left == Rect.right &&
+				wndpl.rcNormalPosition.bottom - wndpl.rcNormalPosition.top == Rect.bottom)
+			{
+				SetWindowPlacement(MainhWnd, &wndpl);
+			}
 		}
 	}
 
@@ -541,8 +547,8 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 
 void SaveWindowPlacement()
 {
-	// Save window placement
-	if (IsWindow(DeviceWindow))
+	// Save window placement if using window border
+	if (IsWindow(DeviceWindow) && UsingWindowBorder)
 	{
 		WINDOWPLACEMENT wndpl;
 		wndpl.length = sizeof(WINDOWPLACEMENT);

@@ -41,7 +41,6 @@ std::ofstream LOG;
 HINSTANCE m_hModule;
 HWND DeviceWindow = nullptr;
 HFONT hFont, hBold;
-bool IsLauncher = true;
 bool bIsLooping = true,
 	bLaunch = false;
 
@@ -63,6 +62,7 @@ CCtrlDescription hDesc;									// option description
 std::vector<std::shared_ptr<CCombined>> hCtrl;			// responsive controls for options
 std::vector<std::shared_ptr<CCtrlGroup>> hGroup;		// group controls inside the tab
 std::vector<std::wstring> ExeList;						// Store all file names
+std::wstring ini_file;									// Store the ini file name
 UINT uCurTab;
 LONG MaxControlDataWndSize;
 bool bHasChange;
@@ -77,6 +77,8 @@ void				SetExeMRU(std::wstring Name);
 void				GetAllExeFiles();
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK	TabProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
+
+void GetModuleName(std::wstring& modulename);
 
 struct LANGSTRUCT
 {
@@ -105,7 +107,6 @@ enum ProgramStrings
 	STR_LBL_LAUNCH,
 	STR_LAUNCH_ERROR,
 	STR_LAUNCH_EXE,
-	STR_INI_NAME,
 	STR_INI_ERROR,
 	STR_LANG_CONFIRM,
 	STR_LANG_ERROR,
@@ -135,7 +136,6 @@ std::wstring GetPrgString(UINT id)
 		"PRG_Launch_label", L"Launch using:",
 		"PRG_Launch_mess", L"Could not launch sh2pc.exe",
 		"PRG_Launch_exe", L"sh2pc.exe",
-		"PRG_Ini_name", L"d3d8.ini",
 		"PRG_Ini_error", L"Could not save the configuration ini.",
 		"PRG_Lang_confirm", L"Do you want to switch to language %s?",
 		"PRG_Lang_error", L"Error restarting the launcher!",
@@ -241,11 +241,15 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
 	if (bIsCompiling)
 	{
-		cfg.SaveIni(GetPrgString(STR_INI_NAME).c_str(), GetPrgString(STR_INI_ERROR).c_str(), GetPrgString(STR_ERROR).c_str());
+		cfg.SaveIni(L"d3d8.ini", GetPrgString(STR_INI_ERROR).c_str(), GetPrgString(STR_ERROR).c_str());
 		return TRUE;
 	}
 
-	cfg.SetFromIni(GetPrgString(STR_INI_NAME).c_str());
+	std::wstring modulename;
+	GetModuleName(modulename);
+	ini_file.assign(modulename + L".ini");
+
+	cfg.SetFromIni(ini_file.c_str());
 	GetAllExeFiles();
 
 	// Initialize global strings
@@ -274,10 +278,10 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	// Assign global hwnd
 	DeviceWindow = hWnd;
 
-	// Check for update (needs to be after the 'DeviceWindow' assignement)
+	// Check for update (needs to be after the 'DeviceWindow' assignment)
 	if (cfg.FindAndGetValue("AutoUpdateModule"))
 	{
-		static std::wstring name(L"d3d8");
+		static std::wstring name = modulename;
 		CreateThread(nullptr, 0, CheckForUpdate, (LPVOID)name.c_str(), 0, nullptr);
 	}
 
@@ -572,9 +576,63 @@ void CheckForIniSave()
 	{
 		if (MessageBoxW(hWnd, GetPrgString(STR_UNSAVED_TEXT).c_str(), GetPrgString(STR_WARNING).c_str(), MB_YESNO) == IDYES)
 		{
-			cfg.SaveIni(GetPrgString(STR_INI_NAME).c_str(), GetPrgString(STR_INI_ERROR).c_str(), GetPrgString(STR_ERROR).c_str());
+			cfg.SaveIni(ini_file.c_str(), GetPrgString(STR_INI_ERROR).c_str(), GetPrgString(STR_ERROR).c_str());
 		}
 	}
+}
+
+void GetModuleName(std::wstring& modulename)
+{
+	// Get module path
+	wchar_t path[MAX_PATH] = { '\0' };
+	bool ret = (GetModuleFileNameEx(GetCurrentProcess(), nullptr, path, MAX_PATH) != 0);
+	wchar_t* pdest = wcsrchr(path, '\\');
+	if (!ret || !pdest)
+	{
+		return;
+	}
+	*(pdest + 1) = '\0';
+
+	// Check default module names
+	for (auto entry : { L"d3d8", L"dinput8", L"dsound" })
+	{
+		wchar_t fullpath[MAX_PATH];
+		wcscpy_s(fullpath, MAX_PATH, path);
+		wcscat_s(fullpath, entry);
+		wcscat_s(fullpath, L".dll");
+		if (CheckFileIsSH2EEModule(fullpath))
+		{
+			modulename.assign(entry);
+			return;
+		}
+	}
+
+	// Interate through all files in the folder looking for the module
+	*pdest = '\0';
+	for (const auto& entry : std::filesystem::directory_iterator(path))
+	{
+		if (!entry.is_directory())
+		{
+			if (_wcsicmp(entry.path().extension().c_str(), L".dll") == 0 || _wcsicmp(entry.path().extension().c_str(), L".asi") == 0)
+			{
+				if (CheckFileIsSH2EEModule(entry.path().c_str()))
+				{
+					wchar_t filename[MAX_PATH];
+					wcscpy_s(filename, MAX_PATH, entry.path().filename().c_str());
+					wchar_t* pnewdest = wcsrchr(filename, '.');
+					if (pnewdest)
+					{
+						*pnewdest = '\0';
+						modulename.assign(filename);
+						return;
+					}
+				}
+			}
+		}
+	}
+
+	// Default to d3d8
+	modulename.assign(L"d3d8");
 }
 
 void GetAllExeFiles()
@@ -821,7 +879,7 @@ LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 					switch (MessageBoxW(hWnd, GetPrgString(STR_UNSAVED_TEXT).c_str(), GetPrgString(STR_WARNING).c_str(), MB_YESNOCANCEL))
 					{
 					case IDYES:		// save and close
-						cfg.SaveIni(GetPrgString(STR_INI_NAME).c_str(), GetPrgString(STR_INI_ERROR).c_str(), GetPrgString(STR_ERROR).c_str());
+						cfg.SaveIni(ini_file.c_str(), GetPrgString(STR_INI_ERROR).c_str(), GetPrgString(STR_ERROR).c_str());
 						SendMessageW(hWnd, WM_DESTROY, 0, 0);
 						break;
 					case IDNO:		// ignore and close
@@ -843,11 +901,11 @@ LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 				break;
 			case WM_USER + 2:	// save
 				RestoreChanges();
-				cfg.SaveIni(GetPrgString(STR_INI_NAME).c_str(), GetPrgString(STR_INI_ERROR).c_str(), GetPrgString(STR_ERROR).c_str());
+				cfg.SaveIni(ini_file.c_str(), GetPrgString(STR_INI_ERROR).c_str(), GetPrgString(STR_ERROR).c_str());
 				break;
 			case WM_USER + 3:	// save & launch
 				bLaunch = true;
-				cfg.SaveIni(GetPrgString(STR_INI_NAME).c_str(), GetPrgString(STR_INI_ERROR).c_str(), GetPrgString(STR_ERROR).c_str());
+				cfg.SaveIni(ini_file.c_str(), GetPrgString(STR_INI_ERROR).c_str(), GetPrgString(STR_ERROR).c_str());
 				SendMessageW(hWnd, WM_DESTROY, 0, 0);
 				break;
 			}

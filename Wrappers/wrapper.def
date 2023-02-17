@@ -31,3 +31,8 @@ Direct3DCreate8
 ;LIBRARY "dinput8"
 ; ****
 DirectInput8Create
+
+; ****
+;LIBRARY "SH2EE"
+; ****
+VerifySH2EE

@@ -1196,7 +1196,6 @@
     <S id="PRG_Launch_label">Lancia usando:</S>
     <S id="PRG_Launch_mess">Impossibile lanciare il gioco!</S>
     <S id="PRG_Launch_exe">sh2pc.exe</S>
-    <S id="PRG_Ini_name">d3d8.ini</S>
     <S id="PRG_Ini_error">Impossibile salvare il file d3d8.ini.</S>
     <S id="PRG_Lang_confirm">Vuoi cambiare lingua a %s?</S>
     <S id="PRG_Lang_error">Errore nel riavvio del launcher!</S>

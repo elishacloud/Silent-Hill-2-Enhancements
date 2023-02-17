@@ -16,6 +16,12 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#ifdef ISLAUNCHER
+#include <winnt.h>
+#include <ShlObj.h>
+#include <Propkey.h>
+#include <atlbase.h>
+#endif
 #include <Shldisp.h>
 #include <shellapi.h>
 #include <string>
@@ -680,6 +686,77 @@ void GetVersionFile(const wchar_t* lpFilename, OSVERSIONINFO* oFileVersion)
 		}
 	}
 }
+
+#ifdef ISLAUNCHER
+bool CheckFileIsSH2EEModule(const wchar_t* Path)
+{
+	bool Found = false;
+
+	// Check for module by export name
+	HMODULE lib = LoadLibraryEx(Path, NULL, DONT_RESOLVE_DLL_REFERENCES);
+	if (lib)
+	{
+		if (((PIMAGE_DOS_HEADER)lib)->e_magic == IMAGE_DOS_SIGNATURE)
+		{
+			PIMAGE_NT_HEADERS header = (PIMAGE_NT_HEADERS)((BYTE*)lib + ((PIMAGE_DOS_HEADER)lib)->e_lfanew);
+			if (header->Signature == IMAGE_NT_SIGNATURE)
+			{
+				if (header->OptionalHeader.NumberOfRvaAndSizes > 0)
+				{
+					PIMAGE_EXPORT_DIRECTORY exports = (PIMAGE_EXPORT_DIRECTORY)((BYTE*)lib + header->
+						OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress);
+					if (exports->AddressOfNames != 0)
+					{
+						BYTE** names = (BYTE**)((int)lib + exports->AddressOfNames);
+						for (UINT i = 0; i < exports->NumberOfNames; i++)
+						{
+							const char* Export = (char*)((BYTE*)lib + (int)names[i]);
+							if (strcmp(Export, "VerifySH2EE") == 0)
+							{
+								Found = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+		FreeLibrary(lib);
+	}
+
+	// Check for module by File Description using Product Name
+	if (!Found)
+	{
+		typedef HRESULT(WINAPI* SHCreateItemFromParsingNameProc)(_In_ PCWSTR pszPath, _In_opt_ IBindCtx* pbc, _In_ REFIID riid, _Outptr_ void** ppv);
+		static HMODULE hlib = LoadLibraryA("Shell32.dll");
+		if (hlib)
+		{
+			SHCreateItemFromParsingNameProc p_SHCreateItemFromParsingNameProc = (SHCreateItemFromParsingNameProc)GetProcAddress(hlib, "SHCreateItemFromParsingName");
+			if (p_SHCreateItemFromParsingNameProc)
+			{
+				HRESULT hr = CoInitialize(nullptr);
+				if (hr == S_OK || hr == S_FALSE)
+				{
+					CComPtr<IShellItem2> pItem;
+					if (SUCCEEDED(p_SHCreateItemFromParsingNameProc(Path, nullptr, IID_PPV_ARGS(&pItem))))
+					{
+						CComHeapPtr<WCHAR> pValue;
+						if (SUCCEEDED(pItem->GetString(PKEY_Software_ProductName, &pValue)))
+						{
+							if (wcscmp(pValue, L"Silent Hill 2: Enhanced Edition") == 0)
+							{
+								Found = true;
+							}
+						}
+					}
+					CoUninitialize();
+				}
+			}
+		}
+	}
+	return Found;
+}
+#endif
 
 HMEMORYMODULE LoadResourceToMemory(DWORD ResID)
 {

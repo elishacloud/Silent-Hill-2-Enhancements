@@ -26,6 +26,7 @@ void SetWindowTheme(HWND hWnd);
 void AddHandleToVector(HMODULE dll);
 void UnloadAllModules();
 DWORD ConvertFloat(float num);
+void GetVersionFile(const wchar_t* lpFilename, OSVERSIONINFO* oFileVersion);
 HMEMORYMODULE LoadResourceToMemory(DWORD ResID);
 void ExtractFileFromResource(DWORD ResID, char* lpFilepath);
 void ExtractFileFromResource(DWORD ResID, wchar_t* lpFilepath);

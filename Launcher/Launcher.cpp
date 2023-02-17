@@ -24,6 +24,7 @@
 #include <memory>
 #include <shellapi.h>
 #include "Common\Utils.h"
+#include "Common\AutoUpdate.h"
 #include "Resource.h"
 #include "CWnd.h"
 #include "CConfig.h"
@@ -38,7 +39,9 @@
 std::ofstream LOG;
 
 HINSTANCE m_hModule;
+HWND DeviceWindow = nullptr;
 HFONT hFont, hBold;
+bool IsLauncher = true;
 bool bIsLooping = true,
 	bLaunch = false;
 
@@ -49,7 +52,6 @@ bool AutoScaleVideos = false;
 bool AutoScaleImages = false;
 bool m_StopThreadFlag = false;
 bool IsUpdating = false;
-HWND DeviceWindow = nullptr;
 
 // all controls used by the program
 CWnd hWnd;												// program window
@@ -267,6 +269,16 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	if (!InitInstance(hInstance, nCmdShow))
 	{
 		return FALSE;
+	}
+
+	// Assign global hwnd
+	DeviceWindow = hWnd;
+
+	// Check for update (needs to be after the 'DeviceWindow' assignement)
+	if (cfg.FindAndGetValue("AutoUpdateModule"))
+	{
+		static std::wstring name(L"d3d8");
+		CreateThread(nullptr, 0, CheckForUpdate, (LPVOID)name.c_str(), 0, nullptr);
 	}
 
 	MSG msg = { 0 };

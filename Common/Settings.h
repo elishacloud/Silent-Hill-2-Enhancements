@@ -278,6 +278,7 @@ VISIT_STR_SETTINGS(DECLARE_STR_SETTINGS);
 typedef void(__stdcall* NV)(char* name, char* value, void* lpParam);
 
 extern HMODULE m_hModule;
+extern bool IsLauncher;
 extern bool CustomExeStrSet;
 extern bool EnableCustomShaders;
 extern bool ShadersReady;

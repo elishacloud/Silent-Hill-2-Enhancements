@@ -312,6 +312,24 @@ public:
 		found_opt = 0;
 		return false;
 	}
+	int FindAndGetValue(std::string name)
+	{
+		for (size_t i = 0, si = section.size(); i < si; i++)
+		{
+			for (size_t j = 0, sj = section[i].option.size(); j < sj; j++)
+			{
+				if (name == section[i].option[j].name)
+				{
+					std::string val = section[i].option[j].value[section[i].option[j].cur_val].val;
+					if (!val.empty() && std::all_of(val.begin(), val.end(), ::isdigit))
+					{
+						return atoi(val.c_str());
+					}
+				}
+			}
+		}
+		return 0;
+	}
 
 	std::wstring GetSectionString(int sec);
 	std::wstring GetOptionString(int sec, int opt);

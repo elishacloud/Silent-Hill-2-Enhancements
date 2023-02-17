@@ -606,6 +606,81 @@ void GetFileSize(uintmax_t fsize, char *strOutput, size_t size)
 	strcpy_s(strOutput, size, strSize.c_str());
 }
 
+// Get file version
+void GetVersionFile(const wchar_t* lpFilename, OSVERSIONINFO* oFileVersion)
+{
+	// Initialize variables
+	oFileVersion->dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	oFileVersion->dwMajorVersion = 0;
+	oFileVersion->dwMinorVersion = 0;
+	oFileVersion->dwBuildNumber = 0;
+
+	// Load version.dll
+	HMODULE Module = LoadLibraryA("version.dll");
+	if (!Module)
+	{
+		Logging::Log() << "Failed to load version.dll!";
+		return;
+	}
+
+	// Declare functions
+	typedef DWORD(WINAPI* PFN_GetFileVersionInfoSize)(LPCWSTR lptstrFilename, LPDWORD lpdwHandle);
+	typedef BOOL(WINAPI* PFN_GetFileVersionInfo)(LPCWSTR lptstrFilename, DWORD dwHandle, DWORD dwLen, LPVOID lpData);
+	typedef BOOL(WINAPI* PFN_VerQueryValue)(LPCVOID pBlock, LPCWSTR lpSubBlock, LPVOID* lplpBuffer, PUINT puLen);
+
+	// Get functions ProcAddress
+	PFN_GetFileVersionInfoSize GetFileVersionInfoSizeW = reinterpret_cast<PFN_GetFileVersionInfoSize>(GetProcAddress(Module, "GetFileVersionInfoSizeW"));
+	PFN_GetFileVersionInfo GetFileVersionInfoW = reinterpret_cast<PFN_GetFileVersionInfo>(GetProcAddress(Module, "GetFileVersionInfoW"));
+	PFN_VerQueryValue VerQueryValueW = reinterpret_cast<PFN_VerQueryValue>(GetProcAddress(Module, "VerQueryValueW"));
+	if (!GetFileVersionInfoSizeW || !GetFileVersionInfoW || !VerQueryValueW)
+	{
+		if (!GetFileVersionInfoSizeW)
+		{
+			Logging::Log() << "Failed to get 'GetFileVersionInfoSize' ProcAddress of version.dll!";
+		}
+		if (!GetFileVersionInfoW)
+		{
+			Logging::Log() << "Failed to get 'GetFileVersionInfo' ProcAddress of version.dll!";
+		}
+		if (!VerQueryValueW)
+		{
+			Logging::Log() << "Failed to get 'VerQueryValue' ProcAddress of version.dll!";
+		}
+		return;
+	}
+
+	// Define registry keys
+	DWORD verHandle = 0;
+	UINT size = 0;
+	LPBYTE lpBuffer = nullptr;
+	LPCWSTR szVersionFile = lpFilename;
+	DWORD verSize = GetFileVersionInfoSizeW(szVersionFile, &verHandle);
+
+	// GetVersion from a file
+	if (verSize != 0)
+	{
+		std::string verData(verSize + 1, '\0');
+
+		if (GetFileVersionInfoW(szVersionFile, verHandle, verSize, &verData[0]))
+		{
+			if (VerQueryValueW(&verData[0], L"\\", (VOID FAR * FAR*) & lpBuffer, &size))
+			{
+				if (size)
+				{
+					VS_FIXEDFILEINFO* verInfo = (VS_FIXEDFILEINFO*)lpBuffer;
+					if (verInfo->dwSignature == 0xfeef04bd)
+					{
+						oFileVersion->dwMajorVersion = (verInfo->dwFileVersionMS >> 16) & 0xffff;
+						oFileVersion->dwMinorVersion = (verInfo->dwFileVersionMS >> 0) & 0xffff;
+						oFileVersion->dwBuildNumber = (verInfo->dwFileVersionLS >> 16) & 0xffff;
+						//(verInfo->dwFileVersionLS >> 0) & 0xffff		//  <-- Other data not used
+					}
+				}
+			}
+		}
+	}
+}
+
 HMEMORYMODULE LoadResourceToMemory(DWORD ResID)
 {
 	HRSRC hResource = FindResource(m_hModule, MAKEINTRESOURCE(ResID), RT_RCDATA);

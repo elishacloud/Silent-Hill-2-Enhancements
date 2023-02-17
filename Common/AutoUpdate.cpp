@@ -161,7 +161,7 @@ std::string ReadFileContents(std::wstring &path)
 	return std::string(str.begin(), str.end());
 }
 
-bool NewModuleReleaseBuildAvailable(std::string &urlDownload)
+bool NewModuleReleaseBuildAvailable(std::string &urlDownload, DWORD CurrentBuildNo)
 {
 	// Get GitHub url for the latest released build
 	std::string data;
@@ -217,12 +217,12 @@ bool NewModuleReleaseBuildAvailable(std::string &urlDownload)
 	Logging::Log() << "Latest release build found: " << ReleaseBuildNo;
 
 	// Check if newer build is available
-	if (BUILD_NUMBER == ReleaseBuildNo)
+	if (CurrentBuildNo == ReleaseBuildNo)
 	{
 		Logging::Log() << "Using release build version!";
 		return false;
 	}
-	else if (BUILD_NUMBER > ReleaseBuildNo)
+	else if (CurrentBuildNo > ReleaseBuildNo)
 	{
 		Logging::Log() << "Using a build newer than the release build!";
 		return false;
@@ -564,11 +564,20 @@ LRESULT WINAPI ChangeCaptionButtons(int nCode, WPARAM wParam, LPARAM)
 	return 0;
 }
 
-DWORD WINAPI CheckForUpdate(LPVOID)
+DWORD WINAPI CheckForUpdate(LPVOID lpName)
 {
 	// Get Silent Hill 2 folder paths
 	std::wstring path, name;
 	GetSH2Path<std::wstring, wchar_t>(path, name);
+	if (IsLauncher && lpName)
+	{
+		name.assign((const wchar_t*)lpName);
+	}
+	else if (IsLauncher)
+	{
+		Logging::Log() << __FUNCTION__ " Launcher missing module name!";
+		return S_OK;
+	}
 	if (m_StopThreadFlag || path.empty() || name.empty())
 	{
 		Logging::Log() << __FUNCTION__ " Failed to get module path or name!";
@@ -598,8 +607,21 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 	}
 	else
 	{
+		// Get current module build number
+		DWORD CurrentBuildNo = 0;
+		if (!IsLauncher)
+		{
+			CurrentBuildNo = BUILD_NUMBER;
+		}
+		else
+		{
+			OSVERSIONINFO oo;
+			GetVersionFile(currentDll.c_str(), &oo);
+			CurrentBuildNo = oo.dwBuildNumber;
+		}
+
 		// Check if there is a newer module update
-		if (m_StopThreadFlag || !NewModuleReleaseBuildAvailable(urlDownload))
+		if (m_StopThreadFlag || !NewModuleReleaseBuildAvailable(urlDownload, CurrentBuildNo))
 		{
 			return S_OK;
 		}
@@ -703,7 +725,7 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 		}
 
 		// Update ini configuration file
-		if (m_StopThreadFlag || FAILED(UpdateiniFile(path, name, updatePath)))
+		if (!IsLauncher && (m_StopThreadFlag || FAILED(UpdateiniFile(path, name, updatePath))))
 		{
 			Logging::Log() << __FUNCTION__ " Failed to update ini file!";
 			hr = E_FAIL;
@@ -732,15 +754,22 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 		{
 			Logging::Log() << __FUNCTION__ " Successfully updated module!";
 
-			int Response = MessageBox(DeviceWindow, L"Update complete! You must restart the game for the update to take effect. Would you like to restart the game now?", MsgTitle.c_str(), MB_YESNO | MB_ICONINFORMATION | MB_SYSTEMMODAL);
-			if (Response == IDYES)
+			if (IsLauncher)
 			{
-				// Get Silent Hill 2 file path and restart
-				wchar_t sh2path[MAX_PATH];
-				if (GetSH2FolderPath(sh2path, MAX_PATH) && ShellExecute(nullptr, L"open", sh2path, nullptr, nullptr, SW_SHOWDEFAULT) > (HINSTANCE)32)
+				MessageBox(DeviceWindow, L"Update complete!", MsgTitle.c_str(), MB_OK);
+			}
+			else
+			{
+				int Response = MessageBox(DeviceWindow, L"Update complete! You must restart the game for the update to take effect. Would you like to restart the game now?", MsgTitle.c_str(), MB_YESNO | MB_ICONINFORMATION | MB_SYSTEMMODAL);
+				if (Response == IDYES)
 				{
-					exit(0);
-					return S_OK;
+					// Get Silent Hill 2 file path and restart
+					wchar_t sh2path[MAX_PATH];
+					if (GetSH2FolderPath(sh2path, MAX_PATH) && ShellExecute(nullptr, L"open", sh2path, nullptr, nullptr, SW_SHOWDEFAULT) > (HINSTANCE)32)
+					{
+						exit(0);
+						return S_OK;
+					}
 				}
 			}
 		}
@@ -762,7 +791,10 @@ DWORD WINAPI CheckForUpdate(LPVOID)
 
 	IsUpdating = false;
 
-	RestoreMainWindow();
+	if (!IsLauncher)
+	{
+		RestoreMainWindow();
+	}
 
 	return hr;
 }

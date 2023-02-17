@@ -14,6 +14,8 @@
 *   3. This notice may not be removed or altered from any source distribution.
 *
 * Code taken from: https://github.com/Gemini-Loboto3/SH2config
+*
+* Updated by Elisha Riedlinger 2023
 */
 
 #define WIN32_LEAN_AND_MEAN

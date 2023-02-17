@@ -38,7 +38,7 @@
 #define APP_REVISION			0
 #define APP_COMPANYNAME			"Sadrate Presents"
 #define APP_DESCRPTION			"A project designed to enhance Silent Hill 2 (SH2) graphics and audio for the PC."
-#define APP_COPYRIGHT			"Copyright (C) 2022 Elisha Riedlinger"
+#define APP_COPYRIGHT			"Copyright (C) 2023 Elisha Riedlinger"
 #define APP_ORIGINALVERSION		"d3d8.dll"
 #define APP_INTERNALNAME		"sh2-enhce"
 

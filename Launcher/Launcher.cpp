@@ -116,6 +116,7 @@ enum ProgramStrings
 	STR_DEFAULT_CONFIRM,
 	STR_UNSAVED,
 	STR_UNSAVED_TEXT,
+	STR_SANDBOX,
 	STR_EXTRA,
 	STR_EXTRA_TEXT,
 };
@@ -147,6 +148,7 @@ std::wstring GetPrgString(UINT id)
 		"PRG_Default_confirm", L"Are you sure you want reset all settings to default?",
 		"PRG_Unsaved", L" [unsaved changes]",
 		"PRG_Save_exit", L"There are unsaved changes. Save before closing?",
+		"PRG_Sandbox", L" [SANDBOX MODE]",
 		"PRG_Extra", L"Extra",
 		"PRG_Extra_desc", L"This section includes any additional settings that were manually added to the Silent Hill 2: Enhanced Edition configuration file (d3d8.ini).",
 	};
@@ -163,7 +165,7 @@ std::wstring GetPrgString(UINT id)
 	// Validate language string confirmation
 	if (id == STR_TITLE && ShowSandboxWarning)
 	{
-		return std::wstring(str[id].def + std::wstring(L" - ") + L"[SANDBOX MODE]");
+		return std::wstring(str[id].def + GetPrgString(STR_SANDBOX));
 	}
 
 	if (s.size())

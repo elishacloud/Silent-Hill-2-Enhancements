@@ -481,6 +481,11 @@ void PopulateTab(int section)
 
 void UpdateTab(int section)
 {
+	// Don't update if on the "Extra" tab
+	if (uCurTab == (int)cfg.group.size())
+	{
+		return;
+	}
 	for (size_t i = 0, ctrl = 0, si = cfg.group[section].sub.size(), pos = 0; i < si; i++)
 	{
 		for (size_t j = 0, sj = cfg.group[section].sub[i].opt.size(); j < sj; j++, pos++, ctrl++)
@@ -854,6 +859,7 @@ LRESULT CALLBACK TabProc(HWND hWndd, UINT Msg, WPARAM wParam, LPARAM lParam)
 	switch (Msg)
 	{
 	case WM_COMMAND:
+		// Don't update if on the "Extra" tab
 		if (uCurTab != (int)cfg.group.size())
 		{
 			switch (HIWORD(wParam))

@@ -7,6 +7,14 @@
 #include "External\tinyxml2\tinyxml2.h"
 #include "External\xxHash\xxh3.h"
 
+struct EXTRAOPTIONS
+{
+	std::wstring Name;
+	std::wstring Value;
+};
+
+extern std::vector<EXTRAOPTIONS> ExtraOptions;
+
 extern bool ShowSandboxWarning;
 extern bool DisableTabOverloadWarning;
 extern DWORD DefaultLang;

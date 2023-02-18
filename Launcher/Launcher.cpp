@@ -64,6 +64,7 @@ CCtrlDescription hDesc;									// option description
 std::vector<std::shared_ptr<CCombined>> hCtrl;			// responsive controls for options
 std::vector<std::shared_ptr<CCtrlGroup>> hGroup;		// group controls inside the tab
 std::vector<std::wstring> ExeList;						// Store all file names
+std::vector<EXTRAOPTIONS> ExtraOptions;					// Stores the extra options in ini file
 std::wstring ini_file;									// Store the ini file name
 UINT uCurTab;
 LONG MaxControlDataWndSize;
@@ -115,6 +116,8 @@ enum ProgramStrings
 	STR_DEFAULT_CONFIRM,
 	STR_UNSAVED,
 	STR_UNSAVED_TEXT,
+	STR_EXTRA,
+	STR_EXTRA_TEXT,
 };
 
 struct Strings
@@ -144,6 +147,8 @@ std::wstring GetPrgString(UINT id)
 		"PRG_Default_confirm", L"Are you sure you want reset all settings to default?",
 		"PRG_Unsaved", L" [unsaved changes]",
 		"PRG_Save_exit", L"There are unsaved changes. Save before closing?",
+		"PRG_Extra", L"Extra",
+		"PRG_Extra_desc", L"This section includes any additional settings that were manually added to the Silent Hill 2: Enhanced Edition configuration file (d3d8.ini).",
 	};
 
 	auto s = cfg.GetString(str[id].name);
@@ -389,7 +394,8 @@ std::shared_ptr<CCombined> MakeControl(CWnd &hParent, int section, int option, i
 void PopulateTab(int section)
 {
 	uCurTab = section;
-	hDesc.SetCaption(cfg.GetGroupString(section).c_str());
+	std::wstring GroupString = (section == (int)cfg.group.size()) ? GetPrgString(STR_EXTRA) : cfg.GetGroupString(section);
+	hDesc.SetCaption(GroupString.c_str());
 	hDesc.SetText(L"");
 
 	for (auto &Ctrl : hCtrl)
@@ -407,6 +413,35 @@ void PopulateTab(int section)
 	hTab.GetRect(rect);
 
 	LONG Y = 20;
+
+	// process the "Extra" tab
+	if (section == (int)cfg.group.size())
+	{
+		int count = ExtraOptions.size();
+
+		// create group control
+		std::shared_ptr<CCtrlGroup> gp = std::make_shared<CCtrlGroup>();
+		gp->CreateWindow(GetPrgString(STR_EXTRA).c_str(), rect.left + 2, Y + rect.top - 20, rect.right - rect.left - 6, (((count + 1) & ~1) / 2) * 25 + 30, hTab, m_hModule, hFont);
+		hGroup.push_back(gp);
+		hDesc.SetText(GetPrgString(STR_EXTRA_TEXT).c_str());
+
+		size_t pos = 0;
+		// process a sub
+		for (size_t j = 0; j < (size_t)count; j++, pos++)
+		{
+			int W = (rect.right - rect.left - 16) / 2;
+			int X = rect.left + 16 + (pos % 2) * W;
+			int base_Y = rect.top + (pos / 2) * 25 + Y;
+
+			std::shared_ptr<CCombined> cc = std::make_shared<CFieldList>();
+			cc->CreateWindow(ExtraOptions[j].Name.c_str(), X, base_Y, W - 20, 25, hTab, m_hModule, hFont);
+			cc->AddString(ExtraOptions[j].Value.c_str());
+			cc->SetSelection(0);
+			hCtrl.push_back(cc);
+		}
+
+		return;
+	}
 
 	// process a group
 	for (size_t i = 0, si = cfg.group[section].sub.size(), pos = 0; i < si; i++)
@@ -725,6 +760,12 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		hTab.InsertItem((int)i, cfg.GetGroupString((int)i).c_str());
 	}
 
+	// create the "Extra" tab
+	if (ExtraOptions.size())
+	{
+		hTab.InsertItem((int)cfg.group.size(), GetPrgString(STR_EXTRA).c_str());
+	}
+
 	// create the description field
 	hDesc.CreateWindow(4, r.bottom - 160, r.right - 8, 128, hWnd, hInstance, hFont, hBold);
 
@@ -747,7 +788,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		X -= 144; hDbLaunch.CreateWindow(X, Y + 1, 140, 24, hWnd, hInstance, hFont);
 
 		// add launcher label
-		X -= 108; HWND hwnd = CreateWindowW(TEXT("static"), GetPrgString(STR_LBL_LAUNCH).c_str(), WS_VISIBLE | WS_CHILD | SS_RIGHT, X, Y + 5, 100, 24, hWnd, (HMENU)3, NULL, NULL);
+		X -= 108; HWND hwnd = CreateWindowW(WC_STATICW, GetPrgString(STR_LBL_LAUNCH).c_str(), WS_VISIBLE | WS_CHILD | SS_RIGHT, X, Y + 5, 100, 24, hWnd, (HMENU)3, m_hModule, NULL);
 		SendMessageW(hwnd, WM_SETFONT, (LPARAM)hFont, TRUE);
 
 		// populate dropdown
@@ -811,9 +852,11 @@ LRESULT CALLBACK TabProc(HWND hWndd, UINT Msg, WPARAM wParam, LPARAM lParam)
 	switch (Msg)
 	{
 	case WM_COMMAND:
-		switch (HIWORD(wParam))
+		if (uCurTab != (int)cfg.group.size())
 		{
-		case CBN_SELCHANGE:	// catch selections
+			switch (HIWORD(wParam))
+			{
+			case CBN_SELCHANGE:	// catch selections
 			{
 				CCombined* wnd = reinterpret_cast<CCombined*>(GetWindowLongPtrW((HWND)lParam, GWLP_USERDATA));
 				int sel = wnd->GetSelection();
@@ -821,7 +864,7 @@ LRESULT CALLBACK TabProc(HWND hWndd, UINT Msg, WPARAM wParam, LPARAM lParam)
 				SetChanges();
 			}
 			break;
-		case BN_CLICKED:	// catch checkboxes
+			case BN_CLICKED:	// catch checkboxes
 			{
 				CCombined* wnd = reinterpret_cast<CCombined*>(GetWindowLongPtrW((HWND)lParam, GWLP_USERDATA));
 				bool checked = wnd->GetCheck();
@@ -829,7 +872,7 @@ LRESULT CALLBACK TabProc(HWND hWndd, UINT Msg, WPARAM wParam, LPARAM lParam)
 				SetChanges();
 			}
 			break;
-		case EN_UPDATE:		// catch textboxes
+			case EN_UPDATE:		// catch textboxes
 			{
 				CCombined* wnd = reinterpret_cast<CCombined*>(GetWindowLongPtrW((HWND)lParam, GWLP_USERDATA));
 				std::wstring val = wnd->GetString();
@@ -837,6 +880,7 @@ LRESULT CALLBACK TabProc(HWND hWndd, UINT Msg, WPARAM wParam, LPARAM lParam)
 				SetChanges();
 			}
 			break;
+			}
 		}
 		break;
 	}
@@ -856,10 +900,10 @@ LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 		SaveWindowSettings();
 		PostQuitMessage(0);
 		break;
-		//case WM_MOUSEMOVE:
-		//	hDesc.SetCaption(cfg.GetGroupString(uCurTab).c_str());
-		//	hDesc.SetText(L"");
-		//	break;
+	//case WM_MOUSEMOVE:
+	//	hDesc.SetCaption(cfg.GetGroupString(uCurTab).c_str());
+	//	hDesc.SetText(L"");
+	//	break;
 	case WM_NOTIFY:
 		switch (((LPNMHDR)lParam)->code)
 		{
@@ -867,6 +911,10 @@ LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 			PopulateTab(hTab.GetCurSel());
 			break;
 		}
+		break;
+	case WM_CTLCOLORSTATIC:
+		SetBkMode((HDC)wParam, TRANSPARENT);
+		return (LRESULT)GetStockObject(HOLLOW_BRUSH);
 		break;
 	case WM_COMMAND:
 		switch (HIWORD(wParam))

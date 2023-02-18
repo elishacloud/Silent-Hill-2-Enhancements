@@ -309,6 +309,8 @@ void __stdcall ParseIniCallback(char* lpName, char* lpValue, void *lpParam)
 			return;
 		}
 	}
+
+	ExtraOptions.push_back({ MultiToWide_s(lpName), MultiToWide_s(lpValue) });
 }
 
 void CConfig::SetFromIni(LPCWSTR lpName)

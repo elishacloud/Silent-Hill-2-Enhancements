@@ -1202,9 +1202,9 @@
     <S id="PRG_Default_confirm">¿Seguro que quieres reiniciar toda la configuración a sus valores predeterminados?</S>
     <S id="PRG_Unsaved"> [sin guardar]</S>
     <S id="PRG_Save_exit">Hay cambios sin guardar. ¿Deseas cambiarlos antes de cerrar?</S>
-    <S id="PRG_Sandbox"> [SANDBOX MODE]</S>
+    <S id="PRG_Sandbox"> [MODO LOCAL]</S>
     <S id="PRG_Extra">Extra</S>
-    <S id="PRG_Extra_desc">This section includes any additional settings that were manually added to the Silent Hill 2: Enhanced Edition configuration file (d3d8.ini).</S>
+    <S id="PRG_Extra_desc">Esta sección incluye todos los ajustes que se hayan añadido de forma manual al archivo de configuración de Silent Hill 2: Enhanced Edition (d3d8.ini).</S>
 
   </Strings>
 

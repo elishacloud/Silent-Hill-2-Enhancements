@@ -542,7 +542,7 @@
 
       <Feature name="UseCustomExeStr">
         <Title>Restaurar todos os idiomas no menu de opções</Title>
-        <Description>Restaura todas as opções de idioma (inglês, francês, alemão, italiano e espanhol) como opções selecionáveis no menu de opções do jogo, e cria um texto de menu de pausa específico do idioma para os executáveis norte-americanos.&#x0a;&#x0a;Nota: ".\sh2e\resources\r_menu_*.res" deve estar presente no diretório do jogo para que este recurso funcione.</Description>
+        <Description>Restaura todas as opções de idioma (inglês, francês, alemão, italiano e espanhol) como opções selecionáveis no menu de opções do jogo, e cria um texto de menu de pausa específico do idioma para os executáveis norte-americanos.&#x0a;&#x0a;Nota: ".\sh2e\resources\r_menu_*.res" deve estar presente no diretório do jogo para que este recurso funcione.&#x0a;Nota: Se desativado, vários outros recursos também serão desativados. Este recurso nunca deve ser desabilitado.</Description>
         <Choices type="check">
           <Value name="Desativar">0</Value>
           <Value name="Ativar" default="true">1</Value>
@@ -1004,7 +1004,7 @@
 
       <Feature name="UseCustomModFolder">
         <Title>Usar pasta "sh2e" personalizada</Title>
-        <Description>Silent Hill 2: Enhanced Edition lerá e usará arquivos na pasta "sh2e", em vez da pasta "data", sempre que possível. Isso permite que arquivos personalizados e modificados do jogo sejam armazenados na pasta "sh2e" para não substituir/sobrescrever os arquivos originais, que são encontrados na pasta "data". Quaisquer arquivos de jogo que não tenham sido modificados para o projeto ainda serão lidos da pasta "data" normalmente, então você deve manter a pasta "data" e deixá-la intacta.</Description>
+        <Description>Silent Hill 2: Enhanced Edition lerá e usará arquivos na pasta "sh2e", em vez da pasta "data", sempre que possível. Isso permite que arquivos personalizados e modificados do jogo sejam armazenados na pasta "sh2e" para não substituir/sobrescrever os arquivos originais, que são encontrados na pasta "data". Quaisquer arquivos de jogo que não tenham sido modificados para o projeto ainda serão lidos da pasta "data" normalmente, então você deve manter a pasta "data" e deixá-la intacta.&#x0a;&#x0a;Nota: Se desativado, vários outros recursos também serão desativados. Este recurso nunca deve ser desabilitado.</Description>
         <Choices type="check">
           <Value name="Desativar">0</Value>
           <Value name="Ativar" default="true">1</Value>

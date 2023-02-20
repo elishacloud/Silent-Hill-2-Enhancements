@@ -91,8 +91,9 @@ struct LANGSTRUCT
 
 constexpr LANGSTRUCT LangList[] = {
 	{ L"English", IDR_CONFIG_XML_EN },
-	{ L"Spanish", IDR_CONFIG_XML_ES },
-	{ L"Italian", IDR_CONFIG_XML_IT },
+	{ L"Español", IDR_CONFIG_XML_ES },
+	{ L"Italiano", IDR_CONFIG_XML_IT },
+	{ L"Português Brasileiro", IDR_CONFIG_XML_BR },
 };
 DWORD DefaultLang = IDR_CONFIG_XML_EN;
 

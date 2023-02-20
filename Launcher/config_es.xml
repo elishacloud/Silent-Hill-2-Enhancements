@@ -542,7 +542,7 @@
 
       <Feature name="UseCustomExeStr">
         <Title>Restaurar todos los idiomas en el menú de Opciones</Title>
-        <Description>Restaura todas las opciones de idioma (inglés, francés, alemán, italiano y español), permite que estas sean seleccionables dentro del menú de Opciones del juego y genera textos específicos en cada idioma para el menú de pausa de los ejecutables norteamericanos del juego.&#x0a;&#x0a;Nota: los archivos «.\sh2e\resources\r_menu_*.res» deben estar presentes en el directorio del juego para que esta característica pueda funcionar.</Description>
+        <Description>Restaura todas las opciones de idioma (inglés, francés, alemán, italiano y español), permite que estas sean seleccionables dentro del menú de Opciones del juego y genera textos específicos en cada idioma para el menú de pausa de los ejecutables norteamericanos del juego.&#x0a;&#x0a;Nota: los archivos «.\sh2e\resources\r_menu_*.res» deben estar presentes en el directorio del juego para que esta característica pueda funcionar.&#x0a;Nota: al desactivar esta opción se desactivarán otras características. Esta opción no debería ser desactivada.</Description>
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
@@ -1004,7 +1004,7 @@
 
       <Feature name="UseCustomModFolder">
         <Title>Utilizar la carpeta personalizada «sh2e»</Title>
-        <Description>Silent Hill 2: Enhanced Edition leerá y utilizará los archivos que se encuentren en la carpeta «sh2e» por encima de los que se encuentren en la carpeta data siempre que sea posible. Esto permite almacenar archivos personalizados del juego en la carpeta «sh2e» y así no sobrescribir los archivos originales del juego, que se encuentran en la carpeta «data». Cualquier archivo del juego que no haya sido modificado por el proyecto seguirá siendo buscado en la carpeta «data», como siempre, así que es necesario conservar la carpeta «data» intacta.</Description>
+        <Description>Silent Hill 2: Enhanced Edition leerá y utilizará los archivos que se encuentren en la carpeta «sh2e» por encima de los que se encuentren en la carpeta data siempre que sea posible. Esto permite almacenar archivos personalizados del juego en la carpeta «sh2e» y así no sobrescribir los archivos originales del juego, que se encuentran en la carpeta «data». Cualquier archivo del juego que no haya sido modificado por el proyecto seguirá siendo buscado en la carpeta «data», como siempre, así que es necesario conservar la carpeta «data» intacta.&#x0a;&#x0a;Nota: al desactivar esta opción se desactivarán otras características. Esta opción no debería ser desactivada.</Description>
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>

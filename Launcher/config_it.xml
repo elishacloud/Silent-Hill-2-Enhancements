@@ -542,7 +542,7 @@
 
       <Feature name="UseCustomExeStr">
         <Title>Ripristina tutte le lingue nel menu opzioni</Title>
-        <Description>Ripristina tutte le opzioni di lingua (Inglese, Francese, Tedesco, Italiano e Spagnolo) per essere selezionate nel menu Opzioni e crea testo specifico nel menu di pausa per la versione del Nord America del gioco.&#x0a;&#x0a;Nota: Il file .\sh2e\resources\r_menu_*.res deve essere presente nella directory del gioco per il funzionamento di questa opzione.</Description>
+        <Description>Ripristina tutte le opzioni di lingua (Inglese, Francese, Tedesco, Italiano e Spagnolo) per essere selezionate nel menu Opzioni e crea testo specifico nel menu di pausa per la versione del Nord America del gioco.&#x0a;&#x0a;Nota: Il file .\sh2e\resources\r_menu_*.res deve essere presente nella directory del gioco per il funzionamento di questa opzione.&#x0a;Nota: Se disabilitato, anche altre opzioni verranno disabilitate. Questa opzione non dovrebbe mai essere disabilitata.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>
@@ -1004,7 +1004,7 @@
 
       <Feature name="UseCustomModFolder">
         <Title>Utilizza la cartella custom "sh2e"</Title>
-        <Description>Silent Hill 2: Enhanced Edition leggerà ed utilizzerà i file nella cartella "sh2e", invece della cartella "data", quando possibile. Questo permette di avere file custom modificati nella cartella "sh2e" per non sovrascrivere i file originali del gioco, che si trovano nella cartella "data". Qualsiasi file del gioco che non è stato modificato verrà letto dalla cartella "data" normalmente, quindi bisogna mantenere la cartella "data" non alterata.</Description>
+        <Description>Silent Hill 2: Enhanced Edition leggerà ed utilizzerà i file nella cartella "sh2e", invece della cartella "data", quando possibile. Questo permette di avere file custom modificati nella cartella "sh2e" per non sovrascrivere i file originali del gioco, che si trovano nella cartella "data". Qualsiasi file del gioco che non è stato modificato verrà letto dalla cartella "data" normalmente, quindi bisogna mantenere la cartella "data" non alterata.&#x0a;&#x0a;Nota: Se disabilitato, anche altre opzioni verranno disabilitate. Questa opzione non dovrebbe mai essere disabilitata.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>

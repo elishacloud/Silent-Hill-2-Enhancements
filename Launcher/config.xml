@@ -542,7 +542,7 @@
 
       <Feature name="UseCustomExeStr">
         <Title>Restore all languages in options menu</Title>
-        <Description>Restores all language options (English, French, German, Italian, and Spanish) as selectable choices in the game's Options menu and creates language-specific pause menu text for the North American executables of the game.&#x0a;&#x0a;Note: .\sh2e\resources\r_menu_*.res must be present in the game's directory for this feature to work.</Description>
+        <Description>Restores all language options (English, French, German, Italian, and Spanish) as selectable choices in the game's Options menu and creates language-specific pause menu text for the North American executables of the game.&#x0a;&#x0a;Note: .\sh2e\resources\r_menu_*.res must be present in the game's directory for this feature to work.&#x0a;Note: If disabled, various other features will also be disabled. This feature should never be disabled.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -1004,7 +1004,7 @@
 
       <Feature name="UseCustomModFolder">
         <Title>Use custom "sh2e" folder</Title>
-        <Description>Silent Hill 2: Enhanced Edition will read and use files in the "sh2e" folder, rather than the "data" folder, whenever possible. This allows custom, modified game files to be stored in the "sh2e" folder so as not to replace/overwrite original game files, which are found in the "data" folder. Any game files which have not been modified for the project will still be read from the "data" folder like normal, so you must keep the "data" folder and leave it untouched.</Description>
+        <Description>Silent Hill 2: Enhanced Edition will read and use files in the "sh2e" folder, rather than the "data" folder, whenever possible. This allows custom, modified game files to be stored in the "sh2e" folder so as not to replace/overwrite original game files, which are found in the "data" folder. Any game files which have not been modified for the project will still be read from the "data" folder like normal, so you must keep the "data" folder and leave it untouched.&#x0a;&#x0a;Note: If disabled, various other features will also be disabled. This feature should never be disabled.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>

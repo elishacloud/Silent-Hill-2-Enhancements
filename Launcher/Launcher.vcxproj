@@ -147,6 +147,7 @@ copy /y "$(TargetDir)d3d8.ini" "$(SolutionDir)Common\Settings.ini"</Command>
     </Xml>
     <Xml Include="config_es.xml" />
     <Xml Include="config_it.xml" />
+    <Xml Include="config_br.xml" />
     <Xml Include="manifest.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

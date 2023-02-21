@@ -1,4 +1,4 @@
-/**
+﻿/**
 * Copyright (C) 2022 Gemini
 *
 * This software is  provided 'as-is', without any express  or implied  warranty. In no event will the
@@ -91,8 +91,9 @@ struct LANGSTRUCT
 
 constexpr LANGSTRUCT LangList[] = {
 	{ L"English", IDR_CONFIG_XML_EN },
-	{ L"Spanish", IDR_CONFIG_XML_ES },
-	{ L"Italian", IDR_CONFIG_XML_IT },
+	{ L"Español", IDR_CONFIG_XML_ES },
+	{ L"Italiano", IDR_CONFIG_XML_IT },
+	{ L"Português Brasileiro", IDR_CONFIG_XML_BR },
 };
 DWORD DefaultLang = IDR_CONFIG_XML_EN;
 
@@ -158,7 +159,7 @@ std::wstring GetPrgString(UINT id)
 	// Validate language string confirmation
 	if (id == STR_LANG_CONFIRM && (CharCount(s, '%') != 1 || s.find(L"%s") == std::string::npos))
 	{
-		MessageBox(nullptr, L"Error with PRG_Lang_confirm text!", L"Language Error", MB_DEFBUTTON1);
+		MessageBoxW(nullptr, L"Error with PRG_Lang_confirm text!", L"Language Error", MB_DEFBUTTON1);
 		return std::wstring(str[id].def);
 	}
 
@@ -551,7 +552,7 @@ void LoadWindowSettings()
 
 		// Remove resolution from registry
 		HKEY hKey;
-		if (RegOpenKeyEx(HKEY_CURRENT_USER, L"SOFTWARE\\Konami\\Silent Hill 2\\sh2e", 0, KEY_READ | KEY_WRITE, &hKey) == ERROR_SUCCESS)
+		if (RegOpenKeyExW(HKEY_CURRENT_USER, L"SOFTWARE\\Konami\\Silent Hill 2\\sh2e", 0, KEY_READ | KEY_WRITE, &hKey) == ERROR_SUCCESS)
 		{
 			RegDeleteValueW(hKey, L"WindowPlacement");
 
@@ -629,7 +630,7 @@ void GetModuleName(std::wstring& modulename)
 {
 	// Get module path
 	wchar_t path[MAX_PATH] = { '\0' };
-	bool ret = (GetModuleFileNameEx(GetCurrentProcess(), nullptr, path, MAX_PATH) != 0);
+	bool ret = (GetModuleFileNameExW(GetCurrentProcess(), nullptr, path, MAX_PATH) != 0);
 	wchar_t* pdest = wcsrchr(path, '\\');
 	if (!ret || !pdest)
 	{
@@ -684,7 +685,7 @@ void GetAllExeFiles()
 	// Get the tools process name
 	std::wstring toolname;
 	wchar_t path[MAX_PATH] = { '\0' };
-	bool ret = (GetModuleFileNameEx(GetCurrentProcess(), nullptr, path, MAX_PATH) != 0);
+	bool ret = (GetModuleFileNameExW(GetCurrentProcess(), nullptr, path, MAX_PATH) != 0);
 	wchar_t* pdest = wcsrchr(path, '\\');
 	if (!ret || !pdest)
 	{

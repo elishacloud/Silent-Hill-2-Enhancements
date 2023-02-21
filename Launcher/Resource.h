@@ -15,6 +15,7 @@
 #define IDR_CONFIG_XML_EN                901
 #define IDR_CONFIG_XML_ES                902
 #define IDR_CONFIG_XML_IT                903
+#define IDR_CONFIG_XML_BR                904
 
 // Main resource file details
 #define APP_NAME				"SH2EE Configuration Tool"

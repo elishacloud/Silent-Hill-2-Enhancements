@@ -138,4 +138,6 @@ This project is written in C++ using Microsoft Visual Studio Community 2017.
 
 The project uses the Windows 10 SDK, WDK and [DirectX9 SDK](https://www.microsoft.com/en-us/download/details.aspx?id=6812). The exact version required can be seen in the project properties in Visual Studio.
 
+Note: The "C++ ATL for v141 build tools (x86 & x64)" is required to compile this project.
+
 Thanks for stopping by!

@@ -64,7 +64,7 @@ __declspec(naked) void __stdcall ClampFadeASM()
 void PatchDelayedFadeIn()
 {
     constexpr BYTE FadeInitValueSearchBytes[]{ 0xB8, 0x13, 0x00, 0x00, 0x00, 0xA3 };
-    DWORD FadeInitValueAddr = SearchAndGetAddresses(0x00478440, 0x004786E0, 0x004788F0, FadeInitValueSearchBytes, sizeof(FadeInitValueSearchBytes), 0x2C);
+    DWORD FadeInitValueAddr = SearchAndGetAddresses(0x00478440, 0x004786E0, 0x004788F0, FadeInitValueSearchBytes, sizeof(FadeInitValueSearchBytes), 0x2C, __FUNCTION__);
     if (!FadeInitValueAddr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find pointer address!";
@@ -72,7 +72,7 @@ void PatchDelayedFadeIn()
     }
 
     constexpr BYTE FadeUpdateSearchBytes[]{ 0x3B, 0xFB, 0x0F, 0x84, 0x92, 0x00, 0x00, 0x00, 0xE8 };
-    DWORD FadeUpdateAddr = SearchAndGetAddresses(0x004790DA, 0x0047937A, 0x0047958A, FadeUpdateSearchBytes, sizeof(FadeUpdateSearchBytes), 0x0D);
+    DWORD FadeUpdateAddr = SearchAndGetAddresses(0x004790DA, 0x0047937A, 0x0047958A, FadeUpdateSearchBytes, sizeof(FadeUpdateSearchBytes), 0x0D, __FUNCTION__);
     if (!FadeUpdateAddr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find pointer address!";

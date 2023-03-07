@@ -50,7 +50,7 @@ void PatchPS2NoiseFilter()
 {
 	// Get PS2 filter memory address
 	constexpr BYTE FilterByteEDX[2][5] = { { 0xBA, 0xFF, 0x00, 0x00, 0x00 }, { 0xBA, 0xD7, 0x01, 0x00, 0x00 } };
-	DWORD FilterAddrEDX = SearchAndGetAddresses(0x00477E9D, 0x0047813D, 0x0047834D, FilterByteEDX[0], sizeof(FilterByteEDX[0]), 0x00);
+	DWORD FilterAddrEDX = SearchAndGetAddresses(0x00477E9D, 0x0047813D, 0x0047834D, FilterByteEDX[0], sizeof(FilterByteEDX[0]), 0x00, __FUNCTION__);
 
 	// Checking address pointer
 	if (!FilterAddrEDX)
@@ -68,9 +68,9 @@ void PatchPS2NoiseFilter()
 	// Check for valid code before updating
 	constexpr BYTE FilterByteMOV[2][1] = { { 0xFF },{ 0x22 } };
 	constexpr BYTE FilterByteJMP[] = { 0xA2, 0xC5 };
-	if (!CheckMemoryAddress((void*)FilterAddrEDX, (void*)FilterByteEDX[0], sizeof(FilterByteEDX[0])) ||
-		!CheckMemoryAddress((void*)FilterAddrMOV, (void*)FilterByteMOV[0], sizeof(FilterByteMOV[0])) ||
-		!CheckMemoryAddress((void*)FilterAddrJMP, (void*)FilterByteJMP, sizeof(FilterByteJMP)))
+	if (!CheckMemoryAddress((void*)FilterAddrEDX, (void*)FilterByteEDX[0], sizeof(FilterByteEDX[0]), __FUNCTION__) ||
+		!CheckMemoryAddress((void*)FilterAddrMOV, (void*)FilterByteMOV[0], sizeof(FilterByteMOV[0]), __FUNCTION__) ||
+		!CheckMemoryAddress((void*)FilterAddrJMP, (void*)FilterByteJMP, sizeof(FilterByteJMP), __FUNCTION__))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: memory addresses don't match!";
 		return;

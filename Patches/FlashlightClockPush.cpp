@@ -38,7 +38,7 @@ void PatchFlashlightClockPush()
 {
 	// Get address
 	constexpr BYTE SearchBytes[]{ 0xD8, 0xD9, 0xDF, 0xE0, 0xF6, 0xC4, 0x41, 0x75, 0x0A, 0xDD, 0xD8, 0x89, 0x3D };
-	void *Address = (void*)SearchAndGetAddresses(0x0048E81B, 0x0048EABB, 0x0048ECCB, SearchBytes, sizeof(SearchBytes), 0x3D);
+	void *Address = (void*)SearchAndGetAddresses(0x0048E81B, 0x0048EABB, 0x0048ECCB, SearchBytes, sizeof(SearchBytes), 0x3D, __FUNCTION__);
 
 	if (!Address)
 	{

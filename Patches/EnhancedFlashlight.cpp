@@ -216,7 +216,7 @@ void RunInnerFlashlightGlow(DWORD Height)
 		RUNONCE();
 
 		constexpr BYTE SearchBytes[]{ 0x8D, 0x44, 0x24, 0x28, 0x6A, 0x20, 0x50, 0xE8 };
-		Addr1 = (void*)ReadSearchedAddresses(0x00510693, 0x005109C3, 0x005102E3, SearchBytes, sizeof(SearchBytes), 0x11);
+		Addr1 = (void*)ReadSearchedAddresses(0x00510693, 0x005109C3, 0x005102E3, SearchBytes, sizeof(SearchBytes), 0x11, __FUNCTION__);
 		if (!Addr1)
 		{
 			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -234,7 +234,7 @@ void PatchPS2Flashlight()
 {
 	// Get address for Flashlight Brightness ASM
 	constexpr BYTE SearchBytesFlashlight[]{ 0x8B, 0xC1, 0x89, 0x4C, 0x24, 0x2C, 0x8B, 0x4C, 0x24, 0x24, 0x89, 0x54, 0x24, 0x30 };
-	DWORD FlashlightAddr = SearchAndGetAddresses(0x0047A50B, 0x0047A7AB, 0x0047A9BB, SearchBytesFlashlight, sizeof(SearchBytesFlashlight), 0x33);
+	DWORD FlashlightAddr = SearchAndGetAddresses(0x0047A50B, 0x0047A7AB, 0x0047A9BB, SearchBytesFlashlight, sizeof(SearchBytesFlashlight), 0x33, __FUNCTION__);
 	if (!FlashlightAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -244,7 +244,7 @@ void PatchPS2Flashlight()
 
 	// Get address being excluded from Flashlight Brightness ASM
 	constexpr BYTE SearchBytesExcluded[]{ 0x8B, 0x44, 0x24, 0x04, 0x8B, 0x4C, 0x24, 0x08, 0x8B, 0x54, 0x24, 0x0C, 0xA3 };
-	FlashlightExcludeAddr = (void*)ReadSearchedAddresses(0x00479A70, 0x00479D10, 0x00479F20, SearchBytesExcluded, sizeof(SearchBytesExcluded), 0x0D);
+	FlashlightExcludeAddr = (void*)ReadSearchedAddresses(0x00479A70, 0x00479D10, 0x00479F20, SearchBytesExcluded, sizeof(SearchBytesExcluded), 0x0D, __FUNCTION__);
 	if (!FlashlightExcludeAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -253,7 +253,7 @@ void PatchPS2Flashlight()
 
 	// Get address for Movable Object Preset Part 1 ASM
 	constexpr BYTE SearchBytesMovableObject1[]{ 0xD8, 0x9F, 0x8C, 0x00, 0x00, 0x00, 0xDF, 0xE0, 0xF6, 0xC4, 0x41, 0x0F, 0x85 };
-	DWORD MovableObject1Addr = SearchAndGetAddresses(0x004FF1C6, 0x004FF4F6, 0x004FEE16, SearchBytesMovableObject1, sizeof(SearchBytesMovableObject1), 0x1A);
+	DWORD MovableObject1Addr = SearchAndGetAddresses(0x004FF1C6, 0x004FF4F6, 0x004FEE16, SearchBytesMovableObject1, sizeof(SearchBytesMovableObject1), 0x1A, __FUNCTION__);
 	if (!MovableObject1Addr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -265,7 +265,7 @@ void PatchPS2Flashlight()
 
 	// Get address for Movable Object Preset Part 2 ASM
 	constexpr BYTE SearchBytesMovableObject2[]{ 0xD8, 0x9F, 0x8C, 0x00, 0x00, 0x00, 0xDF, 0xE0, 0xF6, 0xC4, 0x41, 0x0F, 0x85 };
-	DWORD MovableObject2Addr = SearchAndGetAddresses(0x00502B96, 0x00502EC6, 0x005027E6, SearchBytesMovableObject2, sizeof(SearchBytesMovableObject2), 0x1A);
+	DWORD MovableObject2Addr = SearchAndGetAddresses(0x00502B96, 0x00502EC6, 0x005027E6, SearchBytesMovableObject2, sizeof(SearchBytesMovableObject2), 0x1A, __FUNCTION__);
 	if (!MovableObject2Addr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -276,7 +276,7 @@ void PatchPS2Flashlight()
 
 	// Get address for Flashlight Reach ASM
 	constexpr BYTE SearchBytesFlashlightReach[]{ 0x8D, 0x86, 0x80, 0x00, 0x00, 0x00, 0x8B, 0x08, 0x89, 0x0D };
-	DWORD FlashlightReachAddr = SearchAndGetAddresses(0x0047B99A, 0x0047BC3A, 0x0047BE4A, SearchBytesFlashlightReach, sizeof(SearchBytesFlashlightReach), 0x1A);
+	DWORD FlashlightReachAddr = SearchAndGetAddresses(0x0047B99A, 0x0047BC3A, 0x0047BE4A, SearchBytesFlashlightReach, sizeof(SearchBytesFlashlightReach), 0x1A, __FUNCTION__);
 	if (!FlashlightReachAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -287,7 +287,7 @@ void PatchPS2Flashlight()
 
 	// Get address for the brightness of movable objects for specific rooms
 	constexpr BYTE SearchBytesSpecificRooms[]{ 0x8B, 0x4C, 0x24, 0x1C, 0x8B, 0x44, 0x24, 0x20, 0x8B, 0x54, 0x24, 0x24, 0x8B, 0xE9, 0xC1, 0xFD, 0x10, 0x81, 0xE5, 0xFF, 0x0F, 0x00, 0x00, 0x8B, 0x34, 0xAD };
-	DWORD SpecificRoomsAddr = ReadSearchedAddresses(0x0047C2EF, 0x0047C58F, 0x0047C79F, SearchBytesSpecificRooms, sizeof(SearchBytesSpecificRooms), 0x1A);
+	DWORD SpecificRoomsAddr = ReadSearchedAddresses(0x0047C2EF, 0x0047C58F, 0x0047C79F, SearchBytesSpecificRooms, sizeof(SearchBytesSpecificRooms), 0x1A, __FUNCTION__);
 	if (!SpecificRoomsAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -319,7 +319,7 @@ void PatchPS2Flashlight()
 
 	// Fix Heaven's Night hallway
 	constexpr BYTE SearchBytesHallway[]{ 0x75, 0x0F, 0x3B, 0xCD, 0x75, 0x14, 0x8B, 0x0D };
-	DWORD HeavensNightHallwayAddr = SearchAndGetAddresses(0x004FFCBB, 0x004FFFEB, 0x004FF90B, SearchBytesHallway, sizeof(SearchBytesHallway), 0x11);
+	DWORD HeavensNightHallwayAddr = SearchAndGetAddresses(0x004FFCBB, 0x004FFFEB, 0x004FF90B, SearchBytesHallway, sizeof(SearchBytesHallway), 0x11, __FUNCTION__);
 	if (!HeavensNightHallwayAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";

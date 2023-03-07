@@ -175,7 +175,7 @@ void PatchFogParameters()
 {
 	// Get Fog address
 	constexpr BYTE FogSearchBytes[]{ 0x8B, 0xF8, 0x81, 0xE7, 0xFF, 0x00, 0x00, 0x00, 0xC1, 0xE7, 0x10, 0x25, 0x00, 0xFF, 0x00, 0xFF, 0x0B, 0xF7, 0x0B, 0xF0, 0x56 };
-	DWORD FogAddr = SearchAndGetAddresses(0x00479E71, 0x0047A111, 0x0047A321, FogSearchBytes, sizeof(FogSearchBytes), 0x00);
+	DWORD FogAddr = SearchAndGetAddresses(0x00479E71, 0x0047A111, 0x0047A321, FogSearchBytes, sizeof(FogSearchBytes), 0x00, __FUNCTION__);
 
 	// Checking address pointer
 	if (!FogAddr)
@@ -187,7 +187,7 @@ void PatchFogParameters()
 
 	// Get Blue Creek return address
 	constexpr BYTE BlueCreekFogSearchBytes[]{ 0x85, 0xC0, 0xDF, 0xE0, 0x0F, 0x84, 0x90, 0x01, 0x00, 0x00, 0xF6, 0xC4, 0x44, 0x7A, 0x2A };
-	FogAddr = SearchAndGetAddresses(0x0047BE75, 0x0047C115, 0x0047C325, BlueCreekFogSearchBytes, sizeof(BlueCreekFogSearchBytes), 0x00);
+	FogAddr = SearchAndGetAddresses(0x0047BE75, 0x0047C115, 0x0047C325, BlueCreekFogSearchBytes, sizeof(BlueCreekFogSearchBytes), 0x00, __FUNCTION__);
 
 	// Checking address pointer
 	if (!FogAddr)
@@ -198,8 +198,8 @@ void PatchFogParameters()
 	jmpBlueCreekFogReturnAddr = (void*)(FogAddr + 0x23);
 
 	// Check for valid code before updating
-	if (!CheckMemoryAddress(jmpFogReturnAddr, "\x8B\x0D", 2) ||
-		!CheckMemoryAddress(jmpBlueCreekFogReturnAddr, "\xC7\x05", 2))
+	if (!CheckMemoryAddress(jmpFogReturnAddr, "\x8B\x0D", 2, __FUNCTION__) ||
+		!CheckMemoryAddress(jmpBlueCreekFogReturnAddr, "\xC7\x05", 2, __FUNCTION__))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: memory addresses don't match!";
 		return;
@@ -211,7 +211,7 @@ void PatchFogParameters()
 
 	// New environment fog RGB
 	constexpr BYTE NewEnvFogSearchBytes[]{ 0x90, 0x90, 0x90, 0x8B, 0x44, 0x24, 0x04, 0x8B, 0x0D };
-	NewEnvFogRGB = (void*)ReadSearchedAddresses(0x004798ED, 0x00479B8D, 0x00479D9D, NewEnvFogSearchBytes, sizeof(NewEnvFogSearchBytes), 0x09);
+	NewEnvFogRGB = (void*)ReadSearchedAddresses(0x004798ED, 0x00479B8D, 0x00479D9D, NewEnvFogSearchBytes, sizeof(NewEnvFogSearchBytes), 0x09, __FUNCTION__);
 
 	// Checking address pointer
 	if (!NewEnvFogRGB)
@@ -222,7 +222,7 @@ void PatchFogParameters()
 
 	// Fog parameters for final boss area address 1
 	constexpr BYTE FinalBossAddr1SearchBytes[]{ 0x90, 0x90, 0x90, 0x81, 0xEC, 0xB4, 0x02, 0x00, 0x00, 0xA1 };
-	DWORD FinalBossAddr1 = SearchAndGetAddresses(0x0050221D, 0x0050254D, 0x00501E6D, FinalBossAddr1SearchBytes, sizeof(FinalBossAddr1SearchBytes), 0x09);
+	DWORD FinalBossAddr1 = SearchAndGetAddresses(0x0050221D, 0x0050254D, 0x00501E6D, FinalBossAddr1SearchBytes, sizeof(FinalBossAddr1SearchBytes), 0x09, __FUNCTION__);
 
 	// Checking address pointer
 	if (!FinalBossAddr1)
@@ -235,7 +235,7 @@ void PatchFogParameters()
 
 	// Fog parameters for final boss area address 2
 	constexpr BYTE FinalBossAddr2SearchBytes[]{ 0x8B, 0x08, 0x6A, 0x01, 0x6A, 0x1C, 0x50, 0xFF, 0x91, 0xC8, 0x00, 0x00, 0x00, 0xA1 };
-	DWORD FinalBossAddr2 = SearchAndGetAddresses(0x005038B5, 0x00503BE5, 0x00503505, FinalBossAddr2SearchBytes, sizeof(FinalBossAddr2SearchBytes), 0x02);
+	DWORD FinalBossAddr2 = SearchAndGetAddresses(0x005038B5, 0x00503BE5, 0x00503505, FinalBossAddr2SearchBytes, sizeof(FinalBossAddr2SearchBytes), 0x02, __FUNCTION__);
 
 	// Checking address pointer
 	if (!FinalBossAddr2)
@@ -281,7 +281,7 @@ void RunFogSpeed()
 		RUNONCE();
 
 		constexpr BYTE SearchBytes[]{ 0xD9, 0x5C, 0x24, 0x5C, 0xD9, 0xC9, 0xD8, 0x44, 0x24, 0x60, 0xD9, 0x5C, 0x24, 0x60, 0xDB, 0x44, 0x24, 0x44, 0xD8, 0x3D };
-		FogSpeed = (float*)ReadSearchedAddresses(0x0048683D, 0x00486ADD, 0x00486CED, SearchBytes, sizeof(SearchBytes), 0x14);
+		FogSpeed = (float*)ReadSearchedAddresses(0x0048683D, 0x00486ADD, 0x00486CED, SearchBytes, sizeof(SearchBytes), 0x14, __FUNCTION__);
 		if (!FogSpeed)
 		{
 			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -295,7 +295,7 @@ void RunFogSpeed()
 		RUNONCE();
 
 		constexpr BYTE SearchBytes[]{ 0xC1, 0xE0, 0x18, 0x0B, 0xC3, 0x55, 0x89, 0x84, 0x24, 0x80, 0x00, 0x00, 0x00, 0xE8 };
-		JamesFogInfluence = (float*)ReadSearchedAddresses(0x00488ACB, 0x00488D6B, 0x00488F7B, SearchBytes, sizeof(SearchBytes), 0x14);
+		JamesFogInfluence = (float*)ReadSearchedAddresses(0x00488ACB, 0x00488D6B, 0x00488F7B, SearchBytes, sizeof(SearchBytes), 0x14, __FUNCTION__);
 		if (!JamesFogInfluence)
 		{
 			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";

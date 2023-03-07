@@ -46,7 +46,7 @@ void PatchMainMenu()
 	}
 
 	constexpr BYTE MenuSearchBytesA[] = { 0x24, 0x14, 0xFF, 0xFF, 0xFF, 0xFF, 0x77, 0x6D, 0xFF, 0x24, 0x85, 0x3C, 0x5D, 0x49, 0x00, 0xBF };
-	void *DMenuAddrA = CheckMultiMemoryAddress(0x00000000, (void*)0x00495AA0, 0x00000000, (void*)MenuSearchBytesA, sizeof(MenuSearchBytesA));
+	void *DMenuAddrA = CheckMultiMemoryAddress(0x00000000, (void*)0x00495AA0, 0x00000000, (void*)MenuSearchBytesA, sizeof(MenuSearchBytesA), __FUNCTION__);
 
 	// Checking address pointer
 	if (!DMenuAddrA)
@@ -165,12 +165,12 @@ void PatchMainMenuTitlePerLang()
 		return;
 	}
 
-	void *DMenuAddrB = CheckMultiMemoryAddress((void*)0x00496F24, 0x00000000, 0x00000000, (void*)MenuSearchBytesB, sizeof(MenuSearchBytesB));
+	void *DMenuAddrB = CheckMultiMemoryAddress((void*)0x00496F24, 0x00000000, 0x00000000, (void*)MenuSearchBytesB, sizeof(MenuSearchBytesB), __FUNCTION__);
 
 	// Checking address pointer
 	if (!DMenuAddrB)
 	{
-		DMenuAddrB = CheckMultiMemoryAddress(0x00000000, (void*)0x004971CE, 0x00000000, (void*)MenuSearchBytesC, sizeof(MenuSearchBytesC));
+		DMenuAddrB = CheckMultiMemoryAddress(0x00000000, (void*)0x004971CE, 0x00000000, (void*)MenuSearchBytesC, sizeof(MenuSearchBytesC), __FUNCTION__);
 		if (!DMenuAddrB)
 		{
 			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -206,7 +206,7 @@ void PatchMainMenuTitlePerLang()
 	}
 
 	//Make "Born From a Wish" horizontal position the same as "Letter From Silent Heaven"
-	void *DMenuAddrC = (void*)SearchAndGetAddresses(0x00497A08, 0x00497CB8, 0x00000000, MenuSearchBytesD, sizeof(MenuSearchBytesD), 0x00);
+	void *DMenuAddrC = (void*)SearchAndGetAddresses(0x00497A08, 0x00497CB8, 0x00000000, MenuSearchBytesD, sizeof(MenuSearchBytesD), 0x00, __FUNCTION__);
 	if (DMenuAddrC)
 	{
 		UpdateVal = -244;
@@ -218,7 +218,7 @@ void PatchMainMenuTitlePerLang()
 	}
 
 	//Function to update "Now loading" text in Main Menu
-	void *DMenuAddrD = CheckMultiMemoryAddress((void*)0x004457C0, 0x00000000, 0x00000000, (void*)MenuSearchBytesE, sizeof(MenuSearchBytesE));
+	void *DMenuAddrD = CheckMultiMemoryAddress((void*)0x004457C0, 0x00000000, 0x00000000, (void*)MenuSearchBytesE, sizeof(MenuSearchBytesE), __FUNCTION__);
 	if (DMenuAddrD)
 	{
 		LoadMes = (DWORD(*)(int pos))DMenuAddrD;

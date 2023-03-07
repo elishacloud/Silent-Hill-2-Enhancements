@@ -24,7 +24,7 @@ void PatchFlashlightFlicker()
 {
 	// Get address
 	constexpr BYTE SearchBytes[]{ 0x00, 0x00, 0x00, 0x00, 0x74, 0x0F, 0xE8 };
-	void *Address = (void*)SearchAndGetAddresses(0x0040170D, 0x0040170D, 0x0040170D, SearchBytes, sizeof(SearchBytes), 0x15);
+	void *Address = (void*)SearchAndGetAddresses(0x0040170D, 0x0040170D, 0x0040170D, SearchBytes, sizeof(SearchBytes), 0x15, __FUNCTION__);
 
 	// Checking address pointer
 	if (!Address)

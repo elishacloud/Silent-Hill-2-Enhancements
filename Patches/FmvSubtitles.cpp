@@ -46,7 +46,7 @@ __declspec(naked) void __stdcall DrawSubtitlesASM()
 void PatchFmvSubtitles()
 {
     constexpr BYTE InjectSubtitlesSearchBytes[]{ 0x55, 0x55, 0x6A, 0x73, 0xE8 };
-    const DWORD InjectSubtitlesAddr = SearchAndGetAddresses(0x0043E496, 0x0043E656, 0x0043E656, InjectSubtitlesSearchBytes, sizeof(InjectSubtitlesSearchBytes), 0x0C);
+    const DWORD InjectSubtitlesAddr = SearchAndGetAddresses(0x0043E496, 0x0043E656, 0x0043E656, InjectSubtitlesSearchBytes, sizeof(InjectSubtitlesSearchBytes), 0x0C, __FUNCTION__);
     if (!InjectSubtitlesAddr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find pointer address!";

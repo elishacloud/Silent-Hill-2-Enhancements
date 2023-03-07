@@ -584,13 +584,13 @@ void Start00Scaling()
 {
 	// Get address locations
 	constexpr BYTE Start00ScaleSearchBytes[]{ 0xD8, 0x5C, 0x24, 0x00, 0xDF, 0xE0, 0xF6, 0xC4, 0x01, 0x75, 0x0B, 0xE8 };
-	void *Start00ScaleXAddr = (void*)SearchAndGetAddresses(0x004969FF, 0x00496C9F, 0x00496E7F, Start00ScaleSearchBytes, sizeof(Start00ScaleSearchBytes), -0x37);
+	void *Start00ScaleXAddr = (void*)SearchAndGetAddresses(0x004969FF, 0x00496C9F, 0x00496E7F, Start00ScaleSearchBytes, sizeof(Start00ScaleSearchBytes), -0x37, __FUNCTION__);
 
 	constexpr BYTE SaveBGScaleSearchBytes[]{ 0x33, 0x44, 0x24, 0x38, 0x89, 0x44, 0x24, 0x34, 0x8B, 0x44, 0x24, 0x3C, 0x3D, 0xBF, 0x27, 0x09, 0x00, 0x7E, 0x05 };
-	void *SaveBGScaleXAddr = (void*)SearchAndGetAddresses(0x0044B528, 0x0044B6C8, 0x0044B6C8, SaveBGScaleSearchBytes, sizeof(SaveBGScaleSearchBytes), -0x34);
+	void *SaveBGScaleXAddr = (void*)SearchAndGetAddresses(0x0044B528, 0x0044B6C8, 0x0044B6C8, SaveBGScaleSearchBytes, sizeof(SaveBGScaleSearchBytes), -0x34, __FUNCTION__);
 
 	constexpr BYTE LogoHighlightSearchBytes[]{ 0x66, 0x03, 0xCD, 0x8B, 0xC3, 0xC1, 0xE2, 0x04, 0x66, 0x89, 0x15 };
-	void *LogoHighlightYPos = (void*)ReadSearchedAddresses(0x00495D22, 0x00495FC2, 0x004961D2, LogoHighlightSearchBytes, sizeof(LogoHighlightSearchBytes), -0x1B);
+	void *LogoHighlightYPos = (void*)ReadSearchedAddresses(0x00495D22, 0x00495FC2, 0x004961D2, LogoHighlightSearchBytes, sizeof(LogoHighlightSearchBytes), -0x1B, __FUNCTION__);
 
 	// Checking address pointer
 	if (!Start00ScaleXAddr || !SaveBGScaleXAddr || !LogoHighlightYPos)
@@ -664,13 +664,13 @@ void PatchMapImages(DWORD WidthAddr)
 {
 	// Get address locations
 	constexpr BYTE MapScaleSearchBytes[]{ 0xFF, 0xFF, 0x83, 0xC4, 0x10, 0xC3, 0x90, 0x90 };
-	DWORD MapScaleAddr1 = SearchAndGetAddresses(0x0049E058, 0x0049E308, 0x0049DBC8, MapScaleSearchBytes, sizeof(MapScaleSearchBytes), -0xA8);
+	DWORD MapScaleAddr1 = SearchAndGetAddresses(0x0049E058, 0x0049E308, 0x0049DBC8, MapScaleSearchBytes, sizeof(MapScaleSearchBytes), -0xA8, __FUNCTION__);
 
 	constexpr BYTE MapMarkScaleSearchBytes[]{ 0xD8, 0xC2, 0xD9, 0x5C, 0x24, 0x10, 0xDD, 0xD8, 0xD9, 0x44, 0x24, 0x14, 0xD8, 0x0D };
-	DWORD MapMarkScaleAddr1 = SearchAndGetAddresses(0x0049B678, 0x0049B928, 0x0049B1E8, MapMarkScaleSearchBytes, sizeof(MapMarkScaleSearchBytes), 0x0E);
+	DWORD MapMarkScaleAddr1 = SearchAndGetAddresses(0x0049B678, 0x0049B928, 0x0049B1E8, MapMarkScaleSearchBytes, sizeof(MapMarkScaleSearchBytes), 0x0E, __FUNCTION__);
 
 	constexpr BYTE MapMarkAnimaScaleSearchBytes[]{ 0xD8, 0xC2, 0xD9, 0x5C, 0x24, 0x10, 0xDD, 0xD8, 0xD9, 0x44, 0x24, 0x18, 0xD8, 0x0D };
-	DWORD MapMarkAnimaScaleAddr1 = SearchAndGetAddresses(0x0049CA1E, 0x0049CCCE, 0x0049C58E, MapMarkAnimaScaleSearchBytes, sizeof(MapMarkAnimaScaleSearchBytes), 0x0E);
+	DWORD MapMarkAnimaScaleAddr1 = SearchAndGetAddresses(0x0049CA1E, 0x0049CCCE, 0x0049C58E, MapMarkAnimaScaleSearchBytes, sizeof(MapMarkAnimaScaleSearchBytes), 0x0E, __FUNCTION__);
 
 	// Checking address pointer
 	if (!MapScaleAddr1 || !MapMarkScaleAddr1 || !MapMarkAnimaScaleAddr1)
@@ -747,16 +747,16 @@ void PatchFullscreenImages()
 {
 	// Get address locations
 	constexpr BYTE MemorySearchBytes[]{ 0xDE, 0xC1, 0xDA, 0x44, 0x24, 0x08, 0x59, 0xC3, 0x90, 0x90, 0x90 };
-	DWORD MemAddress = SearchAndGetAddresses(0x0044A5D5, 0x0044A775, 0x0044A775, MemorySearchBytes, sizeof(MemorySearchBytes), -0x18);
+	DWORD MemAddress = SearchAndGetAddresses(0x0044A5D5, 0x0044A775, 0x0044A775, MemorySearchBytes, sizeof(MemorySearchBytes), -0x18, __FUNCTION__);
 
 	constexpr BYTE WidthSearchBytes[]{ 0x85, 0xD2, 0xDB, 0x44, 0x24, 0x00, 0x89, 0x44, 0x24, 0x00, 0xDB, 0x44, 0x24, 0x00, 0xD8, 0xCB };
-	void *WidthAddr = (void*)SearchAndGetAddresses(0x0049F024, 0x0049F2D4, 0x0049EB94, WidthSearchBytes, sizeof(WidthSearchBytes), -0x3A);
+	void *WidthAddr = (void*)SearchAndGetAddresses(0x0049F024, 0x0049F2D4, 0x0049EB94, WidthSearchBytes, sizeof(WidthSearchBytes), -0x3A, __FUNCTION__);
 
 	constexpr BYTE VerBoundPosSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x05, 0x7A, 0x6D, 0xD9, 0x05 };
-	void *VerBoundPosAddr1 = (void*)SearchAndGetAddresses(0x004A2A5F, 0x004A2D0F, 0x004A25CF, VerBoundPosSearchBytes, sizeof(VerBoundPosSearchBytes), 0x15);
+	void *VerBoundPosAddr1 = (void*)SearchAndGetAddresses(0x004A2A5F, 0x004A2D0F, 0x004A25CF, VerBoundPosSearchBytes, sizeof(VerBoundPosSearchBytes), 0x15, __FUNCTION__);
 
 	constexpr BYTE LoadTextureSearchBytes[]{ 0x8B, 0x8C, 0x24, 0x0C, 0x04, 0x00, 0x00, 0x56, 0x51, 0x8D, 0x54, 0x24, 0x0C, 0x52 };
-	DWORD LoadTextureAddr = SearchAndGetAddresses(0x00449FFF, 0x0044A19F, 0x0044A19F, LoadTextureSearchBytes, sizeof(LoadTextureSearchBytes), 0x00);
+	DWORD LoadTextureAddr = SearchAndGetAddresses(0x00449FFF, 0x0044A19F, 0x0044A19F, LoadTextureSearchBytes, sizeof(LoadTextureSearchBytes), 0x00, __FUNCTION__);
 
 	// Checking address pointer
 	if (!MemAddress || !WidthAddr || !VerBoundPosAddr1)

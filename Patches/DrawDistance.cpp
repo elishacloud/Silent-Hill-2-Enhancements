@@ -63,7 +63,7 @@ void PatchDrawDistance()
 		LoopCounter++;
 
 		// Get next address
-		void *NextAddr = CheckMultiMemoryAddress((void*)0x0047C19D, (void*)0x0047C43D, (void*)0x0047C64D, (void*)DDSearchAddr, sizeof(DDSearchAddr));
+		void *NextAddr = CheckMultiMemoryAddress((void*)0x0047C19D, (void*)0x0047C43D, (void*)0x0047C64D, (void*)DDSearchAddr, sizeof(DDSearchAddr), __FUNCTION__);
 
 		// Search for address
 		if (!NextAddr)
@@ -82,7 +82,7 @@ void PatchDrawDistance()
 		NextAddr = (void*)((DWORD)NextAddr - 4);
 
 		// Check if this is the correct address and store bytes
-		if (CheckMemoryAddress(NextAddr, (void*)DDStartAddr, sizeof(DDStartAddr)))
+		if (CheckMemoryAddress(NextAddr, (void*)DDStartAddr, sizeof(DDStartAddr), __FUNCTION__))
 		{
 			ExitFlag = true;
 			memcpy(SrcByteData, NextAddr, SizeOfBytes);
@@ -106,27 +106,27 @@ void PatchDrawDistance()
 	void *NextAddr = nullptr;
 
 	// Address 1
-	NextAddr = CheckMultiMemoryAddress((void*)0x0047C199, (void*)0x0047C439, (void*)0x0047C649, (void*)SrcByteData, SizeOfBytes);
+	NextAddr = CheckMultiMemoryAddress((void*)0x0047C199, (void*)0x0047C439, (void*)0x0047C649, (void*)SrcByteData, SizeOfBytes, __FUNCTION__);
 	SearchMemoryFlag = CheckUpdateMemory(NextAddr, DestByteData, SizeOfBytes, SearchMemoryFlag);
 
 	// Address 2
-	NextAddr = CheckMultiMemoryAddress((void*)0x0057E7C5, (void*)0x0057F075, (void*)0x0057E995, (void*)SrcByteData, SizeOfBytes);
+	NextAddr = CheckMultiMemoryAddress((void*)0x0057E7C5, (void*)0x0057F075, (void*)0x0057E995, (void*)SrcByteData, SizeOfBytes, __FUNCTION__);
 	SearchMemoryFlag = CheckUpdateMemory(NextAddr, DestByteData, SizeOfBytes, SearchMemoryFlag);
 
 	// Address 3
-	NextAddr = CheckMultiMemoryAddress((void*)0x00587F77, (void*)0x00588827, (void*)0x00588147, (void*)SrcByteData, SizeOfBytes);
+	NextAddr = CheckMultiMemoryAddress((void*)0x00587F77, (void*)0x00588827, (void*)0x00588147, (void*)SrcByteData, SizeOfBytes, __FUNCTION__);
 	SearchMemoryFlag = CheckUpdateMemory(NextAddr, DestByteData, SizeOfBytes, SearchMemoryFlag);
 
 	// Address 4
-	NextAddr = CheckMultiMemoryAddress((void*)0x00587FB7, (void*)0x00588867, (void*)0x00588187, (void*)SrcByteData, SizeOfBytes);
+	NextAddr = CheckMultiMemoryAddress((void*)0x00587FB7, (void*)0x00588867, (void*)0x00588187, (void*)SrcByteData, SizeOfBytes, __FUNCTION__);
 	SearchMemoryFlag = CheckUpdateMemory(NextAddr, DestByteData, SizeOfBytes, SearchMemoryFlag);
 
 	// Address 5
-	NextAddr = CheckMultiMemoryAddress((void*)0x00594FE6, (void*)0x00595896, (void*)0x005951B6, (void*)SrcByteData, SizeOfBytes);
+	NextAddr = CheckMultiMemoryAddress((void*)0x00594FE6, (void*)0x00595896, (void*)0x005951B6, (void*)SrcByteData, SizeOfBytes, __FUNCTION__);
 	SearchMemoryFlag = CheckUpdateMemory(NextAddr, DestByteData, SizeOfBytes, SearchMemoryFlag);
 
 	// Address 6
-	NextAddr = CheckMultiMemoryAddress((void*)0x0059EC1B, (void*)0x0059F4CB, (void*)0x0059EDEB, (void*)SrcByteData, SizeOfBytes);
+	NextAddr = CheckMultiMemoryAddress((void*)0x0059EC1B, (void*)0x0059F4CB, (void*)0x0059EDEB, (void*)SrcByteData, SizeOfBytes, __FUNCTION__);
 	SearchMemoryFlag = CheckUpdateMemory(NextAddr, DestByteData, SizeOfBytes, SearchMemoryFlag);
 
 	// Update all SH2 code with new DrawDistance values
@@ -141,7 +141,7 @@ void PatchDrawDistance()
 
 	// Fix draw distance in water-filled hallway
 	constexpr BYTE DrawFunctionSearchBytes[]{ 0x8D, 0x9E, 0xA0, 0x1A, 0x00, 0x00, 0x6A, 0x07, 0x53, 0x8B, 0xF8, 0xE8 };
-	DWORD DrawFunctionAddr = SearchAndGetAddresses(0x004E6C42, 0x004E6EF2, 0x004E67B2, DrawFunctionSearchBytes, sizeof(DrawFunctionSearchBytes), 0x0B);
+	DWORD DrawFunctionAddr = SearchAndGetAddresses(0x004E6C42, 0x004E6EF2, 0x004E67B2, DrawFunctionSearchBytes, sizeof(DrawFunctionSearchBytes), 0x0B, __FUNCTION__);
 	if (!DrawFunctionAddr)
 	{
 		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
@@ -173,7 +173,7 @@ void RunDynamicDrawDistance()
 
 		// Get address for dynamic draw distance
 		constexpr BYTE SearchBytes[]{ 0xFF, 0xFF, 0x8D, 0x44, 0x24, 0x0C, 0x50, 0x68 };
-		Address = (float*)ReadSearchedAddresses(0x0047D824, 0x0047DAC4, 0x0047DCD4, SearchBytes, sizeof(SearchBytes), 0x08);
+		Address = (float*)ReadSearchedAddresses(0x0047D824, 0x0047DAC4, 0x0047DCD4, SearchBytes, sizeof(SearchBytes), 0x08, __FUNCTION__);
 		if (!Address)
 		{
 			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";

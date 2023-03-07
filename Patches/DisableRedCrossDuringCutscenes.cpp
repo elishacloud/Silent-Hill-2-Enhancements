@@ -149,7 +149,7 @@ void PatchRedCrossInCutscene()
 {
 	// Get RedCross address
 	constexpr BYTE RedCrossSearchBytes[]{ 0xD9, 0x81, 0x40, 0x01, 0x00, 0x00, 0xD8, 0xA1, 0x3C, 0x01, 0x00, 0x00, 0xD8, 0xB1, 0x40, 0x01, 0x00, 0x00 };
-	DWORD RedCrossAddr = SearchAndGetAddresses(0x004762D0, 0x00476570, 0x00476780, RedCrossSearchBytes, sizeof(RedCrossSearchBytes), 0x00);
+	DWORD RedCrossAddr = SearchAndGetAddresses(0x004762D0, 0x00476570, 0x00476780, RedCrossSearchBytes, sizeof(RedCrossSearchBytes), 0x00, __FUNCTION__);
 
 	// Checking address pointer
 	if (!RedCrossAddr)
@@ -172,7 +172,7 @@ void PatchRedCrossInCutscene()
 
 	// Get memory pointer for RedCross Animation
 	constexpr BYTE RedCrossPtrSearchBytes[]{ 0x84, 0xC0, 0x74, 0x1B, 0x8B, 0x44, 0x24, 0x04, 0x8B, 0x4C, 0x24, 0x08, 0xA3 };
-	DWORD RedCrossMemoryPtr = SearchAndGetAddresses(0x004EEACE, 0x004EED7E, 0x004EE63E, RedCrossPtrSearchBytes, sizeof(RedCrossPtrSearchBytes), 0x1E2);
+	DWORD RedCrossMemoryPtr = SearchAndGetAddresses(0x004EEACE, 0x004EED7E, 0x004EE63E, RedCrossPtrSearchBytes, sizeof(RedCrossPtrSearchBytes), 0x1E2, __FUNCTION__);
 
 	// Checking address pointer
 	if (!RedCrossMemoryPtr)
@@ -183,8 +183,8 @@ void PatchRedCrossInCutscene()
 	memcpy(&RedCrossPointer, (void*)(RedCrossMemoryPtr + 1), sizeof(DWORD));
 
 	// Check for valid code before updating
-	if (!CheckMemoryAddress(jmpDisableAddr, "\xC7\x05", 2) ||
-		!CheckMemoryAddress((void*)RedCrossMemoryPtr, "\xA1", 1))
+	if (!CheckMemoryAddress(jmpDisableAddr, "\xC7\x05", 2, __FUNCTION__) ||
+		!CheckMemoryAddress((void*)RedCrossMemoryPtr, "\xA1", 1, __FUNCTION__))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: memory addresses don't match!";
 		return;

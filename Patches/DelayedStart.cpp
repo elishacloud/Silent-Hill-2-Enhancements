@@ -41,7 +41,7 @@ void SetDelayedStart()
 {
 	// Get memory pointer
 	constexpr BYTE SearchBytes[]{ 0xFF, 0xD7, 0x66, 0x81, 0x38, 0x4D, 0x5A, 0x75, 0x1F, 0x8B, 0x48, 0x3C, 0x03, 0xC8, 0x81, 0x39 };
-	DWORD Address = SearchAndGetAddresses(0x0056FDEB, 0x0056EBBB, 0x0056E4DB, SearchBytes, sizeof(SearchBytes), -0x13);
+	DWORD Address = SearchAndGetAddresses(0x0056FDEB, 0x0056EBBB, 0x0056E4DB, SearchBytes, sizeof(SearchBytes), -0x13, __FUNCTION__);
 
 	// Checking address pointer
 	if (!Address)

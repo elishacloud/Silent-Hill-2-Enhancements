@@ -71,7 +71,7 @@ void RunHangOnEsc()
 
 		// Get Esc address
 		constexpr BYTE EscSearchBytes[]{ 0x8B, 0x44, 0x24, 0x04, 0x8D, 0x04, 0x40, 0xC1, 0xE0, 0x05, 0x0F, 0xBF, 0x80 };
-		DWORD EscAddress = SearchAndGetAddresses(0x00457B90, 0x00457DF0, 0x00457DF0, EscSearchBytes, sizeof(EscSearchBytes), -0x30);
+		DWORD EscAddress = SearchAndGetAddresses(0x00457B90, 0x00457DF0, 0x00457DF0, EscSearchBytes, sizeof(EscSearchBytes), -0x30, __FUNCTION__);
 		if (!EscAddress)
 		{
 			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -82,7 +82,7 @@ void RunHangOnEsc()
 
 		// Get key press address
 		constexpr BYTE KeyPressSearchBytes[]{ 0x57, 0x8B, 0xF8, 0x03, 0xF7, 0x6B, 0xF6, 0x54, 0x81, 0xC6 };
-		DWORD KeyPressAddress = SearchAndGetAddresses(0x00446149, 0x004462E9, 0x004462E9, KeyPressSearchBytes, sizeof(KeyPressSearchBytes), 0x2A);
+		DWORD KeyPressAddress = SearchAndGetAddresses(0x00446149, 0x004462E9, 0x004462E9, KeyPressSearchBytes, sizeof(KeyPressSearchBytes), 0x2A, __FUNCTION__);
 		if (!KeyPressAddress)
 		{
 			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -101,7 +101,7 @@ void RunHangOnEsc()
 		RUNONCE();
 
 		constexpr BYTE SearchBytes[]{ 0x8B, 0x10, 0x6A, 0x00, 0x6A, 0x1B, 0x50, 0xFF, 0x92, 0xC8, 0x00, 0x00, 0x00, 0x81, 0xC4, 0x68, 0x01, 0x00, 0x00, 0xC3 };
-		Address = ReadSearchedAddresses(0x0044C615, 0x0044C7B5, 0x0044C7B5, SearchBytes, sizeof(SearchBytes), 0x26);
+		Address = ReadSearchedAddresses(0x0044C615, 0x0044C7B5, 0x0044C7B5, SearchBytes, sizeof(SearchBytes), 0x26, __FUNCTION__);
 		if (!Address)
 		{
 			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";

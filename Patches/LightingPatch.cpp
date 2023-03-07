@@ -49,7 +49,7 @@ void PatchRoomLighting()
 {
 	// Get Cemetery Lighting address
 	constexpr BYTE CemeterySearchBytes[]{ 0x83, 0xEC, 0x10, 0x55, 0x56, 0x57, 0x50, 0x51, 0x8D, 0x54, 0x24, 0x14, 0x6A, 0x00, 0x52 };
-	DWORD CemeteryAddr = SearchAndGetAddresses(0x0047C2DB, 0x0047C57B, 0x0047C78B, CemeterySearchBytes, sizeof(CemeterySearchBytes), 0x41);
+	DWORD CemeteryAddr = SearchAndGetAddresses(0x0047C2DB, 0x0047C57B, 0x0047C78B, CemeterySearchBytes, sizeof(CemeterySearchBytes), 0x41, __FUNCTION__);
 
 	// Checking address pointer
 	if (!CemeteryAddr)
@@ -61,7 +61,7 @@ void PatchRoomLighting()
 	jmpCemeteryAddr = (void*)(CemeteryAddr + 6);
 
 	// Check for valid code before updating
-	if (!CheckMemoryAddress((void*)CemeteryAddr, "\x89\x0D", 2))
+	if (!CheckMemoryAddress((void*)CemeteryAddr, "\x89\x0D", 2, __FUNCTION__))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: memory addresses don't match!";
 		return;
@@ -69,7 +69,7 @@ void PatchRoomLighting()
 
 	// Get carpet room lighting address
 	constexpr BYTE CarpetSearchBytes[]{ 0x8B, 0x54, 0x24, 0x1C, 0x6A, 0x00, 0x89, 0x0D };
-	DWORD CarpetAddr = ReadSearchedAddresses(0x00576F80, 0x00577830, 0x00577150, CarpetSearchBytes, sizeof(CarpetSearchBytes), 0x30);
+	DWORD CarpetAddr = ReadSearchedAddresses(0x00576F80, 0x00577830, 0x00577150, CarpetSearchBytes, sizeof(CarpetSearchBytes), 0x30, __FUNCTION__);
 
 	// Checking address pointer
 	if (!CarpetAddr)
@@ -98,7 +98,7 @@ void RunRoomLighting()
 
 		// Get Room 312 Shadow address
 		constexpr BYTE SearchBytes[]{ 0x66, 0x3B, 0xC6, 0x7E, 0x66, 0xD9, 0x05 };
-		RoomLevels = (float*)ReadSearchedAddresses(0x0050AF2D, 0x0050B25D, 0x0050AB7D, SearchBytes, sizeof(SearchBytes), 0x7);
+		RoomLevels = (float*)ReadSearchedAddresses(0x0050AF2D, 0x0050B25D, 0x0050AB7D, SearchBytes, sizeof(SearchBytes), 0x7, __FUNCTION__);
 
 		// Checking address pointer
 		if (!RoomLevels)

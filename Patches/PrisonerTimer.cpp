@@ -35,7 +35,7 @@ void PatchPrisonerTimer()
 {
     // Get Prisoner Timer Reset address
     constexpr BYTE SearchBytesPrisonerTimerReset[]{ 0x89, 0x86, 0xA0, 0x00, 0x00, 0x00, 0xD9, 0x1C, 0x24, 0xE8 };
-    DWORD PrisonerTimerResetAddr = SearchAndGetAddresses(0x004AE5F8, 0x004AE8A8, 0x004AE168, SearchBytesPrisonerTimerReset, sizeof(SearchBytesPrisonerTimerReset), 0x1D);
+    DWORD PrisonerTimerResetAddr = SearchAndGetAddresses(0x004AE5F8, 0x004AE8A8, 0x004AE168, SearchBytesPrisonerTimerReset, sizeof(SearchBytesPrisonerTimerReset), 0x1D, __FUNCTION__);
     if (!PrisonerTimerResetAddr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";

@@ -222,7 +222,7 @@ void CreateDirectInputGamepad_Hook()
 void PatchXInputVibration()
 {
 	constexpr BYTE XIVibrationSearchBytes[]{ 0x57, 0x33, 0xC0, 0xB9, 0x9F, 0x01, 0x00, 0x00 };
-	const DWORD CreateDIGamepadAddr = SearchAndGetAddresses(0x458B30, 0x458D90, 0x458D90, XIVibrationSearchBytes, sizeof(XIVibrationSearchBytes), 0x24);
+	const DWORD CreateDIGamepadAddr = SearchAndGetAddresses(0x458B30, 0x458D90, 0x458D90, XIVibrationSearchBytes, sizeof(XIVibrationSearchBytes), 0x24, __FUNCTION__);
 	if (!CreateDIGamepadAddr)
 	{
 		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
@@ -234,7 +234,7 @@ void PatchXInputVibration()
 	memcpy(&jmpAddress, (void*)(CreateDIGamepadAddr + 1), sizeof(jmpAddress));
 
 	constexpr BYTE SetVibrationParametersSearchBytes[]{ 0x83, 0xEC, 0x38, 0x83, 0xF8, 0x02, 0x75, 0x39 };
-	const DWORD SetVibrationParametersAddr = SearchAndGetAddresses(0x458005, 0x458265, 0x458265, SetVibrationParametersSearchBytes, sizeof(SetVibrationParametersSearchBytes), -0x5);
+	const DWORD SetVibrationParametersAddr = SearchAndGetAddresses(0x458005, 0x458265, 0x458265, SetVibrationParametersSearchBytes, sizeof(SetVibrationParametersSearchBytes), -0x5, __FUNCTION__);
 	if (!SetVibrationParametersAddr)
 	{
 		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
@@ -243,7 +243,7 @@ void PatchXInputVibration()
 
 	// Get address for the main menu function that enables rumble
 	constexpr BYTE MenuRumbleSearchBytes[]{ 0x53, 0x53, 0x53, 0x68, 0x10, 0x27, 0x00, 0x00, 0xC7, 0x05 };
-	DWORD MenuRumbleAddr = SearchAndGetAddresses(0x00497DD3, 0x00498083, 0x00497713, MenuRumbleSearchBytes, sizeof(MenuRumbleSearchBytes), -0x62);
+	DWORD MenuRumbleAddr = SearchAndGetAddresses(0x00497DD3, 0x00498083, 0x00497713, MenuRumbleSearchBytes, sizeof(MenuRumbleSearchBytes), -0x62, __FUNCTION__);
 	if (!MenuRumbleAddr)
 	{
 		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
@@ -321,7 +321,7 @@ void RunInfiniteRumbleFix()
 		RUNONCE();
 
 		constexpr BYTE IntensitySearchBytes[]{ 0x6A, 0x60, 0x75, 0x04, 0x6A, 0x3F, 0xEB, 0x02, 0x6A, 0x1F, 0x6A, 0x3F, 0x6A, 0x3F, 0xE8 };
-		IntensityAddr = (BYTE*)ReadSearchedAddresses(0x00461735, 0x00461995, 0x00461995, IntensitySearchBytes, sizeof(IntensitySearchBytes), -0x04);
+		IntensityAddr = (BYTE*)ReadSearchedAddresses(0x00461735, 0x00461995, 0x00461995, IntensitySearchBytes, sizeof(IntensitySearchBytes), -0x04, __FUNCTION__);
 		if (!IntensityAddr)
 		{
 			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
@@ -337,7 +337,7 @@ void RunInfiniteRumbleFix()
 
 		// Get address for the rumble flag
 		constexpr BYTE RumbleSearchBytes[]{ 0x68, 0x10, 0x01, 0x00, 0x00, 0x50, 0xFF, 0x52, 0x24, 0x33, 0xD2, 0xB9 };
-		RumbleAddress = (BYTE*)ReadSearchedAddresses(0x004589C1, 0x00458C21, 0x00458C21, RumbleSearchBytes, sizeof(RumbleSearchBytes), 0x0C);
+		RumbleAddress = (BYTE*)ReadSearchedAddresses(0x004589C1, 0x00458C21, 0x00458C21, RumbleSearchBytes, sizeof(RumbleSearchBytes), 0x0C, __FUNCTION__);
 		if (!RumbleAddress)
 		{
 			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";

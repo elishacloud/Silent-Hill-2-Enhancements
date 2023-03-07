@@ -24,7 +24,7 @@ void PatchClosetSpawn()
 {
 	// Get James load position Apt307 address
 	constexpr BYTE SearchBytes[]{ 0x6A, 0x01, 0x6A, 0x07, 0x68, 0x01, 0x02, 0x00, 0x00, 0xE8 };
-	float *Apt307JamesLoadPosZ = (float*)SearchAndGetAddresses(0x00599226, 0x00599AD6, 0x005993F6, SearchBytes, sizeof(SearchBytes), 0x24);
+	float *Apt307JamesLoadPosZ = (float*)SearchAndGetAddresses(0x00599226, 0x00599AD6, 0x005993F6, SearchBytes, sizeof(SearchBytes), 0x24, __FUNCTION__);
 	float *Apt307JamesLoadRotX = (float*)((DWORD)Apt307JamesLoadPosZ + 0x11);
 
 	// Checking address pointer

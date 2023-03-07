@@ -72,7 +72,7 @@ void HookDirect3DCreate8(HMODULE ScriptDll)
 {
 	// Get Direct3DCreate8 address
 	constexpr BYTE SearchBytes[]{ 0x84, 0xC0, 0x74, 0x06, 0xB8, 0x03, 0x00, 0x00, 0x00, 0xC3, 0x68, 0xDC, 0x00, 0x00, 0x00, 0xE8 };
-	DWORD Address = SearchAndGetAddresses(0x004F6315, 0x004F65C5, 0x004F5E85, SearchBytes, sizeof(SearchBytes), 0x0F);
+	DWORD Address = SearchAndGetAddresses(0x004F6315, 0x004F65C5, 0x004F5E85, SearchBytes, sizeof(SearchBytes), 0x0F, __FUNCTION__);
 
 	// Checking address pointer
 	if (!Address)

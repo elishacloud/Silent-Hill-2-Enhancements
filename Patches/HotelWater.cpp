@@ -31,7 +31,7 @@ void RunHotelWater()
 
 		// Get Room 312 Shadow address
 		constexpr BYTE SearchBytes[]{ 0x00, 0x00, 0x20, 0x40, 0xC7, 0x44, 0x24, 0x64, 0x00, 0x00, 0x20, 0x40, 0xE8, 0xCE };
-		Address1 = SearchAndGetAddresses(0x004E34F1, 0x004E37A1, 0x00004E3061, SearchBytes, sizeof(SearchBytes), 0x00);
+		Address1 = SearchAndGetAddresses(0x004E34F1, 0x004E37A1, 0x00004E3061, SearchBytes, sizeof(SearchBytes), 0x00, __FUNCTION__);
 
 		// Checking address pointer
 		if (!Address1)
@@ -49,7 +49,7 @@ void RunHotelWater()
 
 		// Get Room 312 Shadow address
 		constexpr BYTE SearchBytes[]{ 0xFF, 0xFF, 0xD9, 0x44, 0x24, 0x50, 0x8B, 0x15 };
-		Address2 = ReadSearchedAddresses(0x004D87AF, 0x004D8A5F, 0x004D831F, SearchBytes, sizeof(SearchBytes), 0x0E);
+		Address2 = ReadSearchedAddresses(0x004D87AF, 0x004D8A5F, 0x004D831F, SearchBytes, sizeof(SearchBytes), 0x0E, __FUNCTION__);
 
 		// Checking address pointer
 		if (!Address2)
@@ -67,7 +67,7 @@ void RunHotelWater()
 
 		// Get Room 312 Shadow address
 		constexpr BYTE SearchBytes[]{ 0xFF, 0xFF, 0xFF, 0xDD, 0xD8, 0xD9, 0x05 };
-		Address3 = ReadSearchedAddresses(0x004D767A, 0x004D792A, 0x004D71EA, SearchBytes, sizeof(SearchBytes), 0x07);
+		Address3 = ReadSearchedAddresses(0x004D767A, 0x004D792A, 0x004D71EA, SearchBytes, sizeof(SearchBytes), 0x07, __FUNCTION__);
 
 		// Checking address pointer
 		if (!Address3)
@@ -86,7 +86,7 @@ void RunHotelWater()
 		constexpr BYTE SearchBytes[]{ 0xFF, 0xFF, 0xFF, 0xDD, 0xD8, 0xD9, 0x05 };
 
 		// Get Room 312 Shadow address
-		Address4 = ReadSearchedAddresses(0x004D25CC, 0x004D287C, 0x004D213C, SearchBytes, sizeof(SearchBytes), 0x07);
+		Address4 = ReadSearchedAddresses(0x004D25CC, 0x004D287C, 0x004D213C, SearchBytes, sizeof(SearchBytes), 0x07, __FUNCTION__);
 
 		// Checking address pointer
 		if (!Address4)

@@ -118,7 +118,7 @@ void PatchSixtyFPS()
 	
 	Logging::Log() << "Hooking Fog Animation Rate...";
 	constexpr BYTE FogAnimationRateSearchBytes[]{ 0x83, 0xC4, 0x04, 0x84, 0xDB, 0x5B, 0x8A, 0x54, 0x24, 0x0C };
-	DWORD* AnimationRate = (DWORD*)SearchAndGetAddresses(0x4890D0, 0x489370, 0x489580, FogAnimationRateSearchBytes, sizeof(FogAnimationRateSearchBytes), 0x50);
+	DWORD* AnimationRate = (DWORD*)SearchAndGetAddresses(0x4890D0, 0x489370, 0x489580, FogAnimationRateSearchBytes, sizeof(FogAnimationRateSearchBytes), 0x50, __FUNCTION__);
 	if (AnimationRate)
 	{
 		GetFogAnimationRate.fun = injector::MakeCALL(AnimationRate, GetHalvedAnimationRate_Hook, true).get();
@@ -129,7 +129,7 @@ void PatchSixtyFPS()
 	}
 	Logging::Log() << "Hooking Bullet Animation...";
 	constexpr BYTE BulletAnimationOneSearchBytes[]{ 0x88, 0x8C, 0x24, 0xB6, 0x00, 0x00, 0x00, 0x89 };
-	DWORD* BulletAnimationOne = (DWORD*)SearchAndGetAddresses(0x4F0E12, 0x4F10C2, 0x4F0982, BulletAnimationOneSearchBytes, sizeof(BulletAnimationOneSearchBytes), 0xE3);
+	DWORD* BulletAnimationOne = (DWORD*)SearchAndGetAddresses(0x4F0E12, 0x4F10C2, 0x4F0982, BulletAnimationOneSearchBytes, sizeof(BulletAnimationOneSearchBytes), 0xE3, __FUNCTION__);
 	if (BulletAnimationOne)
 	{
 		GetBulletShellAnimationRateOne.fun = injector::MakeCALL(BulletAnimationOne, GetDoubledAnimationRate_Hook, true).get();
@@ -140,7 +140,7 @@ void PatchSixtyFPS()
 	}
 
 	constexpr BYTE BulletAnimationTwoSearchBytes[]{ 0xD8, 0x45, 0x08, 0xD9, 0x5D, 0x08, 0xD9, 0x44, 0x24, 0x1C };
-	DWORD* BulletAnimationTwo = (DWORD*)SearchAndGetAddresses(0x4F0EE5, 0x4F1195, 0x4F0A55, BulletAnimationTwoSearchBytes, sizeof(BulletAnimationTwoSearchBytes), -0x39);
+	DWORD* BulletAnimationTwo = (DWORD*)SearchAndGetAddresses(0x4F0EE5, 0x4F1195, 0x4F0A55, BulletAnimationTwoSearchBytes, sizeof(BulletAnimationTwoSearchBytes), -0x39, __FUNCTION__);
 	if (BulletAnimationTwo)
 	{
 		GetBulletShellAnimationRateTwo.fun = injector::MakeCALL(BulletAnimationTwo, GetDoubledAnimationRate_Hook, true).get();
@@ -151,7 +151,7 @@ void PatchSixtyFPS()
 	}
 	
 	constexpr BYTE BulletAnimationThreeSearchBytes[]{ 0xD8, 0x45, 0x08, 0xD9, 0x5D, 0x08, 0xD9, 0x44, 0x24, 0x1C };
-	DWORD* BulletAnimationThree = (DWORD*)SearchAndGetAddresses(0x4F0EE5, 0x4F1195, 0x4F0A55, BulletAnimationThreeSearchBytes, sizeof(BulletAnimationThreeSearchBytes), 0x2D);
+	DWORD* BulletAnimationThree = (DWORD*)SearchAndGetAddresses(0x4F0EE5, 0x4F1195, 0x4F0A55, BulletAnimationThreeSearchBytes, sizeof(BulletAnimationThreeSearchBytes), 0x2D, __FUNCTION__);
 	if (BulletAnimationThree)
 	{
 		GetBulletShellAnimationRateThree.fun = injector::MakeCALL(BulletAnimationThree, GetDoubledAnimationRate_Hook, true).get();
@@ -162,7 +162,7 @@ void PatchSixtyFPS()
 	}
 
 	constexpr BYTE BulletAnimationFourSearchBytes[]{ 0xD8, 0x45, 0x08, 0xD9, 0x5D, 0x08, 0xD9, 0x44, 0x24, 0x1C };
-	DWORD* BulletAnimationFour = (DWORD*)SearchAndGetAddresses(0x4F0EE5, 0x4F1195, 0x4F0A55, BulletAnimationFourSearchBytes, sizeof(BulletAnimationFourSearchBytes), 0x3E);
+	DWORD* BulletAnimationFour = (DWORD*)SearchAndGetAddresses(0x4F0EE5, 0x4F1195, 0x4F0A55, BulletAnimationFourSearchBytes, sizeof(BulletAnimationFourSearchBytes), 0x3E, __FUNCTION__);
 	if (BulletAnimationFour)
 	{
 		GetBulletShellAnimationRateFour.fun = injector::MakeCALL(BulletAnimationFour, GetDoubledAnimationRate_Hook, true).get();

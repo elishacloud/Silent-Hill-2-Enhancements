@@ -136,18 +136,18 @@ void PatchQuickSavePos()
 	Logging::Log() << "Patching Quick Save Text Position...";
 
 	constexpr BYTE textPosLockBypassBytes[] = { 0x7C, 0x18, 0x85, 0xC9, 0x7C, 0x14, 0xb8, 0x01, 0x00, 0x00, 0x00 };
-	DWORD textPosLockBypassAddr = SearchAndGetAddresses(0x0048051F, 0x004807BF, 0x004809CF, textPosLockBypassBytes, sizeof(textPosLockBypassBytes), 0x00);
+	DWORD textPosLockBypassAddr = SearchAndGetAddresses(0x0048051F, 0x004807BF, 0x004809CF, textPosLockBypassBytes, sizeof(textPosLockBypassBytes), 0x00, __FUNCTION__);
 
 	injector::MakeNOP((BYTE*)textPosLockBypassAddr, 6);
 
 	constexpr BYTE quick_saved_addr_bytes[] = { 0x68, 0x80, 0x00, 0x00,0x00 , 0x68, 0x96,0x00,0x00,0x00 };
-	GameSavedTextColorAddr = SearchAndGetAddresses(   (DWORD)0x0044C688,   (DWORD)0x0044C856, (DWORD)0x0044C856, (BYTE*)quick_saved_addr_bytes,  sizeof(quick_saved_addr_bytes),   0x01);
-	CantSavedTextColorAddr = SearchAndGetAddresses(   (DWORD)0x0044C6d8,   (DWORD)0x0044C8e6, (DWORD)0x0044C8E6, (BYTE*)quick_saved_addr_bytes,  sizeof(quick_saved_addr_bytes),   0x01);
-	NoQuickSaveTextColorAddr = SearchAndGetAddresses( (DWORD)0x0044C728,   (DWORD)0x0044C976, (DWORD)0x0044C976, (BYTE*)quick_saved_addr_bytes,  sizeof(quick_saved_addr_bytes),   0x01);
+	GameSavedTextColorAddr = SearchAndGetAddresses(   (DWORD)0x0044C688,   (DWORD)0x0044C856, (DWORD)0x0044C856, (BYTE*)quick_saved_addr_bytes,  sizeof(quick_saved_addr_bytes),   0x01, __FUNCTION__);
+	CantSavedTextColorAddr = SearchAndGetAddresses(   (DWORD)0x0044C6d8,   (DWORD)0x0044C8e6, (DWORD)0x0044C8E6, (BYTE*)quick_saved_addr_bytes,  sizeof(quick_saved_addr_bytes),   0x01, __FUNCTION__);
+	NoQuickSaveTextColorAddr = SearchAndGetAddresses( (DWORD)0x0044C728,   (DWORD)0x0044C976, (DWORD)0x0044C976, (BYTE*)quick_saved_addr_bytes,  sizeof(quick_saved_addr_bytes),   0x01, __FUNCTION__);
 
 	// Points to enWaitAllInsect (based on ps2 demo version).
 	constexpr BYTE FontClearBytes[]{ 0x56, 0x33, 0xf6, 0x56, 0x66, 0x89, 0x35 ,0xC6 };
-	const auto FontClearAddr = (DWORD)CheckMultiMemoryAddress((void*)0x0047EEE0, (void*)0x0047F180, (void*)0x0047F390, (void*)FontClearBytes, sizeof(FontClearBytes));
+	const auto FontClearAddr = (DWORD)CheckMultiMemoryAddress((void*)0x0047EEE0, (void*)0x0047F180, (void*)0x0047F390, (void*)FontClearBytes, sizeof(FontClearBytes), __FUNCTION__);
 
 	// Sets the stop_moth_sfx function instances address.
 	const auto fontClearAddr = (uintptr_t * (__cdecl*)(void))(FontClearAddr);

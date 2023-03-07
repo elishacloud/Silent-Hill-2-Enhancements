@@ -25,7 +25,7 @@ void PatchSaveBGImage()
 {
 	// Get fog addresses
 	constexpr BYTE BGLoadSearchBytes[]{ 0x83, 0xC4, 0x0C, 0x3C, 0x02, 0x7D, 0x1D, 0x80, 0x3D };
-	BYTE *BGLoadAddr = (BYTE*)SearchAndGetAddresses(0x0044B414, 0x0044B5B4, 0x0044B5B4, BGLoadSearchBytes, sizeof(BGLoadSearchBytes), 0x5);
+	BYTE *BGLoadAddr = (BYTE*)SearchAndGetAddresses(0x0044B414, 0x0044B5B4, 0x0044B5B4, BGLoadSearchBytes, sizeof(BGLoadSearchBytes), 0x5, __FUNCTION__);
 
 	if (!BGLoadAddr)
 	{

@@ -48,11 +48,11 @@ void MothSFXLoopingFix()
 {
 	// Call play moth sfx function after leaving inventory
 	constexpr BYTE SearchMothSound[]{ 0x8a, 0x46, 0x02, 0x83, 0xc4, 0x0c, 0x3c, 0x03, 0x88, 0x5e, 0x03 };
-	const auto MothCallAddr = (DWORD)CheckMultiMemoryAddress((void*)0x004ac5d4, (void*)0x004ac884, (void*)0x004ac144, (void*)SearchMothSound, sizeof(SearchMothSound));
+	const auto MothCallAddr = (DWORD)CheckMultiMemoryAddress((void*)0x004ac5d4, (void*)0x004ac884, (void*)0x004ac144, (void*)SearchMothSound, sizeof(SearchMothSound), __FUNCTION__);
 
 	// Points to enWaitAllInsect (based on ps2 demo version).
 	constexpr BYTE CutSoundByte[]{ 0x80, 0x3e, 0x0f, 0x75, 0x05, 0x38, 0x4e, 0x02, 0x7c, 0x0e };
-	const auto CutSoundF = (DWORD)CheckMultiMemoryAddress((void*)0x004ab6b0, (void*)0x004ab960, (void*)0x004ab220, (void*)CutSoundByte, sizeof(CutSoundByte));
+	const auto CutSoundF = (DWORD)CheckMultiMemoryAddress((void*)0x004ab6b0, (void*)0x004ab960, (void*)0x004ab220, (void*)CutSoundByte, sizeof(CutSoundByte), __FUNCTION__);
 
 	// Sets the stop_moth_sfx function instances address.
 	const auto StopSfxAddr = (uintptr_t * (__cdecl*)(void))(CutSoundF - 0x20);
@@ -91,7 +91,7 @@ void ChainsawSFXLoopingFix()
 {
 	// Points to stop sfx chainsaw sound logical branch.
 	constexpr BYTE SearchChainsawSound[]{ 0x68, 0x24, 0x2b, 0x00, 0x00, 0xe8, 0xf6, 0xa3, 0xfc, 0xff, 0x68, 0x25, 0x2b, 0x00, 0x00, 0xe8 };
-	BYTE* ChainsawSoundStopAddr = (BYTE*)SearchAndGetAddresses(0x0054a970, 0x0054aca0, 0x0054a5c0, SearchChainsawSound, sizeof(SearchChainsawSound), -0xE);
+	BYTE* ChainsawSoundStopAddr = (BYTE*)SearchAndGetAddresses(0x0054a970, 0x0054aca0, 0x0054a5c0, SearchChainsawSound, sizeof(SearchChainsawSound), -0xE, __FUNCTION__);
 
 	// Checking address pointer
 	if (!ChainsawSoundStopAddr)

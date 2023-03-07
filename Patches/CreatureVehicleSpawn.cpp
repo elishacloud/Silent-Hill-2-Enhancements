@@ -23,7 +23,7 @@ void PatchCreatureVehicleSpawn()
 {
 	// Get Lying Figures address
 	constexpr BYTE SearchBytes[]{ 0x89, 0x4E, 0x10, 0xC6, 0x46, 0x06, 0x00, 0x88, 0x46, 0x03, 0xD9, 0x86, 0x90, 0x00, 0x00, 0x00, 0xD8, 0x1D };
-	DWORD CreatureAddr = SearchAndGetAddresses(0x004C5C42, 0x004C5EF2, 0x004C57B2, SearchBytes, sizeof(SearchBytes), 0x00);
+	DWORD CreatureAddr = SearchAndGetAddresses(0x004C5C42, 0x004C5EF2, 0x004C57B2, SearchBytes, sizeof(SearchBytes), 0x00, __FUNCTION__);
 	if (!CreatureAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";

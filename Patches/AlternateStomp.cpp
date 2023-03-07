@@ -56,11 +56,11 @@ void PatchAlternateStomp()
 {
 	// Get Alternate Stomp address
 	constexpr BYTE SearchBytesAlternateStomp[]{ 0x84, 0xD2, 0x75, 0x0F, 0x80, 0xF9, 0xC0, 0x0F, 0x97, 0xC1, 0x80, 0xC1, 0x06, 0x88, 0x88, 0x93, 0x04, 0x00, 0x00 };
-	DWORD AlternateStompAddr = SearchAndGetAddresses(0x005345D4, 0x00534904, 0x00534224, SearchBytesAlternateStomp, sizeof(SearchBytesAlternateStomp), 0x0D);
+	DWORD AlternateStompAddr = SearchAndGetAddresses(0x005345D4, 0x00534904, 0x00534224, SearchBytesAlternateStomp, sizeof(SearchBytesAlternateStomp), 0x0D, __FUNCTION__);
 
 	// Get Timer address
 	constexpr BYTE SearchBytesTimer[]{ 0x8B, 0xC8, 0x99, 0xBE, 0x3C, 0x00, 0x00, 0x00, 0xF7, 0xFE, 0x52, 0x99, 0xF7, 0xFE, 0xB8 };
-	TimerAddr = ReadSearchedAddresses(0x00446ED7, 0x00447077, 0x00447077, SearchBytesTimer, sizeof(SearchBytesTimer), -0x0C);
+	TimerAddr = ReadSearchedAddresses(0x00446ED7, 0x00447077, 0x00447077, SearchBytesTimer, sizeof(SearchBytesTimer), -0x0C, __FUNCTION__);
 
 	// Check memory addresses
 	if (!AlternateStompAddr || !TimerAddr)

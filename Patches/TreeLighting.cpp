@@ -56,7 +56,7 @@ void PatchTreeLighting()
 {
 	// Get address
 	constexpr BYTE SearchBytes[]{ 0x8B, 0x6C, 0x24, 0x54, 0x56, 0x57, 0x6A, 0x01, 0xE8 };
-	DWORD Address = SearchAndGetAddresses(0x004A13C5, 0x004A1675, 0x004A0F35, SearchBytes, sizeof(SearchBytes), 0x00);
+	DWORD Address = SearchAndGetAddresses(0x004A13C5, 0x004A1675, 0x004A0F35, SearchBytes, sizeof(SearchBytes), 0x00, __FUNCTION__);
 
 	// Checking address pointer
 	if (!Address)
@@ -92,7 +92,7 @@ void RunTreeColor()
 
 		// Get address
 		constexpr BYTE SearchBytes[]{ 0x90, 0x90, 0x90, 0x90, 0x8B, 0x44, 0x24, 0x04, 0x8B, 0x0D };
-		ColorAddress = ReadSearchedAddresses(0x004798EC, 0x00479B8C, 0x00479D9C, SearchBytes, sizeof(SearchBytes), 0x0A);
+		ColorAddress = ReadSearchedAddresses(0x004798EC, 0x00479B8C, 0x00479D9C, SearchBytes, sizeof(SearchBytes), 0x0A, __FUNCTION__);
 
 		// Checking address pointer
 		if (!ColorAddress)

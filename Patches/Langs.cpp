@@ -710,7 +710,7 @@ __declspec(naked) void __stdcall BloodStrFixASM4()
 
 HRESULT PatchCustomExeStr()
 {
-	void *DLangAddrA = (void*)SearchAndGetAddresses(0x0040730A, 0x0040730A, 0x0040731A, LangSearchBytesA, sizeof(LangSearchBytesA), 0x00);
+	void *DLangAddrA = (void*)SearchAndGetAddresses(0x0040730A, 0x0040730A, 0x0040731A, LangSearchBytesA, sizeof(LangSearchBytesA), 0x00, __FUNCTION__);
 
 	// Checking address pointer
 	if (!DLangAddrA)
@@ -828,7 +828,7 @@ HRESULT PatchCustomExeStr()
 	WriteJMPtoMemory((BYTE*)DLangAddrA + 6, *LangsPauseASM, 9);
 
 	// Errors
-	void *DLangAddrB = (void*)SearchAndGetAddresses(0x00407629, 0x00407629, 0x00407639, LangSearchBytesB, sizeof(LangSearchBytesB), 0x00);
+	void *DLangAddrB = (void*)SearchAndGetAddresses(0x00407629, 0x00407629, 0x00407639, LangSearchBytesB, sizeof(LangSearchBytesB), 0x00, __FUNCTION__);
 	if (DLangAddrB)
 	{
 		LangsErrorsRetAddr = (void *)((BYTE*)DLangAddrB + 9);
@@ -838,7 +838,7 @@ HRESULT PatchCustomExeStr()
 
 	// Button
 	BYTE codeA[] = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
-	void *DLangAddrC = CheckMultiMemoryAddress((void*)0x005AEE9F, 0x00000000, 0x00000000, (void*)LangSearchBytesC, sizeof(LangSearchBytesC));
+	void *DLangAddrC = CheckMultiMemoryAddress((void*)0x005AEE9F, 0x00000000, 0x00000000, (void*)LangSearchBytesC, sizeof(LangSearchBytesC), __FUNCTION__);
 	if (DLangAddrC)
 	{
 		WriteJMPtoMemory((BYTE*)DLangAddrC + 0x10, *LangsButtonASM, 5);
@@ -846,7 +846,7 @@ HRESULT PatchCustomExeStr()
 	}
 	else
 	{
-		void *DLangAddrD = CheckMultiMemoryAddress(0x00000000, (void*)0x005AF759, (void*)0x005AF079, (void*)LangSearchBytesD, sizeof(LangSearchBytesD));
+		void *DLangAddrD = CheckMultiMemoryAddress(0x00000000, (void*)0x005AF759, (void*)0x005AF079, (void*)LangSearchBytesD, sizeof(LangSearchBytesD), __FUNCTION__);
 		if (DLangAddrD)
 		{
 			UpdateMemoryAddress((void *)((BYTE*)DLangAddrD + 0x0C), (void *)codeA, 9);
@@ -856,17 +856,17 @@ HRESULT PatchCustomExeStr()
 	}
 
 	// Quick save
-	void *DLangAddrE = CheckMultiMemoryAddress((void*)0x0044C688, 0x00000000, 0x00000000, (void*)LangSearchBytesE, sizeof(LangSearchBytesE));
+	void *DLangAddrE = CheckMultiMemoryAddress((void*)0x0044C688, 0x00000000, 0x00000000, (void*)LangSearchBytesE, sizeof(LangSearchBytesE), __FUNCTION__);
 	if (DLangAddrE)
 	{
 		WriteJMPtoMemory((BYTE*)DLangAddrE + 0x28, *LangsGameSavedASM, 5);
 		LangsGameSavedRetAddr = (void *)((BYTE*)DLangAddrE + 0x2D);
-		DLangAddrE = CheckMultiMemoryAddress((void*)0x0044C6D8, 0x00000000, 0x00000000, (void*)LangSearchBytesE, sizeof(LangSearchBytesE));
+		DLangAddrE = CheckMultiMemoryAddress((void*)0x0044C6D8, 0x00000000, 0x00000000, (void*)LangSearchBytesE, sizeof(LangSearchBytesE), __FUNCTION__);
 		if (DLangAddrE)
 		{
 			WriteJMPtoMemory((BYTE*)DLangAddrE + 0x28, *LangsCantSaveASM, 5);
 			LangsCantSaveRetAddr = (void *)((BYTE*)DLangAddrE + 0x2D);
-			DLangAddrE = CheckMultiMemoryAddress((void*)0x0044C728, 0x00000000, 0x00000000, (void*)LangSearchBytesE, sizeof(LangSearchBytesE));
+			DLangAddrE = CheckMultiMemoryAddress((void*)0x0044C728, 0x00000000, 0x00000000, (void*)LangSearchBytesE, sizeof(LangSearchBytesE), __FUNCTION__);
 			if (DLangAddrE)
 			{
 				WriteJMPtoMemory((BYTE*)DLangAddrE + 0x28, *LangsNoQuickSaveASM, 5);
@@ -876,7 +876,7 @@ HRESULT PatchCustomExeStr()
 	}
 	else
 	{
-		void *DLangAddrF = CheckMultiMemoryAddress(0x00000000, (void*)0x0044C827, (void*)0x0044C827, (void*)LangSearchBytesF, sizeof(LangSearchBytesF));
+		void *DLangAddrF = CheckMultiMemoryAddress(0x00000000, (void*)0x0044C827, (void*)0x0044C827, (void*)LangSearchBytesF, sizeof(LangSearchBytesF), __FUNCTION__);
 		if (DLangAddrF)
 		{
 			UpdateMemoryAddress((void *)((BYTE*)DLangAddrF + 5), (void *)codeA, 9);
@@ -894,7 +894,7 @@ HRESULT PatchCustomExeStr()
 	}
 
 	// Unlock language selector
-	void *DLangAddrG = CheckMultiMemoryAddress(0x00000000, 0x00000000, (void*)0x00463F77, (void*)LangSearchBytesG, sizeof(LangSearchBytesG));
+	void *DLangAddrG = CheckMultiMemoryAddress(0x00000000, 0x00000000, (void*)0x00463F77, (void*)LangSearchBytesG, sizeof(LangSearchBytesG), __FUNCTION__);
 	if (DLangAddrG)
 	{
 		UpdateMemoryAddress((void *)((BYTE*)DLangAddrG + 0x19), (void *)&langMin, 1);
@@ -911,11 +911,11 @@ HRESULT PatchCustomExeStr()
 	}
 	else
 	{
-		void *DLangAddrH = CheckMultiMemoryAddress((void*)0x004F74BA, (void*)0x004F77EA, 0x00000000, (void*)LangSearchBytesH, sizeof(LangSearchBytesH));
+		void *DLangAddrH = CheckMultiMemoryAddress((void*)0x004F74BA, (void*)0x004F77EA, 0x00000000, (void*)LangSearchBytesH, sizeof(LangSearchBytesH), __FUNCTION__);
 		if (DLangAddrH)
 		{
 			gLangID_S = (DWORD *)*(DWORD *)((BYTE*)DLangAddrH + 0x32);
-			void *DLangAddrI = CheckMultiMemoryAddress((void*)0x00463D20, 0x00000000, 0x00000000, (void*)LangSearchBytesI, sizeof(LangSearchBytesI));
+			void *DLangAddrI = CheckMultiMemoryAddress((void*)0x00463D20, 0x00000000, 0x00000000, (void*)LangSearchBytesI, sizeof(LangSearchBytesI), __FUNCTION__);
 			if (DLangAddrI)
 			{
 				SomeWord = (WORD *)*(DWORD *)((BYTE*)DLangAddrI + 0xBF);
@@ -947,7 +947,7 @@ HRESULT PatchCustomExeStr()
 			}
 			else
 			{
-				void *DLangAddrJ = CheckMultiMemoryAddress(0x00000000, (void*)0x00463E16, 0x00000000, (void*)LangSearchBytesJ, sizeof(LangSearchBytesJ));
+				void *DLangAddrJ = CheckMultiMemoryAddress(0x00000000, (void*)0x00463E16, 0x00000000, (void*)LangSearchBytesJ, sizeof(LangSearchBytesJ), __FUNCTION__);
 				if (DLangAddrJ)
 				{
 					SomeWord = (WORD *)*(DWORD *)((BYTE*)DLangAddrJ + 0x010D);
@@ -976,7 +976,7 @@ HRESULT PatchCustomExeStr()
 	}
 
 	// Fix blood setting string position in Game Options menu
-	void *DLangAddrK = CheckMultiMemoryAddress((void*)0x00461FFB, 0x00000000, 0x00000000, (void*)LangSearchBytesK, sizeof(LangSearchBytesK));
+	void *DLangAddrK = CheckMultiMemoryAddress((void*)0x00461FFB, 0x00000000, 0x00000000, (void*)LangSearchBytesK, sizeof(LangSearchBytesK), __FUNCTION__);
 	if (DLangAddrK)
 	{
 		BYTE codeB[] = { 0x56, 0x90, 0x90, 0x90, 0x90 };
@@ -1013,7 +1013,7 @@ constexpr BYTE TownWestGateEventUpdateVal[] = { 0x00, 0x00, 0x00, 0x60, 0x00, 0x
 
 void PatchTownWestGateEvent()
 {
-	void* DTownWestGateEventAddr = (void*)SearchAndGetAddresses(0x008DB440, 0x008DF110, 0x008DE110, TownWestGateEventSearchBytes, sizeof(TownWestGateEventSearchBytes), 0x00);
+	void* DTownWestGateEventAddr = (void*)SearchAndGetAddresses(0x008DB440, 0x008DF110, 0x008DE110, TownWestGateEventSearchBytes, sizeof(TownWestGateEventSearchBytes), 0x00, __FUNCTION__);
 
 	// Checking address pointer
 	if (!DTownWestGateEventAddr)

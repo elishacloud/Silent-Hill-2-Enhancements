@@ -121,7 +121,7 @@ DWORD *GetRoomIDPointer()
 
 	// Get room ID address
 	constexpr BYTE RoomIDSearchBytes[]{ 0x83, 0xF8, 0x04, 0x0F, 0x87, 0xCE, 0x00, 0x00, 0x00 };
-	void *RoomFunctAddr = (void*)SearchAndGetAddresses(0x0052A4A0, 0x0052A7D0, 0x0052A0F0, RoomIDSearchBytes, sizeof(RoomIDSearchBytes), 0xD7);
+	void *RoomFunctAddr = (void*)SearchAndGetAddresses(0x0052A4A0, 0x0052A7D0, 0x0052A0F0, RoomIDSearchBytes, sizeof(RoomIDSearchBytes), 0xD7, __FUNCTION__);
 
 	// Checking address pointer
 	if (!RoomFunctAddr)
@@ -131,7 +131,7 @@ DWORD *GetRoomIDPointer()
 	}
 
 	// Check address
-	if (!CheckMemoryAddress(RoomFunctAddr, "\x83\x3D", 2))
+	if (!CheckMemoryAddress(RoomFunctAddr, "\x83\x3D", 2, __FUNCTION__))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: memory addresses don't match!";
 		return nullptr;
@@ -159,7 +159,7 @@ DWORD *GetCutsceneIDPointer()
 
 	// Get cutscene ID address
 	constexpr BYTE CutsceneIDSearchBytes[]{ 0x8B, 0x56, 0x08, 0x89, 0x10, 0x5F, 0x5E, 0x5D, 0x83, 0xC4, 0x50, 0xC3 };
-	void *CutsceneFunctAddr = (void*)SearchAndGetAddresses(0x004A0293, 0x004A0543, 0x0049FE03, CutsceneIDSearchBytes, sizeof(CutsceneIDSearchBytes), 0x1D);
+	void *CutsceneFunctAddr = (void*)SearchAndGetAddresses(0x004A0293, 0x004A0543, 0x0049FE03, CutsceneIDSearchBytes, sizeof(CutsceneIDSearchBytes), 0x1D, __FUNCTION__);
 
 	// Checking address pointer
 	if (!CutsceneFunctAddr)
@@ -169,7 +169,7 @@ DWORD *GetCutsceneIDPointer()
 	}
 
 	// Check address
-	if (!CheckMemoryAddress(CutsceneFunctAddr, "\xA1", 1))
+	if (!CheckMemoryAddress(CutsceneFunctAddr, "\xA1", 1, __FUNCTION__))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: memory addresses don't match!";
 		return nullptr;
@@ -197,7 +197,7 @@ float *GetCutscenePosPointer()
 
 	// Get cutscene Pos address
 	constexpr BYTE CutscenePosSearchBytes[]{ 0x40, 0x88, 0x54, 0x24, 0x0B, 0x88, 0x4C, 0x24, 0x0A, 0x8B, 0x4C, 0x24, 0x08, 0x8B, 0xD1, 0x89, 0x0D };
-	CutscenePosAddr = (float*)ReadSearchedAddresses(0x004A04DB, 0x004A078B, 0x004A004B, CutscenePosSearchBytes, sizeof(CutscenePosSearchBytes), 0x11);
+	CutscenePosAddr = (float*)ReadSearchedAddresses(0x004A04DB, 0x004A078B, 0x004A004B, CutscenePosSearchBytes, sizeof(CutscenePosSearchBytes), 0x11, __FUNCTION__);
 
 	// Checking address pointer
 	if (!CutscenePosAddr)
@@ -225,7 +225,7 @@ float *GetCameraFOVPointer()
 
 	// Get Camera FOV address
 	constexpr BYTE CameraFOVSearchBytes[]{ 0x8D, 0x7C, 0x24, 0x3C, 0x50, 0xF3, 0xA5, 0xE8 };
-	CameraFOVAddr = (float*)ReadSearchedAddresses(0x0048978E, 0x00489A2E, 0x00489C3E, CameraFOVSearchBytes, sizeof(CameraFOVSearchBytes), 0x0E);
+	CameraFOVAddr = (float*)ReadSearchedAddresses(0x0048978E, 0x00489A2E, 0x00489C3E, CameraFOVSearchBytes, sizeof(CameraFOVSearchBytes), 0x0E, __FUNCTION__);
 
 	// Checking address pointer
 	if (!CameraFOVAddr)
@@ -253,7 +253,7 @@ float *GetJamesPosXPointer()
 
 	// Get James Pos X address
 	constexpr BYTE JamesPosXSearchBytes[]{ 0x4A, 0x8D, 0x88, 0xCC, 0x02, 0x00, 0x00, 0x89, 0x88, 0x94, 0x01, 0x00, 0x00, 0x8B, 0xC1, 0x75, 0xEF, 0x33, 0xC9, 0x89, 0x88, 0x94, 0x01, 0x00, 0x00, 0xB8 };
-	void *JamesPositionX = (float*)ReadSearchedAddresses(0x00538070, 0x005383A0, 0x00537CC0, JamesPosXSearchBytes, sizeof(JamesPosXSearchBytes), -0x10);
+	void *JamesPositionX = (float*)ReadSearchedAddresses(0x00538070, 0x005383A0, 0x00537CC0, JamesPosXSearchBytes, sizeof(JamesPosXSearchBytes), -0x10, __FUNCTION__);
 
 	// Checking address pointer
 	if (!JamesPositionX)
@@ -338,7 +338,7 @@ BYTE *GetFlashLightRenderPointer()
 
 	// Get address for flashlight render
 	constexpr BYTE FlashLightRenderSearchBytes[]{ 0xC3, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x33, 0xC0, 0x66, 0xA3 };
-	FlashLightRenderAddr = (BYTE*)ReadSearchedAddresses(0x0050A1D6, 0x0050A506, 0x00509E26, FlashLightRenderSearchBytes, sizeof(FlashLightRenderSearchBytes), 0x14);
+	FlashLightRenderAddr = (BYTE*)ReadSearchedAddresses(0x0050A1D6, 0x0050A506, 0x00509E26, FlashLightRenderSearchBytes, sizeof(FlashLightRenderSearchBytes), 0x14, __FUNCTION__);
 
 	// Checking address pointer
 	if (!FlashLightRenderAddr)
@@ -366,7 +366,7 @@ BYTE *GetChapterIDPointer()
 
 	// Get address for flashlight render
 	constexpr BYTE ChapterIDSearchBytes[]{ 0x00, 0x83, 0xC4, 0x04, 0xC3, 0x6A, 0x04, 0xE8 };
-	ChapterIDAddr = (BYTE*)ReadSearchedAddresses(0x00446A5F, 0x00446BFF, 0x00446BFF, ChapterIDSearchBytes, sizeof(ChapterIDSearchBytes), -0x0D);
+	ChapterIDAddr = (BYTE*)ReadSearchedAddresses(0x00446A5F, 0x00446BFF, 0x00446BFF, ChapterIDSearchBytes, sizeof(ChapterIDSearchBytes), -0x0D, __FUNCTION__);
 
 	// Checking address pointer
 	if (!ChapterIDAddr)
@@ -394,7 +394,7 @@ DWORD *GetSpecializedLight1Pointer()
 
 	// Get address for flashlight render
 	constexpr BYTE SpecializedLightSearchBytes[]{ 0x8B, 0x44, 0x24, 0x04, 0x8B, 0x4C, 0x24, 0x08, 0xA3 };
-	SpecializedLight1Addr = (DWORD*)ReadSearchedAddresses(0x00445630, 0x004457F0, 0x004457F0, SpecializedLightSearchBytes, sizeof(SpecializedLightSearchBytes), 0x09);
+	SpecializedLight1Addr = (DWORD*)ReadSearchedAddresses(0x00445630, 0x004457F0, 0x004457F0, SpecializedLightSearchBytes, sizeof(SpecializedLightSearchBytes), 0x09, __FUNCTION__);
 
 	// Checking address pointer
 	if (!SpecializedLight1Addr)
@@ -422,7 +422,7 @@ DWORD *GetSpecializedLight2Pointer()
 
 	// Get address for flashlight render
 	constexpr BYTE SpecializedLightSearchBytes[]{ 0x00, 0x00, 0x00, 0x52, 0x6A, 0x22, 0x50, 0x89, 0x1D };
-	SpecializedLight2Addr = (DWORD*)ReadSearchedAddresses(0x004FFA1B, 0x004FFD4B, 0x004FF66B, SpecializedLightSearchBytes, sizeof(SpecializedLightSearchBytes), 0x09);
+	SpecializedLight2Addr = (DWORD*)ReadSearchedAddresses(0x004FFA1B, 0x004FFD4B, 0x004FF66B, SpecializedLightSearchBytes, sizeof(SpecializedLightSearchBytes), 0x09, __FUNCTION__);
 
 	// Checking address pointer
 	if (!SpecializedLight2Addr)
@@ -450,7 +450,7 @@ BYTE *GetFlashlightSwitchPointer()
 
 	// Get address for flashlight on/off switch address
 	constexpr BYTE FlashlightSwitchSearchBytes[]{ 0x83, 0xF8, 0x33, 0x53, 0x56, 0x0F, 0x87 };
-	FlashlightSwitchAddr = (BYTE*)ReadSearchedAddresses(0x0043ED25, 0x0043EEE5, 0x0043EEE5, FlashlightSwitchSearchBytes, sizeof(FlashlightSwitchSearchBytes), 0x29);
+	FlashlightSwitchAddr = (BYTE*)ReadSearchedAddresses(0x0043ED25, 0x0043EEE5, 0x0043EEE5, FlashlightSwitchSearchBytes, sizeof(FlashlightSwitchSearchBytes), 0x29, __FUNCTION__);
 
 	// Checking address pointer
 	if (!FlashlightSwitchAddr)
@@ -492,7 +492,7 @@ float *GetFlashlightBrightnessPointer()
 
 	// Get address for flashlight brightness address
 	constexpr BYTE FlashlightBrightnessSearchBytes[]{ 0x8D, 0x54, 0x24, 0x2C, 0x52, 0x8D, 0x44, 0x24, 0x40, 0x50, 0x8D, 0x4C, 0x24, 0x54, 0x51, 0x68 };
-	FlashlightBrightnessAddr = (float*)ReadSearchedAddresses(0x0047B4A5, 0x0047B745, 0x0047B955, FlashlightBrightnessSearchBytes, sizeof(FlashlightBrightnessSearchBytes), 0x10);
+	FlashlightBrightnessAddr = (float*)ReadSearchedAddresses(0x0047B4A5, 0x0047B745, 0x0047B955, FlashlightBrightnessSearchBytes, sizeof(FlashlightBrightnessSearchBytes), 0x10, __FUNCTION__);
 
 	// Checking address pointer
 	if (!FlashlightBrightnessAddr)
@@ -520,7 +520,7 @@ DWORD *GetOnScreenPointer()
 
 	// Get address for on-screen address
 	constexpr BYTE OnScreenSearchBytes[]{ 0x33, 0xC0, 0x5B, 0xC3, 0x68 };
-	OnScreenAddr = (DWORD*)ReadSearchedAddresses(0x0043F205, 0x0043F3C5, 0x0043F3C5, OnScreenSearchBytes, sizeof(OnScreenSearchBytes), 0x50);
+	OnScreenAddr = (DWORD*)ReadSearchedAddresses(0x0043F205, 0x0043F3C5, 0x0043F3C5, OnScreenSearchBytes, sizeof(OnScreenSearchBytes), 0x50, __FUNCTION__);
 
 	// Checking address pointer
 	if (!OnScreenAddr)
@@ -548,7 +548,7 @@ BYTE *GetEventIndexPointer()
 
 	// Get address for event index address
 	constexpr BYTE EventIndexSearchBytes[]{ 0x5E, 0xB8, 0x01, 0x00, 0x00, 0x00, 0x5B, 0xC3, 0x8B, 0xFF };
-	EventIndexAddr = (BYTE*)ReadSearchedAddresses(0x0043F28A, 0x0043F44A, 0x0043F44A, EventIndexSearchBytes, sizeof(EventIndexSearchBytes), -0x35);
+	EventIndexAddr = (BYTE*)ReadSearchedAddresses(0x0043F28A, 0x0043F44A, 0x0043F44A, EventIndexSearchBytes, sizeof(EventIndexSearchBytes), -0x35, __FUNCTION__);
 
 	// Checking address pointer
 	if (!EventIndexAddr)
@@ -576,7 +576,7 @@ BYTE *GetMenuEventPointer()
 
 	// Get menu event addresses
 	constexpr BYTE MenuEventSearchBytes[]{ 0x83, 0xC4, 0x04, 0x33, 0xF6, 0x56, 0x6A, 0x01, 0x68, 0xF0, 0x00, 0x00, 0x00, 0x68, 0x00, 0x01, 0x00, 0x00, 0x6A, 0x1A, 0x50, 0xE8 };
-	MenuEventAddr = (BYTE*)ReadSearchedAddresses(0x0044765D, 0x004477FD, 0x004477FD, MenuEventSearchBytes, sizeof(MenuEventSearchBytes), -0x3E);
+	MenuEventAddr = (BYTE*)ReadSearchedAddresses(0x0044765D, 0x004477FD, 0x004477FD, MenuEventSearchBytes, sizeof(MenuEventSearchBytes), -0x3E, __FUNCTION__);
 
 	// Checking address pointer
 	if (!MenuEventAddr)
@@ -604,7 +604,7 @@ DWORD *GetTransitionStatePointer()
 
 	// Get address for transition state
 	constexpr BYTE TransitionAddrSearchBytes[]{ 0x83, 0xF8, 0x19, 0x7E, 0x72, 0x83, 0xF8, 0x1A, 0x75, 0x05, 0xBF, 0x01, 0x00, 0x00, 0x00, 0x39, 0x1D };
-	TransitionStateAddr = (DWORD*)ReadSearchedAddresses(0x0048E87B, 0x0048EB1B, 0x0048ED2B, TransitionAddrSearchBytes, sizeof(TransitionAddrSearchBytes), 0x2A);
+	TransitionStateAddr = (DWORD*)ReadSearchedAddresses(0x0048E87B, 0x0048EB1B, 0x0048ED2B, TransitionAddrSearchBytes, sizeof(TransitionAddrSearchBytes), 0x2A, __FUNCTION__);
 
 	// Checking address pointer
 	if (!TransitionStateAddr)
@@ -633,7 +633,7 @@ BYTE *GetFullscreenImageEventPointer()
 
 	// Get address for fullsceen image event
 	constexpr BYTE FullscreenImageSearchBytes[]{ 0x33, 0xC0, 0x85, 0xC9, 0x0F, 0x94, 0xC0, 0xC3, 0x90, 0x90, 0xD9, 0x44, 0x24, 0x04, 0xD8, 0x64, 0x24, 0x0C, 0xD9, 0x1D };
-	FullscreenImageEventAddr = (BYTE*)ReadSearchedAddresses(0x0048AFD6, 0x0048B276, 0x0048B486, FullscreenImageSearchBytes, sizeof(FullscreenImageSearchBytes), -0x37);
+	FullscreenImageEventAddr = (BYTE*)ReadSearchedAddresses(0x0048AFD6, 0x0048B276, 0x0048B486, FullscreenImageSearchBytes, sizeof(FullscreenImageSearchBytes), -0x37, __FUNCTION__);
 
 	// Checking address pointer
 	if (!FullscreenImageEventAddr)
@@ -662,7 +662,7 @@ float *GetInGameCameraPosYPointer()
 
 	// In-game camera Y
 	constexpr BYTE InGameCameraYSearchBytes[]{ 0x8B, 0x08, 0x8B, 0x50, 0x04, 0x8B, 0x40, 0x08, 0x89, 0x44, 0x24, 0x0C, 0xA1 };
-	InGameCameraPosYAddr = (float*)ReadSearchedAddresses(0x005155ED, 0x0051591D, 0x0051523D, InGameCameraYSearchBytes, sizeof(InGameCameraYSearchBytes), 0x17);
+	InGameCameraPosYAddr = (float*)ReadSearchedAddresses(0x005155ED, 0x0051591D, 0x0051523D, InGameCameraYSearchBytes, sizeof(InGameCameraYSearchBytes), 0x17, __FUNCTION__);
 
 	// Checking address pointer
 	if (!InGameCameraPosYAddr)
@@ -691,7 +691,7 @@ BYTE *GetInventoryStatusPointer()
 
 	// In-game camera Y
 	constexpr BYTE InventoryStatusSearchBytes[]{ 0x83, 0xF8, 0x03, 0x74, 0x08, 0x83, 0xF8, 0x01, 0x74, 0x03, 0x33, 0xC0, 0xC3, 0xB8, 0x01, 0x00, 0x00, 0x00, 0xC3 };
-	InventoryStatusAddr = (BYTE*)ReadSearchedAddresses(0x00476065, 0x00476305, 0x00476061, InventoryStatusSearchBytes, sizeof(InventoryStatusSearchBytes), -0x04);
+	InventoryStatusAddr = (BYTE*)ReadSearchedAddresses(0x00476065, 0x00476305, 0x00476061, InventoryStatusSearchBytes, sizeof(InventoryStatusSearchBytes), -0x04, __FUNCTION__);
 
 	// Checking address pointer
 	if (!InventoryStatusAddr)
@@ -720,7 +720,7 @@ DWORD *GetLoadingScreenPointer()
 
 	// Get loading screen status
 	constexpr BYTE LoadingScreenSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x41, 0x75, 0x23, 0xE8 };
-	LoadingScreenAddr = (DWORD*)ReadSearchedAddresses(0x00406C13, 0x00406C13, 0x00406C23, LoadingScreenSearchBytes, sizeof(LoadingScreenSearchBytes), 0x14);
+	LoadingScreenAddr = (DWORD*)ReadSearchedAddresses(0x00406C13, 0x00406C13, 0x00406C23, LoadingScreenSearchBytes, sizeof(LoadingScreenSearchBytes), 0x14, __FUNCTION__);
 
 	// Checking address pointer
 	if (!LoadingScreenAddr)
@@ -749,7 +749,7 @@ BYTE *GetPauseMenuButtonIndexPointer()
 	// Get Pause Menu Button Index address
 	constexpr BYTE PauseMenuButtonIndexBytes[]{ 0x68, 0xFF, 0x00, 0x00, 0x00, 0x6A, 0x7F, 0x6A, 0x7F, 0x6A, 0x7F };
 	auto PauseMenuIndexAddr = reinterpret_cast<void*>(SearchAndGetAddresses(0x00407497, 0x00407497, 0x004074A7, PauseMenuButtonIndexBytes,
-		sizeof(PauseMenuButtonIndexBytes), 0x10));
+		sizeof(PauseMenuButtonIndexBytes), 0x10, __FUNCTION__));
 
 	// Checking address pointer
 	if (!PauseMenuIndexAddr)
@@ -781,7 +781,7 @@ float *GetFPSCounterPointer()
 
 	// Get FPS Counter address
 	constexpr BYTE FPSCounterSearchBytes[]{ 0x89, 0x4c, 0x24, 0x18, 0x89, 0x44, 0x24, 0x1c };
-	float *FPSCounter = (float*)ReadSearchedAddresses(0x004F6D1F, 0x004F6FCF, 0x004F688F, FPSCounterSearchBytes, sizeof(FPSCounterSearchBytes), 0x81);
+	float *FPSCounter = (float*)ReadSearchedAddresses(0x004F6D1F, 0x004F6FCF, 0x004F688F, FPSCounterSearchBytes, sizeof(FPSCounterSearchBytes), 0x81, __FUNCTION__);
 
 	// Checking address pointer
 	if (!FPSCounter)
@@ -811,7 +811,7 @@ int16_t *GetShootingKillsPointer()
 
 	// Get Shooting Kills address
 	constexpr BYTE ShootingKillsSearchBytes[]{ 0x0F, 0xB7, 0x44, 0x24, 0x04, 0x48, 0x83, 0xF8, 0x19 };
-	int16_t *ShootingKills = (int16_t*)ReadSearchedAddresses(0x00539B10, 0x00539E40, 0x00539760, ShootingKillsSearchBytes, sizeof(ShootingKillsSearchBytes), 0x1C);
+	int16_t *ShootingKills = (int16_t*)ReadSearchedAddresses(0x00539B10, 0x00539E40, 0x00539760, ShootingKillsSearchBytes, sizeof(ShootingKillsSearchBytes), 0x1C, __FUNCTION__);
 
 	// Checking address pointer
 	if (!ShootingKills)
@@ -841,7 +841,7 @@ int16_t *GetMeleeKillsPointer()
 
 	// Get Melee Kills address
 	constexpr BYTE MeleeKillsSearchBytes[]{ 0x0F, 0xB7, 0x44, 0x24, 0x04, 0x48, 0x83, 0xF8, 0x19 };
-	int16_t *MeleeKills = (int16_t*)ReadSearchedAddresses(0x00539B10, 0x00539E40, 0x00539760, MeleeKillsSearchBytes, sizeof(MeleeKillsSearchBytes), 0x24);
+	int16_t *MeleeKills = (int16_t*)ReadSearchedAddresses(0x00539B10, 0x00539E40, 0x00539760, MeleeKillsSearchBytes, sizeof(MeleeKillsSearchBytes), 0x24, __FUNCTION__);
 
 	// Checking address pointer
 	if (!MeleeKills)
@@ -871,7 +871,7 @@ float *GetBoatMaxSpeedPointer()
 
 	// Get Boat Max Speed address
 	constexpr BYTE BoatMaxSpeedSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x41, 0x75, 0x09, 0x8B, 0x44, 0x24, 0x04 };
-	float *BoatMaxSpeed = (float*)ReadSearchedAddresses(0x00539B8A, 0x00539EBA, 0x005397DA, BoatMaxSpeedSearchBytes, sizeof(BoatMaxSpeedSearchBytes), 0x0C);
+	float *BoatMaxSpeed = (float*)ReadSearchedAddresses(0x00539B8A, 0x00539EBA, 0x005397DA, BoatMaxSpeedSearchBytes, sizeof(BoatMaxSpeedSearchBytes), 0x0C, __FUNCTION__);
 
 	// Checking address pointer
 	if (!BoatMaxSpeed)
@@ -901,7 +901,7 @@ int8_t *GetActionDifficultyPointer()
 
 	// Get Action Difficulty address
 	constexpr BYTE ActionDifficultySearchBytes[]{ 0x83, 0xC4, 0x18, 0x83, 0xF8, 0x1C, 0x74, 0x25 };
-	int8_t *ActionDifficulty = (int8_t*)ReadSearchedAddresses(0x0055768D, 0x005579BD, 0x005572DD, ActionDifficultySearchBytes, sizeof(ActionDifficultySearchBytes), 0x0A);
+	int8_t *ActionDifficulty = (int8_t*)ReadSearchedAddresses(0x0055768D, 0x005579BD, 0x005572DD, ActionDifficultySearchBytes, sizeof(ActionDifficultySearchBytes), 0x0A, __FUNCTION__);
 
 	// Checking address pointer
 	if (!ActionDifficulty)
@@ -931,7 +931,7 @@ int8_t *GetRiddleDifficultyPointer()
 
 	// Get Riddle Difficulty address
 	constexpr BYTE RiddleDifficultySearchBytes[]{ 0xEB, 0x27, 0x66, 0x3D, 0x32, 0x00, 0x75, 0x11 };
-	int8_t *RiddleDifficulty = (int8_t*)ReadSearchedAddresses(0x0046BF90, 0x0046C230, 0x0046C440, RiddleDifficultySearchBytes, sizeof(RiddleDifficultySearchBytes), 0x0A);
+	int8_t *RiddleDifficulty = (int8_t*)ReadSearchedAddresses(0x0046BF90, 0x0046C230, 0x0046C440, RiddleDifficultySearchBytes, sizeof(RiddleDifficultySearchBytes), 0x0A, __FUNCTION__);
 
 	// Checking address pointer
 	if (!RiddleDifficulty)
@@ -961,7 +961,7 @@ int8_t *GetNumberOfSavesPointer()
 
 	// Get Number of Saves address
 	constexpr BYTE NumberOfSavesSearchBytes[]{ 0xE8, 0xEB, 0xED, 0xFF, 0xFF, 0x83, 0xF8, 0x02 };
-	int8_t *NumberOfSaves = (int8_t*)ReadSearchedAddresses(0x00454340, 0x004545A0, 0x004545A0, NumberOfSavesSearchBytes, sizeof(NumberOfSavesSearchBytes), 0x0D);
+	int8_t *NumberOfSaves = (int8_t*)ReadSearchedAddresses(0x00454340, 0x004545A0, 0x004545A0, NumberOfSavesSearchBytes, sizeof(NumberOfSavesSearchBytes), 0x0D, __FUNCTION__);
 
 	// Checking address pointer
 	if (!NumberOfSaves)
@@ -991,7 +991,7 @@ float *GetInGameTimePointer()
 
 	// Get In Game Timer address
 	constexpr BYTE InGameTimeSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x41, 0x7A, 0x07, 0xB8, 0x0A, 0x00 };
-	float *InGameTime = (float*)ReadSearchedAddresses(0x00539E27, 0x0053A157, 0x00539A77, InGameTimeSearchBytes, sizeof(InGameTimeSearchBytes), -0x14);
+	float *InGameTime = (float*)ReadSearchedAddresses(0x00539E27, 0x0053A157, 0x00539A77, InGameTimeSearchBytes, sizeof(InGameTimeSearchBytes), -0x14, __FUNCTION__);
 
 	// Checking address pointer
 	if (!InGameTime)
@@ -1021,7 +1021,7 @@ float *GetWalkingDistancePointer()
 
 	// Get Walking Distance address
 	constexpr BYTE WalkingDistanceSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x05, 0x7A, 0x2D, 0x8B, 0x44, 0x24 };
-	float *WalkingDistance = (float*)ReadSearchedAddresses(0x00539ACD, 0x00539DFD, 0x0053971D, WalkingDistanceSearchBytes, sizeof(WalkingDistanceSearchBytes), 0x28);
+	float *WalkingDistance = (float*)ReadSearchedAddresses(0x00539ACD, 0x00539DFD, 0x0053971D, WalkingDistanceSearchBytes, sizeof(WalkingDistanceSearchBytes), 0x28, __FUNCTION__);
 
 	// Checking address pointer
 	if (!WalkingDistance)
@@ -1051,7 +1051,7 @@ float *GetRunningDistancePointer()
 
 	// Get Running Distance address
 	constexpr BYTE RunningDistanceSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x05, 0x7A, 0x2D, 0x8B, 0x44, 0x24 };
-	float *RunningDistance = (float*)ReadSearchedAddresses(0x00539ACD, 0x00539DFD, 0x0053971D, RunningDistanceSearchBytes, sizeof(RunningDistanceSearchBytes), 0x17);
+	float *RunningDistance = (float*)ReadSearchedAddresses(0x00539ACD, 0x00539DFD, 0x0053971D, RunningDistanceSearchBytes, sizeof(RunningDistanceSearchBytes), 0x17, __FUNCTION__);
 
 	// Checking address pointer
 	if (!RunningDistance)
@@ -1081,7 +1081,7 @@ int16_t *GetItemsCollectedPointer()
 
 	// Get Items Collected address
 	constexpr BYTE ItemsCollectedSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x41, 0x75, 0x09, 0x8B, 0x44, 0x24, 0x04 };
-	int16_t *ItemsCollected = (int16_t*)ReadSearchedAddresses(0x00539B8A, 0x00539EBA, 0x005397DA, ItemsCollectedSearchBytes, sizeof(ItemsCollectedSearchBytes), 0x19);
+	int16_t *ItemsCollected = (int16_t*)ReadSearchedAddresses(0x00539B8A, 0x00539EBA, 0x005397DA, ItemsCollectedSearchBytes, sizeof(ItemsCollectedSearchBytes), 0x19, __FUNCTION__);
 
 	// Checking address pointer
 	if (!ItemsCollected)
@@ -1111,7 +1111,7 @@ float *GetDamagePointsTakenPointer()
 
 	// Get Damage Points Taken address
 	constexpr BYTE DamagePointsTakenSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x41, 0x75, 0x09, 0x8B, 0x44, 0x24, 0x04 };
-	float *DamagePointsTaken = (float*)ReadSearchedAddresses(0x00539B8A, 0x00539EBA, 0x005397DA, DamagePointsTakenSearchBytes, sizeof(DamagePointsTakenSearchBytes), 0x28);
+	float *DamagePointsTaken = (float*)ReadSearchedAddresses(0x00539B8A, 0x00539EBA, 0x005397DA, DamagePointsTakenSearchBytes, sizeof(DamagePointsTakenSearchBytes), 0x28, __FUNCTION__);
 
 	// Checking address pointer
 	if (!DamagePointsTaken)
@@ -1141,7 +1141,7 @@ uint8_t *GetSecretItemsCollectedPointer()
 
 	// Get Secret Items Collected address
 	constexpr BYTE SecretItemsCollectedSearchBytes[]{ 0xF6, 0xC1, 0x02, 0x74, 0x01, 0x40, 0xF6, 0xC1, 0x04, 0x74, 0x01, 0x40 };
-	uint8_t *SecretItemsCollected = (uint8_t*)ReadSearchedAddresses(0x00539D46, 0x0053A076, 0x00539996, SecretItemsCollectedSearchBytes, sizeof(SecretItemsCollectedSearchBytes), -0x16);
+	uint8_t *SecretItemsCollected = (uint8_t*)ReadSearchedAddresses(0x00539D46, 0x0053A076, 0x00539996, SecretItemsCollectedSearchBytes, sizeof(SecretItemsCollectedSearchBytes), -0x16, __FUNCTION__);
 
 	// Checking address pointer
 	if (!SecretItemsCollected)
@@ -1171,7 +1171,7 @@ float *GetBoatStageTimePointer()
 
 	// Get Boat Stage Time address
 	constexpr BYTE BoatStageTimeSearchBytes[]{ 0xB9, 0x3C, 0x00, 0x00, 0x00, 0xF7, 0xF9, 0x8B, 0xE8, 0x8B, 0xFA };
-	float *BoatStageTime = (float*)ReadSearchedAddresses(0x00447159, 0x004472F9, 0x004472F9, BoatStageTimeSearchBytes, sizeof(BoatStageTimeSearchBytes), -0x0B);
+	float *BoatStageTime = (float*)ReadSearchedAddresses(0x00447159, 0x004472F9, 0x004472F9, BoatStageTimeSearchBytes, sizeof(BoatStageTimeSearchBytes), -0x0B, __FUNCTION__);
 
 	// Checking address pointer
 	if (!BoatStageTime)
@@ -1201,7 +1201,7 @@ int32_t *GetMouseVerticalPositionPointer()
 
 	// Get MouseVerticalPosition address
 	constexpr BYTE MouseVerticalPositionSearchBytes[]{ 0x8B, 0x08, 0x50, 0xFF, 0x51, 0x18, 0x85, 0xC0, 0x7C, 0x33 };
-	int32_t *MouseVerticalPosition = (int32_t*)ReadSearchedAddresses(0x0045A49F, 0x0045A6FF, 0x0045A6FF, MouseVerticalPositionSearchBytes, sizeof(MouseVerticalPositionSearchBytes), 0x1C);
+	int32_t *MouseVerticalPosition = (int32_t*)ReadSearchedAddresses(0x0045A49F, 0x0045A6FF, 0x0045A6FF, MouseVerticalPositionSearchBytes, sizeof(MouseVerticalPositionSearchBytes), 0x1C, __FUNCTION__);
 
 	// Checking address pointer
 	if (!MouseVerticalPosition)
@@ -1231,7 +1231,7 @@ int32_t *GetMouseHorizontalPositionPointer()
 
 	// Get MouseHorizontalPosition address
 	constexpr BYTE MouseHorizontalPositionSearchBytes[]{ 0x8B, 0x08, 0x50, 0xFF, 0x51, 0x18, 0x85, 0xC0, 0x7C, 0x33 };
-	int32_t *MouseHorizontalPosition = (int32_t*)ReadSearchedAddresses(0x0045A49F, 0x0045A6FF, 0x0045A6FF, MouseHorizontalPositionSearchBytes, sizeof(MouseHorizontalPositionSearchBytes), 0x17);
+	int32_t *MouseHorizontalPosition = (int32_t*)ReadSearchedAddresses(0x0045A49F, 0x0045A6FF, 0x0045A6FF, MouseHorizontalPositionSearchBytes, sizeof(MouseHorizontalPositionSearchBytes), 0x17, __FUNCTION__);
 
 	// Checking address pointer
 	if (!MouseHorizontalPosition)
@@ -1254,7 +1254,7 @@ DWORD *GetLeftAnalogXFunctionPointer()
 
 	// Get Analog Stick function address
 	constexpr BYTE LeftAnalogXFunctionSearchBytes[]{ 0xF6, 0xC4, 0x05, 0x7A, 0x06, 0xDD, 0xD8, 0xD9, 0xC0, 0xEB, 0x15 };
-	void *LeftAnalogXAddr = (void*)SearchAndGetAddresses(0x0052E7D3, 0x0052EB03, 0x0052E423, LeftAnalogXFunctionSearchBytes, sizeof(LeftAnalogXFunctionSearchBytes), -0x14E);
+	void *LeftAnalogXAddr = (void*)SearchAndGetAddresses(0x0052E7D3, 0x0052EB03, 0x0052E423, LeftAnalogXFunctionSearchBytes, sizeof(LeftAnalogXFunctionSearchBytes), -0x14E, __FUNCTION__);
 
 	// Checking address pointer
 	if (!LeftAnalogXAddr)
@@ -1277,7 +1277,7 @@ DWORD *GetLeftAnalogYFunctionPointer()
 
 	// Get Analog Stick function address
 	constexpr BYTE LeftAnalogYFunctionSearchBytes[]{ 0xF6, 0xC4, 0x05, 0x7A, 0x06, 0xDD, 0xD8, 0xD9, 0xC0, 0xEB, 0x15 };
-	void *LeftAnalogYAddr = (void*)SearchAndGetAddresses(0x0052E7D3, 0x0052EB03, 0x0052E423, LeftAnalogYFunctionSearchBytes, sizeof(LeftAnalogYFunctionSearchBytes), -0x13E);
+	void *LeftAnalogYAddr = (void*)SearchAndGetAddresses(0x0052E7D3, 0x0052EB03, 0x0052E423, LeftAnalogYFunctionSearchBytes, sizeof(LeftAnalogYFunctionSearchBytes), -0x13E, __FUNCTION__);
 
 	// Checking address pointer
 	if (!LeftAnalogYAddr)
@@ -1300,7 +1300,7 @@ DWORD *GetRightAnalogXFunctionPointer()
 
 	// Get Analog Stick function address
 	constexpr BYTE RightAnalogXFunctionSearchBytes[]{ 0xF6, 0xC4, 0x05, 0x7A, 0x06, 0xDD, 0xD8, 0xD9, 0xC0, 0xEB, 0x15 };
-	void *RightAnalogXAddr = (void*)SearchAndGetAddresses(0x0052E7D3, 0x0052EB03, 0x0052E423, RightAnalogXFunctionSearchBytes, sizeof(RightAnalogXFunctionSearchBytes), -0x12B);
+	void *RightAnalogXAddr = (void*)SearchAndGetAddresses(0x0052E7D3, 0x0052EB03, 0x0052E423, RightAnalogXFunctionSearchBytes, sizeof(RightAnalogXFunctionSearchBytes), -0x12B, __FUNCTION__);
 
 	// Checking address pointer
 	if (!RightAnalogXAddr)
@@ -1323,7 +1323,7 @@ DWORD *GetRightAnalogYFunctionPointer()
 
 	// Get Analog Stick function address
 	constexpr BYTE RightAnalogYFunctionSearchBytes[]{ 0xF6, 0xC4, 0x05, 0x7A, 0x06, 0xDD, 0xD8, 0xD9, 0xC0, 0xEB, 0x15 };
-	void *RightAnalogYAddr = (void*)SearchAndGetAddresses(0x0052E7D3, 0x0052EB03, 0x0052E423, RightAnalogYFunctionSearchBytes, sizeof(RightAnalogYFunctionSearchBytes), -0x11B);
+	void *RightAnalogYAddr = (void*)SearchAndGetAddresses(0x0052E7D3, 0x0052EB03, 0x0052E423, RightAnalogYFunctionSearchBytes, sizeof(RightAnalogYFunctionSearchBytes), -0x11B, __FUNCTION__);
 
 	// Checking address pointer
 	if (!RightAnalogYAddr)
@@ -1346,7 +1346,7 @@ DWORD *GetUpdateMousePositionFunctionPointer()
 
 	// Get Update Mouse Position function address
 	constexpr BYTE UpdateMousePositionFunctionSearchBytes[]{ 0x89, 0x74, 0x24, 0x58, 0x89, 0x74 };
-	void *UpdateMousePositionAddr = (void*)SearchAndGetAddresses(0x004588F1, 0x00458B51, 0x00458B51, UpdateMousePositionFunctionSearchBytes, sizeof(UpdateMousePositionFunctionSearchBytes), 0x40);
+	void *UpdateMousePositionAddr = (void*)SearchAndGetAddresses(0x004588F1, 0x00458B51, 0x00458B51, UpdateMousePositionFunctionSearchBytes, sizeof(UpdateMousePositionFunctionSearchBytes), 0x40, __FUNCTION__);
 
 	// Checking address pointer
 	if (!UpdateMousePositionAddr)
@@ -1376,7 +1376,7 @@ BYTE *GetSearchViewFlagPointer()
 
 	// Get Search View Flag address
 	constexpr BYTE SearchViewFlagSearchBytes[]{ 0x83, 0xC4, 0x08, 0x5F, 0x5E, 0x83, 0xC8, 0x20, 0x5D };
-	BYTE *SearchViewFlag = (BYTE*)ReadSearchedAddresses(0x0051F7A2, 0x0051FAD2, 0x0051F3F2, SearchViewFlagSearchBytes, sizeof(SearchViewFlagSearchBytes), 0x0A);
+	BYTE *SearchViewFlag = (BYTE*)ReadSearchedAddresses(0x0051F7A2, 0x0051FAD2, 0x0051F3F2, SearchViewFlagSearchBytes, sizeof(SearchViewFlagSearchBytes), 0x0A, __FUNCTION__);
 
 	// Checking address pointer
 	if (!SearchViewFlag)
@@ -1406,7 +1406,7 @@ int32_t *GetEnableInputPointer()
 
 	// Get EnableInput address
 	constexpr BYTE EnableInputSearchBytes[]{ 0xC1, 0xE0, 0x04, 0x03, 0xC1, 0x8B, 0x40, 0x0C, 0x8B, 0xF0 };
-	int32_t *EnableInput = (int32_t*)ReadSearchedAddresses(0x0048C005, 0x0048C2A5, 0x0048C4B5, EnableInputSearchBytes, sizeof(EnableInputSearchBytes), -0x12);
+	int32_t *EnableInput = (int32_t*)ReadSearchedAddresses(0x0048C005, 0x0048C2A5, 0x0048C4B5, EnableInputSearchBytes, sizeof(EnableInputSearchBytes), -0x12, __FUNCTION__);
 
 	// Checking address pointer
 	if (!EnableInput)
@@ -1436,7 +1436,7 @@ BYTE *GetAnalogXPointer()
 
 	// Get Analog X address
 	constexpr BYTE AnalogXSearchBytes[]{ 0X83, 0xC4, 0x10, 0xDF, 0xE0, 0xF6, 0xC4, 0x05, 0x0F, 0x8A, 0x96 };
-	BYTE *AnalogX = (BYTE*)ReadSearchedAddresses(0x0054EFDF, 0x0054F30F, 0x0054EC2F, AnalogXSearchBytes, sizeof(AnalogXSearchBytes), 0x26);
+	BYTE *AnalogX = (BYTE*)ReadSearchedAddresses(0x0054EFDF, 0x0054F30F, 0x0054EC2F, AnalogXSearchBytes, sizeof(AnalogXSearchBytes), 0x26, __FUNCTION__);
 
 	// Checking address pointer
 	if (!AnalogX)
@@ -1466,7 +1466,7 @@ BYTE *GetControlTypePointer()
 
 	// Get Control Type address
 	constexpr BYTE ControlTypeSearchBytes[]{ 0x83, 0xC4, 0x10, 0x68, 0xB8, 0x01, 0x00, 0x00, 0x6A, 0x1E };
-	BYTE *ControlType = (BYTE*)ReadSearchedAddresses(0x004676E9, 0x00467989, 0x00467B99, ControlTypeSearchBytes, sizeof(ControlTypeSearchBytes), 0x16);
+	BYTE *ControlType = (BYTE*)ReadSearchedAddresses(0x004676E9, 0x00467989, 0x00467B99, ControlTypeSearchBytes, sizeof(ControlTypeSearchBytes), 0x16, __FUNCTION__);
 
 	// Checking address pointer
 	if (!ControlType)
@@ -1496,7 +1496,7 @@ BYTE *GetRunOptionPointer()
 
 	// Get Run Option address
 	constexpr BYTE RunOptionSearchBytes[]{ 0x83, 0xC4, 0x10, 0x68, 0xB8, 0x01, 0x00, 0x00, 0x6A, 0x1E };
-	BYTE *RunOption = (BYTE*)ReadSearchedAddresses(0x004676E9, 0x00467989, 0x00467B99, RunOptionSearchBytes, sizeof(RunOptionSearchBytes), 0x16);
+	BYTE *RunOption = (BYTE*)ReadSearchedAddresses(0x004676E9, 0x00467989, 0x00467B99, RunOptionSearchBytes, sizeof(RunOptionSearchBytes), 0x16, __FUNCTION__);
 
 	// Checking address pointer
 	if (!RunOption)
@@ -1527,7 +1527,7 @@ BYTE *GetNumKeysWeaponBindStartPointer()
 
 	// Get address for start of Numpad weapon keybinds 
 	constexpr BYTE FullscreenImageSearchBytes[]{ 0x83, 0xC0, 0x08, 0x3D, 0xB0, 0x00, 0x00, 0x00, 0x7C, 0xDE, 0x33, 0xC0, 0x8B };
-	NumKeysWeaponBindStartAddr = (BYTE*)ReadSearchedAddresses(0x005AECE8, 0x005AF598, 0x005AEEB8, FullscreenImageSearchBytes, sizeof(FullscreenImageSearchBytes), 0x20);
+	NumKeysWeaponBindStartAddr = (BYTE*)ReadSearchedAddresses(0x005AECE8, 0x005AF598, 0x005AEEB8, FullscreenImageSearchBytes, sizeof(FullscreenImageSearchBytes), 0x20, __FUNCTION__);
 
 	// Checking address pointer
 	if (!NumKeysWeaponBindStartAddr)
@@ -1558,7 +1558,7 @@ BYTE *GetTalkShowHostStatePointer()
 
 	// Get address for start of Numpad weapon keybinds 
 	constexpr BYTE FullscreenImageSearchBytes[]{ 0x83, 0xC4, 0x04, 0x83, 0xF8, 0xFF, 0x75, 0x03 };
-	TalkShowHostStateAddr = (BYTE*)ReadSearchedAddresses(0x00517DFA, 0x0051812A, 0x00517A4A, FullscreenImageSearchBytes, sizeof(FullscreenImageSearchBytes), 0x11);
+	TalkShowHostStateAddr = (BYTE*)ReadSearchedAddresses(0x00517DFA, 0x0051812A, 0x00517A4A, FullscreenImageSearchBytes, sizeof(FullscreenImageSearchBytes), 0x11, __FUNCTION__);
 
 	// Checking address pointer
 	if (!TalkShowHostStateAddr)
@@ -1588,7 +1588,7 @@ BYTE *GetBoatFlagPointer()
 
 	// Get Boat Flag address
 	constexpr BYTE ActionButtonSearchBytes[]{ 0x66, 0x89, 0x72, 0xFE };
-	BYTE *BoatFlag = (BYTE*)ReadSearchedAddresses(0x005A58D1, 0x005A6181, 0x005A5AA1, ActionButtonSearchBytes, sizeof(ActionButtonSearchBytes), -0x3C);
+	BYTE *BoatFlag = (BYTE*)ReadSearchedAddresses(0x005A58D1, 0x005A6181, 0x005A5AA1, ActionButtonSearchBytes, sizeof(ActionButtonSearchBytes), -0x3C, __FUNCTION__);
 
 	// Checking address pointer
 	if (!BoatFlag)
@@ -1618,7 +1618,7 @@ int32_t *GetIsWritingQuicksavePointer()
 
 	// Get IsWritingQuicksave address
 	constexpr BYTE IsWritingQuicksaveSearchBytes[]{ 0x85, 0xC0, 0x74, 0x18, 0x89 };
-	int32_t *IsWritingQuicksave = (int32_t*)ReadSearchedAddresses(0x00402530, 0x00402530, 0x00402530, IsWritingQuicksaveSearchBytes, sizeof(IsWritingQuicksaveSearchBytes), 0x06);
+	int32_t *IsWritingQuicksave = (int32_t*)ReadSearchedAddresses(0x00402530, 0x00402530, 0x00402530, IsWritingQuicksaveSearchBytes, sizeof(IsWritingQuicksaveSearchBytes), 0x06, __FUNCTION__);
 
 	// Checking address pointer
 	if (!IsWritingQuicksave)
@@ -1648,7 +1648,7 @@ int32_t *GetTextAddrPointer()
 
 	// Get TextAddr address
 	constexpr BYTE TextAddrSearchBytes[]{ 0x85, 0xC0, 0x74, 0x18, 0x89 };
-	int32_t *TextAddr = (int32_t*)ReadSearchedAddresses(0x00402530, 0x00402530, 0x00402530, TextAddrSearchBytes, sizeof(TextAddrSearchBytes), 0x06);
+	int32_t *TextAddr = (int32_t*)ReadSearchedAddresses(0x00402530, 0x00402530, 0x00402530, TextAddrSearchBytes, sizeof(TextAddrSearchBytes), 0x06, __FUNCTION__);
 
 	// Checking address pointer
 	if (!TextAddr)
@@ -1671,7 +1671,7 @@ float *GetWaterAnimationSpeedPointer()
 	
 	// Get Water Animation Speed address
 	constexpr BYTE WaterAnimationSpeedSearchBytes[]{ 0x88, 0x5E, 0x08, 0xC7, 0x46, 0x0C, 0x00, 0x00, 0x20, 0x41 };
-	float *WaterAnimationSpeed = (float*)ReadSearchedAddresses(0x004D4300, 0x004D45B0, 0x004D3E70, WaterAnimationSpeedSearchBytes, sizeof(WaterAnimationSpeedSearchBytes), -0x28);
+	float *WaterAnimationSpeed = (float*)ReadSearchedAddresses(0x004D4300, 0x004D45B0, 0x004D3E70, WaterAnimationSpeedSearchBytes, sizeof(WaterAnimationSpeedSearchBytes), -0x28, __FUNCTION__);
 
 	// Checking address pointer
 	if (!WaterAnimationSpeed)
@@ -1694,7 +1694,7 @@ int16_t *GetFlashlightOnSpeedPointer()
 	
 	// Get Items Collected address
 	constexpr BYTE FlashlightOnSpeedSearchBytes[]{ 0x74, 0x11, 0x6A, 0x00, 0xE8, 0xAD, 0x79 };
-	int16_t *FlashlightOnSpeed = (int16_t*)SearchAndGetAddresses(0x0050A59A, 0x0050A8CA, 0x0050A1EA, FlashlightOnSpeedSearchBytes, sizeof(FlashlightOnSpeedSearchBytes), 0x23);
+	int16_t *FlashlightOnSpeed = (int16_t*)SearchAndGetAddresses(0x0050A59A, 0x0050A8CA, 0x0050A1EA, FlashlightOnSpeedSearchBytes, sizeof(FlashlightOnSpeedSearchBytes), 0x23, __FUNCTION__);
 
 	// Checking address pointer
 	if (!FlashlightOnSpeed)
@@ -1717,7 +1717,7 @@ float *GetLowHealthIndicatorFlashSpeedPointer()
 
 	// Get Water Animation Speed address
 	constexpr BYTE LowHealthIndicatorFlashSpeedSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x41, 0x75, 0x18, 0xC7, 0x05 };
-	float *LowHealthIndicatorFlashSpeed = (float*)ReadSearchedAddresses(0x00476323, 0x004765C3, 0x004767D3, LowHealthIndicatorFlashSpeedSearchBytes, sizeof(LowHealthIndicatorFlashSpeedSearchBytes), 0x13);
+	float *LowHealthIndicatorFlashSpeed = (float*)ReadSearchedAddresses(0x00476323, 0x004765C3, 0x004767D3, LowHealthIndicatorFlashSpeedSearchBytes, sizeof(LowHealthIndicatorFlashSpeedSearchBytes), 0x13, __FUNCTION__);
 
 	// Checking address pointer
 	if (!LowHealthIndicatorFlashSpeed)
@@ -1740,7 +1740,7 @@ float *GetStaircaseFlamesLightingPointer()
 
 	// Get Staircase Flames Lighting Speed address
 	constexpr BYTE StaircaseFlamesLightingSpeedSearchBytes[]{ 0x8D, 0x04, 0x0A, 0x99, 0x52, 0x50, 0x33, 0xDB };
-	float *StaircaseFlamesLightingSpeed = (float*)ReadSearchedAddresses(0x00576CE1, 0x00577591, 0x00576EB1, StaircaseFlamesLightingSpeedSearchBytes, sizeof(StaircaseFlamesLightingSpeedSearchBytes), 0x131);
+	float *StaircaseFlamesLightingSpeed = (float*)ReadSearchedAddresses(0x00576CE1, 0x00577591, 0x00576EB1, StaircaseFlamesLightingSpeedSearchBytes, sizeof(StaircaseFlamesLightingSpeedSearchBytes), 0x131, __FUNCTION__);
 
 	// Checking address pointer
 	if (!StaircaseFlamesLightingSpeed)
@@ -1763,7 +1763,7 @@ float *GetWaterLevelLoweringStepsPointer()
 
 	// Get Water Level Lowering Steps address
 	constexpr BYTE WaterLevelLoweringStepsSearchBytes[]{ 0x83, 0xC4, 0x08, 0xA9, 0x00, 0x00, 0x08, 0x00, 0xB9, 0x00, 0x00, 0x10, 0x00 };
-	float *WaterLevelLoweringSteps = (float*)ReadSearchedAddresses(0x004E317C, 0x004E342C, 0x004E2CEC, WaterLevelLoweringStepsSearchBytes, sizeof(WaterLevelLoweringStepsSearchBytes), 0x1A);
+	float *WaterLevelLoweringSteps = (float*)ReadSearchedAddresses(0x004E317C, 0x004E342C, 0x004E2CEC, WaterLevelLoweringStepsSearchBytes, sizeof(WaterLevelLoweringStepsSearchBytes), 0x1A, __FUNCTION__);
 
 	// Checking address pointer
 	if (!WaterLevelLoweringSteps)
@@ -1786,7 +1786,7 @@ float *GetWaterLevelRisingStepsPointer()
 
 	// Get Water Level Rising Steps address
 	constexpr BYTE WaterLevelRisingStepsSearchBytes[]{ 0xE8, 0x30, 0xDB, 0xFE, 0xFF };
-	float *WaterLevelRisingSteps = (float*)ReadSearchedAddresses(0x004E3F7B, 0x004E422B, 0x004E3AEB, WaterLevelRisingStepsSearchBytes, sizeof(WaterLevelRisingStepsSearchBytes), 0x1D);
+	float *WaterLevelRisingSteps = (float*)ReadSearchedAddresses(0x004E3F7B, 0x004E422B, 0x004E3AEB, WaterLevelRisingStepsSearchBytes, sizeof(WaterLevelRisingStepsSearchBytes), 0x1D, __FUNCTION__);
 
 	// Checking address pointer
 	if (!WaterLevelRisingSteps)
@@ -1809,7 +1809,7 @@ float *GetBugRoomFlashlightFixPointer()
 
 	// Get Bug Room Flashlight Fix Steps address
 	constexpr BYTE BugRoomFlashlightFixSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x41, 0x7A, 0x15, 0xC7 };
-	float *BugRoomFlashlightFix = (float*)ReadSearchedAddresses(0x0050AA78, 0x0050ADA8, 0x0050A6C8, BugRoomFlashlightFixSearchBytes, sizeof(BugRoomFlashlightFixSearchBytes), -0x10);
+	float *BugRoomFlashlightFix = (float*)ReadSearchedAddresses(0x0050AA78, 0x0050ADA8, 0x0050A6C8, BugRoomFlashlightFixSearchBytes, sizeof(BugRoomFlashlightFixSearchBytes), -0x10, __FUNCTION__);
 
 	// Checking address pointer
 	if (!BugRoomFlashlightFix)
@@ -1832,7 +1832,7 @@ uint8_t *GetSixtyFPSFMVFixPointer()
 
 	// Get Sixty FPS FMV Fix address
 	constexpr BYTE SixtyFPSFMVFixSearchBytes[]{ 0xE8, 0x4C, 0xF6, 0xFF, 0xFF, 0xE8 };
-	uint8_t *SixtyFPSFMVFix = (uint8_t*)SearchAndGetAddresses(0x0043E4DF, 0x0043E69F, 0x0043E69F, SixtyFPSFMVFixSearchBytes, sizeof(SixtyFPSFMVFixSearchBytes), -0x74F);
+	uint8_t *SixtyFPSFMVFix = (uint8_t*)SearchAndGetAddresses(0x0043E4DF, 0x0043E69F, 0x0043E69F, SixtyFPSFMVFixSearchBytes, sizeof(SixtyFPSFMVFixSearchBytes), -0x74F, __FUNCTION__);
 
 	// Checking address pointer
 	if (!SixtyFPSFMVFix)
@@ -1855,7 +1855,7 @@ uint8_t *GetGrabDamagePointer()
 
 	// Get Sixty Grab Damage address
 	constexpr BYTE GrabDamageSearchBytes[]{ 0x89, 0xBE, 0x1C, 0x01, 0x00, 0x00, 0xD9, 0x86 };
-	uint8_t *GrabDamage = (uint8_t*)SearchAndGetAddresses(0x005359BC, 0x00535CEC, 0x0053560C, GrabDamageSearchBytes, sizeof(GrabDamageSearchBytes), 0x19);
+	uint8_t *GrabDamage = (uint8_t*)SearchAndGetAddresses(0x005359BC, 0x00535CEC, 0x0053560C, GrabDamageSearchBytes, sizeof(GrabDamageSearchBytes), 0x19, __FUNCTION__);
 
 	// Checking address pointer
 	if (!GrabDamage)
@@ -1885,7 +1885,7 @@ float *GetFrametimePointer()
 
 	// Get Frametime address
 	constexpr BYTE FrametimeSearchBytes[]{ 0x68, 0xFF, 0x00, 0x00, 0x00, 0xEB, 0x02 };
-	float *Frametime = (float*)ReadSearchedAddresses(0x0044770E, 0x004478AE, 0x004478AE, FrametimeSearchBytes, sizeof(FrametimeSearchBytes), 0xE2);
+	float *Frametime = (float*)ReadSearchedAddresses(0x0044770E, 0x004478AE, 0x004478AE, FrametimeSearchBytes, sizeof(FrametimeSearchBytes), 0xE2, __FUNCTION__);
 
 	// Checking address pointer
 	if (!Frametime)
@@ -1908,7 +1908,7 @@ DWORD *GetMeatLockerFogFixOnePointer()
 
 	// Get Meat Locker Fog Fix Address
 	constexpr BYTE MeatLockerFogFixOneSearchBytes[]{ 0xE8, 0xAC, 0xFB, 0xFF, 0xFF, 0x83 };
-	MeatLockerFogFixOneAddr = (DWORD*)SearchAndGetAddresses(0x00489E7F, 0x0048A11F, 0x0048A32F, MeatLockerFogFixOneSearchBytes, sizeof(MeatLockerFogFixOneSearchBytes), 0x0C);
+	MeatLockerFogFixOneAddr = (DWORD*)SearchAndGetAddresses(0x00489E7F, 0x0048A11F, 0x0048A32F, MeatLockerFogFixOneSearchBytes, sizeof(MeatLockerFogFixOneSearchBytes), 0x0C, __FUNCTION__);
 
 	// Checking address pointer
 	if (!MeatLockerFogFixOneAddr)
@@ -1929,7 +1929,7 @@ DWORD *GetMeatLockerFogFixTwoPointer()
 
 	// Get Meat Locker Fog Fix Address
 	constexpr BYTE MeatLockerFogFixTwoSearchBytes[]{ 0xE8, 0xAC, 0xFB, 0xFF, 0xFF, 0x83 };
-	MeatLockerFogFixTwoAddr = (DWORD*)SearchAndGetAddresses(0x00489E7F, 0x0048A11F, 0x0048A32F, MeatLockerFogFixTwoSearchBytes, sizeof(MeatLockerFogFixTwoSearchBytes), 0x1D);
+	MeatLockerFogFixTwoAddr = (DWORD*)SearchAndGetAddresses(0x00489E7F, 0x0048A11F, 0x0048A32F, MeatLockerFogFixTwoSearchBytes, sizeof(MeatLockerFogFixTwoSearchBytes), 0x1D, __FUNCTION__);
 
 	// Checking address pointer
 	if (!MeatLockerFogFixTwoAddr)
@@ -1950,7 +1950,7 @@ DWORD *GetMeatLockerHangerFixOnePointer()
 
 	// Get Meat Locker Hanger Fix Address
 	constexpr BYTE MeatLockerHangerFixOneSearchBytes[]{ 0xD9, 0x44, 0x24, 0x18, 0xD8, 0x86 };
-	MeatLockerHangerFixOneAddr = (DWORD*)SearchAndGetAddresses(0x004B240E, 0x004B26BE, 0x004B1F7E, MeatLockerHangerFixOneSearchBytes, sizeof(MeatLockerHangerFixOneSearchBytes), 0x18);
+	MeatLockerHangerFixOneAddr = (DWORD*)SearchAndGetAddresses(0x004B240E, 0x004B26BE, 0x004B1F7E, MeatLockerHangerFixOneSearchBytes, sizeof(MeatLockerHangerFixOneSearchBytes), 0x18, __FUNCTION__);
 
 	// Checking address pointer
 	if (!MeatLockerHangerFixOneAddr)
@@ -1971,7 +1971,7 @@ DWORD *GetMeatLockerHangerFixTwoPointer()
 
 	// Get Meat Locker Hanger Fix Address
 	constexpr BYTE MeatLockerHangerFixTwoSearchBytes[]{ 0xD9, 0x44, 0x24, 0x18, 0xD8, 0x86 };
-	MeatLockerHangerFixTwoAddr = (DWORD*)SearchAndGetAddresses(0x004B240E, 0x004B26BE, 0x004B1F7E, MeatLockerHangerFixTwoSearchBytes, sizeof(MeatLockerHangerFixTwoSearchBytes), 0x86);
+	MeatLockerHangerFixTwoAddr = (DWORD*)SearchAndGetAddresses(0x004B240E, 0x004B26BE, 0x004B1F7E, MeatLockerHangerFixTwoSearchBytes, sizeof(MeatLockerHangerFixTwoSearchBytes), 0x86, __FUNCTION__);
 
 	// Checking address pointer
 	if (!MeatLockerHangerFixTwoAddr)
@@ -1992,7 +1992,7 @@ BYTE *GetClearTextPointer()
 
 	// Get Clear Text address
 	constexpr BYTE ClearTextSearchBytes[]{ 0x00, 0xC3, 0x90, 0x90, 0x90, 0x90, 0x90, 0x66, 0x83, 0x3D };
-	BYTE *ClearText = (uint8_t*)ReadSearchedAddresses(0x0047EB59, 0x0047EDF9, 0x0047F009, ClearTextSearchBytes, sizeof(ClearTextSearchBytes), 0x0A);
+	BYTE *ClearText = (uint8_t*)ReadSearchedAddresses(0x0047EB59, 0x0047EDF9, 0x0047F009, ClearTextSearchBytes, sizeof(ClearTextSearchBytes), 0x0A, __FUNCTION__);
 
 	// Checking address pointer
 	if (!ClearText)
@@ -2015,7 +2015,7 @@ float *GetMeetingMariaCutsceneFogCounterOnePointer()
 
 	// Get MeetingMariaCutsceneFogCounterOne address
 	constexpr BYTE MeetingMariaCutsceneFogCounterOneSearchBytes[]{ 0x83, 0xC4, 0x04, 0xDF, 0xE0, 0xF6, 0xC4, 0x05, 0x7A, 0x1C };
-	float *MeetingMariaCutsceneFogCounterOne = (float*)ReadSearchedAddresses(0x00594593, 0x00594E43, 0x00594763, MeetingMariaCutsceneFogCounterOneSearchBytes, sizeof(MeetingMariaCutsceneFogCounterOneSearchBytes), -0x04);
+	float *MeetingMariaCutsceneFogCounterOne = (float*)ReadSearchedAddresses(0x00594593, 0x00594E43, 0x00594763, MeetingMariaCutsceneFogCounterOneSearchBytes, sizeof(MeetingMariaCutsceneFogCounterOneSearchBytes), -0x04, __FUNCTION__);
 
 	// Checking address pointer
 	if (!MeetingMariaCutsceneFogCounterOne)
@@ -2038,7 +2038,7 @@ float *GetMeetingMariaCutsceneFogCounterTwoPointer()
 
 	// Get MeetingMariaCutsceneFogCounterTwo address
 	constexpr BYTE MeetingMariaCutsceneFogCounterTwoSearchBytes[]{ 0x83, 0xC4, 0x04, 0xDF, 0xE0, 0xF6, 0xC4, 0x05, 0x7A, 0x1C };
-	float *MeetingMariaCutsceneFogCounterTwo = (float*)ReadSearchedAddresses(0x00594593, 0x00594E43, 0x00594763, MeetingMariaCutsceneFogCounterTwoSearchBytes, sizeof(MeetingMariaCutsceneFogCounterTwoSearchBytes), -0x04);
+	float *MeetingMariaCutsceneFogCounterTwo = (float*)ReadSearchedAddresses(0x00594593, 0x00594E43, 0x00594763, MeetingMariaCutsceneFogCounterTwoSearchBytes, sizeof(MeetingMariaCutsceneFogCounterTwoSearchBytes), -0x04, __FUNCTION__);
 
 	// Checking address pointer
 	if (!MeetingMariaCutsceneFogCounterTwo)
@@ -2061,7 +2061,7 @@ float *GetRPTClosetCutsceneMannequinDespawnPointer()
 
 	// Get RPTClosetCutsceneMannequinDespawn address
 	constexpr BYTE RPTClosetCutsceneMannequinDespawnSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x41, 0x7A, 0x07, 0xB8, 0x03, 0x00, 0x00, 0x00 };
-	float *RPTClosetCutsceneMannequinDespawn = (float*)ReadSearchedAddresses(0x00539E57, 0x0053A187, 0x00539AA7, RPTClosetCutsceneMannequinDespawnSearchBytes, sizeof(RPTClosetCutsceneMannequinDespawnSearchBytes), -0x04);
+	float *RPTClosetCutsceneMannequinDespawn = (float*)ReadSearchedAddresses(0x00539E57, 0x0053A187, 0x00539AA7, RPTClosetCutsceneMannequinDespawnSearchBytes, sizeof(RPTClosetCutsceneMannequinDespawnSearchBytes), -0x04, __FUNCTION__);
 
 	// Checking address pointer
 	if (!RPTClosetCutsceneMannequinDespawn)
@@ -2084,7 +2084,7 @@ float *GetRPTClosetCutsceneBlurredBarsDespawnPointer()
 
 	// Get RPTClosetCutsceneBlurredBarsDespawn address
 	constexpr BYTE RPTClosetCutsceneBlurredBarsDespawnSearchBytes[]{ 0xC7, 0x44, 0x24, 0x50, 0x00, 0x00, 0x80, 0x3F, 0xC7, 0x44, 0x24, 0x54, 0x00, 0x00, 0x00, 0x00 };
-	float *RPTClosetCutsceneBlurredBarsDespawn = (float*)ReadSearchedAddresses(0x005995CF, 0x00599E7F, 0x0059979F, RPTClosetCutsceneBlurredBarsDespawnSearchBytes, sizeof(RPTClosetCutsceneBlurredBarsDespawnSearchBytes), 0x4F);
+	float *RPTClosetCutsceneBlurredBarsDespawn = (float*)ReadSearchedAddresses(0x005995CF, 0x00599E7F, 0x0059979F, RPTClosetCutsceneBlurredBarsDespawnSearchBytes, sizeof(RPTClosetCutsceneBlurredBarsDespawnSearchBytes), 0x4F, __FUNCTION__);
 
 	// Checking address pointer
 	if (!RPTClosetCutsceneBlurredBarsDespawn)

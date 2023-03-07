@@ -30,7 +30,7 @@ void RunShadowCutscene()
 
 		// Get address for shadows
 		constexpr BYTE SearchBytes[]{ 0x00, 0x33, 0xC9, 0x3B, 0xD3, 0x0F, 0x94, 0xC1, 0xA3 };
-		Address = (BYTE*)ReadSearchedAddresses(0x00462DD5, 0x00463045, 0x00463045, SearchBytes, sizeof(SearchBytes), -0xA0);
+		Address = (BYTE*)ReadSearchedAddresses(0x00462DD5, 0x00463045, 0x00463045, SearchBytes, sizeof(SearchBytes), -0xA0, __FUNCTION__);
 		if (!Address)
 		{
 			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";

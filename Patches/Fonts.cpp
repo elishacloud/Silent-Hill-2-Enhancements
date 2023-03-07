@@ -135,8 +135,8 @@ __declspec(naked) void __stdcall SpaceSizeASM3()
 void PatchCustomFonts()
 {
 	// Find address for font decode function
-	void *DFontAddrA = (void*)SearchAndGetAddresses(0x004809F4, 0x00480C94, 0x00480EA4, DFontFuncBlockA, sizeof(DFontFuncBlockA), 0x00);
-	void *DFontAddrB = (void*)SearchAndGetAddresses(0x0047E270, 0x0047E510, 0x0047E720, DFontFuncBlockB, sizeof(DFontFuncBlockB), 0x00);
+	void *DFontAddrA = (void*)SearchAndGetAddresses(0x004809F4, 0x00480C94, 0x00480EA4, DFontFuncBlockA, sizeof(DFontFuncBlockA), 0x00, __FUNCTION__);
+	void *DFontAddrB = (void*)SearchAndGetAddresses(0x0047E270, 0x0047E510, 0x0047E720, DFontFuncBlockB, sizeof(DFontFuncBlockB), 0x00, __FUNCTION__);
 
 	// Address found
 	if (!DFontAddrA || !DFontAddrB)
@@ -196,7 +196,7 @@ void PatchCustomFonts()
 	UpdateMemoryAddress((void*)((BYTE*)DFontAddrB + 0x15), (void*)&charW, 1);
 	UpdateMemoryAddress((void*)((BYTE*)DFontAddrB + 0x16), (void*)&codeD, sizeof(codeD));
 
-	void *DFontAddrC = (void*)SearchAndGetAddresses(0x0047E048, 0x0047E2E8, 0x0047E4F8, DFontFuncBlockC, sizeof(DFontFuncBlockC), 0x00);
+	void *DFontAddrC = (void*)SearchAndGetAddresses(0x0047E048, 0x0047E2E8, 0x0047E4F8, DFontFuncBlockC, sizeof(DFontFuncBlockC), 0x00, __FUNCTION__);
 
 	if (DFontAddrC)
 	{
@@ -204,7 +204,7 @@ void PatchCustomFonts()
 		UpdateMemoryAddress((void *)((BYTE*)DFontAddrC + 12), (void *)&charW, 1);
 		UpdateMemoryAddress((void *)((BYTE*)DFontAddrC + 17), (void *)&codeD, sizeof(codeD));
 
-		void *DFontAddrD = (void*)SearchAndGetAddresses(0x0047E11F, 0x0047E3BF, 0x0047E5CF, DFontFuncBlockC, sizeof(DFontFuncBlockC), 0x00);
+		void *DFontAddrD = (void*)SearchAndGetAddresses(0x0047E11F, 0x0047E3BF, 0x0047E5CF, DFontFuncBlockC, sizeof(DFontFuncBlockC), 0x00, __FUNCTION__);
 
 		if (DFontAddrD)
 		{
@@ -214,7 +214,7 @@ void PatchCustomFonts()
 		}
 	}
 
-	void *DFontAddrE = (void*)SearchAndGetAddresses(0x008038A8, 0x00807490, 0x00806490, DFontFuncBlockD, sizeof(DFontFuncBlockD), 0x00);
+	void *DFontAddrE = (void*)SearchAndGetAddresses(0x008038A8, 0x00807490, 0x00806490, DFontFuncBlockD, sizeof(DFontFuncBlockD), 0x00, __FUNCTION__);
 
 	if (DFontAddrE)
 	{
@@ -238,8 +238,8 @@ void PatchCustomFonts()
 		}
 	}
 
-	void *DFontAddrF = (void*)SearchAndGetAddresses(0x0047FAA0, 0x0047FD40, 0x0047FF50, DFontFuncBlockE, sizeof(DFontFuncBlockE), 0x00);
-	void *DFontAddrG = (void*)SearchAndGetAddresses(0x0047E5A0, 0x0047E840, 0x0047EA50, DFontFuncBlockF, sizeof(DFontFuncBlockF), 0x00);
+	void *DFontAddrF = (void*)SearchAndGetAddresses(0x0047FAA0, 0x0047FD40, 0x0047FF50, DFontFuncBlockE, sizeof(DFontFuncBlockE), 0x00, __FUNCTION__);
+	void *DFontAddrG = (void*)SearchAndGetAddresses(0x0047E5A0, 0x0047E840, 0x0047EA50, DFontFuncBlockF, sizeof(DFontFuncBlockF), 0x00, __FUNCTION__);
 
 	if (DFontAddrF && DFontAddrG)
 	{

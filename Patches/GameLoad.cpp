@@ -216,11 +216,11 @@ void PatchGameLoad()
 {
 	// Get in-game check address
 	constexpr BYTE InGameCheckSearchBytes[]{ 0x80, 0x3A, 0xD8, 0x74, 0x11, 0x41, 0x83, 0xC2, 0x18, 0x3B, 0xCF, 0x7C, 0xF3, 0x5F, 0x5E, 0xB8, 0x02, 0x00, 0x00, 0x00, 0x5B, 0xC3, 0x8B, 0xD6, 0x6B, 0xD2, 0x64, 0x03, 0xCA, 0x8D, 0x0C, 0x49 };
-	BYTE *InGameCheckAddr = (BYTE*)SearchAndGetAddresses(0x00454BF5, 0x00454E55, 0x00454E55, InGameCheckSearchBytes, sizeof(InGameCheckSearchBytes), 0x1AF);
+	BYTE *InGameCheckAddr = (BYTE*)SearchAndGetAddresses(0x00454BF5, 0x00454E55, 0x00454E55, InGameCheckSearchBytes, sizeof(InGameCheckSearchBytes), 0x1AF, __FUNCTION__);
 
 	// Get save Index address
 	constexpr BYTE IndexSearchBytes[]{ 0x33, 0xC9, 0x0F, 0xBE, 0xF3, 0x0F, 0xB6, 0x10, 0x3B, 0xD6, 0x75, 0x0D, 0x0F, 0xB6, 0x50, 0x01, 0x0F, 0xBE, 0x7C, 0x24, 0x0C, 0x3B, 0xD7, 0x74, 0x0B, 0x41, 0x83, 0xC0, 0x18, 0x83, 0xF9, 0x64, 0x7C, 0xE3, 0xEB, 0x05 };
-	BYTE *IndexCheckAddr = (BYTE*)SearchAndGetAddresses(0x0044CF0F, 0x0044D16F, 0x0044D16F, IndexSearchBytes, sizeof(IndexSearchBytes), 0x91);
+	BYTE *IndexCheckAddr = (BYTE*)SearchAndGetAddresses(0x0044CF0F, 0x0044D16F, 0x0044D16F, IndexSearchBytes, sizeof(IndexSearchBytes), 0x91, __FUNCTION__);
 
 	// Checking address pointer
 	if (!InGameCheckAddr || !IndexCheckAddr)
@@ -245,7 +245,7 @@ void SetGameLoad()
 {
 	// Get elevator room save address
 	constexpr BYTE GameLoadSearchBytes[]{ 0x83, 0xC4, 0x10, 0xF7, 0xC1, 0x00, 0x00, 0x00, 0x04, 0x5E, 0x74, 0x0F, 0xC7, 0x05 };
-	DWORD GameLoadAddr = SearchAndGetAddresses(0x0058312C, 0x005839DC, 0x005832FC, GameLoadSearchBytes, sizeof(GameLoadSearchBytes), 0x94);
+	DWORD GameLoadAddr = SearchAndGetAddresses(0x0058312C, 0x005839DC, 0x005832FC, GameLoadSearchBytes, sizeof(GameLoadSearchBytes), 0x94, __FUNCTION__);
 	if (!GameLoadAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -254,7 +254,7 @@ void SetGameLoad()
 
 	// Fix momentarily "flash" when save file is loaded
 	constexpr BYTE FlashFixSearchBytes[]{ 0x5F, 0x5E, 0x5D, 0x33, 0xC0, 0x5B, 0xC3, 0x90, 0x90, 0x33, 0xC0, 0xA3 };
-	DWORD FlashFixAddr = SearchAndGetAddresses(0x004EEA37, 0x004EECE7, 0x004EE5A7, FlashFixSearchBytes, sizeof(FlashFixSearchBytes), 0x0B);
+	DWORD FlashFixAddr = SearchAndGetAddresses(0x004EEA37, 0x004EECE7, 0x004EE5A7, FlashFixSearchBytes, sizeof(FlashFixSearchBytes), 0x0B, __FUNCTION__);
 	EventIndexAddr = GetEventIndexPointer();
 	if (!FlashFixAddr || !EventIndexAddr)
 	{
@@ -266,7 +266,7 @@ void SetGameLoad()
 
 	// Disable Quick Save Reset
 	constexpr BYTE QuickSaveResetSearchBytes[]{ 0x57, 0x8D, 0x7D, 0x30, 0xEB, 0x03, 0x8D, 0x49, 0x00, 0x0F, 0xBE, 0x46, 0x11, 0x85, 0xC0, 0x0F, 0x8E };
-	DWORD QuickSaveResetFunction = SearchAndGetAddresses(0x0053AE37, 0x0053B167, 0x0053AA87, QuickSaveResetSearchBytes, sizeof(QuickSaveResetSearchBytes), 0x21);
+	DWORD QuickSaveResetFunction = SearchAndGetAddresses(0x0053AE37, 0x0053B167, 0x0053AA87, QuickSaveResetSearchBytes, sizeof(QuickSaveResetSearchBytes), 0x21, __FUNCTION__);
 	if (!QuickSaveResetFunction)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -279,7 +279,7 @@ void SetGameLoad()
 
 	// Quick Save Timer Fix
 	constexpr BYTE SaveTimerSearchBytes[]{ 0x83, 0xC4, 0x04, 0x85, 0xC0, 0x74, 0x4C, 0x39, 0x35 };
-	DWORD SaveTimerFunction = SearchAndGetAddresses(0x00402495, 0x00402495, 0x00402495, SaveTimerSearchBytes, sizeof(SaveTimerSearchBytes), -0x15);
+	DWORD SaveTimerFunction = SearchAndGetAddresses(0x00402495, 0x00402495, 0x00402495, SaveTimerSearchBytes, sizeof(SaveTimerSearchBytes), -0x15, __FUNCTION__);
 	FullscreenImageEventAddr = GetFullscreenImageEventPointer();
 	if (!SaveTimerFunction || !FullscreenImageEventAddr)
 	{
@@ -298,7 +298,7 @@ void SetGameLoad()
 
 	// Location for to disabling quick saves
 	constexpr BYTE QuickSaveSearchBytes[]{ 0x83, 0xC4, 0x04, 0x85, 0xC0, 0x74, 0x4C, 0x39, 0x35 };
-	DWORD QuickSaveFunction = SearchAndGetAddresses(0x00402495, 0x00402495, 0x00402495, QuickSaveSearchBytes, sizeof(QuickSaveSearchBytes), 0x07);
+	DWORD QuickSaveFunction = SearchAndGetAddresses(0x00402495, 0x00402495, 0x00402495, QuickSaveSearchBytes, sizeof(QuickSaveSearchBytes), 0x07, __FUNCTION__);
 	if (!QuickSaveFunction)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -308,9 +308,9 @@ void SetGameLoad()
 	QuickSaveCmpAddr = (void*)*(DWORD*)(QuickSaveFunction + 0x02);
 
 	constexpr BYTE LoadMariaSearchBytes[]{ 0x8B, 0x44, 0x24, 0x04, 0x85, 0xC0, 0x75, 0x5E };
-	oLoadMaria = (LoadMariaProc)SearchAndGetAddresses(0x00593FC5, 0x00594875, 0x00594195, LoadMariaSearchBytes, sizeof(LoadMariaSearchBytes), -0x05);
+	oLoadMaria = (LoadMariaProc)SearchAndGetAddresses(0x00593FC5, 0x00594875, 0x00594195, LoadMariaSearchBytes, sizeof(LoadMariaSearchBytes), -0x05, __FUNCTION__);
 	constexpr BYTE MariaFunctionSearchBytes[]{ 0x81, 0xEC, 0x08, 0x02, 0x00, 0x00, 0x53, 0x55 };
-	DWORD MariaFunctionAddr = SearchAndGetAddresses(0x00594C40, 0x005954F0, 0x00594E10, MariaFunctionSearchBytes, sizeof(MariaFunctionSearchBytes), 0x00);
+	DWORD MariaFunctionAddr = SearchAndGetAddresses(0x00594C40, 0x005954F0, 0x00594E10, MariaFunctionSearchBytes, sizeof(MariaFunctionSearchBytes), 0x00, __FUNCTION__);
 	if (!(DWORD)*oLoadMaria || !MariaFunctionAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -350,7 +350,7 @@ void RunGameLoad()
 
 		// Get address for game save
 		constexpr BYTE SearchBytes[]{ 0x3C, 0x1B, 0x74, 0x27, 0x3C, 0x25, 0x74, 0x23, 0x3C, 0x30, 0x74, 0x1F, 0x3C, 0x31, 0x74, 0x1B, 0x3C, 0x32, 0x74, 0x17, 0x3C, 0x33, 0x74, 0x13, 0x3C, 0x34, 0x74, 0x0F };
-		SaveGameAddress = (BYTE*)ReadSearchedAddresses(0x0044C648, 0x0044C7E8, 0x0044C7E8, SearchBytes, sizeof(SearchBytes), -0x0D);
+		SaveGameAddress = (BYTE*)ReadSearchedAddresses(0x0044C648, 0x0044C7E8, 0x0044C7E8, SearchBytes, sizeof(SearchBytes), -0x0D, __FUNCTION__);
 		if (!SaveGameAddress)
 		{
 			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
@@ -366,7 +366,7 @@ void RunGameLoad()
 
 		// Get address for game save
 		constexpr BYTE SearchBytes[]{ 0xF7, 0xC6, 0x00, 0x0C, 0x00, 0x00, 0x0F, 0x95, 0xC0, 0x49, 0x74, 0x0A, 0x49, 0x75, 0x25, 0x84, 0xC0 };
-		ElevatorRunning = (BYTE*)ReadSearchedAddresses(0x0052EA81, 0x0052EDB1, 0x0052E6D1, SearchBytes, sizeof(SearchBytes), -0x0E);
+		ElevatorRunning = (BYTE*)ReadSearchedAddresses(0x0052EA81, 0x0052EDB1, 0x0052E6D1, SearchBytes, sizeof(SearchBytes), -0x0E, __FUNCTION__);
 		if (!ElevatorRunning)
 		{
 			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
@@ -382,7 +382,7 @@ void RunGameLoad()
 
 		// Get address for in game voice event
 		constexpr BYTE SearchBytes[]{ 0x85, 0xC0, 0x75, 0x07, 0xD9, 0x05 };
-		InGameVoiceEvent = (BYTE*)ReadSearchedAddresses(0x004A0305, 0x004A05B5, 0x0049FE75, SearchBytes, sizeof(SearchBytes), -0x04);
+		InGameVoiceEvent = (BYTE*)ReadSearchedAddresses(0x004A0305, 0x004A05B5, 0x0049FE75, SearchBytes, sizeof(SearchBytes), -0x04, __FUNCTION__);
 		if (!InGameVoiceEvent)
 		{
 			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";

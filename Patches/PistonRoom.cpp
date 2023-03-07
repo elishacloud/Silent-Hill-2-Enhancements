@@ -70,7 +70,7 @@ void PatchPistonRoom()
 {
 	// Get Piston address
 	constexpr BYTE SearchBytesPiston[]{ 0x52, 0x8D, 0x44, 0x24, 0x10, 0x50, 0x56, 0x57, 0xE8 };
-	DWORD PistonAddr = SearchAndGetAddresses(0x005814BA, 0x00581D6A, 0x0058168A, SearchBytesPiston, sizeof(SearchBytesPiston), 0x1F);
+	DWORD PistonAddr = SearchAndGetAddresses(0x005814BA, 0x00581D6A, 0x0058168A, SearchBytesPiston, sizeof(SearchBytesPiston), 0x1F, __FUNCTION__);
 
 	// Checking address pointer
 	if (!PistonAddr)
@@ -81,7 +81,7 @@ void PatchPistonRoom()
 
 	// Get Piston list address
 	constexpr BYTE SearchBytesPistonList[]{ 0x3D, 0x8A, 0x00, 0x00, 0x00, 0x75, 0x2B, 0xBE, 0x70 };
-	DWORD SearchAddress = SearchAndGetAddresses(0x00581326, 0x00581BD6, 0x005814F6, SearchBytesPistonList, sizeof(SearchBytesPistonList), 0x08);
+	DWORD SearchAddress = SearchAndGetAddresses(0x00581326, 0x00581BD6, 0x005814F6, SearchBytesPistonList, sizeof(SearchBytesPistonList), 0x08, __FUNCTION__);
 
 	// Checking address pointer
 	if (!SearchAddress)

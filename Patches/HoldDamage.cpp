@@ -42,7 +42,7 @@ __declspec(naked) void __stdcall ScaleHoldDamageASM()
 DWORD GetDeltaTimeFuncAddress()
 {
     constexpr BYTE SearchBytes[]{ 0x83, 0xEC, 0x48, 0x53, 0x56, 0x33, 0xDB, 0x3B, 0xC3, 0x57 };
-    DWORD Addr = SearchAndGetAddresses(0x00479080, 0x00479320, 0x00479530, SearchBytes, sizeof(SearchBytes), 0x23);
+    DWORD Addr = SearchAndGetAddresses(0x00479080, 0x00479320, 0x00479530, SearchBytes, sizeof(SearchBytes), 0x23, __FUNCTION__);
     if (!Addr)
     {
         Logging::Log() << __FUNCTION__ << "Error: failed to find memory address!";
@@ -58,7 +58,7 @@ DWORD GetDeltaTimeFuncAddress()
 void PatchHoldDamage()
 {
     constexpr BYTE SearchBytesApplyHoldDamage[]{ 0xD9, 0x86, 0x3C, 0x01, 0x00, 0x00, 0x8B, 0x96, 0x1C, 0x01, 0x00, 0x00 };
-    DWORD ApplyHoldDamageAddr = SearchAndGetAddresses(0x005359D5, 0x00535D05, 0x00535625, SearchBytesApplyHoldDamage, sizeof(SearchBytesApplyHoldDamage), 0x0C);
+    DWORD ApplyHoldDamageAddr = SearchAndGetAddresses(0x005359D5, 0x00535D05, 0x00535625, SearchBytesApplyHoldDamage, sizeof(SearchBytesApplyHoldDamage), 0x0C, __FUNCTION__);
     if (!ApplyHoldDamageAddr)
     {
         Logging::Log() << __FUNCTION__ << "Error: failed to find memory address!";

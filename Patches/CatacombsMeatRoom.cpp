@@ -40,7 +40,7 @@ void PatchCatacombsMeatRoom()
 {
 	// Get Cemetery Lighting address
 	constexpr BYTE CatacombSearchBytes[]{ 0x00, 0xFE, 0x42, 0x00, 0x00, 0x31, 0x43, 0x00, 0x00, 0xFE, 0x42, 0x00, 0x00, 0xFE, 0x42, 0x9A, 0x99, 0x19, 0x3E, 0x9A, 0x99, 0x19, 0x3E, 0x9A, 0x99, 0x19 };
-	DWORD CatacombSmallRoomTexAddr = SearchAndGetAddresses(0x007FBB91, 0x007FF779, 0x007FE779, CatacombSearchBytes, sizeof(CatacombSearchBytes), 0x3F);
+	DWORD CatacombSmallRoomTexAddr = SearchAndGetAddresses(0x007FBB91, 0x007FF779, 0x007FE779, CatacombSearchBytes, sizeof(CatacombSearchBytes), 0x3F, __FUNCTION__);
 
 	// Checking address pointer
 	if (!CatacombSmallRoomTexAddr)
@@ -54,9 +54,9 @@ void PatchCatacombsMeatRoom()
 	// Check for valid code before updating
 	constexpr BYTE CatacombTexBytes[]{ 0x00, 0x00, 0x80, 0x40, 0x00, 0x00, 0x80, 0x40, 0x00, 0x00, 0x80, 0x40 };
 	constexpr BYTE CatacombFloorBytes[]{ 0xCD, 0xCC, 0xCC, 0x3D, 0xCD, 0xCC, 0xCC, 0x3D, 0xCD, 0xCC, 0xCC, 0x3D };
-	if (!CheckMemoryAddress((void*)CatacombSmallRoomTexAddr, (void*)CatacombTexBytes, sizeof(CatacombTexBytes)) ||
-		!CheckMemoryAddress((void*)CatacombLargeRoomTexAddr, (void*)CatacombTexBytes, sizeof(CatacombTexBytes)) ||
-		!CheckMemoryAddress((void*)CatacombLargeRoomFloorAddr, (void*)CatacombFloorBytes, sizeof(CatacombFloorBytes)))
+	if (!CheckMemoryAddress((void*)CatacombSmallRoomTexAddr, (void*)CatacombTexBytes, sizeof(CatacombTexBytes), __FUNCTION__) ||
+		!CheckMemoryAddress((void*)CatacombLargeRoomTexAddr, (void*)CatacombTexBytes, sizeof(CatacombTexBytes), __FUNCTION__) ||
+		!CheckMemoryAddress((void*)CatacombLargeRoomFloorAddr, (void*)CatacombFloorBytes, sizeof(CatacombFloorBytes), __FUNCTION__))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: memory addresses don't match!";
 		return;

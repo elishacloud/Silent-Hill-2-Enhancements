@@ -57,7 +57,7 @@ void SetClosetCutscene()
 {
 	// Get Apartment Closet Cutscene address
 	constexpr BYTE SearchBytesClosetCutscene[]{ 0xFF, 0xFF, 0x90, 0x90, 0x8A, 0x4C, 0x24, 0x08, 0xB8, 0x05, 0x00, 0x00, 0x00, 0xA3 };
-	DWORD ClosetCutsceneAddr = SearchAndGetAddresses(0x0047832C, 0x004785CC, 0x004787DC, SearchBytesClosetCutscene, sizeof(SearchBytesClosetCutscene), 0x17);
+	DWORD ClosetCutsceneAddr = SearchAndGetAddresses(0x0047832C, 0x004785CC, 0x004787DC, SearchBytesClosetCutscene, sizeof(SearchBytesClosetCutscene), 0x17, __FUNCTION__);
 	if (!ClosetCutsceneAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -98,7 +98,7 @@ void RunClosetCutscene()
 
 		// Get Room 312 Shadow address
 		constexpr BYTE SearchBytes[]{ 0x7C, 0xDC, 0xB0, 0x0C, 0x5F, 0xC6, 0x05 };
-		Address1 = ReadSearchedAddresses(0x004799D4, 0x00479C74, 0x00479E84, SearchBytes, sizeof(SearchBytes), 0x07);
+		Address1 = ReadSearchedAddresses(0x004799D4, 0x00479C74, 0x00479E84, SearchBytes, sizeof(SearchBytes), 0x07, __FUNCTION__);
 
 		// Checking address pointer
 		if (!Address1)
@@ -116,7 +116,7 @@ void RunClosetCutscene()
 
 		// Get Room 312 Shadow address
 		constexpr BYTE SearchBytes[]{ 0x5E, 0x83, 0xC4, 0x10, 0xC3, 0xC6, 0x46, 0x07, 0x00, 0x8B, 0x15 };
-		Address3 = ReadSearchedAddresses(0x0043F9BF, 0x0043FB7F, 0x0043FB7F, SearchBytes, sizeof(SearchBytes), -0x1B);
+		Address3 = ReadSearchedAddresses(0x0043F9BF, 0x0043FB7F, 0x0043FB7F, SearchBytes, sizeof(SearchBytes), -0x1B, __FUNCTION__);
 
 		// Checking address pointer
 		if (!Address3)

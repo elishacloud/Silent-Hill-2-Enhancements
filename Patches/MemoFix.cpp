@@ -43,7 +43,7 @@ void PatchMemoBrightnes()
 {
 	// Get memo brightness address
 	constexpr BYTE MemoBrightnessSearchBytes[]{ 0x8B, 0xC6, 0xC1, 0xE0, 0x08, 0x0B, 0xC6, 0xC1, 0xE0, 0x08, 0x81, 0xE1, 0x00, 0x00, 0x00, 0xFF, 0x0B, 0xC1, 0x0B, 0xC6, 0x68 };
-	DWORD MemoBrightnessAddr = SearchAndGetAddresses(0x0049914D, 0x004993FD, 0x00498CBD, MemoBrightnessSearchBytes, sizeof(MemoBrightnessSearchBytes), 0x22);
+	DWORD MemoBrightnessAddr = SearchAndGetAddresses(0x0049914D, 0x004993FD, 0x00498CBD, MemoBrightnessSearchBytes, sizeof(MemoBrightnessSearchBytes), 0x22, __FUNCTION__);
 
 	// Checking address pointer
 	if (!MemoBrightnessAddr)

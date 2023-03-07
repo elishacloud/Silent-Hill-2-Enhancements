@@ -111,7 +111,7 @@ void SetRoom312Resolution(void *WidthAddress)
 {
 	// Get Hotel Room 312 render texture width address
 	constexpr BYTE SearchBytesRenderTexture[]{ 0x56, 0x6A, 0x00, 0x6A, 0x15, 0x8B, 0xCF, 0x6A, 0x01, 0xD3, 0xEB, 0x6A, 0x01, 0x53, 0x8B, 0x1D };
-	static DWORD Room312RenderTexture = SearchAndGetAddresses(0x00476FCE, 0x0047726E, 0x0047747E, SearchBytesRenderTexture, sizeof(SearchBytesRenderTexture), 0x10);
+	static DWORD Room312RenderTexture = SearchAndGetAddresses(0x00476FCE, 0x0047726E, 0x0047747E, SearchBytesRenderTexture, sizeof(SearchBytesRenderTexture), 0x10, __FUNCTION__);
 	if (!Room312RenderTexture)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -120,7 +120,7 @@ void SetRoom312Resolution(void *WidthAddress)
 
 	// Get Hotel Room 312 viewport width address
 	constexpr BYTE SearchBytesViewport[]{ 0x8B, 0x08, 0x52, 0x8B, 0x54, 0x24, 0x10, 0x52, 0x50, 0xFF, 0x51, 0x7C, 0xE8 };
-	static DWORD Room312Viewport = SearchAndGetAddresses(0x00478F8E, 0x0047922E, 0x0047943E, SearchBytesViewport, sizeof(SearchBytesViewport), 0x26);
+	static DWORD Room312Viewport = SearchAndGetAddresses(0x00478F8E, 0x0047922E, 0x0047943E, SearchBytesViewport, sizeof(SearchBytesViewport), 0x26, __FUNCTION__);
 	if (!Room312Viewport)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -139,7 +139,7 @@ void PatchRoom312ShadowFix()
 {
 	// Get Hotel Room 312 address
 	constexpr BYTE SearchBytesHotelRoom312[]{ 0x8B, 0x08, 0x6A, 0x01, 0x6A, 0x0F, 0x50, 0xBB, 0x08, 0x00, 0x00, 0x00, 0xFF, 0x91, 0xC8, 0x00, 0x00, 0x00, 0xA1 };
-	DWORD HotelRoom312Addr = SearchAndGetAddresses(0x005B018B, 0x005B0ABB, 0x005B03DB, SearchBytesHotelRoom312, sizeof(SearchBytesHotelRoom312), 0x34);
+	DWORD HotelRoom312Addr = SearchAndGetAddresses(0x005B018B, 0x005B0ABB, 0x005B03DB, SearchBytesHotelRoom312, sizeof(SearchBytesHotelRoom312), 0x34, __FUNCTION__);
 	if (!HotelRoom312Addr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -150,7 +150,7 @@ void PatchRoom312ShadowFix()
 
 	// Get Chair Shadow address
 	constexpr BYTE SearchBytesChairShadow[]{ 0xD9, 0x58, 0x14, 0x8B, 0x07, 0x8B, 0x48, 0x3C, 0xD9, 0x41, 0x30, 0x83, 0xC1, 0x30 };
-	DWORD ChairShadowAddr1 = SearchAndGetAddresses(0x005A7483, 0x005A7D33, 0x005A7653, SearchBytesChairShadow, sizeof(SearchBytesChairShadow), 0x00);
+	DWORD ChairShadowAddr1 = SearchAndGetAddresses(0x005A7483, 0x005A7D33, 0x005A7653, SearchBytesChairShadow, sizeof(SearchBytesChairShadow), 0x00, __FUNCTION__);
 	if (!ChairShadowAddr1)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -162,7 +162,7 @@ void PatchRoom312ShadowFix()
 
 	// Get Room 312 Bloom Effect address
 	constexpr BYTE SearchBytesRoom312Bloom[]{ 0xC6, 0x46, 0x10, 0x03, 0xC6, 0x46, 0x11, 0x19, 0xC6, 0x46, 0x12, 0xD8, 0xC6, 0x46, 0x14, 0x0C };
-	DWORD Room312BloomAddr = SearchAndGetAddresses(0x00579011, 0x005798C1, 0x005791E1, SearchBytesRoom312Bloom, sizeof(SearchBytesRoom312Bloom), -0x10);
+	DWORD Room312BloomAddr = SearchAndGetAddresses(0x00579011, 0x005798C1, 0x005791E1, SearchBytesRoom312Bloom, sizeof(SearchBytesRoom312Bloom), -0x10, __FUNCTION__);
 	if (!Room312BloomAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";

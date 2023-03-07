@@ -24,7 +24,7 @@ void SetBloodSize()
 {
 	// Get Blood Size address
 	constexpr BYTE SearchBytes[]{ 0xD9, 0x44, 0x24, 0x14, 0xD8, 0x64, 0x24, 0x08, 0xDE, 0xC9, 0xD8, 0x44, 0x24, 0x08, 0xD9, 0x81 };
-	DWORD BloodSizeAddr = ReadSearchedAddresses(0x004CE1DA, 0x004CE48A, 0x004CDD4A, SearchBytes, sizeof(SearchBytes), 0x10);
+	DWORD BloodSizeAddr = ReadSearchedAddresses(0x004CE1DA, 0x004CE48A, 0x004CDD4A, SearchBytes, sizeof(SearchBytes), 0x10, __FUNCTION__);
 	if (!BloodSizeAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -51,7 +51,7 @@ void RunBloodSize()
 
 		// Get address for blood position
 		constexpr BYTE SearchBytes[]{ 0x83, 0xC4, 0x08, 0x83, 0xC6, 0x08, 0x81, 0xFE, 0xC8, 0x00, 0x00, 0x00, 0x72, 0xC9, 0x5F, 0x5E, 0x5B, 0x83, 0xC4, 0x40, 0xC3, 0x90, 0x68 };
-		Address1 = (float*)ReadSearchedAddresses(0x004CAB9A, 0x004CAE4A, 0x004CA70A, SearchBytes, sizeof(SearchBytes), 0x5A);
+		Address1 = (float*)ReadSearchedAddresses(0x004CAB9A, 0x004CAE4A, 0x004CA70A, SearchBytes, sizeof(SearchBytes), 0x5A, __FUNCTION__);
 		if (!Address1)
 		{
 			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
@@ -72,7 +72,7 @@ void RunBloodSize()
 
 		// Get address for blood position
 		constexpr BYTE SearchBytes[]{ 0x5D, 0x33, 0xC0, 0x5B, 0x81, 0xC4, 0x10, 0x01, 0x00, 0x00, 0xC3, 0x90, 0x90, 0x56, 0x6A, 0x00, 0x8B, 0xF0 };
-		Address2 = ReadSearchedAddresses(0x004CE5C3, 0x004CE873, 0x004CE133, SearchBytes, sizeof(SearchBytes), 0x96);
+		Address2 = ReadSearchedAddresses(0x004CE5C3, 0x004CE873, 0x004CE133, SearchBytes, sizeof(SearchBytes), 0x96, __FUNCTION__);
 		if (!Address2)
 		{
 			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";

@@ -102,7 +102,7 @@ __declspec(naked) void __stdcall SkipResetSelectionAfterCombineASM()
 void PatchCommandWindowMouseFix()
 {
     constexpr BYTE CommandMouseInputSearchBytes[]{ 0x5F, 0x5E, 0x5D, 0x83, 0xC4, 0x18, 0xC3, 0x83, 0xF8, 0x01 };
-    const DWORD CommandMouseInputAddr = SearchAndGetAddresses(0x00472428, 0x004726C8, 0x004728D8, CommandMouseInputSearchBytes, sizeof(CommandMouseInputSearchBytes), 0x07);
+    const DWORD CommandMouseInputAddr = SearchAndGetAddresses(0x00472428, 0x004726C8, 0x004728D8, CommandMouseInputSearchBytes, sizeof(CommandMouseInputSearchBytes), 0x07, __FUNCTION__);
     if (!CommandMouseInputAddr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find pointer address!";
@@ -120,7 +120,7 @@ void PatchCommandWindowMouseFix()
     IsMousePressedFuncAddr = IsMousePressedRelativeAddr + CommandMouseInputAddr - 0x178;
 
     constexpr BYTE IsMouseMovingSearchBytes[]{ 0x8B, 0xC8, 0x81, 0xE9, 0x88, 0x00, 0x00, 0x00 };
-    const DWORD IsMouseMovingSearchAddr = SearchAndGetAddresses(0x0044FD38, 0x0044FF98, 0x0044FF98, IsMouseMovingSearchBytes, sizeof(IsMouseMovingSearchBytes), -0x0D);
+    const DWORD IsMouseMovingSearchAddr = SearchAndGetAddresses(0x0044FD38, 0x0044FF98, 0x0044FF98, IsMouseMovingSearchBytes, sizeof(IsMouseMovingSearchBytes), -0x0D, __FUNCTION__);
     if (!CommandMouseInputAddr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find pointer address!";

@@ -236,12 +236,12 @@ void PatchSpecialFX()
 {
 	// Get first custom address set (006A1488)
 	constexpr BYTE SearchBytesCustomAddr1[]{ 0x89, 0x4C, 0x24, 0x08, 0x8B, 0x08, 0x50, 0xDB, 0x44, 0x24, 0x0C, 0x89, 0x54, 0x24, 0x0C, 0xD8, 0x0D };
-	DWORD CustomAddr1 = SearchAndGetAddresses(0x004795D4, 0x00479874, 0x00479A84, SearchBytesCustomAddr1, sizeof(SearchBytesCustomAddr1), 0x11);
+	DWORD CustomAddr1 = SearchAndGetAddresses(0x004795D4, 0x00479874, 0x00479A84, SearchBytesCustomAddr1, sizeof(SearchBytesCustomAddr1), 0x11, __FUNCTION__);
 	DWORD CustomAddr2 = CustomAddr1 + 0x0E;
 
 	// Get second custom address set (00631614)
 	constexpr BYTE SearchBytesCustomAddr2[]{ 0x8B, 0xCF, 0xD9, 0xE0, 0xBB, 0x01, 0x00, 0x00, 0x00, 0xD9, 0x44, 0x24, 0x58, 0xD3, 0xE3, 0xDC, 0xC0, 0xA1 };
-	DWORD CustomAddress2Ptr = SearchAndGetAddresses(0x00477747, 0x004779E7, 0x00477BF7, SearchBytesCustomAddr2, sizeof(SearchBytesCustomAddr2), 0x16);
+	DWORD CustomAddress2Ptr = SearchAndGetAddresses(0x00477747, 0x004779E7, 0x00477BF7, SearchBytesCustomAddr2, sizeof(SearchBytesCustomAddr2), 0x16, __FUNCTION__);
 	jmpCustomAddress2Addr = (void*)(CustomAddress2Ptr + 6);
 
 	// Get third custom address set (00633460)
@@ -257,7 +257,7 @@ void PatchSpecialFX()
 
 	// Get Universal Motion Blur Intensity address
 	constexpr BYTE SearchBytesMotionBlur[]{ 0x8A, 0x4C, 0x24, 0x08, 0xB8, 0x03, 0x00, 0x00, 0x00, 0xA3 };
-	DWORD MotionBlurPtr = SearchAndGetAddresses(0x004782E0, 0x00478580, 0x00478790, SearchBytesMotionBlur, sizeof(SearchBytesMotionBlur), -0x32);
+	DWORD MotionBlurPtr = SearchAndGetAddresses(0x004782E0, 0x00478580, 0x00478790, SearchBytesMotionBlur, sizeof(SearchBytesMotionBlur), -0x32, __FUNCTION__);
 	if (!MotionBlurPtr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -268,19 +268,19 @@ void PatchSpecialFX()
 
 	// Get Maria/Mary Boss Transformation and Death and Hospital Otherworld Motion Blur Correction addresses
 	constexpr BYTE SearchBytesMotionBlur1Ptr[]{ 0x8B, 0xF0, 0x83, 0xC4, 0x14, 0xDF, 0xE0, 0xF6, 0xC4, 0x01, 0x0F, 0x85 };
-	DWORD CustomMotionBlur1Ptr = SearchAndGetAddresses(0x0043FD9C, 0x0043FF5C, 0x0043FF5C, SearchBytesMotionBlur1Ptr, sizeof(SearchBytesMotionBlur1Ptr), 0x18);
+	DWORD CustomMotionBlur1Ptr = SearchAndGetAddresses(0x0043FD9C, 0x0043FF5C, 0x0043FF5C, SearchBytesMotionBlur1Ptr, sizeof(SearchBytesMotionBlur1Ptr), 0x18, __FUNCTION__);
 	jmpCustomMotionBlur1Addr = (void*)(CustomMotionBlur1Ptr + 7);
-	DWORD CustomMotionBlur2Ptr = SearchAndGetAddresses(0x00440B40, 0x00440D00, 0x00440D00, SearchBytesMotionBlur1Ptr, sizeof(SearchBytesMotionBlur1Ptr), 0x1C);
+	DWORD CustomMotionBlur2Ptr = SearchAndGetAddresses(0x00440B40, 0x00440D00, 0x00440D00, SearchBytesMotionBlur1Ptr, sizeof(SearchBytesMotionBlur1Ptr), 0x1C, __FUNCTION__);
 	jmpCustomMotionBlur2Addr = (void*)(CustomMotionBlur2Ptr + 7);
-	DWORD CustomMotionBlur3Ptr = SearchAndGetAddresses(0x0043EA2C, 0x0043EBEC, 0x0043EBEC, SearchBytesMotionBlur1Ptr, sizeof(SearchBytesMotionBlur1Ptr), 0x18);
+	DWORD CustomMotionBlur3Ptr = SearchAndGetAddresses(0x0043EA2C, 0x0043EBEC, 0x0043EBEC, SearchBytesMotionBlur1Ptr, sizeof(SearchBytesMotionBlur1Ptr), 0x18, __FUNCTION__);
 	jmpCustomMotionBlur3Addr = (void*)(CustomMotionBlur3Ptr + 7);
-	DWORD CustomMotionBlur4Ptr = SearchAndGetAddresses(0x005747C1, 0x00575071, 0x00574991, SearchBytesMotionBlur1Ptr, sizeof(SearchBytesMotionBlur1Ptr), 0x18);
+	DWORD CustomMotionBlur4Ptr = SearchAndGetAddresses(0x005747C1, 0x00575071, 0x00574991, SearchBytesMotionBlur1Ptr, sizeof(SearchBytesMotionBlur1Ptr), 0x18, __FUNCTION__);
 	jmpCustomMotionBlur4Addr = (void*)(CustomMotionBlur4Ptr + 7);
 	constexpr BYTE SearchBytesMotionBlur5Ptr[]{ 0x00, 0x85, 0xC0, 0x74, 0x0B };
-	DWORD CustomMotionBlur5Ptr = SearchAndGetAddresses(0x004A8214, 0x004A84C4, 0x004A7D84, SearchBytesMotionBlur5Ptr, sizeof(SearchBytesMotionBlur5Ptr), 0x05);
+	DWORD CustomMotionBlur5Ptr = SearchAndGetAddresses(0x004A8214, 0x004A84C4, 0x004A7D84, SearchBytesMotionBlur5Ptr, sizeof(SearchBytesMotionBlur5Ptr), 0x05, __FUNCTION__);
 	jmpCustomMotionBlur5Addr = (void*)(CustomMotionBlur5Ptr + 7);
 	constexpr BYTE SearchBytesMotionBlur6Ptr[]{ 0x00, 0xDF, 0xE0, 0xF6, 0xC4, 0x41, 0x75, 0x0A, 0x81, 0x0D };
-	DWORD CustomMotionBlur6Ptr = SearchAndGetAddresses(0x0058B9DA, 0x0058C28A, 0x0058BBAA, SearchBytesMotionBlur6Ptr, sizeof(SearchBytesMotionBlur6Ptr), -0x1C);
+	DWORD CustomMotionBlur6Ptr = SearchAndGetAddresses(0x0058B9DA, 0x0058C28A, 0x0058BBAA, SearchBytesMotionBlur6Ptr, sizeof(SearchBytesMotionBlur6Ptr), -0x1C, __FUNCTION__);
 	jmpCustomMotionBlur6Addr = (void*)(CustomMotionBlur6Ptr + 7);
 	if (!CustomMotionBlur1Ptr || !CustomMotionBlur2Ptr || !CustomMotionBlur3Ptr || !CustomMotionBlur4Ptr || !CustomMotionBlur5Ptr || !CustomMotionBlur6Ptr)
 	{
@@ -292,7 +292,7 @@ void PatchSpecialFX()
 
 	// Get Maria Behind Jail Cell Motion Blur Correction addresses
 	constexpr BYTE SearchBytesMariaBehindJail[]{ 0x00, 0xDF, 0xE0, 0xF6, 0xC4, 0x05, 0x7A, 0x15, 0xD9, 0x05 };
-	DWORD MariaBehindJailCell1Ptr = ReadSearchedAddresses(0x0058349E, 0x00583D4E, 0x0058366E, SearchBytesMariaBehindJail, sizeof(SearchBytesMariaBehindJail), 0x0A);
+	DWORD MariaBehindJailCell1Ptr = ReadSearchedAddresses(0x0058349E, 0x00583D4E, 0x0058366E, SearchBytesMariaBehindJail, sizeof(SearchBytesMariaBehindJail), 0x0A, __FUNCTION__);
 	DWORD MariaBehindJailCell2Ptr = MariaBehindJailCell1Ptr + 0x0C;
 	DWORD MariaBehindJailCell3Ptr = MariaBehindJailCell2Ptr + 0x04;
 	if (!MariaBehindJailCell1Ptr)
@@ -303,7 +303,7 @@ void PatchSpecialFX()
 
 	// Get Angela Abstract Daddy Motion Blur Correction address
 	constexpr BYTE SearchBytesAngelaAbstractDaddy[]{ 0x00, 0xDF, 0xE0, 0xF6, 0xC4, 0x05, 0x7A, 0x50, 0xD9, 0x05 };
-	DWORD AngelaAbstractDaddy1Ptr = ReadSearchedAddresses(0x00581672, 0x00581F22, 0x00581842, SearchBytesAngelaAbstractDaddy, sizeof(SearchBytesAngelaAbstractDaddy), -0x2C);
+	DWORD AngelaAbstractDaddy1Ptr = ReadSearchedAddresses(0x00581672, 0x00581F22, 0x00581842, SearchBytesAngelaAbstractDaddy, sizeof(SearchBytesAngelaAbstractDaddy), -0x2C, __FUNCTION__);
 	DWORD AngelaAbstractDaddy2Ptr = AngelaAbstractDaddy1Ptr + 0x08;
 	DWORD AngelaAbstractDaddy3Ptr = AngelaAbstractDaddy2Ptr + 0x04;
 	DWORD AngelaAbstractDaddy4Ptr = AngelaAbstractDaddy3Ptr + 0x0C;
@@ -319,7 +319,7 @@ void PatchSpecialFX()
 
 	// Get Eddie Boss Death Sequence address
 	constexpr BYTE SearchBytesEddieBossDeath[]{ 0x8B, 0x4E, 0x10, 0x8A, 0x46, 0x03, 0x83, 0xC9, 0x08, 0xFE, 0xC0, 0x89, 0x4E, 0x10, 0x88, 0x46, 0x03, 0x56 };
-	DWORD EddieBossDeathPtr = SearchAndGetAddresses(0x004B0A42, 0x004B0CF2, 0x004B05B2, SearchBytesEddieBossDeath, sizeof(SearchBytesEddieBossDeath), -0x18);
+	DWORD EddieBossDeathPtr = SearchAndGetAddresses(0x004B0A42, 0x004B0CF2, 0x004B05B2, SearchBytesEddieBossDeath, sizeof(SearchBytesEddieBossDeath), -0x18, __FUNCTION__);
 	jmpEddieBossDeathAddr = (void*)(EddieBossDeathPtr + 0x05);
 	jmpEddieBossDeathTimerAddr = (void*)(EddieBossDeathPtr + 0x29);
 	if (!EddieBossDeathPtr)
@@ -358,7 +358,7 @@ void PatchSpecialFX()
 	
 	// Get return address of dial lock
 	constexpr BYTE PuzzleFadeOutBytes[]{ 0x74, 0xA2, 0xA8, 0x02, 0x74, 0x9E, 0xA8, 0x08, 0x74, 0x9A, 0xE8 };
-	DWORD PuzzleFadeOutPatchAddr = SearchAndGetAddresses(0x0058F5E2, 0x0058FE92, 0x0058F7B2, PuzzleFadeOutBytes, sizeof(PuzzleFadeOutBytes), 0x23);
+	DWORD PuzzleFadeOutPatchAddr = SearchAndGetAddresses(0x0058F5E2, 0x0058FE92, 0x0058F7B2, PuzzleFadeOutBytes, sizeof(PuzzleFadeOutBytes), 0x23, __FUNCTION__);
 
 	// Sets jump point to more better working address after if comparison true
 	auto PuzzleFadeOutFixPattern = hook::pattern("A8 08 C7 05 ? ? ? ? ? ? ? ? 75 0A C7 05 ? ? ? ? ? ? ? ? C7 05 ? ? ? ? ? ? ? ? E8").count(1);
@@ -462,7 +462,7 @@ void RunHotelRoom312FogVolumeFix()
 
 		// Get address for blood position
 		constexpr BYTE SearchBytes[]{ 0xD9, 0x5E, 0x04, 0x89, 0x5E, 0x30, 0x89, 0x5E, 0x34, 0x89, 0x5E, 0x38, 0x89, 0x5E, 0x3C, 0xC7, 0x46, 0x38 };
-		Address1 = (BYTE*)ReadSearchedAddresses(0x00485907, 0x00485BA7, 0x00485DB7, SearchBytes, sizeof(SearchBytes), 0x29);
+		Address1 = (BYTE*)ReadSearchedAddresses(0x00485907, 0x00485BA7, 0x00485DB7, SearchBytes, sizeof(SearchBytes), 0x29, __FUNCTION__);
 		if (!Address1)
 		{
 			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";

@@ -24,10 +24,10 @@ void PatchBinary()
 {
 	// Find address for call code
 	constexpr BYTE DCCallSearchBytes[] = { 0x00, 0x6A, 0x00, 0x6A, 0x00, 0x6A, 0x00, 0x68, 0xE8, 0x03, 0x00, 0x00, 0xE8 };
-	void *DCCallPatchAddr = (void*)SearchAndGetAddresses(0x00408A29, 0x00408BD9, 0x00408BE9, DCCallSearchBytes, sizeof(DCCallSearchBytes), 0x32);
+	void *DCCallPatchAddr = (void*)SearchAndGetAddresses(0x00408A29, 0x00408BD9, 0x00408BE9, DCCallSearchBytes, sizeof(DCCallSearchBytes), 0x32, __FUNCTION__);
 
 	// Address found
-	if (!DCCallPatchAddr || !(CheckMemoryAddress(DCCallPatchAddr, "\xE8", 0x01) || CheckMemoryAddress(DCCallPatchAddr, "\xB8", 0x01)))
+	if (!DCCallPatchAddr || !(CheckMemoryAddress(DCCallPatchAddr, "\xE8", 0x01, __FUNCTION__) || CheckMemoryAddress(DCCallPatchAddr, "\xB8", 0x01, __FUNCTION__)))
 	{
 		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
 		return;
@@ -35,7 +35,7 @@ void PatchBinary()
 
 	// Find address for health cross animation
 	constexpr BYTE HealthAnimationSearchBytes[] = { 0xDF, 0xE0, 0xF6, 0xC4, 0x41, 0x75, 0x08, 0xC7, 0x44, 0x24, 0x00, 0x00, 0x00, 0x80, 0x3F };
-	void *HealthAnimationPatchAddr = (void*)SearchAndGetAddresses(0x00476374, 0x00476614, 0x00476824, HealthAnimationSearchBytes, sizeof(HealthAnimationSearchBytes), 0x24);
+	void *HealthAnimationPatchAddr = (void*)SearchAndGetAddresses(0x00476374, 0x00476614, 0x00476824, HealthAnimationSearchBytes, sizeof(HealthAnimationSearchBytes), 0x24, __FUNCTION__);
 
 	// Address found
 	if (!HealthAnimationPatchAddr)
@@ -45,22 +45,22 @@ void PatchBinary()
 	}
 
 	constexpr BYTE TextLayer1SearchBytes[] = { 0x81, 0xC7, 0x0C, 0x01, 0x00, 0x00, 0x84, 0xC0, 0x6A, 0x62, 0x57, 0x74, 0x15, 0xA1 };
-	DWORD TextLayer1Addr = SearchAndGetAddresses(0x004620F8, 0x0046235A, 0x0046235A, TextLayer1SearchBytes, sizeof(TextLayer1SearchBytes), 0x28);
+	DWORD TextLayer1Addr = SearchAndGetAddresses(0x004620F8, 0x0046235A, 0x0046235A, TextLayer1SearchBytes, sizeof(TextLayer1SearchBytes), 0x28, __FUNCTION__);
 
 	constexpr BYTE TextLayer2SearchBytes[] = { 0x83, 0xC4, 0x10, 0x84, 0xC0, 0x6A, 0x64, 0x8D, 0xB7, 0x0E, 0x01, 0x00, 0x00, 0x56, 0x74, 0x0B, 0x8B, 0x15 };
-	DWORD TextLayer2Addr = SearchAndGetAddresses(0x00461EA3, 0x00462115, 0x00462115, TextLayer2SearchBytes, sizeof(TextLayer2SearchBytes), 0x20);
+	DWORD TextLayer2Addr = SearchAndGetAddresses(0x00461EA3, 0x00462115, 0x00462115, TextLayer2SearchBytes, sizeof(TextLayer2SearchBytes), 0x20, __FUNCTION__);
 
 	DWORD WeaponArrowSpacingAddr = 0, ViewArrowSpacingAddr = 0;
 	if (GameVersion != SH2V_DC)
 	{
 		constexpr BYTE ArrowSpacingSearchBytes[] = { 0x5E, 0x5D, 0x5B, 0x8B, 0x4C, 0x24, 0x48, 0x33, 0x4C, 0x24, 0x4C, 0x83, 0xC4, 0x4C, 0xE9 };
-		WeaponArrowSpacingAddr = SearchAndGetAddresses(0x0046416E, 0x004643E7, 0x00000000, ArrowSpacingSearchBytes, sizeof(ArrowSpacingSearchBytes), 0xC2);
+		WeaponArrowSpacingAddr = SearchAndGetAddresses(0x0046416E, 0x004643E7, 0x00000000, ArrowSpacingSearchBytes, sizeof(ArrowSpacingSearchBytes), 0xC2, __FUNCTION__);
 		ViewArrowSpacingAddr = WeaponArrowSpacingAddr + 0x38E;
 	}
 	else
 	{
 		constexpr BYTE ArrowSpacingSearchBytes[] = { 0x6A, 0x2F, 0x50, 0xEB, 0x09, 0x8B, 0x0D };
-		WeaponArrowSpacingAddr = SearchAndGetAddresses(0x00000000, 0x00000000, 0x004646A1, ArrowSpacingSearchBytes, sizeof(ArrowSpacingSearchBytes), 0x0B);
+		WeaponArrowSpacingAddr = SearchAndGetAddresses(0x00000000, 0x00000000, 0x004646A1, ArrowSpacingSearchBytes, sizeof(ArrowSpacingSearchBytes), 0x0B, __FUNCTION__);
 		ViewArrowSpacingAddr = WeaponArrowSpacingAddr + 0x396;
 	}
 

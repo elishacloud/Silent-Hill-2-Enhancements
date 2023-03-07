@@ -47,10 +47,10 @@ void PatchCustomFog()
 {
 	// Get fog addresses
 	constexpr BYTE TL1SearchBytes[]{ 0x8B, 0x4C, 0x24, 0x00, 0x89, 0x44, 0x24, 0x08, 0xDB, 0x44, 0x24, 0x08, 0x89, 0x0D };
-	DWORD TransparencyLayer1Addr = SearchAndGetAddresses(0x0048734C, 0x004875EC, 0x004877FC, TL1SearchBytes, sizeof(TL1SearchBytes), 0x1D);
+	DWORD TransparencyLayer1Addr = SearchAndGetAddresses(0x0048734C, 0x004875EC, 0x004877FC, TL1SearchBytes, sizeof(TL1SearchBytes), 0x1D, __FUNCTION__);
 
 	constexpr BYTE TL2SearchBytes[]{ 0xD9, 0x94, 0x24, 0x0C, 0x01, 0x00, 0x00, 0xD8, 0x5C, 0x24, 0x24, 0xDF, 0xE0, 0xF6, 0xC4, 0x05, 0x0F, 0x8B };
-	DWORD TransparencyLayer2Addr = SearchAndGetAddresses(0x0048893D, 0x00488BDD, 0x00488DED, TL2SearchBytes, sizeof(TL2SearchBytes), 0x31);
+	DWORD TransparencyLayer2Addr = SearchAndGetAddresses(0x0048893D, 0x00488BDD, 0x00488DED, TL2SearchBytes, sizeof(TL2SearchBytes), 0x31, __FUNCTION__);
 
 	if (!TransparencyLayer1Addr || !TransparencyLayer2Addr)
 	{

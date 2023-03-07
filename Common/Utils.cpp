@@ -132,7 +132,7 @@ void *GetAddressOfData(const void *data, size_t len, DWORD step, DWORD start, DW
 }
 
 // Checks the value of two data segments
-bool CheckMemoryAddress(void *dataAddr, void *dataBytes, size_t dataSize, bool WriteLog)
+bool CheckMemoryAddress(void* dataAddr, void* dataBytes, size_t dataSize, char* FuncName, bool WriteLog)
 {
 	if (!dataAddr || !dataBytes || !dataSize)
 	{
@@ -143,7 +143,7 @@ bool CheckMemoryAddress(void *dataAddr, void *dataBytes, size_t dataSize, bool W
 	DWORD dwPrevProtect;
 	if (!VirtualProtect(dataAddr, dataSize, PAGE_READONLY, &dwPrevProtect))
 	{
-		Logging::Log() << __FUNCTION__ << " Error: could not read memory address";
+		Logging::Log() << __FUNCTION__ " -> " << FuncName << " Error: could not read memory address";
 		return false;
 	}
 
@@ -154,7 +154,7 @@ bool CheckMemoryAddress(void *dataAddr, void *dataBytes, size_t dataSize, bool W
 
 	if (!flag && WriteLog)
 	{
-		Logging::Log() << __FUNCTION__ << " Error: memory address not found!";
+		Logging::Log() << __FUNCTION__ " -> " << FuncName << " Error: memory address not found!";
 	}
 
 	// Return results
@@ -162,46 +162,46 @@ bool CheckMemoryAddress(void *dataAddr, void *dataBytes, size_t dataSize, bool W
 }
 
 // Checks mulitple memory addresses
-void *CheckMultiMemoryAddress(void *dataAddr10, void *dataAddr11, void *dataAddrDC, void *dataBytes, size_t dataSize)
+void *CheckMultiMemoryAddress(void* dataAddr10, void* dataAddr11, void* dataAddrDC, void* dataBytes, size_t dataSize, char* FuncName)
 {
 	void *MemAddress = nullptr;
 	// v1.0
 	if (!MemAddress && (GameVersion == SH2V_10 || GameVersion == SH2V_UNKNOWN))
 	{
-		MemAddress = (CheckMemoryAddress(dataAddr10, dataBytes, dataSize)) ? dataAddr10 : nullptr;
+		MemAddress = (CheckMemoryAddress(dataAddr10, dataBytes, dataSize, FuncName, true)) ? dataAddr10 : nullptr;
 	}
 	// v1.1
 	if (!MemAddress && (GameVersion == SH2V_11 || GameVersion == SH2V_UNKNOWN))
 	{
-		MemAddress = (CheckMemoryAddress(dataAddr11, dataBytes, dataSize)) ? dataAddr11 : nullptr;
+		MemAddress = (CheckMemoryAddress(dataAddr11, dataBytes, dataSize, FuncName, true)) ? dataAddr11 : nullptr;
 	}
 	// vDC
 	if (!MemAddress && (GameVersion == SH2V_DC || GameVersion == SH2V_UNKNOWN))
 	{
-		MemAddress = (CheckMemoryAddress(dataAddrDC, dataBytes, dataSize)) ? dataAddrDC : nullptr;
+		MemAddress = (CheckMemoryAddress(dataAddrDC, dataBytes, dataSize, FuncName, true)) ? dataAddrDC : nullptr;
 	}
 	// Return address
 	return MemAddress;
 }
 
 // Search for memory addresses
-DWORD SearchAndGetAddresses(DWORD dataAddr10, DWORD dataAddr11, DWORD dataAddrDC, const BYTE *dataBytes, size_t dataSize, int ByteDelta)
+DWORD SearchAndGetAddresses(DWORD dataAddr10, DWORD dataAddr11, DWORD dataAddrDC, const BYTE* dataBytes, size_t dataSize, int ByteDelta, char* FuncName)
 {
 	// Get address
-	DWORD MemoryAddr = (DWORD)CheckMultiMemoryAddress((void*)dataAddr10, (void*)dataAddr11, (void*)dataAddrDC, (void*)dataBytes, dataSize);
+	DWORD MemoryAddr = (DWORD)CheckMultiMemoryAddress((void*)dataAddr10, (void*)dataAddr11, (void*)dataAddrDC, (void*)dataBytes, dataSize, FuncName);
 
 	// Search for address
 	if (!MemoryAddr)
 	{
 		DWORD SearchAddr = (GameVersion == SH2V_10) ? dataAddr10 : (GameVersion == SH2V_11) ? dataAddr11 : (GameVersion == SH2V_DC) ? dataAddrDC : dataAddr10;
 		MemoryAddr = (DWORD)GetAddressOfData(dataBytes, dataSize, 1, SearchAddr - 0x800, 2600);
-		Logging::Log() << __FUNCTION__ << " searching for memory address! Found = " << (void*)MemoryAddr;
+		Logging::Log() << __FUNCTION__ " -> " << FuncName << " searching for memory address! Found = " << (void*)MemoryAddr;
 	}
 
 	// Checking address pointer
 	if (!MemoryAddr)
 	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		Logging::Log() << __FUNCTION__ " -> " << FuncName << " Error: failed to find memory address!";
 		return NULL;
 	}
 	MemoryAddr = MemoryAddr + ByteDelta;
@@ -211,10 +211,10 @@ DWORD SearchAndGetAddresses(DWORD dataAddr10, DWORD dataAddr11, DWORD dataAddrDC
 }
 
 // Search for memory addresses
-DWORD ReadSearchedAddresses(DWORD dataAddr10, DWORD dataAddr11, DWORD dataAddrDC, const BYTE *dataBytes, size_t dataSize, int ByteDelta)
+DWORD ReadSearchedAddresses(DWORD dataAddr10, DWORD dataAddr11, DWORD dataAddrDC, const BYTE* dataBytes, size_t dataSize, int ByteDelta, char* FuncName)
 {
 	// Search for address
-	DWORD MemoryAddr = SearchAndGetAddresses(dataAddr10, dataAddr11, dataAddrDC, dataBytes, dataSize, ByteDelta);
+	DWORD MemoryAddr = SearchAndGetAddresses(dataAddr10, dataAddr11, dataAddrDC, dataBytes, dataSize, ByteDelta, FuncName);
 
 	// If address exists then read memory and return address
 	if (MemoryAddr)

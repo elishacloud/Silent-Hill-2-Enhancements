@@ -23,7 +23,7 @@ void PatchPreventChainsawSpawn()
 {
 	// Get chiansaw spawn address
 	constexpr BYTE SearchBytes[]{ 0x85, 0xF6, 0x7E, 0x0F, 0xF6, 0xC1, 0x40, 0x74, 0x0A, 0x81, 0x0D };
-	DWORD ChainsawAddr = SearchAndGetAddresses(0x0048AB80, 0x0048AE20, 0x0048B030, SearchBytes, sizeof(SearchBytes), -0x12);
+	DWORD ChainsawAddr = SearchAndGetAddresses(0x0048AB80, 0x0048AE20, 0x0048B030, SearchBytes, sizeof(SearchBytes), -0x12, __FUNCTION__);
 	if (!ChainsawAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";

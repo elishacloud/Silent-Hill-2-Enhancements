@@ -808,7 +808,7 @@ bool InputTweaks::IsInFullScreenImageEvent()
 bool InputTweaks::GetAnalogStringAddr()
 {
 	constexpr BYTE AnalogStringOneSearchBytes[]{ 0x68, 0x9A, 0x00, 0x00, 0x00, 0x56, 0x6A, 0x68 };
-	BYTE *AnalogString = (BYTE*)SearchAndGetAddresses(0x461F63, 0x4621D5, 0x4621D5, AnalogStringOneSearchBytes, sizeof(AnalogStringOneSearchBytes), 0x07);
+	BYTE *AnalogString = (BYTE*)SearchAndGetAddresses(0x461F63, 0x4621D5, 0x4621D5, AnalogStringOneSearchBytes, sizeof(AnalogStringOneSearchBytes), 0x07, __FUNCTION__);
 
 	if (!AnalogString)
 	{
@@ -821,7 +821,7 @@ bool InputTweaks::GetAnalogStringAddr()
 	}
 
 	constexpr BYTE AnalogStringTwoSearchBytes[]{ 0x68, 0x98, 0x00, 0x00, 0x00, 0x81, 0xC7, 0x0C, 0x01, 0x00, 0x00, 0x57, 0x6A, 0x68 };
-	AnalogString = (BYTE*)SearchAndGetAddresses(0x4621D1, 0x462433, 0x462433, AnalogStringTwoSearchBytes, sizeof(AnalogStringTwoSearchBytes), 0x0D);
+	AnalogString = (BYTE*)SearchAndGetAddresses(0x4621D1, 0x462433, 0x462433, AnalogStringTwoSearchBytes, sizeof(AnalogStringTwoSearchBytes), 0x0D, __FUNCTION__);
 
 	if (!AnalogString)
 	{
@@ -834,7 +834,7 @@ bool InputTweaks::GetAnalogStringAddr()
 	}
 
 	constexpr BYTE AnalogStringThreeSearchBytes[]{ 0x00, 0x6A, 0x68 };
-	AnalogString = (BYTE*)SearchAndGetAddresses(0x464465, 0x4646DE, 0x4648E6, AnalogStringThreeSearchBytes, sizeof(AnalogStringThreeSearchBytes), 0x02);
+	AnalogString = (BYTE*)SearchAndGetAddresses(0x464465, 0x4646DE, 0x4648E6, AnalogStringThreeSearchBytes, sizeof(AnalogStringThreeSearchBytes), 0x02, __FUNCTION__);
 
 	if (!AnalogString)
 	{
@@ -898,7 +898,7 @@ BYTE* KeyBindsHandler::GetKeyBindsPointer()
 
 	// Get Turn Left Button address
 	constexpr BYTE TurnLeftButtonSearchBytes[]{ 0x56, 0x8B, 0x74, 0x24, 0x08, 0x83, 0xFE, 0x16, 0x7D, 0x3F };
-	BYTE* Binds = (BYTE*)ReadSearchedAddresses(0x005AEF90, 0x005AF8C0, 0x005AF1E0, TurnLeftButtonSearchBytes, sizeof(TurnLeftButtonSearchBytes), 0x1D);
+	BYTE* Binds = (BYTE*)ReadSearchedAddresses(0x005AEF90, 0x005AF8C0, 0x005AF1E0, TurnLeftButtonSearchBytes, sizeof(TurnLeftButtonSearchBytes), 0x1D, __FUNCTION__);
 
 	// Checking address pointer
 	if (!Binds)

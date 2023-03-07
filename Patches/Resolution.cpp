@@ -538,9 +538,9 @@ void SetResolutionList(DWORD Width, DWORD Height)
 void SetResolutionPatch()
 {
 	constexpr BYTE ResSearchBytesA[] = { 0x94, 0x00, 0x68, 0xB3, 0x00, 0x00, 0x00, 0x05, 0xB0, 0x00, 0x00, 0x00, 0xE9, 0xCD, 0x02, 0x00, 0x00, 0xA0, 0x1C };
-	void *DResAddrA = (void*)SearchAndGetAddresses(0x0046565C, 0x004658F8, 0x00465B08, ResSearchBytesA, sizeof(ResSearchBytesA), 0x00);
+	void *DResAddrA = (void*)SearchAndGetAddresses(0x0046565C, 0x004658F8, 0x00465B08, ResSearchBytesA, sizeof(ResSearchBytesA), 0x00, __FUNCTION__);
 	constexpr BYTE ResSearchBytesB[] = { 0x8B, 0x08, 0x83, 0xC4, 0x10, 0x68, 0xA4, 0x00, 0x00, 0x00, 0x68, 0x00, 0x01, 0x00, 0x00, 0x51, 0xE8 };
-	void *DResAddrB = (void*)SearchAndGetAddresses(0x00407368, 0x00407368, 0x00407378, ResSearchBytesB, sizeof(ResSearchBytesB), 0x00);
+	void *DResAddrB = (void*)SearchAndGetAddresses(0x00407368, 0x00407368, 0x00407378, ResSearchBytesB, sizeof(ResSearchBytesB), 0x00, __FUNCTION__);
 
 	// Checking address pointer
 	if (!DResAddrA || !DResAddrB)
@@ -573,24 +573,24 @@ void SetResolutionPatch()
 
 	// Get resolution addresses
 	constexpr BYTE SaveResIndexSearchBytes[] = { 0x8B, 0xF0, 0x83, 0xC4, 0x08, 0x85, 0xF6, 0x0F, 0x84 };
-	void *SaveResIndexAddr = (BYTE*)SearchAndGetAddresses(0x004F7561, 0x004F7891, 0x004F71B1, SaveResIndexSearchBytes, sizeof(SaveResIndexSearchBytes), 0x5F);
+	void *SaveResIndexAddr = (BYTE*)SearchAndGetAddresses(0x004F7561, 0x004F7891, 0x004F71B1, SaveResIndexSearchBytes, sizeof(SaveResIndexSearchBytes), 0x5F, __FUNCTION__);
 	constexpr BYTE TextResIndexSearchBytes[] = { 0x68, 0x8B, 0x01, 0x00, 0x00, 0x6A, 0x46, 0x68, 0xD1, 0x00, 0x00, 0x00, 0x52, 0xE8 };
-	TextResIndex = (BYTE*)ReadSearchedAddresses(0x00465631, 0x004658CD, 0x00465ADD, TextResIndexSearchBytes, sizeof(TextResIndexSearchBytes), 0x29);
+	TextResIndex = (BYTE*)ReadSearchedAddresses(0x00465631, 0x004658CD, 0x00465ADD, TextResIndexSearchBytes, sizeof(TextResIndexSearchBytes), 0x29, __FUNCTION__);
 	constexpr BYTE ResolutionIndexSearchBytes[] = { 0x6A, 0x01, 0x6A, 0x00, 0x50, 0xFF, 0x51, 0x34, 0x6A, 0x00, 0xE8 };
-	ResolutionIndex = (BYTE*)ReadSearchedAddresses(0x004F633F, 0x004F65EF, 0x004F5EAF, ResolutionIndexSearchBytes, sizeof(ResolutionIndexSearchBytes), 0x10);
+	ResolutionIndex = (BYTE*)ReadSearchedAddresses(0x004F633F, 0x004F65EF, 0x004F5EAF, ResolutionIndexSearchBytes, sizeof(ResolutionIndexSearchBytes), 0x10, __FUNCTION__);
 	constexpr BYTE MenuResolutionIndexSearchBytes[] = { 0x6A, 0x01, 0x6A, 0x00, 0x50, 0xFF, 0x51, 0x34, 0x6A, 0x00, 0xE8 };
-	MenuResolutionIndex = (BYTE*)ReadSearchedAddresses(0x004F633F, 0x004F65EF, 0x004F5EAF, MenuResolutionIndexSearchBytes, sizeof(MenuResolutionIndexSearchBytes), 0x1C);
+	MenuResolutionIndex = (BYTE*)ReadSearchedAddresses(0x004F633F, 0x004F65EF, 0x004F5EAF, MenuResolutionIndexSearchBytes, sizeof(MenuResolutionIndexSearchBytes), 0x1C, __FUNCTION__);
 	constexpr BYTE ResolutionArraySearchBytes[] = { 0x10, 0x51, 0x56, 0x6A, 0x00, 0x50, 0xFF, 0x52, 0x1C, 0x8B, 0x54, 0x24, 0x10 };
-	ResolutionArray = (RESOLUTONLIST*)ReadSearchedAddresses(0x004F5DEB, 0x004F609B, 0x004F595B, ResolutionArraySearchBytes, sizeof(ResolutionArraySearchBytes), 0xF);
-	ResStartupAddr = (BYTE*)SearchAndGetAddresses(0x004F5DEB, 0x004F609B, 0x004F595B, ResolutionArraySearchBytes, sizeof(ResolutionArraySearchBytes), 0x4B);
+	ResolutionArray = (RESOLUTONLIST*)ReadSearchedAddresses(0x004F5DEB, 0x004F609B, 0x004F595B, ResolutionArraySearchBytes, sizeof(ResolutionArraySearchBytes), 0xF, __FUNCTION__);
+	ResStartupAddr = (BYTE*)SearchAndGetAddresses(0x004F5DEB, 0x004F609B, 0x004F595B, ResolutionArraySearchBytes, sizeof(ResolutionArraySearchBytes), 0x4B, __FUNCTION__);
 	constexpr BYTE ChangeResSearchBytes[] = { 0x74, 0x16, 0x0F, 0xB6, 0xD0, 0x52, 0xE8 };
-	BYTE *ChangeResAddr = (BYTE*)SearchAndGetAddresses(0x00464DF3, 0x00465083, 0x00465293, ChangeResSearchBytes, sizeof(ChangeResSearchBytes), -0xB);
+	BYTE *ChangeResAddr = (BYTE*)SearchAndGetAddresses(0x00464DF3, 0x00465083, 0x00465293, ChangeResSearchBytes, sizeof(ChangeResSearchBytes), -0xB, __FUNCTION__);
 	constexpr BYTE ResSizeSearchBytes[] = { 0x3C, 0x05, 0x73, 0x04, 0xFE, 0xC0, 0xEB, 0x02, 0x32, 0xC0, 0x0F, 0xB6, 0xC8, 0x51, 0xA2 };
-	ResSizeAddr = (BYTE*)SearchAndGetAddresses(0x00465F2A, 0x004661CC, 0x004663DC, ResSizeSearchBytes, sizeof(ResSizeSearchBytes), 0x00);
+	ResSizeAddr = (BYTE*)SearchAndGetAddresses(0x00465F2A, 0x004661CC, 0x004663DC, ResSizeSearchBytes, sizeof(ResSizeSearchBytes), 0x00, __FUNCTION__);
 	constexpr BYTE ResConfigSearchBytes[] = { 0x1B, 0xD2, 0x42, 0xC1, 0xE8, 0x10, 0x89, 0x15 };
-	BYTE *ResConfigAddr = (BYTE*)SearchAndGetAddresses(0x004F71CD, 0x004F74FD, 0x004F6E1C, ResConfigSearchBytes, sizeof(ResConfigSearchBytes), -0x28);
+	BYTE *ResConfigAddr = (BYTE*)SearchAndGetAddresses(0x004F71CD, 0x004F74FD, 0x004F6E1C, ResConfigSearchBytes, sizeof(ResConfigSearchBytes), -0x28, __FUNCTION__);
 	constexpr BYTE AspectRatioBytes[] = { 0x83, 0xEC, 0x3C, 0x55, 0x56, 0x8B, 0xF1, 0x8B, 0x0B, 0x89, 0x44, 0x24, 0x14, 0x57, 0x03, 0xC6, 0x8B, 0xFA, 0x89, 0x44, 0x24, 0x20 };
-	SetAspectRatio = (float*)ReadSearchedAddresses(0x00458D80, 0x00458FE0, 0x00458FE0, AspectRatioBytes, sizeof(AspectRatioBytes), -0x44);
+	SetAspectRatio = (float*)ReadSearchedAddresses(0x00458D80, 0x00458FE0, 0x00458FE0, AspectRatioBytes, sizeof(AspectRatioBytes), -0x44, __FUNCTION__);
 	if (!SaveResIndexAddr || !TextResIndex || !ResolutionIndex || !MenuResolutionIndex || !ResolutionArray || !ResStartupAddr || !ChangeResAddr || !ResSizeAddr || !ResConfigAddr || !SetAspectRatio)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory addresses!";
@@ -709,9 +709,9 @@ __declspec(naked) void __stdcall AdvOptionsSetsASM()
 void PatchBestGraphics()
 {
 	constexpr BYTE OptSearchBytesA[] = { 0x83, 0xEC, 0x20, 0x53, 0x56, 0x57, 0x33, 0xC0, 0xBE, 0x01, 0x00, 0x00, 0x00, 0xB9, 0x08, 0x00 };
-	void* DOptAddrA = (void*)SearchAndGetAddresses(0x004F6F70, 0x004F7220, 0x004F6AE0, OptSearchBytesA, sizeof(OptSearchBytesA), 0x00);
+	void* DOptAddrA = (void*)SearchAndGetAddresses(0x004F6F70, 0x004F7220, 0x004F6AE0, OptSearchBytesA, sizeof(OptSearchBytesA), 0x00, __FUNCTION__);
 	constexpr BYTE OptSearchBytesB[] = { 0x53, 0x55, 0x8B, 0x6C, 0x24, 0x0C, 0x56, 0x33, 0xF6, 0x3B, 0xEE, 0x57, 0xBB, 0x01, 0x00, 0x00 };
-	void* DOptAddrB = (void*)SearchAndGetAddresses(0x004F70E0, 0x004F7410, 0x004F6D30, OptSearchBytesB, sizeof(OptSearchBytesB), 0x00);
+	void* DOptAddrB = (void*)SearchAndGetAddresses(0x004F70E0, 0x004F7410, 0x004F6D30, OptSearchBytesB, sizeof(OptSearchBytesB), 0x00, __FUNCTION__);
 
 	// Checking address pointer
 	if (!DOptAddrA || !DOptAddrB)
@@ -796,9 +796,9 @@ __declspec(naked) void __stdcall PrintScreenPosOptionASM()
 void PatchLockScreenPosition()
 {
 	constexpr BYTE PosSearchBytesA[] = { 0x94, 0x00, 0x68, 0xB3, 0x00, 0x00, 0x00, 0x05, 0xB0, 0x00, 0x00, 0x00, 0xE9, 0xCD, 0x02, 0x00, 0x00, 0xA0, 0x1C };
-	void* DPosAddrA = (void*)SearchAndGetAddresses(0x0046565C, 0x004658F8, 0x00465B08, PosSearchBytesA, sizeof(PosSearchBytesA), 0x00);
+	void* DPosAddrA = (void*)SearchAndGetAddresses(0x0046565C, 0x004658F8, 0x00465B08, PosSearchBytesA, sizeof(PosSearchBytesA), 0x00, __FUNCTION__);
 	constexpr BYTE PosSearchBytesB[] = { 0x94, 0x00, 0x01, 0x00, 0x00, 0x00, 0x6A, 0x00, 0x68, 0x01, 0x00, 0x00, 0x04, 0x6A, 0x00, 0xE8 };
-	void* DPosAddrB = (void*)SearchAndGetAddresses(0x0045FBB8, 0x0045FE18, 0x0045FE18, PosSearchBytesB, sizeof(PosSearchBytesB), 0x00);
+	void* DPosAddrB = (void*)SearchAndGetAddresses(0x0045FBB8, 0x0045FE18, 0x0045FE18, PosSearchBytesB, sizeof(PosSearchBytesB), 0x00, __FUNCTION__);
 
 	// Checking address pointer
 	if (!DPosAddrA || !DPosAddrB)
@@ -875,14 +875,14 @@ int printSpkDescStr(unsigned short, unsigned char, int x, int y)
 void PatchSpeakerConfigLock()
 {
 	constexpr BYTE SpkSearchBytesA[] = { 0x94, 0x00, 0x68, 0x12, 0x27, 0x00, 0x00, 0xF3, 0xA5, 0xE8 };
-	void* DSpkAddrA = (void*)SearchAndGetAddresses(0x00463165, 0x004633D5, 0x004633E4, SpkSearchBytesA, sizeof(SpkSearchBytesA), 0x00);
+	void* DSpkAddrA = (void*)SearchAndGetAddresses(0x00463165, 0x004633D5, 0x004633E4, SpkSearchBytesA, sizeof(SpkSearchBytesA), 0x00, __FUNCTION__);
 	constexpr BYTE SpkSearchBytesB[] = { 0x93, 0x00, 0x83, 0xC4, 0x10, 0x68, 0x1F, 0x01, 0x00, 0x00, 0x68, 0x0C, 0x01, 0x00, 0x00, 0x05, 0xC2, 0x00, 0x00, 0x00, 0x50, 0x51, 0xE8 };
-	void* DSpkAddrB = (void*)SearchAndGetAddresses(0x00461B37, 0x00461DA9, 0x00461DA9, SpkSearchBytesB, sizeof(SpkSearchBytesB), 0x00);
+	void* DSpkAddrB = (void*)SearchAndGetAddresses(0x00461B37, 0x00461DA9, 0x00461DA9, SpkSearchBytesB, sizeof(SpkSearchBytesB), 0x00, __FUNCTION__);
 
 	if (!LockResolution)
 	{
 		constexpr BYTE SpkSearchBytesC[] = { 0x8B, 0x08, 0x83, 0xC4, 0x10, 0x68, 0xA4, 0x00, 0x00, 0x00, 0x68, 0x00, 0x01, 0x00, 0x00, 0x51, 0xE8 };
-		void* DSpkAddrC = (void*)SearchAndGetAddresses(0x00407368, 0x00407368, 0x00407378, SpkSearchBytesC, sizeof(SpkSearchBytesC), 0x00);
+		void* DSpkAddrC = (void*)SearchAndGetAddresses(0x00407368, 0x00407368, 0x00407378, SpkSearchBytesC, sizeof(SpkSearchBytesC), 0x00, __FUNCTION__);
 
 		// Checking address pointer
 		if (!DSpkAddrC)

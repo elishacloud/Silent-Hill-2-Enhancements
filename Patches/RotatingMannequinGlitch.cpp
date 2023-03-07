@@ -31,7 +31,7 @@ void RunRotatingMannequin()
 
 		// Get address
 		constexpr BYTE SearchBytes[]{ 0x8D, 0x50, 0x1C, 0x8B, 0x0A, 0x89, 0x0D };
-		FlashlightAcquiredAddr = (DWORD*)ReadSearchedAddresses(0x0045507D, 0x004552DD, 0x004552DD, SearchBytes, sizeof(SearchBytes), 0x56);
+		FlashlightAcquiredAddr = (DWORD*)ReadSearchedAddresses(0x0045507D, 0x004552DD, 0x004552DD, SearchBytes, sizeof(SearchBytes), 0x56, __FUNCTION__);
 
 		// Checking address pointer
 		if (!FlashlightAcquiredAddr)
@@ -49,7 +49,7 @@ void RunRotatingMannequin()
 
 		// Get address
 		constexpr BYTE SearchBytes[]{ 0x68, 0x00, 0x02, 0x00, 0x00, 0x33, 0xF6, 0x33, 0xDB, 0x50, 0x89, 0x94, 0x24, 0x50, 0x04, 0x00, 0x00 };
-		MannequinStateAddr = (DWORD*)ReadSearchedAddresses(0x0048CBC5, 0x0048CE65, 0x0048D075, SearchBytes, sizeof(SearchBytes), 0x34);
+		MannequinStateAddr = (DWORD*)ReadSearchedAddresses(0x0048CBC5, 0x0048CE65, 0x0048D075, SearchBytes, sizeof(SearchBytes), 0x34, __FUNCTION__);
 
 		// Checking address pointer
 		if (!MannequinStateAddr)

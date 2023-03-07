@@ -82,7 +82,7 @@ void SetLightingTransition()
 {
 	// Get Lighting Transition address
 	constexpr BYTE SearchBytesLightingTransition[]{ 0x8B, 0x11, 0x89, 0x10, 0x8B, 0x51, 0x04, 0x89, 0x50, 0x04, 0x8B, 0x51, 0x08, 0x89, 0x50, 0x08, 0x8B, 0x54, 0x24, 0x18, 0x8B, 0x49, 0x0C, 0x52, 0x53, 0x89, 0x48, 0x0C, 0xE8, 0xFF, 0xEF, 0xFF, 0xFF };
-	DWORD LightingTransitionAddr = SearchAndGetAddresses(0x0050D6F0, 0x0050DA20, 0x0050D340, SearchBytesLightingTransition, sizeof(SearchBytesLightingTransition), -0x0C);
+	DWORD LightingTransitionAddr = SearchAndGetAddresses(0x0050D6F0, 0x0050DA20, 0x0050D340, SearchBytesLightingTransition, sizeof(SearchBytesLightingTransition), -0x0C, __FUNCTION__);
 	if (!LightingTransitionAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -91,7 +91,7 @@ void SetLightingTransition()
 	jmpLightingTransitionReturnAddr = (void*)(LightingTransitionAddr + 0x06);
 
 	// Get Object address
-	LightingTransitionObject = ReadSearchedAddresses(0x0050D6F0, 0x0050DA20, 0x0050D340, SearchBytesLightingTransition, sizeof(SearchBytesLightingTransition), -0x20);
+	LightingTransitionObject = ReadSearchedAddresses(0x0050D6F0, 0x0050DA20, 0x0050D340, SearchBytesLightingTransition, sizeof(SearchBytesLightingTransition), -0x20, __FUNCTION__);
 	if (!LightingTransitionObject)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
@@ -110,7 +110,7 @@ void SetLightingTransition()
 
 	// Get address for the brightness of movable objects for specific rooms
 	constexpr BYTE SearchBytesSpecificRooms[]{ 0x8B, 0x4C, 0x24, 0x1C, 0x8B, 0x44, 0x24, 0x20, 0x8B, 0x54, 0x24, 0x24, 0x8B, 0xE9, 0xC1, 0xFD, 0x10, 0x81, 0xE5, 0xFF, 0x0F, 0x00, 0x00, 0x8B, 0x34, 0xAD };
-	DWORD SpecificRoomsAddr = ReadSearchedAddresses(0x0047C2EF, 0x0047C58F, 0x0047C79F, SearchBytesSpecificRooms, sizeof(SearchBytesSpecificRooms), 0x1A);
+	DWORD SpecificRoomsAddr = ReadSearchedAddresses(0x0047C2EF, 0x0047C58F, 0x0047C79F, SearchBytesSpecificRooms, sizeof(SearchBytesSpecificRooms), 0x1A, __FUNCTION__);
 	if (!SpecificRoomsAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";

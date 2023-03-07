@@ -111,7 +111,7 @@ void PatchFullscreenVideos()
 {
 	// Get address
 	constexpr BYTE VideoSearchBytes[]{ 0x89, 0x44, 0x24, 0x20, 0x66, 0x89, 0x4C, 0x24, 0x24, 0x88, 0x54, 0x24, 0x26, 0x8D, 0x44, 0x24, 0x10, 0x50, 0x6A, 0x01 };
-	BYTE *VideoAddr = (BYTE*)SearchAndGetAddresses(0x0043D7F5, 0x0043D9B5, 0x0043D9B5, VideoSearchBytes, sizeof(VideoSearchBytes), 0x39);
+	BYTE *VideoAddr = (BYTE*)SearchAndGetAddresses(0x0043D7F5, 0x0043D9B5, 0x0043D9B5, VideoSearchBytes, sizeof(VideoSearchBytes), 0x39, __FUNCTION__);
 
 	// Checking address pointer
 	if (!VideoAddr)

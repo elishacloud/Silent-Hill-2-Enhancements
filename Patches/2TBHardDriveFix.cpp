@@ -250,7 +250,7 @@ void Patch2TBHardDrive()
 {
 	// 2TB disk check fix
 	constexpr BYTE HardDriveSearchBytes[]{ 0x75, 0x08, 0x5F, 0xB8, 0x02, 0x00, 0x00, 0x00, 0x5E, 0xC3, 0x84, 0xDB, 0x75, 0x14, 0x83, 0xFE, 0x20, 0x7C, 0x0F };
-	DWORD HardDriveAddr = SearchAndGetAddresses(0x0044B86E, 0x0044BA0E, 0x0044BA0E, HardDriveSearchBytes, sizeof(HardDriveSearchBytes), 0x22);
+	DWORD HardDriveAddr = SearchAndGetAddresses(0x0044B86E, 0x0044BA0E, 0x0044BA0E, HardDriveSearchBytes, sizeof(HardDriveSearchBytes), 0x22, __FUNCTION__);
 
 	// Checking address pointer
 	if (!HardDriveAddr)
@@ -264,9 +264,9 @@ void Patch2TBHardDrive()
 
 	// Disk display fix
 	constexpr BYTE DisplaySearchBytes[]{ 0x8B, 0xF0, 0x83, 0xC4, 0x04, 0x85, 0xF6, 0x7D, 0x02, 0x33, 0xF6, 0x6A, 0x00 };
-	DWORD DisplayFix = SearchAndGetAddresses(0x0044FB54, 0x0044FDB4, 0x0044FDB4, DisplaySearchBytes, sizeof(DisplaySearchBytes), 0x1A);
+	DWORD DisplayFix = SearchAndGetAddresses(0x0044FB54, 0x0044FDB4, 0x0044FDB4, DisplaySearchBytes, sizeof(DisplaySearchBytes), 0x1A, __FUNCTION__);
 	constexpr BYTE RemoveKBSearchBytes[]{ 0x8B, 0x44, 0x24, 0x04, 0x85, 0xC0, 0x74, 0x16, 0x66, 0x8B, 0x4C, 0x24, 0x08 };
-	DWORD RemoveKBAddr = SearchAndGetAddresses(0x0047EC60, 0x0047EF00, 0x0047F110, RemoveKBSearchBytes, sizeof(RemoveKBSearchBytes), 0x0);
+	DWORD RemoveKBAddr = SearchAndGetAddresses(0x0047EC60, 0x0047EF00, 0x0047F110, RemoveKBSearchBytes, sizeof(RemoveKBSearchBytes), 0x0, __FUNCTION__);
 
 	// Checking address pointer
 	if (!DisplayFix || !RemoveKBAddr)

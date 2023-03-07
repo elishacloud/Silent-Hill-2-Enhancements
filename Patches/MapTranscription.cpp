@@ -159,7 +159,7 @@ __declspec(naked) void __stdcall ActiveMarkerStateASM()
 DWORD GetDeltaFrameAddress()
 {
     constexpr BYTE SearchBytesDeltaFrame[]{ 0x8B, 0x44, 0x24, 0x04, 0x8B, 0xC8, 0xA3 };
-    DWORD Addr = ReadSearchedAddresses(0x004477DD, 0x0044797D, 0x0044797D, SearchBytesDeltaFrame, sizeof(SearchBytesDeltaFrame), -0x04);
+    DWORD Addr = ReadSearchedAddresses(0x004477DD, 0x0044797D, 0x0044797D, SearchBytesDeltaFrame, sizeof(SearchBytesDeltaFrame), -0x04, __FUNCTION__);
     if (!Addr)
     {
         Logging::Log() << __FUNCTION__ << "Error: failed to find memory address!";
@@ -172,7 +172,7 @@ DWORD GetDeltaFrameAddress()
 void PatchMapTranscription()
 {
     constexpr BYTE SearchBytesMarkerStateHandler[]{ 0x8B, 0xD1, 0xC1, 0xFA, 0x13, 0x81, 0xE2, 0xFF, 0x1F, 0x00, 0x00 };
-    DWORD MarkerStateHandlerAddr = SearchAndGetAddresses(0x0049C644, 0x0049C8F4, 0x0049C1B4, SearchBytesMarkerStateHandler, sizeof(SearchBytesMarkerStateHandler), -0x10);
+    DWORD MarkerStateHandlerAddr = SearchAndGetAddresses(0x0049C644, 0x0049C8F4, 0x0049C1B4, SearchBytesMarkerStateHandler, sizeof(SearchBytesMarkerStateHandler), -0x10, __FUNCTION__);
     if (!MarkerStateHandlerAddr)
     {
         Logging::Log() << __FUNCTION__ << "Error: failed to find memory address!";
@@ -187,7 +187,7 @@ void PatchMapTranscription()
     State4ReturnAddr = MarkerStateHandlerAddr + 0xFD;
 
     constexpr BYTE SearchBytesZoomPanTimerMaxValue[]{ 0x83, 0xEC, 0x10, 0x83, 0xF8, 0x01, 0x75 };
-    DWORD ZoomTimerMaxWriteAddr = SearchAndGetAddresses(0x0049DC35, 0x0049DEE5, 0x0049D7A5, SearchBytesZoomPanTimerMaxValue, sizeof(SearchBytesZoomPanTimerMaxValue), 0x1B);
+    DWORD ZoomTimerMaxWriteAddr = SearchAndGetAddresses(0x0049DC35, 0x0049DEE5, 0x0049D7A5, SearchBytesZoomPanTimerMaxValue, sizeof(SearchBytesZoomPanTimerMaxValue), 0x1B, __FUNCTION__);
     if (!ZoomTimerMaxWriteAddr)
     {
         Logging::Log() << __FUNCTION__ << "Error: failed to find memory address!";

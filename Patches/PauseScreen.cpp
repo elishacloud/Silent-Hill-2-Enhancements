@@ -44,11 +44,11 @@ void PatchPauseScreen()
 {
 	// Get Options exit address
 	constexpr BYTE SearchBytesOptionsExit[]{ 0x08, 0x00, 0x00, 0x00, 0xEB, 0x0F, 0xB8, 0x10, 0x00, 0x00, 0x00, 0xA3 };
-	BYTE *OptionsExitAddress = (BYTE*)SearchAndGetAddresses(0x004697AF, 0x00469A4F, 0x00469C5F, SearchBytesOptionsExit, sizeof(SearchBytesOptionsExit), 0x06);
+	BYTE *OptionsExitAddress = (BYTE*)SearchAndGetAddresses(0x004697AF, 0x00469A4F, 0x00469C5F, SearchBytesOptionsExit, sizeof(SearchBytesOptionsExit), 0x06, __FUNCTION__);
 
 	// Get call address
 	constexpr BYTE SearchBytesGameCall[]{ 0x83, 0xC4, 0x0C, 0xB8, 0x01, 0x00, 0x00, 0x00, 0x5B, 0xC3, 0x90 };
-	DWORD GameCallAddr = SearchAndGetAddresses(0x00475839, 0x00475AD9, 0x00475CE9, SearchBytesGameCall, sizeof(SearchBytesGameCall), -0x5F);
+	DWORD GameCallAddr = SearchAndGetAddresses(0x00475839, 0x00475AD9, 0x00475CE9, SearchBytesGameCall, sizeof(SearchBytesGameCall), -0x5F, __FUNCTION__);
 
 	// Checking address pointer
 	if (!OptionsExitAddress || !GameCallAddr)

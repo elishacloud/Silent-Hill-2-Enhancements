@@ -266,7 +266,7 @@ void PatchCriware()
 	// patch subtitle being too slow in the bowling fake cutscene
 	// TODO: double check addresses for DC and 1.1 --- Gemini
 	constexpr BYTE CutsceneSearchBytes[]{ 0x2a, 0x00, 0x7b, 0x00, 0x7b, 0x00, 0xba, 0x00, 0xff, 0xff, 0xff, 0xff };
-	BYTE* ptr_sub_fix = (BYTE*)SearchAndGetAddresses(0x008DAEEC, 0x008DEBBC, 0x008DDBBC, CutsceneSearchBytes, sizeof(CutsceneSearchBytes), 6);
+	BYTE* ptr_sub_fix = (BYTE*)SearchAndGetAddresses(0x008DAEEC, 0x008DEBBC, 0x008DDBBC, CutsceneSearchBytes, sizeof(CutsceneSearchBytes), 6, __FUNCTION__);
 	if (ptr_sub_fix == nullptr)
 	{
 		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";

@@ -65,7 +65,7 @@ __declspec(naked) void __stdcall FixInventoryBGMBugASM()
 void PatchInventoryBGMBug()
 {
 	constexpr BYTE BuggyBGMBytes[] = { 0x83, 0xF8, 0x04, 0x75, 0x0D, 0x68 };
-	const DWORD BuggyBGMAddr = SearchAndGetAddresses(0x005166E8, 0x00516A18, 0x00516338, BuggyBGMBytes, sizeof(BuggyBGMBytes), -0x1F);
+	const DWORD BuggyBGMAddr = SearchAndGetAddresses(0x005166E8, 0x00516A18, 0x00516338, BuggyBGMBytes, sizeof(BuggyBGMBytes), -0x1F, __FUNCTION__);
 
 	// Check errors
 	if (!BuggyBGMAddr)

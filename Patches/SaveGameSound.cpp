@@ -55,7 +55,7 @@ void PatchSaveGameSound()
 {
 	// Play Sound Effect function address
 	constexpr BYTE SearchPlayMusicBytes[]{ 0x6A, 0x01, 0xE8, 0x19, 0x90, 0xFE, 0xFF, 0x83,0xC4,0x04 };
-	const auto PlayMusicAddress = (uintptr_t * (__cdecl*)(uint32_t, uint32_t, uint32_t))(CheckMultiMemoryAddress((void*)0x00515580, (void*)0x005158B0, (void*)0x005151D0, (void*)SearchPlayMusicBytes, sizeof(SearchPlayMusicBytes)));
+	const auto PlayMusicAddress = (uintptr_t * (__cdecl*)(uint32_t, uint32_t, uint32_t))(CheckMultiMemoryAddress((void*)0x00515580, (void*)0x005158B0, (void*)0x005151D0, (void*)SearchPlayMusicBytes, sizeof(SearchPlayMusicBytes), __FUNCTION__));
 
 	//Assigned Sound Effect function address to function instance
 	play_sound = static_cast<Play_Sound>(PlayMusicAddress);

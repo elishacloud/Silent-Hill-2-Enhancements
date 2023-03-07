@@ -27,7 +27,7 @@ void HookDirectInput8Create()
 {
 	// Get DirectInput8Create address
 	constexpr BYTE SearchBytes[]{ 0x85, 0xC0, 0x7D, 0x03, 0x33, 0xC0, 0xC3, 0x8B, 0x54, 0x24, 0x08, 0xA1 };
-	DWORD Address = SearchAndGetAddresses(0x00406403, 0x00406403, 0x00406413, SearchBytes, sizeof(SearchBytes), -0x05);
+	DWORD Address = SearchAndGetAddresses(0x00406403, 0x00406403, 0x00406413, SearchBytes, sizeof(SearchBytes), -0x05, __FUNCTION__);
 
 	// Checking address pointer
 	if (!Address)

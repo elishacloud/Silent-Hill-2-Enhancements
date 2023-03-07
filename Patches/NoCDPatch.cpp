@@ -23,8 +23,8 @@ void PatchCDCheck()
 {
 	// Check for CD patch
 	constexpr BYTE CDCheckAddredBlock[] = { 0xEC, 0x08, 0x04, 0x00, 0x00, 0xA1 };
-	void *CDCheckAddr = CheckMultiMemoryAddress((void*)0x00408761, (void*)0x004088C1, (void*)0x004088D1, (void*)CDCheckAddredBlock, sizeof(CDCheckAddredBlock));
-	if (CDCheckAddr && !CheckMemoryAddress((void*)((DWORD)CDCheckAddr - 1), "\x81", 0x01, false))
+	void *CDCheckAddr = CheckMultiMemoryAddress((void*)0x00408761, (void*)0x004088C1, (void*)0x004088D1, (void*)CDCheckAddredBlock, sizeof(CDCheckAddredBlock), __FUNCTION__);
+	if (CDCheckAddr && !CheckMemoryAddress((void*)((DWORD)CDCheckAddr - 1), "\x81", 0x01, __FUNCTION__, false))
 	{
 		Logging::Log() << "CD patch already set!";
 		return;
@@ -32,7 +32,7 @@ void PatchCDCheck()
 
 	// Address found
 	constexpr BYTE CDBlockTest[] = { 0x33, 0x84, 0x24, 0x08, 0x04, 0x00, 0x00, 0x53 };
-	if (!CDCheckAddr || !CheckMemoryAddress((void*)((DWORD)CDCheckAddr + 10), (void*)CDBlockTest, sizeof(CDCheckAddr)))
+	if (!CDCheckAddr || !CheckMemoryAddress((void*)((DWORD)CDCheckAddr + 10), (void*)CDBlockTest, sizeof(CDCheckAddr), __FUNCTION__))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: Could not find CD check function address in memory!";
 		return;

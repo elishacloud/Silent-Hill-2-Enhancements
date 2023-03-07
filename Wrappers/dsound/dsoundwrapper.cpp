@@ -27,7 +27,7 @@ void HookDirectSoundCreate8()
 {
 	// Get DirectSoundCreate8 address
 	constexpr BYTE SearchBytes[]{ 0x53, 0x33, 0xDB, 0x3B, 0xC3, 0x56, 0x57, 0x0F, 0x85 };
-	DWORD Address = SearchAndGetAddresses(0x00514F15, 0x00515245, 0x00514B65, SearchBytes, sizeof(SearchBytes), 0x30);
+	DWORD Address = SearchAndGetAddresses(0x00514F15, 0x00515245, 0x00514B65, SearchBytes, sizeof(SearchBytes), 0x30, __FUNCTION__);
 
 	// Checking address pointer
 	if (!Address)

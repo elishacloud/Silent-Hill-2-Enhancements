@@ -26,7 +26,7 @@
 void PatchSFXAddr()
 {
 	// Find address for SFX indexes
-	void *sfxAddr = (void*)SearchAndGetAddresses(0x008A67DC, 0x008AA3C4, 0x008A93C4, sfxBlock, sizeof(sfxBlock), 0x00);
+	void *sfxAddr = (void*)SearchAndGetAddresses(0x008A67DC, 0x008AA3C4, 0x008A93C4, sfxBlock, sizeof(sfxBlock), 0x00, __FUNCTION__);
 
 	// Address found
 	if (!sfxAddr)
@@ -118,7 +118,7 @@ void PatchSFXAddr()
 	UpdateMemoryAddress(sfxAddr, sfxArray, ARRAYSIZE(SFXAddrMap) * sizeof(DWORD));
 
 	// Find address for sddata.bin file pointer function
-	sfxAddr = (void*)SearchAndGetAddresses(0x00515110, 0x00515440, 0x00514D60, sfxPtr, sizeof(sfxPtr), 0x54);
+	sfxAddr = (void*)SearchAndGetAddresses(0x00515110, 0x00515440, 0x00514D60, sfxPtr, sizeof(sfxPtr), 0x54, __FUNCTION__);
 
 	// Address found
 	if (!sfxAddr)

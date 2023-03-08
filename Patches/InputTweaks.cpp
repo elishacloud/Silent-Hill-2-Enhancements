@@ -919,28 +919,21 @@ BYTE KeyBindsHandler::GetPauseButtonBind()
 
 BYTE GetPauseMenuQuitIndex()
 {
-	if (!PauseMenuQuitIndexAddr)
+	if (PauseMenuQuitIndexAddr)
 	{
-		auto pattern = hook::pattern("56 E8 ? ? ? 00 83 C4 04 50 E8 ? ? ? 00 6A 60 6A 7F 6A 7F 6A 7F E8");
-
-		DWORD PauseMenuQuitAddress = (DWORD)pattern.count(1).get(0).get<uint32_t>(0);
-
-		DWORD searchedAddr = (DWORD)((GameVersion == SH2V_10) ? 0x00407794 : (GameVersion == SH2V_11) ? 0x004076D1 : (GameVersion == SH2V_DC) ? 0x004076E1 : 0x00407794);
-
-		if (PauseMenuQuitAddress != searchedAddr)
-		{
-			Logging::Log() << __FUNCTION__ << " Error: failed to find Pause Menu Quit Index memory address!";
-			return NULL;
-		}
-		 
-		PauseMenuQuitAddress += 0x1D;
-
-		DWORD Address;
-		memcpy(&Address, (void*)PauseMenuQuitAddress, sizeof(DWORD));
-
-		PauseMenuQuitIndexAddr = (BYTE*)Address;
-
+		return *PauseMenuQuitIndexAddr;
 	}
+
+	constexpr BYTE PauseMenuQuitSearchBytes[]{ 0x8B, 0x44, 0x24, 0x04, 0xA3 };
+	DWORD PauseMenuQuitAddress = ReadSearchedAddresses(0x004072A0, 0x004072A0, 0x004072F0, PauseMenuQuitSearchBytes, sizeof(PauseMenuQuitSearchBytes), 0x5, __FUNCTION__);
+
+	if (!PauseMenuQuitAddress)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Pause Menu Quit Index memory address!";
+		return NULL;
+	}
+
+	PauseMenuQuitIndexAddr = (BYTE*)PauseMenuQuitAddress;
 
 	return *PauseMenuQuitIndexAddr;
 }

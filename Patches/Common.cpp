@@ -691,7 +691,7 @@ BYTE *GetInventoryStatusPointer()
 
 	// In-game camera Y
 	constexpr BYTE InventoryStatusSearchBytes[]{ 0x83, 0xF8, 0x03, 0x74, 0x08, 0x83, 0xF8, 0x01, 0x74, 0x03, 0x33, 0xC0, 0xC3, 0xB8, 0x01, 0x00, 0x00, 0x00, 0xC3 };
-	InventoryStatusAddr = (BYTE*)ReadSearchedAddresses(0x00476065, 0x00476305, 0x00476061, InventoryStatusSearchBytes, sizeof(InventoryStatusSearchBytes), -0x04, __FUNCTION__);
+	InventoryStatusAddr = (BYTE*)ReadSearchedAddresses(0x00476065, 0x00476305, 0x00476515, InventoryStatusSearchBytes, sizeof(InventoryStatusSearchBytes), -0x04, __FUNCTION__);
 
 	// Checking address pointer
 	if (!InventoryStatusAddr)

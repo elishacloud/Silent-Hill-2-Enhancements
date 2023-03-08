@@ -26,6 +26,7 @@
 bool EnableCRTShader = false;
 bool CRTCurveShader = false;
 bool CRTNonCurveShader = false;
+bool EnableInputTweaks = false;
 
 // Configurable setting defaults
 #define SET_BOOL_DEFAULTS(name, value) \
@@ -280,6 +281,9 @@ void UpdateConfigDefaults()
 
 	// Set shaders default
 	EnableCustomShaders = ((EnableSMAA || AdjustColorTemp || RestoreBrightnessSelector || EnableCRTShader) && d3d8to9);
+
+	// Set Input Tweaks default
+	EnableInputTweaks = (EnableToggleSprint || EnableEnhancedMouse || EnableMouseWheelSwap || MemoScreenFix);
 
 	// Set FogFix
 	if (FogFix == 0xFFFF)

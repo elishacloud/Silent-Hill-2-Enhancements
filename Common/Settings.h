@@ -288,6 +288,7 @@ extern bool AutoScaleVideos;
 extern bool EnableCRTShader;
 extern bool CRTCurveShader;
 extern bool CRTNonCurveShader;
+extern bool EnableInputTweaks;
 
 bool SetValue(const char* value);
 bool IsValidSettings(char* name, char* value);

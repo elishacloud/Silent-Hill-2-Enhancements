@@ -925,7 +925,7 @@ BYTE GetPauseMenuQuitIndex()
 	}
 
 	constexpr BYTE PauseMenuQuitSearchBytes[]{ 0x8B, 0x44, 0x24, 0x04, 0xA3 };
-	DWORD PauseMenuQuitAddress = ReadSearchedAddresses(0x004072A0, 0x004072A0, 0x004072F0, PauseMenuQuitSearchBytes, sizeof(PauseMenuQuitSearchBytes), 0x5, __FUNCTION__);
+	DWORD PauseMenuQuitAddress = ReadSearchedAddresses(0x004072A0, 0x004072A0, 0x004072B0, PauseMenuQuitSearchBytes, sizeof(PauseMenuQuitSearchBytes), 0x5, __FUNCTION__);
 
 	if (!PauseMenuQuitAddress)
 	{

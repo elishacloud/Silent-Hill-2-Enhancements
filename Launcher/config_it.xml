@@ -413,13 +413,13 @@
       </Feature>
 
       <Feature name="DPadMovementFix">
-        <Title>Restore D-pad functions</Title>
-        <Description>Movement Mode: The D-pad will act as an additional movement pad to control James and navigate menu selections.&#x0a;Button Mode: The D-pad will act as additional controller buttons, allowing you to assign game functions to the D-pad. You will NOT be able to control James or navigate menus with the D-pad.&#x0a;Hybrid Mode: The D-pad will act as additional controller buttons, allowing you to assign game functions to the D-pad. You will NOT be able to control James but WILL be able to navigate menus with the D-pad.</Description>
+        <Title>Ripristina movimento con i tasti direzionali</Title>
+        <Description>Modalità Movimento: I tasti direzionali controllano il movimento di James e la navigazione nei menu.&#x0a;Modalità Tasto: I tasti direzionali fungeranno da pulsanti addizionali del controller, permettendo loro l'assegnamento di funzioni di gioco. NON sarà possibile controllare James o navigare menu coi tasti direzionali.&#x0a;Modalità Ibrida: I tasti direzionali fungeranno da tasti addizionali del controller, permettendo loro l'assegnazione di funzioni di gioco. NON sarà possibile controllare James MA sarà possibile navigare menu coi tasti direzionali.</Description>
         <Choices type="list">
           <Value name="Disable">0</Value>
-          <Value name="Movement Mode" default="true">1</Value>
-          <Value name="Button Mode">3</Value>
-          <Value name="Hybrid Mode">2</Value>
+          <Value name="Modalità Movimento" default="true">1</Value>
+          <Value name="Modalità Tasto">3</Value>
+          <Value name="Modalità Ibrida">2</Value>
         </Choices>
       </Feature>
 

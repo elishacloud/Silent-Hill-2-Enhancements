@@ -5,6 +5,7 @@ A project designed to enhance Silent Hill 2 (SH2) graphics and audio for the PC.
 ### Features
 Below is a list of features:
 
+ * **60 FPS Mode** - Adds 60 FPS mode and fixes issues related to 60 FPS.
  * **Advanced Options Menu Fix** - Fixes multiple visual text issues in the Advanced Options menu.
  * **Apartment Clock Fix** - Fixes flashlight rendering on the apartment grandfather clock after a failed attempt to push it.
  * **Alt+Enter Support** - Adds hotkey for toggling between fullscreen and windowed mode by pressing Alt+Enter.
@@ -22,6 +23,7 @@ Below is a list of features:
  * **Closet Cutscene Fix** - Adjusts visuals during the apartment closet cutscene to resemble the PS2 version.
  * **Configuration tool** - A launcher tool that allows you to configure any of the setting for Silent Hill 2 Enhanced Edition.
  * **Creature Vehicle Spawn Fix** - Fixes an issue where creatures would incorrectly exit from underneath a vehicle.
+ * **CRT Shaders** - Adds CRT shaders to help simulate what the game would look like on a CRT.
  * **CriWare Audio Engine** - A complete rewrite of the Silent Hill 2 audio engine.
  * **Custom Hi-Res Font** - Loads custom font texture `font000.tga` and `fontwdata.bin` as width data for the first 224 chars.
  * **Custom Mod Folder Support** - Enables a custom mod folder `sh2e` to store modified game files so as to not overwrite native Silent Hill 2 files.
@@ -44,6 +46,7 @@ Below is a list of features:
  * **Fullscreen Windowed Mode** - Enables fullscreen windowed mode. Requires Windowed Mode to be enabled (WndMode = 1).
  * **Game Load Fix** - Fixes multiple errors and crashes in game's quick save feature.  Disables free-saving in a few rooms that would cause game issues upon file loading back into the rooms.
  * **Game Results Fix** - Fixes an issue where the game would crash when loading game results while in game.
+ * **Gamepad and Joystick Support** - Adds better support for gamepads and joysticks, including XInput support (using [Xidi](https://github.com/samuelgr/Xidi)) and D-pad support.
  * **Halogen Light Fix** - Fixes the prison hallway halogen lights
  * **Hang On Pause Fix** - Fixes an issue where the game will hang when Esc is pressed while transition is active.
  * **Hospital Chase Fix** - Correctly syncs an attack animation to the rest of the cutscene that plays out during the Hospital chase.
@@ -52,10 +55,13 @@ Below is a list of features:
  * **Improved Storage Support** - Allows you to save the game when you have more than 2 TB of free space.
  * **Increase Blood** - Increases the blood pool size of dead enemies to better match the PS2 version.
  * **Increase Draw Distance** - Fixes distant hallway walls (such as those in the Woodside Apartments) from suddenly appearing.  This makes them appear gradually, more naturally.
+ * **Language Pack Support** - Supports custom language packs for adding new languages to the game.
  * **Left-handed Joystick Support** - Swaps left and right joystick functions. Useful for left-handed players.
  * **Lighting Transition Fix** - Makes lighting transition smooth from one light source to another for a few particular areas.
+ * **Japanese Language Support** - Re-enables Japanese language support in the game.
  * **Joystick Camera Movement** - Sets right joystick mode for search camera movement on controllers.
  * **Missing Wall Chunks Fix** - Fixes an issue on Nvidia graphics cards where wall chunks are missing in some locations.
+ * **Mouse & Keyboard Support** - Adds mouse and keyboard support for in-game menus, as well as mouse support for movement.
  * **Multi-Language Support** - Restores the language selection in the Options menu.
  * **NoCD Patch** - Disables the CD check. _Note: not yet supported in all game versions._
  * **Noise Filter Tuning** - Makes the noise filter resemble the PlayStation 2's noise filter.

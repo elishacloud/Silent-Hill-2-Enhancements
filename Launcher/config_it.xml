@@ -414,12 +414,12 @@
 
       <Feature name="DPadMovementFix">
         <Title>Ripristina movimento con i tasti direzionali</Title>
-        <Description>Modalità movimento: I tasti direzionali controllano il movimento di James e la navigazione nei menu.&#x0a;Modalità tasto: I tasti direzionali fungeranno da pulsanti addizionali del controller, permettendo loro l'assegnamento di funzioni di gioco. NON sarà possibile controllare James o navigare menu coi tasti direzionali.&#x0a;Modalità ibrida: I tasti direzionali fungeranno da tasti addizionali del controller, permettendo loro l'assegnazione di funzioni di gioco. NON sarà possibile controllare James MA sarà possibile navigare menu coi tasti direzionali.</Description>
+        <Description>Modalità Movimento: I tasti direzionali controllano il movimento di James e la navigazione nei menu.&#x0a;Modalità Tasto: I tasti direzionali fungeranno da pulsanti addizionali del controller, permettendo loro l'assegnamento di funzioni di gioco. NON sarà possibile controllare James o navigare menu coi tasti direzionali.&#x0a;Modalità Ibrida: I tasti direzionali fungeranno da tasti addizionali del controller, permettendo loro l'assegnazione di funzioni di gioco. NON sarà possibile controllare James MA sarà possibile navigare menu coi tasti direzionali.</Description>
         <Choices type="list">
           <Value name="Disable">0</Value>
-          <Value name="Modalità movimento" default="true">1</Value>
-          <Value name="Modalità tasto">3</Value>
-          <Value name="Modalità ibrida">2</Value>
+          <Value name="Modalità Movimento" default="true">1</Value>
+          <Value name="Modalità Tasto">3</Value>
+          <Value name="Modalità Ibrida">2</Value>
         </Choices>
       </Feature>
 

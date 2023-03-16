@@ -222,8 +222,12 @@ void PatchGameLoad()
 	constexpr BYTE IndexSearchBytes[]{ 0x33, 0xC9, 0x0F, 0xBE, 0xF3, 0x0F, 0xB6, 0x10, 0x3B, 0xD6, 0x75, 0x0D, 0x0F, 0xB6, 0x50, 0x01, 0x0F, 0xBE, 0x7C, 0x24, 0x0C, 0x3B, 0xD7, 0x74, 0x0B, 0x41, 0x83, 0xC0, 0x18, 0x83, 0xF9, 0x64, 0x7C, 0xE3, 0xEB, 0x05 };
 	BYTE *IndexCheckAddr = (BYTE*)SearchAndGetAddresses(0x0044CF0F, 0x0044D16F, 0x0044D16F, IndexSearchBytes, sizeof(IndexSearchBytes), 0x91, __FUNCTION__);
 
+	// Get quick save load NOP address
+	constexpr BYTE QuickLoadSearchBytes[]{ 0x83, 0xC4, 0x04, 0x85, 0xC0, 0x74, 0x25, 0x39, 0x35 };
+	BYTE* QuickLoadCheckAddr = (BYTE*)SearchAndGetAddresses(0x004024F7, 0x004024F7, 0x004024F7, QuickLoadSearchBytes, sizeof(QuickLoadSearchBytes), 0x1E, __FUNCTION__);
+
 	// Checking address pointer
-	if (!InGameCheckAddr || !IndexCheckAddr)
+	if (!InGameCheckAddr || !IndexCheckAddr || !QuickLoadCheckAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
@@ -236,6 +240,7 @@ void PatchGameLoad()
 
 	// Update SH2 code
 	Logging::Log() << "Fixing Game Results loading crash...";
+	UpdateMemoryAddress(QuickLoadCheckAddr, "\x90\x90\x90\x90\x90\x90", 6);
 	WriteJMPtoMemory((BYTE*)IndexCheckAddr, *GameResultSaveASM, 6);
 }
 

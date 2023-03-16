@@ -97,6 +97,7 @@ float* MeetingMariaCutsceneFogCounterOneAddr = nullptr;
 float* MeetingMariaCutsceneFogCounterTwoAddr = nullptr;
 float* RPTClosetCutsceneMannequinDespawnAddr = nullptr;
 float* RPTClosetCutsceneBlurredBarsDespawnAddr = nullptr;
+BYTE* InputAssignmentFlagAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -2096,4 +2097,20 @@ float *GetRPTClosetCutsceneBlurredBarsDespawnPointer()
 	RPTClosetCutsceneBlurredBarsDespawnAddr = (float*)((DWORD)RPTClosetCutsceneBlurredBarsDespawn);
 
 	return RPTClosetCutsceneBlurredBarsDespawnAddr;
+}
+
+BYTE GetInputAssignmentFlag()
+{
+	BYTE* pInputAssignmentFlag = GetInputAssignmentFlagPointer();
+
+	return (pInputAssignmentFlag) ? *pInputAssignmentFlag : 0;
+}
+
+BYTE* GetInputAssignmentFlagPointer()
+{
+	InputAssignmentFlagAddr = (BYTE*)((GameVersion == SH2V_10) ? 0x009415F5 :
+		(GameVersion == SH2V_11) ? 0x009415F5 :
+		(GameVersion == SH2V_DC) ? 0x009441F5 : NULL);
+
+	return InputAssignmentFlagAddr;
 }

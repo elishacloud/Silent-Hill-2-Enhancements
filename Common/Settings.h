@@ -24,7 +24,6 @@
 	visit(DisableRedCrossInCutScenes, true) \
 	visit(DisableSafeMode, true) \
 	visit(DisableScreenSaver, true) \
-	visit(DPadMovementFix, true) \
 	visit(DynamicResolution, true) \
 	visit(EnableDebugOverlay, true) \
 	visit(EnableEnhancedMouse, true) \
@@ -127,6 +126,7 @@
 	visit(CustomFontCharWidth, 20) \
 	visit(CustomFontCol, 25) \
 	visit(CustomFontRow, 17) \
+	visit(DPadMovementFix, 1) \
 	visit(EnableCriWareReimplementation, 1) \
 	visit(fog_transparency_layer1, 128) \
 	visit(fog_transparency_layer2, 112) \
@@ -253,6 +253,13 @@ typedef enum _REMOVEFORCEFEEDBACK {
 	AUTO_REMOVE_FORCEFEEDBACK = 1,
 	REMOVE_FORCEFEEDBACK = 2,
 } REMOVEFORCEFEEDBACK;
+
+typedef enum _DPADCONTROL {
+	DISABLE_PDAD_CONTROL = 0,
+	DPAD_MOVEMENT_MODE = 1,
+	DPAD_HYBRID_MODE = 2,
+	DPAD_BUTTON_MODE = 3,
+} DPADCONTROL;
 
 // Configurable setting defaults
 #define DECLARE_BOOL_SETTINGS(name, unused) \

@@ -413,11 +413,13 @@
       </Feature>
 
       <Feature name="DPadMovementFix">
-        <Title>Ripristina movimento con i tasti direzionali</Title>
-        <Description>Permette di utilizzare i tasto direzionali con DirectInput come input di movimento per controllare James e selezionare opzioni nei menu.</Description>
-        <Choices type="check">
-          <Value name="Disabilitato">0</Value>
-          <Value name="Abilitato" default="true">1</Value>
+        <Title>Restore D-pad functions</Title>
+        <Description>Movement Mode: The D-pad will act as an additional movement pad to control James and navigate menu selections.&#x0a;Button Mode: The D-pad will act as additional controller buttons, allowing you to assign game functions to the D-pad. You will NOT be able to control James or navigate menus with the D-pad.&#x0a;Hybrid Mode: The D-pad will act as additional controller buttons, allowing you to assign game functions to the D-pad. You will NOT be able to control James but WILL be able to navigate menus with the D-pad.</Description>
+        <Choices type="list">
+          <Value name="Disable">0</Value>
+          <Value name="Movement Mode" default="true">1</Value>
+          <Value name="Button Mode">3</Value>
+          <Value name="Hybrid Mode">2</Value>
         </Choices>
       </Feature>
 

@@ -191,7 +191,6 @@ private:
 	bool FleshRoomFix();
 	bool SetRMBAimFunction();
 	bool IsMovementPressed();
-	bool IsInFullScreenImageEvent();
 
 	bool GetAnalogStringAddr();
 
@@ -214,6 +213,8 @@ public:
 
 	bool GetRMBState();
 	bool GetLMBState();
+
+	bool IsInFullScreenImageEvent();
 
 	// Additional fix for cutscenes
 	bool ElevatorFix();

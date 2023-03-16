@@ -64,6 +64,7 @@ BYTE GetBoatFlag();
 int32_t GetIsWritingQuicksave();
 int32_t GetTextAddr();
 float GetFrametime();
+BYTE GetInputAssignmentFlag();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -139,6 +140,7 @@ float *GetMeetingMariaCutsceneFogCounterOnePointer();
 float *GetMeetingMariaCutsceneFogCounterTwoPointer();
 float *GetRPTClosetCutsceneMannequinDespawnPointer();
 float *GetRPTClosetCutsceneBlurredBarsDespawnPointer();
+BYTE* GetInputAssignmentFlagPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -331,6 +333,7 @@ extern BYTE* AnalogXAddr;
 extern BYTE* ControlTypeAddr;
 extern BYTE* NumKeysWeaponBindStartAddr;
 extern BYTE* TalkShowHostStateAddr;
+extern BYTE* InputAssignmentFlagAddr;
 
 extern bool ShowDebugOverlay;
 extern bool ShowInfoOverlay;

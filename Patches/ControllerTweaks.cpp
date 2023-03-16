@@ -53,15 +53,54 @@ void ProcessDInputData_Hook(GamePadState* state)
 
 	if (DPadMovementFix)
 	{
+		static bool IsAssigningPOVButton = false;		// Helps prevent the case where the selection moves during POV button assignement
 		const DWORD povAngle = joystickState.rgdwPOV[0];
-		const bool centered = LOWORD(povAngle) == 0xFFFF;
+		const bool centered = (LOWORD(povAngle) == 0xFFFF);
 		if ( !centered )
 		{
-			// Override analog values with DPad values
-			const double angleRadians = static_cast<double>(povAngle) * M_PI / (180.0 * 100.0);
+			const bool WaitingInputAssignment = (GetEventIndex() == EVENT_OPTION_FMV && GetInputAssignmentFlag() == 1);		// In the Options (includes Control Options) screen and game is currently awaiting an input assignment
+			const bool IsIngame = (GetEventIndex() != EVENT_IN_GAME || (GetEventIndex() == EVENT_IN_GAME && InputTweaksRef.IsInFullScreenImageEvent()));		// Not currently in-game, so in a menu || In-game but a text prompt is currently on-screen.
 
-			joystickState.lX = static_cast<LONG>(std::sin(angleRadians) * 32767.0);
-			joystickState.lY = static_cast<LONG>(std::cos(angleRadians) * -32767.0);
+			if ((DPadMovementFix == DPAD_MOVEMENT_MODE) ||
+				(DPadMovementFix == DPAD_HYBRID_MODE && IsIngame && !WaitingInputAssignment && !IsAssigningPOVButton))
+			{
+				// Override analog values with DPad values
+				const double angleRadians = static_cast<double>(povAngle) * M_PI / (180.0 * 100.0);
+
+				joystickState.lX = static_cast<LONG>(std::sin(angleRadians) * 32767.0);
+				joystickState.lY = static_cast<LONG>(std::cos(angleRadians) * -32767.0);
+			}
+			else
+			{
+				// Check if waiting for input assignment
+				if (WaitingInputAssignment)
+				{
+					IsAssigningPOVButton = true;
+				}
+
+				// Override button values with DPad values
+				if ((povAngle > 31500 && povAngle <= 36000) || (povAngle >= 0 && povAngle <= 4500))
+				{
+					joystickState.rgbButtons[28] = 0x80;	// The high-order bit of the byte is set if the corresponding button is down
+				}
+				else if (povAngle > 4500 && povAngle <= 13500)
+				{
+					joystickState.rgbButtons[29] = 0x80;
+				}
+				else if (povAngle > 13500 && povAngle <= 22500)
+				{
+					joystickState.rgbButtons[30] = 0x80;
+				}
+				else if (povAngle > 22500 && povAngle <= 31500)
+				{
+					joystickState.rgbButtons[31] = 0x80;
+				}
+			}
+		}
+		else
+		{
+			// Reset flag if not assigning it
+			IsAssigningPOVButton = false;
 		}
 	}
 

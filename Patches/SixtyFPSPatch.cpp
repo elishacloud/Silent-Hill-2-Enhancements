@@ -198,5 +198,7 @@ void PatchSixtyFPS()
 
     PatchHoldDamage();
 
+    PatchDoubleFootstepFix();
+
 	Logging::Log() << "Done applying 60 FPS fixes...";
 }

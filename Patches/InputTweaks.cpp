@@ -933,20 +933,27 @@ BYTE KeyBindsHandler::GetPauseButtonBind()
 
 void EventIndexWatcher::UpdateEventIndex() 
 {
-	this->EventIndex = GetEventIndex();
+	int EventID = GetEventIndex();
 
-	if (this->EventIndex == EVENT_FMV && this->counter < LONG_MAX)
+	if (EventID == this->EventIndex && this->counter < LONG_MAX)
 		this->counter += 1;
-	else if (this->EventIndex == EVENT_FMV)
+	else if (EventID != this->EventIndex)
 		this->counter = 0;
 }
 
 bool EventIndexWatcher::ShouldClearSkipInput()
 {
-	if (this->GetFMVFrames() > this->SkipInputThreshold)
+	if (this->GetFMVFrames() > this->SkipInputUpperBound)
+		return true;
+	if (this->GetResultScreenFrames() < this->SkipInputLowerBound)
 		return true;
 
 	return false;
+}
+
+long EventIndexWatcher::GetResultScreenFrames()
+{
+	return this->EventIndex == EVENT_GAME_RESULT_TWO ? this->counter : 0;
 }
 
 // Returns the number of frames the EVENT_FMV has lived, or 0 if in another event index

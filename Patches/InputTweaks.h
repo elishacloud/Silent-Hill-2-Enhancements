@@ -238,9 +238,11 @@ private:
 	long counter = 0;
 
 	long GetFMVFrames();
+	long GetResultScreenFrames();
 
 public:
-	const int SkipInputThreshold = 1;
+	const int SkipInputUpperBound = 1;
+	const int SkipInputLowerBound = 3;
 
 	void UpdateEventIndex();
 	bool ShouldClearSkipInput();

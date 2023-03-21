@@ -174,6 +174,7 @@ void PatchCustomFog();
 void PatchCustomFonts();
 void PatchControllerTweaks();
 void PatchDelayedFadeIn();
+void PatchDoubleFootstepFix();
 void PatchDrawDistance();
 void PatchFlashlightClockPush();
 void PatchFlashlightFlicker();

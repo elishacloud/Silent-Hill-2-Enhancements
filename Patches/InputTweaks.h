@@ -231,4 +231,19 @@ public:
 	BYTE GetPauseButtonBind();
 };
 
+class EventIndexWatcher
+{
+private:
+	int EventIndex = 0;
+	long counter = 0;
+
+	long GetFMVFrames();
+
+public:
+	const int SkipInputThreshold = 1;
+
+	void UpdateEventIndex();
+	bool ShouldClearSkipInput();
+};
+
 extern InputTweaks InputTweaksRef;

@@ -67,11 +67,19 @@ int ForwardBackwardsAxis = 0;
 int LeftRightAxis = 0;
 bool OverrideSprint = false;
 
+const int AutoHideCursorSeconds = 3;
+auto LastCursorMovement = std::chrono::system_clock::now();
+bool HideMouseCursor = false;
+int LastCursorXPos = 0;
+int LastCursorYPos = 0;
+
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLXAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLYAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerRXAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerRYAxis;
 injector::hook_back<void(__cdecl*)(void)> orgUpdateMousePosition;
+
+injector::hook_back<void(__cdecl*)(int32_t)> orgSetMouseVisibility;
 
 BYTE* AnalogStringOne;
 BYTE* AnalogStringTwo;
@@ -82,6 +90,14 @@ BYTE *PauseMenuQuitIndexAddr = nullptr;
 uint8_t keyNotSetWarning[21] = { 0 };
 
 EventIndexWatcher EventIDWatcher;
+
+void SetMouseVisibility_Hook(int32_t value)
+{
+	if (HideMouseCursor)
+		orgSetMouseVisibility.fun(0);
+	else
+		orgSetMouseVisibility.fun(value);
+}
 
 int8_t GetControllerLXAxis_Hook(DWORD* arg)
 {
@@ -131,10 +147,25 @@ void UpdateMousePosition_Hook()
 {
 	orgUpdateMousePosition.fun();
 
+	auto Now = std::chrono::system_clock::now();
+
+	if (GetMouseVerticalPosition() != LastCursorYPos || GetMouseHorizontalPosition() != LastCursorXPos)
+	{
+		LastCursorXPos = GetMouseHorizontalPosition();
+		LastCursorYPos = GetMouseVerticalPosition();
+		LastCursorMovement = Now;
+		HideMouseCursor = false;
+
+	}
+	else if ((std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastCursorMovement).count() > AutoHideCursorSeconds * 1000))
+	{
+		HideMouseCursor = true;
+	}
+
 	// Handling of vertical and horizontal navigation for Pause and Memo screens
 	if (GetEventIndex() == EVENT_PAUSE_MENU || GetEventIndex() == EVENT_MEMO_LIST)
 	{
-		auto Now = std::chrono::system_clock::now();
+		
 		auto DeltaMs = std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastMousePauseChange);
 
 		// Vertical navigation
@@ -524,6 +555,14 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			UpdateMemoryAddress((void*)AnalogStringThree, "\x2F", 1);
 		}
 
+		// Hooking the mouse visibility function
+		if (true) //TODO setting
+		{
+			orgSetMouseVisibility.fun = injector::MakeCALL((DWORD*)0x00496912, SetMouseVisibility_Hook, true).get();
+			injector::MakeCALL((DWORD*)0x00497c66, SetMouseVisibility_Hook, true);
+			injector::MakeCALL((DWORD*)0x00497cf0, SetMouseVisibility_Hook, true);
+			injector::MakeCALL((DWORD*)0x00497d78, SetMouseVisibility_Hook, true);
+		}
 	}
 }
 

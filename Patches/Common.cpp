@@ -104,7 +104,6 @@ bool ShowInfoOverlay = false;
 std::string AuxDebugOvlString = "";
 bool IsControllerConnected = false;
 HWND GameWindowHandle = NULL;
-int LastEventIndex = 0x00;
 
 DWORD GetRoomID()
 {
@@ -2002,9 +2001,9 @@ BYTE *GetClearTextPointer()
 		return nullptr;
 	}
 
-	ClearText = (BYTE*)((DWORD)ClearText);
+	ClearTextAddr = (BYTE*)((DWORD)ClearText);
 
-	return ClearText;
+	return ClearTextAddr;
 }
 
 float *GetMeetingMariaCutsceneFogCounterOnePointer()

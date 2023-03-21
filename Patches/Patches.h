@@ -174,6 +174,7 @@ void PatchCustomFog();
 void PatchCustomFonts();
 void PatchControllerTweaks();
 void PatchDelayedFadeIn();
+void PatchDoubleFootstepFix();
 void PatchDrawDistance();
 void PatchFlashlightClockPush();
 void PatchFlashlightFlicker();
@@ -197,6 +198,7 @@ void PatchPreventChainsawSpawn();
 void PatchPrisonerTimer();
 void PatchPS2Flashlight();
 void PatchPS2NoiseFilter();
+void PatchQuickSaveTweaks();
 void PatchRedCrossInCutscene();
 void PatchRoom312ShadowFix();
 void PatchRoomLighting();
@@ -216,10 +218,6 @@ void PatchTreeLighting();
 void PatchWindowIcon();
 void PatchWindowTitle();
 void PatchXInputVibration();
-void PatchSaveGameSound();
-void PatchQuickSaveTweaks();
-void PatchQuickSavePos();
-void PatchQuickSaveText();
 
 void FindGetModelID();
 int GetCurrentMaterialIndex();
@@ -245,6 +243,7 @@ void RunHotelWater();
 void RunInfiniteRumbleFix();
 void RunInnerFlashlightGlow(DWORD Height);
 void RunLightingTransition();
+void RunQuickSaveTweaks();
 void RunRoomLighting();
 void RunRotatingMannequin();
 void RunSaveBGImage();
@@ -340,7 +339,6 @@ extern bool ShowInfoOverlay;
 extern std::string AuxDebugOvlString;
 extern bool IsControllerConnected;
 extern HWND GameWindowHandle;
-extern int LastEventIndex;
 
 // Run code only once
 #define RUNONCE() \

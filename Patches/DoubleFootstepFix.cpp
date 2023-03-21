@@ -109,7 +109,7 @@ void PatchDoubleFootstepFix()
         Logging::Log() << __FUNCTION__ << " Error: failed to find pointer address!";
         return;
     }
-    memcpy(&FootstepFlagAddr, (void*)(JamesFootstepInjectAddr + -0x0C), sizeof(DWORD));
+    FootstepFlagAddr = *(DWORD*)(JamesFootstepInjectAddr - 0x0C);
     JamesFootstepReturnAddr = JamesFootstepInjectAddr + 0x05;
     MariaFootstepReturnAddr = MariaFootstepInjectAddr + 0x05;
 

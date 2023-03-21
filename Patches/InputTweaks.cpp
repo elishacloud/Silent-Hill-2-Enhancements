@@ -89,8 +89,6 @@ BYTE *PauseMenuQuitIndexAddr = nullptr;
 
 uint8_t keyNotSetWarning[21] = { 0 };
 
-EventIndexWatcher EventIDWatcher;
-
 void SetMouseVisibility_Hook(int32_t value)
 {
 	if (HideMouseCursor)
@@ -148,6 +146,15 @@ void UpdateMousePosition_Hook()
 	orgUpdateMousePosition.fun();
 
 	auto Now = std::chrono::system_clock::now();
+
+	//TODO remove
+	AuxDebugOvlString = "\rLast Y pos: ";
+	AuxDebugOvlString.append(std::to_string(LastCursorYPos));
+	AuxDebugOvlString.append("\rLast X pos:");
+	AuxDebugOvlString.append(std::to_string(LastCursorXPos));
+	AuxDebugOvlString.append("\rDelta Movement: ");
+	AuxDebugOvlString.append(std::to_string(
+		std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastCursorMovement).count()));
 
 	if (GetMouseVerticalPosition() != LastCursorYPos || GetMouseHorizontalPosition() != LastCursorXPos)
 	{

@@ -24,6 +24,8 @@ void* jmp_return;
 void* jmp_to_loop;
 
 DWORD* muteSound;
+DWORD LastRoomID;
+bool SoundFixFlag;
 DWORD EventIndex;
 BYTE MenuEventIndex;
 
@@ -34,10 +36,10 @@ __declspec(naked) void __stdcall FixInventoryBGMBugASM()
 	EventIndex = GetEventIndex();
 	MenuEventIndex = GetMenuEvent();
 
-	if (MenuEventIndex == 0x0D /*[normal gameplay]*/ || (MenuEventIndex == 0x11 /*[load game menu]*/ && 
-		EventIndex == 0x00 /*[load game menu]*/) && LastEventIndex == 0x10)
+	if (MenuEventIndex == 13 /*In-game*/ || 
+		(MenuEventIndex == 17 /*Load Screen*/ && EventIndex == 0 /*Load Screen*/))
 	{
-		if (EventIndex == 0x0B /*[game result screen]*/)
+		if (EventIndex == 11 /*Game Results Screen*/)
 		{
 			*muteSound = 0x0F;
 			__asm
@@ -46,12 +48,18 @@ __declspec(naked) void __stdcall FixInventoryBGMBugASM()
 			}
 		}
 
-		if (EventIndex > 0x03 && EventIndex < 0x0A /*[just about every type of menu]*/ || 
-			EventIndex == 0x10 /*[pause menu]*/ || MenuEventIndex == 0x11 /*[normal gameplay]*/)
+		if (EventIndex > 3 && EventIndex < 10 /*4 = In-game, 5 = Map, 6 = Inventory, 7 = Options Screen, 8 = Memos Screen, 9 = Save Screen*/ || 
+			EventIndex == 16 /*Pause Screen*/ || MenuEventIndex == 17 /*Load Screen*/)
 		{
-			__asm
+			SoundFixFlag = (LastRoomID != GetRoomID());
+			LastRoomID = GetRoomID();
+
+			if (SoundFixFlag || EventIndex == 4 /*In-game*/)
 			{
-				jmp jmp_return
+				__asm
+				{
+					jmp jmp_return
+				}
 			}
 		}
 	}
@@ -59,7 +67,6 @@ __declspec(naked) void __stdcall FixInventoryBGMBugASM()
 	{
 		jmp jmp_to_loop
 	}
-
 }
 
 void PatchInventoryBGMBug()
@@ -74,7 +81,7 @@ void PatchInventoryBGMBug()
 		return;
 	}
 
-	memcpy(&muteSound, (DWORD*)(BuggyBGMAddr - 0x04), sizeof(DWORD));
+	muteSound = (DWORD*)*(DWORD*)(BuggyBGMAddr - 0x04);
 	jmp_return = reinterpret_cast<void*>(BuggyBGMAddr + 0x24);
 	jmp_to_loop = reinterpret_cast<void*>(BuggyBGMAddr + 0x31);
 

@@ -104,7 +104,6 @@ bool ShowInfoOverlay = false;
 std::string AuxDebugOvlString = "";
 bool IsControllerConnected = false;
 HWND GameWindowHandle = NULL;
-int LastEventIndex = 0x00;
 
 DWORD GetRoomID()
 {

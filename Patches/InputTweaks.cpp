@@ -81,8 +81,6 @@ BYTE *PauseMenuQuitIndexAddr = nullptr;
 
 uint8_t keyNotSetWarning[21] = { 0 };
 
-EventIndexWatcher EventIDWatcher;
-
 int8_t GetControllerLXAxis_Hook(DWORD* arg)
 {
 	// Alt Tab Rotating Fix
@@ -288,17 +286,14 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			InfoCombo.State = false;
 		}
 
-		// Fix for holding ESC on ending cutscene, skipping the results screen
-		EventIDWatcher.UpdateEventIndex();
-
 		EscInput.State = IsKeyPressed(KeyBinds.GetKeyBind(KEY_SKIP));
 		EscInput.UpdateHolding();
 		CancelInput.State = IsKeyPressed(KeyBinds.GetKeyBind(KEY_CANCEL));
 		CancelInput.UpdateHolding();
 
-		// Clear the ESC and SKIP key if a quicksave is in progress, or if holding the button after a certain amount of frames into an FMV
+		// Clear the ESC and SKIP key if a quicksave is in progress, or if holding the button entering the result screen
 		if (GameLoadFix && (GetIsWritingQuicksave() == 1 || GetTextAddr() == 1) ||
-			(EventIDWatcher.ShouldClearSkipInput() && (EscInput.Holding || CancelInput.Holding)))
+			(GetEventIndex() == EVENT_GAME_RESULT_TWO && (EscInput.Holding || CancelInput.Holding)))
 		{
 			ClearKey(KeyBinds.GetKeyBind(KEY_SKIP));
 			ClearKey(KeyBinds.GetKeyBind(KEY_CANCEL));
@@ -925,31 +920,6 @@ BYTE* KeyBindsHandler::GetKeyBindsPointer()
 BYTE KeyBindsHandler::GetPauseButtonBind()
 {
 	return *(this->GetKeyBindsPointer() + 0xF0);
-}
-
-
-void EventIndexWatcher::UpdateEventIndex() 
-{
-	int EventID = GetEventIndex();
-
-	if (EventID == this->EventIndex && this->counter < LONG_MAX)
-		this->counter += 1;
-	else if (EventID != this->EventIndex)
-		this->counter = 0;
-}
-
-bool EventIndexWatcher::ShouldClearSkipInput()
-{
-	if (this->GetResultScreenFrames() < this->SkipInputThreshold)
-		return true;
-
-	return false;
-}
-
-// Returns the number of frames the EVENT_GAME_RESULT_TWO has lived, or 0 if in another event index
-long EventIndexWatcher::GetResultScreenFrames()
-{
-	return this->EventIndex == EVENT_GAME_RESULT_TWO ? this->counter : 0;
 }
 
 BYTE GetPauseMenuQuitIndex()

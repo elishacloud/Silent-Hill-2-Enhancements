@@ -1774,6 +1774,12 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 			EnableXboxShadows = !((GetRoomID() == 0x02 || GetRoomID() == 0x24 || GetRoomID() == 0x8F || GetRoomID() == 0x90) || GetCutsceneID() == 0x5A);
 		}
 
+		// Fixes quick save text fading too quickly bug
+		if (QuickSaveTweaks)
+		{
+			RunQuickSaveTweaks();
+		}
+
 		// Hotel Water Visual Fixes
 		if (HotelWaterFix)
 		{

@@ -17,6 +17,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include "Patches.h"
+#include "InputTweaks.h"
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 #include <d3d9types.h>
@@ -164,21 +165,23 @@ void __stdcall print_no_quick_save_string(void)
 injector::hook_back<void(__cdecl*)(void)> ClearTextFun;
 void __cdecl ClearTextHook()
 {
-	if (GetClearTextPointer() && *GetClearTextPointer() == 0x05)
-	{
-		UpdateMemoryAddress(GetClearTextPointer(), "\x00", 1);
-	}
+	RunQuickSaveTweaks();
 
 	return ClearTextFun.fun();
 }
 
-void PatchQuickSaveTweaks()
+void RunQuickSaveTweaks()
 {
-	PatchQuickSavePos();
-	PatchQuickSaveText();
+	LOG_ONCE("Patching Quick Save Text Fading Too Quickly...");
+
+	//Currently in-game && a text prompt is NOT currently on-screen
+	if (GetClearTextPointer() && *GetClearTextPointer() == 0x05 && GetEventIndex() == EVENT_IN_GAME && !InputTweaksRef.IsInFullScreenImageEvent())
+	{
+		UpdateMemoryAddress(GetClearTextPointer(), "\x00", 1);
+	}
 }
 
-void PatchQuickSavePos()
+void PatchQuickSaveTweaks()
 {
 	Logging::Log() << "Patching Quick Save Text Position...";
 
@@ -264,14 +267,4 @@ void PatchQuickSavePos()
 
 	const auto NoAutoSavedFunction = (void* (__cdecl*)(void))(printNoQuickSavedFunction);
 	PrintNoSave = (printNoSaveString)NoAutoSavedFunction;
-}
-
-void PatchQuickSaveText()
-{
-	Logging::Log() << "Patching Quick Save Text Fading Too Quickly...";
-
-	// Hooking in this way since the calling function is very different between versions
-	auto pattern = hook::pattern("E8 3C E4 FF FF");
-
-	ClearTextFun.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), ClearTextHook, true).get();
 }

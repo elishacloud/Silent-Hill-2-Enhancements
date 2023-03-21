@@ -2002,9 +2002,9 @@ BYTE *GetClearTextPointer()
 		return nullptr;
 	}
 
-	ClearText = (BYTE*)((DWORD)ClearText);
+	ClearTextAddr = (BYTE*)((DWORD)ClearText);
 
-	return ClearText;
+	return ClearTextAddr;
 }
 
 float *GetMeetingMariaCutsceneFogCounterOnePointer()

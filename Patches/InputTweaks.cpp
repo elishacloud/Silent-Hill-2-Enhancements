@@ -60,6 +60,8 @@ Input Sprint;
 Input RMB;
 Input DebugCombo;
 Input InfoCombo;
+Input EscInput;
+Input CancelInput;
 
 int ForwardBackwardsAxis = 0;
 int LeftRightAxis = 0;
@@ -284,8 +286,14 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			InfoCombo.State = false;
 		}
 
-		// Clear the ESC and SKIP key if a quicksave is in progress
-		if (GameLoadFix && (GetIsWritingQuicksave() == 1 || GetTextAddr() == 1))
+		EscInput.State = IsKeyPressed(KeyBinds.GetKeyBind(KEY_SKIP));
+		EscInput.UpdateHolding();
+		CancelInput.State = IsKeyPressed(KeyBinds.GetKeyBind(KEY_CANCEL));
+		CancelInput.UpdateHolding();
+
+		// Clear the ESC and SKIP key if a quicksave is in progress, or if holding the button entering the result screen
+		if (GameLoadFix && (GetIsWritingQuicksave() == 1 || GetTextAddr() == 1) ||
+			(GetEventIndex() == EVENT_GAME_RESULT_TWO && (EscInput.Holding || CancelInput.Holding)))
 		{
 			ClearKey(KeyBinds.GetKeyBind(KEY_SKIP));
 			ClearKey(KeyBinds.GetKeyBind(KEY_CANCEL));

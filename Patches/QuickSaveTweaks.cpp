@@ -17,6 +17,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include "Patches.h"
+#include "InputTweaks.h"
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 #include <d3d9types.h>
@@ -31,6 +32,11 @@ DWORD NoQuickSaveTextColorAddr;
 DWORD printGameSavedFunction;
 DWORD printCantSavedFunction;
 DWORD printNoQuickSavedFunction;
+
+DWORD tmpReg;
+void* PosGameSavedRetAddr;
+void* PosCantSaveRetAddr;
+void* PosNoQuickSaveRetAddr;
 
 bool ClearFontBeforePrint = false;
 
@@ -52,7 +58,47 @@ fontClear clearFont;
 //0047f180
 
 // X pos of save text
-int8_t TextPosVecX;
+int TextPosVecX = 0x14;	// Use game's default
+
+// Use asm to handle larger than byte values
+__declspec(naked) void __stdcall PosGameSavedASM()
+{
+	__asm
+	{
+		push	0x1BD
+		mov		tmpReg, eax
+		mov		eax, TextPosVecX
+		push	eax
+		mov		eax, tmpReg
+		jmp		PosGameSavedRetAddr
+	}
+}
+
+__declspec(naked) void __stdcall PosCantSaveASM()
+{
+	__asm
+	{
+		push	0x1BD
+		mov		tmpReg, eax
+		mov		eax, TextPosVecX
+		push	eax
+		mov		eax, tmpReg
+		jmp		PosCantSaveRetAddr
+	}
+}
+
+__declspec(naked) void __stdcall PosNoQuickSaveASM()
+{
+	__asm
+	{
+		push	0x1BD
+		mov		tmpReg, eax
+		mov		eax, TextPosVecX
+		push	eax
+		mov		eax, tmpReg
+		jmp		PosNoQuickSaveRetAddr
+	}
+}
 
 // I don't think game uses RGB or something like that but anyway it's just works :)
 struct RGBA
@@ -83,16 +129,16 @@ void ChangeSaveColor(void* Addr,RGBA savedColorValue)
 // This aspect ratio calc is made by @Polymega https://github.com/elishacloud/Silent-Hill-2-Enhancements/issues/564#issue-1301079704
 void __stdcall SetAspectRatio()
 {
-	TextPosVecX = (int8_t)(((((BufferHeight * 1.333333333) - BufferWidth) * (static_cast<double>(BufferWidth) / BufferHeight)) / BufferWidth) * 195 + 20);
+	TextPosVecX = (int)(((((BufferHeight * 1.333333333) - BufferWidth) * (static_cast<double>(BufferWidth) / BufferHeight)) / BufferWidth) * 195 + 20);
 }
 
 void __stdcall print_quick_saved_string(void)
 {
 	SetAspectRatio();
-	if(ClearFontBeforePrint)
+	if (ClearFontBeforePrint)
+	{
 		clearFont();
-	UpdateMemoryAddress((void*)(GameSavedTextColorAddr + 0x26), &TextPosVecX, sizeof(TextPosVecX));
-
+	}
 	PrintSave();
 }
 
@@ -100,9 +146,9 @@ void __stdcall print_cant_save_string(void)
 {
 	SetAspectRatio();
 	if (ClearFontBeforePrint)
+	{
 		clearFont();
-	UpdateMemoryAddress((void*)(CantSavedTextColorAddr + 0x26), &TextPosVecX, sizeof(TextPosVecX));
-
+	}
 	PrintCantSave();
 }
 
@@ -110,28 +156,32 @@ void __stdcall print_no_quick_save_string(void)
 {
 	SetAspectRatio();
 	if (ClearFontBeforePrint)
+	{
 		clearFont();
-	UpdateMemoryAddress((void*)(NoQuickSaveTextColorAddr + 0x26), &TextPosVecX, sizeof(TextPosVecX));
-
+	}
 	PrintNoSave();
 }
 
 injector::hook_back<void(__cdecl*)(void)> ClearTextFun;
 void __cdecl ClearTextHook()
 {
-	if (GetClearTextPointer() && *GetClearTextPointer() == 0x05)
-		UpdateMemoryAddress(GetClearTextPointer(), "\x00", 1);
+	RunQuickSaveTweaks();
 
 	return ClearTextFun.fun();
 }
 
-void PatchQuickSaveTweaks()
+void RunQuickSaveTweaks()
 {
-	PatchQuickSavePos();
-	PatchQuickSaveText();
+	LOG_ONCE("Patching Quick Save Text Fading Too Quickly...");
+
+	//Currently in-game && a text prompt is NOT currently on-screen
+	if (GetClearTextPointer() && *GetClearTextPointer() == 0x05 && GetEventIndex() == EVENT_IN_GAME && !InputTweaksRef.IsInFullScreenImageEvent())
+	{
+		UpdateMemoryAddress(GetClearTextPointer(), "\x00", 1);
+	}
 }
 
-void PatchQuickSavePos()
+void PatchQuickSaveTweaks()
 {
 	Logging::Log() << "Patching Quick Save Text Position...";
 
@@ -142,8 +192,22 @@ void PatchQuickSavePos()
 
 	constexpr BYTE quick_saved_addr_bytes[] = { 0x68, 0x80, 0x00, 0x00,0x00 , 0x68, 0x96,0x00,0x00,0x00 };
 	GameSavedTextColorAddr = SearchAndGetAddresses(   (DWORD)0x0044C688,   (DWORD)0x0044C856, (DWORD)0x0044C856, (BYTE*)quick_saved_addr_bytes,  sizeof(quick_saved_addr_bytes),   0x01, __FUNCTION__);
-	CantSavedTextColorAddr = SearchAndGetAddresses(   (DWORD)0x0044C6d8,   (DWORD)0x0044C8e6, (DWORD)0x0044C8E6, (BYTE*)quick_saved_addr_bytes,  sizeof(quick_saved_addr_bytes),   0x01, __FUNCTION__);
+	CantSavedTextColorAddr = SearchAndGetAddresses(   (DWORD)0x0044C6D8,   (DWORD)0x0044C8E6, (DWORD)0x0044C8E6, (BYTE*)quick_saved_addr_bytes,  sizeof(quick_saved_addr_bytes),   0x01, __FUNCTION__);
 	NoQuickSaveTextColorAddr = SearchAndGetAddresses( (DWORD)0x0044C728,   (DWORD)0x0044C976, (DWORD)0x0044C976, (BYTE*)quick_saved_addr_bytes,  sizeof(quick_saved_addr_bytes),   0x01, __FUNCTION__);
+
+	BYTE newPosXBytes[] = { 0x68, 0xBD, 0x01, 0x00, 0x00, 0x6A, 0x14 };
+
+	DWORD GameSavedPosAddr = SearchAndGetAddresses((DWORD)0x0044C6A9, (DWORD)0x0044C872, (DWORD)0x0044C872, newPosXBytes, sizeof(newPosXBytes), 0x00, __FUNCTION__);
+	DWORD CantSavedPosAddr = SearchAndGetAddresses((DWORD)0x0044C6F9, (DWORD)0x0044C902, (DWORD)0x0044C902, newPosXBytes, sizeof(newPosXBytes), 0x00, __FUNCTION__);
+	DWORD NoQuickSavePosAddr = SearchAndGetAddresses((DWORD)0x0044C749, (DWORD)0x0044C992, (DWORD)0x0044C992, newPosXBytes, sizeof(newPosXBytes), 0x00, __FUNCTION__);
+
+	PosGameSavedRetAddr = (void*)(GameSavedPosAddr + 0x7);
+	PosCantSaveRetAddr = (void*)(CantSavedPosAddr + 0x7);
+	PosNoQuickSaveRetAddr = (void*)(NoQuickSavePosAddr + 0x7);
+
+	WriteJMPtoMemory((BYTE*)GameSavedPosAddr, *PosGameSavedASM, 7);
+	WriteJMPtoMemory((BYTE*)CantSavedPosAddr, *PosCantSaveASM, 7);
+	WriteJMPtoMemory((BYTE*)NoQuickSavePosAddr, *PosNoQuickSaveASM, 7);
 
 	// Points to enWaitAllInsect (based on ps2 demo version).
 	constexpr BYTE FontClearBytes[]{ 0x56, 0x33, 0xf6, 0x56, 0x66, 0x89, 0x35 ,0xC6 };
@@ -203,14 +267,4 @@ void PatchQuickSavePos()
 
 	const auto NoAutoSavedFunction = (void* (__cdecl*)(void))(printNoQuickSavedFunction);
 	PrintNoSave = (printNoSaveString)NoAutoSavedFunction;
-}
-
-void PatchQuickSaveText()
-{
-	Logging::Log() << "Patching Quick Save Text Fading Too Quickly...";
-
-	// Hooking in this way since the calling function is very different between versions
-	auto pattern = hook::pattern("E8 3C E4 FF FF");
-
-	ClearTextFun.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), ClearTextHook, true).get();
 }

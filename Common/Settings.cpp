@@ -365,4 +365,16 @@ void UpdateConfigDefaults()
 	default:
 		RemoveForceFeedbackFilter = AUTO_REMOVE_FORCEFEEDBACK;
 	}
+
+	// Set DPad control
+	switch (DPadMovementFix)
+	{
+	case DISABLE_PDAD_CONTROL:
+	case DPAD_MOVEMENT_MODE:
+	case DPAD_HYBRID_MODE:
+	case DPAD_BUTTON_MODE:
+		break;
+	default:
+		DPadMovementFix = DPAD_MOVEMENT_MODE;
+	}
 }

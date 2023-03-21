@@ -414,10 +414,12 @@
 
       <Feature name="DPadMovementFix">
         <Title>Restaurar movimiento de la cruceta</Title>
-      	<Description>Permite que las crucetas de los mandos con soporte DirectInput sirvan para controlar a James y para navegar por los menús.</Description>
-        <Choices type="check">
+        <Description>Modo de movimiento: la cruceta hará de mando de movimiento adicional para controlar a James y navegar por los menús.&#x0a;Modo de botones: la cruceta hará de botones a los que podrás asignar acciones del juego. NO PODRÁS controlar a James ni navegar por los menús con la cruceta.&#x0a;Modo híbrido: la cruceta hará de botones a los que podrás asignar acciones del juego. NO PODRÁS controlar a James con la cruceta, pero SÍ PODRÁS navegar por los menús.</Description>
+        <Choices type="list">
           <Value name="No">0</Value>
-          <Value name="Sí" default="true">1</Value>
+          <Value name="Modo de movimiento" default="true">1</Value>
+          <Value name="Modo de botones">3</Value>
+          <Value name="Modo híbrido">2</Value>
         </Choices>
       </Feature>
 

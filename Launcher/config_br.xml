@@ -413,11 +413,13 @@
       </Feature>
 
       <Feature name="DPadMovementFix">
-        <Title>Restaurar movimento do botão direcional</Title>
-        <Description>Permite que o direcional nos controles DirectInput atuem como entradas de movimento para controlar James e navegar pelas seleções do menu.</Description>
-        <Choices type="check">
-          <Value name="Desativar">0</Value>
-          <Value name="Ativar" default="true">1</Value>
+        <Title>Restaurar funções do D-pad</Title>
+        <Description>Modo Movimento: O D-pad atuará como um bloco de movimento adicional para controlar James e navegar pelas seleções do menu.&#x0a;Modo Botão: O D-pad funcionará como botões adicionais do controle, permitindo que você atribua funções de jogo ao D-pad. Você NÃO poderá controlar James ou navegar pelos menus com o D-pad.&#x0a;Modo Híbrido: O D-pad atuará como botões adicionais do controle, permitindo que você atribua funções de jogo ao D-pad. Você NÃO poderá controlar James, mas PODERÁ navegar pelos menus com o D-pad.</Description>
+        <Choices type="list">
+          <Value name="Disable">0</Value>
+          <Value name="Modo Movimento" default="true">1</Value>
+          <Value name="Modo Botão">3</Value>
+          <Value name="Modo Híbrido">2</Value>
         </Choices>
       </Feature>
 

@@ -64,6 +64,7 @@ BYTE GetBoatFlag();
 int32_t GetIsWritingQuicksave();
 int32_t GetTextAddr();
 float GetFrametime();
+BYTE GetInputAssignmentFlag();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -139,6 +140,7 @@ float *GetMeetingMariaCutsceneFogCounterOnePointer();
 float *GetMeetingMariaCutsceneFogCounterTwoPointer();
 float *GetRPTClosetCutsceneMannequinDespawnPointer();
 float *GetRPTClosetCutsceneBlurredBarsDespawnPointer();
+BYTE* GetInputAssignmentFlagPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -196,6 +198,7 @@ void PatchPreventChainsawSpawn();
 void PatchPrisonerTimer();
 void PatchPS2Flashlight();
 void PatchPS2NoiseFilter();
+void PatchQuickSaveTweaks();
 void PatchRedCrossInCutscene();
 void PatchRoom312ShadowFix();
 void PatchRoomLighting();
@@ -215,10 +218,6 @@ void PatchTreeLighting();
 void PatchWindowIcon();
 void PatchWindowTitle();
 void PatchXInputVibration();
-void PatchSaveGameSound();
-void PatchQuickSaveTweaks();
-void PatchQuickSavePos();
-void PatchQuickSaveText();
 
 void FindGetModelID();
 int GetCurrentMaterialIndex();
@@ -244,6 +243,7 @@ void RunHotelWater();
 void RunInfiniteRumbleFix();
 void RunInnerFlashlightGlow(DWORD Height);
 void RunLightingTransition();
+void RunQuickSaveTweaks();
 void RunRoomLighting();
 void RunRotatingMannequin();
 void RunSaveBGImage();
@@ -332,13 +332,13 @@ extern BYTE* AnalogXAddr;
 extern BYTE* ControlTypeAddr;
 extern BYTE* NumKeysWeaponBindStartAddr;
 extern BYTE* TalkShowHostStateAddr;
+extern BYTE* InputAssignmentFlagAddr;
 
 extern bool ShowDebugOverlay;
 extern bool ShowInfoOverlay;
 extern std::string AuxDebugOvlString;
 extern bool IsControllerConnected;
 extern HWND GameWindowHandle;
-extern int LastEventIndex;
 
 // Run code only once
 #define RUNONCE() \

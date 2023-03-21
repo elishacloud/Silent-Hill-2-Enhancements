@@ -231,19 +231,4 @@ public:
 	BYTE GetPauseButtonBind();
 };
 
-class EventIndexWatcher
-{
-private:
-	int EventIndex = 0;
-	long counter = 0;
-
-	long GetResultScreenFrames();
-
-public:
-	const int SkipInputThreshold = 3;
-
-	void UpdateEventIndex();
-	bool ShouldClearSkipInput();
-};
-
 extern InputTweaks InputTweaksRef;

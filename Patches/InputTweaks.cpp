@@ -943,23 +943,16 @@ void EventIndexWatcher::UpdateEventIndex()
 
 bool EventIndexWatcher::ShouldClearSkipInput()
 {
-	if (this->GetFMVFrames() > this->SkipInputUpperBound)
-		return true;
-	if (this->GetResultScreenFrames() < this->SkipInputLowerBound)
+	if (this->GetResultScreenFrames() < this->SkipInputThreshold)
 		return true;
 
 	return false;
 }
 
+// Returns the number of frames the EVENT_GAME_RESULT_TWO has lived, or 0 if in another event index
 long EventIndexWatcher::GetResultScreenFrames()
 {
 	return this->EventIndex == EVENT_GAME_RESULT_TWO ? this->counter : 0;
-}
-
-// Returns the number of frames the EVENT_FMV has lived, or 0 if in another event index
-long EventIndexWatcher::GetFMVFrames()
-{
-	return this->EventIndex == EVENT_FMV ? this->counter : 0;
 }
 
 BYTE GetPauseMenuQuitIndex()

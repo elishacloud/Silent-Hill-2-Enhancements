@@ -78,8 +78,7 @@ injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLYAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerRXAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerRYAxis;
 injector::hook_back<void(__cdecl*)(void)> orgUpdateMousePosition;
-
-injector::hook_back<void(__cdecl*)(int32_t)> orgSetMouseVisibility;
+injector::hook_back<void(__cdecl*)(void)> orgDrawCursor;
 
 BYTE* AnalogStringOne;
 BYTE* AnalogStringTwo;
@@ -89,12 +88,12 @@ BYTE *PauseMenuQuitIndexAddr = nullptr;
 
 uint8_t keyNotSetWarning[21] = { 0 };
 
-void SetMouseVisibility_Hook(int32_t value)
+void DrawCursor_Hook(void)
 {
 	if (HideMouseCursor)
-		orgSetMouseVisibility.fun(0);
-	else
-		orgSetMouseVisibility.fun(value);
+		return;
+
+	orgDrawCursor.fun();
 }
 
 int8_t GetControllerLXAxis_Hook(DWORD* arg)
@@ -155,6 +154,8 @@ void UpdateMousePosition_Hook()
 	AuxDebugOvlString.append("\rDelta Movement: ");
 	AuxDebugOvlString.append(std::to_string(
 		std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastCursorMovement).count()));
+	AuxDebugOvlString.append("\rHide Mouse Cursor: ");
+	AuxDebugOvlString.append(HideMouseCursor ? "true" : "false");
 
 	if (GetMouseVerticalPosition() != LastCursorYPos || GetMouseHorizontalPosition() != LastCursorXPos)
 	{
@@ -562,10 +563,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		// Hooking the mouse visibility function
 		if (true) //TODO setting
 		{
-			orgSetMouseVisibility.fun = injector::MakeCALL((DWORD*)0x00496912, SetMouseVisibility_Hook, true).get();
-			injector::MakeCALL((DWORD*)0x00497c66, SetMouseVisibility_Hook, true);
-			injector::MakeCALL((DWORD*)0x00497cf0, SetMouseVisibility_Hook, true);
-			injector::MakeCALL((DWORD*)0x00497d78, SetMouseVisibility_Hook, true);
+			orgDrawCursor.fun = injector::MakeCALL((DWORD*)0x00476128, DrawCursor_Hook, true).get();
 		}
 	}
 }

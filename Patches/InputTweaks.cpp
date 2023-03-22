@@ -73,6 +73,9 @@ bool HideMouseCursor = false;
 int LastCursorXPos = 0;
 int LastCursorYPos = 0;
 
+int CursorSavedXPos = 0;
+int CursorSavedYPos = 0;
+
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLXAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLYAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerRXAxis;
@@ -116,15 +119,15 @@ int8_t GetControllerLYAxis_Hook(DWORD* arg)
 
 int8_t GetControllerRXAxis_Hook(DWORD* arg)
 {
-		// Injecting the virtual analog stick for search view
-		if (GetSearchViewFlag() == 0x6 && !VirtualRightStick.IsCentered() && EnableEnhancedMouse)
-		{
-			return VirtualRightStick.XAxis;
-		}
-		else
-		{
-			return orgGetControllerRXAxis.fun(arg);
-		}	
+	// Injecting the virtual analog stick for search view
+	if (GetSearchViewFlag() == 0x6 && !VirtualRightStick.IsCentered() && EnableEnhancedMouse)
+	{
+		return VirtualRightStick.XAxis;
+	}
+	else
+	{
+		return orgGetControllerRXAxis.fun(arg);
+	}
 }
 
 int8_t GetControllerRYAxis_Hook(DWORD* arg)
@@ -146,17 +149,45 @@ void UpdateMousePosition_Hook()
 
 	auto Now = std::chrono::system_clock::now();
 
-	if (GetMouseVerticalPosition() != LastCursorYPos || GetMouseHorizontalPosition() != LastCursorXPos)
+	//TODO remove
+	AuxDebugOvlString = "\rSaved x: ";
+	AuxDebugOvlString.append(std::to_string(CursorSavedXPos));
+	AuxDebugOvlString.append("\rSaved y: ");
+	AuxDebugOvlString.append(std::to_string(CursorSavedYPos));
+
+	if (!HideMouseCursor &&
+		(GetMouseVerticalPosition() != LastCursorYPos || GetMouseHorizontalPosition() != LastCursorXPos))
 	{
 		LastCursorXPos = GetMouseHorizontalPosition();
 		LastCursorYPos = GetMouseVerticalPosition();
+
+		CursorSavedXPos = LastCursorXPos;
+		CursorSavedYPos = LastCursorYPos;
+
 		LastCursorMovement = Now;
 		HideMouseCursor = false;
+	}
+	else if (HideMouseCursor &&
+		(GetMouseVerticalPosition() != 0 || GetMouseHorizontalPosition() != 0))
+	{
+		*GetMouseHorizontalPositionPointer() = CursorSavedXPos;
+		*GetMouseVerticalPositionPointer() = CursorSavedYPos;
 
+		LastCursorXPos = GetMouseHorizontalPosition();
+		LastCursorYPos = GetMouseVerticalPosition();
+
+		LastCursorMovement = Now;
+		HideMouseCursor = false;
 	}
 	else if ((std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastCursorMovement).count() > AutoHideCursorSeconds * 1000))
 	{
 		HideMouseCursor = true;
+	}
+
+	if (HideMouseCursor)
+	{
+		*GetMouseHorizontalPositionPointer() = 0;
+		*GetMouseVerticalPositionPointer() = 0;
 	}
 
 	// Handling of vertical and horizontal navigation for Pause and Memo screens

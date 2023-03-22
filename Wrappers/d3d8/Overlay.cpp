@@ -246,6 +246,11 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append("\rRight Mouse B.: ");
 	OvlString.append(InputTweaksRef.GetRMBState() ? "True" : "False");
 
+	OvlString.append("\rMouse X Pos.: ");
+	OvlString.append(std::to_string(GetMouseHorizontalPosition()));
+	OvlString.append("\rMouse Y Pos.: ");
+	OvlString.append(std::to_string(GetMouseVerticalPosition()));
+
 	// Temporary Debug String, to use wherever
 	OvlString.append(AuxDebugOvlString);
 

@@ -84,7 +84,7 @@ BYTE* AnalogStringOne;
 BYTE* AnalogStringTwo;
 BYTE* AnalogStringThree;
 
-BYTE *PauseMenuQuitIndexAddr = nullptr;
+BYTE* PauseMenuQuitIndexAddr = nullptr;
 
 uint8_t keyNotSetWarning[21] = { 0 };
 
@@ -145,17 +145,6 @@ void UpdateMousePosition_Hook()
 	orgUpdateMousePosition.fun();
 
 	auto Now = std::chrono::system_clock::now();
-
-	//TODO remove
-	AuxDebugOvlString = "\rLast Y pos: ";
-	AuxDebugOvlString.append(std::to_string(LastCursorYPos));
-	AuxDebugOvlString.append("\rLast X pos:");
-	AuxDebugOvlString.append(std::to_string(LastCursorXPos));
-	AuxDebugOvlString.append("\rDelta Movement: ");
-	AuxDebugOvlString.append(std::to_string(
-		std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastCursorMovement).count()));
-	AuxDebugOvlString.append("\rHide Mouse Cursor: ");
-	AuxDebugOvlString.append(HideMouseCursor ? "true" : "false");
 
 	if (GetMouseVerticalPosition() != LastCursorYPos || GetMouseHorizontalPosition() != LastCursorXPos)
 	{

@@ -98,6 +98,7 @@ float* MeetingMariaCutsceneFogCounterTwoAddr = nullptr;
 float* RPTClosetCutsceneMannequinDespawnAddr = nullptr;
 float* RPTClosetCutsceneBlurredBarsDespawnAddr = nullptr;
 BYTE* InputAssignmentFlagAddr = nullptr;
+BYTE* PauseMenuQuitIndexAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -2112,4 +2113,33 @@ BYTE* GetInputAssignmentFlagPointer()
 		(GameVersion == SH2V_DC) ? 0x009441F5 : NULL);
 
 	return InputAssignmentFlagAddr;
+}
+
+BYTE GetPauseMenuQuitIndex()
+{
+	BYTE* PauseMenuQuitIndexAddr = GetPauseMenuQuitIndexPointer();
+
+	return (PauseMenuQuitIndexAddr) ? *PauseMenuQuitIndexAddr : 0;
+}
+
+BYTE* GetPauseMenuQuitIndexPointer()
+{
+	if (PauseMenuQuitIndexAddr)
+	{
+		return PauseMenuQuitIndexAddr;
+	}
+
+	constexpr BYTE PauseMenuQuitSearchBytes[]{ 0x8B, 0x44, 0x24, 0x04, 0xA3 };
+	DWORD PauseMenuQuitAddress = ReadSearchedAddresses(0x004072A0, 0x004072A0, 0x004072B0, PauseMenuQuitSearchBytes, sizeof(PauseMenuQuitSearchBytes), 0x5, __FUNCTION__);
+
+	if (!PauseMenuQuitAddress)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Pause Menu Quit Index memory address!";
+		return NULL;
+	}
+
+	PauseMenuQuitIndexAddr = (BYTE*)PauseMenuQuitAddress;
+
+	return PauseMenuQuitIndexAddr;
+
 }

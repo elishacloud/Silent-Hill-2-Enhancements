@@ -140,7 +140,8 @@ float *GetMeetingMariaCutsceneFogCounterOnePointer();
 float *GetMeetingMariaCutsceneFogCounterTwoPointer();
 float *GetRPTClosetCutsceneMannequinDespawnPointer();
 float *GetRPTClosetCutsceneBlurredBarsDespawnPointer();
-BYTE* GetInputAssignmentFlagPointer();
+BYTE *GetInputAssignmentFlagPointer();
+BYTE *GetPauseMenuQuitIndexPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

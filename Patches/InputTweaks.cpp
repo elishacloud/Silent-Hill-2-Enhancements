@@ -26,10 +26,25 @@ BYTE* KeyBindsAddr = nullptr;
 
 const int AnalogThreshold = 15;
 const int InputDebounce = 50;
-const int PauseMenuMouseThreshold = 15;
 const float AnalogHalfTilt = 0.5f;
 const float AnalogFullTilt = 1.0f;
 const float FloatTolerance = 0.10f;
+
+const int PauseMenuCursorTopThreshold = 210;
+const int PauseMenuCursorBottomThreshold = 360;
+const int PauseMenuVerticalHitbox = (PauseMenuCursorBottomThreshold - PauseMenuCursorTopThreshold) / 5;
+
+const int PauseMenuQuitTopThreshold = 245;
+const int PauseMenuQuitBottomThreshold = 275;
+const int PauseMenuQuitLeftThreshold = 281;
+const int PauseMenuQuitRightThreshold = 398;
+const int PauseMenuHorizontalHitbox = (PauseMenuQuitRightThreshold - PauseMenuQuitLeftThreshold) / 2;
+
+const int MemoListTopThreshold = 130;
+const int MemoListBottomThreshold = 340;
+const int MemoListLeftThreshold = 120;
+const int MemoListRightThreshold = 540;
+const int MemoListVerticalHitbox = (MemoListBottomThreshold - MemoListTopThreshold) / 7;
 
 bool once = false;
 
@@ -37,16 +52,12 @@ auto LastMouseXRead = std::chrono::system_clock::now();
 auto LastMouseYRead = std::chrono::system_clock::now();
 auto LastWeaponSwap = std::chrono::system_clock::now();
 auto LastMousePauseChange = std::chrono::system_clock::now();
-int LastMouseVerticalPos = 0xF0;
-int LastMouseHorizontalPos = 0xFC;
 int MouseXAxis = 0;
 int MouseYAxis = 0;
 long int MouseWheel = 0;
 
 AnalogStick VirtualRightStick;
 
-bool PauseMenuVerticalChanged = false;
-bool PauseMenuHorizontalChanged = false;
 bool CheckKeyBindsFlag = false;
 
 bool SetLMButton = false;
@@ -86,8 +97,6 @@ injector::hook_back<void(__cdecl*)(void)> orgSetShowCursorFlag;
 BYTE* AnalogStringOne;
 BYTE* AnalogStringTwo;
 BYTE* AnalogStringThree;
-
-BYTE* PauseMenuQuitIndexAddr = nullptr;
 
 uint8_t keyNotSetWarning[21] = { 0 };
 
@@ -154,13 +163,7 @@ void UpdateMousePosition_Hook()
 
 	auto Now = std::chrono::system_clock::now();
 
-	//TODO remove
-	AuxDebugOvlString = "\rSaved x: ";
-	AuxDebugOvlString.append(std::to_string(CursorSavedXPos));
-	AuxDebugOvlString.append("\rSaved y: ");
-	AuxDebugOvlString.append(std::to_string(CursorSavedYPos));
-
-	if (GetEventIndex() == EVENT_IN_GAME)
+	if (GetEventIndex() == EVENT_IN_GAME && GetMenuEvent() != 0x07)
 	{
 		*GetMouseHorizontalPositionPointer() = 0;
 		*GetMouseVerticalPositionPointer() = 0;
@@ -197,16 +200,53 @@ void UpdateMousePosition_Hook()
 		HideMouseCursor = true;
 	}
 
+	int CurrentMouseHorizontalPosition = GetMouseHorizontalPosition();
+	int CurrentMouseVerticalPosition = GetMouseVerticalPosition();
+
 	// Handling of vertical and horizontal navigation for Pause and Memo screens
-	if (GetEventIndex() == EVENT_PAUSE_MENU || GetEventIndex() == EVENT_MEMO_LIST || true) //TODO memo screen
+	if (GetEventIndex() == EVENT_PAUSE_MENU)
 	{
-		
 		// X x Y 853 x 480
-		if (GetMouseHorizontalPosition() > 281 && GetMouseHorizontalPosition() < 398 &&
-			GetMouseVerticalPosition() > 210 && GetMouseVerticalPosition() < 360)
+		if (CurrentMouseHorizontalPosition > PauseMenuQuitLeftThreshold &&
+			CurrentMouseHorizontalPosition < PauseMenuQuitRightThreshold &&
+			CurrentMouseVerticalPosition > PauseMenuCursorTopThreshold &&
+			CurrentMouseVerticalPosition < PauseMenuCursorBottomThreshold &&
+			*(BYTE*)0x00932030 == 0x00) //TODO
 		{
-			*GetPauseMenuButtonIndexPointer() = (GetMouseVerticalPosition() - 210) / 30;
+			*GetPauseMenuButtonIndexPointer() = (CurrentMouseVerticalPosition - PauseMenuCursorTopThreshold) / PauseMenuVerticalHitbox;
 		}
+
+		// Pause menu quit submenu
+		if (CurrentMouseHorizontalPosition > PauseMenuQuitLeftThreshold &&
+			CurrentMouseHorizontalPosition < PauseMenuQuitRightThreshold &&
+			CurrentMouseVerticalPosition > PauseMenuQuitTopThreshold &&
+			CurrentMouseVerticalPosition < PauseMenuQuitBottomThreshold &&
+			*(BYTE*)0x00932030 == 0x01)// TODO
+		{
+			*GetPauseMenuQuitIndexPointer() = (CurrentMouseHorizontalPosition - PauseMenuQuitLeftThreshold) / PauseMenuHorizontalHitbox;
+		}
+	}
+	else if (GetEventIndex() == EVENT_MEMO_LIST)
+	{
+		//vertical 90 410 horizontal 120 540
+		if (CurrentMouseHorizontalPosition > MemoListLeftThreshold &&
+			CurrentMouseHorizontalPosition < MemoListRightThreshold)
+		{
+			if (CurrentMouseVerticalPosition < MemoListTopThreshold)
+			{
+				//TODO if first or last selected, move the list and jump the cursor down or up
+			}
+			else if (CurrentMouseVerticalPosition > MemoListBottomThreshold)
+			{
+				//TODO
+			}
+			else if (CurrentMouseVerticalPosition > MemoListTopThreshold &&
+				CurrentMouseVerticalPosition < MemoListBottomThreshold)
+			{
+				//*(int32_t*)0x94d8ac = ((CurrentMouseVerticalPosition - MemoListTopThreshold) / MemoListVerticalHitbox) - 3; //TODO
+			}
+		}
+
 	}
 }
 
@@ -527,7 +567,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		}
 
 		// Hooking the mouse visibility function
-		if (true) //TODO setting
+		if (EnableEnhancedMouse)
 		{
 			orgDrawCursor.fun = injector::MakeCALL((DWORD*)0x00476128, DrawCursor_Hook, true).get();
 			orgSetShowCursorFlag.fun = injector::MakeCALL((DWORD*)0x00454886, SetShowCursorFlag_Hook, true).get();
@@ -681,7 +721,6 @@ void InputTweaks::ReadMouseButtons()
 
 	SetLMButton = (MouseState.rgbButtons[0] == KEY_SET);
 	RMB.State = (MouseState.rgbButtons[1] == KEY_SET);
-	
 }
 
 float InputTweaks::GetMouseAnalogX()
@@ -933,25 +972,4 @@ BYTE* KeyBindsHandler::GetKeyBindsPointer()
 BYTE KeyBindsHandler::GetPauseButtonBind()
 {
 	return *(this->GetKeyBindsPointer() + 0xF0);
-}
-
-BYTE GetPauseMenuQuitIndex()
-{
-	if (PauseMenuQuitIndexAddr)
-	{
-		return *PauseMenuQuitIndexAddr;
-	}
-
-	constexpr BYTE PauseMenuQuitSearchBytes[]{ 0x8B, 0x44, 0x24, 0x04, 0xA3 };
-	DWORD PauseMenuQuitAddress = ReadSearchedAddresses(0x004072A0, 0x004072A0, 0x004072B0, PauseMenuQuitSearchBytes, sizeof(PauseMenuQuitSearchBytes), 0x5, __FUNCTION__);
-
-	if (!PauseMenuQuitAddress)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find Pause Menu Quit Index memory address!";
-		return NULL;
-	}
-
-	PauseMenuQuitIndexAddr = (BYTE*)PauseMenuQuitAddress;
-
-	return *PauseMenuQuitIndexAddr;
 }

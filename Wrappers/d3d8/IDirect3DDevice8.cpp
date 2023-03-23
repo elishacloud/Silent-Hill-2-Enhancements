@@ -977,7 +977,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 		return D3D_OK;
 	}
 
-	if (true) //TODO setting
+	if (EnableEnhancedMouse)
 	{
 		OverlayRef.RenderMouseCursor();
 	}

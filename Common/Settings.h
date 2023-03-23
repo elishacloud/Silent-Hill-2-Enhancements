@@ -296,6 +296,7 @@ extern bool EnableCRTShader;
 extern bool CRTCurveShader;
 extern bool CRTNonCurveShader;
 extern bool EnableInputTweaks;
+extern bool HideMouseCursor;
 
 bool SetValue(const char* value);
 bool IsValidSettings(char* name, char* value);

@@ -527,3 +527,14 @@ std::string Overlay::GetIGTString()
 
 	return TimeString;
 }
+
+void Overlay::RenderMouseCursor()
+{
+	if (HideMouseCursor || 
+		(GetEventIndex() != EVENT_PAUSE_MENU && GetEventIndex() != EVENT_MEMO_LIST))
+		return;
+
+	*(BYTE*)0x00941365 = 1; //TODO
+	SetShowCursorFlag_Hook();
+	DrawCursor_Hook();
+}

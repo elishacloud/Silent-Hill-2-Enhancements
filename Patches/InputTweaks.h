@@ -231,4 +231,7 @@ public:
 	BYTE GetPauseButtonBind();
 };
 
+void DrawCursor_Hook(void);
+void SetShowCursorFlag_Hook(void);
+
 extern InputTweaks InputTweaksRef;

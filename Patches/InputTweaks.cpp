@@ -69,10 +69,9 @@ bool OverrideSprint = false;
 
 const int AutoHideCursorSeconds = 3;
 auto LastCursorMovement = std::chrono::system_clock::now();
-bool HideMouseCursor = false;
 int LastCursorXPos = 0;
 int LastCursorYPos = 0;
-
+bool HideMouseCursor = false;
 int CursorSavedXPos = 0;
 int CursorSavedYPos = 0;
 
@@ -82,6 +81,7 @@ injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerRXAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerRYAxis;
 injector::hook_back<void(__cdecl*)(void)> orgUpdateMousePosition;
 injector::hook_back<void(__cdecl*)(void)> orgDrawCursor;
+injector::hook_back<void(__cdecl*)(void)> orgSetShowCursorFlag;
 
 BYTE* AnalogStringOne;
 BYTE* AnalogStringTwo;
@@ -97,6 +97,11 @@ void DrawCursor_Hook(void)
 		return;
 
 	orgDrawCursor.fun();
+}
+
+void SetShowCursorFlag_Hook(void)
+{
+	orgSetShowCursorFlag.fun();
 }
 
 int8_t GetControllerLXAxis_Hook(DWORD* arg)
@@ -155,7 +160,13 @@ void UpdateMousePosition_Hook()
 	AuxDebugOvlString.append("\rSaved y: ");
 	AuxDebugOvlString.append(std::to_string(CursorSavedYPos));
 
-	if (!HideMouseCursor &&
+	if (GetEventIndex() == EVENT_IN_GAME)
+	{
+		*GetMouseHorizontalPositionPointer() = 0;
+		*GetMouseVerticalPositionPointer() = 0;
+		HideMouseCursor = true;
+	}
+	else if (!HideMouseCursor &&
 		(GetMouseVerticalPosition() != LastCursorYPos || GetMouseHorizontalPosition() != LastCursorXPos))
 	{
 		LastCursorXPos = GetMouseHorizontalPosition();
@@ -181,85 +192,20 @@ void UpdateMousePosition_Hook()
 	}
 	else if ((std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastCursorMovement).count() > AutoHideCursorSeconds * 1000))
 	{
+		*GetMouseHorizontalPositionPointer() = 0;
+		*GetMouseVerticalPositionPointer() = 0;
 		HideMouseCursor = true;
 	}
 
-	if (HideMouseCursor)
-	{
-		*GetMouseHorizontalPositionPointer() = 0;
-		*GetMouseVerticalPositionPointer() = 0;
-	}
-
 	// Handling of vertical and horizontal navigation for Pause and Memo screens
-	if (GetEventIndex() == EVENT_PAUSE_MENU || GetEventIndex() == EVENT_MEMO_LIST)
+	if (GetEventIndex() == EVENT_PAUSE_MENU || GetEventIndex() == EVENT_MEMO_LIST || true) //TODO memo screen
 	{
 		
-		auto DeltaMs = std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastMousePauseChange);
-
-		// Vertical navigation
-		if (PauseMenuVerticalChanged && DeltaMs.count() > InputDebounce)
+		// X x Y 853 x 480
+		if (GetMouseHorizontalPosition() > 281 && GetMouseHorizontalPosition() < 398 &&
+			GetMouseVerticalPosition() > 210 && GetMouseVerticalPosition() < 360)
 		{
-			LastMouseVerticalPos = GetMouseVerticalPosition();
-
-			PauseMenuVerticalChanged = false;
-		}
-
-		if (std::abs(GetMouseVerticalPosition() - LastMouseVerticalPos) > PauseMenuMouseThreshold && !PauseMenuVerticalChanged)
-		{
-			if (GetMouseVerticalPosition() > LastMouseVerticalPos && (GetPauseMenuButtonIndex() != 0x04 || GetEventIndex() != EVENT_PAUSE_MENU))
-			{
-				SetDownKey = true;
-			}
-			else if (GetMouseVerticalPosition() < LastMouseVerticalPos && (GetPauseMenuButtonIndex() != 0x00 || GetEventIndex() != EVENT_PAUSE_MENU))
-			{
-				SetUpKey = true;
-			} 
-
-			LastMousePauseChange = Now;
-			PauseMenuVerticalChanged = true;
-		}
-		else
-		{
-			LastMouseVerticalPos = GetMouseVerticalPosition();
-		}
-
-		// Horizontal navigation
-		if (PauseMenuHorizontalChanged && DeltaMs.count() > InputDebounce)
-		{
-			LastMouseHorizontalPos = GetMouseHorizontalPosition();
-
-			PauseMenuHorizontalChanged = false;
-		}
-
-		if (std::abs(GetMouseHorizontalPosition() - LastMouseHorizontalPos) > PauseMenuMouseThreshold && !PauseMenuHorizontalChanged)
-		{
-			if (GetMouseHorizontalPosition() > LastMouseHorizontalPos && GetPauseMenuQuitIndex() == 0)
-			{
-				SetRightKey = true;
-			}
-			else if (GetMouseHorizontalPosition() < LastMouseHorizontalPos && GetPauseMenuQuitIndex() == 1)
-			{
-				SetLeftKey = true;
-			}
-			
-			LastMousePauseChange = Now;
-			PauseMenuHorizontalChanged = true;
-		}
-		else
-		{
-			LastMouseHorizontalPos = GetMouseHorizontalPosition();
-		}
-
-		// Reset mouse position to avoid edges
-		if (GetMouseHorizontalPosition() > 0x15F || GetMouseHorizontalPosition() < 0x10)
-		{
-			*GetMouseHorizontalPositionPointer() = 0xFC;
-			LastMouseHorizontalPos = 0xFC;
-		}
-		if (GetMouseVerticalPosition() > 0x1D0 || GetMouseVerticalPosition() < 0x10)
-		{
-			*GetMouseVerticalPositionPointer() = 0xF0;
-			LastMouseVerticalPos = 0xF0;
+			*GetPauseMenuButtonIndexPointer() = (GetMouseVerticalPosition() - 210) / 30;
 		}
 	}
 }
@@ -584,6 +530,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		if (true) //TODO setting
 		{
 			orgDrawCursor.fun = injector::MakeCALL((DWORD*)0x00476128, DrawCursor_Hook, true).get();
+			orgSetShowCursorFlag.fun = injector::MakeCALL((DWORD*)0x00454886, SetShowCursorFlag_Hook, true).get();
 		}
 	}
 }

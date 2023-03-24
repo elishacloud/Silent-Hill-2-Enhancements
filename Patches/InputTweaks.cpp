@@ -78,7 +78,7 @@ int ForwardBackwardsAxis = 0;
 int LeftRightAxis = 0;
 bool OverrideSprint = false;
 
-const int AutoHideCursorSeconds = 3;
+const int AutoHideCursorSeconds = 3 * 1000;
 auto LastCursorMovement = std::chrono::system_clock::now();
 int LastCursorXPos = 0;
 int LastCursorYPos = 0;
@@ -233,21 +233,27 @@ void UpdateMousePosition_Hook()
 		if (CurrentMouseHorizontalPosition > MemoListLeftThreshold &&
 			CurrentMouseHorizontalPosition < MemoListRightThreshold)
 		{
-			if (CurrentMouseVerticalPosition < MemoListTopThreshold)
+			if (CountCollectedMemos() < 12)
 			{
-				//TODO if first or last selected, move the list and jump the cursor down or up
-			}
-			else if (CurrentMouseVerticalPosition > MemoListBottomThreshold)
-			{
-				//TODO
-			}
-			else if (CurrentMouseVerticalPosition > MemoListTopThreshold &&
-				CurrentMouseVerticalPosition < MemoListBottomThreshold)
-			{
-				//*(int32_t*)0x94d8ac = ((CurrentMouseVerticalPosition - MemoListTopThreshold) / MemoListVerticalHitbox) - 3; //TODO
-			}
-		}
 
+			}
+			else 
+			{
+				if (CurrentMouseVerticalPosition < MemoListTopThreshold)
+				{
+					//TODO if first or last selected, move the list and jump the cursor down or up
+				}
+				else if (CurrentMouseVerticalPosition > MemoListBottomThreshold)
+				{
+					//TODO
+				}
+				else if (CurrentMouseVerticalPosition > MemoListTopThreshold &&
+					CurrentMouseVerticalPosition < MemoListBottomThreshold)
+				{
+					//*(int32_t*)0x94d8ac = ((CurrentMouseVerticalPosition - MemoListTopThreshold) / MemoListVerticalHitbox) - 3; //TODO
+				}
+			}		
+		}
 	}
 }
 

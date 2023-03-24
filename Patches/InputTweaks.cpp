@@ -78,7 +78,7 @@ int ForwardBackwardsAxis = 0;
 int LeftRightAxis = 0;
 bool OverrideSprint = false;
 
-const int AutoHideCursorSeconds = 3;
+const int AutoHideCursorMs = 3 * 1000;
 auto LastCursorMovement = std::chrono::system_clock::now();
 int LastCursorXPos = 0;
 int LastCursorYPos = 0;
@@ -193,7 +193,7 @@ void UpdateMousePosition_Hook()
 		LastCursorMovement = Now;
 		HideMouseCursor = false;
 	}
-	else if ((std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastCursorMovement).count() > AutoHideCursorSeconds * 1000))
+	else if ((std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastCursorMovement).count() > AutoHideCursorMs))
 	{
 		*GetMouseHorizontalPositionPointer() = 0;
 		*GetMouseVerticalPositionPointer() = 0;
@@ -214,6 +214,7 @@ void UpdateMousePosition_Hook()
 			CurrentMouseVerticalPosition < PauseMenuCursorBottomThreshold &&
 			*(BYTE*)0x00932030 == 0x00) // TODO is in quit submenu address
 		{
+#pragma warning(disable : 4244)
 			*GetPauseMenuButtonIndexPointer() = (CurrentMouseVerticalPosition - PauseMenuCursorTopThreshold) / PauseMenuVerticalHitbox;
 		}
 
@@ -224,6 +225,7 @@ void UpdateMousePosition_Hook()
 			CurrentMouseVerticalPosition < PauseMenuQuitBottomThreshold &&
 			*(BYTE*)0x00932030 == 0x01)// TODO is in quit submenu address
 		{
+#pragma warning(disable : 4244)
 			*GetPauseMenuQuitIndexPointer() = (CurrentMouseHorizontalPosition - PauseMenuQuitLeftThreshold) / PauseMenuHorizontalHitbox;
 		}
 	}
@@ -233,21 +235,28 @@ void UpdateMousePosition_Hook()
 		if (CurrentMouseHorizontalPosition > MemoListLeftThreshold &&
 			CurrentMouseHorizontalPosition < MemoListRightThreshold)
 		{
-			if (CurrentMouseVerticalPosition < MemoListTopThreshold)
-			{
-				//TODO if first or last selected, move the list and jump the cursor down or up
-			}
-			else if (CurrentMouseVerticalPosition > MemoListBottomThreshold)
+			int CollectedMemos = CountCollectedMemos();
+			if (CollectedMemos < 12)
 			{
 				//TODO
 			}
-			else if (CurrentMouseVerticalPosition > MemoListTopThreshold &&
-				CurrentMouseVerticalPosition < MemoListBottomThreshold)
+			else 
 			{
-				//*(int32_t*)0x94d8ac = ((CurrentMouseVerticalPosition - MemoListTopThreshold) / MemoListVerticalHitbox) - 3; //TODO
-			}
+				if (CurrentMouseVerticalPosition < MemoListTopThreshold)
+				{
+					//TODO if first or last selected, move the list and jump the cursor down or up
+				}
+				else if (CurrentMouseVerticalPosition > MemoListBottomThreshold)
+				{
+					//TODO
+				}
+				else if (CurrentMouseVerticalPosition > MemoListTopThreshold &&
+					CurrentMouseVerticalPosition < MemoListBottomThreshold)
+				{
+					//*(int32_t*)0x94d8ac = ((CurrentMouseVerticalPosition - MemoListTopThreshold) / MemoListVerticalHitbox) - 3; //TODO
+				}
+			}		
 		}
-
 	}
 }
 

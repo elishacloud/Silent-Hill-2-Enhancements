@@ -100,7 +100,7 @@ BYTE* AnalogStringThree;
 
 uint8_t keyNotSetWarning[21] = { 0 };
 
-void DrawCursor_Hook(void)
+void DrawCursor_Hook()
 {
 	if (HideMouseCursor)
 		return;
@@ -203,6 +203,7 @@ void UpdateMousePosition_Hook()
 	int CurrentMouseHorizontalPosition = GetMouseHorizontalPosition();
 	int CurrentMouseVerticalPosition = GetMouseVerticalPosition();
 
+	//TODO suppress warning warning C4244: '=': conversion from 'int16_t' to 'BYTE', possible loss of data
 	// Handling of vertical and horizontal navigation for Pause and Memo screens
 	if (GetEventIndex() == EVENT_PAUSE_MENU)
 	{
@@ -211,7 +212,7 @@ void UpdateMousePosition_Hook()
 			CurrentMouseHorizontalPosition < PauseMenuQuitRightThreshold &&
 			CurrentMouseVerticalPosition > PauseMenuCursorTopThreshold &&
 			CurrentMouseVerticalPosition < PauseMenuCursorBottomThreshold &&
-			*(BYTE*)0x00932030 == 0x00) //TODO
+			*(BYTE*)0x00932030 == 0x00) // TODO is in quit submenu address
 		{
 			*GetPauseMenuButtonIndexPointer() = (CurrentMouseVerticalPosition - PauseMenuCursorTopThreshold) / PauseMenuVerticalHitbox;
 		}
@@ -221,7 +222,7 @@ void UpdateMousePosition_Hook()
 			CurrentMouseHorizontalPosition < PauseMenuQuitRightThreshold &&
 			CurrentMouseVerticalPosition > PauseMenuQuitTopThreshold &&
 			CurrentMouseVerticalPosition < PauseMenuQuitBottomThreshold &&
-			*(BYTE*)0x00932030 == 0x01)// TODO
+			*(BYTE*)0x00932030 == 0x01)// TODO is in quit submenu address
 		{
 			*GetPauseMenuQuitIndexPointer() = (CurrentMouseHorizontalPosition - PauseMenuQuitLeftThreshold) / PauseMenuHorizontalHitbox;
 		}
@@ -575,7 +576,8 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 	}
 }
 
-void InputTweaks::TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD dwFlags)
+void InputTweaks::TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbObjectData, 
+	LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD dwFlags)
 {
 	UNREFERENCED_PARAMETER(dwFlags);
 	UNREFERENCED_PARAMETER(cbObjectData);
@@ -972,4 +974,28 @@ BYTE* KeyBindsHandler::GetKeyBindsPointer()
 BYTE KeyBindsHandler::GetPauseButtonBind()
 {
 	return *(this->GetKeyBindsPointer() + 0xF0);
+}
+
+int CountCollectedMemos()
+{
+	auto* psVar2 = (int16_t*)0x0088c378; //TODO addresses
+
+	auto* MemosArray = (int32_t*)0x1f7a9e0;
+	int TotalMemos = 0;
+
+	do {
+
+		if (((unsigned int)(MemosArray)[(int)*psVar2 >> 5] >> ((byte)*psVar2 & 0x1f) & 1) != 0)
+			TotalMemos = TotalMemos + 1;
+
+		if (((unsigned int)(MemosArray)[(int)psVar2[8] >> 5] >> ((byte)psVar2[8] & 0x1f) & 1) != 0)
+			TotalMemos = TotalMemos + 1;
+
+		if (((unsigned int)(MemosArray)[(int)psVar2[0x10] >> 5] >> ((byte)psVar2[0x10] & 0x1f) & 1) != 0)
+			TotalMemos = TotalMemos + 1;
+
+		psVar2 += 0x18;
+	} while ((int)psVar2 < 0x88c708);
+
+	return TotalMemos;
 }

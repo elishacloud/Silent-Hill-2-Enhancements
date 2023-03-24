@@ -217,7 +217,7 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append("\rFullscreen Image Event: 0x");
 	OvlString.append(IntToHexStr(GetFullscreenImageEvent()));
 
-	OvlString = "\rMemos collected: ";
+	OvlString.append("\rMemos collected: ");
 	OvlString.append(std::to_string(CountCollectedMemos()));
 
 	OvlString.append("\rChar X Position: ");

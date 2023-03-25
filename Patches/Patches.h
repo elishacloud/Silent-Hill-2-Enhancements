@@ -65,6 +65,7 @@ int32_t GetIsWritingQuicksave();
 int32_t GetTextAddr();
 float GetFrametime();
 BYTE GetInputAssignmentFlag();
+float GetGlobalFadeHoldValue();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -141,6 +142,7 @@ float *GetMeetingMariaCutsceneFogCounterTwoPointer();
 float *GetRPTClosetCutsceneMannequinDespawnPointer();
 float *GetRPTClosetCutsceneBlurredBarsDespawnPointer();
 BYTE* GetInputAssignmentFlagPointer();
+float* GetGlobalFadeHoldValuePointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

@@ -281,7 +281,7 @@ private:
 
 	Hitboxes GetHitbox(int MemoNumber) 
 	{ 
-		return (MemoNumber % 2 != 0) || MemoNumber > 11 ? Odd : Even; 
+		return (MemoNumber % 2 != 0) ? Odd : Even; 
 	}
 
 	int GetVerticalOffset(int MemoNumber)

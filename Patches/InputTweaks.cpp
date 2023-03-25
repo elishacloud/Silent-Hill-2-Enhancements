@@ -32,7 +32,7 @@ const float FloatTolerance = 0.10f;
 
 Hitboxes PauseMenu = Hitboxes(210, 281, 30, 117, 5, 1);
 Hitboxes QuitMenu = Hitboxes(245, 281, 30, 58, 1, 2);
-MemoHitboxes MemoMenu = MemoHitboxes(130, 130, 120, 30, 420);
+MemoHitboxes MemoMenu = MemoHitboxes(80, 60, 120, 30, 420);
 
 bool once = false;
 
@@ -214,11 +214,12 @@ void UpdateMousePosition_Hook()
 	else if (GetEventIndex() == EVENT_MEMO_LIST)
 	{
 		int CollectedMemos = CountCollectedMemos();
+		int NormalizedMemos = (CollectedMemos > 11) ? 11 : CollectedMemos;
 
-		if (MemoMenu.IsMouseInBounds(CurrentMouseHorizontalPosition, CurrentMouseVerticalPosition, CollectedMemos))
+		if (MemoMenu.IsMouseInBounds(CurrentMouseHorizontalPosition, CurrentMouseVerticalPosition, NormalizedMemos))
 		{
 
-			MemoMenu.GetEnabledVerticalIndex(CurrentMouseVerticalPosition, CollectedMemos);
+			MemoMenu.GetEnabledVerticalIndex(CurrentMouseVerticalPosition, NormalizedMemos);
 			//TODO remove
 			//AuxDebugOvlString = "\rMemo index selected: ";
 			//AuxDebugOvlString.append(std::to_string(MemoMenu.GetEnabledVerticalIndex(CurrentMouseVerticalPosition, CollectedMemos)));

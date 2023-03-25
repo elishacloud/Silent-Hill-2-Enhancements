@@ -313,6 +313,12 @@ public:
 			MouseVer < this->GetHitbox(MemoNumber).GetBottom() - VOffset;
 	}
 
+	// Functions only used when the memo list is scrolling (11+ memos)
+
+	int ConvertHitboxValue(int SelectedHitbox) { return -SelectedHitbox + 5; }
+	int GetHeight() { return this->Odd.GetHeight(); }
+	int GetTop() { return this->Odd.GetTop(); }
+
 	int GetClampedMemoIndex(int offset, int TotalMemoCount, int SelectedMemoIndex)
 	{
 		int step = offset > 0 ? 1 : -1;
@@ -340,8 +346,19 @@ public:
 		return CalculatedIndex;
 	}
 
-	int ConvertHitboxValue(int SelectedHitbox) { return -SelectedHitbox + 5; }
-	int GetHeight() { return this->Odd.GetHeight(); }
+	int IsMouseTopOrBot(int MouseHor, int MouseVer)
+	{
+		if (!(MouseHor > this->Odd.GetLeft() &&
+			MouseHor < this->Odd.GetRight()))
+			return 0;
+
+		if (MouseVer < this->Odd.GetTop())
+			return 1;
+		if (MouseVer > this->Odd.GetBottom())
+			return -1;
+
+		return 0;
+	}
 };
 
 void DrawCursor_Hook(void);

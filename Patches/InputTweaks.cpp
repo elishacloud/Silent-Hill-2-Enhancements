@@ -231,6 +231,15 @@ void UpdateMousePosition_Hook()
 			{
 				if (*(int32_t*)0x0094D8AC != MemoMenu.ConvertHitboxValue(SelectedHitbox))
 				{	//TODO addresses everywhere
+					
+					if (SelectedHitbox <= 1 || SelectedHitbox >= 9)
+					{//TODO selecting 1 or 9 with selected hitbox != 2 or 8
+						*(int32_t*)0x0094D8B0 = MemoMenu.GetClampedMemoIndex(SelectedHitbox == 1 ? -1 : 1,
+							CollectedMemos, *(int32_t*)0x0094D8B0);
+						*(int32_t*)0x0094D8AC = SelectedHitbox == 1 ? 3 : -3;
+
+						*GetMouseVerticalPositionPointer() += (SelectedHitbox == 1 ? 1 : -1) * MemoMenu.GetHeight();
+					}
 					if (SelectedHitbox > 1 && SelectedHitbox < 9)
 					{
 						//TODO memo index stays constant

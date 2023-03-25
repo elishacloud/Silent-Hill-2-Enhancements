@@ -341,6 +341,7 @@ public:
 	}
 
 	int ConvertHitboxValue(int SelectedHitbox) { return -SelectedHitbox + 5; }
+	int GetHeight() { return this->Odd.GetHeight(); }
 };
 
 void DrawCursor_Hook(void);

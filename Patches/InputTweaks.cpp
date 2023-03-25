@@ -32,12 +32,7 @@ const float FloatTolerance = 0.10f;
 
 Hitboxes PauseMenu = Hitboxes(210, 281, 30, 117, 5, 1);
 Hitboxes QuitMenu = Hitboxes(245, 281, 30, 58, 1, 2);
-
-const int MemoListLeft = 120;
-const int MemoListRight = 540;
-const int MemoListTopThreshold = 130;
-const int MemoListBottomThreshold = 340;
-const int MemoListVerticalHitbox = (MemoListBottomThreshold - MemoListTopThreshold) / 7;
+MemoHitboxes MemoMenu = MemoHitboxes(130, 130, 120, 30, 420);
 
 bool once = false;
 
@@ -218,49 +213,15 @@ void UpdateMousePosition_Hook()
 	}
 	else if (GetEventIndex() == EVENT_MEMO_LIST)
 	{
-		//vertical 90 410 horizontal 120 540
-		if (CurrentMouseHorizontalPosition > MemoListLeft &&
-			CurrentMouseHorizontalPosition < MemoListRight)
-		{
-			int CollectedMemos = CountCollectedMemos();
-			if (CollectedMemos < 12)
-			{
-				if (CurrentMouseVerticalPosition < MemoListTopThreshold)
-				{
-					//TODO if first or last selected, move the list and jump the cursor down or up
-				}
-				else if (CurrentMouseVerticalPosition > MemoListBottomThreshold)
-				{
-					//TODO
-				}
-				else if (CurrentMouseVerticalPosition > MemoListTopThreshold &&
-					CurrentMouseVerticalPosition < MemoListBottomThreshold)
-				{
-					//TODO
+		int CollectedMemos = CountCollectedMemos();
 
-				}
-			}
-			else 
-			{
-				if (CurrentMouseVerticalPosition < MemoListTopThreshold)
-				{
-					//TODO if first or last selected, move the list and jump the cursor down or up
-				}
-				else if (CurrentMouseVerticalPosition > MemoListBottomThreshold)
-				{
-					//TODO
-				}
-				else if (CurrentMouseVerticalPosition > MemoListTopThreshold &&
-					CurrentMouseVerticalPosition < MemoListBottomThreshold)
-				{
-					//TODO remove
-					
-					AuxDebugOvlString = "\rMemo index selected: ";
-					AuxDebugOvlString.append(std::to_string(((CurrentMouseVerticalPosition - MemoListTopThreshold) / MemoListVerticalHitbox) - 3));
-#pragma warning(disable : 4244)
-					*(int32_t*)0x0094D8B0 = ((CurrentMouseVerticalPosition - MemoListTopThreshold) / MemoListVerticalHitbox) - 3; //TODO
-				}
-			}		
+		if (MemoMenu.IsMouseInBounds(CurrentMouseHorizontalPosition, CurrentMouseVerticalPosition, CollectedMemos))
+		{
+
+			MemoMenu.GetEnabledVerticalIndex(CurrentMouseVerticalPosition, CollectedMemos);
+			//TODO remove
+			//AuxDebugOvlString = "\rMemo index selected: ";
+			//AuxDebugOvlString.append(std::to_string(MemoMenu.GetEnabledVerticalIndex(CurrentMouseVerticalPosition, CollectedMemos)));
 		}
 	}
 }

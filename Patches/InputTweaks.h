@@ -243,6 +243,7 @@ private:
 	int HorizontalNumber;
 
 public:
+	Hitboxes(){}
 	Hitboxes(int top, int left, int height, int width, int VerticalNumber, int HorizontalNumber)
 	{
 		this->top = top;
@@ -258,7 +259,6 @@ public:
 	int GetLeft() { return this->left; }
 	int GetWidth() { return this->width; }
 	int GetVerticalNumber() { return this->VerticalNumber; }
-	int GetHorizontalNumber() { return this->HorizontalNumber; }
 	int GetRight() { return this->left + (this->HorizontalNumber * this->width); }
 	int GetBottom() { return this->top + (this->VerticalNumber * this->height); }
 
@@ -271,6 +271,52 @@ public:
 	}
 	int GetVerticalIndex(int MousePos) { return (MousePos - this->top) / this->height; }
 	int GetHorizontalIndex(int MousePos) { return (MousePos - this->left) / this->width; }
+};
+
+class MemoHitboxes
+{
+private:
+	Hitboxes Odd;
+	Hitboxes Even;
+
+	Hitboxes GetHitbox(int MemoNumber) 
+	{ 
+		return (MemoNumber % 2 != 0) || MemoNumber > 11 ? Odd : Even; 
+	}
+
+	int GetVerticalOffset(int MemoNumber)
+	{
+		return ((this->GetHitbox(MemoNumber).GetVerticalNumber() - MemoNumber) *
+			this->Odd.GetHeight() / 2);
+	}
+
+public:
+	MemoHitboxes(int EvenTop, int OddTop, int left, int height, int width)
+	{
+		this->Odd = Hitboxes(OddTop, left, height, width, 11, 1);
+		this->Even = Hitboxes(EvenTop, left, height, width, 10, 1);
+	}
+
+	int GetEnabledVerticalIndex(int MousePos, int MemoNumber)
+	{
+		//TODO remove
+		AuxDebugOvlString = "\rVertical index: ";
+		AuxDebugOvlString.append(std::to_string(this->GetHitbox(MemoNumber).GetVerticalIndex(MousePos) -
+			((this->GetHitbox(MemoNumber).GetVerticalNumber() - MemoNumber) / 2)));
+
+		return this->GetHitbox(MemoNumber).GetVerticalIndex(MousePos) -
+			((this->GetHitbox(MemoNumber).GetVerticalNumber() - MemoNumber) / 2);
+	}
+
+	bool IsMouseInBounds(int MouseHor, int MouseVer, int MemoNumber) // TODO change to consider the memo number
+	{
+		int VOffset = this->GetVerticalOffset(MemoNumber);
+
+		return MouseHor > this->GetHitbox(MemoNumber).GetLeft() &&
+			MouseHor < this->GetHitbox(MemoNumber).GetRight() &&
+			MouseVer > this->GetHitbox(MemoNumber).GetTop() + VOffset &&
+			MouseVer < this->GetHitbox(MemoNumber).GetBottom() - VOffset;
+	}
 };
 
 void DrawCursor_Hook(void);

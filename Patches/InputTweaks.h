@@ -231,6 +231,48 @@ public:
 	BYTE GetPauseButtonBind();
 };
 
+// Hitboxes for pause and memo menu
+class Hitboxes
+{
+private:
+	int top;
+	int left;
+	int height;	
+	int width;
+	int VerticalNumber;
+	int HorizontalNumber;
+
+public:
+	Hitboxes(int top, int left, int height, int width, int VerticalNumber, int HorizontalNumber)
+	{
+		this->top = top;
+		this->left = left;
+		this->height = height;
+		this->width = width;
+		this->VerticalNumber = VerticalNumber;
+		this->HorizontalNumber = HorizontalNumber;
+	}
+
+	int GetTop() { return this->top; }
+	int GetHeight() { return this->height; }
+	int GetLeft() { return this->left; }
+	int GetWidth() { return this->width; }
+	int GetVerticalNumber() { return this->VerticalNumber; }
+	int GetHorizontalNumber() { return this->HorizontalNumber; }
+	int GetRight() { return this->left + (this->HorizontalNumber * this->width); }
+	int GetBottom() { return this->top + (this->VerticalNumber * this->height); }
+
+	bool IsMouseInBounds(int MouseHor, int MouseVer)
+	{
+		return MouseHor > this->GetLeft() &&
+			MouseHor < this->GetRight() &&
+			MouseVer > this->GetTop() &&
+			MouseVer < this->GetBottom();
+	}
+	int GetVerticalIndex(int MousePos) { return (MousePos - this->top) / this->height; }
+	int GetHorizontalIndex(int MousePos) { return (MousePos - this->left) / this->width; }
+};
+
 void DrawCursor_Hook(void);
 void SetShowCursorFlag_Hook(void);
 

@@ -30,20 +30,13 @@ const float AnalogHalfTilt = 0.5f;
 const float AnalogFullTilt = 1.0f;
 const float FloatTolerance = 0.10f;
 
-const int PauseMenuCursorTopThreshold = 210;
-const int PauseMenuCursorBottomThreshold = 360;
-const int PauseMenuVerticalHitbox = (PauseMenuCursorBottomThreshold - PauseMenuCursorTopThreshold) / 5;
+Hitboxes PauseMenu = Hitboxes(210, 281, 30, 117, 5, 1);
+Hitboxes QuitMenu = Hitboxes(245, 281, 30, 58, 1, 2);
 
-const int PauseMenuQuitTopThreshold = 245;
-const int PauseMenuQuitBottomThreshold = 275;
-const int PauseMenuQuitLeftThreshold = 281;
-const int PauseMenuQuitRightThreshold = 398;
-const int PauseMenuHorizontalHitbox = (PauseMenuQuitRightThreshold - PauseMenuQuitLeftThreshold) / 2;
-
+const int MemoListLeft = 120;
+const int MemoListRight = 540;
 const int MemoListTopThreshold = 130;
 const int MemoListBottomThreshold = 340;
-const int MemoListLeftThreshold = 120;
-const int MemoListRightThreshold = 540;
 const int MemoListVerticalHitbox = (MemoListBottomThreshold - MemoListTopThreshold) / 7;
 
 bool once = false;
@@ -163,6 +156,7 @@ void UpdateMousePosition_Hook()
 
 	auto Now = std::chrono::system_clock::now();
 
+	//TODO  setting
 	if (GetEventIndex() == EVENT_IN_GAME && GetMenuEvent() != 0x07)
 	{
 		*GetMouseHorizontalPositionPointer() = 0;
@@ -203,42 +197,48 @@ void UpdateMousePosition_Hook()
 	int CurrentMouseHorizontalPosition = GetMouseHorizontalPosition();
 	int CurrentMouseVerticalPosition = GetMouseVerticalPosition();
 
-	//TODO suppress warning warning C4244: '=': conversion from 'int16_t' to 'BYTE', possible loss of data
 	// Handling of vertical and horizontal navigation for Pause and Memo screens
 	if (GetEventIndex() == EVENT_PAUSE_MENU)
 	{
 		// X x Y 853 x 480
-		if (CurrentMouseHorizontalPosition > PauseMenuQuitLeftThreshold &&
-			CurrentMouseHorizontalPosition < PauseMenuQuitRightThreshold &&
-			CurrentMouseVerticalPosition > PauseMenuCursorTopThreshold &&
-			CurrentMouseVerticalPosition < PauseMenuCursorBottomThreshold &&
+		if (PauseMenu.IsMouseInBounds(CurrentMouseHorizontalPosition, CurrentMouseVerticalPosition) &&
 			*(BYTE*)0x00932030 == 0x00) // TODO is in quit submenu address
 		{
 #pragma warning(disable : 4244)
-			*GetPauseMenuButtonIndexPointer() = (CurrentMouseVerticalPosition - PauseMenuCursorTopThreshold) / PauseMenuVerticalHitbox;
+			*GetPauseMenuButtonIndexPointer() = PauseMenu.GetVerticalIndex(CurrentMouseVerticalPosition);
 		}
 
 		// Pause menu quit submenu
-		if (CurrentMouseHorizontalPosition > PauseMenuQuitLeftThreshold &&
-			CurrentMouseHorizontalPosition < PauseMenuQuitRightThreshold &&
-			CurrentMouseVerticalPosition > PauseMenuQuitTopThreshold &&
-			CurrentMouseVerticalPosition < PauseMenuQuitBottomThreshold &&
+		if (QuitMenu.IsMouseInBounds(CurrentMouseHorizontalPosition, CurrentMouseVerticalPosition) &&
 			*(BYTE*)0x00932030 == 0x01)// TODO is in quit submenu address
 		{
 #pragma warning(disable : 4244)
-			*GetPauseMenuQuitIndexPointer() = (CurrentMouseHorizontalPosition - PauseMenuQuitLeftThreshold) / PauseMenuHorizontalHitbox;
+			*GetPauseMenuQuitIndexPointer() = QuitMenu.GetHorizontalIndex(CurrentMouseHorizontalPosition);
 		}
 	}
 	else if (GetEventIndex() == EVENT_MEMO_LIST)
 	{
 		//vertical 90 410 horizontal 120 540
-		if (CurrentMouseHorizontalPosition > MemoListLeftThreshold &&
-			CurrentMouseHorizontalPosition < MemoListRightThreshold)
+		if (CurrentMouseHorizontalPosition > MemoListLeft &&
+			CurrentMouseHorizontalPosition < MemoListRight)
 		{
 			int CollectedMemos = CountCollectedMemos();
 			if (CollectedMemos < 12)
 			{
-				//TODO
+				if (CurrentMouseVerticalPosition < MemoListTopThreshold)
+				{
+					//TODO if first or last selected, move the list and jump the cursor down or up
+				}
+				else if (CurrentMouseVerticalPosition > MemoListBottomThreshold)
+				{
+					//TODO
+				}
+				else if (CurrentMouseVerticalPosition > MemoListTopThreshold &&
+					CurrentMouseVerticalPosition < MemoListBottomThreshold)
+				{
+					//TODO
+
+				}
 			}
 			else 
 			{
@@ -253,7 +253,12 @@ void UpdateMousePosition_Hook()
 				else if (CurrentMouseVerticalPosition > MemoListTopThreshold &&
 					CurrentMouseVerticalPosition < MemoListBottomThreshold)
 				{
-					//*(int32_t*)0x94d8ac = ((CurrentMouseVerticalPosition - MemoListTopThreshold) / MemoListVerticalHitbox) - 3; //TODO
+					//TODO remove
+					
+					AuxDebugOvlString = "\rMemo index selected: ";
+					AuxDebugOvlString.append(std::to_string(((CurrentMouseVerticalPosition - MemoListTopThreshold) / MemoListVerticalHitbox) - 3));
+#pragma warning(disable : 4244)
+					*(int32_t*)0x0094D8B0 = ((CurrentMouseVerticalPosition - MemoListTopThreshold) / MemoListVerticalHitbox) - 3; //TODO
 				}
 			}		
 		}

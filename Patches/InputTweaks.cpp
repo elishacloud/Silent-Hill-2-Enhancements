@@ -30,9 +30,9 @@ const float AnalogHalfTilt = 0.5f;
 const float AnalogFullTilt = 1.0f;
 const float FloatTolerance = 0.10f;
 
-Hitboxes PauseMenu = Hitboxes(210, 281, 30, 117, 5, 1);
+Hitboxes PauseMenu = Hitboxes(216, 170, 30, 300, 5, 1);
 Hitboxes QuitMenu = Hitboxes(245, 281, 30, 58, 1, 2);
-MemoHitboxes MemoMenu = MemoHitboxes(80, 60, 120, 30, 420);
+MemoHitboxes MemoMenu = MemoHitboxes(80, 32, 45, 32, 550);
 
 bool once = false;
 
@@ -149,9 +149,12 @@ void UpdateMousePosition_Hook()
 {
 	orgUpdateMousePosition.fun();
 
+	if (!EnableEnhancedMouse)
+		return;
+
 	auto Now = std::chrono::system_clock::now();
 
-	//TODO  setting
+	// Auto hide mouse cursor, move to top left and remember its position
 	if (GetEventIndex() == EVENT_IN_GAME && GetMenuEvent() != 0x07)
 	{
 		*GetMouseHorizontalPositionPointer() = 0;
@@ -211,19 +214,46 @@ void UpdateMousePosition_Hook()
 			*GetPauseMenuQuitIndexPointer() = QuitMenu.GetHorizontalIndex(CurrentMouseHorizontalPosition);
 		}
 	}
-	else if (GetEventIndex() == EVENT_MEMO_LIST)
+	
+	if (GetEventIndex() == EVENT_MEMO_LIST)
 	{
 		int CollectedMemos = CountCollectedMemos();
 		int NormalizedMemos = (CollectedMemos > 11) ? 11 : CollectedMemos;
+		int SelectedHitbox = MemoMenu.GetEnabledVerticalIndex(CurrentMouseVerticalPosition, NormalizedMemos);
 
 		if (MemoMenu.IsMouseInBounds(CurrentMouseHorizontalPosition, CurrentMouseVerticalPosition, NormalizedMemos))
 		{
+			if (CollectedMemos < 11)
+			{
+				*(int32_t*)0x0094D8B0 = MemoMenu.GetEnabledVerticalIndex(CurrentMouseVerticalPosition, NormalizedMemos);
+			}
+			else 
+			{
+				// If we just entered the memo screen, save the currently selected memo
+				if (MemoMenu.GetHighlightedHitbox() == -1)
+					MemoMenu.SetHighlightedHitbox(5);
 
-			MemoMenu.GetEnabledVerticalIndex(CurrentMouseVerticalPosition, NormalizedMemos);
+				if (MemoMenu.GetHighlightedHitbox() != SelectedHitbox)
+				{
+
+					if (SelectedHitbox > 1 && SelectedHitbox < 9)
+					{
+						//TODO remove
+						Logging::Log() << "CLAMPED: " << MemoMenu.GetClampedMemoIndex(SelectedHitbox - MemoMenu.GetHighlightedHitbox(), CollectedMemos);
+						//*(int32_t*)0x0094D8B0 += MemoMenu.GetClampedMemoIndex(SelectedHitbox - MemoMenu.GetHighlightedHitbox(), CollectedMemos, *(int32_t*)0x0094D8B0);
+					}
+
+					MemoMenu.SetHighlightedHitbox(SelectedHitbox);
+				}
+			}
 			//TODO remove
-			//AuxDebugOvlString = "\rMemo index selected: ";
-			//AuxDebugOvlString.append(std::to_string(MemoMenu.GetEnabledVerticalIndex(CurrentMouseVerticalPosition, CollectedMemos)));
+			AuxDebugOvlString = "\rMemo index selected: ";
+			AuxDebugOvlString.append(std::to_string(MemoMenu.GetEnabledVerticalIndex(CurrentMouseVerticalPosition, NormalizedMemos)));
 		}
+	}
+	else
+	{
+		MemoMenu.SetHighlightedHitbox(-1);
 	}
 }
 

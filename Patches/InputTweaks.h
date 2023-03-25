@@ -239,28 +239,28 @@ private:
 	int left;
 	int height;	
 	int width;
-	int VerticalNumber;
-	int HorizontalNumber;
+	int rows;
+	int columns;
 
 public:
 	Hitboxes(){}
-	Hitboxes(int top, int left, int height, int width, int VerticalNumber, int HorizontalNumber)
+	Hitboxes(int top, int left, int height, int width, int rows, int columns)
 	{
 		this->top = top;
 		this->left = left;
 		this->height = height;
 		this->width = width;
-		this->VerticalNumber = VerticalNumber;
-		this->HorizontalNumber = HorizontalNumber;
+		this->rows = rows;
+		this->columns = columns;
 	}
 
 	int GetTop() { return this->top; }
 	int GetHeight() { return this->height; }
 	int GetLeft() { return this->left; }
 	int GetWidth() { return this->width; }
-	int GetVerticalNumber() { return this->VerticalNumber; }
-	int GetRight() { return this->left + (this->HorizontalNumber * this->width); }
-	int GetBottom() { return this->top + (this->VerticalNumber * this->height); }
+	int GetRowsCount() { return this->rows; }
+	int GetRight() { return this->left + (this->columns * this->width); }
+	int GetBottom() { return this->top + (this->rows * this->height); }
 
 	bool IsMouseInBounds(int MouseHor, int MouseVer)
 	{
@@ -278,6 +278,7 @@ class MemoHitboxes
 private:
 	Hitboxes Odd;
 	Hitboxes Even;
+	int SelectedHitbox = 0;
 
 	Hitboxes GetHitbox(int MemoNumber) 
 	{ 
@@ -286,7 +287,7 @@ private:
 
 	int GetVerticalOffset(int MemoNumber)
 	{
-		return ((this->GetHitbox(MemoNumber).GetVerticalNumber() - MemoNumber) *
+		return ((this->GetHitbox(MemoNumber).GetRowsCount() - MemoNumber) *
 			this->Odd.GetHeight() / 2);
 	}
 
@@ -299,13 +300,8 @@ public:
 
 	int GetEnabledVerticalIndex(int MousePos, int MemoNumber)
 	{
-		//TODO remove
-		AuxDebugOvlString = "\rVertical index: ";
-		AuxDebugOvlString.append(std::to_string(this->GetHitbox(MemoNumber).GetVerticalIndex(MousePos) -
-			((this->GetHitbox(MemoNumber).GetVerticalNumber() - MemoNumber) / 2)));
-
 		return this->GetHitbox(MemoNumber).GetVerticalIndex(MousePos) -
-			((this->GetHitbox(MemoNumber).GetVerticalNumber() - MemoNumber) / 2);
+			((this->GetHitbox(MemoNumber).GetRowsCount() - MemoNumber) / 2);
 	}
 
 	bool IsMouseInBounds(int MouseHor, int MouseVer, int MemoNumber) // TODO change to consider the memo number
@@ -317,6 +313,19 @@ public:
 			MouseVer > this->GetHitbox(MemoNumber).GetTop() + VOffset &&
 			MouseVer < this->GetHitbox(MemoNumber).GetBottom() - VOffset;
 	}
+
+	int GetClampedMemoIndex(int offset, int MemoNumber)
+	{
+		if ((this->SelectedHitbox + offset) < 0)
+			return 0;
+		if ((this->SelectedHitbox + offset) > MemoNumber)
+			return MemoNumber;
+
+		return this->SelectedHitbox + offset;
+	}
+
+	int GetHighlightedHitbox() { return this->SelectedHitbox; }
+	void SetHighlightedHitbox(int value) { this->SelectedHitbox = value; }
 };
 
 void DrawCursor_Hook(void);

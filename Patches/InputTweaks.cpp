@@ -215,7 +215,7 @@ void UpdateMousePosition_Hook()
 		}
 	}
 	
-	if (GetEventIndex() == EVENT_MEMO_LIST)
+	if (GetEventIndex() == EVENT_MEMO_LIST && GetMenuEvent() == 0x0D)
 	{
 		int CollectedMemos = CountCollectedMemos();
 		int NormalizedMemos = (CollectedMemos > 11) ? 11 : CollectedMemos;

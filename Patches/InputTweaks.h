@@ -278,7 +278,6 @@ class MemoHitboxes
 private:
 	Hitboxes Odd;
 	Hitboxes Even;
-	int SelectedHitbox = 0;
 
 	Hitboxes GetHitbox(int MemoNumber) 
 	{ 
@@ -314,18 +313,34 @@ public:
 			MouseVer < this->GetHitbox(MemoNumber).GetBottom() - VOffset;
 	}
 
-	int GetClampedMemoIndex(int offset, int MemoNumber)
+	int GetClampedMemoIndex(int offset, int TotalMemoCount, int SelectedMemoIndex)
 	{
-		if ((this->SelectedHitbox + offset) < 0)
-			return 0;
-		if ((this->SelectedHitbox + offset) > MemoNumber)
-			return MemoNumber;
+		int step = offset > 0 ? 1 : -1;
+		int CalculatedIndex = SelectedMemoIndex;
+		int temp = 0;
 
-		return this->SelectedHitbox + offset;
+		for (int i = 1; i <= std::abs(offset); i++)
+		{
+			temp = CalculatedIndex + step;
+
+			if (temp > (TotalMemoCount - 1))
+			{
+				CalculatedIndex = 0;
+				continue;
+			}
+			if (temp < 0)
+			{
+				CalculatedIndex = TotalMemoCount - 1;
+				continue;
+			}
+
+			CalculatedIndex = temp;
+		}
+
+		return CalculatedIndex;
 	}
 
-	int GetHighlightedHitbox() { return this->SelectedHitbox; }
-	void SetHighlightedHitbox(int value) { this->SelectedHitbox = value; }
+	int ConvertHitboxValue(int SelectedHitbox) { return -SelectedHitbox + 5; }
 };
 
 void DrawCursor_Hook(void);

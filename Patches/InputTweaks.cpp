@@ -229,31 +229,21 @@ void UpdateMousePosition_Hook()
 			}
 			else 
 			{
-				// If we just entered the memo screen, save the currently selected memo
-				if (MemoMenu.GetHighlightedHitbox() == -1)
-					MemoMenu.SetHighlightedHitbox(5);
-
-				if (MemoMenu.GetHighlightedHitbox() != SelectedHitbox)
-				{
-
+				if (*(int32_t*)0x0094D8AC != MemoMenu.ConvertHitboxValue(SelectedHitbox))
+				{	//TODO addresses everywhere
 					if (SelectedHitbox > 1 && SelectedHitbox < 9)
 					{
-						//TODO remove
-						Logging::Log() << "CLAMPED: " << MemoMenu.GetClampedMemoIndex(SelectedHitbox - MemoMenu.GetHighlightedHitbox(), CollectedMemos);
-						//*(int32_t*)0x0094D8B0 += MemoMenu.GetClampedMemoIndex(SelectedHitbox - MemoMenu.GetHighlightedHitbox(), CollectedMemos, *(int32_t*)0x0094D8B0);
+						//TODO memo index stays constant
+						*(int32_t*)0x0094D8B0 = MemoMenu.GetClampedMemoIndex(SelectedHitbox - MemoMenu.ConvertHitboxValue(*(int32_t*)0x0094D8AC),
+							CollectedMemos, *(int32_t*)0x0094D8B0);
+						*(int32_t*)0x0094D8AC = MemoMenu.ConvertHitboxValue(SelectedHitbox);
 					}
-
-					MemoMenu.SetHighlightedHitbox(SelectedHitbox);
 				}
 			}
 			//TODO remove
 			AuxDebugOvlString = "\rMemo index selected: ";
 			AuxDebugOvlString.append(std::to_string(MemoMenu.GetEnabledVerticalIndex(CurrentMouseVerticalPosition, NormalizedMemos)));
 		}
-	}
-	else
-	{
-		MemoMenu.SetHighlightedHitbox(-1);
 	}
 }
 

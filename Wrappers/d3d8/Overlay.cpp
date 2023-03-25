@@ -214,6 +214,9 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append("\rEvent ID: 0x");
 	OvlString.append(IntToHexStr(GetEventIndex()));
 
+	OvlString.append("\rMenu Event ID: 0x");
+	OvlString.append(IntToHexStr(GetMenuEvent()));
+
 	OvlString.append("\rFullscreen Image Event: 0x");
 	OvlString.append(IntToHexStr(GetFullscreenImageEvent()));
 

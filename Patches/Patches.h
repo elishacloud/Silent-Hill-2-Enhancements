@@ -65,6 +65,13 @@ int32_t GetIsWritingQuicksave();
 int32_t GetTextAddr();
 float GetFrametime();
 BYTE GetInputAssignmentFlag();
+BYTE GetQuitSubmenuFlag();
+int32_t GetMemoListIndex();
+int32_t GetMemoListHitbox();
+int16_t GetMemoCountIndex();
+int32_t GetMemoInventory();
+BYTE GetMousePointerVisibleFlag();
+BYTE GetReadingMemoFlag();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -142,6 +149,13 @@ float *GetRPTClosetCutsceneMannequinDespawnPointer();
 float *GetRPTClosetCutsceneBlurredBarsDespawnPointer();
 BYTE *GetInputAssignmentFlagPointer();
 BYTE *GetPauseMenuQuitIndexPointer();
+BYTE *GetQuitSubmenuFlagPointer();
+int32_t *GetMemoListIndexPointer();
+int32_t *GetMemoListHitboxPointer();
+int16_t *GetMemoCountIndexPointer();
+int32_t *GetMemoInventoryPointer();
+BYTE *GetMousePointerVisibleFlagPointer();
+BYTE *GetReadingMemoFlagPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

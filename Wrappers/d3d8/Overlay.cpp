@@ -537,10 +537,10 @@ std::string Overlay::GetIGTString()
 void Overlay::RenderMouseCursor()
 {
 	if (HideMouseCursor || 
-		(GetEventIndex() != EVENT_PAUSE_MENU && GetEventIndex() != EVENT_MEMO_LIST))
+		(GetEventIndex() != EVENT_PAUSE_MENU && (GetEventIndex() != EVENT_MEMO_LIST))) // TODO add transitionstate = 0 and reading memo = 0 conditions
 		return;
 
-	*(BYTE*)0x00941365 = 1; //TODO
+	*GetMousePointerVisibleFlagPointer() = 1;
 	SetShowCursorFlag_Hook();
 	DrawCursor_Hook();
 }

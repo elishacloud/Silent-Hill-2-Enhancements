@@ -198,9 +198,8 @@ void UpdateMousePosition_Hook()
 	// Handling of vertical and horizontal navigation for Pause and Memo screens
 	if (GetEventIndex() == EVENT_PAUSE_MENU)
 	{
-		// X x Y 853 x 480
 		if (PauseMenu.IsMouseInBounds(CurrentMouseHorizontalPos, CurrentMouseVerticalPos) &&
-			*(BYTE*)0x00932030 == 0x00) // TODO is in quit submenu address
+			GetQuitSubmenuFlag() == 0x00)
 		{
 #pragma warning(disable : 4244)
 			*GetPauseMenuButtonIndexPointer() = PauseMenu.GetVerticalIndex(CurrentMouseVerticalPos);
@@ -208,14 +207,14 @@ void UpdateMousePosition_Hook()
 
 		// Pause menu quit submenu
 		if (QuitMenu.IsMouseInBounds(CurrentMouseHorizontalPos, CurrentMouseVerticalPos) &&
-			*(BYTE*)0x00932030 == 0x01)// TODO is in quit submenu address
+			GetQuitSubmenuFlag() == 0x01)
 		{
 #pragma warning(disable : 4244)
 			*GetPauseMenuQuitIndexPointer() = QuitMenu.GetHorizontalIndex(CurrentMouseHorizontalPos);
 		}
 	}
 	
-	if (GetEventIndex() == EVENT_MEMO_LIST && GetMenuEvent() == 0x0D)
+	if (GetEventIndex() == EVENT_MEMO_LIST && GetMenuEvent() == 0x0D) // TODO add transitionstate = 0 and reading memo = 0 conditions
 	{
 		int CollectedMemos = CountCollectedMemos();
 		int NormalizedMemos = (CollectedMemos > 11) ? 11 : CollectedMemos;
@@ -227,7 +226,7 @@ void UpdateMousePosition_Hook()
 		{
 			if (CollectedMemos < 11)
 			{
-				*(int32_t*)0x0094D8B0 = MemoMenu.GetEnabledVerticalIndex(CurrentMouseVerticalPos, NormalizedMemos);
+				*GetMemoListIndexPointer() = MemoMenu.GetEnabledVerticalIndex(CurrentMouseVerticalPos, NormalizedMemos);
 			}
 			else 
 			{
@@ -236,44 +235,40 @@ void UpdateMousePosition_Hook()
 					// top
 					if (TopOrBot == 1)
 					{
-						*(int32_t*)0x0094D8B0 = MemoMenu.GetClampedMemoIndex(-1,
-							CollectedMemos, *(int32_t*)0x0094D8B0);
-						*(int32_t*)0x0094D8AC = 3;
+						*GetMemoListIndexPointer() = MemoMenu.GetClampedMemoIndex(-1,
+							CollectedMemos, *GetMemoListIndexPointer());
+						*GetMemoListHitboxPointer() = 3;
 
 						*GetMouseVerticalPositionPointer() = MemoMenu.GetTop() + (MemoMenu.GetHeight() * 2.5);
 					}
 					else
 					{
-						*(int32_t*)0x0094D8B0 = MemoMenu.GetClampedMemoIndex(1,
-							CollectedMemos, *(int32_t*)0x0094D8B0);
-						*(int32_t*)0x0094D8AC = -3;
+						*GetMemoListIndexPointer() = MemoMenu.GetClampedMemoIndex(1,
+							CollectedMemos, *GetMemoListIndexPointer());
+						*GetMemoListHitboxPointer() = -3;
 
 						*GetMouseVerticalPositionPointer() = MemoMenu.GetTop() + (MemoMenu.GetHeight() * 8.5);
 					}
 				}
-				else if (*(int32_t*)0x0094D8AC != MemoMenu.ConvertHitboxValue(SelectedHitbox))
-				{	//TODO addresses everywhere
+				else if (*GetMemoListHitboxPointer() != MemoMenu.ConvertHitboxValue(SelectedHitbox))
+				{
 					
 					if (SelectedHitbox <= 1 || SelectedHitbox >= 9)
-					{//TODO selecting 1 or 9 with selected hitbox != 2 or 8
-						*(int32_t*)0x0094D8B0 = MemoMenu.GetClampedMemoIndex(SelectedHitbox == 1 ? -1 : 1,
-							CollectedMemos, *(int32_t*)0x0094D8B0);
-						*(int32_t*)0x0094D8AC = SelectedHitbox == 1 ? 3 : -3;
+					{
+						*GetMemoListIndexPointer() = MemoMenu.GetClampedMemoIndex(SelectedHitbox == 1 ? -1 : 1,
+							CollectedMemos, *GetMemoListIndexPointer());
+						*GetMemoListHitboxPointer() = SelectedHitbox == 1 ? 3 : -3;
 
 						*GetMouseVerticalPositionPointer() += (SelectedHitbox == 1 ? 1 : -1) * MemoMenu.GetHeight();
 					}
 					if (SelectedHitbox > 1 && SelectedHitbox < 9)
 					{
-						//TODO memo index stays constant
-						*(int32_t*)0x0094D8B0 = MemoMenu.GetClampedMemoIndex(SelectedHitbox - MemoMenu.ConvertHitboxValue(*(int32_t*)0x0094D8AC),
-							CollectedMemos, *(int32_t*)0x0094D8B0);
-						*(int32_t*)0x0094D8AC = MemoMenu.ConvertHitboxValue(SelectedHitbox);
+						*GetMemoListIndexPointer() = MemoMenu.GetClampedMemoIndex(SelectedHitbox - MemoMenu.ConvertHitboxValue(*GetMemoListHitboxPointer()),
+							CollectedMemos, *GetMemoListIndexPointer());
+						*GetMemoListHitboxPointer() = MemoMenu.ConvertHitboxValue(SelectedHitbox);
 					}
 				}
 			}
-			//TODO remove
-			AuxDebugOvlString = "\rMemo index selected: ";
-			AuxDebugOvlString.append(std::to_string(MemoMenu.GetEnabledVerticalIndex(CurrentMouseVerticalPos, NormalizedMemos)));
 		}
 	}
 }
@@ -593,7 +588,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			UpdateMemoryAddress((void*)AnalogStringTwo, "\x2F", 1);
 			UpdateMemoryAddress((void*)AnalogStringThree, "\x2F", 1);
 		}
-
+		
 		// Hooking the mouse visibility function
 		if (EnableEnhancedMouse)
 		{
@@ -1005,9 +1000,9 @@ BYTE KeyBindsHandler::GetPauseButtonBind()
 
 int CountCollectedMemos()
 {
-	auto* psVar2 = (int16_t*)0x0088c378; //TODO addresses
+	auto* psVar2 = GetMemoCountIndexPointer();
 
-	auto* MemosArray = (int32_t*)0x1f7a9e0;
+	auto* MemosArray = GetMemoInventoryPointer();
 	int TotalMemos = 0;
 
 	do {
@@ -1022,7 +1017,7 @@ int CountCollectedMemos()
 			TotalMemos = TotalMemos + 1;
 
 		psVar2 += 0x18;
-	} while ((int)psVar2 < 0x88c708);
+	} while ((int)psVar2 < (int) MemosArray + 0x390);
 
 	return TotalMemos;
 }

@@ -1001,6 +1001,7 @@ BYTE KeyBindsHandler::GetPauseButtonBind()
 int CountCollectedMemos()
 {
 	auto* psVar2 = GetMemoCountIndexPointer();
+	int LoopCondition = ((int)psVar2) + 0x390;
 
 	auto* MemosArray = GetMemoInventoryPointer();
 	int TotalMemos = 0;
@@ -1017,7 +1018,7 @@ int CountCollectedMemos()
 			TotalMemos = TotalMemos + 1;
 
 		psVar2 += 0x18;
-	} while ((int)psVar2 < (int) MemosArray + 0x390);
+	} while ((int)psVar2 < LoopCondition);
 
 	return TotalMemos;
 }

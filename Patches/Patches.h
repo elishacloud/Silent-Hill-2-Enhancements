@@ -156,6 +156,8 @@ int16_t *GetMemoCountIndexPointer();
 int32_t *GetMemoInventoryPointer();
 BYTE *GetMousePointerVisibleFlagPointer();
 BYTE *GetReadingMemoFlagPointer();
+DWORD *GetDrawCursorPointer();
+DWORD *GetSetShowCursorPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

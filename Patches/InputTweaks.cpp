@@ -592,8 +592,8 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		// Hooking the mouse visibility function
 		if (EnableEnhancedMouse)
 		{
-			orgDrawCursor.fun = injector::MakeCALL((DWORD*)0x00476128, DrawCursor_Hook, true).get();
-			orgSetShowCursorFlag.fun = injector::MakeCALL((DWORD*)0x00454886, SetShowCursorFlag_Hook, true).get();
+			orgDrawCursor.fun = injector::MakeCALL(GetDrawCursorPointer(), DrawCursor_Hook, true).get();
+			orgSetShowCursorFlag.fun = injector::MakeCALL(GetSetShowCursorPointer(), SetShowCursorFlag_Hook, true).get();
 		}
 	}
 }

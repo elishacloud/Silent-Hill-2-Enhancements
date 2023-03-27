@@ -106,6 +106,8 @@ int32_t *MemoListIndexAddr = nullptr;
 int32_t *MemoListHitboxAddr = nullptr;
 int32_t *MemoInventoryAddr = nullptr;
 BYTE *ReadingMemoFlagAddr = nullptr;
+DWORD *SetShowCursorAddr = nullptr;
+DWORD *DrawCursorAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -2353,4 +2355,46 @@ BYTE* GetReadingMemoFlagPointer()
 	}
 	
 	return ReadingMemoFlagAddr;
+}
+
+DWORD* GetDrawCursorPointer()
+{
+	if (DrawCursorAddr)
+	{
+		return DrawCursorAddr;
+	}
+
+	// Get Draw Cursor Address
+	constexpr BYTE DrawCursorSearchBytes[]{ 0x83, 0xF8, 0x03, 0x74, 0x12, 0x83, 0xF8, 0x01 };
+	DrawCursorAddr = (DWORD*)SearchAndGetAddresses(0x00476140, 0x004763E0, 0x004765F0, DrawCursorSearchBytes, sizeof(DrawCursorSearchBytes), -0x18, __FUNCTION__);
+
+	// Checking address pointer
+	if (!DrawCursorAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Draw Cursor memory address!";
+		return nullptr;
+	}
+	
+	return DrawCursorAddr;
+}
+
+DWORD* GetSetShowCursorPointer()
+{
+	if (SetShowCursorAddr)
+	{
+		return SetShowCursorAddr;
+	}
+
+	// Get Set Show Cursor Address
+	constexpr BYTE SetShowCursorSearchBytes[]{ 0xEB, 0x66, 0x33, 0xDB, 0x53, 0x68, 0x00, 0x02, 0x00, 0x00, 0x53 };
+	SetShowCursorAddr = (DWORD*)SearchAndGetAddresses(0x00454802, 0x00454A62, 0x00454A62, SetShowCursorSearchBytes, sizeof(SetShowCursorSearchBytes), 0x84, __FUNCTION__);
+
+	// Checking address pointer
+	if (!SetShowCursorAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Set Show Cursor memory address!";
+		return nullptr;
+	}
+	
+	return SetShowCursorAddr;
 }

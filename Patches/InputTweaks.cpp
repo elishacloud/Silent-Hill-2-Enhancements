@@ -155,7 +155,7 @@ void UpdateMousePosition_Hook()
 	auto Now = std::chrono::system_clock::now();
 
 	// Auto hide mouse cursor, move to top left and remember its position
-	if (GetEventIndex() == EVENT_IN_GAME && GetMenuEvent() != 0x07)
+	if ((GetEventIndex() == EVENT_IN_GAME && !IsInFullScreenImageEvent()) && GetMenuEvent() != 0x07)
 	{
 		*GetMouseHorizontalPositionPointer() = 0;
 		*GetMouseVerticalPositionPointer() = 0;
@@ -881,7 +881,7 @@ bool InputTweaks::SetRMBAimFunction()
 		!IsInFullScreenImageEvent()));
 }
 
-bool InputTweaks::IsInFullScreenImageEvent()
+bool IsInFullScreenImageEvent()
 {
 	return GetFullscreenImageEvent() == 0x02;
 }

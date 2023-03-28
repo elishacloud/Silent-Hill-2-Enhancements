@@ -214,8 +214,6 @@ public:
 	bool GetRMBState();
 	bool GetLMBState();
 
-	bool IsInFullScreenImageEvent();
-
 	// Additional fix for cutscenes
 	bool ElevatorFix();
 };

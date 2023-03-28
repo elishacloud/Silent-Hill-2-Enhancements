@@ -243,6 +243,7 @@ bool IsMariaExcludingEyes(ModelID id);
 bool IsMariaEyes(ModelID id);
 bool isConfirmationPromptOpen();
 int CountCollectedMemos();
+bool IsInFullScreenImageEvent();
 
 void OnFileLoadTex(LPCSTR lpFileName);
 void OnFileLoadVid(LPCSTR lpFileName);

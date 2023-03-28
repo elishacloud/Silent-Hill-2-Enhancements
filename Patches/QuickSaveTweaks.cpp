@@ -175,7 +175,7 @@ void RunQuickSaveTweaks()
 	LOG_ONCE("Patching Quick Save Text Fading Too Quickly...");
 
 	//Currently in-game && a text prompt is NOT currently on-screen
-	if (GetClearTextPointer() && *GetClearTextPointer() == 0x05 && GetEventIndex() == EVENT_IN_GAME && !InputTweaksRef.IsInFullScreenImageEvent())
+	if (GetClearTextPointer() && *GetClearTextPointer() == 0x05 && GetEventIndex() == EVENT_IN_GAME && !IsInFullScreenImageEvent())
 	{
 		UpdateMemoryAddress(GetClearTextPointer(), "\x00", 1);
 	}

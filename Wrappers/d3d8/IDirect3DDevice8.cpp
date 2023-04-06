@@ -1905,8 +1905,13 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 			RunFlashlightClockPush();
 		}
 
+		// Fix cutscene James final blow to his wife
+		if (GetRoomID() == 0xBB && GetGlobalFadeHoldValue() == 2.0f)
+		{
+			IsInFakeFadeout = true;
+		}
 		// Bowling cutscene fading
-		if (IsInFakeFadeout && GetCutsceneID() != 0x19)
+		else if (IsInFakeFadeout && GetCutsceneID() != 0x19)
 		{
 			IsInFakeFadeout = false;
 		}

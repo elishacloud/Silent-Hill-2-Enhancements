@@ -72,6 +72,7 @@ int16_t GetMemoCountIndex();
 int32_t GetMemoInventory();
 BYTE GetMousePointerVisibleFlag();
 BYTE GetReadingMemoFlag();
+float GetGlobalFadeHoldValue();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -158,6 +159,8 @@ BYTE *GetMousePointerVisibleFlagPointer();
 BYTE *GetReadingMemoFlagPointer();
 DWORD *GetDrawCursorPointer();
 DWORD *GetSetShowCursorPointer();
+BYTE* GetInputAssignmentFlagPointer();
+float* GetGlobalFadeHoldValuePointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

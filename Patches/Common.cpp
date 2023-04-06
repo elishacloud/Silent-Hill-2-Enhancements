@@ -108,6 +108,7 @@ int32_t *MemoInventoryAddr = nullptr;
 BYTE *ReadingMemoFlagAddr = nullptr;
 DWORD *SetShowCursorAddr = nullptr;
 DWORD *DrawCursorAddr = nullptr;
+float* GlobalFadeHoldValueAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -2117,6 +2118,11 @@ BYTE GetInputAssignmentFlag()
 
 BYTE* GetInputAssignmentFlagPointer()
 {
+	if (InputAssignmentFlagAddr)
+	{
+		return InputAssignmentFlagAddr;
+	}
+
 	InputAssignmentFlagAddr = (BYTE*)((GameVersion == SH2V_10) ? 0x009415F5 :
 		(GameVersion == SH2V_11) ? 0x009415F5 :
 		(GameVersion == SH2V_DC) ? 0x009441F5 : NULL);
@@ -2397,4 +2403,25 @@ DWORD* GetSetShowCursorPointer()
 	}
 	
 	return SetShowCursorAddr;
+}
+
+float GetGlobalFadeHoldValue()
+{
+	float* pGlobalFadeHoldValue = GetGlobalFadeHoldValuePointer();
+
+	return (pGlobalFadeHoldValue) ? *pGlobalFadeHoldValue : 0;
+}
+
+float* GetGlobalFadeHoldValuePointer()
+{
+	if (GlobalFadeHoldValueAddr)
+	{
+		return GlobalFadeHoldValueAddr;
+	}
+
+	GlobalFadeHoldValueAddr = (float*)((GameVersion == SH2V_10) ? 0x0094262C :
+		(GameVersion == SH2V_11) ? 0x0094622C :
+		(GameVersion == SH2V_DC) ? 0x0094522C : NULL);
+
+	return GlobalFadeHoldValueAddr;
 }

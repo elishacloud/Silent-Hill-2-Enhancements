@@ -359,6 +359,40 @@ public:
 	}
 };
 
+class CursorAutoHidePosition
+{
+private:
+	int CursorSavedXPos = 0;
+	int CursorSavedYPos = 0;
+public:
+	void UpdateCursorPos()
+	{
+		if (!MoveHiddenMouse)
+			return;
+
+		CursorSavedXPos = GetMouseHorizontalPosition();
+		CursorSavedYPos = GetMouseVerticalPosition();
+	}
+
+	void RestoreCursorPos()
+	{
+		if (!MoveHiddenMouse)
+			return;
+
+		*GetMouseHorizontalPositionPointer() = CursorSavedXPos;
+		*GetMouseVerticalPositionPointer() = CursorSavedYPos;
+	}
+
+	void MoveCursorToOrigin()
+	{
+		if (!MoveHiddenMouse)
+			return;
+
+		*GetMouseHorizontalPositionPointer() = 0;
+		*GetMouseVerticalPositionPointer() = 0;
+	}
+};
+
 void DrawCursor_Hook(void);
 void SetShowCursorFlag_Hook(void);
 

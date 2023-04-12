@@ -61,6 +61,7 @@
 	visit(GameLoadFix, true) \
 	visit(GamepadControlsFix, true) \
 	visit(HalogenLightFix, true) \
+	visit(HideMouseCursor, true) \
 	visit(HookDirect3D, true) \
 	visit(HookDirectInput, true) \
 	visit(HookDirectSound, true) \
@@ -82,6 +83,7 @@
 	visit(MainMenuFix, true) \
 	visit(MainMenuTitlePerLang, true) \
 	visit(MemoScreenFix, true) \
+	visit(MoveHiddenMouse, true) \
 	visit(NoCDPatch, true) \
 	visit(PauseScreenFix, true) \
 	visit(PistonRoomFix, true) \
@@ -296,7 +298,6 @@ extern bool EnableCRTShader;
 extern bool CRTCurveShader;
 extern bool CRTNonCurveShader;
 extern bool EnableInputTweaks;
-extern bool HideMouseCursor;
 
 bool SetValue(const char* value);
 bool IsValidSettings(char* name, char* value);

@@ -71,8 +71,7 @@ auto LastCursorMovement = std::chrono::system_clock::now();
 int LastCursorXPos = 0;
 int LastCursorYPos = 0;
 bool HideMouseCursor = false;
-int CursorSavedXPos = 0;
-int CursorSavedYPos = 0;
+CursorAutoHidePosition CursorAutoHidePos;
 
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLXAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLYAxis;
@@ -161,24 +160,21 @@ void UpdateMousePosition_Hook()
 		*GetMouseVerticalPositionPointer() = 0;
 		HideMouseCursor = true;
 	}
-	else if (!HideMouseCursor &&
-		(GetMouseVerticalPosition() != LastCursorYPos || GetMouseHorizontalPosition() != LastCursorXPos))
+	else if (!HideMouseCursor && (GetMouseVerticalPosition() != LastCursorYPos || GetMouseHorizontalPosition() != LastCursorXPos))
 	{
+		
 		LastCursorXPos = GetMouseHorizontalPosition();
 		LastCursorYPos = GetMouseVerticalPosition();
 
-		CursorSavedXPos = LastCursorXPos;
-		CursorSavedYPos = LastCursorYPos;
+		CursorAutoHidePos.UpdateCursorPos();
 
 		LastCursorMovement = Now;
-		HideMouseCursor = false;
 	}
-	else if (HideMouseCursor &&
-		(GetMouseVerticalPosition() != 0 || GetMouseHorizontalPosition() != 0))
+	else if (HideMouseCursor &&	(GetMouseVerticalPosition() != 0 || GetMouseHorizontalPosition() != 0))
 	{
-		*GetMouseHorizontalPositionPointer() = CursorSavedXPos;
-		*GetMouseVerticalPositionPointer() = CursorSavedYPos;
-
+		
+		CursorAutoHidePos.RestoreCursorPos();
+		
 		LastCursorXPos = GetMouseHorizontalPosition();
 		LastCursorYPos = GetMouseVerticalPosition();
 
@@ -187,8 +183,8 @@ void UpdateMousePosition_Hook()
 	}
 	else if ((std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastCursorMovement).count() > AutoHideCursorMs))
 	{
-		*GetMouseHorizontalPositionPointer() = 0;
-		*GetMouseVerticalPositionPointer() = 0;
+		CursorAutoHidePos.MoveCursorToOrigin();
+
 		HideMouseCursor = true;
 	}
 

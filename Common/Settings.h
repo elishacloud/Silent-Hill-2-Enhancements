@@ -5,6 +5,7 @@
 #define VISIT_BOOL_SETTINGS(visit) \
 	visit(AdjustColorTemp, true) \
 	visit(AudioClipDetection, true) \
+	visit(EnhanceMouseCursor, true) \
 	visit(AutoUpdateModule, true) \
 	visit(CatacombsMeatRoomFix, true) \
 	visit(ChangeClosetSpawn, true) \
@@ -61,7 +62,6 @@
 	visit(GameLoadFix, true) \
 	visit(GamepadControlsFix, true) \
 	visit(HalogenLightFix, true) \
-	visit(HideMouseCursor, true) \
 	visit(HookDirect3D, true) \
 	visit(HookDirectInput, true) \
 	visit(HookDirectSound, true) \
@@ -83,7 +83,7 @@
 	visit(MainMenuFix, true) \
 	visit(MainMenuTitlePerLang, true) \
 	visit(MemoScreenFix, true) \
-	visit(MoveHiddenMouse, true) \
+	visit(AutoHideMouseCursor, true) \
 	visit(NoCDPatch, true) \
 	visit(PauseScreenFix, true) \
 	visit(PistonRoomFix, true) \

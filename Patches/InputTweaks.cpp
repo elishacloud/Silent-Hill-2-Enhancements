@@ -30,9 +30,16 @@ const float AnalogHalfTilt = 0.5f;
 const float AnalogFullTilt = 1.0f;
 const float FloatTolerance = 0.10f;
 
+const int MemoEvenTop = 80;
+const int MemoOddTop = 64;
+const int MemoLeft = 45;
+const int MemoHeight = 32;
+const int MemoWidth = 550;
+
 Hitboxes PauseMenu = Hitboxes(216, 170, 30, 300, 5, 1);
 Hitboxes QuitMenu = Hitboxes(245, 281, 30, 58, 1, 2);
-MemoHitboxes MemoMenu = MemoHitboxes(80, 64, 45, 32, 550);
+MemoHitboxes MemoMenu = MemoHitboxes(MemoEvenTop, MemoOddTop, MemoLeft, MemoHeight, MemoWidth);
+bool EnteredPuzzle = false;
 
 bool once = false;
 
@@ -71,7 +78,7 @@ auto LastCursorMovement = std::chrono::system_clock::now();
 int LastCursorXPos = 0;
 int LastCursorYPos = 0;
 bool HideMouseCursor = false;
-CursorAutoHidePosition CursorAutoHidePos;
+CursorPositionHandler CursorPosHandler;
 
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLXAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLYAxis;
@@ -148,120 +155,135 @@ void UpdateMousePosition_Hook()
 {
 	orgUpdateMousePosition.fun();
 
-	if (!EnableEnhancedMouse)
-		return;
-
 	auto Now = std::chrono::system_clock::now();
 
-	// Auto hide mouse cursor, move to top left and remember its position
-	if ((GetEventIndex() == EVENT_IN_GAME && !IsInFullScreenImageEvent()) && GetMenuEvent() != 0x07)
+	// Center the mouse cursor when entering a puzzle
+	if (GetEventIndex() == EVENT_IN_GAME && IsInFullScreenImageEvent() && GetMenuEvent() == 0x0D)
 	{
-		*GetMouseHorizontalPositionPointer() = 0;
-		*GetMouseVerticalPositionPointer() = 0;
-		HideMouseCursor = true;
+		if (!EnteredPuzzle)
+			CursorPosHandler.CenterCursor();
+
+		EnteredPuzzle = true;
 	}
-	else if (!HideMouseCursor && (GetMouseVerticalPosition() != LastCursorYPos || GetMouseHorizontalPosition() != LastCursorXPos))
+	else
 	{
-		
-		LastCursorXPos = GetMouseHorizontalPosition();
-		LastCursorYPos = GetMouseVerticalPosition();
-
-		CursorAutoHidePos.UpdateCursorPos();
-
-		LastCursorMovement = Now;
-	}
-	else if (HideMouseCursor &&	(GetMouseVerticalPosition() != 0 || GetMouseHorizontalPosition() != 0))
-	{
-		
-		CursorAutoHidePos.RestoreCursorPos();
-		
-		LastCursorXPos = GetMouseHorizontalPosition();
-		LastCursorYPos = GetMouseVerticalPosition();
-
-		LastCursorMovement = Now;
-		HideMouseCursor = false;
-	}
-	else if ((std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastCursorMovement).count() > AutoHideCursorMs))
-	{
-		CursorAutoHidePos.MoveCursorToOrigin();
-
-		HideMouseCursor = true;
+		EnteredPuzzle = false;
 	}
 
-	int CurrentMouseHorizontalPos = GetMouseHorizontalPosition();
-	int CurrentMouseVerticalPos = GetMouseVerticalPosition();
-
-	// Handling of vertical and horizontal navigation for Pause and Memo screens
-	if (GetEventIndex() == EVENT_PAUSE_MENU)
+	if (AutoHideMouseCursor)
 	{
-		if (PauseMenu.IsMouseInBounds(CurrentMouseHorizontalPos, CurrentMouseVerticalPos) &&
-			GetQuitSubmenuFlag() == 0x00)
+		// Auto hide mouse cursor, move to top left and remember its position
+		if ((GetEventIndex() == EVENT_IN_GAME && !IsInFullScreenImageEvent()) && GetMenuEvent() != 0x07)
 		{
-#pragma warning(disable : 4244)
-			*GetPauseMenuButtonIndexPointer() = PauseMenu.GetVerticalIndex(CurrentMouseVerticalPos);
+			CursorPosHandler.MoveCursorToOrigin();
+			HideMouseCursor = true;
 		}
-
-		// Pause menu quit submenu
-		if (QuitMenu.IsMouseInBounds(CurrentMouseHorizontalPos, CurrentMouseVerticalPos) &&
-			GetQuitSubmenuFlag() == 0x01)
+		else if (!HideMouseCursor && (GetMouseVerticalPosition() != LastCursorYPos || GetMouseHorizontalPosition() != LastCursorXPos))
 		{
-#pragma warning(disable : 4244)
-			*GetPauseMenuQuitIndexPointer() = QuitMenu.GetHorizontalIndex(CurrentMouseHorizontalPos);
+
+			LastCursorXPos = GetMouseHorizontalPosition();
+			LastCursorYPos = GetMouseVerticalPosition();
+
+			CursorPosHandler.UpdateCursorPos();
+
+			LastCursorMovement = Now;
+		}
+		else if (HideMouseCursor && (GetMouseVerticalPosition() != 0 || GetMouseHorizontalPosition() != 0))
+		{
+
+			CursorPosHandler.RestoreCursorPos();
+
+			LastCursorXPos = GetMouseHorizontalPosition();
+			LastCursorYPos = GetMouseVerticalPosition();
+
+			LastCursorMovement = Now;
+			HideMouseCursor = false;
+		}
+		else if ((std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastCursorMovement).count() > AutoHideCursorMs))
+		{
+			CursorPosHandler.MoveCursorToOrigin();
+
+			HideMouseCursor = true;
 		}
 	}
 	
-	if (GetEventIndex() == EVENT_MEMO_LIST && GetMenuEvent() == 0x0D) // TODO add transitionstate = 0 and reading memo = 0 conditions
+	if (EnhanceMouseCursor)
 	{
-		int CollectedMemos = CountCollectedMemos();
-		int NormalizedMemos = (CollectedMemos > 11) ? 11 : CollectedMemos;
-		int SelectedHitbox = MemoMenu.GetEnabledVerticalIndex(CurrentMouseVerticalPos, NormalizedMemos);
-		int TopOrBot = MemoMenu.IsMouseTopOrBot(CurrentMouseHorizontalPos, CurrentMouseVerticalPos);
+		int CurrentMouseHorizontalPos = GetMouseHorizontalPosition();
+		int CurrentMouseVerticalPos = GetMouseVerticalPosition();
 
-		if (MemoMenu.IsMouseInBounds(CurrentMouseHorizontalPos, CurrentMouseVerticalPos, NormalizedMemos) ||
-			(CollectedMemos > 11 && TopOrBot != 0))
+		// Handling of vertical and horizontal navigation for Pause and Memo screens
+		if (GetEventIndex() == EVENT_PAUSE_MENU)
 		{
-			if (CollectedMemos < 11)
+			if (PauseMenu.IsMouseInBounds(CurrentMouseHorizontalPos, CurrentMouseVerticalPos) &&
+				GetQuitSubmenuFlag() == 0x00)
 			{
-				*GetMemoListIndexPointer() = MemoMenu.GetEnabledVerticalIndex(CurrentMouseVerticalPos, NormalizedMemos);
+	#pragma warning(disable : 4244)
+				*GetPauseMenuButtonIndexPointer() = PauseMenu.GetVerticalIndex(CurrentMouseVerticalPos);
 			}
-			else 
+
+			// Pause menu quit submenu
+			if (QuitMenu.IsMouseInBounds(CurrentMouseHorizontalPos, CurrentMouseVerticalPos) &&
+				GetQuitSubmenuFlag() == 0x01)
 			{
-				if (TopOrBot != 0)
+	#pragma warning(disable : 4244)
+				*GetPauseMenuQuitIndexPointer() = QuitMenu.GetHorizontalIndex(CurrentMouseHorizontalPos);
+			}
+		}
+	
+		if (GetEventIndex() == EVENT_MEMO_LIST && GetMenuEvent() == 0x0D) // TODO add transitionstate = 0 and reading memo = 0 conditions
+		{
+			int CollectedMemos = CountCollectedMemos();
+			int NormalizedMemos = (CollectedMemos > 11) ? 11 : CollectedMemos;
+			int SelectedHitbox = MemoMenu.GetEnabledVerticalIndex(CurrentMouseVerticalPos, NormalizedMemos);
+			int TopOrBot = MemoMenu.IsMouseTopOrBot(CurrentMouseHorizontalPos, CurrentMouseVerticalPos);
+
+			if (MemoMenu.IsMouseInBounds(CurrentMouseHorizontalPos, CurrentMouseVerticalPos, NormalizedMemos) ||
+				(CollectedMemos > 11 && TopOrBot != 0))
+			{
+				if (CollectedMemos < 11)
 				{
-					// top
-					if (TopOrBot == 1)
-					{
-						*GetMemoListIndexPointer() = MemoMenu.GetClampedMemoIndex(-1,
-							CollectedMemos, *GetMemoListIndexPointer());
-						*GetMemoListHitboxPointer() = 3;
-
-						*GetMouseVerticalPositionPointer() = MemoMenu.GetTop() + (MemoMenu.GetHeight() * 2.5);
-					}
-					else
-					{
-						*GetMemoListIndexPointer() = MemoMenu.GetClampedMemoIndex(1,
-							CollectedMemos, *GetMemoListIndexPointer());
-						*GetMemoListHitboxPointer() = -3;
-
-						*GetMouseVerticalPositionPointer() = MemoMenu.GetTop() + (MemoMenu.GetHeight() * 8.5);
-					}
+					*GetMemoListIndexPointer() = MemoMenu.GetEnabledVerticalIndex(CurrentMouseVerticalPos, NormalizedMemos);
 				}
-				else if (*GetMemoListHitboxPointer() != MemoMenu.ConvertHitboxValue(SelectedHitbox))
+				else 
 				{
-					
-					if (SelectedHitbox <= 1 || SelectedHitbox >= 9)
+					if (TopOrBot != 0)
 					{
-						*GetMemoListIndexPointer() = MemoMenu.GetClampedMemoIndex(SelectedHitbox == 1 ? -1 : 1,
-							CollectedMemos, *GetMemoListIndexPointer());
-						*GetMemoListHitboxPointer() = SelectedHitbox == 1 ? 3 : -3;
+						// top
+						if (TopOrBot == 1)
+						{
+							*GetMemoListIndexPointer() = MemoMenu.GetClampedMemoIndex(-1,
+								CollectedMemos, *GetMemoListIndexPointer());
+							*GetMemoListHitboxPointer() = 3;
 
-						*GetMouseVerticalPositionPointer() += (SelectedHitbox == 1 ? 1 : -1) * MemoMenu.GetHeight();
+							*GetMouseVerticalPositionPointer() = MemoMenu.GetTop() + (MemoMenu.GetHeight() * 2.5);
+						}
+						else
+						{
+							*GetMemoListIndexPointer() = MemoMenu.GetClampedMemoIndex(1,
+								CollectedMemos, *GetMemoListIndexPointer());
+							*GetMemoListHitboxPointer() = -3;
+
+							*GetMouseVerticalPositionPointer() = MemoMenu.GetTop() + (MemoMenu.GetHeight() * 8.5);
+						}
 					}
-					if (SelectedHitbox > 1 && SelectedHitbox < 9)
+					else if (*GetMemoListHitboxPointer() != MemoMenu.ConvertHitboxValue(SelectedHitbox))
 					{
-						*GetMemoListIndexPointer() = MemoMenu.GetClampedMemoIndex(SelectedHitbox - MemoMenu.ConvertHitboxValue(*GetMemoListHitboxPointer()),
-							CollectedMemos, *GetMemoListIndexPointer());
-						*GetMemoListHitboxPointer() = MemoMenu.ConvertHitboxValue(SelectedHitbox);
+					
+						if (SelectedHitbox <= 1 || SelectedHitbox >= 9)
+						{
+							*GetMemoListIndexPointer() = MemoMenu.GetClampedMemoIndex(SelectedHitbox == 1 ? -1 : 1,
+								CollectedMemos, *GetMemoListIndexPointer());
+							*GetMemoListHitboxPointer() = SelectedHitbox == 1 ? 3 : -3;
+
+							*GetMouseVerticalPositionPointer() += (SelectedHitbox == 1 ? 1 : -1) * MemoMenu.GetHeight();
+						}
+						if (SelectedHitbox > 1 && SelectedHitbox < 9)
+						{
+							*GetMemoListIndexPointer() = MemoMenu.GetClampedMemoIndex(SelectedHitbox - MemoMenu.ConvertHitboxValue(*GetMemoListHitboxPointer()),
+								CollectedMemos, *GetMemoListIndexPointer());
+							*GetMemoListHitboxPointer() = MemoMenu.ConvertHitboxValue(SelectedHitbox);
+						}
 					}
 				}
 			}

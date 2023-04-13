@@ -361,6 +361,8 @@ extern bool ShowInfoOverlay;
 extern std::string AuxDebugOvlString;
 extern bool IsControllerConnected;
 extern HWND GameWindowHandle;
+extern LONG GameBufferWidth;
+extern LONG GameBufferHeight;
 
 // Run code only once
 #define RUNONCE() \

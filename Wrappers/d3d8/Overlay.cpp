@@ -47,6 +47,8 @@ Overlay::D3D8TEXT DebugOverlayTextStruct;
 Overlay::D3D8TEXT ControlMenuTestTextStruct;
 LONG LastBufferWidth = 0;
 LONG LastBufferHeight = 0;
+LONG GameBufferWidth = 0;
+LONG GameBufferHeight = 0;
 
 DWORD FogEnableValue;
 
@@ -469,6 +471,9 @@ void Overlay::InitializeDataStructs()
 
 	int MenuTestLeftOffset = 130;
 
+	GameBufferWidth = BufferWidth;
+	GameBufferHeight = BufferHeight;
+
 	InfoOverlayTextStruct.Format = DT_NOCLIP | DT_LEFT;
 	InfoOverlayTextStruct.Rect.left = BufferWidth - 205;
 	InfoOverlayTextStruct.Rect.top = rectOffset;
@@ -536,7 +541,7 @@ std::string Overlay::GetIGTString()
 
 void Overlay::RenderMouseCursor()
 {
-	if (HideMouseCursor || 
+	if (EnhanceMouseCursor || 
 		(GetEventIndex() != EVENT_PAUSE_MENU && (GetEventIndex() != EVENT_MEMO_LIST))) // TODO add transitionstate = 0 and reading memo = 0 conditions
 		return;
 

@@ -359,7 +359,7 @@ public:
 	}
 };
 
-class CursorAutoHidePosition
+class CursorPositionHandler
 {
 private:
 	int CursorSavedXPos = 0;
@@ -367,7 +367,7 @@ private:
 public:
 	void UpdateCursorPos()
 	{
-		if (!MoveHiddenMouse)
+		if (!AutoHideMouseCursor)
 			return;
 
 		CursorSavedXPos = GetMouseHorizontalPosition();
@@ -376,7 +376,7 @@ public:
 
 	void RestoreCursorPos()
 	{
-		if (!MoveHiddenMouse)
+		if (!AutoHideMouseCursor)
 			return;
 
 		*GetMouseHorizontalPositionPointer() = CursorSavedXPos;
@@ -385,11 +385,21 @@ public:
 
 	void MoveCursorToOrigin()
 	{
-		if (!MoveHiddenMouse)
+		if (!AutoHideMouseCursor)
 			return;
 
 		*GetMouseHorizontalPositionPointer() = 0;
 		*GetMouseVerticalPositionPointer() = 0;
+	}
+
+	void CenterCursor()
+	{
+		int ratio = GameBufferWidth / GameBufferHeight;
+		int HorizontalCenter = 480 * ratio / 2;
+		int VerticalCenter = 480 / 2;
+
+		*GetMouseHorizontalPositionPointer() = HorizontalCenter;
+		*GetMouseVerticalPositionPointer() = VerticalCenter;
 	}
 };
 

@@ -161,6 +161,7 @@ DWORD *GetDrawCursorPointer();
 DWORD *GetSetShowCursorPointer();
 BYTE* GetInputAssignmentFlagPointer();
 float* GetGlobalFadeHoldValuePointer();
+DWORD* GetCanSaveFunctionPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

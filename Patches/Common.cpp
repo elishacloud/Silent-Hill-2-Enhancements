@@ -109,6 +109,7 @@ BYTE *ReadingMemoFlagAddr = nullptr;
 DWORD *SetShowCursorAddr = nullptr;
 DWORD *DrawCursorAddr = nullptr;
 float* GlobalFadeHoldValueAddr = nullptr;
+DWORD* CanSaveFunctionAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -2424,4 +2425,25 @@ float* GetGlobalFadeHoldValuePointer()
 		(GameVersion == SH2V_DC) ? 0x0094522C : NULL);
 
 	return GlobalFadeHoldValueAddr;
+}
+
+DWORD* GetCanSaveFunctionPointer()
+{
+	if (CanSaveFunctionAddr)
+	{
+		return CanSaveFunctionAddr;
+	}
+
+	// Get Can save function Address
+	constexpr BYTE CanSaveFunctionSearchBytes[]{ 0x85, 0xC0, 0x74, 0x1D, 0xBB, 0x01, 0x00, 0x00, 0x00 };
+	CanSaveFunctionAddr = (DWORD*)SearchAndGetAddresses(0x004024B1, 0x004024B1, 0x004024B1, CanSaveFunctionSearchBytes, sizeof(CanSaveFunctionSearchBytes), -0x05, __FUNCTION__);
+	
+	// Checking address pointer
+	if (!CanSaveFunctionAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Can save function memory address!";
+		return nullptr;
+	}
+
+	return CanSaveFunctionAddr;
 }

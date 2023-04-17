@@ -87,12 +87,18 @@ injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerRYAxis;
 injector::hook_back<void(__cdecl*)(void)> orgUpdateMousePosition;
 injector::hook_back<void(__cdecl*)(void)> orgDrawCursor;
 injector::hook_back<void(__cdecl*)(void)> orgSetShowCursorFlag;
+injector::hook_back<int32_t(__cdecl*)(void)> orgCanSave;
 
 BYTE* AnalogStringOne;
 BYTE* AnalogStringTwo;
 BYTE* AnalogStringThree;
 
 uint8_t keyNotSetWarning[21] = { 0 };
+
+int32_t CanSave_Hook()
+{
+	return orgCanSave.fun();
+}
 
 void DrawCursor_Hook()
 {
@@ -218,15 +224,21 @@ void UpdateMousePosition_Hook()
 			if (PauseMenu.IsMouseInBounds(CurrentMouseHorizontalPos, CurrentMouseVerticalPos) &&
 				GetQuitSubmenuFlag() == 0x00)
 			{
-	#pragma warning(disable : 4244)
-				*GetPauseMenuButtonIndexPointer() = PauseMenu.GetVerticalIndex(CurrentMouseVerticalPos);
+				int futureIndex = PauseMenu.GetVerticalIndex(CurrentMouseVerticalPos);
+
+				// If Save Game is to be selected, but saving is disabled, don't select the option
+				if (!(futureIndex == 0x01 && orgCanSave.fun() != 0x01))
+				{
+#pragma warning(disable : 4244)
+					* GetPauseMenuButtonIndexPointer() = futureIndex;
+				}
 			}
 
 			// Pause menu quit submenu
 			if (QuitMenu.IsMouseInBounds(CurrentMouseHorizontalPos, CurrentMouseVerticalPos) &&
 				GetQuitSubmenuFlag() == 0x01)
 			{
-	#pragma warning(disable : 4244)
+#pragma warning(disable : 4244)
 				*GetPauseMenuQuitIndexPointer() = QuitMenu.GetHorizontalIndex(CurrentMouseHorizontalPos);
 			}
 		}
@@ -612,6 +624,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		{
 			orgDrawCursor.fun = injector::MakeCALL(GetDrawCursorPointer(), DrawCursor_Hook, true).get();
 			orgSetShowCursorFlag.fun = injector::MakeCALL(GetSetShowCursorPointer(), SetShowCursorFlag_Hook, true).get();
+			orgCanSave.fun = injector::MakeCALL(GetCanSaveFunctionPointer(), CanSave_Hook, true).get();
 		}
 	}
 }

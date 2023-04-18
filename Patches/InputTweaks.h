@@ -394,12 +394,8 @@ public:
 
 	void CenterCursor()
 	{
-		int ratio = GameBufferWidth / GameBufferHeight;
-		int HorizontalCenter = 480 * ratio / 2;
-		int VerticalCenter = 480 / 2;
-
-		*GetMouseHorizontalPositionPointer() = HorizontalCenter;
-		*GetMouseVerticalPositionPointer() = VerticalCenter;
+		*GetPuzzleCursorHorizontalPosPointer() = 0.0f;
+		*GetPuzzleCursorVerticalPosPointer() = 0.0f;
 	}
 };
 

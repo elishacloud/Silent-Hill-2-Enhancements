@@ -73,6 +73,8 @@ int32_t GetMemoInventory();
 BYTE GetMousePointerVisibleFlag();
 BYTE GetReadingMemoFlag();
 float GetGlobalFadeHoldValue();
+float GetPuzzleCursorHorizontalPos();
+float GetPuzzleCursorVerticalPos();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -162,6 +164,8 @@ DWORD *GetSetShowCursorPointer();
 BYTE* GetInputAssignmentFlagPointer();
 float* GetGlobalFadeHoldValuePointer();
 DWORD* GetCanSaveFunctionPointer();
+float* GetPuzzleCursorHorizontalPosPointer();
+float* GetPuzzleCursorVerticalPosPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -356,14 +360,14 @@ extern BYTE* ControlTypeAddr;
 extern BYTE* NumKeysWeaponBindStartAddr;
 extern BYTE* TalkShowHostStateAddr;
 extern BYTE* InputAssignmentFlagAddr;
+extern float* PuzzleCursorHorizontalPosAddr;
+extern float* PuzzleCursorVerticalPosAddr;
 
 extern bool ShowDebugOverlay;
 extern bool ShowInfoOverlay;
 extern std::string AuxDebugOvlString;
 extern bool IsControllerConnected;
 extern HWND GameWindowHandle;
-extern LONG GameBufferWidth;
-extern LONG GameBufferHeight;
 
 // Run code only once
 #define RUNONCE() \

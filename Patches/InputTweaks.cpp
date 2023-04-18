@@ -174,42 +174,42 @@ void UpdateMousePosition_Hook()
 	else
 	{
 		EnteredPuzzle = false;
-	}
 
-	if (AutoHideMouseCursor)
-	{
-		// Auto hide mouse cursor, move to top left and remember its position
-		if ((GetEventIndex() == EVENT_IN_GAME && !IsInFullScreenImageEvent()) && GetMenuEvent() != 0x07)
+		if (AutoHideMouseCursor)
 		{
-			CursorPosHandler.MoveCursorToOrigin();
-			HideMouseCursor = true;
-		}
-		else if (!HideMouseCursor && (GetMouseVerticalPosition() != LastCursorYPos || GetMouseHorizontalPosition() != LastCursorXPos))
-		{
+			// Auto hide mouse cursor, move to top left and remember its position
+			if ((GetEventIndex() == EVENT_IN_GAME && !IsInFullScreenImageEvent()) && GetMenuEvent() != 0x07) // During normal gameplay
+			{
+				CursorPosHandler.MoveCursorToOrigin();
+				HideMouseCursor = true;
+			} // If cursor is visible and has moved, update saved cursor position
+			else if (!HideMouseCursor && (GetMouseVerticalPosition() != LastCursorYPos || GetMouseHorizontalPosition() != LastCursorXPos))
+			{
 
-			LastCursorXPos = GetMouseHorizontalPosition();
-			LastCursorYPos = GetMouseVerticalPosition();
+				LastCursorXPos = GetMouseHorizontalPosition();
+				LastCursorYPos = GetMouseVerticalPosition();
 
-			CursorPosHandler.UpdateCursorPos();
+				CursorPosHandler.UpdateCursorPos();
 
-			LastCursorMovement = Now;
-		}
-		else if (HideMouseCursor && (GetMouseVerticalPosition() != 0 || GetMouseHorizontalPosition() != 0))
-		{
+				LastCursorMovement = Now;
+			} // If cursor is not visible, and has moved from 0:0, set cursor to visible and restore its position
+			else if (HideMouseCursor && (GetMouseVerticalPosition() != 0 || GetMouseHorizontalPosition() != 0))
+			{
 
-			CursorPosHandler.RestoreCursorPos();
+				CursorPosHandler.RestoreCursorPos();
 
-			LastCursorXPos = GetMouseHorizontalPosition();
-			LastCursorYPos = GetMouseVerticalPosition();
+				LastCursorXPos = GetMouseHorizontalPosition();
+				LastCursorYPos = GetMouseVerticalPosition();
 
-			LastCursorMovement = Now;
-			HideMouseCursor = false;
-		}
-		else if ((std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastCursorMovement).count() > AutoHideCursorMs))
-		{
-			CursorPosHandler.MoveCursorToOrigin();
+				LastCursorMovement = Now;
+				HideMouseCursor = false;
+			} // If too much time has passed, hide the cursor
+			else if ((std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastCursorMovement).count() > AutoHideCursorMs))
+			{
+				CursorPosHandler.MoveCursorToOrigin();
 
-			HideMouseCursor = true;
+				HideMouseCursor = true;
+			}
 		}
 	}
 	
@@ -920,7 +920,7 @@ bool IsInFullScreenImageEvent()
 bool InputTweaks::GetAnalogStringAddr()
 {
 	constexpr BYTE AnalogStringOneSearchBytes[]{ 0x68, 0x9A, 0x00, 0x00, 0x00, 0x56, 0x6A, 0x68 };
-	BYTE *AnalogString = (BYTE*)SearchAndGetAddresses(0x461F63, 0x4621D5, 0x4621D5, AnalogStringOneSearchBytes, sizeof(AnalogStringOneSearchBytes), 0x07, __FUNCTION__);
+	BYTE *AnalogString = (BYTE*)SearchAndGetAddresses(0x00461F63, 0x004621D5, 0x004621D5, AnalogStringOneSearchBytes, sizeof(AnalogStringOneSearchBytes), 0x07, __FUNCTION__);
 
 	if (!AnalogString)
 	{
@@ -933,7 +933,7 @@ bool InputTweaks::GetAnalogStringAddr()
 	}
 
 	constexpr BYTE AnalogStringTwoSearchBytes[]{ 0x68, 0x98, 0x00, 0x00, 0x00, 0x81, 0xC7, 0x0C, 0x01, 0x00, 0x00, 0x57, 0x6A, 0x68 };
-	AnalogString = (BYTE*)SearchAndGetAddresses(0x4621D1, 0x462433, 0x462433, AnalogStringTwoSearchBytes, sizeof(AnalogStringTwoSearchBytes), 0x0D, __FUNCTION__);
+	AnalogString = (BYTE*)SearchAndGetAddresses(0x004621D1, 0x00462433, 0x00462433, AnalogStringTwoSearchBytes, sizeof(AnalogStringTwoSearchBytes), 0x0D, __FUNCTION__);
 
 	if (!AnalogString)
 	{
@@ -946,7 +946,7 @@ bool InputTweaks::GetAnalogStringAddr()
 	}
 
 	constexpr BYTE AnalogStringThreeSearchBytes[]{ 0x00, 0x6A, 0x68 };
-	AnalogString = (BYTE*)SearchAndGetAddresses(0x464465, 0x4646DE, 0x4648E6, AnalogStringThreeSearchBytes, sizeof(AnalogStringThreeSearchBytes), 0x02, __FUNCTION__);
+	AnalogString = (BYTE*)SearchAndGetAddresses(0x00464465, 0x004646DE, 0x004648E6, AnalogStringThreeSearchBytes, sizeof(AnalogStringThreeSearchBytes), 0x02, __FUNCTION__);
 
 	if (!AnalogString)
 	{

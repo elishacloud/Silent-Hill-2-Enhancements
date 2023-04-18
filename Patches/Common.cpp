@@ -110,6 +110,8 @@ DWORD *SetShowCursorAddr = nullptr;
 DWORD *DrawCursorAddr = nullptr;
 float* GlobalFadeHoldValueAddr = nullptr;
 DWORD* CanSaveFunctionAddr = nullptr;
+float* PuzzleCursorHorizontalPosAddr = nullptr;
+float* PuzzleCursorVerticalPosAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -2446,4 +2448,60 @@ DWORD* GetCanSaveFunctionPointer()
 	}
 
 	return CanSaveFunctionAddr;
+}
+
+float GetPuzzleCursorHorizontalPos()
+{
+	float* pPuzzleCursorHorizontalPos = GetPuzzleCursorHorizontalPosPointer();
+
+	return (pPuzzleCursorHorizontalPos) ? *pPuzzleCursorHorizontalPos : 0.0f;
+}
+
+float* GetPuzzleCursorHorizontalPosPointer()
+{
+	if (PuzzleCursorHorizontalPosAddr)
+	{
+		return PuzzleCursorHorizontalPosAddr;
+	}
+
+	// Get Puzzle Cursor Horizontal Pos address
+	constexpr BYTE PuzzleCursorHorizontalPosSearchBytes[]{ 0x81, 0xE1, 0x60, 0x80, 0x60, 0xFF };
+	PuzzleCursorHorizontalPosAddr = (float*)ReadSearchedAddresses(0x004A2E35, 0x004A30E5, 0x004A29A5, PuzzleCursorHorizontalPosSearchBytes, sizeof(PuzzleCursorHorizontalPosSearchBytes), 0x19, __FUNCTION__);
+
+	// Checking address pointer
+	if (!PuzzleCursorHorizontalPosAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Puzzle Cursor Horizontal Pos function address!";
+		return nullptr;
+	}
+
+	return PuzzleCursorHorizontalPosAddr;
+}
+
+float GetPuzzleCursorVerticalPos()
+{
+	float* pPuzzleCursorVerticalPos = GetPuzzleCursorVerticalPosPointer();
+
+	return (pPuzzleCursorVerticalPos) ? *pPuzzleCursorVerticalPos : 0.0f;
+}
+
+float* GetPuzzleCursorVerticalPosPointer()
+{
+	if (PuzzleCursorVerticalPosAddr)
+	{
+		return PuzzleCursorVerticalPosAddr;
+	}
+
+	// Get Puzzle Cursor Vertical Pos address
+	constexpr BYTE PuzzleCursorVerticalPosSearchBytes[]{ 0x81, 0xE1, 0x60, 0x80, 0x60, 0xFF };
+	PuzzleCursorVerticalPosAddr = (float*)ReadSearchedAddresses(0x004A2E35, 0x004A30E5, 0x004A29A5, PuzzleCursorVerticalPosSearchBytes, sizeof(PuzzleCursorVerticalPosSearchBytes), 0x47, __FUNCTION__);
+
+	// Checking address pointer
+	if (!PuzzleCursorVerticalPosAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Puzzle Cursor Vertical Pos function address!";
+		return nullptr;
+	}
+
+	return PuzzleCursorVerticalPosAddr;
 }

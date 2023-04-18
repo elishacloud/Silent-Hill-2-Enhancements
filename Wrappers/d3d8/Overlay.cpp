@@ -47,8 +47,6 @@ Overlay::D3D8TEXT DebugOverlayTextStruct;
 Overlay::D3D8TEXT ControlMenuTestTextStruct;
 LONG LastBufferWidth = 0;
 LONG LastBufferHeight = 0;
-LONG GameBufferWidth = 0;
-LONG GameBufferHeight = 0;
 
 DWORD FogEnableValue;
 
@@ -470,9 +468,6 @@ void Overlay::InitializeDataStructs()
 	Logging::LogDebug() << __FUNCTION__ << " Initializing Overlay Text Structs...";
 
 	int MenuTestLeftOffset = 130;
-
-	GameBufferWidth = BufferWidth;
-	GameBufferHeight = BufferHeight;
 
 	InfoOverlayTextStruct.Format = DT_NOCLIP | DT_LEFT;
 	InfoOverlayTextStruct.Rect.left = BufferWidth - 205;

@@ -2206,7 +2206,6 @@ BYTE* GetMousePointerVisibleFlagPointer()
 
 	// Get address for mouse pointer visible flag address
 	constexpr BYTE MousePointerVisibleFlagSearchBytes[]{ 0x8B, 0x08, 0x50, 0xFF, 0x51, 0x18, 0x85, 0xC0, 0x7C, 0x33 };
-	BYTE* MousePointerVisibleFlagAddr = (BYTE*)ReadSearchedAddresses(0x0045A49F, 0x0045A6FF, 0x0045A6FF, MousePointerVisibleFlagSearchBytes, sizeof(MousePointerVisibleFlagSearchBytes), 0x32, __FUNCTION__);
 	MousePointerVisibleFlagAddr = (BYTE*)ReadSearchedAddresses(0x0045A49F, 0x0045A6FF, 0x0045A6FF, MousePointerVisibleFlagSearchBytes, sizeof(MousePointerVisibleFlagSearchBytes), 0x32, __FUNCTION__);
 
 	// Checking address pointer

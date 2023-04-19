@@ -243,7 +243,7 @@ void UpdateMousePosition_Hook()
 			}
 		}
 	
-		if (GetEventIndex() == EVENT_MEMO_LIST && GetMenuEvent() == 0x0D) // TODO add transitionstate = 0 and reading memo = 0 conditions
+		if (GetEventIndex() == EVENT_MEMO_LIST && GetMenuEvent() == 0x0D && GetReadingMemoFlag() == 0) // TODO add transitionstate = 0 
 		{
 			int CollectedMemos = CountCollectedMemos();
 			int NormalizedMemos = (CollectedMemos > 11) ? 11 : CollectedMemos;

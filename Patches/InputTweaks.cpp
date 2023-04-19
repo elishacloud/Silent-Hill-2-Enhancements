@@ -242,8 +242,8 @@ void UpdateMousePosition_Hook()
 				*GetPauseMenuQuitIndexPointer() = QuitMenu.GetHorizontalIndex(CurrentMouseHorizontalPos);
 			}
 		}
-	
-		if (GetEventIndex() == EVENT_MEMO_LIST && GetMenuEvent() == 0x0D && GetReadingMemoFlag() == 0) // TODO add transitionstate = 0 
+
+		if (GetEventIndex() == EVENT_MEMO_LIST && GetMenuEvent() == 0x0D && GetReadingMemoFlag() == 0 && GetTransitionState() == 0)
 		{
 			int CollectedMemos = CountCollectedMemos();
 			int NormalizedMemos = (CollectedMemos > 11) ? 11 : CollectedMemos;

@@ -537,7 +537,7 @@ std::string Overlay::GetIGTString()
 void Overlay::RenderMouseCursor()
 {
 	if (!EnhanceMouseCursor || 
-		(GetEventIndex() != EVENT_PAUSE_MENU && GetEventIndex() != EVENT_MEMO_LIST) || GetReadingMemoFlag() != 0) // TODO add transitionstate = 0 (!= 0?)
+		(GetEventIndex() != EVENT_PAUSE_MENU && GetEventIndex() != EVENT_MEMO_LIST) || GetReadingMemoFlag() != 0 || GetTransitionState() != 0)
 		return;
 
 	*GetMousePointerVisibleFlagPointer() = 1;

@@ -159,10 +159,16 @@ int8_t GetControllerRYAxis_Hook(DWORD* arg)
 
 void UpdateMousePosition_Hook()
 {
+	int CurrentMouseHorizontalPos = GetMouseHorizontalPosition();
+	int CurrentMouseVerticalPos = GetMouseVerticalPosition();
+
+	orgUpdateMousePosition.fun();
+
 	if (((GetEventIndex() == EVENT_IN_GAME && !IsInFullScreenImageEvent()) && GetMenuEvent() != 0x07) || GetReadingMemoFlag() != 0x00) // During normal gameplay or reading memo
-		return;
-	else
-		orgUpdateMousePosition.fun();
+	{
+		*GetMouseHorizontalPositionPointer() = CurrentMouseHorizontalPos;
+		*GetMouseVerticalPositionPointer() = CurrentMouseVerticalPos;
+	}
 
 	auto Now = std::chrono::system_clock::now();
 
@@ -218,8 +224,8 @@ void UpdateMousePosition_Hook()
 	
 	if (EnhanceMouseCursor)
 	{
-		int CurrentMouseHorizontalPos = GetMouseHorizontalPosition();
-		int CurrentMouseVerticalPos = GetMouseVerticalPosition();
+		CurrentMouseHorizontalPos = GetMouseHorizontalPosition();
+		CurrentMouseVerticalPos = GetMouseVerticalPosition();
 
 		// Handling of vertical and horizontal navigation for Pause and Memo screens
 		if (GetEventIndex() == EVENT_PAUSE_MENU)

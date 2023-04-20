@@ -165,7 +165,7 @@ void UpdateMousePosition_Hook()
 	orgUpdateMousePosition.fun();
 
 	// During normal gameplay or reading memo, restore the cursor's position to last frame's, for cursor position consistency
-	if (((GetEventIndex() == EVENT_IN_GAME && !IsInFullScreenImageEvent()) && GetMenuEvent() != 0x07) || GetReadingMemoFlag() != 0x00)
+	if (((GetEventIndex() == EVENT_IN_GAME && !IsInFullScreenImageEvent()) && GetMenuEvent() != 0x07) || (GetReadingMemoFlag() != 0x00 && GetEventIndex() == EVENT_MEMO_LIST))
 	{
 		*GetMouseHorizontalPositionPointer() = CurrentMouseHorizontalPos;
 		*GetMouseVerticalPositionPointer() = CurrentMouseVerticalPos;

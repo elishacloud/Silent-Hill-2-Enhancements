@@ -211,6 +211,7 @@ void PatchFullscreenImages();
 void PatchFullscreenVideos();
 void PatchGameLoad();
 void PatchHoldDamage();
+void PatchInputTweaks();
 void PatchInventoryBGMBug();
 void PatchLockScreenPosition();
 void PatchMainMenu();

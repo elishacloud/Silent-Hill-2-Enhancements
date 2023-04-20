@@ -181,7 +181,6 @@ private:
 	void SetKey(int KeyIndex);
 	int32_t GetMouseRelXChange();
 	int32_t GetMouseRelYChange();
-	void CheckNumberKeyBinds();
 
 	// Fixes to pressing right click to skip cutscenes that aren't technically considered cutscenes by the game
 	bool HotelFix();
@@ -191,8 +190,6 @@ private:
 	bool FleshRoomFix();
 	bool SetRMBAimFunction();
 	bool IsMovementPressed();
-
-	bool GetAnalogStringAddr();
 
 public:
 	void SetKeyboardInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);
@@ -210,6 +207,9 @@ public:
 	std::string GetToggleSprintState();
 	void SetOverrideSprint();
 	void ClearOverrideSprint();
+
+	void CheckNumberKeyBinds();
+	bool GetAnalogStringAddr();
 
 	bool GetRMBState();
 	bool GetLMBState();

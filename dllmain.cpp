@@ -587,6 +587,12 @@ void DelayedStart()
         PatchCommandWindowMouseFix();
     }
 
+	// Hook input handling
+	if (EnableInputTweaks)
+	{
+		PatchInputTweaks();
+	}
+
 	// Remove the "Now loading..." message
 	switch (GameVersion)
 	{

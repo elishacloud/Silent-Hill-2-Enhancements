@@ -41,8 +41,6 @@ Hitboxes QuitMenu = Hitboxes(245, 281, 30, 58, 1, 2);
 MemoHitboxes MemoMenu = MemoHitboxes(MemoEvenTop, MemoOddTop, MemoLeft, MemoHeight, MemoWidth);
 bool EnteredPuzzle = false;
 
-bool once = false;
-
 auto LastMouseXRead = std::chrono::system_clock::now();
 auto LastMouseYRead = std::chrono::system_clock::now();
 auto LastWeaponSwap = std::chrono::system_clock::now();
@@ -604,39 +602,36 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		// Clear Keyboard Data pointer
 		KeyboardData = nullptr;
 	}
+}
 
-	// Setup for the input functions
-	if (!once)
+void PatchInputTweaks()
+{
+	// Hooking controller input functions
+	orgGetControllerLXAxis.fun = injector::MakeCALL(GetLeftAnalogXFunctionPointer(), GetControllerLXAxis_Hook, true).get();
+	orgGetControllerLYAxis.fun = injector::MakeCALL(GetLeftAnalogYFunctionPointer(), GetControllerLYAxis_Hook, true).get();
+	orgGetControllerRXAxis.fun = injector::MakeCALL(GetRightAnalogXFunctionPointer(), GetControllerRXAxis_Hook, true).get();
+	orgGetControllerRYAxis.fun = injector::MakeCALL(GetRightAnalogYFunctionPointer(), GetControllerRYAxis_Hook, true).get();
+
+	orgUpdateMousePosition.fun = injector::MakeCALL(GetUpdateMousePositionFunctionPointer(), UpdateMousePosition_Hook, true).get();
+
+	InputTweaksRef.CheckNumberKeyBinds();
+
+	if (EnableToggleSprint)
 	{
-		once = true;
-		
-		// Hooking controller input functions
-		orgGetControllerLXAxis.fun = injector::MakeCALL(GetLeftAnalogXFunctionPointer(), GetControllerLXAxis_Hook, true).get();
-		orgGetControllerLYAxis.fun = injector::MakeCALL(GetLeftAnalogYFunctionPointer(), GetControllerLYAxis_Hook, true).get();
-		orgGetControllerRXAxis.fun = injector::MakeCALL(GetRightAnalogXFunctionPointer(), GetControllerRXAxis_Hook, true).get();
-		orgGetControllerRYAxis.fun = injector::MakeCALL(GetRightAnalogYFunctionPointer(), GetControllerRYAxis_Hook, true).get();
+		if (!InputTweaksRef.GetAnalogStringAddr()) return;
 
-		orgUpdateMousePosition.fun = injector::MakeCALL(GetUpdateMousePositionFunctionPointer(), UpdateMousePosition_Hook, true).get();
+		// Change the Analog string (0x68) with Toggle (0x2F)
+		UpdateMemoryAddress((void*)AnalogStringOne, "\x2F", 1);
+		UpdateMemoryAddress((void*)AnalogStringTwo, "\x2F", 1);
+		UpdateMemoryAddress((void*)AnalogStringThree, "\x2F", 1);
+	}
 
-		CheckNumberKeyBinds();
-
-		if (EnableToggleSprint)
-		{
-			if (!GetAnalogStringAddr()) return;
-
-			// Change the Analog string (0x68) with Toggle (0x2F)
-			UpdateMemoryAddress((void*)AnalogStringOne, "\x2F", 1);
-			UpdateMemoryAddress((void*)AnalogStringTwo, "\x2F", 1);
-			UpdateMemoryAddress((void*)AnalogStringThree, "\x2F", 1);
-		}
-		
-		// Hooking the mouse visibility function
-		if (EnableEnhancedMouse)
-		{
-			orgDrawCursor.fun = injector::MakeCALL(GetDrawCursorPointer(), DrawCursor_Hook, true).get();
-			orgSetShowCursorFlag.fun = injector::MakeCALL(GetSetShowCursorPointer(), SetShowCursorFlag_Hook, true).get();
-			orgCanSave.fun = injector::MakeCALL(GetCanSaveFunctionPointer(), CanSave_Hook, true).get();
-		}
+	// Hooking the mouse visibility function
+	if (EnableEnhancedMouse)
+	{
+		orgDrawCursor.fun = injector::MakeCALL(GetDrawCursorPointer(), DrawCursor_Hook, true).get();
+		orgSetShowCursorFlag.fun = injector::MakeCALL(GetSetShowCursorPointer(), SetShowCursorFlag_Hook, true).get();
+		orgCanSave.fun = injector::MakeCALL(GetCanSaveFunctionPointer(), CanSave_Hook, true).get();
 	}
 }
 

@@ -260,6 +260,14 @@ void UpdateMousePosition_Hook()
 			int SelectedHitbox = MemoMenu.GetEnabledVerticalIndex(CurrentMouseVerticalPos, NormalizedMemos);
 			int TopOrBot = MemoMenu.IsMouseTopOrBot(CurrentMouseHorizontalPos, CurrentMouseVerticalPos);
 
+			if (TopOrBot == 0)
+			{
+				if (SelectedHitbox <= 1)
+					TopOrBot = 1;
+				else if (SelectedHitbox >= 9)
+					TopOrBot = -1;
+			}
+
 			if (MemoMenu.IsMouseInBounds(CurrentMouseHorizontalPos, CurrentMouseVerticalPos, NormalizedMemos) ||
 				(CollectedMemos > 11 && TopOrBot != 0))
 			{
@@ -276,30 +284,21 @@ void UpdateMousePosition_Hook()
 						{
 							*GetMemoListIndexPointer() = MemoMenu.GetClampedMemoIndex(-1,
 								CollectedMemos, *GetMemoListIndexPointer());
-							*GetMemoListHitboxPointer() = 3;
+							*GetMemoListHitboxPointer() = 3; // Select the top memo
 
 							*GetMouseVerticalPositionPointer() = MemoMenu.GetTop() + (MemoMenu.GetHeight() * 2.5);
 						}
-						else
+						else // bottom
 						{
 							*GetMemoListIndexPointer() = MemoMenu.GetClampedMemoIndex(1,
 								CollectedMemos, *GetMemoListIndexPointer());
-							*GetMemoListHitboxPointer() = -3;
+							*GetMemoListHitboxPointer() = -3; // Select the bottom memo
 
 							*GetMouseVerticalPositionPointer() = MemoMenu.GetTop() + (MemoMenu.GetHeight() * 8.5);
 						}
 					}
 					else if (*GetMemoListHitboxPointer() != MemoMenu.ConvertHitboxValue(SelectedHitbox))
 					{
-					
-						if (SelectedHitbox <= 1 || SelectedHitbox >= 9)
-						{
-							*GetMemoListIndexPointer() = MemoMenu.GetClampedMemoIndex(SelectedHitbox == 1 ? -1 : 1,
-								CollectedMemos, *GetMemoListIndexPointer());
-							*GetMemoListHitboxPointer() = SelectedHitbox == 1 ? 3 : -3;
-
-							*GetMouseVerticalPositionPointer() += (SelectedHitbox == 1 ? 1 : -1) * MemoMenu.GetHeight();
-						}
 						if (SelectedHitbox > 1 && SelectedHitbox < 9)
 						{
 							*GetMemoListIndexPointer() = MemoMenu.GetClampedMemoIndex(SelectedHitbox - MemoMenu.ConvertHitboxValue(*GetMemoListHitboxPointer()),

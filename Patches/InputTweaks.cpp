@@ -159,7 +159,10 @@ int8_t GetControllerRYAxis_Hook(DWORD* arg)
 
 void UpdateMousePosition_Hook()
 {
-	orgUpdateMousePosition.fun();
+	if (((GetEventIndex() == EVENT_IN_GAME && !IsInFullScreenImageEvent()) && GetMenuEvent() != 0x07) || GetReadingMemoFlag() != 0x00) // During normal gameplay or reading memo
+		return;
+	else
+		orgUpdateMousePosition.fun();
 
 	auto Now = std::chrono::system_clock::now();
 

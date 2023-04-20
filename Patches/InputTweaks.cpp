@@ -228,7 +228,7 @@ void UpdateMousePosition_Hook()
 		CurrentMouseHorizontalPos = GetMouseHorizontalPosition();
 		CurrentMouseVerticalPos = GetMouseVerticalPosition();
 
-		// Handling of vertical and horizontal navigation for Pause and Memo screens
+		// Handling of vertical and horizontal navigation for Pause screen
 		if (GetEventIndex() == EVENT_PAUSE_MENU)
 		{
 			if (PauseMenu.IsMouseInBounds(CurrentMouseHorizontalPos, CurrentMouseVerticalPos) &&
@@ -253,6 +253,7 @@ void UpdateMousePosition_Hook()
 			}
 		}
 
+		// Handling of vertical and horizontal navigation for Memo list
 		if (GetEventIndex() == EVENT_MEMO_LIST && GetMenuEvent() == 0x0D && GetReadingMemoFlag() == 0 && GetTransitionState() == 0)
 		{
 			int CollectedMemos = CountCollectedMemos();
@@ -260,6 +261,7 @@ void UpdateMousePosition_Hook()
 			int SelectedHitbox = MemoMenu.GetEnabledVerticalIndex(CurrentMouseVerticalPos, NormalizedMemos);
 			int TopOrBot = MemoMenu.IsMouseTopOrBot(CurrentMouseHorizontalPos, CurrentMouseVerticalPos);
 
+			// Check wether the cursor is on top/bottom hitboxes
 			if (TopOrBot == 0)
 			{
 				if (SelectedHitbox <= 1)
@@ -395,6 +397,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			InfoCombo.State = false;
 		}
 
+		// Update Esc/Cancel input states
 		EscInput.State = IsKeyPressed(KeyBinds.GetKeyBind(KEY_SKIP));
 		EscInput.UpdateHolding();
 		CancelInput.State = IsKeyPressed(KeyBinds.GetKeyBind(KEY_CANCEL));
@@ -568,7 +571,6 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 
 			default:
 				break;
-
 			}
 			MouseWheel = 0;
 		}

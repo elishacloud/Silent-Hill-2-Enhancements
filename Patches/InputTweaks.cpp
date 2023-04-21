@@ -32,12 +32,21 @@ const float FloatTolerance = 0.10f;
 
 const int MemoEvenTop = 80;
 const int MemoOddTop = 64;
-const int MemoLeft = 45;
+const int MemoLeft = 50;
 const int MemoHeight = 32;
-const int MemoWidth = 550;
+const int MemoWidth = 580;
 
-Hitboxes PauseMenu = Hitboxes(216, 170, 30, 300, 5, 1);
-Hitboxes QuitMenu = Hitboxes(245, 281, 30, 58, 1, 2);
+const int PauseMenuTop = 216;
+const int PauseMenuLeft = 281;
+const int PauseMenuHeight = 30;
+const int PauseMenuWidth = 118;
+
+const int QuitMenuTop = 245;
+const int QuitMenuLeft = 281;
+const int QuitMenuWidth = 58;
+
+Hitboxes PauseMenu = Hitboxes(PauseMenuTop, PauseMenuLeft, PauseMenuHeight, PauseMenuWidth, 5, 1);
+Hitboxes QuitMenu = Hitboxes(QuitMenuTop, QuitMenuLeft, PauseMenuHeight, QuitMenuWidth, 1, 2);
 MemoHitboxes MemoMenu = MemoHitboxes(MemoEvenTop, MemoOddTop, MemoLeft, MemoHeight, MemoWidth);
 bool EnteredPuzzle = false;
 
@@ -996,8 +1005,8 @@ bool InputTweaks::GetLMBState()
 
 void InputTweaks::InitializeHitboxes(float AspectRatio)
 {
-	PauseMenu = Hitboxes(216, 170, 30, 300, 5, 1, AspectRatio);
-	QuitMenu = Hitboxes(245, 281, 30, 58, 1, 2, AspectRatio);
+	PauseMenu = Hitboxes(PauseMenuTop, PauseMenuLeft, PauseMenuHeight, PauseMenuWidth, 5, 1, AspectRatio);
+	QuitMenu = Hitboxes(QuitMenuTop, QuitMenuLeft, PauseMenuHeight, QuitMenuWidth, 1, 2, AspectRatio);
 	MemoMenu = MemoHitboxes(MemoEvenTop, MemoOddTop, MemoLeft, MemoHeight, MemoWidth, AspectRatio);
 }
 

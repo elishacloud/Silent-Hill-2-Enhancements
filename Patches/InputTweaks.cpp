@@ -49,6 +49,9 @@ Hitboxes QuitMenu = Hitboxes(QuitMenuTop, PauseMenuLeft, PauseMenuHeight, QuitMe
 MemoHitboxes MemoMenu = MemoHitboxes(MemoEvenTop, MemoOddTop, MemoLeft, MemoHeight, MemoWidth);
 bool EnteredPuzzle = false;
 
+int LastFrameCursorHorizontalPos = 0;
+int LastFrameCursorVerticalPos = 0;
+
 auto LastMouseXRead = std::chrono::system_clock::now();
 auto LastMouseYRead = std::chrono::system_clock::now();
 auto LastWeaponSwap = std::chrono::system_clock::now();
@@ -234,8 +237,11 @@ void UpdateMousePosition_Hook()
 		CurrentMouseHorizontalPos = GetMouseHorizontalPosition();
 		CurrentMouseVerticalPos = GetMouseVerticalPosition();
 
+		// Check if mouse has moved, to enable keyboard selection when the cursor is hovering a hitbox
+		bool HasCursorMoved = (CurrentMouseHorizontalPos != LastFrameCursorHorizontalPos) || (CurrentMouseVerticalPos != LastFrameCursorVerticalPos);
+
 		// Handling of vertical and horizontal navigation for Pause screen
-		if (GetEventIndex() == EVENT_PAUSE_MENU)
+		if (GetEventIndex() == EVENT_PAUSE_MENU && HasCursorMoved)
 		{
 			if (PauseMenu.IsMouseInBounds(CurrentMouseHorizontalPos, CurrentMouseVerticalPos) &&
 				GetQuitSubmenuFlag() == 0x00)
@@ -260,7 +266,7 @@ void UpdateMousePosition_Hook()
 		}
 
 		// Handling of vertical and horizontal navigation for Memo list
-		if (GetEventIndex() == EVENT_MEMO_LIST && GetMenuEvent() == 0x0D && GetReadingMemoFlag() == 0 && GetTransitionState() == 0)
+		if (GetEventIndex() == EVENT_MEMO_LIST && GetMenuEvent() == 0x0D && GetReadingMemoFlag() == 0 && GetTransitionState() == 0 && HasCursorMoved)
 		{
 			int CollectedMemos = CountCollectedMemos();
 			int NormalizedMemos = (CollectedMemos > 11) ? 11 : CollectedMemos;
@@ -317,6 +323,9 @@ void UpdateMousePosition_Hook()
 				}
 			}
 		}
+
+		LastFrameCursorHorizontalPos = GetMouseHorizontalPosition();
+		LastFrameCursorVerticalPos = GetMouseVerticalPosition();
 	}
 }
 

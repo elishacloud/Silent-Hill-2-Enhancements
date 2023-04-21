@@ -53,7 +53,10 @@ DWORD FogEnableValue;
 void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 {
 	if (LastBufferWidth != BufferWidth || LastBufferHeight != BufferHeight)
+	{
 		InitializeDataStructs();
+		InputTweaksRef.InitializeHitboxes((float)BufferWidth / (float)BufferHeight);
+	}
 
 	// nVidia fix
 	ProxyInterface->GetRenderState(D3DRS_FOGENABLE, &FogEnableValue);
@@ -497,7 +500,7 @@ void Overlay::InitializeDataStructs()
 	DebugOverlayTextStruct.Rect.right = rectOffset + 300;
 	DebugOverlayTextStruct.Rect.bottom = rectOffset + 15;
 	DebugOverlayTextStruct.Color = TextColors.Green;
-	
+
 	LastBufferWidth = BufferWidth;
 	LastBufferHeight = BufferHeight;
 }

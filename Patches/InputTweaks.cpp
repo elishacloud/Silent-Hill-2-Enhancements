@@ -994,6 +994,13 @@ bool InputTweaks::GetLMBState()
 	return SetLMButton;
 }
 
+void InputTweaks::InitializeHitboxes(float AspectRatio)
+{
+	PauseMenu = Hitboxes(216, 170, 30, 300, 5, 1, AspectRatio);
+	QuitMenu = Hitboxes(245, 281, 30, 58, 1, 2, AspectRatio);
+	MemoMenu = MemoHitboxes(MemoEvenTop, MemoOddTop, MemoLeft, MemoHeight, MemoWidth, AspectRatio);
+}
+
 BYTE KeyBindsHandler::GetKeyBind(int KeyIndex)
 {
 	BYTE* pButton = GetKeyBindsPointer();

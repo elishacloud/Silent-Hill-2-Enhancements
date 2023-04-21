@@ -214,6 +214,8 @@ public:
 	bool GetRMBState();
 	bool GetLMBState();
 
+	void InitializeHitboxes(float AspectRatio);
+
 	// Additional fix for cutscenes
 	bool ElevatorFix();
 };
@@ -240,14 +242,36 @@ private:
 	int rows;
 	int columns;
 
+	float AspectRatio;
+	float ConstantAspectRatio = 16.f / 9.f;
+
+	int GetNormalizedHorizontal(int size)
+	{
+#pragma warning(disable : 4244)
+		return (size * AspectRatio) / ConstantAspectRatio;
+	}
+
 public:
 	Hitboxes(){}
+	Hitboxes(int top, int left, int height, int width, int rows, int columns, float AspectRatio)
+	{
+		this->AspectRatio = AspectRatio;
+
+		this->top = top;
+		this->left = GetNormalizedHorizontal(left);
+		this->height = height;
+		this->width = GetNormalizedHorizontal(width);
+		this->rows = rows;
+		this->columns = columns;
+	}
 	Hitboxes(int top, int left, int height, int width, int rows, int columns)
 	{
+		this->AspectRatio = 16.f / 9.f;
+
 		this->top = top;
-		this->left = left;
+		this->left = GetNormalizedHorizontal(left);
 		this->height = height;
-		this->width = width;
+		this->width = GetNormalizedHorizontal(width);
 		this->rows = rows;
 		this->columns = columns;
 	}
@@ -293,6 +317,11 @@ public:
 	{
 		this->Odd = Hitboxes(OddTop, left, height, width, 11, 1);
 		this->Even = Hitboxes(EvenTop, left, height, width, 10, 1);
+	}
+	MemoHitboxes(int EvenTop, int OddTop, int left, int height, int width, float AspectRatio)
+	{
+		this->Odd = Hitboxes(OddTop, left, height, width, 11, 1, AspectRatio);
+		this->Even = Hitboxes(EvenTop, left, height, width, 10, 1, AspectRatio);
 	}
 
 	int GetEnabledVerticalIndex(int MousePos, int MemoNumber)

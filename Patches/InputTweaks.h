@@ -346,14 +346,6 @@ public:
 
 	bool IsMouseInBounds(int MouseHor, int MouseVer, int MemoNumber)
 	{
-		//TODO remove
-		AuxDebugOvlString = "\rHorizontally: ";
-		AuxDebugOvlString.append(this->IsMouseHorizontallyInBounds(MouseHor, MemoNumber) ? "True" : "False");
-
-		AuxDebugOvlString.append("\rVertically: ");
-		AuxDebugOvlString.append(this->IsMouseVerticallyInBounds(MouseVer, MemoNumber) ? "True" : "False");
-
-
 		return this->IsMouseHorizontallyInBounds(MouseHor, MemoNumber) &&
 			this->IsMouseVerticallyInBounds(MouseVer, MemoNumber);
 	}

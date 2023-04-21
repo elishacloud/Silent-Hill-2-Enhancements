@@ -269,7 +269,7 @@ void UpdateMousePosition_Hook()
 			}
 
 			if (MemoMenu.IsMouseInBounds(CurrentMouseHorizontalPos, CurrentMouseVerticalPos, NormalizedMemos) ||
-				(CollectedMemos > 11 && TopOrBot != 0))
+				(CollectedMemos >= 11 && TopOrBot != 0 && MemoMenu.IsMouseHorizontallyInBounds(CurrentMouseHorizontalPos, NormalizedMemos)))
 			{
 				if (CollectedMemos < 11)
 				{

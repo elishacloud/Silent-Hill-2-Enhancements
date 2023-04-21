@@ -330,14 +330,32 @@ public:
 			((this->GetHitbox(MemoNumber).GetRowsCount() - MemoNumber) / 2);
 	}
 
-	bool IsMouseInBounds(int MouseHor, int MouseVer, int MemoNumber) // TODO change to consider the memo number
+	bool IsMouseVerticallyInBounds(int MouseVer, int MemoNumber)
 	{
 		int VOffset = this->GetVerticalOffset(MemoNumber);
 
-		return MouseHor > this->GetHitbox(MemoNumber).GetLeft() &&
-			MouseHor < this->GetHitbox(MemoNumber).GetRight() &&
-			MouseVer > this->GetHitbox(MemoNumber).GetTop() + VOffset &&
+		return MouseVer > this->GetHitbox(MemoNumber).GetTop() + VOffset &&
 			MouseVer < this->GetHitbox(MemoNumber).GetBottom() - VOffset;
+	}
+
+	bool IsMouseHorizontallyInBounds(int MouseHor, int MemoNumber)
+	{
+		return MouseHor > this->GetHitbox(MemoNumber).GetLeft() &&
+			MouseHor < this->GetHitbox(MemoNumber).GetRight();
+	}
+
+	bool IsMouseInBounds(int MouseHor, int MouseVer, int MemoNumber)
+	{
+		//TODO remove
+		AuxDebugOvlString = "\rHorizontally: ";
+		AuxDebugOvlString.append(this->IsMouseHorizontallyInBounds(MouseHor, MemoNumber) ? "True" : "False");
+
+		AuxDebugOvlString.append("\rVertically: ");
+		AuxDebugOvlString.append(this->IsMouseVerticallyInBounds(MouseVer, MemoNumber) ? "True" : "False");
+
+
+		return this->IsMouseHorizontallyInBounds(MouseHor, MemoNumber) &&
+			this->IsMouseVerticallyInBounds(MouseVer, MemoNumber);
 	}
 
 	// Functions only used when the memo list is scrolling (11+ memos)

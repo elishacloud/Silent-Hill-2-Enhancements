@@ -468,6 +468,13 @@ void RunGameLoad()
 		AllowQuickSaveFlag = FALSE;
 	}
 
+    // Disable quick saving while Maria (NPC) is dying
+    if (GetMariaNpcIsDying() != 0)
+    {
+        DisableQuickSave = true;
+        AllowQuickSaveFlag = FALSE;
+    }
+
 	// Reset quick save when needed
 	if (!DisableQuickSave && !AllowQuickSaveFlag)
 	{

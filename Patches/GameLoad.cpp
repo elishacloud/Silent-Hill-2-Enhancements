@@ -403,6 +403,24 @@ void RunGameLoad()
 		return;
 	}
 
+    // Get save/load state addresses
+    static BYTE *SaveLoadState = nullptr;
+    static BYTE *SaveLoadSubState = nullptr;
+    if (!SaveLoadState)
+    {
+        RUNONCE();
+
+        // Get address for save/load state
+        constexpr BYTE SearchBytes[]{ 0x83, 0xF8, 0x14, 0x0F, 0x87, 0xF1, 0x0A, 0x00, 0x00 };
+        SaveLoadState = (BYTE*)ReadSearchedAddresses(0x00453D70, 0x00453FD0, 0x00453FD0, SearchBytes, sizeof(SearchBytes), -0x04, __FUNCTION__);
+        if (!SaveLoadState)
+        {
+            Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+            return;
+        }
+        SaveLoadSubState = SaveLoadState + 1;
+    }
+
 	// Set static variables
 	static bool ValueSet = false;
 	static bool ValueUnSet = false;
@@ -460,6 +478,14 @@ void RunGameLoad()
 	}
 	LastRoomID = CurrentRoomID;
 	LastCutsceneID = CurrentCutsceneID;
+
+    // Cancel an active quick save before entering another room or when opening the save menu
+    if (GetIsWritingQuicksave() == 1 && (GetEventIndex() == 1 || GetEventIndex() == 9))
+    {
+        *GetIsWritingQuicksavePointer() = 0;
+        *SaveLoadState = 0;
+        *SaveLoadSubState = 0;
+    }
 
 	// Disable quick save during certain in-game voice events and during fullscreen image events
 	if (*InGameVoiceEvent != 0 || GetFullscreenImageEvent() == 2)

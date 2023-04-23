@@ -299,6 +299,13 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			ClearKey(KeyBinds.GetKeyBind(KEY_CANCEL));
 		}
 
+        // Clear the ESC and SKIP key if either the player or Maria (NPC) is dying
+        if (GameLoadFix && (GetPlayerIsDying() != 0 || GetMariaNpcIsDying() != 0))
+        {
+            ClearKey(KeyBinds.GetKeyBind(KEY_SKIP));
+            ClearKey(KeyBinds.GetKeyBind(KEY_CANCEL));
+        }
+
 		// Check if Debug Combo is held down
 		DebugCombo.UpdateHolding();
 

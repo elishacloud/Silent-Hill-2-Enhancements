@@ -5,7 +5,7 @@
 #define VISIT_BOOL_SETTINGS(visit) \
 	visit(AdjustColorTemp, true) \
 	visit(AudioClipDetection, true) \
-	visit(EnhanceMouseCursor, true) \
+	visit(AutoHideMouseCursor, false) \
 	visit(AutoUpdateModule, true) \
 	visit(CatacombsMeatRoomFix, true) \
 	visit(ChangeClosetSpawn, true) \
@@ -38,6 +38,7 @@
 	visit(EnableSoftShadows, true) \
 	visit(EnableTexAddrHack, true) \
 	visit(EnableToggleSprint, true) \
+	visit(EnhanceMouseCursor, true) \
 	visit(FastTransitions, true) \
 	visit(Fix2D, true) \
 	visit(FixAdvancedOptions, true) \
@@ -83,7 +84,6 @@
 	visit(MainMenuFix, true) \
 	visit(MainMenuTitlePerLang, true) \
 	visit(MemoScreenFix, true) \
-	visit(AutoHideMouseCursor, true) \
 	visit(NoCDPatch, true) \
 	visit(PauseScreenFix, true) \
 	visit(PistonRoomFix, true) \

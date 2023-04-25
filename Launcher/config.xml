@@ -828,8 +828,8 @@
         <Title>Hide mouse cursor when idle</Title>
         <Description>Hides the mouse cursor after a few seconds of inactivity, in menus where the cursor is enabled.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disable" default="true">0</Value>
+          <Value name="Enable">1</Value>
         </Choices>
       </Feature>
 

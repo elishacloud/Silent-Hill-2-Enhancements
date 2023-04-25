@@ -204,7 +204,6 @@ void UpdateMousePosition_Hook()
 			} // If cursor is visible and has moved, update saved cursor position
 			else if (!HideMouseCursor && (GetMouseVerticalPosition() != LastCursorYPos || GetMouseHorizontalPosition() != LastCursorXPos))
 			{
-
 				LastCursorXPos = GetMouseHorizontalPosition();
 				LastCursorYPos = GetMouseVerticalPosition();
 

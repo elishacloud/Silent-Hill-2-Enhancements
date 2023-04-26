@@ -212,7 +212,7 @@ __declspec(naked) void __stdcall SaveSubStateASM()
         jmp jmpSaveSubState5Addr
 
     HandleState6:
-        // Write sh2pc.sys and sh2pcsave%02d.dat serially on the same frame
+        // Write sh2pc.sys and sh2pcsave??.dat serially on the same frame
         push 0xC00
         mov eax, dword ptr ds : [SysFileBytesAddr]
         push eax
@@ -368,7 +368,7 @@ void SetGameLoad()
 	UpdateMemoryAddress((void*)&FilesLoadedAddr, (void*)(MariaFunctionAddr + 0x6D), sizeof(DWORD));
 	UpdateMemoryAddress((void*)&CutsceneValueAddr, (void*)(MariaFunctionAddr + 0x53), sizeof(DWORD));
 
-    // Fix for writing sh2pc.sys and sh2pcsave%02d.dat on the same frame
+    // Fix for writing sh2pc.sys and sh2pcsave??.dat on the same frame
     constexpr BYTE SaveSubStateSearchBytes[]{ 0x83, 0xF8, 0x06, 0x77, 0x47, 0xFF };
     DWORD SaveSubStateFuncAddr = SearchAndGetAddresses(0x00453137, 0x00453397, 0x00453397, SaveSubStateSearchBytes, sizeof(SaveSubStateSearchBytes), -0x07, __FUNCTION__);
     if (!SaveSubStateFuncAddr)

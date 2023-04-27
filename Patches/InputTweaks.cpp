@@ -226,6 +226,12 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		if (GameLoadFix && (GetIsWritingQuicksave() == 1 || GetTextAddr() == 1))
 			ControllerData->rgbButtons[KeyBinds.GetPauseButtonBind()] = KEY_CLEAR;
 
+        // Clear the pause button if either the player or Maria (NPC) is dying
+        if (GameLoadFix && (GetPlayerIsDying() != 0 || GetMariaNpcIsDying() != 0))
+        {
+            ControllerData->rgbButtons[KeyBinds.GetPauseButtonBind()] = KEY_CLEAR;
+        }
+
 		// Clear controller data
 		ControllerData = nullptr;
 	}

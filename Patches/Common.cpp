@@ -99,6 +99,10 @@ float* RPTClosetCutsceneMannequinDespawnAddr = nullptr;
 float* RPTClosetCutsceneBlurredBarsDespawnAddr = nullptr;
 BYTE* InputAssignmentFlagAddr = nullptr;
 float* GlobalFadeHoldValueAddr = nullptr;
+float* FinalBossBottomFloorSpawnAddr = nullptr;
+float* FinalBossBottomWalkwaySpawnAddr = nullptr;
+DWORD* FinalBossBlackBoxCoverAddr = nullptr;
+float* FinalBossDrawDistanceAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -2139,4 +2143,110 @@ float* GetGlobalFadeHoldValuePointer()
 		(GameVersion == SH2V_DC) ? 0x0094522C : NULL);
 
 	return GlobalFadeHoldValueAddr;
+}
+
+float* GetFinalBossBottomWalkwaySpawnPointer()
+{
+	if (FinalBossBottomWalkwaySpawnAddr)
+	{
+		return FinalBossBottomWalkwaySpawnAddr;
+	}
+
+	// Get FinalBossBottomWalkwaySpawn address
+	constexpr BYTE FinalBossBottomWalkwaySpawnSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x05, 0x7A, 0x53, 0xD9 };
+	float* FinalBossBottomWalkwaySpawn = (float*)ReadSearchedAddresses(0x0059E98E, 0x0059F23E, 0x0059EB5E, FinalBossBottomWalkwaySpawnSearchBytes, sizeof(FinalBossBottomWalkwaySpawnSearchBytes), 0x0C, __FUNCTION__);
+
+	// Checking address pointer
+	if (!FinalBossBottomWalkwaySpawn)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find FinalBossBottomWalkwaySpawn  address!";
+		return nullptr;
+	}
+
+	FinalBossBottomWalkwaySpawnAddr = (float*)((DWORD)FinalBossBottomWalkwaySpawn);
+
+	return FinalBossBottomWalkwaySpawnAddr;
+}
+
+float* GetFinalBossBottomFloorSpawnPointer()
+{
+	if (FinalBossBottomFloorSpawnAddr)
+	{
+		return FinalBossBottomFloorSpawnAddr;
+	}
+
+	// Get FinalBossBottomFloorSpawn address
+	constexpr BYTE FinalBossBottomFloorSpawnSearchBytes[]{ 0xC7, 0x46, 0x38, 0x00, 0x00, 0xFA, 0xC3 };
+	float* FinalBossBottomFloorSpawn = (float*)ReadSearchedAddresses(0x004B852B, 0x004B87DB, 0x004B809B, FinalBossBottomFloorSpawnSearchBytes, sizeof(FinalBossBottomFloorSpawnSearchBytes), 0x0C, __FUNCTION__);
+
+	// Checking address pointer
+	if (!FinalBossBottomFloorSpawn)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find FinalBossBottomFloorSpawn  address!";
+		return nullptr;
+	}
+
+	FinalBossBottomFloorSpawnAddr = (float*)((DWORD)FinalBossBottomFloorSpawn);
+
+	return FinalBossBottomFloorSpawnAddr;
+}
+
+DWORD* GetFinalBossBlackBoxCoverPointer()
+{
+	if (FinalBossBlackBoxCoverAddr)
+	{
+		return FinalBossBlackBoxCoverAddr;
+	}
+
+	// Get room ID address
+	constexpr BYTE FinalBossBlackBoxCoverSearchBytes[]{ 0xD9, 0x41, 0x20, 0x83, 0xC4, 0x04 };
+	void* FinalBossBlackBoxCoverAddress = (void*)SearchAndGetAddresses(0x004413BD, 0x0044157D, 0x0044157D, FinalBossBlackBoxCoverSearchBytes, sizeof(FinalBossBlackBoxCoverSearchBytes), 0x06, __FUNCTION__);
+
+	// Checking address pointer
+	if (!FinalBossBlackBoxCoverAddress)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Final boss black box cover address!";
+		return nullptr;
+	}
+
+	// Check address
+	if (!CheckMemoryAddress(FinalBossBlackBoxCoverAddress, "\xD8\x1D", 2, __FUNCTION__))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: memory addresses for Final boss black box cover don't match!";
+		return nullptr;
+	}
+
+	FinalBossBlackBoxCoverAddr = (DWORD*) FinalBossBlackBoxCoverAddress;
+
+	return FinalBossBlackBoxCoverAddr;
+}
+
+float* GetFinalBossDrawDistancePointer()
+{
+	if (FinalBossDrawDistanceAddr)
+	{
+		return FinalBossDrawDistanceAddr;
+	}
+
+	// Get FinalBossDrawDistance address
+	constexpr BYTE FinalBossDrawDistanceSearchBytes[]{ 0x78, 0xFF, 0xFF, 0xFF, 0x8B, 0x44, 0x24, 0x0C };
+	BYTE* FinalBossDrawDistanceBytePtr = (BYTE*)ReadSearchedAddresses(0x475994, 0x475C34, 0x475E44, FinalBossDrawDistanceSearchBytes, sizeof(FinalBossDrawDistanceSearchBytes), -0x8B, __FUNCTION__);
+
+	// Checking address pointer
+	if (!FinalBossDrawDistanceBytePtr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find FinalBossDrawDistance  address!";
+		return nullptr;
+	}
+
+	FinalBossDrawDistanceBytePtr += 0x72;
+
+	// the value is referenced with a pointer array, and is not byte aligned, so this bit is necessary to get the right address
+	FinalBossDrawDistanceBytePtr = (BYTE*)*(float**)FinalBossDrawDistanceBytePtr;
+
+	FinalBossDrawDistanceBytePtr = FinalBossDrawDistanceBytePtr + 0x26B;
+
+	FinalBossDrawDistanceAddr = (float*)FinalBossDrawDistanceBytePtr;
+
+	return FinalBossDrawDistanceAddr;
 }

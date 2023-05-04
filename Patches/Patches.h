@@ -143,6 +143,10 @@ float *GetRPTClosetCutsceneMannequinDespawnPointer();
 float *GetRPTClosetCutsceneBlurredBarsDespawnPointer();
 BYTE* GetInputAssignmentFlagPointer();
 float* GetGlobalFadeHoldValuePointer();
+float* GetFinalBossBottomWalkwaySpawnPointer();
+float* GetFinalBossBottomFloorSpawnPointer();
+DWORD* GetFinalBossBlackBoxCoverPointer();
+float* GetFinalBossDrawDistancePointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -178,6 +182,7 @@ void PatchControllerTweaks();
 void PatchDelayedFadeIn();
 void PatchDoubleFootstepFix();
 void PatchDrawDistance();
+void PatchFinalBossRoom();
 void PatchFlashlightClockPush();
 void PatchFlashlightFlicker();
 void PatchFMV();
@@ -227,6 +232,9 @@ bool IsJames(ModelID id);
 bool IsMariaExcludingEyes(ModelID id);
 bool IsMariaEyes(ModelID id);
 bool isConfirmationPromptOpen();
+
+void NopFinalBossBlackBox();
+void RestoreFinalBossBlackBox();
 
 void OnFileLoadTex(LPCSTR lpFileName);
 void OnFileLoadVid(LPCSTR lpFileName);
@@ -341,6 +349,9 @@ extern bool ShowInfoOverlay;
 extern std::string AuxDebugOvlString;
 extern bool IsControllerConnected;
 extern HWND GameWindowHandle;
+extern const BYTE OrigFBBlackBoxBytesV10[6];
+extern const BYTE OrigFBBlackBoxBytesV11[6];
+extern const BYTE OrigFBBlackBoxBytesVDC[6];
 
 // Run code only once
 #define RUNONCE() \

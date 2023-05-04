@@ -1910,6 +1910,22 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		{
 			IsInFakeFadeout = false;
 		}
+
+		if (FixFinalBossRoom && GetEventIndex() == EVENT_IN_GAME && GetMenuEvent() == 0x0D && GetRoomID() == 0xBB) //TODO
+		{
+			if (GetJamesPosY() < -14600.f)
+			{
+				*GetFinalBossBottomWalkwaySpawnPointer() = -25000.f;
+				*GetFinalBossBottomFloorSpawnPointer() = -25000.f;
+				NopFinalBossBlackBox();
+			}
+			else
+			{
+				*GetFinalBossBottomWalkwaySpawnPointer() = -8000.f; // crashes
+				*GetFinalBossBottomFloorSpawnPointer() = -4000.f; // crashes
+				RestoreFinalBossBlackBox();
+			}
+		}
 	}
 
 	if (!isInScene)

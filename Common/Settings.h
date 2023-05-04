@@ -44,6 +44,7 @@
 	visit(FixChainsawSpawn, true) \
 	visit(FixCreatureVehicleSpawn, true) \
 	visit(FixDrawingTextLine, true) \
+	visit(FixFinalBossRoom, true) \
 	visit(FixFMVResetIssue, true) \
 	visit(FixFMVSpeed, true) \
 	visit(FixGPUAntiAliasing, true) \

@@ -349,9 +349,6 @@ extern bool ShowInfoOverlay;
 extern std::string AuxDebugOvlString;
 extern bool IsControllerConnected;
 extern HWND GameWindowHandle;
-extern const BYTE OrigFBBlackBoxBytesV10[6];
-extern const BYTE OrigFBBlackBoxBytesV11[6];
-extern const BYTE OrigFBBlackBoxBytesVDC[6];
 
 // Run code only once
 #define RUNONCE() \

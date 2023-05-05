@@ -19,13 +19,21 @@
 #include "Common\Utils.h"
 
 // The original value of this instruction, to be restored after being noped
-const BYTE OrigFBBlackBoxBytesV10[6] = { 0xD8, 0x1D, 0x5C, 0xB8, 0x63, 0x00 };
-const BYTE OrigFBBlackBoxBytesV11[6] = { 0xD8, 0x1D, 0x3C, 0xC8, 0x63, 0x00 };
-const BYTE OrigFBBlackBoxBytesVDC[6] = { 0xD8, 0x1D, 0x3C, 0xB8, 0x63, 0x00 };
+const BYTE OrigFBBlackBoxBytesV10[] = { 0xD8, 0x1D, 0x5C, 0xB8, 0x63, 0x00 };
+const BYTE OrigFBBlackBoxBytesV11[] = { 0xD8, 0x1D, 0x3C, 0xC8, 0x63, 0x00 };
+const BYTE OrigFBBlackBoxBytesVDC[] = { 0xD8, 0x1D, 0x3C, 0xB8, 0x63, 0x00 };
 
 const float FinalBossFixValue = -25000.f;
 const float FinalBossOriginalWalkway = -8000.f;
 const float finalBossOriginalFloor = -4000.f;
+
+void HandleFinalBossRoomFix()
+{
+	if (GetJamesPosY() < -14600.f && GetRoomID() == 0xBB)
+		NopFinalBossBlackBox();
+	else
+		RestoreFinalBossBlackBox();
+}
 
 void NopFinalBossBlackBox()
 {

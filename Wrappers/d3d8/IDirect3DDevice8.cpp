@@ -1913,14 +1913,7 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 
 		if (FixFinalBossRoom)
 		{
-			if (GetJamesPosY() < -14600.f && GetRoomID() == 0xBB)
-			{
-				NopFinalBossBlackBox();
-			}
-			else
-			{
-				RestoreFinalBossBlackBox();
-			}
+			HandleFinalBossRoomFix();
 		}
 	}
 

@@ -233,8 +233,7 @@ bool IsMariaExcludingEyes(ModelID id);
 bool IsMariaEyes(ModelID id);
 bool isConfirmationPromptOpen();
 
-void NopFinalBossBlackBox();
-void RestoreFinalBossBlackBox();
+void HandleFinalBossRoomFix();
 
 void OnFileLoadTex(LPCSTR lpFileName);
 void OnFileLoadVid(LPCSTR lpFileName);

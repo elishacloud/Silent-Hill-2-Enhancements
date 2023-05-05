@@ -23,9 +23,16 @@ const BYTE OrigFBBlackBoxBytesV10[6] = { 0xD8, 0x1D, 0x5C, 0xB8, 0x63, 0x00 };
 const BYTE OrigFBBlackBoxBytesV11[6] = { 0xD8, 0x1D, 0x3C, 0xC8, 0x63, 0x00 };
 const BYTE OrigFBBlackBoxBytesVDC[6] = { 0xD8, 0x1D, 0x3C, 0xB8, 0x63, 0x00 };
 
+const float FinalBossFixValue = -25000.f;
+const float FinalBossOriginalWalkway = -8000.f;
+const float finalBossOriginalFloor = -4000.f;
+
 void NopFinalBossBlackBox()
 {
 	Logging::LogDebug() << __FUNCTION__ << " Nop Final Boss Black Box Cover instruction...";
+
+	UpdateMemoryAddress(GetFinalBossBottomWalkwaySpawnPointer(), &FinalBossFixValue, sizeof(float));
+	UpdateMemoryAddress(GetFinalBossBottomFloorSpawnPointer(), &FinalBossFixValue, sizeof(float));
 
 	UpdateMemoryAddress(GetFinalBossBlackBoxCoverPointer(), "\x90\x90\x90\x90\x90\x90", 0x06);
 }
@@ -34,21 +41,19 @@ void RestoreFinalBossBlackBox()
 {
 	Logging::LogDebug() << __FUNCTION__ << " Restoring Final Boss Black Box Cover instruction...";
 
+	UpdateMemoryAddress(GetFinalBossBottomWalkwaySpawnPointer(), &FinalBossOriginalWalkway, sizeof(float));
+	UpdateMemoryAddress(GetFinalBossBottomFloorSpawnPointer(), &finalBossOriginalFloor, sizeof(float));
+
 	UpdateMemoryAddress(GetFinalBossBlackBoxCoverPointer(), 
-		GameVersion == SH2V_10 ? OrigFBBlackBoxBytesV10 :
-		GameVersion == SH2V_11 ? OrigFBBlackBoxBytesV11 :
-		GameVersion == SH2V_DC ? OrigFBBlackBoxBytesVDC : NULL, 
+		GameVersion == SH2V_10 ? (void*)&OrigFBBlackBoxBytesV10 :
+		GameVersion == SH2V_11 ? (void*)&OrigFBBlackBoxBytesV11 :
+		GameVersion == SH2V_DC ? (void*)&OrigFBBlackBoxBytesVDC : NULL,
 		0x06);
 }
 
 void PatchFinalBossRoom()
 {
 	Logging::Log() << " Patching final boss black box...";
-
-	Logging::Log() << "GetFinalBossBlackBoxCoverPointer " << GetFinalBossBlackBoxCoverPointer();
-	Logging::Log() << "GetFinalBossBottomWalkwaySpawnPointer " << GetFinalBossBottomWalkwaySpawnPointer();
-	Logging::Log() << "GetFinalBossBottomFloorSpawnPointer " << GetFinalBossBottomFloorSpawnPointer();
-	Logging::Log() << "GetFinalBossDrawDistancePointer " << GetFinalBossDrawDistancePointer();
 
 	*GetFinalBossDrawDistancePointer() = 30000.f;
 }

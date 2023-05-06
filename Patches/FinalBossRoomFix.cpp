@@ -18,6 +18,8 @@
 #include "Patches.h"
 #include "Common\Utils.h"
 
+float* FinalBossDrawDistanceAddr = nullptr;
+
 // The original value of this instruction, to be restored after being noped
 const BYTE OrigFBBlackBoxBytesV10[] = { 0xD8, 0x1D, 0x5C, 0xB8, 0x63, 0x00 };
 const BYTE OrigFBBlackBoxBytesV11[] = { 0xD8, 0x1D, 0x3C, 0xC8, 0x63, 0x00 };
@@ -57,6 +59,30 @@ void RestoreFinalBossBlackBox()
 		GameVersion == SH2V_11 ? (void*)&OrigFBBlackBoxBytesV11 :
 		GameVersion == SH2V_DC ? (void*)&OrigFBBlackBoxBytesVDC : NULL,
 		0x06);
+}
+
+float* GetFinalBossDrawDistancePointer()
+{
+	if (FinalBossDrawDistanceAddr)
+	{
+		return FinalBossDrawDistanceAddr;
+	}
+
+	// Address is retrieved like so because it's only reference is a float** not byte aligned
+	float* DrawDistancePtr = GameVersion == SH2V_10 ? (float*) 0x00800614 :
+		GameVersion == SH2V_11 ? (float*)0x008041FC :
+		GameVersion == SH2V_DC ? (float*)0x008031FC : nullptr;
+
+	// Checking address pointer
+	if (!DrawDistancePtr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find FinalBossDrawDistance  address!";
+		return nullptr;
+	}
+
+	FinalBossDrawDistanceAddr = DrawDistancePtr;
+
+	return FinalBossDrawDistanceAddr;
 }
 
 void PatchFinalBossRoom()

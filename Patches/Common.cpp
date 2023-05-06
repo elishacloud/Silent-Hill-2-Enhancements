@@ -102,7 +102,6 @@ float* GlobalFadeHoldValueAddr = nullptr;
 float* FinalBossBottomFloorSpawnAddr = nullptr;
 float* FinalBossBottomWalkwaySpawnAddr = nullptr;
 DWORD* FinalBossBlackBoxCoverAddr = nullptr;
-float* FinalBossDrawDistanceAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -2219,34 +2218,4 @@ DWORD* GetFinalBossBlackBoxCoverPointer()
 	FinalBossBlackBoxCoverAddr = (DWORD*) FinalBossBlackBoxCoverAddress;
 
 	return FinalBossBlackBoxCoverAddr;
-}
-
-float* GetFinalBossDrawDistancePointer()
-{
-	if (FinalBossDrawDistanceAddr)
-	{
-		return FinalBossDrawDistanceAddr;
-	}
-
-	// Get FinalBossDrawDistance address
-	constexpr BYTE FinalBossDrawDistanceSearchBytes[]{ 0x78, 0xFF, 0xFF, 0xFF, 0x8B, 0x44, 0x24, 0x0C };
-	BYTE* FinalBossDrawDistanceBytePtr = (BYTE*)ReadSearchedAddresses(0x475994, 0x475C34, 0x475E44, FinalBossDrawDistanceSearchBytes, sizeof(FinalBossDrawDistanceSearchBytes), -0x8B, __FUNCTION__);
-
-	// Checking address pointer
-	if (!FinalBossDrawDistanceBytePtr)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find FinalBossDrawDistance  address!";
-		return nullptr;
-	}
-
-	FinalBossDrawDistanceBytePtr += 0x72;
-
-	// the value is referenced with a pointer array, and is not byte aligned, so this bit is necessary to get the right address
-	FinalBossDrawDistanceBytePtr = (BYTE*)*(float**)FinalBossDrawDistanceBytePtr;
-
-	FinalBossDrawDistanceBytePtr = FinalBossDrawDistanceBytePtr + 0x26B;
-
-	FinalBossDrawDistanceAddr = (float*)FinalBossDrawDistanceBytePtr;
-
-	return FinalBossDrawDistanceAddr;
 }

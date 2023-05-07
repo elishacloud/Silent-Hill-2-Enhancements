@@ -32,33 +32,27 @@ const float finalBossOriginalFloor = -4000.f;
 void HandleFinalBossRoomFix()
 {
 	if (GetJamesPosY() < -14600.f && GetRoomID() == 0xBB)
-		NopFinalBossBlackBox();
+	{
+		Logging::LogDebug() << __FUNCTION__ << " Nop Final Boss Black Box Cover instruction...";
+
+		UpdateMemoryAddress(GetFinalBossBottomWalkwaySpawnPointer(), &FinalBossFixValue, sizeof(float));
+		UpdateMemoryAddress(GetFinalBossBottomFloorSpawnPointer(), &FinalBossFixValue, sizeof(float));
+
+		UpdateMemoryAddress(GetFinalBossBlackBoxCoverPointer(), "\x90\x90\x90\x90\x90\x90", 0x06);
+	}
 	else
-		RestoreFinalBossBlackBox();
-}
+	{
+		Logging::LogDebug() << __FUNCTION__ << " Restoring Final Boss Black Box Cover instruction...";
 
-void NopFinalBossBlackBox()
-{
-	Logging::LogDebug() << __FUNCTION__ << " Nop Final Boss Black Box Cover instruction...";
+		UpdateMemoryAddress(GetFinalBossBottomWalkwaySpawnPointer(), &FinalBossOriginalWalkway, sizeof(float));
+		UpdateMemoryAddress(GetFinalBossBottomFloorSpawnPointer(), &finalBossOriginalFloor, sizeof(float));
 
-	UpdateMemoryAddress(GetFinalBossBottomWalkwaySpawnPointer(), &FinalBossFixValue, sizeof(float));
-	UpdateMemoryAddress(GetFinalBossBottomFloorSpawnPointer(), &FinalBossFixValue, sizeof(float));
-
-	UpdateMemoryAddress(GetFinalBossBlackBoxCoverPointer(), "\x90\x90\x90\x90\x90\x90", 0x06);
-}
-
-void RestoreFinalBossBlackBox()
-{
-	Logging::LogDebug() << __FUNCTION__ << " Restoring Final Boss Black Box Cover instruction...";
-
-	UpdateMemoryAddress(GetFinalBossBottomWalkwaySpawnPointer(), &FinalBossOriginalWalkway, sizeof(float));
-	UpdateMemoryAddress(GetFinalBossBottomFloorSpawnPointer(), &finalBossOriginalFloor, sizeof(float));
-
-	UpdateMemoryAddress(GetFinalBossBlackBoxCoverPointer(), 
-		GameVersion == SH2V_10 ? (void*)&OrigFBBlackBoxBytesV10 :
-		GameVersion == SH2V_11 ? (void*)&OrigFBBlackBoxBytesV11 :
-		GameVersion == SH2V_DC ? (void*)&OrigFBBlackBoxBytesVDC : NULL,
-		0x06);
+		UpdateMemoryAddress(GetFinalBossBlackBoxCoverPointer(),
+			GameVersion == SH2V_10 ? (void*)&OrigFBBlackBoxBytesV10 :
+			GameVersion == SH2V_11 ? (void*)&OrigFBBlackBoxBytesV11 :
+			GameVersion == SH2V_DC ? (void*)&OrigFBBlackBoxBytesVDC : NULL,
+			0x06);
+	}
 }
 
 float* GetFinalBossDrawDistancePointer()

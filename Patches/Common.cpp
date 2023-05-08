@@ -101,7 +101,7 @@ BYTE* InputAssignmentFlagAddr = nullptr;
 float* GlobalFadeHoldValueAddr = nullptr;
 float* FinalBossBottomFloorSpawnAddr = nullptr;
 float* FinalBossBottomWalkwaySpawnAddr = nullptr;
-DWORD* FinalBossBlackBoxCoverAddr = nullptr;
+float* FinalBossBlackBoxSpawnAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -2190,32 +2190,25 @@ float* GetFinalBossBottomFloorSpawnPointer()
 	return FinalBossBottomFloorSpawnAddr;
 }
 
-DWORD* GetFinalBossBlackBoxCoverPointer()
+float* GetFinalBossBlackBoxSpawnPointer()
 {
-	if (FinalBossBlackBoxCoverAddr)
+	if (FinalBossBlackBoxSpawnAddr)
 	{
-		return FinalBossBlackBoxCoverAddr;
+		return FinalBossBlackBoxSpawnAddr;
 	}
 
-	// Get room ID address
-	constexpr BYTE FinalBossBlackBoxCoverSearchBytes[]{ 0xD9, 0x41, 0x20, 0x83, 0xC4, 0x04 };
-	void* FinalBossBlackBoxCoverAddress = (void*)SearchAndGetAddresses(0x004413BD, 0x0044157D, 0x0044157D, FinalBossBlackBoxCoverSearchBytes, sizeof(FinalBossBlackBoxCoverSearchBytes), 0x06, __FUNCTION__);
+	// Getfinal boss black box spawn pointer
+	constexpr BYTE FinalBoxBlackBoxSpawnSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x05, 0x0F, 0x8A, 0x9C, 0x01, 0x00, 0x00 };
+	void* FinalBoxBlackBoxSpawnAddress = (void*)ReadSearchedAddresses(0x004413F3, 0x004415B3, 0x004415B3, FinalBoxBlackBoxSpawnSearchBytes, sizeof(FinalBoxBlackBoxSpawnSearchBytes), 0x15, __FUNCTION__);
 
 	// Checking address pointer
-	if (!FinalBossBlackBoxCoverAddress)
+	if (!FinalBoxBlackBoxSpawnAddress)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find Final boss black box cover address!";
 		return nullptr;
 	}
 
-	// Check address
-	if (!CheckMemoryAddress(FinalBossBlackBoxCoverAddress, "\xD8\x1D", 2, __FUNCTION__))
-	{
-		Logging::Log() << __FUNCTION__ << " Error: memory addresses for Final boss black box cover don't match!";
-		return nullptr;
-	}
+	FinalBossBlackBoxSpawnAddr = (float*) FinalBoxBlackBoxSpawnAddress;
 
-	FinalBossBlackBoxCoverAddr = (DWORD*) FinalBossBlackBoxCoverAddress;
-
-	return FinalBossBlackBoxCoverAddr;
+	return FinalBossBlackBoxSpawnAddr;
 }

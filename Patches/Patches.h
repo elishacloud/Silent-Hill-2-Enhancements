@@ -145,7 +145,7 @@ BYTE* GetInputAssignmentFlagPointer();
 float* GetGlobalFadeHoldValuePointer();
 float* GetFinalBossBottomWalkwaySpawnPointer();
 float* GetFinalBossBottomFloorSpawnPointer();
-DWORD* GetFinalBossBlackBoxCoverPointer();
+float* GetFinalBossBlackBoxSpawnPointer();
 float* GetFinalBossDrawDistancePointer();
 
 // Function patch declaration

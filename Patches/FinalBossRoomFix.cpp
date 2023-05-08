@@ -20,38 +20,24 @@
 
 float* FinalBossDrawDistanceAddr = nullptr;
 
-// The original value of this instruction, to be restored after being noped
-const BYTE OrigFBBlackBoxBytesV10[] = { 0xD8, 0x1D, 0x5C, 0xB8, 0x63, 0x00 };
-const BYTE OrigFBBlackBoxBytesV11[] = { 0xD8, 0x1D, 0x3C, 0xC8, 0x63, 0x00 };
-const BYTE OrigFBBlackBoxBytesVDC[] = { 0xD8, 0x1D, 0x3C, 0xB8, 0x63, 0x00 };
-
-const float FinalBossFixValue = -25000.f;
+const float FinalBossFixValue = -30000.f;
 const float FinalBossOriginalWalkway = -8000.f;
-const float finalBossOriginalFloor = -4000.f;
+const float FinalBossOriginalFloor = -4000.f;
+const float FinalBossOriginalBoxSpawn = -12000.f;
 
 void HandleFinalBossRoomFix()
 {
 	if (GetJamesPosY() < -14600.f && GetRoomID() == 0xBB)
 	{
-		Logging::LogDebug() << __FUNCTION__ << " Nop Final Boss Black Box Cover instruction...";
-
 		UpdateMemoryAddress(GetFinalBossBottomWalkwaySpawnPointer(), &FinalBossFixValue, sizeof(float));
 		UpdateMemoryAddress(GetFinalBossBottomFloorSpawnPointer(), &FinalBossFixValue, sizeof(float));
-
-		UpdateMemoryAddress(GetFinalBossBlackBoxCoverPointer(), "\x90\x90\x90\x90\x90\x90", 0x06);
+		UpdateMemoryAddress(GetFinalBossBlackBoxSpawnPointer(), &FinalBossFixValue, sizeof(float));		
 	}
 	else
 	{
-		Logging::LogDebug() << __FUNCTION__ << " Restoring Final Boss Black Box Cover instruction...";
-
 		UpdateMemoryAddress(GetFinalBossBottomWalkwaySpawnPointer(), &FinalBossOriginalWalkway, sizeof(float));
-		UpdateMemoryAddress(GetFinalBossBottomFloorSpawnPointer(), &finalBossOriginalFloor, sizeof(float));
-
-		UpdateMemoryAddress(GetFinalBossBlackBoxCoverPointer(),
-			GameVersion == SH2V_10 ? (void*)&OrigFBBlackBoxBytesV10 :
-			GameVersion == SH2V_11 ? (void*)&OrigFBBlackBoxBytesV11 :
-			GameVersion == SH2V_DC ? (void*)&OrigFBBlackBoxBytesVDC : NULL,
-			0x06);
+		UpdateMemoryAddress(GetFinalBossBottomFloorSpawnPointer(), &FinalBossOriginalFloor, sizeof(float));
+		UpdateMemoryAddress(GetFinalBossBlackBoxSpawnPointer(), &FinalBossOriginalBoxSpawn, sizeof(float));
 	}
 }
 
@@ -81,7 +67,7 @@ float* GetFinalBossDrawDistancePointer()
 
 void PatchFinalBossRoom()
 {
-	Logging::Log() << " Patching final boss black box...";
+	Logging::Log() << "Patching final boss black box...";
 
 	*GetFinalBossDrawDistancePointer() = 30000.f;
 }

@@ -18,6 +18,9 @@ typedef HRESULT(WINAPI *DirectInput8CreateProc)(HINSTANCE, DWORD, REFIID, LPVOID
 void genericQueryInterface(REFIID CalledID, LPVOID * ppvObj);
 extern AddressLookupTableDinput8<void> ProxyAddressLookupTableDinput8;
 
+extern bool LostWindowFocus;
+extern HWND CooperativeLevelWindow;
+
 #include "IDirectInput8A.h"
 #include "IDirectInputDevice8A.h"
 #include "IDirectInputEffect.h"

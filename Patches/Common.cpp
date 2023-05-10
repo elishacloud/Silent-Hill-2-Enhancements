@@ -32,7 +32,6 @@ BYTE *FlashlightSwitchAddr = nullptr;
 float *JamesPosXAddr = nullptr;
 float *JamesPosYAddr = nullptr;
 float *JamesPosZAddr = nullptr;
-DWORD *OnScreenAddr = nullptr;
 BYTE *EventIndexAddr = nullptr;
 BYTE *MenuEventAddr = nullptr;
 DWORD *RoomIDAddr = nullptr;
@@ -505,34 +504,6 @@ float *GetFlashlightBrightnessPointer()
 	}
 
 	return FlashlightBrightnessAddr;
-}
-
-DWORD GetOnScreen()
-{
-	DWORD *pOnScreen = GetOnScreenPointer();
-
-	return (pOnScreen) ? *pOnScreen : 0;
-}
-
-DWORD *GetOnScreenPointer()
-{
-	if (OnScreenAddr)
-	{
-		return OnScreenAddr;
-	}
-
-	// Get address for on-screen address
-	constexpr BYTE OnScreenSearchBytes[]{ 0x33, 0xC0, 0x5B, 0xC3, 0x68 };
-	OnScreenAddr = (DWORD*)ReadSearchedAddresses(0x0043F205, 0x0043F3C5, 0x0043F3C5, OnScreenSearchBytes, sizeof(OnScreenSearchBytes), 0x50, __FUNCTION__);
-
-	// Checking address pointer
-	if (!OnScreenAddr)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find on-screen address!";
-		return nullptr;
-	}
-
-	return OnScreenAddr;
 }
 
 BYTE GetEventIndex()

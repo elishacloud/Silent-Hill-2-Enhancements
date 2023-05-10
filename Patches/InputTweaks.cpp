@@ -226,6 +226,12 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		if (GameLoadFix && (GetIsWritingQuicksave() == 1 || GetTextAddr() == 1))
 			ControllerData->rgbButtons[KeyBinds.GetPauseButtonBind()] = KEY_CLEAR;
 
+        // Clear the pause button if either the player or Maria (NPC) is dying
+        if (GameLoadFix && (GetPlayerIsDying() != 0 || GetMariaNpcIsDying() != 0))
+        {
+            ControllerData->rgbButtons[KeyBinds.GetPauseButtonBind()] = KEY_CLEAR;
+        }
+
 		// Clear controller data
 		ControllerData = nullptr;
 	}
@@ -489,6 +495,13 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			ClearKey(KeyBinds.GetKeyBind(KEY_READY_WEAPON));
 			CleanKeys = false;
 		}
+
+        // Clear the ESC and SKIP key if either the player or Maria (NPC) is dying
+        if (GameLoadFix && (GetPlayerIsDying() != 0 || GetMariaNpcIsDying() != 0))
+        {
+            ClearKey(KeyBinds.GetKeyBind(KEY_SKIP));
+            ClearKey(KeyBinds.GetKeyBind(KEY_CANCEL));
+        }
 
 		// Clear Keyboard Data pointer
 		KeyboardData = nullptr;

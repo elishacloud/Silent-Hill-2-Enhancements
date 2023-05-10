@@ -66,6 +66,8 @@ int32_t GetTextAddr();
 float GetFrametime();
 BYTE GetInputAssignmentFlag();
 float GetGlobalFadeHoldValue();
+BYTE GetPlayerIsDying();
+BYTE GetMariaNpcIsDying();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -143,6 +145,8 @@ float *GetRPTClosetCutsceneMannequinDespawnPointer();
 float *GetRPTClosetCutsceneBlurredBarsDespawnPointer();
 BYTE* GetInputAssignmentFlagPointer();
 float* GetGlobalFadeHoldValuePointer();
+BYTE* GetPlayerIsDyingPointer();
+BYTE* GetMariaNpcIsDyingPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

@@ -75,6 +75,8 @@ BYTE GetReadingMemoFlag();
 float GetGlobalFadeHoldValue();
 float GetPuzzleCursorHorizontalPos();
 float GetPuzzleCursorVerticalPos();
+BYTE GetPlayerIsDying();
+BYTE GetMariaNpcIsDying();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -166,6 +168,8 @@ float* GetGlobalFadeHoldValuePointer();
 DWORD* GetCanSaveFunctionPointer();
 float* GetPuzzleCursorHorizontalPosPointer();
 float* GetPuzzleCursorVerticalPosPointer();
+BYTE* GetPlayerIsDyingPointer();
+BYTE* GetMariaNpcIsDyingPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

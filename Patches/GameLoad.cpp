@@ -48,6 +48,13 @@ void *jmpIndexCheckAddr = nullptr;
 void *jmpMariaFunctionAddr = nullptr;
 DWORD FilesLoadedAddr;
 DWORD CutsceneValueAddr;
+BYTE *SaveLoadSubState = nullptr;
+void *jmpSaveSubState5Addr = nullptr;
+void *jmpSaveSubState6Addr = nullptr;
+void *jmpSaveSubStateDefaultAddr = nullptr;
+void *WriteFileFuncAddr = nullptr;
+void *SysFileNameAddr = nullptr;
+void *SysFileBytesAddr = nullptr;
 
 // ASM function for Quick Save Soft-Lock Fix
 __declspec(naked) void __stdcall SoftLockASM()
@@ -190,6 +197,42 @@ __declspec(naked) void __stdcall MariaFunctionASM()
 }
 MariaFunctionProc oMariaFunction = (MariaFunctionProc)*MariaFunctionASM;
 
+// ASM function to move the write to sh2pc.sys to a later stage
+__declspec(naked) void __stdcall SaveSubStateASM()
+{
+    __asm
+    {
+        mov eax, dword ptr ds : [SaveLoadSubState]
+        movsx eax, byte ptr ds : [eax]
+        cmp eax, 0x06
+        je HandleState6
+        cmp eax, 0x05
+        jne ExitAsm
+        // Skip the early write to sh2pc.sys
+        jmp jmpSaveSubState5Addr
+
+    HandleState6:
+        // Write sh2pc.sys and sh2pcsave??.dat serially on the same frame
+        push 0xC00
+        mov eax, dword ptr ds : [SysFileBytesAddr]
+        push eax
+        mov eax, dword ptr ds : [SysFileNameAddr]
+        push eax
+        mov eax, dword ptr ds : [WriteFileFuncAddr]
+        call eax
+        add esp, 0x0C
+        cmp eax, 0x00
+        jne Failure
+        jmp jmpSaveSubState6Addr
+
+    Failure:
+        mov eax, 0x02
+        ret
+    ExitAsm:
+        jmp jmpSaveSubStateDefaultAddr
+    }
+}
+
 void __cdecl NewMariaFunction()
 {
 	BYTE bFilesLoaded[4] = { 0 };
@@ -325,6 +368,21 @@ void SetGameLoad()
 	UpdateMemoryAddress((void*)&FilesLoadedAddr, (void*)(MariaFunctionAddr + 0x6D), sizeof(DWORD));
 	UpdateMemoryAddress((void*)&CutsceneValueAddr, (void*)(MariaFunctionAddr + 0x53), sizeof(DWORD));
 
+    // Fix for writing sh2pc.sys and sh2pcsave??.dat on the same frame
+    constexpr BYTE SaveSubStateSearchBytes[]{ 0x83, 0xF8, 0x06, 0x77, 0x47, 0xFF };
+    DWORD SaveSubStateFuncAddr = SearchAndGetAddresses(0x00453137, 0x00453397, 0x00453397, SaveSubStateSearchBytes, sizeof(SaveSubStateSearchBytes), -0x07, __FUNCTION__);
+    if (!SaveSubStateFuncAddr)
+    {
+        Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+        return;
+    }
+    jmpSaveSubStateDefaultAddr = (void*)(SaveSubStateFuncAddr + 0x07);
+    jmpSaveSubState5Addr = (void*)(SaveSubStateFuncAddr + 0x178);
+    jmpSaveSubState6Addr = (void*)(SaveSubStateFuncAddr + 0x189);
+    WriteFileFuncAddr = (void*)(*(DWORD*)(SaveSubStateFuncAddr + 0x88) + SaveSubStateFuncAddr + 0x8C);
+    SysFileNameAddr = (void*)*(DWORD*)(SaveSubStateFuncAddr + 0xE3);
+    SysFileBytesAddr = (void*)*(DWORD*)(SaveSubStateFuncAddr + 0xDE);
+
 	// Update SH2 code
 	Logging::Log() << "Enabling Load Game Fix...";
 	DWORD Value = 0x00;
@@ -336,6 +394,7 @@ void SetGameLoad()
 	WriteJMPtoMemory((BYTE*)TextOverlapFunction, *TextOverlapASM, 6);
 	WriteJMPtoMemory((BYTE*)QuickSaveFunction, *QuickSaveASM, 6);
 	WriteJMPtoMemory((BYTE*)MariaFunctionAddr, *NewMariaFunction, 6);
+    WriteJMPtoMemory((BYTE*)SaveSubStateFuncAddr, *SaveSubStateASM, 7);
 
 	memcpy(&quickSaveToggle, (DWORD*)(0x04024bd),sizeof(DWORD));
 
@@ -403,6 +462,23 @@ void RunGameLoad()
 		return;
 	}
 
+    // Get save/load state addresses
+    static BYTE *SaveLoadState = nullptr;
+    if (!SaveLoadState)
+    {
+        RUNONCE();
+
+        // Get address for save/load state
+        constexpr BYTE SearchBytes[]{ 0x83, 0xF8, 0x14, 0x0F, 0x87, 0xF1, 0x0A, 0x00, 0x00 };
+        SaveLoadState = (BYTE*)ReadSearchedAddresses(0x00453D70, 0x00453FD0, 0x00453FD0, SearchBytes, sizeof(SearchBytes), -0x04, __FUNCTION__);
+        if (!SaveLoadState)
+        {
+            Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+            return;
+        }
+        SaveLoadSubState = SaveLoadState + 1;
+    }
+
 	// Set static variables
 	static bool ValueSet = false;
 	static bool ValueUnSet = false;
@@ -461,12 +537,27 @@ void RunGameLoad()
 	LastRoomID = CurrentRoomID;
 	LastCutsceneID = CurrentCutsceneID;
 
+    // Cancel an active quick save before entering another room or when opening the save menu
+    if (GetIsWritingQuicksave() == 1 && (GetEventIndex() == 1 || GetEventIndex() == 9))
+    {
+        *GetIsWritingQuicksavePointer() = 0;
+        *SaveLoadState = 0;
+        *SaveLoadSubState = 0;
+    }
+
 	// Disable quick save during certain in-game voice events and during fullscreen image events
 	if (*InGameVoiceEvent != 0 || GetFullscreenImageEvent() == 2)
 	{
 		DisableQuickSave = true;
 		AllowQuickSaveFlag = FALSE;
 	}
+
+    // Disable quick saving while Maria (NPC) is dying
+    if (GetMariaNpcIsDying() != 0)
+    {
+        DisableQuickSave = true;
+        AllowQuickSaveFlag = FALSE;
+    }
 
 	// Reset quick save when needed
 	if (!DisableQuickSave && !AllowQuickSaveFlag)

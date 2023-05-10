@@ -50,6 +50,9 @@ ULONG m_IDirectInputDevice8A::Release()
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
 
+	// First unacquire device
+	ProxyInterface->Unacquire();
+
 	ULONG ref = ProxyInterface->Release();
 
 	if (ref == 0)
@@ -91,6 +94,11 @@ HRESULT m_IDirectInputDevice8A::SetProperty(REFGUID rguidProp, LPCDIPROPHEADER p
 HRESULT m_IDirectInputDevice8A::Acquire()
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
+
+	if (LostWindowFocus)
+	{
+		return ProxyInterface->Unacquire();
+	}
 
 	DIDEVICEINSTANCEA deviceInfo;
 	deviceInfo.dwSize = sizeof(DIDEVICEINSTANCEA);
@@ -168,7 +176,14 @@ HRESULT m_IDirectInputDevice8A::SetCooperativeLevel(HWND hwnd, DWORD dwFlags)
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
 
-	return ProxyInterface->SetCooperativeLevel(hwnd, dwFlags);
+	HRESULT hr = ProxyInterface->SetCooperativeLevel(hwnd, dwFlags);
+
+	if (SUCCEEDED(hr) && (dwFlags & DISCL_EXCLUSIVE) && IsWindow(hwnd))
+	{
+		CooperativeLevelWindow = hwnd;
+	}
+
+	return hr;
 }
 
 HRESULT m_IDirectInputDevice8A::GetObjectInfo(LPDIDEVICEOBJECTINSTANCEA pdidoi, DWORD dwObj, DWORD dwHow)

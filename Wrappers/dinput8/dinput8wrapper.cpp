@@ -22,6 +22,10 @@ AddressLookupTableDinput8<void> ProxyAddressLookupTableDinput8 = AddressLookupTa
 
 DirectInput8CreateProc m_pDirectInput8Create = nullptr;
 
+bool LostWindowFocus = false;
+HWND CooperativeLevelWindow = nullptr;
+HWINEVENTHOOK hEventHook = nullptr;
+
 // Hook dinput8 API
 void HookDirectInput8Create()
 {
@@ -68,5 +72,59 @@ HRESULT WINAPI DirectInput8CreateWrapper(HINSTANCE hinst, DWORD dwVersion, REFII
 		Logging::Log() << "'DirectInput8Create' Failed! Error: " << (DIERR)hr;
 	}
 
+	// Set window hook to check when SH2 loses focus
+	static bool FirstRun = true;
+	if (FirstRun)
+	{
+		Logging::Log() << "Setting DirectInput window hook...";
+
+		if (HookWndProc)
+		{
+			void CALLBACK windowChangeHook(HWINEVENTHOOK hWinEventHook, DWORD event, HWND hwnd, LONG idObject, LONG idChild, DWORD dwEventThread, DWORD dwmsEventTime);
+
+			hEventHook = SetWinEventHook(EVENT_OBJECT_FOCUS, EVENT_OBJECT_FOCUS, NULL, &windowChangeHook, 0, 0, WINEVENT_OUTOFCONTEXT);
+		}
+
+		// Reset FirstRun
+		FirstRun = false;
+	}
+
 	return hr;
+}
+
+void CALLBACK windowChangeHook(HWINEVENTHOOK hWinEventHook, DWORD event, HWND hwnd, LONG idObject, LONG idChild, DWORD dwEventThread, DWORD dwmsEventTime)
+{
+	UNREFERENCED_PARAMETER(hWinEventHook);
+	UNREFERENCED_PARAMETER(event);
+	UNREFERENCED_PARAMETER(idObject);
+	UNREFERENCED_PARAMETER(idChild);
+	UNREFERENCED_PARAMETER(dwEventThread);
+	UNREFERENCED_PARAMETER(dwmsEventTime);
+
+	if (!CooperativeLevelWindow)
+	{
+		return;
+	}
+
+	// Check window focus
+	if (CooperativeLevelWindow == hwnd)
+	{
+		LostWindowFocus = false;
+
+		// Send mouse event when focus is lost to clear mouse click
+		mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
+	}
+	else
+	{
+		LostWindowFocus = true;
+	}
+}
+
+void UnhookWindowHandle()
+{
+	if (hEventHook)
+	{
+		Logging::Log() << "Unhooking window hook";
+		UnhookWinEvent(hEventHook);
+	}
 }

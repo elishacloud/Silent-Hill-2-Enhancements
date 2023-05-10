@@ -19,7 +19,6 @@
 #define _WIN32_WINNT 0x0501
 
 #include "dinput8wrapper.h"
-#include "Wrappers\d3d8\d3d8wrapper.h"
 #include "Patches\patches.h"
 #include "Common\Utils.h"
 #include <dinput.h>
@@ -277,42 +276,6 @@ void PatchXInputVibration()
 	UpdateMemoryAddress((void*)MenuRumbleAddr, &NOP, sizeof(NOP));
 }
 
-bool LostWindowFocus = false;
-HWINEVENTHOOK hEventHook = nullptr;
-void CALLBACK windowChangeHook(HWINEVENTHOOK hWinEventHook, DWORD event, HWND hwnd, LONG idObject, LONG idChild, DWORD dwEventThread, DWORD dwmsEventTime)
-{
-	UNREFERENCED_PARAMETER(hWinEventHook);
-	UNREFERENCED_PARAMETER(event);
-	UNREFERENCED_PARAMETER(idObject);
-	UNREFERENCED_PARAMETER(idChild);
-	UNREFERENCED_PARAMETER(dwEventThread);
-	UNREFERENCED_PARAMETER(dwmsEventTime);
-
-	if (!DeviceWindow)
-	{
-		return;
-	}
-
-	// Check window focus
-	if (DeviceWindow == hwnd)
-	{
-		LostWindowFocus = false;
-	}
-	else
-	{
-		LostWindowFocus = true;
-	}
-}
-
-void UnhookWindowHandle()
-{
-	if (hEventHook)
-	{
-		Logging::Log() << "Unhooking window hook";
-		UnhookWinEvent(hEventHook);
-	}
-}
-
 void RunInfiniteRumbleFix()
 {
 	// Get vibration intensity
@@ -359,18 +322,6 @@ void RunInfiniteRumbleFix()
 
 		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
 		return;
-	}
-
-	// Set window hook to check when SH2 loses focus
-	static bool FirstRun = true;
-	if (FirstRun)
-	{
-		Logging::Log() << "Setting infinite rumble window hook...";
-
-		hEventHook = SetWinEventHook(EVENT_OBJECT_FOCUS, EVENT_OBJECT_FOCUS, NULL, &windowChangeHook, 0, 0, WINEVENT_OUTOFCONTEXT);
-
-		// Reset FirstRun
-		FirstRun = false;
 	}
 
 	// Disable rumble

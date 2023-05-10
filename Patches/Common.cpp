@@ -112,6 +112,8 @@ float* GlobalFadeHoldValueAddr = nullptr;
 DWORD* CanSaveFunctionAddr = nullptr;
 float* PuzzleCursorHorizontalPosAddr = nullptr;
 float* PuzzleCursorVerticalPosAddr = nullptr;
+BYTE* PlayerIsDyingAddr = nullptr;
+BYTE* MariaNpcIsDyingAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -2504,4 +2506,60 @@ float* GetPuzzleCursorVerticalPosPointer()
 	}
 
 	return PuzzleCursorVerticalPosAddr;
+}
+
+BYTE GetPlayerIsDying()
+{
+    BYTE* pPlayerIsDying = GetPlayerIsDyingPointer();
+
+    return (pPlayerIsDying) ? *pPlayerIsDying : 0;
+}
+
+BYTE* GetPlayerIsDyingPointer()
+{
+    if (PlayerIsDyingAddr)
+    {
+        return PlayerIsDyingAddr;
+    }
+
+    // Get player dying flag addresses
+    constexpr BYTE SearchBytes[]{ 0xEb, 0x03, 0xF6, 0xC4, 0x41, 0x7A, 0x07, 0xC6, 0x05 };
+    void *PlayerIsDying = (void*)ReadSearchedAddresses(0x00535948, 0x00535C78, 0x00535598, SearchBytes, sizeof(SearchBytes), 0x09, __FUNCTION__);
+    if (!PlayerIsDying)
+    {
+        Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+        return nullptr;
+    }
+
+    PlayerIsDyingAddr = (BYTE*)((DWORD)PlayerIsDying);
+
+    return PlayerIsDyingAddr;
+}
+
+BYTE GetMariaNpcIsDying()
+{
+    BYTE* pMariaNpcIsDying = GetMariaNpcIsDyingPointer();
+
+    return (pMariaNpcIsDying) ? *pMariaNpcIsDying : 0;
+}
+
+BYTE* GetMariaNpcIsDyingPointer()
+{
+    if (MariaNpcIsDyingAddr)
+    {
+        return MariaNpcIsDyingAddr;
+    }
+
+    // Get Maria NPC dying flag address
+    constexpr BYTE SearchBytes[]{ 0x0F, 0x86, 0xDC, 0x00, 0x00, 0x00, 0xA1 };
+    void *MariaNpcIsDying = (BYTE*)ReadSearchedAddresses(0x0052D6D3, 0x0052DA03, 0x0052D323, SearchBytes, sizeof(SearchBytes), 0x1D, __FUNCTION__);
+    if (!MariaNpcIsDying)
+    {
+        Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+        return nullptr;
+    }
+
+    MariaNpcIsDyingAddr = (BYTE*)((DWORD)MariaNpcIsDying);
+
+    return MariaNpcIsDyingAddr;
 }

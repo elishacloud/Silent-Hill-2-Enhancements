@@ -947,11 +947,6 @@ bool InputTweaks::SetRMBAimFunction()
 		!IsInFullScreenImageEvent()));
 }
 
-bool IsInFullScreenImageEvent()
-{
-	return GetFullscreenImageEvent() == 0x02;
-}
-
 bool InputTweaks::GetAnalogStringAddr()
 {
 	constexpr BYTE AnalogStringOneSearchBytes[]{ 0x68, 0x9A, 0x00, 0x00, 0x00, 0x56, 0x6A, 0x68 };

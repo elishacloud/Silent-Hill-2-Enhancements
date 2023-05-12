@@ -120,6 +120,11 @@ std::string AuxDebugOvlString = "";
 bool IsControllerConnected = false;
 HWND GameWindowHandle = NULL;
 
+bool IsInFullScreenImageEvent()
+{
+	return GetFullscreenImageEvent() == 0x02;
+}
+
 DWORD GetRoomID()
 {
 	DWORD *pRoomID = GetRoomIDPointer();

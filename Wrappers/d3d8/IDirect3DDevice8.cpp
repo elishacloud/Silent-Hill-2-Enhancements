@@ -968,14 +968,19 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	// Draw Overlays
+	OverlayRef.DrawOverlays(ProxyInterface);
+
 	// Skip frames in specific cutscenes to prevent flickering
 	if (SkipSceneFlag)
 	{
 		return D3D_OK;
 	}
 
-	// Draw Overlays
-	OverlayRef.DrawOverlays(ProxyInterface);
+	if (EnableEnhancedMouse)
+	{
+		OverlayRef.RenderMouseCursor();
+	}
 
 	// Endscene
 	isInScene = false;

@@ -34,6 +34,7 @@ public:
 
 	void DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface);
 	void ResetFont();
+	void RenderMouseCursor();
 
 private:
 	std::string ActionDifficulty[4]

@@ -59,7 +59,7 @@ void ProcessDInputData_Hook(GamePadState* state)
 		if ( !centered )
 		{
 			const bool WaitingInputAssignment = (GetEventIndex() == EVENT_OPTION_FMV && GetInputAssignmentFlag() == 1);		// In the Options (includes Control Options) screen and game is currently awaiting an input assignment
-			const bool IsNotIngame = (GetEventIndex() != EVENT_IN_GAME || GetMenuEvent() == 7 || (GetEventIndex() == EVENT_IN_GAME && InputTweaksRef.IsInFullScreenImageEvent()));		// Not currently in-game, so in a menu || Within any selection on the main menu screen || In-game but a text prompt is currently on-screen.
+			const bool IsNotIngame = (GetEventIndex() != EVENT_IN_GAME || GetMenuEvent() == 7 || (GetEventIndex() == EVENT_IN_GAME && IsInFullScreenImageEvent()));		// Not currently in-game, so in a menu || Within any selection on the main menu screen || In-game but a text prompt is currently on-screen.
 
 			if ((DPadMovementFix == DPAD_MOVEMENT_MODE) ||
 				(DPadMovementFix == DPAD_HYBRID_MODE && IsNotIngame && !WaitingInputAssignment && !IsAssigningPOVButton))

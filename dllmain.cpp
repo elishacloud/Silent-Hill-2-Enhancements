@@ -593,6 +593,12 @@ void DelayedStart()
 		PatchFinalBossRoom();
 	}
 
+	// Hook input handling
+	if (EnableInputTweaks)
+	{
+		PatchInputTweaks();
+	}
+
 	// Remove the "Now loading..." message
 	switch (GameVersion)
 	{

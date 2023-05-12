@@ -181,7 +181,6 @@ private:
 	void SetKey(int KeyIndex);
 	int32_t GetMouseRelXChange();
 	int32_t GetMouseRelYChange();
-	void CheckNumberKeyBinds();
 
 	// Fixes to pressing right click to skip cutscenes that aren't technically considered cutscenes by the game
 	bool HotelFix();
@@ -191,8 +190,6 @@ private:
 	bool FleshRoomFix();
 	bool SetRMBAimFunction();
 	bool IsMovementPressed();
-
-	bool GetAnalogStringAddr();
 
 public:
 	void SetKeyboardInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);
@@ -211,10 +208,13 @@ public:
 	void SetOverrideSprint();
 	void ClearOverrideSprint();
 
+	void CheckNumberKeyBinds();
+	bool GetAnalogStringAddr();
+
 	bool GetRMBState();
 	bool GetLMBState();
 
-	bool IsInFullScreenImageEvent();
+	void InitializeHitboxes(float AspectRatio);
 
 	// Additional fix for cutscenes
 	bool ElevatorFix();
@@ -230,5 +230,215 @@ public:
 	BYTE* GetKeyBindsPointer();
 	BYTE GetPauseButtonBind();
 };
+
+// Hitboxes for pause and memo menu
+class Hitboxes
+{
+private:
+	int top;
+	int left;
+	int height;	
+	int width;
+	int rows;
+	int columns;
+
+	float AspectRatio;
+	float ConstantAspectRatio = 16.f / 9.f;
+
+	int GetNormalizedHorizontal(int size)
+	{
+#pragma warning(disable : 4244)
+		return (size * AspectRatio) / ConstantAspectRatio;
+	}
+
+public:
+	Hitboxes(){}
+	Hitboxes(int top, int left, int height, int width, int rows, int columns, float AspectRatio)
+	{
+		this->AspectRatio = AspectRatio;
+
+		this->top = top;
+		this->left = GetNormalizedHorizontal(left);
+		this->height = height;
+		this->width = GetNormalizedHorizontal(width);
+		this->rows = rows;
+		this->columns = columns;
+	}
+	Hitboxes(int top, int left, int height, int width, int rows, int columns)
+	{
+		this->AspectRatio = 16.f / 9.f;
+
+		this->top = top;
+		this->left = GetNormalizedHorizontal(left);
+		this->height = height;
+		this->width = GetNormalizedHorizontal(width);
+		this->rows = rows;
+		this->columns = columns;
+	}
+
+	int GetTop() { return this->top; }
+	int GetHeight() { return this->height; }
+	int GetLeft() { return this->left; }
+	int GetWidth() { return this->width; }
+	int GetRowsCount() { return this->rows; }
+	int GetRight() { return this->left + (this->columns * this->width); }
+	int GetBottom() { return this->top + (this->rows * this->height); }
+
+	bool IsMouseInBounds(int MouseHor, int MouseVer)
+	{
+		return MouseHor > this->GetLeft() &&
+			MouseHor < this->GetRight() &&
+			MouseVer > this->GetTop() &&
+			MouseVer < this->GetBottom();
+	}
+	int GetVerticalIndex(int MousePos) { return (MousePos - this->top) / this->height; }
+	int GetHorizontalIndex(int MousePos) { return (MousePos - this->left) / this->width; }
+};
+
+class MemoHitboxes
+{
+private:
+	Hitboxes Odd;
+	Hitboxes Even;
+
+	Hitboxes GetHitbox(int MemoNumber) 
+	{ 
+		return (MemoNumber % 2 != 0) ? Odd : Even; 
+	}
+
+	int GetVerticalOffset(int MemoNumber)
+	{
+		return ((this->GetHitbox(MemoNumber).GetRowsCount() - MemoNumber) *
+			this->Odd.GetHeight() / 2);
+	}
+
+public:
+	MemoHitboxes(int EvenTop, int OddTop, int left, int height, int width)
+	{
+		this->Odd = Hitboxes(OddTop, left, height, width, 11, 1);
+		this->Even = Hitboxes(EvenTop, left, height, width, 10, 1);
+	}
+	MemoHitboxes(int EvenTop, int OddTop, int left, int height, int width, float AspectRatio)
+	{
+		this->Odd = Hitboxes(OddTop, left, height, width, 11, 1, AspectRatio);
+		this->Even = Hitboxes(EvenTop, left, height, width, 10, 1, AspectRatio);
+	}
+
+	int GetEnabledVerticalIndex(int MousePos, int MemoNumber)
+	{
+		return this->GetHitbox(MemoNumber).GetVerticalIndex(MousePos) -
+			((this->GetHitbox(MemoNumber).GetRowsCount() - MemoNumber) / 2);
+	}
+
+	bool IsMouseVerticallyInBounds(int MouseVer, int MemoNumber)
+	{
+		int VOffset = this->GetVerticalOffset(MemoNumber);
+
+		return MouseVer > this->GetHitbox(MemoNumber).GetTop() + VOffset &&
+			MouseVer < this->GetHitbox(MemoNumber).GetBottom() - VOffset;
+	}
+
+	bool IsMouseHorizontallyInBounds(int MouseHor, int MemoNumber)
+	{
+		return MouseHor > this->GetHitbox(MemoNumber).GetLeft() &&
+			MouseHor < this->GetHitbox(MemoNumber).GetRight();
+	}
+
+	bool IsMouseInBounds(int MouseHor, int MouseVer, int MemoNumber)
+	{
+		return this->IsMouseHorizontallyInBounds(MouseHor, MemoNumber) &&
+			this->IsMouseVerticallyInBounds(MouseVer, MemoNumber);
+	}
+
+	// Functions only used when the memo list is scrolling (11+ memos)
+
+	int ConvertHitboxValue(int SelectedHitbox) { return -SelectedHitbox + 5; }
+	int GetHeight() { return this->Odd.GetHeight(); }
+	int GetTop() { return this->Odd.GetTop(); }
+
+	int GetClampedMemoIndex(int offset, int TotalMemoCount, int SelectedMemoIndex)
+	{
+		int step = offset > 0 ? 1 : -1;
+		int CalculatedIndex = SelectedMemoIndex;
+		int temp = 0;
+
+		for (int i = 1; i <= std::abs(offset); i++)
+		{
+			temp = CalculatedIndex + step;
+
+			if (temp > (TotalMemoCount - 1))
+			{
+				CalculatedIndex = 0;
+				continue;
+			}
+			if (temp < 0)
+			{
+				CalculatedIndex = TotalMemoCount - 1;
+				continue;
+			}
+
+			CalculatedIndex = temp;
+		}
+
+		return CalculatedIndex;
+	}
+
+	int IsMouseTopOrBot(int MouseHor, int MouseVer)
+	{
+		if (!(MouseHor > this->Odd.GetLeft() &&
+			MouseHor < this->Odd.GetRight()))
+			return 0;
+
+		if (MouseVer < this->Odd.GetTop())
+			return 1;
+		if (MouseVer > this->Odd.GetBottom())
+			return -1;
+
+		return 0;
+	}
+};
+
+class CursorPositionHandler
+{
+private:
+	int CursorSavedXPos = 0;
+	int CursorSavedYPos = 0;
+public:
+	void UpdateCursorPos()
+	{
+		if (!AutoHideMouseCursor)
+			return;
+
+		CursorSavedXPos = GetMouseHorizontalPosition();
+		CursorSavedYPos = GetMouseVerticalPosition();
+	}
+
+	void RestoreCursorPos()
+	{
+		if (!AutoHideMouseCursor)
+			return;
+
+		*GetMouseHorizontalPositionPointer() = CursorSavedXPos;
+		*GetMouseVerticalPositionPointer() = CursorSavedYPos;
+	}
+
+	void MoveCursorToOrigin()
+	{
+		if (!AutoHideMouseCursor)
+			return;
+
+		*GetMouseHorizontalPositionPointer() = 0;
+		*GetMouseVerticalPositionPointer() = 0;
+	}
+
+	void CenterCursor()
+	{
+		*GetPuzzleCursorHorizontalPosPointer() = 0.0f;
+		*GetPuzzleCursorVerticalPosPointer() = 0.0f;
+	}
+};
+
+void DrawCursor_Hook(void);
+void SetShowCursorFlag_Hook(void);
 
 extern InputTweaks InputTweaksRef;

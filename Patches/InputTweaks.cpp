@@ -26,27 +26,42 @@ BYTE* KeyBindsAddr = nullptr;
 
 const int AnalogThreshold = 15;
 const int InputDebounce = 50;
-const int PauseMenuMouseThreshold = 15;
 const float AnalogHalfTilt = 0.5f;
 const float AnalogFullTilt = 1.0f;
 const float FloatTolerance = 0.10f;
 
-bool once = false;
+const int MemoEvenTop = 80;
+const int MemoOddTop = 64;
+const int MemoLeft = 50;
+const int MemoHeight = 32;
+const int MemoWidth = 580;
+
+const int PauseMenuTop = 216;
+const int PauseMenuLeft = 281;
+const int PauseMenuHeight = 30;
+const int PauseMenuWidth = 118;
+
+const int QuitMenuTop = 245;
+const int QuitMenuWidth = 58;
+
+Hitboxes PauseMenu = Hitboxes(PauseMenuTop, PauseMenuLeft, PauseMenuHeight, PauseMenuWidth, 5, 1);
+Hitboxes QuitMenu = Hitboxes(QuitMenuTop, PauseMenuLeft, PauseMenuHeight, QuitMenuWidth, 1, 2);
+MemoHitboxes MemoMenu = MemoHitboxes(MemoEvenTop, MemoOddTop, MemoLeft, MemoHeight, MemoWidth);
+bool EnteredPuzzle = false;
+
+int LastFrameCursorHorizontalPos = 0;
+int LastFrameCursorVerticalPos = 0;
 
 auto LastMouseXRead = std::chrono::system_clock::now();
 auto LastMouseYRead = std::chrono::system_clock::now();
 auto LastWeaponSwap = std::chrono::system_clock::now();
 auto LastMousePauseChange = std::chrono::system_clock::now();
-int LastMouseVerticalPos = 0xF0;
-int LastMouseHorizontalPos = 0xFC;
 int MouseXAxis = 0;
 int MouseYAxis = 0;
 long int MouseWheel = 0;
 
 AnalogStick VirtualRightStick;
 
-bool PauseMenuVerticalChanged = false;
-bool PauseMenuHorizontalChanged = false;
 bool CheckKeyBindsFlag = false;
 
 bool SetLMButton = false;
@@ -67,19 +82,45 @@ int ForwardBackwardsAxis = 0;
 int LeftRightAxis = 0;
 bool OverrideSprint = false;
 
+const int AutoHideCursorMs = 3 * 1000;
+auto LastCursorMovement = std::chrono::system_clock::now();
+int LastCursorXPos = 0;
+int LastCursorYPos = 0;
+bool HideMouseCursor = false;
+CursorPositionHandler CursorPosHandler;
+
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLXAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerLYAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerRXAxis;
 injector::hook_back<int8_t(__cdecl*)(DWORD*)> orgGetControllerRYAxis;
 injector::hook_back<void(__cdecl*)(void)> orgUpdateMousePosition;
+injector::hook_back<void(__cdecl*)(void)> orgDrawCursor;
+injector::hook_back<void(__cdecl*)(void)> orgSetShowCursorFlag;
+injector::hook_back<int32_t(__cdecl*)(void)> orgCanSave;
 
 BYTE* AnalogStringOne;
 BYTE* AnalogStringTwo;
 BYTE* AnalogStringThree;
 
-BYTE *PauseMenuQuitIndexAddr = nullptr;
-
 uint8_t keyNotSetWarning[21] = { 0 };
+
+int32_t CanSave_Hook()
+{
+	return orgCanSave.fun();
+}
+
+void DrawCursor_Hook()
+{
+	if (HideMouseCursor)
+		return;
+
+	orgDrawCursor.fun();
+}
+
+void SetShowCursorFlag_Hook(void)
+{
+	orgSetShowCursorFlag.fun();
+}
 
 int8_t GetControllerLXAxis_Hook(DWORD* arg)
 {
@@ -101,15 +142,15 @@ int8_t GetControllerLYAxis_Hook(DWORD* arg)
 
 int8_t GetControllerRXAxis_Hook(DWORD* arg)
 {
-		// Injecting the virtual analog stick for search view
-		if (GetSearchViewFlag() == 0x6 && !VirtualRightStick.IsCentered() && EnableEnhancedMouse)
-		{
-			return VirtualRightStick.XAxis;
-		}
-		else
-		{
-			return orgGetControllerRXAxis.fun(arg);
-		}	
+	// Injecting the virtual analog stick for search view
+	if (GetSearchViewFlag() == 0x6 && !VirtualRightStick.IsCentered() && EnableEnhancedMouse)
+	{
+		return VirtualRightStick.XAxis;
+	}
+	else
+	{
+		return orgGetControllerRXAxis.fun(arg);
+	}
 }
 
 int8_t GetControllerRYAxis_Hook(DWORD* arg)
@@ -127,79 +168,163 @@ int8_t GetControllerRYAxis_Hook(DWORD* arg)
 
 void UpdateMousePosition_Hook()
 {
+	int CurrentMouseHorizontalPos = GetMouseHorizontalPosition();
+	int CurrentMouseVerticalPos = GetMouseVerticalPosition();
+
 	orgUpdateMousePosition.fun();
 
-	// Handling of vertical and horizontal navigation for Pause and Memo screens
-	if (GetEventIndex() == EVENT_PAUSE_MENU || GetEventIndex() == EVENT_MEMO_LIST)
+	// During normal gameplay or reading memo, restore the cursor's position to last frame's, for cursor position consistency
+	if (((GetEventIndex() == EVENT_IN_GAME && !IsInFullScreenImageEvent()) && GetMenuEvent() != 0x07) || (GetReadingMemoFlag() != 0x00 && GetEventIndex() == EVENT_MEMO_LIST))
 	{
-		auto Now = std::chrono::system_clock::now();
-		auto DeltaMs = std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastMousePauseChange);
+		*GetMouseHorizontalPositionPointer() = CurrentMouseHorizontalPos;
+		*GetMouseVerticalPositionPointer() = CurrentMouseVerticalPos;
+	}
 
-		// Vertical navigation
-		if (PauseMenuVerticalChanged && DeltaMs.count() > InputDebounce)
+	auto Now = std::chrono::system_clock::now();
+
+	// Center the mouse cursor when entering a puzzle
+	if (GetEventIndex() == EVENT_IN_GAME && IsInFullScreenImageEvent() && GetMenuEvent() == 0x0D)
+	{
+		if (!EnteredPuzzle)
+			CursorPosHandler.CenterCursor();
+
+		EnteredPuzzle = true;
+	}
+	else
+	{
+		EnteredPuzzle = false;
+
+		if (AutoHideMouseCursor)
 		{
-			LastMouseVerticalPos = GetMouseVerticalPosition();
-
-			PauseMenuVerticalChanged = false;
-		}
-
-		if (std::abs(GetMouseVerticalPosition() - LastMouseVerticalPos) > PauseMenuMouseThreshold && !PauseMenuVerticalChanged)
-		{
-			if (GetMouseVerticalPosition() > LastMouseVerticalPos && (GetPauseMenuButtonIndex() != 0x04 || GetEventIndex() != EVENT_PAUSE_MENU))
+			// Auto hide mouse cursor, move to top left and remember its position
+			if ((GetEventIndex() == EVENT_IN_GAME && !IsInFullScreenImageEvent()) && GetMenuEvent() != 0x07) // During normal gameplay
 			{
-				SetDownKey = true;
+				CursorPosHandler.MoveCursorToOrigin();
+				HideMouseCursor = true;
+			} // If cursor is visible and has moved, update saved cursor position
+			else if (!HideMouseCursor && (GetMouseVerticalPosition() != LastCursorYPos || GetMouseHorizontalPosition() != LastCursorXPos))
+			{
+				LastCursorXPos = GetMouseHorizontalPosition();
+				LastCursorYPos = GetMouseVerticalPosition();
+
+				CursorPosHandler.UpdateCursorPos();
+
+				LastCursorMovement = Now;
+			} // If cursor is not visible, and has moved from 0:0, set cursor to visible and restore its position
+			else if (HideMouseCursor && (GetMouseVerticalPosition() != 0 || GetMouseHorizontalPosition() != 0))
+			{
+
+				CursorPosHandler.RestoreCursorPos();
+
+				LastCursorXPos = GetMouseHorizontalPosition();
+				LastCursorYPos = GetMouseVerticalPosition();
+
+				LastCursorMovement = Now;
+				HideMouseCursor = false;
+			} // If too much time has passed, hide the cursor
+			else if ((std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastCursorMovement).count() > AutoHideCursorMs))
+			{
+				CursorPosHandler.MoveCursorToOrigin();
+
+				HideMouseCursor = true;
 			}
-			else if (GetMouseVerticalPosition() < LastMouseVerticalPos && (GetPauseMenuButtonIndex() != 0x00 || GetEventIndex() != EVENT_PAUSE_MENU))
+		}
+	}
+	
+	if (EnhanceMouseCursor)
+	{
+		CurrentMouseHorizontalPos = GetMouseHorizontalPosition();
+		CurrentMouseVerticalPos = GetMouseVerticalPosition();
+
+		// Check if mouse has moved, to enable keyboard selection when the cursor is hovering a hitbox
+		bool HasCursorMoved = (CurrentMouseHorizontalPos != LastFrameCursorHorizontalPos) || (CurrentMouseVerticalPos != LastFrameCursorVerticalPos);
+
+		// Handling of vertical and horizontal navigation for Pause screen
+		if (GetEventIndex() == EVENT_PAUSE_MENU && HasCursorMoved)
+		{
+			if (PauseMenu.IsMouseInBounds(CurrentMouseHorizontalPos, CurrentMouseVerticalPos) &&
+				GetQuitSubmenuFlag() == 0x00)
 			{
-				SetUpKey = true;
-			} 
+				int futureIndex = PauseMenu.GetVerticalIndex(CurrentMouseVerticalPos);
 
-			LastMousePauseChange = Now;
-			PauseMenuVerticalChanged = true;
-		}
-		else
-		{
-			LastMouseVerticalPos = GetMouseVerticalPosition();
-		}
-
-		// Horizontal navigation
-		if (PauseMenuHorizontalChanged && DeltaMs.count() > InputDebounce)
-		{
-			LastMouseHorizontalPos = GetMouseHorizontalPosition();
-
-			PauseMenuHorizontalChanged = false;
-		}
-
-		if (std::abs(GetMouseHorizontalPosition() - LastMouseHorizontalPos) > PauseMenuMouseThreshold && !PauseMenuHorizontalChanged)
-		{
-			if (GetMouseHorizontalPosition() > LastMouseHorizontalPos && GetPauseMenuQuitIndex() == 0)
-			{
-				SetRightKey = true;
+				// If Save Game is to be selected, but saving is disabled, don't select the option
+				if (!(futureIndex == 0x01 && orgCanSave.fun() != 0x01))
+				{
+#pragma warning(disable : 4244)
+					* GetPauseMenuButtonIndexPointer() = futureIndex;
+				}
 			}
-			else if (GetMouseHorizontalPosition() < LastMouseHorizontalPos && GetPauseMenuQuitIndex() == 1)
+
+			// Pause menu quit submenu
+			if (QuitMenu.IsMouseInBounds(CurrentMouseHorizontalPos, CurrentMouseVerticalPos) &&
+				GetQuitSubmenuFlag() == 0x01)
 			{
-				SetLeftKey = true;
+#pragma warning(disable : 4244)
+				*GetPauseMenuQuitIndexPointer() = QuitMenu.GetHorizontalIndex(CurrentMouseHorizontalPos);
 			}
-			
-			LastMousePauseChange = Now;
-			PauseMenuHorizontalChanged = true;
-		}
-		else
-		{
-			LastMouseHorizontalPos = GetMouseHorizontalPosition();
 		}
 
-		// Reset mouse position to avoid edges
-		if (GetMouseHorizontalPosition() > 0x15F || GetMouseHorizontalPosition() < 0x10)
+		// Handling of vertical and horizontal navigation for Memo list
+		if (GetEventIndex() == EVENT_MEMO_LIST && GetMenuEvent() == 0x0D && GetReadingMemoFlag() == 0 && GetTransitionState() == 0 && HasCursorMoved)
 		{
-			*GetMouseHorizontalPositionPointer() = 0xFC;
-			LastMouseHorizontalPos = 0xFC;
+			int CollectedMemos = CountCollectedMemos();
+			int NormalizedMemos = (CollectedMemos > 11) ? 11 : CollectedMemos;
+			int SelectedHitbox = MemoMenu.GetEnabledVerticalIndex(CurrentMouseVerticalPos, NormalizedMemos);
+			int TopOrBot = MemoMenu.IsMouseTopOrBot(CurrentMouseHorizontalPos, CurrentMouseVerticalPos);
+
+			// Check wether the cursor is on top/bottom hitboxes
+			if (TopOrBot == 0)
+			{
+				if (SelectedHitbox <= 1)
+					TopOrBot = 1;
+				else if (SelectedHitbox >= 9)
+					TopOrBot = -1;
+			}
+
+			if (MemoMenu.IsMouseInBounds(CurrentMouseHorizontalPos, CurrentMouseVerticalPos, NormalizedMemos) ||
+				(CollectedMemos >= 11 && TopOrBot != 0 && MemoMenu.IsMouseHorizontallyInBounds(CurrentMouseHorizontalPos, NormalizedMemos)))
+			{
+				if (CollectedMemos < 11)
+				{
+					*GetMemoListIndexPointer() = MemoMenu.GetEnabledVerticalIndex(CurrentMouseVerticalPos, NormalizedMemos);
+				}
+				else 
+				{
+					if (TopOrBot != 0)
+					{
+						// top
+						if (TopOrBot == 1)
+						{
+							*GetMemoListIndexPointer() = MemoMenu.GetClampedMemoIndex(-1,
+								CollectedMemos, *GetMemoListIndexPointer());
+							*GetMemoListHitboxPointer() = 3; // Select the top memo
+
+							*GetMouseVerticalPositionPointer() = MemoMenu.GetTop() + (MemoMenu.GetHeight() * 2.5);
+						}
+						else // bottom
+						{
+							*GetMemoListIndexPointer() = MemoMenu.GetClampedMemoIndex(1,
+								CollectedMemos, *GetMemoListIndexPointer());
+							*GetMemoListHitboxPointer() = -3; // Select the bottom memo
+
+							*GetMouseVerticalPositionPointer() = MemoMenu.GetTop() + (MemoMenu.GetHeight() * 8.5);
+						}
+					}
+					else if (*GetMemoListHitboxPointer() != MemoMenu.ConvertHitboxValue(SelectedHitbox))
+					{
+						if (SelectedHitbox > 1 && SelectedHitbox < 9)
+						{
+							*GetMemoListIndexPointer() = MemoMenu.GetClampedMemoIndex(SelectedHitbox - MemoMenu.ConvertHitboxValue(*GetMemoListHitboxPointer()),
+								CollectedMemos, *GetMemoListIndexPointer());
+							*GetMemoListHitboxPointer() = MemoMenu.ConvertHitboxValue(SelectedHitbox);
+						}
+					}
+				}
+			}
 		}
-		if (GetMouseVerticalPosition() > 0x1D0 || GetMouseVerticalPosition() < 0x10)
-		{
-			*GetMouseVerticalPositionPointer() = 0xF0;
-			LastMouseVerticalPos = 0xF0;
-		}
+
+		LastFrameCursorHorizontalPos = GetMouseHorizontalPosition();
+		LastFrameCursorVerticalPos = GetMouseVerticalPosition();
 	}
 }
 
@@ -292,6 +417,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			InfoCombo.State = false;
 		}
 
+		// Update Esc/Cancel input states
 		EscInput.State = IsKeyPressed(KeyBinds.GetKeyBind(KEY_SKIP));
 		EscInput.UpdateHolding();
 		CancelInput.State = IsKeyPressed(KeyBinds.GetKeyBind(KEY_CANCEL));
@@ -465,7 +591,6 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 
 			default:
 				break;
-
 			}
 			MouseWheel = 0;
 		}
@@ -506,36 +631,41 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		// Clear Keyboard Data pointer
 		KeyboardData = nullptr;
 	}
+}
 
-	// Setup for the input functions
-	if (!once)
+void PatchInputTweaks()
+{
+	// Hooking controller input functions
+	orgGetControllerLXAxis.fun = injector::MakeCALL(GetLeftAnalogXFunctionPointer(), GetControllerLXAxis_Hook, true).get();
+	orgGetControllerLYAxis.fun = injector::MakeCALL(GetLeftAnalogYFunctionPointer(), GetControllerLYAxis_Hook, true).get();
+	orgGetControllerRXAxis.fun = injector::MakeCALL(GetRightAnalogXFunctionPointer(), GetControllerRXAxis_Hook, true).get();
+	orgGetControllerRYAxis.fun = injector::MakeCALL(GetRightAnalogYFunctionPointer(), GetControllerRYAxis_Hook, true).get();
+
+	orgUpdateMousePosition.fun = injector::MakeCALL(GetUpdateMousePositionFunctionPointer(), UpdateMousePosition_Hook, true).get();
+
+	InputTweaksRef.CheckNumberKeyBinds();
+
+	if (EnableToggleSprint)
 	{
-		once = true;
-		
-		// Hooking controller input functions
-		orgGetControllerLXAxis.fun = injector::MakeCALL(GetLeftAnalogXFunctionPointer(), GetControllerLXAxis_Hook, true).get();
-		orgGetControllerLYAxis.fun = injector::MakeCALL(GetLeftAnalogYFunctionPointer(), GetControllerLYAxis_Hook, true).get();
-		orgGetControllerRXAxis.fun = injector::MakeCALL(GetRightAnalogXFunctionPointer(), GetControllerRXAxis_Hook, true).get();
-		orgGetControllerRYAxis.fun = injector::MakeCALL(GetRightAnalogYFunctionPointer(), GetControllerRYAxis_Hook, true).get();
+		if (!InputTweaksRef.GetAnalogStringAddr()) return;
 
-		orgUpdateMousePosition.fun = injector::MakeCALL(GetUpdateMousePositionFunctionPointer(), UpdateMousePosition_Hook, true).get();
+		// Change the Analog string (0x68) with Toggle (0x2F)
+		UpdateMemoryAddress((void*)AnalogStringOne, "\x2F", 1);
+		UpdateMemoryAddress((void*)AnalogStringTwo, "\x2F", 1);
+		UpdateMemoryAddress((void*)AnalogStringThree, "\x2F", 1);
+	}
 
-		CheckNumberKeyBinds();
-
-		if (EnableToggleSprint)
-		{
-			if (!GetAnalogStringAddr()) return;
-
-			// Change the Analog string (0x68) with Toggle (0x2F)
-			UpdateMemoryAddress((void*)AnalogStringOne, "\x2F", 1);
-			UpdateMemoryAddress((void*)AnalogStringTwo, "\x2F", 1);
-			UpdateMemoryAddress((void*)AnalogStringThree, "\x2F", 1);
-		}
-
+	// Hooking the mouse visibility function
+	if (EnableEnhancedMouse)
+	{
+		orgDrawCursor.fun = injector::MakeCALL(GetDrawCursorPointer(), DrawCursor_Hook, true).get();
+		orgSetShowCursorFlag.fun = injector::MakeCALL(GetSetShowCursorPointer(), SetShowCursorFlag_Hook, true).get();
+		orgCanSave.fun = injector::MakeCALL(GetCanSaveFunctionPointer(), CanSave_Hook, true).get();
 	}
 }
 
-void InputTweaks::TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD dwFlags)
+void InputTweaks::TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbObjectData, 
+	LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD dwFlags)
 {
 	UNREFERENCED_PARAMETER(dwFlags);
 	UNREFERENCED_PARAMETER(cbObjectData);
@@ -681,7 +811,6 @@ void InputTweaks::ReadMouseButtons()
 
 	SetLMButton = (MouseState.rgbButtons[0] == KEY_SET);
 	RMB.State = (MouseState.rgbButtons[1] == KEY_SET);
-	
 }
 
 float InputTweaks::GetMouseAnalogX()
@@ -818,15 +947,10 @@ bool InputTweaks::SetRMBAimFunction()
 		!IsInFullScreenImageEvent()));
 }
 
-bool InputTweaks::IsInFullScreenImageEvent()
-{
-	return GetFullscreenImageEvent() == 0x02;
-}
-
 bool InputTweaks::GetAnalogStringAddr()
 {
 	constexpr BYTE AnalogStringOneSearchBytes[]{ 0x68, 0x9A, 0x00, 0x00, 0x00, 0x56, 0x6A, 0x68 };
-	BYTE *AnalogString = (BYTE*)SearchAndGetAddresses(0x461F63, 0x4621D5, 0x4621D5, AnalogStringOneSearchBytes, sizeof(AnalogStringOneSearchBytes), 0x07, __FUNCTION__);
+	BYTE *AnalogString = (BYTE*)SearchAndGetAddresses(0x00461F63, 0x004621D5, 0x004621D5, AnalogStringOneSearchBytes, sizeof(AnalogStringOneSearchBytes), 0x07, __FUNCTION__);
 
 	if (!AnalogString)
 	{
@@ -839,7 +963,7 @@ bool InputTweaks::GetAnalogStringAddr()
 	}
 
 	constexpr BYTE AnalogStringTwoSearchBytes[]{ 0x68, 0x98, 0x00, 0x00, 0x00, 0x81, 0xC7, 0x0C, 0x01, 0x00, 0x00, 0x57, 0x6A, 0x68 };
-	AnalogString = (BYTE*)SearchAndGetAddresses(0x4621D1, 0x462433, 0x462433, AnalogStringTwoSearchBytes, sizeof(AnalogStringTwoSearchBytes), 0x0D, __FUNCTION__);
+	AnalogString = (BYTE*)SearchAndGetAddresses(0x004621D1, 0x00462433, 0x00462433, AnalogStringTwoSearchBytes, sizeof(AnalogStringTwoSearchBytes), 0x0D, __FUNCTION__);
 
 	if (!AnalogString)
 	{
@@ -852,7 +976,7 @@ bool InputTweaks::GetAnalogStringAddr()
 	}
 
 	constexpr BYTE AnalogStringThreeSearchBytes[]{ 0x00, 0x6A, 0x68 };
-	AnalogString = (BYTE*)SearchAndGetAddresses(0x464465, 0x4646DE, 0x4648E6, AnalogStringThreeSearchBytes, sizeof(AnalogStringThreeSearchBytes), 0x02, __FUNCTION__);
+	AnalogString = (BYTE*)SearchAndGetAddresses(0x00464465, 0x004646DE, 0x004648E6, AnalogStringThreeSearchBytes, sizeof(AnalogStringThreeSearchBytes), 0x02, __FUNCTION__);
 
 	if (!AnalogString)
 	{
@@ -892,6 +1016,13 @@ bool InputTweaks::GetRMBState()
 bool InputTweaks::GetLMBState()
 {
 	return SetLMButton;
+}
+
+void InputTweaks::InitializeHitboxes(float AspectRatio)
+{
+	PauseMenu = Hitboxes(PauseMenuTop, PauseMenuLeft, PauseMenuHeight, PauseMenuWidth, 5, 1, AspectRatio);
+	QuitMenu = Hitboxes(QuitMenuTop, PauseMenuLeft, PauseMenuHeight, QuitMenuWidth, 1, 2, AspectRatio);
+	MemoMenu = MemoHitboxes(MemoEvenTop, MemoOddTop, MemoLeft, MemoHeight, MemoWidth, AspectRatio);
 }
 
 BYTE KeyBindsHandler::GetKeyBind(int KeyIndex)
@@ -935,23 +1066,27 @@ BYTE KeyBindsHandler::GetPauseButtonBind()
 	return *(this->GetKeyBindsPointer() + 0xF0);
 }
 
-BYTE GetPauseMenuQuitIndex()
+int CountCollectedMemos()
 {
-	if (PauseMenuQuitIndexAddr)
-	{
-		return *PauseMenuQuitIndexAddr;
-	}
+	auto* psVar2 = GetMemoCountIndexPointer();
+	int LoopCondition = ((int)psVar2) + 0x390;
 
-	constexpr BYTE PauseMenuQuitSearchBytes[]{ 0x8B, 0x44, 0x24, 0x04, 0xA3 };
-	DWORD PauseMenuQuitAddress = ReadSearchedAddresses(0x004072A0, 0x004072A0, 0x004072B0, PauseMenuQuitSearchBytes, sizeof(PauseMenuQuitSearchBytes), 0x5, __FUNCTION__);
+	auto* MemosArray = GetMemoInventoryPointer();
+	int TotalMemos = 0;
 
-	if (!PauseMenuQuitAddress)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find Pause Menu Quit Index memory address!";
-		return NULL;
-	}
+	do {
 
-	PauseMenuQuitIndexAddr = (BYTE*)PauseMenuQuitAddress;
+		if (((unsigned int)(MemosArray)[(int)*psVar2 >> 5] >> ((byte)*psVar2 & 0x1f) & 1) != 0)
+			TotalMemos = TotalMemos + 1;
 
-	return *PauseMenuQuitIndexAddr;
+		if (((unsigned int)(MemosArray)[(int)psVar2[8] >> 5] >> ((byte)psVar2[8] & 0x1f) & 1) != 0)
+			TotalMemos = TotalMemos + 1;
+
+		if (((unsigned int)(MemosArray)[(int)psVar2[0x10] >> 5] >> ((byte)psVar2[0x10] & 0x1f) & 1) != 0)
+			TotalMemos = TotalMemos + 1;
+
+		psVar2 += 0x18;
+	} while ((int)psVar2 < LoopCondition);
+
+	return TotalMemos;
 }

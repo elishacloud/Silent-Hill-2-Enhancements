@@ -64,7 +64,16 @@ int32_t GetIsWritingQuicksave();
 int32_t GetTextAddr();
 float GetFrametime();
 BYTE GetInputAssignmentFlag();
+BYTE GetQuitSubmenuFlag();
+int32_t GetMemoListIndex();
+int32_t GetMemoListHitbox();
+int16_t GetMemoCountIndex();
+int32_t GetMemoInventory();
+BYTE GetMousePointerVisibleFlag();
+BYTE GetReadingMemoFlag();
 float GetGlobalFadeHoldValue();
+float GetPuzzleCursorHorizontalPos();
+float GetPuzzleCursorVerticalPos();
 BYTE GetPlayerIsDying();
 BYTE GetMariaNpcIsDying();
 
@@ -141,12 +150,26 @@ float *GetMeetingMariaCutsceneFogCounterOnePointer();
 float *GetMeetingMariaCutsceneFogCounterTwoPointer();
 float *GetRPTClosetCutsceneMannequinDespawnPointer();
 float *GetRPTClosetCutsceneBlurredBarsDespawnPointer();
+BYTE *GetInputAssignmentFlagPointer();
+BYTE *GetPauseMenuQuitIndexPointer();
+BYTE *GetQuitSubmenuFlagPointer();
+int32_t *GetMemoListIndexPointer();
+int32_t *GetMemoListHitboxPointer();
+int16_t *GetMemoCountIndexPointer();
+int32_t *GetMemoInventoryPointer();
+BYTE *GetMousePointerVisibleFlagPointer();
+BYTE *GetReadingMemoFlagPointer();
+DWORD *GetDrawCursorPointer();
+DWORD *GetSetShowCursorPointer();
 BYTE* GetInputAssignmentFlagPointer();
 float* GetGlobalFadeHoldValuePointer();
 float* GetFinalBossBottomWalkwaySpawnPointer();
 float* GetFinalBossBottomFloorSpawnPointer();
 float* GetFinalBossBlackBoxSpawnPointer();
 float* GetFinalBossDrawDistancePointer();
+DWORD* GetCanSaveFunctionPointer();
+float* GetPuzzleCursorHorizontalPosPointer();
+float* GetPuzzleCursorVerticalPosPointer();
 BYTE* GetPlayerIsDyingPointer();
 BYTE* GetMariaNpcIsDyingPointer();
 
@@ -195,6 +218,7 @@ void PatchFullscreenImages();
 void PatchFullscreenVideos();
 void PatchGameLoad();
 void PatchHoldDamage();
+void PatchInputTweaks();
 void PatchInventoryBGMBug();
 void PatchLockScreenPosition();
 void PatchMainMenu();
@@ -234,6 +258,8 @@ bool IsJames(ModelID id);
 bool IsMariaExcludingEyes(ModelID id);
 bool IsMariaEyes(ModelID id);
 bool isConfirmationPromptOpen();
+int CountCollectedMemos();
+bool IsInFullScreenImageEvent();
 
 void HandleFinalBossRoomFix();
 
@@ -281,7 +307,7 @@ extern DWORD *SpecializedLight2Addr;
 extern BYTE *FlashlightSwitchAddr;
 extern float *FlashlightBrightnessAddr;
 
-extern BYTE *EventIndexAddr;							/*0 = load screen
+extern BYTE *EventIndexAddr;			/*0 = load screen
 										1 = load room
 										2 = main menu
 										4 = in-game
@@ -296,9 +322,9 @@ extern BYTE *EventIndexAddr;							/*0 = load screen
 										15 = FMVs
 										16 = PC pause menu*/
 
-extern BYTE *MenuEventAddr;							/* 7 = main menu event index */
+extern BYTE *MenuEventAddr;				/* 7 = main menu event index */
 
-extern DWORD *TransitionStateAddr;						/* 1 = fades the game image to black
+extern DWORD *TransitionStateAddr;		/* 1 = fades the game image to black
 										2 = solid black screen
 										3 = fades from black back to the in game screen */
 
@@ -339,6 +365,8 @@ extern BYTE* ControlTypeAddr;
 extern BYTE* NumKeysWeaponBindStartAddr;
 extern BYTE* TalkShowHostStateAddr;
 extern BYTE* InputAssignmentFlagAddr;
+extern float* PuzzleCursorHorizontalPosAddr;
+extern float* PuzzleCursorVerticalPosAddr;
 
 extern bool ShowDebugOverlay;
 extern bool ShowInfoOverlay;

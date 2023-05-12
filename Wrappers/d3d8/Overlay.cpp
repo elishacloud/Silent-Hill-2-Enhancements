@@ -53,7 +53,10 @@ DWORD FogEnableValue;
 void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 {
 	if (LastBufferWidth != BufferWidth || LastBufferHeight != BufferHeight)
+	{
 		InitializeDataStructs();
+		InputTweaksRef.InitializeHitboxes((float)BufferWidth / (float)BufferHeight);
+	}
 
 	// nVidia fix
 	ProxyInterface->GetRenderState(D3DRS_FOGENABLE, &FogEnableValue);
@@ -214,8 +217,14 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append("\rEvent ID: 0x");
 	OvlString.append(IntToHexStr(GetEventIndex()));
 
+	OvlString.append("\rMenu Event ID: 0x");
+	OvlString.append(IntToHexStr(GetMenuEvent()));
+
 	OvlString.append("\rFullscreen Image Event: 0x");
 	OvlString.append(IntToHexStr(GetFullscreenImageEvent()));
+
+	OvlString.append("\rMemos collected: ");
+	OvlString.append(std::to_string(CountCollectedMemos()));
 
 	OvlString.append("\rChar X Position: ");
 	OvlString.append(FloatToStr(GetJamesPosX(), FloatPrecision));
@@ -245,6 +254,11 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append(InputTweaksRef.GetLMBState() ? "True" : "False");
 	OvlString.append("\rRight Mouse B.: ");
 	OvlString.append(InputTweaksRef.GetRMBState() ? "True" : "False");
+
+	OvlString.append("\rMouse X Pos.: ");
+	OvlString.append(std::to_string(GetMouseHorizontalPosition()));
+	OvlString.append("\rMouse Y Pos.: ");
+	OvlString.append(std::to_string(GetMouseVerticalPosition()));
 
 	// Temporary Debug String, to use wherever
 	OvlString.append(AuxDebugOvlString);
@@ -486,7 +500,7 @@ void Overlay::InitializeDataStructs()
 	DebugOverlayTextStruct.Rect.right = rectOffset + 300;
 	DebugOverlayTextStruct.Rect.bottom = rectOffset + 15;
 	DebugOverlayTextStruct.Color = TextColors.Green;
-	
+
 	LastBufferWidth = BufferWidth;
 	LastBufferHeight = BufferHeight;
 }
@@ -521,4 +535,15 @@ std::string Overlay::GetIGTString()
 	TimeString.append(FloatToStr(time, 3));
 
 	return TimeString;
+}
+
+void Overlay::RenderMouseCursor()
+{
+	if (!EnhanceMouseCursor || 
+		(GetEventIndex() != EVENT_PAUSE_MENU && GetEventIndex() != EVENT_MEMO_LIST) || GetReadingMemoFlag() != 0 || GetTransitionState() != 0)
+		return;
+
+	*GetMousePointerVisibleFlagPointer() = 1;
+	SetShowCursorFlag_Hook();
+	DrawCursor_Hook();
 }

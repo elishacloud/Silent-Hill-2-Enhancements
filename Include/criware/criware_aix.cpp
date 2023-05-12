@@ -70,6 +70,7 @@ typedef struct AIX_THREAD_CTX
 	const char* fname;
 } AIX_THREAD_CTX;
 
+#if 0
 static DWORD WINAPI aix_load_thread(LPVOID param)
 {
 	auto obj = (AIXP_Object*)param;
@@ -121,6 +122,7 @@ static DWORD WINAPI aix_load_thread(LPVOID param)
 
 	return 0;
 }
+#endif
 
 void aix_start(AIXP_Object* obj, const char* fname)
 {

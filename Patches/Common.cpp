@@ -32,7 +32,6 @@ BYTE *FlashlightSwitchAddr = nullptr;
 float *JamesPosXAddr = nullptr;
 float *JamesPosYAddr = nullptr;
 float *JamesPosZAddr = nullptr;
-DWORD *OnScreenAddr = nullptr;
 BYTE *EventIndexAddr = nullptr;
 BYTE *MenuEventAddr = nullptr;
 DWORD *RoomIDAddr = nullptr;
@@ -102,6 +101,8 @@ float* GlobalFadeHoldValueAddr = nullptr;
 float* FinalBossBottomFloorSpawnAddr = nullptr;
 float* FinalBossBottomWalkwaySpawnAddr = nullptr;
 float* FinalBossBlackBoxSpawnAddr = nullptr;
+BYTE* PlayerIsDyingAddr = nullptr;
+BYTE* MariaNpcIsDyingAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -506,34 +507,6 @@ float *GetFlashlightBrightnessPointer()
 	}
 
 	return FlashlightBrightnessAddr;
-}
-
-DWORD GetOnScreen()
-{
-	DWORD *pOnScreen = GetOnScreenPointer();
-
-	return (pOnScreen) ? *pOnScreen : 0;
-}
-
-DWORD *GetOnScreenPointer()
-{
-	if (OnScreenAddr)
-	{
-		return OnScreenAddr;
-	}
-
-	// Get address for on-screen address
-	constexpr BYTE OnScreenSearchBytes[]{ 0x33, 0xC0, 0x5B, 0xC3, 0x68 };
-	OnScreenAddr = (DWORD*)ReadSearchedAddresses(0x0043F205, 0x0043F3C5, 0x0043F3C5, OnScreenSearchBytes, sizeof(OnScreenSearchBytes), 0x50, __FUNCTION__);
-
-	// Checking address pointer
-	if (!OnScreenAddr)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find on-screen address!";
-		return nullptr;
-	}
-
-	return OnScreenAddr;
 }
 
 BYTE GetEventIndex()
@@ -2211,4 +2184,59 @@ float* GetFinalBossBlackBoxSpawnPointer()
 	FinalBossBlackBoxSpawnAddr = (float*) FinalBoxBlackBoxSpawnAddress;
 
 	return FinalBossBlackBoxSpawnAddr;
+}
+BYTE GetPlayerIsDying()
+{
+    BYTE* pPlayerIsDying = GetPlayerIsDyingPointer();
+
+    return (pPlayerIsDying) ? *pPlayerIsDying : 0;
+}
+
+BYTE* GetPlayerIsDyingPointer()
+{
+    if (PlayerIsDyingAddr)
+    {
+        return PlayerIsDyingAddr;
+    }
+
+    // Get player dying flag addresses
+    constexpr BYTE SearchBytes[]{ 0xEb, 0x03, 0xF6, 0xC4, 0x41, 0x7A, 0x07, 0xC6, 0x05 };
+    void *PlayerIsDying = (void*)ReadSearchedAddresses(0x00535948, 0x00535C78, 0x00535598, SearchBytes, sizeof(SearchBytes), 0x09, __FUNCTION__);
+    if (!PlayerIsDying)
+    {
+        Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+        return nullptr;
+    }
+
+    PlayerIsDyingAddr = (BYTE*)((DWORD)PlayerIsDying);
+
+    return PlayerIsDyingAddr;
+}
+
+BYTE GetMariaNpcIsDying()
+{
+    BYTE* pMariaNpcIsDying = GetMariaNpcIsDyingPointer();
+
+    return (pMariaNpcIsDying) ? *pMariaNpcIsDying : 0;
+}
+
+BYTE* GetMariaNpcIsDyingPointer()
+{
+    if (MariaNpcIsDyingAddr)
+    {
+        return MariaNpcIsDyingAddr;
+    }
+
+    // Get Maria NPC dying flag address
+    constexpr BYTE SearchBytes[]{ 0x0F, 0x86, 0xDC, 0x00, 0x00, 0x00, 0xA1 };
+    void *MariaNpcIsDying = (BYTE*)ReadSearchedAddresses(0x0052D6D3, 0x0052DA03, 0x0052D323, SearchBytes, sizeof(SearchBytes), 0x1D, __FUNCTION__);
+    if (!MariaNpcIsDying)
+    {
+        Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+        return nullptr;
+    }
+
+    MariaNpcIsDyingAddr = (BYTE*)((DWORD)MariaNpcIsDying);
+
+    return MariaNpcIsDyingAddr;
 }

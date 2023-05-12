@@ -9,10 +9,12 @@
 #include "criware.h"
 #include <chrono>
 
+#if 0
 static double GetTime()
 {
 	return std::chrono::duration<double>(std::chrono::high_resolution_clock::now().time_since_epoch()).count() * 1000.;
 }
+#endif
 
 static CRITICAL_SECTION ADX_crit;
 

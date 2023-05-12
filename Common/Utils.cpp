@@ -17,6 +17,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #ifdef ISLAUNCHER
+#undef NTDDI_VERSION
+#define NTDDI_VERSION NTDDI_WINXPSP3
 #include <winnt.h>
 #include <ShlObj.h>
 #include <Propkey.h>

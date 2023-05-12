@@ -502,6 +502,24 @@
         <Value name="Enable" default="true">1</Value>
       </Choices>
     </Feature>
+
+      <Feature name="EnhanceMouseCursor">
+        <Title>Enable mouse cursor navigation in menus</Title>
+        <Description>Enables mouse cursor navigation in menus such as the pause menu and memo list.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="AutoHideMouseCursor">
+        <Title>Hide mouse cursor when idle</Title>
+        <Description>Hides the mouse cursor after a few seconds of inactivity, in menus where the cursor is enabled.</Description>
+        <Choices type="check">
+          <Value name="Disable" default="true">0</Value>
+          <Value name="Enable">1</Value>
+        </Choices>
+      </Feature>
     
     </Section>
 

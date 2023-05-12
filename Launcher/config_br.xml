@@ -716,6 +716,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="FixFinalBossRoom">
+        <Title>Fix culling error in final boss room</Title>
+        <Description>Fixes a graphics error in the final boss room, that would show in certain angles while looking at the floor.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="WoodsideRoom205Fix">
         <Title>Corrigir "spawn" de inimigo no quarto 205 em Wood Side</Title>
         <Description>Corrige um bug raro em que a criatura manequim na sala 205 dos Apartamentos Wood Side pode não aparecer/comportar-se corretamente ao entrar no quarto.</Description>
@@ -830,15 +839,6 @@
         <Choices type="check">
           <Value name="Desativar">0</Value>
           <Value name="Ativar" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="FixFinalBossRoom">
-        <Title>Fix culling error in final boss room</Title>
-        <Description>Fixes a graphics error in the final boss room, that would show in certain angles while looking at the floor.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 

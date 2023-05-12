@@ -55,6 +55,7 @@
     <ClCompile Include="Patches\ChangeClosetSpawn.cpp" />
     <ClCompile Include="Patches\CommandWindowMouseFix.cpp" />
     <ClCompile Include="Patches\DoubleFootstepFix.cpp" />
+    <ClCompile Include="Patches\FinalBossRoomFix.cpp" />
     <ClCompile Include="Patches\InputTweaks.cpp" />
     <ClCompile Include="Patches\FMVPatches.cpp" />
     <ClCompile Include="Patches\HoldDamage.cpp" />

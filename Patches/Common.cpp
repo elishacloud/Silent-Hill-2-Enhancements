@@ -108,6 +108,9 @@ BYTE *ReadingMemoFlagAddr = nullptr;
 DWORD *SetShowCursorAddr = nullptr;
 DWORD *DrawCursorAddr = nullptr;
 float* GlobalFadeHoldValueAddr = nullptr;
+float* FinalBossBottomFloorSpawnAddr = nullptr;
+float* FinalBossBottomWalkwaySpawnAddr = nullptr;
+float* FinalBossBlackBoxSpawnAddr = nullptr;
 DWORD* CanSaveFunctionAddr = nullptr;
 float* PuzzleCursorHorizontalPosAddr = nullptr;
 float* PuzzleCursorVerticalPosAddr = nullptr;
@@ -2405,6 +2408,75 @@ float* GetGlobalFadeHoldValuePointer()
 		(GameVersion == SH2V_DC) ? 0x0094522C : NULL);
 
 	return GlobalFadeHoldValueAddr;
+}
+
+float* GetFinalBossBottomWalkwaySpawnPointer()
+{
+	if (FinalBossBottomWalkwaySpawnAddr)
+	{
+		return FinalBossBottomWalkwaySpawnAddr;
+	}
+
+	// Get FinalBossBottomWalkwaySpawn address
+	constexpr BYTE FinalBossBottomWalkwaySpawnSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x05, 0x7A, 0x53, 0xD9 };
+	float* FinalBossBottomWalkwaySpawn = (float*)ReadSearchedAddresses(0x0059E98E, 0x0059F23E, 0x0059EB5E, FinalBossBottomWalkwaySpawnSearchBytes, sizeof(FinalBossBottomWalkwaySpawnSearchBytes), 0x0C, __FUNCTION__);
+
+	// Checking address pointer
+	if (!FinalBossBottomWalkwaySpawn)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find FinalBossBottomWalkwaySpawn  address!";
+		return nullptr;
+	}
+
+	FinalBossBottomWalkwaySpawnAddr = (float*)((DWORD)FinalBossBottomWalkwaySpawn);
+
+	return FinalBossBottomWalkwaySpawnAddr;
+}
+
+float* GetFinalBossBottomFloorSpawnPointer()
+{
+	if (FinalBossBottomFloorSpawnAddr)
+	{
+		return FinalBossBottomFloorSpawnAddr;
+	}
+
+	// Get FinalBossBottomFloorSpawn address
+	constexpr BYTE FinalBossBottomFloorSpawnSearchBytes[]{ 0xC7, 0x46, 0x38, 0x00, 0x00, 0xFA, 0xC3 };
+	float* FinalBossBottomFloorSpawn = (float*)ReadSearchedAddresses(0x004B852B, 0x004B87DB, 0x004B809B, FinalBossBottomFloorSpawnSearchBytes, sizeof(FinalBossBottomFloorSpawnSearchBytes), 0x0C, __FUNCTION__);
+
+	// Checking address pointer
+	if (!FinalBossBottomFloorSpawn)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find FinalBossBottomFloorSpawn  address!";
+		return nullptr;
+	}
+
+	FinalBossBottomFloorSpawnAddr = (float*)((DWORD)FinalBossBottomFloorSpawn);
+
+	return FinalBossBottomFloorSpawnAddr;
+}
+
+float* GetFinalBossBlackBoxSpawnPointer()
+{
+	if (FinalBossBlackBoxSpawnAddr)
+	{
+		return FinalBossBlackBoxSpawnAddr;
+	}
+
+	// Getfinal boss black box spawn pointer
+	constexpr BYTE FinalBoxBlackBoxSpawnSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x05, 0x0F, 0x8A, 0x9C, 0x01, 0x00, 0x00 };
+	void* FinalBoxBlackBoxSpawnAddress = (void*)ReadSearchedAddresses(0x004413F3, 0x004415B3, 0x004415B3, FinalBoxBlackBoxSpawnSearchBytes, sizeof(FinalBoxBlackBoxSpawnSearchBytes), 0x15, __FUNCTION__);
+
+	// Checking address pointer
+	if (!FinalBoxBlackBoxSpawnAddress)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Final boss black box cover address!";
+		return nullptr;
+	}
+
+	FinalBossBlackBoxSpawnAddr = (float*) FinalBoxBlackBoxSpawnAddress;
+
+	return FinalBossBlackBoxSpawnAddr;
 }
 
 DWORD* GetCanSaveFunctionPointer()

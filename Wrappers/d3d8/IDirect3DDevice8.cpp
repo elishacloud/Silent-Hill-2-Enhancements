@@ -1915,6 +1915,11 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		{
 			IsInFakeFadeout = false;
 		}
+
+		if (FixFinalBossRoom)
+		{
+			HandleFinalBossRoomFix();
+		}
 	}
 
 	if (!isInScene)

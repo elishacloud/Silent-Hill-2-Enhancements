@@ -587,6 +587,12 @@ void DelayedStart()
         PatchCommandWindowMouseFix();
     }
 
+	// Patch to fix the final boss room culling error
+	if (FixFinalBossRoom)
+	{
+		PatchFinalBossRoom();
+	}
+
 	// Hook input handling
 	if (EnableInputTweaks)
 	{

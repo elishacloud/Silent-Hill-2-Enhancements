@@ -716,6 +716,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="FixFinalBossRoom">
+        <Title>Fix culling error in final boss room</Title>
+        <Description>Fixes a graphics error in the final boss room, that would show in certain angles while looking at the floor.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="WoodsideRoom205Fix">
         <Title>Fix enemy spawn in Wood Side Room 205</Title>
         <Description>Fixes a rare bug where the Mannequin creature in Wood Side Apartments Room 205 may not spawn/behave correctly upon entering the room.</Description>

@@ -716,6 +716,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="FixFinalBossRoom">
+        <Title>Fix culling error in final boss room</Title>
+        <Description>Fixes a graphics error in the final boss room, that would show in certain angles while looking at the floor.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="WoodsideRoom205Fix">
         <Title>Corregir la aparición del enemigo en el apartamento 205 de Wood Side</Title>
         <Description>Corrige un fallo poco habitual en el que el maniquí del apartamento 205 de los apartamentos Wood Side podría no aparecer o comportarse correctamente nada más entrar en la habitación.</Description>

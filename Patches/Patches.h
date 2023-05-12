@@ -163,6 +163,10 @@ DWORD *GetDrawCursorPointer();
 DWORD *GetSetShowCursorPointer();
 BYTE* GetInputAssignmentFlagPointer();
 float* GetGlobalFadeHoldValuePointer();
+float* GetFinalBossBottomWalkwaySpawnPointer();
+float* GetFinalBossBottomFloorSpawnPointer();
+float* GetFinalBossBlackBoxSpawnPointer();
+float* GetFinalBossDrawDistancePointer();
 DWORD* GetCanSaveFunctionPointer();
 float* GetPuzzleCursorHorizontalPosPointer();
 float* GetPuzzleCursorVerticalPosPointer();
@@ -203,6 +207,7 @@ void PatchControllerTweaks();
 void PatchDelayedFadeIn();
 void PatchDoubleFootstepFix();
 void PatchDrawDistance();
+void PatchFinalBossRoom();
 void PatchFlashlightClockPush();
 void PatchFlashlightFlicker();
 void PatchFMV();
@@ -255,6 +260,8 @@ bool IsMariaEyes(ModelID id);
 bool isConfirmationPromptOpen();
 int CountCollectedMemos();
 bool IsInFullScreenImageEvent();
+
+void HandleFinalBossRoomFix();
 
 void OnFileLoadTex(LPCSTR lpFileName);
 void OnFileLoadVid(LPCSTR lpFileName);

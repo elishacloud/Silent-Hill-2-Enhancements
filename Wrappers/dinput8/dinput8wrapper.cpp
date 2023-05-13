@@ -92,6 +92,30 @@ HRESULT WINAPI DirectInput8CreateWrapper(HINSTANCE hinst, DWORD dwVersion, REFII
 	return hr;
 }
 
+void FixMouseClick(HWND hwnd)
+{
+	// Check if mouse pointer is inside the Silent Hill 2 window
+	if (!IsIconic(hwnd))
+	{
+		RECT Rect = {};
+		if (GetWindowRect(hwnd, &Rect))
+		{
+			POINT Point = {};
+			GetCursorPos(&Point);
+			if (Point.x < Rect.left || Point.x > Rect.right || Point.y < Rect.top || Point.y > Rect.bottom)
+			{
+				// Get center of the Silent Hill 2 window
+				const int x = Rect.left + ((Rect.right - Rect.left) / 2);
+				const int y = Rect.top + ((Rect.bottom - Rect.top) / 2);
+				SetCursorPos(x, y);
+			}
+		}
+	}
+
+	// Send mouse event when focus is lost to clear mouse click
+	mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
+}
+
 void CALLBACK windowChangeHook(HWINEVENTHOOK hWinEventHook, DWORD event, HWND hwnd, LONG idObject, LONG idChild, DWORD dwEventThread, DWORD dwmsEventTime)
 {
 	UNREFERENCED_PARAMETER(hWinEventHook);
@@ -111,8 +135,7 @@ void CALLBACK windowChangeHook(HWINEVENTHOOK hWinEventHook, DWORD event, HWND hw
 	{
 		LostWindowFocus = false;
 
-		// Send mouse event when focus is lost to clear mouse click
-		mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
+		FixMouseClick(hwnd);
 	}
 	else
 	{

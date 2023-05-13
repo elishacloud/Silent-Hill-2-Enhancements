@@ -454,6 +454,11 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	static bool FristRun = true;
 
 	// Set window active and focus
+	if (FristRun)
+	{
+		ShowWindow(MainhWnd, SW_MINIMIZE);
+		ShowWindow(MainhWnd, SW_RESTORE);
+	}
 	SetWindowPos(MainhWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 	if (!ForceTopMost)
 	{
@@ -511,7 +516,7 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 		else
 		{
 			RECT wRect = {};
-			GetWindowRect(MainhWnd,&wRect);
+			GetWindowRect(MainhWnd, &wRect);
 			xLoc = wRect.left;
 			yLoc = wRect.top;
 			if (xLoc + Rect.right > screenWidth && screenWidth >= Rect.right)

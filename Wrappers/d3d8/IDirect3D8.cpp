@@ -451,10 +451,10 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	}
 
 	// Remember first run
-	static bool FristRun = true;
+	static bool FirstRun = true;
 
 	// Set window active and focus
-	if (FristRun)
+	if (FirstRun)
 	{
 		ShowWindow(MainhWnd, SW_MINIMIZE);
 		ShowWindow(MainhWnd, SW_RESTORE);
@@ -507,7 +507,7 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	if (ScreenMode == WINDOWED && screenWidth >= Rect.right && screenHeight >= Rect.bottom)
 	{
 		// Center window on load or if not using window border
-		if (FristRun || !UsingWindowBorder)
+		if (FirstRun || !UsingWindowBorder)
 		{
 			xLoc = (screenWidth - Rect.right) / 2;
 			yLoc = (screenHeight - Rect.bottom) / 2;
@@ -547,7 +547,7 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	}
 
 	// Unset frist run
-	FristRun = false;
+	FirstRun = false;
 }
 
 void SaveWindowPlacement()

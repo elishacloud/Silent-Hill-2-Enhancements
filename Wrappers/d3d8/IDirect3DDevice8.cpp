@@ -34,6 +34,7 @@ bool ClassReleaseFlag = false;
 bool TextureSet = false;
 DWORD TextureNum = 0;
 Overlay OverlayRef;
+MasterVolume MasterVolumeRef;
 
 struct SCREENSHOTSTRUCT
 {
@@ -970,6 +971,9 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 
 	// Draw Overlays
 	OverlayRef.DrawOverlays(ProxyInterface);
+
+	// Draw Master Volume Slider
+	MasterVolumeRef.HandleMasterVolumeSlider(ProxyInterface);
 
 	// Skip frames in specific cutscenes to prevent flickering
 	if (SkipSceneFlag)

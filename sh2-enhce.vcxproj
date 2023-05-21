@@ -184,6 +184,7 @@
     <ClInclude Include="Logging\Logging.h" />
     <ClInclude Include="Patches\FullscreenImages.h" />
     <ClInclude Include="Patches\InputTweaks.h" />
+    <ClInclude Include="Patches\MasterVolume.h" />
     <ClInclude Include="Patches\ModelID.h" />
     <ClInclude Include="Patches\Patches.h" />
     <ClInclude Include="Patches\SfxPatch.h" />

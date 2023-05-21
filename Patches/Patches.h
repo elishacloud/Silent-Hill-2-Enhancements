@@ -224,7 +224,6 @@ void PatchLockScreenPosition();
 void PatchMainMenu();
 void PatchMainMenuTitlePerLang();
 void PatchMapTranscription();
-void PatchMasterVolumeSlider();
 void PatchMemoBrightnes();
 void PatchPauseScreen();
 void PatchPistonRoom();

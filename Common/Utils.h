@@ -30,6 +30,7 @@ void GetVersionFile(const wchar_t* lpFilename, OSVERSIONINFO* oFileVersion);
 #ifdef ISLAUNCHER
 bool CheckFileIsSH2EEModule(const wchar_t* Path);
 #endif
+HMEMORYMODULE LoadMemoryToDLL(LPVOID pMemory, DWORD Size);
 HMEMORYMODULE LoadResourceToMemory(DWORD ResID);
 void ExtractFileFromResource(DWORD ResID, char* lpFilepath);
 void ExtractFileFromResource(DWORD ResID, wchar_t* lpFilepath);

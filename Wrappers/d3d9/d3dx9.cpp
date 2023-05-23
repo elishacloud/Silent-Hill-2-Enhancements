@@ -16,6 +16,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include "d3dx9.h"
+#include "d3dx9_data.h"
 #include "External\MemoryModule\MemoryModule.h"
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
@@ -53,36 +54,37 @@ FARPROC f_D3DXLoadSurfaceFromSurface = (FARPROC)*D3DXLoadSurfaceFromSurface;
 void LoadD3dx9()
 {
 	static bool RunOnce = true;
-	if (RunOnce)
+	if (!RunOnce)
 	{
-		RunOnce = false;
+		return;
+	}
+	RunOnce = false;
 
-		d3dx9Module = LoadResourceToMemory(IDR_D3DX9_DLL);
-		d3dCompile43Module = LoadResourceToMemory(IDR_D3DCOMPI43_DLL);
-		d3dCompileModule = LoadResourceToMemory(IDR_D3DCOMPILE_DLL);
+	d3dx9Module = LoadMemoryToDLL((LPVOID)D3DX9_43, sizeof(D3DX9_43));
+	d3dCompile43Module = LoadMemoryToDLL((LPVOID)D3DCompiler_43, sizeof(D3DCompiler_43));
+	d3dCompileModule = LoadMemoryToDLL((LPVOID)D3DCompiler_47, sizeof(D3DCompiler_47));
 
-		if (!d3dx9Module || (!d3dCompileModule && !d3dCompile43Module))
-		{
-			Logging::Log() << __FUNCTION__ << "Error: failed to load d3dx9 modules!";
-		}
-		if (d3dx9Module)
-		{
-			p_D3DXAssembleShader = reinterpret_cast<PFN_D3DXAssembleShader>(MemoryGetProcAddress(d3dx9Module, "D3DXAssembleShader"));
-			p_D3DXDisassembleShader = reinterpret_cast<PFN_D3DXDisassembleShader>(MemoryGetProcAddress(d3dx9Module, "D3DXDisassembleShader"));
-			p_D3DXLoadSurfaceFromSurface = reinterpret_cast<PFN_D3DXLoadSurfaceFromSurface>(MemoryGetProcAddress(d3dx9Module, "D3DXLoadSurfaceFromSurface"));
-		}
-		if (d3dCompileModule)
-		{
-			p_D3DAssemble = reinterpret_cast<PFN_D3DAssemble>(MemoryGetProcAddress(d3dCompileModule, "D3DAssemble"));
-			p_D3DCompile = reinterpret_cast<PFN_D3DCompile>(MemoryGetProcAddress(d3dCompileModule, "D3DCompile"));
-			p_D3DDisassemble = reinterpret_cast<PFN_D3DDisassemble>(MemoryGetProcAddress(d3dCompileModule, "D3DDisassemble"));
-		}
-		if (d3dCompile43Module)
-		{
-			p_D3DAssemble43 = reinterpret_cast<PFN_D3DAssemble>(MemoryGetProcAddress(d3dCompile43Module, "D3DAssemble"));
-			p_D3DCompile43 = reinterpret_cast<PFN_D3DCompile>(MemoryGetProcAddress(d3dCompile43Module, "D3DCompile"));
-			p_D3DDisassemble43 = reinterpret_cast<PFN_D3DDisassemble>(MemoryGetProcAddress(d3dCompile43Module, "D3DDisassemble"));
-		}
+	if (!d3dx9Module || (!d3dCompileModule && !d3dCompile43Module))
+	{
+		Logging::Log() << __FUNCTION__ << "Error: failed to load d3dx9 modules!";
+	}
+	if (d3dx9Module)
+	{
+		p_D3DXAssembleShader = reinterpret_cast<PFN_D3DXAssembleShader>(MemoryGetProcAddress(d3dx9Module, "D3DXAssembleShader"));
+		p_D3DXDisassembleShader = reinterpret_cast<PFN_D3DXDisassembleShader>(MemoryGetProcAddress(d3dx9Module, "D3DXDisassembleShader"));
+		p_D3DXLoadSurfaceFromSurface = reinterpret_cast<PFN_D3DXLoadSurfaceFromSurface>(MemoryGetProcAddress(d3dx9Module, "D3DXLoadSurfaceFromSurface"));
+	}
+	if (d3dCompileModule)
+	{
+		p_D3DAssemble = reinterpret_cast<PFN_D3DAssemble>(MemoryGetProcAddress(d3dCompileModule, "D3DAssemble"));
+		p_D3DCompile = reinterpret_cast<PFN_D3DCompile>(MemoryGetProcAddress(d3dCompileModule, "D3DCompile"));
+		p_D3DDisassemble = reinterpret_cast<PFN_D3DDisassemble>(MemoryGetProcAddress(d3dCompileModule, "D3DDisassemble"));
+	}
+	if (d3dCompile43Module)
+	{
+		p_D3DAssemble43 = reinterpret_cast<PFN_D3DAssemble>(MemoryGetProcAddress(d3dCompile43Module, "D3DAssemble"));
+		p_D3DCompile43 = reinterpret_cast<PFN_D3DCompile>(MemoryGetProcAddress(d3dCompile43Module, "D3DCompile"));
+		p_D3DDisassemble43 = reinterpret_cast<PFN_D3DDisassemble>(MemoryGetProcAddress(d3dCompile43Module, "D3DDisassemble"));
 	}
 }
 

@@ -760,6 +760,15 @@ bool CheckFileIsSH2EEModule(const wchar_t* Path)
 }
 #endif
 
+HMEMORYMODULE LoadMemoryToDLL(LPVOID pMemory, DWORD Size)
+{
+	if (pMemory && Size)
+	{
+		return MemoryLoadLibrary(pMemory, Size);
+	}
+	return nullptr;
+}
+
 HMEMORYMODULE LoadResourceToMemory(DWORD ResID)
 {
 	HRSRC hResource = FindResource(m_hModule, MAKEINTRESOURCE(ResID), RT_RCDATA);

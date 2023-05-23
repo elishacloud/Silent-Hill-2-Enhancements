@@ -19,10 +19,6 @@
 #define IDR_SEARCHTEX_DDS               301
 #define IDR_AREATEX_DDS                 302
 
-#define IDR_D3DX9_DLL                   401
-#define IDR_D3DCOMPI43_DLL              402
-#define IDR_D3DCOMPILE_DLL              403
-
 #define IDR_LANG_RES_JA                 501
 #define IDR_LANG_RES_EN                 502
 #define IDR_LANG_RES_FR                 503

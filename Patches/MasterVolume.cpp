@@ -32,10 +32,10 @@ MasterVertex BezelVertices[6] =
 
 MasterVertex InnerSquare[SQUARES] =
 {
-    { D3DXVECTOR3(5.f, 10.f, 0.000),1.000,D3DCOLOR_ARGB(0x40,0x50,0x50,0x50)},
-    { D3DXVECTOR3(5.f, -10.f, 0.000),1.000,D3DCOLOR_ARGB(0x40,0x50,0x50,0x50)},
-    { D3DXVECTOR3(-5.f, 10.f, 0.000),1.000,D3DCOLOR_ARGB(0x40,0x50,0x50,0x50)},
-    { D3DXVECTOR3(-5.f, -10.f, 0.000),1.000,D3DCOLOR_ARGB(0x40,0x50,0x50,0x50)}
+    { D3DXVECTOR3(5.859, 17.8125, 0.000),1.000,D3DCOLOR_ARGB(0x40,0x50,0x50,0x50)},
+    { D3DXVECTOR3(5.859, -17.8125, 0.000),1.000,D3DCOLOR_ARGB(0x40,0x50,0x50,0x50)},
+    { D3DXVECTOR3(-5.859, 17.8125, 0.000),1.000,D3DCOLOR_ARGB(0x40,0x50,0x50,0x50)},
+    { D3DXVECTOR3(-5.859, -17.8125, 0.000),1.000,D3DCOLOR_ARGB(0x40,0x50,0x50,0x50)}
 
 };
 
@@ -169,12 +169,12 @@ void MasterVolume::DrawMasterVolumeSlider(LPDIRECT3DDEVICE8 ProxyInterface)
     D3DXMatrixRotationZ(&rotationMatrix, D3DX_PI);
 
     this->ApplyVertexBufferTransformation(BottomBezel, 6, scalingMatrix);
-    this->ApplyVertexBufferTransformation(BottomBezel, 6, BezelTranslateMatrix);
+    this->ApplyVertexBufferTransformation(BottomBezel, 6, translateMatrix);
     this->SetVertexBufferColor(BottomBezel, 6, SelectedLightGold);
 
     this->ApplyVertexBufferTransformation(TopBezel, 6, scalingMatrix);
     this->ApplyVertexBufferTransformation(TopBezel, 6, rotationMatrix);
-    this->ApplyVertexBufferTransformation(TopBezel, 6, BezelTranslateMatrix);
+    this->ApplyVertexBufferTransformation(TopBezel, 6, translateMatrix);
     this->SetVertexBufferColor(TopBezel, 6, SelectedDarkGold);
 
     this->ApplyVertexBufferTransformation(square, SQUARES, scalingMatrix);
@@ -201,8 +201,11 @@ void MasterVolume::DrawMasterVolumeSlider(LPDIRECT3DDEVICE8 ProxyInterface)
     
     ProxyInterface->SetTransform(D3DTS_WORLDMATRIX(0x56), &WorldMatrix);
 
-    ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 4, &TopBezel, 20);
-    ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 4, &BottomBezel, 20);
+    if (ShowDebugOverlay)
+    {
+        ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 4, &TopBezel, 20);
+        ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 4, &BottomBezel, 20);
+    }
     ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, &square, 20);
 
     ProxyInterface->SetRenderState(D3DRS_ALPHAREF, 2);

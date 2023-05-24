@@ -24,7 +24,7 @@ struct MasterVertex
 {
 	D3DXVECTOR3 coords;
 	float rhw = 1.f;
-	DWORD color;
+	D3DCOLOR color;
 };
 
 class MasterVolume
@@ -38,6 +38,7 @@ private:
 	
 	void ApplyVertexBufferTransformation(MasterVertex* vertices, int count, D3DXMATRIX matrix);
 	void SetVertexBufferColor(MasterVertex* vertices, int count, DWORD color);
+	void CopyVertexBuffer(MasterVertex* source, MasterVertex* destination, int count);
 
 public:
 	void HandleMasterVolumeSlider(LPDIRECT3DDEVICE8 ProxyInterface);

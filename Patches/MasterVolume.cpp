@@ -46,7 +46,8 @@ float XOffset = 20.299;
 float YOffset = 42.699;
 float multiplier = 1.f;
 float spacing = 30.f;
-float trans = 0.f;
+float trans = 100.f;
+float rotation = D3DX_PI;
 
 bool once = true;
 
@@ -59,22 +60,22 @@ int counterStart = 0x11;  // 0x04;
 
 void MasterVolume::HandleMasterVolumeSlider(LPDIRECT3DDEVICE8 ProxyInterface)
 {
-    
+    /*
     if (ShowDebugOverlay)
     {
         int temp = GetMouseHorizontalPosition();
 
         if (temp > mousepos)
-            trans += 1;
+            rotation += 0.1f;
         else if (temp < mousepos)
-            trans -= 1;
+            rotation -= 0.1f;
 
         mousepos = temp;
 
         AuxDebugOvlString = "\rValue: ";
-        AuxDebugOvlString.append(std::to_string(trans));
+        AuxDebugOvlString.append(std::to_string(rotation));
 
-    }
+    }*/
 
     if (true)
     {
@@ -152,19 +153,13 @@ void MasterVolume::DrawMasterVolumeSlider(LPDIRECT3DDEVICE8 ProxyInterface)
     TriangleVertices[4] = { -10.547, 21.5625, 0.000, 1.000, D3DCOLOR_ARGB(0x40,0x40,0x40,0x40) };
     TriangleVertices[5] = { -5.859, 17.8125, 0.000, 1.000, D3DCOLOR_ARGB(0x40,0x40,0x40,0x40) };
 
-    D3DXMATRIX ScalingMatrix
-    {
-        2.f, 0.f, 0.f, 0.f,
-        0.f, 2.f, 0.f, 0.f,
-        0.f, 0.f, 1.f, 0.f,
-        0.f, 0.f, 0.f, 1.f
-    };
-
-    D3DXMATRIX xMatrix;
+    D3DXMATRIX scalingMatrix;
     D3DXMATRIX translateMatrix;
+    D3DXMATRIX rotationMatrix;
 
-    D3DXMatrixScaling(&xMatrix, 5.f, 5.0f, 1.f);
-    D3DXMatrixTranslation(&translateMatrix, trans, 100.f, 0.f);
+    D3DXMatrixScaling(&scalingMatrix, 5.f, 5.0f, 1.f);
+    D3DXMatrixTranslation(&translateMatrix, 800.f, 450.f, 0.f);
+    D3DXMatrixRotationZ(&rotationMatrix, rotation);
 
     myVertex newVecs[6] =
     {
@@ -176,6 +171,25 @@ void MasterVolume::DrawMasterVolumeSlider(LPDIRECT3DDEVICE8 ProxyInterface)
         { D3DXVECTOR3( -5.859, 17.8125, 0.000) , 1.f, D3DCOLOR_ARGB(0x40,0x40,0x40,0x40)}
     };
 
+    for (int j = 0; j < 6; j++)
+    {
+        D3DXVECTOR3 temp;
+
+        D3DXVec3TransformCoord(&temp, &newVecs[j].coords, &scalingMatrix);
+
+        newVecs[j].coords = temp;
+    }
+
+    for (int j = 0; j < 6; j++)
+    {
+        D3DXVECTOR3 temp;
+
+        D3DXVec3TransformCoord(&temp, &newVecs[j].coords, &rotationMatrix);
+
+        newVecs[j].coords = temp;
+    }
+
+    
     for (int i = 0; i < 6; i++)
     {
         D3DXVECTOR3 temp;
@@ -183,15 +197,6 @@ void MasterVolume::DrawMasterVolumeSlider(LPDIRECT3DDEVICE8 ProxyInterface)
         D3DXVec3TransformCoord(&temp, &newVecs[i].coords, &translateMatrix);
 
         newVecs[i].coords = temp;
-    }
-
-    for (int j = 0; j < 6; j++)
-    {
-        D3DXVECTOR3 temp;
-
-        D3DXVec3TransformCoord(&temp, &newVecs[j].coords, &xMatrix);
-
-        newVecs[j].coords = temp;
     }
 
     ProxyInterface->SetVertexShader(D3DFVF_XYZRHW | D3DFVF_DIFFUSE);

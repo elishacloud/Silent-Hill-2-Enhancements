@@ -32,10 +32,10 @@ MasterVertex BezelVertices[6] =
 
 MasterVertex InnerSquare[SQUARES] =
 {
-    { D3DXVECTOR3(-5.8595,-17.8125,0.000), 1.f, D3DCOLOR_ARGB(0x00, 0xB0, 0xB0, 0x58)},
-    { D3DXVECTOR3(5.8595,-17.8125,0.000), 1.f, D3DCOLOR_ARGB(0x00, 0xB0, 0xB0, 0x58)},
-    { D3DXVECTOR3(-5.8595,17.8125,0.000), 1.f, D3DCOLOR_ARGB(0x00, 0xB0, 0xB0, 0x58)},
-    { D3DXVECTOR3(5.8595,17.8125,0.000), 1.f, D3DCOLOR_ARGB(0x00, 0xB0, 0xB0, 0x58)}
+    { D3DXVECTOR3(5.f, 10.f, 0.000),1.000,D3DCOLOR_ARGB(0x40,0x50,0x50,0x50)},
+    { D3DXVECTOR3(5.f, -10.f, 0.000),1.000,D3DCOLOR_ARGB(0x40,0x50,0x50,0x50)},
+    { D3DXVECTOR3(-5.f, 10.f, 0.000),1.000,D3DCOLOR_ARGB(0x40,0x50,0x50,0x50)},
+    { D3DXVECTOR3(-5.f, -10.f, 0.000),1.000,D3DCOLOR_ARGB(0x40,0x50,0x50,0x50)}
 
 };
 
@@ -160,19 +160,21 @@ void MasterVolume::DrawMasterVolumeSlider(LPDIRECT3DDEVICE8 ProxyInterface)
 
     D3DXMATRIX scalingMatrix;
     D3DXMATRIX translateMatrix;
+    D3DXMATRIX BezelTranslateMatrix;
     D3DXMATRIX rotationMatrix;
 
-    D3DXMatrixScaling(&scalingMatrix, 2.f, 2.0f, 1.f);
+    D3DXMatrixScaling(&scalingMatrix, 10.f, 10.0f, 1.f);
     D3DXMatrixTranslation(&translateMatrix, (float)GetMouseHorizontalPosition(), (float)GetMouseVerticalPosition(), 0.f);
+    D3DXMatrixTranslation(&BezelTranslateMatrix, 400.f, 400.f, 0.f);
     D3DXMatrixRotationZ(&rotationMatrix, D3DX_PI);
 
     this->ApplyVertexBufferTransformation(BottomBezel, 6, scalingMatrix);
-    this->ApplyVertexBufferTransformation(BottomBezel, 6, translateMatrix);
+    this->ApplyVertexBufferTransformation(BottomBezel, 6, BezelTranslateMatrix);
     this->SetVertexBufferColor(BottomBezel, 6, SelectedLightGold);
 
     this->ApplyVertexBufferTransformation(TopBezel, 6, scalingMatrix);
     this->ApplyVertexBufferTransformation(TopBezel, 6, rotationMatrix);
-    this->ApplyVertexBufferTransformation(TopBezel, 6, translateMatrix);
+    this->ApplyVertexBufferTransformation(TopBezel, 6, BezelTranslateMatrix);
     this->SetVertexBufferColor(TopBezel, 6, SelectedDarkGold);
 
     this->ApplyVertexBufferTransformation(square, SQUARES, scalingMatrix);

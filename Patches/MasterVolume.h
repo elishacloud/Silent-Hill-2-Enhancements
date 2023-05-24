@@ -20,10 +20,24 @@
 #include "Common\Utils.h"
 #include "Wrappers\d3d8\d3d8wrapper.h"
 
+struct MasterVertex
+{
+	D3DXVECTOR3 coords;
+	float rhw = 1.f;
+	DWORD color;
+};
+
 class MasterVolume
 {
 private:
 	void DrawMasterVolumeSlider(LPDIRECT3DDEVICE8 ProxyInterface);
+
+	void TranslateVertexBuffer(MasterVertex* vertices, int count, float x, float y);
+	void RotateVertexBuffer(MasterVertex* vertices, int count, float angle);
+	void ScaleVertexBuffer(MasterVertex* vertices, int count, float x, float y);
+	
+	void ApplyVertexBufferTransformation(MasterVertex* vertices, int count, D3DXMATRIX matrix);
+	void SetVertexBufferColor(MasterVertex* vertices, int count, DWORD color);
 
 public:
 	void HandleMasterVolumeSlider(LPDIRECT3DDEVICE8 ProxyInterface);

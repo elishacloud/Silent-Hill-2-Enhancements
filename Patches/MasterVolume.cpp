@@ -81,25 +81,51 @@ void MasterVolume::HandleMasterVolumeSlider(LPDIRECT3DDEVICE8 ProxyInterface)
     {
         DrawMasterVolumeSlider(ProxyInterface);
     }
-
-
 }
 
-/*
-    FUN_0046a940(iVar5,
-    HorRatio * 0.5 + (float)(counter + 7) * HorRatio * 0.001953125 + (float)(int)Playing_Info_01dbbf80.screen_position_x,
-                    (float)(int)Playing_Info_01dbbf80.screen_position_y + VerRatio * 0.5 + VerRatio * 0.1354167,
-                    0,
-                    Color);
-
-*/
-
-struct myVertex
+void MasterVolume::TranslateVertexBuffer(MasterVertex* vertices, int count, float x, float y)
 {
-    D3DXVECTOR3 coords;
-    float rhw = 1.f;
-    DWORD color;
-};
+    D3DXMATRIX TranslateMatrix;
+    D3DXMatrixTranslation(&TranslateMatrix, x, y, 0.f);
+
+    this->ApplyVertexBufferTransformation(vertices, count, TranslateMatrix);
+}
+
+void MasterVolume::RotateVertexBuffer(MasterVertex* vertices, int count, float angle)
+{
+    D3DXMATRIX RotationMatrix;
+    D3DXMatrixRotationZ(&RotationMatrix, rotation);
+
+    this->ApplyVertexBufferTransformation(vertices, count, RotationMatrix);
+}
+
+void MasterVolume::ScaleVertexBuffer(MasterVertex* vertices, int count, float x, float y)
+{
+    D3DXMATRIX ScalingMatrix;
+    D3DXMatrixScaling(&ScalingMatrix, 5.f, 5.0f, 1.f);
+
+    this->ApplyVertexBufferTransformation(vertices, count, ScalingMatrix);
+}
+
+void MasterVolume::ApplyVertexBufferTransformation(MasterVertex* vertices, int count, D3DXMATRIX matrix)
+{
+    D3DXVECTOR3 temp;
+
+    for (int i = 0; i < count; i++)
+    {
+        D3DXVec3TransformCoord(&temp, &vertices[i].coords, &matrix);
+
+        vertices[i].coords = temp;
+    }
+}
+
+void MasterVolume::SetVertexBufferColor(MasterVertex* vertices, int count, DWORD color)
+{
+    for (int i = 0; i < count; i++)
+    {
+        vertices[i].color = color;
+    }
+}
 
 void MasterVolume::DrawMasterVolumeSlider(LPDIRECT3DDEVICE8 ProxyInterface)
 {
@@ -161,7 +187,7 @@ void MasterVolume::DrawMasterVolumeSlider(LPDIRECT3DDEVICE8 ProxyInterface)
     D3DXMatrixTranslation(&translateMatrix, 800.f, 450.f, 0.f);
     D3DXMatrixRotationZ(&rotationMatrix, rotation);
 
-    myVertex newVecs[6] =
+    MasterVertex newVecs[6] =
     {
         { D3DXVECTOR3(10.547, -21.5625, 0.000) , 1.f, D3DCOLOR_ARGB(0x40,0x40,0x40,0x40)},
         { D3DXVECTOR3( 5.859, -17.8125, 0.000) , 1.f, D3DCOLOR_ARGB(0x40,0x40,0x40,0x40)},
@@ -171,33 +197,9 @@ void MasterVolume::DrawMasterVolumeSlider(LPDIRECT3DDEVICE8 ProxyInterface)
         { D3DXVECTOR3( -5.859, 17.8125, 0.000) , 1.f, D3DCOLOR_ARGB(0x40,0x40,0x40,0x40)}
     };
 
-    for (int j = 0; j < 6; j++)
-    {
-        D3DXVECTOR3 temp;
-
-        D3DXVec3TransformCoord(&temp, &newVecs[j].coords, &scalingMatrix);
-
-        newVecs[j].coords = temp;
-    }
-
-    for (int j = 0; j < 6; j++)
-    {
-        D3DXVECTOR3 temp;
-
-        D3DXVec3TransformCoord(&temp, &newVecs[j].coords, &rotationMatrix);
-
-        newVecs[j].coords = temp;
-    }
-
-    
-    for (int i = 0; i < 6; i++)
-    {
-        D3DXVECTOR3 temp;
-
-        D3DXVec3TransformCoord(&temp, &newVecs[i].coords, &translateMatrix);
-
-        newVecs[i].coords = temp;
-    }
+    this->ApplyVertexBufferTransformation(newVecs, 6, scalingMatrix);
+    this->ApplyVertexBufferTransformation(newVecs, 6, rotationMatrix);
+    this->ApplyVertexBufferTransformation(newVecs, 6, translateMatrix);
 
     ProxyInterface->SetVertexShader(D3DFVF_XYZRHW | D3DFVF_DIFFUSE);
 
@@ -227,3 +229,4 @@ void MasterVolume::DrawMasterVolumeSlider(LPDIRECT3DDEVICE8 ProxyInterface)
     ProxyInterface->SetRenderState(D3DRS_ALPHAREF, 2);
     ProxyInterface->SetRenderState(D3DRS_FOGENABLE, 1);
 }
+

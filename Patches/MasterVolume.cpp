@@ -17,7 +17,7 @@
 
 #include "MasterVolume.h"
 
-#define MAX_SQUARES 15
+#define SQUARES 4
 
 // Bezel L flipped horizontally
 MasterVertex BezelVertices[6] =
@@ -29,6 +29,16 @@ MasterVertex BezelVertices[6] =
     { D3DXVECTOR3(-10.547, 21.5625, 0.000) , 1.f, D3DCOLOR_ARGB(0x40,0x40,0x40,0x40)},
     { D3DXVECTOR3(-5.859, 17.8125, 0.000) , 1.f, D3DCOLOR_ARGB(0x40,0x40,0x40,0x40)}
 };
+
+MasterVertex InnerSquare[SQUARES] =
+{
+    { D3DXVECTOR3(-5.8595,-17.8125,0.000), 1.f, D3DCOLOR_ARGB(0x00, 0xB0, 0xB0, 0x58)},
+    { D3DXVECTOR3(5.8595,-17.8125,0.000), 1.f, D3DCOLOR_ARGB(0x00, 0xB0, 0xB0, 0x58)},
+    { D3DXVECTOR3(-5.8595,17.8125,0.000), 1.f, D3DCOLOR_ARGB(0x00, 0xB0, 0xB0, 0x58)},
+    { D3DXVECTOR3(5.8595,17.8125,0.000), 1.f, D3DCOLOR_ARGB(0x00, 0xB0, 0xB0, 0x58)}
+
+};
+
 
 D3DMATRIX WorldMatrix =
 {
@@ -133,27 +143,27 @@ void MasterVolume::CopyVertexBuffer(MasterVertex* source, MasterVertex* destinat
 {
     for (int i = 0; i < count; i++)
     {
-        destination[i] = source[i];
+        destination[i] = { D3DXVECTOR3(source[i].coords.x, source[i].coords.y, source[i].coords.z), source[i].rhw, source[i].color };
     }
 }
 
 void MasterVolume::DrawMasterVolumeSlider(LPDIRECT3DDEVICE8 ProxyInterface)
 {
-    if (!ShowDebugOverlay)
-        return;
 
     MasterVertex BottomBezel[6];
     MasterVertex TopBezel[6];
+    MasterVertex square[SQUARES];
 
     this->CopyVertexBuffer(BezelVertices, BottomBezel, 6);
     this->CopyVertexBuffer(BezelVertices, TopBezel, 6);
+    this->CopyVertexBuffer(InnerSquare, square, SQUARES);
 
     D3DXMATRIX scalingMatrix;
     D3DXMATRIX translateMatrix;
     D3DXMATRIX rotationMatrix;
 
-    D3DXMatrixScaling(&scalingMatrix, 5.f, 5.0f, 1.f);
-    D3DXMatrixTranslation(&translateMatrix, 800.f, 450.f, 0.f);
+    D3DXMatrixScaling(&scalingMatrix, 2.f, 2.0f, 1.f);
+    D3DXMatrixTranslation(&translateMatrix, (float)GetMouseHorizontalPosition(), (float)GetMouseVerticalPosition(), 0.f);
     D3DXMatrixRotationZ(&rotationMatrix, D3DX_PI);
 
     this->ApplyVertexBufferTransformation(BottomBezel, 6, scalingMatrix);
@@ -164,6 +174,9 @@ void MasterVolume::DrawMasterVolumeSlider(LPDIRECT3DDEVICE8 ProxyInterface)
     this->ApplyVertexBufferTransformation(TopBezel, 6, rotationMatrix);
     this->ApplyVertexBufferTransformation(TopBezel, 6, translateMatrix);
     this->SetVertexBufferColor(TopBezel, 6, SelectedDarkGold);
+
+    this->ApplyVertexBufferTransformation(square, SQUARES, scalingMatrix);
+    this->ApplyVertexBufferTransformation(square, SQUARES, translateMatrix);
 
     ProxyInterface->SetVertexShader(D3DFVF_XYZRHW | D3DFVF_DIFFUSE);
 
@@ -188,6 +201,7 @@ void MasterVolume::DrawMasterVolumeSlider(LPDIRECT3DDEVICE8 ProxyInterface)
 
     ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 4, &TopBezel, 20);
     ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 4, &BottomBezel, 20);
+    ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, &square, 20);
 
     ProxyInterface->SetRenderState(D3DRS_ALPHAREF, 2);
     ProxyInterface->SetRenderState(D3DRS_FOGENABLE, 1);

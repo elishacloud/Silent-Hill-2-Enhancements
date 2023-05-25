@@ -14,7 +14,6 @@
 *   3. This notice may not be removed or altered from any source distribution.
 */
 
-
 #include "MasterVolume.h"
 
 D3DMATRIX WorldMatrix =
@@ -69,7 +68,7 @@ void MasterVolume::HandleMasterVolumeSlider(LPDIRECT3DDEVICE8 ProxyInterface)
 
     }
     if (ShowDebugOverlay)
-        MasterVolumeSliderRef.DrawSlider(ProxyInterface, test, test % 2 == 0);
+        MasterVolumeSliderRef.DrawSlider(ProxyInterface, test, test != 5);
 }
 
 void MasterVolumeSlider::TranslateVertexBuffer(MasterVertex* vertices, int count, float x, float y)
@@ -173,7 +172,7 @@ void MasterVolumeSlider::DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value,
         // Set inner rectangle color, based on the current value
         for (int i = 0; i < 0xF; i++)
         {
-            if (value < i)
+            if (value <= i)
                 this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->ActiveGoldSquare);
             else
                 this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->InactiveGoldSquare);
@@ -190,7 +189,7 @@ void MasterVolumeSlider::DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value,
         // Set inner rectangle color, based on the current value
         for (int i = 0; i < 0xF; i++)
         {
-            if (value < i)
+            if (value <= i)
                 this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->ActiveGraySquare);
             else
                 this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->InactiveGraySquare);

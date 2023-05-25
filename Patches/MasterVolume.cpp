@@ -71,58 +71,6 @@ void MasterVolume::HandleMasterVolumeSlider(LPDIRECT3DDEVICE8 ProxyInterface)
         MasterVolumeSliderRef.DrawSlider(ProxyInterface, test, test != 5);
 }
 
-void MasterVolumeSlider::TranslateVertexBuffer(MasterVertex* vertices, int count, float x, float y)
-{
-    D3DXMATRIX TranslateMatrix;
-    D3DXMatrixTranslation(&TranslateMatrix, x, y, 0.f);
-
-    this->ApplyVertexBufferTransformation(vertices, count, TranslateMatrix);
-}
-
-void MasterVolumeSlider::RotateVertexBuffer(MasterVertex* vertices, int count, float angle)
-{
-    D3DXMATRIX RotationMatrix;
-    D3DXMatrixRotationZ(&RotationMatrix, angle);
-
-    this->ApplyVertexBufferTransformation(vertices, count, RotationMatrix);
-}
-
-void MasterVolumeSlider::ScaleVertexBuffer(MasterVertex* vertices, int count, float x, float y)
-{
-    D3DXMATRIX ScalingMatrix;
-    D3DXMatrixScaling(&ScalingMatrix, x, y, 1.f);
-
-    this->ApplyVertexBufferTransformation(vertices, count, ScalingMatrix);
-}
-
-void MasterVolumeSlider::ApplyVertexBufferTransformation(MasterVertex* vertices, int count, D3DXMATRIX matrix)
-{
-    D3DXVECTOR3 temp;
-
-    for (int i = 0; i < count; i++)
-    {
-        D3DXVec3TransformCoord(&temp, &vertices[i].coords, &matrix);
-
-        vertices[i].coords = temp;
-    }
-}
-
-void MasterVolumeSlider::SetVertexBufferColor(MasterVertex* vertices, int count, DWORD color)
-{
-    for (int i = 0; i < count; i++)
-    {
-        vertices[i].color = color;
-    }
-}
-
-void MasterVolumeSlider::CopyVertexBuffer(MasterVertex* source, MasterVertex* destination, int count)
-{
-    for (int i = 0; i < count; i++)
-    {
-        destination[i] = { D3DXVECTOR3(source[i].coords.x, source[i].coords.y, source[i].coords.z), source[i].rhw, source[i].color };
-    }
-}
-
 void MasterVolumeSlider::InitVertices()
 {
     this->LastBufferHeight = BufferHeight;
@@ -232,4 +180,56 @@ void MasterVolumeSlider::DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value,
 
     ProxyInterface->SetRenderState(D3DRS_ALPHAREF, 2);
     ProxyInterface->SetRenderState(D3DRS_FOGENABLE, 1);
+}
+
+void MasterVolumeSlider::TranslateVertexBuffer(MasterVertex* vertices, int count, float x, float y)
+{
+    D3DXMATRIX TranslateMatrix;
+    D3DXMatrixTranslation(&TranslateMatrix, x, y, 0.f);
+
+    this->ApplyVertexBufferTransformation(vertices, count, TranslateMatrix);
+}
+
+void MasterVolumeSlider::RotateVertexBuffer(MasterVertex* vertices, int count, float angle)
+{
+    D3DXMATRIX RotationMatrix;
+    D3DXMatrixRotationZ(&RotationMatrix, angle);
+
+    this->ApplyVertexBufferTransformation(vertices, count, RotationMatrix);
+}
+
+void MasterVolumeSlider::ScaleVertexBuffer(MasterVertex* vertices, int count, float x, float y)
+{
+    D3DXMATRIX ScalingMatrix;
+    D3DXMatrixScaling(&ScalingMatrix, x, y, 1.f);
+
+    this->ApplyVertexBufferTransformation(vertices, count, ScalingMatrix);
+}
+
+void MasterVolumeSlider::ApplyVertexBufferTransformation(MasterVertex* vertices, int count, D3DXMATRIX matrix)
+{
+    D3DXVECTOR3 temp;
+
+    for (int i = 0; i < count; i++)
+    {
+        D3DXVec3TransformCoord(&temp, &vertices[i].coords, &matrix);
+
+        vertices[i].coords = temp;
+    }
+}
+
+void MasterVolumeSlider::SetVertexBufferColor(MasterVertex* vertices, int count, DWORD color)
+{
+    for (int i = 0; i < count; i++)
+    {
+        vertices[i].color = color;
+    }
+}
+
+void MasterVolumeSlider::CopyVertexBuffer(MasterVertex* source, MasterVertex* destination, int count)
+{
+    for (int i = 0; i < count; i++)
+    {
+        destination[i] = { D3DXVECTOR3(source[i].coords.x, source[i].coords.y, source[i].coords.z), source[i].rhw, source[i].color };
+    }
 }

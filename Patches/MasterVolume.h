@@ -73,14 +73,14 @@ private:
 		{ D3DXVECTOR3( 10.547, -21.5625, 0.000) , 1.f, NULL},
 		{ D3DXVECTOR3(  5.859, -17.8125, 0.000) , 1.f, NULL},
 		{ D3DXVECTOR3( 10.547,  21.5625, 0.000) , 1.f, NULL},
-		{ D3DXVECTOR3(  5.859,  17.8125, 0.000) , 1.f, NULL},
+		{ D3DXVECTOR3(  5.859,  17.8125, 0.000) , 1.f, NULL}, // Alignment vertex
 		{ D3DXVECTOR3(-10.547,  21.5625, 0.000) , 1.f, NULL},
 		{ D3DXVECTOR3( -5.859,  17.8125, 0.000) , 1.f, NULL}
 	};
 
 	MasterVertex RectangleVertices[RECT_VERT_NUM] =
 	{
-		{ D3DXVECTOR3( 5.859,  17.8125, 0.000), 1.000, NULL},
+		{ D3DXVECTOR3( 5.859,  17.8125, 0.000), 1.000, NULL}, // Alignment vertex
 		{ D3DXVECTOR3( 5.859, -17.8125, 0.000), 1.000, NULL},
 		{ D3DXVECTOR3(-5.859,  17.8125, 0.000), 1.000, NULL},
 		{ D3DXVECTOR3(-5.859, -17.8125, 0.000), 1.000, NULL}

@@ -244,7 +244,7 @@ HRESULT m_IDirectSoundBuffer8::SetVolume(LONG lVolume)
 			return DSERR_INVALIDPARAM;
 		}
 
-		const float VolumePercentage = (ConfigData.VolumeLevel < 16) ? (10000.0f + (float)VolumeArray[ConfigData.VolumeLevel]) / 10000.0f : 100.0f;
+		float VolumePercentage = (ConfigData.VolumeLevel < 16) ? (10000.0f + (float)VolumeArray[ConfigData.VolumeLevel]) / 10000.0f : 1.0f;
 
 		lVolume = (LONG)((lVolume - DSBVOLUME_MIN) * VolumePercentage) + DSBVOLUME_MIN;
 	}

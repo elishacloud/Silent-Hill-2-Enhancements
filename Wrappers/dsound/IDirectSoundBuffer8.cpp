@@ -107,7 +107,7 @@ HRESULT m_IDirectSoundBuffer8::GetVolume(LPLONG plVolume)
 	SetStopped();
 
 	// Set last volume
-	if (IsMasterVolumeSet || (IsStopSet && plVolume))
+	if ((IsMasterVolumeSet || IsStopSet) && plVolume)
 	{
 		*plVolume = CurrentVolume;
 		return DS_OK;

@@ -107,7 +107,7 @@ HRESULT m_IDirectSoundBuffer8::GetVolume(LPLONG plVolume)
 	SetStopped();
 
 	// Set last volume
-	if (IsStopSet && plVolume)
+	if (IsMasterVolumeSet || (IsStopSet && plVolume))
 	{
 		*plVolume = CurrentVolume;
 		return DS_OK;
@@ -195,6 +195,15 @@ HRESULT m_IDirectSoundBuffer8::Play(DWORD dwReserved1, DWORD dwPriority, DWORD d
 		IsStopSet = false;
 	}
 
+	if (!IsMasterVolumeSet)
+	{
+		LONG lVolume = 0;
+		if (ProxyInterface->GetVolume(&lVolume))
+		{
+			SetVolume(lVolume);
+		}
+	}
+
 	return ProxyInterface->Play(dwReserved1, dwPriority, dwFlags);
 }
 
@@ -228,14 +237,40 @@ HRESULT m_IDirectSoundBuffer8::SetVolume(LONG lVolume)
 
 	SetStopped();
 
+	if (EnableMasterVolume)
+	{
+		if (lVolume < DSBVOLUME_MIN || lVolume > DSBVOLUME_MAX)
+		{
+			return DSERR_INVALIDPARAM;
+		}
+
+		const float VolumePercentage = (ConfigData.VolumeLevel < 16) ? (10000.0f + (float)VolumeArray[ConfigData.VolumeLevel]) / 10000.0f : 100.0f;
+
+		lVolume = (LONG)((lVolume - DSBVOLUME_MIN) * VolumePercentage) + DSBVOLUME_MIN;
+	}
+
+	HRESULT hr;
+
 	// Assign new volume
 	if (IsStopSet)
 	{
-		CurrentVolume = lVolume;
-		return DS_OK;
+		hr = DS_OK;
+	}
+	else
+	{
+		hr = ProxyInterface->SetVolume(lVolume);
 	}
 
-	return ProxyInterface->SetVolume(lVolume);
+	if (SUCCEEDED(hr))
+	{
+		if (EnableMasterVolume)
+		{
+			IsMasterVolumeSet = true;
+		}
+		CurrentVolume = lVolume;
+	}
+
+	return hr;
 }
 
 HRESULT m_IDirectSoundBuffer8::SetPan(LONG lPan)

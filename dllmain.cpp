@@ -145,6 +145,9 @@ void DelayedStart()
 	GetSH2FolderPath(sh2path, MAX_PATH);
 	Logging::Log() << "Running from: " << sh2path;
 
+	// Get config data settings
+	GetConfigData();
+
 	// Log settings in ini file
 	if (IsLoadConfig)
 	{

@@ -1,5 +1,8 @@
 #pragma once
 
+// Volume array falloff
+constexpr LONG VolumeArray[] = { -10000, -2401, -1799, -1411, -1170, -961, -809, -665, -555, -445, -359, -270, -198, -124, -63, 0 };
+
 class m_IDirectSoundBuffer8 : public IDirectSoundBuffer8, public AddressLookupTableDsoundObject
 {
 private:
@@ -7,7 +10,8 @@ private:
 
 	// Set variables
 	bool IsStopSet = false;
-	LONG CurrentVolume = 0;
+	bool IsMasterVolumeSet = false;
+	LONG CurrentVolume = DSBVOLUME_MIN;
 	ULARGE_INTEGER LastStopTime = {};
 
 	// Helper functions

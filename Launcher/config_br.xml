@@ -353,6 +353,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="EnableMasterVolume">
+        <Title>Add a master volume level control</Title>
+        <Description>Adds a master volume level control to the in-game Options menu to contorl all audio in the game.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
     </Section>
 
     <Section name="Correções de Áudio">

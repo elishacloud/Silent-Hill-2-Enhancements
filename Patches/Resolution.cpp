@@ -249,18 +249,13 @@ void WSFDynamicStartup()
 		InitialIndex = (*ResolutionIndex < 6) ? *ResolutionIndex : 1;
 	}
 
-	// Get saved resolution
-	DWORD Width = 0, Height = 0;
-	HRESULT hr = GetSavedResolution(Width, Height);
-
 	// Check if resolution is found and set correct index
 	bool found = false;
-	if (SUCCEEDED(hr))
 	{
 		BYTE Index = 0;
 		for (auto res : ResolutionVector)
 		{
-			if (res.Width == Width && res.Height == Height)
+			if (res.Width == ConfigData.Width && res.Height == ConfigData.Height)
 			{
 				found = true;
 				*ResolutionIndex = Index;
@@ -271,7 +266,7 @@ void WSFDynamicStartup()
 	}
 
 	// Default to current resolution if index is too large or saved resolution is not found
-	if (FAILED(hr) || (SUCCEEDED(hr) && !found) || *ResolutionIndex >= ResolutionVector.size())
+	if (!found || *ResolutionIndex >= ResolutionVector.size())
 	{
 		*ResolutionIndex = (BYTE)(ResolutionVector.size() - 1);
 		LONG screenWidth, screenHeight;
@@ -326,7 +321,9 @@ void WSFDynamicChange()
 	ResY = Height;
 
 	// Save updated resolution
-	SaveResolution(ResX, ResY);
+	ConfigData.Width = ResX;
+	ConfigData.Height = ResY;
+	SaveConfigData();
 
 	// Update Widescreen Fix for new resolution
 	UpdateWSF();

@@ -86,9 +86,6 @@ private:
 		{ D3DXVECTOR3(-5.859, -17.8125, 0.000), 1.000, NULL}
 	};
 
-	MasterVertex ScaledBezels[BEZEL_VERT_NUM];
-	MasterVertex ScaledRectangle[RECT_VERT_NUM];
-
 	// Possible values 0x0 - 0xF
 	Bezels FinalBezels[0x10];
 	Pip FinalPips[0x10];
@@ -104,6 +101,7 @@ private:
 	void InitVertices();
 
 public:
-	void DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value, bool ValueChanged);
+	MasterVolumeSlider() = default;
 
+	void DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value, bool ValueChanged);	
 };

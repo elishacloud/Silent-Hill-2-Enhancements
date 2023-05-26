@@ -24,19 +24,6 @@ D3DMATRIX WorldMatrix =
   0.f, 0.f, 0.f, 1.f
 };
 
-float XPos = 836.147;
-float YPos = 571.875;
-
-float XOffset = 20.299;
-float YOffset = 42.699;
-float multiplier = 1.f;
-float spacing = 30.f;
-float trans = 100.f;
-
-bool once = true;
-
-int mousepos = 0;
-
 //int32_t* VerticalRatio = (int32_t*)0x00a33484;
 //int32_t* HorizontalRatio = (int32_t*)0x00a33480;
 
@@ -46,6 +33,7 @@ MasterVolumeSlider MasterVolumeSliderRef;
 
 void MasterVolume::HandleMasterVolumeSlider(LPDIRECT3DDEVICE8 ProxyInterface)
 {
+    static int mousepos = 0;
     
     if (ShowDebugOverlay)
     {
@@ -77,7 +65,9 @@ void MasterVolumeSlider::InitVertices()
     this->LastBufferWidth = BufferWidth;
 
     //TODO temporary poc
-    float xOffset = 400.f;
+    float xOffset = 845.703;
+    float yOffset = 593.4375;
+    float spacing = 25.781;
 
     for (int i = 0; i < 0xF; i++)
     {
@@ -93,7 +83,7 @@ void MasterVolumeSlider::InitVertices()
         //this->FinalBezels[i].TopVertices = 
 
         // Translating
-        this->TranslateVertexBuffer(this->FinalPips[i].vertices, RECT_VERT_NUM, xOffset + (float)(i * 30), 150.f);
+        this->TranslateVertexBuffer(this->FinalPips[i].vertices, RECT_VERT_NUM, xOffset + ((float)i * spacing), yOffset);
 
         float DeltaX = this->FinalPips[i].vertices[0].coords.x - this->FinalBezels[i].BotVertices[3].coords.x;
         float DeltaY = this->FinalPips[i].vertices[0].coords.y - this->FinalBezels[i].BotVertices[3].coords.y;

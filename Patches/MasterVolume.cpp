@@ -98,39 +98,43 @@ void MasterVolumeSlider::DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value,
     if (LastBufferHeight != BufferHeight || LastBufferWidth != BufferWidth)
         this->InitVertices();
 
+    //TODO address for selected option
+
+    const int color = true ? 0 : 1;   
+
     // Set up the graphics' color
     if (ValueChanged)
     {
         for (int i = 0; i < 0xF; i++)
         {
-            this->SetVertexBufferColor(this->FinalBezels[i].TopVertices, BEZEL_VERT_NUM, this->LightGoldBezel);
-            this->SetVertexBufferColor(this->FinalBezels[i].BotVertices, BEZEL_VERT_NUM, this->DarkGoldBezel);
+            this->SetVertexBufferColor(this->FinalBezels[i].TopVertices, BEZEL_VERT_NUM, this->LightGoldBezel[color]);
+            this->SetVertexBufferColor(this->FinalBezels[i].BotVertices, BEZEL_VERT_NUM, this->DarkGoldBezel[color]);
         }
 
         // Set inner rectangle color, based on the current value
         for (int i = 0; i < 0xF; i++)
         {
             if (value <= i)
-                this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->ActiveGoldSquare);
+                this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->ActiveGoldSquare[color]);
             else
-                this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->InactiveGoldSquare);
+                this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->InactiveGoldSquare[color]);
         }
     }
     else
     {
         for (int i = 0; i < 0xF; i++)
         {
-            this->SetVertexBufferColor(this->FinalBezels[i].TopVertices, BEZEL_VERT_NUM, this->LightGrayBezel);
-            this->SetVertexBufferColor(this->FinalBezels[i].BotVertices, BEZEL_VERT_NUM, this->DarkGrayBezel);
+            this->SetVertexBufferColor(this->FinalBezels[i].TopVertices, BEZEL_VERT_NUM, this->LightGrayBezel[color]);
+            this->SetVertexBufferColor(this->FinalBezels[i].BotVertices, BEZEL_VERT_NUM, this->DarkGrayBezel[color]);
         }
 
         // Set inner rectangle color, based on the current value
         for (int i = 0; i < 0xF; i++)
         {
             if (value <= i)
-                this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->ActiveGraySquare);
+                this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->ActiveGraySquare[color]);
             else
-                this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->InactiveGraySquare);
+                this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->InactiveGraySquare[color]);
         }
     }
 
@@ -143,7 +147,8 @@ void MasterVolumeSlider::DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value,
     ProxyInterface->SetRenderState(D3DRS_ZWRITEENABLE, 1);
     ProxyInterface->SetRenderState(D3DRS_ALPHATESTENABLE, 0);
     ProxyInterface->SetRenderState(D3DRS_ALPHABLENDENABLE, 0);
-    ProxyInterface->SetRenderState(D3DRS_FOGENABLE, 0);
+
+    ProxyInterface->SetRenderState(D3DRS_FOGENABLE, FALSE);
 
     ProxyInterface->SetTextureStageState(0, D3DTSS_COLOROP, 1);
     ProxyInterface->SetTextureStageState(0, D3DTSS_ALPHAOP, 1);
@@ -152,10 +157,8 @@ void MasterVolumeSlider::DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value,
     ProxyInterface->SetTextureStageState(1, D3DTSS_ALPHAOP, 1);
 
     ProxyInterface->SetTexture(0, 0);
-
+    
     ProxyInterface->SetTransform(D3DTS_WORLDMATRIX(0x56), &WorldMatrix);
-
-    //TODO dim the graphics when option isn't selected
 
     // Draw every active bezel
     for (int i = 0; i < value; i++)

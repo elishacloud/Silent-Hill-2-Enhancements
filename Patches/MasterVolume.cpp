@@ -64,10 +64,19 @@ void MasterVolumeSlider::InitVertices()
     this->LastBufferHeight = BufferHeight;
     this->LastBufferWidth = BufferWidth;
 
+    //TODO remove
+    int32_t* VerticalInternal = (int32_t*)0x00a33484;
+    int32_t* HorizontalInternal = (int32_t*)0x00a33480;
+
     //TODO temporary poc
-    float xOffset = 845.703;
-    float yOffset = 593.4375;
-    float spacing = 25.781;
+    float spacing = (25.781 * (float)*HorizontalInternal) / 1200.f;
+    float xScaling = (float)*HorizontalInternal / 1200.f;
+    float yScaling = (float)*VerticalInternal / 900.f;
+
+    float UlteriorOffset = (BufferWidth - (float)*HorizontalInternal) / 2;
+    
+    float xOffset = (645.703 * (float)*HorizontalInternal) / 1200.f + UlteriorOffset;
+    float yOffset = (593.4375 * (float)*VerticalInternal) / 900.f;
 
     for (int i = 0; i < 0xF; i++)
     {
@@ -80,7 +89,9 @@ void MasterVolumeSlider::InitVertices()
         this->RotateVertexBuffer(this->FinalBezels[i].TopVertices, BEZEL_VERT_NUM, D3DX_PI);
         
         // Scaling
-        //this->FinalBezels[i].TopVertices = 
+        this->ScaleVertexBuffer(this->FinalBezels[i].TopVertices, BEZEL_VERT_NUM, xScaling, yScaling);
+        this->ScaleVertexBuffer(this->FinalBezels[i].BotVertices, BEZEL_VERT_NUM, xScaling, yScaling);
+        this->ScaleVertexBuffer(this->FinalPips[i].vertices, RECT_VERT_NUM, xScaling, yScaling);
 
         // Translating
         this->TranslateVertexBuffer(this->FinalPips[i].vertices, RECT_VERT_NUM, xOffset + ((float)i * spacing), yOffset);
@@ -100,7 +111,7 @@ void MasterVolumeSlider::DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value,
 
     //TODO address for selected option
 
-    const int color = true ? 0 : 1;   
+    const int color = true ? 0 : 1;
 
     // Set up the graphics' color
     if (ValueChanged)

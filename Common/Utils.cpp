@@ -1300,14 +1300,11 @@ void MigrateRegistry()
 
 	RegCloseKey(hKey);
 
-	if (Width && Height)
+	if (Width && Height && (!ConfigData.Width || !ConfigData.Height))
 	{
-		if (!ConfigData.Width || !ConfigData.Height)
-		{
-			ConfigData.Width = Width;
-			ConfigData.Height = Height;
-			SaveConfigData();
-		}
+		ConfigData.Width = Width;
+		ConfigData.Height = Height;
+		SaveConfigData();
 	}
 
 	return;
@@ -1315,11 +1312,13 @@ void MigrateRegistry()
 
 HRESULT GetConfigData()
 {
+	// Check for config file data first
+	HRESULT hr = GetConfigFromFile();
+
 	// Migrate old registry keys to config file 
 	MigrateRegistry();
 
-	// Check for config file
-	return GetConfigFromFile();
+	return hr;
 }
 
 HRESULT SaveConfigData()

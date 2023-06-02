@@ -27,67 +27,46 @@ D3DMATRIX WorldMatrix =
   0.f, 0.f, 0.f, 1.f
 };
 
-//int32_t* VerticalRatio = (int32_t*)0x00a33484;
-//int32_t* HorizontalRatio = (int32_t*)0x00a33480;
-
 int test = 5;
 
 MasterVolumeSlider MasterVolumeSliderRef;
 
 injector::hook_back<void(__cdecl*)(DWORD*)> orgDrawOptions;
+injector::hook_back<void(__cdecl*)(int32_t, int32_t)> orgDrawArrowRight;
 
-LPDIRECT3DDEVICE8 d3d8interface = nullptr;
+LPDIRECT3DDEVICE8 DirectXInterface = nullptr;
+
+void __cdecl DrawArrowRight_Hook(int32_t param1, int32_t param2)
+{
+    orgDrawArrowRight.fun(0xC5, param2);
+}
 
 void __cdecl DrawOptions_Hook(DWORD* pointer)
 {
-    Logging::Log() << "Hooked Draw Options";
-
     orgDrawOptions.fun(pointer);
 
-    if (GetEventIndex() == EVENT_OPTION_FMV)
-        MasterVolumeSliderRef.DrawSlider(d3d8interface, test, test != 5);
-
-    Logging::Log() << "Returning...";
+    MasterVolumeSliderRef.DrawSlider(DirectXInterface, test, test != 5);
 }
 
 void PatchMasterVolumeSlider()
 {
+    // Hook options drawing to draw at the same time
     auto pattern = hook::pattern("e8 cc 93 13 00");
     orgDrawOptions.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), DrawOptions_Hook, true).get();
 
-    //pattern = hook::pattern("e8 36 9c 13 00");
-    //orgDrawOptions.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), DrawOptions_Hook, true).get();
+    // Hook right arrow drawing to move it to the right
+    pattern = hook::pattern("e8 a7 d0 ff ff");
+    orgDrawArrowRight.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), DrawArrowRight_Hook, true).get();
+
+    //TODO address
+    // Skip drawing the old option text
+    UpdateMemoryAddress((void*)0x004618FD, "\x90\x90\x90\x90\x90", 5);
+    UpdateMemoryAddress((void*)0x00461B4D, "\x90\x90\x90\x90\x90", 5);
 }
 
-void MasterVolume::HandleMasterVolumeSlider(LPDIRECT3DDEVICE8 ProxyInterface)
+void MasterVolume::SaveProxyInterface(LPDIRECT3DDEVICE8 ProxyInterface)
 {
-    static int mousepos = 0;
-    
-    if (ShowDebugOverlay)
-    {
-        int temp = GetMouseHorizontalPosition();
-
-        if (temp > mousepos)
-            test += 1;
-        else if (temp < mousepos)
-            test -= 1;
-
-        if (test > 0xF)
-            test = 0xF;
-        if (test < 0)
-            test = 0;
-
-        mousepos = temp;
-
-        AuxDebugOvlString = "\rValue: ";
-        AuxDebugOvlString.append(std::to_string(test));
-
-    }
-
-    d3d8interface = ProxyInterface;
-
-    //if (ShowDebugOverlay)
-        //MasterVolumeSliderRef.DrawSlider(ProxyInterface, test, test != 5);
+    DirectXInterface = ProxyInterface;
 }
 
 void MasterVolumeSlider::InitVertices()
@@ -99,7 +78,6 @@ void MasterVolumeSlider::InitVertices()
     int32_t* VerticalInternal = (int32_t*)0x00a33484;
     int32_t* HorizontalInternal = (int32_t*)0x00a33480;
 
-    //TODO temporary poc
     float spacing = (25.781 * (float)*HorizontalInternal) / 1200.f;
     float xScaling = (float)*HorizontalInternal / 1200.f;
     float yScaling = (float)*VerticalInternal / 900.f;
@@ -137,12 +115,15 @@ void MasterVolumeSlider::InitVertices()
 
 void MasterVolumeSlider::DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value, bool ValueChanged)
 {
+    if (GetEventIndex() != EVENT_OPTION_FMV)
+        return;
+
     if (LastBufferHeight != BufferHeight || LastBufferWidth != BufferWidth)
         this->InitVertices();
 
     //TODO address for selected option
 
-    const int color = true ? 0 : 1;
+    const int color = *(int16_t*)0x00941602 == 0x07 ? 0 : 1;
 
     // Set up the graphics' color
     if (ValueChanged)

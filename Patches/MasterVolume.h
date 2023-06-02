@@ -46,7 +46,7 @@ class MasterVolume
 private:
 
 public:
-	void HandleMasterVolumeSlider(LPDIRECT3DDEVICE8 ProxyInterface);
+	void SaveProxyInterface(LPDIRECT3DDEVICE8 ProxyInterface);
 };
 
 struct SliderColor

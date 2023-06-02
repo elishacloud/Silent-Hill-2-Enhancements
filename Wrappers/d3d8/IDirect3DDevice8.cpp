@@ -972,8 +972,8 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	// Draw Overlays
 	OverlayRef.DrawOverlays(ProxyInterface);
 
-	// Draw Master Volume Slider
-	MasterVolumeRef.HandleMasterVolumeSlider(ProxyInterface);
+	// Store reference to the ProxyInterface
+	MasterVolumeRef.SaveProxyInterface(ProxyInterface);
 
 	// Skip frames in specific cutscenes to prevent flickering
 	if (SkipSceneFlag)

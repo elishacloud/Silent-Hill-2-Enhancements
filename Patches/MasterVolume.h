@@ -43,7 +43,7 @@ struct Pip
 
 class MasterVolume
 {
-private:
+private: //TODO remove
 
 public:
 	void SaveProxyInterface(LPDIRECT3DDEVICE8 ProxyInterface);

@@ -74,7 +74,7 @@ void MasterVolumeSlider::InitVertices()
     this->LastBufferHeight = BufferHeight;
     this->LastBufferWidth = BufferWidth;
 
-    //TODO remove
+    //TODO addresses
     int32_t* VerticalInternal = (int32_t*)0x00a33484;
     int32_t* HorizontalInternal = (int32_t*)0x00a33480;
 
@@ -85,7 +85,7 @@ void MasterVolumeSlider::InitVertices()
     float UlteriorOffset = (BufferWidth - (float)*HorizontalInternal) / 2;
     
     float xOffset = (645.703 * (float)*HorizontalInternal) / 1200.f + UlteriorOffset;
-    float yOffset = (593.4375 * (float)*VerticalInternal) / 900.f - 50.f; // TODO vertical offset
+    float yOffset = (593.4375 * (float)*VerticalInternal) / 900.f - ((50.625f * (float)*VerticalInternal) / 900.f);
 
     for (int i = 0; i < 0xF; i++)
     {
@@ -122,7 +122,6 @@ void MasterVolumeSlider::DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value,
         this->InitVertices();
 
     //TODO address for selected option
-
     const int color = *(int16_t*)0x00941602 == 0x07 ? 0 : 1;
 
     // Set up the graphics' color

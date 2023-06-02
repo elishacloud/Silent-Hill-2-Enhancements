@@ -599,6 +599,12 @@ void DelayedStart()
 		PatchInputTweaks();
 	}
 
+	// Enable master volume slider
+	if (true) //TODO setting
+	{
+		PatchMasterVolumeSlider();
+	}
+
 	// Remove the "Now loading..." message
 	switch (GameVersion)
 	{

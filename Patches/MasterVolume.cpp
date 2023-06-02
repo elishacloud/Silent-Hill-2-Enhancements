@@ -14,6 +14,9 @@
 *   3. This notice may not be removed or altered from any source distribution.
 */
 
+#include "External\injector\include\injector\injector.hpp"
+#include "External\injector\include\injector\utility.hpp"
+#include "External\Hooking.Patterns\Hooking.Patterns.h"
 #include "MasterVolume.h"
 
 D3DMATRIX WorldMatrix =
@@ -30,6 +33,31 @@ D3DMATRIX WorldMatrix =
 int test = 5;
 
 MasterVolumeSlider MasterVolumeSliderRef;
+
+injector::hook_back<void(__cdecl*)(DWORD*)> orgDrawOptions;
+
+LPDIRECT3DDEVICE8 d3d8interface = nullptr;
+
+void __cdecl DrawOptions_Hook(DWORD* pointer)
+{
+    Logging::Log() << "Hooked Draw Options";
+
+    orgDrawOptions.fun(pointer);
+
+    if (GetEventIndex() == EVENT_OPTION_FMV)
+        MasterVolumeSliderRef.DrawSlider(d3d8interface, test, test != 5);
+
+    Logging::Log() << "Returning...";
+}
+
+void PatchMasterVolumeSlider()
+{
+    auto pattern = hook::pattern("e8 cc 93 13 00");
+    orgDrawOptions.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), DrawOptions_Hook, true).get();
+
+    //pattern = hook::pattern("e8 36 9c 13 00");
+    //orgDrawOptions.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), DrawOptions_Hook, true).get();
+}
 
 void MasterVolume::HandleMasterVolumeSlider(LPDIRECT3DDEVICE8 ProxyInterface)
 {
@@ -55,8 +83,11 @@ void MasterVolume::HandleMasterVolumeSlider(LPDIRECT3DDEVICE8 ProxyInterface)
         AuxDebugOvlString.append(std::to_string(test));
 
     }
-    if (ShowDebugOverlay)
-        MasterVolumeSliderRef.DrawSlider(ProxyInterface, test, test != 5);
+
+    d3d8interface = ProxyInterface;
+
+    //if (ShowDebugOverlay)
+        //MasterVolumeSliderRef.DrawSlider(ProxyInterface, test, test != 5);
 }
 
 void MasterVolumeSlider::InitVertices()
@@ -76,7 +107,7 @@ void MasterVolumeSlider::InitVertices()
     float UlteriorOffset = (BufferWidth - (float)*HorizontalInternal) / 2;
     
     float xOffset = (645.703 * (float)*HorizontalInternal) / 1200.f + UlteriorOffset;
-    float yOffset = (593.4375 * (float)*VerticalInternal) / 900.f;
+    float yOffset = (593.4375 * (float)*VerticalInternal) / 900.f - 50.f; // TODO vertical offset
 
     for (int i = 0; i < 0xF; i++)
     {

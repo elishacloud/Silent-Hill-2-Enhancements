@@ -264,6 +264,7 @@ bool IsInFullScreenImageEvent();
 bool IsInMainOptionsMenu();
 
 void HandleFinalBossRoomFix();
+void SetNewVolume();
 
 void OnFileLoadTex(LPCSTR lpFileName);
 void OnFileLoadVid(LPCSTR lpFileName);

@@ -603,7 +603,7 @@ void DelayedStart()
 	}
 
 	// Enable master volume slider
-	if (true) //TODO setting
+	if (EnableMasterVolume)
 	{
 		PatchMasterVolumeSlider();
 	}

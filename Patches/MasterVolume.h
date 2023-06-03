@@ -19,6 +19,7 @@
 #include "Patches\Patches.h"
 #include "Common\Utils.h"
 #include "Wrappers\d3d8\d3d8wrapper.h"
+#include "Common\Settings.h"
 
 #define BEZEL_VERT_NUM 6
 #define RECT_VERT_NUM 4
@@ -44,9 +45,10 @@ struct Pip
 class MasterVolume
 {
 private:
+	bool LastIsInOptionsMenu = false;
 
 public:
-	void SaveProxyInterface(LPDIRECT3DDEVICE8 ProxyInterface);
+	void HandleMasterVolume(LPDIRECT3DDEVICE8 ProxyInterface);
 	void ChangeMasterVolumeValue(int delta);
 };
 

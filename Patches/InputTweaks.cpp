@@ -78,6 +78,8 @@ Input DebugCombo;
 Input InfoCombo;
 Input EscInput;
 Input CancelInput;
+Input OptionsLeft;
+Input OptionsRight;
 
 int ForwardBackwardsAxis = 0;
 int LeftRightAxis = 0;
@@ -629,14 +631,21 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
             ClearKey(KeyBinds.GetKeyBind(KEY_CANCEL));
         }
 
+		OptionsRight.State = IsKeyPressed(KeyBinds.GetKeyBind(KEY_TURN_RIGHT)) || IsKeyPressed(DIK_RIGHT);
+		OptionsLeft.State = IsKeyPressed(KeyBinds.GetKeyBind(KEY_TURN_LEFT)) || IsKeyPressed(DIK_LEFT);
+
+		// Check for Options left/right are held down
+		OptionsLeft.UpdateHolding();
+		OptionsRight.UpdateHolding();
+
 		// Handle keyboard input for the Master Volume slider
 		if (IsInMainOptionsMenu() && *(int16_t*)0x00941602 == 0x07) //TODO address for selected option
 		{
-			if (IsKeyPressed(KeyBinds.GetKeyBind(KEY_TURN_RIGHT)) || IsKeyPressed(DIK_RIGHT))
+			if (OptionsRight.State && !OptionsRight.Holding)
 			{
 				MasterVolumeRef.ChangeMasterVolumeValue(1);
 			}
-			else if (IsKeyPressed(KeyBinds.GetKeyBind(KEY_TURN_LEFT)) || IsKeyPressed(DIK_LEFT))
+			else if (OptionsLeft.State && !OptionsLeft.Holding)
 			{
 				MasterVolumeRef.ChangeMasterVolumeValue(-1);
 			}

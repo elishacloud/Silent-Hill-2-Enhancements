@@ -27,6 +27,9 @@ D3DMATRIX WorldMatrix =
   0.f, 0.f, 0.f, 1.f
 };
 
+static int SavedMasterVolumeLevel = 0;
+static int CurrentMasterVolumeLevel = 0;
+
 int test = 5;
 
 MasterVolumeSlider MasterVolumeSliderRef;
@@ -47,7 +50,7 @@ void __cdecl DrawOptions_Hook(DWORD* pointer)
 {
     orgDrawOptions.fun(pointer);
 
-    MasterVolumeSliderRef.DrawSlider(DirectXInterface, test, test != 5);
+    MasterVolumeSliderRef.DrawSlider(DirectXInterface, CurrentMasterVolumeLevel, CurrentMasterVolumeLevel != SavedMasterVolumeLevel);
 }
 
 void PatchMasterVolumeSlider()
@@ -68,16 +71,54 @@ void PatchMasterVolumeSlider()
     UpdateMemoryAddress((void*)0x00461B4D, "\x90\x90\x90\x90\x90", 5);
 }
 
-void MasterVolume::SaveProxyInterface(LPDIRECT3DDEVICE8 ProxyInterface)
-{
-    DirectXInterface = ProxyInterface;
-}
-
 void MasterVolume::ChangeMasterVolumeValue(int delta)
 {
+    if (!IsInMainOptionsMenu())
+        return;
 
-    //TODO
+    if ((delta < 0 && CurrentMasterVolumeLevel > 0) || (delta > 0 && CurrentMasterVolumeLevel < 0x0F))
+        CurrentMasterVolumeLevel += delta;
+}
 
+void MasterVolume::HandleMasterVolume(LPDIRECT3DDEVICE8 ProxyInterface)
+{
+    if (!EnableMasterVolume)
+        return;
+
+    AuxDebugOvlString = "\rCurrent level: ";
+    AuxDebugOvlString.append(std::to_string(CurrentMasterVolumeLevel));
+    AuxDebugOvlString.append("\rsaved level: ");
+    AuxDebugOvlString.append(std::to_string(SavedMasterVolumeLevel));
+
+    DirectXInterface = ProxyInterface;
+
+    // If we just entered the main options menu
+    if (GetEventIndex() == 0x07)
+    {
+        if (!this->LastIsInOptionsMenu)
+        {
+            SavedMasterVolumeLevel = ConfigData.VolumeLevel;
+            CurrentMasterVolumeLevel = SavedMasterVolumeLevel;
+
+            this->LastIsInOptionsMenu = true;
+        }
+        else
+        {
+            ConfigData.VolumeLevel = CurrentMasterVolumeLevel;
+            SetNewVolume();
+
+            this->LastIsInOptionsMenu = true;
+        }
+    }
+    else if (this->LastIsInOptionsMenu)
+    {
+        ConfigData.VolumeLevel = CurrentMasterVolumeLevel;
+
+        SaveConfigData();
+        SetNewVolume();
+
+        this->LastIsInOptionsMenu = false;
+    }
 }
 
 void MasterVolumeSlider::InitVertices()

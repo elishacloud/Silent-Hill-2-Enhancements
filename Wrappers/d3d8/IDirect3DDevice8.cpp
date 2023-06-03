@@ -24,6 +24,7 @@
 #include "stb_image_write.h"
 #include "stb_image_resize.h"
 #include "Patches/ModelID.h"
+#include "Patches\MasterVolume.h"
 
 bool DeviceLost = false;
 bool DisableShaderOnPresent = false;
@@ -34,7 +35,6 @@ bool ClassReleaseFlag = false;
 bool TextureSet = false;
 DWORD TextureNum = 0;
 Overlay OverlayRef;
-MasterVolume MasterVolumeRef;
 
 struct SCREENSHOTSTRUCT
 {

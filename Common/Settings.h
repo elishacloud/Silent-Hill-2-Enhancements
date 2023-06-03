@@ -29,6 +29,7 @@
 	visit(EnableDebugOverlay, true) \
 	visit(EnableEnhancedMouse, true) \
 	visit(EnableInfoOverlay, true) \
+	visit(EnableMasterVolumeSlider, true) \
 	visit(EnableMenuTest, false) \
 	visit(EnableMenuTestIGT, true) \
 	visit(EnableMouseWheelSwap, true) \

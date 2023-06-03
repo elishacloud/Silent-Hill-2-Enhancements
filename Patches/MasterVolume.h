@@ -43,10 +43,11 @@ struct Pip
 
 class MasterVolume
 {
-private: //TODO remove
+private:
 
 public:
 	void SaveProxyInterface(LPDIRECT3DDEVICE8 ProxyInterface);
+	void ChangeMasterVolumeValue(int delta);
 };
 
 struct SliderColor
@@ -110,3 +111,5 @@ public:
 
 	void DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value, bool ValueChanged);	
 };
+
+extern MasterVolume MasterVolumeRef;

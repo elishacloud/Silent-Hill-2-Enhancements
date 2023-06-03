@@ -18,6 +18,7 @@
 #include "External\injector\include\injector\utility.hpp"
 #include "External\Hooking.Patterns\Hooking.Patterns.h"
 #include "InputTweaks.h"
+#include "MasterVolume.h"
 
 InputTweaks InputTweaksRef;
 KeyBindsHandler KeyBinds;
@@ -627,6 +628,19 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
             ClearKey(KeyBinds.GetKeyBind(KEY_SKIP));
             ClearKey(KeyBinds.GetKeyBind(KEY_CANCEL));
         }
+
+		// Handle keyboard input for the Master Volume slider
+		if (GetEventIndex() == EVENT_OPTION_FMV && *(int16_t*)0x00941602 == 0x07) //TODO address
+		{
+			if (IsKeyPressed(KeyBinds.GetKeyBind(KEY_TURN_RIGHT)) || IsKeyPressed(DIK_RIGHT))
+			{
+				MasterVolumeRef.ChangeMasterVolumeValue(1);
+			}
+			else if (IsKeyPressed(KeyBinds.GetKeyBind(KEY_TURN_LEFT)) || IsKeyPressed(DIK_LEFT))
+			{
+				MasterVolumeRef.ChangeMasterVolumeValue(-1);
+			}
+		}
 
 		// Clear Keyboard Data pointer
 		KeyboardData = nullptr;

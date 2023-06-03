@@ -36,6 +36,8 @@ injector::hook_back<void(__cdecl*)(int32_t, int32_t)> orgDrawArrowRight;
 
 LPDIRECT3DDEVICE8 DirectXInterface = nullptr;
 
+MasterVolume MasterVolumeRef;
+
 void __cdecl DrawArrowRight_Hook(int32_t param1, int32_t param2)
 {
     orgDrawArrowRight.fun(0xC5, param2);
@@ -50,10 +52,12 @@ void __cdecl DrawOptions_Hook(DWORD* pointer)
 
 void PatchMasterVolumeSlider()
 {
+    //TODO dial in patterns
     // Hook options drawing to draw at the same time
     auto pattern = hook::pattern("e8 cc 93 13 00");
     orgDrawOptions.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), DrawOptions_Hook, true).get();
 
+    //TODO dial in patterns
     // Hook right arrow drawing to move it to the right
     pattern = hook::pattern("e8 a7 d0 ff ff");
     orgDrawArrowRight.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), DrawArrowRight_Hook, true).get();
@@ -67,6 +71,13 @@ void PatchMasterVolumeSlider()
 void MasterVolume::SaveProxyInterface(LPDIRECT3DDEVICE8 ProxyInterface)
 {
     DirectXInterface = ProxyInterface;
+}
+
+void MasterVolume::ChangeMasterVolumeValue(int delta)
+{
+
+    //TODO
+
 }
 
 void MasterVolumeSlider::InitVertices()

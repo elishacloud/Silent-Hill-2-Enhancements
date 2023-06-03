@@ -381,16 +381,22 @@ void MasterVolumeSlider::CopyVertexBuffer(MasterVertex* source, MasterVertex* de
     }
 }
 
-bool IsInMainOptionsMenu()//TODO dial in addresses
+bool IsInMainOptionsMenu()//TODO address
 {
-    return IsInOptionsMenu() &&
-        *(BYTE*)0x941601 == 0x00; // Options sub page
+    BYTE OptionsPage = *(BYTE*)0x941600; //TODO address
+    BYTE OptionsSubPage = *(BYTE*)0x941601;
+
+    return OptionsPage == 0x02 && OptionsSubPage == 0x00;
 }
 
 bool IsInOptionsMenu()
 {
+    BYTE OptionsPage = *(BYTE*)0x941600; //TODO address
+    BYTE OptionsSubPage = *(BYTE*)0x941601;
+
     return GetEventIndex() == 0x07 &&
-        *(BYTE*)0x941600 == 0x02; // TODO add values for submenus
+        (OptionsPage == 0x02 || OptionsPage == 0x07 || OptionsPage == 0x04) &&
+        (OptionsSubPage == 0x00 || OptionsSubPage == 0x01);
 }
 
 bool IsInChangeSettingPrompt() //TODO address

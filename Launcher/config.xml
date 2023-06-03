@@ -353,9 +353,9 @@
         </Choices>
       </Feature>
 
-      <Feature name="EnableMasterVolumeSlider">
-        <Title>Enable Master Volume option</Title>
-        <Description>Enable replacing the unused "Speaker config" option with a new Master Volume slider.</Description>
+      <Feature name="EnableMasterVolume">
+        <Title>Add a master volume level control</Title>
+        <Description>Adds a master volume level control to the in-game Options menu to control all audio in the game.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>

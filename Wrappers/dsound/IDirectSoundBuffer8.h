@@ -1,5 +1,10 @@
 #pragma once
 
+// Volume array falloff
+constexpr LONG VolumeArray[] = { -10000, -2401, -1799, -1411, -1170, -961, -809, -665, -555, -445, -359, -270, -198, -124, -63, 0 };
+
+extern std::vector<m_IDirectSoundBuffer8*> BufferList;
+
 class m_IDirectSoundBuffer8 : public IDirectSoundBuffer8, public AddressLookupTableDsoundObject
 {
 private:
@@ -7,7 +12,10 @@ private:
 
 	// Set variables
 	bool IsStopSet = false;
-	LONG CurrentVolume = 0;
+	bool IsMasterVolumeSet = false;
+	DWORD LastVolumeSet = 15;
+	LONG RequestedVolume = DSBVOLUME_MIN;
+	LONG CurrentVolume = DSBVOLUME_MIN;
 	ULARGE_INTEGER LastStopTime = {};
 
 	// Helper functions
@@ -19,11 +27,26 @@ public:
 	{
 		Logging::LogDebug() << "Creating device " << __FUNCTION__ << "(" << this << ")";
 
+		GetVolume(&RequestedVolume);
+
+		BufferList.push_back(this);
+
 		ProxyAddressLookupTableDsound.SaveAddress(this, ProxyInterface);
 	}
 	~m_IDirectSoundBuffer8()
 	{
 		Logging::LogDebug() << __FUNCTION__ << "(" << this << ")" << " deleting device!";
+
+		// Remove buffer from vector
+		{
+			auto it = std::find_if(BufferList.begin(), BufferList.end(),
+				[=](auto pBuffer) -> bool { return pBuffer == this; });
+
+			if (it != std::end(BufferList))
+			{
+				BufferList.erase(it);
+			}
+		}
 
 		ProxyAddressLookupTableDsound.DeleteAddress(this);
 	}
@@ -62,4 +85,7 @@ public:
 	STDMETHOD(SetFX)(THIS_ DWORD dwEffectsCount, _In_reads_opt_(dwEffectsCount) LPDSEFFECTDESC pDSFXDesc, _Out_writes_opt_(dwEffectsCount) LPDWORD pdwResultCodes);
 	STDMETHOD(AcquireResources)(THIS_ DWORD dwFlags, DWORD dwEffectsCount, _Out_writes_(dwEffectsCount) LPDWORD pdwResultCodes);
 	STDMETHOD(GetObjectInPath)(THIS_ _In_ REFGUID rguidObject, DWORD dwIndex, _In_ REFGUID rguidInterface, _Outptr_ LPVOID *ppObject);
+
+	// Helper functions
+	void CheckMasterVolume();
 };

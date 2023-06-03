@@ -353,7 +353,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="EnableMasterVolumeSlider">
+      <Feature name="EnableMasterVolume">
         <Title>Abilita opzione Volume Generale</Title>
         <Description>Sostituisci l'opzione inutilizzata "Configurazione altoparlanti" con la nuova opzione di "Volume Generale".</Description>
         <Choices type="check">

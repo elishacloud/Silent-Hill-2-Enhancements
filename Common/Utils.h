@@ -30,6 +30,7 @@ void GetVersionFile(const wchar_t* lpFilename, OSVERSIONINFO* oFileVersion);
 #ifdef ISLAUNCHER
 bool CheckFileIsSH2EEModule(const wchar_t* Path);
 #endif
+HMEMORYMODULE LoadMemoryToDLL(LPVOID pMemory, DWORD Size);
 HMEMORYMODULE LoadResourceToMemory(DWORD ResID);
 void ExtractFileFromResource(DWORD ResID, char* lpFilepath);
 void ExtractFileFromResource(DWORD ResID, wchar_t* lpFilepath);
@@ -48,8 +49,8 @@ void GetDesktopRes(LONG &screenWidth, LONG &screenHeight);
 void GetDesktopRect(RECT &screenRect);
 bool ReadRegistryStruct(const std::wstring& lpzSection, const std::wstring& lpzKey, const LPVOID& lpStruct, UINT uSizeStruct);
 bool WriteRegistryStruct(const std::wstring& lpzSection, const std::wstring& lpzKey, DWORD dwType, const LPVOID lpStruct, UINT uSizeStruct);
-HRESULT GetSavedResolution(DWORD &Width, DWORD &Height);
-HRESULT SaveResolution(DWORD Width, DWORD Height);
+HRESULT GetConfigData();
+HRESULT SaveConfigData();
 void LogDirectory();
 void LogAllModules();
 void RunDelayedOneTimeItems();

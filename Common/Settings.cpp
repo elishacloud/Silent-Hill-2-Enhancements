@@ -28,6 +28,8 @@ bool CRTCurveShader = false;
 bool CRTNonCurveShader = false;
 bool EnableInputTweaks = false;
 
+CFGDATA ConfigData;
+
 // Configurable setting defaults
 #define SET_BOOL_DEFAULTS(name, value) \
 	bool name = value;

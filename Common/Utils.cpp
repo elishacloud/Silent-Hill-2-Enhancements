@@ -760,6 +760,15 @@ bool CheckFileIsSH2EEModule(const wchar_t* Path)
 }
 #endif
 
+HMEMORYMODULE LoadMemoryToDLL(LPVOID pMemory, DWORD Size)
+{
+	if (pMemory && Size)
+	{
+		return MemoryLoadLibrary(pMemory, Size);
+	}
+	return nullptr;
+}
+
 HMEMORYMODULE LoadResourceToMemory(DWORD ResID)
 {
 	HRSRC hResource = FindResource(m_hModule, MAKEINTRESOURCE(ResID), RT_RCDATA);
@@ -1238,13 +1247,7 @@ bool WriteRegistryStruct(const std::wstring& lpzSection, const std::wstring& lpz
 	return true;
 }
 
-struct CFGDATA
-{
-	DWORD Width = 0;
-	DWORD Height = 0;
-};
-
-HRESULT GetResolutionFromConfig(DWORD &Width, DWORD &Height)
+HRESULT GetConfigFromFile()
 {
 	wchar_t ConfigName[MAX_PATH] = {};
 	if (!GetConfigName(ConfigName, MAX_PATH, L".cfg") || !PathFileExists(ConfigName))
@@ -1253,16 +1256,15 @@ HRESULT GetResolutionFromConfig(DWORD &Width, DWORD &Height)
 	}
 
 	HANDLE hFile;
-	const DWORD BytesToRead = sizeof(CFGDATA);
 	DWORD dwBytesRead;
 
-	CFGDATA ConfigData;
 	hFile = CreateFile(ConfigName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
 		LOG_LIMIT(100, __FUNCTION__ << " Error: failed to open file: '" << ConfigName << "'");
 		return E_FAIL;
 	}
+	DWORD BytesToRead = min(GetFileSize(hFile, nullptr), sizeof(CFGDATA));
 
 	BOOL hRet = ReadFile(hFile, (void*)&ConfigData, BytesToRead, &dwBytesRead, nullptr);
 	if (dwBytesRead != BytesToRead || hRet == FALSE)
@@ -1271,17 +1273,8 @@ HRESULT GetResolutionFromConfig(DWORD &Width, DWORD &Height)
 		return E_FAIL;
 	}
 
-	if (ConfigData.Width && ConfigData.Height)
-	{
-		Width = ConfigData.Width;
-		Height = ConfigData.Height;
-
-		CloseHandle(hFile);
-		return S_OK;
-	}
-
 	CloseHandle(hFile);
-	return E_FAIL;
+	return S_OK;
 }
 
 void MigrateRegistry()
@@ -1307,32 +1300,28 @@ void MigrateRegistry()
 
 	RegCloseKey(hKey);
 
-	if (Width && Height)
+	if (Width && Height && (!ConfigData.Width || !ConfigData.Height))
 	{
-		DWORD TestWidth = 0, TestHeight = 0;
-
-		if (FAILED(GetResolutionFromConfig(TestWidth, TestHeight)) || !TestWidth || !TestHeight)
-		{
-			if (FAILED(SaveResolution(Width, Height)))
-			{
-				return;
-			}
-		}
+		ConfigData.Width = Width;
+		ConfigData.Height = Height;
+		SaveConfigData();
 	}
 
 	return;
 }
 
-HRESULT GetSavedResolution(DWORD &Width, DWORD &Height)
+HRESULT GetConfigData()
 {
+	// Check for config file data first
+	HRESULT hr = GetConfigFromFile();
+
 	// Migrate old registry keys to config file 
 	MigrateRegistry();
 
-	// Check for config file
-	return GetResolutionFromConfig(Width, Height);
+	return hr;
 }
 
-HRESULT SaveResolution(DWORD Width, DWORD Height)
+HRESULT SaveConfigData()
 {
 	wchar_t ConfigName[MAX_PATH] = {};
 	if (!GetConfigName(ConfigName, MAX_PATH, L".cfg"))
@@ -1344,7 +1333,6 @@ HRESULT SaveResolution(DWORD Width, DWORD Height)
 	const DWORD BytesToRead = sizeof(CFGDATA);
 	DWORD dwBytesWritten;
 
-	CFGDATA ConfigData = { Width, Height };
 	hFile = CreateFile(ConfigName, GENERIC_WRITE, FILE_SHARE_WRITE, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{

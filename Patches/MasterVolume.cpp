@@ -126,7 +126,7 @@ void MasterVolumeSlider::InitVertices()
 
 void MasterVolumeSlider::DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value, bool ValueChanged)
 {
-    if (GetEventIndex() != EVENT_OPTION_FMV)
+    if (!IsInMainOptionsMenu())
         return;
 
     if (LastBufferHeight != BufferHeight || LastBufferWidth != BufferWidth)
@@ -175,7 +175,7 @@ void MasterVolumeSlider::DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value,
 
     ProxyInterface->SetRenderState(D3DRS_ALPHAREF, 1);
     ProxyInterface->SetRenderState(D3DRS_LIGHTING, 0);
-    ProxyInterface->SetRenderState(D3DRS_SPECULARENABLE, 0); //TODO check 
+    ProxyInterface->SetRenderState(D3DRS_SPECULARENABLE, 0);
     ProxyInterface->SetRenderState(D3DRS_ZENABLE, 1);
     ProxyInterface->SetRenderState(D3DRS_ZWRITEENABLE, 1);
     ProxyInterface->SetRenderState(D3DRS_ALPHATESTENABLE, 0);
@@ -258,4 +258,11 @@ void MasterVolumeSlider::CopyVertexBuffer(MasterVertex* source, MasterVertex* de
     {
         destination[i] = { D3DXVECTOR3(source[i].coords.x, source[i].coords.y, source[i].coords.z), source[i].rhw, source[i].color };
     }
+}
+
+bool IsInMainOptionsMenu()//TODO dial in addresses
+{
+    return GetEventIndex() == 0x07 &&
+        *(BYTE*)0x941600 == 0x02 &&  // Options page
+        *(BYTE*)0x941601 == 0x00; // Options sub page
 }

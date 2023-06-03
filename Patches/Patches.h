@@ -261,6 +261,7 @@ bool IsMariaEyes(ModelID id);
 bool isConfirmationPromptOpen();
 int CountCollectedMemos();
 bool IsInFullScreenImageEvent();
+bool IsInMainOptionsMenu();
 
 void HandleFinalBossRoomFix();
 

@@ -630,7 +630,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
         }
 
 		// Handle keyboard input for the Master Volume slider
-		if (GetEventIndex() == EVENT_OPTION_FMV && *(int16_t*)0x00941602 == 0x07) //TODO address
+		if (IsInMainOptionsMenu() && *(int16_t*)0x00941602 == 0x07) //TODO address for selected option
 		{
 			if (IsKeyPressed(KeyBinds.GetKeyBind(KEY_TURN_RIGHT)) || IsKeyPressed(DIK_RIGHT))
 			{

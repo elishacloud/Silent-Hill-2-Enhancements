@@ -262,6 +262,8 @@ bool isConfirmationPromptOpen();
 int CountCollectedMemos();
 bool IsInFullScreenImageEvent();
 bool IsInMainOptionsMenu();
+bool IsInOptionsMenu();
+bool IsInChangeSettingPrompt();
 
 void HandleFinalBossRoomFix();
 void SetNewVolume();

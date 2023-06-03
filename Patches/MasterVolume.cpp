@@ -27,7 +27,9 @@ D3DMATRIX WorldMatrix =
   0.f, 0.f, 0.f, 1.f
 };
 
-BYTE* ChangedOptionsCheckReturn = (BYTE*)0x0046321d;
+BYTE* ChangedOptionsCheckReturn = (BYTE*)0x0046321d; // TODO addresses
+BYTE* DiscardOptionsBackingOutReturn = (BYTE*)0x0046356f;
+BYTE* DiscardOptionsNoBackingOutReturn = (BYTE*)0x0046373e;
 
 static int SavedMasterVolumeLevel = 0;
 static int CurrentMasterVolumeLevel = 0;
@@ -38,10 +40,12 @@ MasterVolumeSlider MasterVolumeSliderRef;
 
 injector::hook_back<void(__cdecl*)(DWORD*)> orgDrawOptions;
 injector::hook_back<void(__cdecl*)(int32_t, int32_t)> orgDrawArrowRight;
+injector::hook_back<void(__cdecl*)(int32_t)> orgConfirmOptionsFun;
 
 LPDIRECT3DDEVICE8 DirectXInterface = nullptr;
 
 MasterVolume MasterVolumeRef;
+bool DiscardOptions = false;
 
 void __cdecl DrawArrowRight_Hook(int32_t param1, int32_t param2)
 {
@@ -55,14 +59,41 @@ void __cdecl DrawOptions_Hook(DWORD* pointer)
     MasterVolumeSliderRef.DrawSlider(DirectXInterface, CurrentMasterVolumeLevel, CurrentMasterVolumeLevel != SavedMasterVolumeLevel);
 }
 
+void __cdecl ConfirmOptions_Hook(int32_t param)
+{
+    MasterVolumeRef.ExitOptionsScreen(true);
+
+    orgConfirmOptionsFun.fun(param);
+}
+
 __declspec(naked) void __stdcall ChangeSpeakerConfigCheck()
 {
     __asm
     {
         mov dl, byte ptr[CurrentMasterVolumeLevel]
-        cmp DL, byte ptr[SavedMasterVolumeLevel]
+        cmp dl, byte ptr[SavedMasterVolumeLevel]
 
-        jmp ChangedOptionsCheckReturn; //TODO
+        jmp ChangedOptionsCheckReturn;
+    }
+}
+
+__declspec(naked) void __stdcall DiscardOptionsBackingOut()
+{
+    DiscardOptions = true;
+
+    __asm
+    {
+        jmp DiscardOptionsBackingOutReturn;
+    }
+}
+
+__declspec(naked) void __stdcall DiscardOptionsNoBackingOut()
+{
+    DiscardOptions = true;
+
+    __asm
+    {
+        jmp DiscardOptionsNoBackingOutReturn;
     }
 }
 
@@ -84,7 +115,20 @@ void PatchMasterVolumeSlider()
     UpdateMemoryAddress((void*)0x00461B4D, "\x90\x90\x90\x90\x90", 5);
 
     //TODO addresses
+    // Inject our values in the game's check for changed settings
     WriteJMPtoMemory((BYTE*)0x00463211, ChangeSpeakerConfigCheck, 0x0C);
+
+    //TODO addresses
+    // Set the DiscardOptions flag when restoring saved settings
+    WriteJMPtoMemory((BYTE*)0x00463569, DiscardOptionsBackingOut, 0x06);
+    WriteJMPtoMemory((BYTE*)0x00463738, DiscardOptionsNoBackingOut, 0x06);
+
+    //TODO addresses
+    // hook the function that is called when confirming changed options
+    pattern = hook::pattern("e8 9e 49 0b 00");
+    orgConfirmOptionsFun.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), ConfirmOptions_Hook, true).get();
+    pattern = hook::pattern("e8 5f 4e 0b 00");
+    injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), ConfirmOptions_Hook, true).get();
 }
 
 void MasterVolume::ChangeMasterVolumeValue(int delta)
@@ -93,7 +137,23 @@ void MasterVolume::ChangeMasterVolumeValue(int delta)
         return;
 
     if ((delta < 0 && CurrentMasterVolumeLevel > 0) || (delta > 0 && CurrentMasterVolumeLevel < 0x0F))
+    {
         CurrentMasterVolumeLevel += delta;
+        SetNewVolume();
+    }
+}
+
+void MasterVolume::ExitOptionsScreen(bool ConfirmChange)
+{
+    if (!ConfirmChange)
+    {
+        ConfigData.VolumeLevel = SavedMasterVolumeLevel;
+        CurrentMasterVolumeLevel = SavedMasterVolumeLevel;
+        Logging::Log() << "REVERTING";
+    }
+
+    SaveConfigData();
+    SetNewVolume();
 }
 
 void MasterVolume::HandleMasterVolume(LPDIRECT3DDEVICE8 ProxyInterface)
@@ -104,37 +164,40 @@ void MasterVolume::HandleMasterVolume(LPDIRECT3DDEVICE8 ProxyInterface)
     //TODO remove
     AuxDebugOvlString = "\rCurrent level: ";
     AuxDebugOvlString.append(std::to_string(CurrentMasterVolumeLevel));
-    AuxDebugOvlString.append("\rsaved level: ");
+    AuxDebugOvlString.append("\rSaved level: ");
     AuxDebugOvlString.append(std::to_string(SavedMasterVolumeLevel));
+    AuxDebugOvlString.append("\rConfig level: ");
+    AuxDebugOvlString.append(std::to_string(ConfigData.VolumeLevel));
+    AuxDebugOvlString.append("\rIs In Change Setting: ");
+    AuxDebugOvlString.append(IsInChangeSettingPrompt() ? "True" : "False");
+
+    DirectXInterface = ProxyInterface;
 
     // If we just entered the main options menu
-    if (GetEventIndex() == 0x07)
+    if (IsInOptionsMenu())
     {
-        DirectXInterface = ProxyInterface;
-
-        if (!this->LastIsInOptionsMenu)
+        if (!this->EnteredOptionsMenu)
         {
             SavedMasterVolumeLevel = ConfigData.VolumeLevel;
             CurrentMasterVolumeLevel = SavedMasterVolumeLevel;
 
-            this->LastIsInOptionsMenu = true;
+            this->EnteredOptionsMenu = true;
         }
         else
         {
             ConfigData.VolumeLevel = CurrentMasterVolumeLevel;
-            SetNewVolume();
-
-            this->LastIsInOptionsMenu = true;
-        }
+        }    
     }
-    else if (this->LastIsInOptionsMenu)
+    else if (DiscardOptions)
     {
-        ConfigData.VolumeLevel = CurrentMasterVolumeLevel;
-
-        SaveConfigData();
-        SetNewVolume();
-
-        this->LastIsInOptionsMenu = false;
+        this->ExitOptionsScreen(false);
+        DiscardOptions = false;
+        // 0 - yes, 1 - no
+        //this->ExitOptionsScreen(LastChangeSettingSelection == 0x00);
+    }
+    else
+    {
+        this->EnteredOptionsMenu = false;
     }
 }
 
@@ -320,7 +383,17 @@ void MasterVolumeSlider::CopyVertexBuffer(MasterVertex* source, MasterVertex* de
 
 bool IsInMainOptionsMenu()//TODO dial in addresses
 {
-    return GetEventIndex() == 0x07 &&
-        *(BYTE*)0x941600 == 0x02 &&  // Options page
+    return IsInOptionsMenu() &&
         *(BYTE*)0x941601 == 0x00; // Options sub page
+}
+
+bool IsInOptionsMenu()
+{
+    return GetEventIndex() == 0x07 &&
+        *(BYTE*)0x941600 == 0x02; // TODO add values for submenus
+}
+
+bool IsInChangeSettingPrompt() //TODO address
+{
+    return *(BYTE*)0x1F5F548 == 0xB7 || *(BYTE*)0x1F5F548 == 0x25;
 }

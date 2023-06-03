@@ -45,11 +45,13 @@ struct Pip
 class MasterVolume
 {
 private:
-	bool LastIsInOptionsMenu = false;
+	bool EnteredOptionsMenu = false;
 
 public:
 	void HandleMasterVolume(LPDIRECT3DDEVICE8 ProxyInterface);
 	void ChangeMasterVolumeValue(int delta);
+
+	void ExitOptionsScreen(bool ConfirmChange);
 };
 
 struct SliderColor

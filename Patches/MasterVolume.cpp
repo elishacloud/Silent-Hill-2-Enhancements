@@ -27,6 +27,8 @@ D3DMATRIX WorldMatrix =
   0.f, 0.f, 0.f, 1.f
 };
 
+BYTE* ChangedOptionsCheckReturn = (BYTE*)0x0046321d;
+
 static int SavedMasterVolumeLevel = 0;
 static int CurrentMasterVolumeLevel = 0;
 
@@ -53,6 +55,17 @@ void __cdecl DrawOptions_Hook(DWORD* pointer)
     MasterVolumeSliderRef.DrawSlider(DirectXInterface, CurrentMasterVolumeLevel, CurrentMasterVolumeLevel != SavedMasterVolumeLevel);
 }
 
+__declspec(naked) void __stdcall ChangeSpeakerConfigCheck()
+{
+    __asm
+    {
+        mov dl, byte ptr[CurrentMasterVolumeLevel]
+        cmp DL, byte ptr[SavedMasterVolumeLevel]
+
+        jmp ChangedOptionsCheckReturn; //TODO
+    }
+}
+
 void PatchMasterVolumeSlider()
 {
     //TODO dial in patterns
@@ -69,6 +82,9 @@ void PatchMasterVolumeSlider()
     // Skip drawing the old option text
     UpdateMemoryAddress((void*)0x004618FD, "\x90\x90\x90\x90\x90", 5);
     UpdateMemoryAddress((void*)0x00461B4D, "\x90\x90\x90\x90\x90", 5);
+
+    //TODO addresses
+    WriteJMPtoMemory((BYTE*)0x00463211, ChangeSpeakerConfigCheck, 0x0C);
 }
 
 void MasterVolume::ChangeMasterVolumeValue(int delta)
@@ -85,16 +101,17 @@ void MasterVolume::HandleMasterVolume(LPDIRECT3DDEVICE8 ProxyInterface)
     if (!EnableMasterVolume)
         return;
 
+    //TODO remove
     AuxDebugOvlString = "\rCurrent level: ";
     AuxDebugOvlString.append(std::to_string(CurrentMasterVolumeLevel));
     AuxDebugOvlString.append("\rsaved level: ");
     AuxDebugOvlString.append(std::to_string(SavedMasterVolumeLevel));
 
-    DirectXInterface = ProxyInterface;
-
     // If we just entered the main options menu
     if (GetEventIndex() == 0x07)
     {
+        DirectXInterface = ProxyInterface;
+
         if (!this->LastIsInOptionsMenu)
         {
             SavedMasterVolumeLevel = ConfigData.VolumeLevel;

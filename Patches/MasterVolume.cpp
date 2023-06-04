@@ -42,12 +42,23 @@ MasterVolumeSlider MasterVolumeSliderRef;
 injector::hook_back<void(__cdecl*)(DWORD*)> orgDrawOptions;
 injector::hook_back<void(__cdecl*)(int32_t, int32_t)> orgDrawArrowRight;
 injector::hook_back<void(__cdecl*)(int32_t)> orgConfirmOptionsFun;
+injector::hook_back<int32_t(__cdecl*)(int32_t, float, DWORD)> orgPlaySound;
 
 LPDIRECT3DDEVICE8 DirectXInterface = nullptr;
 
 MasterVolume MasterVolumeRef;
 bool DiscardOptions = false;
 int ChangeMasterVolume = 0;
+
+int32_t PlaySound_Hook(int32_t SoundId, float volume, DWORD param3)
+{
+    if (*(int16_t*)0x00941602 == 0x07) //TODO selected option address
+    {
+        return orgPlaySound.fun(0x2719, volume, param3);
+    }
+
+    return orgPlaySound.fun(SoundId, volume, param3);
+}
 
 #pragma warning(disable : 4100)
 void __cdecl DrawArrowRight_Hook(int32_t param1, int32_t param2)
@@ -157,6 +168,11 @@ void PatchMasterVolumeSlider()
     orgConfirmOptionsFun.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), ConfirmOptions_Hook, true).get();
     pattern = hook::pattern("e8 5f 4e 0b 00");
     injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), ConfirmOptions_Hook, true).get();
+
+    //TODO pattern
+    // Hook the function that plays sounds at the end of the options switch
+    pattern = hook::pattern("e8 f5 14 0b 00");
+    orgPlaySound.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), PlaySound_Hook, true).get();
 }
 
 void MasterVolume::ChangeMasterVolumeValue(int delta)

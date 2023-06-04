@@ -61,7 +61,7 @@ void __cdecl DrawOptions_Hook(DWORD* pointer)
 
 void __cdecl ConfirmOptions_Hook(int32_t param)
 {
-    MasterVolumeRef.ExitOptionsScreen(true);
+    MasterVolumeRef.HandleConfirmOptions(true);
 
     orgConfirmOptionsFun.fun(param);
 }
@@ -143,13 +143,12 @@ void MasterVolume::ChangeMasterVolumeValue(int delta)
     }
 }
 
-void MasterVolume::ExitOptionsScreen(bool ConfirmChange)
+void MasterVolume::HandleConfirmOptions(bool ConfirmChange)
 {
     if (!ConfirmChange)
     {
         ConfigData.VolumeLevel = SavedMasterVolumeLevel;
         CurrentMasterVolumeLevel = SavedMasterVolumeLevel;
-        Logging::Log() << "REVERTING";
     }
 
     SaveConfigData();
@@ -173,6 +172,12 @@ void MasterVolume::HandleMasterVolume(LPDIRECT3DDEVICE8 ProxyInterface)
 
     DirectXInterface = ProxyInterface;
 
+    if (DiscardOptions)
+    {
+        this->HandleConfirmOptions(false);
+        DiscardOptions = false;
+    }
+
     // If we just entered the main options menu
     if (IsInOptionsMenu())
     {
@@ -187,13 +192,6 @@ void MasterVolume::HandleMasterVolume(LPDIRECT3DDEVICE8 ProxyInterface)
         {
             ConfigData.VolumeLevel = CurrentMasterVolumeLevel;
         }    
-    }
-    else if (DiscardOptions)
-    {
-        this->ExitOptionsScreen(false);
-        DiscardOptions = false;
-        // 0 - yes, 1 - no
-        //this->ExitOptionsScreen(LastChangeSettingSelection == 0x00);
     }
     else
     {

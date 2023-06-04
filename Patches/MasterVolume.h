@@ -51,7 +51,7 @@ public:
 	void HandleMasterVolume(LPDIRECT3DDEVICE8 ProxyInterface);
 	void ChangeMasterVolumeValue(int delta);
 
-	void ExitOptionsScreen(bool ConfirmChange);
+	void HandleConfirmOptions(bool ConfirmChange);
 };
 
 struct SliderColor

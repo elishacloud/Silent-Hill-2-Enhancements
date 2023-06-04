@@ -73,12 +73,13 @@ private:
 	D3DCOLOR DarkGoldBezel[2] = { D3DCOLOR_ARGB(0x40, 0x40, 0x40, 0x20), D3DCOLOR_ARGB(0x40, 0x28, 0x28, 0x20) };
 
 	D3DCOLOR InactiveGraySquare[2] = { D3DCOLOR_ARGB(0x40, 0x50, 0x50, 0x50), D3DCOLOR_ARGB(0x40, 0x2C, 0x2C, 0x2C) };
-	D3DCOLOR ActiveGraySquare[2] = { D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80), D3DCOLOR_ARGB(0x40, 0x50, 0x50, 0x50) };
+	D3DCOLOR ActiveGraySquare[2] = { D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80), D3DCOLOR_ARGB(0x40, 0x38, 0x38, 0x38) };
 
-	D3DCOLOR InactiveGoldSquare[2] = { D3DCOLOR_ARGB(0x40, 0x50, 0x50, 0x25), D3DCOLOR_ARGB(0x40, 0x2C, 0x2C, 0x21) };
+	D3DCOLOR InactiveGoldSquare[2] = { D3DCOLOR_ARGB(0x40, 0x50, 0x50, 0x25), D3DCOLOR_ARGB(0x40, 0x2C, 0x2C, 0x20) };
 	D3DCOLOR ActiveGoldSquare[2] = { D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x40), D3DCOLOR_ARGB(0x40, 0x38, 0x38, 0x28) };
 
 	// Bezel L flipped horizontally
+#pragma warning(disable : 4305)
 	MasterVertex BezelVertices[BEZEL_VERT_NUM] =
 	{
 		{ D3DXVECTOR3( 10.547, -21.5625, 0.000) , 1.f, NULL},
@@ -88,7 +89,7 @@ private:
 		{ D3DXVECTOR3(-10.547,  21.5625, 0.000) , 1.f, NULL},
 		{ D3DXVECTOR3( -5.859,  17.8125, 0.000) , 1.f, NULL}
 	};
-
+#pragma warning(disable : 4305)
 	MasterVertex RectangleVertices[RECT_VERT_NUM] =
 	{
 		{ D3DXVECTOR3( 5.859,  17.8125, 0.000), 1.000, NULL}, // Alignment vertex

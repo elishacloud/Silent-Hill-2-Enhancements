@@ -49,6 +49,7 @@ MasterVolume MasterVolumeRef;
 bool DiscardOptions = false;
 int ChangeMasterVolume = 0;
 
+#pragma warning(disable : 4100)
 void __cdecl DrawArrowRight_Hook(int32_t param1, int32_t param2)
 {
     orgDrawArrowRight.fun(0xC5, param2);
@@ -288,9 +289,9 @@ void MasterVolumeSlider::DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value,
         for (int i = 0; i < 0xF; i++)
         {
             if (value <= i)
-                this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->ActiveGoldSquare[selected]);
-            else
                 this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->InactiveGoldSquare[selected]);
+            else
+                this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->ActiveGoldSquare[selected]);
         }
     }
     else
@@ -305,9 +306,9 @@ void MasterVolumeSlider::DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value,
         for (int i = 0; i < 0xF; i++)
         {
             if (value <= i)
-                this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->ActiveGraySquare[selected]);
-            else
                 this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->InactiveGraySquare[selected]);
+            else
+                this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->ActiveGraySquare[selected]);
         }
     }
 

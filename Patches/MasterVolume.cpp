@@ -244,7 +244,7 @@ void MasterVolumeSlider::InitVertices()
         this->CopyVertexBuffer(this->BezelVertices, this->FinalBezels[i].TopVertices, BEZEL_VERT_NUM);
         this->CopyVertexBuffer(this->BezelVertices, this->FinalBezels[i].BotVertices, BEZEL_VERT_NUM);
 
-        this->CopyVertexBuffer(this->RectangleVertices, this->FinalPips[i].vertices, RECT_VERT_NUM);
+        this->CopyVertexBuffer(this->RectangleVertices, this->FinalRects[i].vertices, RECT_VERT_NUM);
 
         // Flip the top bezel
         this->RotateVertexBuffer(this->FinalBezels[i].TopVertices, BEZEL_VERT_NUM, D3DX_PI);
@@ -252,13 +252,13 @@ void MasterVolumeSlider::InitVertices()
         // Scaling
         this->ScaleVertexBuffer(this->FinalBezels[i].TopVertices, BEZEL_VERT_NUM, xScaling, yScaling);
         this->ScaleVertexBuffer(this->FinalBezels[i].BotVertices, BEZEL_VERT_NUM, xScaling, yScaling);
-        this->ScaleVertexBuffer(this->FinalPips[i].vertices, RECT_VERT_NUM, xScaling, yScaling);
+        this->ScaleVertexBuffer(this->FinalRects[i].vertices, RECT_VERT_NUM, xScaling, yScaling);
 
         // Translating
-        this->TranslateVertexBuffer(this->FinalPips[i].vertices, RECT_VERT_NUM, xOffset + ((float)i * spacing), yOffset);
+        this->TranslateVertexBuffer(this->FinalRects[i].vertices, RECT_VERT_NUM, xOffset + ((float)i * spacing), yOffset);
 
-        float DeltaX = this->FinalPips[i].vertices[0].coords.x - this->FinalBezels[i].BotVertices[3].coords.x;
-        float DeltaY = this->FinalPips[i].vertices[0].coords.y - this->FinalBezels[i].BotVertices[3].coords.y;
+        float DeltaX = this->FinalRects[i].vertices[0].coords.x - this->FinalBezels[i].BotVertices[3].coords.x;
+        float DeltaY = this->FinalRects[i].vertices[0].coords.y - this->FinalBezels[i].BotVertices[3].coords.y;
 
         this->TranslateVertexBuffer(this->FinalBezels[i].TopVertices, BEZEL_VERT_NUM, DeltaX, DeltaY);
         this->TranslateVertexBuffer(this->FinalBezels[i].BotVertices, BEZEL_VERT_NUM, DeltaX, DeltaY);
@@ -289,9 +289,9 @@ void MasterVolumeSlider::DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value,
         for (int i = 0; i < 0xF; i++)
         {
             if (value <= i)
-                this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->InactiveGoldSquare[selected]);
+                this->SetVertexBufferColor(this->FinalRects[i].vertices, RECT_VERT_NUM, this->InactiveGoldSquare[selected]);
             else
-                this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->ActiveGoldSquare[selected]);
+                this->SetVertexBufferColor(this->FinalRects[i].vertices, RECT_VERT_NUM, this->ActiveGoldSquare[selected]);
         }
     }
     else
@@ -306,9 +306,9 @@ void MasterVolumeSlider::DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value,
         for (int i = 0; i < 0xF; i++)
         {
             if (value <= i)
-                this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->InactiveGraySquare[selected]);
+                this->SetVertexBufferColor(this->FinalRects[i].vertices, RECT_VERT_NUM, this->InactiveGraySquare[selected]);
             else
-                this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->ActiveGraySquare[selected]);
+                this->SetVertexBufferColor(this->FinalRects[i].vertices, RECT_VERT_NUM, this->ActiveGraySquare[selected]);
         }
     }
 
@@ -343,7 +343,7 @@ void MasterVolumeSlider::DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value,
     
     // Draw every inner rectangle
     for (int i = 0; i < 0xF; i++)
-        ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, this->FinalPips[i].vertices, 20);
+        ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, this->FinalRects[i].vertices, 20);
 
     ProxyInterface->SetRenderState(D3DRS_ALPHAREF, 2);
     ProxyInterface->SetRenderState(D3DRS_FOGENABLE, 1);

@@ -37,7 +37,7 @@ struct Bezels
 	MasterVertex BotVertices[BEZEL_VERT_NUM];
 };
 
-struct Pip
+struct CenterRects
 {
 	MasterVertex vertices[RECT_VERT_NUM];
 };
@@ -100,7 +100,7 @@ private:
 
 	// Possible values 0x0 - 0xF
 	Bezels FinalBezels[0x10];
-	Pip FinalPips[0x10];
+	CenterRects FinalRects[0x10];
 
 	void TranslateVertexBuffer(MasterVertex* vertices, int count, float x, float y);
 	void RotateVertexBuffer(MasterVertex* vertices, int count, float angle);

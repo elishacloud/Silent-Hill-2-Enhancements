@@ -638,19 +638,6 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		OptionsLeft.UpdateHolding();
 		OptionsRight.UpdateHolding();
 
-		// Handle keyboard input for the Master Volume slider
-		if (IsInMainOptionsMenu() && *(int16_t*)0x00941602/*Options selection*/ == 0x07 && !IsInChangeSettingPrompt()) //TODO address for selected option
-		{
-			if (OptionsRight.State && !OptionsRight.Holding)
-			{
-				MasterVolumeRef.ChangeMasterVolumeValue(1);
-			}
-			else if (OptionsLeft.State && !OptionsLeft.Holding)
-			{
-				MasterVolumeRef.ChangeMasterVolumeValue(-1);
-			}
-		}
-
 		// Clear Keyboard Data pointer
 		KeyboardData = nullptr;
 	}

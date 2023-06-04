@@ -287,8 +287,8 @@ void UpdateConfigDefaults()
 	// Set Input Tweaks default
 	EnableInputTweaks = (EnableToggleSprint || EnableEnhancedMouse || EnableMouseWheelSwap || MemoScreenFix || EnhanceMouseCursor || AutoHideMouseCursor || EnableMasterVolume);
 
-	// Lock Speaker config if Master Volume is enabled
-	LockSpeakerConfig = LockSpeakerConfig || EnableMasterVolume;
+	// Lock Speaker config is disabled if Master Volume is enabled
+	LockSpeakerConfig = LockSpeakerConfig && (!EnableMasterVolume);
 
 	// Set FogFix
 	if (FogFix == 0xFFFF)

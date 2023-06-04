@@ -30,6 +30,7 @@ D3DMATRIX WorldMatrix =
 BYTE* ChangedOptionsCheckReturn = (BYTE*)0x0046321d; // TODO addresses
 BYTE* DiscardOptionsBackingOutReturn = (BYTE*)0x0046356f;
 BYTE* DiscardOptionsNoBackingOutReturn = (BYTE*)0x0046373e;
+BYTE* ChangeMasterVolumeReturn = (BYTE*)0x00463e70;
 
 static int SavedMasterVolumeLevel = 0;
 static int CurrentMasterVolumeLevel = 0;
@@ -46,6 +47,7 @@ LPDIRECT3DDEVICE8 DirectXInterface = nullptr;
 
 MasterVolume MasterVolumeRef;
 bool DiscardOptions = false;
+int ChangeMasterVolume = 0;
 
 void __cdecl DrawArrowRight_Hook(int32_t param1, int32_t param2)
 {
@@ -97,6 +99,26 @@ __declspec(naked) void __stdcall DiscardOptionsNoBackingOut()
     }
 }
 
+__declspec(naked) void __stdcall IncrementMasterVolume()
+{
+    ChangeMasterVolume = 1;
+
+    __asm
+    {
+        jmp ChangeMasterVolumeReturn;
+    }
+}
+
+__declspec(naked) void __stdcall DecrementMasterVolume()
+{
+    ChangeMasterVolume = -1;
+
+    __asm
+    {
+        jmp ChangeMasterVolumeReturn;
+    }
+}
+
 void PatchMasterVolumeSlider()
 {
     //TODO dial in patterns
@@ -124,6 +146,11 @@ void PatchMasterVolumeSlider()
     WriteJMPtoMemory((BYTE*)0x00463738, DiscardOptionsNoBackingOut, 0x06);
 
     //TODO addresses
+    // Set the ChangeMasterVolumeValue to update the value
+    WriteJMPtoMemory((BYTE*)0x00463e40, IncrementMasterVolume, 0x19);
+    WriteJMPtoMemory((BYTE*)0x00463e5a, DecrementMasterVolume, 0x15);
+
+    //TODO addresses
     // hook the function that is called when confirming changed options
     pattern = hook::pattern("e8 9e 49 0b 00");
     orgConfirmOptionsFun.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), ConfirmOptions_Hook, true).get();
@@ -133,7 +160,7 @@ void PatchMasterVolumeSlider()
 
 void MasterVolume::ChangeMasterVolumeValue(int delta)
 {
-    if (!IsInMainOptionsMenu())
+    if (!IsInMainOptionsMenu() || delta == 0)
         return;
 
     if ((delta < 0 && CurrentMasterVolumeLevel > 0) || (delta > 0 && CurrentMasterVolumeLevel < 0x0F))
@@ -141,6 +168,8 @@ void MasterVolume::ChangeMasterVolumeValue(int delta)
         CurrentMasterVolumeLevel += delta;
         SetNewVolume();
     }
+
+    ChangeMasterVolume = 0;
 }
 
 void MasterVolume::HandleConfirmOptions(bool ConfirmChange)
@@ -171,6 +200,8 @@ void MasterVolume::HandleMasterVolume(LPDIRECT3DDEVICE8 ProxyInterface)
     // If we just entered the main options menu
     if (IsInOptionsMenu())
     {
+        this->ChangeMasterVolumeValue(ChangeMasterVolume);
+
         if (!this->EnteredOptionsMenu)
         {
             SavedMasterVolumeLevel = ConfigData.VolumeLevel;

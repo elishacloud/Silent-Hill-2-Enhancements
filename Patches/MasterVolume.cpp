@@ -160,16 +160,6 @@ void MasterVolume::HandleMasterVolume(LPDIRECT3DDEVICE8 ProxyInterface)
     if (!EnableMasterVolume)
         return;
 
-    //TODO remove
-    AuxDebugOvlString = "\rCurrent level: ";
-    AuxDebugOvlString.append(std::to_string(CurrentMasterVolumeLevel));
-    AuxDebugOvlString.append("\rSaved level: ");
-    AuxDebugOvlString.append(std::to_string(SavedMasterVolumeLevel));
-    AuxDebugOvlString.append("\rConfig level: ");
-    AuxDebugOvlString.append(std::to_string(ConfigData.VolumeLevel));
-    AuxDebugOvlString.append("\rIs In Change Setting: ");
-    AuxDebugOvlString.append(IsInChangeSettingPrompt() ? "True" : "False");
-
     DirectXInterface = ProxyInterface;
 
     if (DiscardOptions)
@@ -252,41 +242,41 @@ void MasterVolumeSlider::DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value,
         this->InitVertices();
 
     //TODO address for selected option
-    const int color = *(int16_t*)0x00941602 == 0x07 ? 0 : 1;
+    const int selected = *(int16_t*)0x00941602 == 0x07 ? 0 : 1;
 
     // Set up the graphics' color
     if (ValueChanged)
     {
         for (int i = 0; i < 0xF; i++)
         {
-            this->SetVertexBufferColor(this->FinalBezels[i].TopVertices, BEZEL_VERT_NUM, this->LightGoldBezel[color]);
-            this->SetVertexBufferColor(this->FinalBezels[i].BotVertices, BEZEL_VERT_NUM, this->DarkGoldBezel[color]);
+            this->SetVertexBufferColor(this->FinalBezels[i].TopVertices, BEZEL_VERT_NUM, this->LightGoldBezel[selected]);
+            this->SetVertexBufferColor(this->FinalBezels[i].BotVertices, BEZEL_VERT_NUM, this->DarkGoldBezel[selected]);
         }
 
         // Set inner rectangle color, based on the current value
         for (int i = 0; i < 0xF; i++)
         {
             if (value <= i)
-                this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->ActiveGoldSquare[color]);
+                this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->ActiveGoldSquare[selected]);
             else
-                this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->InactiveGoldSquare[color]);
+                this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->InactiveGoldSquare[selected]);
         }
     }
     else
     {
         for (int i = 0; i < 0xF; i++)
         {
-            this->SetVertexBufferColor(this->FinalBezels[i].TopVertices, BEZEL_VERT_NUM, this->LightGrayBezel[color]);
-            this->SetVertexBufferColor(this->FinalBezels[i].BotVertices, BEZEL_VERT_NUM, this->DarkGrayBezel[color]);
+            this->SetVertexBufferColor(this->FinalBezels[i].TopVertices, BEZEL_VERT_NUM, this->LightGrayBezel[selected]);
+            this->SetVertexBufferColor(this->FinalBezels[i].BotVertices, BEZEL_VERT_NUM, this->DarkGrayBezel[selected]);
         }
 
         // Set inner rectangle color, based on the current value
         for (int i = 0; i < 0xF; i++)
         {
             if (value <= i)
-                this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->ActiveGraySquare[color]);
+                this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->ActiveGraySquare[selected]);
             else
-                this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->InactiveGraySquare[color]);
+                this->SetVertexBufferColor(this->FinalPips[i].vertices, RECT_VERT_NUM, this->InactiveGraySquare[selected]);
         }
     }
 

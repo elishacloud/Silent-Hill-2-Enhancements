@@ -65,6 +65,7 @@ private:
 	long LastBufferWidth = 0;
 	long LastBufferHeight = 0;
 
+	// Color 0 = selected, 1 not selected
 	D3DCOLOR LightGrayBezel[2] = { D3DCOLOR_ARGB(0x40, 0xB0, 0xB0, 0xB0), D3DCOLOR_ARGB(0x40, 0x44, 0x44, 0x44) };
 	D3DCOLOR DarkGrayBezel[2] = { D3DCOLOR_ARGB(0x40, 0x40, 0x40, 0x40), D3DCOLOR_ARGB(0x40, 0x28, 0x28, 0x28) };
 

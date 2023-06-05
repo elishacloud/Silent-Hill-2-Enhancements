@@ -31,6 +31,10 @@ BYTE* ChangedOptionsCheckReturn = (BYTE*)0x0046321d; // TODO addresses
 BYTE* DiscardOptionsBackingOutReturn = (BYTE*)0x0046356f;
 BYTE* DiscardOptionsNoBackingOutReturn = (BYTE*)0x0046373e;
 BYTE* ChangeMasterVolumeReturn = (BYTE*)0x00463e70;
+BYTE* MoveRightArrowHitboxReturn = (BYTE*)0x00462e66;
+
+DWORD* RightArrowDefaultPointer = (DWORD*)0x009416e8;
+DWORD RightArrowDefault = 0;
 
 static int SavedMasterVolumeLevel = 0;
 static int CurrentMasterVolumeLevel = 0;
@@ -78,6 +82,32 @@ void __cdecl ConfirmOptions_Hook(int32_t param)
     MasterVolumeRef.HandleConfirmOptions(true);
 
     orgConfirmOptionsFun.fun(param);
+}
+
+#pragma warning(disable : 4740)
+__declspec(naked) void __stdcall SetRightArrowHitbox()
+{
+    RightArrowDefault = *RightArrowDefaultPointer;
+
+    if (*(int16_t*)0x00941602 == 0x07)
+    {
+        __asm
+        {   // In the Master Volume option, move the arrow to the right
+            mov eax, 0xA8
+        }
+    }
+    else
+    {
+        __asm
+        {   // In another option, use the default from the game
+            mov eax, RightArrowDefault
+        }
+    }
+
+    __asm
+    {
+        jmp MoveRightArrowHitboxReturn
+    }
 }
 
 __declspec(naked) void __stdcall ChangeSpeakerConfigCheck()
@@ -156,6 +186,10 @@ void PatchMasterVolumeSlider()
     // Set the DiscardOptions flag when restoring saved settings
     WriteJMPtoMemory((BYTE*)0x00463569, DiscardOptionsBackingOut, 0x06);
     WriteJMPtoMemory((BYTE*)0x00463738, DiscardOptionsNoBackingOut, 0x06);
+
+    //TODO addresses
+    // Detour execution to change the hitbox position
+    WriteJMPtoMemory((BYTE*)0x00462e61, SetRightArrowHitbox, 0x05);
 
     //TODO addresses
     // Set the ChangeMasterVolumeValue to update the value

@@ -58,7 +58,7 @@ int32_t PlaySound_Hook(int32_t SoundId, float volume, DWORD param3)
 {
     if (*(int16_t*)0x00941602 == 0x07) //TODO selected option address
     {
-        return orgPlaySound.fun(0x2719, volume, param3);
+        return 0;
     }
 
     return orgPlaySound.fun(SoundId, volume, param3);
@@ -218,6 +218,9 @@ void MasterVolume::ChangeMasterVolumeValue(int delta)
     {
         CurrentMasterVolumeLevel += delta;
         SetNewVolume();
+
+        // Play the ding sound when changing volume
+        orgPlaySound.fun(0x2719, 1.0, 0);
     }
 
     ChangeMasterVolume = 0;

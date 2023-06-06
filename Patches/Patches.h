@@ -245,6 +245,7 @@ void PatchSpecular();
 void PatchSprayEffect();
 void PatchSFXAddr();
 void PatchSixtyFPS();
+void PatchSpeakerConfigText();
 void PatchSpecificSoundLoopFix();
 void PatchTexAddr();
 void PatchTownWestGateEvent();

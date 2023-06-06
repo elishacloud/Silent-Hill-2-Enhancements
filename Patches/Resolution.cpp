@@ -862,10 +862,24 @@ void PatchLockScreenPosition()
 }
 
 extern char* getSpeakerConfigDescStr();
+extern char* getMasterVolumeDescStr();
+extern char* getMasterVolumeNameStr();
 
 int printSpkDescStr(unsigned short, unsigned char, int x, int y)
 {
 	char* ptr = (char*)prepText(getSpeakerConfigDescStr());
+	return printTextPos(ptr, x, y);
+}
+
+int printMasterVolumeDescStr(unsigned short, unsigned char, int x, int y)
+{
+	char* ptr = (char*)prepText(getMasterVolumeDescStr());
+	return printTextPos(ptr, x, y);
+}
+
+int printMasterVolumeNameStr(unsigned short, unsigned char, int x, int y)
+{
+	char* ptr = (char*)prepText(getMasterVolumeNameStr());
 	return printTextPos(ptr, x, y);
 }
 
@@ -931,5 +945,49 @@ void PatchSpeakerConfigLock()
 	if (UseCustomExeStr)
 	{
 		WriteCalltoMemory(((BYTE*)DSpkAddrB + 0x125), *printSpkDescStr, 5);
+	}
+}
+
+void PatchSpeakerConfigText()
+{
+	constexpr BYTE SpkSearchBytesA[] = { 0x94, 0x00, 0x68, 0x12, 0x27, 0x00, 0x00, 0xF3, 0xA5, 0xE8 };
+	void* DSpkAddrA = (void*)SearchAndGetAddresses(0x00463165, 0x004633D5, 0x004633E4, SpkSearchBytesA, sizeof(SpkSearchBytesA), 0x00, __FUNCTION__);
+	constexpr BYTE SpkSearchBytesB[] = { 0x93, 0x00, 0x83, 0xC4, 0x10, 0x68, 0x1F, 0x01, 0x00, 0x00, 0x68, 0x0C, 0x01, 0x00, 0x00, 0x05, 0xC2, 0x00, 0x00, 0x00, 0x50, 0x51, 0xE8 };
+	void* DSpkAddrB = (void*)SearchAndGetAddresses(0x00461B37, 0x00461DA9, 0x00461DA9, SpkSearchBytesB, sizeof(SpkSearchBytesB), 0x00, __FUNCTION__);
+
+
+	void* DSpkrAddrName = (void*)0x004614d9;//TODO address
+	void* DSpkrAddrHighlight = (void*)0x00461668;
+
+	if (!LockResolution)
+	{
+		constexpr BYTE SpkSearchBytesC[] = { 0x8B, 0x08, 0x83, 0xC4, 0x10, 0x68, 0xA4, 0x00, 0x00, 0x00, 0x68, 0x00, 0x01, 0x00, 0x00, 0x51, 0xE8 };
+		void* DSpkAddrC = (void*)SearchAndGetAddresses(0x00407368, 0x00407368, 0x00407378, SpkSearchBytesC, sizeof(SpkSearchBytesC), 0x00, __FUNCTION__);
+
+		// Checking address pointer
+		if (!DSpkAddrC)
+		{
+			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+			return;
+		}
+
+		// Get functions
+		prepText = (DWORD(*)(char* str))(((BYTE*)DSpkAddrC + 0x15) + *(int*)((BYTE*)DSpkAddrC + 0x11));
+		printTextPos = (DWORD(*)(char* str, int x, int y))(((BYTE*)DSpkAddrC + 0x1E) + *(int*)((BYTE*)DSpkAddrC + 0x1A));
+	}
+
+	// Checking address pointer
+	if (!DSpkAddrA || !DSpkAddrB)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+
+	// Update speaker config description string
+	if (UseCustomExeStr)
+	{
+		WriteCalltoMemory(((BYTE*)DSpkrAddrName), *printMasterVolumeNameStr, 5);
+		WriteCalltoMemory(((BYTE*)DSpkrAddrHighlight), *printMasterVolumeNameStr, 5);
+		WriteCalltoMemory(((BYTE*)DSpkAddrB + 0x125), *printMasterVolumeDescStr, 5);
 	}
 }

@@ -163,20 +163,17 @@ __declspec(naked) void __stdcall DecrementMasterVolume()
 
 void PatchMasterVolumeSlider()
 {
-    //TODO dial in patterns
     // Hook options drawing to draw at the same time
-    auto pattern = hook::pattern("e8 cc 93 13 00");
-    orgDrawOptions.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), DrawOptions_Hook, true).get();
+    orgDrawOptions.fun = injector::MakeCALL(GetDrawOptionsFunPointer(), DrawOptions_Hook, true).get();
 
     //TODO dial in patterns
     // Hook right arrow drawing to move it to the right
-    pattern = hook::pattern("e8 a7 d0 ff ff");
+    auto pattern = hook::pattern("e8 a7 d0 ff ff");
     orgDrawArrowRight.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), DrawArrowRight_Hook, true).get();
 
-    //TODO address
     // Skip drawing the old option text
-    UpdateMemoryAddress((void*)0x004618FD, "\x90\x90\x90\x90\x90", 5);
-    UpdateMemoryAddress((void*)0x00461B4D, "\x90\x90\x90\x90\x90", 5);
+    UpdateMemoryAddress((void*)GetSpkOptionTextOnePointer(), "\x90\x90\x90\x90\x90", 5);
+    UpdateMemoryAddress((void*)GetSpkOptionTextTwoPointer(), "\x90\x90\x90\x90\x90", 5);
 
     //TODO addresses
     // Inject our values in the game's check for changed settings
@@ -459,7 +456,7 @@ bool IsInMainOptionsMenu()//TODO address
     BYTE OptionsPage = *(BYTE*)0x941600; //TODO address
     BYTE OptionsSubPage = *(BYTE*)0x941601;
 
-    return OptionsPage == 0x02 && OptionsSubPage == 0x00;
+    return GetOptionsPage() == 0x02 && OptionsSubPage == 0x00;
 }
 
 bool IsInOptionsMenu()
@@ -468,7 +465,7 @@ bool IsInOptionsMenu()
     BYTE OptionsSubPage = *(BYTE*)0x941601;
 
     return GetEventIndex() == 0x07 &&
-        (OptionsPage == 0x02 || OptionsPage == 0x07 || OptionsPage == 0x04) &&
+        (GetOptionsPage() == 0x02 || GetOptionsPage() == 0x07 || GetOptionsPage() == 0x04) &&
         (OptionsSubPage == 0x00 || OptionsSubPage == 0x01);
 }
 

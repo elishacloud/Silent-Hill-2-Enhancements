@@ -76,6 +76,7 @@ float GetPuzzleCursorHorizontalPos();
 float GetPuzzleCursorVerticalPos();
 BYTE GetPlayerIsDying();
 BYTE GetMariaNpcIsDying();
+int8_t GetOptionsPage();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -172,6 +173,10 @@ float* GetPuzzleCursorHorizontalPosPointer();
 float* GetPuzzleCursorVerticalPosPointer();
 BYTE* GetPlayerIsDyingPointer();
 BYTE* GetMariaNpcIsDyingPointer();
+DWORD* GetDrawOptionsFunPointer();
+BYTE* GetSpkOptionTextOnePointer();
+BYTE* GetSpkOptionTextTwoPointer();
+int8_t* GetOptionsPagePointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

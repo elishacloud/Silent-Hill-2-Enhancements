@@ -116,6 +116,12 @@ float* PuzzleCursorHorizontalPosAddr = nullptr;
 float* PuzzleCursorVerticalPosAddr = nullptr;
 BYTE* PlayerIsDyingAddr = nullptr;
 BYTE* MariaNpcIsDyingAddr = nullptr;
+DWORD* DrawOptionsFunAddr = nullptr;
+BYTE* SpkOptionTextOneAddr = nullptr;
+BYTE* SpkOptionTextTwoAddr = nullptr;
+int8_t* OptionsPageAddr = nullptr;
+int8_t* OptionsSubPageAddr = nullptr;
+
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -2610,4 +2616,97 @@ BYTE* GetMariaNpcIsDyingPointer()
     MariaNpcIsDyingAddr = (BYTE*)((DWORD)MariaNpcIsDying);
 
     return MariaNpcIsDyingAddr;
+}
+
+DWORD* GetDrawOptionsFunPointer()
+{
+	if (DrawOptionsFunAddr)
+	{
+		return DrawOptionsFunAddr;
+	}
+
+	// Get Draw Options function Address
+	constexpr BYTE DrawOptionsFunSearchBytes[]{ 0xE8, 0xBB, 0x4D, 0x00, 0x00, 0x85, 0xC0, 0xB9, 0x2C, 0x00, 0x00, 0x00 };
+	DrawOptionsFunAddr = (DWORD*)SearchAndGetAddresses(0x00476AC0, 0x00476D60, 0x00476F70, DrawOptionsFunSearchBytes, sizeof(DrawOptionsFunSearchBytes), 0x4F, __FUNCTION__);
+
+	// Checking address pointer
+	if (!DrawOptionsFunAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Draw Options function memory address!";
+		return nullptr;
+	}
+
+	return DrawOptionsFunAddr;
+}
+
+BYTE* GetSpkOptionTextOnePointer()
+{
+	if (SpkOptionTextOneAddr)
+	{
+		return SpkOptionTextOneAddr;
+	}
+
+	// Get Spk Option Text one address
+	constexpr BYTE SearchBytes[]{ 0x83, 0xC4, 0x20, 0x84, 0xC0, 0x0F };
+	void* SpkOptionTextOne = (BYTE*)SearchAndGetAddresses(0x00461917, 0x00461B80, 0x00461B80, SearchBytes, sizeof(SearchBytes), -0x1A, __FUNCTION__);
+	if (!SpkOptionTextOne)
+	{
+		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	SpkOptionTextOneAddr = (BYTE*)((DWORD)SpkOptionTextOne);
+
+	return SpkOptionTextOneAddr;
+}
+
+BYTE* GetSpkOptionTextTwoPointer()
+{
+	if (SpkOptionTextTwoAddr)
+	{
+		return SpkOptionTextTwoAddr;
+	}
+
+	// Get Spk Option Text Two address
+	constexpr BYTE SearchBytes[]{ 0x83, 0xC4, 0x10, 0x68, 0x1F, 0x01 };
+	void* SpkOptionTextTwo = (BYTE*)SearchAndGetAddresses(0x00461B39, 0x00461DAB, 0x00461DAB, SearchBytes, sizeof(SearchBytes), 0x14, __FUNCTION__);
+	if (!SpkOptionTextTwo)
+	{
+		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	SpkOptionTextTwoAddr = (BYTE*)((DWORD)SpkOptionTextTwo);
+
+	return SpkOptionTextTwoAddr;
+}
+
+int8_t GetOptionsPage()
+{
+	int8_t* pOptionsPage = GetOptionsPagePointer();
+
+	return (pOptionsPage) ? *pOptionsPage : 0;
+}
+
+int8_t* GetOptionsPagePointer()
+{
+	if (OptionsPageAddr)
+	{
+		return OptionsPageAddr;
+	}
+
+	// Get OptionsPage address
+	constexpr BYTE OptionsPageSearchBytes[]{ 0x83, 0xC4, 0x04, 0x85, 0xC0, 0x75, 0x13, 0x56, 0x68, 0x02, 0x00, 0x00, 0x08 };
+	int8_t* OptionsPage = (int8_t*)ReadSearchedAddresses(0x004671e1, 0x00467481, 0x00467691, OptionsPageSearchBytes, sizeof(OptionsPageSearchBytes), -0x18, __FUNCTION__);
+
+	// Checking address pointer
+	if (!OptionsPage)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find OptionsPage address!";
+		return nullptr;
+	}
+
+	OptionsPageAddr = (int8_t*)((DWORD)OptionsPage);
+
+	return OptionsPageAddr;
 }

@@ -77,6 +77,9 @@ float GetPuzzleCursorVerticalPos();
 BYTE GetPlayerIsDying();
 BYTE GetMariaNpcIsDying();
 int8_t GetOptionsPage();
+int8_t GetOptionsSubPage();
+int32_t GetInternalVerticalRes();
+int32_t GetInternalHorizontalRes();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -177,6 +180,7 @@ DWORD* GetDrawOptionsFunPointer();
 BYTE* GetSpkOptionTextOnePointer();
 BYTE* GetSpkOptionTextTwoPointer();
 int8_t* GetOptionsPagePointer();
+int32_t* GetInternalVerticalResPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -269,7 +273,6 @@ int CountCollectedMemos();
 bool IsInFullScreenImageEvent();
 bool IsInMainOptionsMenu();
 bool IsInOptionsMenu();
-bool IsInChangeSettingPrompt();
 
 void HandleFinalBossRoomFix();
 void SetNewVolume();

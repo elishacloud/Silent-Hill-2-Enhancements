@@ -121,6 +121,8 @@ BYTE* SpkOptionTextOneAddr = nullptr;
 BYTE* SpkOptionTextTwoAddr = nullptr;
 int8_t* OptionsPageAddr = nullptr;
 int8_t* OptionsSubPageAddr = nullptr;
+int32_t* InternalVerticalAddr = nullptr;
+int32_t* InternalHorizontalAddr = nullptr;
 
 
 bool ShowDebugOverlay = false;
@@ -2709,4 +2711,48 @@ int8_t* GetOptionsPagePointer()
 	OptionsPageAddr = (int8_t*)((DWORD)OptionsPage);
 
 	return OptionsPageAddr;
+}
+
+int8_t GetOptionsSubPage()
+{
+	int8_t* pOptionsSubPage = GetOptionsPagePointer() + 0x01;
+
+	return (pOptionsSubPage) ? *pOptionsSubPage : 0;
+}
+
+int32_t GetInternalVerticalRes()
+{
+	int32_t* pInternalVertical = GetInternalVerticalResPointer();
+
+	return (pInternalVertical) ? *pInternalVertical : 0;
+}
+
+int32_t* GetInternalVerticalResPointer()
+{
+	if (InternalVerticalAddr)
+	{
+		return InternalVerticalAddr;
+	}
+
+	// Get InternalVertical address
+	constexpr BYTE InternalVerticalSearchBytes[]{ 0x89, 0x44, 0x24, 0x14, 0x89, 0x44, 0x24, 0x28, 0x89 };
+	int32_t* InternalVertical = (int32_t*)ReadSearchedAddresses(0x00406EF6, 0x00406EF6, 0x00406F06, InternalVerticalSearchBytes, sizeof(InternalVerticalSearchBytes), -0x0B, __FUNCTION__);
+
+	// Checking address pointer
+	if (!InternalVertical)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find InternalVertical address!";
+		return nullptr;
+	}
+
+	InternalVerticalAddr = (int32_t*)((DWORD)InternalVertical);
+
+	return InternalVerticalAddr;
+}
+
+int32_t GetInternalHorizontalRes()
+{
+	int32_t* pInternalHorizontal = GetInternalVerticalResPointer() - 0x01;
+
+	return (pInternalHorizontal) ? *pInternalHorizontal : 0;
 }

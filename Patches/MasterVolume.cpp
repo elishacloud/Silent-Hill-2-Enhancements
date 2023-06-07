@@ -277,17 +277,19 @@ void MasterVolumeSlider::InitVertices()
     this->LastBufferWidth = BufferWidth;
 
     //TODO addresses
-    int32_t* VerticalInternal = (int32_t*)0x00a33484;
-    int32_t* HorizontalInternal = (int32_t*)0x00a33480;
+    int32_t VerticalInternal = GetInternalVerticalRes();
+    int32_t HorizontalInternal = GetInternalHorizontalRes();
 
-    float spacing = (25.781 * (float)*HorizontalInternal) / 1200.f;
-    float xScaling = (float)*HorizontalInternal / 1200.f;
-    float yScaling = (float)*VerticalInternal / 900.f;
+    Logging::Log() << "vertical: " << GetInternalVerticalResPointer();
 
-    float UlteriorOffset = (BufferWidth - (float)*HorizontalInternal) / 2;
+    float spacing = (25.781 * (float)HorizontalInternal) / 1200.f;
+    float xScaling = (float)HorizontalInternal / 1200.f;
+    float yScaling = (float)VerticalInternal / 900.f;
+
+    float UlteriorOffset = (BufferWidth - (float)HorizontalInternal) / 2;
     
-    float xOffset = (645.703 * (float)*HorizontalInternal) / 1200.f + UlteriorOffset;
-    float yOffset = (593.4375 * (float)*VerticalInternal) / 900.f - ((50.625f * (float)*VerticalInternal) / 900.f);
+    float xOffset = (645.703 * (float)HorizontalInternal) / 1200.f + UlteriorOffset;
+    float yOffset = (593.4375 * (float)VerticalInternal) / 900.f - ((50.625f * (float)VerticalInternal) / 900.f);
 
     for (int i = 0; i < 0xF; i++)
     {
@@ -451,25 +453,14 @@ void MasterVolumeSlider::CopyVertexBuffer(MasterVertex* source, MasterVertex* de
     }
 }
 
-bool IsInMainOptionsMenu()//TODO address
+bool IsInMainOptionsMenu()
 {
-    BYTE OptionsPage = *(BYTE*)0x941600; //TODO address
-    BYTE OptionsSubPage = *(BYTE*)0x941601;
-
-    return GetOptionsPage() == 0x02 && OptionsSubPage == 0x00;
+    return GetOptionsPage() == 0x02 && GetOptionsSubPage() == 0x00;
 }
 
 bool IsInOptionsMenu()
 {
-    BYTE OptionsPage = *(BYTE*)0x941600; //TODO address
-    BYTE OptionsSubPage = *(BYTE*)0x941601;
-
     return GetEventIndex() == 0x07 &&
         (GetOptionsPage() == 0x02 || GetOptionsPage() == 0x07 || GetOptionsPage() == 0x04) &&
-        (OptionsSubPage == 0x00 || OptionsSubPage == 0x01);
-}
-
-bool IsInChangeSettingPrompt() //TODO address
-{
-    return *(BYTE*)0x1F5F548 == 0xB7 || *(BYTE*)0x1F5F548 == 0x25;
+        (GetOptionsSubPage() == 0x00 || GetOptionsSubPage() == 0x01);
 }

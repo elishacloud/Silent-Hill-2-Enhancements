@@ -183,6 +183,7 @@ BYTE* GetSpkOptionTextTwoPointer();
 int8_t* GetOptionsPagePointer();
 int32_t* GetInternalVerticalResPointer();
 DWORD* GetConfirmOptionsOnePointer();
+DWORD* GetConfirmOptionsTwoPointer();
 BYTE* GetRenderOptionsRightArrowFunPointer();
 BYTE* GetStartOfOptionSpeakerPointer();
 BYTE* GetDecrementMasterVolumePointer();

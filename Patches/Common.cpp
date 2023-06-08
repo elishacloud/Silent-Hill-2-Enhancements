@@ -2791,6 +2791,27 @@ DWORD* GetConfirmOptionsOnePointer()
 	return ConfirmOptionsOneAddr;
 }
 
+DWORD* GetConfirmOptionsTwoPointer()
+{
+	if (ConfirmOptionsTwoAddr)
+	{
+		return ConfirmOptionsTwoAddr;
+	}
+
+	// Get Draw Options function Address
+	constexpr BYTE ConfirmOptionsTwoSearchBytes[]{ 0x6F, 0xFF, 0xFF, 0x83, 0xC4, 0x04, 0x85, 0xC0, 0x74 };
+	ConfirmOptionsTwoAddr = (DWORD*)SearchAndGetAddresses(0x00463410, 0x00463680, 0x0046368D, ConfirmOptionsTwoSearchBytes, sizeof(ConfirmOptionsTwoSearchBytes), -0x34, __FUNCTION__);
+
+	// Checking address pointer
+	if (!ConfirmOptionsTwoAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	return ConfirmOptionsTwoAddr;
+}
+
 BYTE* GetStartOfOptionSpeakerPointer()
 {
 	if (StartOfOptionSpeakerAddr)

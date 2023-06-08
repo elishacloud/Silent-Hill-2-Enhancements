@@ -185,16 +185,13 @@ void PatchMasterVolumeSlider()
     WriteJMPtoMemory(GetIncrementMasterVolumePointer(), IncrementMasterVolume, 0x19);
     WriteJMPtoMemory(GetDecrementMasterVolumePointer(), DecrementMasterVolume, 0x15);
 
-    //TODO addresses
     // hook the function that is called when confirming changed options
     orgConfirmOptionsFun.fun = injector::MakeCALL(GetConfirmOptionsOnePointer(), ConfirmOptions_Hook, true).get();
-    auto pattern = hook::pattern("e8 5f 4e 0b 00");
-    injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), ConfirmOptions_Hook, true).get();
-
+    injector::MakeCALL(GetConfirmOptionsTwoPointer(), ConfirmOptions_Hook, true).get();
 
     //TODO pattern
     // Hook the function that plays sounds at the end of the options switch
-    pattern = hook::pattern("e8 f5 14 0b 00");
+    auto pattern = hook::pattern("e8 f5 14 0b 00");
     orgPlaySound.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), PlaySound_Hook, true).get();
 }
 

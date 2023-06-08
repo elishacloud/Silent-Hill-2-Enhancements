@@ -34,7 +34,7 @@ int32_t* ConfirmOptionsTwoAddr = nullptr;
 BYTE* ChangedOptionsCheckReturn = (BYTE*)0x0046321d; // TODO addresses
 BYTE* DiscardOptionsBackingOutReturn = (BYTE*)0x0046356f;
 BYTE* DiscardOptionsNoBackingOutReturn = (BYTE*)0x0046373e;
-BYTE* ChangeMasterVolumeReturn = (BYTE*)0x00463e70;
+BYTE* ChangeMasterVolumeReturn = GetDecrementMasterVolumePointer() + 0x16;
 BYTE* MoveRightArrowHitboxReturn = (BYTE*)0x00462e66;
 
 DWORD* RightArrowDefaultPointer = (DWORD*)0x009416e8;
@@ -190,10 +190,9 @@ void PatchMasterVolumeSlider()
     // Detour execution to change the hitbox position
     WriteJMPtoMemory((BYTE*)0x00462e61, SetRightArrowHitbox, 0x05);
 
-    //TODO addresses
     // Set the ChangeMasterVolumeValue to update the value
-    WriteJMPtoMemory((BYTE*)0x00463e40, IncrementMasterVolume, 0x19);
-    WriteJMPtoMemory((BYTE*)0x00463e5a, DecrementMasterVolume, 0x15);
+    WriteJMPtoMemory(GetIncrementMasterVolumePointer(), IncrementMasterVolume, 0x19);
+    WriteJMPtoMemory(GetDecrementMasterVolumePointer(), DecrementMasterVolume, 0x15);
 
     //TODO addresses
     // hook the function that is called when confirming changed options

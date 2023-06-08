@@ -126,6 +126,8 @@ int32_t* InternalHorizontalAddr = nullptr;
 DWORD* ConfirmOptionsOneAddr = nullptr;
 DWORD* ConfirmOptionsTwoAddr = nullptr;
 BYTE* StartOfOptionSpeakerAddr = nullptr;
+BYTE* DecrementMasterVolumeAddr = nullptr;
+BYTE* IncrementMasterVolumeAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -2813,4 +2815,46 @@ BYTE* GetRenderOptionsRightArrowFunPointer()
 	BYTE* pConfirmOptionsTwo = GetStartOfOptionSpeakerPointer() + 0x9A;
 
 	return (pConfirmOptionsTwo) ? pConfirmOptionsTwo : 0;
+}
+
+BYTE* GetDecrementMasterVolumePointer()
+{
+	if (DecrementMasterVolumeAddr)
+	{
+		return DecrementMasterVolumeAddr;
+	}
+
+	// Get decrement master volume Address
+	constexpr BYTE DecrementMasterVolumeSearchBytes[]{ 0x68, 0x00, 0x00, 0x80, 0x3F, 0x68, 0x10, 0x27, 0x00, 0x00, 0xE9 };
+	DecrementMasterVolumeAddr = (BYTE*)SearchAndGetAddresses(0x00463EC7, 0x00464140, 0x0046432F, DecrementMasterVolumeSearchBytes, sizeof(DecrementMasterVolumeSearchBytes), -0x6D, __FUNCTION__);
+
+	// Checking address pointer
+	if (!DecrementMasterVolumeAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	return DecrementMasterVolumeAddr;
+}
+
+BYTE* GetIncrementMasterVolumePointer()
+{
+	if (IncrementMasterVolumeAddr)
+	{
+		return IncrementMasterVolumeAddr;
+	}
+
+	// Get decrement master volume Address
+	constexpr BYTE IncrementMasterVolumeSearchBytes[]{ 0x68, 0x00, 0x00, 0x80, 0x3F, 0x68, 0x10, 0x27, 0x00, 0x00, 0xE9 };
+	IncrementMasterVolumeAddr = (BYTE*)SearchAndGetAddresses(0x00463EC7, 0x00464140, 0x0046432F, IncrementMasterVolumeSearchBytes, sizeof(IncrementMasterVolumeSearchBytes), -0x87, __FUNCTION__);
+
+	// Checking address pointer
+	if (!IncrementMasterVolumeAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	return IncrementMasterVolumeAddr;
 }

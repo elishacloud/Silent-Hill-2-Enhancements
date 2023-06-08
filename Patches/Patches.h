@@ -185,6 +185,8 @@ int32_t* GetInternalVerticalResPointer();
 DWORD* GetConfirmOptionsOnePointer();
 BYTE* GetRenderOptionsRightArrowFunPointer();
 BYTE* GetStartOfOptionSpeakerPointer();
+BYTE* GetDecrementMasterVolumePointer();
+BYTE* GetIncrementMasterVolumePointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

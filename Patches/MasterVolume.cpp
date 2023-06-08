@@ -27,9 +27,8 @@ D3DMATRIX WorldMatrix =
   0.f, 0.f, 0.f, 1.f
 };
 
-BYTE* ChangedOptionsCheckReturn = (BYTE*)0x0046321d; // TODO addresses
-BYTE* DiscardOptionsBackingOutReturn = (BYTE*)0x0046356f;
-
+BYTE* ChangedOptionsCheckReturn = GetCheckForChangedOptionsPointer() + 0x0C;
+BYTE* DiscardOptionsBackingOutReturn = (BYTE*)0x0046356f; // TODO addresses
 BYTE* DiscardOptionsNoBackingOutReturn = (BYTE*)0x0046373e;
 BYTE* ChangeMasterVolumeReturn = GetDecrementMasterVolumePointer() + (GameVersion != SH2V_DC ? 0x16 : 0x10);//TODO check v 1.1
 
@@ -171,9 +170,8 @@ void PatchMasterVolumeSlider()
     UpdateMemoryAddress((void*)GetSpkOptionTextOnePointer(), "\x90\x90\x90\x90\x90", 5);
     UpdateMemoryAddress((void*)GetSpkOptionTextTwoPointer(), "\x90\x90\x90\x90\x90", 5);
 
-    //TODO addresses
     // Inject our values in the game's check for changed settings
-    WriteJMPtoMemory((BYTE*)0x00463211, ChangeSpeakerConfigCheck, 0x0C);
+    WriteJMPtoMemory(GetCheckForChangedOptionsPointer(), ChangeSpeakerConfigCheck, 0x0C);
 
     //TODO addresses
     // Set the DiscardOptions flag when restoring saved settings

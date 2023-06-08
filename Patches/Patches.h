@@ -188,6 +188,7 @@ BYTE* GetStartOfOptionSpeakerPointer();
 BYTE* GetDecrementMasterVolumePointer();
 BYTE* GetIncrementMasterVolumePointer();
 BYTE* GetOptionsRightArrowHitboxPointer();
+BYTE* GetCheckForChangedOptionsPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

@@ -27,24 +27,18 @@ D3DMATRIX WorldMatrix =
   0.f, 0.f, 0.f, 1.f
 };
 
-// Addresses
-int32_t* ConfirmOptionsTwoAddr = nullptr;
-
 BYTE* ChangedOptionsCheckReturn = (BYTE*)0x0046321d; // TODO addresses
 BYTE* DiscardOptionsBackingOutReturn = (BYTE*)0x0046356f;
+
 BYTE* DiscardOptionsNoBackingOutReturn = (BYTE*)0x0046373e;
 BYTE* ChangeMasterVolumeReturn = GetDecrementMasterVolumePointer() + (GameVersion != SH2V_DC ? 0x16 : 0x10);//TODO check v 1.1
-BYTE* MoveRightArrowHitboxReturn = (BYTE*)0x00462e66;
 
+BYTE* MoveRightArrowHitboxReturn = GetOptionsRightArrowHitboxPointer() + 0x05;
 DWORD* RightArrowDefaultPointer = *(DWORD**)(GetOptionsRightArrowHitboxPointer() + 0x01);
 DWORD RightArrowDefault = 0;
 
 static int SavedMasterVolumeLevel = 0;
 static int CurrentMasterVolumeLevel = 0;
-
-int test = 5;
-
-MasterVolumeSlider MasterVolumeSliderRef;
 
 injector::hook_back<void(__cdecl*)(DWORD*)> orgDrawOptions;
 injector::hook_back<void(__cdecl*)(int32_t, int32_t)> orgDrawArrowRight;
@@ -54,12 +48,13 @@ injector::hook_back<int32_t(__cdecl*)(int32_t, float, DWORD)> orgPlaySound;
 LPDIRECT3DDEVICE8 DirectXInterface = nullptr;
 
 MasterVolume MasterVolumeRef;
+MasterVolumeSlider MasterVolumeSliderRef;
 bool DiscardOptions = false;
 int ChangeMasterVolume = 0;
 
 int32_t PlaySound_Hook(int32_t SoundId, float volume, DWORD param3)
 {
-    if (*(int16_t*)0x00941602 == 0x07) //TODO selected option address
+    if (GetSelectedOption() == 0x07)
     {
         return 0;
     }
@@ -92,7 +87,7 @@ __declspec(naked) void __stdcall SetRightArrowHitbox()
 {
     RightArrowDefault = *RightArrowDefaultPointer;
 
-    if (*(int16_t*)0x00941602 == 0x07)
+    if (GetSelectedOption() == 0x07)
     {
         __asm
         {   // In the Master Volume option, move the arrow to the right

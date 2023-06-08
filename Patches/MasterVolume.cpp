@@ -36,7 +36,7 @@ BYTE* DiscardOptionsNoBackingOutReturn = (BYTE*)0x0046373e;
 BYTE* ChangeMasterVolumeReturn = GetDecrementMasterVolumePointer() + (GameVersion != SH2V_DC ? 0x16 : 0x10);//TODO check v 1.1
 BYTE* MoveRightArrowHitboxReturn = (BYTE*)0x00462e66;
 
-DWORD* RightArrowDefaultPointer = (DWORD*)0x009416e8;
+DWORD* RightArrowDefaultPointer = *(DWORD**)(GetOptionsRightArrowHitboxPointer() + 0x01);
 DWORD RightArrowDefault = 0;
 
 static int SavedMasterVolumeLevel = 0;
@@ -185,9 +185,8 @@ void PatchMasterVolumeSlider()
     WriteJMPtoMemory((BYTE*)0x00463569, DiscardOptionsBackingOut, 0x06);
     WriteJMPtoMemory((BYTE*)0x00463738, DiscardOptionsNoBackingOut, 0x06);
 
-    //TODO addresses
     // Detour execution to change the hitbox position
-    WriteJMPtoMemory((BYTE*)0x00462e61, SetRightArrowHitbox, 0x05);
+    WriteJMPtoMemory(GetOptionsRightArrowHitboxPointer(), SetRightArrowHitbox, 0x05);
 
     // Set the ChangeMasterVolumeValue to update the value
     WriteJMPtoMemory(GetIncrementMasterVolumePointer(), IncrementMasterVolume, 0x19);

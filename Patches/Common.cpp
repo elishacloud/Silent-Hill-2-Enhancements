@@ -128,6 +128,7 @@ DWORD* ConfirmOptionsTwoAddr = nullptr;
 BYTE* StartOfOptionSpeakerAddr = nullptr;
 BYTE* DecrementMasterVolumeAddr = nullptr;
 BYTE* IncrementMasterVolumeAddr = nullptr;
+BYTE* OptionsRightArrowHitboxAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -2857,4 +2858,25 @@ BYTE* GetIncrementMasterVolumePointer()
 	}
 
 	return IncrementMasterVolumeAddr;
+}
+
+BYTE* GetOptionsRightArrowHitboxPointer()
+{
+	if (OptionsRightArrowHitboxAddr)
+	{
+		return OptionsRightArrowHitboxAddr;
+	}
+
+	// Get decrement master volume Address
+	constexpr BYTE OptionsRightArrowHitboxSearchBytes[]{ 0x94, 0x00, 0x05, 0x09, 0x01, 0x00, 0x00, 0x33 };
+	OptionsRightArrowHitboxAddr = (BYTE*)SearchAndGetAddresses(0x00462E64, 0x004630D4, 0x004630D4, OptionsRightArrowHitboxSearchBytes, sizeof(OptionsRightArrowHitboxSearchBytes), -0x03, __FUNCTION__);
+
+	// Checking address pointer
+	if (!OptionsRightArrowHitboxAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	return OptionsRightArrowHitboxAddr;
 }

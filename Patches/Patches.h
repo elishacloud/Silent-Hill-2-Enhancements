@@ -187,6 +187,7 @@ BYTE* GetRenderOptionsRightArrowFunPointer();
 BYTE* GetStartOfOptionSpeakerPointer();
 BYTE* GetDecrementMasterVolumePointer();
 BYTE* GetIncrementMasterVolumePointer();
+BYTE* GetOptionsRightArrowHitboxPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

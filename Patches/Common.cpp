@@ -131,6 +131,8 @@ BYTE* IncrementMasterVolumeAddr = nullptr;
 BYTE* OptionsRightArrowHitboxAddr = nullptr;
 BYTE* CheckForChangedOptionsAddr = nullptr;
 DWORD* PlaySoundFunAddr = nullptr;
+BYTE* DiscardOptionBOAddr = nullptr;
+BYTE* DiscardOptionAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -2869,7 +2871,7 @@ BYTE* GetIncrementMasterVolumePointer()
 		return IncrementMasterVolumeAddr;
 	}
 
-	// Get decrement master volume Address
+	// Get increment master volume Address
 	constexpr BYTE IncrementMasterVolumeSearchBytes[]{ 0x68, 0x00, 0x00, 0x80, 0x3F, 0x68, 0x10, 0x27, 0x00, 0x00, 0xE9 };
 	IncrementMasterVolumeAddr = (BYTE*)SearchAndGetAddresses(0x00463EC7, 0x00464140, 0x0046432F, IncrementMasterVolumeSearchBytes, sizeof(IncrementMasterVolumeSearchBytes), -0x87, __FUNCTION__);
 
@@ -2890,7 +2892,7 @@ BYTE* GetOptionsRightArrowHitboxPointer()
 		return OptionsRightArrowHitboxAddr;
 	}
 
-	// Get decrement master volume Address
+	// Get options right arrow hitbox Address
 	constexpr BYTE OptionsRightArrowHitboxSearchBytes[]{ 0x94, 0x00, 0x05, 0x09, 0x01, 0x00, 0x00, 0x33 };
 	OptionsRightArrowHitboxAddr = (BYTE*)SearchAndGetAddresses(0x00462E64, 0x004630D4, 0x004630D4, OptionsRightArrowHitboxSearchBytes, sizeof(OptionsRightArrowHitboxSearchBytes), -0x03, __FUNCTION__);
 
@@ -2911,7 +2913,7 @@ BYTE* GetCheckForChangedOptionsPointer()
 		return CheckForChangedOptionsAddr;
 	}
 
-	// Get decrement master volume Address
+	// Get check for changed options Address
 	constexpr BYTE CheckForChangedOptionsSearchBytes[]{ 0xFE, 0xFF, 0x83, 0xC4, 0x0C, 0x85, 0xC0, 0x74, 0x1F, 0xA0, 0x1D };
 	CheckForChangedOptionsAddr = (BYTE*)SearchAndGetAddresses(0x004631C6, 0x00463436, 0x00463441, CheckForChangedOptionsSearchBytes, sizeof(CheckForChangedOptionsSearchBytes), 0x4B, __FUNCTION__);
 
@@ -2932,7 +2934,7 @@ DWORD* GetPlaySoundFunPointer()
 		return PlaySoundFunAddr;
 	}
 
-	// Get Draw Options function Address
+	// Get Play sound function Address
 	constexpr BYTE PlaySoundFunSearchBytes[]{ 0x0B, 0x00, 0x83, 0xC4, 0x0C, 0x80, 0x3D };
 	PlaySoundFunAddr = (DWORD*)SearchAndGetAddresses(0x00464089, 0x00464302, 0x4644FD, PlaySoundFunSearchBytes, sizeof(PlaySoundFunSearchBytes), -0x03, __FUNCTION__);
 
@@ -2944,4 +2946,46 @@ DWORD* GetPlaySoundFunPointer()
 	}
 
 	return PlaySoundFunAddr;
+}
+
+BYTE* GetDiscardOptionBOPointer()
+{
+	if (DiscardOptionBOAddr)
+	{
+		return DiscardOptionBOAddr;
+	}
+
+	// Get decrement master volume Address
+	constexpr BYTE DiscardOptionBOSearchBytes[]{ 0x6E, 0xFF, 0xFF, 0x3D, 0xFA, 0x00, 0x00, 0x00, 0x0F, 0x8D };
+	DiscardOptionBOAddr = (BYTE*)SearchAndGetAddresses(0x00463523, 0x00463793, 0x4637A8, DiscardOptionBOSearchBytes, sizeof(DiscardOptionBOSearchBytes), 0x4C, __FUNCTION__);
+
+	// Checking address pointer
+	if (!DiscardOptionBOAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	return DiscardOptionBOAddr;
+}
+
+BYTE* GetDiscardOptionPointer()
+{
+	if (DiscardOptionAddr)
+	{
+		return DiscardOptionAddr;
+	}
+
+	// Get decrement master volume Address
+	constexpr BYTE DiscardOptionSearchBytes[]{ 0xFE, 0xFF, 0x83, 0xC4, 0x04, 0x85, 0xC0, 0x75, 0x27 };
+	DiscardOptionAddr = (BYTE*)SearchAndGetAddresses(0x004636C8, 0x00463938, 0x00463952, DiscardOptionSearchBytes, sizeof(DiscardOptionSearchBytes), 0x76, __FUNCTION__);
+
+	// Checking address pointer
+	if (!DiscardOptionAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	return DiscardOptionAddr;
 }

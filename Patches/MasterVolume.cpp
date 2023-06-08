@@ -28,8 +28,8 @@ D3DMATRIX WorldMatrix =
 };
 
 BYTE* ChangedOptionsCheckReturn = GetCheckForChangedOptionsPointer() + 0x0C;
-BYTE* DiscardOptionsBackingOutReturn = (BYTE*)0x0046356f; // TODO addresses
-BYTE* DiscardOptionsNoBackingOutReturn = (BYTE*)0x0046373e;
+BYTE* DiscardOptionsBackingOutReturn = GetDiscardOptionBOPointer();
+BYTE* DiscardOptionsNoBackingOutReturn = GetDiscardOptionPointer();
 BYTE* ChangeMasterVolumeReturn = GetDecrementMasterVolumePointer() + (GameVersion != SH2V_DC ? 0x16 : 0x10);//TODO check v 1.1
 
 BYTE* MoveRightArrowHitboxReturn = GetOptionsRightArrowHitboxPointer() + 0x05;

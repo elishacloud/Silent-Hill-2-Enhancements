@@ -189,10 +189,8 @@ void PatchMasterVolumeSlider()
     orgConfirmOptionsFun.fun = injector::MakeCALL(GetConfirmOptionsOnePointer(), ConfirmOptions_Hook, true).get();
     injector::MakeCALL(GetConfirmOptionsTwoPointer(), ConfirmOptions_Hook, true).get();
 
-    //TODO pattern
     // Hook the function that plays sounds at the end of the options switch
-    auto pattern = hook::pattern("e8 f5 14 0b 00");
-    orgPlaySound.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), PlaySound_Hook, true).get();
+    orgPlaySound.fun = injector::MakeCALL(GetPlaySoundFunPointer(), PlaySound_Hook, true).get();
 }
 
 void MasterVolume::ChangeMasterVolumeValue(int delta)

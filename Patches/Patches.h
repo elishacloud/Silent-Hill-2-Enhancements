@@ -190,6 +190,7 @@ BYTE* GetDecrementMasterVolumePointer();
 BYTE* GetIncrementMasterVolumePointer();
 BYTE* GetOptionsRightArrowHitboxPointer();
 BYTE* GetCheckForChangedOptionsPointer();
+DWORD* GetPlaySoundFunPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

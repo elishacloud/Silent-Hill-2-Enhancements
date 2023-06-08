@@ -130,6 +130,7 @@ BYTE* DecrementMasterVolumeAddr = nullptr;
 BYTE* IncrementMasterVolumeAddr = nullptr;
 BYTE* OptionsRightArrowHitboxAddr = nullptr;
 BYTE* CheckForChangedOptionsAddr = nullptr;
+DWORD* PlaySoundFunAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -2922,4 +2923,25 @@ BYTE* GetCheckForChangedOptionsPointer()
 	}
 
 	return CheckForChangedOptionsAddr;
+}
+
+DWORD* GetPlaySoundFunPointer()
+{
+	if (PlaySoundFunAddr)
+	{
+		return PlaySoundFunAddr;
+	}
+
+	// Get Draw Options function Address
+	constexpr BYTE PlaySoundFunSearchBytes[]{ 0x0B, 0x00, 0x83, 0xC4, 0x0C, 0x80, 0x3D };
+	PlaySoundFunAddr = (DWORD*)SearchAndGetAddresses(0x00464089, 0x00464302, 0x4644FD, PlaySoundFunSearchBytes, sizeof(PlaySoundFunSearchBytes), -0x03, __FUNCTION__);
+
+	// Checking address pointer
+	if (!PlaySoundFunAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	return PlaySoundFunAddr;
 }

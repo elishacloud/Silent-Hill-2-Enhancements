@@ -27,6 +27,10 @@ D3DMATRIX WorldMatrix =
   0.f, 0.f, 0.f, 1.f
 };
 
+// Addresses
+int32_t* ConfirmOptionsTwoAddr = nullptr;
+
+
 BYTE* ChangedOptionsCheckReturn = (BYTE*)0x0046321d; // TODO addresses
 BYTE* DiscardOptionsBackingOutReturn = (BYTE*)0x0046356f;
 BYTE* DiscardOptionsNoBackingOutReturn = (BYTE*)0x0046373e;
@@ -166,10 +170,8 @@ void PatchMasterVolumeSlider()
     // Hook options drawing to draw at the same time
     orgDrawOptions.fun = injector::MakeCALL(GetDrawOptionsFunPointer(), DrawOptions_Hook, true).get();
 
-    //TODO dial in patterns
     // Hook right arrow drawing to move it to the right
-    auto pattern = hook::pattern("e8 a7 d0 ff ff");
-    orgDrawArrowRight.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), DrawArrowRight_Hook, true).get();
+    orgDrawArrowRight.fun = injector::MakeCALL(GetRenderOptionsRightArrowFunPointer(), DrawArrowRight_Hook, true).get();
 
     // Skip drawing the old option text
     UpdateMemoryAddress((void*)GetSpkOptionTextOnePointer(), "\x90\x90\x90\x90\x90", 5);
@@ -195,10 +197,10 @@ void PatchMasterVolumeSlider()
 
     //TODO addresses
     // hook the function that is called when confirming changed options
-    pattern = hook::pattern("e8 9e 49 0b 00");
-    orgConfirmOptionsFun.fun = injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), ConfirmOptions_Hook, true).get();
-    pattern = hook::pattern("e8 5f 4e 0b 00");
+    orgConfirmOptionsFun.fun = injector::MakeCALL(GetConfirmOptionsOnePointer(), ConfirmOptions_Hook, true).get();
+    auto pattern = hook::pattern("e8 5f 4e 0b 00");
     injector::MakeCALL(pattern.count(1).get(0).get<uint32_t>(0), ConfirmOptions_Hook, true).get();
+
 
     //TODO pattern
     // Hook the function that plays sounds at the end of the options switch
@@ -276,11 +278,8 @@ void MasterVolumeSlider::InitVertices()
     this->LastBufferHeight = BufferHeight;
     this->LastBufferWidth = BufferWidth;
 
-    //TODO addresses
     int32_t VerticalInternal = GetInternalVerticalRes();
     int32_t HorizontalInternal = GetInternalHorizontalRes();
-
-    Logging::Log() << "vertical: " << GetInternalVerticalResPointer();
 
     float spacing = (25.781 * (float)HorizontalInternal) / 1200.f;
     float xScaling = (float)HorizontalInternal / 1200.f;
@@ -325,8 +324,7 @@ void MasterVolumeSlider::DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value,
     if (LastBufferHeight != BufferHeight || LastBufferWidth != BufferWidth)
         this->InitVertices();
 
-    //TODO address for selected option
-    const int selected = *(int16_t*)0x00941602 == 0x07 ? 0 : 1;
+    const int selected = GetSelectedOption() == 0x07 ? 0 : 1;
 
     // Set up the graphics' color
     if (ValueChanged)

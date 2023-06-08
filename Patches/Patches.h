@@ -80,6 +80,7 @@ int8_t GetOptionsPage();
 int8_t GetOptionsSubPage();
 int32_t GetInternalVerticalRes();
 int32_t GetInternalHorizontalRes();
+int16_t GetSelectedOption();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -181,6 +182,9 @@ BYTE* GetSpkOptionTextOnePointer();
 BYTE* GetSpkOptionTextTwoPointer();
 int8_t* GetOptionsPagePointer();
 int32_t* GetInternalVerticalResPointer();
+DWORD* GetConfirmOptionsOnePointer();
+BYTE* GetRenderOptionsRightArrowFunPointer();
+BYTE* GetStartOfOptionSpeakerPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

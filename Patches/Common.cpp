@@ -123,7 +123,9 @@ int8_t* OptionsPageAddr = nullptr;
 int8_t* OptionsSubPageAddr = nullptr;
 int32_t* InternalVerticalAddr = nullptr;
 int32_t* InternalHorizontalAddr = nullptr;
-
+DWORD* ConfirmOptionsOneAddr = nullptr;
+DWORD* ConfirmOptionsTwoAddr = nullptr;
+BYTE* StartOfOptionSpeakerAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -2720,6 +2722,13 @@ int8_t GetOptionsSubPage()
 	return (pOptionsSubPage) ? *pOptionsSubPage : 0;
 }
 
+int16_t GetSelectedOption()
+{
+	int8_t* pSelectedOption = GetOptionsPagePointer() + 0x02;
+
+	return (pSelectedOption) ? *pSelectedOption : 0;
+}
+
 int32_t GetInternalVerticalRes()
 {
 	int32_t* pInternalVertical = GetInternalVerticalResPointer();
@@ -2755,4 +2764,53 @@ int32_t GetInternalHorizontalRes()
 	int32_t* pInternalHorizontal = GetInternalVerticalResPointer() - 0x01;
 
 	return (pInternalHorizontal) ? *pInternalHorizontal : 0;
+}
+
+DWORD* GetConfirmOptionsOnePointer()
+{
+	if (ConfirmOptionsOneAddr)
+	{
+		return ConfirmOptionsOneAddr;
+	}
+
+	// Get Draw Options function Address
+	constexpr BYTE ConfirmOptionsOneSearchBytes[]{ 0x8D, 0x48, 0xFD, 0x83 };
+	ConfirmOptionsOneAddr = (DWORD*)SearchAndGetAddresses(0x004638D9, 0x00463B49, 0x00463B67, ConfirmOptionsOneSearchBytes, sizeof(ConfirmOptionsOneSearchBytes), -0x3C, __FUNCTION__);
+
+	// Checking address pointer
+	if (!ConfirmOptionsOneAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	return ConfirmOptionsOneAddr;
+}
+
+BYTE* GetStartOfOptionSpeakerPointer()
+{
+	if (StartOfOptionSpeakerAddr)
+	{
+		return StartOfOptionSpeakerAddr;
+	}
+
+	// Get Draw Options function Address
+	constexpr BYTE StartOfOptionSpeakerSearchBytes[]{ 0x83, 0xC4, 0x08, 0x83, 0xF8, 0x07, 0x77 };
+	StartOfOptionSpeakerAddr = (BYTE*)SearchAndGetAddresses(0x00463D3A, 0x00463FB3, 0x00464193, StartOfOptionSpeakerSearchBytes, sizeof(StartOfOptionSpeakerSearchBytes), 0x00, __FUNCTION__);
+
+	// Checking address pointer
+	if (!StartOfOptionSpeakerAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	return StartOfOptionSpeakerAddr;
+}
+
+BYTE* GetRenderOptionsRightArrowFunPointer()
+{
+	BYTE* pConfirmOptionsTwo = GetStartOfOptionSpeakerPointer() + 0x9A;
+
+	return (pConfirmOptionsTwo) ? pConfirmOptionsTwo : 0;
 }

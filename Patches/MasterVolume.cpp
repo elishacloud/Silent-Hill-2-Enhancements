@@ -30,11 +30,10 @@ D3DMATRIX WorldMatrix =
 // Addresses
 int32_t* ConfirmOptionsTwoAddr = nullptr;
 
-
 BYTE* ChangedOptionsCheckReturn = (BYTE*)0x0046321d; // TODO addresses
 BYTE* DiscardOptionsBackingOutReturn = (BYTE*)0x0046356f;
 BYTE* DiscardOptionsNoBackingOutReturn = (BYTE*)0x0046373e;
-BYTE* ChangeMasterVolumeReturn = GetDecrementMasterVolumePointer() + 0x16;
+BYTE* ChangeMasterVolumeReturn = GetDecrementMasterVolumePointer() + (GameVersion != SH2V_DC ? 0x16 : 0x10);//TODO check v 1.1
 BYTE* MoveRightArrowHitboxReturn = (BYTE*)0x00462e66;
 
 DWORD* RightArrowDefaultPointer = (DWORD*)0x009416e8;

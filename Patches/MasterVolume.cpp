@@ -27,13 +27,13 @@ D3DMATRIX WorldMatrix =
   0.f, 0.f, 0.f, 1.f
 };
 
-BYTE* ChangedOptionsCheckReturn = GetCheckForChangedOptionsPointer() + 0x0C;
-BYTE* DiscardOptionsBackingOutReturn = GetDiscardOptionBOPointer();
-BYTE* DiscardOptionsNoBackingOutReturn = GetDiscardOptionPointer();
-BYTE* ChangeMasterVolumeReturn = GetDecrementMasterVolumePointer() + (GameVersion != SH2V_DC ? 0x16 : 0x10);//TODO check v 1.1
+BYTE* ChangedOptionsCheckReturn = nullptr;
+BYTE* DiscardOptionsBackingOutReturn = nullptr;
+BYTE* DiscardOptionsNoBackingOutReturn = nullptr;
+BYTE* ChangeMasterVolumeReturn = nullptr;
 
-BYTE* MoveRightArrowHitboxReturn = GetOptionsRightArrowHitboxPointer() + 0x05;
-DWORD* RightArrowDefaultPointer = *(DWORD**)(GetOptionsRightArrowHitboxPointer() + 0x01);
+BYTE* MoveRightArrowHitboxReturn = nullptr;
+DWORD* RightArrowDefaultPointer = nullptr;
 DWORD RightArrowDefault = 0;
 
 static int SavedMasterVolumeLevel = 0;
@@ -160,6 +160,15 @@ __declspec(naked) void __stdcall DecrementMasterVolume()
 
 void PatchMasterVolumeSlider()
 {
+    // Initialize pointers
+    ChangedOptionsCheckReturn = GetCheckForChangedOptionsPointer() + 0x0C;
+    DiscardOptionsBackingOutReturn = GetDiscardOptionBOPointer();
+    DiscardOptionsNoBackingOutReturn = GetDiscardOptionPointer();
+    ChangeMasterVolumeReturn = GetDecrementMasterVolumePointer() + (GameVersion != SH2V_DC ? 0x16 : 0x10);//TODO check v 1.1
+
+    MoveRightArrowHitboxReturn = GetOptionsRightArrowHitboxPointer() + 0x05;
+    RightArrowDefaultPointer = *(DWORD**)(GetOptionsRightArrowHitboxPointer() + 0x01);
+
     // Hook options drawing to draw at the same time
     orgDrawOptions.fun = injector::MakeCALL(GetDrawOptionsFunPointer(), DrawOptions_Hook, true).get();
 

@@ -78,8 +78,6 @@ Input DebugCombo;
 Input InfoCombo;
 Input EscInput;
 Input CancelInput;
-Input OptionsLeft;
-Input OptionsRight;
 
 int ForwardBackwardsAxis = 0;
 int LeftRightAxis = 0;
@@ -630,13 +628,6 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
             ClearKey(KeyBinds.GetKeyBind(KEY_SKIP));
             ClearKey(KeyBinds.GetKeyBind(KEY_CANCEL));
         }
-
-		OptionsRight.State = IsKeyPressed(KeyBinds.GetKeyBind(KEY_TURN_RIGHT)) || IsKeyPressed(DIK_RIGHT);
-		OptionsLeft.State = IsKeyPressed(KeyBinds.GetKeyBind(KEY_TURN_LEFT)) || IsKeyPressed(DIK_LEFT);
-
-		// Check for Options left/right are held down
-		OptionsLeft.UpdateHolding();
-		OptionsRight.UpdateHolding();
 
 		// Clear Keyboard Data pointer
 		KeyboardData = nullptr;

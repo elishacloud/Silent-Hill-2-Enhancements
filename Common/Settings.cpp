@@ -285,7 +285,7 @@ void UpdateConfigDefaults()
 	EnableCustomShaders = ((EnableSMAA || AdjustColorTemp || RestoreBrightnessSelector || EnableCRTShader) && d3d8to9);
 
 	// Set Input Tweaks default
-	EnableInputTweaks = (EnableToggleSprint || EnableEnhancedMouse || EnableMouseWheelSwap || MemoScreenFix || EnhanceMouseCursor || AutoHideMouseCursor || EnableMasterVolume);
+	EnableInputTweaks = (EnableToggleSprint || EnableEnhancedMouse || EnableMouseWheelSwap || MemoScreenFix || EnhanceMouseCursor || AutoHideMouseCursor);
 
 	// Lock Speaker config is disabled if Master Volume is enabled
 	LockSpeakerConfig = LockSpeakerConfig && (!EnableMasterVolume);

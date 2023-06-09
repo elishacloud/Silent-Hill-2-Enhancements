@@ -163,7 +163,7 @@ void PatchMasterVolumeSlider()
     // Hook options drawing to draw at the same time
     orgDrawOptions.fun = injector::MakeCALL(GetDrawOptionsFunPointer(), DrawOptions_Hook, true).get();
 
-    // Hook right arrow drawing to move it to the right
+    // Hook right arrow drawing to move it to the right 
     orgDrawArrowRight.fun = injector::MakeCALL(GetRenderOptionsRightArrowFunPointer(), DrawArrowRight_Hook, true).get();
 
     // Skip drawing the old option text
@@ -173,10 +173,9 @@ void PatchMasterVolumeSlider()
     // Inject our values in the game's check for changed settings
     WriteJMPtoMemory(GetCheckForChangedOptionsPointer(), ChangeSpeakerConfigCheck, 0x0C);
 
-    //TODO addresses
     // Set the DiscardOptions flag when restoring saved settings
-    WriteJMPtoMemory((BYTE*)0x00463569, DiscardOptionsBackingOut, 0x06);
-    WriteJMPtoMemory((BYTE*)0x00463738, DiscardOptionsNoBackingOut, 0x06);
+    WriteJMPtoMemory(GetDiscardOptionBOPointer(), DiscardOptionsBackingOut, 0x06);
+    WriteJMPtoMemory(GetDiscardOptionPointer(), DiscardOptionsNoBackingOut, 0x06);
 
     // Detour execution to change the hitbox position
     WriteJMPtoMemory(GetOptionsRightArrowHitboxPointer(), SetRightArrowHitbox, 0x05);

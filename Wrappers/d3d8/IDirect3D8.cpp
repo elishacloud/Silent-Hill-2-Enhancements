@@ -30,6 +30,7 @@ WNDPROC OriginalWndProc = nullptr;
 HWND DeviceWindow = nullptr;
 LONG BufferWidth = 0, BufferHeight = 0;
 DWORD VendorID = 0;
+bool WindowInChange = false;
 bool UsingWindowBorder = true;
 bool CopyRenderTarget = false;
 bool SetSSAA = false;
@@ -348,6 +349,7 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 	// Update patches for resolution change
 	UpdateResolutionPatches(BufferWidth, BufferHeight);
 
+	WindowInChange = true;
 	if (IsWindow(DeviceWindow))
 	{
 		// Check if window is minimized and restore it
@@ -420,6 +422,7 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 			LastBufferHeight = BufferHeight;
 		}
 	}
+	WindowInChange = false;
 }
 
 void UpdatePresentParameterForMultisample(D3DPRESENT_PARAMETERS* pPresentationParameters, D3DMULTISAMPLE_TYPE MultiSampleType)
@@ -600,7 +603,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			SetResolutionList(BufferWidth, BufferHeight);
 		}
 		LastMonitorHandle = MonitorHandle;
-		if (hWnd == DeviceWindow)
+		if (hWnd == DeviceWindow && ScreenMode == WINDOWED && !WindowInChange)
 		{
 			SaveWindowPlacement();
 		}

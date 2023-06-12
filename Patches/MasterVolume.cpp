@@ -190,8 +190,8 @@ void PatchMasterVolumeSlider()
     WriteJMPtoMemory(GetOptionsRightArrowHitboxPointer(), SetRightArrowHitbox, 0x05);
 
     // Set the ChangeMasterVolumeValue to update the value
-    WriteJMPtoMemory(GetIncrementMasterVolumePointer(), IncrementMasterVolume, 0x19);
-    WriteJMPtoMemory(GetDecrementMasterVolumePointer(), DecrementMasterVolume, 0x15);
+    WriteJMPtoMemory(GetIncrementMasterVolumePointer(), IncrementMasterVolume, 0x1A);
+    WriteJMPtoMemory(GetDecrementMasterVolumePointer(), DecrementMasterVolume, 0x18);
 
     // hook the function that is called when confirming changed options
     orgConfirmOptionsFun.fun = injector::MakeCALL(GetConfirmOptionsOnePointer(), ConfirmOptions_Hook, true).get();

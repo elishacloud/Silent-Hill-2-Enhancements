@@ -162,20 +162,30 @@ void PatchMasterVolumeSlider()
 {
     // Initialize pointers
     ChangedOptionsCheckReturn = GetCheckForChangedOptionsPointer() + 0x0C;
+
+    BYTE* DiscardOptionsBOAddr = GetDiscardOptionBOPointer() + (GameVersion == SH2V_DC ? 0x01 : 0x00);
+    BYTE* DiscardOptionsAddr = GetDiscardOptionPointer();
+
     DiscardOptionsBackingOutReturn = GetDiscardOptionBOPointer();
     DiscardOptionsNoBackingOutReturn = GetDiscardOptionPointer();
-    ChangeMasterVolumeReturn = GetDecrementMasterVolumePointer() + (GameVersion != SH2V_DC ? 0x16 : 0x10);//TODO check v 1.1
+
+    ChangeMasterVolumeReturn = GetDecrementMasterVolumePointer() + (GameVersion == SH2V_DC ? 0x1C : 0x16);
 
     MoveRightArrowHitboxReturn = GetOptionsRightArrowHitboxPointer() + 0x05;
-    RightArrowDefaultPointer = *(DWORD**)(GetOptionsRightArrowHitboxPointer() + 0x01);
+    RightArrowDefaultPointer = *(DWORD**)(GetOptionsRightArrowHitboxPointer() + 0x01);    
+
+    BYTE* DecrementVolumeAddr = GetDecrementMasterVolumePointer() + (GameVersion == SH2V_DC ? -0x02 : 0x0);
+    BYTE* IncrementVolumeAddr = GetIncrementMasterVolumePointer() + (GameVersion == SH2V_DC ? -0x07 : 0x0);
+
+    BYTE* RenderRightArrowAddr = GetRenderOptionsRightArrowFunPointer() + (GameVersion == SH2V_DC ? 0x02 : 0x0);
 
     // Hook options drawing to draw at the same time
     orgDrawOptions.fun = injector::MakeCALL(GetDrawOptionsFunPointer(), DrawOptions_Hook, true).get();
 
     // Hook right arrow drawing to move it to the right 
-    orgDrawArrowRight.fun = injector::MakeCALL(GetRenderOptionsRightArrowFunPointer(), DrawArrowRight_Hook, true).get();
+    orgDrawArrowRight.fun = injector::MakeCALL(RenderRightArrowAddr, DrawArrowRight_Hook, true).get();
 
-    // Skip drawing the old option text
+    // Skip drawing the old option text 
     UpdateMemoryAddress((void*)GetSpkOptionTextOnePointer(), "\x90\x90\x90\x90\x90", 5);
     UpdateMemoryAddress((void*)GetSpkOptionTextTwoPointer(), "\x90\x90\x90\x90\x90", 5);
 
@@ -183,15 +193,15 @@ void PatchMasterVolumeSlider()
     WriteJMPtoMemory(GetCheckForChangedOptionsPointer(), ChangeSpeakerConfigCheck, 0x0C);
 
     // Set the DiscardOptions flag when restoring saved settings
-    WriteJMPtoMemory(GetDiscardOptionBOPointer(), DiscardOptionsBackingOut, 0x06);
-    WriteJMPtoMemory(GetDiscardOptionPointer(), DiscardOptionsNoBackingOut, 0x06);
+    WriteJMPtoMemory(DiscardOptionsBOAddr - 0x06, DiscardOptionsBackingOut, 0x06);
+    WriteJMPtoMemory(DiscardOptionsAddr - 0x06, DiscardOptionsNoBackingOut, 0x06);
 
     // Detour execution to change the hitbox position
     WriteJMPtoMemory(GetOptionsRightArrowHitboxPointer(), SetRightArrowHitbox, 0x05);
 
     // Set the ChangeMasterVolumeValue to update the value
-    WriteJMPtoMemory(GetIncrementMasterVolumePointer(), IncrementMasterVolume, 0x1A);
-    WriteJMPtoMemory(GetDecrementMasterVolumePointer(), DecrementMasterVolume, 0x18);
+    WriteJMPtoMemory(IncrementVolumeAddr, IncrementMasterVolume, 0x07);
+    WriteJMPtoMemory(DecrementVolumeAddr, DecrementMasterVolume, 0x07);
 
     // hook the function that is called when confirming changed options
     orgConfirmOptionsFun.fun = injector::MakeCALL(GetConfirmOptionsOnePointer(), ConfirmOptions_Hook, true).get();

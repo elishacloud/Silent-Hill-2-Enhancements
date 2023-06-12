@@ -950,14 +950,19 @@ void PatchSpeakerConfigLock()
 
 void PatchSpeakerConfigText()
 {
+	if (GameVersion != SH2V_10 && GameVersion != SH2V_11 && GameVersion != SH2V_DC)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: unknown game version!";
+		return;
+	}
+
 	constexpr BYTE SpkSearchBytesA[] = { 0x94, 0x00, 0x68, 0x12, 0x27, 0x00, 0x00, 0xF3, 0xA5, 0xE8 };
 	void* DSpkAddrA = (void*)SearchAndGetAddresses(0x00463165, 0x004633D5, 0x004633E4, SpkSearchBytesA, sizeof(SpkSearchBytesA), 0x00, __FUNCTION__);
 	constexpr BYTE SpkSearchBytesB[] = { 0x93, 0x00, 0x83, 0xC4, 0x10, 0x68, 0x1F, 0x01, 0x00, 0x00, 0x68, 0x0C, 0x01, 0x00, 0x00, 0x05, 0xC2, 0x00, 0x00, 0x00, 0x50, 0x51, 0xE8 };
 	void* DSpkAddrB = (void*)SearchAndGetAddresses(0x00461B37, 0x00461DA9, 0x00461DA9, SpkSearchBytesB, sizeof(SpkSearchBytesB), 0x00, __FUNCTION__);
 
-
-	void* DSpkrAddrName = (void*)0x004614d9;//TODO address
-	void* DSpkrAddrHighlight = (void*)0x00461668;
+	void* DSpkrAddrName = (void*)(GameVersion == SH2V_10 ? 0x004614D9 : 0x00461739);
+	void* DSpkrAddrHighlight = (void*)(GameVersion == SH2V_10 ? 0x00461668 : 0x004618C8);
 
 	if (!LockResolution)
 	{

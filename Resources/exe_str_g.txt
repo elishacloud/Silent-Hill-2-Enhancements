@@ -25,5 +25,5 @@ Taste %d
 \hKEINE SCHNELLSPEICHERUNG
 \hAufl�sung in d3d8.ini einstellen
 \hAudioeinst. in Windows vornehmen
-\hMaster Volume
-\hAdjust Master Volume
+\hGesamtlautst�rke
+\hGesamtlautst�rke anpassen

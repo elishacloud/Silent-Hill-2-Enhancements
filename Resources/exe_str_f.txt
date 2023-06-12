@@ -25,5 +25,5 @@ Bouton %d
 \hAUCUNE SAUVEGARDE RAPIDE
 \hR�gler la r�solution dans d3d8.ini
 \hChanger ce r�glage dans Windows
-\hMaster Volume
-\hAdjust Master Volume
+\hVolume principal
+\hR�gler le volume principal

@@ -25,5 +25,5 @@ Bot�n %d
 \hNO HAY GUARDADO R�PIDO
 \hCambiar resoluci�n en d3d8.ini
 \hConfigurar a trav�s de Windows
-\hMaster Volume
-\hAdjust Master Volume
+\hVolumen general
+\hAjustar el volumen general

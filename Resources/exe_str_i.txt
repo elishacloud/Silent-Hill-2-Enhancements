@@ -25,5 +25,5 @@ Tasto %d
 \hNESSUN SALVATAGGIO VELOCE
 \hImposta la risoluzione nel file d3d8.ini
 \hConfigura attraverso Windows
-\hVolume Generale
-\hRegola il Volume Generale
+\hVolume Principale
+\hImposta volume principale

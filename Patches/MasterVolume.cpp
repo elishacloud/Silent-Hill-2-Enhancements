@@ -219,6 +219,7 @@ void MasterVolume::ChangeMasterVolumeValue(int delta)
     if ((delta < 0 && CurrentMasterVolumeLevel > 0) || (delta > 0 && CurrentMasterVolumeLevel < 0x0F))
     {
         CurrentMasterVolumeLevel += delta;
+        ConfigData.VolumeLevel = CurrentMasterVolumeLevel;
         SetNewVolume();
 
         // Play the ding sound when changing volume

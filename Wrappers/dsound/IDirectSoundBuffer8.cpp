@@ -403,7 +403,11 @@ void m_IDirectSoundBuffer8::CheckMasterVolume()
 {
 	if (EnableMasterVolume && LastVolumeSet != ConfigData.VolumeLevel)
 	{
-		SetVolume(RequestedVolume);
+		DWORD Status = 0;
+		if (SUCCEEDED(ProxyInterface->GetStatus(&Status)) && (Status & DSBSTATUS_PLAYING))
+		{
+			SetVolume(RequestedVolume);
+		}
 	}
 }
 

@@ -602,15 +602,10 @@ void DelayedStart()
 		PatchInputTweaks();
 	}
 
-	// Patch custom strings
+	// Patch master volume slider and strings
 	if (EnableMasterVolume && CustomExeStrSet)
 	{
 		PatchSpeakerConfigText();
-	}
-
-	// Enable master volume slider
-	if (EnableMasterVolume)
-	{
 		PatchMasterVolumeSlider();
 	}
 

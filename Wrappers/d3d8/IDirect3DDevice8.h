@@ -2,7 +2,6 @@
 
 #include "Patches\Patches.h"
 #include "Overlay.h"
-#include "Patches\MasterVolume.h"
 
 class m_IDirect3DDevice8 : public IDirect3DDevice8
 {

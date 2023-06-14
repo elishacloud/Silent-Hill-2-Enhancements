@@ -18,7 +18,6 @@
 #include "External\injector\include\injector\utility.hpp"
 #include "External\Hooking.Patterns\Hooking.Patterns.h"
 #include "InputTweaks.h"
-#include "MasterVolume.h"
 
 InputTweaks InputTweaksRef;
 KeyBindsHandler KeyBinds;

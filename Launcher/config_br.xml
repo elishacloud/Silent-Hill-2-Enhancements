@@ -354,11 +354,11 @@
       </Feature>
 
       <Feature name="EnableMasterVolume">
-        <Title>Add a master volume level control</Title>
-        <Description>Adds a master volume level control to the in-game Options menu to control all audio in the game.</Description>
+        <Title>Adicionar controle de volume principal</Title>
+        <Description>Adiciona um controle de nível de volume ao menu de opções para controlar todo o áudio do jogo.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
 

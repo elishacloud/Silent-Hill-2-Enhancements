@@ -17,6 +17,8 @@
 #include "dsoundwrapper.h"
 #include "Patches\Patches.h"
 
+std::vector<m_IDirectSoundBuffer8*> BufferList;
+
 HRESULT m_IDirectSoundBuffer8::QueryInterface(REFIID riid, LPVOID * ppvObj)
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
@@ -106,10 +108,15 @@ HRESULT m_IDirectSoundBuffer8::GetVolume(LPLONG plVolume)
 
 	SetStopped();
 
-	// Set last volume
-	if (IsStopSet && plVolume)
+	if (!plVolume)
 	{
-		*plVolume = CurrentVolume;
+		return DSERR_INVALIDPARAM;
+	}
+
+	// Set last volume
+	if (IsMasterVolumeSet || IsStopSet)
+	{
+		*plVolume = RequestedVolume;
 		return DS_OK;
 	}
 
@@ -195,6 +202,8 @@ HRESULT m_IDirectSoundBuffer8::Play(DWORD dwReserved1, DWORD dwPriority, DWORD d
 		IsStopSet = false;
 	}
 
+	CheckMasterVolume();
+
 	return ProxyInterface->Play(dwReserved1, dwPriority, dwFlags);
 }
 
@@ -228,14 +237,44 @@ HRESULT m_IDirectSoundBuffer8::SetVolume(LONG lVolume)
 
 	SetStopped();
 
+	if (lVolume < DSBVOLUME_MIN || lVolume > DSBVOLUME_MAX)
+	{
+		return DSERR_INVALIDPARAM;
+	}
+
+	LONG NewVolume = lVolume;
+
+	if (EnableMasterVolume)
+	{
+		float VolumePercentage = (ConfigData.VolumeLevel < 16) ? (10000.0f + (float)VolumeArray[ConfigData.VolumeLevel]) / 10000.0f : 1.0f;
+
+		lVolume = (LONG)((lVolume - DSBVOLUME_MIN) * VolumePercentage) + DSBVOLUME_MIN;
+	}
+
+	HRESULT hr;
+
 	// Assign new volume
 	if (IsStopSet)
 	{
-		CurrentVolume = lVolume;
-		return DS_OK;
+		hr = DS_OK;
+	}
+	else
+	{
+		hr = ProxyInterface->SetVolume(lVolume);
 	}
 
-	return ProxyInterface->SetVolume(lVolume);
+	if (SUCCEEDED(hr))
+	{
+		if (EnableMasterVolume)
+		{
+			IsMasterVolumeSet = true;
+			LastVolumeSet = ConfigData.VolumeLevel;
+		}
+		RequestedVolume = NewVolume;
+		CurrentVolume = lVolume;
+	}
+
+	return hr;
 }
 
 HRESULT m_IDirectSoundBuffer8::SetPan(LONG lPan)
@@ -267,9 +306,6 @@ HRESULT m_IDirectSoundBuffer8::Stop()
 			SetStopped();
 			return DS_OK;
 		}
-
-		// Get current volume
-		ProxyInterface->GetVolume(&CurrentVolume);
 
 		// Lower volume
 		ProxyInterface->SetVolume(DSBVOLUME_MIN);
@@ -363,6 +399,18 @@ bool m_IDirectSoundBuffer8::CheckGameResults()
 	return (IsInGameResults && (GetEventIndex() == 10 || GetEventIndex() == 11));
 }
 
+void m_IDirectSoundBuffer8::CheckMasterVolume()
+{
+	if (EnableMasterVolume && LastVolumeSet != ConfigData.VolumeLevel)
+	{
+		DWORD Status = 0;
+		if (SUCCEEDED(ProxyInterface->GetStatus(&Status)) && (Status & DSBSTATUS_PLAYING))
+		{
+			SetVolume(RequestedVolume);
+		}
+	}
+}
+
 void m_IDirectSoundBuffer8::SetStopped()
 {
 	if (IsStopSet)
@@ -386,5 +434,13 @@ void m_IDirectSoundBuffer8::SetStopped()
 			// Reset flag
 			IsStopSet = false;
 		}
+	}
+}
+
+void SetNewVolume()
+{
+	for (auto pBuffer : BufferList)
+	{
+		pBuffer->CheckMasterVolume();
 	}
 }

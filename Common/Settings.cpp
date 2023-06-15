@@ -28,6 +28,8 @@ bool CRTCurveShader = false;
 bool CRTNonCurveShader = false;
 bool EnableInputTweaks = false;
 
+CFGDATA ConfigData;
+
 // Configurable setting defaults
 #define SET_BOOL_DEFAULTS(name, value) \
 	bool name = value;
@@ -284,6 +286,9 @@ void UpdateConfigDefaults()
 
 	// Set Input Tweaks default
 	EnableInputTweaks = (EnableToggleSprint || EnableEnhancedMouse || EnableMouseWheelSwap || MemoScreenFix || EnhanceMouseCursor || AutoHideMouseCursor);
+
+	// Lock Speaker config is disabled if Master Volume is enabled
+	LockSpeakerConfig = LockSpeakerConfig && (!EnableMasterVolume);
 
 	// Set FogFix
 	if (FogFix == 0xFFFF)

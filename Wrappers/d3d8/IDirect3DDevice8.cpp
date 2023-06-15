@@ -24,6 +24,7 @@
 #include "stb_image_write.h"
 #include "stb_image_resize.h"
 #include "Patches/ModelID.h"
+#include "Patches\MasterVolume.h"
 
 bool DeviceLost = false;
 bool DisableShaderOnPresent = false;
@@ -970,6 +971,9 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 
 	// Draw Overlays
 	OverlayRef.DrawOverlays(ProxyInterface);
+
+	// Store reference to the ProxyInterface
+	MasterVolumeRef.HandleMasterVolume(ProxyInterface);
 
 	// Skip frames in specific cutscenes to prevent flickering
 	if (SkipSceneFlag)

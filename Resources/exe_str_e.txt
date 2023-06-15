@@ -25,3 +25,5 @@ Button %d
 \hNO QUICK SAVE
 \hConfigure in d3d8.ini file
 \hConfigure in Windows Sound Settings
+\hMaster Volume
+\hAdjust Master Volume

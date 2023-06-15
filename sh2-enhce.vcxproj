@@ -62,6 +62,7 @@
     <ClCompile Include="Patches\MapTranscription.cpp" />
     <ClCompile Include="Patches\DelayedFadeIn.cpp" />
     <ClCompile Include="Patches\FmvSubtitles.cpp" />
+    <ClCompile Include="Patches\MasterVolume.cpp" />
     <ClCompile Include="Patches\PatchCriware.cpp" />
     <ClCompile Include="Patches\QuickSaveTweaks.cpp" />
     <ClCompile Include="Patches\PrisonerTimer.cpp" />
@@ -183,6 +184,7 @@
     <ClInclude Include="Logging\Logging.h" />
     <ClInclude Include="Patches\FullscreenImages.h" />
     <ClInclude Include="Patches\InputTweaks.h" />
+    <ClInclude Include="Patches\MasterVolume.h" />
     <ClInclude Include="Patches\ModelID.h" />
     <ClInclude Include="Patches\Patches.h" />
     <ClInclude Include="Patches\SfxPatch.h" />

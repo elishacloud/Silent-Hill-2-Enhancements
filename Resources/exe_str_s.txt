@@ -4,8 +4,8 @@
 \hCargar partida
 \hOpciones
 \hSalir
-\h¿Salir al menú principal?
-\hSí
+\hï¿½Salir al menï¿½ principal?
+\hSï¿½
 \hNo
 \c\hIntroduzca el disco de Silent Hill 2
 \c\hPausa
@@ -16,12 +16,14 @@
 \c\hCargando
 \c\hEspere, por favor...
 \c\hComprobando disco
-\c\h¿Salir al menú principal?
-\c\hSí
+\c\hï¿½Salir al menï¿½ principal?
+\c\hSï¿½
 \c\hNo
-Botón %d
+Botï¿½n %d
 \hPARTIDA GUARDADA
 \hNO SE PUEDE GUARDAR
-\hNO HAY GUARDADO RÁPIDO
-\hCambiar resolución en d3d8.ini
-\hConfigurar a través de Windows
+\hNO HAY GUARDADO Rï¿½PIDO
+\hCambiar resoluciï¿½n en d3d8.ini
+\hConfigurar a travï¿½s de Windows
+\hVolumen general
+\hAjustar el volumen general

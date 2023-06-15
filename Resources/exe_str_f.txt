@@ -7,15 +7,15 @@
 \hQuitter vers le menu principal?
 \hOui
 \hNon
-\c\hVeuillez insérer le disque de Silent Hill 2
+\c\hVeuillez insï¿½rer le disque de Silent Hill 2
 \c\hEn pause
 \c\hMauvais disque
-\c\hLa  manette n'est pas connectée
-\c\hDisque non inséré
+\c\hLa  manette n'est pas connectï¿½e
+\c\hDisque non insï¿½rï¿½
 \c\hLecteur de disque ouvert
 \c\hChargement
 \c\hVeuillez patienter
-\c\hVérification du disque
+\c\hVï¿½rification du disque
 \c\hQuitter vers le menu principal?
 \c\hOui
 \c\hNon
@@ -23,5 +23,7 @@ Bouton %d
 \hPARTIE SAUVEGARDEE
 \hSAUVEGARDE IMPOSSIBLE
 \hAUCUNE SAUVEGARDE RAPIDE
-\hRégler la résolution dans d3d8.ini
-\hChanger ce réglage dans Windows
+\hRï¿½gler la rï¿½solution dans d3d8.ini
+\hChanger ce rï¿½glage dans Windows
+\hVolume principal
+\hRï¿½gler le volume principal

@@ -76,6 +76,11 @@ float GetPuzzleCursorHorizontalPos();
 float GetPuzzleCursorVerticalPos();
 BYTE GetPlayerIsDying();
 BYTE GetMariaNpcIsDying();
+int8_t GetOptionsPage();
+int8_t GetOptionsSubPage();
+int32_t GetInternalVerticalRes();
+int32_t GetInternalHorizontalRes();
+int16_t GetSelectedOption();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -172,6 +177,22 @@ float* GetPuzzleCursorHorizontalPosPointer();
 float* GetPuzzleCursorVerticalPosPointer();
 BYTE* GetPlayerIsDyingPointer();
 BYTE* GetMariaNpcIsDyingPointer();
+DWORD* GetDrawOptionsFunPointer();
+BYTE* GetSpkOptionTextOnePointer();
+BYTE* GetSpkOptionTextTwoPointer();
+int8_t* GetOptionsPagePointer();
+int32_t* GetInternalVerticalResPointer();
+DWORD* GetConfirmOptionsOnePointer();
+DWORD* GetConfirmOptionsTwoPointer();
+BYTE* GetRenderOptionsRightArrowFunPointer();
+BYTE* GetStartOfOptionSpeakerPointer();
+BYTE* GetDecrementMasterVolumePointer();
+BYTE* GetIncrementMasterVolumePointer();
+BYTE* GetOptionsRightArrowHitboxPointer();
+BYTE* GetCheckForChangedOptionsPointer();
+DWORD* GetPlaySoundFunPointer();
+BYTE* GetDiscardOptionBOPointer();
+BYTE* GetDiscardOptionPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -224,6 +245,7 @@ void PatchLockScreenPosition();
 void PatchMainMenu();
 void PatchMainMenuTitlePerLang();
 void PatchMapTranscription();
+void PatchMasterVolumeSlider();
 void PatchMemoBrightnes();
 void PatchPauseScreen();
 void PatchPistonRoom();
@@ -244,6 +266,7 @@ void PatchSpecular();
 void PatchSprayEffect();
 void PatchSFXAddr();
 void PatchSixtyFPS();
+void PatchSpeakerConfigText();
 void PatchSpecificSoundLoopFix();
 void PatchTexAddr();
 void PatchTownWestGateEvent();
@@ -260,8 +283,11 @@ bool IsMariaEyes(ModelID id);
 bool isConfirmationPromptOpen();
 int CountCollectedMemos();
 bool IsInFullScreenImageEvent();
+bool IsInMainOptionsMenu();
+bool IsInOptionsMenu();
 
 void HandleFinalBossRoomFix();
+void SetNewVolume();
 
 void OnFileLoadTex(LPCSTR lpFileName);
 void OnFileLoadVid(LPCSTR lpFileName);

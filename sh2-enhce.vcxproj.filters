@@ -395,6 +395,9 @@
     <ClCompile Include="Patches\FinalBossRoomFix.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\MasterVolume.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">
@@ -611,6 +614,9 @@
       <Filter>Patches</Filter>
     </ClInclude>
     <ClInclude Include="Patches\SixtyFPSPatch.h">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Patches\MasterVolume.h">
       <Filter>Patches</Filter>
     </ClInclude>
   </ItemGroup>

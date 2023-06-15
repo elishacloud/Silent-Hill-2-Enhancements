@@ -116,6 +116,23 @@ float* PuzzleCursorHorizontalPosAddr = nullptr;
 float* PuzzleCursorVerticalPosAddr = nullptr;
 BYTE* PlayerIsDyingAddr = nullptr;
 BYTE* MariaNpcIsDyingAddr = nullptr;
+DWORD* DrawOptionsFunAddr = nullptr;
+BYTE* SpkOptionTextOneAddr = nullptr;
+BYTE* SpkOptionTextTwoAddr = nullptr;
+int8_t* OptionsPageAddr = nullptr;
+int8_t* OptionsSubPageAddr = nullptr;
+int32_t* InternalVerticalAddr = nullptr;
+int32_t* InternalHorizontalAddr = nullptr;
+DWORD* ConfirmOptionsOneAddr = nullptr;
+DWORD* ConfirmOptionsTwoAddr = nullptr;
+BYTE* StartOfOptionSpeakerAddr = nullptr;
+BYTE* DecrementMasterVolumeAddr = nullptr;
+BYTE* IncrementMasterVolumeAddr = nullptr;
+BYTE* OptionsRightArrowHitboxAddr = nullptr;
+BYTE* CheckForChangedOptionsAddr = nullptr;
+DWORD* PlaySoundFunAddr = nullptr;
+BYTE* DiscardOptionBOAddr = nullptr;
+BYTE* DiscardOptionAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -2610,4 +2627,365 @@ BYTE* GetMariaNpcIsDyingPointer()
     MariaNpcIsDyingAddr = (BYTE*)((DWORD)MariaNpcIsDying);
 
     return MariaNpcIsDyingAddr;
+}
+
+DWORD* GetDrawOptionsFunPointer()
+{
+	if (DrawOptionsFunAddr)
+	{
+		return DrawOptionsFunAddr;
+	}
+
+	// Get Draw Options function Address
+	constexpr BYTE DrawOptionsFunSearchBytes[]{ 0xE8, 0xBB, 0x4D, 0x00, 0x00, 0x85, 0xC0, 0xB9, 0x2C, 0x00, 0x00, 0x00 };
+	DrawOptionsFunAddr = (DWORD*)SearchAndGetAddresses(0x00476AC0, 0x00476D60, 0x00476F70, DrawOptionsFunSearchBytes, sizeof(DrawOptionsFunSearchBytes), 0x4F, __FUNCTION__);
+
+	// Checking address pointer
+	if (!DrawOptionsFunAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Draw Options function memory address!";
+		return nullptr;
+	}
+
+	return DrawOptionsFunAddr;
+}
+
+BYTE* GetSpkOptionTextOnePointer()
+{
+	if (SpkOptionTextOneAddr)
+	{
+		return SpkOptionTextOneAddr;
+	}
+
+	// Get Spk Option Text one address
+	constexpr BYTE SearchBytes[]{ 0x83, 0xC4, 0x20, 0x84, 0xC0, 0x0F };
+	void* SpkOptionTextOne = (BYTE*)SearchAndGetAddresses(0x00461917, 0x00461B80, 0x00461B80, SearchBytes, sizeof(SearchBytes), -0x1A, __FUNCTION__);
+	if (!SpkOptionTextOne)
+	{
+		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	SpkOptionTextOneAddr = (BYTE*)((DWORD)SpkOptionTextOne);
+
+	return SpkOptionTextOneAddr;
+}
+
+BYTE* GetSpkOptionTextTwoPointer()
+{
+	if (SpkOptionTextTwoAddr)
+	{
+		return SpkOptionTextTwoAddr;
+	}
+
+	// Get Spk Option Text Two address
+	constexpr BYTE SearchBytes[]{ 0x83, 0xC4, 0x10, 0x68, 0x1F, 0x01 };
+	void* SpkOptionTextTwo = (BYTE*)SearchAndGetAddresses(0x00461B39, 0x00461DAB, 0x00461DAB, SearchBytes, sizeof(SearchBytes), 0x14, __FUNCTION__);
+	if (!SpkOptionTextTwo)
+	{
+		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	SpkOptionTextTwoAddr = (BYTE*)((DWORD)SpkOptionTextTwo);
+
+	return SpkOptionTextTwoAddr;
+}
+
+int8_t GetOptionsPage()
+{
+	int8_t* pOptionsPage = GetOptionsPagePointer();
+
+	return (pOptionsPage) ? *pOptionsPage : 0;
+}
+
+int8_t* GetOptionsPagePointer()
+{
+	if (OptionsPageAddr)
+	{
+		return OptionsPageAddr;
+	}
+
+	// Get OptionsPage address
+	constexpr BYTE OptionsPageSearchBytes[]{ 0x83, 0xC4, 0x04, 0x85, 0xC0, 0x75, 0x13, 0x56, 0x68, 0x02, 0x00, 0x00, 0x08 };
+	int8_t* OptionsPage = (int8_t*)ReadSearchedAddresses(0x004671e1, 0x00467481, 0x00467691, OptionsPageSearchBytes, sizeof(OptionsPageSearchBytes), -0x18, __FUNCTION__);
+
+	// Checking address pointer
+	if (!OptionsPage)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find OptionsPage address!";
+		return nullptr;
+	}
+
+	OptionsPageAddr = (int8_t*)((DWORD)OptionsPage);
+
+	return OptionsPageAddr;
+}
+
+int8_t GetOptionsSubPage()
+{
+	int8_t* pOptionsSubPage = GetOptionsPagePointer() + 0x01;
+
+	return (pOptionsSubPage) ? *pOptionsSubPage : 0;
+}
+
+int16_t GetSelectedOption()
+{
+	int8_t* pSelectedOption = GetOptionsPagePointer() + 0x02;
+
+	return (pSelectedOption) ? *pSelectedOption : 0;
+}
+
+int32_t GetInternalVerticalRes()
+{
+	int32_t* pInternalVertical = GetInternalVerticalResPointer();
+
+	return (pInternalVertical) ? *pInternalVertical : 0;
+}
+
+int32_t* GetInternalVerticalResPointer()
+{
+	if (InternalVerticalAddr)
+	{
+		return InternalVerticalAddr;
+	}
+
+	// Get InternalVertical address
+	constexpr BYTE InternalVerticalSearchBytes[]{ 0x89, 0x44, 0x24, 0x14, 0x89, 0x44, 0x24, 0x28, 0x89 };
+	int32_t* InternalVertical = (int32_t*)ReadSearchedAddresses(0x00406EF6, 0x00406EF6, 0x00406F06, InternalVerticalSearchBytes, sizeof(InternalVerticalSearchBytes), -0x0B, __FUNCTION__);
+
+	// Checking address pointer
+	if (!InternalVertical)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find InternalVertical address!";
+		return nullptr;
+	}
+
+	InternalVerticalAddr = (int32_t*)((DWORD)InternalVertical);
+
+	return InternalVerticalAddr;
+}
+
+int32_t GetInternalHorizontalRes()
+{
+	int32_t* pInternalHorizontal = GetInternalVerticalResPointer() - 0x01;
+
+	return (pInternalHorizontal) ? *pInternalHorizontal : 0;
+}
+
+DWORD* GetConfirmOptionsOnePointer()
+{
+	if (ConfirmOptionsOneAddr)
+	{
+		return ConfirmOptionsOneAddr;
+	}
+
+	// Get Draw Options function Address
+	constexpr BYTE ConfirmOptionsOneSearchBytes[]{ 0x8D, 0x48, 0xFD, 0x83 };
+	ConfirmOptionsOneAddr = (DWORD*)SearchAndGetAddresses(0x004638D9, 0x00463B49, 0x00463B67, ConfirmOptionsOneSearchBytes, sizeof(ConfirmOptionsOneSearchBytes), -0x3C, __FUNCTION__);
+
+	// Checking address pointer
+	if (!ConfirmOptionsOneAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	return ConfirmOptionsOneAddr;
+}
+
+DWORD* GetConfirmOptionsTwoPointer()
+{
+	if (ConfirmOptionsTwoAddr)
+	{
+		return ConfirmOptionsTwoAddr;
+	}
+
+	// Get Draw Options function Address
+	constexpr BYTE ConfirmOptionsTwoSearchBytes[]{ 0x6F, 0xFF, 0xFF, 0x83, 0xC4, 0x04, 0x85, 0xC0, 0x74 };
+	ConfirmOptionsTwoAddr = (DWORD*)SearchAndGetAddresses(0x00463410, 0x00463680, 0x0046368D, ConfirmOptionsTwoSearchBytes, sizeof(ConfirmOptionsTwoSearchBytes), -0x34, __FUNCTION__);
+
+	// Checking address pointer
+	if (!ConfirmOptionsTwoAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	return ConfirmOptionsTwoAddr;
+}
+
+BYTE* GetStartOfOptionSpeakerPointer()
+{
+	if (StartOfOptionSpeakerAddr)
+	{
+		return StartOfOptionSpeakerAddr;
+	}
+
+	// Get Draw Options function Address
+	constexpr BYTE StartOfOptionSpeakerSearchBytes[]{ 0x83, 0xC4, 0x08, 0x83, 0xF8, 0x07, 0x77 };
+	StartOfOptionSpeakerAddr = (BYTE*)SearchAndGetAddresses(0x00463D3A, 0x00463FB3, 0x00464193, StartOfOptionSpeakerSearchBytes, sizeof(StartOfOptionSpeakerSearchBytes), 0x00, __FUNCTION__);
+
+	// Checking address pointer
+	if (!StartOfOptionSpeakerAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	return StartOfOptionSpeakerAddr;
+}
+
+BYTE* GetRenderOptionsRightArrowFunPointer()
+{
+	BYTE* pConfirmOptionsTwo = GetStartOfOptionSpeakerPointer() + 0x9A;
+
+	return (pConfirmOptionsTwo) ? pConfirmOptionsTwo : 0;
+}
+
+BYTE* GetDecrementMasterVolumePointer()
+{
+	if (DecrementMasterVolumeAddr)
+	{
+		return DecrementMasterVolumeAddr;
+	}
+
+	// Get decrement master volume Address
+	constexpr BYTE DecrementMasterVolumeSearchBytes[]{ 0x68, 0x00, 0x00, 0x80, 0x3F, 0x68, 0x10, 0x27, 0x00, 0x00, 0xE9 };
+	DecrementMasterVolumeAddr = (BYTE*)SearchAndGetAddresses(0x00463EC7, 0x00464140, 0x0046432F, DecrementMasterVolumeSearchBytes, sizeof(DecrementMasterVolumeSearchBytes), -0x6D, __FUNCTION__);
+
+	// Checking address pointer
+	if (!DecrementMasterVolumeAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	return DecrementMasterVolumeAddr;
+}
+
+BYTE* GetIncrementMasterVolumePointer()
+{
+	if (IncrementMasterVolumeAddr)
+	{
+		return IncrementMasterVolumeAddr;
+	}
+
+	// Get increment master volume Address
+	constexpr BYTE IncrementMasterVolumeSearchBytes[]{ 0x68, 0x00, 0x00, 0x80, 0x3F, 0x68, 0x10, 0x27, 0x00, 0x00, 0xE9 };
+	IncrementMasterVolumeAddr = (BYTE*)SearchAndGetAddresses(0x00463EC7, 0x00464140, 0x0046432F, IncrementMasterVolumeSearchBytes, sizeof(IncrementMasterVolumeSearchBytes), -0x87, __FUNCTION__);
+
+	// Checking address pointer
+	if (!IncrementMasterVolumeAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	return IncrementMasterVolumeAddr;
+}
+
+BYTE* GetOptionsRightArrowHitboxPointer()
+{
+	if (OptionsRightArrowHitboxAddr)
+	{
+		return OptionsRightArrowHitboxAddr;
+	}
+
+	// Get options right arrow hitbox Address
+	constexpr BYTE OptionsRightArrowHitboxSearchBytes[]{ 0x94, 0x00, 0x05, 0x09, 0x01, 0x00, 0x00, 0x33 };
+	OptionsRightArrowHitboxAddr = (BYTE*)SearchAndGetAddresses(0x00462E64, 0x004630D4, 0x004630D4, OptionsRightArrowHitboxSearchBytes, sizeof(OptionsRightArrowHitboxSearchBytes), -0x03, __FUNCTION__);
+
+	// Checking address pointer
+	if (!OptionsRightArrowHitboxAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	return OptionsRightArrowHitboxAddr;
+}
+
+BYTE* GetCheckForChangedOptionsPointer()
+{
+	if (CheckForChangedOptionsAddr)
+	{
+		return CheckForChangedOptionsAddr;
+	}
+
+	// Get check for changed options Address
+	constexpr BYTE CheckForChangedOptionsSearchBytes[]{ 0xFE, 0xFF, 0x83, 0xC4, 0x0C, 0x85, 0xC0, 0x74, 0x1F, 0xA0, 0x1D };
+	CheckForChangedOptionsAddr = (BYTE*)SearchAndGetAddresses(0x004631C6, 0x00463436, 0x00463441, CheckForChangedOptionsSearchBytes, sizeof(CheckForChangedOptionsSearchBytes), 0x4B, __FUNCTION__);
+
+	// Checking address pointer
+	if (!CheckForChangedOptionsAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	return CheckForChangedOptionsAddr;
+}
+
+DWORD* GetPlaySoundFunPointer()
+{
+	if (PlaySoundFunAddr)
+	{
+		return PlaySoundFunAddr;
+	}
+
+	// Get Play sound function Address
+	constexpr BYTE PlaySoundFunSearchBytes[]{ 0x0B, 0x00, 0x83, 0xC4, 0x0C, 0x80, 0x3D };
+	PlaySoundFunAddr = (DWORD*)SearchAndGetAddresses(0x00464089, 0x00464302, 0x4644FD, PlaySoundFunSearchBytes, sizeof(PlaySoundFunSearchBytes), -0x03, __FUNCTION__);
+
+	// Checking address pointer
+	if (!PlaySoundFunAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	return PlaySoundFunAddr;
+}
+
+BYTE* GetDiscardOptionBOPointer()
+{
+	if (DiscardOptionBOAddr)
+	{
+		return DiscardOptionBOAddr;
+	}
+
+	// Get decrement master volume Address
+	constexpr BYTE DiscardOptionBOSearchBytes[]{ 0x6E, 0xFF, 0xFF, 0x3D, 0xFA, 0x00, 0x00, 0x00, 0x0F, 0x8D };
+	DiscardOptionBOAddr = (BYTE*)SearchAndGetAddresses(0x00463523, 0x00463793, 0x4637A8, DiscardOptionBOSearchBytes, sizeof(DiscardOptionBOSearchBytes), 0x4C, __FUNCTION__);
+
+	// Checking address pointer
+	if (!DiscardOptionBOAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	return DiscardOptionBOAddr;
+}
+
+BYTE* GetDiscardOptionPointer()
+{
+	if (DiscardOptionAddr)
+	{
+		return DiscardOptionAddr;
+	}
+
+	// Get decrement master volume Address
+	constexpr BYTE DiscardOptionSearchBytes[]{ 0xFE, 0xFF, 0x83, 0xC4, 0x04, 0x85, 0xC0, 0x75, 0x27 };
+	DiscardOptionAddr = (BYTE*)SearchAndGetAddresses(0x004636C8, 0x00463938, 0x00463952, DiscardOptionSearchBytes, sizeof(DiscardOptionSearchBytes), 0x76, __FUNCTION__);
+
+	// Checking address pointer
+	if (!DiscardOptionAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	return DiscardOptionAddr;
 }

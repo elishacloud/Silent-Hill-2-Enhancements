@@ -5,7 +5,7 @@
 \hOpzioni
 \hAbbandona
 \hTorna al menu principale?
-\hSì
+\hSï¿½
 \hNo
 \c\hSi prega di inserire il disco Silent Hill 2
 \c\hIn pausa
@@ -17,7 +17,7 @@
 \c\hAttendere prego
 \c\hControllo del disco
 \c\hTorna al menu principale?
-\c\hSì
+\c\hSï¿½
 \c\hNo
 Tasto %d
 \hPARTITA SALVATA
@@ -25,3 +25,5 @@ Tasto %d
 \hNESSUN SALVATAGGIO VELOCE
 \hImposta la risoluzione nel file d3d8.ini
 \hConfigura attraverso Windows
+\hVolume Principale
+\hImposta volume principale

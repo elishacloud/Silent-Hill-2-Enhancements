@@ -726,11 +726,11 @@
       </Feature>
 
       <Feature name="FixFinalBossRoom">
-        <Title>Fix culling error in final boss room</Title>
-        <Description>Fixes a graphics error in the final boss room, that would show in certain angles while looking at the floor.</Description>
+        <Title>Corrigir falhas de cenário do chefe final</Title>
+        <Description>Corrige falhas gráficas no cenário do chefe final, que aparecia em certos ângulos ao olhar para o chão.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
 

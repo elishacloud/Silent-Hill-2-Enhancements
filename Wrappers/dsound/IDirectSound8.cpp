@@ -65,7 +65,7 @@ HRESULT m_IDirectSound8::CreateSoundBuffer(LPCDSBUFFERDESC pcDSBufferDesc, LPDIR
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
 
-	if (AudioClipDetection && pcDSBufferDesc)
+	if ((EnableMasterVolume || AudioClipDetection) && pcDSBufferDesc)
 	{
 		DSBUFFERDESC *DSBufferDesc = (DSBUFFERDESC*)pcDSBufferDesc;
 		DSBufferDesc->dwFlags |= DSBCAPS_CTRLVOLUME;
@@ -126,6 +126,11 @@ HRESULT m_IDirectSound8::DuplicateSoundBuffer(LPDIRECTSOUNDBUFFER pDSBufferOrigi
 HRESULT m_IDirectSound8::SetCooperativeLevel(HWND hwnd, DWORD dwLevel)
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
+
+	if (dwLevel == DSSCL_EXCLUSIVE)
+	{
+		dwLevel = DSSCL_PRIORITY;
+	}
 
 	return ProxyInterface->SetCooperativeLevel(hwnd, dwLevel);
 }

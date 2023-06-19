@@ -202,7 +202,14 @@ HRESULT m_IDirectSoundBuffer8::Play(DWORD dwReserved1, DWORD dwPriority, DWORD d
 		IsStopSet = false;
 	}
 
-	CheckMasterVolume();
+	if (EnableMasterVolume)
+	{
+		if (!IsMasterVolumeSet)
+		{
+			GetVolume(&RequestedVolume);
+		}
+		SetVolume(RequestedVolume);
+	}
 
 	return ProxyInterface->Play(dwReserved1, dwPriority, dwFlags);
 }
@@ -265,13 +272,17 @@ HRESULT m_IDirectSoundBuffer8::SetVolume(LONG lVolume)
 
 	if (SUCCEEDED(hr))
 	{
-		if (EnableMasterVolume)
-		{
-			IsMasterVolumeSet = true;
-			LastVolumeSet = ConfigData.VolumeLevel;
-		}
 		RequestedVolume = NewVolume;
 		CurrentVolume = lVolume;
+		if (EnableMasterVolume)
+		{
+			LastVolumeSet = ConfigData.VolumeLevel;
+			if (!IsMasterVolumeSet)
+			{
+				IsMasterVolumeSet = true;
+				SetNewVolume();
+			}
+		}
 	}
 
 	return hr;
@@ -350,6 +361,11 @@ HRESULT m_IDirectSoundBuffer8::Restore()
 
 	SetStopped();
 
+	if (EnableMasterVolume)
+	{
+		SetVolume(RequestedVolume);
+	}
+
 	return ProxyInterface->Restore();
 }
 
@@ -418,12 +434,10 @@ void m_IDirectSoundBuffer8::SetStopped()
 		// Get current time
 		FILETIME SystemTimeAsFileTime;
 		GetSystemTimeAsFileTime(&SystemTimeAsFileTime);
-		ULARGE_INTEGER CurrentTime;
-		CurrentTime.HighPart = SystemTimeAsFileTime.dwHighDateTime;
-		CurrentTime.LowPart = SystemTimeAsFileTime.dwLowDateTime;
+		ULARGE_INTEGER CurrentTime = { SystemTimeAsFileTime.dwLowDateTime, SystemTimeAsFileTime.dwHighDateTime };
 
 		// Check if time delay is up
-		if (CurrentTime.QuadPart > LastStopTime.QuadPart + (10000 * ((AudioFadeOutDelayMS) ? AudioFadeOutDelayMS : 5)))
+		if (CurrentTime.QuadPart > LastStopTime.QuadPart + (10000ULL * ((AudioFadeOutDelayMS) ? AudioFadeOutDelayMS : 5)))
 		{
 			// Stop audio
 			ProxyInterface->Stop();

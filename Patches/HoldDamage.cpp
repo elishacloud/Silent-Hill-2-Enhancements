@@ -20,8 +20,12 @@
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
-DWORD DeltaTimeFuncAddr = 0;
-float DamageScale = 30.0f;
+namespace
+{
+    // Variables for ASM
+    DWORD* DeltaTimeFuncAddr = 0;
+    float DamageScale = 30.0f;
+}
 
 // ASM which scales enemy damage by delta time while the player is in a hold attack.
 __declspec(naked) void __stdcall ScaleHoldDamageASM()
@@ -39,20 +43,6 @@ __declspec(naked) void __stdcall ScaleHoldDamageASM()
     }
 }
 
-DWORD GetDeltaTimeFuncAddress()
-{
-    constexpr BYTE SearchBytes[]{ 0x83, 0xEC, 0x48, 0x53, 0x56, 0x33, 0xDB, 0x3B, 0xC3, 0x57 };
-    DWORD Addr = SearchAndGetAddresses(0x00479080, 0x00479320, 0x00479530, SearchBytes, sizeof(SearchBytes), 0x23, __FUNCTION__);
-    if (!Addr)
-    {
-        Logging::Log() << __FUNCTION__ << "Error: failed to find memory address!";
-        return 0;
-    }
-    DWORD RelativeFuncAddr = 0;
-    memcpy(&RelativeFuncAddr, (void*)(Addr - 0x4), sizeof(DWORD));
-    return Addr + RelativeFuncAddr;
-}
-
 // Patch how much damage an enemy hold attack will inflict every frame by scaling damage with the current frame rate.
 // Affects hold damage rate for Flesh Lips, Abstract Daddy, and the final boss (tentacle choke and moth attack).
 void PatchHoldDamage()
@@ -65,7 +55,7 @@ void PatchHoldDamage()
         return;
     }
 
-    DeltaTimeFuncAddr = GetDeltaTimeFuncAddress();
+    DeltaTimeFuncAddr = GetDeltaTimeFunctionPointer();
     if (!DeltaTimeFuncAddr)
     {
         return;

@@ -193,6 +193,7 @@ BYTE* GetCheckForChangedOptionsPointer();
 DWORD* GetPlaySoundFunPointer();
 BYTE* GetDiscardOptionBOPointer();
 BYTE* GetDiscardOptionPointer();
+DWORD* GetDeltaTimeFunctionPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -239,6 +240,7 @@ void PatchFullscreenImages();
 void PatchFullscreenVideos();
 void PatchGameLoad();
 void PatchHoldDamage();
+void PatchHoldToStomp(float holdTimerMax);
 void PatchInputTweaks();
 void PatchInventoryBGMBug();
 void PatchLockScreenPosition();
@@ -393,6 +395,7 @@ extern BYTE* TalkShowHostStateAddr;
 extern BYTE* InputAssignmentFlagAddr;
 extern float* PuzzleCursorHorizontalPosAddr;
 extern float* PuzzleCursorVerticalPosAddr;
+extern DWORD* GetDeltaTimeFunctionAddr;
 
 extern bool ShowDebugOverlay;
 extern bool ShowInfoOverlay;

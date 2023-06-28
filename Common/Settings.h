@@ -28,6 +28,7 @@
 	visit(DynamicResolution, true) \
 	visit(EnableDebugOverlay, true) \
 	visit(EnableEnhancedMouse, true) \
+    visit(EnableHoldToStomp, false) \
 	visit(EnableInfoOverlay, true) \
 	visit(EnableMasterVolume, true) \
 	visit(EnableMenuTest, false) \
@@ -161,7 +162,8 @@
 	visit(fog_layer1_y2, 0.125f) \
 	visit(fog_layer2_complexity, 0.055f) \
 	visit(fog_layer2_density_add, 100.0f) \
-	visit(fog_layer2_density_mult, 1.4f)
+	visit(fog_layer2_density_mult, 1.4f) \
+    visit(HoldToStompTimerMax, 0.2f)
 
 #define VISIT_STR_SETTINGS(visit) \
 	visit(CustomModFolder, "") \
@@ -193,6 +195,7 @@
     visit(DelayedFadeIn) \
 	visit(DisableLogging) \
 	visit(EnableDebugOverlay) \
+    visit(EnableHoldToStomp) \
 	visit(EnableInfoOverlay) \
 	visit(EnableMenuTest) \
 	visit(EnableMenuTestIGT) \
@@ -211,6 +214,7 @@
 	visit(fog_transparency_layer2) \
 	visit(Fog2DFix) \
 	visit(FullscreenWndMode) \
+    visit(HoldToStompTimerMax) \
 	visit(HookDirect3D) \
 	visit(HookDirectInput) \
 	visit(HookDirectSound) \

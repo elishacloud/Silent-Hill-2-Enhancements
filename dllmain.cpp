@@ -434,8 +434,14 @@ void DelayedStart()
 		PatchSpecialFX();
 	}
 
-	// Enable Alternate Stomp
-	if (RestoreAlternateStomp)
+	
+    // Enable holding attack to stomp an enemy
+    if (EnableHoldToStomp)
+    {
+        PatchHoldToStomp(HoldToStompTimerMax);
+    }
+    // Enable Alternate Stomp
+    else if (RestoreAlternateStomp)
 	{
 		PatchAlternateStomp();
 	}

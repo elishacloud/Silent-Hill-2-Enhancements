@@ -470,6 +470,12 @@ void DelayedStart()
 		PatchQuickSaveTweaks();
 	}
 
+	// Fixes missing sounds in menus
+	if (MenuSoundsFix)
+	{
+		PatchMenuSounds();
+	}
+
 	// Game Save Sound Fix
 	if (SaveGameSoundFix)
 	{

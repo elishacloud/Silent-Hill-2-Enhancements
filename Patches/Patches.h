@@ -247,6 +247,7 @@ void PatchMainMenuTitlePerLang();
 void PatchMapTranscription();
 void PatchMasterVolumeSlider();
 void PatchMemoBrightnes();
+void PatchMenuSounds();
 void PatchPauseScreen();
 void PatchPistonRoom();
 void PatchPreventChainsawSpawn();
@@ -287,6 +288,7 @@ bool IsInMainOptionsMenu();
 bool IsInOptionsMenu();
 
 void HandleFinalBossRoomFix();
+void HandleMenuSounds();
 void SetNewVolume();
 
 void OnFileLoadTex(LPCSTR lpFileName);

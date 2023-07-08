@@ -20,6 +20,8 @@
 #include "Patches\Patches.h"
 #include "Logging\Logging.h"
 #include "Common\Utils.h"
+#include "Common\Settings.h"
+#include <stdio.h>
 
 injector::hook_back<int32_t(__cdecl*)(char*)> orgLoadMovie;
 
@@ -62,8 +64,41 @@ int32_t __cdecl LoadMovie_Hook(char* FileName)
 	return orgLoadMovie.fun(FileName);
 }
 
+bool hasSecondAudioTrack()
+{
+    char* FilePath = UseCustomModFolder ? "sh2e\\movie\\murder.bik" : "data\\movie\\murder.bik";
+
+    FILE* pFile = fopen(FilePath, "rb");
+
+    char buffer[0x30];
+
+    if (pFile == NULL)
+    {
+        Logging::Log() << __FUNCTION__ << " Error: Couldn't open file " << FilePath;
+        return false;
+    }
+
+    if (fgets(buffer, sizeof(buffer), pFile) != NULL)
+    {
+        if (buffer[0x28] > 0x01)
+        {
+            Logging::LogDebug() << __FUNCTION__ << " Found multiple audio tracks for VHS video file.";
+            return true;
+        }
+    }
+
+    Logging::Log() << __FUNCTION__ << " Error: VHS video file does not contain 2 audio tracks.";
+    return false;
+}
+
 void PatchVHSAudio()
 {
+
+    if (!hasSecondAudioTrack())
+    {
+        Logging::Log() << __FUNCTION__ << " Error: Couldn't enable audio track 2 for VHS.";
+        return;
+    }
 
     BYTE* SetAudioTrackAddr = (BYTE*)0x0043d704; //TODO address
     SetAudioTrackReturn = SetAudioTrackAddr + 0x05;

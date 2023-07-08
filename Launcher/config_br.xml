@@ -413,6 +413,23 @@
 
     </Section>
 
+    <Section name="Bonus Audio">
+
+      <Feature name="VHSAudioFix">
+        <Title>Restore uncensored VHS audio</Title>
+        <Description>
+          Restores the uncensored audio for the VHS tape FMV.
+
+          Note: You must have the correct version of this FMV that contains both the censored and uncensored audio tracks. If you do not, then only the original censored audio will play. You can obtain the correct version of this FMV by downloading the project's FMV Enhancement Pack.
+        </Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
   </Tab>
 
   <Tab name="Entradas">

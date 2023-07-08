@@ -55,6 +55,7 @@ __declspec(naked) void __stdcall SetAudioTrack()
     }
 }
 
+// Hooking the LoadMovieFile function to check for the murder.bik file
 int32_t __cdecl LoadMovie_Hook(char* FileName)
 {
 	Logging::LogDebug() << __FUNCTION__ << " File name: " << FileName;
@@ -66,28 +67,37 @@ int32_t __cdecl LoadMovie_Hook(char* FileName)
 
 bool hasSecondAudioTrack()
 {
-    char* FilePath = UseCustomModFolder ? "sh2e\\movie\\murder.bik" : "data\\movie\\murder.bik";
+    // filepath taking into consideration the custom folder
+    char* FilePath[3] = { "lang\\movie\\murder.bik", "sh2e\\movie\\murder.bik", "data\\movie\\murder.bik" };
 
-    FILE* pFile = fopen(FilePath, "rb");
-
+    FILE* pFile = nullptr;
     char buffer[0x30];
 
-    if (pFile == NULL)
+    for (int i = 0; i < 3; i++)
     {
-        Logging::Log() << __FUNCTION__ << " Error: Couldn't open file " << FilePath;
-        return false;
-    }
+        pFile = fopen(FilePath[i], "rb");
 
-    if (fgets(buffer, sizeof(buffer), pFile) != NULL)
-    {
-        if (buffer[0x28] > 0x01)
+        if (pFile == NULL)
+            continue;
+
+        if (fgets(buffer, sizeof(buffer), pFile) != NULL)
         {
-            Logging::LogDebug() << __FUNCTION__ << " Found multiple audio tracks for VHS video file.";
-            return true;
+            fclose(pFile);
+
+            if (buffer[0x28] > 0x01)
+            {
+                
+                Logging::LogDebug() << __FUNCTION__ << " Found multiple audio tracks for VHS video file: " << FilePath[i];
+                return true;
+            }
+            else
+            {
+                Logging::Log() << __FUNCTION__ << " Error: Single audio track present in file: " << FilePath[i];
+                return false;
+            }
         }
     }
 
-    Logging::Log() << __FUNCTION__ << " Error: VHS video file does not contain 2 audio tracks.";
     return false;
 }
 

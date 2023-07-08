@@ -93,18 +93,27 @@ bool hasSecondAudioTrack()
 
 void PatchVHSAudio()
 {
-
     if (!hasSecondAudioTrack())
     {
         Logging::Log() << __FUNCTION__ << " Error: Couldn't enable audio track 2 for VHS.";
         return;
     }
 
-    BYTE* SetAudioTrackAddr = (BYTE*)0x0043d704; //TODO address
+    constexpr BYTE SetAudioTrackSearchBytes[]{ 0x8A, 0x08, 0x40, 0x84, 0xC9, 0x75, 0xF9, 0x2B, 0xC2, 0x8D, 0x44 };
+    BYTE* SetAudioTrackAddr = (BYTE*)SearchAndGetAddresses(0x0043d6E1, 0x0043d8A1, 0x0043D8A1, SetAudioTrackSearchBytes, sizeof(SetAudioTrackSearchBytes), 0x23, __FUNCTION__);
+
+    if (!SetAudioTrackAddr)
+    {
+        Logging::Log() << __FUNCTION__ << " Error: failed to find SetAudioTrack address!";
+        return;
+    }
+
     SetAudioTrackReturn = SetAudioTrackAddr + 0x05;
-    SetAudioTrackMurderReturn = (BYTE*)0x0043D802;
-    
+    SetAudioTrackMurderReturn = SetAudioTrackAddr + 0xFE;
+
+    uint32_t* LoadMovieAddr = (uint32_t*)(SetAudioTrackAddr - 0x05);
+
     WriteJMPtoMemory(SetAudioTrackAddr, SetAudioTrack, 0x05);
 
-	orgLoadMovie.fun = injector::MakeCALL((uint32_t*)0x0043d6ff, LoadMovie_Hook, true).get(); //TODO address
+	orgLoadMovie.fun = injector::MakeCALL(LoadMovieAddr, LoadMovie_Hook, true).get();
 }

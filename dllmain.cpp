@@ -476,6 +476,12 @@ void DelayedStart()
 		PatchMenuSounds();
 	}
 
+	// Restores high quality audio for the VHS fmv
+	if (VHSAudioFix)
+	{
+		PatchVHSAudio();
+	}
+
 	// Game Save Sound Fix
 	if (SaveGameSoundFix)
 	{

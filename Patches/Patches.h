@@ -272,6 +272,7 @@ void PatchSpecificSoundLoopFix();
 void PatchTexAddr();
 void PatchTownWestGateEvent();
 void PatchTreeLighting();
+void PatchVHSAudio();
 void PatchWindowIcon();
 void PatchWindowTitle();
 void PatchXInputVibration();

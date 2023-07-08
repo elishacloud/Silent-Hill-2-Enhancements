@@ -117,6 +117,7 @@
 	visit(UseCustomFonts, true) \
 	visit(UseCustomModFolder, true) \
 	visit(UsePS2LowResTextures, false) \
+	visit(VHSAudioFix, true) \
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, true) \

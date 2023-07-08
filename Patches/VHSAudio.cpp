@@ -98,6 +98,8 @@ bool hasSecondAudioTrack()
         }
     }
 
+    Logging::Log() << __FUNCTION__ << " Error: couldn't find VHS video file.";
+
     return false;
 }
 

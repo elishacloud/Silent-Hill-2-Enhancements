@@ -19,6 +19,8 @@
 #include "External\Hooking.Patterns\Hooking.Patterns.h"
 #include "Patches\Patches.h"
 #include "Common\Settings.h"
+#include "Common\Utils.h"
+#include "Logging\Logging.h"
 
 injector::hook_back<int32_t(__cdecl*)(int32_t, float, DWORD)> orgPlaySoundFun;
 
@@ -26,6 +28,19 @@ int16_t LastOptionsSelectedItem;
 int8_t LastOptionsPage;
 int8_t LastOptionsSubPage;
 
+int32_t PlaySaveSound_Hook(int32_t SoundId, float volume, DWORD param3)
+{
+	//TODO  orgPlaySoundFun.fun(S_SAVE_GAME, volume, param3);
+	Logging::Log() << __FUNCTION__;
+	return 0x10;
+}
+
+int32_t PlayLoadSound_Hook(int32_t SoundId, float volume, DWORD param3)
+{
+	//TODO  orgPlaySoundFun.fun(S_SAVE_GAME, volume, param3);
+	Logging::Log() << __FUNCTION__;
+	return 0x10;
+}
 
 void HandleMenuSounds()
 {
@@ -43,9 +58,9 @@ void HandleMenuSounds()
 		SelectedOption != LastOptionsSelectedItem &&
 		OptionsPage == LastOptionsPage &&
 		OptionsSubPage == LastOptionsSubPage &&
-		GetTransitionState() == 0)
-	{
-		
+		GetTransitionState() == 0x00)
+	{	
+		// Play change selection sound
 		orgPlaySoundFun.fun(0x2710, 1.0, 0);
 	}
 
@@ -60,5 +75,19 @@ void PatchMenuSounds()
 	LastOptionsPage = GetOptionsPage();
 	LastOptionsSubPage = GetOptionsSubPage();
 
-	orgPlaySoundFun.fun = (int32_t(__cdecl*)(int32_t, float, DWORD))0x00515580; //TODO
+	// Play Sound address, same for all binaries
+	uint32_t* PlaySoundAddress = (uint32_t*)0x0040282E;
+
+	uint32_t* LoadGameSoundPauseMenu = (uint32_t*)0x00454A64; //TODO addresses
+	uint32_t* LoadGameSoundNewGame = (uint32_t*)0x0049870c;
+	uint32_t* LoadGameSoundContinue = (uint32_t*)0x00497f84;
+	uint32_t* SaveGameSoundRedSquares = (uint32_t*)0x004476DB;
+
+	// Hook load/save game sounds
+	injector::MakeCALL(LoadGameSoundPauseMenu, PlayLoadSound_Hook, true);
+	injector::MakeCALL(LoadGameSoundNewGame, PlayLoadSound_Hook, true);
+	injector::MakeCALL(LoadGameSoundContinue, PlayLoadSound_Hook, true);
+	injector::MakeCALL(SaveGameSoundRedSquares, PlaySaveSound_Hook, true);
+
+	orgPlaySoundFun.fun = (int32_t(__cdecl*)(int32_t, float, DWORD))PlaySoundAddress;
 }

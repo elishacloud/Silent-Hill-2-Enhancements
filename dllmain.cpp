@@ -615,6 +615,12 @@ void DelayedStart()
 		PatchMasterVolumeSlider();
 	}
 
+    // Patch swap light and heavy melee attacks
+    if (SwapLightHeavyAttack)
+    {
+        PatchSwapLightHeavyAttack(HeavyAttackHoldTimerMax, LightAttackBufferTimerMax);
+    }
+
 	// Remove the "Now loading..." message
 	switch (GameVersion)
 	{

@@ -43,7 +43,7 @@ __declspec(naked) void __stdcall AlternateStompASM()
 		je near ExitCode // jumps to ExitCode if TimerInt32 is not Even (50/50)
 
 	// Enable Heavy Stomp
-		mov cl, 0x03
+		mov cl, 0x06
 
 	ExitCode:
 		mov byte ptr ds : [eax + 0x00000493], cl

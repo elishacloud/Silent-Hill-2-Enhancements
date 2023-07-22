@@ -111,6 +111,7 @@
 	visit(SpecificSoundLoopFix, true) \
 	visit(SpecularFix, true) \
 	visit(SteamCrashFix, true) \
+    visit(SwapLightHeavyAttack, false) \
 	visit(UnlockJapLang, true) \
 	visit(UseBestGraphics, true) \
 	visit(UseCustomExeStr, true) \
@@ -163,7 +164,9 @@
 	visit(fog_layer2_complexity, 0.055f) \
 	visit(fog_layer2_density_add, 100.0f) \
 	visit(fog_layer2_density_mult, 1.4f) \
-    visit(HoldToStompTimerMax, 0.2f)
+    visit(HoldToStompTimerMax, 0.2f) \
+    visit(HeavyAttackHoldTimerMax, 0.2f) \
+    visit(LightAttackBufferTimerMax, 0.3f)
 
 #define VISIT_STR_SETTINGS(visit) \
 	visit(CustomModFolder, "") \
@@ -214,12 +217,14 @@
 	visit(fog_transparency_layer2) \
 	visit(Fog2DFix) \
 	visit(FullscreenWndMode) \
+    visit(HeavyAttackHoldTimerMax) \
     visit(HoldToStompTimerMax) \
 	visit(HookDirect3D) \
 	visit(HookDirectInput) \
 	visit(HookDirectSound) \
 	visit(HookWndProc) \
 	visit(LetterSpacing) \
+    visit(LightAttackBufferTimerMax) \
 	visit(LoadModulesFromMemory) \
 	visit(LockResolution) \
 	visit(NormalFontHeight) \
@@ -228,6 +233,7 @@
 	visit(ResY) \
 	visit(SmallFontHeight) \
 	visit(SmallFontWidth) \
+    visit(SwapLightHeavyAttack) \
 	visit(SpaceSize) \
 	visit(WrapperType)
 

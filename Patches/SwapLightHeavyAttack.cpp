@@ -29,12 +29,14 @@ namespace
     constexpr BYTE kWeaponGreatKnife = 0x08;
     constexpr BYTE kWeaponChineseCleaver = 0x0A;
 
+    // Maximum duration to buffer a light attack after quickly tapping the attack button.
+    constexpr float kLightAttackBufferTimerMax = 0.3f;
+    // Maximum duration the attack button can be held before triggering a heavy attack.
+    constexpr float kHeavyAttackHoldTimerMax = 0.2f;
+
     // Variables for ASM
     float HeavyAttackHoldTimer = 0.0f;
-    float HeavyAttackHoldTimerMax = 0.0f;
     float LightAttackBufferTimer = 0.0f;
-    float LightAttackBufferTimerMin = 0.0f;
-    float LightAttackBufferTimerMax = 0.0f;
     BYTE QueueAttackIndex = 0;
 
     DWORD* PlayerRootAddr = 0;
@@ -105,7 +107,7 @@ BYTE GetAttackIndex(bool heavy)
 void HandleHeavyAttack(float deltaTime)
 {
     HeavyAttackHoldTimer += deltaTime;
-    if (HeavyAttackHoldTimer < HeavyAttackHoldTimerMax)
+    if (HeavyAttackHoldTimer < kHeavyAttackHoldTimerMax)
         return;
 
     const BYTE attackIndex = GetAttackIndex(/*heavy=*/true);
@@ -121,7 +123,7 @@ void HandleLightAttack()
     if (*CurrentAttackIndexAddr == 0x04)
         return;
 
-    LightAttackBufferTimer = LightAttackBufferTimerMax;
+    LightAttackBufferTimer = kLightAttackBufferTimerMax;
     const BYTE attackIndex = GetAttackIndex(/*heavy=*/false);
     if (attackIndex != 0)
         QueueAttackIndex = attackIndex;
@@ -265,11 +267,8 @@ __declspec(naked) void __stdcall AutoReadyWeaponASM()
     }
 }
 
-void PatchSwapLightHeavyAttack(float holdTimerMax, float bufferTimerMax)
+void PatchSwapLightHeavyAttack()
 {
-    HeavyAttackHoldTimerMax = holdTimerMax;
-    LightAttackBufferTimerMax = bufferTimerMax;
-
     // Get address to inject logic to queue melee attacks based on player input.
     constexpr BYTE SearchBytesHandleInput[]{ 0x8B, 0xC6, 0xC1, 0xE8, 0x12, 0x24, 0x03 };
     DWORD HandleAttackInputAddr = SearchAndGetAddresses(0x0052EB83, 0x0052EEB3, 0x0052E7D3, SearchBytesHandleInput, sizeof(SearchBytesHandleInput), -0x06, __FUNCTION__);

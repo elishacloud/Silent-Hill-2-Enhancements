@@ -270,7 +270,7 @@ void PatchSFXAddr();
 void PatchSixtyFPS();
 void PatchSpeakerConfigText();
 void PatchSpecificSoundLoopFix();
-void PatchSwapLightHeavyAttack(float holdTimerMax, float bufferTimerMax);
+void PatchSwapLightHeavyAttack();
 void PatchTexAddr();
 void PatchTownWestGateEvent();
 void PatchTreeLighting();

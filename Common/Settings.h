@@ -164,9 +164,7 @@
 	visit(fog_layer2_complexity, 0.055f) \
 	visit(fog_layer2_density_add, 100.0f) \
 	visit(fog_layer2_density_mult, 1.4f) \
-    visit(HoldToStompTimerMax, 0.2f) \
-    visit(HeavyAttackHoldTimerMax, 0.2f) \
-    visit(LightAttackBufferTimerMax, 0.3f)
+    visit(HoldToStompTimerMax, 0.2f)
 
 #define VISIT_STR_SETTINGS(visit) \
 	visit(CustomModFolder, "") \
@@ -217,14 +215,12 @@
 	visit(fog_transparency_layer2) \
 	visit(Fog2DFix) \
 	visit(FullscreenWndMode) \
-    visit(HeavyAttackHoldTimerMax) \
     visit(HoldToStompTimerMax) \
 	visit(HookDirect3D) \
 	visit(HookDirectInput) \
 	visit(HookDirectSound) \
 	visit(HookWndProc) \
 	visit(LetterSpacing) \
-    visit(LightAttackBufferTimerMax) \
 	visit(LoadModulesFromMemory) \
 	visit(LockResolution) \
 	visit(NormalFontHeight) \

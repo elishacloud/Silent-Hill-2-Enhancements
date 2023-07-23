@@ -618,7 +618,7 @@ void DelayedStart()
     // Patch swap light and heavy melee attacks
     if (SwapLightHeavyAttack)
     {
-        PatchSwapLightHeavyAttack(HeavyAttackHoldTimerMax, LightAttackBufferTimerMax);
+        PatchSwapLightHeavyAttack();
     }
 
 	// Remove the "Now loading..." message

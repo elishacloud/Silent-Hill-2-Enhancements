@@ -28,7 +28,7 @@
 	visit(DynamicResolution, true) \
 	visit(EnableDebugOverlay, true) \
 	visit(EnableEnhancedMouse, true) \
-    visit(EnableHoldToStomp, false) \
+    visit(EnableHoldToStomp, true) \
 	visit(EnableInfoOverlay, true) \
 	visit(EnableMasterVolume, true) \
 	visit(EnableMenuTest, false) \
@@ -110,7 +110,7 @@
 	visit(SpecificSoundLoopFix, true) \
 	visit(SpecularFix, true) \
 	visit(SteamCrashFix, true) \
-    visit(SwapLightHeavyAttack, false) \
+    visit(SwapLightHeavyAttack, true) \
 	visit(UnlockJapLang, true) \
 	visit(UseBestGraphics, true) \
 	visit(UseCustomExeStr, true) \
@@ -194,7 +194,6 @@
     visit(DelayedFadeIn) \
 	visit(DisableLogging) \
 	visit(EnableDebugOverlay) \
-    visit(EnableHoldToStomp) \
 	visit(EnableInfoOverlay) \
 	visit(EnableMenuTest) \
 	visit(EnableMenuTestIGT) \
@@ -226,7 +225,6 @@
 	visit(ResY) \
 	visit(SmallFontHeight) \
 	visit(SmallFontWidth) \
-    visit(SwapLightHeavyAttack) \
 	visit(SpaceSize) \
 	visit(WrapperType)
 

@@ -806,15 +806,6 @@
         </Choices>
       </Feature>
 
-      <Feature name="RestoreAlternateStomp">
-        <Title>Ripristina la calpestata alternativa</Title>
-        <Description>Ripristina l'animazione alternativa/secondaria di calpestata. Quando si effettua una calpestata, c'è ora una chance del 50/50 di ricevere l'una o l'altra animazione.</Description>
-        <Choices type="check">
-          <Value name="Disabilitato">0</Value>
-          <Value name="Abilitato" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="HalogenLightFix">
         <Title>Ripristina l'illuminazione di vertex shader</Title>
         <Description>Ripristina l'illuminazione per alcuni modelli dell'ambiente.</Description>

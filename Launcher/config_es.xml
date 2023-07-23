@@ -815,15 +815,6 @@
         </Choices>
       </Feature>
 
-      <Feature name="RestoreAlternateStomp">
-        <Title>Restaurar el pisotón alternativo</Title>
-        <Description>Restaura la animación secundaria/alternativa del pisotón. Al activarla, cada vez que se haga un pisotón habrá un 50 % de posibilidades de que se muestre una de las dos.</Description>
-        <Choices type="check">
-          <Value name="No">0</Value>
-          <Value name="Sí" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="HalogenLightFix">
         <Title>Restaurar el shader de vértices no iluminados</Title>
         <Description>Restaura la luminancia de ciertos elementos del entorno.</Description>

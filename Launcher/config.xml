@@ -806,15 +806,6 @@
         </Choices>
       </Feature>
 
-      <Feature name="RestoreAlternateStomp">
-        <Title>Restore alternate stomp</Title>
-        <Description>Restores the secondary/alternate stomp animation. When performing a stomp, there is now a 50/50 chance of receiving either stomp animation.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="HalogenLightFix">
         <Title>Restore unlit vertex shader</Title>
         <Description>Restores luminance for certain environment assets.</Description>

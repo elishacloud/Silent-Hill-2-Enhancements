@@ -97,7 +97,6 @@
 	visit(ReduceCutsceneFOV, true) \
 	visit(RemoveEffectsFlicker, true) \
 	visit(RemoveEnvironmentFlicker, true) \
-	visit(RestoreAlternateStomp, true) \
 	visit(RestoreBrightnessSelector, true) \
 	visit(RestoreSpecialFX, true) \
 	visit(RestoreVibration, true) \

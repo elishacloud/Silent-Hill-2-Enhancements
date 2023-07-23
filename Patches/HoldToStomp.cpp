@@ -22,14 +22,16 @@
 
 namespace
 {
+    // Maximum duration the attack button can be held before triggering a stomp attack.
+    constexpr float kStompHoldTimerMax = 0.2f;
+
     // Variables for ASM
     DWORD* DeltaTimeFuncAddr = 0;
     float StompHoldTimer = 0.0f;
-    float StompHoldTimerMax = 1.0f;
 }
 
 // ASM function which measures the duration of the attack button press to determine whether to request
-// a kick or stomp.
+// a kick or stomp attack.
 __declspec(naked) void __stdcall HoldToStompASM()
 {
     __asm
@@ -47,7 +49,7 @@ __declspec(naked) void __stdcall HoldToStompASM()
         mov eax, dword ptr ds : [DeltaTimeFuncAddr]
         call eax  // Pushes delta time to st(0)
         fadd dword ptr ds : [StompHoldTimer]
-        fcom dword ptr ds : [StompHoldTimerMax]
+        fcom dword ptr ds : [kStompHoldTimerMax]
         fstp dword ptr ds : [StompHoldTimer]
         fnstsw ax
         test ah, 0x41
@@ -72,10 +74,8 @@ __declspec(naked) void __stdcall HoldToStompASM()
 
 // Patches the ability to tap the attack button to kick a fallen enemy, or hold the attack button to
 // stomp the enemy.
-void PatchHoldToStomp(float holdTimerMax)
+void PatchHoldToStomp()
 {
-    StompHoldTimerMax = holdTimerMax;
-
     // Get address to request stomp attack
     constexpr BYTE SearchBytesHoldToStomp[]{ 0x8B, 0x44, 0x24, 0x04, 0x8A, 0x88, 0x8E, 0x02, 0x00, 0x00 };
     DWORD HoldToStompAddr = SearchAndGetAddresses(0x005345C0, 0x005348F0, 0x00534210, SearchBytesHoldToStomp, sizeof(SearchBytesHoldToStomp), 0x04, __FUNCTION__);
@@ -87,9 +87,7 @@ void PatchHoldToStomp(float holdTimerMax)
     
     DeltaTimeFuncAddr = GetDeltaTimeFunctionPointer();
     if (!DeltaTimeFuncAddr)
-    {
         return;
-    }
 
     Logging::Log() << "Enabling Hold to Stomp...";
     WriteJMPtoMemory((BYTE*)HoldToStompAddr, *HoldToStompASM, 0x06);

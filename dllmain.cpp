@@ -438,7 +438,7 @@ void DelayedStart()
     // Enable holding attack to stomp an enemy
     if (EnableHoldToStomp)
     {
-        PatchHoldToStomp(HoldToStompTimerMax);
+        PatchHoldToStomp();
     }
     // Enable Alternate Stomp
     else if (RestoreAlternateStomp)

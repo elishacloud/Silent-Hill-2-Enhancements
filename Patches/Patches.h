@@ -240,7 +240,7 @@ void PatchFullscreenImages();
 void PatchFullscreenVideos();
 void PatchGameLoad();
 void PatchHoldDamage();
-void PatchHoldToStomp(float holdTimerMax);
+void PatchHoldToStomp();
 void PatchInputTweaks();
 void PatchInventoryBGMBug();
 void PatchLockScreenPosition();

@@ -28,6 +28,10 @@ int16_t LastOptionsSelectedItem;
 int8_t LastOptionsPage;
 int8_t LastOptionsSubPage;
 
+bool PlayConfirmSound = false;
+bool PlayCancelSound = false;
+
+#pragma warning(disable : 4100)
 int32_t PlaySaveSound_Hook(int32_t SoundId, float volume, DWORD param3)
 {
 	//TODO  orgPlaySoundFun.fun(S_SAVE_GAME, volume, param3);
@@ -35,6 +39,7 @@ int32_t PlaySaveSound_Hook(int32_t SoundId, float volume, DWORD param3)
 	return 0x10;
 }
 
+#pragma warning(disable : 4100)
 int32_t PlayLoadSound_Hook(int32_t SoundId, float volume, DWORD param3)
 {
 	//TODO  orgPlaySoundFun.fun(S_SAVE_GAME, volume, param3);
@@ -62,6 +67,16 @@ void HandleMenuSounds()
 	{	
 		// Play change selection sound
 		orgPlaySoundFun.fun(0x2710, 1.0, 0);
+	} 
+	else if (PlayCancelSound)
+	{
+		orgPlaySoundFun.fun(0x2713, 1.0f, 0);
+		PlayCancelSound = false;
+	}
+	else if (PlayConfirmSound)
+	{
+		orgPlaySoundFun.fun(0x2712, 1.0f, 0);
+		PlayConfirmSound = false;
 	}
 
 	LastOptionsSelectedItem = SelectedOption;
@@ -89,5 +104,6 @@ void PatchMenuSounds()
 	injector::MakeCALL(LoadGameSoundContinue, PlayLoadSound_Hook, true);
 	injector::MakeCALL(SaveGameSoundRedSquares, PlaySaveSound_Hook, true);
 
-	orgPlaySoundFun.fun = (int32_t(__cdecl*)(int32_t, float, DWORD))PlaySoundAddress;
+	
+	orgPlaySoundFun.fun = injector::GetBranchDestination(PlaySoundAddress).get();
 }

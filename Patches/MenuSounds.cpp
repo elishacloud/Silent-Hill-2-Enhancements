@@ -85,17 +85,18 @@ void HandleMenuSounds()
 	int8_t OptionsSubPage = GetOptionsSubPage();
 	int16_t SelectedOption = GetSelectedOption();
 
-	if (((OptionsPage == 8 && OptionsSubPage == 0 /*In Movies Menu*/) || 
-		(OptionsPage == 2 && OptionsSubPage == 0 /*In Main Options */ || OptionsSubPage == 1 /*In Game Options*/) || 
-		(OptionsPage == 7 && OptionsSubPage == 0 /*In Advanced Options*/)) &&
-		!(LockScreenPosition && OptionsPage == 7 && OptionsSubPage == 0 /*In Advanced Options*/ && SelectedOption == 1 /*"Screen Position" option is selected*/) &&
+	if (((OptionsPage == 8 && OptionsSubPage == 0) || // In Movies Menu
+		(OptionsPage == 2 && OptionsSubPage == 0 || OptionsSubPage == 1) || // Subpage 0 = main options, 1 = game options
+		(OptionsPage == 7 && OptionsSubPage == 0)) &&
+		!(LockScreenPosition && OptionsPage == 7 && OptionsSubPage == 0 && // In advanced options
+		SelectedOption == 1) && // "Screen Position" option is selected
 		SelectedOption != LastOptionsSelectedItem &&
 		OptionsPage == LastOptionsPage &&
 		OptionsSubPage == LastOptionsSubPage &&
 		GetTransitionState() == 0x00)
 	{	
 		// Play change selection sound
-		orgPlaySoundFun.fun(0x2710, 1.0, 0);
+		orgPlaySoundFun.fun(0x2710, 1.0f, 0);
 	} 
 	else if (PlayCancelSound)
 	{

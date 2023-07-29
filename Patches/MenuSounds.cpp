@@ -28,6 +28,11 @@ int16_t LastOptionsSelectedItem;
 int8_t LastOptionsPage;
 int8_t LastOptionsSubPage;
 
+BYTE* StoredOptionsResolution = nullptr;
+
+BYTE* ConfirmAdvancedOptionsReturn = nullptr;
+BYTE* DiscardAdvancedOptionsReturn = nullptr;
+
 bool PlayConfirmSound = false;
 bool PlayCancelSound = false;
 
@@ -45,6 +50,30 @@ int32_t PlayLoadSound_Hook(int32_t SoundId, float volume, DWORD param3)
 	//TODO  orgPlaySoundFun.fun(S_SAVE_GAME, volume, param3);
 	Logging::Log() << __FUNCTION__;
 	return 0x10;
+}
+
+__declspec(naked) void __stdcall ConfirmAdvancedOptions()
+{
+	PlayConfirmSound = true;
+
+	__asm
+	{
+		mov byte ptr[StoredOptionsResolution], al //TODO check
+
+		jmp ConfirmAdvancedOptionsReturn;
+	}
+}
+
+__declspec(naked) void __stdcall DiscardAdvancedOptions()
+{
+	PlayCancelSound = true;
+
+	__asm
+	{
+		mov dl, byte ptr[StoredOptionsResolution]
+
+		jmp DiscardAdvancedOptionsReturn;
+	}
 }
 
 void HandleMenuSounds()
@@ -86,9 +115,22 @@ void HandleMenuSounds()
 
 void PatchMenuSounds()
 {
+	Logging::Log() << "Patching Menu Sounds...";
+
 	LastOptionsSelectedItem = GetSelectedOption();
 	LastOptionsPage = GetOptionsPage();
 	LastOptionsSubPage = GetOptionsSubPage();
+
+	BYTE* ConfirmAdvancedOptionsAddr = (BYTE*)0x00464e2f; //TODO addresses
+	BYTE* DiscardAdvancedOptionsAddr = (BYTE*)0x00464F29;
+
+	ConfirmAdvancedOptionsReturn = ConfirmAdvancedOptionsAddr + 0x05;
+	DiscardAdvancedOptionsReturn = DiscardAdvancedOptionsAddr + 0x06;
+
+	DWORD TempOptionsRes;
+	memcpy(&TempOptionsRes, ConfirmAdvancedOptionsAddr + 0x01, sizeof(DWORD));
+
+	StoredOptionsResolution = (BYTE*)TempOptionsRes;
 
 	// Play Sound address, same for all binaries
 	uint32_t* PlaySoundAddress = (uint32_t*)0x0040282E;
@@ -104,6 +146,10 @@ void PatchMenuSounds()
 	injector::MakeCALL(LoadGameSoundContinue, PlayLoadSound_Hook, true);
 	injector::MakeCALL(SaveGameSoundRedSquares, PlaySaveSound_Hook, true);
 
-	
+	// Get a reference to the PlaySound function
 	orgPlaySoundFun.fun = injector::GetBranchDestination(PlaySoundAddress).get();
+
+	// Hook instructions called when confirming and discarding advanced options to play sounds
+	WriteJMPtoMemory(ConfirmAdvancedOptionsAddr, ConfirmAdvancedOptions, 0x05);
+	WriteJMPtoMemory(DiscardAdvancedOptionsAddr, DiscardAdvancedOptions, 0x06);
 }

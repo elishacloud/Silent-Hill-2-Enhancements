@@ -36,22 +36,6 @@ BYTE* DiscardAdvancedOptionsReturn = nullptr;
 bool PlayConfirmSound = false;
 bool PlayCancelSound = false;
 
-#pragma warning(disable : 4100)
-int32_t PlaySaveSound_Hook(int32_t SoundId, float volume, DWORD param3)
-{
-	//TODO  orgPlaySoundFun.fun(S_SAVE_GAME, volume, param3);
-	Logging::Log() << __FUNCTION__;
-	return 0x10;
-}
-
-#pragma warning(disable : 4100)
-int32_t PlayLoadSound_Hook(int32_t SoundId, float volume, DWORD param3)
-{
-	//TODO  orgPlaySoundFun.fun(S_SAVE_GAME, volume, param3);
-	Logging::Log() << __FUNCTION__;
-	return 0x10;
-}
-
 __declspec(naked) void __stdcall ConfirmAdvancedOptions()
 {
 	PlayConfirmSound = true;
@@ -135,17 +119,6 @@ void PatchMenuSounds()
 
 	// Play Sound address, same for all binaries
 	uint32_t* PlaySoundAddress = (uint32_t*)0x0040282E;
-
-	uint32_t* LoadGameSoundPauseMenu = (uint32_t*)0x00454A64; //TODO addresses
-	uint32_t* LoadGameSoundNewGame = (uint32_t*)0x0049870c;
-	uint32_t* LoadGameSoundContinue = (uint32_t*)0x00497f84;
-	uint32_t* SaveGameSoundRedSquares = (uint32_t*)0x004476DB;
-
-	// Hook load/save game sounds
-	injector::MakeCALL(LoadGameSoundPauseMenu, PlayLoadSound_Hook, true);
-	injector::MakeCALL(LoadGameSoundNewGame, PlayLoadSound_Hook, true);
-	injector::MakeCALL(LoadGameSoundContinue, PlayLoadSound_Hook, true);
-	injector::MakeCALL(SaveGameSoundRedSquares, PlaySaveSound_Hook, true);
 
 	// Get a reference to the PlaySound function
 	orgPlaySoundFun.fun = injector::GetBranchDestination(PlaySoundAddress).get();

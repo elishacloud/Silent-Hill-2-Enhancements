@@ -28,7 +28,7 @@ int16_t LastOptionsSelectedItem;
 int8_t LastOptionsPage;
 int8_t LastOptionsSubPage;
 
-BYTE* StoredOptionsResolution = nullptr;
+BYTE* StoredOptionsResolutionAddr = nullptr;
 
 BYTE* ConfirmAdvancedOptionsReturn = nullptr;
 BYTE* DiscardAdvancedOptionsReturn = nullptr;
@@ -42,7 +42,7 @@ __declspec(naked) void __stdcall ConfirmAdvancedOptions()
 
 	__asm
 	{
-		mov byte ptr[StoredOptionsResolution], al //TODO check
+		mov byte ptr[StoredOptionsResolutionAddr], al
 
 		jmp ConfirmAdvancedOptionsReturn;
 	}
@@ -54,7 +54,9 @@ __declspec(naked) void __stdcall DiscardAdvancedOptions()
 
 	__asm
 	{
-		mov dl, byte ptr[StoredOptionsResolution]
+		mov eax, dword ptr[StoredOptionsResolutionAddr]
+		mov dl, byte ptr[eax]
+		xor eax, eax
 
 		jmp DiscardAdvancedOptionsReturn;
 	}
@@ -115,7 +117,7 @@ void PatchMenuSounds()
 	DWORD TempOptionsRes;
 	memcpy(&TempOptionsRes, ConfirmAdvancedOptionsAddr + 0x01, sizeof(DWORD));
 
-	StoredOptionsResolution = (BYTE*)TempOptionsRes;
+	StoredOptionsResolutionAddr = (BYTE*)TempOptionsRes;
 
 	// Play Sound address, same for all binaries
 	uint32_t* PlaySoundAddress = (uint32_t*)0x0040282E;

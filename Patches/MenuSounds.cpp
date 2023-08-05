@@ -24,9 +24,15 @@
 
 injector::hook_back<int32_t(__cdecl*)(int32_t, float, DWORD)> orgPlaySoundFun;
 
+bool OptionsOrMovieMenuChanged();
+bool PauseSelectionChanged();
+
 int16_t LastOptionsSelectedItem;
 int8_t LastOptionsPage;
 int8_t LastOptionsSubPage;
+
+int8_t LastPauseSelection;
+int8_t LastPauseQuitIndex;
 
 BYTE* StoredOptionsResolutionAddr = nullptr;
 
@@ -67,18 +73,7 @@ void HandleMenuSounds()
 	if (!MenuSoundsFix)
 		return;
 
-	int8_t OptionsPage = GetOptionsPage();
-	int8_t OptionsSubPage = GetOptionsSubPage();
-	int16_t SelectedOption = GetSelectedOption();
-
-	if (((OptionsPage == 8 && OptionsSubPage == 0) || // In Movies Menu
-		(OptionsPage == 2 && OptionsSubPage == 0 || OptionsSubPage == 1) || // Subpage 0 = main options, 1 = game options
-		(OptionsPage == 7 && OptionsSubPage == 0)) &&
-		!(LockScreenPosition && OptionsPage == 7 && OptionsSubPage == 0 && // In advanced options
-		SelectedOption == 1) && // "Screen Position" option is selected
-		SelectedOption != LastOptionsSelectedItem &&
-		OptionsPage == LastOptionsPage &&
-		OptionsSubPage == LastOptionsSubPage &&
+	if ((OptionsOrMovieMenuChanged() || PauseSelectionChanged()) &&
 		GetTransitionState() == 0x00)
 	{	
 		// Play change selection sound
@@ -94,10 +89,6 @@ void HandleMenuSounds()
 		orgPlaySoundFun.fun(0x2712, 1.0f, 0);
 		PlayConfirmSound = false;
 	}
-
-	LastOptionsSelectedItem = SelectedOption;
-	LastOptionsPage = OptionsPage;
-	LastOptionsSubPage = OptionsSubPage;
 }
 
 void PatchMenuSounds()
@@ -114,6 +105,9 @@ void PatchMenuSounds()
 	ConfirmAdvancedOptionsReturn = ConfirmAdvancedOptionsAddr + 0x05;
 	DiscardAdvancedOptionsReturn = DiscardAdvancedOptionsAddr + 0x06;
 
+	DWORD* OptionsChangedSoundAddr = (DWORD*)0x0045fD5C; //TODO address
+	BYTE* PauseSelectionChangedAddr = (BYTE*)0x00402764;
+
 	DWORD TempOptionsRes;
 	memcpy(&TempOptionsRes, ConfirmAdvancedOptionsAddr + 0x01, sizeof(DWORD));
 
@@ -125,7 +119,51 @@ void PatchMenuSounds()
 	// Get a reference to the PlaySound function
 	orgPlaySoundFun.fun = injector::GetBranchDestination(PlaySoundAddress).get();
 
+	// NOP the game's own sounds on changed option
+	UpdateMemoryAddress(OptionsChangedSoundAddr, "\x90\x90\x90\x90\x90", 0x05);
+
+	// NOP the game's own sounds on changed pause selection
+	UpdateMemoryAddress(PauseSelectionChangedAddr, "\x90\x90\x90\x90\x90", 0x05);
+	UpdateMemoryAddress(PauseSelectionChangedAddr + 0x01D0, "\x90\x90\x90\x90\x90", 0x05);
+	UpdateMemoryAddress(PauseSelectionChangedAddr + 0x021C, "\x90\x90\x90\x90\x90", 0x05);
+
 	// Hook instructions called when confirming and discarding advanced options to play sounds
 	WriteJMPtoMemory(ConfirmAdvancedOptionsAddr, ConfirmAdvancedOptions, 0x05);
 	WriteJMPtoMemory(DiscardAdvancedOptionsAddr, DiscardAdvancedOptions, 0x06);
+}
+
+bool OptionsOrMovieMenuChanged()
+{
+	int8_t OptionsPage = GetOptionsPage();
+	int8_t OptionsSubPage = GetOptionsSubPage();
+	int16_t SelectedOption = GetSelectedOption();
+
+	bool result = ((OptionsPage == 8 && OptionsSubPage == 0) || // In Movies Menu
+		(OptionsPage == 2 && OptionsSubPage == 0 || OptionsSubPage == 1) || // Subpage 0 = main options, 1 = game options
+		(OptionsPage == 7 && OptionsSubPage == 0)) &&
+		!(LockScreenPosition && OptionsPage == 7 && OptionsSubPage == 0 && // In advanced options
+			SelectedOption == 1) && // "Screen Position" option is selected
+		SelectedOption != LastOptionsSelectedItem &&
+		OptionsPage == LastOptionsPage &&
+		OptionsSubPage == LastOptionsSubPage;
+
+	LastOptionsSelectedItem = SelectedOption;
+	LastOptionsPage = OptionsPage;
+	LastOptionsSubPage = OptionsSubPage;
+
+	return result;
+}
+
+bool PauseSelectionChanged()
+{
+	int8_t PauseMenuSelection = GetPauseMenuButtonIndex();
+	int8_t PauseMenuQuitIndex = GetPauseMenuQuitIndex();
+
+	bool result = GetEventIndex() == 0x10 && GetMenuEvent() == 0x0D &&
+		(LastPauseQuitIndex != PauseMenuQuitIndex || LastPauseSelection != PauseMenuSelection);
+
+	LastPauseQuitIndex = PauseMenuQuitIndex;
+	LastPauseSelection = PauseMenuSelection;
+
+	return result;
 }

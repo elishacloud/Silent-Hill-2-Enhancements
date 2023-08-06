@@ -35,6 +35,7 @@ int8_t LastPauseSelection;
 int8_t LastPauseQuitIndex;
 
 BYTE* StoredOptionsResolutionAddr = nullptr;
+int8_t StoredOptionsResolution = NULL;
 
 BYTE* ConfirmAdvancedOptionsReturn = nullptr;
 BYTE* DiscardAdvancedOptionsReturn = nullptr;
@@ -60,9 +61,7 @@ __declspec(naked) void __stdcall DiscardAdvancedOptions()
 
 	__asm
 	{
-		mov eax, dword ptr[StoredOptionsResolutionAddr]
-		mov dl, byte ptr[eax]
-		xor eax, eax
+		mov dl, byte ptr[StoredOptionsResolution]
 
 		jmp DiscardAdvancedOptionsReturn;
 	}
@@ -73,6 +72,9 @@ void HandleMenuSounds()
 	if (!MenuSoundsFix)
 		return;
 
+	// Save the current stored opt resolution to use in asm when discarding
+	StoredOptionsResolution = *StoredOptionsResolutionAddr;
+
 	if ((OptionsOrMovieMenuChanged() || PauseSelectionChanged()) &&
 		GetTransitionState() == 0x00)
 	{	
@@ -81,11 +83,13 @@ void HandleMenuSounds()
 	} 
 	else if (PlayCancelSound)
 	{
+		// Play cancel selection sound
 		orgPlaySoundFun.fun(0x2713, 1.0f, 0);
 		PlayCancelSound = false;
 	}
 	else if (PlayConfirmSound)
 	{
+		// Play confirm selection sound
 		orgPlaySoundFun.fun(0x2712, 1.0f, 0);
 		PlayConfirmSound = false;
 	}

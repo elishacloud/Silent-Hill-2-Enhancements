@@ -103,8 +103,16 @@ void PatchMenuSounds()
 	LastOptionsPage = GetOptionsPage();
 	LastOptionsSubPage = GetOptionsSubPage();
 
-	BYTE* ConfirmAdvancedOptionsAddr = (BYTE*)0x00464e2f; //TODO addresses
-	BYTE* DiscardAdvancedOptionsAddr = (BYTE*)0x00464F29;
+	constexpr BYTE ConfirmAdvancedOptionsSearchBytes[]{ 0x75, 0x0E, 0x83, 0xFF, 0x04, 0x74, 0x09 };
+	BYTE* ConfirmAdvancedOptionsAddr = (BYTE*)SearchAndGetAddresses(0x00464DCB, 0x0046505B, 0x0046526B, ConfirmAdvancedOptionsSearchBytes, sizeof(ConfirmAdvancedOptionsSearchBytes), 0x64, __FUNCTION__);
+
+	if (!ConfirmAdvancedOptionsAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find ConfirmAdvancedOptions address!";
+		return;
+	}
+
+	BYTE* DiscardAdvancedOptionsAddr = ConfirmAdvancedOptionsAddr + 0xFA;
 
 	ConfirmAdvancedOptionsReturn = ConfirmAdvancedOptionsAddr + 0x05;
 	DiscardAdvancedOptionsReturn = DiscardAdvancedOptionsAddr + 0x06;

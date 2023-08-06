@@ -117,8 +117,23 @@ void PatchMenuSounds()
 	ConfirmAdvancedOptionsReturn = ConfirmAdvancedOptionsAddr + 0x05;
 	DiscardAdvancedOptionsReturn = DiscardAdvancedOptionsAddr + 0x06;
 
-	DWORD* OptionsChangedSoundAddr = (DWORD*)0x0045fD5C; //TODO address
-	BYTE* PauseSelectionChangedAddr = (BYTE*)0x00402764;
+	constexpr BYTE OptionsChangedSoundSearchBytes[]{ 0xBF, 0x0F, 0x00, 0x00, 0x00, 0x2B, 0xFD };
+	DWORD* OptionsChangedSoundAddr = (DWORD*)SearchAndGetAddresses(0x0045FDC3, 0x00460023, 0x00460023, OptionsChangedSoundSearchBytes, sizeof(OptionsChangedSoundSearchBytes), -0x67, __FUNCTION__);
+
+	if (!OptionsChangedSoundAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find OptionsChangedSound address!";
+		return;
+	}
+
+	constexpr BYTE PauseSelectionChangedSearchBytes[]{ 0xF7, 0xD8, 0x1B, 0xC0, 0x40, 0x50 };
+	BYTE* PauseSelectionChangedAddr = (BYTE*)SearchAndGetAddresses(0x0040276E, 0x0040276E, 0x0040276E, PauseSelectionChangedSearchBytes, sizeof(PauseSelectionChangedSearchBytes), -0x0A, __FUNCTION__);
+
+	if (!PauseSelectionChangedAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find PauseSelectionChanged address!";
+		return;
+	}
 
 	DWORD TempOptionsRes;
 	memcpy(&TempOptionsRes, ConfirmAdvancedOptionsAddr + 0x01, sizeof(DWORD));

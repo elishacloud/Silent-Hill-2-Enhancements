@@ -470,6 +470,12 @@ void DelayedStart()
 		PatchQuickSaveTweaks();
 	}
 
+    // Patches quick saving to write .sys and .dat files on the same frame
+    if (QuickSaveCancelFix)
+    {
+        PatchQuickSaveCancelFix();
+    }
+
 	// Game Save Sound Fix
 	if (SaveGameSoundFix)
 	{

@@ -1843,6 +1843,12 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 			RunGameLoad();
 		}
 
+        // Cancel an in-progress quick save when entering another room or interacting with a save point
+        if (QuickSaveCancelFix)
+        {
+            RunQuickSaveCancelFix();
+        }
+
 		// FixSaveBGImage
 		if (FixSaveBGImage)
 		{

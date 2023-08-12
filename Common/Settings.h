@@ -93,6 +93,7 @@
 	visit(PS2FlashlightBrightness, true) \
 	visit(PS2StyleNoiseFilter, true) \
 	visit(QuickSaveTweaks, true) \
+    visit(QuickSaveCancelFix, true) \
 	visit(ReduceCutsceneFOV, true) \
 	visit(RemoveEffectsFlicker, true) \
 	visit(RemoveEnvironmentFlicker, true) \
@@ -220,6 +221,7 @@
 	visit(LockResolution) \
 	visit(NormalFontHeight) \
 	visit(NormalFontWidth) \
+    visit(QuickSaveCancelFix) \
 	visit(ResX) \
 	visit(ResY) \
 	visit(SmallFontHeight) \

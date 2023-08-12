@@ -64,6 +64,7 @@
     <ClCompile Include="Patches\FmvSubtitles.cpp" />
     <ClCompile Include="Patches\MasterVolume.cpp" />
     <ClCompile Include="Patches\PatchCriware.cpp" />
+    <ClCompile Include="Patches\QuickSaveCancelFix.cpp" />
     <ClCompile Include="Patches\QuickSaveTweaks.cpp" />
     <ClCompile Include="Patches\PrisonerTimer.cpp" />
     <ClCompile Include="Patches\SaveGameSound.cpp" />

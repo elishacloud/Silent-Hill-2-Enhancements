@@ -43,24 +43,25 @@ __declspec(naked) void __stdcall SaveSubStateASM()
         // Skip the early write to sh2pc.sys
         jmp jmpSaveSubState5Addr
 
-        HandleState6 :
+    HandleState6:
         // Write sh2pc.sys and sh2pcsave??.dat serially on the same frame
         push 0xC00
-            mov eax, dword ptr ds : [SysFileBytesAddr]
-            push eax
-            mov eax, dword ptr ds : [SysFileNameAddr]
-            push eax
-            mov eax, dword ptr ds : [WriteFileFuncAddr]
-            call eax
-            add esp, 0x0C
-            cmp eax, 0x00
-            jne Failure
-            jmp jmpSaveSubState6Addr
+        mov eax, dword ptr ds : [SysFileBytesAddr]
+        push eax
+        mov eax, dword ptr ds : [SysFileNameAddr]
+        push eax
+        mov eax, dword ptr ds : [WriteFileFuncAddr]
+        call eax
+        add esp, 0x0C
+        cmp eax, 0x00
+        jne Failure
+        jmp jmpSaveSubState6Addr
 
-            Failure :
+    Failure:
         mov eax, 0x02
-            ret
-            ExitAsm :
+        ret
+    
+    ExitAsm:
         jmp jmpSaveSubStateDefaultAddr
     }
 }

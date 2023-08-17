@@ -247,6 +247,7 @@ void PatchMainMenuTitlePerLang();
 void PatchMapTranscription();
 void PatchMasterVolumeSlider();
 void PatchMemoBrightnes();
+void PatchMothDrawOrder();
 void PatchPauseScreen();
 void PatchPistonRoom();
 void PatchPreventChainsawSpawn();

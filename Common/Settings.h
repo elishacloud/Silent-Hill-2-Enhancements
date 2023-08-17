@@ -86,6 +86,7 @@
 	visit(MainMenuFix, true) \
 	visit(MainMenuTitlePerLang, true) \
 	visit(MemoScreenFix, true) \
+    visit(MothDrawOrderFix, true) \
 	visit(NoCDPatch, true) \
 	visit(PauseScreenFix, true) \
 	visit(PistonRoomFix, true) \
@@ -218,6 +219,7 @@
 	visit(LetterSpacing) \
 	visit(LoadModulesFromMemory) \
 	visit(LockResolution) \
+    visit(MothDrawOrderFix) \
 	visit(NormalFontHeight) \
 	visit(NormalFontWidth) \
 	visit(ResX) \

@@ -51,7 +51,7 @@ void PatchMothDrawOrder()
 
     constexpr BYTE FixMothSortIndexSearchBytes[]{ 0xF3, 0xA5, 0xC6, 0x85, 0xA4, 0x00, 0x00, 0x00, 0x02 };
     const DWORD FixMothSortIndexAddrA = SearchAndGetAddresses(0x004A4D9F, 0x004A504F, 0x004A490F, FixMothSortIndexSearchBytes, sizeof(FixMothSortIndexSearchBytes), 0x43, __FUNCTION__);
-    if (!DrawDistanceFactorAddr)
+    if (!FixMothSortIndexAddrA)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find pointer address!";
         return;

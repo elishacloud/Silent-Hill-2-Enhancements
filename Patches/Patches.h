@@ -81,6 +81,7 @@ int8_t GetOptionsSubPage();
 int32_t GetInternalVerticalRes();
 int32_t GetInternalHorizontalRes();
 int16_t GetSelectedOption();
+bool IsHardwareSoundEnabled();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -193,6 +194,7 @@ BYTE* GetCheckForChangedOptionsPointer();
 DWORD* GetPlaySoundFunPointer();
 BYTE* GetDiscardOptionBOPointer();
 BYTE* GetDiscardOptionPointer();
+bool* GetHardwareSoundEnabledPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

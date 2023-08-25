@@ -135,6 +135,17 @@ void PatchMenuSounds()
 		return;
 	}
 
+	constexpr BYTE MovieSelectionDecreasedSearchBytes[]{ 0x83, 0xC1, 0x09, 0x83, 0xC4, 0x0C, 0x3B, 0xD1 };
+	BYTE* MovieSelectionDecreasedAddr = (BYTE*)SearchAndGetAddresses(0x00466491, 0x00466731, 0x00466941, MovieSelectionDecreasedSearchBytes, sizeof(MovieSelectionDecreasedSearchBytes), -0x12, __FUNCTION__);
+
+	if (!MovieSelectionDecreasedAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find MovieSelectionDecreased address!";
+		return;
+	}
+
+	BYTE* MovieSelectionIncreasedAddr = MovieSelectionDecreasedAddr + 0x62;
+
 	DWORD TempOptionsRes;
 	memcpy(&TempOptionsRes, ConfirmAdvancedOptionsAddr + 0x01, sizeof(DWORD));
 
@@ -148,6 +159,8 @@ void PatchMenuSounds()
 
 	// NOP the game's own sounds on changed option
 	UpdateMemoryAddress(OptionsChangedSoundAddr, "\x90\x90\x90\x90\x90", 0x05);
+	UpdateMemoryAddress(MovieSelectionDecreasedAddr, "\x90\x90\x90\x90\x90", 0x05);
+	UpdateMemoryAddress(MovieSelectionIncreasedAddr, "\x90\x90\x90\x90\x90", 0x05);
 
 	// NOP the game's own sounds on changed pause selection
 	UpdateMemoryAddress(PauseSelectionChangedAddr, "\x90\x90\x90\x90\x90", 0x05);
@@ -165,14 +178,15 @@ bool OptionsOrMovieMenuChanged()
 	int8_t OptionsSubPage = GetOptionsSubPage();
 	int16_t SelectedOption = GetSelectedOption();
 
-	bool result = ((OptionsPage == 8 && OptionsSubPage == 0) || // In Movies Menu
+	bool result = ((OptionsPage == 8 && OptionsSubPage == 0) || // In Movies Menu TODO CHECK-----------------------------------------------------------------------
 		(OptionsPage == 2 && OptionsSubPage == 0 || OptionsSubPage == 1) || // Subpage 0 = main options, 1 = game options
 		(OptionsPage == 7 && OptionsSubPage == 0)) &&
 		!(LockScreenPosition && OptionsPage == 7 && OptionsSubPage == 0 && // In advanced options
 			SelectedOption == 1) && // "Screen Position" option is selected
 		SelectedOption != LastOptionsSelectedItem &&
 		OptionsPage == LastOptionsPage &&
-		OptionsSubPage == LastOptionsSubPage;
+		OptionsSubPage == LastOptionsSubPage && 
+		!(!IsHardwareSoundEnabled() && OptionsPage == 7 && OptionsSubPage == 0 && SelectedOption == 9); // Avoid playing the sound if Hardware 3D Used option isn't active
 
 	LastOptionsSelectedItem = SelectedOption;
 	LastOptionsPage = OptionsPage;

@@ -186,7 +186,7 @@ bool OptionsOrMovieMenuChanged()
 		SelectedOption != LastOptionsSelectedItem &&
 		OptionsPage == LastOptionsPage &&
 		OptionsSubPage == LastOptionsSubPage && 
-		!(!IsHardwareSoundEnabled() && OptionsPage == 7 && OptionsSubPage == 0 && SelectedOption == 9); // Avoid playing the sound if Hardware 3D Used option isn't active
+		!(IsHardwareSoundEnabled() && OptionsPage == 7 && OptionsSubPage == 0 && SelectedOption == 9); // Avoid playing the sound if Hardware 3D Used option isn't active
 
 	LastOptionsSelectedItem = SelectedOption;
 	LastOptionsPage = OptionsPage;

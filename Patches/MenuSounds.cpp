@@ -178,7 +178,7 @@ bool OptionsOrMovieMenuChanged()
 	int8_t OptionsSubPage = GetOptionsSubPage();
 	int16_t SelectedOption = GetSelectedOption();
 
-	bool result = ((OptionsPage == 8 && OptionsSubPage == 0) || // In Movies Menu TODO CHECK-----------------------------------------------------------------------
+	bool result = ((OptionsPage == 8 && OptionsSubPage == 0) || // In Movies Menu
 		(OptionsPage == 2 && OptionsSubPage == 0 || OptionsSubPage == 1) || // Subpage 0 = main options, 1 = game options
 		(OptionsPage == 7 && OptionsSubPage == 0)) &&
 		!(LockScreenPosition && OptionsPage == 7 && OptionsSubPage == 0 && // In advanced options

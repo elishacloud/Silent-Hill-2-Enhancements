@@ -144,6 +144,15 @@ void PatchMenuSounds()
 		return;
 	}
 
+	constexpr BYTE PauseMenuQuitNoBytes[]{ 0x85, 0xC0, 0x74, 0x2B, 0x56, 0x68 };
+	BYTE* PauseMenuQuitNoAddr = (BYTE*)SearchAndGetAddresses(0x004026E8, 0x004026E8, 0x004026E8, PauseMenuQuitNoBytes, sizeof(PauseMenuQuitNoBytes), 0x0B, __FUNCTION__);
+
+	if (!PauseMenuQuitNoAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find PauseMenuQuitNo address!";
+		return;
+	}
+
 	BYTE* MovieSelectionIncreasedAddr = MovieSelectionDecreasedAddr + 0x62;
 
 	DWORD TempOptionsRes;
@@ -166,6 +175,9 @@ void PatchMenuSounds()
 	UpdateMemoryAddress(PauseSelectionChangedAddr, "\x90\x90\x90\x90\x90", 0x05);
 	UpdateMemoryAddress(PauseSelectionChangedAddr + 0x01D0, "\x90\x90\x90\x90\x90", 0x05);
 	UpdateMemoryAddress(PauseSelectionChangedAddr + 0x021C, "\x90\x90\x90\x90\x90", 0x05);
+
+	// Replace the confirm sound with cancel sound when selecting No in the quit game screen
+	UpdateMemoryAddress(PauseMenuQuitNoAddr, "\x13", 0x01);
 
 	// Hook instructions called when confirming and discarding advanced options to play sounds
 	WriteJMPtoMemory(ConfirmAdvancedOptionsAddr, ConfirmAdvancedOptions, 0x05);

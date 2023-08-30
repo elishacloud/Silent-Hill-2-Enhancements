@@ -476,7 +476,7 @@ void DelayedStart()
 		PatchMenuSounds();
 	}
 
-	// Restores high quality audio for the VHS fmv
+	// Restores uncensored audio for the VHS fmv
 	if (VHSAudioFix)
 	{
 		PatchVHSAudio();

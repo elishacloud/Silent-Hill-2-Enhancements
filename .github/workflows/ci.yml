@@ -1,39 +1,38 @@
-name: CI
+name: Build and Deploy
 
 on:
   push:
-  pull_request:
-    branches: [ "master" ]
-  workflow_dispatch:
-
-permissions:
-  contents: read
+    branches:
+      - master
 
 env:
-  UseMultiToolTask: true
+  APP_NAME: sh2-enhce.sln     # set this to your application's name
 
 jobs:
   build:
+    name: Build and deploy
     runs-on: windows-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        config: [Debug, Release]
-        platform: [Win32]
-
     steps:
-    - uses: actions/checkout@v3
-      with:
-        submodules: true
+    - uses: actions/checkout@v2
+    
     - name: Setup MSBuild path
       uses: microsoft/setup-msbuild@v1.0.1
       with:
         vs-version: "[16.4,16.9)"
-    - uses: Trass3r/setup-cpp@master
+    
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v1.0.2
+    
+    - name: Restore NuGet packages
+      run: nuget restore ${{ env.APP_NAME }}
+
     - name: Build
-      run: msbuild /m /p:Configuration=${{ matrix.config }} /p:Platform=${{ matrix.platform }} sh2-enhce.sln
-    - uses: actions/upload-artifact@v3
+      run: msbuild ${{ env.APP_NAME }} /p:Configuration=Release
+
+    - name: Publish artifacts
+      uses: actions/upload-artifact@v3
       with:
         name: ${{ matrix.config }} binaries
         path: |
           bin/${{ matrix.config }}/*
+          

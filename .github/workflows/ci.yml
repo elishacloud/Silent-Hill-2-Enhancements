@@ -26,6 +26,8 @@ jobs:
       with:
         submodules: true
     - uses: microsoft/setup-msbuild@v1
+      with:
+        vs-version: '[15.0,15.9]'
     - uses: Trass3r/setup-cpp@master
     - name: Build
       run: msbuild /m /p:Configuration=${{ matrix.config }} /p:Platform=${{ matrix.platform }} sh2-enhce.sln

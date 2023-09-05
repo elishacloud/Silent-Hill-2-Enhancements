@@ -2,15 +2,20 @@ name: Build and Deploy
 
 on:
   push:
+  pull_request:
     branches:
       - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 env:
   APP_NAME: sh2-enhce.sln     # set this to your application's name
 
 jobs:
   build:
-    name: Build and deploy
+    name: Build
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2

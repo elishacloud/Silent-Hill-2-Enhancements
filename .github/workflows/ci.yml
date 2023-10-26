@@ -14,22 +14,21 @@ env:
 
 jobs:
   build:
-    runs-on: windows-2022
+    runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
-        config: [Debug, Release]
+        config: [Workflow]
         platform: [Win32]
 
     steps:
     - uses: actions/checkout@v3
       with:
         submodules: true
-    - name: Setup MSBuild path
-      uses: microsoft/setup-msbuild@v1
+    - uses: microsoft/setup-msbuild@v1
     - uses: Trass3r/setup-cpp@master
     - name: Build
-      run: msbuild /m /p:Configuration=${{ matrix.config }} /p:Platform=${{ matrix.platform }} /p:PlatformToolset="v141_xp" sh2-enhce.sln
+      run: msbuild /m /p:Configuration=${{ matrix.config }} /p:Platform=${{ matrix.platform }} sh2-enhce.sln
     - uses: actions/upload-artifact@v3
       with:
         name: ${{ matrix.config }} binaries

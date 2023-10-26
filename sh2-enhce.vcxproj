@@ -180,7 +180,6 @@
     <ClInclude Include="Include\GTA\WSF.h" />
     <ClInclude Include="Include\stdafx.h" />
     <ClInclude Include="Include\VersionHelpers.h" />
-    <ClInclude Include="Include\winapifamily.h" />
     <ClInclude Include="Logging\Logging.h" />
     <ClInclude Include="Patches\FullscreenImages.h" />
     <ClInclude Include="Patches\InputTweaks.h" />
@@ -229,7 +228,6 @@
     <ProjectGuid>{E204DCB3-D122-4F2E-88A8-89AC22CE3274}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <ProjectName>sh2-enhce</ProjectName>
-    <WindowsTargetPlatformVersion>7.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -248,29 +246,23 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="ReShade\stb\stb.props" />
   </ImportGroup>
-  <PropertyGroup>
-    <ExecutablePath>$(ExecutablePath);$(UniversalCRTSdkDir_10)\bin\x86;$(UniversalCRTSdkDir_10)\bin\x64</ExecutablePath>
-  </PropertyGroup>
-  <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin\Intermediate\$(ProjectName)\$(Configuration)\</IntDir>
     <TargetName>d3d8</TargetName>
-    <LibraryPath>$(ProjectDir)Wrappers\d3d8\DirectX81SDK;$(LibraryPath)</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin\Intermediate\$(ProjectName)\$(Configuration)\</IntDir>
     <TargetName>d3d8</TargetName>
-    <LibraryPath>$(ProjectDir)Wrappers\d3d8\DirectX81SDK;$(LibraryPath)</LibraryPath>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <AdditionalIncludeDirectories>$(SolutionDir);Include;Resources;%(AdditionalIncludeDirectories);$(DXSDK_DIR)Include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_WINDLL;WIN32;_DEBUG;_WINDOWS;PSAPI_VERSION=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDLL;WIN32;_DEBUG;_WINDOWS;_WIN32_WINNT=0x0501;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(SolutionDir)bin\Intermediate\$(ProjectName)\$(Configuration)\Object\%(RelativeDir)</ObjectFileName>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -280,7 +272,7 @@
     <Link>
       <ModuleDefinitionFile>Wrappers\wrapper.def</ModuleDefinitionFile>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories);$(WindowsSDK80Path)Lib\winv6.3\um\x86;$(ProjectDir)Wrappers\d3d8\DirectX81SDK\include</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)Wrappers\d3d8\DirectX81SDK\include</AdditionalLibraryDirectories>
       <AdditionalDependencies>Psapi.lib;Shlwapi.lib;WinInet.lib;libci.lib;legacy_stdio_definitions.lib;d3dx8.lib;d3d8.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OptimizeReferences>true</OptimizeReferences>
@@ -295,7 +287,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <AdditionalIncludeDirectories>$(SolutionDir);Include;Resources;%(AdditionalIncludeDirectories);$(DXSDK_DIR)Include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_WINDLL;WIN32;NDEBUG;_WINDOWS;PSAPI_VERSION=1;D3D8TO9NOLOG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDLL;WIN32;NDEBUG;_WINDOWS;_WIN32_WINNT=0x0501;D3D8TO9NOLOG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(SolutionDir)bin\Intermediate\$(ProjectName)\$(Configuration)\Object\%(RelativeDir)</ObjectFileName>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -305,7 +297,7 @@
     <Link>
       <ModuleDefinitionFile>Wrappers\wrapper.def</ModuleDefinitionFile>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>$(SolutionDir)bin\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories);$(WindowsSDK80Path)Lib\winv6.3\um\x86;$(ProjectDir)Wrappers\d3d8\DirectX81SDK\include</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)Wrappers\d3d8\DirectX81SDK\include</AdditionalLibraryDirectories>
       <AdditionalDependencies>Psapi.lib;Shlwapi.lib;WinInet.lib;libci.lib;legacy_stdio_definitions.lib;d3dx8.lib;d3d8.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <OptimizeReferences>true</OptimizeReferences>

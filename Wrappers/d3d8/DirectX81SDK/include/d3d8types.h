@@ -10,8 +10,6 @@
 #ifndef _D3D8TYPES_H_
 #define _D3D8TYPES_H_
 
-#include <winapifamily.h>
-
 #ifndef DIRECT3D_VERSION
 #define DIRECT3D_VERSION         0x0800
 #endif  //DIRECT3D_VERSION
@@ -28,9 +26,6 @@
 #if defined(_X86_) || defined(_IA64_)
 #pragma pack(4)
 #endif
-
-#pragma region Destop Family
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 
 // D3DCOLOR is equivalent to D3DFMT_A8R8G8B8
 #ifndef D3DCOLOR_DEFINED
@@ -1684,9 +1679,6 @@ typedef struct _D3DDEVINFO_D3DVERTEXSTATS
 #else
 #pragma warning(default:4201)
 #endif
-
-#endif /* WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP) */
-#pragma endregion
 
 #endif /* (DIRECT3D_VERSION >= 0x0800) */
 #endif /* _D3D8TYPES(P)_H_ */

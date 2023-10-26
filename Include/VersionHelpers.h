@@ -7,5 +7,3 @@
 #define _WIN32_WINNT_WINBLUE                0x0603
 
 inline bool IsWindowsVersionOrGreater(WORD wMajorVersion, WORD wMinorVersion, WORD wServicePackMajor);
-
-#include "win8sdk\VersionHelpers.h"

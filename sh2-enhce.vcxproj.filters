@@ -511,9 +511,6 @@
     <ClInclude Include="Include\VersionHelpers.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="Include\winapifamily.h">
-      <Filter>Include</Filter>
-    </ClInclude>
     <ClInclude Include="Wrappers\dsound\dsoundwrapper.h">
       <Filter>Wrappers\dsound</Filter>
     </ClInclude>

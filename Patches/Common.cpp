@@ -133,6 +133,7 @@ BYTE* CheckForChangedOptionsAddr = nullptr;
 DWORD* PlaySoundFunAddr = nullptr;
 BYTE* DiscardOptionBOAddr = nullptr;
 BYTE* DiscardOptionAddr = nullptr;
+bool* HardwareSoundEnabledAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -2988,4 +2989,34 @@ BYTE* GetDiscardOptionPointer()
 	}
 
 	return DiscardOptionAddr;
+}
+
+bool IsHardwareSoundEnabled()
+{
+	bool* pHardwareSoundEnabled = GetHardwareSoundEnabledPointer();
+
+	return (pHardwareSoundEnabled) ? *pHardwareSoundEnabled : false;
+}
+
+bool* GetHardwareSoundEnabledPointer()
+{
+	if (HardwareSoundEnabledAddr)
+	{
+		return HardwareSoundEnabledAddr;
+	}
+
+	// Get HardwareSoundEnabled address
+	constexpr BYTE HardwareSoundEnabledSearchBytes[]{ 0x68, 0x3C, 0x01, 0x00, 0x00, 0x68, 0x0E, 0x01, 0x00, 0x00, 0x68 };
+	int8_t* HardwareSoundEnabled = (int8_t*)ReadSearchedAddresses(0x00465427, 0x004656BD, 0x004658CD, HardwareSoundEnabledSearchBytes, sizeof(HardwareSoundEnabledSearchBytes), 0x1A, __FUNCTION__);
+
+	// Checking address pointer
+	if (!HardwareSoundEnabled)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find HardwareSoundEnabled address!";
+		return nullptr;
+	}
+
+	HardwareSoundEnabledAddr = (bool*)((DWORD)HardwareSoundEnabled);
+
+	return HardwareSoundEnabledAddr;
 }

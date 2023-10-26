@@ -17,11 +17,6 @@
 // include this file content only if compiling for DX8 interfaces
 #if(DIRECT3D_VERSION >= 0x0800)
 
-#include <winapifamily.h>
-
-#pragma region Desktop Family
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-
 #if defined(_X86_) || defined(_IA64_)
 #pragma pack(4)
 #endif
@@ -363,9 +358,6 @@ typedef struct _D3DCAPS8
 #define D3DVTXPCAPS_NO_VSDT_UBYTE4      0x00000080L /* device does not support D3DVSDT_UBYTE4 */
 
 #pragma pack()
-
-#endif /* WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP) */
-#pragma endregion
 
 #endif /* (DIRECT3D_VERSION >= 0x0800) */
 #endif /* _D3D8CAPS_H_ */

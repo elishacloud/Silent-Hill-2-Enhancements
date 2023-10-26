@@ -8,6 +8,7 @@
 	visit(AutoHideMouseCursor, false) \
 	visit(AutoUpdateModule, true) \
 	visit(CatacombsMeatRoomFix, true) \
+	visit(CenterPuzzleCursor, true) \
 	visit(ChangeClosetSpawn, true) \
 	visit(CheckCompatibilityMode, true) \
 	visit(CheckForAdminAccess, true) \
@@ -86,6 +87,7 @@
 	visit(MainMenuFix, true) \
 	visit(MainMenuTitlePerLang, true) \
 	visit(MemoScreenFix, true) \
+	visit(MenuSoundsFix, true) \
 	visit(NoCDPatch, true) \
 	visit(PauseScreenFix, true) \
 	visit(PistonRoomFix, true) \
@@ -117,6 +119,7 @@
 	visit(UseCustomFonts, true) \
 	visit(UseCustomModFolder, true) \
 	visit(UsePS2LowResTextures, false) \
+	visit(VHSAudioFix, false) \
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, true) \

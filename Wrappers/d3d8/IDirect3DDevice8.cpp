@@ -975,6 +975,9 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	// Store reference to the ProxyInterface
 	MasterVolumeRef.HandleMasterVolume(ProxyInterface);
 
+	// Handle menu sounds
+	HandleMenuSounds();
+
 	// Skip frames in specific cutscenes to prevent flickering
 	if (SkipSceneFlag)
 	{

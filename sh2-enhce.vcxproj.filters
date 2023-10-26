@@ -401,6 +401,12 @@
     <ClCompile Include="Patches\QuickSaveCancelFix.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\MenuSounds.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\VHSAudio.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">
@@ -506,9 +512,6 @@
       <Filter>Include\GTA</Filter>
     </ClInclude>
     <ClInclude Include="Include\VersionHelpers.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\winapifamily.h">
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="Wrappers\dsound\dsoundwrapper.h">

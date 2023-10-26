@@ -43,6 +43,7 @@ BYTE* DiscardAdvancedOptionsReturn = nullptr;
 bool PlayConfirmSound = false;
 bool PlayCancelSound = false;
 
+#pragma warning(suppress: 4740)
 __declspec(naked) void __stdcall ConfirmAdvancedOptions()
 {
 	PlayConfirmSound = true;
@@ -55,6 +56,7 @@ __declspec(naked) void __stdcall ConfirmAdvancedOptions()
 	}
 }
 
+#pragma warning(suppress: 4740)
 __declspec(naked) void __stdcall DiscardAdvancedOptions()
 {
 	PlayCancelSound = true;

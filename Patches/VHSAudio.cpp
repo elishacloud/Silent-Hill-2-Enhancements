@@ -31,9 +31,9 @@ char* MurderFileName = "data\\movie\\murder.bik";
 
 bool loadingMurder = false;
 
+#pragma warning(suppress: 4740)
 __declspec(naked) void __stdcall SetAudioTrack()
 {
-
     __asm
     {   // Restore the overwritten instructions
         add esp, 0x04

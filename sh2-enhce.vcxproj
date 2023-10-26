@@ -205,6 +205,7 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     <ClCompile Include="Patches\DelayedFadeIn.cpp" />
     <ClCompile Include="Patches\FmvSubtitles.cpp" />
     <ClCompile Include="Patches\MasterVolume.cpp" />
+    <ClCompile Include="Patches\MenuSounds.cpp" />
     <ClCompile Include="Patches\PatchCriware.cpp" />
     <ClCompile Include="Patches\QuickSaveTweaks.cpp" />
     <ClCompile Include="Patches\PrisonerTimer.cpp" />
@@ -263,6 +264,7 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     <ClCompile Include="Patches\ValidateBinary.cpp" />
     <ClCompile Include="Patches\SpecificSoundLoopFix.cpp" />
     <ClCompile Include="Patches\PatchInventoryBGM.cpp" />
+    <ClCompile Include="Patches\VHSAudio.cpp" />
     <ClCompile Include="WidescreenFixesPack\WidescreenFixesPack.cpp" />
     <ClCompile Include="Wrappers\d3d8to9.cpp" />
     <ClCompile Include="Wrappers\d3d8\d3d8wrapper.cpp" />

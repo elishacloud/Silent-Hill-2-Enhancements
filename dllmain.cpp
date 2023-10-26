@@ -470,6 +470,18 @@ void DelayedStart()
 		PatchQuickSaveTweaks();
 	}
 
+	// Fixes missing sounds in menus
+	if (MenuSoundsFix)
+	{
+		PatchMenuSounds();
+	}
+
+	// Restores uncensored audio for the VHS fmv
+	if (VHSAudioFix)
+	{
+		PatchVHSAudio();
+	}
+
 	// Game Save Sound Fix
 	if (SaveGameSoundFix)
 	{

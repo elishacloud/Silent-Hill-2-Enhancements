@@ -9,11 +9,153 @@
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Workflow|Win32">
+      <Configuration>Workflow</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{E204DCB3-D122-4F2E-88A8-89AC22CE3274}</ProjectGuid>
+    <RootNamespace>sh2-enhce</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v141_xp</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v141_xp</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Workflow|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="ReShade\stb\stb.props" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)bin\Intermediate\$(ProjectName)\$(Configuration)\</IntDir>
+    <TargetName>d3d8</TargetName>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)bin\Intermediate\$(ProjectName)\$(Configuration)\</IntDir>
+    <TargetName>d3d8</TargetName>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Workflow|Win32'">
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)bin\Intermediate\$(ProjectName)\$(Configuration)\</IntDir>
+    <TargetName>d3d8</TargetName>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <AdditionalIncludeDirectories>$(SolutionDir);Include;Resources;%(AdditionalIncludeDirectories);$(DXSDK_DIR)Include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WINDLL;WIN32;_DEBUG;_WINDOWS;_WIN32_WINNT=0x0501;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(SolutionDir)bin\Intermediate\$(ProjectName)\$(Configuration)\Object\%(RelativeDir)</ObjectFileName>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+    </ClCompile>
+    <Link>
+      <ModuleDefinitionFile>Wrappers\wrapper.def</ModuleDefinitionFile>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>$(ProjectDir)Wrappers\d3d8\DirectX81SDK\include</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Psapi.lib;Shlwapi.lib;WinInet.lib;libci.lib;legacy_stdio_definitions.lib;d3dx8.lib;d3d8.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <AdditionalIncludeDirectories>$(SolutionDir);Include;Resources;%(AdditionalIncludeDirectories);$(DXSDK_DIR)Include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WINDLL;WIN32;NDEBUG;_WINDOWS;_WIN32_WINNT=0x0501;D3D8TO9NOLOG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(SolutionDir)bin\Intermediate\$(ProjectName)\$(Configuration)\Object\%(RelativeDir)</ObjectFileName>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+    </ClCompile>
+    <Link>
+      <ModuleDefinitionFile>Wrappers\wrapper.def</ModuleDefinitionFile>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>$(ProjectDir)Wrappers\d3d8\DirectX81SDK\include</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Psapi.lib;Shlwapi.lib;WinInet.lib;libci.lib;legacy_stdio_definitions.lib;d3dx8.lib;d3d8.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+    </Link>
+    <PreBuildEvent>
+      <Command>cmd /q /c "cd /D ""$(ProjectDir)"" &amp;&amp; if not exist Resources\BuildNo.rc echo #define BUILD_NUMBER 0 &gt;Resources\BuildNo.rc"
+cmd /q /c "cd /D ""$(ProjectDir)"" &amp;&amp; FOR /F "tokens=3" %%i IN (Resources\BuildNo.rc) DO set /a var=%%i+1 &gt;Build.txt"
+cmd /q /c "cd /D ""$(ProjectDir)"" &amp;&amp; FOR /F %%i IN (Build.txt) DO echo #define BUILD_NUMBER %%i &gt;Resources\BuildNo.rc"
+cmd /q /c "cd /D ""$(ProjectDir)"" &amp;&amp; del Build.txt"
+cmd /q /c "cd /D ""$(ProjectDir)"" &amp;&amp; type Resources\BuildNo.rc"
+cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del BuildNo.rc &gt; nul 2&gt;&amp;1"
+cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; echo echo^|set /p="#define " ^&gt; BuildNo.rc &gt; build.bat"
+cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; echo type "$(ProjectDir)External\d3d8to9\res\d3d8to9.rc" ^| find "FILEVERSION" ^&gt;^&gt; BuildNo.rc &gt;&gt; build.bat"
+cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; echo set /p build=^&lt;BuildNo.rc &gt;&gt; build.bat"
+cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; echo set modified=%%build:,=.%% &gt;&gt; build.bat"
+cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; echo echo %%modified%% ^&gt; BuildNo.rc &gt;&gt; build.bat"
+cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; call build.bat"
+cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Workflow|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <AdditionalIncludeDirectories>$(SolutionDir);Include;Resources;%(AdditionalIncludeDirectories);$(DXSDK_DIR)Include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WINDLL;WIN32;NDEBUG;_WINDOWS;_WIN32_WINNT=0x0501;D3D8TO9NOLOG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(SolutionDir)bin\Intermediate\$(ProjectName)\$(Configuration)\Object\%(RelativeDir)</ObjectFileName>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+    </ClCompile>
+    <Link>
+      <ModuleDefinitionFile>Wrappers\wrapper.def</ModuleDefinitionFile>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>$(ProjectDir)Wrappers\d3d8\DirectX81SDK\include</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Psapi.lib;Shlwapi.lib;WinInet.lib;libci.lib;legacy_stdio_definitions.lib;d3dx8.lib;d3d8.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+    </Link>
+    <PreBuildEvent />
+    <PostBuildEvent>
+      <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
   <ItemGroup>
-    <ResourceCompile Include="Resources\BuildNo.rc" />
-    <ResourceCompile Include="Resources\sh2-enhce.rc" />
-    <ResourceCompile Include="Resources\UALx86.rc" />
+    <ProjectReference Include="ReShade\stb\stb.vcxproj">
+      <Project>{723bdef8-4a39-4961-bdab-54074012ff47}</Project>
+    </ProjectReference>
+    <ProjectReference Include="ReShade\ReShadeFX\ReShadeFX.vcxproj">
+      <Project>{d1c2099b-bec7-4993-8947-01d4a1f7eae2}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common\AutoUpdate.cpp" />
@@ -149,6 +291,17 @@
     <ClCompile Include="Wrappers\wrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ReShade\Runtime\runtime.cpp" />
+    <ClCompile Include="ReShade\Runtime\runtime_config.cpp" />
+    <ClCompile Include="Wrappers\d3d9\buffer_detection.cpp" />
+    <ClCompile Include="Wrappers\d3d9\d3d9wrapper.cpp" />
+    <ClCompile Include="Wrappers\d3d9\IDirect3DSwapChain9.cpp" />
+    <ClCompile Include="Wrappers\d3d9\IDirect3D9.cpp" />
+    <ClCompile Include="Wrappers\d3d9\IDirect3DDevice9.cpp" />
+    <ClCompile Include="Wrappers\d3d9\runtime_d3d9.cpp" />
+    <ClCompile Include="Wrappers\d3d9\state_block.cpp" />
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="Common\AutoUpdate.h" />
     <ClInclude Include="Common\FileSystemHooks.h" />
     <ClInclude Include="Common\LoadModules.h" />
@@ -220,128 +373,6 @@
     <ClInclude Include="Wrappers\wrapper.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Common\Settings.ini" />
-    <None Include="Resources\ReShade.ini" />
-    <None Include="Wrappers\wrapper.def" />
-  </ItemGroup>
-  <PropertyGroup Label="Globals">
-    <ProjectGuid>{E204DCB3-D122-4F2E-88A8-89AC22CE3274}</ProjectGuid>
-    <Keyword>Win32Proj</Keyword>
-    <ProjectName>sh2-enhce</ProjectName>
-  </PropertyGroup>
-  <PropertyGroup Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v141_xp</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-  </PropertyGroup>
-  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-  </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <ImportGroup Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="ReShade\stb\stb.props" />
-  </ImportGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)bin\Intermediate\$(ProjectName)\$(Configuration)\</IntDir>
-    <TargetName>d3d8</TargetName>
-    <LinkIncremental>false</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)bin\Intermediate\$(ProjectName)\$(Configuration)\</IntDir>
-    <TargetName>d3d8</TargetName>
-    <LinkIncremental>false</LinkIncremental>
-  </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
-      <AdditionalIncludeDirectories>$(SolutionDir);Include;Resources;%(AdditionalIncludeDirectories);$(DXSDK_DIR)Include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_WINDLL;WIN32;_DEBUG;_WINDOWS;_WIN32_WINNT=0x0501;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ObjectFileName>$(SolutionDir)bin\Intermediate\$(ProjectName)\$(Configuration)\Object\%(RelativeDir)</ObjectFileName>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-    </ClCompile>
-    <Link>
-      <ModuleDefinitionFile>Wrappers\wrapper.def</ModuleDefinitionFile>
-      <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>$(ProjectDir)Wrappers\d3d8\DirectX81SDK\include</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Psapi.lib;Shlwapi.lib;WinInet.lib;libci.lib;legacy_stdio_definitions.lib;d3dx8.lib;d3d8.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-    </Link>
-    <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul</Command>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
-      <AdditionalIncludeDirectories>$(SolutionDir);Include;Resources;%(AdditionalIncludeDirectories);$(DXSDK_DIR)Include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_WINDLL;WIN32;NDEBUG;_WINDOWS;_WIN32_WINNT=0x0501;D3D8TO9NOLOG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ObjectFileName>$(SolutionDir)bin\Intermediate\$(ProjectName)\$(Configuration)\Object\%(RelativeDir)</ObjectFileName>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-    </ClCompile>
-    <Link>
-      <ModuleDefinitionFile>Wrappers\wrapper.def</ModuleDefinitionFile>
-      <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>$(ProjectDir)Wrappers\d3d8\DirectX81SDK\include</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Psapi.lib;Shlwapi.lib;WinInet.lib;libci.lib;legacy_stdio_definitions.lib;d3dx8.lib;d3d8.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-    </Link>
-    <PreBuildEvent>
-      <Command>cmd /q /c "cd /D ""$(ProjectDir)"" &amp;&amp; if not exist Resources\BuildNo.rc echo #define BUILD_NUMBER 0 &gt;Resources\BuildNo.rc"
-cmd /q /c "cd /D ""$(ProjectDir)"" &amp;&amp; FOR /F "tokens=3" %%i IN (Resources\BuildNo.rc) DO set /a var=%%i+1 &gt;Build.txt"
-cmd /q /c "cd /D ""$(ProjectDir)"" &amp;&amp; FOR /F %%i IN (Build.txt) DO echo #define BUILD_NUMBER %%i &gt;Resources\BuildNo.rc"
-cmd /q /c "cd /D ""$(ProjectDir)"" &amp;&amp; del Build.txt"
-cmd /q /c "cd /D ""$(ProjectDir)"" &amp;&amp; type Resources\BuildNo.rc"
-cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del BuildNo.rc &gt; nul 2&gt;&amp;1"
-cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; echo echo^|set /p="#define " ^&gt; BuildNo.rc &gt; build.bat"
-cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; echo type "$(ProjectDir)External\d3d8to9\res\d3d8to9.rc" ^| find "FILEVERSION" ^&gt;^&gt; BuildNo.rc &gt;&gt; build.bat"
-cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; echo set /p build=^&lt;BuildNo.rc &gt;&gt; build.bat"
-cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; echo set modified=%%build:,=.%% &gt;&gt; build.bat"
-cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; echo echo %%modified%% ^&gt; BuildNo.rc &gt;&gt; build.bat"
-cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; call build.bat"
-cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
-    </PreBuildEvent>
-    <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul</Command>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemGroup>
-    <ProjectReference Include="ReShade\stb\stb.vcxproj">
-      <Project>{723bdef8-4a39-4961-bdab-54074012ff47}</Project>
-    </ProjectReference>
-    <ProjectReference Include="ReShade\ReShadeFX\ReShadeFX.vcxproj">
-      <Project>{d1c2099b-bec7-4993-8947-01d4a1f7eae2}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="ReShade\Runtime\runtime.cpp" />
-    <ClCompile Include="ReShade\Runtime\runtime_config.cpp" />
-    <ClCompile Include="Wrappers\d3d9\buffer_detection.cpp" />
-    <ClCompile Include="Wrappers\d3d9\d3d9wrapper.cpp" />
-    <ClCompile Include="Wrappers\d3d9\IDirect3DSwapChain9.cpp" />
-    <ClCompile Include="Wrappers\d3d9\IDirect3D9.cpp" />
-    <ClCompile Include="Wrappers\d3d9\IDirect3DDevice9.cpp" />
-    <ClCompile Include="Wrappers\d3d9\runtime_d3d9.cpp" />
-    <ClCompile Include="Wrappers\d3d9\state_block.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="ReShade\Runtime\runtime.hpp" />
     <ClInclude Include="ReShade\Runtime\runtime_config.hpp" />
     <ClInclude Include="ReShade\Runtime\runtime_objects.hpp" />
@@ -353,6 +384,16 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     <ClInclude Include="Wrappers\d3d9\IDirect3DDevice9.h" />
     <ClInclude Include="Wrappers\d3d9\runtime_d3d9.hpp" />
     <ClInclude Include="Wrappers\d3d9\state_block.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resources\BuildNo.rc" />
+    <ResourceCompile Include="Resources\sh2-enhce.rc" />
+    <ResourceCompile Include="Resources\UALx86.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Common\Settings.ini" />
+    <None Include="Resources\ReShade.ini" />
+    <None Include="Wrappers\wrapper.def" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Resources\webcsv.url" />

@@ -470,7 +470,13 @@ void DelayedStart()
 		PatchQuickSaveTweaks();
 	}
 
-	// Fixes missing sounds in menus
+	// Patches quick saving to write .sys and .dat files on the same frame
+	if (QuickSaveCancelFix)
+	{
+		PatchQuickSaveCancelFix();
+	}
+
+  // Fixes missing sounds in menus
 	if (MenuSoundsFix)
 	{
 		PatchMenuSounds();

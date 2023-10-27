@@ -832,15 +832,6 @@
         </Choices>
       </Feature>
 
-      <Feature name="RestoreAlternateStomp">
-        <Title>Restaurar "stomp" alternativo</Title>
-        <Description>Restaura a animação de "stomp" secundária/alternativa. Ao executar um "stomp", agora há uma chance de 50/50 de receber uma animação alternativa.</Description>
-        <Choices type="check">
-          <Value name="Desativar">0</Value>
-          <Value name="Ativar" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="HalogenLightFix">
         <Title>Restaurar shader de vértice apagado</Title>
         <Description>Restaura a luminância para determinados ativos do ambiente.</Description>

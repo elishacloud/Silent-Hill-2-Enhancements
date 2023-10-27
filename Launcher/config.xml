@@ -832,9 +832,9 @@
         </Choices>
       </Feature>
 
-      <Feature name="RestoreAlternateStomp">
+      <Feature name="EnableHoldToStomp">
         <Title>Restore alternate stomp</Title>
-        <Description>Restores the secondary/alternate stomp animation. When performing a stomp, there is now a 50/50 chance of receiving either stomp animation.</Description>
+        <Description>Restores the secondary/alternate stomp animation. When nearby an enemy on the ground, press and quickly release the attack button to perform a kick. Press and hold the attack button to perform a stomp.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -862,6 +862,15 @@
       <Feature name="RowboatAnimationFix">
         <Title>Rowboat animation fix</Title>
         <Description>Fixes an issue with James' character model being placed erratically into the rowboat if you previously entered the rowboat then load an earlier save point to enter the rowboat again.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="SwapLightHeavyAttack">
+        <Title>Swap light and heavy melee attack inputs</Title>
+        <Description>Swaps the priority of light and heavy attacks for melee weapons. Press and quickly release the attack button to perform a light attack. Press and hold the attack button to perform a heavy attack.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>

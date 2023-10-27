@@ -296,9 +296,6 @@
     <ClCompile Include="Patches\ReplaceWindowTitle.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
-    <ClCompile Include="Patches\AlternateStomp.cpp">
-      <Filter>Patches</Filter>
-    </ClCompile>
     <ClCompile Include="Patches\ChangeClosetSpawn.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
@@ -396,6 +393,12 @@
       <Filter>Patches</Filter>
     </ClCompile>
     <ClCompile Include="Patches\MasterVolume.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\HoldToStomp.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\SwapLightHeavyAttack.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
     <ClCompile Include="Patches\QuickSaveCancelFix.cpp">

@@ -434,11 +434,12 @@ void DelayedStart()
 		PatchSpecialFX();
 	}
 
-	// Enable Alternate Stomp
-	if (RestoreAlternateStomp)
-	{
-		PatchAlternateStomp();
-	}
+	
+    // Enable holding attack to stomp an enemy
+    if (EnableHoldToStomp)
+    {
+        PatchHoldToStomp();
+    }
 
 	// Changes the event at the gate near Heaven's Night to that when trying to re-enter the door to Blue Creek Apartments
 	if (FixTownWestGateEvent)
@@ -626,6 +627,12 @@ void DelayedStart()
 		PatchSpeakerConfigText();
 		PatchMasterVolumeSlider();
 	}
+
+    // Patch swap light and heavy melee attacks
+    if (SwapLightHeavyAttack)
+    {
+        PatchSwapLightHeavyAttack();
+    }
 
 	// Remove the "Now loading..." message
 	switch (GameVersion)

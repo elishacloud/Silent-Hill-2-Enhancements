@@ -194,6 +194,7 @@ BYTE* GetCheckForChangedOptionsPointer();
 DWORD* GetPlaySoundFunPointer();
 BYTE* GetDiscardOptionBOPointer();
 BYTE* GetDiscardOptionPointer();
+DWORD* GetDeltaTimeFunctionPointer();
 bool* GetHardwareSoundEnabledPointer();
 
 // Function patch declaration
@@ -214,7 +215,6 @@ void ValidateBinary();
 
 void Patch2TBHardDrive();
 void PatchAdvancedOptions();
-void PatchAlternateStomp();
 void PatchBestGraphics();
 void PatchBinary();
 void PatchCDCheck();
@@ -241,6 +241,7 @@ void PatchFullscreenImages();
 void PatchFullscreenVideos();
 void PatchGameLoad();
 void PatchHoldDamage();
+void PatchHoldToStomp();
 void PatchInputTweaks();
 void PatchInventoryBGMBug();
 void PatchLockScreenPosition();
@@ -272,6 +273,7 @@ void PatchSFXAddr();
 void PatchSixtyFPS();
 void PatchSpeakerConfigText();
 void PatchSpecificSoundLoopFix();
+void PatchSwapLightHeavyAttack();
 void PatchTexAddr();
 void PatchTownWestGateEvent();
 void PatchTreeLighting();
@@ -400,6 +402,7 @@ extern BYTE* TalkShowHostStateAddr;
 extern BYTE* InputAssignmentFlagAddr;
 extern float* PuzzleCursorHorizontalPosAddr;
 extern float* PuzzleCursorVerticalPosAddr;
+extern DWORD* GetDeltaTimeFunctionAddr;
 
 extern bool ShowDebugOverlay;
 extern bool ShowInfoOverlay;

@@ -29,6 +29,7 @@
 	visit(DynamicResolution, true) \
 	visit(EnableDebugOverlay, true) \
 	visit(EnableEnhancedMouse, true) \
+    visit(EnableHoldToStomp, true) \
 	visit(EnableInfoOverlay, true) \
 	visit(EnableMasterVolume, true) \
 	visit(EnableMenuTest, false) \
@@ -99,7 +100,6 @@
 	visit(ReduceCutsceneFOV, true) \
 	visit(RemoveEffectsFlicker, true) \
 	visit(RemoveEnvironmentFlicker, true) \
-	visit(RestoreAlternateStomp, true) \
 	visit(RestoreBrightnessSelector, true) \
 	visit(RestoreSpecialFX, true) \
 	visit(RestoreVibration, true) \
@@ -113,6 +113,7 @@
 	visit(SpecificSoundLoopFix, true) \
 	visit(SpecularFix, true) \
 	visit(SteamCrashFix, true) \
+    visit(SwapLightHeavyAttack, true) \
 	visit(UnlockJapLang, true) \
 	visit(UseBestGraphics, true) \
 	visit(UseCustomExeStr, true) \

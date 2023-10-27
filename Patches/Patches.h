@@ -81,6 +81,7 @@ int8_t GetOptionsSubPage();
 int32_t GetInternalVerticalRes();
 int32_t GetInternalHorizontalRes();
 int16_t GetSelectedOption();
+bool IsHardwareSoundEnabled();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -194,6 +195,7 @@ DWORD* GetPlaySoundFunPointer();
 BYTE* GetDiscardOptionBOPointer();
 BYTE* GetDiscardOptionPointer();
 DWORD* GetDeltaTimeFunctionPointer();
+bool* GetHardwareSoundEnabledPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -248,6 +250,7 @@ void PatchMainMenuTitlePerLang();
 void PatchMapTranscription();
 void PatchMasterVolumeSlider();
 void PatchMemoBrightnes();
+void PatchMenuSounds();
 void PatchPauseScreen();
 void PatchPistonRoom();
 void PatchPreventChainsawSpawn();
@@ -255,6 +258,7 @@ void PatchPrisonerTimer();
 void PatchPS2Flashlight();
 void PatchPS2NoiseFilter();
 void PatchQuickSaveTweaks();
+void PatchQuickSaveCancelFix();
 void PatchRedCrossInCutscene();
 void PatchRoom312ShadowFix();
 void PatchRoomLighting();
@@ -273,6 +277,7 @@ void PatchSwapLightHeavyAttack();
 void PatchTexAddr();
 void PatchTownWestGateEvent();
 void PatchTreeLighting();
+void PatchVHSAudio();
 void PatchWindowIcon();
 void PatchWindowTitle();
 void PatchXInputVibration();
@@ -289,6 +294,7 @@ bool IsInMainOptionsMenu();
 bool IsInOptionsMenu();
 
 void HandleFinalBossRoomFix();
+void HandleMenuSounds();
 void SetNewVolume();
 
 void OnFileLoadTex(LPCSTR lpFileName);
@@ -309,6 +315,7 @@ void RunInfiniteRumbleFix();
 void RunInnerFlashlightGlow(DWORD Height);
 void RunLightingTransition();
 void RunQuickSaveTweaks();
+void RunQuickSaveCancelFix();
 void RunRoomLighting();
 void RunRotatingMannequin();
 void RunSaveBGImage();

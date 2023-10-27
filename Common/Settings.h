@@ -8,6 +8,7 @@
 	visit(AutoHideMouseCursor, false) \
 	visit(AutoUpdateModule, true) \
 	visit(CatacombsMeatRoomFix, true) \
+	visit(CenterPuzzleCursor, true) \
 	visit(ChangeClosetSpawn, true) \
 	visit(CheckCompatibilityMode, true) \
 	visit(CheckForAdminAccess, true) \
@@ -87,6 +88,7 @@
 	visit(MainMenuFix, true) \
 	visit(MainMenuTitlePerLang, true) \
 	visit(MemoScreenFix, true) \
+	visit(MenuSoundsFix, true) \
 	visit(NoCDPatch, true) \
 	visit(PauseScreenFix, true) \
 	visit(PistonRoomFix, true) \
@@ -94,6 +96,7 @@
 	visit(PS2FlashlightBrightness, true) \
 	visit(PS2StyleNoiseFilter, true) \
 	visit(QuickSaveTweaks, true) \
+    visit(QuickSaveCancelFix, true) \
 	visit(ReduceCutsceneFOV, true) \
 	visit(RemoveEffectsFlicker, true) \
 	visit(RemoveEnvironmentFlicker, true) \
@@ -117,6 +120,7 @@
 	visit(UseCustomFonts, true) \
 	visit(UseCustomModFolder, true) \
 	visit(UsePS2LowResTextures, false) \
+	visit(VHSAudioFix, false) \
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, true) \
@@ -221,6 +225,7 @@
 	visit(LockResolution) \
 	visit(NormalFontHeight) \
 	visit(NormalFontWidth) \
+    visit(QuickSaveCancelFix) \
 	visit(ResX) \
 	visit(ResY) \
 	visit(SmallFontHeight) \

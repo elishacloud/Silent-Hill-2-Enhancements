@@ -89,7 +89,7 @@ void RunBloodSize()
 	static bool ValueSet1 = false;
 	if (GetRoomID() == 0x17)
 	{
-		float Value = -3.0f;
+		float Value = -5.0f;
 		if (*Address1_a != Value || *Address1_b != Value || *Address1_c != Value || *Address1_d != Value)
 		{
 			UpdateMemoryAddress(Address1_a, &Value, sizeof(float));

@@ -183,7 +183,7 @@ void UpdateMousePosition_Hook()
 	auto Now = std::chrono::system_clock::now();
 
 	// Center the mouse cursor when entering a puzzle
-	if (GetEventIndex() == EVENT_IN_GAME && IsInFullScreenImageEvent() && GetMenuEvent() == 0x0D)
+	if (GetEventIndex() == EVENT_IN_GAME && IsInFullScreenImageEvent() && GetMenuEvent() == 0x0D && CenterPuzzleCursor)
 	{
 		if (!EnteredPuzzle)
 			CursorPosHandler.CenterCursor();

@@ -401,6 +401,32 @@
           <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
+      
+      <Feature name="MenuSoundsFix">
+        <Title>Ripristina suoni nei menu</Title>
+        <Description>Ripristina suoni di selezione nei menu. Ripristina anche suoni di selezione mentre si naviga il menu col mouse nel menu Pause, Filmati e vari menu Opzioni.</Description>
+        <Choices type="check">
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Audio Bonus">
+
+      <Feature name="VHSAudioFix">
+        <Title>Ripristina l'audio per la VHS senza censura</Title>
+        <Description>
+          Ripristina l'audio per la VHS senza censura.
+          
+          Nota: Bisogna avere la giusta versione del file video che contiene entrambe le versioni dell'audio, censurata e non. Altrimenti, soltanto l'audio originale verrà riprodotto. E' possibile ottenere la corretta versione di questo video scaricando l'FMV Enhancement Pack dal sito del progetto.
+        </Description>
+        <Choices type="check">
+          <Value name="Disable" default="true">0</Value>
+          <Value name="Enable">1</Value>
+        </Choices>
+      </Feature>
 
     </Section>
 
@@ -836,6 +862,15 @@
       <Feature name="FixDrawingTextLine">
         <Title>Inspessisci la linea del diario nell'ospedale</Title>
         <Description>Inspessisce la linea orizzontale del diario nell'ospedale per renderla più visibile ad alte risoluzioni.</Description>
+        <Choices type="check">
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="CenterPuzzleCursor">
+        <Title>Centra cursore puzzle</Title>
+        <Description>Centra il cursore quando si entra in un puzzle.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>

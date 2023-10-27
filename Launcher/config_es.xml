@@ -411,6 +411,32 @@
         </Choices>
       </Feature>
 
+      <Feature name="MenuSoundsFix">
+        <Title>Restore selection sounds in menus</Title>
+        <Description>Adds selection sounds to menus that did not originally have them. Also restores selection sounds when navigating menu choices with the mouse. Affects the Pause menu, Movies menu, and various Options menus.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+    <Section name="Bonus Audio">
+
+      <Feature name="VHSAudioFix">
+        <Title>Restore uncensored VHS audio</Title>
+        <Description>
+          Restores the uncensored audio for the VHS tape FMV.
+
+          Note: You must have the correct version of this FMV that contains both the censored and uncensored audio tracks. If you do not, then only the original censored audio will play. You can obtain the correct version of this FMV by downloading the project's FMV Enhancement Pack.
+        </Description>
+        <Choices type="check">
+          <Value name="Disable" default="true">0</Value>
+          <Value name="Enable">1</Value>
+        </Choices>
+      </Feature>
+
     </Section>
 
   </Tab>
@@ -848,6 +874,15 @@
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="CenterPuzzleCursor">
+        <Title>Center puzzle mouse cursor</Title>
+        <Description>Center mouse cursor when entering a puzzle.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 

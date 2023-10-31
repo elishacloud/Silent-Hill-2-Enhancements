@@ -770,7 +770,7 @@ void CConfigGroup::CConfigSub::Parse(XMLElement& xml)
 	auto o = xml.FirstChildElement("Opt");
 	while (o)
 	{
-		CConfigSubOpt op;
+		CConfigSubOpt op = {};
 		std::string xs = SAFESTR(o->Attribute("sec"));
 		std::string xo = SAFESTR(o->Attribute("op"));
 		op.Set(xs, xo);
@@ -786,7 +786,7 @@ void CConfigGroup::CConfigSub::ParseTab(XMLElement& xml)
 	auto o = xml.FirstChildElement("Feature");
 	while (o)
 	{
-		CConfigSubOpt op;
+		CConfigSubOpt op = {};
 		std::string xs = SAFESTR(xml.Attribute("name"));
 		std::string xo = SAFESTR(o->Attribute("name"));
 		op.Set(xs, xo);

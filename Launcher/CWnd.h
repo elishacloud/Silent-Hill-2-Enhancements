@@ -155,7 +155,7 @@ public:
 		UNREFERENCED_PARAMETER(check);
 	}
 	// textboxes
-	virtual std::wstring GetString() { return nullptr; };
+	virtual std::wstring GetString() { return std::wstring(); };
 	virtual void SetString(std::wstring lpString)
 	{
 		UNREFERENCED_PARAMETER(lpString);

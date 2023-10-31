@@ -185,7 +185,7 @@ public:
 	class CConfigString
 	{
 	public:
-		XXH64_hash_t hash;
+		XXH64_hash_t hash = NULL;
 		std::wstring str;
 	};
 

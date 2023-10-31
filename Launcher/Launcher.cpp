@@ -35,7 +35,7 @@
 #include "Patches\Patches.h"
 #include "Logging\Logging.h"
 
-#define SH2CLASS	L"ConfigToolClass"
+constexpr wchar_t* SH2CLASS = L"ConfigToolClass";
 
 // For Logging
 std::ofstream LOG;
@@ -541,14 +541,24 @@ BOOL CenterWindow(HWND hwndWindow)
 	return TRUE;
 }
 
+BOOL SetNewWindowPlacement(WINDOWPLACEMENT wndpl)
+{
+	RECT w;
+	GetWindowRect(hWnd, &w);
+	LONG left = wndpl.rcNormalPosition.left;
+	LONG top = wndpl.rcNormalPosition.top;
+	wndpl.rcNormalPosition = { left, top, (w.right - w.left) + left, (w.bottom - w.top) + top };
+	return SetWindowPlacement(hWnd, &wndpl);
+}
+
 void LoadWindowSettings()
 {
-	WINDOWPLACEMENT wndpl;
+	WINDOWPLACEMENT wndpl = {};
 
 	if (ReadRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"WindowPlacement", &wndpl, sizeof(WINDOWPLACEMENT)))
 	{
 		wndpl.length = sizeof(WINDOWPLACEMENT);
-		SetWindowPlacement(hWnd, &wndpl);
+		SetNewWindowPlacement(wndpl);
 
 		// Remove resolution from registry
 		HKEY hKey;
@@ -565,13 +575,13 @@ void LoadWindowSettings()
 	if (ReadRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"LauncherWindowPlacement", &wndpl, sizeof(WINDOWPLACEMENT)))
 	{
 		wndpl.length = sizeof(WINDOWPLACEMENT);
-		SetWindowPlacement(hWnd, &wndpl);
+		SetNewWindowPlacement(wndpl);
 	}
 }
 
 void SaveWindowSettings()
 {
-	WINDOWPLACEMENT wndpl;
+	WINDOWPLACEMENT wndpl = {};
 	wndpl.length = sizeof(WINDOWPLACEMENT);
 	GetWindowPlacement(hWnd, &wndpl);
 
@@ -580,11 +590,12 @@ void SaveWindowSettings()
 
 std::wstring GetExeMRU()
 {
-	wchar_t Name[MAX_PATH];
+	std::wstring Name;
+	Name.resize(MAX_PATH, '\0');
 
-	if (ReadRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"ExeMRU", &Name, MAX_PATH * sizeof(wchar_t)))
+	if (ReadRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"ExeMRU", Name.data(), MAX_PATH * sizeof(wchar_t)))
 	{
-		return std::wstring(Name);
+		return Name;
 	}
 
 	return std::wstring(L"");
@@ -752,11 +763,28 @@ bool RelaunchApp()
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	m_hModule = hInstance; // Store instance handle in our global variable
-	hWnd.CreateWindow(SH2CLASS, GetPrgString(STR_TITLE).c_str(), WS_OVERLAPPEDWINDOW & ~(WS_MAXIMIZEBOX | WS_THICKFRAME),
-		CW_USEDEFAULT, CW_USEDEFAULT, 800, 620, nullptr, hInstance);
+
+	LONG rWidth = 800;
+	LONG rHeight = 620;
+
+	hWnd.CreateWindow(SH2CLASS, GetPrgString(STR_TITLE).c_str(), WS_OVERLAPPED | WS_SYSMENU | WS_MINIMIZEBOX,
+		CW_USEDEFAULT, CW_USEDEFAULT, rWidth, rHeight, nullptr, hInstance);
 	if (!hWnd)
 		return FALSE;
 
+	// adjust client rect window size
+	{
+		RECT r, w;
+		GetClientRect(hWnd, &r);
+		GetWindowRect(hWnd, &w);
+		SetWindowPos(hWnd, NULL, 0, 0, (w.right - w.left) - r.right + rWidth, (w.bottom - w.top) - r.bottom + rHeight, SWP_NOMOVE | SWP_NOZORDER);
+	}
+
+	// set window location
+	CenterWindow(hWnd);
+	LoadWindowSettings();
+
+	// get client rect size
 	RECT r;
 	GetClientRect(hWnd, &r);
 
@@ -844,10 +872,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	// let's go!
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
-
-	// set window location
-	CenterWindow(hWnd);
-	LoadWindowSettings();
 
 	// subclass the tab to catch messages for controls inside it
 	hTab.Subclass(TabProc);

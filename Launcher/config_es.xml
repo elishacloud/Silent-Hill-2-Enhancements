@@ -742,6 +742,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="FireEscapeKeyFix">
+        <Title>Fire Escape Key Fix</Title>
+        <Description>Allows the fire escape key to be interacted with without the flashlight.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="FixAptClockFlashlight">
         <Title>Corregir la cinemática del reloj en los apartamentos</Title>
       	<Description>Corrige el renderizado de la linterna sobre el reloj de pie de los apartamentos al final de la escena en la que no se puede empujar.</Description>

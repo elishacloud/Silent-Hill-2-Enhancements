@@ -231,6 +231,7 @@ void PatchDelayedFadeIn();
 void PatchDoubleFootstepFix();
 void PatchDrawDistance();
 void PatchFinalBossRoom();
+void PatchFireEscapeKey();
 void PatchFlashlightClockPush();
 void PatchFlashlightFlicker();
 void PatchFMV();

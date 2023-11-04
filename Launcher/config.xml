@@ -733,6 +733,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="FireEscapeKeyFix">
+        <Title>Fire Escape Key Fix</Title>
+        <Description>Allows the fire escape key to be interacted with without the flashlight.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="FixAptClockFlashlight">
         <Title>Fix apartment clock cutscene</Title>
         <Description>Fixes the flashlight rendering on the apartment grandfather clock at the end of a failed attempt to push it.</Description>

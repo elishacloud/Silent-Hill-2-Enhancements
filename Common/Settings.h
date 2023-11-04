@@ -43,6 +43,7 @@
 	visit(EnableToggleSprint, true) \
 	visit(EnhanceMouseCursor, true) \
 	visit(FastTransitions, true) \
+	visit(FireEscapeKeyFix, true) \
 	visit(Fix2D, true) \
 	visit(FixAdvancedOptions, true) \
 	visit(FixAptClockFlashlight, true) \

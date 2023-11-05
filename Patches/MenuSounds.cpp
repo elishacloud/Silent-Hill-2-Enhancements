@@ -37,7 +37,7 @@ int8_t LastPauseQuitIndex;
 BYTE* ConfirmAdvancedOptionsReturn = nullptr;
 BYTE* DiscardAdvancedOptionsReturn = nullptr;
 
-BYTE* TargetOptionsPageAddr = nullptr;
+BYTE* SelectOptionsPageAddr = nullptr;
 
 bool PlayConfirmSound = false;
 bool PlayCancelSound = false;
@@ -46,7 +46,7 @@ bool PlayCancelSound = false;
 __declspec(naked) void __stdcall ConfirmAdvancedOptions()
 {
 	PlayConfirmSound = true;
-	*TargetOptionsPageAddr = 0x01;
+	*SelectOptionsPageAddr = 0x01;
 
 	__asm
 	{
@@ -58,7 +58,7 @@ __declspec(naked) void __stdcall ConfirmAdvancedOptions()
 __declspec(naked) void __stdcall DiscardAdvancedOptions()
 {
 	PlayCancelSound = true;
-	*TargetOptionsPageAddr = 0x01;
+	*SelectOptionsPageAddr = 0x01;
 
 	__asm
 	{
@@ -108,7 +108,7 @@ void PatchMenuSounds()
 		return;
 	}
 
-	TargetOptionsPageAddr = (BYTE*)ReadSearchedAddresses(0x00464DCB, 0x0046505B, 0x0046526B, ConfirmAdvancedOptionsSearchBytes, sizeof(ConfirmAdvancedOptionsSearchBytes), 0x149, __FUNCTION__);
+	SelectOptionsPageAddr = (BYTE*)ReadSearchedAddresses(0x00464DCB, 0x0046505B, 0x0046526B, ConfirmAdvancedOptionsSearchBytes, sizeof(ConfirmAdvancedOptionsSearchBytes), 0x149, __FUNCTION__);
 
 	BYTE* DiscardAdvancedOptionsAddr = ConfirmAdvancedOptionsAddr + 0x66;
 

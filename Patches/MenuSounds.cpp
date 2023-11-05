@@ -35,6 +35,7 @@ int8_t LastPauseSelection;
 int8_t LastPauseQuitIndex;
 
 BYTE* StoredOptionsResolutionAddr = nullptr;
+BYTE* TempStoredOptionsResolutionAddr = nullptr;
 int8_t StoredOptionsResolution = NULL;
 
 BYTE* ConfirmAdvancedOptionsReturn = nullptr;
@@ -47,10 +48,12 @@ bool PlayCancelSound = false;
 __declspec(naked) void __stdcall ConfirmAdvancedOptions()
 {
 	PlayConfirmSound = true;
+	// Storing the address in a temporary variable since the game changes it
+	TempStoredOptionsResolutionAddr = StoredOptionsResolutionAddr;
 
 	__asm
 	{
-		mov byte ptr[StoredOptionsResolutionAddr], al
+		mov byte ptr[TempStoredOptionsResolutionAddr], al
 
 		jmp ConfirmAdvancedOptionsReturn;
 	}

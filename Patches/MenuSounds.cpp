@@ -34,12 +34,10 @@ int8_t LastOptionsSubPage;
 int8_t LastPauseSelection;
 int8_t LastPauseQuitIndex;
 
-BYTE* StoredOptionsResolutionAddr = nullptr;
-BYTE* TempStoredOptionsResolutionAddr = nullptr;
-int8_t StoredOptionsResolution = NULL;
-
 BYTE* ConfirmAdvancedOptionsReturn = nullptr;
 BYTE* DiscardAdvancedOptionsReturn = nullptr;
+
+BYTE* TargetOptionsPageAddr = nullptr;
 
 bool PlayConfirmSound = false;
 bool PlayCancelSound = false;
@@ -48,13 +46,10 @@ bool PlayCancelSound = false;
 __declspec(naked) void __stdcall ConfirmAdvancedOptions()
 {
 	PlayConfirmSound = true;
-	// Storing the address in a temporary variable since the game changes it
-	TempStoredOptionsResolutionAddr = StoredOptionsResolutionAddr;
+	*TargetOptionsPageAddr = 0x01;
 
 	__asm
 	{
-		mov byte ptr[TempStoredOptionsResolutionAddr], al
-
 		jmp ConfirmAdvancedOptionsReturn;
 	}
 }
@@ -63,11 +58,10 @@ __declspec(naked) void __stdcall ConfirmAdvancedOptions()
 __declspec(naked) void __stdcall DiscardAdvancedOptions()
 {
 	PlayCancelSound = true;
+	*TargetOptionsPageAddr = 0x01;
 
 	__asm
 	{
-		mov dl, byte ptr[StoredOptionsResolution]
-
 		jmp DiscardAdvancedOptionsReturn;
 	}
 }
@@ -76,9 +70,6 @@ void HandleMenuSounds()
 {
 	if (!MenuSoundsFix)
 		return;
-
-	// Save the current stored opt resolution to use in asm when discarding
-	StoredOptionsResolution = *StoredOptionsResolutionAddr;
 
 	if ((OptionsOrMovieMenuChanged() || PauseSelectionChanged()) &&
 		GetTransitionState() == 0x00)
@@ -109,7 +100,7 @@ void PatchMenuSounds()
 	LastOptionsSubPage = GetOptionsSubPage();
 
 	constexpr BYTE ConfirmAdvancedOptionsSearchBytes[]{ 0x75, 0x0E, 0x83, 0xFF, 0x04, 0x74, 0x09 };
-	BYTE* ConfirmAdvancedOptionsAddr = (BYTE*)SearchAndGetAddresses(0x00464DCB, 0x0046505B, 0x0046526B, ConfirmAdvancedOptionsSearchBytes, sizeof(ConfirmAdvancedOptionsSearchBytes), 0x64, __FUNCTION__);
+	BYTE* ConfirmAdvancedOptionsAddr = (BYTE*)SearchAndGetAddresses(0x00464DCB, 0x0046505B, 0x0046526B, ConfirmAdvancedOptionsSearchBytes, sizeof(ConfirmAdvancedOptionsSearchBytes), 0x147, __FUNCTION__);
 
 	if (!ConfirmAdvancedOptionsAddr)
 	{
@@ -117,10 +108,12 @@ void PatchMenuSounds()
 		return;
 	}
 
-	BYTE* DiscardAdvancedOptionsAddr = ConfirmAdvancedOptionsAddr + 0xFA;
+	TargetOptionsPageAddr = (BYTE*)ReadSearchedAddresses(0x00464DCB, 0x0046505B, 0x0046526B, ConfirmAdvancedOptionsSearchBytes, sizeof(ConfirmAdvancedOptionsSearchBytes), 0x149, __FUNCTION__);
 
-	ConfirmAdvancedOptionsReturn = ConfirmAdvancedOptionsAddr + 0x05;
-	DiscardAdvancedOptionsReturn = DiscardAdvancedOptionsAddr + 0x06;
+	BYTE* DiscardAdvancedOptionsAddr = ConfirmAdvancedOptionsAddr + 0x66;
+
+	ConfirmAdvancedOptionsReturn = ConfirmAdvancedOptionsAddr + 0x07;
+	DiscardAdvancedOptionsReturn = DiscardAdvancedOptionsAddr + 0x07;
 
 	constexpr BYTE OptionsChangedSoundSearchBytes[]{ 0xBF, 0x0F, 0x00, 0x00, 0x00, 0x2B, 0xFD };
 	DWORD* OptionsChangedSoundAddr = (DWORD*)SearchAndGetAddresses(0x0045FDC3, 0x00460023, 0x00460023, OptionsChangedSoundSearchBytes, sizeof(OptionsChangedSoundSearchBytes), -0x67, __FUNCTION__);
@@ -160,11 +153,6 @@ void PatchMenuSounds()
 
 	BYTE* MovieSelectionIncreasedAddr = MovieSelectionDecreasedAddr + 0x62;
 
-	DWORD TempOptionsRes;
-	memcpy(&TempOptionsRes, ConfirmAdvancedOptionsAddr + 0x01, sizeof(DWORD));
-
-	StoredOptionsResolutionAddr = (BYTE*)TempOptionsRes;
-
 	// Play Sound address, same for all binaries
 	uint32_t* PlaySoundAddress = (uint32_t*)0x0040282E;
 
@@ -185,8 +173,8 @@ void PatchMenuSounds()
 	UpdateMemoryAddress(PauseMenuQuitNoAddr, "\x13", 0x01);
 
 	// Hook instructions called when confirming and discarding advanced options to play sounds
-	WriteJMPtoMemory(ConfirmAdvancedOptionsAddr, ConfirmAdvancedOptions, 0x05);
-	WriteJMPtoMemory(DiscardAdvancedOptionsAddr, DiscardAdvancedOptions, 0x06);
+	WriteJMPtoMemory(ConfirmAdvancedOptionsAddr, ConfirmAdvancedOptions, 0x07);
+	WriteJMPtoMemory(DiscardAdvancedOptionsAddr, DiscardAdvancedOptions, 0x07);
 }
 
 bool OptionsOrMovieMenuChanged()

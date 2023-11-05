@@ -1697,66 +1697,43 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 	{
 		DWORD Handle = 0;
 		ProxyInterface->GetVertexShader(&Handle);
-		if (Handle == D3DFVF_XYZRHW)
+		CUSTOMVERTEX* vert = (CUSTOMVERTEX*)pVertexStreamZeroData;
+		if (Handle == D3DFVF_XYZRHW && PrimitiveType == D3DPT_TRIANGLELIST &&
+			vert[0].x == 0.0f && vert[0].y == 0.0f && vert[0].z == 0.0f && vert[0].rhw == 1.0f &&
+			vert[1].x == (float)BufferWidth && vert[1].y == 0.0f && vert[1].z == 0.0f && vert[1].rhw == 1.0f &&
+			vert[2].x == (float)BufferWidth && vert[2].y == (float)BufferHeight && vert[2].z == 0.0f && vert[2].rhw == 1.0f &&
+			vert[3].x == 0.0f && vert[3].y == 0.0f && vert[3].z == 0.0f && vert[3].rhw == 1.0f &&
+			vert[4].x == (float)BufferWidth && vert[4].y == (float)BufferHeight && vert[4].z == 0.0f && vert[4].rhw == 1.0f &&
+			vert[5].x == 0.0f && vert[5].y == (float)BufferHeight && vert[5].z == 0.0f && vert[5].rhw == 1.0f)
 		{
-			CUSTOMVERTEX *vert = (CUSTOMVERTEX*)pVertexStreamZeroData;
-			if (PrimitiveType == D3DPT_TRIANGLELIST &&
-				vert[0].x == 0.0f && vert[0].y == 0.0f && vert[0].z == 0.0f && vert[0].rhw == 1.0f &&
-				vert[1].x == (float)BufferWidth && vert[1].y == 0.0f && vert[1].z == 0.0f && vert[1].rhw == 1.0f &&
-				vert[2].x == (float)BufferWidth && vert[2].y == (float)BufferHeight && vert[2].z == 0.0f && vert[2].rhw == 1.0f &&
-				vert[3].x == 0.0f && vert[3].y == 0.0f && vert[3].z == 0.0f && vert[3].rhw == 1.0f &&
-				vert[4].x == (float)BufferWidth && vert[4].y == (float)BufferHeight && vert[4].z == 0.0f && vert[4].rhw == 1.0f &&
-				vert[5].x == 0.0f && vert[5].y == (float)BufferHeight && vert[5].z == 0.0f && vert[5].rhw == 1.0f)
+			for (int x = 0; x < 6; x++)
 			{
-				for (int x = 0; x < 6; x++)
-				{
-					vert[x].x -= 0.5f;
-					vert[x].y -= 0.5f;
-					vert[x].z = 0.01f;
-				}
-			}
-			else if (PrimitiveType == D3DPT_TRIANGLESTRIP &&
-				vert[0].x == 0.0f && vert[0].y == 0.0f && vert[0].z == 0.0f && vert[0].rhw == 1.0f &&
-				vert[1].x == (float)BufferWidth && vert[1].y == 0.0f && vert[1].z == 0.0f && vert[1].rhw == 1.0f &&
-				vert[2].x == 0.0f && vert[2].y == (float)BufferHeight && vert[2].z == 0.0f && vert[2].rhw == 1.0f &&
-				vert[3].x == (float)BufferWidth && vert[3].y == (float)BufferHeight && vert[3].z == 0.0f && vert[3].rhw == 1.0f)
-			{
-				for (int x = 0; x < 4; x++)
-				{
-					vert[x].x -= 0.5f;
-					vert[x].y -= 0.5f;
-					vert[x].z = 0.01f;
-				}
+				vert[x].x -= 0.5f;
+				vert[x].y -= 0.5f;
+				vert[x].z = 0.01f;
 			}
 		}
-		else if (Handle == (D3DFVF_XYZRHW | D3DFVF_TEX4))
+		else if (Handle == (D3DFVF_XYZRHW | D3DFVF_TEX4) && PrimitiveType == D3DPT_TRIANGLESTRIP &&
+			vert[0].x == 0.0f && vert[0].y == 0.0f && vert[0].z == 0.0f && vert[0].rhw == 1.0f &&
+			vert[1].x == (float)BufferWidth && vert[1].y == 0.0f && vert[1].z == 0.0f && vert[1].rhw == 1.0f &&
+			vert[2].x == 0.0f && vert[2].y == (float)BufferHeight && vert[2].z == 0.0f && vert[2].rhw == 1.0f &&
+			vert[3].x == (float)BufferWidth && vert[3].y == (float)BufferHeight && vert[3].z == 0.0f && vert[3].rhw == 1.0f)
 		{
-			CUSTOMVERTEX_TEX4 *vert = (CUSTOMVERTEX_TEX4*)pVertexStreamZeroData;
-			if (PrimitiveType == D3DPT_TRIANGLESTRIP &&
-				vert[0].x == 0.0f && vert[0].y == 0.0f && vert[0].z == 0.0f && vert[0].rhw == 1.0f &&
-				vert[1].x == (float)BufferWidth && vert[1].y == 0.0f && vert[1].z == 0.0f && vert[1].rhw == 1.0f &&
-				vert[2].x == 0.0f && vert[2].y == (float)BufferHeight && vert[2].z == 0.0f && vert[2].rhw == 1.0f &&
-				vert[3].x == (float)BufferWidth && vert[3].y == (float)BufferHeight && vert[3].z == 0.0f && vert[3].rhw == 1.0f)
+			for (int x = 0; x < 4; x++)
 			{
-				for (int x = 0; x < 4; x++)
-				{
-					vert[x].x -= 0.5f;
-					vert[x].y -= 0.5f;
-					vert[x].z = 0.01f;
-				}
+				vert[x].x -= 0.5f;
+				vert[x].y -= 0.5f;
+				vert[x].z = 0.01f;
 			}
 		}
 		// Fix 1 pixel gap in cutscene letterboxes
-		else if (PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 20)
+		else if (PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 20 &&
+			vert[0].x == 0.0f && vert[2].x == 0.0f && (vert[1].x == (float)BufferWidth || vert[0].y == (float)BufferHeight))
 		{
-			CUSTOMVERTEX_DIF *vert = (CUSTOMVERTEX_DIF*)pVertexStreamZeroData;
-			if (vert[0].x == 0.0f && vert[2].x == 0.0f && (vert[1].x == (float)BufferWidth || vert[0].y == (float)BufferHeight))
+			for (int x = 0; x < 4; x++)
 			{
-				for (int x = 0; x < 4; x++)
-				{
-					vert[x].x -= 0.5f;
-					vert[x].y -= 0.5f;
-				}
+				vert[x].x -= 0.5f;
+				vert[x].y -= 0.5f;
 			}
 		}
 	}
@@ -2162,7 +2139,7 @@ HRESULT m_IDirect3DDevice8::SetTextureStageState(DWORD Stage, D3DTEXTURESTAGESTA
 				return D3D_OK;
 			}
 		}
-		else if (Stage != 0 && (Type == D3DTSS_MINFILTER || Type == D3DTSS_MAGFILTER) && Value == D3DTEXF_LINEAR)
+		else if ((Type == D3DTSS_MINFILTER || Type == D3DTSS_MAGFILTER) && Value == D3DTEXF_LINEAR)
 		{
 			if (SUCCEEDED(ProxyInterface->SetTextureStageState(Stage, D3DTSS_MAXANISOTROPY, MaxAnisotropy)) &&
 				SUCCEEDED(ProxyInterface->SetTextureStageState(Stage, Type, D3DTEXF_ANISOTROPIC)))

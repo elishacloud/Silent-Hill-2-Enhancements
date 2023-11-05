@@ -31,23 +31,9 @@ void PatchFireEscapeKey()
 		return;
 	}
 
-	// Set virtual protection
-	DWORD dwPrevProtect;
-	if (!VirtualProtect(FireEscapeKeyPtr, sizeof(DWORD), PAGE_READONLY, &dwPrevProtect))
-	{
-		Logging::Log() << __FUNCTION__ " Error: could not read memory address";
-		return;
-	}
-
 	// Get Fire Escape Key address
 	DWORD FireEscapeKeyAddr = 0;
-	memcpy(&FireEscapeKeyAddr, FireEscapeKeyPtr, sizeof(DWORD));
-
-	// Restore protection
-	VirtualProtect(FireEscapeKeyPtr, sizeof(DWORD), dwPrevProtect, &dwPrevProtect);
-
-	// Check address
-	if (!FireEscapeKeyAddr)
+	if (!ReadMemoryAddress(FireEscapeKeyPtr, &FireEscapeKeyAddr, sizeof(DWORD)) || !FireEscapeKeyAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;

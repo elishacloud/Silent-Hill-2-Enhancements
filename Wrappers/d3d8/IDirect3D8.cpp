@@ -17,13 +17,6 @@
 #include "d3d8wrapper.h"
 #include "Patches\InputTweaks.h"
 
-#define ATI_VENDOR_ID		0x1002	/* ATI Technologies Inc.			*/
-#define NVIDIA_VENDOR_ID	0x10DE	/* NVIDIA Corporation				*/
-#define MATROX_VENDOR_ID	0x102B	/* Matrox Electronic Systems Ltd.	*/
-#define _3DFX_VENDOR_ID		0x121A	/* 3dfx Interactive Inc.			*/
-#define S3_VENDOR_ID		0x5333	/* S3 Graphics Co., Ltd.			*/
-#define INTEL_VENDOR_ID		0x8086	/* Intel Corporation				*/
-
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 WNDPROC OriginalWndProc = nullptr;
@@ -34,6 +27,7 @@ bool WindowInChange = false;
 bool UsingWindowBorder = true;
 bool CopyRenderTarget = false;
 bool SetSSAA = false;
+bool SetATOC = false;
 bool TakeScreenShot = false;
 D3DMULTISAMPLE_TYPE DeviceMultiSampleType = D3DMULTISAMPLE_NONE;
 
@@ -237,16 +231,13 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	}
 
 	// Check if render target needs to be replaced
+	CopyRenderTarget = (DeviceMultiSampleType || FixGPUAntiAliasing);
+
+	// Check Transparency Antialiasing
 	if (DeviceMultiSampleType || FixGPUAntiAliasing)
 	{
-		CopyRenderTarget = true;
-	}
-
-	// Check for SSAA
-	if ((DeviceMultiSampleType || FixGPUAntiAliasing) &&
-		(ProxyInterface->CheckDeviceFormat(Adapter, D3DDEVTYPE_HAL, D3DFMT_X8R8G8B8, 0, D3DRTYPE_SURFACE, (D3DFORMAT)MAKEFOURCC('S', 'S', 'A', 'A')) == S_OK || VendorID == NVIDIA_VENDOR_ID))
-	{
-		SetSSAA = true;
+		SetSSAA = (ProxyInterface->CheckDeviceFormat(Adapter, D3DDEVTYPE_HAL, D3DFMT_X8R8G8B8, 0, D3DRTYPE_SURFACE, FOURCC_SSAA) == D3D_OK);
+		SetATOC = (ProxyInterface->CheckDeviceFormat(Adapter, D3DDEVTYPE_HAL, D3DFMT_X8R8G8B8, 0, D3DRTYPE_SURFACE, FOURCC_ATOC) == D3D_OK);
 	}
 
 	// Update presentation parameters

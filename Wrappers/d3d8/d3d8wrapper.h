@@ -42,7 +42,22 @@ void UpdatePresentParameterForMultisample(D3DPRESENT_PARAMETERS* pPresentationPa
 void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight);
 DWORD WINAPI SaveScreenshotFile(LPVOID pvParam);
 
-#define D3DRS_ADAPTIVETESS_Y 181
+#define D3DRS_ADAPTIVETESS_Y (D3DRENDERSTATETYPE)181
+
+#define ATI_VENDOR_ID		0x1002	/* ATI Technologies Inc.			*/
+#define NVIDIA_VENDOR_ID	0x10DE	/* NVIDIA Corporation				*/
+#define MATROX_VENDOR_ID	0x102B	/* Matrox Electronic Systems Ltd.	*/
+#define _3DFX_VENDOR_ID		0x121A	/* 3dfx Interactive Inc.			*/
+#define S3_VENDOR_ID		0x5333	/* S3 Graphics Co., Ltd.			*/
+#define INTEL_VENDOR_ID		0x8086	/* Intel Corporation				*/
+
+// Transparent Supersample
+#define FOURCC_SSAA         (D3DFORMAT)MAKEFOURCC('S', 'S', 'A', 'A')
+
+// Transparent Multisample
+#define FOURCC_A2M_ENABLE   (D3DFORMAT)MAKEFOURCC( 'A', '2', 'M', '1' )
+#define FOURCC_A2M_DISABLE  (D3DFORMAT)MAKEFOURCC( 'A', '2', 'M', '0' )
+#define FOURCC_ATOC         (D3DFORMAT)MAKEFOURCC( 'A', 'T', 'O', 'C' )
 
 extern HWND DeviceWindow;
 extern LONG BufferWidth, BufferHeight;
@@ -50,6 +65,7 @@ extern bool DeviceLost;
 extern bool ClassReleaseFlag;
 extern bool CopyRenderTarget;
 extern bool SetSSAA;
+extern bool SetATOC;
 extern D3DMULTISAMPLE_TYPE DeviceMultiSampleType;
 extern bool TakeScreenShot;
 

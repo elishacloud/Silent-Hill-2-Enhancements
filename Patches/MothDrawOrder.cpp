@@ -32,7 +32,7 @@ __declspec(naked) void __stdcall FixMothSortIndexASM()
         // Get the correct insertion index for depth sorting.
         fmul dword ptr ds : [eax]
         pop eax
-        mov dword ptr ds : [esp + 0x64], 0x3F800000
+        mov dword ptr ds : [esp + 0x68], 0x3F800000
         ret
     }
 }

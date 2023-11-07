@@ -779,6 +779,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="MothDrawOrderFix">
+        <Title>Fix moth draw order</Title>
+        <Description>Fixes a visual bug which causes the moths in Wood Side Apartments Room 202 and the final boss room to appear behind translucent objects such as glass.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="MemoScreenFix">
         <Title>Corregir la navegación en la pantalla de Notas</Title>
         <Description>Permite utilizar las flechas para navegar dentro de la pantalla de Notas y la tecla Enter/Intro para seleccionar.</Description>

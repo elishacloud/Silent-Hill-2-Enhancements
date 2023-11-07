@@ -219,7 +219,6 @@
 	visit(LetterSpacing) \
 	visit(LoadModulesFromMemory) \
 	visit(LockResolution) \
-    visit(MothDrawOrderFix) \
 	visit(NormalFontHeight) \
 	visit(NormalFontWidth) \
 	visit(ResX) \

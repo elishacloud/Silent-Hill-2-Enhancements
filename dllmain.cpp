@@ -603,6 +603,12 @@ void DelayedStart()
         PatchFmvSubtitles();
     }
 
+    // Patch draw order for moth objects.
+    if (MothDrawOrderFix)
+    {
+        PatchMothDrawOrder();
+    }
+
     // Patch mouse support for the inventory command window
     if (CommandWindowMouseFix)
     {

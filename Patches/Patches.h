@@ -252,6 +252,7 @@ void PatchMapTranscription();
 void PatchMasterVolumeSlider();
 void PatchMemoBrightnes();
 void PatchMenuSounds();
+void PatchMothDrawOrder();
 void PatchPauseScreen();
 void PatchPistonRoom();
 void PatchPreventChainsawSpawn();

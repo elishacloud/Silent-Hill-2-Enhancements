@@ -823,6 +823,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="MothDrawOrderFix">
+        <Title>Fix moth draw order</Title>
+        <Description>Fixes a visual bug which causes the moths in Wood Side Apartments Room 202 and the final boss room to appear behind translucent objects such as glass.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="PistonRoomFix">
         <Title>Corregir la cinemática de la sala de pistones</Title>
         <Description>Oculta un pistón tras la pared que, de lo contrario, se mostraría durante una escena cinemática del laberinto, cuando Angela abre la puerta.</Description>

@@ -206,8 +206,8 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     <ClCompile Include="Patches\DelayedFadeIn.cpp" />
     <ClCompile Include="Patches\FmvSubtitles.cpp" />
     <ClCompile Include="Patches\MasterVolume.cpp" />
-    <ClCompile Include="Patches\MothDrawOrder.cpp" />
     <ClCompile Include="Patches\MenuSounds.cpp" />
+    <ClCompile Include="Patches\MothDrawOrder.cpp" />
     <ClCompile Include="Patches\PatchCriware.cpp" />
     <ClCompile Include="Patches\QuickSaveCancelFix.cpp" />
     <ClCompile Include="Patches\QuickSaveTweaks.cpp" />

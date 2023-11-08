@@ -89,8 +89,8 @@
 	visit(MainMenuFix, true) \
 	visit(MainMenuTitlePerLang, true) \
 	visit(MemoScreenFix, true) \
-	visit(MothDrawOrderFix, true) \
 	visit(MenuSoundsFix, true) \
+	visit(MothDrawOrderFix, true) \
 	visit(NoCDPatch, true) \
 	visit(PauseScreenFix, true) \
 	visit(PistonRoomFix, true) \

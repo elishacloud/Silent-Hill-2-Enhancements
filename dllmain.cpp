@@ -434,11 +434,12 @@ void DelayedStart()
 		PatchSpecialFX();
 	}
 
-	// Enable Alternate Stomp
-	if (RestoreAlternateStomp)
-	{
-		PatchAlternateStomp();
-	}
+	
+    // Enable holding attack to stomp an enemy
+    if (EnableHoldToStomp)
+    {
+        PatchHoldToStomp();
+    }
 
 	// Changes the event at the gate near Heaven's Night to that when trying to re-enter the door to Blue Creek Apartments
 	if (FixTownWestGateEvent)
@@ -468,6 +469,24 @@ void DelayedStart()
 	if (QuickSaveTweaks)
 	{
 		PatchQuickSaveTweaks();
+	}
+
+	// Patches quick saving to write .sys and .dat files on the same frame
+	if (QuickSaveCancelFix)
+	{
+		PatchQuickSaveCancelFix();
+	}
+
+  // Fixes missing sounds in menus
+	if (MenuSoundsFix)
+	{
+		PatchMenuSounds();
+	}
+
+	// Restores uncensored audio for the VHS fmv
+	if (VHSAudioFix)
+	{
+		PatchVHSAudio();
 	}
 
 	// Game Save Sound Fix
@@ -614,6 +633,12 @@ void DelayedStart()
 		PatchSpeakerConfigText();
 		PatchMasterVolumeSlider();
 	}
+
+    // Patch swap light and heavy melee attacks
+    if (SwapLightHeavyAttack)
+    {
+        PatchSwapLightHeavyAttack();
+    }
 
 	// Remove the "Now loading..." message
 	switch (GameVersion)

@@ -133,6 +133,8 @@ BYTE* CheckForChangedOptionsAddr = nullptr;
 DWORD* PlaySoundFunAddr = nullptr;
 BYTE* DiscardOptionBOAddr = nullptr;
 BYTE* DiscardOptionAddr = nullptr;
+DWORD* GetDeltaTimeFunctionAddr = nullptr;
+bool* HardwareSoundEnabledAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -2988,4 +2990,59 @@ BYTE* GetDiscardOptionPointer()
 	}
 
 	return DiscardOptionAddr;
+}
+
+DWORD *GetDeltaTimeFunctionPointer()
+{
+    if (GetDeltaTimeFunctionAddr)
+    {
+        return GetDeltaTimeFunctionAddr;
+    }
+
+    // Get delta time function address
+    constexpr BYTE GetDeltaTimeSearchBytes[]{ 0x83, 0xEC, 0x48, 0x53, 0x56, 0x33, 0xDB, 0x3B, 0xC3, 0x57 };
+    DWORD GetDeltaTimeAddr = SearchAndGetAddresses(0x00479080, 0x00479320, 0x00479530, GetDeltaTimeSearchBytes, sizeof(GetDeltaTimeSearchBytes), 0x23, __FUNCTION__);
+
+    // Checking address pointer
+    if (!GetDeltaTimeAddr)
+    {
+        Logging::Log() << __FUNCTION__ << "Error: failed to find Get Delta Time function address!";
+        return 0;
+    }
+    DWORD RelativeFuncAddr = 0;
+    memcpy(&RelativeFuncAddr, (void*)(GetDeltaTimeAddr - 0x4), sizeof(DWORD));
+    
+    GetDeltaTimeFunctionAddr = (DWORD*)(GetDeltaTimeAddr + RelativeFuncAddr);
+
+    return GetDeltaTimeFunctionAddr;
+}
+
+bool IsHardwareSoundEnabled()
+{
+	bool* pHardwareSoundEnabled = GetHardwareSoundEnabledPointer();
+
+	return (pHardwareSoundEnabled) ? *pHardwareSoundEnabled : false;
+}
+
+bool* GetHardwareSoundEnabledPointer()
+{
+	if (HardwareSoundEnabledAddr)
+	{
+		return HardwareSoundEnabledAddr;
+	}
+
+	// Get HardwareSoundEnabled address
+	constexpr BYTE HardwareSoundEnabledSearchBytes[]{ 0x68, 0x3C, 0x01, 0x00, 0x00, 0x68, 0x0E, 0x01, 0x00, 0x00, 0x68 };
+	int8_t* HardwareSoundEnabled = (int8_t*)ReadSearchedAddresses(0x00465427, 0x004656BD, 0x004658CD, HardwareSoundEnabledSearchBytes, sizeof(HardwareSoundEnabledSearchBytes), 0x1A, __FUNCTION__);
+
+	// Checking address pointer
+	if (!HardwareSoundEnabled)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find HardwareSoundEnabled address!";
+		return nullptr;
+	}
+
+	HardwareSoundEnabledAddr = (bool*)((DWORD)HardwareSoundEnabled);
+
+	return HardwareSoundEnabledAddr;
 }

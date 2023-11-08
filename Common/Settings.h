@@ -8,14 +8,15 @@
 	visit(AutoHideMouseCursor, false) \
 	visit(AutoUpdateModule, true) \
 	visit(CatacombsMeatRoomFix, true) \
+	visit(CenterPuzzleCursor, true) \
 	visit(ChangeClosetSpawn, true) \
 	visit(CheckCompatibilityMode, true) \
 	visit(CheckForAdminAccess, true) \
 	visit(ClosetCutsceneFix, true) \
-    visit(CommandWindowMouseFix, true) \
+	visit(CommandWindowMouseFix, true) \
 	visit(CreateLocalFix, true) \
 	visit(d3d8to9, true) \
-    visit(DelayedFadeIn, true) \
+	visit(DelayedFadeIn, true) \
 	visit(DisableCutsceneBorders, true) \
 	visit(DisableEnlargedText, true) \
 	visit(DisableGameUX, true) \
@@ -28,6 +29,7 @@
 	visit(DynamicResolution, true) \
 	visit(EnableDebugOverlay, true) \
 	visit(EnableEnhancedMouse, true) \
+	visit(EnableHoldToStomp, true) \
 	visit(EnableInfoOverlay, true) \
 	visit(EnableMasterVolume, true) \
 	visit(EnableMenuTest, false) \
@@ -41,6 +43,7 @@
 	visit(EnableToggleSprint, true) \
 	visit(EnhanceMouseCursor, true) \
 	visit(FastTransitions, true) \
+	visit(FireEscapeKeyFix, true) \
 	visit(Fix2D, true) \
 	visit(FixAdvancedOptions, true) \
 	visit(FixAptClockFlashlight, true) \
@@ -58,7 +61,7 @@
 	visit(FixSaveBGImage, true) \
 	visit(FixTownWestGateEvent, true) \
 	visit(FlashlightFlickerFix, true) \
-    visit(FmvSubtitlesNoiseFix, true) \
+	visit(FmvSubtitlesNoiseFix, true) \
 	visit(FogParameterFix, true) \
 	visit(FogSpeedFix, true) \
 	visit(ForceTopMost, false) \
@@ -86,7 +89,8 @@
 	visit(MainMenuFix, true) \
 	visit(MainMenuTitlePerLang, true) \
 	visit(MemoScreenFix, true) \
-    visit(MothDrawOrderFix, true) \
+	visit(MothDrawOrderFix, true) \
+	visit(MenuSoundsFix, true) \
 	visit(NoCDPatch, true) \
 	visit(PauseScreenFix, true) \
 	visit(PistonRoomFix, true) \
@@ -94,10 +98,10 @@
 	visit(PS2FlashlightBrightness, true) \
 	visit(PS2StyleNoiseFilter, true) \
 	visit(QuickSaveTweaks, true) \
+	visit(QuickSaveCancelFix, true) \
 	visit(ReduceCutsceneFOV, true) \
 	visit(RemoveEffectsFlicker, true) \
 	visit(RemoveEnvironmentFlicker, true) \
-	visit(RestoreAlternateStomp, true) \
 	visit(RestoreBrightnessSelector, true) \
 	visit(RestoreSpecialFX, true) \
 	visit(RestoreVibration, true) \
@@ -111,12 +115,14 @@
 	visit(SpecificSoundLoopFix, true) \
 	visit(SpecularFix, true) \
 	visit(SteamCrashFix, true) \
+	visit(SwapLightHeavyAttack, true) \
 	visit(UnlockJapLang, true) \
 	visit(UseBestGraphics, true) \
 	visit(UseCustomExeStr, true) \
 	visit(UseCustomFonts, true) \
 	visit(UseCustomModFolder, true) \
 	visit(UsePS2LowResTextures, false) \
+	visit(VHSAudioFix, false) \
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, true) \
@@ -185,13 +191,13 @@
 	visit(AnisotropicFiltering) \
 	visit(AntiAliasing) \
 	visit(AudioFadeOutDelayMS) \
-    visit(CommandWindowMouseFix) \
+	visit(CommandWindowMouseFix) \
 	visit(CustomFontCharHeight) \
 	visit(CustomFontCharWidth) \
 	visit(CustomFontCol) \
 	visit(CustomFontRow) \
 	visit(CustomModFolder) \
-    visit(DelayedFadeIn) \
+	visit(DelayedFadeIn) \
 	visit(DisableLogging) \
 	visit(EnableDebugOverlay) \
 	visit(EnableInfoOverlay) \
@@ -221,6 +227,7 @@
 	visit(LockResolution) \
 	visit(NormalFontHeight) \
 	visit(NormalFontWidth) \
+	visit(QuickSaveCancelFix) \
 	visit(ResX) \
 	visit(ResY) \
 	visit(SmallFontHeight) \

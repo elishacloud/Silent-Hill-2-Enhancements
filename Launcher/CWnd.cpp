@@ -98,7 +98,7 @@ void CCtrlTab::CreateWindow(int X, int Y, int Width, int Height, HWND hParent, H
 
 void CCtrlTab::InsertItem(int index, LPCWSTR lpString)
 {
-	TCITEMW item;
+	TCITEMW item = {};
 	item.mask = TCIF_TEXT;
 	item.pszText = (LPWSTR)lpString;
 	SendMessageW(*this, TCM_INSERTITEMW, (WPARAM)index, (LPARAM)&item);
@@ -106,7 +106,7 @@ void CCtrlTab::InsertItem(int index, LPCWSTR lpString)
 
 void CCtrlTab::InsertItem(int index, LPCSTR lpString)
 {
-	TCITEMA item;
+	TCITEMA item = {};
 	item.mask = TCIF_TEXT;
 	item.pszText = (LPSTR)lpString;
 	SendMessageW(*this, TCM_INSERTITEMA, (WPARAM)index, (LPARAM)&item);

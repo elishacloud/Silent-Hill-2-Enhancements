@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2036
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34202.233
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sh2-enhce", "sh2-enhce.vcxproj", "{E204DCB3-D122-4F2E-88A8-89AC22CE3274}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -22,24 +22,33 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
 		Release|Win32 = Release|Win32
+		Workflow|Win32 = Workflow|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{E204DCB3-D122-4F2E-88A8-89AC22CE3274}.Debug|Win32.ActiveCfg = Debug|Win32
 		{E204DCB3-D122-4F2E-88A8-89AC22CE3274}.Debug|Win32.Build.0 = Debug|Win32
 		{E204DCB3-D122-4F2E-88A8-89AC22CE3274}.Release|Win32.ActiveCfg = Release|Win32
 		{E204DCB3-D122-4F2E-88A8-89AC22CE3274}.Release|Win32.Build.0 = Release|Win32
+		{E204DCB3-D122-4F2E-88A8-89AC22CE3274}.Workflow|Win32.ActiveCfg = Workflow|Win32
+		{E204DCB3-D122-4F2E-88A8-89AC22CE3274}.Workflow|Win32.Build.0 = Workflow|Win32
 		{D1C2099B-BEC7-4993-8947-01D4A1F7EAE2}.Debug|Win32.ActiveCfg = Debug|Win32
 		{D1C2099B-BEC7-4993-8947-01D4A1F7EAE2}.Debug|Win32.Build.0 = Debug|Win32
 		{D1C2099B-BEC7-4993-8947-01D4A1F7EAE2}.Release|Win32.ActiveCfg = Release|Win32
 		{D1C2099B-BEC7-4993-8947-01D4A1F7EAE2}.Release|Win32.Build.0 = Release|Win32
+		{D1C2099B-BEC7-4993-8947-01D4A1F7EAE2}.Workflow|Win32.ActiveCfg = Workflow|Win32
+		{D1C2099B-BEC7-4993-8947-01D4A1F7EAE2}.Workflow|Win32.Build.0 = Workflow|Win32
 		{723BDEF8-4A39-4961-BDAB-54074012FF47}.Debug|Win32.ActiveCfg = Debug|Win32
 		{723BDEF8-4A39-4961-BDAB-54074012FF47}.Debug|Win32.Build.0 = Debug|Win32
 		{723BDEF8-4A39-4961-BDAB-54074012FF47}.Release|Win32.ActiveCfg = Release|Win32
 		{723BDEF8-4A39-4961-BDAB-54074012FF47}.Release|Win32.Build.0 = Release|Win32
+		{723BDEF8-4A39-4961-BDAB-54074012FF47}.Workflow|Win32.ActiveCfg = Workflow|Win32
+		{723BDEF8-4A39-4961-BDAB-54074012FF47}.Workflow|Win32.Build.0 = Workflow|Win32
 		{35E748A9-07CD-4996-9270-DA4C77DB1DC4}.Debug|Win32.ActiveCfg = Debug|Win32
 		{35E748A9-07CD-4996-9270-DA4C77DB1DC4}.Debug|Win32.Build.0 = Debug|Win32
 		{35E748A9-07CD-4996-9270-DA4C77DB1DC4}.Release|Win32.ActiveCfg = Release|Win32
 		{35E748A9-07CD-4996-9270-DA4C77DB1DC4}.Release|Win32.Build.0 = Release|Win32
+		{35E748A9-07CD-4996-9270-DA4C77DB1DC4}.Workflow|Win32.ActiveCfg = Workflow|Win32
+		{35E748A9-07CD-4996-9270-DA4C77DB1DC4}.Workflow|Win32.Build.0 = Workflow|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

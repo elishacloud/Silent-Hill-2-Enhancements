@@ -35,7 +35,7 @@
 #include "Patches\Patches.h"
 #include "Logging\Logging.h"
 
-#define SH2CLASS	L"ConfigToolClass"
+constexpr wchar_t* SH2CLASS = L"ConfigToolClass";
 
 // For Logging
 std::ofstream LOG;
@@ -541,14 +541,24 @@ BOOL CenterWindow(HWND hwndWindow)
 	return TRUE;
 }
 
+BOOL SetNewWindowPlacement(WINDOWPLACEMENT wndpl)
+{
+	RECT w;
+	GetWindowRect(hWnd, &w);
+	LONG left = wndpl.rcNormalPosition.left;
+	LONG top = wndpl.rcNormalPosition.top;
+	wndpl.rcNormalPosition = { left, top, (w.right - w.left) + left, (w.bottom - w.top) + top };
+	return SetWindowPlacement(hWnd, &wndpl);
+}
+
 void LoadWindowSettings()
 {
-	WINDOWPLACEMENT wndpl;
+	WINDOWPLACEMENT wndpl = {};
 
 	if (ReadRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"WindowPlacement", &wndpl, sizeof(WINDOWPLACEMENT)))
 	{
 		wndpl.length = sizeof(WINDOWPLACEMENT);
-		SetWindowPlacement(hWnd, &wndpl);
+		SetNewWindowPlacement(wndpl);
 
 		// Remove resolution from registry
 		HKEY hKey;
@@ -565,13 +575,13 @@ void LoadWindowSettings()
 	if (ReadRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"LauncherWindowPlacement", &wndpl, sizeof(WINDOWPLACEMENT)))
 	{
 		wndpl.length = sizeof(WINDOWPLACEMENT);
-		SetWindowPlacement(hWnd, &wndpl);
+		SetNewWindowPlacement(wndpl);
 	}
 }
 
 void SaveWindowSettings()
 {
-	WINDOWPLACEMENT wndpl;
+	WINDOWPLACEMENT wndpl = {};
 	wndpl.length = sizeof(WINDOWPLACEMENT);
 	GetWindowPlacement(hWnd, &wndpl);
 
@@ -580,11 +590,12 @@ void SaveWindowSettings()
 
 std::wstring GetExeMRU()
 {
-	wchar_t Name[MAX_PATH];
+	std::wstring Name;
+	Name.resize(MAX_PATH, '\0');
 
-	if (ReadRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"ExeMRU", &Name, MAX_PATH * sizeof(wchar_t)))
+	if (ReadRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"ExeMRU", Name.data(), MAX_PATH * sizeof(wchar_t)))
 	{
-		return std::wstring(Name);
+		return Name;
 	}
 
 	return std::wstring(L"");
@@ -752,17 +763,36 @@ bool RelaunchApp()
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	m_hModule = hInstance; // Store instance handle in our global variable
-	hWnd.CreateWindow(SH2CLASS, GetPrgString(STR_TITLE).c_str(), WS_OVERLAPPEDWINDOW & ~(WS_MAXIMIZEBOX | WS_THICKFRAME),
-		CW_USEDEFAULT, CW_USEDEFAULT, 800, 620, nullptr, hInstance);
+
+	LONG rWidth = 800;
+	LONG rHeight = 620;
+	LONG XBorder = 4;
+	LONG YBorder = 4;
+
+	hWnd.CreateWindow(SH2CLASS, GetPrgString(STR_TITLE).c_str(), WS_OVERLAPPED | WS_SYSMENU | WS_MINIMIZEBOX,
+		CW_USEDEFAULT, CW_USEDEFAULT, rWidth, rHeight, nullptr, hInstance);
 	if (!hWnd)
 		return FALSE;
 
+	// adjust client rect window size
+	{
+		RECT r, w;
+		GetClientRect(hWnd, &r);
+		GetWindowRect(hWnd, &w);
+		SetWindowPos(hWnd, NULL, 0, 0, (w.right - w.left) - r.right + rWidth, (w.bottom - w.top) - r.bottom + rHeight, SWP_NOMOVE | SWP_NOZORDER);
+	}
+
+	// set window location
+	CenterWindow(hWnd);
+	LoadWindowSettings();
+
+	// get client rect size
 	RECT r;
 	GetClientRect(hWnd, &r);
 
 	// create the main tab
-	MaxControlDataWndSize = r.bottom - 152;
-	hTab.CreateWindow(0, 0, r.right, MaxControlDataWndSize, hWnd, hInstance, hFont);
+	MaxControlDataWndSize = r.bottom - (157 + YBorder);
+	hTab.CreateWindow(XBorder, 0, r.right + 2 - (XBorder * 2), MaxControlDataWndSize, hWnd, hInstance, hFont);
 	for (size_t i = 0, si = cfg.group.size(); i < si; i++)
 	{
 		hTab.InsertItem((int)i, cfg.GetGroupString((int)i).c_str());
@@ -775,16 +805,16 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	}
 
 	// create the description field
-	hDesc.CreateWindow(4, r.bottom - 160, r.right - 8, 128, hWnd, hInstance, hFont, hBold);
+	hDesc.CreateWindow(XBorder, r.bottom - (154 + YBorder), r.right - (XBorder * 2), 128, hWnd, hInstance, hFont, hBold);
 
 	// create the bottom buttons
-	int X = 3;
-	int Y = r.bottom - 28;
+	int X = (XBorder - 1);
+	int Y = r.bottom - (23 + YBorder);
 	hBnClose.CreateWindow(GetPrgString(STR_BN_CLOSE).c_str(), X, Y, 90, 24, hWnd, hInstance, hFont); X += 94;
 	hBnDefault.CreateWindow(GetPrgString(STR_BN_DEFAULT).c_str(), X, Y, 140, 24, hWnd, hInstance, hFont);
 
-	X = r.right - 2;
-	X -= 164; hBnLaunch.CreateWindow(GetPrgString(STR_BN_LAUNCH).c_str(), X, Y, 160, 24, hWnd, hInstance, hFont);
+	X = r.right;
+	X -= (160 + XBorder - 1); hBnLaunch.CreateWindow(GetPrgString(STR_BN_LAUNCH).c_str(), X, Y, 160, 24, hWnd, hInstance, hFont);
 	X -= 94; hBnSave.CreateWindow(GetPrgString(STR_BN_SAVE).c_str(), X, Y, 90, 24, hWnd, hInstance, hFont);
 
 	// make save button start as disabled
@@ -823,12 +853,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	}
 
 	// create language pulldown
-	hDbLanguage.CreateWindow(r.right - 142, r.top, 140, 24, hWnd, hInstance, hFont);
-	for (auto item : LangList)
-	{
-		hDbLanguage.AddString(item.Lang);
-	}
-	SetLanguageSelection();
+	hDbLanguage.CreateWindow(r.right - (140 + XBorder), r.top, 140, 24, hWnd, hInstance, hFont);
 
 	// assign custom IDs to all buttons for easier catching
 	hBnClose.SetID(WM_USER);
@@ -838,16 +863,19 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	hDbLaunch.SetID(WM_USER + 4);
 	hDbLanguage.SetID(WM_USER + 5);
 
-	// populate the first tab
-	PopulateTab(0);
-
-	// let's go!
+	// show window
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
 
-	// set window location
-	CenterWindow(hWnd);
-	LoadWindowSettings();
+	// populate the first tab
+	PopulateTab(0);
+
+	// populate language pulldown
+	for (auto item : LangList)
+	{
+		hDbLanguage.AddString(item.Lang);
+	}
+	SetLanguageSelection();
 
 	// subclass the tab to catch messages for controls inside it
 	hTab.Subclass(TabProc);

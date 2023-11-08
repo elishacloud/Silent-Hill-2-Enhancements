@@ -143,7 +143,7 @@ bool CheckMemoryAddress(void* dataAddr, void* dataBytes, size_t dataSize, char* 
 
 	// VirtualProtect first to make sure patch_address is readable
 	DWORD dwPrevProtect;
-	if (!VirtualProtect(dataAddr, dataSize, PAGE_READONLY, &dwPrevProtect))
+	if (!VirtualProtect(dataAddr, dataSize, PAGE_READWRITE, &dwPrevProtect))
 	{
 		Logging::Log() << __FUNCTION__ " -> " << FuncName << " Error: could not read memory address";
 		return false;
@@ -242,6 +242,32 @@ void SearchAndLogAddress(DWORD FindAddress)
 			Logging::Log() << "Address found: " << Address;
 		} while (Address);
 	}
+}
+
+// Reads data at an address in memory
+bool ReadMemoryAddress(void* srcAddr, void* destAddr, size_t dataSize)
+{
+	if (!srcAddr || !destAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: invalid memory data";
+		return false;
+	}
+
+	// Set virtual protection
+	DWORD dwPrevProtect;
+	if (!VirtualProtect(srcAddr, dataSize, PAGE_READWRITE, &dwPrevProtect))
+	{
+		Logging::Log() << __FUNCTION__ " Error: could not read memory address";
+		return false;
+	}
+
+	// Get Fire Escape Key address
+	memcpy(destAddr, srcAddr, dataSize);
+
+	// Restore protection
+	VirtualProtect(srcAddr, dataSize, dwPrevProtect, &dwPrevProtect);
+
+	return true;
 }
 
 // Update memory

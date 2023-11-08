@@ -12,6 +12,7 @@ void *CheckMultiMemoryAddress(void* dataAddr10, void* dataAddr11, void* dataAddr
 DWORD SearchAndGetAddresses(DWORD dataAddr10, DWORD dataAddr11, DWORD dataAddrDC, const BYTE* dataBytes, size_t dataSize, int ByteDelta, char* FuncName);
 DWORD ReadSearchedAddresses(DWORD dataAddr10, DWORD dataAddr11, DWORD dataAddrDC, const BYTE* dataBytes, size_t dataSize, int ByteDelta, char* FuncName);
 void SearchAndLogAddress(DWORD SearchAddress);
+bool ReadMemoryAddress(void* srcAddr, void* destAddr, size_t dataSize);
 bool UpdateMemoryAddress(void *dataAddr, const void *dataBytes, size_t dataSize);
 bool WriteCalltoMemory(BYTE *dataAddr, const void *JMPAddr, DWORD count = 5);
 bool WriteJMPtoMemory(BYTE *dataAddr, const void *JMPAddr, DWORD count = 5);

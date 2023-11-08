@@ -975,6 +975,9 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	// Store reference to the ProxyInterface
 	MasterVolumeRef.HandleMasterVolume(ProxyInterface);
 
+	// Handle menu sounds
+	HandleMenuSounds();
+
 	// Skip frames in specific cutscenes to prevent flickering
 	if (SkipSceneFlag)
 	{
@@ -1043,9 +1046,13 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	HRESULT hr = D3D_OK;
 
 	// Disable Transparency Supersampling
-	if (SetSSAA)
+	if (IsSetAdaptivetessY)
 	{
-		ProxyInterface->SetRenderState((D3DRENDERSTATETYPE)D3DRS_ADAPTIVETESS_Y, D3DFMT_UNKNOWN);
+		ProxyInterface->SetRenderState(D3DRS_ADAPTIVETESS_Y, D3DFMT_UNKNOWN);
+	}
+	if (IsSetPointSize)
+	{
+		ProxyInterface->SetRenderState(D3DRS_POINTSIZE, FOURCC_A2M_DISABLE);
 	}
 
 	// Present screen
@@ -1694,66 +1701,43 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 	{
 		DWORD Handle = 0;
 		ProxyInterface->GetVertexShader(&Handle);
-		if (Handle == D3DFVF_XYZRHW)
+		CUSTOMVERTEX* vert = (CUSTOMVERTEX*)pVertexStreamZeroData;
+		if (Handle == D3DFVF_XYZRHW && PrimitiveType == D3DPT_TRIANGLELIST &&
+			vert[0].x == 0.0f && vert[0].y == 0.0f && vert[0].z == 0.0f && vert[0].rhw == 1.0f &&
+			vert[1].x == (float)BufferWidth && vert[1].y == 0.0f && vert[1].z == 0.0f && vert[1].rhw == 1.0f &&
+			vert[2].x == (float)BufferWidth && vert[2].y == (float)BufferHeight && vert[2].z == 0.0f && vert[2].rhw == 1.0f &&
+			vert[3].x == 0.0f && vert[3].y == 0.0f && vert[3].z == 0.0f && vert[3].rhw == 1.0f &&
+			vert[4].x == (float)BufferWidth && vert[4].y == (float)BufferHeight && vert[4].z == 0.0f && vert[4].rhw == 1.0f &&
+			vert[5].x == 0.0f && vert[5].y == (float)BufferHeight && vert[5].z == 0.0f && vert[5].rhw == 1.0f)
 		{
-			CUSTOMVERTEX *vert = (CUSTOMVERTEX*)pVertexStreamZeroData;
-			if (PrimitiveType == D3DPT_TRIANGLELIST &&
-				vert[0].x == 0.0f && vert[0].y == 0.0f && vert[0].z == 0.0f && vert[0].rhw == 1.0f &&
-				vert[1].x == (float)BufferWidth && vert[1].y == 0.0f && vert[1].z == 0.0f && vert[1].rhw == 1.0f &&
-				vert[2].x == (float)BufferWidth && vert[2].y == (float)BufferHeight && vert[2].z == 0.0f && vert[2].rhw == 1.0f &&
-				vert[3].x == 0.0f && vert[3].y == 0.0f && vert[3].z == 0.0f && vert[3].rhw == 1.0f &&
-				vert[4].x == (float)BufferWidth && vert[4].y == (float)BufferHeight && vert[4].z == 0.0f && vert[4].rhw == 1.0f &&
-				vert[5].x == 0.0f && vert[5].y == (float)BufferHeight && vert[5].z == 0.0f && vert[5].rhw == 1.0f)
+			for (int x = 0; x < 6; x++)
 			{
-				for (int x = 0; x < 6; x++)
-				{
-					vert[x].x -= 0.5f;
-					vert[x].y -= 0.5f;
-					vert[x].z = 0.01f;
-				}
-			}
-			else if (PrimitiveType == D3DPT_TRIANGLESTRIP &&
-				vert[0].x == 0.0f && vert[0].y == 0.0f && vert[0].z == 0.0f && vert[0].rhw == 1.0f &&
-				vert[1].x == (float)BufferWidth && vert[1].y == 0.0f && vert[1].z == 0.0f && vert[1].rhw == 1.0f &&
-				vert[2].x == 0.0f && vert[2].y == (float)BufferHeight && vert[2].z == 0.0f && vert[2].rhw == 1.0f &&
-				vert[3].x == (float)BufferWidth && vert[3].y == (float)BufferHeight && vert[3].z == 0.0f && vert[3].rhw == 1.0f)
-			{
-				for (int x = 0; x < 4; x++)
-				{
-					vert[x].x -= 0.5f;
-					vert[x].y -= 0.5f;
-					vert[x].z = 0.01f;
-				}
+				vert[x].x -= 0.5f;
+				vert[x].y -= 0.5f;
+				vert[x].z = 0.01f;
 			}
 		}
-		else if (Handle == (D3DFVF_XYZRHW | D3DFVF_TEX4))
+		else if (Handle == (D3DFVF_XYZRHW | D3DFVF_TEX4) && PrimitiveType == D3DPT_TRIANGLESTRIP &&
+			vert[0].x == 0.0f && vert[0].y == 0.0f && vert[0].z == 0.0f && vert[0].rhw == 1.0f &&
+			vert[1].x == (float)BufferWidth && vert[1].y == 0.0f && vert[1].z == 0.0f && vert[1].rhw == 1.0f &&
+			vert[2].x == 0.0f && vert[2].y == (float)BufferHeight && vert[2].z == 0.0f && vert[2].rhw == 1.0f &&
+			vert[3].x == (float)BufferWidth && vert[3].y == (float)BufferHeight && vert[3].z == 0.0f && vert[3].rhw == 1.0f)
 		{
-			CUSTOMVERTEX_TEX4 *vert = (CUSTOMVERTEX_TEX4*)pVertexStreamZeroData;
-			if (PrimitiveType == D3DPT_TRIANGLESTRIP &&
-				vert[0].x == 0.0f && vert[0].y == 0.0f && vert[0].z == 0.0f && vert[0].rhw == 1.0f &&
-				vert[1].x == (float)BufferWidth && vert[1].y == 0.0f && vert[1].z == 0.0f && vert[1].rhw == 1.0f &&
-				vert[2].x == 0.0f && vert[2].y == (float)BufferHeight && vert[2].z == 0.0f && vert[2].rhw == 1.0f &&
-				vert[3].x == (float)BufferWidth && vert[3].y == (float)BufferHeight && vert[3].z == 0.0f && vert[3].rhw == 1.0f)
+			for (int x = 0; x < 4; x++)
 			{
-				for (int x = 0; x < 4; x++)
-				{
-					vert[x].x -= 0.5f;
-					vert[x].y -= 0.5f;
-					vert[x].z = 0.01f;
-				}
+				vert[x].x -= 0.5f;
+				vert[x].y -= 0.5f;
+				vert[x].z = 0.01f;
 			}
 		}
 		// Fix 1 pixel gap in cutscene letterboxes
-		else if (PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 20)
+		else if (PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 20 &&
+			vert[0].x == 0.0f && vert[2].x == 0.0f && (vert[1].x == (float)BufferWidth || vert[0].y == (float)BufferHeight))
 		{
-			CUSTOMVERTEX_DIF *vert = (CUSTOMVERTEX_DIF*)pVertexStreamZeroData;
-			if (vert[0].x == 0.0f && vert[2].x == 0.0f && (vert[1].x == (float)BufferWidth || vert[0].y == (float)BufferHeight))
+			for (int x = 0; x < 4; x++)
 			{
-				for (int x = 0; x < 4; x++)
-				{
-					vert[x].x -= 0.5f;
-					vert[x].y -= 0.5f;
-				}
+				vert[x].x -= 0.5f;
+				vert[x].y -= 0.5f;
 			}
 		}
 	}
@@ -1781,6 +1765,12 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		if (EnableSoftShadows)
 		{
 			EnableXboxShadows = !((GetRoomID() == 0x02 || GetRoomID() == 0x24 || GetRoomID() == 0x8F || GetRoomID() == 0x90) || GetCutsceneID() == 0x5A);
+		}
+
+		// Fire Escape Key fix
+		if (FireEscapeKeyFix)
+		{
+			RUNCODEONCE(PatchFireEscapeKey());
 		}
 
 		// Fixes quick save text fading too quickly bug
@@ -1841,6 +1831,12 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		if (GameLoadFix)
 		{
 			RunGameLoad();
+		}
+
+		// Cancel an in-progress quick save when entering another room or interacting with a save point
+		if (QuickSaveCancelFix)
+		{
+			RunQuickSaveCancelFix();
 		}
 
 		// FixSaveBGImage
@@ -1940,10 +1936,35 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 			ProxyInterface->SetRenderState(D3DRS_MULTISAMPLEANTIALIAS, TRUE);
 		}
 
-		// Set Transparency Supersampling
-		if (SetSSAA)
+		// Set Transparency For Antialiasing
+		if (DeviceMultiSampleType || FixGPUAntiAliasing)
 		{
-			ProxyInterface->SetRenderState((D3DRENDERSTATETYPE)D3DRS_ADAPTIVETESS_Y, MAKEFOURCC('S', 'S', 'A', 'A'));
+			// Set Transparent Supersample
+			if (SetSSAA)
+			{
+				if (ProxyInterface->SetRenderState(D3DRS_ADAPTIVETESS_Y, FOURCC_SSAA) == D3D_OK)
+				{
+					LOG_ONCE("Enabling Transparency Antialiasing type SSAA");
+					IsSetAdaptivetessY = true;
+				}
+			}
+			// Set Transparent Multisample (Disable for now, causes trees to look barren)
+			/*else if (SetATOC)
+			{
+				if (ProxyInterface->SetRenderState(D3DRS_ADAPTIVETESS_Y, FOURCC_ATOC) == D3D_OK)
+				{
+					LOG_ONCE("Enabling Transparency Antialiasing type ATOC");
+					IsSetAdaptivetessY = true;
+				}
+			}
+			else
+			{
+				if (ProxyInterface->SetRenderState(D3DRS_POINTSIZE, FOURCC_A2M_ENABLE) == D3D_OK)
+				{
+					LOG_ONCE("Enabling Transparency Antialiasing type A2M1");
+					IsSetPointSize = true;
+				}
+			}*/
 		}
 	}
 
@@ -2147,7 +2168,7 @@ HRESULT m_IDirect3DDevice8::SetTextureStageState(DWORD Stage, D3DTEXTURESTAGESTA
 				return D3D_OK;
 			}
 		}
-		else if (Stage != 0 && (Type == D3DTSS_MINFILTER || Type == D3DTSS_MAGFILTER) && Value == D3DTEXF_LINEAR)
+		else if ((Type == D3DTSS_MINFILTER || Type == D3DTSS_MAGFILTER) && Value == D3DTEXF_LINEAR)
 		{
 			if (SUCCEEDED(ProxyInterface->SetTextureStageState(Stage, D3DTSS_MAXANISOTROPY, MaxAnisotropy)) &&
 				SUCCEEDED(ProxyInterface->SetTextureStageState(Stage, Type, D3DTEXF_ANISOTROPIC)))

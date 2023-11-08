@@ -155,7 +155,7 @@ public:
 		UNREFERENCED_PARAMETER(check);
 	}
 	// textboxes
-	virtual std::wstring GetString() { return nullptr; };
+	virtual std::wstring GetString() { return std::wstring(); };
 	virtual void SetString(std::wstring lpString)
 	{
 		UNREFERENCED_PARAMETER(lpString);
@@ -174,7 +174,9 @@ public:
 	{
 		if (cValue)
 		{
-			cValue->value[cValue->cur_val].val = std::string(lpString.begin(), lpString.end());
+			size_t size = lpString.size() + 1;
+			cValue->value[cValue->cur_val].val.resize(size, '\0');
+			wcstombs_s(nullptr, cValue->value[cValue->cur_val].val.data(), size, lpString.c_str(), _TRUNCATE);
 		}
 	}
 

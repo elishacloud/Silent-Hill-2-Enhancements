@@ -850,6 +850,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="EnableHoldToStomp">
+        <Title>Restore alternate stomp</Title>
+        <Description>Restores the secondary/alternate stomp animation. When nearby an enemy on the ground, press and quickly release the attack button to perform a kick. Press and hold the attack button to perform a stomp.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="HalogenLightFix">
         <Title>Restaurar shader de vértice apagado</Title>
         <Description>Restaura a luminância para determinados ativos do ambiente.</Description>
@@ -874,6 +883,15 @@
         <Choices type="check">
           <Value name="Desativar">0</Value>
           <Value name="Ativar" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="SwapLightHeavyAttack">
+        <Title>Swap light and heavy melee attack inputs</Title>
+        <Description>Swaps the priority of light and heavy attacks for melee weapons. Press and quickly release the attack button to perform a light attack. Press and hold the attack button to perform a heavy attack.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 

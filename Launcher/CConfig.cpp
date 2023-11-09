@@ -46,6 +46,9 @@ std::string HiddenValues[] = { VISIT_HIDDEN_SETTING(DECLARE_HIDDEN_SETTINGS) };
 
 extern bool bIsCompiling;
 
+std::string GetPrgString_EXTRA();
+std::string GetPrgString_EXTRA_TEXT();
+
 bool ShowSandboxWarning = false;
 bool DisableMissingSettingsWarning = false;
 bool DisableExtraSettingsWarning = false;
@@ -63,44 +66,6 @@ cb_parse p;
 
 /////////////////////////////////////////////////
 // Various helpers
-std::string SAFESTR(const char *X)
-{
-	if (!X)
-		return std::string("");
-
-	return std::string(X);
-}
-
-// create a wide string from utf8
-wchar_t* MultiToWide(const char* multi)
-{
-	// gather size of the new string and create a buffer
-	int size = MultiByteToWideChar(CP_UTF8, 0, multi, -1, NULL, 0);
-	wchar_t* wide = new wchar_t[size];
-	// fill allocated string with converted data
-	MultiByteToWideChar(CP_UTF8, 0, multi, -1, wide, size);
-
-	return wide;
-}
-
-// create an std::wstring from utf8
-std::wstring MultiToWide_s(const char* multi)
-{
-	if (!multi)
-		return std::wstring(L"");
-
-	wchar_t* wide = MultiToWide(multi);
-	std::wstring wstr = wide;
-	delete[] wide;
-
-	return wstr;
-}
-
-// crate an std::wstring from utf8 str::string
-std::wstring MultiToWide_s(std::string multi)
-{
-	return MultiToWide_s(multi.c_str());
-}
 
 // gets the name or tip for a value
 inline const char* GetNameValue(const char* name, const char* tip)
@@ -310,7 +275,7 @@ void __stdcall ParseIniCallback(char* lpName, char* lpValue, void *lpParam)
 		}
 	}
 
-	ExtraOptions.push_back({ MultiToWide_s(lpName), MultiToWide_s(lpValue) });
+	ExtraOptions.push_back({ trim(lpName), trim(lpValue) });
 }
 
 void CConfig::SetFromIni(LPCWSTR lpName)
@@ -324,6 +289,61 @@ void CConfig::SetFromIni(LPCWSTR lpName)
 
 	// done, disengage!
 	free(ini);
+
+	// Create "Extra" tab
+	if (ExtraOptions.size())
+	{
+		// Set tab options
+		{
+			CConfigGroup gg;
+			gg.id = SAFESTR(SetIDString(nullptr, "Extra"));
+			{
+				CConfigGroup::CConfigSub s;
+				s.id = SAFESTR(SetIDString(nullptr, "Extra"));
+
+				for (auto& entry : ExtraOptions)
+				{
+					CConfigGroup::CConfigSubOpt op = {};
+					std::string xSection = SAFESTR("Extra");
+					std::string xOption = SAFESTR(entry.Name.c_str());
+					op.Set(xSection, xOption);
+					s.opt.push_back(op);
+				}
+				gg.sub.push_back(s);
+			}
+			group.push_back(gg);
+		}
+		// Set tab features
+		{
+			CConfigSection ssec;
+			{
+				ssec.name = GetPrgString_EXTRA();
+				ssec.id = SAFESTR(SetIDString(nullptr, "Extra"));
+				ssec.extra = true;
+
+				for (auto& entry : ExtraOptions)
+				{
+					CConfigOption opt;
+					{
+						opt.name = entry.Name;
+						opt.id = SAFESTR(SetIDString(nullptr, entry.Name.c_str()));
+						opt.desc = GetPrgString_EXTRA_TEXT();
+						opt.type = CConfigOption::TYPE_TEXT;
+						opt.cur_val = 0;
+
+						CConfigValue val;
+						val.name = entry.Value;
+						val.id = SAFESTR(SetIDString(nullptr, entry.Name.c_str()));
+						val.val = entry.Value;
+						val.is_default = true;
+						opt.value.push_back(val);
+					}
+					ssec.option.push_back(opt);
+				}
+			}
+			section.push_back(ssec);
+		}
+	}
 }
 
 std::string UpdateDescription(std::string desc)
@@ -365,6 +385,7 @@ void CConfig::SaveIni(LPCWSTR lpName, LPCWSTR error_mes, LPCWSTR error_caption)
 
 	// New ini file contents
 	std::string ini;
+	std::string extra;
 
 	// Add ini preface
 	if (Preface.size())
@@ -375,28 +396,73 @@ void CConfig::SaveIni(LPCWSTR lpName, LPCWSTR error_mes, LPCWSTR error_caption)
 	// Write out the rest of the new ini file
 	for (auto &sec : section)
 	{
-		// current section
-		ini.append("[" + sec.name + "]\n");
-		// write all options
-		for (auto &opt : sec.option)
+		if (sec.extra)
 		{
-			ini.append("; " + UpdateDescription(opt.desc) + "\n");
-			ini.append(opt.name + " = " + opt.value[opt.cur_val].val + "\n\n");
+			for (auto& opt : sec.option)
+			{
+				extra.append(opt.name + " = " + trim(opt.value[opt.cur_val].val.c_str()) + "\n");
+			}
+		}
+		else
+		{
+			// current section
+			ini.append("[" + sec.name + "]\n");
+			// write all options
+			for (auto& opt : sec.option)
+			{
+				ini.append("; " + UpdateDescription(opt.desc) + "\n");
+				ini.append(opt.name + " = " + trim(opt.value[opt.cur_val].val.c_str()) + "\n\n");
+			}
 		}
 	}
 
-	// Read new ini file
-	std::stringstream s_ini(ini);
-
-	// Merge ini files
+	// Put new ini file into new string
 	std::string newini;
 	if (bIsCompiling)
 	{
-		newini.assign(s_ini.str());
+		newini = ini;
 	}
 	else
 	{
-		newini = MergeiniFile(s_currentini, s_ini, true);
+		// Read new ini file
+		std::stringstream s_ini(ini);
+
+		// Merge ini files
+		if (!extra.empty())
+		{
+			// Update current ini with settings from extra
+			std::stringstream s_updatedini;
+			{
+				std::stringstream s_extra(extra);
+				std::string ini_line, extra_line;
+				while (std::getline(s_currentini, ini_line))
+				{
+					bool flag = false;
+					DWORD ini_loc = min(ini_line.find_first_of(" "), ini_line.find_first_of("="));
+					s_extra.clear();
+					s_extra.seekg(0, std::ios::beg);
+					while (std::getline(s_extra, extra_line))
+					{
+						DWORD extra_loc = min(extra_line.find_first_of(" "), extra_line.find_first_of("="));
+						if (ini_loc == extra_loc && MatchCount(ini_line, extra_line) >= ini_loc)
+						{
+							flag = true;
+							s_updatedini << extra_line << "\n";
+							break;
+						}
+					}
+					if (!flag)
+					{
+						s_updatedini << ini_line << "\n";
+					}
+				}
+			}
+			newini = MergeiniFile(s_updatedini, s_ini, true);
+		}
+		else
+		{
+			newini = MergeiniFile(s_currentini, s_ini, true);
+		}
 	}
 
 	// Write updated ini file
@@ -570,7 +636,7 @@ void CConfig::CheckAllXmlSettings(LPCWSTR error_caption)
 
 std::wstring CConfig::GetSectionString(int sec)
 {
-	auto id = string.Find(section[sec].id);
+	auto id = MultiToWide_s(string.Find(section[sec].id));
 	if (id.size() == 0)
 		return MultiToWide_s(section[sec].name);
 
@@ -579,7 +645,7 @@ std::wstring CConfig::GetSectionString(int sec)
 
 std::wstring CConfig::GetGroupString(int sec)
 {
-	auto id = string.Find(group[sec].id);
+	auto id = MultiToWide_s(string.Find(group[sec].id));
 	if (id.size() == 0)
 		return MultiToWide_s(group[sec].id);
 
@@ -588,7 +654,7 @@ std::wstring CConfig::GetGroupString(int sec)
 
 std::wstring CConfig::GetGroupLabel(int sec, int sub)
 {
-	auto id = string.Find(group[sec].sub[sub].id);
+	auto id = MultiToWide_s(string.Find(group[sec].sub[sub].id));
 	if (id.size() == 0)
 		return MultiToWide_s(group[sec].sub[sub].id);
 
@@ -597,7 +663,7 @@ std::wstring CConfig::GetGroupLabel(int sec, int sub)
 
 std::wstring CConfig::GetOptionString(int sec, int opt)
 {
-	auto id = string.Find(section[sec].option[opt].id);
+	auto id = MultiToWide_s(string.Find(section[sec].option[opt].id));
 	if (id.size() == 0)
 		return MultiToWide_s(section[sec].option[opt].name);
 
@@ -606,7 +672,7 @@ std::wstring CConfig::GetOptionString(int sec, int opt)
 
 std::wstring CConfig::GetOptionDesc(int sec, int opt)
 {
-	auto id = string.Find(section[sec].option[opt].desc);
+	auto id = MultiToWide_s(string.Find(section[sec].option[opt].desc));
 	if (id.size() == 0)
 		return MultiToWide_s(section[sec].option[opt].desc);
 
@@ -615,14 +681,14 @@ std::wstring CConfig::GetOptionDesc(int sec, int opt)
 
 std::wstring CConfig::GetValueString(int sec, int opt, int val)
 {
-	auto id = string.Find(section[sec].option[opt].value[val].id);
+	auto id = MultiToWide_s(string.Find(section[sec].option[opt].value[val].id));
 	if (id.size() == 0)
 		return MultiToWide_s(section[sec].option[opt].value[val].name);
 
 	return id;
 }
 
-std::wstring CConfig::GetString(const char* name)
+std::string CConfig::GetString(const char* name)
 {
 	return string.Find(name);
 }
@@ -632,6 +698,7 @@ void CConfigSection::Parse(XMLElement& xml, CConfig& cfg)
 {
 	name = SAFESTR(xml.Attribute("name"));
 	id = SAFESTR(cfg.SetIDString(xml.Attribute("id"), xml.Attribute("name")));
+	extra = false;
 
 	for (auto &element : {"Option", "Feature"})
 	{

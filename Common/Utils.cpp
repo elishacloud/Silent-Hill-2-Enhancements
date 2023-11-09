@@ -24,6 +24,8 @@
 #include <Propkey.h>
 #include <atlbase.h>
 #endif
+#include <psapi.h>
+#include <shlwapi.h>
 #include <Shldisp.h>
 #include <shellapi.h>
 #include <string>

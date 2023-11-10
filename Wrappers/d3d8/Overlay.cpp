@@ -74,11 +74,8 @@ void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 		DrawInfoOverlay(ProxyInterface);
 	}
 
-	// In the pause menu, skip drawing
-	if (GetEventIndex() == 0x10) return;
-
-	// Menu Test
-	if (EnableMenuTest)
+	// Menu Test, if not on Pause Menu
+	if (EnableMenuTest && GetEventIndex() != 0x10)
 	{
 		DrawMenuTestOverlay(ProxyInterface);
 	}

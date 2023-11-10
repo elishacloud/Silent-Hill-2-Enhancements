@@ -171,6 +171,17 @@ void PatchRoom312ShadowFix()
 	jmpRoom312BloomReturnAddr = (void*)(Room312BloomAddr + 0x06);
 	memcpy(&Room312BloomObject, (void*)(Room312BloomAddr + 0x02), sizeof(DWORD));
 
+	// Fix buggy shadow behaviors
+	constexpr BYTE SearchBytesBuggyShadows[]{ 0x8B, 0x08, 0x6A, 0x01, 0x6A, 0x07, 0x50, 0xFF, 0x91 };
+	DWORD BuggyShadowsAddr = ReadSearchedAddresses(0x00578C02, 0x005794B2, 0x00578DD2, SearchBytesBuggyShadows, sizeof(SearchBytesBuggyShadows), 0x1f, __FUNCTION__);
+	if (!BuggyShadowsAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+	DWORD BuggyShadowsAddr1 = BuggyShadowsAddr + 0x20;
+	DWORD BuggyShadowsAddr2 = BuggyShadowsAddr + 0x2C;
+
 	// Get room ID address
 	RoomIDAddr = GetRoomIDPointer();
 
@@ -186,6 +197,9 @@ void PatchRoom312ShadowFix()
 
 	// Update SH2 code
 	Logging::Log() << "Setting Hotel Room 312 Shadow Flicker Fix...";
+	float Value = 18344.0f;
+	UpdateMemoryAddress((void*)BuggyShadowsAddr1, &Value, sizeof(float));
+	UpdateMemoryAddress((void*)BuggyShadowsAddr2, &Value, sizeof(float));
 	WriteJMPtoMemory((BYTE*)HotelRoom312Addr, *HotelRoom312ASM, 0x06);
 	WriteJMPtoMemory((BYTE*)ChairShadowAddr1, *ChairShadow1ASM, 0x05);
 	WriteJMPtoMemory((BYTE*)ChairShadowAddr2, *ChairShadow2ASM, 0x0A);

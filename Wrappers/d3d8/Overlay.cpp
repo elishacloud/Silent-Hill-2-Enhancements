@@ -49,6 +49,7 @@ LONG LastBufferWidth = 0;
 LONG LastBufferHeight = 0;
 
 DWORD FogEnableValue;
+DWORD MultiSampleValue;
 
 void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 {
@@ -61,6 +62,8 @@ void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 	// nVidia fix
 	ProxyInterface->GetRenderState(D3DRS_FOGENABLE, &FogEnableValue);
 	ProxyInterface->SetRenderState(D3DRS_FOGENABLE, 0x0);
+	ProxyInterface->GetRenderState(D3DRS_MULTISAMPLEANTIALIAS, &MultiSampleValue);
+	ProxyInterface->SetRenderState(D3DRS_MULTISAMPLEANTIALIAS, FALSE);
 
 	// Debug Overlay
 	if (ShowDebugOverlay)
@@ -81,6 +84,7 @@ void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 	}
 
 	ProxyInterface->SetRenderState(D3DRS_FOGENABLE, FogEnableValue);
+	ProxyInterface->SetRenderState(D3DRS_MULTISAMPLEANTIALIAS, MultiSampleValue);
 }
 
 void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)

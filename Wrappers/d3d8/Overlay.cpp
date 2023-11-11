@@ -232,6 +232,15 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append("\rChar Z Position: ");
 	OvlString.append(FloatToStr(GetJamesPosZ(), FloatPrecision));
 
+	OvlString.append("\rCamera X Position: ");
+	OvlString.append(FloatToStr(GetInGameCameraPosX(), FloatPrecision));
+
+	OvlString.append("\rCamera Y Position: ");
+	OvlString.append(FloatToStr(GetInGameCameraPosY(), FloatPrecision));
+
+	OvlString.append("\rCamera Z Position: ");
+	OvlString.append(FloatToStr(GetInGameCameraPosZ(), FloatPrecision));
+
 	OvlString.append("\rRight Click Function: ");
 	OvlString.append(InputTweaksRef.GetRightClickState());
 

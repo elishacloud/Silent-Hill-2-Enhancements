@@ -31,7 +31,9 @@ BYTE GetEventIndex();
 BYTE GetMenuEvent();
 DWORD GetTransitionState();
 BYTE GetFullscreenImageEvent();
+float GetInGameCameraPosX();
 float GetInGameCameraPosY();
+float GetInGameCameraPosZ();
 BYTE GetInventoryStatus();
 DWORD GetLoadingScreen();
 BYTE GetPauseMenuButtonIndex();
@@ -101,7 +103,9 @@ BYTE *GetEventIndexPointer();
 BYTE *GetMenuEventPointer();
 DWORD *GetTransitionStatePointer();
 BYTE *GetFullscreenImageEventPointer();
-float *GetInGameCameraPosYPointer();
+float* GetInGameCameraPosXPointer();
+float* GetInGameCameraPosYPointer();
+float* GetInGameCameraPosZPointer();
 BYTE *GetInventoryStatusPointer();
 DWORD *GetLoadingScreenPointer();
 BYTE *GetPauseMenuButtonIndexPointer();
@@ -366,7 +370,9 @@ extern DWORD *TransitionStateAddr;		/* 1 = fades the game image to black
 										3 = fades from black back to the in game screen */
 
 extern BYTE *FullscreenImageEventAddr;
-extern float *InGameCameraPosYAddr;
+extern float* InGameCameraPosXAddr;
+extern float* InGameCameraPosYAddr;
+extern float* InGameCameraPosZAddr;
 extern BYTE *InventoryStatusAddr;
 extern DWORD *LoadingScreenAddr;
 extern int SpecularFlag;

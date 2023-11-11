@@ -188,22 +188,22 @@ DWORD GetDiskSpace()
 	if (FreeBytesAvailableToCaller.QuadPart < 0xF4240)
 	{
 		szNewFreeSpaceStringUnits = "KB";
-		_snprintf_s(szNewFreeSpaceString, StringSize, _TRUNCATE, "%f", (double)FreeBytesAvailableToCaller.QuadPart);
+		_snprintf_s(szNewFreeSpaceString, StringSize - 6, _TRUNCATE, "%u", (UINT)FreeBytesAvailableToCaller.QuadPart);
 	}
 	else if (FreeBytesAvailableToCaller.QuadPart / 1024 < 0xF4240)
 	{
 		szNewFreeSpaceStringUnits = "MB";
-		_snprintf_s(szNewFreeSpaceString, StringSize, _TRUNCATE, "%f", (double)FreeBytesAvailableToCaller.QuadPart / 1024.0f / 1024.0f);
+		_snprintf_s(szNewFreeSpaceString, StringSize - 6, _TRUNCATE, "%u", (UINT)((double)FreeBytesAvailableToCaller.QuadPart / 1024.0f / 1024.0f));
 	}
 	else if (FreeBytesAvailableToCaller.QuadPart / 1024 < 0x3B9ACA00)
 	{
 		szNewFreeSpaceStringUnits = "GB";
-		_snprintf_s(szNewFreeSpaceString, StringSize, _TRUNCATE, "%.1f", (double)FreeBytesAvailableToCaller.QuadPart / 1024.0f / 1024.0f / 1024.0f);
+		_snprintf_s(szNewFreeSpaceString, StringSize - 6, _TRUNCATE, "%.1f", (double)FreeBytesAvailableToCaller.QuadPart / 1024.0f / 1024.0f / 1024.0f);
 	}
 	else if (FreeBytesAvailableToCaller.QuadPart / 1024 >= 0x3B9ACA00)
 	{
 		szNewFreeSpaceStringUnits = "TB";
-		_snprintf_s(szNewFreeSpaceString, StringSize, _TRUNCATE, "%.2f", (double)FreeBytesAvailableToCaller.QuadPart / 1024.0f / 1024.0f / 1024.0f / 1024.0f);
+		_snprintf_s(szNewFreeSpaceString, StringSize - 6, _TRUNCATE, "%.2f", (double)FreeBytesAvailableToCaller.QuadPart / 1024.0f / 1024.0f / 1024.0f / 1024.0f);
 	}
 
 	ULONGLONG FreeSpace = FreeBytesAvailableToCaller.QuadPart / 1024;
@@ -237,11 +237,11 @@ int PrintFreeDiskSpace(char* Buffer, const char* a1, ...)
 
 	if (DiskSizeSet)
 	{
-		return sprintf_s(Buffer, StringSize, UsingHEX ? "\\h%s %s" : "%s%s", szNewFreeSpaceString, szNewFreeSpaceStringUnits);
+		return _snprintf_s(Buffer, StringSize, _TRUNCATE, UsingHEX ? "\\h%s %s" : "%s%s", szNewFreeSpaceString, szNewFreeSpaceStringUnits);
 	}
 	else
 	{
-		return sprintf_s(Buffer, StringSize, UsingHEX ? "%s %s" : "%s%s", FullMessageBufferReturn, "KB");
+		return _snprintf_s(Buffer, StringSize, _TRUNCATE, UsingHEX ? "%s %s" : "%s%s", FullMessageBufferReturn, "KB");
 	}
 }
 

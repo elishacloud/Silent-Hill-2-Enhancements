@@ -62,6 +62,7 @@
 	visit(FixTownWestGateEvent, true) \
 	visit(FlashlightFlickerFix, true) \
     visit(FmvSubtitlesNoiseFix, true) \
+    visit(FmvSubtitlesSyncFix, true) \
 	visit(FogParameterFix, true) \
 	visit(FogSpeedFix, true) \
 	visit(ForceTopMost, false) \
@@ -215,6 +216,7 @@
 	visit(fog_layer2_density_mult) \
 	visit(fog_transparency_layer1) \
 	visit(fog_transparency_layer2) \
+    visit(FmvSubtitlesSyncFix) \
 	visit(Fog2DFix) \
 	visit(FullscreenWndMode) \
 	visit(HookDirect3D) \

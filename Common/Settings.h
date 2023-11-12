@@ -31,6 +31,7 @@
 	visit(EnableEnhancedMouse, true) \
 	visit(EnableHoldToStomp, true) \
 	visit(EnableInfoOverlay, true) \
+	visit(EnableLangPath, true) \
 	visit(EnableMasterVolume, true) \
 	visit(EnableMenuTest, false) \
 	visit(EnableMenuTestIGT, true) \

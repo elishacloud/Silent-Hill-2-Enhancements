@@ -49,9 +49,12 @@ FARPROC p_CreateProcessA = nullptr;
 FARPROC p_CreateProcessW = nullptr;
 
 // Variable used in hooked modules
-bool IsFileSystemHooking = false;
+bool DisableFileSystemHooking();
+bool IsFileSystemHooking = DisableFileSystemHooking();	// Default to disabled
 char ModPathA[MAX_PATH];
 wchar_t ModPathW[MAX_PATH];
+char LangPathA[MAX_PATH];
+wchar_t LangPathW[MAX_PATH];
 char *ModPicPathA = "ps2";
 wchar_t *ModPicPathW = L"ps2";
 DWORD modLoc = 0;
@@ -65,13 +68,15 @@ VISIT_BGM_FILES(DEFINE_BGM_FILES);
 
 LPCSTR GetModPath(LPCSTR) { return ModPathA; }
 LPCWSTR GetModPath(LPCWSTR) { return ModPathW; }
+LPCSTR GetLangPath(LPCSTR) { return LangPathA; }
+LPCWSTR GetLangPath(LPCWSTR) { return LangPathW; }
 
 inline LPCSTR ModPath(LPCSTR) { return ModPathA; }
 inline LPCWSTR ModPath(LPCWSTR) { return ModPathW; }
 inline LPCSTR ModPicPath(LPCSTR) { return ModPicPathA; }
 inline LPCWSTR ModPicPath(LPCWSTR) { return ModPicPathW; }
-inline LPCSTR LangPath(LPCSTR) { return "lang"; }
-inline LPCWSTR LangPath(LPCWSTR) { return L"lang"; }
+inline LPCSTR LangPath(LPCSTR) { return LangPathA; }
+inline LPCWSTR LangPath(LPCWSTR) { return LangPathW; }
 inline LPCSTR GetEnding1(LPCSTR) { return "\\movie\\end.bik"; }
 inline LPCWSTR GetEnding1(LPCWSTR) { return L"\\movie\\end.bik"; }
 inline LPCSTR GetEnding2(LPCSTR) { return "\\movie\\ending.bik"; }
@@ -575,11 +580,14 @@ void InstallCreateProcessHooks()
 	InterlockedExchangePointer((PVOID*)&p_CreateProcessW, Hook::HotPatch(Hook::GetProcAddress(h_kernel32, "CreateProcessW"), "CreateProcessW", *CreateProcessWHandler));
 }
 
-void DisableFileSystemHooking()
+bool DisableFileSystemHooking()
 {
 	IsFileSystemHooking = false;
 	strcpy_s(ModPathA, MAX_PATH, "data");
 	wcscpy_s(ModPathW, MAX_PATH, L"data");
+	strcpy_s(LangPathA, MAX_PATH, "data");
+	wcscpy_s(LangPathW, MAX_PATH, L"data");
+	return IsFileSystemHooking;
 }
 
 void InstallFileSystemHooks()
@@ -666,7 +674,7 @@ void InstallFileSystemHooks()
 		}
 	}
 
-	// Set module name
+	// Set module path
 	if (CustomModFolder.size())
 	{
 		strcpy_s(ModPathA, MAX_PATH, CustomModFolder.c_str());
@@ -677,6 +685,18 @@ void InstallFileSystemHooks()
 	{
 		strcpy_s(ModPathA, MAX_PATH, "sh2e");
 		wcscpy_s(ModPathW, MAX_PATH, L"sh2e");
+	}
+
+	// Set lang path
+	if (EnableLangPath)
+	{
+		strcpy_s(LangPathA, MAX_PATH, "lang");
+		wcscpy_s(LangPathW, MAX_PATH, L"lang");
+	}
+	else
+	{
+		strcpy_s(LangPathA, MAX_PATH, ModPathA);
+		wcscpy_s(LangPathW, MAX_PATH, ModPathW);
 	}
 
 	// Get data path

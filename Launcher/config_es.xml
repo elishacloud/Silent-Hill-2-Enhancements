@@ -1120,6 +1120,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="EnableLangPath">
+        <Title>Use "lang" folder</Title>
+        <Description>Silent Hill 2: Enhanced Edition will read and use fonts and language files in the "lang" folder, rather than the "data" or "sh2e" folders, whenever possible. This allows custom language files to replace/overwrite original game files.&#x0a;&#x0a;Note: requires "Use custom 'sh2e' folder" to be enabled.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="WidescreenFix">
         <Title>Corrección para pantallas panorámicas</Title>
       	<Description>Activa el SH2 Widescreen Fixes Pack (paquete de correcciones para pantallas panorámicas de SH2) integrado y el módulo sh2proxy.&#x0a;&#x0a;Nota: al desactivar esta opción se desactivarán otras características. Esta opción no debería ser desactivada.</Description>

@@ -17,6 +17,7 @@
 #include "External\injector\include\injector\injector.hpp"
 #include "External\injector\include\injector\utility.hpp"
 #include "External\Hooking.Patterns\Hooking.Patterns.h"
+#include "Common\FileSystemHooks.h"
 #include "Patches\Patches.h"
 #include "Logging\Logging.h"
 #include "Common\Utils.h"
@@ -68,7 +69,7 @@ int32_t __cdecl LoadMovie_Hook(char* FileName)
 bool hasSecondAudioTrack()
 {
     // filepath taking into consideration the custom folder
-    char* FilePath[3] = { "lang\\movie\\murder.bik", "sh2e\\movie\\murder.bik", "data\\movie\\murder.bik" };
+    const char* FilePath[3] = { (std::string(GetLangPath("")) + "\\movie\\murder.bik").c_str(), (std::string(GetModPath("")) + "\\movie\\murder.bik").c_str(), "data\\movie\\murder.bik"};
 
     FILE* pFile = nullptr;
     char buffer[0x30];

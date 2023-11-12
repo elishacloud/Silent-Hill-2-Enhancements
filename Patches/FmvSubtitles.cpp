@@ -129,9 +129,9 @@ void PatchFmvSubtitlesSyncFix()
 
     constexpr BYTE BinkObjectSearchBytes[]{ 0x84, 0xC0, 0x0F, 0x85, 0xB6, 0xF8, 0xFF, 0xFF };
     BinkObjectAddr = ReadSearchedAddresses(0x0043E4D2, 0x0043E692, 0x0043E692, BinkObjectSearchBytes, sizeof(BinkObjectSearchBytes), 0x09, __FUNCTION__);
-    if (!InjectSubtitlesSyncAddr)
+    if (!BinkObjectAddr)
     {
-        Logging::Log() << __FUNCTION__ << " Error: failed to find pointer address!";
+        Logging::Log() << __FUNCTION__ << " Error: failed to find pointer address for Bink object!";
         return;
     }
 

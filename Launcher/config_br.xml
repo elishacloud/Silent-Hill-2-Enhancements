@@ -868,6 +868,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="FmvSubtitlesSyncFix">
+        <Title>Sync subtitles with FMV framerate</Title>
+        <Description>Adjusts the playback speed of subtitles to match the framerate of the FMV.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="FixDrawingTextLine">
         <Title>Engrossar linha do diário do hospital</Title>
         <Description>Engrossa a linha horizontal no texto do diário do hospital para facilitar a visualização em resoluções de renderização mais altas.</Description>

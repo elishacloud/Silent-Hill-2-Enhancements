@@ -868,6 +868,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="FmvSubtitlesSyncFix">
+        <Title>Sync subtitles with FMV framerate</Title>
+        <Description>Adjusts the playback speed of subtitles to match the framerate of the FMV.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="FixDrawingTextLine">
         <Title>Inspessisci la linea del diario nell'ospedale</Title>
         <Description>Inspessisce la linea orizzontale del diario nell'ospedale per renderla più visibile ad alte risoluzioni.</Description>

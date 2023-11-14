@@ -64,6 +64,10 @@ void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 	ProxyInterface->SetRenderState(D3DRS_FOGENABLE, 0x0);
 	ProxyInterface->GetRenderState(D3DRS_MULTISAMPLEANTIALIAS, &MultiSampleValue);
 	ProxyInterface->SetRenderState(D3DRS_MULTISAMPLEANTIALIAS, FALSE);
+	if (SetATOC)
+	{
+		ProxyInterface->SetRenderState(D3DRS_ADAPTIVETESS_Y, FOURCC_ATOC);
+	}
 
 	// Debug Overlay
 	if (ShowDebugOverlay)
@@ -85,6 +89,10 @@ void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 
 	ProxyInterface->SetRenderState(D3DRS_FOGENABLE, FogEnableValue);
 	ProxyInterface->SetRenderState(D3DRS_MULTISAMPLEANTIALIAS, MultiSampleValue);
+	if (SetATOC)
+	{
+		ProxyInterface->SetRenderState(D3DRS_ADAPTIVETESS_Y, D3DFMT_UNKNOWN);
+	}
 }
 
 void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)

@@ -434,12 +434,11 @@ void DelayedStart()
 		PatchSpecialFX();
 	}
 
-	
-    // Enable holding attack to stomp an enemy
-    if (EnableHoldToStomp)
-    {
-        PatchHoldToStomp();
-    }
+	// Enable holding attack to stomp an enemy
+	if (EnableHoldToStomp)
+	{
+		PatchHoldToStomp();
+	}
 
 	// Changes the event at the gate near Heaven's Night to that when trying to re-enter the door to Blue Creek Apartments
 	if (FixTownWestGateEvent)
@@ -477,7 +476,7 @@ void DelayedStart()
 		PatchQuickSaveCancelFix();
 	}
 
-  // Fixes missing sounds in menus
+	// Fixes missing sounds in menus
 	if (MenuSoundsFix)
 	{
 		PatchMenuSounds();
@@ -590,18 +589,18 @@ void DelayedStart()
 	{
 		PatchFMVFramerate();
 	}
-  
-    // Patch delayed fade-in to hide animation artifacts
-    if (DelayedFadeIn)
-    {
-        PatchDelayedFadeIn();
-    }
 
-    // Patch FMV subtitles to draw on top of noise grain
-    if (FmvSubtitlesNoiseFix)
-    {
-        PatchFmvSubtitlesNoiseFix();
-    }
+	// Patch delayed fade-in to hide animation artifacts
+	if (DelayedFadeIn)
+	{
+		PatchDelayedFadeIn();
+	}
+
+	// Patch FMV subtitles to draw on top of noise grain
+	if (FmvSubtitlesNoiseFix)
+	{
+		PatchFmvSubtitlesNoiseFix();
+	}
 
 	// Patch timing of subtitles to match the FMV framerate
 	if (FmvSubtitlesSyncFix)
@@ -609,17 +608,17 @@ void DelayedStart()
 		PatchFmvSubtitlesSyncFix();
 	}
 
-    // Patch draw order for moth objects.
-    if (MothDrawOrderFix)
-    {
-        PatchMothDrawOrder();
-    }
+	// Patch draw order for moth objects.
+	if (MothDrawOrderFix)
+	{
+		PatchMothDrawOrder();
+	}
 
-    // Patch mouse support for the inventory command window
-    if (CommandWindowMouseFix)
-    {
-        PatchCommandWindowMouseFix();
-    }
+	// Patch mouse support for the inventory command window
+	if (CommandWindowMouseFix)
+	{
+		PatchCommandWindowMouseFix();
+	}
 
 	// Patch to fix the final boss room culling error
 	if (FixFinalBossRoom)
@@ -640,11 +639,11 @@ void DelayedStart()
 		PatchMasterVolumeSlider();
 	}
 
-    // Patch swap light and heavy melee attacks
-    if (SwapLightHeavyAttack)
-    {
-        PatchSwapLightHeavyAttack();
-    }
+	// Patch swap light and heavy melee attacks
+	if (SwapLightHeavyAttack)
+	{
+		PatchSwapLightHeavyAttack();
+	}
 
 	// Remove the "Now loading..." message
 	switch (GameVersion)

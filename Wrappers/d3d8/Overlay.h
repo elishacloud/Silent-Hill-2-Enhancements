@@ -83,6 +83,38 @@ private:
 
 	bool ChangeMenuTestColor();
 	void InitializeDataStructs();
+
+	const int rectOffset = 40;
+	const int FloatPrecision = 4;
+	const int FPSFloatPrecision = 2;
+	const int KMConstant = 500000;
+	const float AntiJitterValue = 0.0001f;
+	const int DropShadowOffset = 1;
+
+	float LastCharYPos;
+
+	LPCSTR FontName = "Arial";
+
+	LPD3DXFONT DebugFont = nullptr;
+	LPD3DXFONT MenuTestFont = nullptr;
+	LPD3DXFONT IGTFont = nullptr;
+
+	bool ResetDebugFontFlag = false;
+	bool ResetMenuTestFontFlag = false;
+	bool ResetIGTFontFlag = false;
+
+	std::chrono::system_clock::time_point LastColorChange = std::chrono::system_clock::now();
+	int WhiteArrayIndex = 2;
+
+	Overlay::D3D8TEXT MenuTestTextStruct;
+	Overlay::D3D8TEXT InfoOverlayTextStruct;
+	Overlay::D3D8TEXT DebugOverlayTextStruct;
+	Overlay::D3D8TEXT ControlMenuTestTextStruct;
+	LONG LastBufferWidth = 0;
+	LONG LastBufferHeight = 0;
+
+	DWORD FogEnableValue;
+	DWORD MultiSampleValue;
 };
 
 extern bool ControllerConnectedFlag;

@@ -17,39 +17,9 @@
 #pragma warning( disable : 4244 )
 #include "Overlay.h"
 
-const int rectOffset		= 40;
-const int FloatPrecision	= 4;
-const int FPSFloatPrecision = 2;
-const int KMConstant		= 500000;
-const float AntiJitterValue	= 0.0001f;
-const int DropShadowOffset	= 1;
-
 bool ControllerConnectedFlag = false;
 int JoystickX = 0;
 int JoystickY = 0;
-
-LPCSTR FontName = "Arial";
-
-LPD3DXFONT DebugFont = nullptr;
-LPD3DXFONT MenuTestFont = nullptr;
-LPD3DXFONT IGTFont = nullptr;
-
-bool ResetDebugFontFlag = false;
-bool ResetMenuTestFontFlag = false;
-bool ResetIGTFontFlag = false;
-
-auto LastColorChange = std::chrono::system_clock::now();
-int WhiteArrayIndex = 2;
-
-Overlay::D3D8TEXT MenuTestTextStruct;
-Overlay::D3D8TEXT InfoOverlayTextStruct;
-Overlay::D3D8TEXT DebugOverlayTextStruct;
-Overlay::D3D8TEXT ControlMenuTestTextStruct;
-LONG LastBufferWidth = 0;
-LONG LastBufferHeight = 0;
-
-DWORD FogEnableValue;
-DWORD MultiSampleValue;
 
 void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 {
@@ -59,7 +29,7 @@ void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 		InputTweaksRef.InitializeHitboxes((float)BufferWidth / (float)BufferHeight);
 	}
 
-	// nVidia fix
+	// Nvidia fix
 	ProxyInterface->GetRenderState(D3DRS_FOGENABLE, &FogEnableValue);
 	ProxyInterface->SetRenderState(D3DRS_FOGENABLE, 0x0);
 	ProxyInterface->GetRenderState(D3DRS_MULTISAMPLEANTIALIAS, &MultiSampleValue);
@@ -87,6 +57,7 @@ void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 		DrawMenuTestOverlay(ProxyInterface);
 	}
 
+	// Reset Direct3D state
 	ProxyInterface->SetRenderState(D3DRS_FOGENABLE, FogEnableValue);
 	ProxyInterface->SetRenderState(D3DRS_MULTISAMPLEANTIALIAS, MultiSampleValue);
 	if (SetATOC)
@@ -196,10 +167,16 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	float CharYPos = GetJamesPosY();
 
 	// Lock value at 0 if close enough, to avoid a rapidly changing number.
-	if (CharYPos > -AntiJitterValue && CharYPos < AntiJitterValue)
+	if (abs(CharYPos) < AntiJitterValue)
 	{
 		CharYPos = 0;
 	}
+	// If value changes only a small amount then lock to last value.
+	if (abs(CharYPos - LastCharYPos) < AntiJitterValue)
+	{
+		CharYPos = LastCharYPos;
+	}
+	LastCharYPos = CharYPos;
 
 	std::string OvlString = "DEBUG INFO (CTRL + G) ";
 

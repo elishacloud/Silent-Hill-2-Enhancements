@@ -1701,10 +1701,10 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 	{
 		DWORD Handle = 0;
 		ProxyInterface->GetVertexShader(&Handle);
-		if (Handle == (D3DFVF_XYZRHW | D3DFVF_TEX4))
+		if (Handle == D3DFVF_XYZRHW)
 		{
 			CUSTOMVERTEX* vert = (CUSTOMVERTEX*)pVertexStreamZeroData;
-			if (Handle == D3DFVF_XYZRHW && PrimitiveType == D3DPT_TRIANGLELIST &&
+			if (PrimitiveType == D3DPT_TRIANGLELIST &&
 				vert[0].x == 0.0f && vert[0].y == 0.0f && vert[0].z == 0.0f && vert[0].rhw == 1.0f &&
 				vert[1].x == (float)BufferWidth && vert[1].y == 0.0f && vert[1].z == 0.0f && vert[1].rhw == 1.0f &&
 				vert[2].x == (float)BufferWidth && vert[2].y == (float)BufferHeight && vert[2].z == 0.0f && vert[2].rhw == 1.0f &&
@@ -1720,6 +1720,23 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 				}
 			}
 			else if (PrimitiveType == D3DPT_TRIANGLESTRIP &&
+				vert[0].x == 0.0f && vert[0].y == 0.0f && vert[0].z == 0.0f && vert[0].rhw == 1.0f &&
+				vert[1].x == (float)BufferWidth && vert[1].y == 0.0f && vert[1].z == 0.0f && vert[1].rhw == 1.0f &&
+				vert[2].x == 0.0f && vert[2].y == (float)BufferHeight && vert[2].z == 0.0f && vert[2].rhw == 1.0f &&
+				vert[3].x == (float)BufferWidth && vert[3].y == (float)BufferHeight && vert[3].z == 0.0f && vert[3].rhw == 1.0f)
+			{
+				for (int x = 0; x < 4; x++)
+				{
+					vert[x].x -= 0.5f;
+					vert[x].y -= 0.5f;
+					vert[x].z = 0.01f;
+				}
+			}
+		}
+		else if (Handle == D3DFVF_TEX4)
+		{
+			CUSTOMVERTEX_TEX4* vert = (CUSTOMVERTEX_TEX4*)pVertexStreamZeroData;
+			if (PrimitiveType == D3DPT_TRIANGLESTRIP &&
 				vert[0].x == 0.0f && vert[0].y == 0.0f && vert[0].z == 0.0f && vert[0].rhw == 1.0f &&
 				vert[1].x == (float)BufferWidth && vert[1].y == 0.0f && vert[1].z == 0.0f && vert[1].rhw == 1.0f &&
 				vert[2].x == 0.0f && vert[2].y == (float)BufferHeight && vert[2].z == 0.0f && vert[2].rhw == 1.0f &&

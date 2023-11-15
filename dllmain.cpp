@@ -600,8 +600,14 @@ void DelayedStart()
     // Patch FMV subtitles to draw on top of noise grain
     if (FmvSubtitlesNoiseFix)
     {
-        PatchFmvSubtitles();
+        PatchFmvSubtitlesNoiseFix();
     }
+
+	// Patch timing of subtitles to match the FMV framerate
+	if (FmvSubtitlesSyncFix)
+	{
+		PatchFmvSubtitlesSyncFix();
+	}
 
     // Patch draw order for moth objects.
     if (MothDrawOrderFix)

@@ -63,6 +63,7 @@
 	visit(FixTownWestGateEvent, true) \
 	visit(FlashlightFlickerFix, true) \
 	visit(FmvSubtitlesNoiseFix, true) \
+	visit(FmvSubtitlesSyncFix, true) \
 	visit(FogParameterFix, true) \
 	visit(FogSpeedFix, true) \
 	visit(ForceTopMost, false) \

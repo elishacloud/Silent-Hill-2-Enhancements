@@ -281,7 +281,7 @@ static BOOL loadExternalFontData(void)
 	const bool IsUsingModPath = (GetFileModPath("data\\font", Filename) == Filename) ? true : false;
 
 	const char* DataPath = "data";
-	for (auto &IntPath : { "lang", GetModPath(DataPath), DataPath })
+	for (auto &IntPath : { GetLangPath(""), GetModPath(DataPath), DataPath })
 	{
 		if (IsUsingModPath || IntPath == DataPath)
 		{

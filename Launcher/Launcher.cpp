@@ -44,7 +44,8 @@ HINSTANCE m_hModule;
 HWND DeviceWindow = nullptr;
 HFONT hFont, hBold;
 bool bIsLooping = true,
-	bLaunch = false;
+	bLaunch = false,
+	bCreatingTab = false;
 
 // Unused shared variables
 SH2VERSION GameVersion = SH2V_UNKNOWN;
@@ -122,51 +123,45 @@ enum ProgramStrings
 	STR_EXTRA_TEXT,
 };
 
-struct Strings
-{
-	const char* name;
-	const WCHAR* def;
-};
-
-std::wstring GetPrgString(UINT id)
+std::string GetPrgString(UINT id)
 {
 	// defaults in case these are not in the xml
 	static Strings str[] =
 	{
-		"PRG_Title", L"Silent Hill 2: Enhanced Edition Configuration Tool",
-		"PRG_Caption_error", L"ERROR",
-		"PRG_Caption_warning", L"WARNING",
-		"PRG_Close", L"Close",
-		"PRG_Default", L"Defaults",
-		"PRG_Save", L"Save",
-		"PRG_Launch", L"Save && Launch Game",
-		"PRG_Launch_label", L"Launch using:",
-		"PRG_Launch_mess", L"Could not launch sh2pc.exe",
-		"PRG_Launch_exe", L"sh2pc.exe",
-		"PRG_Ini_error", L"Could not save the configuration ini.",
-		"PRG_Lang_confirm", L"Do you want to switch to language %s?",
-		"PRG_Lang_error", L"Error restarting the launcher!",
-		"PRG_Default_confirm", L"Are you sure you want reset all settings to default?",
-		"PRG_Unsaved", L" [unsaved changes]",
-		"PRG_Save_exit", L"There are unsaved changes. Save before closing?",
-		"PRG_Sandbox", L" [SANDBOX MODE]",
-		"PRG_Extra", L"Extra",
-		"PRG_Extra_desc", L"This section includes any additional settings that were manually added to the Silent Hill 2: Enhanced Edition configuration file (d3d8.ini).",
+		"PRG_Title", "Silent Hill 2: Enhanced Edition Configuration Tool",
+		"PRG_Caption_error", "ERROR",
+		"PRG_Caption_warning", "WARNING",
+		"PRG_Close", "Close",
+		"PRG_Default", "Defaults",
+		"PRG_Save", "Save",
+		"PRG_Launch", "Save && Launch Game",
+		"PRG_Launch_label", "Launch using:",
+		"PRG_Launch_mess", "Could not launch sh2pc.exe",
+		"PRG_Launch_exe", "sh2pc.exe",
+		"PRG_Ini_error", "Could not save the configuration ini.",
+		"PRG_Lang_confirm", "Do you want to switch to language %s?",
+		"PRG_Lang_error", "Error restarting the launcher!",
+		"PRG_Default_confirm", "Are you sure you want reset all settings to default?",
+		"PRG_Unsaved", " [unsaved changes]",
+		"PRG_Save_exit", "There are unsaved changes. Save before closing?",
+		"PRG_Sandbox", " [SANDBOX MODE]",
+		"PRG_Extra", "Extra",
+		"PRG_Extra_desc", "This section includes any additional settings that were manually added to the Silent Hill 2: Enhanced Edition configuration file (d3d8.ini).",
 	};
 
 	auto s = cfg.GetString(str[id].name);
 
 	// Validate language string confirmation
-	if (id == STR_LANG_CONFIRM && (CharCount(s, '%') != 1 || s.find(L"%s") == std::string::npos))
+	if (id == STR_LANG_CONFIRM && (CharCount(s, '%') != 1 || s.find("%s") == std::string::npos))
 	{
 		MessageBoxW(nullptr, L"Error with PRG_Lang_confirm text!", L"Language Error", MB_DEFBUTTON1);
-		return std::wstring(str[id].def);
+		return std::string(str[id].def);
 	}
 
 	// Validate language string confirmation
 	if (id == STR_TITLE && ShowSandboxWarning)
 	{
-		return std::wstring(str[id].def + GetPrgString(STR_SANDBOX));
+		return std::string(str[id].def + GetPrgString(STR_SANDBOX));
 	}
 
 	if (s.size())
@@ -175,14 +170,29 @@ std::wstring GetPrgString(UINT id)
 	}
 
 	// return default if no string matches
-	return std::wstring(str[id].def);
+	return std::string(str[id].def);
+}
+
+std::wstring GetPrgWString(UINT id)
+{
+	return MultiToWide_s(GetPrgString(id));
+}
+
+std::string GetPrgString_EXTRA()
+{
+	return GetPrgString(STR_EXTRA);
+}
+
+std::string GetPrgString_EXTRA_TEXT()
+{
+	return GetPrgString(STR_EXTRA_TEXT);
 }
 
 void SetChanges()
 {
 	if (bHasChange == false)
 	{
-		::hWnd.SetText((GetPrgString(STR_TITLE) + GetPrgString(STR_UNSAVED)).c_str());
+		::hWnd.SetText((GetPrgWString(STR_TITLE) + GetPrgWString(STR_UNSAVED)).c_str());
 		hBnSave.Enable();
 		bHasChange = true;
 	}
@@ -192,7 +202,7 @@ void RestoreChanges()
 {
 	if (bHasChange)
 	{
-		::hWnd.SetText(GetPrgString(STR_TITLE).c_str());
+		::hWnd.SetText(GetPrgWString(STR_TITLE).c_str());
 		hBnSave.Enable(false);
 		bHasChange = false;
 	}
@@ -247,11 +257,11 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 		return FALSE;
 	}
 	cfg.BuildCacheP();
-	cfg.CheckAllXmlSettings(GetPrgString(STR_WARNING).c_str());
+	cfg.CheckAllXmlSettings(GetPrgWString(STR_WARNING).c_str());
 
 	if (bIsCompiling)
 	{
-		cfg.SaveIni(L"d3d8.ini", GetPrgString(STR_INI_ERROR).c_str(), GetPrgString(STR_ERROR).c_str());
+		cfg.SaveIni(L"d3d8.ini", GetPrgWString(STR_INI_ERROR).c_str(), GetPrgWString(STR_ERROR).c_str());
 		return TRUE;
 	}
 
@@ -313,7 +323,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 		SetExeMRU(ExeList[hDbLaunch.GetSelection()]);
 		if (ShellExecuteW(nullptr, L"open", ExeList[hDbLaunch.GetSelection()].c_str(), nullptr, nullptr, SW_SHOWDEFAULT) <= (HINSTANCE)32)
 		{
-			MessageBoxW(nullptr, GetPrgString(STR_LAUNCH_ERROR).c_str(), GetPrgString(STR_ERROR).c_str(), MB_ICONERROR);
+			MessageBoxW(nullptr, GetPrgWString(STR_LAUNCH_ERROR).c_str(), GetPrgWString(STR_ERROR).c_str(), MB_ICONERROR);
 		}
 	}
 
@@ -338,6 +348,8 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 
 std::shared_ptr<CCombined> MakeControl(CWnd &hParent, int section, int option, int pos, RECT tab, int base_Y)
 {
+	bCreatingTab = true;
+
 	std::shared_ptr<CCombined> c;
 	int W = (tab.right - tab.left - 16) / 2;
 	int X = tab.left + 16 + (pos % 2) * W;
@@ -391,13 +403,15 @@ std::shared_ptr<CCombined> MakeControl(CWnd &hParent, int section, int option, i
 		break;
 	}
 
+	bCreatingTab = false;
+
 	return c;
 }
 
 void PopulateTab(int section)
 {
 	uCurTab = section;
-	std::wstring GroupString = (section == (int)cfg.group.size()) ? GetPrgString(STR_EXTRA) : cfg.GetGroupString(section);
+	std::wstring GroupString = cfg.GetGroupString(section);
 	hDesc.SetCaption(GroupString.c_str());
 	hDesc.SetText(L"");
 
@@ -416,35 +430,6 @@ void PopulateTab(int section)
 	hTab.GetRect(rect);
 
 	LONG Y = 20;
-
-	// process the "Extra" tab
-	if (section == (int)cfg.group.size())
-	{
-		int count = ExtraOptions.size();
-
-		// create group control
-		std::shared_ptr<CCtrlGroup> gp = std::make_shared<CCtrlGroup>();
-		gp->CreateWindow(GetPrgString(STR_EXTRA).c_str(), rect.left + 2, Y + rect.top - 20, rect.right - rect.left - 6, (((count + 1) & ~1) / 2) * 25 + 30, hTab, m_hModule, hFont);
-		hGroup.push_back(gp);
-		hDesc.SetText(GetPrgString(STR_EXTRA_TEXT).c_str());
-
-		size_t pos = 0;
-		// process a sub
-		for (size_t j = 0; j < (size_t)count; j++, pos++)
-		{
-			int W = (rect.right - rect.left - 16) / 2;
-			int X = rect.left + 16 + (pos % 2) * W;
-			int base_Y = rect.top + (pos / 2) * 25 + Y;
-
-			std::shared_ptr<CCombined> cc = std::make_shared<CFieldList>();
-			cc->CreateWindow(ExtraOptions[j].Name.c_str(), X, base_Y, W - 20, 25, hTab, m_hModule, hFont);
-			cc->AddString(ExtraOptions[j].Value.c_str());
-			cc->SetSelection(0);
-			hCtrl.push_back(cc);
-		}
-
-		return;
-	}
 
 	// process a group
 	for (size_t i = 0, si = cfg.group[section].sub.size(), pos = 0; i < si; i++)
@@ -476,17 +461,12 @@ void PopulateTab(int section)
 
 	if (!DisableTabOverloadWarning && Y > MaxControlDataWndSize)
 	{
-		MessageBoxW(nullptr, L"Error: too many settings listed in tab!", GetPrgString(STR_WARNING).c_str(), MB_OK);
+		MessageBoxW(nullptr, L"Error: too many settings listed in tab!", GetPrgWString(STR_WARNING).c_str(), MB_OK);
 	}
 }
 
 void UpdateTab(int section)
 {
-	// Don't update if on the "Extra" tab
-	if (uCurTab == (int)cfg.group.size())
-	{
-		return;
-	}
 	for (size_t i = 0, ctrl = 0, si = cfg.group[section].sub.size(), pos = 0; i < si; i++)
 	{
 		for (size_t j = 0, sj = cfg.group[section].sub[i].opt.size(); j < sj; j++, pos++, ctrl++)
@@ -630,9 +610,9 @@ void CheckForIniSave()
 {
 	if (bHasChange)
 	{
-		if (MessageBoxW(hWnd, GetPrgString(STR_UNSAVED_TEXT).c_str(), GetPrgString(STR_WARNING).c_str(), MB_YESNO) == IDYES)
+		if (MessageBoxW(hWnd, GetPrgWString(STR_UNSAVED_TEXT).c_str(), GetPrgWString(STR_WARNING).c_str(), MB_YESNO) == IDYES)
 		{
-			cfg.SaveIni(ini_file.c_str(), GetPrgString(STR_INI_ERROR).c_str(), GetPrgString(STR_ERROR).c_str());
+			cfg.SaveIni(ini_file.c_str(), GetPrgWString(STR_INI_ERROR).c_str(), GetPrgWString(STR_ERROR).c_str());
 		}
 	}
 }
@@ -769,7 +749,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	LONG XBorder = 4;
 	LONG YBorder = 4;
 
-	hWnd.CreateWindow(SH2CLASS, GetPrgString(STR_TITLE).c_str(), WS_OVERLAPPED | WS_SYSMENU | WS_MINIMIZEBOX,
+	hWnd.CreateWindow(SH2CLASS, GetPrgWString(STR_TITLE).c_str(), WS_OVERLAPPED | WS_SYSMENU | WS_MINIMIZEBOX,
 		CW_USEDEFAULT, CW_USEDEFAULT, rWidth, rHeight, nullptr, hInstance);
 	if (!hWnd)
 		return FALSE;
@@ -798,24 +778,18 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		hTab.InsertItem((int)i, cfg.GetGroupString((int)i).c_str());
 	}
 
-	// create the "Extra" tab
-	if (ExtraOptions.size())
-	{
-		hTab.InsertItem((int)cfg.group.size(), GetPrgString(STR_EXTRA).c_str());
-	}
-
 	// create the description field
 	hDesc.CreateWindow(XBorder, r.bottom - (154 + YBorder), r.right - (XBorder * 2), 128, hWnd, hInstance, hFont, hBold);
 
 	// create the bottom buttons
 	int X = (XBorder - 1);
 	int Y = r.bottom - (23 + YBorder);
-	hBnClose.CreateWindow(GetPrgString(STR_BN_CLOSE).c_str(), X, Y, 90, 24, hWnd, hInstance, hFont); X += 94;
-	hBnDefault.CreateWindow(GetPrgString(STR_BN_DEFAULT).c_str(), X, Y, 140, 24, hWnd, hInstance, hFont);
+	hBnClose.CreateWindow(GetPrgWString(STR_BN_CLOSE).c_str(), X, Y, 90, 24, hWnd, hInstance, hFont); X += 94;
+	hBnDefault.CreateWindow(GetPrgWString(STR_BN_DEFAULT).c_str(), X, Y, 140, 24, hWnd, hInstance, hFont);
 
 	X = r.right;
-	X -= (160 + XBorder - 1); hBnLaunch.CreateWindow(GetPrgString(STR_BN_LAUNCH).c_str(), X, Y, 160, 24, hWnd, hInstance, hFont);
-	X -= 94; hBnSave.CreateWindow(GetPrgString(STR_BN_SAVE).c_str(), X, Y, 90, 24, hWnd, hInstance, hFont);
+	X -= (160 + XBorder - 1); hBnLaunch.CreateWindow(GetPrgWString(STR_BN_LAUNCH).c_str(), X, Y, 160, 24, hWnd, hInstance, hFont);
+	X -= 94; hBnSave.CreateWindow(GetPrgWString(STR_BN_SAVE).c_str(), X, Y, 90, 24, hWnd, hInstance, hFont);
 
 	// make save button start as disabled
 	hBnSave.Enable(false);
@@ -826,7 +800,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		X -= 144; hDbLaunch.CreateWindow(X, Y + 1, 140, 24, hWnd, hInstance, hFont);
 
 		// add launcher label
-		X -= 108; HWND hwnd = CreateWindowW(WC_STATICW, GetPrgString(STR_LBL_LAUNCH).c_str(), WS_VISIBLE | WS_CHILD | SS_RIGHT, X, Y + 5, 100, 24, hWnd, (HMENU)3, m_hModule, NULL);
+		X -= 108; HWND hwnd = CreateWindowW(WC_STATICW, GetPrgWString(STR_LBL_LAUNCH).c_str(), WS_VISIBLE | WS_CHILD | SS_RIGHT, X, Y + 5, 100, 24, hWnd, (HMENU)3, m_hModule, NULL);
 		SendMessageW(hwnd, WM_SETFONT, (LPARAM)hFont, TRUE);
 
 		// populate dropdown
@@ -835,7 +809,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		for (size_t x = 0; x < ExeList.size(); x++)
 		{
 			hDbLaunch.AddString(ExeList[x].c_str());
-			if (_wcsicmp(ExeList[x].c_str(), GetPrgString(STR_LAUNCH_EXE).c_str()) == 0)
+			if (_wcsicmp(ExeList[x].c_str(), GetPrgWString(STR_LAUNCH_EXE).c_str()) == 0)
 			{
 				entry = x;
 			}
@@ -888,8 +862,8 @@ LRESULT CALLBACK TabProc(HWND hWndd, UINT Msg, WPARAM wParam, LPARAM lParam)
 	switch (Msg)
 	{
 	case WM_COMMAND:
-		// Don't update if on the "Extra" tab
-		if (uCurTab != (int)cfg.group.size())
+		// Don't update if creating tab
+		if (!bCreatingTab)
 		{
 			switch (HIWORD(wParam))
 			{
@@ -963,10 +937,10 @@ LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 				if (bHasChange)
 				{
 					// unsaved settings, ask user what to do
-					switch (MessageBoxW(hWnd, GetPrgString(STR_UNSAVED_TEXT).c_str(), GetPrgString(STR_WARNING).c_str(), MB_YESNOCANCEL))
+					switch (MessageBoxW(hWnd, GetPrgWString(STR_UNSAVED_TEXT).c_str(), GetPrgWString(STR_WARNING).c_str(), MB_YESNOCANCEL))
 					{
 					case IDYES:		// save and close
-						cfg.SaveIni(ini_file.c_str(), GetPrgString(STR_INI_ERROR).c_str(), GetPrgString(STR_ERROR).c_str());
+						cfg.SaveIni(ini_file.c_str(), GetPrgWString(STR_INI_ERROR).c_str(), GetPrgWString(STR_ERROR).c_str());
 						SendMessageW(hWnd, WM_DESTROY, 0, 0);
 						break;
 					case IDNO:		// ignore and close
@@ -979,7 +953,7 @@ LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 				else SendMessageW(hWnd, WM_DESTROY, 0, 0);
 				break;
 			case WM_USER + 1:	// defaults
-				if (MessageBoxW(hWnd, GetPrgString(STR_DEFAULT_CONFIRM).c_str(), GetPrgString(STR_WARNING).c_str(), MB_YESNO) == IDYES)
+				if (MessageBoxW(hWnd, GetPrgWString(STR_DEFAULT_CONFIRM).c_str(), GetPrgWString(STR_WARNING).c_str(), MB_YESNO) == IDYES)
 				{
 					SetChanges();
 					cfg.SetDefault();
@@ -988,11 +962,11 @@ LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 				break;
 			case WM_USER + 2:	// save
 				RestoreChanges();
-				cfg.SaveIni(ini_file.c_str(), GetPrgString(STR_INI_ERROR).c_str(), GetPrgString(STR_ERROR).c_str());
+				cfg.SaveIni(ini_file.c_str(), GetPrgWString(STR_INI_ERROR).c_str(), GetPrgWString(STR_ERROR).c_str());
 				break;
 			case WM_USER + 3:	// save & launch
 				bLaunch = true;
-				cfg.SaveIni(ini_file.c_str(), GetPrgString(STR_INI_ERROR).c_str(), GetPrgString(STR_ERROR).c_str());
+				cfg.SaveIni(ini_file.c_str(), GetPrgWString(STR_INI_ERROR).c_str(), GetPrgWString(STR_ERROR).c_str());
 				SendMessageW(hWnd, WM_DESTROY, 0, 0);
 				break;
 			}
@@ -1003,14 +977,14 @@ LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 			case (WM_USER + 5):	// language
 			{
 				wchar_t LanguageString[MAX_PATH];
-				_snwprintf_s(LanguageString, MAX_PATH, _TRUNCATE, GetPrgString(STR_LANG_CONFIRM).c_str(), LangList[hDbLanguage.GetSelection()].Lang);
-				if (MessageBoxW(hWnd, LanguageString, GetPrgString(STR_WARNING).c_str(), MB_YESNO) == IDYES)
+				_snwprintf_s(LanguageString, MAX_PATH, _TRUNCATE, GetPrgWString(STR_LANG_CONFIRM).c_str(), LangList[hDbLanguage.GetSelection()].Lang);
+				if (MessageBoxW(hWnd, LanguageString, GetPrgWString(STR_WARNING).c_str(), MB_YESNO) == IDYES)
 				{
 					SetLanguage(LangList[hDbLanguage.GetSelection()].RcData);
 					CheckForIniSave();
 					if (!RelaunchApp())
 					{
-						MessageBoxW(hWnd, GetPrgString(STR_LANG_ERROR).c_str(), GetPrgString(STR_ERROR).c_str(), MB_OK);
+						MessageBoxW(hWnd, GetPrgWString(STR_LANG_ERROR).c_str(), GetPrgWString(STR_ERROR).c_str(), MB_OK);
 					}
 				}
 				else

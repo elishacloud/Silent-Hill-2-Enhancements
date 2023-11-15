@@ -6,11 +6,18 @@
 #include <algorithm>
 #include "External\tinyxml2\tinyxml2.h"
 #include "External\xxHash\xxh3.h"
+#include "Common\Unicode.h"
 
 struct EXTRAOPTIONS
 {
-	std::wstring Name;
-	std::wstring Value;
+	std::string Name;
+	std::string Value;
+};
+
+struct Strings
+{
+	const char* name;
+	const char* def;
 };
 
 extern std::vector<EXTRAOPTIONS> ExtraOptions;
@@ -22,8 +29,6 @@ extern DWORD DefaultLang;
 class CConfig;
 
 using namespace tinyxml2;
-std::wstring MultiToWide_s(const char* multi);
-std::wstring MultiToWide_s(std::string multi);
 
 class CHashString
 {
@@ -176,6 +181,7 @@ public:
 	std::string name;	// section name
 	std::vector<CConfigOption> option;	// options for this section
 	std::string id;		// string reference
+	bool extra;	// extra options flag
 };
 
 // string pool
@@ -186,13 +192,13 @@ public:
 	{
 	public:
 		XXH64_hash_t hash = NULL;
-		std::wstring str;
+		std::string str;
 	};
 
 	void PushString(const char* multis, const char* id)
 	{
 		CConfigString s;
-		s.str = MultiToWide_s(multis);
+		s.str = SAFESTR(multis);
 		s.hash = XXH64(id, strlen(id), 0);
 
 		str.push_back(s);
@@ -228,22 +234,22 @@ public:
 		std::sort(str.begin(), str.end(), sort);
 	}
 
-	std::wstring Find(XXH64_hash_t id)
+	std::string Find(XXH64_hash_t id)
 	{
 		auto f = quickfind(id);
 		if (f >= 0) return str[f].str;
 
-		return std::wstring(L"");
+		return std::string("");
 	}
 
-	std::wstring Find(std::string id)
+	std::string Find(std::string id)
 	{
 		auto hash = XXH64(id.c_str(), id.size(), 0);
 
 		auto f = quickfind(hash);
 		if (f >= 0) return str[f].str;
 
-		return std::wstring(L"");
+		return std::string("");
 	}
 
 	std::vector<CConfigString> str;
@@ -347,5 +353,5 @@ public:
 	std::wstring GetGroupString(int sec);
 	std::wstring GetGroupLabel(int sec, int sub);
 
-	std::wstring GetString(const char* name);
+	std::string GetString(const char* name);
 };

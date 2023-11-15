@@ -969,6 +969,16 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	// Disable Transparency Supersampling
+	if (IsSetAdaptivetessY)
+	{
+		ProxyInterface->SetRenderState(D3DRS_ADAPTIVETESS_Y, D3DFMT_UNKNOWN);
+	}
+	if (IsSetPointSize)
+	{
+		ProxyInterface->SetRenderState(D3DRS_POINTSIZE, FOURCC_A2M_DISABLE);
+	}
+
 	// Draw Overlays
 	OverlayRef.DrawOverlays(ProxyInterface);
 
@@ -1044,16 +1054,6 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	}
 
 	HRESULT hr = D3D_OK;
-
-	// Disable Transparency Supersampling
-	if (IsSetAdaptivetessY)
-	{
-		ProxyInterface->SetRenderState(D3DRS_ADAPTIVETESS_Y, D3DFMT_UNKNOWN);
-	}
-	if (IsSetPointSize)
-	{
-		ProxyInterface->SetRenderState(D3DRS_POINTSIZE, FOURCC_A2M_DISABLE);
-	}
 
 	// Present screen
 	if (!PauseMenuFlag)
@@ -1701,43 +1701,66 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 	{
 		DWORD Handle = 0;
 		ProxyInterface->GetVertexShader(&Handle);
-		CUSTOMVERTEX* vert = (CUSTOMVERTEX*)pVertexStreamZeroData;
-		if (Handle == D3DFVF_XYZRHW && PrimitiveType == D3DPT_TRIANGLELIST &&
-			vert[0].x == 0.0f && vert[0].y == 0.0f && vert[0].z == 0.0f && vert[0].rhw == 1.0f &&
-			vert[1].x == (float)BufferWidth && vert[1].y == 0.0f && vert[1].z == 0.0f && vert[1].rhw == 1.0f &&
-			vert[2].x == (float)BufferWidth && vert[2].y == (float)BufferHeight && vert[2].z == 0.0f && vert[2].rhw == 1.0f &&
-			vert[3].x == 0.0f && vert[3].y == 0.0f && vert[3].z == 0.0f && vert[3].rhw == 1.0f &&
-			vert[4].x == (float)BufferWidth && vert[4].y == (float)BufferHeight && vert[4].z == 0.0f && vert[4].rhw == 1.0f &&
-			vert[5].x == 0.0f && vert[5].y == (float)BufferHeight && vert[5].z == 0.0f && vert[5].rhw == 1.0f)
+		if (Handle == D3DFVF_XYZRHW)
 		{
-			for (int x = 0; x < 6; x++)
+			CUSTOMVERTEX* vert = (CUSTOMVERTEX*)pVertexStreamZeroData;
+			if (PrimitiveType == D3DPT_TRIANGLELIST &&
+				vert[0].x == 0.0f && vert[0].y == 0.0f && vert[0].z == 0.0f && vert[0].rhw == 1.0f &&
+				vert[1].x == (float)BufferWidth && vert[1].y == 0.0f && vert[1].z == 0.0f && vert[1].rhw == 1.0f &&
+				vert[2].x == (float)BufferWidth && vert[2].y == (float)BufferHeight && vert[2].z == 0.0f && vert[2].rhw == 1.0f &&
+				vert[3].x == 0.0f && vert[3].y == 0.0f && vert[3].z == 0.0f && vert[3].rhw == 1.0f &&
+				vert[4].x == (float)BufferWidth && vert[4].y == (float)BufferHeight && vert[4].z == 0.0f && vert[4].rhw == 1.0f &&
+				vert[5].x == 0.0f && vert[5].y == (float)BufferHeight && vert[5].z == 0.0f && vert[5].rhw == 1.0f)
 			{
-				vert[x].x -= 0.5f;
-				vert[x].y -= 0.5f;
-				vert[x].z = 0.01f;
+				for (int x = 0; x < 6; x++)
+				{
+					vert[x].x -= 0.5f;
+					vert[x].y -= 0.5f;
+					vert[x].z = 0.01f;
+				}
+			}
+			else if (PrimitiveType == D3DPT_TRIANGLESTRIP &&
+				vert[0].x == 0.0f && vert[0].y == 0.0f && vert[0].z == 0.0f && vert[0].rhw == 1.0f &&
+				vert[1].x == (float)BufferWidth && vert[1].y == 0.0f && vert[1].z == 0.0f && vert[1].rhw == 1.0f &&
+				vert[2].x == 0.0f && vert[2].y == (float)BufferHeight && vert[2].z == 0.0f && vert[2].rhw == 1.0f &&
+				vert[3].x == (float)BufferWidth && vert[3].y == (float)BufferHeight && vert[3].z == 0.0f && vert[3].rhw == 1.0f)
+			{
+				for (int x = 0; x < 4; x++)
+				{
+					vert[x].x -= 0.5f;
+					vert[x].y -= 0.5f;
+					vert[x].z = 0.01f;
+				}
 			}
 		}
-		else if (Handle == (D3DFVF_XYZRHW | D3DFVF_TEX4) && PrimitiveType == D3DPT_TRIANGLESTRIP &&
-			vert[0].x == 0.0f && vert[0].y == 0.0f && vert[0].z == 0.0f && vert[0].rhw == 1.0f &&
-			vert[1].x == (float)BufferWidth && vert[1].y == 0.0f && vert[1].z == 0.0f && vert[1].rhw == 1.0f &&
-			vert[2].x == 0.0f && vert[2].y == (float)BufferHeight && vert[2].z == 0.0f && vert[2].rhw == 1.0f &&
-			vert[3].x == (float)BufferWidth && vert[3].y == (float)BufferHeight && vert[3].z == 0.0f && vert[3].rhw == 1.0f)
+		else if (Handle == D3DFVF_TEX4)
 		{
-			for (int x = 0; x < 4; x++)
+			CUSTOMVERTEX_TEX4* vert = (CUSTOMVERTEX_TEX4*)pVertexStreamZeroData;
+			if (PrimitiveType == D3DPT_TRIANGLESTRIP &&
+				vert[0].x == 0.0f && vert[0].y == 0.0f && vert[0].z == 0.0f && vert[0].rhw == 1.0f &&
+				vert[1].x == (float)BufferWidth && vert[1].y == 0.0f && vert[1].z == 0.0f && vert[1].rhw == 1.0f &&
+				vert[2].x == 0.0f && vert[2].y == (float)BufferHeight && vert[2].z == 0.0f && vert[2].rhw == 1.0f &&
+				vert[3].x == (float)BufferWidth && vert[3].y == (float)BufferHeight && vert[3].z == 0.0f && vert[3].rhw == 1.0f)
 			{
-				vert[x].x -= 0.5f;
-				vert[x].y -= 0.5f;
-				vert[x].z = 0.01f;
+				for (int x = 0; x < 4; x++)
+				{
+					vert[x].x -= 0.5f;
+					vert[x].y -= 0.5f;
+					vert[x].z = 0.01f;
+				}
 			}
 		}
 		// Fix 1 pixel gap in cutscene letterboxes
-		else if (PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 20 &&
-			vert[0].x == 0.0f && vert[2].x == 0.0f && (vert[1].x == (float)BufferWidth || vert[0].y == (float)BufferHeight))
+		else if (PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 20)
 		{
-			for (int x = 0; x < 4; x++)
+			CUSTOMVERTEX_DIF* vert = (CUSTOMVERTEX_DIF*)pVertexStreamZeroData;
+			if (vert[0].x == 0.0f && vert[2].x == 0.0f && (vert[1].x == (float)BufferWidth || vert[0].y == (float)BufferHeight))
 			{
-				vert[x].x -= 0.5f;
-				vert[x].y -= 0.5f;
+				for (int x = 0; x < 4; x++)
+				{
+					vert[x].x -= 0.5f;
+					vert[x].y -= 0.5f;
+				}
 			}
 		}
 	}

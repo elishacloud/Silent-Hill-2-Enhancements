@@ -39,7 +39,9 @@ DWORD *SpecializedLight1Addr = nullptr;
 DWORD *SpecializedLight2Addr = nullptr;
 DWORD *TransitionStateAddr = nullptr;
 BYTE *FullscreenImageEventAddr = nullptr;
-float *InGameCameraPosYAddr = nullptr;
+float* InGameCameraPosXAddr = nullptr;
+float* InGameCameraPosYAddr = nullptr;
+float* InGameCameraPosZAddr = nullptr;
 BYTE *InventoryStatusAddr = nullptr;
 DWORD *LoadingScreenAddr = nullptr;
 BYTE *PauseMenuButtonIndexAddr = nullptr;
@@ -659,6 +661,35 @@ BYTE *GetFullscreenImageEventPointer()
 	return FullscreenImageEventAddr;
 }
 
+float GetInGameCameraPosX()
+{
+	float* pInGameCameraPosX = GetInGameCameraPosXPointer();
+
+	return (pInGameCameraPosX) ? *pInGameCameraPosX : 0.0f;
+}
+
+// Get Camera in-game position X
+float* GetInGameCameraPosXPointer()
+{
+	if (InGameCameraPosXAddr)
+	{
+		return InGameCameraPosXAddr;
+	}
+
+	// Get Camera Pos Y address
+	void* CameraPosYAddr = GetInGameCameraPosYPointer();
+
+	// Checking address pointer
+	if (!CameraPosYAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Camera Pos Y address!";
+		return nullptr;
+	}
+	InGameCameraPosXAddr = (float*)((DWORD)CameraPosYAddr - 0x04);
+
+	return InGameCameraPosXAddr;
+}
+
 float GetInGameCameraPosY()
 {
 	float *pInGameCameraPosY = GetInGameCameraPosYPointer();
@@ -686,6 +717,35 @@ float *GetInGameCameraPosYPointer()
 	}
 
 	return InGameCameraPosYAddr;
+}
+
+float GetInGameCameraPosZ()
+{
+	float* pInGameCameraPosZ = GetInGameCameraPosZPointer();
+
+	return (pInGameCameraPosZ) ? *pInGameCameraPosZ : 0.0f;
+}
+
+// Get Camera in-game position Z
+float* GetInGameCameraPosZPointer()
+{
+	if (InGameCameraPosZAddr)
+	{
+		return InGameCameraPosZAddr;
+	}
+
+	// Get Camera Pos Y address
+	void* CameraPosYAddr = GetInGameCameraPosYPointer();
+
+	// Checking address pointer
+	if (!CameraPosYAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Camera Pos Y address!";
+		return nullptr;
+	}
+	InGameCameraPosZAddr = (float*)((DWORD)CameraPosYAddr + 0x04);
+
+	return InGameCameraPosZAddr;
 }
 
 BYTE GetInventoryStatus()

@@ -823,6 +823,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="MothDrawOrderFix">
+        <Title>Fix moth draw order</Title>
+        <Description>Fixes a visual bug which causes the moths in Wood Side Apartments Room 202 and the final boss room to appear behind translucent objects such as glass.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="PistonRoomFix">
         <Title>Corregir la cinemática de la sala de pistones</Title>
         <Description>Oculta un pistón tras la pared que, de lo contrario, se mostraría durante una escena cinemática del laberinto, cuando Angela abre la puerta.</Description>
@@ -847,6 +856,15 @@
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="EnableHoldToStomp">
+        <Title>Restore alternate stomp</Title>
+        <Description>Restores the secondary/alternate stomp animation. When nearby an enemy on the ground, press and quickly release the attack button to perform a kick. Press and hold the attack button to perform a stomp.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -880,6 +898,15 @@
       <Feature name="FmvSubtitlesSyncFix">
         <Title>Sync subtitles with FMV framerate</Title>
         <Description>Adjusts the playback speed of subtitles to match the framerate of the FMV.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="SwapLightHeavyAttack">
+        <Title>Swap light and heavy melee attack inputs</Title>
+        <Description>Swaps the priority of light and heavy attacks for melee weapons. Press and quickly release the attack button to perform a light attack. Press and hold the attack button to perform a heavy attack.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -1099,6 +1126,15 @@
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="EnableLangPath">
+        <Title>Use "lang" folder</Title>
+        <Description>Silent Hill 2: Enhanced Edition will read and use fonts and language files in the "lang" folder, rather than the "data" or "sh2e" folders, whenever possible. This allows custom language files to replace/overwrite original game files.&#x0a;&#x0a;Note: requires "Use custom 'sh2e' folder" to be enabled.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 

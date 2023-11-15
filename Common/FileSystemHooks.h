@@ -59,6 +59,8 @@ wchar_t* GetFileModPath(const wchar_t* sh2, const wchar_t* str);
 
 LPCSTR GetModPath(LPCSTR);
 LPCWSTR GetModPath(LPCWSTR);
+LPCSTR GetLangPath(LPCSTR);
+LPCWSTR GetLangPath(LPCWSTR);
 
 void InstallCreateProcessHooks();
 void InstallFileSystemHooks();

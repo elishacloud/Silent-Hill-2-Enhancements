@@ -814,6 +814,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="MothDrawOrderFix">
+        <Title>Fix moth draw order</Title>
+        <Description>Fixes a visual bug which causes the moths in Wood Side Apartments Room 202 and the final boss room to appear behind translucent objects such as glass.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="PistonRoomFix">
         <Title>Fix piston room cutscene</Title>
         <Description>Hides a piston behind the wall that would otherwise be seen when Angela opens the door in the Labyrinth during a cutscene.</Description>
@@ -1105,6 +1114,15 @@
       <Feature name="UseCustomModFolder">
         <Title>Use custom "sh2e" folder</Title>
         <Description>Silent Hill 2: Enhanced Edition will read and use files in the "sh2e" folder, rather than the "data" folder, whenever possible. This allows custom, modified game files to be stored in the "sh2e" folder so as not to replace/overwrite original game files, which are found in the "data" folder. Any game files which have not been modified for the project will still be read from the "data" folder like normal, so you must keep the "data" folder and leave it untouched.&#x0a;&#x0a;Note: If disabled, various other features will also be disabled. This feature should never be disabled.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="EnableLangPath">
+        <Title>Use "lang" folder</Title>
+        <Description>Silent Hill 2: Enhanced Edition will read and use fonts and language files in the "lang" folder, rather than the "data" or "sh2e" folders, whenever possible. This allows custom language files to replace/overwrite original game files.&#x0a;&#x0a;Note: requires "Use custom 'sh2e' folder" to be enabled.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>

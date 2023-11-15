@@ -2,9 +2,18 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include <psapi.h>
-#include <shlwapi.h>
+#include <string>
 #include <algorithm>
+
+#ifndef LWSTDAPI_
+#define LWSTDAPI_(type)   EXTERN_C DECLSPEC_IMPORT type STDAPICALLTYPE
+LWSTDAPI_(BOOL)     PathFileExistsA(__in LPCSTR pszPath);
+LWSTDAPI_(BOOL)     PathFileExistsW(__in LPCWSTR pszPath);
+#undef LWSTDAPI_
+#else
+LWSTDAPI_(BOOL)     PathFileExistsA(__in LPCSTR pszPath);
+LWSTDAPI_(BOOL)     PathFileExistsW(__in LPCWSTR pszPath);
+#endif
 
 inline char* nullstr(char*) { return "\0"; }
 inline wchar_t* nullstr(wchar_t*) { return L"\0"; }
@@ -63,6 +72,42 @@ inline std::wstring TransformLower(wchar_t* name)
 	return l_name;
 }
 
+inline std::string SAFESTR(const char* X)
+{
+	if (!X)
+		return std::string("");
+
+	return std::string(X);
+}
+
+// create a wide string from utf8
+inline std::wstring MultiToWide_s(const char* multi)
+{
+	if (!multi)
+		return std::wstring(L"");
+
+	std::wstring wstr;
+	// gather size of the new string and create a buffer
+	int size = MultiByteToWideChar(CP_UTF8, 0, multi, -1, NULL, 0);
+	wchar_t* wide = new wchar_t[size];
+	if (wide)
+	{
+		// fill allocated string with converted data
+		MultiByteToWideChar(CP_UTF8, 0, multi, -1, wide, size);
+		// convert to std::wstring
+		wstr.assign(wide);
+		// delete memory
+		delete[] wide;
+	}
+	return wstr;
+}
+
+// crate an std::wstring from utf8 str::string
+inline std::wstring MultiToWide_s(std::string multi)
+{
+	return MultiToWide_s(multi.c_str());
+}
+
 inline BOOL WINAPI PathFileExistsW(LPCSTR str)
 {
 	return PathFileExistsA(str);
@@ -105,4 +150,17 @@ inline int CharCount(std::wstring s, wchar_t ch)
 	}
 
 	return count;
+}
+
+constexpr char removechars[] = " \t\n\r";
+inline void trim(std::string& str, const char chars[] = removechars)
+{
+	str.erase(0, str.find_first_not_of(chars));
+	str.erase(str.find_last_not_of(chars) + 1);
+}
+inline std::string trim(const std::string& str, const char chars[] = removechars)
+{
+	std::string res(str);
+	trim(res, chars);
+	return res;
 }

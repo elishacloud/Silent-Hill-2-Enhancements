@@ -395,6 +395,9 @@
     <ClCompile Include="Patches\MasterVolume.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\MothDrawOrder.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
     <ClCompile Include="Patches\HoldToStomp.cpp">
       <Filter>Patches</Filter>
     </ClCompile>

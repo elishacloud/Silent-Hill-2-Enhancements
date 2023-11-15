@@ -42,22 +42,6 @@ typedef HRESULT(WINAPI *URLDownloadToFileProc)(LPUNKNOWN pCaller, LPCWSTR szURL,
 bool IsSetupToolUpdateAvailable = false;
 bool IsProjectUpdateAvailable = false;
 
-namespace
-{
-	const char removechars[] = " \t\n\r";
-	inline void trim(std::string &str, const char chars[] = removechars)
-	{
-		str.erase(0, str.find_first_not_of(chars));
-		str.erase(str.find_last_not_of(chars) + 1);
-	}
-	inline std::string trim(const std::string &str, const char chars[] = removechars)
-	{
-		std::string res(str);
-		trim(res, chars);
-		return res;
-	}
-}
-
 HMODULE GetUrlDll()
 {
 	static HMODULE urlmondll = LoadLibraryA("urlmon.dll");

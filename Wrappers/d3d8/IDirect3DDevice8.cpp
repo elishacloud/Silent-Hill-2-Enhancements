@@ -969,15 +969,8 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	// Disable Transparency Supersampling
-	if (IsSetAdaptivetessY)
-	{
-		ProxyInterface->SetRenderState(D3DRS_ADAPTIVETESS_Y, D3DFMT_UNKNOWN);
-	}
-	if (IsSetPointSize)
-	{
-		ProxyInterface->SetRenderState(D3DRS_POINTSIZE, FOURCC_A2M_DISABLE);
-	}
+	// Disable antialiasing before present
+	DisableAntiAliasing();
 
 	// Draw Overlays
 	OverlayRef.DrawOverlays(ProxyInterface);
@@ -1953,42 +1946,8 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 
 	if (EndSceneCounter == 0)
 	{
-		// Set MultiSample
-		if (DeviceMultiSampleType)
-		{
-			ProxyInterface->SetRenderState(D3DRS_MULTISAMPLEANTIALIAS, TRUE);
-		}
-
-		// Set Transparency For Antialiasing
-		if (DeviceMultiSampleType || FixGPUAntiAliasing)
-		{
-			// Set Transparent Supersample
-			if (SetSSAA)
-			{
-				if (ProxyInterface->SetRenderState(D3DRS_ADAPTIVETESS_Y, FOURCC_SSAA) == D3D_OK)
-				{
-					LOG_ONCE("Enabling Transparency Antialiasing type SSAA");
-					IsSetAdaptivetessY = true;
-				}
-			}
-			// Set Transparent Multisample (Disable for now, causes trees to look barren)
-			/*else if (SetATOC)
-			{
-				if (ProxyInterface->SetRenderState(D3DRS_ADAPTIVETESS_Y, FOURCC_ATOC) == D3D_OK)
-				{
-					LOG_ONCE("Enabling Transparency Antialiasing type ATOC");
-					IsSetAdaptivetessY = true;
-				}
-			}
-			else
-			{
-				if (ProxyInterface->SetRenderState(D3DRS_POINTSIZE, FOURCC_A2M_ENABLE) == D3D_OK)
-				{
-					LOG_ONCE("Enabling Transparency Antialiasing type A2M1");
-					IsSetPointSize = true;
-				}
-			}*/
-		}
+		// Enable antialiasing
+		EnableAntiAliasing();
 	}
 
 	return D3D_OK;
@@ -2902,6 +2861,67 @@ void m_IDirect3DDevice8::AddSurfaceToVector(m_IDirect3DSurface8 *pSourceTarget, 
 		// Store surface
 		SURFACEVECTOR SurfaceStruct = { pSourceTarget , pRenderTarget };
 		SurfaceVector.push_back(SurfaceStruct);
+	}
+}
+
+void m_IDirect3DDevice8::EnableAntiAliasing()
+{
+	// Set MultiSample
+	if (DeviceMultiSampleType)
+	{
+		ProxyInterface->SetRenderState(D3DRS_MULTISAMPLEANTIALIAS, TRUE);
+		IsAntiAliasingEnabled = true;
+	}
+
+	// Set Transparency For Antialiasing
+	if (DeviceMultiSampleType || FixGPUAntiAliasing)
+	{
+		// Set Transparent Supersample
+		if (SetSSAA)
+		{
+			if (ProxyInterface->SetRenderState(D3DRS_ADAPTIVETESS_Y, FOURCC_SSAA) == D3D_OK)
+			{
+				LOG_ONCE("Enabling Transparency Antialiasing type SSAA");
+				IsSetAdaptivetessY = true;
+			}
+		}
+		// Set Transparent Multisample (Disable for now, causes trees to look barren)
+		/*else if (SetATOC)
+		{
+			if (ProxyInterface->SetRenderState(D3DRS_ADAPTIVETESS_Y, FOURCC_ATOC) == D3D_OK)
+			{
+				LOG_ONCE("Enabling Transparency Antialiasing type ATOC");
+				IsSetAdaptivetessY = true;
+			}
+		}
+		else
+		{
+			if (ProxyInterface->SetRenderState(D3DRS_POINTSIZE, FOURCC_A2M_ENABLE) == D3D_OK)
+			{
+				LOG_ONCE("Enabling Transparency Antialiasing type A2M1");
+				IsSetPointSize = true;
+			}
+		}*/
+	}
+}
+
+void m_IDirect3DDevice8::DisableAntiAliasing()
+{
+	if (IsAntiAliasingEnabled)
+	{
+		// Disable MultiSample
+		ProxyInterface->SetRenderState(D3DRS_MULTISAMPLEANTIALIAS, FALSE);
+		IsAntiAliasingEnabled = false;
+	}
+
+	// Disable Transparency Supersampling
+	if (IsSetAdaptivetessY)
+	{
+		ProxyInterface->SetRenderState(D3DRS_ADAPTIVETESS_Y, D3DFMT_UNKNOWN);
+	}
+	if (IsSetPointSize)
+	{
+		ProxyInterface->SetRenderState(D3DRS_POINTSIZE, FOURCC_A2M_DISABLE);
 	}
 }
 

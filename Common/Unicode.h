@@ -18,6 +18,26 @@ LWSTDAPI_(BOOL)     PathFileExistsW(__in LPCWSTR pszPath);
 inline char* nullstr(char*) { return "\0"; }
 inline wchar_t* nullstr(wchar_t*) { return L"\0"; }
 
+inline std::string SAFESTR(const char* str)
+{
+	if (!str)
+	{
+		return std::string();
+	}
+
+	return std::string(str);
+}
+
+inline std::wstring SAFESTR(const wchar_t* str)
+{
+	if (!str)
+	{
+		return std::wstring();
+	}
+
+	return std::wstring(str);
+}
+
 inline errno_t WINAPI strcpy_s(wchar_t* dest, size_t size, LPCWSTR src)
 {
 	return wcscpy_s(dest, size, src);
@@ -48,64 +68,74 @@ inline wint_t WINAPI tolower(const wchar_t chr)
 	return towlower(chr);
 }
 
-inline std::string tostring(std::string name)
-{
-	return name;
-}
-
-inline std::wstring tostring(std::wstring name)
-{
-	return name;
-}
-
-inline std::string TransformLower(char* name)
+inline std::string TransformLower(const char* name)
 {
 	std::string l_name(name);
 	std::transform(l_name.begin(), l_name.end(), l_name.begin(), [](char c) { return (char)towlower(c); });
 	return l_name;
 }
 
-inline std::wstring TransformLower(wchar_t* name)
+inline std::wstring TransformLower(const wchar_t* name)
 {
 	std::wstring l_name(name);
 	std::transform(l_name.begin(), l_name.end(), l_name.begin(), [](wchar_t c) { return (wchar_t)towlower(c); });
 	return l_name;
 }
 
-inline std::string SAFESTR(const char* X)
-{
-	if (!X)
-		return std::string("");
-
-	return std::string(X);
-}
-
-// create a wide string from utf8
-inline std::wstring MultiToWide_s(const char* multi)
-{
-	if (!multi)
-		return std::wstring(L"");
-
-	std::wstring wstr;
-	// gather size of the new string and create a buffer
-	int size = MultiByteToWideChar(CP_UTF8, 0, multi, -1, NULL, 0);
-	wchar_t* wide = new wchar_t[size];
-	if (wide)
-	{
-		// fill allocated string with converted data
-		MultiByteToWideChar(CP_UTF8, 0, multi, -1, wide, size);
-		// convert to std::wstring
-		wstr.assign(wide);
-		// delete memory
-		delete[] wide;
-	}
-	return wstr;
-}
-
-// crate an std::wstring from utf8 str::string
 inline std::wstring MultiToWide_s(std::string multi)
 {
-	return MultiToWide_s(multi.c_str());
+	std::wstring wide;
+
+	// Get the size of the required buffer
+	int size = MultiByteToWideChar(CP_UTF8, 0, multi.c_str(), -1, NULL, 0);
+
+	if (size > 0)
+	{
+		// Allocate buffer
+		std::vector<wchar_t> buffer(size);
+
+		// Convert multi-byte string to wide string
+		if (MultiByteToWideChar(CP_UTF8, 0, multi.c_str(), -1, buffer.data(), size) > 0)
+		{
+			// Assign to std::wstring
+			wide.assign(buffer.data());
+		}
+	}
+
+	return wide;
+}
+
+inline std::wstring MultiToWide_s(const char* multi)
+{
+	return MultiToWide_s(SAFESTR(multi));
+}
+
+inline std::string WideToMulti_s(std::wstring wide)
+{
+	std::string multi;
+
+	// Get the size of the required buffer
+	int size = WideCharToMultiByte(CP_UTF8, 0, wide.c_str(), -1, NULL, 0, NULL, NULL);
+
+	if (size > 0)
+	{
+		// Allocate buffer
+		std::vector<char> buffer(size);
+
+		// Convert wide string to multi-byte string
+		if (WideCharToMultiByte(CP_UTF8, 0, wide.c_str(), -1, buffer.data(), size, NULL, NULL) > 0)
+		{
+			// Assign to std::string
+			multi.assign(buffer.data());
+		}
+	}
+
+	return multi;
+}
+
+inline std::string WideToMulti_s(const wchar_t* multi)
+{
+	return WideToMulti_s(SAFESTR(multi));
 }
 
 inline BOOL WINAPI PathFileExistsW(LPCSTR str)
@@ -140,6 +170,11 @@ inline int CharCount(std::string s, char ch)
 	return count;
 }
 
+inline int CharCount(const char* s, char ch)
+{
+	return CharCount(SAFESTR(s), ch);
+}
+
 inline int CharCount(std::wstring s, wchar_t ch)
 {
 	int count = 0;
@@ -152,15 +187,48 @@ inline int CharCount(std::wstring s, wchar_t ch)
 	return count;
 }
 
-constexpr char removechars[] = " \t\n\r";
-inline void trim(std::string& str, const char chars[] = removechars)
+inline int CharCount(const wchar_t* s, wchar_t ch)
 {
-	str.erase(0, str.find_first_not_of(chars));
-	str.erase(str.find_last_not_of(chars) + 1);
+	return CharCount(SAFESTR(s), ch);
 }
-inline std::string trim(const std::string& str, const char chars[] = removechars)
+
+constexpr char charstoremove[] = " \t\n\r\v\f";
+constexpr wchar_t charstoremovew[] = L" \t\n\r\v\f";
+
+inline std::string trim(std::string str, const char chars[] = charstoremove)
 {
 	std::string res(str);
-	trim(res, chars);
+
+	// Remove specified characters
+	res.erase(0, res.find_first_not_of(chars));
+	res.erase(res.find_last_not_of(chars) + 1);
+
+	// Remove null characters
+	res.erase(std::remove(res.begin(), res.end(), '\0'), res.end());
+
 	return res;
+}
+
+inline std::string trim(const char* str, const char chars[] = charstoremove)
+{
+	return trim(SAFESTR(str), chars);
+}
+
+inline std::wstring trim(std::wstring str, const wchar_t chars[] = charstoremovew)
+{
+	std::wstring res(str);
+
+	// Remove specified characters
+	res.erase(0, res.find_first_not_of(chars));
+	res.erase(res.find_last_not_of(chars) + 1);
+
+	// Remove null characters
+	res.erase(std::remove(res.begin(), res.end(), '\0'), res.end());
+
+	return res;
+}
+
+inline std::wstring trim(const wchar_t* str, const wchar_t chars[] = charstoremovew)
+{
+	return trim(SAFESTR(str), chars);
 }

@@ -161,7 +161,7 @@ public:
 		UNREFERENCED_PARAMETER(lpString);
 	}
 
-	// random shit with configuration
+	// random configuration
 	void SetConfigPtr(CConfigOption* c) { cValue = c; }
 	void SetConfigValue(int val)
 	{
@@ -174,9 +174,7 @@ public:
 	{
 		if (cValue)
 		{
-			size_t size = lpString.size() + 1;
-			cValue->value[cValue->cur_val].val.resize(size, '\0');
-			wcstombs_s(nullptr, cValue->value[cValue->cur_val].val.data(), size, lpString.c_str(), _TRUNCATE);
+			cValue->value[cValue->cur_val].val = WideToMulti_s(lpString);
 		}
 	}
 

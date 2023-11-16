@@ -275,7 +275,7 @@ void __stdcall ParseIniCallback(char* lpName, char* lpValue, void *lpParam)
 		}
 	}
 
-	ExtraOptions.push_back({ trim(lpName), trim(lpValue) });
+	ExtraOptions.push_back({ lpName, lpValue });
 }
 
 void CConfig::SetFromIni(LPCWSTR lpName)
@@ -400,7 +400,7 @@ void CConfig::SaveIni(LPCWSTR lpName, LPCWSTR error_mes, LPCWSTR error_caption)
 		{
 			for (auto& opt : sec.option)
 			{
-				extra.append(opt.name + " = " + trim(opt.value[opt.cur_val].val.c_str()) + "\n");
+				extra.append(opt.name + " = " + trim(opt.value[opt.cur_val].val) + "\n");
 			}
 		}
 		else
@@ -411,7 +411,7 @@ void CConfig::SaveIni(LPCWSTR lpName, LPCWSTR error_mes, LPCWSTR error_caption)
 			for (auto& opt : sec.option)
 			{
 				ini.append("; " + UpdateDescription(opt.desc) + "\n");
-				ini.append(opt.name + " = " + trim(opt.value[opt.cur_val].val.c_str()) + "\n\n");
+				ini.append(opt.name + " = " + trim(opt.value[opt.cur_val].val) + "\n\n");
 			}
 		}
 	}

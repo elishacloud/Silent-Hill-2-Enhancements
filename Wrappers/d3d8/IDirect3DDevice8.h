@@ -16,8 +16,7 @@ private:
 	bool AnisotropyFlag = (bool)AnisotropicFiltering;
 	DWORD MaxAnisotropy = 0;
 	bool IsAntiAliasingEnabled = false;
-	bool IsSetAdaptivetessY = false;
-	bool IsSetPointSize = false;
+	bool IsSSAAEnabled = false;
 
 	bool IsGetFrontBufferCalled = false;
 	bool IsSnapshotTextureSet = false;

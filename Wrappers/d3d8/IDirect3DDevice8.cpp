@@ -23,7 +23,7 @@
 #include "stb_image_dds.h"
 #include "stb_image_write.h"
 #include "stb_image_resize.h"
-#include "Patches/ModelID.h"
+#include "Patches\ModelID.h"
 #include "Patches\MasterVolume.h"
 
 bool DeviceLost = false;
@@ -1935,6 +1935,11 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		if (FixFinalBossRoom)
 		{
 			HandleFinalBossRoomFix();
+		}
+
+		if (true)
+		{
+			RunPlayAdditionalSounds();
 		}
 	}
 

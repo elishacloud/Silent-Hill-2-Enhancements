@@ -18,5 +18,11 @@ void WINAPI genericQueryInterface(REFIID riid, LPVOID * ppvObj);
 
 extern AddressLookupTableDsound<void> ProxyAddressLookupTableDsound;
 
+extern CRITICAL_SECTION dscs;
+extern m_IDirectSound8* pCurrentDirectSound;
+extern m_IDirectSoundBuffer8* pDirectSoundWavBuffer;
+
+void ReleaseSoundBuffer();
+
 #include "IDirectSound8.h"
 #include "IDirectSoundBuffer8.h"

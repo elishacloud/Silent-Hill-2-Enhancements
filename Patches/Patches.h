@@ -321,6 +321,7 @@ void RunHotelWater();
 void RunInfiniteRumbleFix();
 void RunInnerFlashlightGlow(DWORD Height);
 void RunLightingTransition();
+void RunPlayAdditionalSounds();
 void RunQuickSaveTweaks();
 void RunQuickSaveCancelFix();
 void RunRoomLighting();

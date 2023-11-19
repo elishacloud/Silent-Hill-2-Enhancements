@@ -16,10 +16,14 @@
 
 #include "dsoundwrapper.h"
 #include <fstream>
+#include <shlwapi.h>
 
 CRITICAL_SECTION dscs = {};
 m_IDirectSound8* pCurrentDirectSound = nullptr;
 m_IDirectSoundBuffer8* pDirectSoundWavBuffer = nullptr;
+
+HRESULT ParseWavFile(const char* filePath, DSBUFFERDESC& dsbd, WAVEFORMATEX& waveFormat, std::vector<char>& AudioBuffer);
+void ReleaseSoundBuffer();
 
 HRESULT m_IDirectSound8::QueryInterface(REFIID riid, LPVOID * ppvObj)
 {
@@ -55,7 +59,11 @@ ULONG m_IDirectSound8::Release()
 {
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
 
+	EnterCriticalSection(&dscs);
+
 	ULONG x = ProxyInterface->Release();
+
+	LeaveCriticalSection(&dscs);
 
 	if (x == 0)
 	{
@@ -185,17 +193,66 @@ HRESULT m_IDirectSound8::VerifyCertification(LPDWORD pdwCertified)
 }
 
 // Helper functions
-HRESULT m_IDirectSound8::LoadWavFile(const char* filePath, m_IDirectSoundBuffer8** ppDSBuffer)
+HRESULT m_IDirectSound8::CreateWAVSoundBuffer(const char* filePath, m_IDirectSoundBuffer8** ppDSBuffer)
 {
+	// Check buffer
 	if (!ppDSBuffer)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: bad buffer address!";
 		return DSERR_INVALIDPARAM;
 	}
 
+	// Buffer variables
+	DSBUFFERDESC dsbd = {};
+	WAVEFORMATEX waveFormat = {};
+	std::vector<char> AudioBuffer;
+
+	// Parse WAV files
+	HRESULT hr = ParseWavFile(filePath, dsbd, waveFormat, AudioBuffer);
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to load WAV! file: " << filePath << " hr: " << (DSERR)hr;
+		return hr;
+	}
+
+	// Create a sound buffer
+	LPDIRECTSOUNDBUFFER pBuffer = nullptr;
+	hr = ProxyInterface->CreateSoundBuffer(&dsbd, &pBuffer, nullptr);
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to create buffer! file: " << filePath << " hr: " << (DSERR)hr;
+		return hr;
+	}
+	*ppDSBuffer = new m_IDirectSoundBuffer8((IDirectSoundBuffer8*)pBuffer);
+
+	// Lock the buffer and copy the audio data
+	LPVOID pData = nullptr;
+	DWORD dataSize = dsbd.dwBufferBytes;
+	hr = (*ppDSBuffer)->Lock(0, dataSize, &pData, &dataSize, nullptr, nullptr, DSBLOCK_ENTIREBUFFER);
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to lock buffer! file: " << filePath << " hr: " << (DSERR)hr;
+		return hr;
+	}
+	memcpy(pData, AudioBuffer.data(), dataSize);
+	(*ppDSBuffer)->Unlock(pData, dataSize, nullptr, 0);
+
+	return hr;
+}
+
+HRESULT ParseWavFile(const char* filePath, DSBUFFERDESC& dsbd, WAVEFORMATEX& waveFormat, std::vector<char>& AudioBuffer)
+{
+	// Check for nullptr
 	if (!filePath)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: bad file name!";
+		return DSERR_INVALIDPARAM;
+	}
+
+	// Check if WAV file exists
+	if (!PathFileExistsA(filePath))
+	{
+		Logging::Log() << __FUNCTION__ << "Error: '" << filePath << "' not found!";
 		return DSERR_INVALIDPARAM;
 	}
 
@@ -216,7 +273,7 @@ HRESULT m_IDirectSound8::LoadWavFile(const char* filePath, m_IDirectSoundBuffer8
 		file.read(riffHeader, sizeof(riffHeader));
 		if (strncmp(riffHeader, "RIFF", 4) != S_OK)
 		{
-			Logging::Log() << __FUNCTION__ << " Error: Not a valid WAV file: " << filePath;
+			Logging::Log() << __FUNCTION__ << " Error: WAV file missing 'RIFF' chunk: " << filePath;
 			break;
 		}
 
@@ -228,7 +285,7 @@ HRESULT m_IDirectSound8::LoadWavFile(const char* filePath, m_IDirectSoundBuffer8
 		file.read(waveHeader, sizeof(waveHeader));
 		if (strncmp(waveHeader, "WAVE", 4) != S_OK)
 		{
-			Logging::Log() << __FUNCTION__ << " Error: Not a valid WAV file: " << filePath;
+			Logging::Log() << __FUNCTION__ << " Error: WAV file missing 'WAVE' chunk: " << filePath;
 			break;
 		}
 
@@ -237,7 +294,7 @@ HRESULT m_IDirectSound8::LoadWavFile(const char* filePath, m_IDirectSoundBuffer8
 		file.read(fmtChunk, sizeof(fmtChunk));
 		if (strncmp(fmtChunk, "fmt ", 4) != S_OK)
 		{
-			Logging::Log() << __FUNCTION__ << " Error: Missing 'fmt ' chunk: " << filePath;
+			Logging::Log() << __FUNCTION__ << " Error: WAV file missing 'fmt ' chunk: " << filePath;
 			break;
 		}
 
@@ -246,7 +303,7 @@ HRESULT m_IDirectSound8::LoadWavFile(const char* filePath, m_IDirectSoundBuffer8
 		file.read(reinterpret_cast<char*>(&fmtSize), sizeof(fmtSize));
 
 		// Read the 'fmt ' data
-		WAVEFORMATEX waveFormat = {};
+		waveFormat = {};
 		file.read(reinterpret_cast<char*>(&waveFormat), min(fmtSize, sizeof(WAVEFORMATEX)));
 
 		// Find the 'data' chunk
@@ -270,48 +327,28 @@ HRESULT m_IDirectSound8::LoadWavFile(const char* filePath, m_IDirectSoundBuffer8
 		file.read(reinterpret_cast<char*>(&dataSize), sizeof(dataSize));
 
 		// Allocate a buffer for the audio data
-		std::vector<char> audioBuffer;
-		audioBuffer.resize(dataSize);
+		AudioBuffer.resize(dataSize);
 
 		// Read the audio data
-		file.read(audioBuffer.data(), dataSize);
+		file.read(AudioBuffer.data(), dataSize);
 
 		// Check how much data was actually read
-		std::streamsize actualBytesRead = file.gcount();
-		if (actualBytesRead < dataSize)
+		std::streamsize ActualBytesRead = file.gcount();
+		if (ActualBytesRead < dataSize)
 		{
-			Logging::Log() << __FUNCTION__ << " Error: Failed to read full buffer: " << filePath;
+			Logging::Log() << __FUNCTION__ << " Error: Failed to read full buffer! size: " << dataSize << " read: " << ActualBytesRead << " file: " << filePath;
 			break;
 		}
 
 		// Settings the buffer desc
-		DSBUFFERDESC dsbd = {};
+		dsbd = {};
 		dsbd.dwSize = sizeof(DSBUFFERDESC);
 		dsbd.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY | DSBCAPS_CTRLPAN | DSBCAPS_CTRLPOSITIONNOTIFY;
 		dsbd.dwBufferBytes = dataSize;
 		dsbd.lpwfxFormat = &waveFormat;
 
-		// Create a sound buffer
-		LPDIRECTSOUNDBUFFER pBuffer = nullptr;
-		hr = ProxyInterface->CreateSoundBuffer(&dsbd, &pBuffer, nullptr);
-		if (FAILED(hr))
-		{
-			Logging::Log() << __FUNCTION__ << " Error: Failed to create buffer: " << filePath << " hr: " << (DSERR)hr;
-			break;
-		}
-		*ppDSBuffer = new m_IDirectSoundBuffer8((IDirectSoundBuffer8*)pBuffer);
-
-		// Lock the buffer and copy the audio data
-		LPVOID pData = nullptr;
-		hr = (*ppDSBuffer)->Lock(0, dataSize, &pData, &dataSize, nullptr, nullptr, DSBLOCK_ENTIREBUFFER);
-		if (FAILED(hr))
-		{
-			Logging::Log() << __FUNCTION__ << " Error: Failed to lock buffer: " << filePath << " hr: " << (DSERR)hr;
-			break;
-		}
-		memcpy(pData, audioBuffer.data(), dataSize);
-		(*ppDSBuffer)->Unlock(pData, dataSize, nullptr, 0);
-
+		// Set hr to success
+		hr = DS_OK;
 	} while (false);
 
 	// Close and exit
@@ -337,7 +374,7 @@ HRESULT PlayWavFile(const char* filePath)
 
 	ReleaseSoundBuffer();
 
-	HRESULT hr = pCurrentDirectSound->LoadWavFile(filePath, &pDirectSoundWavBuffer);
+	HRESULT hr = pCurrentDirectSound->CreateWAVSoundBuffer(filePath, &pDirectSoundWavBuffer);
 
 	if (SUCCEEDED(hr))
 	{

@@ -51,5 +51,5 @@ public:
 	STDMETHOD(VerifyCertification)(THIS_ _Out_ LPDWORD pdwCertified);
 
 	// Helper functions
-	HRESULT LoadWavFile(const char* filePath, m_IDirectSoundBuffer8** ppDSBuffer);
+	HRESULT CreateWAVSoundBuffer(const char* filePath, m_IDirectSoundBuffer8** ppDSBuffer);
 };

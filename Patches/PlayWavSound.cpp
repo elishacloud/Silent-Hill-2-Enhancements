@@ -16,7 +16,6 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include <shlwapi.h>
 #include "Patches.h"
 #include "Common\Utils.h"
 #include "Common\FileSystemHooks.h"
@@ -58,28 +57,12 @@ void RunPlayAdditionalSounds()
 		// play flashlight_off.wav
 		if (FlashLightSwitch == 0)
 		{
-			const std::string soundfile = std::string(GetModPath("")) + "\\sound\\extra\\flashlight_off.wav";
-			if (PathFileExistsA(soundfile.c_str()))
-			{
-				PlayWavFile(soundfile.c_str());
-			}
-			else
-			{
-				LOG_ONCE(__FUNCTION__ << "Error: '" << soundfile.c_str() << "' not found!");
-			}
+			PlayWavFile((std::string(GetModPath("")) + "\\sound\\extra\\flashlight_off.wav").c_str());
 		}
 		// play flashlight_on.wav
 		else if (FlashLightSwitch == 1)
 		{
-			const std::string soundfile = std::string(GetModPath("")) + "\\sound\\extra\\flashlight_on.wav";
-			if (PathFileExistsA(soundfile.c_str()))
-			{
-				PlayWavFile(soundfile.c_str());
-			}
-			else
-			{
-				LOG_ONCE(__FUNCTION__ << "Error: '" << soundfile.c_str() << "' not found!");
-			}
+			PlayWavFile((std::string(GetModPath("")) + "\\sound\\extra\\flashlight_on.wav").c_str());
 		}
 	}
 	LastFlashLightSwitch = FlashLightSwitch;

@@ -45,24 +45,45 @@ void RunPlayAdditionalSounds()
 		GameVersion == SH2V_11 ? (BYTE*)0x00946852 :
 		GameVersion == SH2V_DC ? (BYTE*)0x00945852 : nullptr;
 
+	static BYTE* InventoryItem =
+		GameVersion == SH2V_10 ? (BYTE*)0x01F7A7E2 :
+		GameVersion == SH2V_11 ? (BYTE*)0x01F7E3E2 :
+		GameVersion == SH2V_DC ? (BYTE*)0x01F7D3E2 : nullptr;
 
 	BYTE EventIndex = GetEventIndex();
+	DWORD RoomID = GetRoomID();
 	BYTE FlashLightSwitch = GetFlashlightSwitch();
 	static BYTE LastFlashLightSwitch = FlashLightSwitch;
 
-	if (LastFlashLightSwitch != FlashLightSwitch && (*CanUseFlashlight == 1 &&
-		(GetRoomID() != 0x24 /*Angela apt room*/ && GetRoomID() != 0x89 /*Maria in prison*/ && GetRoomID() != 0x8F /*Eddie boss room 1*/ && GetRoomID() != 0x90 /*Eddie boss room 2*/ && GetRoomID() != 0xA2  /*Hotel room 302*/)) ||
-		(LastFlashLightSwitch != FlashLightSwitch && (GetRoomID() == 0x04 /*Town East*/ || GetRoomID() == 0x08 /*Town West*/) && (WorldColorR == 0 && WorldColorG == 0 && WorldColorB == 0)))
+	// Check for boss level
+	static bool IsBossLevel = false;
+	if (RoomID == 0xBB /*Final boss room */ && GetCutsceneID() /*any cutscene triggered*/)
 	{
-		// play flashlight_off.wav
-		if (FlashLightSwitch == 0)
+		IsBossLevel = true;
+	}
+	else if (RoomID == 0xBB)
+	{
+		IsBossLevel = false;
+	}
+
+	if (!IsBossLevel)
+	{
+		// Check for flashlight on/off
+		if (LastFlashLightSwitch != FlashLightSwitch && (
+			(*CanUseFlashlight == 1 && (RoomID != 0x24 /*Angela apt room*/ && RoomID != 0x89 /*Maria in prison*/ && RoomID != 0x8F /*Eddie boss room 1*/ && RoomID != 0x90 /*Eddie boss room 2*/)) ||
+			((RoomID == 0x04 /*Town East*/ || RoomID == 0x08 /*Town West*/) && (*WorldColorR == 0 && *WorldColorG == 0 && *WorldColorB == 0)) ||
+			(RoomID != 0xA2 /*Hotel room 302*/ && *InventoryItem > 0x7F /*VHSTape is NOT in player's inventory*/)))
 		{
-			PlayWavFile((std::string(GetModPath("")) + "\\sound\\extra\\flashlight_off.wav").c_str());
-		}
-		// play flashlight_on.wav
-		else if (FlashLightSwitch == 1)
-		{
-			PlayWavFile((std::string(GetModPath("")) + "\\sound\\extra\\flashlight_on.wav").c_str());
+			// play flashlight_off.wav
+			if (FlashLightSwitch == 0)
+			{
+				PlayWavFile((std::string(GetModPath("")) + "\\sound\\extra\\flashlight_off.wav").c_str());
+			}
+			// play flashlight_on.wav
+			else if (FlashLightSwitch == 1)
+			{
+				PlayWavFile((std::string(GetModPath("")) + "\\sound\\extra\\flashlight_on.wav").c_str());
+			}
 		}
 	}
 	LastFlashLightSwitch = FlashLightSwitch;

@@ -309,17 +309,35 @@ HRESULT ParseWavFile(const char* filePath, DSBUFFERDESC& dsbd, WAVEFORMATEX& wav
 		// Find the 'data' chunk
 		char chunkHeader[4] = {};
 		file.read(chunkHeader, sizeof(chunkHeader));
-
-		// Check for the 'data' chunk
-		while (strncmp(chunkHeader, "data", 4) != S_OK)
+		while (strncmp(chunkHeader, "data", 4) != S_OK && !file.eof())
 		{
-			// Skip non-'data' chunks
-			file.read(chunkHeader, sizeof(chunkHeader));
-			if (file.eof())
+			if (chunkHeader[1] == 'd' && chunkHeader[2] == 'a' && chunkHeader[3] == 't')
 			{
-				Logging::Log() << __FUNCTION__ << " Error: Failed to find 'data' chunk: " << filePath;
-				break;
+				chunkHeader[0] = 'd';
+				chunkHeader[1] = 'a';
+				chunkHeader[2] = 't';
+				file.read(&chunkHeader[3], 1);
 			}
+			else if (chunkHeader[2] == 'd' && chunkHeader[3] == 'a')
+			{
+				chunkHeader[0] = 'd';
+				chunkHeader[1] = 'a';
+				file.read(&chunkHeader[2], 2);
+			}
+			else if (chunkHeader[3] == 'd')
+			{
+				chunkHeader[0] = 'd';
+				file.read(&chunkHeader[1], 3);
+			}
+			else
+			{
+				file.read(chunkHeader, sizeof(chunkHeader));
+			}
+		}
+		if (file.eof())
+		{
+			Logging::Log() << __FUNCTION__ << " Error: Failed to find 'data' chunk: " << filePath;
+			break;
 		}
 
 		// Read the size of the 'data' chunk

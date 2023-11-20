@@ -25,10 +25,15 @@ HRESULT PlayWavFile(const char*);
 
 void RunPlayAdditionalSounds()
 {
-	static BYTE* CanUseFlashlight =
+	static BYTE* CanUseFlashlight1 =
 		GameVersion == SH2V_10 ? (BYTE*)0x01F7DC2C :
 		GameVersion == SH2V_11 ? (BYTE*)0x01F8182C :
 		GameVersion == SH2V_DC ? (BYTE*)0x01F8082C : nullptr;
+
+	static BYTE* CanUseFlashlight2 =
+		GameVersion == SH2V_10 ? (BYTE*)0x01FB7F0D :
+		GameVersion == SH2V_11 ? (BYTE*)0x01FBBB0D :
+		GameVersion == SH2V_DC ? (BYTE*)0x01FBAB0D : nullptr;
 
 	static BYTE* WorldColorR =
 		GameVersion == SH2V_10 ? (BYTE*)0x00942C50 :
@@ -55,6 +60,32 @@ void RunPlayAdditionalSounds()
 	BYTE FlashLightSwitch = GetFlashlightSwitch();
 	static BYTE LastFlashLightSwitch = FlashLightSwitch;
 
+	bool RoomRequiresNoChecking = (
+		RoomID == 0x24 /*Angela apt room*/ ||
+		RoomID == 0x65 /*Prison bug room*/ ||
+		RoomID == 0x89 /*Maria in prison*/ ||
+		RoomID == 0x8F /*Eddie boss room 1*/ ||
+		RoomID == 0x90 /*Eddie boss room 2*/ ||
+		RoomID == 0xA2 /*Hotel room 302*/ ||
+		RoomID == 0xAA /*Hotel Alternate Angela Staircase*/ ||
+		RoomID == 0xAB /*Hotel Alternate Employee Staircase*/ ||
+		RoomID == 0xAC /*Final RPT Boss Fight Room*/ ||
+		RoomID == 0xAD /*Hotel Alternate Back Hallway*/ ||
+		RoomID == 0xAE /*Hotel Alternate Burned Employee Area*/ ||
+		RoomID == 0xAF /*Final Nine Save Squares*/ ||
+		RoomID == 0xB0 /*Hotel Alternate Reading Room*/ ||
+		RoomID == 0xB1 /*Hotel Alternate 2F W Rooms Hallway*/ ||
+		RoomID == 0xB2 /*Hotel Alternate W 2F Hallway*/ ||
+		RoomID == 0xB3 /*Hotel Alternate E 2F Hallway*/ ||
+		RoomID == 0xB4 /*Hotel Alternate 2F E Rooms Hallway*/ ||
+		RoomID == 0xB5 /*Hotel Alternate 3F Hallway*/ ||
+		RoomID == 0xB6 /*Hotel Alternate Bar*/ ||
+		RoomID == 0xB7 /*Hotel Alternate Bar Kitchen*/ ||
+		RoomID == 0xB8 /*Hotel Alternate Bar Entrance*/ ||
+		RoomID == 0xB9 /*Hotel Alternate 1F Employee Hallway*/ ||
+		RoomID == 0xBA /*Final Hallway Before End*/ ||
+		RoomID == 0xBB /*Final Boss Room*/);
+
 	// Check for boss level
 	static bool IsBossLevel = false;
 	if (RoomID == 0xBB /*Final boss room*/ && GetCutsceneID() /*any cutscene triggered*/)
@@ -67,8 +98,9 @@ void RunPlayAdditionalSounds()
 	}
 
 	// Check for flashlight on/off
-	if (LastFlashLightSwitch != FlashLightSwitch && LastRoomID == RoomID && !IsBossLevel && (
-		(*CanUseFlashlight == 1 && (RoomID != 0x24 /*Angela apt room*/ && RoomID != 0x89 /*Maria in prison*/ && RoomID != 0x8F /*Eddie boss room 1*/ && RoomID != 0x90 /*Eddie boss room 2*/ && RoomID != 0xA2 /*Hotel room 302*/)) ||
+	if (FlashLightSwitch != LastFlashLightSwitch && RoomID == LastRoomID && !IsBossLevel && (
+		RoomRequiresNoChecking ||
+		(*CanUseFlashlight1 == 1 && *CanUseFlashlight2 == 1 && !RoomRequiresNoChecking) ||
 		((RoomID == 0x04 /*Town East*/ || RoomID == 0x08 /*Town West*/) && (*WorldColorR == 0 && *WorldColorG == 0 && *WorldColorB == 0)) ||
 		(RoomID == 0xA2 /*Hotel room 302*/ && *InventoryItem < 0x80 /*VHSTape is NOT in player's inventory*/)))
 	{

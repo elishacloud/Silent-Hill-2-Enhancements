@@ -51,7 +51,7 @@ void RunPlayAdditionalSounds()
 		GameVersion == SH2V_DC ? (BYTE*)0x01F7D3E2 : nullptr;
 
 	DWORD RoomID = GetRoomID();
-	DWORD LastRoomID = RoomID;
+	static DWORD LastRoomID = RoomID;
 	BYTE FlashLightSwitch = GetFlashlightSwitch();
 	static BYTE LastFlashLightSwitch = FlashLightSwitch;
 

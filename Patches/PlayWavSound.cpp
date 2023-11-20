@@ -50,18 +50,17 @@ void RunPlayAdditionalSounds()
 		GameVersion == SH2V_11 ? (BYTE*)0x01F7E3E2 :
 		GameVersion == SH2V_DC ? (BYTE*)0x01F7D3E2 : nullptr;
 
-	BYTE EventIndex = GetEventIndex();
 	DWORD RoomID = GetRoomID();
 	BYTE FlashLightSwitch = GetFlashlightSwitch();
 	static BYTE LastFlashLightSwitch = FlashLightSwitch;
 
 	// Check for boss level
 	static bool IsBossLevel = false;
-	if (RoomID == 0xBB /*Final boss room */ && GetCutsceneID() /*any cutscene triggered*/)
+	if (RoomID == 0xBB /*Final boss room*/ && GetCutsceneID() /*any cutscene triggered*/)
 	{
 		IsBossLevel = true;
 	}
-	else if (RoomID == 0xBB)
+	else if (RoomID != 0xBB)
 	{
 		IsBossLevel = false;
 	}
@@ -72,7 +71,7 @@ void RunPlayAdditionalSounds()
 		if (LastFlashLightSwitch != FlashLightSwitch && (
 			(*CanUseFlashlight == 1 && (RoomID != 0x24 /*Angela apt room*/ && RoomID != 0x89 /*Maria in prison*/ && RoomID != 0x8F /*Eddie boss room 1*/ && RoomID != 0x90 /*Eddie boss room 2*/)) ||
 			((RoomID == 0x04 /*Town East*/ || RoomID == 0x08 /*Town West*/) && (*WorldColorR == 0 && *WorldColorG == 0 && *WorldColorB == 0)) ||
-			(RoomID != 0xA2 /*Hotel room 302*/ && *InventoryItem > 0x7F /*VHSTape is NOT in player's inventory*/)))
+			(RoomID != 0xA2 /*Hotel room 302*/ && *InventoryItem < 0x80 /*VHSTape is NOT in player's inventory*/)))
 		{
 			// play flashlight_off.wav
 			if (FlashLightSwitch == 0)

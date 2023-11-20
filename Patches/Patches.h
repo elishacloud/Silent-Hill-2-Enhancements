@@ -300,7 +300,6 @@ bool IsInFullScreenImageEvent();
 bool IsInMainOptionsMenu();
 bool IsInOptionsMenu();
 
-void HandleFinalBossRoomFix();
 void HandleMenuSounds();
 void SetNewVolume();
 
@@ -311,6 +310,7 @@ void RunBloodSize();
 void RunClosetCutscene();
 void RunClosetSpawn();
 void RunDynamicDrawDistance();
+void RunFinalBossRoomFix();
 void RunFlashlightClockPush();
 void RunFogSpeed();
 void RunGameLoad();

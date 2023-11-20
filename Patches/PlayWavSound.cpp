@@ -68,7 +68,7 @@ void RunPlayAdditionalSounds()
 
 	// Check for flashlight on/off
 	if (LastFlashLightSwitch != FlashLightSwitch && !IsBossLevel && (
-		(*CanUseFlashlight == 1 && (RoomID != 0x24 /*Angela apt room*/ && RoomID != 0x89 /*Maria in prison*/ && RoomID != 0x8F /*Eddie boss room 1*/ && RoomID != 0x90 /*Eddie boss room 2*/ && RoomID == 0xA2 /*Hotel room 302*/)) ||
+		(*CanUseFlashlight == 1 && (RoomID != 0x24 /*Angela apt room*/ && RoomID != 0x89 /*Maria in prison*/ && RoomID != 0x8F /*Eddie boss room 1*/ && RoomID != 0x90 /*Eddie boss room 2*/ && RoomID != 0xA2 /*Hotel room 302*/)) ||
 		((RoomID == 0x04 /*Town East*/ || RoomID == 0x08 /*Town West*/) && (*WorldColorR == 0 && *WorldColorG == 0 && *WorldColorB == 0)) ||
 		(RoomID == 0xA2 /*Hotel room 302*/ && *InventoryItem < 0x80 /*VHSTape is NOT in player's inventory*/)))
 	{

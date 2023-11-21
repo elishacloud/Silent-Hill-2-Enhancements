@@ -31,7 +31,7 @@ void RunPlayAdditionalSounds()
 		GameVersion == SH2V_DC ? (BYTE*)0x01F8082C : nullptr;
 
 	static BYTE* CanUseFlashlight2 =
-		GameVersion == SH2V_10 ? (BYTE*)0x01FB7F0D :
+		GameVersion == SH2V_10 ? (BYTE*)0x01F7AE80 :
 		GameVersion == SH2V_11 ? (BYTE*)0x01FBBB0D :
 		GameVersion == SH2V_DC ? (BYTE*)0x01FBAB0D : nullptr;
 
@@ -100,7 +100,7 @@ void RunPlayAdditionalSounds()
 	// Check for flashlight on/off
 	if (FlashLightSwitch != LastFlashLightSwitch && RoomID == LastRoomID && !RoomsToNeverPlaySFX && !IsBossLevel && (
 		(RoomsWithNoExtraCriteria) ||
-		(*CanUseFlashlight1 == 1 && *CanUseFlashlight2 == 1 && !RoomsWithNoExtraCriteria && RoomID != 0xA2 /*Hotel room 302*/) ||
+		(*CanUseFlashlight1 == 1 && *CanUseFlashlight2 == 0 && !RoomsWithNoExtraCriteria && RoomID != 0xA2 /*Hotel room 302*/) ||
 		((RoomID == 0x04 /*Town East*/ || RoomID == 0x08 /*Town West*/) && (*WorldColorR == 0 && *WorldColorG == 0 && *WorldColorB == 0)) ||
 		(RoomID == 0xA2 /*Hotel room 302*/ && *InventoryItem < 0x80 /*VHSTape is NOT in player's inventory*/)))
 	{

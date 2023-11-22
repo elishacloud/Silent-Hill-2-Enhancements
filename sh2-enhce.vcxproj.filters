@@ -407,6 +407,9 @@
     <ClCompile Include="Patches\QuickSaveCancelFix.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\PlayWavSound.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
     <ClCompile Include="Patches\MenuSounds.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
@@ -414,9 +417,6 @@
       <Filter>Patches</Filter>
     </ClCompile>
     <ClCompile Include="Patches\FireEscapeKey.cpp">
-      <Filter>Patches</Filter>
-    </ClCompile>
-    <ClCompile Include="Patches\PlayWavSound.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
   </ItemGroup>

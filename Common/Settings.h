@@ -110,7 +110,6 @@
 	visit(Room312ShadowFix, true) \
 	visit(RoomLightingFix, true) \
 	visit(RowboatAnimationFix, true) \
-	visit(SaveGameSoundFix, true) \
 	visit(SetBlackPillarBoxes, true) \
 	visit(SetSixtyFPS, true) \
 	visit(Southpaw, false) \

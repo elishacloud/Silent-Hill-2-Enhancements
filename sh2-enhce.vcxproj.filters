@@ -290,9 +290,6 @@
     <ClCompile Include="Patches\AdvancedOptionsFix.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
-    <ClCompile Include="Patches\SaveGameSound.cpp">
-      <Filter>Patches</Filter>
-    </ClCompile>
     <ClCompile Include="Patches\ReplaceWindowTitle.cpp">
       <Filter>Patches</Filter>
     </ClCompile>

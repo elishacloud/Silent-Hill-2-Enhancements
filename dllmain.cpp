@@ -488,12 +488,6 @@ void DelayedStart()
 		PatchVHSAudio();
 	}
 
-	// Game Save Sound Fix
-	if (SaveGameSoundFix)
-	{
-		PatchSaveGameSound();
-	}
-
 	//Fixes an issue where the game would play the wrong background music when pulling up the inventory screen under certain circumstances
 	if (FixInventoryBGM)
 	{

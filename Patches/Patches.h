@@ -272,7 +272,6 @@ void PatchRoom312ShadowFix();
 void PatchRoomLighting();
 void PatchRowboatAnimation();
 void PatchSaveBGImage();
-void PatchSaveGameSound();
 void PatchSpeakerConfigLock();
 void PatchSpecialFX();
 void PatchSpecular();

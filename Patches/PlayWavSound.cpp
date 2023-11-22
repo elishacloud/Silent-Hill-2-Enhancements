@@ -23,7 +23,34 @@
 #include "Common\FileSystemHooks.h"
 #include "Logging\Logging.h"
 
+void* GameSoundReturnAddress = nullptr;
+
 HRESULT PlayWavFile(const char*);
+int32_t PlaySaveSound_Hook(int32_t SoundId, float volume, DWORD param3);
+
+__declspec(naked) void __stdcall SaveGameSoundASM()
+{
+	__asm
+	{
+		push eax
+		mov eax, PauseMenuButtonIndexAddr
+		cmp [eax], 0x1
+		jne real_code
+		push esi
+		push 0x3F800000
+		push 0x0002743
+		call PlaySaveSound_Hook
+		pop eax
+		jmp GameSoundReturnAddress
+	real_code:
+		push esi
+		push 0x3F800000
+		push 0x0002712
+		call PlaySaveSound_Hook
+		pop eax
+		jmp GameSoundReturnAddress
+	}
+}
 
 int32_t PlaySaveSound_Hook(int32_t SoundId, float volume, DWORD param3)
 {
@@ -54,14 +81,29 @@ void PatchCustomSFXs()
 		return;
 	}
 
-	Logging::Log() << "Patching custom SFXs...";
+	Logging::Log() << "Patching custom save and load SFXs...";
 
 	uint32_t* LoadGameSoundPauseMenu = (uint32_t*)0x00454A64; //TODO addresses
 	uint32_t* LoadGameSoundNewGame = (uint32_t*)0x0049870c;
 	uint32_t* LoadGameSoundContinue = (uint32_t*)0x00497f84;
 	uint32_t* SaveGameSoundRedSquares = (uint32_t*)0x004476DB;
 
-	// Hook load/save game sounds
+	// calls this function for the getting PauseMenuButtonIndexAddr
+	GetPauseMenuButtonIndex();
+
+	// Sound effect function address, same address for all known versions of the game
+	DWORD SoundEffectCallAddr = 0x00402823;
+
+	// Checking address pointer
+	if (!SoundEffectCallAddr || !PauseMenuButtonIndexAddr)
+	{
+		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+		return;
+	}
+	GameSoundReturnAddress = reinterpret_cast<void*>(SoundEffectCallAddr + 16);
+
+	// Update SH2 code
+	WriteJMPtoMemory(reinterpret_cast<BYTE*>(SoundEffectCallAddr), *SaveGameSoundASM, 16);
 	injector::MakeCALL(LoadGameSoundPauseMenu, PlayLoadSound_Hook, true);
 	injector::MakeCALL(LoadGameSoundNewGame, PlayLoadSound_Hook, true);
 	injector::MakeCALL(LoadGameSoundContinue, PlayLoadSound_Hook, true);

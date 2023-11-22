@@ -402,15 +402,6 @@
         </Choices>
       </Feature>
 
-      <Feature name="SaveGameSoundFix">
-        <Title>Restaurar el sonido de guardado en el menú de pausa</Title>
-        <Description>Restaura el efecto de sonido de «partida guardada» al guardar una partida a través del menú de pausa.</Description>
-        <Choices type="check">
-          <Value name="No">0</Value>
-          <Value name="Sí" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="MenuSoundsFix">
         <Title>Restore selection sounds in menus</Title>
         <Description>Adds selection sounds to menus that did not originally have them. Also restores selection sounds when navigating menu choices with the mouse. Affects the Pause menu, Movies menu, and various Options menus.</Description>

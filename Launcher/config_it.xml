@@ -392,15 +392,6 @@
           <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
-
-      <Feature name="SaveGameSoundFix">
-        <Title>Ripristina il suono di "salvataggio" nel menu di pausa</Title>
-        <Description>Ripristina il suono di "salvataggio"  selezionando il salvataggio nel menu di pausa.</Description>
-        <Choices type="check">
-          <Value name="Disabilitato">0</Value>
-          <Value name="Abilitato" default="true">1</Value>
-        </Choices>
-      </Feature>
       
       <Feature name="MenuSoundsFix">
         <Title>Ripristina suoni nei menu</Title>

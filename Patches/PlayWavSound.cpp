@@ -32,8 +32,8 @@ void RunPlayAdditionalSounds()
 
 	static BYTE* CanUseFlashlight2 =
 		GameVersion == SH2V_10 ? (BYTE*)0x01F7AE80 :
-		GameVersion == SH2V_11 ? (BYTE*)0x01FBBB0D :
-		GameVersion == SH2V_DC ? (BYTE*)0x01FBAB0D : nullptr;
+		GameVersion == SH2V_11 ? (BYTE*)0x01F7EA80 :
+		GameVersion == SH2V_DC ? (BYTE*)0x01F7DA80 : nullptr;
 
 	static BYTE* WorldColorR =
 		GameVersion == SH2V_10 ? (BYTE*)0x00942C50 :

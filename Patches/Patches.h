@@ -230,6 +230,7 @@ void PatchCriware();
 HRESULT PatchCustomExeStr();
 void PatchCustomFog();
 void PatchCustomFonts();
+void PatchCustomSFXs();
 void PatchControllerTweaks();
 void PatchDelayedFadeIn();
 void PatchDoubleFootstepFix();

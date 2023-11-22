@@ -644,6 +644,12 @@ void DelayedStart()
 	{
 		PatchSwapLightHeavyAttack();
 	}
+	
+	// Add custom sfx
+	if (true) //TODO setting
+	{
+		PatchCustomSFXs();
+	}
 
 	// Remove the "Now loading..." message
 	switch (GameVersion)

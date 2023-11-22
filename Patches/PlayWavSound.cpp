@@ -1,5 +1,5 @@
 /**
-* Copyright (C) 2023 Elisha Riedlinger
+* Copyright (C) 2023 Elisha Riedlinger, mercury501
 *
 * This software is  provided 'as-is', without any express  or implied  warranty. In no event will the
 * authors be held liable for any damages arising from the use of this software.
@@ -16,12 +16,57 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include "External\injector\include\injector\injector.hpp"
+#include "External\injector\include\injector\utility.hpp"
 #include "Patches.h"
 #include "Common\Utils.h"
 #include "Common\FileSystemHooks.h"
 #include "Logging\Logging.h"
 
 HRESULT PlayWavFile(const char*);
+
+int32_t PlaySaveSound_Hook(int32_t SoundId, float volume, DWORD param3)
+{
+	UNREFERENCED_PARAMETER(SoundId);
+	UNREFERENCED_PARAMETER(volume);
+	UNREFERENCED_PARAMETER(param3);
+
+	Logging::Log() << __FUNCTION__;
+	PlayWavFile((std::string(GetModPath("")) + "\\sound\\extra\\save_sound.wav").c_str());
+	return 0x10;	// PlaySound function success
+}
+
+int32_t PlayLoadSound_Hook(int32_t SoundId, float volume, DWORD param3)
+{
+	UNREFERENCED_PARAMETER(SoundId);
+	UNREFERENCED_PARAMETER(volume);
+	UNREFERENCED_PARAMETER(param3);
+
+	Logging::Log() << __FUNCTION__;
+	PlayWavFile((std::string(GetModPath("")) + "\\sound\\extra\\g_start.wav").c_str());
+	return 0x10;	// PlaySound function success
+}
+
+void PatchCustomSFXs()
+{
+	if (GameVersion != SH2V_10)
+	{
+		return;
+	}
+
+	Logging::Log() << "Patching custom SFXs...";
+
+	uint32_t* LoadGameSoundPauseMenu = (uint32_t*)0x00454A64; //TODO addresses
+	uint32_t* LoadGameSoundNewGame = (uint32_t*)0x0049870c;
+	uint32_t* LoadGameSoundContinue = (uint32_t*)0x00497f84;
+	uint32_t* SaveGameSoundRedSquares = (uint32_t*)0x004476DB;
+
+	// Hook load/save game sounds
+	injector::MakeCALL(LoadGameSoundPauseMenu, PlayLoadSound_Hook, true);
+	injector::MakeCALL(LoadGameSoundNewGame, PlayLoadSound_Hook, true);
+	injector::MakeCALL(LoadGameSoundContinue, PlayLoadSound_Hook, true);
+	injector::MakeCALL(SaveGameSoundRedSquares, PlaySaveSound_Hook, true);
+}
 
 void RunPlayAdditionalSounds()
 {

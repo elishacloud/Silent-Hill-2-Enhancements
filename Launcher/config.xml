@@ -418,7 +418,16 @@
           <Value name="Enable">1</Value>
         </Choices>
       </Feature>
-      
+
+      <Feature name="EnableCustomSFX">
+        <Title>Restore missing sound effects</Title>
+        <Description>Restores the flashlight switch sound effects and corrects game load and game save audio, which sometimes are missing or cutoff.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
     </Section>
 
   </Tab>

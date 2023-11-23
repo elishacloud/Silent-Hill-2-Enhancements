@@ -640,7 +640,7 @@ void DelayedStart()
 	}
 	
 	// Add custom sfx
-	if (true) //TODO setting
+	if (EnableCustomSFX)
 	{
 		PatchCustomSFXs();
 	}

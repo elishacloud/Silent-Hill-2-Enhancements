@@ -25,8 +25,29 @@
 
 void* GameSoundReturnAddress = nullptr;
 
-HRESULT PlayWavFile(const char*);
-int32_t PlaySaveSound_Hook(int32_t SoundId, float volume, DWORD param3);
+HRESULT PlayWavFile(const char* filePath, DWORD BifferID);
+
+int32_t PlaySaveSound(int32_t SoundId, float volume, DWORD param3)
+{
+	UNREFERENCED_PARAMETER(SoundId);
+	UNREFERENCED_PARAMETER(volume);
+	UNREFERENCED_PARAMETER(param3);
+
+	PlayWavFile((std::string(GetModPath("")) + "\\sound\\extra\\save_sound.wav").c_str(), 0);
+
+	return 0x10;	// PlaySound function success
+}
+
+int32_t PlayLoadSound(int32_t SoundId, float volume, DWORD param3)
+{
+	UNREFERENCED_PARAMETER(SoundId);
+	UNREFERENCED_PARAMETER(volume);
+	UNREFERENCED_PARAMETER(param3);
+
+	PlayWavFile((std::string(GetModPath("")) + "\\sound\\extra\\g_start.wav").c_str(), 0);
+
+	return 0x10;	// PlaySound function success
+}
 
 __declspec(naked) void __stdcall SaveGameSoundASM()
 {
@@ -39,39 +60,17 @@ __declspec(naked) void __stdcall SaveGameSoundASM()
 		push esi
 		push 0x3F800000
 		push 0x0002743
-		call PlaySaveSound_Hook
+		call PlaySaveSound
 		pop eax
 		jmp GameSoundReturnAddress
 	real_code:
 		push esi
 		push 0x3F800000
 		push 0x0002712
-		call PlaySaveSound_Hook
+		call PlaySaveSound
 		pop eax
 		jmp GameSoundReturnAddress
 	}
-}
-
-int32_t PlaySaveSound_Hook(int32_t SoundId, float volume, DWORD param3)
-{
-	UNREFERENCED_PARAMETER(SoundId);
-	UNREFERENCED_PARAMETER(volume);
-	UNREFERENCED_PARAMETER(param3);
-
-	Logging::Log() << __FUNCTION__;
-	PlayWavFile((std::string(GetModPath("")) + "\\sound\\extra\\save_sound.wav").c_str());
-	return 0x10;	// PlaySound function success
-}
-
-int32_t PlayLoadSound_Hook(int32_t SoundId, float volume, DWORD param3)
-{
-	UNREFERENCED_PARAMETER(SoundId);
-	UNREFERENCED_PARAMETER(volume);
-	UNREFERENCED_PARAMETER(param3);
-
-	Logging::Log() << __FUNCTION__;
-	PlayWavFile((std::string(GetModPath("")) + "\\sound\\extra\\g_start.wav").c_str());
-	return 0x10;	// PlaySound function success
 }
 
 void PatchCustomSFXs()
@@ -88,7 +87,7 @@ void PatchCustomSFXs()
 	uint32_t* LoadGameSoundContinue = (uint32_t*)0x00497f84;
 	uint32_t* SaveGameSoundRedSquares = (uint32_t*)0x004476DB;
 
-	// calls this function for the getting PauseMenuButtonIndexAddr
+	// Calls this function for the getting PauseMenuButtonIndexAddr
 	GetPauseMenuButtonIndex();
 
 	// Sound effect function address, same address for all known versions of the game
@@ -104,10 +103,10 @@ void PatchCustomSFXs()
 
 	// Update SH2 code
 	WriteJMPtoMemory(reinterpret_cast<BYTE*>(SoundEffectCallAddr), *SaveGameSoundASM, 16);
-	injector::MakeCALL(LoadGameSoundPauseMenu, PlayLoadSound_Hook, true);
-	injector::MakeCALL(LoadGameSoundNewGame, PlayLoadSound_Hook, true);
-	injector::MakeCALL(LoadGameSoundContinue, PlayLoadSound_Hook, true);
-	injector::MakeCALL(SaveGameSoundRedSquares, PlaySaveSound_Hook, true);
+	injector::MakeCALL(LoadGameSoundPauseMenu, PlayLoadSound, true);
+	injector::MakeCALL(LoadGameSoundNewGame, PlayLoadSound, true);
+	injector::MakeCALL(LoadGameSoundContinue, PlayLoadSound, true);
+	injector::MakeCALL(SaveGameSoundRedSquares, PlaySaveSound, true);
 }
 
 void RunPlayAdditionalSounds()
@@ -194,12 +193,12 @@ void RunPlayAdditionalSounds()
 		// play flashlight_off.wav
 		if (FlashLightSwitch == 0)
 		{
-			PlayWavFile((std::string(GetModPath("")) + "\\sound\\extra\\flashlight_off.wav").c_str());
+			PlayWavFile((std::string(GetModPath("")) + "\\sound\\extra\\flashlight_off.wav").c_str(), 1);
 		}
 		// play flashlight_on.wav
 		else if (FlashLightSwitch == 1)
 		{
-			PlayWavFile((std::string(GetModPath("")) + "\\sound\\extra\\flashlight_on.wav").c_str());
+			PlayWavFile((std::string(GetModPath("")) + "\\sound\\extra\\flashlight_on.wav").c_str(), 1);
 		}
 	}
 	LastRoomID = RoomID;

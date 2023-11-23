@@ -10,9 +10,7 @@ public:
 	{
 		Logging::LogDebug() << "Creating device " << __FUNCTION__ << "(" << this << ")";
 
-		pCurrentDirectSound = this;
-
-		InitializeCriticalSection(&dscs);
+		InitDevice();
 
 		ProxyAddressLookupTableDsound.SaveAddress(this, ProxyInterface);
 	}
@@ -20,12 +18,7 @@ public:
 	{
 		Logging::LogDebug() << __FUNCTION__ << "(" << this << ")" << " deleting device!";
 
-		EnterCriticalSection(&dscs);
-		pCurrentDirectSound = nullptr;
-		pDirectSoundWavBuffer = nullptr;
-		LeaveCriticalSection(&dscs);
-
-		DeleteCriticalSection(&dscs);
+		ReleaseDevice();
 
 		ProxyAddressLookupTableDsound.DeleteAddress(this);
 	}
@@ -51,5 +44,7 @@ public:
 	STDMETHOD(VerifyCertification)(THIS_ _Out_ LPDWORD pdwCertified);
 
 	// Helper functions
+	void InitDevice();
+	void ReleaseDevice();
 	HRESULT CreateWAVSoundBuffer(const char* filePath, m_IDirectSoundBuffer8** ppDSBuffer);
 };

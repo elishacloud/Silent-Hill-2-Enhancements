@@ -16,8 +16,6 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include "External\injector\include\injector\injector.hpp"
-#include "External\injector\include\injector\utility.hpp"
 #include "Patches.h"
 #include "Common\Utils.h"
 #include "Common\FileSystemHooks.h"
@@ -79,42 +77,46 @@ __declspec(naked) void __stdcall SaveGameSoundASM()
 
 void PatchCustomSFXs()
 {
-	if (GameVersion != SH2V_10)
-	{
-		return;
-	}
-
 	Logging::Log() << "Patching custom save and load SFXs...";
 
-	uint32_t* LoadGameSoundPauseMenu = (uint32_t*)0x00454A64; //TODO addresses
-	uint32_t* LoadGameSoundNewGame = (uint32_t*)0x0049870c;
-	uint32_t* LoadGameSoundContinue = (uint32_t*)0x00497f84;
-	uint32_t* SaveGameSoundRedSquares = (uint32_t*)0x004476DB;
+	// Calls this function for the getting PauseMenuButtonIndexAddr
+	GetPauseMenuButtonIndex();
+
+	// Get Pause Menu sound function address
+	constexpr BYTE SearchPauseMenuBytes[]{ 0x6A, 0x00, 0x68, 0x00, 0x00, 0x80, 0x3F, 0x68, 0x9A, 0x3A, 0x00, 0x00, 0xE8 };
+	BYTE* LoadGameSoundPauseMenu = (BYTE*)SearchAndGetAddresses(0x00454A58, 0x00454CB8, 0x00454CB8, SearchPauseMenuBytes, sizeof(SearchPauseMenuBytes), 0x0C, __FUNCTION__);
+
+	// Get Load Game sound function address
+	constexpr BYTE SearchLoadGameBytes[]{ 0xEB, 0x3F, 0x3B, 0xF3, 0x75, 0x21, 0x3B, 0xFB, 0x75, 0x1D, 0x3B, 0xEB, 0x75, 0x19, 0x3B, 0xC3, 0x75, 0x15, 0x53, 0x68, 0x00, 0x00, 0x80, 0x3F, 0x68, 0x9A, 0x3A, 0x00, 0x00, 0xE8 };
+	BYTE* LoadGameSoundContinue = (BYTE*)SearchAndGetAddresses(0x00497F67, 0x00498217, 0x004978A7, SearchLoadGameBytes, sizeof(SearchLoadGameBytes), 0x1D, __FUNCTION__);
+
+	// Get Save Game sound function address
+	constexpr BYTE SearchSaveGameBytes[]{ 0x83, 0xC4, 0x04, 0x85, 0xC0, 0x74, 0x79, 0x56, 0x68, 0x00, 0x00, 0x80, 0x3F, 0x68, 0x43, 0x27, 0x00, 0x00, 0xE8 };
+	BYTE* SaveGameSoundRedSquares = (BYTE*)SearchAndGetAddresses(0x004476C9, 0x00447869, 0x00447869, SearchSaveGameBytes, sizeof(SearchSaveGameBytes), 0x12, __FUNCTION__);
 
 	// Play Sound Effect function address
 	constexpr BYTE SearchPlayMusicBytes[]{ 0x6A, 0x01, 0xE8, 0x19, 0x90, 0xFE, 0xFF, 0x83, 0xC4, 0x04 };
 	m_pPlaySound = (PlaySoundProc)(CheckMultiMemoryAddress((void*)0x00515580, (void*)0x005158B0, (void*)0x005151D0, (void*)SearchPlayMusicBytes, sizeof(SearchPlayMusicBytes), __FUNCTION__));
 
-	// Calls this function for the getting PauseMenuButtonIndexAddr
-	GetPauseMenuButtonIndex();
-
-	// Sound effect function address, same address for all known versions of the game
-	DWORD SoundEffectCallAddr = 0x00402823;
-
 	// Checking address pointer
-	if (!m_pPlaySound || !PauseMenuButtonIndexAddr)
+	if (!PauseMenuButtonIndexAddr || !LoadGameSoundPauseMenu || !LoadGameSoundContinue || !SaveGameSoundRedSquares || !m_pPlaySound)
 	{
 		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
 		return;
 	}
+
+	BYTE* LoadGameSoundNewGame = (BYTE*)(LoadGameSoundContinue + 0x788);
+
+	// Sound effect function address, same address for all known versions of the game
+	BYTE* SoundEffectCallAddr = (BYTE*)0x00402823;
 	GameSoundReturnAddress = reinterpret_cast<void*>(SoundEffectCallAddr + 16);
 
 	// Update SH2 code
-	WriteJMPtoMemory(reinterpret_cast<BYTE*>(SoundEffectCallAddr), *SaveGameSoundASM, 16);
-	injector::MakeCALL(LoadGameSoundPauseMenu, PlayLoadSound, true);
-	injector::MakeCALL(LoadGameSoundNewGame, PlayLoadSound, true);
-	injector::MakeCALL(LoadGameSoundContinue, PlayLoadSound, true);
-	injector::MakeCALL(SaveGameSoundRedSquares, PlaySaveSound, true);
+	WriteJMPtoMemory(SoundEffectCallAddr, *SaveGameSoundASM, 16);
+	WriteCalltoMemory(LoadGameSoundPauseMenu, PlayLoadSound);
+	WriteCalltoMemory(LoadGameSoundNewGame, PlayLoadSound);
+	WriteCalltoMemory(LoadGameSoundContinue, PlayLoadSound);
+	WriteCalltoMemory(SaveGameSoundRedSquares, PlaySaveSound);
 }
 
 void RunPlayAdditionalSounds()
@@ -134,20 +136,16 @@ void RunPlayAdditionalSounds()
 		GameVersion == SH2V_11 ? (BYTE*)0x00946850 :
 		GameVersion == SH2V_DC ? (BYTE*)0x00945850 : nullptr;
 
-	static BYTE* WorldColorG =
-		GameVersion == SH2V_10 ? (BYTE*)0x00942C51 :
-		GameVersion == SH2V_11 ? (BYTE*)0x00946851 :
-		GameVersion == SH2V_DC ? (BYTE*)0x00945851 : nullptr;
+	static BYTE* WorldColorG = WorldColorR + 1;
+	static BYTE* WorldColorB = WorldColorR + 2;
+	static BYTE* InventoryItem = CanUseFlashlight2 + 0x69E;
 
-	static BYTE* WorldColorB =
-		GameVersion == SH2V_10 ? (BYTE*)0x00942C52 :
-		GameVersion == SH2V_11 ? (BYTE*)0x00946852 :
-		GameVersion == SH2V_DC ? (BYTE*)0x00945852 : nullptr;
-
-	static BYTE* InventoryItem =
-		GameVersion == SH2V_10 ? (BYTE*)0x01F7A7E2 :
-		GameVersion == SH2V_11 ? (BYTE*)0x01F7E3E2 :
-		GameVersion == SH2V_DC ? (BYTE*)0x01F7D3E2 : nullptr;
+	// Checking address pointer
+	if (!CanUseFlashlight1 || !CanUseFlashlight2 || !WorldColorR)
+	{
+		LOG_ONCE(__FUNCTION__ " Error: failed to find memory address!");
+		return;
+	}
 
 	DWORD RoomID = GetRoomID();
 	static DWORD LastRoomID = RoomID;

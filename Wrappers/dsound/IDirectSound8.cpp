@@ -20,7 +20,7 @@
 #include "Patches\Patches.h"
 
 CRITICAL_SECTION dscs = {};
-constexpr DWORD MaxBuffers = 2;
+constexpr DWORD MaxBuffers = 3;
 m_IDirectSound8* pCurrentDirectSound = nullptr;
 m_IDirectSoundBuffer8* pDirectSoundWavBuffer[MaxBuffers] = {};
 

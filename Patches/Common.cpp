@@ -137,6 +137,7 @@ BYTE* DiscardOptionBOAddr = nullptr;
 BYTE* DiscardOptionAddr = nullptr;
 DWORD* GetDeltaTimeFunctionAddr = nullptr;
 bool* HardwareSoundEnabledAddr = nullptr;
+BYTE* SFXVolumeAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -3105,4 +3106,32 @@ bool* GetHardwareSoundEnabledPointer()
 	HardwareSoundEnabledAddr = (bool*)((DWORD)HardwareSoundEnabled);
 
 	return HardwareSoundEnabledAddr;
+}
+
+BYTE GetSFXVolume()
+{
+	BYTE* pSFXVolume = SFXVolumePointer();
+
+	return (pSFXVolume) ? *pSFXVolume : 0;
+}
+
+BYTE* SFXVolumePointer()
+{
+	if (SFXVolumeAddr)
+	{
+		return SFXVolumeAddr;
+	}
+
+	// Get SFXVolume address
+	constexpr BYTE SFXVolumeSearchBytes[]{ 0x83, 0xC4, 0x04, 0xB8, 0x01, 0x00, 0x00, 0x00, 0x5B, 0x59, 0xC3, 0xFF, 0x05 };
+	SFXVolumeAddr = (BYTE*)ReadSearchedAddresses(0x004698DB, 0x00469B7B, 0x00469D8B, SFXVolumeSearchBytes, sizeof(SFXVolumeSearchBytes), -0x09, __FUNCTION__);
+
+	// Checking address pointer
+	if (!SFXVolumeAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find HardwareSoundEnabled address!";
+		return nullptr;
+	}
+
+	return SFXVolumeAddr;
 }

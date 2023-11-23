@@ -17,6 +17,7 @@
 #include "dsoundwrapper.h"
 #include <fstream>
 #include <shlwapi.h>
+#include "Patches\Patches.h"
 
 CRITICAL_SECTION dscs = {};
 constexpr DWORD MaxBuffers = 2;
@@ -438,8 +439,16 @@ HRESULT PlayWavFile(const char* filePath, DWORD BifferID)
 
 	if (SUCCEEDED(hr))
 	{
-		// Set the volume to max for now
-		pDirectSoundWavBuffer[BifferID]->SetVolume(DSBVOLUME_MAX);
+		// Get the volume level
+		LONG SFXVolume = DSBVOLUME_MAX;
+		BYTE SFXVolumeLevel = GetSFXVolume();
+		if (SFXVolumeLevel < 16)
+		{
+			SFXVolume = VolumeArray[SFXVolumeLevel];
+		}
+
+		// Set the volume
+		pDirectSoundWavBuffer[BifferID]->SetVolume(SFXVolume);
 
 		// Play the loaded WAV file
 		pDirectSoundWavBuffer[BifferID]->Play(0, 0, 0);

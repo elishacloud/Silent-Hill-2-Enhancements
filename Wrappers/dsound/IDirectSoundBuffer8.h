@@ -1,10 +1,5 @@
 #pragma once
 
-// Volume array falloff
-constexpr LONG VolumeArray[] = { -10000, -2401, -1799, -1411, -1170, -961, -809, -665, -555, -445, -359, -270, -198, -124, -63, 0 };
-
-extern std::vector<m_IDirectSoundBuffer8*> BufferList;
-
 class m_IDirectSoundBuffer8 : public IDirectSoundBuffer8, public AddressLookupTableDsoundObject
 {
 private:
@@ -19,8 +14,8 @@ private:
 	ULARGE_INTEGER LastStopTime = {};
 
 	// Helper functions
-	void SetStopped();
 	bool CheckGameResults();
+	void SetStopped();
 
 public:
 	m_IDirectSoundBuffer8(LPDIRECTSOUNDBUFFER8 pSound8) : ProxyInterface(pSound8)

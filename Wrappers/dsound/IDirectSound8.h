@@ -5,6 +5,10 @@ class m_IDirectSound8 : public IDirectSound8, public AddressLookupTableDsoundObj
 private:
 	LPDIRECTSOUND8 ProxyInterface;
 
+	// Helper functions
+	void InitDevice();
+	void ReleaseDevice();
+
 public:
 	m_IDirectSound8(LPDIRECTSOUND8 pSound8) : ProxyInterface(pSound8)
 	{
@@ -44,7 +48,5 @@ public:
 	STDMETHOD(VerifyCertification)(THIS_ _Out_ LPDWORD pdwCertified);
 
 	// Helper functions
-	void InitDevice();
-	void ReleaseDevice();
 	HRESULT CreateWAVSoundBuffer(const char* filePath, m_IDirectSoundBuffer8** ppDSBuffer);
 };

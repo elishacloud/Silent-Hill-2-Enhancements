@@ -488,7 +488,7 @@ void DelayedStart()
 		PatchVHSAudio();
 	}
 
-	//Fixes an issue where the game would play the wrong background music when pulling up the inventory screen under certain circumstances
+	// Fixes an issue where the game would play the wrong background music when pulling up the inventory screen under certain circumstances
 	if (FixInventoryBGM)
 	{
 		PatchInventoryBGMBug();

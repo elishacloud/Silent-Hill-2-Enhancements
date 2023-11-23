@@ -453,7 +453,7 @@ HRESULT PlayWavFile(const char* filePath, DWORD BifferID)
 		// Play the loaded WAV file
 		pDirectSoundWavBuffer[BifferID]->Play(0, 0, 0);
 
-		Logging::Log() << __FUNCTION__ << " Playing sound: " << filePath;
+		Logging::LogDebug() << __FUNCTION__ << " Playing sound: " << filePath;
 	}
 
 	LeaveCriticalSection(&dscs);

@@ -131,17 +131,10 @@ void RunPlayAdditionalSounds()
 		GameVersion == SH2V_11 ? (BYTE*)0x01F7EA80 :
 		GameVersion == SH2V_DC ? (BYTE*)0x01F7DA80 : nullptr;
 
-	static BYTE* WorldColorR =
-		GameVersion == SH2V_10 ? (BYTE*)0x00942C50 :
-		GameVersion == SH2V_11 ? (BYTE*)0x00946850 :
-		GameVersion == SH2V_DC ? (BYTE*)0x00945850 : nullptr;
-
-	static BYTE* WorldColorG = WorldColorR + 1;
-	static BYTE* WorldColorB = WorldColorR + 2;
 	static BYTE* InventoryItem = CanUseFlashlight2 + 0x69E;
 
 	// Checking address pointer
-	if (!CanUseFlashlight1 || !CanUseFlashlight2 || !WorldColorR)
+	if (!CanUseFlashlight1 || !CanUseFlashlight2)
 	{
 		LOG_ONCE(__FUNCTION__ " Error: failed to find memory address!");
 		return;
@@ -193,7 +186,7 @@ void RunPlayAdditionalSounds()
 	if (FlashLightSwitch != LastFlashLightSwitch && RoomID == LastRoomID && !RoomsToNeverPlaySFX && !IsBossLevel && (
 		(RoomsWithNoExtraCriteria) ||
 		(*CanUseFlashlight1 == 1 && *CanUseFlashlight2 == 0 && !RoomsWithNoExtraCriteria && RoomID != 0xA2 /*Hotel room 302*/) ||
-		((RoomID == 0x04 /*Town East*/ || RoomID == 0x08 /*Town West*/) && (*WorldColorR == 0 && *WorldColorG == 0 && *WorldColorB == 0)) ||
+		((RoomID == 0x04 /*Town East*/ || RoomID == 0x08 /*Town West*/) && (GetWorldColorR() == 0 && GetWorldColorG() == 0 && GetWorldColorB() == 0)) ||
 		(RoomID == 0xA2 /*Hotel room 302*/ && *InventoryItem < 0x80 /*VHSTape is NOT in player's inventory*/)))
 	{
 		// play flashlight_off.wav

@@ -85,6 +85,9 @@ int32_t GetInternalHorizontalRes();
 int16_t GetSelectedOption();
 bool IsHardwareSoundEnabled();
 BYTE GetSFXVolume();
+BYTE GetWorldColorR();
+BYTE GetWorldColorG();
+BYTE GetWorldColorB();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -202,6 +205,9 @@ BYTE* GetDiscardOptionPointer();
 DWORD* GetDeltaTimeFunctionPointer();
 bool* GetHardwareSoundEnabledPointer();
 BYTE* SFXVolumePointer();
+BYTE* WorldColorRPointer();
+BYTE* WorldColorGPointer();
+BYTE* WorldColorBPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

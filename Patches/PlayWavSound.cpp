@@ -28,8 +28,8 @@ void* GameSoundReturnAddress = nullptr;
 HRESULT PlayWavFile(const char* filePath, DWORD BifferID);
 
 // Function instance created
-typedef uintptr_t* (__cdecl* Play_Sound)(uint32_t some_value, uint32_t volume_maybe, uint32_t sound_id);
-Play_Sound play_sound;
+typedef int32_t(WINAPIV* PlaySoundProc)(int32_t SoundId, float volume, DWORD param3);
+PlaySoundProc m_pPlaySound = nullptr;
 
 int32_t PlaySaveSound(int32_t SoundId, float volume, DWORD param3)
 {
@@ -71,7 +71,7 @@ __declspec(naked) void __stdcall SaveGameSoundASM()
 		push esi
 		push 0x3F800000
 		push 0x0002712
-		call play_sound
+		call m_pPlaySound
 		pop eax
 		jmp GameSoundReturnAddress
 	}
@@ -92,11 +92,8 @@ void PatchCustomSFXs()
 	uint32_t* SaveGameSoundRedSquares = (uint32_t*)0x004476DB;
 
 	// Play Sound Effect function address
-	constexpr BYTE SearchPlayMusicBytes[]{ 0x6A, 0x01, 0xE8, 0x19, 0x90, 0xFE, 0xFF, 0x83,0xC4,0x04 };
-	const auto PlayMusicAddress = (uintptr_t * (__cdecl*)(uint32_t, uint32_t, uint32_t))(CheckMultiMemoryAddress((void*)0x00515580, (void*)0x005158B0, (void*)0x005151D0, (void*)SearchPlayMusicBytes, sizeof(SearchPlayMusicBytes), __FUNCTION__));
-
-	//Assigned Sound Effect function address to function instance
-	play_sound = static_cast<Play_Sound>(PlayMusicAddress);
+	constexpr BYTE SearchPlayMusicBytes[]{ 0x6A, 0x01, 0xE8, 0x19, 0x90, 0xFE, 0xFF, 0x83, 0xC4, 0x04 };
+	m_pPlaySound = (PlaySoundProc)(CheckMultiMemoryAddress((void*)0x00515580, (void*)0x005158B0, (void*)0x005151D0, (void*)SearchPlayMusicBytes, sizeof(SearchPlayMusicBytes), __FUNCTION__));
 
 	// Calls this function for the getting PauseMenuButtonIndexAddr
 	GetPauseMenuButtonIndex();
@@ -105,7 +102,7 @@ void PatchCustomSFXs()
 	DWORD SoundEffectCallAddr = 0x00402823;
 
 	// Checking address pointer
-	if (!SoundEffectCallAddr || !PlayMusicAddress || !PauseMenuButtonIndexAddr)
+	if (!m_pPlaySound || !PauseMenuButtonIndexAddr)
 	{
 		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
 		return;

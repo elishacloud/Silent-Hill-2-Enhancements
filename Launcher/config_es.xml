@@ -402,6 +402,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="PreserveSoundsOnLoad">
+        <Title>Preserve game save and load sound effects</Title>
+        <Description>Preserves the "game load" and "game save" sound effects when loading/saving while in-game. Otherwise, these sounds would be cut off prematurely under certain circumstances. Note: g_start.wav and save_sound.wav must be present in "sh2e\sound\extra\" for this feature to work.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="MenuSoundsFix">
         <Title>Restore selection sounds in menus</Title>
         <Description>Adds selection sounds to menus that did not originally have them. Also restores selection sounds when navigating menu choices with the mouse. Affects the Pause menu, Movies menu, and various Options menus.</Description>
@@ -428,9 +437,9 @@
         </Choices>
       </Feature>
 
-      <Feature name="EnableCustomSFX">
+      <Feature name="FlashlightToggleSFX">
         <Title>Restore missing sound effects</Title>
-        <Description>Restores the flashlight switch sound effects and corrects game load and game save audio, which sometimes are missing or cutoff.</Description>
+        <Description>Enables a flashlight sound effect when turning the light on or off.  Note: flashlight_on.wav and flashlight_off.wav must be present in "sh2e\sound\extra\" for this feature to work.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>

@@ -27,7 +27,6 @@
 	visit(DisableSafeMode, true) \
 	visit(DisableScreenSaver, true) \
 	visit(DynamicResolution, true) \
-	visit(EnableCustomSFX, true) \
 	visit(EnableDebugOverlay, true) \
 	visit(EnableEnhancedMouse, true) \
 	visit(EnableHoldToStomp, true) \
@@ -63,6 +62,7 @@
 	visit(FixSaveBGImage, true) \
 	visit(FixTownWestGateEvent, true) \
 	visit(FlashlightFlickerFix, true) \
+	visit(FlashlightToggleSFX, true) \
 	visit(FmvSubtitlesNoiseFix, true) \
 	visit(FmvSubtitlesSyncFix, true) \
 	visit(FogParameterFix, true) \
@@ -97,6 +97,7 @@
 	visit(NoCDPatch, true) \
 	visit(PauseScreenFix, true) \
 	visit(PistonRoomFix, true) \
+	visit(PreserveSoundsOnLoad, true) \
 	visit(PS2CameraSpeed, true) \
 	visit(PS2FlashlightBrightness, true) \
 	visit(PS2StyleNoiseFilter, true) \

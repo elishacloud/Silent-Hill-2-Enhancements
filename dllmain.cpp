@@ -640,7 +640,7 @@ void DelayedStart()
 	}
 	
 	// Add custom sfx
-	if (EnableCustomSFX)
+	if (PreserveSoundsOnLoad)
 	{
 		PatchCustomSFXs();
 	}

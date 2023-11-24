@@ -1939,7 +1939,7 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		}
 
 		// Additional sounds added to the game
-		if (EnableCustomSFX)
+		if (FlashlightToggleSFX)
 		{
 			RunPlayAdditionalSounds();
 		}

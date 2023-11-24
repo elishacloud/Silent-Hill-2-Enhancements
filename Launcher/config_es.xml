@@ -424,25 +424,21 @@
 
     <Section name="Bonus Audio">
 
-      <Feature name="VHSAudioFix">
-        <Title>Restore uncensored VHS audio</Title>
-        <Description>
-          Restores the uncensored audio for the VHS tape FMV.
-
-          Note: You must have the correct version of this FMV that contains both the censored and uncensored audio tracks. If you do not, then only the original censored audio will play. You can obtain the correct version of this FMV by downloading the project's FMV Enhancement Pack.
-        </Description>
-        <Choices type="check">
-          <Value name="Disable" default="true">0</Value>
-          <Value name="Enable">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="FlashlightToggleSFX">
-        <Title>Restore missing sound effects</Title>
+        <Title>Restore missing flashlight sound effects</Title>
         <Description>Enables a flashlight sound effect when turning the light on or off.  Note: flashlight_on.wav and flashlight_off.wav must be present in "sh2e\sound\extra\" for this feature to work.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="VHSAudioFix">
+        <Title>Restore uncensored VHS audio</Title>
+        <Description>Restores the uncensored audio for the VHS tape FMV.&#x0a;&#x0a;Note: You must have the correct version of this FMV that contains both the censored and uncensored audio tracks. If you do not, then only the original censored audio will play. You can obtain the correct version of this FMV by downloading the project's FMV Enhancement Pack.</Description>
+        <Choices type="check">
+          <Value name="Disable" default="true">0</Value>
+          <Value name="Enable">1</Value>
         </Choices>
       </Feature>
 

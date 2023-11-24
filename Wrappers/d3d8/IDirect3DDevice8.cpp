@@ -23,7 +23,7 @@
 #include "stb_image_dds.h"
 #include "stb_image_write.h"
 #include "stb_image_resize.h"
-#include "Patches/ModelID.h"
+#include "Patches\ModelID.h"
 #include "Patches\MasterVolume.h"
 
 bool DeviceLost = false;
@@ -1783,6 +1783,17 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 			EnableXboxShadows = !((GetRoomID() == 0x02 || GetRoomID() == 0x24 || GetRoomID() == 0x8F || GetRoomID() == 0x90) || GetCutsceneID() == 0x5A);
 		}
 
+		// Fix cutscene James final blow to his wife
+		if (GetRoomID() == 0xBB && GetGlobalFadeHoldValue() == 2.0f)
+		{
+			IsInFakeFadeout = true;
+		}
+		// Bowling cutscene fading
+		else if (IsInFakeFadeout && GetCutsceneID() != 0x19)
+		{
+			IsInFakeFadeout = false;
+		}
+
 		// Fire Escape Key fix
 		if (FireEscapeKeyFix)
 		{
@@ -1921,20 +1932,16 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 			RunFlashlightClockPush();
 		}
 
-		// Fix cutscene James final blow to his wife
-		if (GetRoomID() == 0xBB && GetGlobalFadeHoldValue() == 2.0f)
-		{
-			IsInFakeFadeout = true;
-		}
-		// Bowling cutscene fading
-		else if (IsInFakeFadeout && GetCutsceneID() != 0x19)
-		{
-			IsInFakeFadeout = false;
-		}
-
+		// Fixes for final boss room
 		if (FixFinalBossRoom)
 		{
-			HandleFinalBossRoomFix();
+			RunFinalBossRoomFix();
+		}
+
+		// Additional sounds added to the game
+		if (FlashlightToggleSFX)
+		{
+			RunPlayAdditionalSounds();
 		}
 	}
 

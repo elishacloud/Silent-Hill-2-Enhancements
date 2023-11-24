@@ -393,15 +393,15 @@
         </Choices>
       </Feature>
 
-      <Feature name="SaveGameSoundFix">
-        <Title>Ripristina il suono di "salvataggio" nel menu di pausa</Title>
-        <Description>Ripristina il suono di "salvataggio"  selezionando il salvataggio nel menu di pausa.</Description>
+      <Feature name="PreserveSoundsOnLoad">
+        <Title>Preserve game save and load sound effects</Title>
+        <Description>Preserves the "game load" and "game save" sound effects when loading/saving while in-game. Otherwise, these sounds would be cut off prematurely under certain circumstances. Note: g_start.wav and save_sound.wav must be present in "sh2e\sound\extra\" for this feature to work.</Description>
         <Choices type="check">
-          <Value name="Disabilitato">0</Value>
-          <Value name="Abilitato" default="true">1</Value>
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
-      
+
       <Feature name="MenuSoundsFix">
         <Title>Ripristina suoni nei menu</Title>
         <Description>Ripristina suoni di selezione nei menu. Ripristina anche suoni di selezione mentre si naviga il menu col mouse nel menu Pause, Filmati e vari menu Opzioni.</Description>
@@ -415,13 +415,18 @@
 
     <Section name="Audio Bonus">
 
+      <Feature name="FlashlightToggleSFX">
+        <Title>Restore missing flashlight sound effects</Title>
+        <Description>Enables a flashlight sound effect when turning the light on or off.  Note: flashlight_on.wav and flashlight_off.wav must be present in "sh2e\sound\extra\" for this feature to work.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="VHSAudioFix">
         <Title>Ripristina l'audio per la VHS senza censura</Title>
-        <Description>
-          Ripristina l'audio per la VHS senza censura.
-          
-          Nota: Bisogna avere la giusta versione del file video che contiene entrambe le versioni dell'audio, censurata e non. Altrimenti, soltanto l'audio originale verrà riprodotto. E' possibile ottenere la corretta versione di questo video scaricando l'FMV Enhancement Pack dal sito del progetto.
-        </Description>
+        <Description>Ripristina l'audio per la VHS senza censura.&#x0a;&#x0a;Nota: Bisogna avere la giusta versione del file video che contiene entrambe le versioni dell'audio, censurata e non. Altrimenti, soltanto l'audio originale verrà riprodotto. E' possibile ottenere la corretta versione di questo video scaricando l'FMV Enhancement Pack dal sito del progetto.</Description>
         <Choices type="check">
           <Value name="Disable" default="true">0</Value>
           <Value name="Enable">1</Value>

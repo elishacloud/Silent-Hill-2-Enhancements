@@ -25,7 +25,7 @@ const float FinalBossOriginalWalkway = -8000.f;
 const float FinalBossOriginalFloor = -4000.f;
 const float FinalBossOriginalBoxSpawn = -12000.f;
 
-void HandleFinalBossRoomFix()
+void RunFinalBossRoomFix()
 {
 	if (GetJamesPosY() < -14600.f && GetRoomID() == 0xBB)
 	{

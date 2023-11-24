@@ -62,6 +62,7 @@
 	visit(FixSaveBGImage, true) \
 	visit(FixTownWestGateEvent, true) \
 	visit(FlashlightFlickerFix, true) \
+	visit(FlashlightToggleSFX, true) \
 	visit(FmvSubtitlesNoiseFix, true) \
 	visit(FmvSubtitlesSyncFix, true) \
 	visit(FogParameterFix, true) \
@@ -96,6 +97,7 @@
 	visit(NoCDPatch, true) \
 	visit(PauseScreenFix, true) \
 	visit(PistonRoomFix, true) \
+	visit(PreserveSoundsOnLoad, true) \
 	visit(PS2CameraSpeed, true) \
 	visit(PS2FlashlightBrightness, true) \
 	visit(PS2StyleNoiseFilter, true) \
@@ -110,7 +112,6 @@
 	visit(Room312ShadowFix, true) \
 	visit(RoomLightingFix, true) \
 	visit(RowboatAnimationFix, true) \
-	visit(SaveGameSoundFix, true) \
 	visit(SetBlackPillarBoxes, true) \
 	visit(SetSixtyFPS, true) \
 	visit(Southpaw, false) \

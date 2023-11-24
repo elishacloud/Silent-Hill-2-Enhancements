@@ -16,6 +16,10 @@ typedef HRESULT(WINAPI *DirectSoundCreate8Proc)(LPCGUID, LPDIRECTSOUND8*, LPUNKN
 
 void WINAPI genericQueryInterface(REFIID riid, LPVOID * ppvObj);
 
+// Volume array falloff
+constexpr LONG VolumeArray[] = { -10000, -2401, -1799, -1411, -1170, -961, -809, -665, -555, -445, -359, -270, -198, -124, -63, 0 };
+
+extern std::vector<m_IDirectSoundBuffer8*> BufferList;
 extern AddressLookupTableDsound<void> ProxyAddressLookupTableDsound;
 
 #include "IDirectSound8.h"

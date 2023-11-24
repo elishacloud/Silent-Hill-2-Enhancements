@@ -5,16 +5,24 @@ class m_IDirectSound8 : public IDirectSound8, public AddressLookupTableDsoundObj
 private:
 	LPDIRECTSOUND8 ProxyInterface;
 
+	// Helper functions
+	void InitDevice();
+	void ReleaseDevice();
+
 public:
 	m_IDirectSound8(LPDIRECTSOUND8 pSound8) : ProxyInterface(pSound8)
 	{
 		Logging::LogDebug() << "Creating device " << __FUNCTION__ << "(" << this << ")";
+
+		InitDevice();
 
 		ProxyAddressLookupTableDsound.SaveAddress(this, ProxyInterface);
 	}
 	~m_IDirectSound8()
 	{
 		Logging::LogDebug() << __FUNCTION__ << "(" << this << ")" << " deleting device!";
+
+		ReleaseDevice();
 
 		ProxyAddressLookupTableDsound.DeleteAddress(this);
 	}
@@ -38,4 +46,7 @@ public:
 
 	// IDirectSound8 methods
 	STDMETHOD(VerifyCertification)(THIS_ _Out_ LPDWORD pdwCertified);
+
+	// Helper functions
+	HRESULT CreateWAVSoundBuffer(const char* filePath, m_IDirectSoundBuffer8** ppDSBuffer);
 };

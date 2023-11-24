@@ -137,6 +137,10 @@ BYTE* DiscardOptionBOAddr = nullptr;
 BYTE* DiscardOptionAddr = nullptr;
 DWORD* GetDeltaTimeFunctionAddr = nullptr;
 bool* HardwareSoundEnabledAddr = nullptr;
+BYTE* SFXVolumeAddr = nullptr;
+BYTE* WorldColorRAddr = nullptr;
+BYTE* WorldColorGAddr = nullptr;
+BYTE* WorldColorBAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -3105,4 +3109,116 @@ bool* GetHardwareSoundEnabledPointer()
 	HardwareSoundEnabledAddr = (bool*)((DWORD)HardwareSoundEnabled);
 
 	return HardwareSoundEnabledAddr;
+}
+
+BYTE GetSFXVolume()
+{
+	BYTE* pSFXVolume = SFXVolumePointer();
+
+	return (pSFXVolume) ? *pSFXVolume : 0;
+}
+
+BYTE* SFXVolumePointer()
+{
+	if (SFXVolumeAddr)
+	{
+		return SFXVolumeAddr;
+	}
+
+	// Get SFXVolume address
+	constexpr BYTE SFXVolumeSearchBytes[]{ 0x83, 0xC4, 0x04, 0xB8, 0x01, 0x00, 0x00, 0x00, 0x5B, 0x59, 0xC3, 0xFF, 0x05 };
+	SFXVolumeAddr = (BYTE*)ReadSearchedAddresses(0x004698DB, 0x00469B7B, 0x00469D8B, SFXVolumeSearchBytes, sizeof(SFXVolumeSearchBytes), -0x09, __FUNCTION__);
+
+	// Checking address pointer
+	if (!SFXVolumeAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find SFX Volume address!";
+		return nullptr;
+	}
+
+	return SFXVolumeAddr;
+}
+
+BYTE GetWorldColorR()
+{
+	BYTE* pWorldColorR = WorldColorRPointer();
+
+	return (pWorldColorR) ? *pWorldColorR : 0;
+}
+
+BYTE* WorldColorRPointer()
+{
+	if (WorldColorRAddr)
+	{
+		return WorldColorRAddr;
+	}
+
+	// Get WorldColorR address
+	constexpr BYTE WorldColorRSearchBytes[]{ 0x8B, 0xF0, 0x68, 0x80, 0x00, 0x00, 0x00, 0x81, 0xE6, 0xFF, 0x00, 0x00, 0x00, 0x68, 0x00, 0x00, 0x80, 0x3F, 0xC1, 0xE6, 0x10, 0x25 };
+	WorldColorRAddr = (BYTE*)ReadSearchedAddresses(0x004768B7, 0x00476B57, 0x00476D67, WorldColorRSearchBytes, sizeof(WorldColorRSearchBytes), -0x16, __FUNCTION__);
+
+	// Checking address pointer
+	if (!WorldColorRAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find World Color Red address!";
+		return nullptr;
+	}
+
+	return WorldColorRAddr;
+}
+
+BYTE GetWorldColorG()
+{
+	BYTE* pWorldColorG = WorldColorGPointer();
+
+	return (pWorldColorG) ? *pWorldColorG : 0;
+}
+
+BYTE* WorldColorGPointer()
+{
+	if (WorldColorGAddr)
+	{
+		return WorldColorGAddr;
+	}
+
+	// Get WorldColorG address
+	WorldColorGAddr = WorldColorRPointer();
+
+	// Checking address pointer
+	if (!WorldColorGAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find World Color Green address!";
+		return nullptr;
+	}
+	WorldColorGAddr = WorldColorGAddr + 1;
+
+	return WorldColorGAddr;
+}
+
+BYTE GetWorldColorB()
+{
+	BYTE* pWorldColorB = WorldColorBPointer();
+
+	return (pWorldColorB) ? *pWorldColorB : 0;
+}
+
+BYTE* WorldColorBPointer()
+{
+	if (WorldColorBAddr)
+	{
+		return WorldColorBAddr;
+	}
+
+	// Get WorldColorB address
+	WorldColorBAddr = WorldColorRPointer();
+
+	// Checking address pointer
+	if (!WorldColorBAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find World Color Blue address!";
+		return nullptr;
+	}
+	WorldColorBAddr = WorldColorBAddr + 2;
+
+	return WorldColorBAddr;
 }

@@ -290,9 +290,6 @@
     <ClCompile Include="Patches\AdvancedOptionsFix.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
-    <ClCompile Include="Patches\SaveGameSound.cpp">
-      <Filter>Patches</Filter>
-    </ClCompile>
     <ClCompile Include="Patches\ReplaceWindowTitle.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
@@ -405,6 +402,9 @@
       <Filter>Patches</Filter>
     </ClCompile>
     <ClCompile Include="Patches\QuickSaveCancelFix.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\PlayWavSound.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
     <ClCompile Include="Patches\MenuSounds.cpp">

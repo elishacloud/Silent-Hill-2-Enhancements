@@ -84,6 +84,10 @@ int32_t GetInternalVerticalRes();
 int32_t GetInternalHorizontalRes();
 int16_t GetSelectedOption();
 bool IsHardwareSoundEnabled();
+BYTE GetSFXVolume();
+BYTE GetWorldColorR();
+BYTE GetWorldColorG();
+BYTE GetWorldColorB();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -200,6 +204,10 @@ BYTE* GetDiscardOptionBOPointer();
 BYTE* GetDiscardOptionPointer();
 DWORD* GetDeltaTimeFunctionPointer();
 bool* GetHardwareSoundEnabledPointer();
+BYTE* SFXVolumePointer();
+BYTE* WorldColorRPointer();
+BYTE* WorldColorGPointer();
+BYTE* WorldColorBPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -230,6 +238,7 @@ void PatchCriware();
 HRESULT PatchCustomExeStr();
 void PatchCustomFog();
 void PatchCustomFonts();
+void PatchCustomSFXs();
 void PatchControllerTweaks();
 void PatchDelayedFadeIn();
 void PatchDoubleFootstepFix();
@@ -271,7 +280,6 @@ void PatchRoom312ShadowFix();
 void PatchRoomLighting();
 void PatchRowboatAnimation();
 void PatchSaveBGImage();
-void PatchSaveGameSound();
 void PatchSpeakerConfigLock();
 void PatchSpecialFX();
 void PatchSpecular();
@@ -300,7 +308,6 @@ bool IsInFullScreenImageEvent();
 bool IsInMainOptionsMenu();
 bool IsInOptionsMenu();
 
-void HandleFinalBossRoomFix();
 void HandleMenuSounds();
 void SetNewVolume();
 
@@ -311,6 +318,7 @@ void RunBloodSize();
 void RunClosetCutscene();
 void RunClosetSpawn();
 void RunDynamicDrawDistance();
+void RunFinalBossRoomFix();
 void RunFlashlightClockPush();
 void RunFogSpeed();
 void RunGameLoad();
@@ -321,6 +329,7 @@ void RunHotelWater();
 void RunInfiniteRumbleFix();
 void RunInnerFlashlightGlow(DWORD Height);
 void RunLightingTransition();
+void RunPlayAdditionalSounds();
 void RunQuickSaveTweaks();
 void RunQuickSaveCancelFix();
 void RunRoomLighting();

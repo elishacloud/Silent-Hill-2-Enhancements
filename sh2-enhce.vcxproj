@@ -209,10 +209,10 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     <ClCompile Include="Patches\MenuSounds.cpp" />
     <ClCompile Include="Patches\MothDrawOrder.cpp" />
     <ClCompile Include="Patches\PatchCriware.cpp" />
+    <ClCompile Include="Patches\PlayWavSound.cpp" />
     <ClCompile Include="Patches\QuickSaveCancelFix.cpp" />
     <ClCompile Include="Patches\QuickSaveTweaks.cpp" />
     <ClCompile Include="Patches\PrisonerTimer.cpp" />
-    <ClCompile Include="Patches\SaveGameSound.cpp" />
     <ClCompile Include="Logging\Logging.cpp" />
     <ClCompile Include="Patches\2TBHardDriveFix.cpp" />
     <ClCompile Include="Patches\AdvancedOptionsFix.cpp" />

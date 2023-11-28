@@ -1041,7 +1041,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	{
 		// Get variables
 		static BYTE LastEvent = 0;
-		IsGetFrontBufferCalled = (GetTransitionState() == 1 || GetLoadingScreen() != 0) ? IsGetFrontBufferCalled : false;
+		IsGetFrontBufferCalled = (GetTransitionState() == FADE_TO_BLACK || GetLoadingScreen() != 0) ? IsGetFrontBufferCalled : false;
 
 		// Set shader disable flag
 		DisableShaderOnPresent = (IsGetFrontBufferCalled || (PauseScreenFix && (GetEventIndex() == EVENT_PAUSE_MENU || (LastEvent == EVENT_PAUSE_MENU && IsSnapshotTextureSet))));
@@ -1369,7 +1369,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 
 	// Remove cursor during fade
 	if (EnableCustomShaders && PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 24 &&
-		(GetTransitionState() == 1 || GetTransitionState() == 2 || GetTransitionState() == 3 || (GetEventIndex() == EVENT_OPTIONS_FMV && LastDrawPrimitiveUPStride == 2024)))
+		(GetTransitionState() != FADE_NONE || (GetEventIndex() == EVENT_OPTIONS_FMV && LastDrawPrimitiveUPStride == 2024)))
 	{
 		CUSTOMVERTEX_TEX1 *pVertex = (CUSTOMVERTEX_TEX1*)pVertexStreamZeroData;
 

@@ -359,11 +359,7 @@ extern BYTE *FlashlightSwitchAddr;
 extern float *FlashlightBrightnessAddr;
 extern BYTE *EventIndexAddr;
 extern BYTE *MenuEventAddr;
-
-extern DWORD *TransitionStateAddr;		/* 1 = fades the game image to black
-										2 = solid black screen
-										3 = fades from black back to the in game screen */
-
+extern DWORD *TransitionStateAddr;
 extern BYTE *FullscreenImageEventAddr;
 extern float* InGameCameraPosXAddr;
 extern float* InGameCameraPosYAddr;
@@ -438,6 +434,14 @@ typedef enum _MENUEVENT
 	MENU_IN_GAME = 13,
 	MENU_LOAD_SCR = 17,
 } MENUEVENT;
+
+typedef enum _FADESTATE
+{
+	FADE_NONE = 0,
+	FADE_TO_BLACK = 1,
+	FADE_BLACK_SRC = 2,
+	FADE_FROM_BLACK = 3,
+} FADESTATE;
 
 // Run code only once
 #define RUNONCE() \

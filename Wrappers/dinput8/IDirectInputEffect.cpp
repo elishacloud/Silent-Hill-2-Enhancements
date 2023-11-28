@@ -318,19 +318,16 @@ void RunInfiniteRumbleFix()
 		return;
 	}
 
-	// Get transition state address
-	DWORD TransitionState = GetTransitionState();
-
 	// Disable rumble
 	static bool ValueSet = false;
-	if (GetEventIndex() != EVENT_IN_GAME || GetRoomID() == 0x00 || TransitionState == 0x01 || TransitionState == 0x02 || TransitionState == 0x03 || LostWindowFocus)
+	if (GetEventIndex() != EVENT_IN_GAME || GetRoomID() == 0x00 || GetTransitionState() != FADE_NONE || LostWindowFocus)
 	{
 		if (!ValueSet)
 		{
 			BYTE Value = 0x00;
 			UpdateMemoryAddress((void*)RumbleAddress, &Value, sizeof(BYTE));
 			ValueSet = true;
-			if (TransitionState == 0x01 || TransitionState == 0x02 || TransitionState == 0x03 || LostWindowFocus)
+			if (GetTransitionState() != FADE_NONE || LostWindowFocus)
 			{
 				StubXInputEffect.Stop();
 			}

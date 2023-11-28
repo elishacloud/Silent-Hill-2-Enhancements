@@ -71,8 +71,7 @@ void HandleMenuSounds()
 	if (!MenuSoundsFix)
 		return;
 
-	if ((OptionsOrMovieMenuChanged() || PauseSelectionChanged()) &&
-		GetTransitionState() == 0x00)
+	if ((OptionsOrMovieMenuChanged() || PauseSelectionChanged()) && GetTransitionState() == FADE_NONE)
 	{	
 		// Play change selection sound
 		orgPlaySoundFun.fun(0x2710, 1.0f, 0);

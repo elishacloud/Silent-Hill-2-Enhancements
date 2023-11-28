@@ -265,7 +265,7 @@ void UpdateMousePosition_Hook()
 		}
 
 		// Handling of vertical and horizontal navigation for Memo list
-		if (GetEventIndex() == EVENT_MEMO_LIST && GetMenuEvent() == MENU_IN_GAME && GetReadingMemoFlag() == 0 && GetTransitionState() == 0 && HasCursorMoved)
+		if (GetEventIndex() == EVENT_MEMO_LIST && GetMenuEvent() == MENU_IN_GAME && GetReadingMemoFlag() == 0 && GetTransitionState() == FADE_NONE && HasCursorMoved)
 		{
 			int CollectedMemos = CountCollectedMemos();
 			int NormalizedMemos = (CollectedMemos > 11) ? 11 : CollectedMemos;

@@ -60,10 +60,6 @@ private:
 
 	// Remove Environment Flicker by skipping frames in certain cutscenes
 	bool SkipSceneFlag = false;
-	DWORD LastCutsceneID = 0;
-	float LastCameraPos = 0;
-	float LastJamesPosX = 0;
-	DWORD SkipSceneCounter = 0;
 
 	// Remove Effects Flicker by resetting texture on first frame
 	DWORD EndSceneCounter = 0;

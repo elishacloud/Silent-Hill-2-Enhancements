@@ -205,6 +205,11 @@ HRESULT m_IDirect3DDevice8::EndScene()
 	// Skip frames in specific cutscenes to prevent flickering
 	if (RemoveEnvironmentFlicker)
 	{
+		static DWORD SkipSceneCounter = 0;
+		static DWORD LastCutsceneID = 0;
+		static float LastCameraPos = 0;
+		static float LastJamesPosX = 0;
+
 		if ((LastCutsceneID == 0x01 && SkipSceneCounter < 4 && (SkipSceneCounter || GetJamesPosX() != LastJamesPosX)) ||
 			(LastCutsceneID == 0x03 && SkipSceneCounter < 1 && (SkipSceneCounter || GetJamesPosX() == 330.845f)) ||
 			((LastCutsceneID == 0x15 || LastCutsceneID == 0x16) && SkipSceneCounter < 1 && (SkipSceneCounter || GetCutsceneID() != LastCutsceneID || (ClassReleaseFlag && !(GetCutscenePos() == *(float*)"\xAE\x01\x31\x46" && LastCameraPos == 0))) && !(GetCutsceneID() == 0x16 && LastCutsceneID == 0x15)) ||
@@ -1012,7 +1017,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 
 	// Fix pause menu
 	bool PauseMenuFlag = false;
-	if (GetEventIndex() == 16)
+	if (GetEventIndex() == EVENT_PAUSE_MENU)
 	{
 		if (PauseScreenFix && !InPauseMenu && pCurrentRenderTexture)
 		{
@@ -1039,7 +1044,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 		IsGetFrontBufferCalled = (GetTransitionState() == 1 || GetLoadingScreen() != 0) ? IsGetFrontBufferCalled : false;
 
 		// Set shader disable flag
-		DisableShaderOnPresent = (IsGetFrontBufferCalled || (PauseScreenFix && (GetEventIndex() == 16 || (LastEvent == 16 && IsSnapshotTextureSet))));
+		DisableShaderOnPresent = (IsGetFrontBufferCalled || (PauseScreenFix && (GetEventIndex() == EVENT_PAUSE_MENU || (LastEvent == EVENT_PAUSE_MENU && IsSnapshotTextureSet))));
 
 		// Reset variables
 		LastEvent = GetEventIndex();
@@ -1069,7 +1074,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	// Fix inventory snapshot in Hotel Employee Elevator Room
 	if (HotelEmployeeElevatorRoomFlag)
 	{
-		if (pInitialRenderTexture && GetEventIndex() == 6)
+		if (pInitialRenderTexture && GetEventIndex() == EVENT_INVENTORY)
 		{
 			if (!isInScene)
 			{
@@ -1364,7 +1369,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 
 	// Remove cursor during fade
 	if (EnableCustomShaders && PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 24 &&
-		(GetTransitionState() == 1 || GetTransitionState() == 2 || GetTransitionState() == 3 || (GetEventIndex() == 7 && LastDrawPrimitiveUPStride == 2024)))
+		(GetTransitionState() == 1 || GetTransitionState() == 2 || GetTransitionState() == 3 || (GetEventIndex() == EVENT_OPTIONS_FMV && LastDrawPrimitiveUPStride == 2024)))
 	{
 		CUSTOMVERTEX_TEX1 *pVertex = (CUSTOMVERTEX_TEX1*)pVertexStreamZeroData;
 
@@ -1387,7 +1392,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 	}
 
 	// Remove red cross in inventory snapshot in Hotel Employee Elevator Room
-	if (DisableRedCrossInCutScenes && HotelEmployeeElevatorRoomFlag && GetEventIndex() == 6 && PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 24 &&
+	if (DisableRedCrossInCutScenes && HotelEmployeeElevatorRoomFlag && GetEventIndex() == EVENT_INVENTORY && PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 24 &&
 		((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[0].z == 0.01f && ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[0].rhw == 1.0f)
 	{
 		return D3D_OK;
@@ -1425,7 +1430,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 			PillarBoxBottom = ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[2].y;
 		}
 		// Clip artifacts that protrude into pillarbox
-		else if (PillarBoxLeft && PillarBoxRight && GetRoomID() && !GetCutsceneID() && (GetEventIndex() == 4 || GetEventIndex() == 5))
+		else if (PillarBoxLeft && PillarBoxRight && GetRoomID() && !GetCutsceneID() && (GetEventIndex() == EVENT_IN_GAME || GetEventIndex() == EVENT_MAP))
 		{
 			// Clip green player marker
 			if (pVertexStreamZeroData && ((((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[1].x != ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[2].x ||
@@ -1561,7 +1566,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 
 	// Get the vertex of the FMV
 	if (WidescreenFix && PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 24 && LastDrawPrimitiveUPStride == VertexStreamZeroStride && pVertexStreamZeroData &&
-		(GetEventIndex() == 7 || GetEventIndex() == 15))
+		(GetEventIndex() == EVENT_OPTIONS_FMV || GetEventIndex() == EVENT_GAME_FMV))
 	{
 		IsNoiseFilterVertexSet = true;
 		memcpy_s(FMVVertex, sizeof(FMVVertex), pVertexStreamZeroData, sizeof(CUSTOMVERTEX_TEX1) * 4);
@@ -2564,7 +2569,7 @@ HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface
 	IsGetFrontBufferCalled = true;
 
 	// Fix inventory snapshot in Hotel Employee Elevator Room
-	if (PauseScreenFix && GetRoomID() == 0x9D && GetEventIndex() == 0x04)
+	if (PauseScreenFix && GetRoomID() == 0x9D && GetEventIndex() == EVENT_IN_GAME)
 	{
 		HotelEmployeeElevatorRoomFlag = TRUE;
 	}

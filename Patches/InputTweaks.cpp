@@ -333,9 +333,9 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 	UNREFERENCED_PARAMETER(cbData);
 
 	// Check number keybinds after exiting the Options screen
-	if (GetEventIndex() == EVENT_OPTION_FMV)
+	if (GetEventIndex() == EVENT_OPTIONS_FMV)
 		CheckKeyBindsFlag = true;
-	if (GetEventIndex() != EVENT_OPTION_FMV && CheckKeyBindsFlag)
+	if (GetEventIndex() != EVENT_OPTIONS_FMV && CheckKeyBindsFlag)
 	{
 		CheckKeyBindsFlag = false;
 		CheckNumberKeyBinds();
@@ -425,7 +425,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 
 		// Clear the ESC and SKIP key if a quicksave is in progress, or if holding the button entering the result screen
 		if (GameLoadFix && (GetIsWritingQuicksave() == 1 || GetTextAddr() == 1) ||
-			(GetEventIndex() == EVENT_GAME_RESULT_TWO && (EscInput.Holding || CancelInput.Holding)))
+			(GetEventIndex() == EVENT_GAME_RESULT_11 && (EscInput.Holding || CancelInput.Holding)))
 		{
 			ClearKey(KeyBinds.GetKeyBind(KEY_SKIP));
 			ClearKey(KeyBinds.GetKeyBind(KEY_CANCEL));
@@ -493,8 +493,8 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		// Inject Key Presses
 
 		// Inject ready weapon or cancel based on context, on RMB press
-		if (EnableEnhancedMouse && GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTION_FMV && 
-			GetEventIndex() != EVENT_FMV && GetCutsceneID() == 0x0) 
+		if (EnableEnhancedMouse && GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTIONS_FMV && 
+			GetEventIndex() != EVENT_GAME_FMV && GetCutsceneID() == 0x0) 
 		{
 			if (RMB.State)
 			{
@@ -512,8 +512,8 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		}
 
 		// Inject action, same condition as RMB but without CutsceneID == 0x00 to enable input on FIE in the middle of cutscenes, eg Laura's letter in the hotel
-		if (EnableEnhancedMouse && GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTION_FMV &&
-			GetEventIndex() != EVENT_FMV)
+		if (EnableEnhancedMouse && GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTIONS_FMV &&
+			GetEventIndex() != EVENT_GAME_FMV)
 		{
 			if (SetLMButton)
 				SetKey(KeyBinds.GetKeyBind(KEY_ACTION));
@@ -553,7 +553,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		}
 
 		// Setting sprint button for the Toggle Sprint function
-		if (EnableToggleSprint && (GetRunOption() == OPT_ANALOG || OverrideSprint) && GetEventIndex() != EVENT_OPTION_FMV)
+		if (EnableToggleSprint && (GetRunOption() == OPT_ANALOG || OverrideSprint) && GetEventIndex() != EVENT_OPTIONS_FMV)
 		{
 			ClearKey(KeyBinds.GetKeyBind(KEY_RUN));
 		}

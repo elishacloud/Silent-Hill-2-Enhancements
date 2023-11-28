@@ -462,7 +462,7 @@ bool IsInMainOptionsMenu()
 
 bool IsInOptionsMenu()
 {
-    return GetEventIndex() == 0x07 &&
+    return GetEventIndex() == EVENT_OPTIONS_FMV &&
         (GetOptionsPage() == 0x02 || GetOptionsPage() == 0x07 || GetOptionsPage() == 0x04) &&
         (GetOptionsSubPage() == 0x00 || GetOptionsSubPage() == 0x01);
 }

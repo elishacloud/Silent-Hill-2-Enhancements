@@ -100,7 +100,7 @@ __declspec(naked) void __stdcall FlashFixASM()
 	{
 		push ecx
 		mov ecx, dword ptr ds : [EventIndexAddr]
-		cmp byte ptr ds : [ecx], 0x00
+		cmp byte ptr ds : [ecx], EVENT_LOAD_SCR
 		je near Exit
 		mov ecx, dword ptr ds : [FlashFixEAXAddr]
 		mov dword ptr ds : [ecx], eax
@@ -441,7 +441,7 @@ void RunGameLoad()
 
 	// Reset the Pause Button Menu Index
 	static bool PauseValueUnSet = true;
-	if (GetEventIndex() != 16 && PauseValueUnSet)
+	if (GetEventIndex() != EVENT_PAUSE_MENU && PauseValueUnSet)
 	{
 		*PauseMenuButtonIndexAddr = 0;
 		PauseValueUnSet = false;

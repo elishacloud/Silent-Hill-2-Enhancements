@@ -357,21 +357,7 @@ extern DWORD *SpecializedLight1Addr;
 extern DWORD *SpecializedLight2Addr;
 extern BYTE *FlashlightSwitchAddr;
 extern float *FlashlightBrightnessAddr;
-
-extern BYTE *EventIndexAddr;			/*0 = load screen
-										1 = load room
-										2 = main menu
-										4 = in-game
-										5 = map
-										6 = inventory
-										7 = options menu & FMVs (from Movie Menu)
-										8 = memo list
-										9 = save screen
-										10/11 = game result
-										12 = "COMING SOON!" splash screen
-										13 = game over screen
-										15 = FMVs
-										16 = PC pause menu*/
+extern BYTE *EventIndexAddr;
 
 extern BYTE *MenuEventAddr;				/* 7 = main menu event index */
 
@@ -427,6 +413,25 @@ extern bool ShowInfoOverlay;
 extern std::string AuxDebugOvlString;
 extern bool IsControllerConnected;
 extern HWND GameWindowHandle;
+
+typedef enum _EVENTINDEX
+{
+	EVENT_LOAD_SCR = 0,
+	EVENT_LOAD_ROOM = 1,
+	EVENT_MAIN_MENU = 2,
+	EVENT_IN_GAME = 4,
+	EVENT_MAP = 5,
+	EVENT_INVENTORY = 6,
+	EVENT_OPTIONS_FMV = 7,
+	EVENT_MEMO_LIST = 8,
+	EVENT_SAVE_SCREEN = 9,
+	EVENT_GAME_RESULT_10 = 10,
+	EVENT_GAME_RESULT_11 = 11,
+	EVENT_COMING_SOON_SPASH_SCR = 12,
+	EVENT_GAME_OVER_SCR = 13,
+	EVENT_GAME_FMV = 15,
+	EVENT_PAUSE_MENU = 16,
+} EVENTINDEX;
 
 // Run code only once
 #define RUNONCE() \

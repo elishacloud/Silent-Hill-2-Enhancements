@@ -407,12 +407,12 @@ HRESULT m_IDirectSoundBuffer8::GetObjectInPath(REFGUID rguidObject, DWORD dwInde
 // Helper functions
 bool m_IDirectSoundBuffer8::CheckGameResults()
 {
-	if (IsInGameResults && GetEventIndex() == 2)
+	if (IsInGameResults && GetEventIndex() == EVENT_MAIN_MENU)
 	{
 		IsInGameResults = false;
 	}
 
-	return (IsInGameResults && (GetEventIndex() == 10 || GetEventIndex() == 11));
+	return (IsInGameResults && (GetEventIndex() == EVENT_GAME_RESULT_10 || GetEventIndex() == EVENT_GAME_RESULT_11));
 }
 
 void m_IDirectSoundBuffer8::CheckMasterVolume()

@@ -47,13 +47,13 @@ void RunSaveBGImage()
 		return;
 	}
 
-	static BYTE LastChapterID = 0;
-	BYTE ChapterID = GetMenuEvent();
+	static BYTE LastMenuEvent = 0;
+	BYTE MenuEvent = GetMenuEvent();
 	
-	if (LastChapterID != 0x07 && ChapterID == 0x07)
+	if (LastMenuEvent != MENU_MAIN_MENU && MenuEvent == MENU_MAIN_MENU)
 	{
 		*ChapterIDPointer = 0x00;
 	}
 
-	LastChapterID = ChapterID;
+	LastMenuEvent = MenuEvent;
 }

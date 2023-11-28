@@ -36,8 +36,8 @@ __declspec(naked) void __stdcall FixInventoryBGMBugASM()
 	EventIndex = GetEventIndex();
 	MenuEventIndex = GetMenuEvent();
 
-	if (MenuEventIndex == 13 /*In-game*/ || 
-		(MenuEventIndex == 17 /*Load Screen*/ && EventIndex == EVENT_LOAD_SCR))
+	if (MenuEventIndex == MENU_IN_GAME ||
+		(MenuEventIndex == MENU_LOAD_SCR && EventIndex == EVENT_LOAD_SCR))
 	{
 		if (EventIndex == EVENT_GAME_RESULT_11)
 		{
@@ -49,7 +49,7 @@ __declspec(naked) void __stdcall FixInventoryBGMBugASM()
 		}
 
 		if (EventIndex == EVENT_IN_GAME || EventIndex == EVENT_MAP || EventIndex == EVENT_INVENTORY || EventIndex == EVENT_OPTIONS_FMV ||
-			EventIndex == EVENT_MEMO_LIST || EventIndex == EVENT_SAVE_SCREEN || EventIndex == EVENT_PAUSE_MENU || MenuEventIndex == 17 /*Load Screen*/)
+			EventIndex == EVENT_MEMO_LIST || EventIndex == EVENT_SAVE_SCREEN || EventIndex == EVENT_PAUSE_MENU || MenuEventIndex == MENU_LOAD_SCR)
 		{
 			SoundFixFlag = (LastRoomID != GetRoomID());
 			LastRoomID = GetRoomID();

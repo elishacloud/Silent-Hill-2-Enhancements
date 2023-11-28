@@ -205,7 +205,7 @@ bool PauseSelectionChanged()
 	int8_t PauseMenuSelection = GetPauseMenuButtonIndex();
 	int8_t PauseMenuQuitIndex = GetPauseMenuQuitIndex();
 
-	bool result = GetEventIndex() == EVENT_PAUSE_MENU && GetMenuEvent() == 0x0D &&
+	bool result = GetEventIndex() == EVENT_PAUSE_MENU && GetMenuEvent() == MENU_IN_GAME &&
 		(LastPauseQuitIndex != PauseMenuQuitIndex || LastPauseSelection != PauseMenuSelection);
 
 	LastPauseQuitIndex = PauseMenuQuitIndex;

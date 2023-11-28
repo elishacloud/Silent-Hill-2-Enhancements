@@ -174,7 +174,7 @@ void UpdateMousePosition_Hook()
 	orgUpdateMousePosition.fun();
 
 	// During normal gameplay or reading memo, restore the cursor's position to last frame's, for cursor position consistency
-	if (((GetEventIndex() == EVENT_IN_GAME && !IsInFullScreenImageEvent()) && GetMenuEvent() != 0x07) || (GetReadingMemoFlag() != 0x00 && GetEventIndex() == EVENT_MEMO_LIST))
+	if (((GetEventIndex() == EVENT_IN_GAME && !IsInFullScreenImageEvent()) && GetMenuEvent() != MENU_MAIN_MENU) || (GetReadingMemoFlag() != 0x00 && GetEventIndex() == EVENT_MEMO_LIST))
 	{
 		*GetMouseHorizontalPositionPointer() = CurrentMouseHorizontalPos;
 		*GetMouseVerticalPositionPointer() = CurrentMouseVerticalPos;
@@ -183,7 +183,7 @@ void UpdateMousePosition_Hook()
 	auto Now = std::chrono::system_clock::now();
 
 	// Center the mouse cursor when entering a puzzle
-	if (GetEventIndex() == EVENT_IN_GAME && IsInFullScreenImageEvent() && GetMenuEvent() == 0x0D && CenterPuzzleCursor)
+	if (GetEventIndex() == EVENT_IN_GAME && IsInFullScreenImageEvent() && GetMenuEvent() == MENU_IN_GAME && CenterPuzzleCursor)
 	{
 		if (!EnteredPuzzle)
 			CursorPosHandler.CenterCursor();
@@ -197,7 +197,7 @@ void UpdateMousePosition_Hook()
 		if (AutoHideMouseCursor)
 		{
 			// Auto hide mouse cursor, move to top left and remember its position
-			if ((GetEventIndex() == EVENT_IN_GAME && !IsInFullScreenImageEvent()) && GetMenuEvent() != 0x07) // During normal gameplay
+			if ((GetEventIndex() == EVENT_IN_GAME && !IsInFullScreenImageEvent()) && GetMenuEvent() != MENU_MAIN_MENU) // During normal gameplay
 			{
 				CursorPosHandler.MoveCursorToOrigin();
 				HideMouseCursor = true;
@@ -265,7 +265,7 @@ void UpdateMousePosition_Hook()
 		}
 
 		// Handling of vertical and horizontal navigation for Memo list
-		if (GetEventIndex() == EVENT_MEMO_LIST && GetMenuEvent() == 0x0D && GetReadingMemoFlag() == 0 && GetTransitionState() == 0 && HasCursorMoved)
+		if (GetEventIndex() == EVENT_MEMO_LIST && GetMenuEvent() == MENU_IN_GAME && GetReadingMemoFlag() == 0 && GetTransitionState() == 0 && HasCursorMoved)
 		{
 			int CollectedMemos = CountCollectedMemos();
 			int NormalizedMemos = (CollectedMemos > 11) ? 11 : CollectedMemos;

@@ -358,8 +358,7 @@ extern DWORD *SpecializedLight2Addr;
 extern BYTE *FlashlightSwitchAddr;
 extern float *FlashlightBrightnessAddr;
 extern BYTE *EventIndexAddr;
-
-extern BYTE *MenuEventAddr;				/* 7 = main menu event index */
+extern BYTE *MenuEventAddr;
 
 extern DWORD *TransitionStateAddr;		/* 1 = fades the game image to black
 										2 = solid black screen
@@ -432,6 +431,13 @@ typedef enum _EVENTINDEX
 	EVENT_GAME_FMV = 15,
 	EVENT_PAUSE_MENU = 16,
 } EVENTINDEX;
+
+typedef enum _MENUEVENT
+{
+	MENU_MAIN_MENU = 7,
+	MENU_IN_GAME = 13,
+	MENU_LOAD_SCR = 17,
+} MENUEVENT;
 
 // Run code only once
 #define RUNONCE() \

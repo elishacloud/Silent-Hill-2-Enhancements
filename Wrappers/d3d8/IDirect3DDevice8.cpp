@@ -219,11 +219,14 @@ HRESULT m_IDirect3DDevice8::EndScene()
 			(LastCutsceneID == CS_ID_0x4D && SkipSceneCounter < 2 && (SkipSceneCounter || GetCutsceneID() != LastCutsceneID || ClassReleaseFlag)) ||
 			(LastCutsceneID == CS_ID_0x4D && SkipSceneCounter < 3 && (SkipSceneCounter || GetCutscenePos() != LastCutscenePos) && GetCutscenePos() == *(float*)"\x59\xCC\x06\xC6" && GetCutsceneID() == CS_ID_0x4D) ||
 			(LastCutsceneID == CS_FINAL_ABSTRACT_DADDY && GetCutsceneID() == CS_NONE && SkipSceneCounter < 6) ||
-			(LastCutsceneID == CS_ID_0x54 && LastInGameCameraPosY == -3223.520752f && GetInGameCameraPosY() != -3223.520752f && SkipSceneCounter < 3))
+			(LastCutsceneID == CS_ID_0x54 && LastInGameCameraPosY == *(float*)"\xF5\x2B\x4A\xC5" && GetInGameCameraPosY() != LastInGameCameraPosY && SkipSceneCounter < 3))
 		{
 			LOG_LIMIT(1, "Skipping frame during cutscene!");
-			Logging::LogDebug() << __FUNCTION__ " frame - Counter " << SkipSceneCounter << " Release: " << ClassReleaseFlag << " CutsceneID: " << GetCutsceneID() << " LastCutsceneID: " << LastCutsceneID <<
-				" CutsceneCameraPos: " << GetCutscenePos() << " LastCutscenePos: " << LastCutscenePos << " JamesPos: " << GetJamesPosX() << " LastJamesPos: " << LastJamesPosX;
+			Logging::LogDebug() << __FUNCTION__ " frame - Counter " << SkipSceneCounter << " Release: " << ClassReleaseFlag <<
+				" CutsceneID: " << GetCutsceneID() << " LastCutsceneID: " << LastCutsceneID <<
+				" CutscenePos: " << GetCutscenePos() << " LastCutscenePos: " << LastCutscenePos <<
+				" InGameCameraPosY: " << GetInGameCameraPosY() << " LastInGameCameraPosY: " << LastInGameCameraPosY <<
+				" JamesPosX: " << GetJamesPosX() << " LastJamesPosX: " << LastJamesPosX;
 
 			SkipSceneFlag = true;
 			SkipSceneCounter++;

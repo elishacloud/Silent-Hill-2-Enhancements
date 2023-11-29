@@ -454,7 +454,7 @@ void RunGameLoad()
 	// Clear InGameVoiceEvent when Room ID changes and upon end of cutscene ID (Laura scares James with the piano)
 	static DWORD LastRoomID = 0, LastCutsceneID = 0;
 	DWORD CurrentRoomID = GetRoomID(), CurrentCutsceneID = GetCutsceneID();
-	if (LastRoomID != CurrentRoomID || (LastCutsceneID == CUTSCENE_LAURA_PIANO && CurrentCutsceneID != CUTSCENE_LAURA_PIANO))
+	if (LastRoomID != CurrentRoomID || (LastCutsceneID == CS_LAURA_PIANO && CurrentCutsceneID != CS_LAURA_PIANO))
 	{
 		*InGameVoiceEvent = 0;
 	}

@@ -41,8 +41,8 @@ void RunShadowCutscene()
 	// Set shadow
 	static bool ValueSet = false;
 	static BYTE LastValue = 0x01;
-	if (GetCutsceneID() == CUTSCENE_ID_0x03 || GetCutsceneID() == CUTSCENE_ID_0x2E || GetCutsceneID() == CUTSCENE_ID_0x5C ||
-		(GetCutsceneID() == CUTSCENE_PYRAMID_HEAD_CLOSET && GetCutscenePos() == -20133.99805f))
+	if (GetCutsceneID() == CS_ID_0x03 || GetCutsceneID() == CS_ID_0x2E || GetCutsceneID() == CS_ID_0x5C ||
+		(GetCutsceneID() == CS_PYRAMID_HEAD_CLOSET && GetCutscenePos() == -20133.99805f))
 	{
 		if (!ValueSet)
 		{

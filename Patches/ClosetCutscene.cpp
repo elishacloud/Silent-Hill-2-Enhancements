@@ -33,7 +33,7 @@ __declspec(naked) void __stdcall ClosetCutsceneASM()
 	{
 		push edx
 		mov edx, dword ptr ds : [CutsceneIDAddr]	// moves cutscene ID pointer to edx
-		cmp dword ptr ds : [edx], CUTSCENE_PYRAMID_HEAD_CLOSET
+		cmp dword ptr ds : [edx], CS_PYRAMID_HEAD_CLOSET
 		jne near NotInCutscene
 		push eax
 		mov edx, dword ptr ds : [CutscenePosAddr]	// moves cutscene camera pos ID pointer to edx
@@ -138,7 +138,7 @@ void RunClosetCutscene()
 
 	// Darken & blur more closet bars
 	static bool ValueSet1 = false;
-	if (GetCutsceneID() == CUTSCENE_PYRAMID_HEAD_CLOSET)
+	if (GetCutsceneID() == CS_PYRAMID_HEAD_CLOSET)
 	{
 		if (!ValueSet1)
 		{
@@ -156,7 +156,7 @@ void RunClosetCutscene()
 
 	// Disable the flashlight during cutscene
 	static bool ValueSet3 = false;
-	if (GetCutsceneID() == CUTSCENE_PYRAMID_HEAD_CLOSET && GetCutscenePos() == -22256.61133f)
+	if (GetCutsceneID() == CS_PYRAMID_HEAD_CLOSET && GetCutscenePos() == -22256.61133f)
 	{
 		if (!ValueSet3)
 		{

@@ -58,7 +58,7 @@ void RunClosetSpawn()
 
 	static DWORD LastCutscene = 0;
 	DWORD CutsceneID = GetCutsceneID();
-	if (LastCutscene == CUTSCENE_PYRAMID_HEAD_CLOSET && CutsceneID != CUTSCENE_PYRAMID_HEAD_CLOSET)
+	if (LastCutscene == CS_PYRAMID_HEAD_CLOSET && CutsceneID != CS_PYRAMID_HEAD_CLOSET)
 	{
 		*CameraFOVAddr = 448.0f;
 	}

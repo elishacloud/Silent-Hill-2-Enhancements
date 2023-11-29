@@ -37,7 +37,7 @@ BOOL CheckIfInCutscene()
 	{
 		return TRUE;
 	}
-	else if (GetCutsceneID() && GetCutsceneID() != CUTSCENE_ID_0x24)
+	else if (GetCutsceneID() && GetCutsceneID() != CS_ID_0x24)
 	{
 		return TRUE;
 	}

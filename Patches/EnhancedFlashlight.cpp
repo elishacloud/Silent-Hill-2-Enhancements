@@ -83,9 +83,9 @@ __declspec(naked) void __stdcall MovableObject1ASM()
 	{
 		push eax
 		mov eax, dword ptr ds : [CutsceneIDAddr] 	// moves cutscene ID pointer to eax
-		cmp dword ptr ds : [eax], 0x4E
+		cmp dword ptr ds : [eax], CUTSCENE_LAURA_PIANO
 		je near LauraDrawing						// jumps if Laura drawing in hotel cutscene
-		cmp dword ptr ds : [eax], 0x19
+		cmp dword ptr ds : [eax], CUTSCENE_EDDIE_LAURA_BOWLING
 		je near HotelBowling						// jumps if bowling Eddie and Laura cutscene
 		mov eax, dword ptr ds : [RoomIDAddr]	 	// moves room ID pointer to eax
 		cmp dword ptr ds : [eax], 0xB7
@@ -122,9 +122,9 @@ __declspec(naked) void __stdcall MovableObject2ASM()
 	{
 		push eax
 		mov eax, dword ptr ds : [CutsceneIDAddr] 	// moves cutscene ID pointer to eax
-		cmp dword ptr ds : [eax], 0x4E
+		cmp dword ptr ds : [eax], CUTSCENE_LAURA_PIANO
 		je near LauraDrawing						// jumps if Laura drawing in hotel cutscene
-		cmp dword ptr ds : [eax], 0x19
+		cmp dword ptr ds : [eax], CUTSCENE_EDDIE_LAURA_BOWLING
 		je near HotelBowling						// jumps if bowling Eddie and Laura cutscene
 		mov eax, dword ptr ds : [RoomIDAddr]	 	// moves room ID pointer to eax
 		cmp dword ptr ds : [eax], 0xB7
@@ -305,10 +305,10 @@ void PatchPS2Flashlight()
 	Address2 = Address2 + 0x2A0;
 
 	// Get room ID address
-	RoomIDAddr = GetRoomIDPointer();
+	GetRoomIDPointer();
 
 	// Get cutscene ID address
-	CutsceneIDAddr = GetCutsceneIDPointer();
+	GetCutsceneIDPointer();
 
 	// Checking address pointer
 	if (!RoomIDAddr || !CutsceneIDAddr)

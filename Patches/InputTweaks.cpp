@@ -494,7 +494,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 
 		// Inject ready weapon or cancel based on context, on RMB press
 		if (EnableEnhancedMouse && GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTIONS_FMV && 
-			GetEventIndex() != EVENT_GAME_FMV && GetCutsceneID() == 0x0) 
+			GetEventIndex() != EVENT_GAME_FMV && GetCutsceneID() == CUTSCENE_NONE)
 		{
 			if (RMB.State)
 			{
@@ -511,7 +511,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			}
 		}
 
-		// Inject action, same condition as RMB but without CutsceneID == 0x00 to enable input on FIE in the middle of cutscenes, eg Laura's letter in the hotel
+		// Inject action, same condition as RMB but without CutsceneID == CUTSCENE_NONE to enable input on FIE in the middle of cutscenes, eg Laura's letter in the hotel
 		if (EnableEnhancedMouse && GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTIONS_FMV &&
 			GetEventIndex() != EVENT_GAME_FMV)
 		{

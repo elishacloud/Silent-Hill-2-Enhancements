@@ -183,7 +183,7 @@ void RunLightingTransition()
 	// Set flashlight render
 	static bool ValueSet = false;
 	static DWORD Counter = 0;
-	if (GetCutsceneID() == 0x5C)
+	if (GetCutsceneID() == CUTSCENE_ID_0x5C)
 	{
 		if (*FlashLightRenderAddr != 0 && ++Counter < 3)
 		{
@@ -191,7 +191,7 @@ void RunLightingTransition()
 			ValueSet = true;
 		}
 	}
-	else if (GetCutsceneID() == 0x19)
+	else if (GetCutsceneID() == CUTSCENE_EDDIE_LAURA_BOWLING)
 	{
 		if (!ValueSet)
 		{

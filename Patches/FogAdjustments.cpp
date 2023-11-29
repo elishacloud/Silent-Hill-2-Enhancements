@@ -54,7 +54,7 @@ __declspec(naked) void __stdcall FogAdjustmentASM()
 
 	CheckCutsceneID:
 		mov eax, dword ptr ds : [CutsceneIDAddr]
-		cmp dword ptr ds : [eax], 0x12
+		cmp dword ptr ds : [eax], CUTSCENE_ANGELA_MIRROR
 		jne near ConditionsNotMet							// jumps if not angela mirror cutscene
 
 	// Conditions Met
@@ -246,16 +246,16 @@ void PatchFogParameters()
 	jmpFinalAreaBossAddr2 = (void*)(FinalBossAddr2 + 5);
 
 	// Get room ID address
-	RoomIDAddr = GetRoomIDPointer();
+	GetRoomIDPointer();
 
 	// Get cutscene ID address
-	CutsceneIDAddr = GetCutsceneIDPointer();
+	GetCutsceneIDPointer();
 
 	// Get cutscene camera position address
-	CutscenePosAddr = GetCutscenePosPointer();
+	GetCutscenePosPointer();
 
 	// Get Camera in-game position Y
-	InGameCameraPosYAddr = GetInGameCameraPosYPointer();
+	GetInGameCameraPosYPointer();
 
 	// Checking address pointers
 	if (!RoomIDAddr || !CutsceneIDAddr || !CutscenePosAddr || !InGameCameraPosYAddr)

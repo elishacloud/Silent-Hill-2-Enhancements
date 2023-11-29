@@ -35,7 +35,7 @@ __declspec(naked) void __stdcall PistonRoomASM()
 		push ecx
 		push eax
 		mov eax, dword ptr ds : [CutsceneIDAddr] 		// moves cutscene ID to eax
-		cmp dword ptr ds : [eax], 0x44
+		cmp dword ptr ds : [eax], CUTSCENE_FINAL_ABSTRACT_DADDY
 		jne near ConditionsNotMet						// jumps if not final "Abstract Daddy" cutscene
 		mov ecx, PistonList
 		lea eax, dword ptr ds : [esi * 4 + ecx]
@@ -96,10 +96,10 @@ void PatchPistonRoom()
 	jmpPistonReturnAddr = (void*)(PistonAddr + 7);
 
 	// Get cutscene ID address
-	CutsceneIDAddr = GetCutsceneIDPointer();
+	GetCutsceneIDPointer();
 
 	// Get cutscene camera position address
-	CutscenePosAddr = GetCutscenePosPointer();
+	GetCutscenePosPointer();
 
 	// Checking address pointers
 	if (!CutsceneIDAddr || !CutscenePosAddr)

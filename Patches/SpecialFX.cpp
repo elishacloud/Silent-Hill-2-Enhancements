@@ -63,7 +63,7 @@ __declspec(naked) void __cdecl MariaCutsceneFadeoutASM()
 	if (GetRoomID() == 137 && *reinterpret_cast<uint32_t*>(GetJamesPosZPointer()) == 1185259392)
 	{
 		// There is 2 cutscenes in same room but fadeout works when CutSceneID is zero, just wanted to be sure
-		if (GetCutsceneID() == 0) 
+		if (GetCutsceneID() == CUTSCENE_NONE)
 		{
 			__asm 
 			{
@@ -106,11 +106,11 @@ __declspec(naked) void __stdcall CustomAddress2ASM()
 	{
 		push edx
 		mov edx, dword ptr ds : [CutsceneIDAddr]	// moves cutscene ID pointer to edx
-		cmp dword ptr ds : [edx], 0x01				// IntroCutscene
+		cmp dword ptr ds : [edx], CUTSCENE_INTRO
 		je NEAR IntroCutscene
-		cmp dword ptr ds : [edx], 0x0E				// PyramidHeadCutscene
+		cmp dword ptr ds : [edx], CUTSCENE_PYRAMID_HEAD_CLOSET
 		je NEAR PyramidHeadCutscene
-		cmp dword ptr ds : [edx], 0x06				// LyingFigureTunnelCutscene
+		cmp dword ptr ds : [edx], CUTSCENE_LYING_FIGURE_TUNNEL
 		je NEAR LyingFigureTunnelCutscene
 		mov edx, dword ptr ds : [RoomIDAddr]		// moves room ID pointer to edx
 		cmp dword ptr ds : [edx], 0xA2				// Room ID; Hotel Room 312
@@ -146,11 +146,11 @@ __declspec(naked) void __stdcall CustomAddress3ASM()
 	{
 		push edx
 		mov edx, dword ptr ds : [CutsceneIDAddr]	// moves cutscene ID pointer to edx
-		cmp dword ptr ds : [edx], 0x01				// IntroCutscene
+		cmp dword ptr ds : [edx], CUTSCENE_INTRO
 		je NEAR IntroCutscene
-		cmp dword ptr ds : [edx], 0x0E				// PyramidHeadCutscene
+		cmp dword ptr ds : [edx], CUTSCENE_PYRAMID_HEAD_CLOSET
 		je NEAR PyramidHeadCutscene
-		cmp dword ptr ds : [edx], 0x06				// LyingFigureTunnelCutscene
+		cmp dword ptr ds : [edx], CUTSCENE_LYING_FIGURE_TUNNEL
 		je NEAR LyingFigureTunnelCutscene
 		mov edx, dword ptr ds : [RoomIDAddr]		// moves room ID pointer to edx
 		cmp dword ptr ds : [edx], 0xA2				// Room ID; Hotel Room 312
@@ -329,10 +329,10 @@ void PatchSpecialFX()
 	}
 
 	// Get room ID address
-	RoomIDAddr = GetRoomIDPointer();
+	GetRoomIDPointer();
 
 	// Get cutscene ID address
-	CutsceneIDAddr = GetCutsceneIDPointer();
+	GetCutsceneIDPointer();
 
 	// Checking address pointer
 	if (!RoomIDAddr || !CutsceneIDAddr)

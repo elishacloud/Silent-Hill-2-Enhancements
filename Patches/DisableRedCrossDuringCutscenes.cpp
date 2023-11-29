@@ -37,7 +37,7 @@ BOOL CheckIfInCutscene()
 	{
 		return TRUE;
 	}
-	else if (GetCutsceneID() && GetCutsceneID() != 0x24)
+	else if (GetCutsceneID() && GetCutsceneID() != CUTSCENE_ID_0x24)
 	{
 		return TRUE;
 	}
@@ -161,7 +161,7 @@ void PatchRedCrossInCutscene()
 	jmpDisableAddr = (void*)(RedCrossAddr + 0xC2);
 
 	// Get cutscene ID address
-	CutsceneIDAddr = GetCutsceneIDPointer();
+	GetCutsceneIDPointer();
 
 	// Checking address pointer
 	if (!CutsceneIDAddr)

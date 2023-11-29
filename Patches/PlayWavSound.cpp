@@ -173,7 +173,7 @@ void RunPlayAdditionalSounds()
 
 	// Check for boss level
 	static bool IsBossLevel = false;
-	if (RoomID == 0xBB /*Final boss room*/ && GetCutsceneID() /*any cutscene triggered*/)
+	if (RoomID == 0xBB /*Final boss room*/ && GetCutsceneID() != CUTSCENE_NONE)
 	{
 		IsBossLevel = true;
 	}

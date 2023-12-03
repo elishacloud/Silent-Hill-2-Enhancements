@@ -332,6 +332,11 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 {
 	UNREFERENCED_PARAMETER(cbData);
 
+	static BYTE* InventoryItem =
+		GameVersion == SH2V_10 ? (BYTE*)0x01F7A7E2 :
+		GameVersion == SH2V_11 ? (BYTE*)0x01F7E3E2 :
+		GameVersion == SH2V_DC ? (BYTE*)0x01F7D3E2 : nullptr;
+
 	// Check number keybinds after exiting the Options screen
 	if (GetEventIndex() == EVENT_OPTIONS_FMV)
 		CheckKeyBindsFlag = true;
@@ -526,6 +531,12 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 				SetKey(KeyBinds.GetKeyBind(KEY_TURN_LEFT));
 			if (IsKeyPressed(KeyBinds.GetKeyBind(KEY_STRAFE_RIGHT)))
 				SetKey(KeyBinds.GetKeyBind(KEY_TURN_RIGHT));
+		}
+
+		// If James is in room 312 and has the VHS in his inventory
+		if (GetRoomID() == 0xA2 && *InventoryItem > 0x80)
+		{
+			ClearKey(KeyBinds.GetKeyBind(KEY_FLASHLIGHT));
 		}
 
 		if (SetUpKey)

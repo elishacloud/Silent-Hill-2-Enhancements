@@ -361,6 +361,12 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
         {
             ControllerData->rgbButtons[KeyBinds.GetPauseButtonBind()] = KEY_CLEAR;
         }
+		
+		// If James is in room 312 and has the VHS in his inventory
+		if (GetRoomID() == 0xA2 && *InventoryItem > 0x80)
+		{
+			ControllerData->rgbButtons[KeyBinds.GetToggleFlashlightButtonBind()] = KEY_CLEAR;
+		}
 
 		// Clear controller data
 		ControllerData = nullptr;
@@ -1075,6 +1081,11 @@ BYTE* KeyBindsHandler::GetKeyBindsPointer()
 BYTE KeyBindsHandler::GetPauseButtonBind()
 {
 	return *(this->GetKeyBindsPointer() + 0xF0);
+}
+
+BYTE KeyBindsHandler::GetToggleFlashlightButtonBind()
+{
+	return *(this->GetKeyBindsPointer() + 0x110);
 }
 
 int CountCollectedMemos()

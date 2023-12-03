@@ -131,7 +131,7 @@ void RunPlayAdditionalSounds()
 		GameVersion == SH2V_11 ? (BYTE*)0x01F7EA80 :
 		GameVersion == SH2V_DC ? (BYTE*)0x01F7DA80 : nullptr;
 
-	static BYTE* InventoryItem = CanUseFlashlight2 + 0x69E;
+	static BYTE* InventoryItem = CanUseFlashlight2 - 0x69E;
 
 	// Checking address pointer
 	if (!CanUseFlashlight1 || !CanUseFlashlight2)

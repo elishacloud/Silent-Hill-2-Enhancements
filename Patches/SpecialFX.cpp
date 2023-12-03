@@ -106,11 +106,11 @@ __declspec(naked) void __stdcall CustomAddress2ASM()
 	{
 		push edx
 		mov edx, dword ptr ds : [CutsceneIDAddr]	// moves cutscene ID pointer to edx
-		cmp dword ptr ds : [edx], CS_INTRO
+		cmp dword ptr ds : [edx], CS_INTRO_BATHROOM
 		je NEAR IntroCutscene
-		cmp dword ptr ds : [edx], CS_PYRAMID_HEAD_CLOSET
+		cmp dword ptr ds : [edx], CS_APT_RPT_CLOSET
 		je NEAR PyramidHeadCutscene
-		cmp dword ptr ds : [edx], CS_LYING_FIGURE_TUNNEL
+		cmp dword ptr ds : [edx], CS_TUNNEL_RADIO
 		je NEAR LyingFigureTunnelCutscene
 		mov edx, dword ptr ds : [RoomIDAddr]		// moves room ID pointer to edx
 		cmp dword ptr ds : [edx], 0xA2				// Room ID; Hotel Room 312
@@ -146,11 +146,11 @@ __declspec(naked) void __stdcall CustomAddress3ASM()
 	{
 		push edx
 		mov edx, dword ptr ds : [CutsceneIDAddr]	// moves cutscene ID pointer to edx
-		cmp dword ptr ds : [edx], CS_INTRO
+		cmp dword ptr ds : [edx], CS_INTRO_BATHROOM
 		je NEAR IntroCutscene
-		cmp dword ptr ds : [edx], CS_PYRAMID_HEAD_CLOSET
+		cmp dword ptr ds : [edx], CS_APT_RPT_CLOSET
 		je NEAR PyramidHeadCutscene
-		cmp dword ptr ds : [edx], CS_LYING_FIGURE_TUNNEL
+		cmp dword ptr ds : [edx], CS_TUNNEL_RADIO
 		je NEAR LyingFigureTunnelCutscene
 		mov edx, dword ptr ds : [RoomIDAddr]		// moves room ID pointer to edx
 		cmp dword ptr ds : [edx], 0xA2				// Room ID; Hotel Room 312

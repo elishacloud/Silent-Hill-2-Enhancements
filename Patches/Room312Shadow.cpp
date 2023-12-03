@@ -59,7 +59,7 @@ __declspec(naked) void __stdcall ChairShadow1ASM()
 	{
 		push eax
 		mov eax, dword ptr ds : [CutsceneIDAddr] 	// moves cutscene ID pointer to eax
-		cmp dword ptr ds : [eax], CS_HOTEL_ROOM_312
+		cmp dword ptr ds : [eax], CS_HTL_VHS_WATCH_AFTER
 		pop eax
 		je near IsHotelCutscene
 		fstp dword ptr ds : [eax + 0x14]
@@ -77,7 +77,7 @@ __declspec(naked) void __stdcall ChairShadow2ASM()
 	{
 		push eax
 		mov eax, dword ptr ds : [CutsceneIDAddr] 	// moves cutscene ID pointer to eax
-		cmp dword ptr ds : [eax], CS_HOTEL_ROOM_312
+		cmp dword ptr ds : [eax], CS_HTL_VHS_WATCH_AFTER
 		pop eax
 		je near IsHotelCutscene
 		fstp dword ptr ds : [eax + 0x14]

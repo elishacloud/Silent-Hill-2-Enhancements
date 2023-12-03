@@ -211,15 +211,15 @@ HRESULT m_IDirect3DDevice8::EndScene()
 		static float LastInGameCameraPosY = 0;
 		static float LastJamesPosX = 0;
 
-		if ((LastCutsceneID == CS_INTRO && SkipSceneCounter < 4 && (SkipSceneCounter || GetJamesPosX() != LastJamesPosX)) ||
-			(LastCutsceneID == CS_ID_0x03 && SkipSceneCounter < 1 && (SkipSceneCounter || GetJamesPosX() == 330.845f)) ||
-			((LastCutsceneID == CS_ID_0x15 || LastCutsceneID == CS_ID_0x16) && SkipSceneCounter < 1 &&
-				(SkipSceneCounter || GetCutsceneID() != LastCutsceneID || (ClassReleaseFlag && !(GetCutscenePos() == *(float*)"\xAE\x01\x31\x46" && LastCutscenePos == 0.0f))) && !(GetCutsceneID() == CS_ID_0x16 && LastCutsceneID == CS_ID_0x15)) ||
-			(LastCutsceneID == CS_ID_0x4C && SkipSceneCounter < 1 && (SkipSceneCounter || GetCutsceneID() != LastCutsceneID)) ||
-			(LastCutsceneID == CS_ID_0x4D && SkipSceneCounter < 2 && (SkipSceneCounter || GetCutsceneID() != LastCutsceneID || ClassReleaseFlag)) ||
-			(LastCutsceneID == CS_ID_0x4D && SkipSceneCounter < 3 && (SkipSceneCounter || GetCutscenePos() != LastCutscenePos) && GetCutscenePos() == *(float*)"\x59\xCC\x06\xC6" && GetCutsceneID() == CS_ID_0x4D) ||
-			(LastCutsceneID == CS_FINAL_ABSTRACT_DADDY && GetCutsceneID() == CS_NONE && SkipSceneCounter < 6) ||
-			(LastCutsceneID == CS_ID_0x54 && LastInGameCameraPosY == *(float*)"\xF5\x2B\x4A\xC5" && GetInGameCameraPosY() != LastInGameCameraPosY && SkipSceneCounter < 3))
+		if ((LastCutsceneID == CS_INTRO_BATHROOM && SkipSceneCounter < 4 && (SkipSceneCounter || GetJamesPosX() != LastJamesPosX)) ||
+			(LastCutsceneID == CS_ANGELA_CEMETERY && SkipSceneCounter < 1 && (SkipSceneCounter || GetJamesPosX() == 330.845f)) ||
+			((LastCutsceneID == CS_MEET_MARIA_1 || LastCutsceneID == CS_MEET_MARIA_2) && SkipSceneCounter < 1 &&
+				(SkipSceneCounter || GetCutsceneID() != LastCutsceneID || (ClassReleaseFlag && !(GetCutscenePos() == *(float*)"\xAE\x01\x31\x46" && LastCutscenePos == 0.0f))) && !(GetCutsceneID() == CS_MEET_MARIA_2 && LastCutsceneID == CS_MEET_MARIA_1)) ||
+			(LastCutsceneID == CS_ROWBOAT_ENTER && SkipSceneCounter < 1 && (SkipSceneCounter || GetCutsceneID() != LastCutsceneID)) ||
+			(LastCutsceneID == CS_ROWBOAT_EXIT && SkipSceneCounter < 2 && (SkipSceneCounter || GetCutsceneID() != LastCutsceneID || ClassReleaseFlag)) ||
+			(LastCutsceneID == CS_ROWBOAT_EXIT && SkipSceneCounter < 3 && (SkipSceneCounter || GetCutscenePos() != LastCutscenePos) && GetCutscenePos() == *(float*)"\x59\xCC\x06\xC6" && GetCutsceneID() == CS_ROWBOAT_EXIT) ||
+			(LastCutsceneID == CS_PS_ANGELA_BOSS_FINISH && GetCutsceneID() == CS_NONE && SkipSceneCounter < 6) ||
+			(LastCutsceneID == CS_HTL_ALT_RPT_BOSS_INTRO && LastInGameCameraPosY == *(float*)"\xF5\x2B\x4A\xC5" && GetInGameCameraPosY() != LastInGameCameraPosY && SkipSceneCounter < 3))
 		{
 			LOG_LIMIT(1, "Skipping frame during cutscene!");
 			Logging::LogDebug() << __FUNCTION__ " frame - Counter " << SkipSceneCounter << " Release: " << ClassReleaseFlag <<
@@ -610,7 +610,7 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 	if (EnableXboxShadows && State == D3DRS_STENCILPASS && Value == D3DSTENCILOP_REPLACE)
 	{
 		// Special handling for room 54
-		if (GetCutsceneID() == CS_ID_0x54 && (IsEnabledForCutscene54 || GetCutscenePos() == -19521.60742f))
+		if (GetCutsceneID() == CS_HTL_ALT_RPT_BOSS_INTRO && (IsEnabledForCutscene54 || GetCutscenePos() == -19521.60742f))
 		{
 			IsEnabledForCutscene54 = true;
 			Value = D3DSTENCILOP_ZERO; // Restore self shadows
@@ -629,7 +629,7 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 		else // Main campaign
 		{
 			IsEnabledForCutscene54 = false;
-			if (GetCutsceneID() == CS_LAURA_PIANO || (GetSpecializedLight1() != 0x01 && GetSpecializedLight2() != 0x01))	// Exclude specialized lighting zone unless in specific cutscene
+			if (GetCutsceneID() == CS_HTL_LAURA_PIANO || (GetSpecializedLight1() != 0x01 && GetSpecializedLight2() != 0x01))	// Exclude specialized lighting zone unless in specific cutscene
 			{
 				if (GetRoomID() != 0x9E) // Exclude Hotel Room 202-204 completely from restored self shadows
 				{
@@ -1243,12 +1243,12 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 	}
 
 	// Disable shadow on the Labyrinth Valve
-	if (EnableSoftShadows && GetCutsceneID() == CS_LABYRINTH && PrimitiveType == D3DPT_TRIANGLELIST && PrimitiveCount > 496 && PrimitiveCount < 536)
+	if (EnableSoftShadows && GetCutsceneID() == CS_PS_HANDLE_TURN && PrimitiveType == D3DPT_TRIANGLELIST && PrimitiveCount > 496 && PrimitiveCount < 536)
 	{
 		return D3D_OK;
 	}
 	// Top Down Shadow
-	else if (EnableSoftShadows && ((GetRoomID() == 0x02 || GetRoomID() == 0x24 || GetRoomID() == 0x8F || GetRoomID() == 0x90) || GetCutsceneID() == CS_MARIA_ENDING))
+	else if (EnableSoftShadows && ((GetRoomID() == 0x02 || GetRoomID() == 0x24 || GetRoomID() == 0x8F || GetRoomID() == 0x90) || GetCutsceneID() == CS_END_LEAVE_LETTER))
 	{
 		DWORD stencilPass = 0;
 		ProxyInterface->GetRenderState(D3DRS_STENCILPASS, &stencilPass);
@@ -1406,7 +1406,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 	}
 
 	// Fix bowling cutscene fading
-	if (GetCutsceneID() == CS_EDDIE_LAURA_BOWLING && PrimitiveType == D3DPT_TRIANGLELIST && PrimitiveCount == 2 && VertexStreamZeroStride == 28 && pVertexStreamZeroData &&
+	if (GetCutsceneID() == CS_BOWL_LAURA_EDDIE && PrimitiveType == D3DPT_TRIANGLELIST && PrimitiveCount == 2 && VertexStreamZeroStride == 28 && pVertexStreamZeroData &&
 		((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[0].z == 0.01f && ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[1].z == 0.01f && ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[2].z == 0.01f)
 	{
 		IsInFakeFadeout = true;
@@ -1792,7 +1792,7 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		// Enable Xbox shadows
 		if (EnableSoftShadows)
 		{
-			EnableXboxShadows = !((GetRoomID() == 0x02 || GetRoomID() == 0x24 || GetRoomID() == 0x8F || GetRoomID() == 0x90) || GetCutsceneID() == CS_MARIA_ENDING);
+			EnableXboxShadows = !((GetRoomID() == 0x02 || GetRoomID() == 0x24 || GetRoomID() == 0x8F || GetRoomID() == 0x90) || GetCutsceneID() == CS_END_LEAVE_LETTER);
 		}
 
 		// Fix cutscene James final blow to his wife
@@ -1801,7 +1801,7 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 			IsInFakeFadeout = true;
 		}
 		// Bowling cutscene fading
-		else if (IsInFakeFadeout && GetCutsceneID() != CS_EDDIE_LAURA_BOWLING)
+		else if (IsInFakeFadeout && GetCutsceneID() != CS_BOWL_LAURA_EDDIE)
 		{
 			IsInFakeFadeout = false;
 		}
@@ -2448,7 +2448,7 @@ HRESULT m_IDirect3DDevice8::SetPixelShaderConstant(THIS_ DWORD Register, CONST v
 			}
 			else if ((modelID == ModelID::chr_agl_agl || modelID == ModelID::chr_agl_ragl) && GetCurrentMaterialIndex() == 3) // Angela's eyes
 			{
-				if (UseFakeLight && !InSpecialLightZone && GetCutsceneID() != CS_ID_0x53)
+				if (UseFakeLight && !InSpecialLightZone && GetCutsceneID() != CS_HTL_ALT_ANGELA_FIRE)
 				{
 					// 25% specularity if flashlight is off and not in special light zone or in cutscene 0x53
 					constants[0] = 0.25f;

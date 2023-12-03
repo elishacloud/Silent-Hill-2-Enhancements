@@ -183,7 +183,7 @@ void RunLightingTransition()
 	// Set flashlight render
 	static bool ValueSet = false;
 	static DWORD Counter = 0;
-	if (GetCutsceneID() == CS_ID_0x5C)
+	if (GetCutsceneID() == CS_END_MARIA_EPILOGUE)
 	{
 		if (*FlashLightRenderAddr != 0 && ++Counter < 3)
 		{
@@ -191,7 +191,7 @@ void RunLightingTransition()
 			ValueSet = true;
 		}
 	}
-	else if (GetCutsceneID() == CS_EDDIE_LAURA_BOWLING)
+	else if (GetCutsceneID() == CS_BOWL_LAURA_EDDIE)
 	{
 		if (!ValueSet)
 		{

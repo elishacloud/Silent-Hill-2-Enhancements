@@ -34,9 +34,9 @@ __declspec(naked) void __stdcall TreeLightingASM()
 		push edi
 		push eax
 		mov eax, dword ptr ds : [CutsceneIDAddr]
-		cmp dword ptr ds : [eax], CS_MARIA_ENDING
+		cmp dword ptr ds : [eax], CS_END_LEAVE_LETTER
 		je near MariaLeaveEndings
-		cmp dword ptr ds : [eax], CS_LEAVE_ENDING
+		cmp dword ptr ds : [eax], CS_END_MARIA_LETTER
 		je near MariaLeaveEndings
 		pop eax
 		push 1
@@ -103,7 +103,7 @@ void RunTreeColor()
 	}
 
 	// Tree lighting color fix for ending cutscene (horizon fog color)
-	if (GetCutsceneID() == CS_LEAVE_ENDING && WidescreenFix)
+	if (GetCutsceneID() == CS_END_MARIA_LETTER && WidescreenFix)
 	{
 		constexpr BYTE Red = 125;
 		constexpr BYTE Green = 135;

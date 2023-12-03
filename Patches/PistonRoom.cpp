@@ -35,7 +35,7 @@ __declspec(naked) void __stdcall PistonRoomASM()
 		push ecx
 		push eax
 		mov eax, dword ptr ds : [CutsceneIDAddr] 		// moves cutscene ID to eax
-		cmp dword ptr ds : [eax], CS_FINAL_ABSTRACT_DADDY
+		cmp dword ptr ds : [eax], CS_PS_ANGELA_BOSS_FINISH
 		jne near ConditionsNotMet						// jumps if not final "Abstract Daddy" cutscene
 		mov ecx, PistonList
 		lea eax, dword ptr ds : [esi * 4 + ecx]

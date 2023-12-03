@@ -54,7 +54,7 @@ __declspec(naked) void __stdcall FogAdjustmentASM()
 
 	CheckCutsceneID:
 		mov eax, dword ptr ds : [CutsceneIDAddr]
-		cmp dword ptr ds : [eax], CS_ANGELA_MIRROR
+		cmp dword ptr ds : [eax], CS_APT_ANGELA
 		jne near ConditionsNotMet							// jumps if not angela mirror cutscene
 
 	// Conditions Met

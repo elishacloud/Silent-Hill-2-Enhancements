@@ -83,9 +83,9 @@ __declspec(naked) void __stdcall MovableObject1ASM()
 	{
 		push eax
 		mov eax, dword ptr ds : [CutsceneIDAddr] 	// moves cutscene ID pointer to eax
-		cmp dword ptr ds : [eax], CS_LAURA_PIANO
+		cmp dword ptr ds : [eax], CS_HTL_LAURA_PIANO
 		je near LauraDrawing						// jumps if Laura drawing in hotel cutscene
-		cmp dword ptr ds : [eax], CS_EDDIE_LAURA_BOWLING
+		cmp dword ptr ds : [eax], CS_BOWL_LAURA_EDDIE
 		je near HotelBowling						// jumps if bowling Eddie and Laura cutscene
 		mov eax, dword ptr ds : [RoomIDAddr]	 	// moves room ID pointer to eax
 		cmp dword ptr ds : [eax], 0xB7
@@ -122,9 +122,9 @@ __declspec(naked) void __stdcall MovableObject2ASM()
 	{
 		push eax
 		mov eax, dword ptr ds : [CutsceneIDAddr] 	// moves cutscene ID pointer to eax
-		cmp dword ptr ds : [eax], CS_LAURA_PIANO
+		cmp dword ptr ds : [eax], CS_HTL_LAURA_PIANO
 		je near LauraDrawing						// jumps if Laura drawing in hotel cutscene
-		cmp dword ptr ds : [eax], CS_EDDIE_LAURA_BOWLING
+		cmp dword ptr ds : [eax], CS_BOWL_LAURA_EDDIE
 		je near HotelBowling						// jumps if bowling Eddie and Laura cutscene
 		mov eax, dword ptr ds : [RoomIDAddr]	 	// moves room ID pointer to eax
 		cmp dword ptr ds : [eax], 0xB7

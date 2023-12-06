@@ -18,6 +18,7 @@
 #include <Windows.h>
 #include <shlwapi.h>
 #include "Resource.h"
+#include "winmm.h"
 #include "Patches\Patches.h"
 #include "WidescreenFixesPack\WidescreenFixesPack.h"
 #include "External\Hooking\Hook.h"
@@ -163,6 +164,8 @@ void DelayedStart()
 		Logging::Log() << __FUNCTION__ << " Error: Config file not found, using defaults";
 	}
 
+	FixGPUAntiAliasing = 0;
+	
 	// Log files in folder
 	LogDirectory();
 
@@ -661,6 +664,9 @@ void DelayedStart()
 
 	// Flush cache
 	FlushInstructionCache(GetCurrentProcess(), nullptr, 0);
+
+	// Set timer
+	timeBeginPeriod(1);
 
 	// Loaded
 	Logging::Log() << "Silent Hill 2 Enhancements module loaded!";

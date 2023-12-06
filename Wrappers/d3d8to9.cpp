@@ -62,14 +62,15 @@ void EnableD3d8to9()
 	}
 
 	// Use Direct3D9 wrapper if shaders are enabled
-	if (!EnableCustomShaders)
-	{
-		p_Direct3DCreate9 = m_pDirect3DCreate9;
-	}
-	else
-	{
-		p_Direct3DCreate9 = Direct3DCreate9Wrapper;
-	}
+	//if (!EnableCustomShaders)
+	//{
+	//	p_Direct3DCreate9 = m_pDirect3DCreate9;
+	//}
+	//else
+	//{
+	//	p_Direct3DCreate9 = Direct3DCreate9Wrapper;
+	//}
+	p_Direct3DCreate9 = m_pDirect3DCreate9;
 }
 
 HRESULT WINAPI d8_ValidatePixelShader(DWORD* pixelshader, DWORD* reserved1, BOOL flag, DWORD* toto)

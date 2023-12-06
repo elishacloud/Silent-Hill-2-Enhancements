@@ -2682,8 +2682,8 @@ BYTE* GetMariaNpcIsDyingPointer()
     }
 
     // Get Maria NPC dying flag address
-    constexpr BYTE SearchBytes[]{ 0x0F, 0x86, 0xDC, 0x00, 0x00, 0x00, 0xA1 };
-    void *MariaNpcIsDying = (BYTE*)ReadSearchedAddresses(0x0052D6D3, 0x0052DA03, 0x0052D323, SearchBytes, sizeof(SearchBytes), 0x1D, __FUNCTION__);
+    constexpr BYTE SearchBytes[]{ 0x83, 0xC4, 0x08, 0x48, 0x83, 0xF8, 0x32 };
+    void *MariaNpcIsDying = (BYTE*)ReadSearchedAddresses(0x0052D76E, 0x0052DA9E, 0x0052D3BE, SearchBytes, sizeof(SearchBytes), 0x33, __FUNCTION__);
     if (!MariaNpcIsDying)
     {
         Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";

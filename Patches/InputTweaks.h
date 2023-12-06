@@ -210,6 +210,7 @@ public:
 	BYTE GetKeyBind(int KeyIndex);
 	BYTE* GetKeyBindsPointer();
 	BYTE GetPauseButtonBind();
+	BYTE GetToggleFlashlightButtonBind();
 };
 
 // Hitboxes for pause and memo menu

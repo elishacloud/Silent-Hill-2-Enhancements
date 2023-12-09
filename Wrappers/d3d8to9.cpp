@@ -70,7 +70,6 @@ void EnableD3d8to9()
 	{
 		p_Direct3DCreate9 = Direct3DCreate9Wrapper;
 	}
-	p_Direct3DCreate9 = m_pDirect3DCreate9;
 }
 
 HRESULT WINAPI d8_ValidatePixelShader(DWORD* pixelshader, DWORD* reserved1, BOOL flag, DWORD* toto)

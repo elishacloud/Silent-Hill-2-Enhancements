@@ -62,14 +62,14 @@ void EnableD3d8to9()
 	}
 
 	// Use Direct3D9 wrapper if shaders are enabled
-	//if (!EnableCustomShaders)
-	//{
-	//	p_Direct3DCreate9 = m_pDirect3DCreate9;
-	//}
-	//else
-	//{
-	//	p_Direct3DCreate9 = Direct3DCreate9Wrapper;
-	//}
+	if (!EnableCustomShaders)
+	{
+		p_Direct3DCreate9 = m_pDirect3DCreate9;
+	}
+	else
+	{
+		p_Direct3DCreate9 = Direct3DCreate9Wrapper;
+	}
 	p_Direct3DCreate9 = m_pDirect3DCreate9;
 }
 
@@ -137,6 +137,21 @@ Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 	{
 		Logging::Log() << __FUNCTION__ << " Error finding 'Direct3DCreate9'";
 		return nullptr;
+	}
+
+	if (ForceHybridEnumeration)
+	{
+		Direct3D9ForceHybridEnumeration(1);
+	}
+
+	if (SetSwapEffectUpgradeShim)
+	{
+		Direct3D9SetSwapEffectUpgradeShim(0);
+	}
+
+	if (DisableMaximizedWindowedMode)
+	{
+		Direct3D9DisableMaximizedWindowedMode();
 	}
 
 	LOG_ONCE("Starting D3d8to9 v" << APP_VERSION);

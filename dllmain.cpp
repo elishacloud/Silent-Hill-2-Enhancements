@@ -164,8 +164,6 @@ void DelayedStart()
 		Logging::Log() << __FUNCTION__ << " Error: Config file not found, using defaults";
 	}
 
-	FixGPUAntiAliasing = 0;
-	
 	// Log files in folder
 	LogDirectory();
 

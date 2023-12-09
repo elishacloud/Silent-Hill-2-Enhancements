@@ -13,8 +13,12 @@ class m_IDirect3DSwapChain9;
 #include "Logging\Logging.h"
 #include "Common\Settings.h"
 
+typedef int(WINAPI* Direct3D9EnableMaximizedWindowedModeShimProc)(BOOL);
 typedef IDirect3D9 *(WINAPI *Direct3DCreate9Proc)(UINT);
 
+void WINAPI Direct3D9ForceHybridEnumeration(UINT Mode);
+void WINAPI Direct3D9SetSwapEffectUpgradeShim(int Unknown);
+bool Direct3D9DisableMaximizedWindowedMode();
 IDirect3D9 *WINAPI Direct3DCreate9Wrapper(UINT SDKVersion);
 
 #include "IDirect3D9.h"

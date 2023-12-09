@@ -22,6 +22,7 @@
 	visit(DisableGameUX, true) \
 	visit(DisableHighDPIScaling, true) \
 	visit(DisableLogging, false) \
+	visit(DisableMaximizedWindowedMode, false) \
 	visit(DisableRedCross, false) \
 	visit(DisableRedCrossInCutScenes, true) \
 	visit(DisableSafeMode, true) \
@@ -44,6 +45,7 @@
 	visit(EnableToggleSprint, true) \
 	visit(EnhanceMouseCursor, true) \
 	visit(FastTransitions, true) \
+	visit(ForceHybridEnumeration, false) \
 	visit(FireEscapeKeyFix, true) \
 	visit(Fix2D, true) \
 	visit(FixAdvancedOptions, true) \
@@ -114,6 +116,7 @@
 	visit(RowboatAnimationFix, true) \
 	visit(SetBlackPillarBoxes, true) \
 	visit(SetSixtyFPS, true) \
+	visit(SetSwapEffectUpgradeShim, false) \
 	visit(Southpaw, false) \
 	visit(SpecificSoundLoopFix, true) \
 	visit(SpecularFix, true) \

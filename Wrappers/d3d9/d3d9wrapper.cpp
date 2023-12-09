@@ -22,6 +22,137 @@
 
 Direct3DCreate9Proc m_pDirect3DCreate9 = nullptr;
 
+HMODULE GetSystemD3d9()
+{
+	static HMODULE h_d3d9 = nullptr;
+
+	// Get System d3d9.dll
+	if (!h_d3d9)
+	{
+		char Path[MAX_PATH] = {};
+		GetSystemDirectoryA(Path, MAX_PATH);
+		strcat_s(Path, "\\d3d9.dll");
+		GetModuleHandleExA(NULL, Path, &h_d3d9);
+	}
+
+	return h_d3d9;
+}
+
+FARPROC GetD3d9UnnamedOrdinal(WORD Ordinal)
+{
+	FARPROC proc = nullptr;
+
+	HMODULE dll = GetSystemD3d9();
+	if (!dll)
+	{
+		Logging::Log() << __FUNCTION__ << " System32 d3d9.dll is not loaded!";
+		return nullptr;
+	}
+
+	proc = GetProcAddress(dll, reinterpret_cast<LPCSTR>(Ordinal));
+
+	bool FuncNameExists = Hook::CheckExportAddress(dll, proc);
+
+	if (!proc || FuncNameExists)
+	{
+		Logging::Log() << __FUNCTION__ << " cannot find unnamed ordinal '" << Ordinal << "' in System32 d3d9.dll!";
+		return nullptr;
+	}
+
+	return proc;
+}
+
+void WINAPI Direct3D9ForceHybridEnumeration(UINT Mode)
+{
+	const WORD Ordinal = 16;
+
+	static FARPROC proc = nullptr;
+	if (!proc)
+	{
+		proc = GetD3d9UnnamedOrdinal(Ordinal);
+
+		if (!proc)
+		{
+			return;
+		}
+	}
+
+	Logging::Log() << __FUNCTION__ << " Calling 'Direct3D9ForceHybridEnumeration' ... " << Mode;
+
+	reinterpret_cast<decltype(&Direct3D9ForceHybridEnumeration)>(proc)(Mode);
+}
+
+void WINAPI Direct3D9SetSwapEffectUpgradeShim(int Unknown)
+{
+	const WORD Ordinal = 18;
+
+	static FARPROC proc = nullptr;
+	if (!proc)
+	{
+		proc = GetD3d9UnnamedOrdinal(Ordinal);
+
+		if (!proc)
+		{
+			return;
+		}
+	}
+
+	Logging::Log() << __FUNCTION__ << " Calling 'Direct3D9SetSwapEffectUpgradeShim' ... " << Unknown;
+
+	reinterpret_cast<decltype(&Direct3D9SetSwapEffectUpgradeShim)>(proc)(Unknown);
+}
+
+bool Direct3D9DisableMaximizedWindowedMode()
+{
+	static Direct3D9EnableMaximizedWindowedModeShimProc Direct3D9EnableMaximizedWindowedModeShim = nullptr;
+
+	if (!Direct3D9EnableMaximizedWindowedModeShim)
+	{
+		// Load d3d9.dll from System32
+		HMODULE dll = GetSystemD3d9();
+
+		if (!dll)
+		{
+			Logging::Log() << __FUNCTION__ << " d3d9.dll is not loaded!";
+			return false;
+		}
+
+		// Get function address
+		BYTE* addr = (BYTE*)GetProcAddress(dll, "Direct3D9EnableMaximizedWindowedModeShim");
+		if (!addr)
+		{
+			Logging::Log() << __FUNCTION__ << " Error: Failed to get `Direct3D9EnableMaximizedWindowedModeShim` address!";
+			return false;
+		}
+
+		// Check memory address
+		if (*(BYTE*)(addr + 6) != 1)
+		{
+			Logging::Log() << __FUNCTION__ << " Error: Failed to vaidate memory address!";
+			return false;
+		}
+
+		// Update function to disable Maximized Windowed Mode
+		DWORD Protect;
+		BOOL ret = VirtualProtect((LPVOID)(addr + 6), 1, PAGE_EXECUTE_READWRITE, &Protect);
+		if (ret == 0)
+		{
+			Logging::Log() << __FUNCTION__ << " Error: Failed to VirtualProtect memory!";
+			return false;
+		}
+		*(BYTE*)(addr + 6) = 0;
+		VirtualProtect((LPVOID)(addr + 6), 1, Protect, &Protect);
+
+		// Set function address
+		Direct3D9EnableMaximizedWindowedModeShim = (Direct3D9EnableMaximizedWindowedModeShimProc)addr;
+	}
+
+	// Launch function to disable Maximized Windowed Mode
+	Logging::Log() << __FUNCTION__ << " Disabling MaximizedWindowedMode for Direct3D9! Ret = " << (void*)Direct3D9EnableMaximizedWindowedModeShim(0);
+
+	return true;
+}
+
 IDirect3D9 *WINAPI Direct3DCreate9Wrapper(UINT SDKVersion)
 {
 	if (!m_pDirect3DCreate9)

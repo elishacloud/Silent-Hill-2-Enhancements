@@ -362,15 +362,6 @@
         </Choices>
       </Feature>
 
-      <Feature name="EnableMasterVolume">
-        <Title>Add a master volume level control</Title>
-        <Description>Adds a master volume level control to the in-game Options menu to control all audio in the game.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
     </Section>
 
     <Section name="Correcciones de audio">
@@ -403,42 +394,42 @@
       </Feature>
 
       <Feature name="PreserveSoundsOnLoad">
-        <Title>Preserve game save and load sound effects</Title>
-        <Description>Preserves the "game load" and "game save" sound effects when loading/saving while in-game. Otherwise, these sounds would be cut off prematurely under certain circumstances. Note: g_start.wav and save_sound.wav must be present in "sh2e\sound\extra\" for this feature to work.</Description>
+        <Title>Mantener efectos al guardar y cargar partida</Title>
+        <Description>Mantiene los efectos de sonido al cargar y guardar la partida si se carga o guarda dentro del juego. Sin este cambio, dichos efectos se cortarían de forma prematura en ciertos casos. Nota: los archivos g_start.wav y save_sound.wav deben estar presentes en la carpeta «sh2e\sound\extra\» para que pueda funcionar esta característica.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
 
       <Feature name="MenuSoundsFix">
-        <Title>Restore selection sounds in menus</Title>
-        <Description>Adds selection sounds to menus that did not originally have them. Also restores selection sounds when navigating menu choices with the mouse. Affects the Pause menu, Movies menu, and various Options menus.</Description>
+        <Title>Restaurar efectos de selección en menús</Title>
+        <Description>Añade efectos de sonido de selección a aquellos menús que no los tenían de origen. También restaura los efectos de selección al utilizar el ratón en los menús. Afecta a los menús de pausa, películas y a varios menús de opciones.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
 
     </Section>
 
-    <Section name="Bonus Audio">
+    <Section name="Audios extra">
 
       <Feature name="FlashlightToggleSFX">
-        <Title>Restore missing flashlight sound effects</Title>
-        <Description>Enables a flashlight sound effect when turning the light on or off.  Note: flashlight_on.wav and flashlight_off.wav must be present in "sh2e\sound\extra\" for this feature to work.</Description>
+        <Title>Restaurar efectos desaparecidos de la linterna</Title>
+        <Description>Habilita un efecto de sonido de la linterna al encenderla o apagarla. Nota: los archivos flashlight_on.wav y flashlight_off.wav deben estar presentes en la carpeta «sh2e\sound\extra\» para que pueda funcionar esta característica.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
 
       <Feature name="VHSAudioFix">
-        <Title>Restore uncensored VHS audio</Title>
-        <Description>Restores the uncensored audio for the VHS tape FMV.&#x0a;&#x0a;Note: You must have the correct version of this FMV that contains both the censored and uncensored audio tracks. If you do not, then only the original censored audio will play. You can obtain the correct version of this FMV by downloading the project's FMV Enhancement Pack.</Description>
+        <Title>Restaurar audio de la cinta VHS sin censurar</Title>
+        <Description>Restaura el audio sin censura de la escena de la cinta VHS.&#x0a;&#x0a;Nota: debes tener la versión correcta de este vídeo FMV, la cual incluye tanto la pista de audio censurada como la sin censurar. Si no tienes la versión correcta, solo se reproducirá el audio original censurado. Puedes conseguir la versión correcta de este vídeo descargando el FMV Enhancement Pack (paquete de mejora de FMVs) del proyecto.</Description>
         <Choices type="check">
-          <Value name="Disable" default="true">0</Value>
-          <Value name="Enable">1</Value>
+          <Value name="No" default="true">0</Value>
+          <Value name="Sí">1</Value>
         </Choices>
       </Feature>
 
@@ -553,20 +544,20 @@
       </Feature>
 
       <Feature name="EnhanceMouseCursor">
-        <Title>Enable mouse cursor navigation in menus</Title>
-        <Description>Enables mouse cursor navigation in menus such as the pause menu and memo list.</Description>
+        <Title>Habilitar navegación en menús con el ratón</Title>
+        <Description>Permite navegar con el cursor del ratón/mouse en los menús, como el de pausa y la lista de notas.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
 
       <Feature name="AutoHideMouseCursor">
-        <Title>Hide mouse cursor when idle</Title>
-        <Description>Hides the mouse cursor after a few seconds of inactivity, in menus where the cursor is enabled.</Description>
+        <Title>Ocultar cursor del ratón si está inactivo</Title>
+        <Description>Oculta el cursor del ratón/mouse al cabo de unos segundos de inactividad en aquellos menús que tengan el cursor activado.</Description>
         <Choices type="check">
-          <Value name="Disable" default="true">0</Value>
-          <Value name="Enable">1</Value>
+          <Value name="No" default="true">0</Value>
+          <Value name="Sí">1</Value>
         </Choices>
       </Feature>
     
@@ -748,11 +739,11 @@
       </Feature>
 
       <Feature name="FireEscapeKeyFix">
-        <Title>Fire Escape Key Fix</Title>
-        <Description>Allows the fire escape key to be interacted with without the flashlight.</Description>
+        <Title>Corregir la llave de la salida de incendios</Title>
+        <Description>Permite interactuar con la llave de la salida de incendios sin tener la linterna.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -829,11 +820,11 @@
       </Feature>
 
       <Feature name="MothDrawOrderFix">
-        <Title>Fix moth draw order</Title>
-        <Description>Fixes a visual bug which causes the moths in Wood Side Apartments Room 202 and the final boss room to appear behind translucent objects such as glass.</Description>
+        <Title>Corregir el orden de dibujado de las polillas</Title>
+        <Description>Corrige un fallo visual que provoca que las polillas de la habitación 202 de los apartamentos Wood Side y las de la habitación del jefe final aparezcan por detrás de objetos translúcidos, tales como ventanas.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -865,11 +856,11 @@
       </Feature>
 
       <Feature name="EnableHoldToStomp">
-        <Title>Restore alternate stomp</Title>
-        <Description>Restores the secondary/alternate stomp animation. When nearby an enemy on the ground, press and quickly release the attack button to perform a kick. Press and hold the attack button to perform a stomp.</Description>
+        <Title>Restaurar el pisotón alternativo</Title>
+        <Description>Restaura la animación secundaria/alternativa del pisotón. Cuando haya un enemigo cercano en el suelo, pulsa y suelta rápidamente el botón de atacar para dar una patada. Pulsa y mantén pulsado el botón de ataque para dar un pisotón.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -901,20 +892,20 @@
       </Feature>
 
       <Feature name="FmvSubtitlesSyncFix">
-        <Title>Sync subtitles with FMV framerate</Title>
-        <Description>Adjusts the playback speed of subtitles to match the framerate of the FMV.</Description>
+        <Title>Sincronizar subtítulos con FPS de vídeos FMV</Title>
+        <Description>Ajusta la velocidad de reproducción de los subtítulos para que coincida con la velocidad de fotogramas de los vídeos FMV.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
 
       <Feature name="SwapLightHeavyAttack">
-        <Title>Swap light and heavy melee attack inputs</Title>
-        <Description>Swaps the priority of light and heavy attacks for melee weapons. Press and quickly release the attack button to perform a light attack. Press and hold the attack button to perform a heavy attack.</Description>
+        <Title>Intercambiar ataques cuerpo a cuerpo ligero/pesado</Title>
+        <Description>Intercambia la prioridad de los ataques ligeros y pesados en las armas cuerpo a cuerpo. Pulsa y mantén pulsado el botón de atacar para lanzar un ataque ligero. Pulsa y mantén pulsado el botón de atacar para lanzar un ataque pesado.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -928,11 +919,11 @@
       </Feature>
 
       <Feature name="CenterPuzzleCursor">
-        <Title>Center puzzle mouse cursor</Title>
-        <Description>Center mouse cursor when entering a puzzle.</Description>
+        <Title>Centrar cursor del ratón en enigmas</Title>
+        <Description>Centra el cursor del ratón/mouse al acceder a un enigmas.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -1135,11 +1126,11 @@
       </Feature>
 
       <Feature name="EnableLangPath">
-        <Title>Use "lang" folder</Title>
-        <Description>Silent Hill 2: Enhanced Edition will read and use fonts and language files in the "lang" folder, rather than the "data" or "sh2e" folders, whenever possible. This allows custom language files to replace/overwrite original game files.&#x0a;&#x0a;Note: requires "Use custom 'sh2e' folder" to be enabled.</Description>
+        <Title>Utilizar carpeta «lang»</Title>
+        <Description>Silent Hill 2: Enhanced Edition leerá y utilizará cuando sea posible las tipografías y archivos de idioma de la carpeta «lang» en lugar de utilizar las carpetas «data» o «sh2e». Esto permite utilizar archivos de idioma personalizados (como el parche de traducción en castellano en vez del español neutro incluído de serie con el proyecto) para sustituir los archivos originales del juego.&#x0a;&#x0a;Nota: es necesario activar la opción «Utilizar la carpeta personalizada "sh2e"».</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
 

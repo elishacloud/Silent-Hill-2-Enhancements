@@ -89,6 +89,22 @@ void StartLogging()
 	Logging::Log() << "Starting Silent Hill 2 Enhancements! v" << APP_VERSION;
 }
 
+FARPROC pSleep = nullptr;
+void WINAPI kernel32_Sleep(DWORD dwMilliseconds)
+{
+	if (pSleep)
+	{
+		if (dwMilliseconds == 0)
+		{
+			YieldProcessor();
+		}
+		else
+		{
+			reinterpret_cast<decltype(&kernel32_Sleep)>(pSleep)(dwMilliseconds);
+		}
+	}
+}
+
 void GetGameVersion()
 {
 	// Game version
@@ -659,6 +675,9 @@ void DelayedStart()
 		UpdateMemoryAddress((void*)0x0044AE30, "\xC3", 1);
 		break;
 	}
+
+	// Hook Sleep() to mitigate issues with busy-wait loops
+	InterlockedExchangePointer((PVOID*)&pSleep, Hook::HotPatch(Hook::GetProcAddress(LoadLibraryA("kernel32.dll"), "Sleep"), "Sleep", kernel32_Sleep));
 
 	// Flush cache
 	FlushInstructionCache(GetCurrentProcess(), nullptr, 0);

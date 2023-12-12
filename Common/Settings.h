@@ -17,6 +17,7 @@
 	visit(CreateLocalFix, true) \
 	visit(d3d8to9, true) \
 	visit(DelayedFadeIn, true) \
+	visit(Direct3DCreate9On12, false) \
 	visit(DisableCutsceneBorders, true) \
 	visit(DisableEnlargedText, true) \
 	visit(DisableGameUX, true) \

@@ -105,13 +105,17 @@ IDirect3D8 *WINAPI Direct3DCreate8Wrapper(UINT SDKVersion)
 
 	RunDelayedOneTimeItems();
 
-	if (pD3D8)
+	if (!pD3D8)
 	{
-		return new m_IDirect3D8(pD3D8);
-	}
-	else
-	{
-		Logging::Log() << "'Direct3DCreate8' Failed!";
+		Logging::Log() << __FUNCTION__ << " Error: 'Direct3DCreate8' Failed!";
 		return nullptr;
 	}
+
+	// Check if WineD3D is loaded
+	if (GetModuleHandle(L"libwine.dll") || GetModuleHandle(L"wined3d.dll"))
+	{
+		Logging::Log() << __FUNCTION__ << " Warning: WineD3D detected!  It is not recommended to use WineD3D with Silent Hill 2 Enhancements.";
+	}
+
+	return new m_IDirect3D8(pD3D8);
 }

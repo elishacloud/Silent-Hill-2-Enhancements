@@ -166,6 +166,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="Direct3DCreate9On12">
+        <Title>Direct3DCreate9On12</Title>
+        <Description>Attempts to use D3D9On12.</Description>
+        <Choices type="check">
+          <Value name="Disable" default="true">0</Value>
+          <Value name="Enable">1</Value>
+        </Choices>
+      </Feature>
+
     </Section>
 
     <Section name="Shaders">

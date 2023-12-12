@@ -33,8 +33,6 @@
 #define TOSTRING(x) STRINGIFY(x)
 #define APP_VERSION TOSTRING(FILEVERSION)
 
-Direct3DCreate9Proc p_Direct3DCreate9 = nullptr;
-
 extern FARPROC f_D3DXAssembleShader;
 extern FARPROC f_D3DXDisassembleShader;
 extern FARPROC f_D3DXLoadSurfaceFromSurface;
@@ -43,33 +41,42 @@ PFN_D3DXAssembleShader D3DXAssembleShader = (PFN_D3DXAssembleShader)f_D3DXAssemb
 PFN_D3DXDisassembleShader D3DXDisassembleShader = (PFN_D3DXDisassembleShader)f_D3DXDisassembleShader;
 PFN_D3DXLoadSurfaceFromSurface D3DXLoadSurfaceFromSurface = (PFN_D3DXLoadSurfaceFromSurface)f_D3DXLoadSurfaceFromSurface;
 
-// Redirects or hooks 'Direct3DCreate8' to go to d3d8to9
+// Redirects 'Direct3DCreate8' to go to d3d8to9
 void EnableD3d8to9()
 {
+	// Load d3d9.dll
+	Logging::Log() << "Loading d3d9.dll";
+	HMODULE d3d9dll = LoadLibrary(L"d3d9.dll");
+	if (!d3d9dll)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to load `d3d9.dll`!";
+		return;
+	}
+
+	// Get function addresses
+	if (Direct3DCreate9On12)
+	{
+		m_pDirect3DCreate9On12 = (Direct3DCreate9On12Proc)GetProcAddress(d3d9dll, "Direct3DCreate9On12");
+		if (!m_pDirect3DCreate9On12)
+		{
+			Logging::Log() << __FUNCTION__ << " Warning: Failed to get `Direct3DCreate9On12` proc!";
+		}
+	}
+	if (!m_pDirect3DCreate9On12)
+	{
+		m_pDirect3DCreate9 = (Direct3DCreate9Proc)GetProcAddress(d3d9dll, "Direct3DCreate9");
+	}
+	if (!m_pDirect3DCreate9 && !m_pDirect3DCreate9On12)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to get d3d9.dll procs!";
+		return;
+	}
+
+	// Enable d3d8to9
 	d3d8::ValidatePixelShader_var = (FARPROC)*d8_ValidatePixelShader;
 	d3d8::ValidateVertexShader_var = (FARPROC)*d8_ValidateVertexShader;
 	d3d8::Direct3DCreate8_var = (FARPROC)*Direct3DCreate8to9;
 	m_pDirect3DCreate8 = (Direct3DCreate8Proc)*Direct3DCreate8to9;
-
-	// Load d3d9.dll
-	Logging::Log() << "Loading d3d9.dll";
-	HMODULE d3d9dll = LoadLibrary(L"d3d9.dll");
-
-	// Get function addresses
-	if (d3d9dll)
-	{
-		m_pDirect3DCreate9 = (Direct3DCreate9Proc)GetProcAddress(d3d9dll, "Direct3DCreate9");
-	}
-
-	// Use Direct3D9 wrapper if shaders are enabled
-	if (!EnableCustomShaders)
-	{
-		p_Direct3DCreate9 = m_pDirect3DCreate9;
-	}
-	else
-	{
-		p_Direct3DCreate9 = Direct3DCreate9Wrapper;
-	}
 }
 
 HRESULT WINAPI d8_ValidatePixelShader(DWORD* pixelshader, DWORD* reserved1, BOOL flag, DWORD* toto)
@@ -132,45 +139,15 @@ Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 {
 	UNREFERENCED_PARAMETER(SDKVersion);
 
-	if (!p_Direct3DCreate9)
-	{
-		Logging::Log() << __FUNCTION__ << " Error finding 'Direct3DCreate9'";
-		return nullptr;
-	}
-
-	if (ForceHybridEnumeration)
-	{
-		Direct3D9ForceHybridEnumeration(1);
-	}
-
-	if (SetSwapEffectUpgradeShim)
-	{
-		Direct3D9SetSwapEffectUpgradeShim(0);
-	}
-
-	if (DisableMaximizedWindowedMode)
-	{
-		Direct3D9DisableMaximizedWindowedMode();
-	}
-
 	LOG_ONCE("Starting D3d8to9 v" << APP_VERSION);
 
 	Logging::Log() << "Redirecting 'Direct3DCreate8' to --> 'Direct3DCreate9' (" << SDKVersion << ")";
 
-	IDirect3D9 *const d3d = p_Direct3DCreate9(D3D_SDK_VERSION);
+	IDirect3D9 *const d3d = Direct3DCreate9Wrapper(D3D_SDK_VERSION);
 
-	RunDelayedOneTimeItems();
-
-	if (d3d == nullptr)
+	if (!d3d)
 	{
-		Logging::Log() << __FUNCTION__ << " Error: Failed to create 'Direct3DCreate9'!";
 		return nullptr;
-	}
-
-	// Check if WineD3D is loaded
-	if (GetModuleHandle(L"libwine.dll") || GetModuleHandle(L"wined3d.dll"))
-	{
-		Logging::Log() << __FUNCTION__ << " Warning: WineD3D detected!  It is not recommended to use WineD3D with Silent Hill 2 Enhancements.";
 	}
 
 	return new Direct3D8(d3d);

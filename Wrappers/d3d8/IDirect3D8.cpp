@@ -570,7 +570,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_WININICHANGE:
 		if (lParam && WndModeBorder && ScreenMode != EXCLUSIVE_FULLSCREEN && !_stricmp((char*)lParam, "ImmersiveColorSet"))
 		{
-			//SetWindowTheme(DeviceWindow);
+			SetWindowTheme(DeviceWindow);
 		}
 	case WM_SYSKEYDOWN:
 		if (wParam == VK_RETURN && DynamicResolution && ScreenMode != EXCLUSIVE_FULLSCREEN)

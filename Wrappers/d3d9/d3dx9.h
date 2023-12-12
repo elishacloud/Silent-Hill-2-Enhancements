@@ -4,12 +4,32 @@
 #define NOMINMAX
 #endif
 
+#ifndef DIRECT3D_VERSION
 #include <d3d9.h>
+#endif
 
+#if(DIRECT3D_VERSION < 0x0900)
+typedef struct IDirect3DSurface9* LPDIRECT3DSURFACE9, *PDIRECT3DSURFACE9;
+#endif
+
+#ifndef __D3DX8_H__
 #define D3DX_FILTER_NONE 1
 
 #define D3DXASM_DEBUG 0x0001
 #define D3DXASM_SKIPVALIDATION  0x0010
+
+DECLARE_INTERFACE_(ID3DXBuffer, IUnknown)
+{
+	// IUnknown
+	STDMETHOD(QueryInterface)(THIS_ REFIID iid, LPVOID *ppv) PURE;
+	STDMETHOD_(ULONG, AddRef)(THIS) PURE;
+	STDMETHOD_(ULONG, Release)(THIS) PURE;
+
+	// ID3DXBuffer
+	STDMETHOD_(LPVOID, GetBufferPointer)(THIS) PURE;
+	STDMETHOD_(DWORD, GetBufferSize)(THIS) PURE;
+};
+#endif
 
 #define D3DCOMPILE_OPTIMIZATION_LEVEL0            (1 << 14)
 #define D3DCOMPILE_OPTIMIZATION_LEVEL1            0
@@ -38,18 +58,6 @@ typedef struct D3DXMACRO D3D_SHADER_MACRO;
 typedef interface ID3DXBuffer *LPD3DXBUFFER;
 typedef interface ID3DInclude *LPD3DINCLUDE;
 typedef interface ID3DXInclude *LPD3DXINCLUDE;
-
-DECLARE_INTERFACE_(ID3DXBuffer, IUnknown)
-{
-	// IUnknown
-	STDMETHOD(QueryInterface)(THIS_ REFIID iid, LPVOID *ppv) PURE;
-	STDMETHOD_(ULONG, AddRef)(THIS) PURE;
-	STDMETHOD_(ULONG, Release)(THIS) PURE;
-
-	// ID3DXBuffer
-	STDMETHOD_(LPVOID, GetBufferPointer)(THIS) PURE;
-	STDMETHOD_(DWORD, GetBufferSize)(THIS) PURE;
-};
 
 typedef ID3DXBuffer ID3DBlob;
 

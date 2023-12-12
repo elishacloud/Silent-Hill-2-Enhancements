@@ -168,6 +168,7 @@ private:
 	};
 
 	// Helper functions
+	HRESULT CallSetPixelShaderConstant(THIS_ DWORD Register, CONST void* pConstantData, DWORD ConstantCount);
 	void EnableAntiAliasing();
 	void DisableAntiAliasing();
 	HRESULT DrawSoftShadows();
@@ -311,5 +312,4 @@ public:
 
 	// Extra functions
 	void m_IDirect3DDevice8::AddSurfaceToVector(m_IDirect3DSurface8 *pSourceTarget, IDirect3DSurface8 *pRenderTarget);
-
 };

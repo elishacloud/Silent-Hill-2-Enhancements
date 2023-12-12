@@ -150,5 +150,7 @@ Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion)
 		return nullptr;
 	}
 
+	IsUsingD3d8to9 = true;
+
 	return new Direct3D8(d3d);
 }

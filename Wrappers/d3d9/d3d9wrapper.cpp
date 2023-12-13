@@ -124,38 +124,37 @@ void WINAPI Direct3D9SetSwapEffectUpgradeShim(int Unknown)
 	reinterpret_cast<decltype(&Direct3D9SetSwapEffectUpgradeShim)>(proc)(Unknown);
 }
 
-int WINAPI Direct3D9DisableMaximizedWindowedMode(BOOL nEnable)
+void WINAPI Direct3D9DisableMaximizedWindowedMode()
 {
 	static FARPROC proc = nullptr;
 
 	if (!proc)
 	{
 		HMODULE dll = GetSystemD3d9();
-
 		if (!dll)
 		{
 			Logging::Log() << __FUNCTION__ << " System32 d3d9.dll is not loaded!";
-			return 0;
+			return;
 		}
 
 		FARPROC addr = GetProcAddress(dll, "Direct3D9EnableMaximizedWindowedModeShim");
 		if (!addr)
 		{
 			Logging::Log() << __FUNCTION__ << " Error: Failed to get address!";
-			return 0;
+			return;
 		}
 
 		if (memcmp(addr, "\x8B\xFF\x55\x8B\xEC\x6A\x01\xFF\x75\x08\xE8", 11) != S_OK)
 		{
 			Logging::Log() << __FUNCTION__ << " Error: Failed to vaidate memory address!";
-			return 0;
+			return;
 		}
 
 		DWORD Protect;
 		if (VirtualProtect((LPVOID)((BYTE*)addr + 6), 1, PAGE_EXECUTE_READWRITE, &Protect) == FALSE)
 		{
 			Logging::Log() << __FUNCTION__ << " Error: Failed to VirtualProtect memory!";
-			return 0;
+			return;
 		}
 		*(BYTE*)((BYTE*)addr + 6) = 0;
 		VirtualProtect((LPVOID)((BYTE*)addr + 6), 1, Protect, &Protect);
@@ -163,11 +162,11 @@ int WINAPI Direct3D9DisableMaximizedWindowedMode(BOOL nEnable)
 		proc = addr;
 	}
 
-	Logging::Log() << __FUNCTION__ << " Calling 'Direct3D9EnableMaximizedWindowedModeShim' to disable MaximizedWindowedMode ... " << nEnable;
+	Logging::Log() << __FUNCTION__ << " Calling 'Direct3D9EnableMaximizedWindowedModeShim' to disable MaximizedWindowedMode ...";
 
-	reinterpret_cast<decltype(&Direct3D9DisableMaximizedWindowedMode)>(proc)(nEnable);
+	reinterpret_cast<decltype(&Direct3D9DisableMaximizedWindowedMode)>(proc)();
 
-	return 0;
+	return;
 }
 
 IDirect3D9* WINAPI Direct3DCreate9Wrapper(UINT SDKVersion)
@@ -186,7 +185,7 @@ IDirect3D9* WINAPI Direct3DCreate9Wrapper(UINT SDKVersion)
 
 	if (DisableMaximizedWindowedMode)
 	{
-		Direct3D9DisableMaximizedWindowedMode(0);
+		Direct3D9DisableMaximizedWindowedMode();
 	}
 
 	// Direct3DCreate9On12

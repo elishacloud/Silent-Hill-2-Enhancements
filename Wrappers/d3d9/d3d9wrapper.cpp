@@ -12,6 +12,8 @@
 *   2. Altered source versions must  be plainly  marked as such, and  must not be  misrepresented  as
 *      being the original software.
 *   3. This notice may not be removed or altered from any source distribution.
+*
+* Code for 'Direct3D9SetSwapEffectUpgradeShim' taken from here:  https://github.com/crosire/reshade/commit/3fe0b050706fb9f3510ed48d619cad71f7cb28f2
 */
 
 #include "Resource.h"
@@ -71,12 +73,21 @@ void WINAPI Direct3D9ForceHybridEnumeration(UINT Mode)
 	static FARPROC proc = nullptr;
 	if (!proc)
 	{
-		proc = GetD3d9UnnamedOrdinal(Ordinal);
+		FARPROC addr = GetD3d9UnnamedOrdinal(Ordinal);
 
-		if (!proc)
+		if (!addr)
 		{
+			Logging::Log() << __FUNCTION__ << " Error: Failed to get address!";
 			return;
 		}
+
+		if (memcmp(addr, "\x8B\xFF\x55\x8B\xEC\x8B\x45\x08\xA3", 9) != S_OK)
+		{
+			Logging::Log() << __FUNCTION__ << " Error: Failed to vaidate memory address!";
+			return;
+		}
+
+		proc = addr;
 	}
 
 	Logging::Log() << __FUNCTION__ << " Calling 'Direct3D9ForceHybridEnumeration' ... " << Mode;
@@ -91,12 +102,21 @@ void WINAPI Direct3D9SetSwapEffectUpgradeShim(int Unknown)
 	static FARPROC proc = nullptr;
 	if (!proc)
 	{
-		proc = GetD3d9UnnamedOrdinal(Ordinal);
+		FARPROC addr = GetD3d9UnnamedOrdinal(Ordinal);
 
-		if (!proc)
+		if (!addr)
 		{
+			Logging::Log() << __FUNCTION__ << " Error: Failed to get address!";
 			return;
 		}
+
+		if (memcmp(addr, "\x8B\xFF\x55\x8B\xEC\x8B\x0D", 7) != S_OK)
+		{
+			Logging::Log() << __FUNCTION__ << " Error: Failed to vaidate memory address!";
+			return;
+		}
+
+		proc = addr;
 	}
 
 	Logging::Log() << __FUNCTION__ << " Calling 'Direct3D9SetSwapEffectUpgradeShim' ... " << Unknown;
@@ -110,48 +130,42 @@ int WINAPI Direct3D9DisableMaximizedWindowedMode(BOOL nEnable)
 
 	if (!proc)
 	{
-		// Load d3d9.dll from System32
 		HMODULE dll = GetSystemD3d9();
 
 		if (!dll)
 		{
-			Logging::Log() << __FUNCTION__ << " d3d9.dll is not loaded!";
+			Logging::Log() << __FUNCTION__ << " System32 d3d9.dll is not loaded!";
 			return 0;
 		}
 
-		// Get function address
-		BYTE* addr = (BYTE*)GetProcAddress(dll, "Direct3D9EnableMaximizedWindowedModeShim");
+		FARPROC addr = GetProcAddress(dll, "Direct3D9EnableMaximizedWindowedModeShim");
 		if (!addr)
 		{
-			Logging::Log() << __FUNCTION__ << " Error: Failed to get `Direct3D9EnableMaximizedWindowedModeShim` address!";
+			Logging::Log() << __FUNCTION__ << " Error: Failed to get address!";
 			return 0;
 		}
 
-		// Check memory address
-		if (*(BYTE*)(addr + 6) != 1)
+		if (memcmp(addr, "\x8B\xFF\x55\x8B\xEC\x6A\x01\xFF\x75\x08\xE8", 11) != S_OK)
 		{
 			Logging::Log() << __FUNCTION__ << " Error: Failed to vaidate memory address!";
 			return 0;
 		}
 
-		// Update function to disable Maximized Windowed Mode
 		DWORD Protect;
-		BOOL ret = VirtualProtect((LPVOID)(addr + 6), 1, PAGE_EXECUTE_READWRITE, &Protect);
-		if (ret == 0)
+		if (VirtualProtect((LPVOID)((BYTE*)addr + 6), 1, PAGE_EXECUTE_READWRITE, &Protect) == FALSE)
 		{
 			Logging::Log() << __FUNCTION__ << " Error: Failed to VirtualProtect memory!";
 			return 0;
 		}
-		*(BYTE*)(addr + 6) = 0;
-		VirtualProtect((LPVOID)(addr + 6), 1, Protect, &Protect);
+		*(BYTE*)((BYTE*)addr + 6) = 0;
+		VirtualProtect((LPVOID)((BYTE*)addr + 6), 1, Protect, &Protect);
 
-		// Set function address
-		proc = (FARPROC)addr;
+		proc = addr;
 	}
 
-	// Launch function to disable Maximized Windowed Mode
-	Logging::Log() << __FUNCTION__ << " Disabling MaximizedWindowedMode for Direct3D9! Ret = " <<
-		reinterpret_cast<decltype(&Direct3D9DisableMaximizedWindowedMode)>(proc)(nEnable);
+	Logging::Log() << __FUNCTION__ << " Calling 'Direct3D9EnableMaximizedWindowedModeShim' to disable MaximizedWindowedMode ... " << nEnable;
+
+	reinterpret_cast<decltype(&Direct3D9DisableMaximizedWindowedMode)>(proc)(nEnable);
 
 	return 0;
 }

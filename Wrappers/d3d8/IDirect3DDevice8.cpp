@@ -15,8 +15,6 @@
 */
 
 #include "d3d8wrapper.h"
-#include "Wrappers\d3d9\d3dx9.h"
-#include <regex>
 #include <shlwapi.h>
 #include <chrono>
 #include <ctime>
@@ -948,69 +946,6 @@ HRESULT m_IDirect3DDevice8::SetPaletteEntries(UINT PaletteNumber, CONST PALETTEE
 HRESULT m_IDirect3DDevice8::CreatePixelShader(THIS_ CONST DWORD* pFunction, DWORD* pHandle)
 {
 	Logging::LogDebug() << __FUNCTION__;
-
-	if (IsUsingD3d8to9)
-	{
-		ID3DXBuffer* Disassembly = nullptr;
-		HRESULT hr = D3DXDisassembleShader(pFunction, FALSE, nullptr, (LPD3DXBUFFER*)&Disassembly);
-
-		if (SUCCEEDED(hr))
-		{
-			std::string SourceCode(static_cast<const char*>(Disassembly->GetBufferPointer()), Disassembly->GetBufferSize() - 1);
-			Disassembly->Release();
-
-			bool Found = false;
-			size_t pos = 0;
-			while ((pos = SourceCode.find("c1_bx2", pos)) != std::string::npos)
-			{
-				Found = true;
-				SourceCode.replace(pos, 6, "c7"); // 6 is the length of "c1_bx2"
-				pos += 2; // Move to the next character after the replacement
-			}
-
-			if (Found)
-			{
-				// Remove lines when "    // ps.1.1" string is found and the next line does not start with a space
-				SourceCode = std::regex_replace(SourceCode,
-					std::regex("    \\/\\/ ps\\.1\\.[1-4]\\n((?! ).+\\n)+"),
-					"");
-
-				// Remove debug lines
-				SourceCode = std::regex_replace(SourceCode,
-					std::regex("([^\\n]\\n)[\\s]*#line [0123456789]+.*\\n"),
-					"$1");
-
-				// Fix '-' modifier for constant values when using 'add' arithmetic by changing it to use 'sub'
-				SourceCode = std::regex_replace(SourceCode,
-					std::regex("(add)([_satxd248]*) (r[0-9][\\.wxyz]*), ((1-|)[crtv][0-9][\\.wxyz_abdis2]*), (-)(c[0-9][\\.wxyz]*)(_bx2|_bias|_x2|_d[zbwa]|)(?![_\\.wxyz])"),
-					"sub$2 $3, $4, $7$8 /* changed 'add' to 'sub' removed modifier $6 */");
-
-				ID3DXBuffer* Assembly = nullptr;
-				ID3DXBuffer* ErrorBuffer = nullptr;
-				hr = D3DXAssembleShader(SourceCode.data(), static_cast<UINT>(SourceCode.size()), nullptr, nullptr, D3DXASM_FLAGS, (LPD3DXBUFFER*)&Assembly, (LPD3DXBUFFER*)&ErrorBuffer);
-
-				if (SUCCEEDED(hr))
-				{
-					Logging::LogDebug() << __FUNCTION__ << " Replaceing Shader!!!!";
-
-					hr = ProxyInterface->CreatePixelShader((DWORD*)Assembly->GetBufferPointer(), pHandle);
-
-					if (ErrorBuffer)
-					{
-						ErrorBuffer->Release();
-					}
-					Assembly->Release();
-
-					return hr;
-				}
-				else if (ErrorBuffer)
-				{
-					Logging::LogDebug() << "> Failed to reassemble shader:\r\r" << static_cast<const char*>(ErrorBuffer->GetBufferPointer());
-					ErrorBuffer->Release();
-				}
-			}
-		}
-	}
 
 	return ProxyInterface->CreatePixelShader(pFunction, pHandle);
 }
@@ -2450,34 +2385,6 @@ HRESULT m_IDirect3DDevice8::GetVertexShaderFunction(THIS_ DWORD Handle, void* pD
 	return ProxyInterface->GetVertexShaderFunction(Handle, pData, pSizeOfData);
 }
 
-HRESULT m_IDirect3DDevice8::CallSetPixelShaderConstant(THIS_ DWORD Register, CONST void* pConstantData, DWORD ConstantCount)
-{
-	// Your existing call to set c1
-	HRESULT result = ProxyInterface->SetPixelShaderConstant(Register, pConstantData, ConstantCount);
-
-	if (SUCCEEDED(result))
-	{
-		// If setting c1 was successful, compute c7 and set it as well
-		if (IsUsingD3d8to9 && Register == 1)
-		{
-			// Assuming pConstantData is a pointer to float data
-			const float* pData = static_cast<const float*>(pConstantData);
-
-			// Compute c7_bx2
-			float c7_bx2[4] = {};
-			c7_bx2[0] = pData[0] * 2.0f;
-			c7_bx2[1] = pData[1] * 2.0f;
-			c7_bx2[2] = pData[2] * 2.0f;
-			c7_bx2[3] = pData[3] * 2.0f;
-
-			// Set c7
-			result = ProxyInterface->SetPixelShaderConstant(7, c7_bx2, ConstantCount);
-		}
-	}
-
-	return result;
-}
-
 HRESULT m_IDirect3DDevice8::SetPixelShaderConstant(THIS_ DWORD Register, CONST void* pConstantData, DWORD ConstantCount)
 {
 	Logging::LogDebug() << __FUNCTION__;
@@ -2584,13 +2491,13 @@ HRESULT m_IDirect3DDevice8::SetPixelShaderConstant(THIS_ DWORD Register, CONST v
 		}
 
 		SpecularFlag--;
-		return CallSetPixelShaderConstant(Register, &constants, ConstantCount);
+		return ProxyInterface->SetPixelShaderConstant(Register, &constants, ConstantCount);
 	}
 
 	if (SpecularFix && SpecularFlag > 0)
 		SpecularFlag--;
 
-	return CallSetPixelShaderConstant(Register, pConstantData, ConstantCount);
+	return ProxyInterface->SetPixelShaderConstant(Register, pConstantData, ConstantCount);
 }
 
 HRESULT m_IDirect3DDevice8::GetPixelShaderConstant(THIS_ DWORD Register, void* pConstantData, DWORD ConstantCount)

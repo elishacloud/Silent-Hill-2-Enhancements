@@ -168,7 +168,6 @@ private:
 	};
 
 	// Helper functions
-	HRESULT CallSetPixelShaderConstant(THIS_ DWORD Register, CONST void* pConstantData, DWORD ConstantCount);
 	void EnableAntiAliasing();
 	void DisableAntiAliasing();
 	HRESULT DrawSoftShadows();

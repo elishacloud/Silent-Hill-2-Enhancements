@@ -157,15 +157,6 @@
         </Choices>
       </Feature>
 
-      <Feature name="SetSwapEffectUpgradeShim">
-        <Title>SetSwapEffectUpgradeShim</Title>
-        <Description>Reverts Direct3D9 back to hardware legacy flip presentation mode, similar to what Direct3D8 uses.</Description>
-        <Choices type="check">
-          <Value name="Disable" default="true">0</Value>
-          <Value name="Enable">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="Direct3DCreate9On12">
         <Title>Direct3DCreate9On12</Title>
         <Description>Attempts to use D3D9On12.</Description>

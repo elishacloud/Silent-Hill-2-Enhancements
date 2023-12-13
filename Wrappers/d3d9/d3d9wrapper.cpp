@@ -191,7 +191,7 @@ IDirect3D9* WINAPI Direct3DCreate9Wrapper(UINT SDKVersion)
 	// Direct3DCreate9On12
 	if (m_pDirect3DCreate9On12)
 	{
-		Logging::Log() << __FUNCTION__ << " Attempting to load `Direct3DCreate9On12`...";
+		Logging::Log() << __FUNCTION__ << " Attempting to load 'Direct3DCreate9On12'...";
 
 		// Setup arguments
 		D3D9ON12_ARGS args;

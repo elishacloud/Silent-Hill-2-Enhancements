@@ -237,6 +237,7 @@
 	visit(QuickSaveCancelFix) \
 	visit(ResX) \
 	visit(ResY) \
+	visit(SetSwapEffectUpgradeShim) \
 	visit(SmallFontHeight) \
 	visit(SmallFontWidth) \
 	visit(SpaceSize) \

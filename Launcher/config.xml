@@ -139,30 +139,21 @@
         </Choices>
       </Feature>
 
-      <Feature name="ForceHybridEnumeration">
-        <Title>ForceHybridEnumeration</Title>
-        <Description>Attempts to use the secondary display adapter with Direct3D9 on a laptop or other computer with more than one GPU.</Description>
-        <Choices type="check">
-          <Value name="Disable" default="true">0</Value>
-          <Value name="Enable">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="DisableMaximizedWindowedMode">
-        <Title>DisableMaximizedWindowedMode</Title>
-        <Description>Disables the Direct3D9 Maximized Windowed Mode feature on newer versions of Windows.</Description>
+        <Title>Disable Maximized Windowed Mode</Title>
+        <Description>Disables the Direct3D9 Maximized Windowed Mode feature on newer versions of Windows. Allows antialiasing to work in fullscreen mode.&#x0a;&#x0a;Requires running the game in DirectX 9 to work.</Description>
         <Choices type="check">
-          <Value name="Disable" default="true">0</Value>
-          <Value name="Enable">1</Value>
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 
-      <Feature name="Direct3DCreate9On12">
-        <Title>Direct3DCreate9On12</Title>
-        <Description>Attempts to use D3D9On12.</Description>
+      <Feature name="ForceHybridEnumeration">
+        <Title>Use dedicated graphics card</Title>
+        <Description>Attempts to use the secondary dedicated display adapter on a laptop with more than one GPU (hybrid video cards).&#x0a;&#x0a;Requires running the game in DirectX 9 to work.</Description>
         <Choices type="check">
-          <Value name="Disable" default="true">0</Value>
-          <Value name="Enable">1</Value>
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 

@@ -23,7 +23,7 @@
 	visit(DisableGameUX, true) \
 	visit(DisableHighDPIScaling, true) \
 	visit(DisableLogging, false) \
-	visit(DisableMaximizedWindowedMode, false) \
+	visit(DisableMaximizedWindowedMode, true) \
 	visit(DisableRedCross, false) \
 	visit(DisableRedCrossInCutScenes, true) \
 	visit(DisableSafeMode, true) \
@@ -46,7 +46,7 @@
 	visit(EnableToggleSprint, true) \
 	visit(EnhanceMouseCursor, true) \
 	visit(FastTransitions, true) \
-	visit(ForceHybridEnumeration, false) \
+	visit(ForceHybridEnumeration, true) \
 	visit(FireEscapeKeyFix, true) \
 	visit(Fix2D, true) \
 	visit(FixAdvancedOptions, true) \
@@ -205,6 +205,7 @@
 	visit(CustomFontRow) \
 	visit(CustomModFolder) \
 	visit(DelayedFadeIn) \
+	visit(Direct3DCreate9On12) \
 	visit(DisableLogging) \
 	visit(EnableDebugOverlay) \
 	visit(EnableInfoOverlay) \

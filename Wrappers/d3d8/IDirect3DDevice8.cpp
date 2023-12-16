@@ -28,6 +28,7 @@
 
 bool DeviceLost = false;
 bool DisableShaderOnPresent = false;
+bool IsUsingD3d8to9 = false;
 bool IsInFullscreenImage = false;
 bool IsInBloomEffect = false;
 bool IsInFakeFadeout = false;
@@ -738,7 +739,7 @@ void m_IDirect3DDevice8::SetGammaRamp(THIS_ DWORD Flags, CONST D3DGAMMARAMP* pRa
 	// Don't enable shaders until the game calls SetGamma to make sure all the shader settings are initialized
 	ShadersReady = EnableCustomShaders;
 
-	if (ScreenMode != WINDOWED || (RestoreBrightnessSelector && d3d8to9))
+	if (ScreenMode != WINDOWED || (RestoreBrightnessSelector && IsUsingD3d8to9))
 	{
 		ProxyInterface->SetGammaRamp(Flags, pRamp);
 	}
@@ -2389,7 +2390,7 @@ HRESULT m_IDirect3DDevice8::SetPixelShaderConstant(THIS_ DWORD Register, CONST v
 	Logging::LogDebug() << __FUNCTION__;
 
 	// We want to skip the first call to SetPixelShaderConstant when fixing Specular highlights and only adjust the second
-	if(SpecularFix && SpecularFlag == 1)
+	if (SpecularFix && SpecularFlag == 1)
 	{
 		auto pConstants = reinterpret_cast<const float*>(pConstantData);
 		float constants[3] = { pConstants[0], pConstants[1], pConstants[2] };

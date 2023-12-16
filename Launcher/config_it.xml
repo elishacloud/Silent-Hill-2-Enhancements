@@ -139,6 +139,24 @@
         </Choices>
       </Feature>
 
+      <Feature name="DisableMaximizedWindowedMode">
+        <Title>Disable Maximized Windowed Mode</Title>
+        <Description>Disables the Direct3D9 Maximized Windowed Mode feature on newer versions of Windows. Allows antialiasing to work in fullscreen mode.&#x0a;&#x0a;Requires running the game in DirectX 9 to work.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="ForceHybridEnumeration">
+        <Title>Use dedicated graphics card</Title>
+        <Description>Attempts to use the secondary dedicated display adapter on a laptop with more than one GPU (hybrid video cards).&#x0a;&#x0a;Requires running the game in DirectX 9 to work.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
     </Section>
 
     <Section name="Shader">

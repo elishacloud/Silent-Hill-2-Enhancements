@@ -311,5 +311,4 @@ public:
 
 	// Extra functions
 	void m_IDirect3DDevice8::AddSurfaceToVector(m_IDirect3DSurface8 *pSourceTarget, IDirect3DSurface8 *pRenderTarget);
-
 };

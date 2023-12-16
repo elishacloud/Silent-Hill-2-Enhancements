@@ -416,6 +416,9 @@
     <ClCompile Include="Patches\FireEscapeKey.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Include\winmm.cpp">
+      <Filter>Include</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">
@@ -633,6 +636,9 @@
     </ClInclude>
     <ClInclude Include="Patches\MasterVolume.h">
       <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\winmm.h">
+      <Filter>Include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

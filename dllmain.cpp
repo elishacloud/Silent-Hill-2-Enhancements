@@ -18,6 +18,7 @@
 #include <Windows.h>
 #include <shlwapi.h>
 #include "Resource.h"
+#include "winmm.h"
 #include "Patches\Patches.h"
 #include "WidescreenFixesPack\WidescreenFixesPack.h"
 #include "External\Hooking\Hook.h"
@@ -661,6 +662,9 @@ void DelayedStart()
 
 	// Flush cache
 	FlushInstructionCache(GetCurrentProcess(), nullptr, 0);
+
+	// Set timer
+	timeBeginPeriod(1);
 
 	// Loaded
 	Logging::Log() << "Silent Hill 2 Enhancements module loaded!";

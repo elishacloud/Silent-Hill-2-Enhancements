@@ -193,6 +193,7 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     <ClCompile Include="Include\criware\criware_main.cpp" />
     <ClCompile Include="Include\criware\criware_sound.cpp" />
     <ClCompile Include="Include\criware\criware_xaudio2.cpp" />
+    <ClCompile Include="Include\winmm.cpp" />
     <ClCompile Include="Patches\ChangeClosetSpawn.cpp" />
     <ClCompile Include="Patches\CommandWindowMouseFix.cpp" />
     <ClCompile Include="Patches\DoubleFootstepFix.cpp" />
@@ -339,6 +340,7 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     <ClInclude Include="Include\GTA\WSF.h" />
     <ClInclude Include="Include\stdafx.h" />
     <ClInclude Include="Include\VersionHelpers.h" />
+    <ClInclude Include="Include\winmm.h" />
     <ClInclude Include="Logging\Logging.h" />
     <ClInclude Include="Patches\FullscreenImages.h" />
     <ClInclude Include="Patches\InputTweaks.h" />

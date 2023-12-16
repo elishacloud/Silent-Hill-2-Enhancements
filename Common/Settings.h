@@ -17,11 +17,13 @@
 	visit(CreateLocalFix, true) \
 	visit(d3d8to9, true) \
 	visit(DelayedFadeIn, true) \
+	visit(Direct3DCreate9On12, false) \
 	visit(DisableCutsceneBorders, true) \
 	visit(DisableEnlargedText, true) \
 	visit(DisableGameUX, true) \
 	visit(DisableHighDPIScaling, true) \
 	visit(DisableLogging, false) \
+	visit(DisableMaximizedWindowedMode, true) \
 	visit(DisableRedCross, false) \
 	visit(DisableRedCrossInCutScenes, true) \
 	visit(DisableSafeMode, true) \
@@ -44,6 +46,7 @@
 	visit(EnableToggleSprint, true) \
 	visit(EnhanceMouseCursor, true) \
 	visit(FastTransitions, true) \
+	visit(ForceHybridEnumeration, true) \
 	visit(FireEscapeKeyFix, true) \
 	visit(Fix2D, true) \
 	visit(FixAdvancedOptions, true) \
@@ -114,6 +117,7 @@
 	visit(RowboatAnimationFix, true) \
 	visit(SetBlackPillarBoxes, true) \
 	visit(SetSixtyFPS, true) \
+	visit(SetSwapEffectUpgradeShim, false) \
 	visit(Southpaw, false) \
 	visit(SpecificSoundLoopFix, true) \
 	visit(SpecularFix, true) \
@@ -201,6 +205,7 @@
 	visit(CustomFontRow) \
 	visit(CustomModFolder) \
 	visit(DelayedFadeIn) \
+	visit(Direct3DCreate9On12) \
 	visit(DisableLogging) \
 	visit(EnableDebugOverlay) \
 	visit(EnableInfoOverlay) \
@@ -233,6 +238,7 @@
 	visit(QuickSaveCancelFix) \
 	visit(ResX) \
 	visit(ResY) \
+	visit(SetSwapEffectUpgradeShim) \
 	visit(SmallFontHeight) \
 	visit(SmallFontWidth) \
 	visit(SpaceSize) \

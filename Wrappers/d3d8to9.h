@@ -9,4 +9,5 @@ HRESULT WINAPI d8_ValidatePixelShader(DWORD* pixelshader, DWORD* reserved1, BOOL
 HRESULT WINAPI d8_ValidateVertexShader(DWORD* vertexshader, DWORD* reserved1, DWORD* reserved2, BOOL flag, DWORD* toto);
 Direct3D8 *WINAPI Direct3DCreate8to9(UINT SDKVersion);
 
+extern bool IsUsingD3d8to9;
 extern Direct3DCreate8Proc m_pDirect3DCreate8;

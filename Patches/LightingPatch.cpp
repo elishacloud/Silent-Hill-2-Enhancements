@@ -116,20 +116,22 @@ void RunRoomLighting()
 	static bool LastCheck = false;
 	if (LastCheck)
 	{
-		if (GetChapterID() == 0x01) // Side campaign
+		// Main scenario
+		if (GetChapterID() == CHAPTER_MAIN_SCENARIO)
+		{
+			if (CurrentRoomID == R_TOWN_EAST || CurrentRoomID == R_APT_E_COURTYARD || CurrentRoomID == R_TOWN_WEST || CurrentRoomID == R_TOWN_LAKE)
+			{
+				*RoomLevels = 0.0f;
+			}
+		}
+		// Born From a Wish chapter
+		else if (GetChapterID() == CHAPTER_BORN_FROM_A_WISH)
 		{
 			if (CurrentRoomID == R_TOWN_WEST || CurrentRoomID == R_MAN_OUTSIDE_ENTRANCE)
 			{
 				*RoomLevels = 1.0f;
 			}
 			else if (CurrentRoomID == R_MAN_BLUE_CREEK_ENTRANCE)
-			{
-				*RoomLevels = 0.0f;
-			}
-		}
-		else // Main campaign
-		{
-			if (CurrentRoomID == R_TOWN_EAST || CurrentRoomID == R_APT_E_COURTYARD || CurrentRoomID == R_TOWN_WEST || CurrentRoomID == R_TOWN_LAKE)
 			{
 				*RoomLevels = 0.0f;
 			}

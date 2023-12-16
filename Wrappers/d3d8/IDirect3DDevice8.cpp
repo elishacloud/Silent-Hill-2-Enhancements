@@ -616,23 +616,25 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 			IsEnabledForCutscene54 = true;
 			Value = D3DSTENCILOP_ZERO; // Restore self shadows
 		}
-		else if (GetChapterID() == 0x01) // Born From a Wish
-		{
-			IsEnabledForCutscene54 = false;
-			if (GetSpecializedLight1() != 0x01) // If not in a specialized lighting zone
-			{
-				if (GetRoomID() != R_APT_W_STAIRCASE_S && GetRoomID() != R_APT_W_HALLWAY_1F && GetRoomID() != R_APT_W_HALLWAY_2F) // Exclude Blue Creek hallways/staircase completely from restored self shadows
-				{
-					Value = D3DSTENCILOP_ZERO; // Restore self shadows
-				}
-			}
-		}
-		else // Main campaign
+		// Main scenario
+		else if (GetChapterID() == CHAPTER_MAIN_SCENARIO)
 		{
 			IsEnabledForCutscene54 = false;
 			if (GetCutsceneID() == CS_HTL_LAURA_PIANO || (GetSpecializedLight1() != 0x01 && GetSpecializedLight2() != 0x01))	// Exclude specialized lighting zone unless in specific cutscene
 			{
 				if (GetRoomID() != R_HTL_RM_202_204) // Exclude Hotel Room 202-204 completely from restored self shadows
+				{
+					Value = D3DSTENCILOP_ZERO; // Restore self shadows
+				}
+			}
+		}
+		// Born From a Wish chapter
+		else if (GetChapterID() == CHAPTER_BORN_FROM_A_WISH)
+		{
+			IsEnabledForCutscene54 = false;
+			if (GetSpecializedLight1() != 0x01) // If not in a specialized lighting zone
+			{
+				if (GetRoomID() != R_APT_W_STAIRCASE_S && GetRoomID() != R_APT_W_HALLWAY_1F && GetRoomID() != R_APT_W_HALLWAY_2F) // Exclude Blue Creek hallways/staircase completely from restored self shadows
 				{
 					Value = D3DSTENCILOP_ZERO; // Restore self shadows
 				}
@@ -3250,7 +3252,7 @@ bool m_IDirect3DDevice8::CheckSilhouetteTexture()
 DWORD m_IDirect3DDevice8::GetShadowOpacity()
 {
 	// Main scenario
-	if (GetChapterID() == 0x00)
+	if (GetChapterID() == CHAPTER_MAIN_SCENARIO)
 	{
 		switch (GetRoomID())
 		{
@@ -3269,7 +3271,7 @@ DWORD m_IDirect3DDevice8::GetShadowOpacity()
 		}
 	}
 	// Born From a Wish chapter
-	else if (GetChapterID() == 0x01)
+	else if (GetChapterID() == CHAPTER_BORN_FROM_A_WISH)
 	{
 		switch (GetRoomID())
 		{

@@ -52,7 +52,7 @@ void RunSaveBGImage()
 	
 	if (LastMenuEvent != MENU_MAIN_MENU && MenuEvent == MENU_MAIN_MENU)
 	{
-		*ChapterIDPointer = 0x00;
+		*ChapterIDPointer = CHAPTER_MAIN_SCENARIO;
 	}
 
 	LastMenuEvent = MenuEvent;

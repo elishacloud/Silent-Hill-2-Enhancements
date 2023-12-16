@@ -141,6 +141,7 @@ BYTE* SFXVolumeAddr = nullptr;
 BYTE* WorldColorRAddr = nullptr;
 BYTE* WorldColorGAddr = nullptr;
 BYTE* WorldColorBAddr = nullptr;
+BYTE* InventoryItemAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -3221,4 +3222,34 @@ BYTE* WorldColorBPointer()
 	WorldColorBAddr = WorldColorBAddr + 2;
 
 	return WorldColorBAddr;
+}
+
+BYTE GetInventoryItem()
+{
+	BYTE* pInventoryItem = InventoryItemPointer();
+
+	return (pInventoryItem) ? *pInventoryItem : 0;
+}
+
+BYTE* InventoryItemPointer()
+{
+	if (InventoryItemAddr)
+	{
+		return WorldColorBAddr;
+	}
+
+	// Get WorldColorB address
+	InventoryItemAddr =
+		GameVersion == SH2V_10 ? (BYTE*)0x01F7A7E2 :
+		GameVersion == SH2V_11 ? (BYTE*)0x01F7E3E2 :
+		GameVersion == SH2V_DC ? (BYTE*)0x01F7D3E2 : nullptr;
+
+	// Checking address pointer
+	if (!InventoryItemAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find Item Inventory address!";
+		return nullptr;
+	}
+
+	return InventoryItemAddr;
 }

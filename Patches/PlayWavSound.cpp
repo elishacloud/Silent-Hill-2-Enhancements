@@ -131,8 +131,6 @@ void RunPlayAdditionalSounds()
 		GameVersion == SH2V_11 ? (BYTE*)0x01F7EA80 :
 		GameVersion == SH2V_DC ? (BYTE*)0x01F7DA80 : nullptr;
 
-	static BYTE* InventoryItem = CanUseFlashlight2 - 0x69E;
-
 	// Checking address pointer
 	if (!CanUseFlashlight1 || !CanUseFlashlight2)
 	{
@@ -187,7 +185,7 @@ void RunPlayAdditionalSounds()
 		(RoomsWithNoExtraCriteria) ||
 		(*CanUseFlashlight1 == 1 && *CanUseFlashlight2 == 0 && !RoomsWithNoExtraCriteria && RoomID != 0xA2 /*Hotel room 302*/) ||
 		((RoomID == 0x04 /*Town East*/ || RoomID == 0x08 /*Town West*/) && (GetWorldColorR() == 0 && GetWorldColorG() == 0 && GetWorldColorB() == 0)) ||
-		(RoomID == 0xA2 /*Hotel room 302*/ && *InventoryItem < 0x80 /*VHSTape is NOT in player's inventory*/)))
+		(RoomID == 0xA2 /*Hotel room 302*/ && GetInventoryItem() < 0x80 /*VHSTape is NOT in player's inventory*/)))
 	{
 		// play flashlight_off.wav
 		if (FlashLightSwitch == 0)

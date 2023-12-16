@@ -145,6 +145,7 @@ BYTE GetSFXVolume();
 BYTE GetWorldColorR();
 BYTE GetWorldColorG();
 BYTE GetWorldColorB();
+BYTE GetInventoryItem();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -265,6 +266,7 @@ BYTE* SFXVolumePointer();
 BYTE* WorldColorRPointer();
 BYTE* WorldColorGPointer();
 BYTE* WorldColorBPointer();
+BYTE* InventoryItemPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

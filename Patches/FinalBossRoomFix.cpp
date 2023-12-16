@@ -27,7 +27,7 @@ const float FinalBossOriginalBoxSpawn = -12000.f;
 
 void RunFinalBossRoomFix()
 {
-	if (GetJamesPosY() < -14600.f && GetRoomID() == 0xBB)
+	if (GetJamesPosY() < -14600.f && GetRoomID() == R_FINAL_BOSS_RM)
 	{
 		UpdateMemoryAddress(GetFinalBossBottomWalkwaySpawnPointer(), &FinalBossFixValue, sizeof(float));
 		UpdateMemoryAddress(GetFinalBossBottomFloorSpawnPointer(), &FinalBossFixValue, sizeof(float));

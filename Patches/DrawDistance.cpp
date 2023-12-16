@@ -184,7 +184,7 @@ void RunDynamicDrawDistance()
 
 	// Set dynamic draw distance
 	static bool ValueSet = false;
-	if (GetRoomID() == 0x03)
+	if (GetRoomID() == R_FOREST_CEMETERY)
 	{
 		if (!ValueSet)
 		{
@@ -193,7 +193,7 @@ void RunDynamicDrawDistance()
 			ValueSet = true;
 		}
 	}
-	else if (GetRoomID() == 0x90 || GetRoomID() == 0xD4)
+	else if (GetRoomID() == R_EDI_BOSS_RM_2 || GetRoomID() == R_MAN_BLUE_CREEK_ENTRANCE)
 	{
 		if (!ValueSet)
 		{

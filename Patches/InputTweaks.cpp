@@ -358,7 +358,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
         }
 		
 		// If James is in room 312 and has the VHS in his inventory
-		if (GetRoomID() == 0xA2 && GetInventoryItem() > 0x80)
+		if (GetRoomID() == R_HTL_RM_312 && GetInventoryItem() > 0x80)
 		{
 			ControllerData->rgbButtons[KeyBinds.GetToggleFlashlightButtonBind()] = KEY_CLEAR;
 		}
@@ -462,7 +462,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		ForwardBackwardsAxis = 0;
 		LeftRightAxis = 0;
 
-		if (((GetBoatFlag() == 0x01 && GetRoomID() == 0x0E) || GetSearchViewFlag() == 0x06) && EnableEnhancedMouse)
+		if (((GetBoatFlag() == 0x01 && GetRoomID() == R_TOWN_LAKE) || GetSearchViewFlag() == 0x06) && EnableEnhancedMouse)
 		{
 			if (IsKeyPressed(KeyBinds.GetKeyBind(KEY_MOVE_FORWARDS)))
 			{
@@ -535,7 +535,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		}
 
 		// If James is in room 312 and has the VHS in his inventory
-		if (GetRoomID() == 0xA2 && GetInventoryItem() > 0x80)
+		if (GetRoomID() == R_HTL_RM_312 && GetInventoryItem() > 0x80)
 		{
 			ClearKey(KeyBinds.GetKeyBind(KEY_FLASHLIGHT));
 		}
@@ -921,34 +921,34 @@ std::string InputTweaks::GetToggleSprintState()
 
 bool InputTweaks::ElevatorFix()
 {
-	return (GetRoomID() == 0x46 && GetTalkShowHostState() == 0x01);
+	return (GetRoomID() == R_HSP_ALT_ELEVATOR && GetTalkShowHostState() == 0x01);
 }
 
 bool InputTweaks::HotelFix()
 {
-	return (GetRoomID() == 0xB8 && 
+	return (GetRoomID() == R_HLT_ALT_ELEVATOR &&
 		(((std::abs(GetInGameCameraPosY() - (-840.)) < FloatTolerance) || (std::abs(GetInGameCameraPosY() - (-1350.)) < FloatTolerance))) &&
 		IsInFullScreenImageEvent());
 }
 
 bool InputTweaks::JamesVaultingBuildingsFix()
 {
-	return (GetRoomID() == 0x07 && std::abs(GetInGameCameraPosY() - (-3315.999)) < FloatTolerance);
+	return (GetRoomID() == R_APT_E_COURTYARD && std::abs(GetInGameCameraPosY() - (-3315.999)) < FloatTolerance);
 }
 
 bool InputTweaks::RosewaterParkFix()
 {
-	return (GetRoomID() == 0x08 && std::abs(GetInGameCameraPosY() - (150.)) < FloatTolerance && std::abs(GetJamesPosZ() - (78547.117)) < FloatTolerance);
+	return (GetRoomID() == R_TOWN_WEST && std::abs(GetInGameCameraPosY() - (150.)) < FloatTolerance && std::abs(GetJamesPosZ() - (78547.117)) < FloatTolerance);
 }
 
 bool InputTweaks::HospitalMonologueFix()
 {
-	return (GetRoomID() == 0x08 && std::abs(GetJamesPosZ() - (-6000.)) < FloatTolerance && IsInFullScreenImageEvent());
+	return (GetRoomID() == R_TOWN_WEST && std::abs(GetJamesPosZ() - (-6000.)) < FloatTolerance && IsInFullScreenImageEvent());
 }
 
 bool InputTweaks::FleshRoomFix()
 {
-	return (GetRoomID() == 0x79 || GetRoomID() == 0x8A || GetRoomID() == 0x8C);
+	return (GetRoomID() == R_LAB_TOP_G || GetRoomID() == R_LAB_TOP_H || GetRoomID() == R_LAB_TOP_K);
 }
 
 bool InputTweaks::SetRMBAimFunction()

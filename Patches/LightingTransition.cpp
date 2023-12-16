@@ -31,20 +31,20 @@ __declspec(naked) void __stdcall LightingTransitionASM()
 	{
 		push eax
 		push edx
-		mov eax, dword ptr ds : [RoomIDAddr]		// moves room ID pointer to eax
-		cmp dword ptr ds : [eax], 0x27				// Blue Creek Apt Room 203
+		mov eax, dword ptr ds : [RoomIDAddr]				// moves room ID pointer to eax
+		cmp dword ptr ds : [eax], R_APT_W_RM_203			// Blue Creek Apt Room 203
 		je near BlueCreekAptHotel
-		cmp dword ptr ds : [eax], 0xA0				// Hotel 2F West Hallway
+		cmp dword ptr ds : [eax], R_HTL_W_HALL_2F			// Hotel 2F West Hallway
 		je near BlueCreekAptHotel
-		cmp dword ptr ds : [eax], 0xB2				// Otherworld Hotel 2F West Hallway
+		cmp dword ptr ds : [eax], R_HTL_ALT_W_HALL_2F		// Otherworld Hotel 2F West Hallway
 		je near BlueCreekAptHotel
-		cmp dword ptr ds : [eax], 0xB1				// Otherworld Hotel 2F West Room Hallway
+		cmp dword ptr ds : [eax], R_HTL_ALT_W_ROOM_HALL_2F	// Otherworld Hotel 2F West Room Hallway
 		je near BlueCreekAptHotel
-		cmp dword ptr ds : [eax], 0xB4				// Otherworld Hotel 2F East Room Hallway
+		cmp dword ptr ds : [eax], R_HTL_ALT_E_ROOM_HALL_2F	// Otherworld Hotel 2F East Room Hallway
 		je near BlueCreekAptHotel
-		cmp dword ptr ds : [eax], 0xAB				// Otherworld Hotel Stairwell
+		cmp dword ptr ds : [eax], R_HTL_ALT_EMPLOYEE_STAIRS	// Otherworld Hotel Stairwell
 		je near BlueCreekAptHotel
-		cmp dword ptr ds : [eax], 0xD0				// Baldwin Mansion 2F Hallway
+		cmp dword ptr ds : [eax], R_MAN_S_HALL_2F			// Baldwin Mansion 2F Hallway
 		je near BaldwinMansion2FHallway
 
 		// if none of these locations

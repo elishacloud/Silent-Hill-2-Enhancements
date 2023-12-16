@@ -100,7 +100,7 @@ __declspec(naked) void __stdcall BlueCreekFogAdjustmentASM()
 		push eax
 		push ecx
 		mov eax, dword ptr ds : [RoomIDAddr]
-		cmp dword ptr ds : [eax], 0x28
+		cmp dword ptr ds : [eax], R_APT_W_RM_208_209
 		jne near ConditionsNotMet						// jumps if not Blue Creek Apt Room 209
 		mov ecx, BlueCreekNewFog
 		mov eax, dword ptr ds : [FogFrontPointer]
@@ -125,7 +125,7 @@ __declspec(naked) void __stdcall FinalAreaBoss1ASM()
 	__asm
 	{
 		mov eax, dword ptr ds : [RoomIDAddr]
-		cmp dword ptr ds : [eax], 0xBB
+		cmp dword ptr ds : [eax], R_FINAL_BOSS_RM
 		jne near NotFinalBoss
 		mov eax, dword ptr ds : [InGameCameraPosYAddr]
 		movss xmm0, dword ptr ds : [FinalAreaCameraYOrientation]
@@ -150,7 +150,7 @@ __declspec(naked) void __stdcall FinalAreaBoss2ASM()
 	{
 		push eax
 		mov eax, dword ptr ds : [RoomIDAddr]
-		cmp dword ptr ds : [eax], 0xBB
+		cmp dword ptr ds : [eax], R_FINAL_BOSS_RM
 		jne near NotFinalBoss
 		mov eax, dword ptr ds : [InGameCameraPosYAddr]
 		movss xmm0, dword ptr ds : [FinalAreaCameraYOrientation]
@@ -307,19 +307,19 @@ void RunFogSpeed()
 
 	switch (GetRoomID())
 	{
-	case 0x03:
-	case 0x04:
-	case 0x08:
-	case 0x8E:
-	case 0xB0:
-	case 0xBB:
-	case 0xBD:
-	case 0xC0:
-	case 0xC2:
-	case 0xCA:
-	case 0xC4:
-	case 0xD3:
-	case 0xD4:
+	case R_FOREST_CEMETERY:
+	case R_TOWN_EAST:
+	case R_TOWN_WEST:
+	case R_EDI_BOSS_HALL:
+	case R_HTL_ALT_READING_RM:
+	case R_FINAL_BOSS_RM:
+	case R_END_DOG_RM:
+	case R_MAN_GRAND_ENTRANCE:
+	case R_MAN_LOUNGE_2F:
+	case R_MAN_LONG_HALLWAY:
+	case R_MAN_SERV_RM:
+	case R_MAN_OUTSIDE_ENTRANCE:
+	case R_MAN_BLUE_CREEK_ENTRANCE:
 	{
 		constexpr float value = 0.25f;
 		if (*FogSpeed != value)
@@ -328,9 +328,9 @@ void RunFogSpeed()
 		}
 		break;
 	}
-	case 0x07:
-	case 0x8F:
-	case 0x90:
+	case R_APT_E_COURTYARD:
+	case R_EDI_BOSS_RM_1:
+	case R_EDI_BOSS_RM_2:
 	{
 		constexpr float value = 0.50f;
 		if (*FogSpeed != value)
@@ -344,7 +344,7 @@ void RunFogSpeed()
 	static bool ValueSet = false;
 
 	// Prevents fog from "sticking" to James during certain parts of the Forest trail
-	if (GetRoomID() == 0x03 && GetJamesPosY() >= 1125.0f && GetJamesPosY() <= 1575.0f)
+	if (GetRoomID() == R_FOREST_CEMETERY && GetJamesPosY() >= 1125.0f && GetJamesPosY() <= 1575.0f)
 	{
 		if (!ValueSet)
 		{

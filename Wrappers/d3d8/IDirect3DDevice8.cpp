@@ -621,7 +621,7 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 			IsEnabledForCutscene54 = false;
 			if (GetSpecializedLight1() != 0x01) // If not in a specialized lighting zone
 			{
-				if (GetRoomID() != 0x20 && GetRoomID() != 0x25 && GetRoomID() != 0x26) // Exclude Blue Creek hallways/staircase completely from restored self shadows
+				if (GetRoomID() != R_APT_W_STAIRCASE_S && GetRoomID() != R_APT_W_HALLWAY_1F && GetRoomID() != R_APT_W_HALLWAY_2F) // Exclude Blue Creek hallways/staircase completely from restored self shadows
 				{
 					Value = D3DSTENCILOP_ZERO; // Restore self shadows
 				}
@@ -632,7 +632,7 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 			IsEnabledForCutscene54 = false;
 			if (GetCutsceneID() == CS_HTL_LAURA_PIANO || (GetSpecializedLight1() != 0x01 && GetSpecializedLight2() != 0x01))	// Exclude specialized lighting zone unless in specific cutscene
 			{
-				if (GetRoomID() != 0x9E) // Exclude Hotel Room 202-204 completely from restored self shadows
+				if (GetRoomID() != R_HTL_RM_202_204) // Exclude Hotel Room 202-204 completely from restored self shadows
 				{
 					Value = D3DSTENCILOP_ZERO; // Restore self shadows
 				}
@@ -1150,7 +1150,7 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 	}
 
 	// Exclude Woodside Room 208 TV static geometry from receiving shadows
-	if (EnableSoftShadows && GetRoomID() == 0x18 && GetModelID() == ModelID::chr_item_noa)
+	if (EnableSoftShadows && GetRoomID() == R_APT_E_RM_208 && GetModelID() == ModelID::chr_item_noa)
 	{
 		DWORD stencilPass = 0;
 		ProxyInterface->GetRenderState(D3DRS_STENCILPASS, &stencilPass);
@@ -1165,9 +1165,9 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 	}
 	// Exclude windows in Heaven's Night, Hotel 2F Room Hallway and Hotel Storeroom from receiving shadows
 	else if (EnableSoftShadows &&
-		((GetRoomID() == 0x0C && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 18 && startIndex == 0 && primCount == 21) ||
-		(GetRoomID() == 0x9F && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 10 && startIndex == 0 && primCount == 10) ||
-		(GetRoomID() == 0x94 && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 8 && startIndex == 0 && primCount == 8)))
+		((GetRoomID() == R_HEAVENS_NIGHT_BACK && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 18 && startIndex == 0 && primCount == 21) ||
+		(GetRoomID() == R_HTL_W_ROOM_HALL_2F && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 10 && startIndex == 0 && primCount == 10) ||
+		(GetRoomID() == R_HTL_STORE_RM_1F && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 8 && startIndex == 0 && primCount == 8)))
 	{
 		DWORD stencilPass, stencilRef = 0;
 
@@ -1188,7 +1188,7 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 		return hr;
 	}
 	// Exclude refrigerator interior in hospital from receiving shadows
-	else if (EnableSoftShadows && GetRoomID() == 0x53 && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 1037 && startIndex == 0 && primCount == 1580)
+	else if (EnableSoftShadows && GetRoomID() == R_HSP_ALT_DAY_ROOM && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 1037 && startIndex == 0 && primCount == 1580)
 	{
 		DWORD stencilPass = 0;
 
@@ -1221,16 +1221,16 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 	Logging::LogDebug() << __FUNCTION__;
 
 	// Set pillar boxes to black (removes game images from pillars)
-	if (LastFrameFullscreenImage && !IsInFullscreenImage && GetRoomID() && GetCutsceneID() == CS_NONE)
+	if (LastFrameFullscreenImage && !IsInFullscreenImage && GetRoomID() != R_NONE && GetCutsceneID() == CS_NONE)
 	{
-		if (GetRoomID() == 0x08)
+		if (GetRoomID() == R_TOWN_WEST)
 		{
 			DontModifyClear = true;
 		}
 		return ProxyInterface->Clear(0x00, nullptr, D3DCLEAR_TARGET | D3DCLEAR_STENCIL | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0xFF, 0x00, 0x00, 0x00), 1.0f, 0x80);
 	}
 	// Set pillar boxes to black (removes street decals from West Town fullscreen images)
-	else if (IsInFullscreenImage && PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && GetRoomID() == 0x08)
+	else if (IsInFullscreenImage && PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && GetRoomID() == R_TOWN_WEST)
 	{
 		return D3D_OK;
 	}
@@ -1249,7 +1249,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 		return D3D_OK;
 	}
 	// Top Down Shadow
-	else if (EnableSoftShadows && ((GetRoomID() == 0x02 || GetRoomID() == 0x24 || GetRoomID() == 0x8F || GetRoomID() == 0x90) || GetCutsceneID() == CS_END_LEAVE_LETTER))
+	else if (EnableSoftShadows && ((GetRoomID() == R_OBSV_DECK || GetRoomID() == R_APT_W_RM_109_2 || GetRoomID() == R_EDI_BOSS_RM_1 || GetRoomID() == R_EDI_BOSS_RM_2) || GetCutsceneID() == CS_END_LEAVE_LETTER))
 	{
 		DWORD stencilPass = 0;
 		ProxyInterface->GetRenderState(D3DRS_STENCILPASS, &stencilPass);
@@ -1438,7 +1438,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 			PillarBoxBottom = ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[2].y;
 		}
 		// Clip artifacts that protrude into pillarbox
-		else if (PillarBoxLeft && PillarBoxRight && GetRoomID() && GetCutsceneID() == CS_NONE && (GetEventIndex() == EVENT_IN_GAME || GetEventIndex() == EVENT_MAP))
+		else if (PillarBoxLeft && PillarBoxRight && GetRoomID() != R_NONE && GetCutsceneID() == CS_NONE && (GetEventIndex() == EVENT_IN_GAME || GetEventIndex() == EVENT_MAP))
 		{
 			// Clip green player marker
 			if (pVertexStreamZeroData && ((((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[1].x != ((CUSTOMVERTEX_DIF_TEX1*)pVertexStreamZeroData)[2].x ||
@@ -1552,7 +1552,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 		IsInFullscreenImage = true;
 	}
 	// Set pillar boxes to black (removes fog from West Town fullscreen images)
-	else if (IsInFullscreenImage && PrimitiveType == D3DPT_TRIANGLEFAN && PrimitiveCount == 4 && VertexStreamZeroStride == 24 && GetRoomID() == 0x08)
+	else if (IsInFullscreenImage && PrimitiveType == D3DPT_TRIANGLEFAN && PrimitiveCount == 4 && VertexStreamZeroStride == 24 && GetRoomID() == R_TOWN_WEST)
 	{
 		return D3D_OK;
 	}
@@ -1793,11 +1793,11 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		// Enable Xbox shadows
 		if (EnableSoftShadows)
 		{
-			EnableXboxShadows = !((GetRoomID() == 0x02 || GetRoomID() == 0x24 || GetRoomID() == 0x8F || GetRoomID() == 0x90) || GetCutsceneID() == CS_END_LEAVE_LETTER);
+			EnableXboxShadows = !((GetRoomID() == R_OBSV_DECK || GetRoomID() == R_APT_W_RM_109_2 || GetRoomID() == R_EDI_BOSS_RM_1 || GetRoomID() == R_EDI_BOSS_RM_2) || GetCutsceneID() == CS_END_LEAVE_LETTER);
 		}
 
 		// Fix cutscene James final blow to his wife
-		if (GetRoomID() == 0xBB && GetGlobalFadeHoldValue() == 2.0f)
+		if (GetRoomID() == R_FINAL_BOSS_RM && GetGlobalFadeHoldValue() == 2.0f)
 		{
 			IsInFakeFadeout = true;
 		}
@@ -2577,7 +2577,7 @@ HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface
 	IsGetFrontBufferCalled = true;
 
 	// Fix inventory snapshot in Hotel Employee Elevator Room
-	if (PauseScreenFix && GetRoomID() == 0x9D && GetEventIndex() == EVENT_IN_GAME)
+	if (PauseScreenFix && GetRoomID() == R_HTL_EMPLOYEE_ELEV_RM && GetEventIndex() == EVENT_IN_GAME)
 	{
 		HotelEmployeeElevatorRoomFlag = TRUE;
 	}
@@ -3254,17 +3254,17 @@ DWORD m_IDirect3DDevice8::GetShadowOpacity()
 	{
 		switch (GetRoomID())
 		{
-		case 0x0F:
+		case R_APT_E_STAIRCASE_N:
 			return 40;
-		case 0xA2:
-		case 0xBD:
+		case R_HTL_RM_312:
+		case R_END_DOG_RM:
 			return 50;
-		case 0x89:
+		case R_LAB_BOTTOM_D:
 			return 70;
-		case 0x0B:
-		case 0x21:
+		case R_BOWL_MAIN:
+		case R_APT_W_STAIRCASE_N:
 			return 110;
-		case 0xBF:
+		case R_END_BEDROOM_LEAVE:
 			return 128;
 		}
 	}
@@ -3273,36 +3273,36 @@ DWORD m_IDirect3DDevice8::GetShadowOpacity()
 	{
 		switch (GetRoomID())
 		{
-		case 0x27:
+		case R_APT_W_RM_203:
 			return 30;
-		case 0xC2:
+		case R_MAN_LOUNGE_2F:
 			return 60;
-		case 0x0C:
-		case 0x0D:
-		case 0x20:
-		case 0x21:
-		case 0x25:
-		case 0x26:
-		case 0xC0:
-		case 0xC1:
-		case 0xC3:
-		case 0xC4:
-		case 0xC5:
-		case 0xC6:
-		case 0xC8:
-		case 0xC9:
-		case 0xCA:
-		case 0xCB:
-		case 0xCC:
-		case 0xCD:
-		case 0xCE:
-		case 0xCF:
-		case 0xD0:
-		case 0xD1:
-		case 0xD2:
-		case 0xD5:
+		case R_HEAVENS_NIGHT_BACK:
+		case R_HEAVENS_NIGHT_FRONT:
+		case R_APT_W_STAIRCASE_S:
+		case R_APT_W_STAIRCASE_N:
+		case R_APT_W_HALLWAY_1F:
+		case R_APT_W_HALLWAY_2F:
+		case R_MAN_GRAND_ENTRANCE:
+		case R_MAN_LIVING_ROOM_1F:
+		case R_MAN_GRAVE_ROOM:
+		case R_MAN_SERV_RM:
+		case R_MAN_KIDS_RM:
+		case R_MAN_STUDY_RM:
+		case R_MAN_S_HALL_1F:
+		case R_MAN_S_HALL_STAIRCASE:
+		case R_MAN_LONG_HALLWAY:
+		case R_MAN_N_STAIRCASE:
+		case R_MAN_GUEST_HOUSE:
+		case R_MAN_CENTER_STAIRS:
+		case R_MAN_N_HALL_2F:
+		case R_MAN_GRAND_HALL_2F:
+		case R_MAN_S_HALL_2F:
+		case R_MAN_BF_TUNNEL:
+		case R_MAN_S_STAIRCASE:
+		case R_BFAW_MARIA_ROOM:
 			return 90;
-		case 0xC7:
+		case R_MAN_ATTIC:
 			return 128;
 		}
 	}
@@ -3321,15 +3321,38 @@ DWORD m_IDirect3DDevice8::GetShadowIntensity()
 void m_IDirect3DDevice8::SetShadowFading()
 {
 	// Check room ID to see if shadow fading should be enabled
-	bool EnableShadowFading = true;
-	for (const DWORD &Room : { 0x32, 0x39, 0x42, 0x89, 0xA2, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBD })
+	bool EnableShadowFading;
+	switch (GetRoomID())
 	{
-		if (GetRoomID() == Room)
-		{
-			EnableShadowFading = false;
-			break;
-		}
-	}
+	case R_HSP_RM_C3:
+	case R_HSP_RM_M3:
+	case R_HSP_RM_S11:
+	case R_LAB_BOTTOM_D:
+	case R_HTL_RM_312:
+	case R_HTL_FIRE_STAIRCASE:
+	case R_HTL_ALT_EMPLOYEE_STAIRS:
+	case R_HTL_ALT_RPT_BOSS_RM:
+	case R_HTL_ALT_MAIN_HALL_1F:
+	case R_HTL_ALT_EMPLOYEE_HALL_1F:
+	case R_HTL_ALT_NINE_SAVE_RM:
+	case R_HTL_ALT_READING_RM:
+	case R_HTL_ALT_W_ROOM_HALL_2F:
+	case R_HTL_ALT_W_HALL_2F:
+	case R_HTL_ALT_E_HALL_2F:
+	case R_HTL_ALT_E_ROOM_HALL_2F:
+	case R_HTL_ALT_MAIN_HALL_3F:
+	case R_HTL_ALT_BAR:
+	case R_HTL_ALT_BAR_KITCHEN:
+	case R_HLT_ALT_ELEVATOR:
+	case R_HTL_ALT_EMPLOYEE_HALL_BF:
+	case R_HTL_ALT_FINAL_HALL:
+	case R_FINAL_BOSS_RM:
+	case R_END_DOG_RM:
+		EnableShadowFading = false;
+		break;
+	default:
+		EnableShadowFading = true;
+	};
 
 	// Fade shadows in after turning flashlight on
 	if (EnableShadowFading && (LastFlashlightSwitch == 0x00 || ShadowMode != SHADOW_FADING_NONE) && GetFlashlightSwitch() == 0x01)

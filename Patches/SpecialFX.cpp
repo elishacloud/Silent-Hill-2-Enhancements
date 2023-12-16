@@ -60,7 +60,7 @@ __declspec(naked) void __cdecl MariaCutsceneFadeoutASM()
 	}
 	
 	// The reason of why i set to "uint32" is when i set this to float game crashes.
-	if (GetRoomID() == 137 && *reinterpret_cast<uint32_t*>(GetJamesPosZPointer()) == 1185259392)
+	if (GetRoomID() == R_LAB_BOTTOM_D && *reinterpret_cast<uint32_t*>(GetJamesPosZPointer()) == 1185259392)
 	{
 		// There is 2 cutscenes in same room but fadeout works when CutSceneID is zero, just wanted to be sure
 		if (GetCutsceneID() == CS_NONE)
@@ -113,7 +113,7 @@ __declspec(naked) void __stdcall CustomAddress2ASM()
 		cmp dword ptr ds : [edx], CS_TUNNEL_RADIO
 		je NEAR LyingFigureTunnelCutscene
 		mov edx, dword ptr ds : [RoomIDAddr]		// moves room ID pointer to edx
-		cmp dword ptr ds : [edx], 0xA2				// Room ID; Hotel Room 312
+		cmp dword ptr ds : [edx], R_HTL_RM_312		// Room ID; Hotel Room 312
 		je NEAR HotelRoom312
 		fld PointThreeBarValue						// 0.3333333333 float
 		jmp NEAR ExitASM
@@ -153,7 +153,7 @@ __declspec(naked) void __stdcall CustomAddress3ASM()
 		cmp dword ptr ds : [edx], CS_TUNNEL_RADIO
 		je NEAR LyingFigureTunnelCutscene
 		mov edx, dword ptr ds : [RoomIDAddr]		// moves room ID pointer to edx
-		cmp dword ptr ds : [edx], 0xA2				// Room ID; Hotel Room 312
+		cmp dword ptr ds : [edx], R_HTL_RM_312		// Room ID; Hotel Room 312
 		je NEAR HotelRoom312
 		fmul PointSixBarValue						// 0.6666666666 float
 		jmp NEAR ExitASM
@@ -470,7 +470,7 @@ void RunHotelRoom312FogVolumeFix()
 		}
 	}
 
-	if (GetRoomID() == 0xA2 && *Address1 != 0)
+	if (GetRoomID() == R_HTL_RM_312 && *Address1 != 0)
 	{
 		*Address1 = 0;
 	}

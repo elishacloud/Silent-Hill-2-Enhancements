@@ -87,7 +87,7 @@ void RunBloodSize()
 
 	// Set blood position for Apartment Mannequin/Flashlight Room
 	static bool ValueSet1 = false;
-	if (GetRoomID() == 0x17)
+	if (GetRoomID() == R_APT_E_RM_205)
 	{
 		float Value = -5.0f;
 		if (*Address1_a != Value || *Address1_b != Value || *Address1_c != Value || *Address1_d != Value)
@@ -107,7 +107,7 @@ void RunBloodSize()
 
 	// Set blood position for Flesh Room
 	static bool ValueSet2 = false;
-	if (GetRoomID() == 0x8A)
+	if (GetRoomID() == R_LAB_TOP_H)
 	{
 		if (!ValueSet2)
 		{

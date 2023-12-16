@@ -115,7 +115,7 @@ void RunTreeColor()
 		}
 	}
 	// Hotel Room 312 light fix (game world color)
-	else if (GetRoomID() == 0xA2 && GetTransitionState() != FADE_BLACK_SRC && GetEventIndex())
+	else if (GetRoomID() == R_HTL_RM_312 && GetTransitionState() != FADE_BLACK_SRC && GetEventIndex())
 	{
 		constexpr BYTE Red = 255;
 		constexpr BYTE Green = 255;

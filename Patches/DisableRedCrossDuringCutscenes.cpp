@@ -47,72 +47,72 @@ BOOL CheckIfInCutscene()
 		return TRUE;
 	}
 	// Crossing apartments
-	else if (GetRoomID() == 0x07 && GetJamesPosZ() == -83662.25f)
+	else if (GetRoomID() == R_APT_E_COURTYARD && GetJamesPosZ() == -83662.25f)
 	{
 		return TRUE;
 	}
 	// Failed push clock
-	else if (GetRoomID() == 0x18 && GetInGameCameraPosY() == -112.6049728f)
+	else if (GetRoomID() == R_APT_E_RM_208 && GetInGameCameraPosY() == -112.6049728f)
 	{
 		return TRUE;
 	}
 	// Apt hole fishing
-	else if (GetRoomID() == 0x16 && GetInGameCameraPosY() == -859.1593018f)
+	else if (GetRoomID() == R_APT_E_RM_202 && GetInGameCameraPosY() == -859.1593018f)
 	{
 		return TRUE;
 	}
 	// Apt empty hole
-	else if (GetRoomID() == 0x16 && GetInGameCameraPosY() == -859.1500244f)
+	else if (GetRoomID() == R_APT_E_RM_202 && GetInGameCameraPosY() == -859.1500244f)
 	{
 		return TRUE;
 	}
 	// Apt fight water draining
-	else if (GetRoomID() == 0x21 && GetInGameCameraPosY() == -3961.0f)
+	else if (GetRoomID() == R_APT_W_STAIRCASE_N && GetInGameCameraPosY() == -3961.0f)
 	{
 		return TRUE;
 	}
 	// Hospital drain fishing
-	else if (GetRoomID() == 0x40 && GetInGameCameraPosY() == -349.463501f)
+	else if (GetRoomID() == R_HSP_SHOWER && GetInGameCameraPosY() == -349.463501f)
 	{
 		return TRUE;
 	}
 	// James teddy bear
-	else if (GetRoomID() == 0x35 && GetInGameCameraPosY() == -1166.53186f)
+	else if (GetRoomID() == R_HSP_LOCKER_WOMENS && GetInGameCameraPosY() == -1166.53186f)
 	{
 		return TRUE;
 	}
 	// James / Maria teddy bear
-	else if (GetRoomID() == 0x35 && GetInGameCameraPosY() == -989.6131592f)
+	else if (GetRoomID() == R_HSP_LOCKER_WOMENS && GetInGameCameraPosY() == -989.6131592f)
 	{
 		return TRUE;
 	}
 	// James fridge
-	else if (GetRoomID() == 0x53 && GetInGameCameraPosY() == -1135.397583f)
+	else if (GetRoomID() == R_HSP_ALT_DAY_ROOM && GetInGameCameraPosY() == -1135.397583f)
 	{
 		return TRUE;
 	}
 	// James / Maria fridge
-	else if (GetRoomID() == 0x53 && GetInGameCameraPosY() == -1441.904907f)
+	else if (GetRoomID() == R_HSP_ALT_DAY_ROOM && GetInGameCameraPosY() == -1441.904907f)
 	{
 		return TRUE;
 	}
 	// Cube head puzzle
-	else if (GetRoomID() == 0x87 && GetInGameCameraPosY() == -860.0f)
+	else if (GetRoomID() == R_LAB_TOP_B && GetInGameCameraPosY() == -860.0f)
 	{
 		return TRUE;
 	}
 	// Rosewater Park sign
-	else if (GetRoomID() == 0x08 && GetInGameCameraPosY() == 150.0f && GetJamesPosZ() == 78547.11719f)
+	else if (GetRoomID() == R_TOWN_WEST && GetInGameCameraPosY() == 150.0f && GetJamesPosZ() == 78547.11719f)
 	{
 		return TRUE;
 	}
 	// James monologue at end of hospital
-	else if (GetRoomID() == 0x08 && GetJamesPosZ() == -6000.0f && GetFullscreenImageEvent() == 2)
+	else if (GetRoomID() == R_TOWN_WEST && GetJamesPosZ() == -6000.0f && GetFullscreenImageEvent() == 2)
 	{
 		return TRUE;
 	}
 	// Alt Hotel flooded elevator ride
-	else if (GetRoomID() == 0xB8 && GetJamesPosZ() == -56599.01953f && GetFullscreenImageEvent() == 2)
+	else if (GetRoomID() == R_HLT_ALT_ELEVATOR && GetJamesPosZ() == -56599.01953f && GetFullscreenImageEvent() == 2)
 	{
 		return TRUE;
 	}

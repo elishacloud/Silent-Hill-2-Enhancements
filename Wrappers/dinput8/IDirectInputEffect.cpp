@@ -320,7 +320,7 @@ void RunInfiniteRumbleFix()
 
 	// Disable rumble
 	static bool ValueSet = false;
-	if (GetEventIndex() != EVENT_IN_GAME || GetRoomID() == 0x00 || GetTransitionState() != FADE_NONE || LostWindowFocus)
+	if (GetEventIndex() != EVENT_IN_GAME || GetRoomID() == R_NONE || GetTransitionState() != FADE_NONE || LostWindowFocus)
 	{
 		if (!ValueSet)
 		{

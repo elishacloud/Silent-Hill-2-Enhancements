@@ -155,7 +155,7 @@ void GameResultSave()
 	if (Value == 0x50 || Value == 0xFF)
 	{
 		*InGameAddr = 0x00;
-		if (GetRoomID())
+		if (GetRoomID() != R_NONE)
 		{
 			IsInGameResults = true;
 		}
@@ -427,17 +427,26 @@ void RunGameLoad()
 	bool DisableQuickSave = false;
 
 	// Enable game saves for specific rooms
-	if (GetRoomID() == 0x29)
+	if (GetRoomID() == R_HSP_E_STAIRCASE)
 	{
 		*SaveGameAddress = 1;
 		ValueSet = true;
 	}
 	// Disable game saves for specific rooms
-	else if (GetRoomID() == 0x09 || GetRoomID() == 0x0A || GetRoomID() == 0x0B || GetRoomID() == 0x13 || GetRoomID() == 0x17 || GetRoomID() == 0x2A || GetRoomID() == 0x46 || GetRoomID() == 0x65 || GetRoomID() == 0xAA || GetRoomID() == 0xC7 ||
-		(GetRoomID() == 0x04 && GetJamesPosZ() > 49000.0f) ||
-		(GetRoomID() == 0x78 && GetJamesPosX() < -18600.0f) ||
-		(GetRoomID() == 0x9D && GetJamesPosX() < 60650.0f) ||
-		(GetRoomID() == 0xB8 && GetJamesPosX() > -15800.0f))
+	else if (GetRoomID() == R_BOWL_ENTRANCE ||
+		GetRoomID() == R_BOWL_BACKROOM ||
+		GetRoomID() == R_BOWL_MAIN ||
+		GetRoomID() == R_APT_E_RM_307 ||
+		GetRoomID() == R_APT_E_RM_205 ||
+		GetRoomID() == R_HSP_ELEVATOR ||
+		GetRoomID() == R_HSP_ALT_ELEVATOR ||
+		GetRoomID() == R_BUG_RM ||
+		GetRoomID() == R_HTL_FIRE_STAIRCASE ||
+		GetRoomID() == R_MAN_ATTIC ||
+		(GetRoomID() == R_TOWN_EAST && GetJamesPosZ() > 49000.0f) ||
+		(GetRoomID() == R_PS_ELEVATOR && GetJamesPosX() < -18600.0f) ||
+		(GetRoomID() == R_HTL_EMPLOYEE_ELEV_RM && GetJamesPosX() < 60650.0f) ||
+		(GetRoomID() == R_HLT_ALT_ELEVATOR && GetJamesPosX() > -15800.0f))
 	{
 		*SaveGameAddress = 0;
 		ValueUnSet = true;
@@ -470,13 +479,12 @@ void RunGameLoad()
 
 	// Clear InGameVoiceEvent when Room ID changes and upon end of cutscene ID (Laura scares James with the piano)
 	static DWORD LastRoomID = 0, LastCutsceneID = 0;
-	DWORD CurrentRoomID = GetRoomID(), CurrentCutsceneID = GetCutsceneID();
-	if (LastRoomID != CurrentRoomID || (LastCutsceneID == CS_HTL_LAURA_PIANO && CurrentCutsceneID != CS_HTL_LAURA_PIANO))
+	if (LastRoomID != GetRoomID() || (LastCutsceneID == CS_HTL_LAURA_PIANO && GetCutsceneID() != CS_HTL_LAURA_PIANO))
 	{
 		*InGameVoiceEvent = 0;
 	}
-	LastRoomID = CurrentRoomID;
-	LastCutsceneID = CurrentCutsceneID;
+	LastRoomID = GetRoomID();
+	LastCutsceneID = GetCutsceneID();
 
 	// Disable quick save during certain in-game voice events and during fullscreen image events
 	if (*InGameVoiceEvent != 0 || GetFullscreenImageEvent() == 2)

@@ -35,7 +35,7 @@ __declspec(naked) void __stdcall HotelRoom312ASM()
 	{
 		push eax
 		mov eax, dword ptr ds : [RoomIDAddr]		// moves room ID pointer to eax
-		cmp dword ptr ds : [eax], 0xA2				// Hotel Room 312
+		cmp dword ptr ds : [eax], R_HTL_RM_312		// Hotel Room 312
 		je near InHotelRoom
 
 	// NotInHotelRoom
@@ -95,7 +95,7 @@ __declspec(naked) void __stdcall Room312BloomASM()
 	{
 		push eax
 		mov eax, dword ptr ds : [RoomIDAddr]		// moves room ID pointer to eax
-		cmp dword ptr ds : [eax], 0xA2				// Hotel Room 312
+		cmp dword ptr ds : [eax], R_HTL_RM_312		// Hotel Room 312
 		je near InHotelRoom
 		mov eax, dword ptr ds : [Room312BloomObject]
 		mov dword ptr ds : [eax], edi

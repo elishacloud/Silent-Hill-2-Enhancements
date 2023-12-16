@@ -118,7 +118,7 @@ void ProcessDInputData_Hook(GamePadState* state)
 		}
 
 		// Boat stage and search view movement fix
-		if (((GetBoatFlag() == 0x01 && GetRoomID() == 0x0E) || GetSearchViewFlag() == 0x06))
+		if (((GetBoatFlag() == 0x01 && GetRoomID() == R_TOWN_LAKE) || GetSearchViewFlag() == 0x06))
 		{
 			if (GetRunOption() == OPT_ANALOG && EnableToggleSprint)
 			{

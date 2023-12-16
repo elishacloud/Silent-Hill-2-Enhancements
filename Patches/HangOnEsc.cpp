@@ -113,7 +113,7 @@ void RunHangOnEsc()
 	RUNCODEONCE(Logging::Log() << "Fixing Esc while transition is active...");
 
 	// Prevent player from pressing Esc while transition is active
-	if (*(DWORD*)Address != 0x03 && (GetTransitionState() == FADE_FROM_BLACK || (IsInBloomEffect && GetRoomID() == 0x90) || IsInFakeFadeout))
+	if (*(DWORD*)Address != 0x03 && (GetTransitionState() == FADE_FROM_BLACK || (IsInBloomEffect && GetRoomID() == R_EDI_BOSS_RM_2) || IsInFakeFadeout))
 	{
 		DWORD Value = 3;
 		UpdateMemoryAddress((void*)Address, &Value, sizeof(DWORD));

@@ -55,7 +55,7 @@ void PatchFlashlightClockPush()
 
 void RunFlashlightClockPush()
 {
-	if (GetRoomID() == 0x18 && GetInGameCameraPosY() == -112.6049728f)
+	if (GetRoomID() == R_APT_E_RM_208 && GetInGameCameraPosY() == -112.6049728f)
 	{
 		constexpr DWORD NewValue = 0xFFFFFFEF;
 		if (FlashlightClockValue != NewValue)

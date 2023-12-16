@@ -109,7 +109,7 @@ void RunRoomLighting()
 	}
 
 	// Store Room ID
-	static DWORD LastRoomID = GetRoomID();
+	static DWORD LastRoomID = 0;
 	DWORD CurrentRoomID = GetRoomID();
 
 	// Check if need to update
@@ -118,18 +118,18 @@ void RunRoomLighting()
 	{
 		if (GetChapterID() == 0x01) // Side campaign
 		{
-			if (CurrentRoomID == 0x08 /*Town West*/ || CurrentRoomID == 0xD3 /*Mansion outside main entrance*/)
+			if (CurrentRoomID == R_TOWN_WEST || CurrentRoomID == R_MAN_OUTSIDE_ENTRANCE)
 			{
 				*RoomLevels = 1.0f;
 			}
-			else if (CurrentRoomID == 0xD4 /*Mansion outside guest entrance*/)
+			else if (CurrentRoomID == R_MAN_BLUE_CREEK_ENTRANCE)
 			{
 				*RoomLevels = 0.0f;
 			}
 		}
 		else // Main campaign
 		{
-			if (CurrentRoomID == 0x04 /*Wood Side outside entrance*/ || CurrentRoomID == 0x07 /*Wood Side courtyard*/ || CurrentRoomID == 0x08 /*Town West*/ || CurrentRoomID == 0x0E /*Lake*/)
+			if (CurrentRoomID == R_TOWN_EAST || CurrentRoomID == R_APT_E_COURTYARD || CurrentRoomID == R_TOWN_WEST || CurrentRoomID == R_TOWN_LAKE)
 			{
 				*RoomLevels = 0.0f;
 			}

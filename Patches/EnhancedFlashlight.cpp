@@ -88,9 +88,9 @@ __declspec(naked) void __stdcall MovableObject1ASM()
 		cmp dword ptr ds : [eax], CS_BOWL_LAURA_EDDIE
 		je near HotelBowling						// jumps if bowling Eddie and Laura cutscene
 		mov eax, dword ptr ds : [RoomIDAddr]	 	// moves room ID pointer to eax
-		cmp dword ptr ds : [eax], 0xB7
+		cmp dword ptr ds : [eax], R_HTL_ALT_BAR_KITCHEN
 		je near HotelBowling						// jumps if Otherworld Hotel Kitchen
-		cmp dword ptr ds : [eax], 0xAB
+		cmp dword ptr ds : [eax], R_HTL_ALT_EMPLOYEE_STAIRS
 		je near HotelBowling						// jumps if Otherworld Hotel Stairwell
 
 		// for everything else
@@ -127,9 +127,9 @@ __declspec(naked) void __stdcall MovableObject2ASM()
 		cmp dword ptr ds : [eax], CS_BOWL_LAURA_EDDIE
 		je near HotelBowling						// jumps if bowling Eddie and Laura cutscene
 		mov eax, dword ptr ds : [RoomIDAddr]	 	// moves room ID pointer to eax
-		cmp dword ptr ds : [eax], 0xB7
+		cmp dword ptr ds : [eax], R_HTL_ALT_BAR_KITCHEN
 		je near HotelBowling						// jumps if Otherworld Hotel Kitchen
-		cmp dword ptr ds : [eax], 0xAB
+		cmp dword ptr ds : [eax], R_HTL_ALT_EMPLOYEE_STAIRS
 		je near HotelBowling						// jumps if Otherworld Hotel Stairwell
 
 		// for everything else
@@ -179,7 +179,7 @@ __declspec(naked) void __stdcall FlashlightHallwayASM()
 	{
 		push ecx
 		mov ecx, dword ptr ds : [RoomIDAddr]	 	// moves room ID pointer to ecx
-		cmp dword ptr ds : [ecx], 0x0C
+		cmp dword ptr ds : [ecx], R_HEAVENS_NIGHT_BACK
 		pop ecx
 		je near HeavensNightHallway
 

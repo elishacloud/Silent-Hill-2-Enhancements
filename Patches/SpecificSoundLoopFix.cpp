@@ -25,7 +25,7 @@ void __stdcall StopMothSfxOnPauseMenu()
 	// It checks room id, if the id is points to final boss it runs the stop function
 	// Note: This code also a fix for the moths on west side apartments. stop_moth_sfx also kill's the moth but when we clean bytes of reset instuctions they won't coming back.
 	// So we have to be sure this code will work only on final boss.
-	if (GetRoomID() == 0xBB)
+	if (GetRoomID() == R_FINAL_BOSS_RM)
 	{
 		stop_moth_sfx();
 	}

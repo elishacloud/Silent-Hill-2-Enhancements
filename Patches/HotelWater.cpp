@@ -136,14 +136,20 @@ void RunHotelWater()
 
 	// Strange Area 2 and Labyrinth
 	{
-		const DWORD RoomIDs[] = { 0x63, 0x7A, 0x7C, 0x7E, 0x80, 0x82, 0x85 };
-		bool RoomsMatch = false;
-		for (auto const &RoomID : RoomIDs)
+		bool RoomsMatch;
+		switch (GetRoomID())
 		{
-			if (GetRoomID() == RoomID)
-			{
-				RoomsMatch = true;
-			}
+		case R_STRANGE_AREA_2_B:
+		case R_LAB_BOTTOM_H:
+		case R_LAB_BOTTOM_G:
+		case R_LAB_BOTTOM_F:
+		case R_LAB_BOTTOM_E:
+		case R_LAB_BOTTOM_C:
+		case R_LAB_BOTTOM_I:
+			RoomsMatch = true;
+			break;
+		default:
+			RoomsMatch = false;
 		}
 
 		const float Value1 = 19.0f;
@@ -158,14 +164,17 @@ void RunHotelWater()
 	}
 	// Alternate Hotel Bar Water and Elevator, Hallway After Alternate Hotel Kitchen Water, Final Boss Metal Staircase Water
 	{
-		const DWORD RoomIDs[] = { 0xB8, 0xB6, 0xB9, 0xBB };
-		bool RoomsMatch = false;
-		for (auto const &RoomID : RoomIDs)
+		bool RoomsMatch;
+		switch (GetRoomID())
 		{
-			if (GetRoomID() == RoomID)
-			{
-				RoomsMatch = true;
-			}
+		case R_HTL_ALT_BAR:
+		case R_HLT_ALT_ELEVATOR:
+		case R_HTL_ALT_EMPLOYEE_HALL_BF:
+		case R_FINAL_BOSS_RM:
+			RoomsMatch = true;
+			break;
+		default:
+			RoomsMatch = false;
 		}
 
 		const float Value1 = 100.0f;

@@ -42,7 +42,7 @@ void RunHospitalChase()
 
 	// Fix Animation
 	static bool ValueSet = false;
-	if (GetRoomID() == 0x5B)
+	if (GetRoomID() == R_HSP_ALT_RPT_HALLWAY)
 	{
 
 		if (!ValueSet && GetJamesPosX() > 33185.0f)

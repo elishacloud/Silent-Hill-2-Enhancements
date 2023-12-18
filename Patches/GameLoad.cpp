@@ -433,10 +433,7 @@ void RunGameLoad()
 		ValueSet = true;
 	}
 	// Disable game saves for specific rooms
-	else if (GetRoomID() == R_BOWL_ENTRANCE ||
-		GetRoomID() == R_BOWL_BACKROOM ||
-		GetRoomID() == R_BOWL_MAIN ||
-		GetRoomID() == R_APT_E_RM_307 ||
+	else if (GetRoomID() == R_APT_E_RM_307 ||
 		GetRoomID() == R_APT_E_RM_205 ||
 		GetRoomID() == R_HSP_ELEVATOR ||
 		GetRoomID() == R_HSP_ALT_ELEVATOR ||

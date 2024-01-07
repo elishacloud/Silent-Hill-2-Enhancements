@@ -1012,3 +1012,11 @@ void PatchSpeakerConfigText()
 		WriteCalltoMemory(((BYTE*)DSpkAddrB + 0x125), *printDisplayModeDescStr, 5); //TODO address
 	}
 }
+
+/*
+	00465621 option high res name selected
+	00465065 option high res name unselected
+	00465262 option high res value unselected
+	00465947 option high res value selected, shared: drawtextoverlayhook
+	0046563e option high res description
+*/

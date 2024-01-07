@@ -996,6 +996,9 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	// Handle menu sounds
 	HandleMenuSounds();
 
+	// Handle Display Mode Option
+	HandleDisplayMode();
+
 	// Skip frames in specific cutscenes to prevent flickering
 	if (SkipSceneFlag)
 	{

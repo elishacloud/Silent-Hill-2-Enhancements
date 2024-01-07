@@ -897,6 +897,12 @@ int printDisplayModeNameStr(unsigned short, unsigned char, int x, int y)
 	return printTextPos(ptr, x, y);
 }
 
+int printDisplayModeValue(unsigned short, unsigned char, int x, int y)
+{
+	char* ptr = (char*)prepText(GetCurrentDisplayOptionStr());
+	return printTextPos(ptr, x, y);
+}
+
 void PatchSpeakerConfigLock()
 {
 	constexpr BYTE SpkSearchBytesA[] = { 0x94, 0x00, 0x68, 0x12, 0x27, 0x00, 0x00, 0xF3, 0xA5, 0xE8 };
@@ -1008,8 +1014,9 @@ void PatchSpeakerConfigText()
 		WriteCalltoMemory(((BYTE*)DSpkrAddrName), *printMasterVolumeNameStr, 5);
 		WriteCalltoMemory(((BYTE*)DSpkrAddrHighlight), *printMasterVolumeNameStr, 5);
 		WriteCalltoMemory(((BYTE*)DSpkAddrB + 0x125), *printMasterVolumeDescStr, 5);
-		WriteCalltoMemory(((BYTE*)DSpkrAddrHighlight), *printDisplayModeNameStr, 5); //TODO address
-		WriteCalltoMemory(((BYTE*)DSpkAddrB + 0x125), *printDisplayModeDescStr, 5); //TODO address
+		WriteCalltoMemory(((BYTE*)0x00465621), *printDisplayModeNameStr, 5); //TODO address
+		WriteCalltoMemory(((BYTE*)0x00465065), *printDisplayModeNameStr, 5); //TODO address
+		WriteCalltoMemory(((BYTE*)0x0046563e), *printDisplayModeDescStr, 5); //TODO address
 	}
 }
 
@@ -1019,4 +1026,6 @@ void PatchSpeakerConfigText()
 	00465262 option high res value unselected
 	00465947 option high res value selected, shared: drawtextoverlayhook
 	0046563e option high res description
+
+	00465ec1 change option value
 */

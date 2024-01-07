@@ -646,6 +646,12 @@ void DelayedStart()
 		PatchCustomSFXs();
 	}
 
+	// Adds display mode option
+	if (true) //TODO setting
+	{
+		PatchDisplayMode();
+	}
+
 	// Remove the "Now loading..." message
 	switch (GameVersion)
 	{

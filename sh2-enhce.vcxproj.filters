@@ -419,6 +419,9 @@
     <ClCompile Include="Include\winmm.cpp">
       <Filter>Include</Filter>
     </ClCompile>
+    <ClCompile Include="DisplayMode.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">

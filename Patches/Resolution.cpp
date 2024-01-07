@@ -864,6 +864,8 @@ void PatchLockScreenPosition()
 extern char* getSpeakerConfigDescStr();
 extern char* getMasterVolumeDescStr();
 extern char* getMasterVolumeNameStr();
+extern char* getDisplayModeDescStr();
+extern char* getDisplayModeNameStr();
 
 int printSpkDescStr(unsigned short, unsigned char, int x, int y)
 {
@@ -880,6 +882,18 @@ int printMasterVolumeDescStr(unsigned short, unsigned char, int x, int y)
 int printMasterVolumeNameStr(unsigned short, unsigned char, int x, int y)
 {
 	char* ptr = (char*)prepText(getMasterVolumeNameStr());
+	return printTextPos(ptr, x, y);
+}
+
+int printDisplayModeDescStr(unsigned short, unsigned char, int x, int y)
+{
+	char* ptr = (char*)prepText(getDisplayModeDescStr());
+	return printTextPos(ptr, x, y);
+}
+
+int printDisplayModeNameStr(unsigned short, unsigned char, int x, int y)
+{
+	char* ptr = (char*)prepText(getDisplayModeNameStr());
 	return printTextPos(ptr, x, y);
 }
 
@@ -994,5 +1008,7 @@ void PatchSpeakerConfigText()
 		WriteCalltoMemory(((BYTE*)DSpkrAddrName), *printMasterVolumeNameStr, 5);
 		WriteCalltoMemory(((BYTE*)DSpkrAddrHighlight), *printMasterVolumeNameStr, 5);
 		WriteCalltoMemory(((BYTE*)DSpkAddrB + 0x125), *printMasterVolumeDescStr, 5);
+		WriteCalltoMemory(((BYTE*)DSpkrAddrHighlight), *printDisplayModeNameStr, 5); //TODO address
+		WriteCalltoMemory(((BYTE*)DSpkAddrB + 0x125), *printDisplayModeDescStr, 5); //TODO address
 	}
 }

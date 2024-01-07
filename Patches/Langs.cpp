@@ -1018,6 +1018,16 @@ char* getMasterVolumeDescStr()
 	return exeStrPtr[STR_PER_LANG * (int)*gLangID + 28];
 }
 
+char* getDisplayModeNameStr()
+{
+	return exeStrPtr[STR_PER_LANG * (int)*gLangID + 29];
+}
+
+char* getDisplayModeDescStr()
+{
+	return exeStrPtr[STR_PER_LANG * (int)*gLangID + 30];
+}
+
 constexpr BYTE TownWestGateEventSearchBytes[] = { 0x00, 0x00, 0x00, 0x90, 0x00, 0xC0, 0x3F, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x60, 0x6E, 0x20 };
 constexpr BYTE TownWestGateEventUpdateVal[] = { 0x00, 0x00, 0x00, 0x60, 0x00, 0x80, 0x13, 0x00 };
 

@@ -646,11 +646,11 @@ void DelayedStart()
 		PatchCustomSFXs();
 	}
 
-    // Patch to prevent James from looking at the teddy bear after picking up the bent needle
-    if (TeddyBearLookFix)
-    {
-        PatchTeddyBearLookFix();
-    }
+	// Patch to prevent James from looking at the teddy bear after picking up the bent needle
+	if (TeddyBearLookFix)
+	{
+		PatchTeddyBearLookFix();
+	}
 
 	// Remove the "Now loading..." message
 	switch (GameVersion)

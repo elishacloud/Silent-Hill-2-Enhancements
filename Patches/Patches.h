@@ -650,6 +650,7 @@ void PatchSixtyFPS();
 void PatchSpeakerConfigText();
 void PatchSpecificSoundLoopFix();
 void PatchSwapLightHeavyAttack();
+void PatchTeddyBearLookFix();
 void PatchTexAddr();
 void PatchTownWestGateEvent();
 void PatchTreeLighting();

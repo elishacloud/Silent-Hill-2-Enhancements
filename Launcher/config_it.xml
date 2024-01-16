@@ -819,6 +819,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="TeddyBearLookFix">
+        <Title>Fix looking at teddy bear after cutscene</Title>
+        <Description>Prevents James from looking at the teddy bear in the women's locker room on the second floor of Brookhaven Hospital after acquiring the bent needle.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="FixCreatureVehicleSpawn">
         <Title>Correggi le Lying Figure che escono da sotto i veicoli</Title>
         <Description>Corregge un bug che causa le l'uscita in modo sbagliato delle Lying Figure.</Description>

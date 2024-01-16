@@ -123,6 +123,7 @@
 	visit(SpecularFix, true) \
 	visit(SteamCrashFix, true) \
 	visit(SwapLightHeavyAttack, true) \
+    visit(TeddyBearLookFix, true) \
 	visit(UnlockJapLang, true) \
 	visit(UseBestGraphics, true) \
 	visit(UseCustomExeStr, true) \

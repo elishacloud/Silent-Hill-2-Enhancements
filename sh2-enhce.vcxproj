@@ -246,6 +246,7 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     <ClCompile Include="Patches\Specular.cpp" />
     <ClCompile Include="Patches\SprayEffect.cpp" />
     <ClCompile Include="Patches\SwapLightHeavyAttack.cpp" />
+    <ClCompile Include="Patches\TeddyBearLookFix.cpp" />
     <ClCompile Include="Patches\TexPatch.cpp" />
     <ClCompile Include="Patches\FogAdjustments.cpp" />
     <ClCompile Include="Patches\Fonts.cpp" />

@@ -140,20 +140,20 @@
       </Feature>
 
       <Feature name="DisableMaximizedWindowedMode">
-        <Title>Disable Maximized Windowed Mode</Title>
-        <Description>Disables the Direct3D9 Maximized Windowed Mode feature on newer versions of Windows. Allows antialiasing to work in fullscreen mode.&#x0a;&#x0a;Requires running the game in DirectX 9 to work.</Description>
+        <Title>Disabilita la modalità finestra a schermo intero</Title>
+        <Description>Disabilita la modalità finestra a schermo intero di Direct3D9 sulle nuove versioni di Windows. Permette il funzionamento dell'antialiasing in modalità schermo intero.&#x0a;&#x0a;Necessita che il gioco parta in modalità DirectX 9.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 
       <Feature name="ForceHybridEnumeration">
-        <Title>Use dedicated graphics card</Title>
-        <Description>Attempts to use the secondary dedicated display adapter on a laptop with more than one GPU (hybrid video cards).&#x0a;&#x0a;Requires running the game in DirectX 9 to work.</Description>
+        <Title>Utilizza scheda grafica dedicata</Title>
+        <Description>Cerca di usare la scheda grafica secondaria su un portatile con più di una GPU (schede video ibride).&#x0a;&#x0a;Necessita che il gioco parta in modalità DirectX 9.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -412,11 +412,11 @@
       </Feature>
 
       <Feature name="PreserveSoundsOnLoad">
-        <Title>Preserve game save and load sound effects</Title>
-        <Description>Preserves the "game load" and "game save" sound effects when loading/saving while in-game. Otherwise, these sounds would be cut off prematurely under certain circumstances. Note: g_start.wav and save_sound.wav must be present in "sh2e\sound\extra\" for this feature to work.</Description>
+        <Title>Corregge l'effetto sonoro di Salva e Carica gioco</Title>
+        <Description>Corregge il suono di "salva gioco" e "carica gioco" quando si carica/salva durante il gioco. Altrimenti, questi suoni verrebbero tagliati prematuramente in certe circostanze. Nota: g_start.wav e save_sound.wav devono essere presenti in "sh2e\sound\extra\" affinché questa feature funzioni.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -434,11 +434,11 @@
     <Section name="Audio Bonus">
 
       <Feature name="FlashlightToggleSFX">
-        <Title>Restore missing flashlight sound effects</Title>
-        <Description>Enables a flashlight sound effect when turning the light on or off.  Note: flashlight_on.wav and flashlight_off.wav must be present in "sh2e\sound\extra\" for this feature to work.</Description>
+        <Title>Ripristina effetti sonori mancanti della torcia</Title>
+        <Description>Abilita suoni della torcia quando viene accesa o spenta. Nota: flashlight_on.wav e flashlight_off.wav devono essere presenti in "sh2e\sound\extra\" affinché questa feature funzioni.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -446,8 +446,8 @@
         <Title>Ripristina l'audio per la VHS senza censura</Title>
         <Description>Ripristina l'audio per la VHS senza censura.&#x0a;&#x0a;Nota: Bisogna avere la giusta versione del file video che contiene entrambe le versioni dell'audio, censurata e non. Altrimenti, soltanto l'audio originale verrà riprodotto. E' possibile ottenere la corretta versione di questo video scaricando l'FMV Enhancement Pack dal sito del progetto.</Description>
         <Choices type="check">
-          <Value name="Disable" default="true">0</Value>
-          <Value name="Enable">1</Value>
+          <Value name="Disabilitato" default="true">0</Value>
+          <Value name="Abilitato">1</Value>
         </Choices>
       </Feature>
 
@@ -757,11 +757,11 @@
       </Feature>
 
       <Feature name="FireEscapeKeyFix">
-        <Title>Fire Escape Key Fix</Title>
-        <Description>Allows the fire escape key to be interacted with without the flashlight.</Description>
+        <Title>Correggi la chiave dell'uscita d'emergenza</Title>
+        <Description>Permette l'interazione con la chiave dell'uscita d'emergenza anche senza la torcia.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -787,8 +787,8 @@
         <Title>Correggi errore visivo nel boss finale</Title>
         <Description>Corregge un errore di grafica che compare guardando il pavimento in certe angolazioni.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -847,11 +847,11 @@
       </Feature>
 
       <Feature name="MothDrawOrderFix">
-        <Title>Fix moth draw order</Title>
-        <Description>Fixes a visual bug which causes the moths in Wood Side Apartments Room 202 and the final boss room to appear behind translucent objects such as glass.</Description>
+        <Title>Correggi l'ordine di visualizzazione delle falene</Title>
+        <Description>Corregge un bug visivo in cui le falene negli Wood Side Apartments, Stanza 202 e nella stanza del boss finale per farle comparire dietro oggetti trasparenti come il vetro.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -883,11 +883,11 @@
       </Feature>
 
       <Feature name="EnableHoldToStomp">
-        <Title>Restore alternate stomp</Title>
-        <Description>Restores the secondary/alternate stomp animation. When nearby an enemy on the ground, press and quickly release the attack button to perform a kick. Press and hold the attack button to perform a stomp.</Description>
+        <Title>Ripristina pestone alternativo</Title>
+        <Description>Ripristina l'animazione di pestone secondario/alternato. Quando si è vicini ad un nemico che è in terra, premendo velocemente il tasto di attacco calcia il nemico. Tenendo premuto il tasto di attacco effettua un pestone sul nemico.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -919,20 +919,20 @@
       </Feature>
 
       <Feature name="FmvSubtitlesSyncFix">
-        <Title>Sync subtitles with FMV framerate</Title>
-        <Description>Adjusts the playback speed of subtitles to match the framerate of the FMV.</Description>
+        <Title>Sincronizza i sottotitoli con la frequenza degli FMV</Title>
+        <Description>Regola la velocità di riproduzione dei sottotitoli per seguire la frequenza di aggiornamento degli FMV.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 
       <Feature name="SwapLightHeavyAttack">
-        <Title>Swap light and heavy melee attack inputs</Title>
-        <Description>Swaps the priority of light and heavy attacks for melee weapons. Press and quickly release the attack button to perform a light attack. Press and hold the attack button to perform a heavy attack.</Description>
+        <Title>Scambia gli input per attacco pesante e leggero</Title>
+        <Description>Scambia gli input per attacco pesante e leggero sulle armi corpo a corpo. Premendo velocemente il tasto di attacco effettua un attacco leggero. Tenendo premuto il tasto di attacco effettua un attacco pesante.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -1153,11 +1153,11 @@
       </Feature>
 
       <Feature name="EnableLangPath">
-        <Title>Use "lang" folder</Title>
-        <Description>Silent Hill 2: Enhanced Edition will read and use fonts and language files in the "lang" folder, rather than the "data" or "sh2e" folders, whenever possible. This allows custom language files to replace/overwrite original game files.&#x0a;&#x0a;Note: requires "Use custom 'sh2e' folder" to be enabled.</Description>
+        <Title>Utilizza la cartella "lang"</Title>
+        <Description>Silent Hill 2: Enhanced Edition utilizzerà font e file di lingua dalla cartella "lang", piuttosto che dalle cartelle "data" o "sh2e", quando possibile. Ciò permette ai file personalizzati di rimpiazzare i file originali del gioco.&#x0a;&#x0a;Nota: richiede l'opzione 'Utilizza la cartella custom "sh2e"''.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 

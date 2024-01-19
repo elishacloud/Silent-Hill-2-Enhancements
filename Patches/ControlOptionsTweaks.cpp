@@ -14,17 +14,12 @@
 *   3. This notice may not be removed or altered from any source distribution.
 */
 
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include "Patches.h"
-#include "Logging\Logging.h"
-#include "Common\Utils.h"
+#include "External\injector\include\injector\injector.hpp"
+#include "External\injector\include\injector\utility.hpp"
+#include "External\Hooking.Patterns\Hooking.Patterns.h"
+#include "ControlOptionsTweaks.h"
 
-void PatchFMVFramerate()
+void PatchControlOptionsMenu()
 {
-	Logging::Log() << "Patching FMV speed...";
 
-	uint8_t* FMVFixAddr = GetSixtyFPSFMVFixPointer();
-
-	UpdateMemoryAddress(FMVFixAddr, "\x90\x90\x90\x90\x90", 5);
 }

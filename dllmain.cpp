@@ -652,6 +652,12 @@ void DelayedStart()
 		PatchTeddyBearLookFix();
 	}
 
+	// Overhaul the Control Options menu
+	if (true) //TODO setting
+	{
+		PatchControlOptionsMenu();
+	}
+
 	// Remove the "Now loading..." message
 	switch (GameVersion)
 	{

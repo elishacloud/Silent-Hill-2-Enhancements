@@ -14,17 +14,9 @@
 *   3. This notice may not be removed or altered from any source distribution.
 */
 
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include "Patches.h"
+#pragma once
 #include "Logging\Logging.h"
+#include "Patches\Patches.h"
 #include "Common\Utils.h"
-
-void PatchFMVFramerate()
-{
-	Logging::Log() << "Patching FMV speed...";
-
-	uint8_t* FMVFixAddr = GetSixtyFPSFMVFixPointer();
-
-	UpdateMemoryAddress(FMVFixAddr, "\x90\x90\x90\x90\x90", 5);
-}
+#include "Wrappers\d3d8\d3d8wrapper.h"
+#include "Common\Settings.h"

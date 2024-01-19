@@ -422,6 +422,9 @@
     <ClCompile Include="Patches\TeddyBearLookFix.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\ControlOptionsTweaks.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">
@@ -642,6 +645,9 @@
     </ClInclude>
     <ClInclude Include="Include\winmm.h">
       <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Patches\ControlOptionsTweaks.h">
+      <Filter>Patches</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

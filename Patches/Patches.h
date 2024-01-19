@@ -594,6 +594,7 @@ void PatchCDCheck();
 void PatchCatacombsMeatRoom();
 void PatchClosetSpawn();
 void PatchCommandWindowMouseFix();
+void PatchControlOptionsMenu();
 void PatchCreatureVehicleSpawn();
 void PatchCriware();
 HRESULT PatchCustomExeStr();

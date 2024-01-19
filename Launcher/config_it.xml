@@ -820,11 +820,11 @@
       </Feature>
 
       <Feature name="TeddyBearLookFix">
-        <Title>Fix looking at teddy bear after cutscene</Title>
-        <Description>Prevents James from looking at the teddy bear in the women's locker room on the second floor of Brookhaven Hospital after acquiring the bent needle.</Description>
+        <Title>Correggi il guardare l'orsacchiotto dopo la cutscene</Title>
+        <Description>Impedisce a James di guardare l'orsacchiotto nello spogliatoio delle donne al secondo piano del Brookhaven Hospital dopo aver acquisito l'ago.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 

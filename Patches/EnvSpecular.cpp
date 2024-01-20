@@ -433,54 +433,53 @@ void __cdecl sub_5B4940(Something* toRender)
                     g_d3d8Device_A32894->SetIndices(indexBuffer, 0);
                     
                     // MY CODE
-                    if (startIndex == 28189 && primitiveCount == 234)
+                    if (startIndex == 28189 && primitiveCount == 234) // If drawing the shop window
                     {
-                        static int toggle = true;
-                    
-                        if (toggle) {
-                            g_d3d8Device_A32894->SetTexture(4, g_commonTextures_1F7D4AC[14440].tex);
+                        // Assign specular highlight texture to slot 4
+                        g_d3d8Device_A32894->SetTexture(4, g_commonTextures_1F7D4AC[14440].tex);
 
-                            constexpr float specularSize = 3.545f; // default = 3.545
+                        constexpr float specularSize = 3.545f; // default = 3.545
 
-                            D3DMATRIX matrix;
-                            GetSomeMatrix_50C570(&matrix);
+                        // Get the mystery constants in the same way as the nurse
+                        D3DMATRIX matrix;
+                        GetSomeMatrix_50C570(&matrix);
 
-                            float shaderConstantMulti[4] = { 0 };
-                            shaderConstantMulti[0] = matrix._11 * specularSize;
-                            shaderConstantMulti[1] = matrix._21 * specularSize;
-                            shaderConstantMulti[2] = matrix._31 * specularSize;
-                            shaderConstantMulti[3] = 0.5;
+                        float shaderConstantMulti[4] = { 0 };
+                        shaderConstantMulti[0] = matrix._11 * specularSize;
+                        shaderConstantMulti[1] = matrix._21 * specularSize;
+                        shaderConstantMulti[2] = matrix._31 * specularSize;
+                        shaderConstantMulti[3] = 0.5;
 
-                            float vsConstant_3[4] = { 0 };
-                            vsConstant_3[0] = matrix._12 * specularSize;
-                            vsConstant_3[1] = matrix._22 * specularSize;
-                            vsConstant_3[2] = matrix._32 * specularSize;
-                            vsConstant_3[3] = 0.5;
+                        float vsConstant_3[4] = { 0 };
+                        vsConstant_3[0] = matrix._12 * specularSize;
+                        vsConstant_3[1] = matrix._22 * specularSize;
+                        vsConstant_3[2] = matrix._32 * specularSize;
+                        vsConstant_3[3] = 0.5;
 
-                            g_d3d8Device_A32894->SetVertexShaderConstant(28, shaderConstantMulti, 1);
-                            g_d3d8Device_A32894->SetVertexShaderConstant(29, vsConstant_3, 1);
+                        // Set to some unused registers
+                        g_d3d8Device_A32894->SetVertexShaderConstant(28, shaderConstantMulti, 1);
+                        g_d3d8Device_A32894->SetVertexShaderConstant(29, vsConstant_3, 1);
 
-                            DWORD currVs;
-                            DWORD currPs;
-                            g_d3d8Device_A32894->GetVertexShader(&currVs);
-                            g_d3d8Device_A32894->GetPixelShader(&currPs);
-                            g_d3d8Device_A32894->SetVertexShader(myVsShaderHandle);
-                            g_d3d8Device_A32894->SetPixelShader(myPsShaderHandle);
+                        DWORD currVs;
+                        DWORD currPs;
+                        g_d3d8Device_A32894->GetVertexShader(&currVs);
+                        g_d3d8Device_A32894->GetPixelShader(&currPs);
+                        g_d3d8Device_A32894->SetVertexShader(myVsShaderHandle);
+                        g_d3d8Device_A32894->SetPixelShader(myPsShaderHandle);
 
-                            // Set up sampler states
-                            g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_ADDRESSU, D3DTADDRESS_BORDER);
-                            g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_ADDRESSV, D3DTADDRESS_BORDER);
-                            g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
-                            g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
-                            g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_MIPFILTER, D3DTEXF_LINEAR);
+                        // Set up sampler states
+                        g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_ADDRESSU, D3DTADDRESS_BORDER);
+                        g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_ADDRESSV, D3DTADDRESS_BORDER);
+                        g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
+                        g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
+                        g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_MIPFILTER, D3DTEXF_LINEAR);
 
-                            g_d3d8Device_A32894->DrawIndexedPrimitive(g_primitiveTypes_8F0378[off_0x0C->off_0x02], off_0x0C->off_0x04, off_0x0C->off_0x06 - off_0x0C->off_0x04 + 1, startIndex, primitiveCount);
+                        g_d3d8Device_A32894->DrawIndexedPrimitive(g_primitiveTypes_8F0378[off_0x0C->off_0x02], off_0x0C->off_0x04, off_0x0C->off_0x06 - off_0x0C->off_0x04 + 1, startIndex, primitiveCount);
 
-                            g_d3d8Device_A32894->SetVertexShader(currVs);
-                            g_d3d8Device_A32894->SetPixelShader(currPs);
+                        g_d3d8Device_A32894->SetVertexShader(currVs);
+                        g_d3d8Device_A32894->SetPixelShader(currPs);
 
-                            g_d3d8Device_A32894->SetTexture(4, 0);
-                        }
+                        g_d3d8Device_A32894->SetTexture(4, 0);
                     }
                     else
                     {
@@ -899,17 +898,20 @@ LABEL_50:
     // MY CODE
     DWORD currVs;
     g_d3d8Device_A32894->GetVertexShader(&currVs);
-    if (currVs == nurseFlashlightOnVsHandle_1F7D6A0)
+
+    if (currVs == nurseFlashlightOnVsHandle_1F7D6A0) // If current vs is the one used by the nurse
     {
         constexpr float specTint[] = { 1.0f, 0.0f, 0.0f, 0.0f };
         g_d3d8Device_A32894->SetPixelShaderConstant(3, specTint, 1);
-    
+
+        // Replace current vs and ps with custom shaders
         g_d3d8Device_A32894->SetVertexShader(myVsShaderHandle);
         g_d3d8Device_A32894->SetPixelShader(myPsShaderHandle);
-    
+
+        // Draw as usual
         g_d3d8Device_A32894->SetStreamSource(0, vertexBuffer, 32);
         g_d3d8Device_A32894->DrawIndexedPrimitive(D3DPT_TRIANGLESTRIP, 0, toRender->subStruct->numVertices, 0, toRender->primCount - 2);
-    
+
         g_d3d8Device_A32894->SetVertexShader(currVs); // revert the vertex shader
     }
     else

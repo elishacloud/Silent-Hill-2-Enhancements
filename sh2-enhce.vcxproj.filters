@@ -446,6 +446,9 @@
     <ClCompile Include="Patches\ElevatorCursorColorFix.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+	<ClCompile Include="Patches\EnvSpecular.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
     <ClCompile Include="Patches\RowboatFix.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
@@ -674,6 +677,9 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="Patches\GravestoneBoardsFix.h">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Patches\EnvSpecular.h">
       <Filter>Patches</Filter>
     </ClInclude>
   </ItemGroup>

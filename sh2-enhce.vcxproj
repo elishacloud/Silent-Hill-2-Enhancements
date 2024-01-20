@@ -212,6 +212,7 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClCompile Include="Patches\CommandWindowMouseFix.cpp" />
     <ClCompile Include="Patches\DoubleFootstepFix.cpp" />
     <ClCompile Include="Patches\ElevatorCursorColorFix.cpp" />
+    <ClCompile Include="Patches\EnvSpecular.cpp" />
     <ClCompile Include="Patches\FinalBossRoomFix.cpp" />
     <ClCompile Include="Patches\FireEscapeKey.cpp" />
     <ClCompile Include="Patches\HoldToStomp.cpp" />
@@ -366,6 +367,7 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClInclude Include="Include\VersionHelpers.h" />
     <ClInclude Include="Include\winmm.h" />
     <ClInclude Include="Logging\Logging.h" />
+    <ClInclude Include="Patches\EnvSpecular.h" />
     <ClInclude Include="Patches\FullscreenImages.h" />
     <ClInclude Include="Patches\InputTweaks.h" />
     <ClInclude Include="Patches\OptionsMenuTweaks.h" />

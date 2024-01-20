@@ -27,6 +27,7 @@
 #include "stb_image_resize.h"
 #include "Patches\ModelID.h"
 #include "Patches\OptionsMenuTweaks.h"
+#include "Patches\EnvSpecular.h"
 #include "Resource.h"
 
 bool DeviceLost = false;
@@ -1116,12 +1117,22 @@ HRESULT m_IDirect3DDevice8::CreatePixelShader(THIS_ CONST DWORD* pFunction, DWOR
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	if (!myPsShaderHandle)
+	{
+		ProxyInterface->CreatePixelShader(myPixelShader, &myPsShaderHandle);
+	}
+
 	return ProxyInterface->CreatePixelShader(pFunction, pHandle);
 }
 
 HRESULT m_IDirect3DDevice8::GetPixelShader(THIS_ DWORD* pHandle)
 {
 	Logging::LogDebug() << __FUNCTION__;
+
+	if (!myVsShaderHandle)
+	{
+		ProxyInterface->CreateVertexShader(myVsDecl, myVertexShader, &myVsShaderHandle, 0);
+	}
 
 	return ProxyInterface->GetPixelShader(pHandle);
 }

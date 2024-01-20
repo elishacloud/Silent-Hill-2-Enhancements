@@ -666,6 +666,7 @@ void PatchSearchViewOptionName();
 void PatchSpeakerConfigLock();
 void PatchSpecialFX();
 void PatchSpecular();
+void PatchEnvSpecular();
 void PatchSprayEffect();
 void PatchSFXAddr();
 void PatchShowerRoomFlashlightFix();

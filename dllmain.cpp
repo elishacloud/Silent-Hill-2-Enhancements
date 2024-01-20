@@ -605,6 +605,13 @@ void DelayedStart()
 		PatchSpecular();
 	}
 
+	// Environmental Specular Fix
+	bool EnvSpecularFix = true;
+	if (EnvSpecularFix)
+	{
+		PatchEnvSpecular();
+	}
+
 	// Enables a complete rewrite of the game's audio engine
 	if (EnableCriWareReimplementation)
 	{

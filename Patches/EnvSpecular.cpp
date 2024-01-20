@@ -482,11 +482,15 @@ void __cdecl sub_5B4940(Something* toRender)
                             g_d3d8Device_A32894->SetTexture(4, 0);
                         }
                     }
-                    // END MY CODE
                     else
                     {
                         g_d3d8Device_A32894->DrawIndexedPrimitive(g_primitiveTypes_8F0378[off_0x0C->off_0x02], off_0x0C->off_0x04, off_0x0C->off_0x06 - off_0x0C->off_0x04 + 1, startIndex, primitiveCount);
                     }
+                    // END MY CODE
+
+                    // ORIGINAL CODE
+                    // g_d3d8Device_A32894->DrawIndexedPrimitive(g_primitiveTypes_8F0378[off_0x0C->off_0x02], off_0x0C->off_0x04, off_0x0C->off_0x06 - off_0x0C->off_0x04 + 1, startIndex, primitiveCount);
+                    // END ORIGINAL CODE
 
                     startIndex += off_0x0C->off_0x00 * off_0x0C->off_0x03;
                     
@@ -698,13 +702,6 @@ void __cdecl sub_501540(struct_a1* toRender)
 
             g_d3d8Device_A32894->SetVertexShaderConstant(89, shaderConstantMulti, 1);
             g_d3d8Device_A32894->SetVertexShaderConstant(90, vsConstant_3, 1);
-
-            // DEBUG
-            float raw1[] = { matrix._11, matrix._21, matrix._31, matrix._41 };
-            float raw2[] = { matrix._12, matrix._22, matrix._32, matrix._42 };
-            g_d3d8Device_A32894->SetVertexShaderConstant(100, raw1, 1);
-            g_d3d8Device_A32894->SetVertexShaderConstant(101, raw2, 1);
-            // END DEBUG
         }
         else
         {
@@ -899,7 +896,7 @@ LABEL_23:
 
 LABEL_50:
 
-    //DEBUG
+    // MY CODE
     DWORD currVs;
     g_d3d8Device_A32894->GetVertexShader(&currVs);
     if (currVs == nurseFlashlightOnVsHandle_1F7D6A0)
@@ -915,21 +912,21 @@ LABEL_50:
     
         g_d3d8Device_A32894->SetVertexShader(currVs); // revert the vertex shader
     }
-    //END DEBUG
     else
     {
         g_d3d8Device_A32894->SetStreamSource(0, vertexBuffer, 32);
         g_d3d8Device_A32894->DrawIndexedPrimitive(D3DPT_TRIANGLESTRIP, 0, toRender->subStruct->numVertices, 0, toRender->primCount - 2);
     }
+    // END MY CODE
+
+    // ORIGINAL CODE
+    // g_d3d8Device_A32894->SetStreamSource(0, vertexBuffer, 32);
+    // g_d3d8Device_A32894->DrawIndexedPrimitive(D3DPT_TRIANGLESTRIP, 0, toRender->subStruct->numVertices, 0, toRender->primCount - 2);
+    // END ORIGINAL CODE
 }
 
 void PatchEnvSpecular()
 {
-    /*
-    * REMEMBER TO REMOVE HACK DX_CONFIG_USE_PIXEL_SHADERS 0
-    * FROM LOCAL.FIX!!!
-    */
-
     //WriteCalltoMemory(reinterpret_cast<BYTE*>(0x476C81), CreateShaders_5AF110);
 
     //WriteCalltoMemory(reinterpret_cast<BYTE*>(0x5B0568), sub_5B2D40);
@@ -937,7 +934,7 @@ void PatchEnvSpecular()
     //WriteCalltoMemory(reinterpret_cast<BYTE*>(0x5B49F4), sub_5B2D40);
 
     // Reimpl function responsible for drawing ACTORS
-    //WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501F77), sub_501540);
+    WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501F77), sub_501540);
 
     // Reimpl function responsible for drawing MAP
     //WriteCalltoMemory(reinterpret_cast<BYTE*>(0x5B4CB1), sub_5B4940);

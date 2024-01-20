@@ -12,7 +12,32 @@ constexpr DWORD myVsDecl[] =
     D3DVSD_END()
 };
 
+/*
 // Assembled with `vsa.exe -h0` from DirectX 8.1b SDK
+
+vs.1.1
+mov r0, c0
+mov r1, c0
+
+mov oT1, c0
+
+// vertex position
+dp4 r0.x, v0, c39
+dp4 r0.y, v0, c40
+dp4 r0.z, v0, c41
+dp4 r0.w, v0, c42
+mov oPos, r0
+
+// vertex fog
+max r1.x, r0.w, c0.x
+rcp r1.x, r1.x
+mad oFog, r1.x, c46.y, c46.x
+
+// specular highlight
+dp4 oT1.x, v3, c89
+dp4 oT1.y, v3, c90
+
+*/
 constexpr DWORD myVertexShader[] =
 {
     0xfffe0101, 0x0009fffe, 0x58443344, 0x68532038,
@@ -32,20 +57,16 @@ constexpr DWORD myVertexShader[] =
     0xe0020001, 0x90e40003, 0xa0e4005a, 0x0000ffff
 };
 
+/*
 // Assembled with `psa.exe -h0` from DirectX 8.1b SDK
-// 
-// ps.1.4
-// def c0, 1.0f, 0.0f, 1.0f, 1.0f
-// mov r0, c0
-//constexpr DWORD myPixelShader[] = {
-//    0xFFFF0104, 0x0009FFFE, 0x58443344, 0x68532038,
-//    0x72656461, 0x73734120, 0x6C626D65, 0x56207265,
-//    0x69737265, 0x30206E6F, 0x0031392E, 0x00000051,
-//    0xA00F0000, 0x3F800000, 0x00000000, 0x3F800000,
-//    0x3F800000, 0x00000001, 0x800F0000, 0xA0E40000,
-//    0x0000FFFF
-//};
 
+ps.1.4
+def c4, 0, 0, 0, 1  // black
+texld r1, t1        // load specular highlight texture
+mov r0, c4		    // make output pixel black
+mul r0.rgb, r1, c3	// apply the specular highlight with tint color constant
+
+*/
 constexpr DWORD myPixelShader[] = {
     0xffff0104, 0x0009fffe, 0x58443344, 0x68532038,
     0x72656461, 0x73734120, 0x6c626d65, 0x56207265,
@@ -164,33 +185,3 @@ struct MapVsConstants
     //...
 };
 static_assert(sizeof(MapVsConstants) == 0x1C0);
-
-// Minimal Nurse shaders
-//constexpr DWORD myVertexShader[] =
-//{
-//    0xfffe0101, 0x0009fffe, 0x58443344, 0x68532038,
-//    0x72656461, 0x73734120, 0x6c626d65, 0x56207265,
-//    0x69737265, 0x30206e6f, 0x0031392e, 0x00000001,
-//    0x800f0000, 0xa0e40000, 0x00000001, 0x800f0001,
-//    0xa0e40000, 0x00000001, 0xe00f0001, 0xa0e40000,
-//    0x00000009, 0x80010000, 0x90e40000, 0xa0e40027,
-//    0x00000009, 0x80020000, 0x90e40000, 0xa0e40028,
-//    0x00000009, 0x80040000, 0x90e40000, 0xa0e40029,
-//    0x00000009, 0x80080000, 0x90e40000, 0xa0e4002a,
-//    0x00000001, 0xc00f0000, 0x80e40000, 0x0000000b,
-//    0x80010001, 0x80ff0000, 0xa0000000, 0x00000006,
-//    0x80010001, 0x80000001, 0x00000004, 0xc00f0001,
-//    0x80000001, 0xa055002e, 0xa000002e, 0x00000009,
-//    0xe0010001, 0x90e40003, 0xa0e40059, 0x00000009,
-//    0xe0020001, 0x90e40003, 0xa0e4005a, 0x0000ffff
-//};
-//
-//constexpr DWORD myPixelShader[] = {
-//    0xffff0104, 0x0009fffe, 0x58443344, 0x68532038,
-//    0x72656461, 0x73734120, 0x6c626d65, 0x56207265,
-//    0x69737265, 0x30206e6f, 0x0031392e, 0x00000051,
-//    0xa00f0004, 0x00000000, 0x00000000, 0x00000000,
-//    0x3f800000, 0x00000042, 0x800f0001, 0xb0e40001,
-//    0x00000001, 0x800f0000, 0xa0e40004, 0x00000005,
-//    0x80070000, 0x80e40001, 0xa0e40003, 0x0000ffff
-//};

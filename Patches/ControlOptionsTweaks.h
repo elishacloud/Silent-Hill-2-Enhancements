@@ -20,3 +20,15 @@
 #include "Common\Utils.h"
 #include "Wrappers\d3d8\d3d8wrapper.h"
 #include "Common\Settings.h"
+
+class ControllerIcons
+{
+public:
+	void HandleControllerIcons(LPDIRECT3DDEVICE8 ProxyInterface);
+
+private:
+
+
+};
+
+extern ControllerIcons ControllerIconsRef;

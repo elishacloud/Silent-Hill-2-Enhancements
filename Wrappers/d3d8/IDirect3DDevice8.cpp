@@ -25,6 +25,7 @@
 #include "stb_image_resize.h"
 #include "Patches\ModelID.h"
 #include "Patches\MasterVolume.h"
+#include "Patches\ControlOptionsTweaks.h"
 
 bool DeviceLost = false;
 bool DisableShaderOnPresent = false;
@@ -992,6 +993,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 
 	// Store reference to the ProxyInterface
 	MasterVolumeRef.HandleMasterVolume(ProxyInterface);
+	ControllerIconsRef.HandleControllerIcons(ProxyInterface);
 
 	// Handle menu sounds
 	HandleMenuSounds();

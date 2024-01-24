@@ -136,12 +136,12 @@ public:
 	ButtonIcons() = default;
 
 	void HandleControllerIcons(LPDIRECT3DDEVICE8 ProxyInterface);
+	void DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface);
 
 private:
 	IconQuad quads[0x0B];
 
 	void SetIconTextures();
-	void DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface);
 
 	void TranslateVertexBuffer(TexturedVertex* vertices, int count, float x, float y);
 	void ScaleVertexBuffer(TexturedVertex* vertices, int count, float x, float y);

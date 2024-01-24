@@ -75,6 +75,7 @@ void __cdecl DrawOptions_Hook(DWORD* pointer)
     orgDrawOptions.fun(pointer);
 
     MasterVolumeSliderRef.DrawSlider(DirectXInterface, CurrentMasterVolumeLevel, CurrentMasterVolumeLevel != SavedMasterVolumeLevel);
+    ButtonIconsRef.DrawIcons(DirectXInterface);
 }
 
 void __cdecl ConfirmOptions_Hook(int32_t param)
@@ -475,14 +476,66 @@ bool IsInOptionsMenu()
         (GetOptionsSubPage() == 0x00 || GetOptionsSubPage() == 0x01);
 }
 
-void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
+bool IsInControlOptionsMenu()
 {
     // TODO
+    return true;
+}
+
+void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
+{
+    if (!IsInControlOptionsMenu())
+    {
+        return;
+    }
+
+    if (ButtonIconsTexture == NULL)
+    {
+        Logging::Log() << __FUNCTION__ << " ButtonIcons Texture is null!";
+
+        return;
+    }
+
+    ProxyInterface->SetVertexShader(D3DFVF_XYZRHW | D3DFVF_TEX1);
+
+    ProxyInterface->SetRenderState(D3DRS_ALPHATESTENABLE, 0);
+    ProxyInterface->SetRenderState(D3DRS_ALPHABLENDENABLE, 0);
+
+    ProxyInterface->SetRenderState(D3DRS_FOGENABLE, FALSE);
+
+    ProxyInterface->SetTextureStageState(0, D3DTSS_COLOROP, 1);
+    ProxyInterface->SetTextureStageState(0, D3DTSS_ALPHAOP, 1);
+
+    ProxyInterface->SetTextureStageState(1, D3DTSS_COLOROP, 1);
+    ProxyInterface->SetTextureStageState(1, D3DTSS_ALPHAOP, 1);
+
+    ProxyInterface->SetTransform(D3DTS_WORLDMATRIX(0x56), &WorldMatrix);
+
+    ProxyInterface->SetTexture(0, ButtonIconsTexture);
+
+    ProxyInterface->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
+    ProxyInterface->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+    ProxyInterface->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+
+    ProxyInterface->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
+
+    for (IconQuad icon : this->quads)
+    {
+        ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, icon.vertices, sizeof(TexturedVertex));
+    }
+
+    ProxyInterface->SetRenderState(D3DRS_ALPHAREF, 2);
+    ProxyInterface->SetRenderState(D3DRS_FOGENABLE, 1);
 }
 
 void ButtonIcons::HandleControllerIcons(LPDIRECT3DDEVICE8 ProxyInterface)
 {
-    // TODO
+    if (!IsInControlOptionsMenu())
+    {
+        return;
+    }
+
+    this->SetIconTextures();
 }
 
 void ButtonIcons::SetIconTextures()

@@ -87,7 +87,7 @@ void PatchDrawDistance()
 			ExitFlag = true;
 			memcpy(SrcByteData, NextAddr, SizeOfBytes);
 			memcpy(DestByteData, NextAddr, SizeOfBytes);
-			float DrawDistance = 8500.0f;
+			float DrawDistance = 9000.0f;
 			memcpy(DestByteData + 6, (void*)&DrawDistance, sizeof(float));
 		}
 	}

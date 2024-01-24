@@ -24,34 +24,46 @@
 #define BEZEL_VERT_NUM 6
 #define RECT_VERT_NUM 4
 
-struct MasterVertex
+struct ColorVertex
 {
 	D3DXVECTOR3 coords;
 	float rhw = 1.f;
 	D3DCOLOR color;
 };
 
+struct TexturedVertex
+{
+	D3DXVECTOR3 coords;
+	float rhw = 1.f;
+	float u, v;
+};
+
+struct IconQuad
+{
+	TexturedVertex vertices[4];
+};
+
 struct Bezels
 {
-	MasterVertex TopVertices[BEZEL_VERT_NUM];
-	MasterVertex BotVertices[BEZEL_VERT_NUM];
+	ColorVertex TopVertices[BEZEL_VERT_NUM];
+	ColorVertex BotVertices[BEZEL_VERT_NUM];
 };
 
 struct CenterRects
 {
-	MasterVertex vertices[RECT_VERT_NUM];
+	ColorVertex vertices[RECT_VERT_NUM];
 };
 
 class MasterVolume
 {
-private:
-	bool EnteredOptionsMenu = false;
-
 public:
 	void HandleMasterVolume(LPDIRECT3DDEVICE8 ProxyInterface);
 	void ChangeMasterVolumeValue(int delta);
 
 	void HandleConfirmOptions(bool ConfirmChange);
+
+private:
+	bool EnteredOptionsMenu = false;
 };
 
 struct SliderColor
@@ -61,6 +73,11 @@ struct SliderColor
 
 class MasterVolumeSlider
 {
+public:
+	MasterVolumeSlider() = default;
+
+	void DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value, bool ValueChanged);
+
 private:
 	long LastBufferWidth = 0;
 	long LastBufferHeight = 0;
@@ -80,7 +97,7 @@ private:
 
 	// Bezel L flipped horizontally
 #pragma warning(disable : 4305)
-	MasterVertex BezelVertices[BEZEL_VERT_NUM] =
+	ColorVertex BezelVertices[BEZEL_VERT_NUM] =
 	{
 		{ D3DXVECTOR3( 10.547, -21.5625, 0.000) , 1.f, NULL},
 		{ D3DXVECTOR3(  5.859, -17.8125, 0.000) , 1.f, NULL},
@@ -90,7 +107,7 @@ private:
 		{ D3DXVECTOR3( -5.859,  17.8125, 0.000) , 1.f, NULL}
 	};
 #pragma warning(disable : 4305)
-	MasterVertex RectangleVertices[RECT_VERT_NUM] =
+	ColorVertex RectangleVertices[RECT_VERT_NUM] =
 	{
 		{ D3DXVECTOR3( 5.859,  17.8125, 0.000), 1.000, NULL}, // Alignment vertex
 		{ D3DXVECTOR3( 5.859, -17.8125, 0.000), 1.000, NULL},
@@ -102,20 +119,35 @@ private:
 	Bezels FinalBezels[0x10];
 	CenterRects FinalRects[0x10];
 
-	void TranslateVertexBuffer(MasterVertex* vertices, int count, float x, float y);
-	void RotateVertexBuffer(MasterVertex* vertices, int count, float angle);
-	void ScaleVertexBuffer(MasterVertex* vertices, int count, float x, float y);
+	void TranslateVertexBuffer(ColorVertex* vertices, int count, float x, float y);
+	void RotateVertexBuffer(ColorVertex* vertices, int count, float angle);
+	void ScaleVertexBuffer(ColorVertex* vertices, int count, float x, float y);
 
-	void ApplyVertexBufferTransformation(MasterVertex* vertices, int count, D3DXMATRIX matrix);
-	void SetVertexBufferColor(MasterVertex* vertices, int count, DWORD color);
-	void CopyVertexBuffer(MasterVertex* source, MasterVertex* destination, int count);
+	void ApplyVertexBufferTransformation(ColorVertex* vertices, int count, D3DXMATRIX matrix);
+	void SetVertexBufferColor(ColorVertex* vertices, int count, DWORD color);
+	void CopyVertexBuffer(ColorVertex* source, ColorVertex* destination, int count);
 
 	void InitVertices();
+};
 
+class ButtonIcons
+{
 public:
-	MasterVolumeSlider() = default;
+	ButtonIcons() = default;
 
-	void DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value, bool ValueChanged);	
+	void HandleControllerIcons(LPDIRECT3DDEVICE8 ProxyInterface);
+
+private:
+	IconQuad quads[0x0B];
+
+	void SetIconTextures();
+	void DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface);
+
+	void TranslateVertexBuffer(TexturedVertex* vertices, int count, float x, float y);
+	void ScaleVertexBuffer(TexturedVertex* vertices, int count, float x, float y);
+
+	void ApplyVertexBufferTransformation(TexturedVertex* vertices, int count, D3DXMATRIX matrix);
 };
 
 extern MasterVolume MasterVolumeRef;
+extern ButtonIcons ButtonIconsRef;

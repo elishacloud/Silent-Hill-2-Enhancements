@@ -17,7 +17,7 @@
 #include "External\injector\include\injector\injector.hpp"
 #include "External\injector\include\injector\utility.hpp"
 #include "External\Hooking.Patterns\Hooking.Patterns.h"
-#include "MasterVolume.h"
+#include "OptionsMenuTweaks.h"
 
 D3DMATRIX WorldMatrix =
 {
@@ -50,6 +50,9 @@ MasterVolume MasterVolumeRef;
 MasterVolumeSlider MasterVolumeSliderRef;
 bool DiscardOptions = false;
 int ChangeMasterVolume = 0;
+
+ButtonIcons ButtonIconsRef;
+LPDIRECT3DTEXTURE8  ButtonIconsTexture = NULL;
 
 int32_t PlaySound_Hook(int32_t SoundId, float volume, DWORD param3)
 {
@@ -209,6 +212,11 @@ void PatchMasterVolumeSlider()
 
     // Hook the function that plays sounds at the end of the options switch
     orgPlaySound.fun = injector::MakeCALL(GetPlaySoundFunPointer(), PlaySound_Hook, true).get();
+}
+
+void PatchControlOptionsMenu()
+{
+
 }
 
 void MasterVolume::ChangeMasterVolumeValue(int delta)
@@ -403,7 +411,7 @@ void MasterVolumeSlider::DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value,
     ProxyInterface->SetRenderState(D3DRS_FOGENABLE, 1);
 }
 
-void MasterVolumeSlider::TranslateVertexBuffer(MasterVertex* vertices, int count, float x, float y)
+void MasterVolumeSlider::TranslateVertexBuffer(ColorVertex* vertices, int count, float x, float y)
 {
     D3DXMATRIX TranslateMatrix;
     D3DXMatrixTranslation(&TranslateMatrix, x, y, 0.f);
@@ -411,7 +419,7 @@ void MasterVolumeSlider::TranslateVertexBuffer(MasterVertex* vertices, int count
     this->ApplyVertexBufferTransformation(vertices, count, TranslateMatrix);
 }
 
-void MasterVolumeSlider::RotateVertexBuffer(MasterVertex* vertices, int count, float angle)
+void MasterVolumeSlider::RotateVertexBuffer(ColorVertex* vertices, int count, float angle)
 {
     D3DXMATRIX RotationMatrix;
     D3DXMatrixRotationZ(&RotationMatrix, angle);
@@ -419,7 +427,7 @@ void MasterVolumeSlider::RotateVertexBuffer(MasterVertex* vertices, int count, f
     this->ApplyVertexBufferTransformation(vertices, count, RotationMatrix);
 }
 
-void MasterVolumeSlider::ScaleVertexBuffer(MasterVertex* vertices, int count, float x, float y)
+void MasterVolumeSlider::ScaleVertexBuffer(ColorVertex* vertices, int count, float x, float y)
 {
     D3DXMATRIX ScalingMatrix;
     D3DXMatrixScaling(&ScalingMatrix, x, y, 1.f);
@@ -427,7 +435,7 @@ void MasterVolumeSlider::ScaleVertexBuffer(MasterVertex* vertices, int count, fl
     this->ApplyVertexBufferTransformation(vertices, count, ScalingMatrix);
 }
 
-void MasterVolumeSlider::ApplyVertexBufferTransformation(MasterVertex* vertices, int count, D3DXMATRIX matrix)
+void MasterVolumeSlider::ApplyVertexBufferTransformation(ColorVertex* vertices, int count, D3DXMATRIX matrix)
 {
     D3DXVECTOR3 temp;
 
@@ -439,7 +447,7 @@ void MasterVolumeSlider::ApplyVertexBufferTransformation(MasterVertex* vertices,
     }
 }
 
-void MasterVolumeSlider::SetVertexBufferColor(MasterVertex* vertices, int count, DWORD color)
+void MasterVolumeSlider::SetVertexBufferColor(ColorVertex* vertices, int count, DWORD color)
 {
     for (int i = 0; i < count; i++)
     {
@@ -447,7 +455,7 @@ void MasterVolumeSlider::SetVertexBufferColor(MasterVertex* vertices, int count,
     }
 }
 
-void MasterVolumeSlider::CopyVertexBuffer(MasterVertex* source, MasterVertex* destination, int count)
+void MasterVolumeSlider::CopyVertexBuffer(ColorVertex* source, ColorVertex* destination, int count)
 {
     for (int i = 0; i < count; i++)
     {
@@ -465,4 +473,47 @@ bool IsInOptionsMenu()
     return GetEventIndex() == EVENT_OPTIONS_FMV &&
         (GetOptionsPage() == 0x02 || GetOptionsPage() == 0x07 || GetOptionsPage() == 0x04) &&
         (GetOptionsSubPage() == 0x00 || GetOptionsSubPage() == 0x01);
+}
+
+void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
+{
+    // TODO
+}
+
+void ButtonIcons::HandleControllerIcons(LPDIRECT3DDEVICE8 ProxyInterface)
+{
+    // TODO
+}
+
+void ButtonIcons::SetIconTextures()
+{
+    // TODO
+}
+
+void ButtonIcons::TranslateVertexBuffer(TexturedVertex* vertices, int count, float x, float y)
+{
+    D3DXMATRIX TranslateMatrix;
+    D3DXMatrixTranslation(&TranslateMatrix, x, y, 0.f);
+
+    this->ApplyVertexBufferTransformation(vertices, count, TranslateMatrix);
+}
+
+void ButtonIcons::ScaleVertexBuffer(TexturedVertex* vertices, int count, float x, float y)
+{
+    D3DXMATRIX ScalingMatrix;
+    D3DXMatrixScaling(&ScalingMatrix, x, y, 1.f);
+
+    this->ApplyVertexBufferTransformation(vertices, count, ScalingMatrix);
+}
+
+void ButtonIcons::ApplyVertexBufferTransformation(TexturedVertex* vertices, int count, D3DXMATRIX matrix)
+{
+    D3DXVECTOR3 temp;
+
+    for (int i = 0; i < count; i++)
+    {
+        D3DXVec3TransformCoord(&temp, &vertices[i].coords, &matrix);
+
+        vertices[i].coords = temp;
+    }
 }

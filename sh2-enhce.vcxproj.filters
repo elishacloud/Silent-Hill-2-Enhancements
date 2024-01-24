@@ -389,7 +389,7 @@
     <ClCompile Include="Patches\FinalBossRoomFix.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
-    <ClCompile Include="Patches\MasterVolume.cpp">
+    <ClCompile Include="Patches\OptionsMenuTweaks.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
     <ClCompile Include="Patches\MothDrawOrder.cpp">
@@ -420,9 +420,6 @@
       <Filter>Include</Filter>
     </ClCompile>
     <ClCompile Include="Patches\TeddyBearLookFix.cpp">
-      <Filter>Patches</Filter>
-    </ClCompile>
-    <ClCompile Include="Patches\ControlOptionsTweaks.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
   </ItemGroup>
@@ -640,14 +637,11 @@
     <ClInclude Include="Patches\SixtyFPSPatch.h">
       <Filter>Patches</Filter>
     </ClInclude>
-    <ClInclude Include="Patches\MasterVolume.h">
+    <ClInclude Include="Patches\OptionsMenuTweaks.h">
       <Filter>Patches</Filter>
     </ClInclude>
     <ClInclude Include="Include\winmm.h">
       <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="Patches\ControlOptionsTweaks.h">
-      <Filter>Patches</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

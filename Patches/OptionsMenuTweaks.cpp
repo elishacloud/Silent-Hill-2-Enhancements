@@ -463,6 +463,15 @@ void MasterVolumeSlider::CopyVertexBuffer(ColorVertex* source, ColorVertex* dest
     }
 }
 
+/*
+Page : subpage menu
+1-2 : 0     main options screen
+2   : 1     game options screen
+3   : 0     brightness adjust screen
+7   : 0     advanced options screen
+4   : 0     control options screen
+*/
+
 bool IsInMainOptionsMenu()
 {
     return GetOptionsPage() == 0x02 && GetOptionsSubPage() == 0x00;
@@ -477,8 +486,7 @@ bool IsInOptionsMenu()
 
 bool IsInControlOptionsMenu()
 {
-    // TODO
-    return true;
+    return IsInOptionsMenu() && GetOptionsPage() == 0x04;
 }
 
 void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
@@ -609,7 +617,6 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
 
     for (int i = 0; i < BUTTON_QUADS_NUM; i++)
     {
-        
         this->quads[i].vertices[0].coords = { 0.f, 0.f, 0.5f };
         this->quads[i].vertices[1].coords = { 0.f,   y, 0.5f };
         this->quads[i].vertices[2].coords = {   x,   y, 0.5f };

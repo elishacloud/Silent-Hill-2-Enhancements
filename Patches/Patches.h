@@ -569,6 +569,7 @@ BYTE* WorldColorRPointer();
 BYTE* WorldColorGPointer();
 BYTE* WorldColorBPointer();
 BYTE* InventoryItemPointer();
+BYTE* GetKeyBindsPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

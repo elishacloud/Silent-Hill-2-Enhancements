@@ -142,6 +142,7 @@ BYTE* WorldColorRAddr = nullptr;
 BYTE* WorldColorGAddr = nullptr;
 BYTE* WorldColorBAddr = nullptr;
 BYTE* InventoryItemAddr = nullptr;
+BYTE* KeyBindsAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -3252,4 +3253,27 @@ BYTE* InventoryItemPointer()
 	}
 
 	return InventoryItemAddr;
+}
+
+BYTE* GetKeyBindsPointer()
+{
+	if (KeyBindsAddr)
+	{
+		return KeyBindsAddr;
+	}
+
+	// Get Turn Left Button address
+	constexpr BYTE TurnLeftButtonSearchBytes[]{ 0x56, 0x8B, 0x74, 0x24, 0x08, 0x83, 0xFE, 0x16, 0x7D, 0x3F };
+	BYTE* Binds = (BYTE*)ReadSearchedAddresses(0x005AEF90, 0x005AF8C0, 0x005AF1E0, TurnLeftButtonSearchBytes, sizeof(TurnLeftButtonSearchBytes), 0x1D, __FUNCTION__);
+
+	// Checking address pointer
+	if (!Binds)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find KeyBinds address!";
+		return nullptr;
+	}
+
+	KeyBindsAddr = (BYTE*)((DWORD)Binds);
+
+	return KeyBindsAddr;
 }

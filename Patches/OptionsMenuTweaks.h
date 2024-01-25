@@ -24,6 +24,29 @@
 #define BEZEL_VERT_NUM 6
 #define RECT_VERT_NUM 4
 
+#define BUTTONS_NUM 18
+#define BUTTON_ICONS_NUM 26
+#define BUTTON_QUADS_NUM 11
+
+typedef enum ControllerButton
+{
+	BUTTON_SQUARE,
+	BUTTON_CROSS,
+	BUTTON_CIRCLE,
+	BUTTON_TRIANGLE,
+	BUTTON_L1,
+	BUTTON_R1,
+	BUTTON_L2,
+	BUTTON_R2,
+	BUTTON_SELECT,
+	BUTTON_START,
+	BUTTON_L3,
+	BUTTON_R3,
+
+	LEVER_DIRECTIONAL = 998,
+	DPAD = 999,
+};
+
 struct ColorVertex
 {
 	D3DXVECTOR3 coords;
@@ -135,18 +158,131 @@ class ButtonIcons
 public:
 	ButtonIcons() = default;
 
+	void Init(LPDIRECT3DDEVICE8 ProxyInterface);
+	void UpdateBinds();
+
 	void HandleControllerIcons(LPDIRECT3DDEVICE8 ProxyInterface);
 	void DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface);
 
-private:
-	IconQuad quads[0x0B];
+	void UpdateUVs()
+	{
+		//TODO starting position
 
-	void SetIconTextures();
+		for (int i = 0; i < BUTTONS_NUM - 7 /*temp*/; i++)
+		{
+			this->SetQuadUV(i, this->GetUOffset(), this->GetVOffset(), this->GetUStartingValue(), this->GetVStartingValue(this->binds[i]));
+		}
+	}
+
+	void SetQuadUV(int index, float uOffset, float vOffset, float u, float v)
+	{
+		if (index > BUTTON_QUADS_NUM || index < 0)
+		{
+			Logging::Log() << __FUNCTION__ << " ERROR: index out of bounds.";
+		}
+
+		this->quads[index].vertices[0].u = u;
+		this->quads[index].vertices[0].v = v;
+
+		this->quads[index].vertices[1].u = u;
+		this->quads[index].vertices[1].v = v + vOffset;
+
+		this->quads[index].vertices[2].u = u + uOffset;
+		this->quads[index].vertices[2].v = v + vOffset;
+
+		this->quads[index].vertices[3].u = u + uOffset;
+		this->quads[index].vertices[3].v = v;
+	}
+
+private:
+	IconQuad quads[BUTTON_QUADS_NUM];
+
+	BYTE* ControllerBindsAddr = nullptr;
+	ControllerButton binds[BUTTONS_NUM];
+	int BindsNum = BUTTONS_NUM;
+
+	LPDIRECT3DTEXTURE8  ButtonIconsTexture = NULL;
 
 	void TranslateVertexBuffer(TexturedVertex* vertices, int count, float x, float y);
 	void ScaleVertexBuffer(TexturedVertex* vertices, int count, float x, float y);
 
 	void ApplyVertexBufferTransformation(TexturedVertex* vertices, int count, D3DXMATRIX matrix);
+
+	float GetUStartingValue()
+	{
+		//TODO button set config
+		int ButtonIconSetConfig = 0;
+
+		if (ButtonIconSetConfig > 3 || ButtonIconSetConfig < 0)
+		{
+			Logging::Log() << __FUNCTION__ << " ERROR: Button Icon Set Value invalid: " << ButtonIconSetConfig;
+			ButtonIconSetConfig = 0;
+		}
+
+		return (1.f / 4.f) * ButtonIconSetConfig;
+	}
+
+	float GetVOffset()
+	{
+		return 1.f / BUTTON_ICONS_NUM;
+	}
+
+	float GetUOffset()
+	{
+		return 1.f / 4.f;
+	}
+
+	float GetVStartingValue(ControllerButton button)
+	{
+		for (int i = 0; i < BUTTON_ICONS_NUM; i++)
+		{
+			if (this->TextureMap[i] == button)
+			{
+				return i * this->GetVOffset();
+			}
+		}
+
+		Logging::Log() << __FUNCTION__ << " ERROR: Invalid keybind found: " << button;
+		return 0.f;
+	}
+
+	ControllerButton TextureMap[BUTTON_ICONS_NUM] =
+	{
+		//TODO 
+		ControllerButton::LEVER_DIRECTIONAL,
+		ControllerButton::LEVER_DIRECTIONAL,
+		ControllerButton::LEVER_DIRECTIONAL,
+		ControllerButton::LEVER_DIRECTIONAL,
+		ControllerButton::LEVER_DIRECTIONAL,
+		ControllerButton::LEVER_DIRECTIONAL,
+		ControllerButton::LEVER_DIRECTIONAL,
+		ControllerButton::LEVER_DIRECTIONAL,
+		//TODO 
+		ControllerButton::DPAD,
+		ControllerButton::DPAD,
+		ControllerButton::DPAD,
+		ControllerButton::DPAD,
+
+		ControllerButton::BUTTON_TRIANGLE,
+		ControllerButton::BUTTON_CIRCLE,
+		ControllerButton::BUTTON_CROSS,
+		ControllerButton::BUTTON_SQUARE,
+
+		ControllerButton::BUTTON_L1,
+		ControllerButton::BUTTON_R1,
+		ControllerButton::BUTTON_L2,
+		ControllerButton::BUTTON_R2,
+
+		ControllerButton::BUTTON_SELECT,
+		ControllerButton::BUTTON_START,
+
+		ControllerButton::BUTTON_L3,
+		ControllerButton::BUTTON_R3,
+
+		//TODO PS and touchpad buttons
+		ControllerButton::LEVER_DIRECTIONAL,
+		ControllerButton::LEVER_DIRECTIONAL,
+	};
 };
 
 extern MasterVolume MasterVolumeRef;

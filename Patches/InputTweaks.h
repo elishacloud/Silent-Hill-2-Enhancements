@@ -203,12 +203,8 @@ public:
 
 class KeyBindsHandler
 {
-private:
-	BYTE* KeyBindsAddr;
-
 public:
 	BYTE GetKeyBind(int KeyIndex);
-	BYTE* GetKeyBindsPointer();
 	BYTE GetPauseButtonBind();
 	BYTE GetToggleFlashlightButtonBind();
 };

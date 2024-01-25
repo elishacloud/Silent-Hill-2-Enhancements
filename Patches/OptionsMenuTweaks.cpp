@@ -19,6 +19,8 @@
 #include "External\Hooking.Patterns\Hooking.Patterns.h"
 #include "OptionsMenuTweaks.h"
 
+ButtonIcons ButtonIconsRef;
+
 D3DMATRIX WorldMatrix =
 {
   1.f, 0.f, 0.f, 0.f,
@@ -50,9 +52,6 @@ MasterVolume MasterVolumeRef;
 MasterVolumeSlider MasterVolumeSliderRef;
 bool DiscardOptions = false;
 int ChangeMasterVolume = 0;
-
-ButtonIcons ButtonIconsRef;
-LPDIRECT3DTEXTURE8  ButtonIconsTexture = NULL;
 
 int32_t PlaySound_Hook(int32_t SoundId, float volume, DWORD param3)
 {
@@ -217,7 +216,7 @@ void PatchMasterVolumeSlider()
 
 void PatchControlOptionsMenu()
 {
-
+    //TODO
 }
 
 void MasterVolume::ChangeMasterVolumeValue(int delta)
@@ -491,8 +490,13 @@ void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
 
     if (ButtonIconsTexture == NULL)
     {
-        Logging::Log() << __FUNCTION__ << " ButtonIcons Texture is null!";
+        this->Init(ProxyInterface);
+    }
 
+    if (ButtonIconsTexture == NULL)
+    {
+        //TODO setting to false
+        Logging::Log() << __FUNCTION__ << " ERROR: Couldn't load button icons texture.";
         return;
     }
 
@@ -535,12 +539,7 @@ void ButtonIcons::HandleControllerIcons(LPDIRECT3DDEVICE8 ProxyInterface)
         return;
     }
 
-    this->SetIconTextures();
-}
-
-void ButtonIcons::SetIconTextures()
-{
-    // TODO
+    this->UpdateBinds();
 }
 
 void ButtonIcons::TranslateVertexBuffer(TexturedVertex* vertices, int count, float x, float y)
@@ -569,4 +568,54 @@ void ButtonIcons::ApplyVertexBufferTransformation(TexturedVertex* vertices, int 
 
         vertices[i].coords = temp;
     }
+}
+
+void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
+{
+    if (!DirectXInterface)
+    {
+        return;
+    }
+    
+    if ((D3DXCreateTextureFromFile(DirectXInterface, L"icon_set.png", &ButtonIconsTexture)) != 0)
+    {
+        //TODO setting = false
+        return;
+    }
+
+    float VerticalSpacing = 40.f;
+    float HorizontalOffset = 50.f;
+    float VerticalOffset = 50.f;
+
+    float x = 50.f;
+    float y = 32.5f;
+
+    for (int i = 0; i < BUTTON_QUADS_NUM; i++)
+    {
+        
+        this->quads[i].vertices[0].coords = {0.f, 0.f, 0.5f};
+        this->quads[i].vertices[1].coords = { 0.f, y, 0.5f };
+        this->quads[i].vertices[2].coords = { x, y, 0.5f };
+        this->quads[i].vertices[3].coords = { x, 0.f, 0.5f };
+    }
+
+    for (int i = 0; i < BUTTON_QUADS_NUM; i++)
+    {
+        this->TranslateVertexBuffer(this->quads[i].vertices, 4, HorizontalOffset, VerticalOffset + (i * VerticalSpacing));
+    }
+}
+
+void ButtonIcons::UpdateBinds()
+{
+    if (!this->ControllerBindsAddr)
+    {
+        this->ControllerBindsAddr = GetKeyBindsPointer() + 0xD0;
+    }
+
+    for (int i = 0; i < this->BindsNum; i++)
+    {
+        this->binds[i] = (ControllerButton) this->ControllerBindsAddr[i * 0x08];
+    }
+
+    ButtonIconsRef.UpdateUVs();
 }

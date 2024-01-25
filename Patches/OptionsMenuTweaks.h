@@ -195,6 +195,9 @@ public:
 	}
 
 private:
+	long LastBufferWidth = 0;
+	long LastBufferHeight = 0;
+
 	IconQuad quads[BUTTON_QUADS_NUM];
 
 	BYTE* ControllerBindsAddr = nullptr;

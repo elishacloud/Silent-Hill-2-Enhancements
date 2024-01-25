@@ -488,6 +488,11 @@ void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
         return;
     }
 
+    if (LastBufferHeight != BufferHeight || LastBufferWidth != BufferWidth)
+    {
+        this->Init(ProxyInterface);
+    }
+
     if (ButtonIconsTexture == NULL)
     {
         this->Init(ProxyInterface);
@@ -577,31 +582,41 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
         return;
     }
     
-    if ((D3DXCreateTextureFromFile(DirectXInterface, L"icon_set.png", &ButtonIconsTexture)) != 0)
+    if (ButtonIconsTexture == NULL)
     {
-        //TODO setting = false
-        return;
+        if ((D3DXCreateTextureFromFile(DirectXInterface, L"icon_set.png", &ButtonIconsTexture)) != 0)
+        {
+            //TODO setting = false
+            return;
+        }
     }
 
-    float VerticalSpacing = 40.f;
-    float HorizontalOffset = 50.f;
-    float VerticalOffset = 50.f;
+    this->LastBufferHeight = BufferHeight;
+    this->LastBufferWidth = BufferWidth;
 
-    float x = 50.f;
-    float y = 32.5f;
+    int32_t VerticalInternal = GetInternalVerticalRes();
+    int32_t HorizontalInternal = GetInternalHorizontalRes();
+
+    const float xScaling = (float)HorizontalInternal / 1200.f;
+    const float yScaling = (float)VerticalInternal / 900.f;
+
+    const float VerticalSpacing = (40.f * (float)VerticalInternal) / 900.f;
+    const float HorizontalOffset = (350.f * (float)HorizontalInternal) / 1200.f;
+    const float VerticalOffset = (150.f * (float)VerticalInternal) / 900.f;
+
+    const float x = (50.f * (float)HorizontalInternal) / 1200.f;
+    const float y = (32.5f * (float)VerticalInternal) / 900.f;
 
     for (int i = 0; i < BUTTON_QUADS_NUM; i++)
     {
         
-        this->quads[i].vertices[0].coords = {0.f, 0.f, 0.5f};
-        this->quads[i].vertices[1].coords = { 0.f, y, 0.5f };
-        this->quads[i].vertices[2].coords = { x, y, 0.5f };
-        this->quads[i].vertices[3].coords = { x, 0.f, 0.5f };
-    }
+        this->quads[i].vertices[0].coords = { 0.f, 0.f, 0.5f };
+        this->quads[i].vertices[1].coords = { 0.f,   y, 0.5f };
+        this->quads[i].vertices[2].coords = {   x,   y, 0.5f };
+        this->quads[i].vertices[3].coords = {   x, 0.f, 0.5f };
 
-    for (int i = 0; i < BUTTON_QUADS_NUM; i++)
-    {
         this->TranslateVertexBuffer(this->quads[i].vertices, 4, HorizontalOffset, VerticalOffset + (i * VerticalSpacing));
+        this->ScaleVertexBuffer(this->quads[i].vertices, 4, xScaling, yScaling);
     }
 }
 

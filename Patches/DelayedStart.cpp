@@ -46,6 +46,7 @@ void SetDelayedStart()
 	// Checking address pointer
 	if (!Address)
 	{
+		Logging::Log() << "Error: failed to set delayed startup...";
 		return;
 	}
 	GameAddressPointer = *(DWORD*)(Address + 2);

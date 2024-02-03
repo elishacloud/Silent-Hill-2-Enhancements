@@ -1117,9 +1117,14 @@ HRESULT m_IDirect3DDevice8::CreatePixelShader(THIS_ CONST DWORD* pFunction, DWOR
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	if (!myPsShaderHandle)
+	if (!nursePsHandle)
 	{
-		ProxyInterface->CreatePixelShader(myPixelShader, &myPsShaderHandle);
+		ProxyInterface->CreatePixelShader(nursePixelShader, &nursePsHandle);
+	}
+
+	if (!windowPsHandle)
+	{
+		ProxyInterface->CreatePixelShader(windowPixelShader, &windowPsHandle);
 	}
 
 	return ProxyInterface->CreatePixelShader(pFunction, pHandle);
@@ -2761,9 +2766,14 @@ HRESULT m_IDirect3DDevice8::CreateVertexShader(THIS_ CONST DWORD* pDeclaration, 
 		}
 	}
 
-	if (!myVsShaderHandle)
+	if (!nurseVsHandle)
 	{
-		ProxyInterface->CreateVertexShader(myVsDecl, myVertexShader, &myVsShaderHandle, 0);
+		ProxyInterface->CreateVertexShader(vsDecl, nurseVertexShader, &nurseVsHandle, 0);
+	}
+
+	if (!windowVsHandle)
+	{
+		ProxyInterface->CreateVertexShader(vsDecl, windowVertexShader, &windowVsHandle, 0);
 	}
 
 	return ProxyInterface->CreateVertexShader(pDeclaration, pFunction, pHandle, Usage);

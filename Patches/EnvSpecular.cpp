@@ -8,8 +8,11 @@
 //#include "Wrappers\d3d8\DirectX81SDK\include\d3d8.h"
 //#include "ModelID.h"
 
-DWORD myVsShaderHandle = 0;
-DWORD myPsShaderHandle = 0;
+DWORD nurseVsHandle = 0;
+DWORD nursePsHandle = 0;
+
+DWORD windowVsHandle = 0;
+DWORD windowPsHandle = 0;
 
 IDirect3DDevice8** (__cdecl* GetD3dDevice_4F5480)() = (IDirect3DDevice8 * *(__cdecl *)())(0x4F5480);
 
@@ -464,8 +467,8 @@ void __cdecl sub_5B4940(Something* toRender)
                         DWORD currPs;
                         g_d3d8Device_A32894->GetVertexShader(&currVs);
                         g_d3d8Device_A32894->GetPixelShader(&currPs);
-                        g_d3d8Device_A32894->SetVertexShader(myVsShaderHandle);
-                        g_d3d8Device_A32894->SetPixelShader(myPsShaderHandle);
+                        g_d3d8Device_A32894->SetVertexShader(windowVsHandle);
+                        g_d3d8Device_A32894->SetPixelShader(windowPsHandle);
 
                         // Set up sampler states
                         g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_ADDRESSU, D3DTADDRESS_BORDER);
@@ -905,8 +908,8 @@ LABEL_50:
         g_d3d8Device_A32894->SetPixelShaderConstant(3, specTint, 1);
 
         // Replace current vs and ps with custom shaders
-        g_d3d8Device_A32894->SetVertexShader(myVsShaderHandle);
-        g_d3d8Device_A32894->SetPixelShader(myPsShaderHandle);
+        g_d3d8Device_A32894->SetVertexShader(nurseVsHandle);
+        g_d3d8Device_A32894->SetPixelShader(nursePsHandle);
 
         // Draw as usual
         g_d3d8Device_A32894->SetStreamSource(0, vertexBuffer, 32);

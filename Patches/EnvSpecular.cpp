@@ -442,7 +442,7 @@ void __cdecl sub_5B4940(Something* toRender)
 
                         // Get the mystery constants in the same way as the nurse
                         D3DMATRIX matrix;
-                        GetSomeMatrix_50C570(&matrix);
+                        GetSomeMatrix_50C570(&matrix); // Gets matrix at 0xAAA634
 
                         float shaderConstantMulti[4] = { 0 };
                         shaderConstantMulti[0] = matrix._11 * specularSize;

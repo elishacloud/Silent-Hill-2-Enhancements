@@ -16,6 +16,10 @@ constexpr DWORD myVsDecl[] =
 // Assembled with `vsa.exe -h0` from DirectX 8.1b SDK
 
 vs.1.1
+//dcl_position v0
+//dcl_normal v3
+//dcl_texcoord v7
+
 mov r0, c0
 mov r1, c0
 
@@ -64,7 +68,7 @@ ps.1.4
 def c4, 0, 0, 0, 1  // black
 texld r1, t1        // load specular highlight texture
 mov r0, c4		    // make output pixel black
-mul r0.rgb, r1, c3	// apply the specular highlight with tint color constant
+mul r0.rgb, r1, c3	// apply the specular highlight with tint color from c3
 
 */
 constexpr DWORD myPixelShader[] = {

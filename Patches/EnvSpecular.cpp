@@ -687,7 +687,7 @@ void __cdecl sub_501540(struct_a1* toRender)
         
         if (g_HACK_DX_CONFIG_USE_VERTEX_SHADERS_A33374)
         {
-            GetSomeMatrix_50C570(&matrix);
+            GetSomeMatrix_50C570(&matrix); // Gets matrix at 0xAAA634
             
             shaderConstantMulti[0] = matrix._11 * specularSize;
             shaderConstantMulti[1] = matrix._21 * specularSize;
@@ -704,7 +704,7 @@ void __cdecl sub_501540(struct_a1* toRender)
         }
         else
         {
-            GetSomeMatrix_50C570(&matrix);
+            GetSomeMatrix_50C570(&matrix); // Gets matrix at 0xAAA634
 
             vsConstant_3[0] = specularSize;
             vsConstant_3[1] = specularSize;

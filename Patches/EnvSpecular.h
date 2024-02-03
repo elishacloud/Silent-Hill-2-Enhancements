@@ -67,8 +67,8 @@ constexpr DWORD nurseVertexShader[] =
 ps.1.4
 def c4, 0, 0, 0, 1  // black
 texld r1, t1        // load specular highlight texture
-mov r0, c4		    // make output pixel black
-mul r0.rgb, r1, c3	// apply the specular highlight with tint color from c3
+mov r0, c4          // make output pixel black
+mul r0.rgb, r1, c3  // apply the specular highlight with tint color from c3
 
 */
 constexpr DWORD nursePixelShader[] = {
@@ -81,6 +81,91 @@ constexpr DWORD nursePixelShader[] = {
     0x80070000, 0x80e40001, 0xa0e40003, 0x0000ffff
 };
 
+
+/*
+// Assembled with `vsa.exe -h0` from DirectX 8.1b SDK
+
+vs.1.1
+//dcl_position v0
+//dcl_normal v3
+//dcl_texcoord v7
+
+mov r11, c0
+mov r10, c0
+mov r9, c0
+mov r8, c0
+mov r7, c0
+mov r6, c0
+mov r5, c0
+mov r3, c0
+mov r2, c0
+mov r1, c0
+mov r0, c0
+
+mov oD1, c0
+mov oD0, c0
+mov oT4, c0
+mov oT3, c0
+mov oT2, c0
+mov oT1, c0
+mov oT0, c0
+
+// dot product of lights with normals
+mov r0.xyz, v3          // load normals into r0
+dp3 r2.x, r0.xyzz, c8   // dot product with light0 direction
+dp3 r2.y, r0.xyzz, c9   // dot product with light1 direction
+dp3 r2.z, r0.xyzz, c10  // dot product with light2 direction
+
+dp4 oT2.x, v0, c5
+dp4 oT2.y, v0, c4
+dp4 r2.w, v0, c6
+
+mov oT2.w, r2.w
+mov oT3.z, r2.w
+
+add r5.xyz, c11, -v0
+dp3 r1.x, r5, r5
+rsq r1.x, r1.x
+mul r5.xyz, r5.xyzz, r1.x
+mad r2.w, r2.w, c18.x, c18.y
+max r2, r2, c14.x
+
+dp3 r3.x, r2, c15
+dp3 r3.y, r2, c16
+dp3 r3.z, r2, c17
+
+dp3 r6.x, r0.xyzz, r5
+min r2.w, r2.w, c14.w
+mul oD0.w, r2.w, r6.x
+dp4 r10.x, v0, c0
+dp4 r10.y, v0, c1
+dp4 r10.z, v0, c2
+dp4 r10.w, v0, c3
+max r11.w, r10.w, c14.w
+rcp r11, r11.w
+
+mad oFog, c23.y, r11.x, c23.x   // fog
+
+mov oT0.xy, v7                  // texture 0 coords, passed without change
+
+add r9.xyz, c13, r5.xyzz
+dp3 r7.x, r9, r9
+dp3 r8.xy, r9, r0.xyzz
+rsq r1.w, r7.x
+add r3.xyz, r3.xyzz, c19.xyzz
+mul r3.xyz, r3.xyzz, c26.xyzz
+
+add oD0.xyz, r3.xyzz, r3.xyzz   // diffuse vertex color
+mov oD1.xyz, c27.xyzz           // specular vertex color
+
+mov oPos, r10                   // position
+mul oT1.xy, r8, r1.w            // texture 1 coords
+
+// My code
+//mul oT4.xy, r8, r1.w
+mov oT4.xy, v7
+
+*/
 constexpr DWORD windowVertexShader[] = {
     0xfffe0101, 0x0009fffe, 0x58443344, 0x68532038,
     0x72656461, 0x73734120, 0x6c626d65, 0x56207265,
@@ -102,43 +187,54 @@ constexpr DWORD windowVertexShader[] = {
     0x00000008, 0x80010002, 0x80a40000, 0xa0e40008,
     0x00000008, 0x80020002, 0x80a40000, 0xa0e40009,
     0x00000008, 0x80040002, 0x80a40000, 0xa0e4000a,
-    0x00000001, 0xe0030004, 0x80e40002, 0x00000009,
-    0xe0010002, 0x90e40000, 0xa0e40005, 0x00000009,
-    0xe0020002, 0x90e40000, 0xa0e40004, 0x00000009,
-    0x80080002, 0x90e40000, 0xa0e40006, 0x00000001,
-    0xe0080002, 0x80ff0002, 0x00000001, 0xe0040003,
-    0x80ff0002, 0x00000002, 0x80070005, 0xa0e4000b,
-    0x91e40000, 0x00000008, 0x80010001, 0x80e40005,
-    0x80e40005, 0x00000007, 0x80010001, 0x80000001,
-    0x00000005, 0x80070005, 0x80a40005, 0x80000001,
-    0x00000004, 0x80080002, 0x80ff0002, 0xa0000012,
-    0xa0550012, 0x0000000b, 0x800f0002, 0x80e40002,
-    0xa000000e, 0x00000008, 0x80010003, 0x80e40002,
-    0xa0e4000f, 0x00000008, 0x80020003, 0x80e40002,
-    0xa0e40010, 0x00000008, 0x80040003, 0x80e40002,
-    0xa0e40011, 0x00000008, 0x80010006, 0x80a40000,
-    0x80e40005, 0x0000000a, 0x80080002, 0x80ff0002,
-    0xa0ff000e, 0x00000005, 0xd0080000, 0x80ff0002,
-    0x80000006, 0x00000009, 0x8001000a, 0x90e40000,
-    0xa0e40000, 0x00000009, 0x8002000a, 0x90e40000,
-    0xa0e40001, 0x00000009, 0x8004000a, 0x90e40000,
-    0xa0e40002, 0x00000009, 0x8008000a, 0x90e40000,
-    0xa0e40003, 0x0000000b, 0x8008000b, 0x80ff000a,
-    0xa0ff000e, 0x00000006, 0x800f000b, 0x80ff000b,
-    0x00000004, 0xc00f0001, 0xa0550017, 0x8000000b,
-    0xa0000017, 0x00000001, 0xe0030000, 0x90e40007,
-    0x00000002, 0x80070009, 0xa0e4000d, 0x80a40005,
-    0x00000008, 0x80010007, 0x80e40009, 0x80e40009,
-    0x00000008, 0x80030008, 0x80e40009, 0x80a40000,
-    0x00000007, 0x80080001, 0x80000007, 0x00000002,
-    0x80070003, 0x80a40003, 0xa0a40013, 0x00000005,
-    0x80070003, 0x80a40003, 0xa0a4001a, 0x00000002,
-    0xd0070000, 0x80a40003, 0x80a40003, 0x00000001,
-    0xd0070001, 0xa0a4001b, 0x00000001, 0xc00f0000,
-    0x80e4000a, 0x00000005, 0xe0030001, 0x80e40008,
-    0x80ff0001, 0x0000ffff
+    0x00000009, 0xe0010002, 0x90e40000, 0xa0e40005,
+    0x00000009, 0xe0020002, 0x90e40000, 0xa0e40004,
+    0x00000009, 0x80080002, 0x90e40000, 0xa0e40006,
+    0x00000001, 0xe0080002, 0x80ff0002, 0x00000001,
+    0xe0040003, 0x80ff0002, 0x00000002, 0x80070005,
+    0xa0e4000b, 0x91e40000, 0x00000008, 0x80010001,
+    0x80e40005, 0x80e40005, 0x00000007, 0x80010001,
+    0x80000001, 0x00000005, 0x80070005, 0x80a40005,
+    0x80000001, 0x00000004, 0x80080002, 0x80ff0002,
+    0xa0000012, 0xa0550012, 0x0000000b, 0x800f0002,
+    0x80e40002, 0xa000000e, 0x00000008, 0x80010003,
+    0x80e40002, 0xa0e4000f, 0x00000008, 0x80020003,
+    0x80e40002, 0xa0e40010, 0x00000008, 0x80040003,
+    0x80e40002, 0xa0e40011, 0x00000008, 0x80010006,
+    0x80a40000, 0x80e40005, 0x0000000a, 0x80080002,
+    0x80ff0002, 0xa0ff000e, 0x00000005, 0xd0080000,
+    0x80ff0002, 0x80000006, 0x00000009, 0x8001000a,
+    0x90e40000, 0xa0e40000, 0x00000009, 0x8002000a,
+    0x90e40000, 0xa0e40001, 0x00000009, 0x8004000a,
+    0x90e40000, 0xa0e40002, 0x00000009, 0x8008000a,
+    0x90e40000, 0xa0e40003, 0x0000000b, 0x8008000b,
+    0x80ff000a, 0xa0ff000e, 0x00000006, 0x800f000b,
+    0x80ff000b, 0x00000004, 0xc00f0001, 0xa0550017,
+    0x8000000b, 0xa0000017, 0x00000001, 0xe0030000,
+    0x90e40007, 0x00000002, 0x80070009, 0xa0e4000d,
+    0x80a40005, 0x00000008, 0x80010007, 0x80e40009,
+    0x80e40009, 0x00000008, 0x80030008, 0x80e40009,
+    0x80a40000, 0x00000007, 0x80080001, 0x80000007,
+    0x00000002, 0x80070003, 0x80a40003, 0xa0a40013,
+    0x00000005, 0x80070003, 0x80a40003, 0xa0a4001a,
+    0x00000002, 0xd0070000, 0x80a40003, 0x80a40003,
+    0x00000001, 0xd0070001, 0xa0a4001b, 0x00000001,
+    0xc00f0000, 0x80e4000a, 0x00000005, 0xe0030001,
+    0x80e40008, 0x80ff0001, 0x00000001, 0xe0030004,
+    0x90e40007, 0x0000ffff
 };
 
+/*
+// Assembled with `psa.exe -h0` from DirectX 8.1b SDK
+
+ps.1.4
+def c5, 1, 0, 0, 0
+def c4, 0, 0, 0, 1          // black
+texld r0, t0                // load the diffuse texture
+texld r4, t4                // load the specular highlight texture
+cnd r0.rgb, r4.a, r4, r0    // naively combine the specular with the diffuse
+
+*/
 constexpr DWORD windowPixelShader[] = {
     0xffff0104, 0x0009fffe, 0x58443344, 0x68532038,
     0x72656461, 0x73734120, 0x6c626d65, 0x56207265,

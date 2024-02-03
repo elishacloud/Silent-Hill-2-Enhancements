@@ -471,11 +471,11 @@ void __cdecl sub_5B4940(Something* toRender)
                         g_d3d8Device_A32894->SetPixelShader(windowPsHandle);
 
                         // Set up sampler states
-                        g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_ADDRESSU, D3DTADDRESS_BORDER);
-                        g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_ADDRESSV, D3DTADDRESS_BORDER);
-                        g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
-                        g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
-                        g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_MIPFILTER, D3DTEXF_LINEAR);
+                        g_d3d8Device_A32894->SetTextureStageState(4, D3DTSS_ADDRESSU, D3DTADDRESS_BORDER);
+                        g_d3d8Device_A32894->SetTextureStageState(4, D3DTSS_ADDRESSV, D3DTADDRESS_BORDER);
+                        g_d3d8Device_A32894->SetTextureStageState(4, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
+                        g_d3d8Device_A32894->SetTextureStageState(4, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
+                        g_d3d8Device_A32894->SetTextureStageState(4, D3DTSS_MIPFILTER, D3DTEXF_LINEAR);
 
                         g_d3d8Device_A32894->DrawIndexedPrimitive(g_primitiveTypes_8F0378[off_0x0C->off_0x02], off_0x0C->off_0x04, off_0x0C->off_0x06 - off_0x0C->off_0x04 + 1, startIndex, primitiveCount);
 
@@ -942,7 +942,7 @@ void PatchEnvSpecular()
     WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501F77), sub_501540);
 
     // Reimpl function responsible for drawing MAP
-    //WriteCalltoMemory(reinterpret_cast<BYTE*>(0x5B4CB1), sub_5B4940);
-    //WriteCalltoMemory(reinterpret_cast<BYTE*>(0x5B5188), sub_5B4940);
-    //WriteCalltoMemory(reinterpret_cast<BYTE*>(0x5B5269), sub_5B4940);
+    WriteCalltoMemory(reinterpret_cast<BYTE*>(0x5B4CB1), sub_5B4940);
+    WriteCalltoMemory(reinterpret_cast<BYTE*>(0x5B5188), sub_5B4940);
+    WriteCalltoMemory(reinterpret_cast<BYTE*>(0x5B5269), sub_5B4940);
 }

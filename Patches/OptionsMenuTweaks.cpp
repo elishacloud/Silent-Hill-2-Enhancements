@@ -608,12 +608,11 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
     const float xScaling = (float)HorizontalInternal / 1200.f;
     const float yScaling = (float)VerticalInternal / 900.f;
 
-    const float VerticalSpacing = (40.f * (float)VerticalInternal) / 900.f;
-    const float HorizontalOffset = (350.f * (float)HorizontalInternal) / 1200.f;
-    const float VerticalOffset = (150.f * (float)VerticalInternal) / 900.f;
+    const float HorizontalOffset = (1091.f * (float)HorizontalInternal) / 1200.f;
+    const float VerticalOffset = (141.f * (float)VerticalInternal) / 900.f;
 
-    const float x = (50.f * (float)HorizontalInternal) / 1200.f;
-    const float y = (32.5f * (float)VerticalInternal) / 900.f;
+    const float x = (76.f * (float)HorizontalInternal) / 1200.f;
+    const float y = (57.f * (float)VerticalInternal) / 900.f;
 
     for (int i = 0; i < BUTTON_QUADS_NUM; i++)
     {
@@ -622,7 +621,7 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
         this->quads[i].vertices[2].coords = {   x,   y, 0.5f };
         this->quads[i].vertices[3].coords = {   x, 0.f, 0.5f };
 
-        this->TranslateVertexBuffer(this->quads[i].vertices, 4, HorizontalOffset, VerticalOffset + (i * VerticalSpacing));
+        this->TranslateVertexBuffer(this->quads[i].vertices, 4, HorizontalOffset, VerticalOffset + (i * y));
         this->ScaleVertexBuffer(this->quads[i].vertices, 4, xScaling, yScaling);
     }
 }
@@ -633,10 +632,16 @@ void ButtonIcons::UpdateBinds()
     {
         this->ControllerBindsAddr = GetKeyBindsPointer() + 0xD0;
     }
+    
+    this->binds[0] = ControllerButton::L_LEFT;
+    this->binds[1] = ControllerButton::L_RIGHT;
+    this->binds[2] = ControllerButton::L_UP;
+    this->binds[3] = ControllerButton::L_DOWN;
 
-    for (int i = 0; i < this->BindsNum; i++)
+    for (int i = 0; (i + 4) < this->BindsNum; i++)
     {
-        this->binds[i] = (ControllerButton) this->ControllerBindsAddr[i * 0x08];
+        // the first 4 keybinds are static, the movement stick
+        this->binds[i + 4] = (ControllerButton) this->ControllerBindsAddr[i * 0x08];
     }
 
     ButtonIconsRef.UpdateUVs();

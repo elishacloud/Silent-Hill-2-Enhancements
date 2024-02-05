@@ -24,11 +24,11 @@
 #define BEZEL_VERT_NUM 6
 #define RECT_VERT_NUM 4
 
-#define BUTTONS_NUM 18
+#define BUTTONS_NUM 22
 #define BUTTON_ICONS_NUM 26
 #define BUTTON_QUADS_NUM 11
 
-typedef enum ControllerButton
+enum ControllerButton
 {
 	BUTTON_SQUARE,
 	BUTTON_CROSS,
@@ -42,6 +42,21 @@ typedef enum ControllerButton
 	BUTTON_START,
 	BUTTON_L3,
 	BUTTON_R3,
+
+	L_UP = 100,
+	L_DOWN,
+	L_LEFT,
+	L_RIGHT,
+
+	R_UP = 200,
+	R_DOWN,
+	R_LEFT,
+	R_RIGHT,
+
+	D_UP = 300,
+	D_DOWN,
+	D_LEFT,
+	D_RIGHT,
 
 	LEVER_DIRECTIONAL = 998,
 	DPAD = 999,
@@ -166,11 +181,24 @@ public:
 
 	void UpdateUVs()
 	{
-		//TODO starting position
-
-		for (int i = 0; i < BUTTONS_NUM - 7 /*temp*/; i++)
+		if (!this->SelectedOptionPtr)
 		{
-			this->SetQuadUV(i, this->GetUOffset(), this->GetVOffset(), this->GetUStartingValue(), this->GetVStartingValue(this->binds[i]));
+			this->SelectedOptionPtr = (int8_t*)0x009415a4; //TODO address
+		}
+
+		for (int i = 0; i < BUTTON_QUADS_NUM; i++)
+		{
+			int CurrentIndex = *this->SelectedOptionPtr - 5 + i;
+
+			//TODO avoid drawing if the input is not set, override game text value drawing only if what's drawing isn't ??? or -
+			if (CurrentIndex < 0 || CurrentIndex >= BUTTONS_NUM)
+			{
+				this->SetQuadUV(i, 0.f, 0.f, 0.f, 0.f);
+			} 
+			else
+			{
+				this->SetQuadUV(i, this->GetUOffset(), this->GetVOffset(), this->GetUStartingValue(), this->GetVStartingValue(this->binds[CurrentIndex]));
+			}
 		}
 	}
 
@@ -195,6 +223,7 @@ public:
 	}
 
 private:
+	int8_t* SelectedOptionPtr = nullptr;
 	long LastBufferWidth = 0;
 	long LastBufferHeight = 0;
 
@@ -251,20 +280,21 @@ private:
 
 	ControllerButton TextureMap[BUTTON_ICONS_NUM] =
 	{
+		ControllerButton::L_UP,
+		ControllerButton::L_RIGHT,
+		ControllerButton::L_DOWN,
+		ControllerButton::L_LEFT,
+
+		//TODO
+		ControllerButton::R_UP,
+		ControllerButton::R_RIGHT,
+		ControllerButton::R_DOWN,
+		ControllerButton::R_LEFT,
 		//TODO 
-		ControllerButton::LEVER_DIRECTIONAL,
-		ControllerButton::LEVER_DIRECTIONAL,
-		ControllerButton::LEVER_DIRECTIONAL,
-		ControllerButton::LEVER_DIRECTIONAL,
-		ControllerButton::LEVER_DIRECTIONAL,
-		ControllerButton::LEVER_DIRECTIONAL,
-		ControllerButton::LEVER_DIRECTIONAL,
-		ControllerButton::LEVER_DIRECTIONAL,
-		//TODO 
-		ControllerButton::DPAD,
-		ControllerButton::DPAD,
-		ControllerButton::DPAD,
-		ControllerButton::DPAD,
+		ControllerButton::D_UP,
+		ControllerButton::D_RIGHT,
+		ControllerButton::D_DOWN,
+		ControllerButton::D_LEFT,
 
 		ControllerButton::BUTTON_TRIANGLE,
 		ControllerButton::BUTTON_CIRCLE,

@@ -224,21 +224,44 @@ public:
 
 private:
 	int8_t* SelectedOptionPtr = nullptr;
+	int32_t* IsToStopScrolling = nullptr;
 	long LastBufferWidth = 0;
 	long LastBufferHeight = 0;
 
 	IconQuad quads[BUTTON_QUADS_NUM];
+	int quadsNum = BUTTON_QUADS_NUM;
 
 	BYTE* ControllerBindsAddr = nullptr;
 	ControllerButton binds[BUTTONS_NUM];
 	int BindsNum = BUTTONS_NUM;
 
 	LPDIRECT3DTEXTURE8  ButtonIconsTexture = NULL;
+	DWORD SubtractionPixelShader = NULL;
 
 	void TranslateVertexBuffer(TexturedVertex* vertices, int count, float x, float y);
 	void ScaleVertexBuffer(TexturedVertex* vertices, int count, float x, float y);
 
 	void ApplyVertexBufferTransformation(TexturedVertex* vertices, int count, D3DXMATRIX matrix);
+
+	int32_t GetIsToStopScrolling()
+	{
+		if (!this->IsToStopScrolling)
+		{
+			this->IsToStopScrolling = (int32_t*)0x0094178c; //TODO address
+		}
+
+		return *this->IsToStopScrolling;
+	}
+
+	int8_t GetSelectedOption()
+	{
+		if (!this->SelectedOptionPtr)
+		{
+			this->SelectedOptionPtr = (int8_t*)0x009415a4; //TODO address
+		}
+
+		return *this->SelectedOptionPtr;
+	}
 
 	float GetUStartingValue()
 	{

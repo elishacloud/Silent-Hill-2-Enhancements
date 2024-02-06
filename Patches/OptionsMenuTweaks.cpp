@@ -19,8 +19,7 @@
 #include "External\Hooking.Patterns\Hooking.Patterns.h"
 #include "OptionsMenuTweaks.h"
 
-ButtonIcons ButtonIconsRef;
-
+// Master volume
 D3DMATRIX WorldMatrix =
 {
   1.f, 0.f, 0.f, 0.f,
@@ -52,6 +51,32 @@ MasterVolume MasterVolumeRef;
 MasterVolumeSlider MasterVolumeSliderRef;
 bool DiscardOptions = false;
 int ChangeMasterVolume = 0;
+
+// Control options
+ButtonIcons ButtonIconsRef;
+
+const float ControlOptionRedGreen = 0.497;
+const float ControlOptionSelectedBlue = 0.1211f;
+const float ControlOptionUnselectedBlue = 0.497f;
+
+/*
+ps.1.4
+
+texld r0, t0
+sub r0, r0, c0
+*/
+
+DWORD subtractionPixelShaderAsm[] = {
+    0xffff0104, 0x0009fffe, 0x58443344, 0x68532038,
+    0x72656461, 0x73734120, 0x6c626d65, 0x56207265,
+    0x69737265, 0x30206e6f, 0x0031392e, 0x0009fffe,
+    0x454c4946, 0x555c3a43, 0x73726573, 0x6d6f745c,
+    0x445c616d, 0x746b7365, 0x745c706f, 0x35747365,
+    0x0073702e, 0x0002fffe, 0x454e494c, 0x00000003,
+    0x00000042, 0x800f0000, 0xb0e40000, 0x0002fffe,
+    0x454e494c, 0x00000005, 0x00000003, 0x800f0000,
+    0x80e40000, 0xa0e40000, 0x0000ffff
+};
 
 int32_t PlaySound_Hook(int32_t SoundId, float volume, DWORD param3)
 {
@@ -530,17 +555,42 @@ void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
 
     ProxyInterface->SetTexture(0, ButtonIconsTexture);
 
+    D3DXVECTOR4 UnselectedSubtractionFactor(ControlOptionRedGreen, ControlOptionRedGreen, ControlOptionUnselectedBlue, 0.0f);
+    D3DXVECTOR4 SelectedSubtractionFactor(ControlOptionRedGreen, ControlOptionRedGreen, ControlOptionSelectedBlue, 0.0f);
+
+    ProxyInterface->SetPixelShaderConstant(0, &UnselectedSubtractionFactor.x, 1);
+
+    ProxyInterface->SetPixelShader(SubtractionPixelShader);
+
     ProxyInterface->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
     ProxyInterface->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
     ProxyInterface->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
 
     ProxyInterface->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
 
-    for (IconQuad icon : this->quads)
+    AuxDebugOvlString = "\rSelected: ";
+    AuxDebugOvlString.append(std::to_string(this->GetSelectedOption()));
+
+    for (int i = 0; i < this->quadsNum; i++)
     {
-        ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, icon.vertices, sizeof(TexturedVertex));
+        //TODO first 4 movement icons dark gray
+
+        bool selected = i == 5 && this->GetIsToStopScrolling() != 1;
+
+        if (selected)
+        {
+            ProxyInterface->SetPixelShaderConstant(0, &SelectedSubtractionFactor.x, 1);
+        }
+
+        ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, this->quads[i].vertices, sizeof(TexturedVertex));
+
+        if (selected)
+        {
+            ProxyInterface->SetPixelShaderConstant(0, &UnselectedSubtractionFactor.x, 1);
+        }
     }
 
+    ProxyInterface->SetPixelShader(0);
     ProxyInterface->SetRenderState(D3DRS_ALPHAREF, 2);
     ProxyInterface->SetRenderState(D3DRS_FOGENABLE, 1);
 }
@@ -592,9 +642,20 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
     
     if (ButtonIconsTexture == NULL)
     {
-        if ((D3DXCreateTextureFromFile(DirectXInterface, L"icon_set.png", &ButtonIconsTexture)) != 0)
+        HRESULT hr = ProxyInterface->CreatePixelShader(subtractionPixelShaderAsm, &this->SubtractionPixelShader);
+
+        if (FAILED(hr))
+        {
+            Logging::Log() << __FUNCTION__ << " ERROR: Couldn't create pixel shader: " << Logging::hex(hr);
+            return;
+        }
+
+        hr = D3DXCreateTextureFromFile(DirectXInterface, L"icon_set.png", &ButtonIconsTexture);
+
+        if (FAILED(hr))
         {
             //TODO setting = false
+            Logging::Log() << __FUNCTION__ << " ERROR: Couldn't create texture: " << Logging::hex(hr);
             return;
         }
     }

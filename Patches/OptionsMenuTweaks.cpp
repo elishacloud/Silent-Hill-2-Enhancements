@@ -63,10 +63,10 @@ const float ControlOptionsLockedRedGreen = 0.7490f;
 const float ControlOptionsLockedBlue = 0.7471f;
 
 /*
-ps.1.4
+    ps.1.4
 
-texld r0, t0
-sub r0, r0, c0
+    texld r0, t0
+    sub r0, r0, c0
 */
 
 DWORD subtractionPixelShaderAsm[] = {

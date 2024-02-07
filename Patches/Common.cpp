@@ -143,6 +143,9 @@ BYTE* WorldColorGAddr = nullptr;
 BYTE* WorldColorBAddr = nullptr;
 BYTE* InventoryItemAddr = nullptr;
 BYTE* KeyBindsAddr = nullptr;
+int8_t* ControlOptionsSelectedOptionAddr = nullptr;
+int32_t* ControlOptionsStopScrollingAddr = nullptr;
+int8_t* ControlOptionsSelectedColumnAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -3276,4 +3279,103 @@ BYTE* GetKeyBindsPointer()
 	KeyBindsAddr = (BYTE*)((DWORD)Binds);
 
 	return KeyBindsAddr;
+}
+
+int8_t GetControlOptionsSelectedOption()
+{
+	int8_t* pControlOptionsSelectedOption = GetControlOptionsSelectedOptionPointer();
+
+	return (pControlOptionsSelectedOption) ? *pControlOptionsSelectedOption : 0;
+}
+
+int8_t* GetControlOptionsSelectedOptionPointer()
+{
+	if (ControlOptionsSelectedOptionAddr)
+	{
+		return ControlOptionsSelectedOptionAddr;
+	}
+
+	if (true) //TODO address
+		return (int8_t*)0x009415a4;
+
+	// Get ControlOptionsSelectedOption address
+	constexpr BYTE ControlOptionsSelectedOptionSearchBytes[]{ 0x83, 0xC4, 0x04, 0x85, 0xC0, 0x75, 0x13, 0x56, 0x68, 0x02, 0x00, 0x00, 0x08 };
+	int8_t* ControlOptionsSelectedOption = (int8_t*)ReadSearchedAddresses(0x004671e1, 0x00467481, 0x00467691, ControlOptionsSelectedOptionSearchBytes, sizeof(ControlOptionsSelectedOptionSearchBytes), -0x18, __FUNCTION__);
+
+	// Checking address pointer
+	if (!ControlOptionsSelectedOption)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find ControlOptionsSelectedOption address!";
+		return nullptr;
+	}
+
+	ControlOptionsSelectedOptionAddr = (int8_t*)((DWORD)ControlOptionsSelectedOption);
+
+	return ControlOptionsSelectedOptionAddr;
+}
+
+int8_t GetControlOptionsSelectedColumn()
+{
+	int8_t* pControlOptionsSelectedColumn = GetControlOptionsSelectedColumnPointer();
+
+	return (pControlOptionsSelectedColumn) ? *pControlOptionsSelectedColumn : 0;
+}
+
+int8_t* GetControlOptionsSelectedColumnPointer()
+{
+	if (ControlOptionsSelectedColumnAddr)
+	{
+		return ControlOptionsSelectedColumnAddr;
+	}
+
+	if (true) //TODO address
+		return (int8_t*)0x009415f4;
+
+	// Get ControlOptionsSelectedColumn address
+	constexpr BYTE ControlOptionsSelectedColumnSearchBytes[]{ 0x83, 0xC4, 0x04, 0x85, 0xC0, 0x75, 0x13, 0x56, 0x68, 0x02, 0x00, 0x00, 0x08 };
+	int8_t* ControlOptionsSelectedColumn = (int8_t*)ReadSearchedAddresses(0x004671e1, 0x00467481, 0x00467691, ControlOptionsSelectedColumnSearchBytes, sizeof(ControlOptionsSelectedColumnSearchBytes), -0x18, __FUNCTION__);
+
+	// Checking address pointer
+	if (!ControlOptionsSelectedColumn)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find ControlOptionsSelectedColumn address!";
+		return nullptr;
+	}
+
+	ControlOptionsSelectedColumnAddr = (int8_t*)((DWORD)ControlOptionsSelectedColumn);
+
+	return ControlOptionsSelectedColumnAddr;
+}
+
+int32_t GetControlOptionsIsToStopScrolling()
+{
+	int32_t* pControlOptionsStopScrolling = GetControlOptionsIsToStopScrollingPointer();
+
+	return (pControlOptionsStopScrolling) ? *pControlOptionsStopScrolling : 0;
+}
+
+int32_t* GetControlOptionsIsToStopScrollingPointer()
+{
+	if (ControlOptionsStopScrollingAddr)
+	{
+		return ControlOptionsStopScrollingAddr;
+	}
+
+	if (true) //TODO address
+		return (int32_t*)0x0094178c;
+
+	// Get InternalVertical address
+	constexpr BYTE ControlOptionsStopScrollingSearchBytes[]{ 0x89, 0x44, 0x24, 0x14, 0x89, 0x44, 0x24, 0x28, 0x89 };
+	int32_t* ControlOptionsStopScrolling = (int32_t*)ReadSearchedAddresses(0x00406EF6, 0x00406EF6, 0x00406F06, ControlOptionsStopScrollingSearchBytes, sizeof(ControlOptionsStopScrollingSearchBytes), -0x0B, __FUNCTION__);
+
+	// Checking address pointer
+	if (!ControlOptionsStopScrolling)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find InternalVertical address!";
+		return nullptr;
+	}
+
+	ControlOptionsStopScrollingAddr = (int32_t*)((DWORD)ControlOptionsStopScrolling);
+
+	return ControlOptionsStopScrollingAddr;
 }

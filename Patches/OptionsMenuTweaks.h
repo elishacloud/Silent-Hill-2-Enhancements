@@ -189,21 +189,15 @@ public:
 
 	void UpdateUVs()
 	{
-		if (!this->SelectedOptionPtr)
-		{
-			this->SelectedOptionPtr = (int8_t*)0x009415a4; //TODO address
-		}
-
 		for (int i = 0; i < BUTTON_QUADS_NUM; i++)
 		{
-			int8_t SelectedOption = this->GetSelectedOption();
-			int CurrentIndex = SelectedOption - 5 + i;
+			int CurrentIndex = GetControlOptionsSelectedOption() - 5 + i;
 
 			if (CurrentIndex >= 0 && CurrentIndex <= 3)
 			{
 				this->quads[i].state = OptionState::LOCKED;
 			}
-			else if (i == 5 && this->GetIsToStopScrolling() != 1 && this->GetSelectedColumn() == 1)
+			else if (i == 5 && GetControlOptionsIsToStopScrolling() != 1 && GetControlOptionsSelectedColumn() == 1)
 			{
 				this->quads[i].state = OptionState::SELECTED;
 			}
@@ -245,9 +239,6 @@ public:
 	}
 
 private:
-	int8_t* SelectedOptionPtr = nullptr;
-	int32_t* IsToStopScrolling = nullptr;
-	int8_t* SelectedColumn = nullptr;
 	long LastBufferWidth = 0;
 	long LastBufferHeight = 0;
 
@@ -265,36 +256,6 @@ private:
 	void ScaleVertexBuffer(TexturedVertex* vertices, int count, float x, float y);
 
 	void ApplyVertexBufferTransformation(TexturedVertex* vertices, int count, D3DXMATRIX matrix);
-
-	int32_t GetIsToStopScrolling()
-	{
-		if (!this->IsToStopScrolling)
-		{
-			this->IsToStopScrolling = (int32_t*)0x0094178c; //TODO address
-		}
-
-		return *this->IsToStopScrolling;
-	}
-
-	int8_t GetSelectedColumn()
-	{
-		if (!this->SelectedColumn)
-		{
-			this->SelectedColumn = (int8_t*)0x009415f4; //TODO address
-		}
-
-		return *this->SelectedColumn;
-	}
-
-	int8_t GetSelectedOption()
-	{
-		if (!this->SelectedOptionPtr)
-		{
-			this->SelectedOptionPtr = (int8_t*)0x009415a4; //TODO address
-		}
-
-		return *this->SelectedOptionPtr;
-	}
 
 	float GetUStartingValue()
 	{

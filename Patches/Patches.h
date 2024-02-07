@@ -448,6 +448,9 @@ BYTE GetWorldColorR();
 BYTE GetWorldColorG();
 BYTE GetWorldColorB();
 BYTE GetInventoryItem();
+int8_t GetControlOptionsSelectedOption();
+int32_t GetControlOptionsIsToStopScrolling();
+int8_t GetControlOptionsSelectedColumn();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -570,6 +573,9 @@ BYTE* WorldColorGPointer();
 BYTE* WorldColorBPointer();
 BYTE* InventoryItemPointer();
 BYTE* GetKeyBindsPointer();
+int8_t* GetControlOptionsSelectedOptionPointer();
+int32_t* GetControlOptionsIsToStopScrollingPointer();
+int8_t* GetControlOptionsSelectedColumnPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

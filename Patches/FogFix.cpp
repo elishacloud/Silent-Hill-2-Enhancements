@@ -26,6 +26,11 @@
 // Variables for ASM
 DWORD FogDensityMemoryAddr;
 void *jmpFogDensityReturnAddr;
+void *jmpClearFogWorkReturnAddr;
+
+constexpr int kFogParticleCount = 2000;
+constexpr int kSizeOfFogParticle = 0x60;
+BYTE FogParticleArray[kFogParticleCount * kSizeOfFogParticle];
 
 // ASM function to update fog density
 __declspec(naked) void __stdcall FogDensityASM()
@@ -40,6 +45,59 @@ __declspec(naked) void __stdcall FogDensityASM()
 		pop eax
 		jmp jmpFogDensityReturnAddr
 	}
+}
+
+void ClearFogParticleArray()
+{
+    memset(FogParticleArray, 0, sizeof(FogParticleArray));
+}
+
+// ASM function to reset fog work data
+__declspec(naked) void __stdcall ClearFogWorkASM()
+{
+    __asm
+    {
+        call ClearFogParticleArray
+        push 0x11390
+        jmp jmpClearFogWorkReturnAddr
+    }
+}
+
+void PatchExperimentalFogParticles()
+{
+    constexpr BYTE ClearFogWorkSearchBytes[]{ 0x68, 0x90, 0x13, 0x01, 0x00 };
+    DWORD ClearFogWorkAddr = SearchAndGetAddresses(0x00489640, 0x004898E0, 0x00489AF0, ClearFogWorkSearchBytes, sizeof(ClearFogWorkSearchBytes), 0x00, __FUNCTION__);
+    if (!ClearFogWorkAddr)
+    {
+        Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+        return;
+    }
+    jmpClearFogWorkReturnAddr = (void*)(ClearFogWorkAddr + 0x05);
+
+    // Relocate every reference to the fog particle array to our custom storage.
+    // TODO: Remove hardcoded addresses for V1.0.
+    std::pair<void*, DWORD> fog_addresses[] = {
+        {(void*)(0x004875AC), (DWORD)(FogParticleArray + 0x50)},
+        {(void*)(0x004881DD), (DWORD)(FogParticleArray + 0x20)},
+        {(void*)(0x0048825C), (DWORD)(FogParticleArray)},
+        {(void*)(0x004888E1), (DWORD)(FogParticleArray + 0x10)},
+        {(void*)(0x00489148), (DWORD)(FogParticleArray)},
+        {(void*)(0x00489154), (DWORD)(FogParticleArray + 0x08)},
+        {(void*)(0x004891E8), (DWORD)(FogParticleArray + 0x18)},
+        {(void*)(0x00489500), (DWORD)(FogParticleArray)},
+        // {(void*)(0x00489646), (DWORD)(FogParticleArray)}
+    };
+    
+    // Increase the maximum number of allowed particles.
+    // TODO: Remove hardcoded addresses for V1.0.
+    UpdateMemoryAddress((void*)(0x00487571), &kFogParticleCount, sizeof(DWORD));
+    UpdateMemoryAddress((void*)(0x00487589), &kFogParticleCount, sizeof(DWORD));
+    UpdateMemoryAddress((void*)(0x00487590), &kFogParticleCount, sizeof(DWORD));
+
+    for (const auto& [address, value] : fog_addresses) {
+        UpdateMemoryAddress(address, &value, sizeof(DWORD));
+    }
+    WriteJMPtoMemory((BYTE*)ClearFogWorkAddr, *ClearFogWorkASM, 5);
 }
 
 // Patch the custom fog
@@ -88,4 +146,6 @@ void PatchCustomFog()
 	UpdateMemoryAddress((void*)Layer1Y2Addr, &Address, sizeof(DWORD));
 	UpdateMemoryAddress((void*)Layer2ComplexityAddr, &fog_layer2_complexity, sizeof(float));
 	WriteJMPtoMemory((BYTE*)DensityAddr, *FogDensityASM, 6);
+
+    PatchExperimentalFogParticles();
 }

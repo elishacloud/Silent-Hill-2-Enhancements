@@ -98,7 +98,7 @@
 	visit(MenuSoundsFix, true) \
 	visit(MothDrawOrderFix, true) \
 	visit(NoCDPatch, true) \
-    visit(OldManCoinFix, true) \
+	visit(OldManCoinFix, true) \
 	visit(PauseScreenFix, true) \
 	visit(PistonRoomFix, true) \
 	visit(PreserveSoundsOnLoad, true) \
@@ -237,7 +237,7 @@
 	visit(LockResolution) \
 	visit(NormalFontHeight) \
 	visit(NormalFontWidth) \
-    visit(OldManCoinFix) \
+	visit(OldManCoinFix) \
 	visit(QuickSaveCancelFix) \
 	visit(ResX) \
 	visit(ResY) \

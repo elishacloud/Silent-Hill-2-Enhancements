@@ -19,6 +19,7 @@
 #include "External\Hooking.Patterns\Hooking.Patterns.h"
 #include "OptionsMenuTweaks.h"
 
+bool DrawOptionsHookEnabled = false;
 // Master volume
 D3DMATRIX WorldMatrix =
 {
@@ -100,8 +101,15 @@ void __cdecl DrawOptions_Hook(DWORD* pointer)
 {
     orgDrawOptions.fun(pointer);
 
-    MasterVolumeSliderRef.DrawSlider(DirectXInterface, CurrentMasterVolumeLevel, CurrentMasterVolumeLevel != SavedMasterVolumeLevel);
+    if (EnableMasterVolume)
+    {
+        MasterVolumeSliderRef.DrawSlider(DirectXInterface, CurrentMasterVolumeLevel, CurrentMasterVolumeLevel != SavedMasterVolumeLevel);
+    }
+
+    if (true) //TODO setting
+    {
     ButtonIconsRef.DrawIcons(DirectXInterface);
+    }
 }
 
 void __cdecl ConfirmOptions_Hook(int32_t param)
@@ -188,6 +196,19 @@ __declspec(naked) void __stdcall DecrementMasterVolume()
     }
 }
 
+void EnableDrawOptionsHook()
+{
+    if (DrawOptionsHookEnabled)
+    {
+        return;
+    }
+
+    // Hook options drawing to draw at the same time
+    orgDrawOptions.fun = injector::MakeCALL(GetDrawOptionsFunPointer(), DrawOptions_Hook, true).get();
+
+    DrawOptionsHookEnabled = true;
+}
+
 void PatchMasterVolumeSlider()
 {
     // Initialize pointers
@@ -209,8 +230,7 @@ void PatchMasterVolumeSlider()
 
     BYTE* RenderRightArrowAddr = GetRenderOptionsRightArrowFunPointer() + (GameVersion == SH2V_DC ? 0x02 : 0x0);
 
-    // Hook options drawing to draw at the same time
-    orgDrawOptions.fun = injector::MakeCALL(GetDrawOptionsFunPointer(), DrawOptions_Hook, true).get();
+    EnableDrawOptionsHook();
 
     // Hook right arrow drawing to move it to the right 
     orgDrawArrowRight.fun = injector::MakeCALL(RenderRightArrowAddr, DrawArrowRight_Hook, true).get();
@@ -244,6 +264,11 @@ void PatchMasterVolumeSlider()
 void PatchControlOptionsMenu()
 {
     //TODO
+    BYTE* FunctionDrawControllerValues = (BYTE*)0x00467985; //TODO address
+
+    EnableDrawOptionsHook();
+
+    UpdateMemoryAddress(FunctionDrawControllerValues, "\x90\x90\x90\x90\x90", 0x05);
 }
 
 void MasterVolume::ChangeMasterVolumeValue(int delta)
@@ -571,8 +596,6 @@ void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
 
     for (int i = 0; i < this->quadsNum; i++)
     {
-        //TODO first 4 movement icons dark gray
-
         switch (this->quads[i].state)
         {
         case OptionState::LOCKED:
@@ -601,6 +624,8 @@ void ButtonIcons::HandleControllerIcons(LPDIRECT3DDEVICE8 ProxyInterface)
     {
         return;
     }
+
+    DirectXInterface = ProxyInterface;
 
     this->UpdateBinds();
 }

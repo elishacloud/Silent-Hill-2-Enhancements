@@ -652,6 +652,12 @@ void DelayedStart()
 		PatchTeddyBearLookFix();
 	}
 
+	// Fix spawn precondition for the Old Man Coin
+	if (OldManCoinFix)
+ 	{
+		PatchOldManCoinFix();
+ 	}
+
 	// Remove the "Now loading..." message
 	switch (GameVersion)
 	{

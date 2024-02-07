@@ -58,6 +58,8 @@ ButtonIcons ButtonIconsRef;
 const float ControlOptionRedGreen = 0.497;
 const float ControlOptionSelectedBlue = 0.1211f;
 const float ControlOptionUnselectedBlue = 0.497f;
+const float ControlOptionsLockedRedGreen = 0.7490f;
+const float ControlOptionsLockedBlue = 0.7471f;
 
 /*
 ps.1.4
@@ -555,10 +557,9 @@ void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
 
     ProxyInterface->SetTexture(0, ButtonIconsTexture);
 
-    D3DXVECTOR4 UnselectedSubtractionFactor(ControlOptionRedGreen, ControlOptionRedGreen, ControlOptionUnselectedBlue, 0.0f);
-    D3DXVECTOR4 SelectedSubtractionFactor(ControlOptionRedGreen, ControlOptionRedGreen, ControlOptionSelectedBlue, 0.0f);
-
-    ProxyInterface->SetPixelShaderConstant(0, &UnselectedSubtractionFactor.x, 1);
+    D3DXVECTOR4 UnselectedSubtractionFactor(ControlOptionRedGreen, ControlOptionRedGreen, ControlOptionUnselectedBlue, 0.f);
+    D3DXVECTOR4 SelectedSubtractionFactor(ControlOptionRedGreen, ControlOptionRedGreen, ControlOptionSelectedBlue, 0.f);
+    D3DXVECTOR4 LockedSubtractionFactor(ControlOptionsLockedRedGreen, ControlOptionsLockedRedGreen, ControlOptionsLockedBlue, 0.f);
 
     ProxyInterface->SetPixelShader(SubtractionPixelShader);
 
@@ -568,26 +569,25 @@ void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
 
     ProxyInterface->SetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
 
-    AuxDebugOvlString = "\rSelected: ";
-    AuxDebugOvlString.append(std::to_string(this->GetSelectedOption()));
-
     for (int i = 0; i < this->quadsNum; i++)
     {
         //TODO first 4 movement icons dark gray
 
-        bool selected = i == 5 && this->GetIsToStopScrolling() != 1;
-
-        if (selected)
+        switch (this->quads[i].state)
         {
+        case OptionState::LOCKED:
+            ProxyInterface->SetPixelShaderConstant(0, &LockedSubtractionFactor.x, 1);
+            break;
+        case OptionState::SELECTED:
             ProxyInterface->SetPixelShaderConstant(0, &SelectedSubtractionFactor.x, 1);
+            break;
+        default:
+        case OptionState::STANDARD:
+            ProxyInterface->SetPixelShaderConstant(0, &UnselectedSubtractionFactor.x, 1);
+            break;
         }
 
         ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, this->quads[i].vertices, sizeof(TexturedVertex));
-
-        if (selected)
-        {
-            ProxyInterface->SetPixelShaderConstant(0, &UnselectedSubtractionFactor.x, 1);
-        }
     }
 
     ProxyInterface->SetPixelShader(0);

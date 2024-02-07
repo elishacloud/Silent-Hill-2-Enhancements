@@ -62,6 +62,13 @@ enum ControllerButton
 	DPAD = 999,
 };
 
+enum OptionState
+{
+	STANDARD,
+	SELECTED,
+	LOCKED,
+};
+
 struct ColorVertex
 {
 	D3DXVECTOR3 coords;
@@ -79,6 +86,7 @@ struct TexturedVertex
 struct IconQuad
 {
 	TexturedVertex vertices[4];
+	OptionState state;
 };
 
 struct Bezels
@@ -188,7 +196,21 @@ public:
 
 		for (int i = 0; i < BUTTON_QUADS_NUM; i++)
 		{
-			int CurrentIndex = *this->SelectedOptionPtr - 5 + i;
+			int8_t SelectedOption = this->GetSelectedOption();
+			int CurrentIndex = SelectedOption - 5 + i;
+
+			if (CurrentIndex >= 0 && CurrentIndex <= 3)
+			{
+				this->quads[i].state = OptionState::LOCKED;
+			}
+			else if (i == 5 && this->GetIsToStopScrolling() != 1 && this->GetSelectedColumn() == 1)
+			{
+				this->quads[i].state = OptionState::SELECTED;
+			}
+			else
+			{
+				this->quads[i].state = OptionState::STANDARD;
+			}
 
 			//TODO avoid drawing if the input is not set, override game text value drawing only if what's drawing isn't ??? or -
 			if (CurrentIndex < 0 || CurrentIndex >= BUTTONS_NUM)
@@ -225,6 +247,7 @@ public:
 private:
 	int8_t* SelectedOptionPtr = nullptr;
 	int32_t* IsToStopScrolling = nullptr;
+	int8_t* SelectedColumn = nullptr;
 	long LastBufferWidth = 0;
 	long LastBufferHeight = 0;
 
@@ -251,6 +274,16 @@ private:
 		}
 
 		return *this->IsToStopScrolling;
+	}
+
+	int8_t GetSelectedColumn()
+	{
+		if (!this->SelectedColumn)
+		{
+			this->SelectedColumn = (int8_t*)0x009415f4; //TODO address
+		}
+
+		return *this->SelectedColumn;
 	}
 
 	int8_t GetSelectedOption()

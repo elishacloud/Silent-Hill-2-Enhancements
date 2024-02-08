@@ -263,12 +263,94 @@ void PatchMasterVolumeSlider()
 
 void PatchControlOptionsMenu()
 {
-    //TODO
     BYTE* FunctionDrawControllerValues = (BYTE*)0x00467985; //TODO address
+    BYTE* FunctionDrawDashes = (BYTE*)0x00467606; //TODO address
 
     EnableDrawOptionsHook();
 
     UpdateMemoryAddress(FunctionDrawControllerValues, "\x90\x90\x90\x90\x90", 0x05);
+    UpdateMemoryAddress(FunctionDrawDashes, "\x90\x90\x90\x90\x90", 0x05);
+}
+
+// Graphics utils
+void ApplyVertexBufferTransformation(TexturedVertex* vertices, int count, D3DXMATRIX matrix)
+{
+    D3DXVECTOR3 temp;
+
+    for (int i = 0; i < count; i++)
+    {
+        D3DXVec3TransformCoord(&temp, &vertices[i].coords, &matrix);
+
+        vertices[i].coords = temp;
+    }
+}
+
+void ApplyVertexBufferTransformation(ColorVertex* vertices, int count, D3DXMATRIX matrix)
+{
+    D3DXVECTOR3 temp;
+
+    for (int i = 0; i < count; i++)
+    {
+        D3DXVec3TransformCoord(&temp, &vertices[i].coords, &matrix);
+
+        vertices[i].coords = temp;
+    }
+}
+
+void TranslateVertexBuffer(TexturedVertex* vertices, int count, float x, float y)
+{
+    D3DXMATRIX TranslateMatrix;
+    D3DXMatrixTranslation(&TranslateMatrix, x, y, 0.f);
+
+    ApplyVertexBufferTransformation(vertices, count, TranslateMatrix);
+}
+
+void ScaleVertexBuffer(TexturedVertex* vertices, int count, float x, float y)
+{
+    D3DXMATRIX ScalingMatrix;
+    D3DXMatrixScaling(&ScalingMatrix, x, y, 1.f);
+
+    ApplyVertexBufferTransformation(vertices, count, ScalingMatrix);
+}
+
+void TranslateVertexBuffer(ColorVertex* vertices, int count, float x, float y)
+{
+    D3DXMATRIX TranslateMatrix;
+    D3DXMatrixTranslation(&TranslateMatrix, x, y, 0.f);
+
+    ApplyVertexBufferTransformation(vertices, count, TranslateMatrix);
+}
+
+void RotateVertexBuffer(ColorVertex* vertices, int count, float angle)
+{
+    D3DXMATRIX RotationMatrix;
+    D3DXMatrixRotationZ(&RotationMatrix, angle);
+
+    ApplyVertexBufferTransformation(vertices, count, RotationMatrix);
+}
+
+void ScaleVertexBuffer(ColorVertex* vertices, int count, float x, float y)
+{
+    D3DXMATRIX ScalingMatrix;
+    D3DXMatrixScaling(&ScalingMatrix, x, y, 1.f);
+
+    ApplyVertexBufferTransformation(vertices, count, ScalingMatrix);
+}
+
+void SetVertexBufferColor(ColorVertex* vertices, int count, DWORD color)
+{
+    for (int i = 0; i < count; i++)
+    {
+        vertices[i].color = color;
+    }
+}
+
+void CopyVertexBuffer(ColorVertex* source, ColorVertex* destination, int count)
+{
+    for (int i = 0; i < count; i++)
+    {
+        destination[i] = { D3DXVECTOR3(source[i].coords.x, source[i].coords.y, source[i].coords.z), source[i].rhw, source[i].color };
+    }
 }
 
 void MasterVolume::ChangeMasterVolumeValue(int delta)
@@ -356,27 +438,27 @@ void MasterVolumeSlider::InitVertices()
 
     for (int i = 0; i < 0xF; i++)
     {
-        this->CopyVertexBuffer(this->BezelVertices, this->FinalBezels[i].TopVertices, BEZEL_VERT_NUM);
-        this->CopyVertexBuffer(this->BezelVertices, this->FinalBezels[i].BotVertices, BEZEL_VERT_NUM);
+        CopyVertexBuffer(this->BezelVertices, this->FinalBezels[i].TopVertices, BEZEL_VERT_NUM);
+        CopyVertexBuffer(this->BezelVertices, this->FinalBezels[i].BotVertices, BEZEL_VERT_NUM);
 
-        this->CopyVertexBuffer(this->RectangleVertices, this->FinalRects[i].vertices, RECT_VERT_NUM);
+        CopyVertexBuffer(this->RectangleVertices, this->FinalRects[i].vertices, RECT_VERT_NUM);
 
         // Flip the top bezel
-        this->RotateVertexBuffer(this->FinalBezels[i].TopVertices, BEZEL_VERT_NUM, D3DX_PI);
+        RotateVertexBuffer(this->FinalBezels[i].TopVertices, BEZEL_VERT_NUM, D3DX_PI);
         
         // Scaling
-        this->ScaleVertexBuffer(this->FinalBezels[i].TopVertices, BEZEL_VERT_NUM, xScaling, yScaling);
-        this->ScaleVertexBuffer(this->FinalBezels[i].BotVertices, BEZEL_VERT_NUM, xScaling, yScaling);
-        this->ScaleVertexBuffer(this->FinalRects[i].vertices, RECT_VERT_NUM, xScaling, yScaling);
+        ScaleVertexBuffer(this->FinalBezels[i].TopVertices, BEZEL_VERT_NUM, xScaling, yScaling);
+        ScaleVertexBuffer(this->FinalBezels[i].BotVertices, BEZEL_VERT_NUM, xScaling, yScaling);
+        ScaleVertexBuffer(this->FinalRects[i].vertices, RECT_VERT_NUM, xScaling, yScaling);
 
         // Translating
-        this->TranslateVertexBuffer(this->FinalRects[i].vertices, RECT_VERT_NUM, xOffset + ((float)i * spacing), yOffset);
+        TranslateVertexBuffer(this->FinalRects[i].vertices, RECT_VERT_NUM, xOffset + ((float)i * spacing), yOffset);
 
         float DeltaX = this->FinalRects[i].vertices[0].coords.x - this->FinalBezels[i].BotVertices[3].coords.x;
         float DeltaY = this->FinalRects[i].vertices[0].coords.y - this->FinalBezels[i].BotVertices[3].coords.y;
 
-        this->TranslateVertexBuffer(this->FinalBezels[i].TopVertices, BEZEL_VERT_NUM, DeltaX, DeltaY);
-        this->TranslateVertexBuffer(this->FinalBezels[i].BotVertices, BEZEL_VERT_NUM, DeltaX, DeltaY);
+        TranslateVertexBuffer(this->FinalBezels[i].TopVertices, BEZEL_VERT_NUM, DeltaX, DeltaY);
+        TranslateVertexBuffer(this->FinalBezels[i].BotVertices, BEZEL_VERT_NUM, DeltaX, DeltaY);
     }
 }
 
@@ -395,34 +477,34 @@ void MasterVolumeSlider::DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value,
     {
         for (int i = 0; i < 0xF; i++)
         {
-            this->SetVertexBufferColor(this->FinalBezels[i].TopVertices, BEZEL_VERT_NUM, this->LightGoldBezel[selected]);
-            this->SetVertexBufferColor(this->FinalBezels[i].BotVertices, BEZEL_VERT_NUM, this->DarkGoldBezel[selected]);
+            SetVertexBufferColor(this->FinalBezels[i].TopVertices, BEZEL_VERT_NUM, this->LightGoldBezel[selected]);
+            SetVertexBufferColor(this->FinalBezels[i].BotVertices, BEZEL_VERT_NUM, this->DarkGoldBezel[selected]);
         }
 
         // Set inner rectangle color, based on the current value
         for (int i = 0; i < 0xF; i++)
         {
             if (value <= i)
-                this->SetVertexBufferColor(this->FinalRects[i].vertices, RECT_VERT_NUM, this->InactiveGoldSquare[selected]);
+                SetVertexBufferColor(this->FinalRects[i].vertices, RECT_VERT_NUM, this->InactiveGoldSquare[selected]);
             else
-                this->SetVertexBufferColor(this->FinalRects[i].vertices, RECT_VERT_NUM, this->ActiveGoldSquare[selected]);
+                SetVertexBufferColor(this->FinalRects[i].vertices, RECT_VERT_NUM, this->ActiveGoldSquare[selected]);
         }
     }
     else
     {
         for (int i = 0; i < 0xF; i++)
         {
-            this->SetVertexBufferColor(this->FinalBezels[i].TopVertices, BEZEL_VERT_NUM, this->LightGrayBezel[selected]);
-            this->SetVertexBufferColor(this->FinalBezels[i].BotVertices, BEZEL_VERT_NUM, this->DarkGrayBezel[selected]);
+            SetVertexBufferColor(this->FinalBezels[i].TopVertices, BEZEL_VERT_NUM, this->LightGrayBezel[selected]);
+            SetVertexBufferColor(this->FinalBezels[i].BotVertices, BEZEL_VERT_NUM, this->DarkGrayBezel[selected]);
         }
 
         // Set inner rectangle color, based on the current value
         for (int i = 0; i < 0xF; i++)
         {
             if (value <= i)
-                this->SetVertexBufferColor(this->FinalRects[i].vertices, RECT_VERT_NUM, this->InactiveGraySquare[selected]);
+                SetVertexBufferColor(this->FinalRects[i].vertices, RECT_VERT_NUM, this->InactiveGraySquare[selected]);
             else
-                this->SetVertexBufferColor(this->FinalRects[i].vertices, RECT_VERT_NUM, this->ActiveGraySquare[selected]);
+                SetVertexBufferColor(this->FinalRects[i].vertices, RECT_VERT_NUM, this->ActiveGraySquare[selected]);
         }
     }
 
@@ -461,58 +543,6 @@ void MasterVolumeSlider::DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value,
 
     ProxyInterface->SetRenderState(D3DRS_ALPHAREF, 2);
     ProxyInterface->SetRenderState(D3DRS_FOGENABLE, 1);
-}
-
-void MasterVolumeSlider::TranslateVertexBuffer(ColorVertex* vertices, int count, float x, float y)
-{
-    D3DXMATRIX TranslateMatrix;
-    D3DXMatrixTranslation(&TranslateMatrix, x, y, 0.f);
-
-    this->ApplyVertexBufferTransformation(vertices, count, TranslateMatrix);
-}
-
-void MasterVolumeSlider::RotateVertexBuffer(ColorVertex* vertices, int count, float angle)
-{
-    D3DXMATRIX RotationMatrix;
-    D3DXMatrixRotationZ(&RotationMatrix, angle);
-
-    this->ApplyVertexBufferTransformation(vertices, count, RotationMatrix);
-}
-
-void MasterVolumeSlider::ScaleVertexBuffer(ColorVertex* vertices, int count, float x, float y)
-{
-    D3DXMATRIX ScalingMatrix;
-    D3DXMatrixScaling(&ScalingMatrix, x, y, 1.f);
-
-    this->ApplyVertexBufferTransformation(vertices, count, ScalingMatrix);
-}
-
-void MasterVolumeSlider::ApplyVertexBufferTransformation(ColorVertex* vertices, int count, D3DXMATRIX matrix)
-{
-    D3DXVECTOR3 temp;
-
-    for (int i = 0; i < count; i++)
-    {
-        D3DXVec3TransformCoord(&temp, &vertices[i].coords, &matrix);
-
-        vertices[i].coords = temp;
-    }
-}
-
-void MasterVolumeSlider::SetVertexBufferColor(ColorVertex* vertices, int count, DWORD color)
-{
-    for (int i = 0; i < count; i++)
-    {
-        vertices[i].color = color;
-    }
-}
-
-void MasterVolumeSlider::CopyVertexBuffer(ColorVertex* source, ColorVertex* destination, int count)
-{
-    for (int i = 0; i < count; i++)
-    {
-        destination[i] = { D3DXVECTOR3(source[i].coords.x, source[i].coords.y, source[i].coords.z), source[i].rhw, source[i].color };
-    }
 }
 
 /*
@@ -564,6 +594,30 @@ void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
         Logging::Log() << __FUNCTION__ << " ERROR: Couldn't load button icons texture.";
         return;
     }
+
+    ProxyInterface->SetVertexShader(D3DFVF_XYZRHW | D3DFVF_DIFFUSE);
+
+    ProxyInterface->SetRenderState(D3DRS_ALPHAREF, 1);
+    ProxyInterface->SetRenderState(D3DRS_LIGHTING, 0);
+    ProxyInterface->SetRenderState(D3DRS_SPECULARENABLE, 0);
+    ProxyInterface->SetRenderState(D3DRS_ZENABLE, 1);
+    ProxyInterface->SetRenderState(D3DRS_ZWRITEENABLE, 1);
+    ProxyInterface->SetRenderState(D3DRS_ALPHATESTENABLE, 0);
+    ProxyInterface->SetRenderState(D3DRS_ALPHABLENDENABLE, 0);
+
+    ProxyInterface->SetRenderState(D3DRS_FOGENABLE, FALSE);
+
+    ProxyInterface->SetTextureStageState(0, D3DTSS_COLOROP, 1);
+    ProxyInterface->SetTextureStageState(0, D3DTSS_ALPHAOP, 1);
+
+    ProxyInterface->SetTextureStageState(1, D3DTSS_COLOROP, 1);
+    ProxyInterface->SetTextureStageState(1, D3DTSS_ALPHAOP, 1);
+
+    ProxyInterface->SetTexture(0, 0);
+
+    ProxyInterface->SetTransform(D3DTS_WORLDMATRIX(0x56), &WorldMatrix);
+    
+    ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, this->LineVertices, 20);
 
     ProxyInterface->SetVertexShader(D3DFVF_XYZRHW | D3DFVF_TEX1);
 
@@ -630,34 +684,6 @@ void ButtonIcons::HandleControllerIcons(LPDIRECT3DDEVICE8 ProxyInterface)
     this->UpdateBinds();
 }
 
-void ButtonIcons::TranslateVertexBuffer(TexturedVertex* vertices, int count, float x, float y)
-{
-    D3DXMATRIX TranslateMatrix;
-    D3DXMatrixTranslation(&TranslateMatrix, x, y, 0.f);
-
-    this->ApplyVertexBufferTransformation(vertices, count, TranslateMatrix);
-}
-
-void ButtonIcons::ScaleVertexBuffer(TexturedVertex* vertices, int count, float x, float y)
-{
-    D3DXMATRIX ScalingMatrix;
-    D3DXMatrixScaling(&ScalingMatrix, x, y, 1.f);
-
-    this->ApplyVertexBufferTransformation(vertices, count, ScalingMatrix);
-}
-
-void ButtonIcons::ApplyVertexBufferTransformation(TexturedVertex* vertices, int count, D3DXMATRIX matrix)
-{
-    D3DXVECTOR3 temp;
-
-    for (int i = 0; i < count; i++)
-    {
-        D3DXVec3TransformCoord(&temp, &vertices[i].coords, &matrix);
-
-        vertices[i].coords = temp;
-    }
-}
-
 void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
 {
     if (!DirectXInterface)
@@ -700,6 +726,12 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
     const float x = (76.f * (float)HorizontalInternal) / 1200.f;
     const float y = (57.f * (float)VerticalInternal) / 900.f;
 
+    const float LineHorizontalOffset = (800.f * (float)HorizontalInternal) / 1200.f;
+    const float LineVerticalOffset = (85.f * (float)VerticalInternal) / 900.f;
+
+    ScaleVertexBuffer(this->LineVertices, RECT_VERT_NUM, xScaling, yScaling);
+    TranslateVertexBuffer(this->LineVertices, RECT_VERT_NUM, LineHorizontalOffset, LineVerticalOffset);
+
     for (int i = 0; i < BUTTON_QUADS_NUM; i++)
     {
         this->quads[i].vertices[0].coords = { 0.f, 0.f, 0.5f };
@@ -707,8 +739,8 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
         this->quads[i].vertices[2].coords = {   x,   y, 0.5f };
         this->quads[i].vertices[3].coords = {   x, 0.f, 0.5f };
 
-        this->TranslateVertexBuffer(this->quads[i].vertices, 4, HorizontalOffset, VerticalOffset + (i * y));
-        this->ScaleVertexBuffer(this->quads[i].vertices, 4, xScaling, yScaling);
+        TranslateVertexBuffer(this->quads[i].vertices, 4, HorizontalOffset, VerticalOffset + (i * y));
+        ScaleVertexBuffer(this->quads[i].vertices, 4, xScaling, yScaling);
     }
 }
 

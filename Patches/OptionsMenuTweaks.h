@@ -165,14 +165,6 @@ private:
 	Bezels FinalBezels[0x10];
 	CenterRects FinalRects[0x10];
 
-	void TranslateVertexBuffer(ColorVertex* vertices, int count, float x, float y);
-	void RotateVertexBuffer(ColorVertex* vertices, int count, float angle);
-	void ScaleVertexBuffer(ColorVertex* vertices, int count, float x, float y);
-
-	void ApplyVertexBufferTransformation(ColorVertex* vertices, int count, D3DXMATRIX matrix);
-	void SetVertexBufferColor(ColorVertex* vertices, int count, DWORD color);
-	void CopyVertexBuffer(ColorVertex* source, ColorVertex* destination, int count);
-
 	void InitVertices();
 };
 
@@ -245,17 +237,20 @@ private:
 	IconQuad quads[BUTTON_QUADS_NUM];
 	int quadsNum = BUTTON_QUADS_NUM;
 
+	ColorVertex LineVertices[RECT_VERT_NUM] =
+	{
+		{ D3DXVECTOR3(600.f,  2.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80)},
+		{ D3DXVECTOR3(600.f, -2.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80)},
+		{ D3DXVECTOR3(-600.f,  2.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80)},
+		{ D3DXVECTOR3(-600.f, -2.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80)}
+	};
+
 	BYTE* ControllerBindsAddr = nullptr;
 	ControllerButton binds[BUTTONS_NUM];
 	int BindsNum = BUTTONS_NUM;
 
 	LPDIRECT3DTEXTURE8  ButtonIconsTexture = NULL;
 	DWORD SubtractionPixelShader = NULL;
-
-	void TranslateVertexBuffer(TexturedVertex* vertices, int count, float x, float y);
-	void ScaleVertexBuffer(TexturedVertex* vertices, int count, float x, float y);
-
-	void ApplyVertexBufferTransformation(TexturedVertex* vertices, int count, D3DXMATRIX matrix);
 
 	float GetUStartingValue()
 	{

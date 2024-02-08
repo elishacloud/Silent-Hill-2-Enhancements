@@ -108,7 +108,7 @@ void __cdecl DrawOptions_Hook(DWORD* pointer)
 
     if (true) //TODO setting
     {
-    ButtonIconsRef.DrawIcons(DirectXInterface);
+        ButtonIconsRef.DrawIcons(DirectXInterface);
     }
 }
 
@@ -311,6 +311,14 @@ void ScaleVertexBuffer(TexturedVertex* vertices, int count, float x, float y)
     D3DXMatrixScaling(&ScalingMatrix, x, y, 1.f);
 
     ApplyVertexBufferTransformation(vertices, count, ScalingMatrix);
+}
+
+void CopyVertexBuffer(TexturedVertex* source, TexturedVertex* destination, int count)
+{
+    for (int i = 0; i < count; i++)
+    {
+        destination[i] = { D3DXVECTOR3(source[i].coords.x, source[i].coords.y, source[i].coords.z), source[i].rhw, source[i].u, source[i].v};
+    }
 }
 
 void TranslateVertexBuffer(ColorVertex* vertices, int count, float x, float y)
@@ -578,12 +586,12 @@ void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
         return;
     }
 
-    if (LastBufferHeight != BufferHeight || LastBufferWidth != BufferWidth)
+    if (!ProxyInterface)
     {
-        this->Init(ProxyInterface);
+        return;
     }
 
-    if (ButtonIconsTexture == NULL)
+    if (LastBufferHeight != BufferHeight || LastBufferWidth != BufferWidth || ButtonIconsTexture == NULL)
     {
         this->Init(ProxyInterface);
     }
@@ -614,14 +622,14 @@ void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
 
     ProxyInterface->SetTextureStageState(1, D3DTSS_COLOROP, 1);
     ProxyInterface->SetTextureStageState(1, D3DTSS_ALPHAOP, 1);
-
+    
     ProxyInterface->SetTexture(0, 0);
 
     ProxyInterface->SetTransform(D3DTS_WORLDMATRIX(0x56), &WorldMatrix);
     
     ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, this->LineVertices[0], 20);
     ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, this->LineVertices[1], 20);
-
+    
     ProxyInterface->SetVertexShader(D3DFVF_XYZRHW | D3DFVF_TEX1);
 
     ProxyInterface->SetRenderState(D3DRS_ALPHATESTENABLE, 0);
@@ -687,14 +695,15 @@ void ButtonIcons::HandleControllerIcons(LPDIRECT3DDEVICE8 ProxyInterface)
     this->UpdateBinds();
 }
 
+bool f = true;
 void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
 {
-    if (!DirectXInterface)
+    if (!ProxyInterface)
     {
         return;
     }
-    
-    if (ButtonIconsTexture == NULL)
+
+    if (ButtonIconsTexture == NULL && SubtractionPixelShader == NULL)
     {
         HRESULT hr = ProxyInterface->CreatePixelShader(subtractionPixelShaderAsm, &this->SubtractionPixelShader);
 
@@ -730,25 +739,29 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
     const float y = (57.f * (float)VerticalInternal) / 900.f;
 
     const float LineHorizontalOffset = (800.f * (float)HorizontalInternal) / 1200.f;
-    const float TopLineVerticalOffset = (88.f * (float)VerticalInternal) / 900.f;
-    const float BottomLineVerticalOffset = (795.f * (float)VerticalInternal) / 900.f;
+    const float TopLineVerticalOffset = (90.f * (float)VerticalInternal) / 900.f;
+    const float BottomLineVerticalOffset = (790.f * (float)VerticalInternal) / 900.f;
 
-    const float TextVerticalOffset = (100.f * (float)VerticalInternal) / 900.f;
+    const float TextVerticalOffset = (800.f * (float)VerticalInternal) / 900.f;
+    const float TextRightOffset = (210.f * (float)HorizontalInternal) / 1200.f;
 
     this->message.String = "Use keyboard to adjust inputs. Enter key to activate/change input. Escape key to clear active input."; //TODO grab string by language
-    this->message.Format = DT_NOCLIP | DT_CENTER;
+    this->message.Format = DT_NOCLIP | DT_RIGHT;
     this->message.Rect.left = 0.f;
     this->message.Rect.top = TextVerticalOffset;
-    this->message.Rect.right = BufferWidth;
+    this->message.Rect.right = BufferWidth - TextRightOffset;
     this->message.Rect.bottom = TextVerticalOffset + 15;
     this->message.Color = D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80);
+
+    CopyVertexBuffer(this->TemplateLineVertices, this->LineVertices[0], RECT_VERT_NUM);
+    CopyVertexBuffer(this->TemplateLineVertices, this->LineVertices[1], RECT_VERT_NUM);
 
     ScaleVertexBuffer(this->LineVertices[0], RECT_VERT_NUM, xScaling, yScaling);
     TranslateVertexBuffer(this->LineVertices[0], RECT_VERT_NUM, LineHorizontalOffset, TopLineVerticalOffset);
 
     ScaleVertexBuffer(this->LineVertices[1], RECT_VERT_NUM, xScaling, yScaling);
     TranslateVertexBuffer(this->LineVertices[1], RECT_VERT_NUM, LineHorizontalOffset, BottomLineVerticalOffset);
-
+    
     for (int i = 0; i < BUTTON_QUADS_NUM; i++)
     {
         this->quads[i].vertices[0].coords = { 0.f, 0.f, 0.5f };

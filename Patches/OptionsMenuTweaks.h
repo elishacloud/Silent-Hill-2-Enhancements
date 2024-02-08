@@ -185,7 +185,11 @@ public:
 	void UpdateBinds();
 	void ResetFont()
 	{
-		this->ResetFontFlag = true;
+		if (ControlOptionsFont)
+		{
+			ControlOptionsFont->OnLostDevice();
+			ResetFontFlag = true;
+		}
 	}
 
 	void HandleControllerIcons(LPDIRECT3DDEVICE8 ProxyInterface);
@@ -214,7 +218,7 @@ public:
 			if (CurrentIndex < 0 || CurrentIndex >= BUTTONS_NUM)
 			{
 				this->SetQuadUV(i, 0.f, 0.f, 0.f, 0.f);
-			} 
+			}
 			else
 			{
 				this->SetQuadUV(i, this->GetUOffset(), this->GetVOffset(), this->GetUStartingValue(), this->GetVStartingValue(this->binds[CurrentIndex]));
@@ -249,6 +253,13 @@ private:
 
 	IconQuad quads[BUTTON_QUADS_NUM];
 	int quadsNum = BUTTON_QUADS_NUM;
+
+	ColorVertex TemplateLineVertices[RECT_VERT_NUM] = {
+	{ D3DXVECTOR3(600.f,  1.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80) },
+	{ D3DXVECTOR3(600.f, -1.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80) },
+	{ D3DXVECTOR3(-600.f,  1.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80) },
+	{ D3DXVECTOR3(-600.f, -1.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80) }
+	};
 
 	ColorVertex LineVertices[2][RECT_VERT_NUM] = {
 	{

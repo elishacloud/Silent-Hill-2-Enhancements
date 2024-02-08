@@ -100,6 +100,14 @@ struct CenterRects
 	ColorVertex vertices[RECT_VERT_NUM];
 };
 
+struct CO_TEXT
+{
+	LPCSTR     String = "";
+	RECT			  Rect;
+	DWORD           Format;
+	D3DCOLOR         Color;
+};
+
 class MasterVolume
 {
 public:
@@ -175,6 +183,10 @@ public:
 
 	void Init(LPDIRECT3DDEVICE8 ProxyInterface);
 	void UpdateBinds();
+	void ResetFont()
+	{
+		this->ResetFontFlag = true;
+	}
 
 	void HandleControllerIcons(LPDIRECT3DDEVICE8 ProxyInterface);
 	void DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface);
@@ -233,16 +245,21 @@ public:
 private:
 	long LastBufferWidth = 0;
 	long LastBufferHeight = 0;
+	bool ResetFontFlag = false;
 
 	IconQuad quads[BUTTON_QUADS_NUM];
 	int quadsNum = BUTTON_QUADS_NUM;
 
-	ColorVertex LineVertices[RECT_VERT_NUM] =
+	ColorVertex LineVertices[2][RECT_VERT_NUM] = {
 	{
-		{ D3DXVECTOR3(600.f,  2.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80)},
-		{ D3DXVECTOR3(600.f, -2.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80)},
-		{ D3DXVECTOR3(-600.f,  2.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80)},
-		{ D3DXVECTOR3(-600.f, -2.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80)}
+		{ D3DXVECTOR3(600.f,  1.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80)},
+		{ D3DXVECTOR3(600.f, -1.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80)},
+		{ D3DXVECTOR3(-600.f,  1.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80)},
+		{ D3DXVECTOR3(-600.f, -1.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80)}}, 
+		{{ D3DXVECTOR3(600.f,  1.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80)},
+		{ D3DXVECTOR3(600.f, -1.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80)},
+		{ D3DXVECTOR3(-600.f,  1.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80)},
+		{ D3DXVECTOR3(-600.f, -1.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80)}} 
 	};
 
 	BYTE* ControllerBindsAddr = nullptr;
@@ -251,6 +268,12 @@ private:
 
 	LPDIRECT3DTEXTURE8  ButtonIconsTexture = NULL;
 	DWORD SubtractionPixelShader = NULL;
+	
+	LPD3DXFONT ControlOptionsFont = nullptr;
+	LPCSTR FontName = "Arial";
+	CO_TEXT message;
+
+	void DrawControlOptionsText(LPDIRECT3DDEVICE8 ProxyInterface, CO_TEXT FontStruct);
 
 	float GetUStartingValue()
 	{

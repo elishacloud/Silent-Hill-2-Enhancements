@@ -595,6 +595,8 @@ void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
         return;
     }
 
+    this->DrawControlOptionsText(ProxyInterface, this->message);
+
     ProxyInterface->SetVertexShader(D3DFVF_XYZRHW | D3DFVF_DIFFUSE);
 
     ProxyInterface->SetRenderState(D3DRS_ALPHAREF, 1);
@@ -617,7 +619,8 @@ void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
 
     ProxyInterface->SetTransform(D3DTS_WORLDMATRIX(0x56), &WorldMatrix);
     
-    ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, this->LineVertices, 20);
+    ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, this->LineVertices[0], 20);
+    ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, this->LineVertices[1], 20);
 
     ProxyInterface->SetVertexShader(D3DFVF_XYZRHW | D3DFVF_TEX1);
 
@@ -727,10 +730,24 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
     const float y = (57.f * (float)VerticalInternal) / 900.f;
 
     const float LineHorizontalOffset = (800.f * (float)HorizontalInternal) / 1200.f;
-    const float LineVerticalOffset = (85.f * (float)VerticalInternal) / 900.f;
+    const float TopLineVerticalOffset = (88.f * (float)VerticalInternal) / 900.f;
+    const float BottomLineVerticalOffset = (795.f * (float)VerticalInternal) / 900.f;
 
-    ScaleVertexBuffer(this->LineVertices, RECT_VERT_NUM, xScaling, yScaling);
-    TranslateVertexBuffer(this->LineVertices, RECT_VERT_NUM, LineHorizontalOffset, LineVerticalOffset);
+    const float TextVerticalOffset = (100.f * (float)VerticalInternal) / 900.f;
+
+    this->message.String = "Use keyboard to adjust inputs. Enter key to activate/change input. Escape key to clear active input."; //TODO grab string by language
+    this->message.Format = DT_NOCLIP | DT_CENTER;
+    this->message.Rect.left = 0.f;
+    this->message.Rect.top = TextVerticalOffset;
+    this->message.Rect.right = BufferWidth;
+    this->message.Rect.bottom = TextVerticalOffset + 15;
+    this->message.Color = D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80);
+
+    ScaleVertexBuffer(this->LineVertices[0], RECT_VERT_NUM, xScaling, yScaling);
+    TranslateVertexBuffer(this->LineVertices[0], RECT_VERT_NUM, LineHorizontalOffset, TopLineVerticalOffset);
+
+    ScaleVertexBuffer(this->LineVertices[1], RECT_VERT_NUM, xScaling, yScaling);
+    TranslateVertexBuffer(this->LineVertices[1], RECT_VERT_NUM, LineHorizontalOffset, BottomLineVerticalOffset);
 
     for (int i = 0; i < BUTTON_QUADS_NUM; i++)
     {
@@ -741,6 +758,32 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
 
         TranslateVertexBuffer(this->quads[i].vertices, 4, HorizontalOffset, VerticalOffset + (i * y));
         ScaleVertexBuffer(this->quads[i].vertices, 4, xScaling, yScaling);
+    }
+}
+
+void ButtonIcons::DrawControlOptionsText(LPDIRECT3DDEVICE8 ProxyInterface, CO_TEXT FontStruct)
+{
+    // This flag is set when changing resolution, we have to reload the font
+    if (ResetFontFlag)
+    {
+        ResetFontFlag = false;
+        ControlOptionsFont->OnResetDevice();
+    }
+
+    if (ProxyInterface != nullptr && ControlOptionsFont == nullptr)
+    {
+        HFONT FontCharacteristics = CreateFontA(18, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, ANTIALIASED_QUALITY, 0, FontName);
+        if (FontCharacteristics != NULL)
+        {
+            Logging::LogDebug() << __FUNCTION__ << " Creating Control Options font: " << FontName;
+            D3DXCreateFont(ProxyInterface, FontCharacteristics, &ControlOptionsFont);
+            DeleteObject(FontCharacteristics);
+        }
+    }
+
+    if (ControlOptionsFont != nullptr)
+    {
+        ControlOptionsFont->DrawTextA(FontStruct.String, -1, &FontStruct.Rect, FontStruct.Format, FontStruct.Color);
     }
 }
 

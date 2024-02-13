@@ -21,6 +21,7 @@
 #include "OptionsMenuTweaks.h"
 
 bool DrawOptionsHookEnabled = false;
+
 // Master volume
 D3DMATRIX WorldMatrix =
 {

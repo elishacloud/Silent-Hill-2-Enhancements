@@ -43,6 +43,14 @@ enum ControllerButton
 	BUTTON_L3,
 	BUTTON_R3,
 
+	PS,
+	TOUCHPAD_CLICK,
+
+	D_UP = 28,
+	D_RIGHT,
+	D_DOWN,
+	D_LEFT,
+
 	L_UP = 100,
 	L_DOWN,
 	L_LEFT,
@@ -54,11 +62,6 @@ enum ControllerButton
 	R_RIGHT,
 
 	NO_BIND = 255,
-
-	D_UP = 300,
-	D_DOWN,
-	D_LEFT,
-	D_RIGHT,
 
 	LEVER_DIRECTIONAL = 998,
 	DPAD,
@@ -338,12 +341,11 @@ private:
 		ControllerButton::L_DOWN,
 		ControllerButton::L_LEFT,
 
-		//TODO
 		ControllerButton::R_UP,
 		ControllerButton::R_RIGHT,
 		ControllerButton::R_DOWN,
 		ControllerButton::R_LEFT,
-		//TODO 
+
 		ControllerButton::D_UP,
 		ControllerButton::D_RIGHT,
 		ControllerButton::D_DOWN,
@@ -365,9 +367,8 @@ private:
 		ControllerButton::BUTTON_L3,
 		ControllerButton::BUTTON_R3,
 
-		//TODO PS and touchpad buttons
-		ControllerButton::LEVER_DIRECTIONAL,
-		ControllerButton::LEVER_DIRECTIONAL,
+		ControllerButton::PS,
+		ControllerButton::TOUCHPAD_CLICK,
 
 		ControllerButton::NO_BIND,
 	};

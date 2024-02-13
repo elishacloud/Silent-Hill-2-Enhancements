@@ -25,7 +25,7 @@
 #define RECT_VERT_NUM 4
 
 #define BUTTONS_NUM 22
-#define BUTTON_ICONS_NUM 26
+#define BUTTON_ICONS_NUM 27
 #define BUTTON_QUADS_NUM 11
 
 enum ControllerButton
@@ -53,13 +53,15 @@ enum ControllerButton
 	R_LEFT,
 	R_RIGHT,
 
+	NO_BIND = 255,
+
 	D_UP = 300,
 	D_DOWN,
 	D_LEFT,
 	D_RIGHT,
 
 	LEVER_DIRECTIONAL = 998,
-	DPAD = 999,
+	DPAD,
 };
 
 enum OptionState
@@ -361,6 +363,8 @@ private:
 		//TODO PS and touchpad buttons
 		ControllerButton::LEVER_DIRECTIONAL,
 		ControllerButton::LEVER_DIRECTIONAL,
+
+		ControllerButton::NO_BIND,
 	};
 };
 

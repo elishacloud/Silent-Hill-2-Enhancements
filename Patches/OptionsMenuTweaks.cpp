@@ -17,6 +17,7 @@
 #include "External\injector\include\injector\injector.hpp"
 #include "External\injector\include\injector\utility.hpp"
 #include "External\Hooking.Patterns\Hooking.Patterns.h"
+#include "Common\FileSystemHooks.h"
 #include "OptionsMenuTweaks.h"
 
 bool DrawOptionsHookEnabled = false;
@@ -695,7 +696,6 @@ void ButtonIcons::HandleControllerIcons(LPDIRECT3DDEVICE8 ProxyInterface)
     this->UpdateBinds();
 }
 
-bool f = true;
 void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
 {
     if (!ProxyInterface)
@@ -713,7 +713,17 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
             return;
         }
 
-        hr = D3DXCreateTextureFromFile(DirectXInterface, L"icon_set.png", &ButtonIconsTexture);
+        char TexturePath[MAX_PATH];
+        strcpy_s(TexturePath, MAX_PATH, "data\\pic\\etc\\");
+        strcat_s(TexturePath, MAX_PATH, "controller_buttons_icons.png");
+
+        char Filename[MAX_PATH];
+        char* FinalPathChars = GetFileModPath(TexturePath, Filename);
+
+        wchar_t FinalPath[MAX_PATH];
+        mbstowcs(FinalPath, FinalPathChars, strlen(FinalPathChars) + 1);
+
+        hr = D3DXCreateTextureFromFile(ProxyInterface, (LPCWSTR)FinalPath, &ButtonIconsTexture);
 
         if (FAILED(hr))
         {

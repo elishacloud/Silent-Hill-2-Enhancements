@@ -451,6 +451,7 @@ BYTE GetInventoryItem();
 int8_t GetControlOptionsSelectedOption();
 int32_t GetControlOptionsIsToStopScrolling();
 int8_t GetControlOptionsSelectedColumn();
+int8_t GetControlOptionsChanging();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -576,6 +577,7 @@ BYTE* GetKeyBindsPointer();
 int8_t* GetControlOptionsSelectedOptionPointer();
 int32_t* GetControlOptionsIsToStopScrollingPointer();
 int8_t* GetControlOptionsSelectedColumnPointer();
+int8_t* GetControlOptionsChangingPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();

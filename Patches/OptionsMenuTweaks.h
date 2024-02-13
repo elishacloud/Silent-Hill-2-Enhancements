@@ -69,6 +69,7 @@ enum OptionState
 	STANDARD,
 	SELECTED,
 	LOCKED,
+	CHANGING,
 };
 
 struct ColorVertex
@@ -207,9 +208,13 @@ public:
 			{
 				this->quads[i].state = OptionState::LOCKED;
 			}
-			else if (i == 5 && GetControlOptionsIsToStopScrolling() != 1 && GetControlOptionsSelectedColumn() == 1)
+			else if (i == 5 && GetControlOptionsIsToStopScrolling() != 1 && GetControlOptionsSelectedColumn() == 1 && GetControlOptionsChanging() == 0)
 			{
 				this->quads[i].state = OptionState::SELECTED;
+			}
+			else if (i == 5 && GetControlOptionsIsToStopScrolling() != 1 && GetControlOptionsSelectedColumn() == 1 && GetControlOptionsChanging() != 0)
+			{
+				this->quads[i].state = OptionState::CHANGING;
 			}
 			else
 			{

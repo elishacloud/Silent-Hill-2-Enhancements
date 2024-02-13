@@ -146,6 +146,7 @@ BYTE* KeyBindsAddr = nullptr;
 int8_t* ControlOptionsSelectedOptionAddr = nullptr;
 int32_t* ControlOptionsStopScrollingAddr = nullptr;
 int8_t* ControlOptionsSelectedColumnAddr = nullptr;
+int8_t* ControlOptionsChangingAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -3378,4 +3379,37 @@ int32_t* GetControlOptionsIsToStopScrollingPointer()
 	ControlOptionsStopScrollingAddr = (int32_t*)((DWORD)ControlOptionsStopScrolling);
 
 	return ControlOptionsStopScrollingAddr;
+}
+
+int8_t GetControlOptionsChanging()
+{
+	int8_t* pControlOptionsChanging = GetControlOptionsChangingPointer();
+
+	return (pControlOptionsChanging) ? *pControlOptionsChanging : 0;
+}
+
+int8_t* GetControlOptionsChangingPointer()
+{
+	if (ControlOptionsChangingAddr)
+	{
+		return ControlOptionsChangingAddr;
+	}
+
+	if (true) //TODO address
+		return (int8_t*)0x009415f5;
+
+	// Get ControlOptionsChanging address
+	constexpr BYTE ControlOptionsChangingSearchBytes[]{ 0x83, 0xC4, 0x04, 0x85, 0xC0, 0x75, 0x13, 0x56, 0x68, 0x02, 0x00, 0x00, 0x08 };
+	int8_t* ControlOptionsChanging = (int8_t*)ReadSearchedAddresses(0x004671e1, 0x00467481, 0x00467691, ControlOptionsChangingSearchBytes, sizeof(ControlOptionsChangingSearchBytes), -0x18, __FUNCTION__);
+
+	// Checking address pointer
+	if (!ControlOptionsChanging)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find ControlOptionsChanging address!";
+		return nullptr;
+	}
+
+	ControlOptionsChangingAddr = (int8_t*)((DWORD)ControlOptionsChanging);
+
+	return ControlOptionsChangingAddr;
 }

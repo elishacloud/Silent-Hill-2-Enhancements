@@ -57,13 +57,15 @@ int ChangeMasterVolume = 0;
 // Control options
 ButtonIcons ButtonIconsRef;
 
-const float ControlOptionRedGreen = 0.497;
-const float ControlOptionSelectedBlue = 0.1211f;
-const float ControlOptionUnselectedBlue = 0.497f;
-const float ControlOptionsLockedRedGreen = 0.7490f;
-const float ControlOptionsLockedBlue = 0.7471f;
+const float ControlOptionRedGreen = 0.4980f;
+const float ControlOptionSelectedBlue = 0.1215f;
+const float ControlOptionUnselectedBlue = 0.4980f;
+const float ControlOptionsLocked = 0.7490f;
+const float ControlOptionsChangingRed = 0.1215f;
+const float ControlOptionsChangingGreenBlue = 0.4980f;
 
 /*
+// Assembled with `psa.exe -h0` from DirectX 8.1b SDK
     ps.1.4
 
     texld r0, t0
@@ -548,7 +550,9 @@ void MasterVolumeSlider::DrawSlider(LPDIRECT3DDEVICE8 ProxyInterface, int value,
     
     // Draw every inner rectangle
     for (int i = 0; i < 0xF; i++)
+    {
         ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, this->FinalRects[i].vertices, 20);
+    }
 
     ProxyInterface->SetRenderState(D3DRS_ALPHAREF, 2);
     ProxyInterface->SetRenderState(D3DRS_FOGENABLE, 1);
@@ -582,12 +586,7 @@ bool IsInControlOptionsMenu()
 
 void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
 {
-    if (!IsInControlOptionsMenu())
-    {
-        return;
-    }
-
-    if (!ProxyInterface)
+    if (!IsInControlOptionsMenu() || !ProxyInterface) //TODO setting
     {
         return;
     }
@@ -650,7 +649,8 @@ void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
 
     D3DXVECTOR4 UnselectedSubtractionFactor(ControlOptionRedGreen, ControlOptionRedGreen, ControlOptionUnselectedBlue, 0.f);
     D3DXVECTOR4 SelectedSubtractionFactor(ControlOptionRedGreen, ControlOptionRedGreen, ControlOptionSelectedBlue, 0.f);
-    D3DXVECTOR4 LockedSubtractionFactor(ControlOptionsLockedRedGreen, ControlOptionsLockedRedGreen, ControlOptionsLockedBlue, 0.f);
+    D3DXVECTOR4 LockedSubtractionFactor(ControlOptionsLocked, ControlOptionsLocked, ControlOptionsLocked, 0.f);
+    D3DXVECTOR4 ChangingSubtractionFactor(ControlOptionsChangingRed, ControlOptionsChangingGreenBlue, ControlOptionsChangingGreenBlue, 0.f);
 
     ProxyInterface->SetPixelShader(SubtractionPixelShader);
 
@@ -667,9 +667,15 @@ void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
         case OptionState::LOCKED:
             ProxyInterface->SetPixelShaderConstant(0, &LockedSubtractionFactor.x, 1);
             break;
+
         case OptionState::SELECTED:
             ProxyInterface->SetPixelShaderConstant(0, &SelectedSubtractionFactor.x, 1);
             break;
+
+        case OptionState::CHANGING:
+            ProxyInterface->SetPixelShaderConstant(0, &ChangingSubtractionFactor.x, 1);
+            break;
+
         default:
         case OptionState::STANDARD:
             ProxyInterface->SetPixelShaderConstant(0, &UnselectedSubtractionFactor.x, 1);
@@ -686,7 +692,7 @@ void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
 
 void ButtonIcons::HandleControllerIcons(LPDIRECT3DDEVICE8 ProxyInterface)
 {
-    if (!IsInControlOptionsMenu())
+    if (!IsInControlOptionsMenu()) //TODO setting
     {
         return;
     }
@@ -698,7 +704,7 @@ void ButtonIcons::HandleControllerIcons(LPDIRECT3DDEVICE8 ProxyInterface)
 
 void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
 {
-    if (!ProxyInterface)
+    if (!ProxyInterface) //TODO setting
     {
         return;
     }
@@ -812,6 +818,11 @@ void ButtonIcons::DrawControlOptionsText(LPDIRECT3DDEVICE8 ProxyInterface, CO_TE
 
 void ButtonIcons::UpdateBinds()
 {
+    if (false) //TODO setting
+    {
+        return;
+    }
+
     if (!this->ControllerBindsAddr)
     {
         this->ControllerBindsAddr = GetKeyBindsPointer() + 0xD0;

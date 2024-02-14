@@ -156,7 +156,7 @@ inline bool isDataPath(T sh2)
 }
 
 template<typename T>
-inline bool isStart01Path(T sh2)
+inline bool isStart01Tex(T sh2)
 {
 	if (sh2[0] != '\0' && (sh2[0] == 'p' || sh2[0] == 'P') &&
 		sh2[1] != '\0' && (sh2[1] == 'i' || sh2[1] == 'I') &&
@@ -330,21 +330,30 @@ inline T* UpdateModPath(T* sh2, D* str)
 			}
 		}
 
-		// Ensure start00 and start01 are paired
-		if ((StrSize > padding + PathLen + 1) && isStart01Path(str + padding + PathLen + 1))
+		// If mod path exists then use it
+		if (PathFileExists(str))
 		{
-			T str00[MAX_PATH] = {};
-			strcpy_s(str00, MAX_PATH, str);
-			strcpy_s(str00 + padding + PathLen + 14, MAX_PATH - padding - PathLen - 14, Start00Path(str));
-			if (PathFileExists(str) && PathFileExists(str00))
+			// Before using custom start01 make sure that start00 exists in 'lang' or 'sh2e' folders
+			if ((StrSize > padding + PathLen + 1) && isStart01Tex(str + padding + PathLen + 1))
+			{
+				T str00[MAX_PATH] = {};
+				for (auto NewModPath : { LangPath(sh2), ModPath(sh2) })
+				{
+					size_t NewPathLen = strlen(NewModPath);
+					strcpy_s(str00, MAX_PATH, NewModPath);
+					strcat_s(str00, MAX_PATH, str + padding + PathLen);
+					strcpy_s(str00 + padding + NewPathLen + 14, MAX_PATH - padding - NewPathLen - 14, Start00Path(str));
+					if (PathFileExists(str00))
+					{
+						LOG_ONCE("Using file: " << str);
+						return str;
+					}
+				}
+			}
+			else
 			{
 				return str;
 			}
-		}
-		// If mod path exists then use it
-		else if (PathFileExists(str))
-		{
-			return str;
 		}
 	}
 

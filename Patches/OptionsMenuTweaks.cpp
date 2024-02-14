@@ -746,21 +746,52 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
     int32_t VerticalInternal = GetInternalVerticalRes();
     int32_t HorizontalInternal = GetInternalHorizontalRes();
 
+    float UlteriorOffset = (BufferWidth - (float)HorizontalInternal) / 2;
+
     const float xScaling = (float)HorizontalInternal / 1200.f;
     const float yScaling = (float)VerticalInternal / 900.f;
 
-    const float HorizontalOffset = (1091.f * (float)HorizontalInternal) / 1200.f;
+    const float HorizontalOffset = (891.f * (float)HorizontalInternal) / 1200.f + UlteriorOffset;
     const float VerticalOffset = (141.f * (float)VerticalInternal) / 900.f;
 
     const float x = (76.f * (float)HorizontalInternal) / 1200.f;
     const float y = (57.f * (float)VerticalInternal) / 900.f;
 
-    const float LineHorizontalOffset = (800.f * (float)HorizontalInternal) / 1200.f;
+    const float LineHorizontalOffset = ((600.f * (float)HorizontalInternal) / 1200.f) + UlteriorOffset;
     const float TopLineVerticalOffset = (90.f * (float)VerticalInternal) / 900.f;
     const float BottomLineVerticalOffset = (790.f * (float)VerticalInternal) / 900.f;
 
     const float TextVerticalOffset = (800.f * (float)VerticalInternal) / 900.f;
-    const float TextRightOffset = (210.f * (float)HorizontalInternal) / 1200.f;
+    const float TextRightOffset = ((210.f * (float)HorizontalInternal) / 1200.f);
+
+    AuxDebugOvlString = "\r\rHorizontal Internal: ";
+    AuxDebugOvlString.append(std::to_string(HorizontalInternal));
+    AuxDebugOvlString.append("\rVertical Internal: ");
+    AuxDebugOvlString.append(std::to_string(VerticalInternal));
+    AuxDebugOvlString.append("\rX scaling: ");
+    AuxDebugOvlString.append(std::to_string(xScaling));
+    AuxDebugOvlString.append("\rY scaling: ");
+    AuxDebugOvlString.append(std::to_string(yScaling));
+    AuxDebugOvlString.append("\rHorizontal offset: ");
+    AuxDebugOvlString.append(std::to_string(HorizontalOffset));
+    AuxDebugOvlString.append("\rVertical offset: ");
+    AuxDebugOvlString.append(std::to_string(VerticalOffset));
+    AuxDebugOvlString.append("\rx: ");
+    AuxDebugOvlString.append(std::to_string(x));
+    AuxDebugOvlString.append("\ry: ");
+    AuxDebugOvlString.append(std::to_string(y));
+    AuxDebugOvlString.append("\rLine horizontal offset: ");
+    AuxDebugOvlString.append(std::to_string(LineHorizontalOffset));
+    AuxDebugOvlString.append("\rtop line offset: ");
+    AuxDebugOvlString.append(std::to_string(TopLineVerticalOffset));
+    AuxDebugOvlString.append("\rbot line offset: ");
+    AuxDebugOvlString.append(std::to_string(BottomLineVerticalOffset));
+    AuxDebugOvlString.append("\rText vertical offset: ");
+    AuxDebugOvlString.append(std::to_string(TextVerticalOffset));
+    AuxDebugOvlString.append("\rText right offset: ");
+    AuxDebugOvlString.append(std::to_string(TextRightOffset));
+    AuxDebugOvlString.append("\rUlterior offset: ");
+    AuxDebugOvlString.append(std::to_string(UlteriorOffset));
 
     this->message.String = "Use keyboard to adjust inputs. Enter key to activate/change input. Escape key to clear active input."; //TODO grab string by language
     this->message.Format = DT_NOCLIP | DT_RIGHT;

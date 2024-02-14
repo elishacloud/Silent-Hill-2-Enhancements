@@ -25,7 +25,7 @@
 #define RECT_VERT_NUM 4
 
 #define BUTTONS_NUM 22
-#define BUTTON_ICONS_NUM 27
+#define BUTTON_ICONS_NUM 28
 #define BUTTON_QUADS_NUM 11
 
 enum ControllerButton
@@ -62,6 +62,7 @@ enum ControllerButton
 	R_RIGHT,
 
 	NO_BIND = 255,
+	UNKNOWN_BIND,
 
 	LEVER_DIRECTIONAL = 998,
 	DPAD,
@@ -265,10 +266,10 @@ private:
 	int quadsNum = BUTTON_QUADS_NUM;
 
 	ColorVertex TemplateLineVertices[RECT_VERT_NUM] = {
-	{ D3DXVECTOR3(600.f,  1.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80) },
-	{ D3DXVECTOR3(600.f, -1.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80) },
-	{ D3DXVECTOR3(-600.f,  1.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80) },
-	{ D3DXVECTOR3(-600.f, -1.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80) }
+		{ D3DXVECTOR3(600.f,  1.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80) },
+		{ D3DXVECTOR3(600.f, -1.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80) },
+		{ D3DXVECTOR3(-600.f,  1.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80) },
+		{ D3DXVECTOR3(-600.f, -1.f, 0.000), 1.000, D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80) }
 	};
 
 	ColorVertex LineVertices[2][RECT_VERT_NUM] = {
@@ -336,6 +337,8 @@ private:
 
 	ControllerButton TextureMap[BUTTON_ICONS_NUM] =
 	{
+		ControllerButton::UNKNOWN_BIND,
+
 		ControllerButton::L_UP,
 		ControllerButton::L_RIGHT,
 		ControllerButton::L_DOWN,

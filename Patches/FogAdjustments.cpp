@@ -21,10 +21,8 @@
 #include "Logging\Logging.h"
 
 // Variables for ASM
-DWORD CameraConditionFlag = 0x00;
 void *FogFrontPointer;
 void *FogBackPointer;
-void *jmpFogReturnAddr;
 void *jmpBlueCreekFogReturnAddr;
 void *NewEnvFogRGB;
 void *OriginalEnvFogRGB;
@@ -39,58 +37,6 @@ constexpr float OriginalBackFog = 12000.0f;
 constexpr float BlueCreekNewFog = 4200.0f;
 constexpr float BlueCreekOriginalFog = 3000.0f;
 constexpr float FinalAreaCameraYOrientation = -15750.0f;
-
-// ASM functions to adjust fog values for Angela cutscene
-__declspec(naked) void __stdcall FogAdjustmentASM()
-{
-	__asm
-	{
-		push ecx
-		cmp CameraConditionFlag, 0x01
-		je near CheckCutsceneID								// jumps to check cutscene ID if camera conditions were already met
-		mov eax, dword ptr ds : [CutscenePosAddr]
-		cmp dword ptr ds : [eax], 0x4767DA5D
-		jne near ConditionsNotMet							// jumps if camera is not facing the door
-
-	CheckCutsceneID:
-		mov eax, dword ptr ds : [CutsceneIDAddr]
-		cmp dword ptr ds : [eax], CS_APT_ANGELA
-		jne near ConditionsNotMet							// jumps if not angela mirror cutscene
-
-	// Conditions Met
-		mov CameraConditionFlag, 0x01						// writes 01 to indicate that camera conditions have been met
-		mov ecx, NewFrontFog
-		mov eax, dword ptr ds : [FogFrontPointer]
-		mov dword ptr ds : [eax], ecx						// set new fog front value
-		mov ecx, NewBackFog
-		mov eax, dword ptr ds : [FogBackPointer]
-		mov dword ptr ds : [eax], ecx						// set new fog back value
-		jmp near ExitFunction
-
-	ConditionsNotMet:
-		mov CameraConditionFlag, 0x00						// writes 00 to indicate that camera conditions have not been met
-		mov eax, dword ptr ds : [FogFrontPointer]
-		mov eax, dword ptr ds : [eax]
-		cmp eax, NewFrontFog
-		jne near ExitFunction								// jumps if fog front value is not the new fog front value
-		mov eax, dword ptr ds : [FogBackPointer]
-		mov eax, dword ptr ds : [eax]
-		cmp eax, NewBackFog
-		jne near ExitFunction								// jumps if fog back value is not the new fog back value
-		mov ecx, OriginalFrontFog
-		mov eax, dword ptr ds : [FogFrontPointer]
-		mov dword ptr ds : [eax], ecx						// restores original fog front value; 8000 flt
-		mov ecx, OriginalBackFog
-		mov eax, dword ptr ds : [FogBackPointer]
-		mov dword ptr ds : [eax], ecx						// restores original fog back value; 12000 flt
-
-	ExitFunction:
-		mov eax, dword ptr ds : [FogFrontPointer]
-		mov eax, dword ptr ds : [eax]
-		pop ecx
-		jmp jmpFogReturnAddr
-	}
-}
 
 // ASM functions to adjust fog values for Blue Creek Apt Room 209
 __declspec(naked) void __stdcall BlueCreekFogAdjustmentASM()
@@ -183,7 +129,6 @@ void PatchFogParameters()
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
-	jmpFogReturnAddr = (void*)(FogAddr - 0x1A);
 
 	// Get Blue Creek return address
 	constexpr BYTE BlueCreekFogSearchBytes[]{ 0x85, 0xC0, 0xDF, 0xE0, 0x0F, 0x84, 0x90, 0x01, 0x00, 0x00, 0xF6, 0xC4, 0x44, 0x7A, 0x2A };
@@ -198,15 +143,13 @@ void PatchFogParameters()
 	jmpBlueCreekFogReturnAddr = (void*)(FogAddr + 0x23);
 
 	// Check for valid code before updating
-	if (!CheckMemoryAddress(jmpFogReturnAddr, "\x8B\x0D", 2, __FUNCTION__) ||
-		!CheckMemoryAddress(jmpBlueCreekFogReturnAddr, "\xC7\x05", 2, __FUNCTION__))
+	if (!CheckMemoryAddress(jmpBlueCreekFogReturnAddr, "\xC7\x05", 2, __FUNCTION__))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: memory addresses don't match!";
 		return;
 	}
 
 	// Fog front and back addresses
-	memcpy(&FogFrontPointer, (void*)((DWORD)jmpFogReturnAddr - 4), sizeof(DWORD));
 	FogBackPointer = (void*)((DWORD)FogFrontPointer - 4);
 
 	// New environment fog RGB
@@ -266,7 +209,6 @@ void PatchFogParameters()
 
 	// Update SH2 code
 	Logging::Log() << "Updating Fog Parameters...";
-	WriteJMPtoMemory((BYTE*)((DWORD)jmpFogReturnAddr - 5), *FogAdjustmentASM);
 	WriteJMPtoMemory((BYTE*)((DWORD)jmpBlueCreekFogReturnAddr - 10), *BlueCreekFogAdjustmentASM, 10);
 	WriteJMPtoMemory((BYTE*)FinalBossAddr1, FinalAreaBoss1ASM);
 	WriteJMPtoMemory((BYTE*)FinalBossAddr2, FinalAreaBoss2ASM);

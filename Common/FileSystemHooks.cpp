@@ -336,7 +336,6 @@ inline T* UpdateModPath(T* sh2, D* str)
 			T str00[MAX_PATH] = {};
 			strcpy_s(str00, MAX_PATH, str);
 			strcpy_s(str00 + padding + PathLen + 14, MAX_PATH - padding - PathLen - 14, Start00Path(str));
-			Logging::Log() << __FUNCTION__ << " " << str << " --> " << str00;
 			if (PathFileExists(str) && PathFileExists(str00))
 			{
 				return str;

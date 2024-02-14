@@ -81,6 +81,8 @@ inline LPCSTR GetEnding1(LPCSTR) { return "\\movie\\end.bik"; }
 inline LPCWSTR GetEnding1(LPCWSTR) { return L"\\movie\\end.bik"; }
 inline LPCSTR GetEnding2(LPCSTR) { return "\\movie\\ending.bik"; }
 inline LPCWSTR GetEnding2(LPCWSTR) { return L"\\movie\\ending.bik"; }
+inline LPCSTR Start00Path(LPCSTR) { return "00.tex"; }
+inline LPCWSTR Start00Path(LPCWSTR) { return L"00.tex"; }
 
 template<typename T>
 bool isInString(T strCheck, T str, size_t size)
@@ -147,6 +149,30 @@ inline bool isDataPath(T sh2)
 		sh2[1] != '\0' && (sh2[1] == 'a' || sh2[1] == 'A') &&
 		sh2[2] != '\0' && (sh2[2] == 't' || sh2[2] == 'T') &&
 		sh2[3] != '\0' && (sh2[3] == 'a' || sh2[3] == 'A'))
+	{
+		return true;
+	}
+	return false;
+}
+
+template<typename T>
+inline bool isStart01Path(T sh2)
+{
+	if (sh2[0] != '\0' && (sh2[0] == 'p' || sh2[0] == 'P') &&
+		sh2[1] != '\0' && (sh2[1] == 'i' || sh2[1] == 'I') &&
+		sh2[2] != '\0' && (sh2[2] == 'c' || sh2[2] == 'C') &&
+		sh2[3] != '\0' &&
+		sh2[4] != '\0' && (sh2[4] == 'e' || sh2[4] == 'E') &&
+		sh2[5] != '\0' && (sh2[5] == 't' || sh2[5] == 'T') &&
+		sh2[6] != '\0' && (sh2[6] == 'c' || sh2[6] == 'C') &&
+		sh2[7] != '\0' &&
+		sh2[8] != '\0' && (sh2[8] == 's' || sh2[8] == 'S') &&
+		sh2[9] != '\0' && (sh2[9] == 't' || sh2[9] == 'T') &&
+		sh2[10] != '\0' && (sh2[10] == 'a' || sh2[10] == 'A') &&
+		sh2[11] != '\0' && (sh2[11] == 'r' || sh2[11] == 'R') &&
+		sh2[12] != '\0' && (sh2[12] == 't' || sh2[12] == 'T') &&
+		sh2[13] != '\0' && sh2[13] == '0' &&
+		sh2[14] != '\0' && sh2[14] == '1')
 	{
 		return true;
 	}
@@ -230,7 +256,7 @@ inline DWORD getPicPath(T sh2)
 }
 
 template<typename T, typename D>
-inline T UpdateModPath(T sh2, D str)
+inline T* UpdateModPath(T* sh2, D* str)
 {
 	if (!sh2 || !str || !IsFileSystemHooking || !UseCustomModFolder)
 	{
@@ -274,7 +300,7 @@ inline T UpdateModPath(T sh2, D str)
 		strcpy_s(str + padding + PathLen, MAX_PATH - padding - PathLen, sh2 + padding + 4);
 
 		// Handle end.bik/ending.bik (favor end.bik)
-		if ((StrSize > padding + PathLen + 1) && isEndVideoPath(sh2 + padding + PathLen + 1))
+		if ((StrSize > padding + PathLen + 1) && isEndVideoPath(str + padding + PathLen + 1))
 		{
 			Logging::Log() << __FUNCTION__ " " << sh2;
 			isEnding = true;
@@ -295,7 +321,7 @@ inline T UpdateModPath(T sh2, D str)
 		// Handle PS2 low texture mod
 		if (UsePS2LowResTextures)
 		{
-			T sh2_pic = sh2 + padding + 5;
+			T* sh2_pic = sh2 + padding + 5;
 			DWORD PicPath = getPicPath(sh2_pic);
 			if (PicPath)
 			{
@@ -304,8 +330,20 @@ inline T UpdateModPath(T sh2, D str)
 			}
 		}
 
+		// Ensure start00 and start01 are paired
+		if ((StrSize > padding + PathLen + 1) && isStart01Path(str + padding + PathLen + 1))
+		{
+			T str00[MAX_PATH] = {};
+			strcpy_s(str00, MAX_PATH, str);
+			strcpy_s(str00 + padding + PathLen + 14, MAX_PATH - padding - PathLen - 14, Start00Path(str));
+			Logging::Log() << __FUNCTION__ << " " << str << " --> " << str00;
+			if (PathFileExists(str) && PathFileExists(str00))
+			{
+				return str;
+			}
+		}
 		// If mod path exists then use it
-		if (PathFileExists(str))
+		else if (PathFileExists(str))
 		{
 			return str;
 		}
@@ -336,11 +374,11 @@ char* GetFileModPath(const char* sh2, const char* str)
 	OnFileLoadTex(sh2);
 	OnFileLoadVid(sh2);
 
-	return UpdateModPath<char*, char*>((char*)sh2, (char*)str);
+	return UpdateModPath<char, char>((char*)sh2, (char*)str);
 }
 wchar_t* GetFileModPath(const wchar_t* sh2, const wchar_t* str)
 {
-	return UpdateModPath<wchar_t*, wchar_t*>((wchar_t*)sh2, (wchar_t*)str);
+	return UpdateModPath<wchar_t, wchar_t>((wchar_t*)sh2, (wchar_t*)str);
 }
 
 int WINAPI BinkOpenHandler(char* lpFileName, DWORD dwFlags)

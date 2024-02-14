@@ -754,8 +754,8 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
     const float HorizontalOffset = (891.f * (float)HorizontalInternal) / 1200.f + UlteriorOffset;
     const float VerticalOffset = (141.f * (float)VerticalInternal) / 900.f;
 
-    const float x = (76.f * (float)HorizontalInternal) / 1200.f;
-    const float y = (57.f * (float)VerticalInternal) / 900.f;
+    const float x = 76.f;
+    const float y = 57.f;
 
     const float LineHorizontalOffset = ((600.f * (float)HorizontalInternal) / 1200.f) + UlteriorOffset;
     const float TopLineVerticalOffset = (90.f * (float)VerticalInternal) / 900.f;
@@ -764,6 +764,7 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
     const float TextVerticalOffset = (800.f * (float)VerticalInternal) / 900.f;
     const float TextRightOffset = ((210.f * (float)HorizontalInternal) / 1200.f);
 
+    //TODO remove
     AuxDebugOvlString = "\r\rHorizontal Internal: ";
     AuxDebugOvlString.append(std::to_string(HorizontalInternal));
     AuxDebugOvlString.append("\rVertical Internal: ");
@@ -805,9 +806,9 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
     CopyVertexBuffer(this->TemplateLineVertices, this->LineVertices[1], RECT_VERT_NUM);
 
     ScaleVertexBuffer(this->LineVertices[0], RECT_VERT_NUM, xScaling, yScaling);
-    TranslateVertexBuffer(this->LineVertices[0], RECT_VERT_NUM, LineHorizontalOffset, TopLineVerticalOffset);
-
     ScaleVertexBuffer(this->LineVertices[1], RECT_VERT_NUM, xScaling, yScaling);
+
+    TranslateVertexBuffer(this->LineVertices[0], RECT_VERT_NUM, LineHorizontalOffset, TopLineVerticalOffset);
     TranslateVertexBuffer(this->LineVertices[1], RECT_VERT_NUM, LineHorizontalOffset, BottomLineVerticalOffset);
     
     for (int i = 0; i < BUTTON_QUADS_NUM; i++)
@@ -817,8 +818,8 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
         this->quads[i].vertices[2].coords = {   x,   y, 0.5f };
         this->quads[i].vertices[3].coords = {   x, 0.f, 0.5f };
 
-        TranslateVertexBuffer(this->quads[i].vertices, 4, HorizontalOffset, VerticalOffset + (i * y));
-        ScaleVertexBuffer(this->quads[i].vertices, 4, xScaling, yScaling);
+        ScaleVertexBuffer(this->quads[i].vertices, RECT_VERT_NUM, xScaling, yScaling);
+        TranslateVertexBuffer(this->quads[i].vertices, RECT_VERT_NUM, HorizontalOffset, VerticalOffset + (i * y * yScaling));
     }
 }
 

@@ -129,6 +129,7 @@ void PatchFogParameters()
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
+	void* FogMemoryAddr = (void*)(FogAddr - 0x1A);
 
 	// Get Blue Creek return address
 	constexpr BYTE BlueCreekFogSearchBytes[]{ 0x85, 0xC0, 0xDF, 0xE0, 0x0F, 0x84, 0x90, 0x01, 0x00, 0x00, 0xF6, 0xC4, 0x44, 0x7A, 0x2A };
@@ -143,13 +144,15 @@ void PatchFogParameters()
 	jmpBlueCreekFogReturnAddr = (void*)(FogAddr + 0x23);
 
 	// Check for valid code before updating
-	if (!CheckMemoryAddress(jmpBlueCreekFogReturnAddr, "\xC7\x05", 2, __FUNCTION__))
+	if (!CheckMemoryAddress(FogMemoryAddr, "\x8B\x0D", 2, __FUNCTION__) ||
+		!CheckMemoryAddress(jmpBlueCreekFogReturnAddr, "\xC7\x05", 2, __FUNCTION__))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: memory addresses don't match!";
 		return;
 	}
 
 	// Fog front and back addresses
+	memcpy(&FogFrontPointer, (void*)((DWORD)FogMemoryAddr - 4), sizeof(DWORD));
 	FogBackPointer = (void*)((DWORD)FogFrontPointer - 4);
 
 	// New environment fog RGB

@@ -764,36 +764,6 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
     const float TextVerticalOffset = (800.f * (float)VerticalInternal) / 900.f;
     const float TextRightOffset = ((210.f * (float)HorizontalInternal) / 1200.f);
 
-    //TODO remove
-    AuxDebugOvlString = "\r\rHorizontal Internal: ";
-    AuxDebugOvlString.append(std::to_string(HorizontalInternal));
-    AuxDebugOvlString.append("\rVertical Internal: ");
-    AuxDebugOvlString.append(std::to_string(VerticalInternal));
-    AuxDebugOvlString.append("\rX scaling: ");
-    AuxDebugOvlString.append(std::to_string(xScaling));
-    AuxDebugOvlString.append("\rY scaling: ");
-    AuxDebugOvlString.append(std::to_string(yScaling));
-    AuxDebugOvlString.append("\rHorizontal offset: ");
-    AuxDebugOvlString.append(std::to_string(HorizontalOffset));
-    AuxDebugOvlString.append("\rVertical offset: ");
-    AuxDebugOvlString.append(std::to_string(VerticalOffset));
-    AuxDebugOvlString.append("\rx: ");
-    AuxDebugOvlString.append(std::to_string(x));
-    AuxDebugOvlString.append("\ry: ");
-    AuxDebugOvlString.append(std::to_string(y));
-    AuxDebugOvlString.append("\rLine horizontal offset: ");
-    AuxDebugOvlString.append(std::to_string(LineHorizontalOffset));
-    AuxDebugOvlString.append("\rtop line offset: ");
-    AuxDebugOvlString.append(std::to_string(TopLineVerticalOffset));
-    AuxDebugOvlString.append("\rbot line offset: ");
-    AuxDebugOvlString.append(std::to_string(BottomLineVerticalOffset));
-    AuxDebugOvlString.append("\rText vertical offset: ");
-    AuxDebugOvlString.append(std::to_string(TextVerticalOffset));
-    AuxDebugOvlString.append("\rText right offset: ");
-    AuxDebugOvlString.append(std::to_string(TextRightOffset));
-    AuxDebugOvlString.append("\rUlterior offset: ");
-    AuxDebugOvlString.append(std::to_string(UlteriorOffset));
-
     this->message.String = "Use keyboard to adjust inputs. Enter key to activate/change input. Escape key to clear active input."; //TODO grab string by language
     this->message.Format = DT_NOCLIP | DT_RIGHT;
     this->message.Rect.left = 0.f;

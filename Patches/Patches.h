@@ -629,6 +629,7 @@ void PatchMemoBrightnes();
 void PatchMenuSounds();
 void PatchMothDrawOrder();
 void PatchOldManCoinFix();
+void PatchObservationDeckFogFix();
 void PatchPauseScreen();
 void PatchPistonRoom();
 void PatchPreventChainsawSpawn();

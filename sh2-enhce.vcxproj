@@ -160,6 +160,7 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
   <ItemGroup>
     <ClCompile Include="Common\AutoUpdate.cpp" />
     <ClCompile Include="Common\FileSystemHooks.cpp" />
+    <ClCompile Include="Common\GfxUtils.cpp" />
     <ClCompile Include="Common\LoadModules.cpp" />
     <ClCompile Include="Common\md5.cpp" />
     <ClCompile Include="Common\Settings.cpp" />
@@ -312,6 +313,7 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
   <ItemGroup>
     <ClInclude Include="Common\AutoUpdate.h" />
     <ClInclude Include="Common\FileSystemHooks.h" />
+    <ClInclude Include="Common\GfxUtils.h" />
     <ClInclude Include="Common\LoadModules.h" />
     <ClInclude Include="Common\md5.h" />
     <ClInclude Include="Common\Settings.h" />

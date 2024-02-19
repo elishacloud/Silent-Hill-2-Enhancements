@@ -289,7 +289,7 @@ private:
 	int BindsNum = BUTTONS_NUM;
 
 	LPDIRECT3DTEXTURE8  ButtonIconsTexture = NULL;
-	DWORD SubtractionPixelShader = NULL;
+	DWORD ModulationPixelShader = NULL;
 	
 	LPD3DXFONT ControlOptionsFont = nullptr;
 	LPCSTR FontName = "Arial";

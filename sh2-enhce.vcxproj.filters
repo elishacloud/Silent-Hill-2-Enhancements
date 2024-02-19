@@ -422,6 +422,9 @@
     <ClCompile Include="Patches\TeddyBearLookFix.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Common\GfxUtils.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">
@@ -642,6 +645,9 @@
     </ClInclude>
     <ClInclude Include="Include\winmm.h">
       <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\GfxUtils.h">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

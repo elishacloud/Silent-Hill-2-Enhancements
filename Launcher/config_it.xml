@@ -712,6 +712,17 @@
         </Choices>
       </Feature>
 
+      <Feature name="ReplaceButtonText">
+        <Title>Icone bottoni nel menu opzioni</Title>
+        <Description>Sostituisce il testo dei bottoni nel menu opzioni con icone custom.</Description>
+        <Choices type="list">
+          <Value name="Disabilitato">0</Value>
+          <Value name="Icone Generiche" default="true">1</Value>
+          <Value name="Icone Xbox">2</Value>
+          <Value name="Icone Playstation">3</Value>
+        </Choices>
+      </Feature>
+
     </Section>
 
   </Tab>

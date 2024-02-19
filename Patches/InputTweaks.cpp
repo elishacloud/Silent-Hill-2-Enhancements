@@ -192,11 +192,11 @@ void UpdateMousePosition_Hook()
 	{
 		EnteredPuzzle = false;
 
-		if (AutoHideMouseCursor || true) //TODO setting
+		if (AutoHideMouseCursor || ReplaceButtonText != BUTTON_ICONS_DISABLED)
 		{
 			// Auto hide mouse cursor, move to top left and remember its position
 			if ((AutoHideMouseCursor && (GetEventIndex() == EVENT_IN_GAME && !IsInFullScreenImageEvent()) && GetMenuEvent() != MENU_MAIN_MENU) || 
-				(true && IsInControlOptionsMenu()))//TODO setting // During normal gameplay, or the options menu
+				(ReplaceButtonText != BUTTON_ICONS_DISABLED && IsInControlOptionsMenu())) // During normal gameplay, or the options menu
 			{
 				CursorPosHandler.MoveCursorToOrigin();
 				HideMouseCursor = true;

@@ -107,7 +107,7 @@ void __cdecl DrawOptions_Hook(DWORD* pointer)
         MasterVolumeSliderRef.DrawSlider(DirectXInterface, CurrentMasterVolumeLevel, CurrentMasterVolumeLevel != SavedMasterVolumeLevel);
     }
 
-    if (true) //TODO setting
+    if (ReplaceButtonText != BUTTON_ICONS_DISABLED)
     {
         ButtonIconsRef.DrawIcons(DirectXInterface);
     }
@@ -584,7 +584,7 @@ bool IsInControlOptionsMenu()
 
 void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
 {
-    if (!IsInControlOptionsMenu() || !ProxyInterface) //TODO setting
+    if (!IsInControlOptionsMenu() || !ProxyInterface || ReplaceButtonText == BUTTON_ICONS_DISABLED)
     {
         return;
     }
@@ -596,7 +596,7 @@ void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
 
     if (ButtonIconsTexture == NULL)
     {
-        //TODO setting to false
+        ReplaceButtonText = BUTTON_ICONS_DISABLED;
         Logging::Log() << __FUNCTION__ << " ERROR: Couldn't load button icons texture.";
         return;
     }
@@ -690,7 +690,7 @@ void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
 
 void ButtonIcons::HandleControllerIcons(LPDIRECT3DDEVICE8 ProxyInterface)
 {
-    if (!IsInControlOptionsMenu()) //TODO setting
+    if (!IsInControlOptionsMenu() || ReplaceButtonText == BUTTON_ICONS_DISABLED)
     {
         return;
     }
@@ -702,7 +702,7 @@ void ButtonIcons::HandleControllerIcons(LPDIRECT3DDEVICE8 ProxyInterface)
 
 void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
 {
-    if (!ProxyInterface) //TODO setting
+    if (!ProxyInterface || ReplaceButtonText == BUTTON_ICONS_DISABLED)
     {
         return;
     }
@@ -731,7 +731,7 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
 
         if (FAILED(hr))
         {
-            //TODO setting = false
+            ReplaceButtonText = BUTTON_ICONS_DISABLED;
             Logging::Log() << __FUNCTION__ << " ERROR: Couldn't create texture: " << Logging::hex(hr);
             return;
         }
@@ -819,7 +819,7 @@ void ButtonIcons::DrawControlOptionsText(LPDIRECT3DDEVICE8 ProxyInterface, CO_TE
 
 void ButtonIcons::UpdateBinds()
 {
-    if (false) //TODO setting
+    if (ReplaceButtonText == BUTTON_ICONS_DISABLED)
     {
         return;
     }

@@ -160,6 +160,7 @@
 	visit(NormalFontWidth, 20) \
 	visit(PadNumber, 0) \
 	visit(RemoveForceFeedbackFilter, 1) \
+	visit(ReplaceButtonText, 1) \
 	visit(RestoreSearchCamMovement, 2) \
 	visit(ResX, 0) \
 	visit(ResY, 0) \
@@ -282,6 +283,13 @@ typedef enum _DPADCONTROL {
 	DPAD_HYBRID_MODE = 2,
 	DPAD_BUTTON_MODE = 3,
 } DPADCONTROL;
+
+typedef enum _BUTTONICONSSET {
+	BUTTON_ICONS_DISABLED = 0,
+	BUTTON_ICONS_GENERIC = 1,
+	BUTTON_ICONS_XBOX = 2,
+	BUTTON_ICONS_PLAYSTATION = 3,
+} BUTTONICONSSET;
 
 // Configurable setting defaults
 #define DECLARE_BOOL_SETTINGS(name, unused) \

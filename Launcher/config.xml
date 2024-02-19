@@ -712,6 +712,17 @@
         </Choices>
       </Feature>
 
+      <Feature name="ReplaceButtonText">
+        <Title>Button Icons in Control Options</Title>
+        <Description>Replace buttons text in Control Options Menu with custom icons.</Description>
+        <Choices type="list">
+          <Value name="Disable">0</Value>
+          <Value name="Generic Icons" default="true">1</Value>
+          <Value name="Xbox Icons">2</Value>
+          <Value name="Playstation Icons">3</Value>
+        </Choices>
+      </Feature>
+
     </Section>
 
   </Tab>

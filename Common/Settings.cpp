@@ -382,4 +382,16 @@ void UpdateConfigDefaults()
 	default:
 		DPadMovementFix = DPAD_MOVEMENT_MODE;
 	}
+
+	// Set Button Icons
+	switch (ReplaceButtonText)
+	{
+	case BUTTON_ICONS_DISABLED:
+	case BUTTON_ICONS_GENERIC:
+	case BUTTON_ICONS_XBOX:
+	case BUTTON_ICONS_PLAYSTATION:
+		break;
+	default:
+		ReplaceButtonText = BUTTON_ICONS_GENERIC;
+	}
 }

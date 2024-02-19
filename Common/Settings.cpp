@@ -390,6 +390,7 @@ void UpdateConfigDefaults()
 	case BUTTON_ICONS_GENERIC:
 	case BUTTON_ICONS_XBOX:
 	case BUTTON_ICONS_PLAYSTATION:
+	case BUTTON_ICONS_NINTENDO:
 		break;
 	default:
 		ReplaceButtonText = BUTTON_ICONS_GENERIC;

@@ -225,7 +225,6 @@ public:
 				this->quads[i].state = OptionState::STANDARD;
 			}
 
-			//TODO avoid drawing if the input is not set, override game text value drawing only if what's drawing isn't ??? or -
 			if (CurrentIndex < 0 || CurrentIndex >= BUTTONS_NUM)
 			{
 				this->SetQuadUV(i, 0.f, 0.f, 0.f, 0.f);
@@ -299,14 +298,7 @@ private:
 
 	float GetUStartingValue()
 	{
-		//TODO button set config
-		int ButtonIconSetConfig = 0;
-
-		if (ButtonIconSetConfig > 3 || ButtonIconSetConfig < 0)
-		{
-			Logging::Log() << __FUNCTION__ << " ERROR: Button Icon Set Value invalid: " << ButtonIconSetConfig;
-			ButtonIconSetConfig = 0;
-		}
+		int ButtonIconSetConfig = ReplaceButtonText - 1;
 
 		return (1.f / 4.f) * ButtonIconSetConfig;
 	}

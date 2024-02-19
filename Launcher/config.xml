@@ -720,6 +720,7 @@
           <Value name="Generic Icons" default="true">1</Value>
           <Value name="Xbox Icons">2</Value>
           <Value name="Playstation Icons">3</Value>
+          <Value name="Nintendo Icons">4</Value>
         </Choices>
       </Feature>
 

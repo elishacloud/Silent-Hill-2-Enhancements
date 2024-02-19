@@ -679,6 +679,7 @@ int CountCollectedMemos();
 bool IsInFullScreenImageEvent();
 bool IsInMainOptionsMenu();
 bool IsInOptionsMenu();
+bool IsInControlOptionsMenu();
 
 void HandleMenuSounds();
 void SetNewVolume();

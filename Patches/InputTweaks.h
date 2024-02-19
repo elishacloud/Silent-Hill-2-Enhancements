@@ -384,27 +384,18 @@ private:
 public:
 	void UpdateCursorPos()
 	{
-		if (!AutoHideMouseCursor)
-			return;
-
 		CursorSavedXPos = GetMouseHorizontalPosition();
 		CursorSavedYPos = GetMouseVerticalPosition();
 	}
 
 	void RestoreCursorPos()
 	{
-		if (!AutoHideMouseCursor)
-			return;
-
 		*GetMouseHorizontalPositionPointer() = CursorSavedXPos;
 		*GetMouseVerticalPositionPointer() = CursorSavedYPos;
 	}
 
 	void MoveCursorToOrigin()
 	{
-		if (!AutoHideMouseCursor)
-			return;
-
 		*GetMouseHorizontalPositionPointer() = 0;
 		*GetMouseVerticalPositionPointer() = 0;
 	}

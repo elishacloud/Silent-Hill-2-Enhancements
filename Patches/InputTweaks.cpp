@@ -192,10 +192,11 @@ void UpdateMousePosition_Hook()
 	{
 		EnteredPuzzle = false;
 
-		if (AutoHideMouseCursor)
+		if (AutoHideMouseCursor || true) //TODO setting
 		{
 			// Auto hide mouse cursor, move to top left and remember its position
-			if ((GetEventIndex() == EVENT_IN_GAME && !IsInFullScreenImageEvent()) && GetMenuEvent() != MENU_MAIN_MENU) // During normal gameplay
+			if ((AutoHideMouseCursor && (GetEventIndex() == EVENT_IN_GAME && !IsInFullScreenImageEvent()) && GetMenuEvent() != MENU_MAIN_MENU) || 
+				(true && IsInControlOptionsMenu()))//TODO setting // During normal gameplay, or the options menu
 			{
 				CursorPosHandler.MoveCursorToOrigin();
 				HideMouseCursor = true;
@@ -220,7 +221,7 @@ void UpdateMousePosition_Hook()
 				LastCursorMovement = Now;
 				HideMouseCursor = false;
 			} // If too much time has passed, hide the cursor
-			else if ((std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastCursorMovement).count() > AutoHideCursorMs))
+			else if (AutoHideMouseCursor && (std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastCursorMovement).count() > AutoHideCursorMs))
 			{
 				CursorPosHandler.MoveCursorToOrigin();
 

@@ -653,7 +653,7 @@ void DelayedStart()
 	}
 
 	// Overhaul the Control Options menu
-	if (true) //TODO setting
+	if (ReplaceButtonText != BUTTON_ICONS_DISABLED)
 	{
 		PatchControlOptionsMenu();
 	}

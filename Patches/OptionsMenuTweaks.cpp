@@ -18,6 +18,7 @@
 #include "External\injector\include\injector\utility.hpp"
 #include "External\Hooking.Patterns\Hooking.Patterns.h"
 #include "Common\FileSystemHooks.h"
+#include "Common/GfxUtils.h"
 #include "OptionsMenuTweaks.h"
 
 bool DrawOptionsHookEnabled = false;
@@ -58,31 +59,27 @@ int ChangeMasterVolume = 0;
 // Control options
 ButtonIcons ButtonIconsRef;
 
-const float ControlOptionRedGreen = 0.4980f;
-const float ControlOptionSelectedBlue = 0.1215f;
-const float ControlOptionUnselectedBlue = 0.4980f;
-const float ControlOptionsLocked = 0.7490f;
-const float ControlOptionsChangingRed = 0.1215f;
-const float ControlOptionsChangingGreenBlue = 0.4980f;
+const float ControlOptionRedGreen = 0.502f;
+const float ControlOptionSelectedBlue = 0.8785f;
+const float ControlOptionUnselectedBlue = 0.502f;
+const float ControlOptionsLocked = 0.251f;
+const float ControlOptionsChangingRed = 0.8785f;
+const float ControlOptionsChangingGreenBlue = 0.502f;
 
 /*
 // Assembled with `psa.exe -h0` from DirectX 8.1b SDK
-    ps.1.4
+    ps.1.1
 
-    texld r0, t0
-    sub r0, r0, c0
+    tex t0
+    mul r0, t0, c0
 */
 
 DWORD subtractionPixelShaderAsm[] = {
-    0xffff0104, 0x0009fffe, 0x58443344, 0x68532038,
+    0xffff0101, 0x0009fffe, 0x58443344, 0x68532038,
     0x72656461, 0x73734120, 0x6c626d65, 0x56207265,
-    0x69737265, 0x30206e6f, 0x0031392e, 0x0009fffe,
-    0x454c4946, 0x555c3a43, 0x73726573, 0x6d6f745c,
-    0x445c616d, 0x746b7365, 0x745c706f, 0x35747365,
-    0x0073702e, 0x0002fffe, 0x454e494c, 0x00000003,
-    0x00000042, 0x800f0000, 0xb0e40000, 0x0002fffe,
-    0x454e494c, 0x00000005, 0x00000003, 0x800f0000,
-    0x80e40000, 0xa0e40000, 0x0000ffff
+    0x69737265, 0x30206e6f, 0x0031392e, 0x00000042,
+    0xb00f0000, 0x00000005, 0x800f0000, 0xb0e40000,
+    0xa0e40000, 0x0000ffff
 };
 
 int32_t PlaySound_Hook(int32_t SoundId, float volume, DWORD param3)
@@ -633,8 +630,8 @@ void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
     
     ProxyInterface->SetVertexShader(D3DFVF_XYZRHW | D3DFVF_TEX1);
 
-    ProxyInterface->SetRenderState(D3DRS_ALPHATESTENABLE, 0);
-    ProxyInterface->SetRenderState(D3DRS_ALPHABLENDENABLE, 0);
+    ProxyInterface->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
+    ProxyInterface->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 
     ProxyInterface->SetRenderState(D3DRS_FOGENABLE, FALSE);
 
@@ -648,12 +645,12 @@ void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
 
     ProxyInterface->SetTexture(0, ButtonIconsTexture);
 
-    D3DXVECTOR4 UnselectedSubtractionFactor(ControlOptionRedGreen, ControlOptionRedGreen, ControlOptionUnselectedBlue, 0.f);
-    D3DXVECTOR4 SelectedSubtractionFactor(ControlOptionRedGreen, ControlOptionRedGreen, ControlOptionSelectedBlue, 0.f);
-    D3DXVECTOR4 LockedSubtractionFactor(ControlOptionsLocked, ControlOptionsLocked, ControlOptionsLocked, 0.f);
-    D3DXVECTOR4 ChangingSubtractionFactor(ControlOptionsChangingRed, ControlOptionsChangingGreenBlue, ControlOptionsChangingGreenBlue, 0.f);
+    D3DXVECTOR4 UnselectedSubtractionFactor(ControlOptionRedGreen, ControlOptionRedGreen, ControlOptionUnselectedBlue, 1.0f);
+    D3DXVECTOR4 SelectedSubtractionFactor(ControlOptionRedGreen, ControlOptionRedGreen, ControlOptionSelectedBlue, 1.0f);
+    D3DXVECTOR4 LockedSubtractionFactor(ControlOptionsLocked, ControlOptionsLocked, ControlOptionsLocked, 1.0f);
+    D3DXVECTOR4 ChangingSubtractionFactor(ControlOptionsChangingRed, ControlOptionsChangingGreenBlue, ControlOptionsChangingGreenBlue, 1.0f);
 
-    ProxyInterface->SetPixelShader(SubtractionPixelShader);
+    ProxyInterface->SetPixelShader(ModulationPixelShader);
 
     ProxyInterface->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
     ProxyInterface->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
@@ -710,9 +707,9 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
         return;
     }
 
-    if (ButtonIconsTexture == NULL && SubtractionPixelShader == NULL)
+    if (ButtonIconsTexture == NULL && ModulationPixelShader == NULL)
     {
-        HRESULT hr = ProxyInterface->CreatePixelShader(subtractionPixelShaderAsm, &this->SubtractionPixelShader);
+        HRESULT hr = ProxyInterface->CreatePixelShader(subtractionPixelShaderAsm, &this->ModulationPixelShader);
 
         if (FAILED(hr))
         {
@@ -730,7 +727,7 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
         wchar_t FinalPath[MAX_PATH];
         mbstowcs(FinalPath, FinalPathChars, strlen(FinalPathChars) + 1);
 
-        hr = D3DXCreateTextureFromFile(ProxyInterface, (LPCWSTR)FinalPath, &ButtonIconsTexture);
+        hr = GfxCreateTextureFromFileW(ProxyInterface, (LPCWSTR)FinalPath, &ButtonIconsTexture, 0);
 
         if (FAILED(hr))
         {
@@ -783,13 +780,14 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
     
     for (int i = 0; i < BUTTON_QUADS_NUM; i++)
     {
-        this->quads[i].vertices[0].coords = { 0.f, 0.f, 0.5f };
-        this->quads[i].vertices[1].coords = { 0.f,   y, 0.5f };
-        this->quads[i].vertices[2].coords = {   x,   y, 0.5f };
-        this->quads[i].vertices[3].coords = {   x, 0.f, 0.5f };
+        const float xx = x * xScaling;
+        const float yy = y * yScaling;
+        const float vo = VerticalOffset + (i * y * yScaling);
 
-        ScaleVertexBuffer(this->quads[i].vertices, RECT_VERT_NUM, xScaling, yScaling);
-        TranslateVertexBuffer(this->quads[i].vertices, RECT_VERT_NUM, HorizontalOffset, VerticalOffset + (i * y * yScaling));
+        this->quads[i].vertices[0].coords = { floorf(HorizontalOffset), floorf(vo), 0.0f };
+        this->quads[i].vertices[1].coords = { floorf(HorizontalOffset),  floorf(yy + vo), 0.0f };
+        this->quads[i].vertices[2].coords = { floorf(xx + HorizontalOffset), floorf(yy + vo), 0.0f };
+        this->quads[i].vertices[3].coords = { floorf(xx + HorizontalOffset), floorf(vo), 0.0f };
     }
 }
 

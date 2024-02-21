@@ -601,6 +601,10 @@ void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
         return;
     }
 
+    // iOrange - need to disable fog before we draw the text
+    // somehow it still affects the text
+    ProxyInterface->SetRenderState(D3DRS_FOGENABLE, FALSE);
+
     this->DrawControlOptionsText(ProxyInterface, this->message);
 
     ProxyInterface->SetVertexShader(D3DFVF_XYZRHW | D3DFVF_DIFFUSE);
@@ -612,8 +616,6 @@ void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
     ProxyInterface->SetRenderState(D3DRS_ZWRITEENABLE, 1);
     ProxyInterface->SetRenderState(D3DRS_ALPHATESTENABLE, 0);
     ProxyInterface->SetRenderState(D3DRS_ALPHABLENDENABLE, 0);
-
-    ProxyInterface->SetRenderState(D3DRS_FOGENABLE, FALSE);
 
     ProxyInterface->SetTextureStageState(0, D3DTSS_COLOROP, 1);
     ProxyInterface->SetTextureStageState(0, D3DTSS_ALPHAOP, 1);

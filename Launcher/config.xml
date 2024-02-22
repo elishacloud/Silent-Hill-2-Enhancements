@@ -714,7 +714,7 @@
 
       <Feature name="ReplaceButtonText">
         <Title>Button icons in Control Options</Title>
-        <Description>Replaces the vague "Button #" text in the Control Options menu with custom controller button icons.&#x0a;&#x0a;Note: controller_buttons_icons.png must be present in "sh2e\pict\etc\ for this feature to work.</Description>
+        <Description>Replaces the vague "Button #" text in the Control Options menu with custom controller button icons.&#x0a;&#x0a;Note: controller_buttons_icons.png must be present in "sh2e\pic\etc\" for this feature to work.</Description>
         <Choices type="list">
           <Value name="Disable">0</Value>
           <Value name="Generic" default="true">1</Value>

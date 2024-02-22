@@ -66,6 +66,8 @@ enum ControllerButton
 
 	LEVER_DIRECTIONAL = 998,
 	DPAD,
+
+	NONE = 1005,
 };
 
 enum OptionState
@@ -94,6 +96,9 @@ struct IconQuad
 {
 	TexturedVertex vertices[4];
 	OptionState state;
+
+	bool HasUlteriorQuad;
+	ControllerButton bind;
 };
 
 struct Bezels
@@ -208,9 +213,12 @@ public:
 		{
 			int CurrentIndex = GetControlOptionsSelectedOption() - 5 + i;
 
+			this->quads[i].HasUlteriorQuad = false;
+
 			if (CurrentIndex >= 0 && CurrentIndex <= 3)
 			{
 				this->quads[i].state = OptionState::LOCKED;
+				this->quads[i].HasUlteriorQuad = true;
 			}
 			else if (i == 5 && GetControlOptionsIsToStopScrolling() != 1 && GetControlOptionsSelectedColumn() == 1 && GetControlOptionsChanging() == 0)
 			{
@@ -228,10 +236,12 @@ public:
 			if (CurrentIndex < 0 || CurrentIndex >= BUTTONS_NUM)
 			{
 				this->SetQuadUV(i, 0.f, 0.f, 0.f, 0.f);
+				this->quads[i].bind = ControllerButton::NONE;
 			}
 			else
 			{
 				this->SetQuadUV(i, this->GetUOffset(), this->GetVOffset(), this->GetUStartingValue(), this->GetVStartingValue(this->binds[CurrentIndex]));
+				this->quads[i].bind = this->binds[CurrentIndex];
 			}
 		}
 	}

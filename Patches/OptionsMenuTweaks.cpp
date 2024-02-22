@@ -683,6 +683,54 @@ void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
         }
 
         ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, this->quads[i].vertices, sizeof(TexturedVertex));
+
+        // Draw Dpad arrows next to movement keys
+        if (DPadMovementFix == 1 &&  this->quads[i].HasUlteriorQuad)
+        {
+
+            IconQuad UlteriorQuad;
+            float vStarting = NULL;
+
+            CopyVertexBuffer(this->quads[i].vertices, UlteriorQuad.vertices, 4);
+
+            switch (this->quads[i].bind)
+            {
+            case ControllerButton::L_DOWN:
+                vStarting = this->GetVStartingValue(ControllerButton::D_DOWN);
+                break;
+
+            case ControllerButton::L_LEFT:
+                vStarting = this->GetVStartingValue(ControllerButton::D_LEFT);
+                break;
+
+            case ControllerButton::L_RIGHT:
+                vStarting = this->GetVStartingValue(ControllerButton::D_RIGHT);
+                break;
+
+            case ControllerButton::L_UP:
+            default:
+                vStarting = this->GetVStartingValue(ControllerButton::D_UP);
+                break;
+            }
+
+            UlteriorQuad.vertices[0].u = this->GetUStartingValue();
+            UlteriorQuad.vertices[0].v = vStarting;
+
+            UlteriorQuad.vertices[1].u = this->GetUStartingValue();
+            UlteriorQuad.vertices[1].v = vStarting + this->GetVOffset();
+
+            UlteriorQuad.vertices[2].u = this->GetUStartingValue() + this->GetUOffset();
+            UlteriorQuad.vertices[2].v = vStarting + this->GetVOffset();
+
+            UlteriorQuad.vertices[3].u = this->GetUStartingValue() + this->GetUOffset();
+            UlteriorQuad.vertices[3].v = vStarting;
+
+            float xOffset = floorf(this->quads[i].vertices[2].coords.x - this->quads[i].vertices[0].coords.x);
+
+            TranslateVertexBuffer(UlteriorQuad.vertices, 4, xOffset, 0.f);
+
+            ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, UlteriorQuad.vertices, sizeof(TexturedVertex));
+        }
     }
 
     ProxyInterface->SetPixelShader(0);
@@ -779,7 +827,7 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
 
     TranslateVertexBuffer(this->LineVertices[0], RECT_VERT_NUM, LineHorizontalOffset, TopLineVerticalOffset);
     TranslateVertexBuffer(this->LineVertices[1], RECT_VERT_NUM, LineHorizontalOffset, BottomLineVerticalOffset);
-    
+
     for (int i = 0; i < BUTTON_QUADS_NUM; i++)
     {
         const float xx = x * xScaling;
@@ -840,6 +888,12 @@ void ButtonIcons::UpdateBinds()
     {
         // the first 4 keybinds are static, the movement stick
         this->binds[i + 4] = (ControllerButton) this->ControllerBindsAddr[i * 0x08];
+        
+        // Skip drawing dpad arrows, since they don't work with DPadMovementFix
+        if (DPadMovementFix == 1 && this->binds[i + 4] >= ControllerButton::D_UP && this->binds[i + 4] <= ControllerButton::D_LEFT)
+        {
+            this->binds[i + 4] = ControllerButton::UNKNOWN_BIND;
+        }
     }
 
     ButtonIconsRef.UpdateUVs();

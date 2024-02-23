@@ -13,14 +13,25 @@ DWORD windowPsHandle = 0;
 IDirect3DTexture8* g_SpecularLUT = nullptr;
 #define SPECULAR_LUT_TEXTURE_SLOT 1
 
+void(__cdecl* sub_5B20C0)() = (void(__cdecl*)())0x5B20C0;
 void(__cdecl* sub_5B2190)(DWORD) = (void(__cdecl*)(DWORD))0x5B2190;
 void(__cdecl* sub_5B2240)(DWORD) = (void(__cdecl*)(DWORD))0x5B2240;
-void(__cdecl* sub_5B2D40)(int) = (void(__cdecl*)(int))0x5B2D40;
 
+char* byte_8F0338 = reinterpret_cast<char*>(0x8F0338);
+char* g_materialTypes_8F0339 = reinterpret_cast<char*>(0x8F0339);
 D3DPRIMITIVETYPE* g_primitiveTypes_8F0378 = reinterpret_cast<D3DPRIMITIVETYPE*>(0x8F0378);
+
 IDirect3DDevice8*& g_d3d8Device_A32894 = *reinterpret_cast<IDirect3DDevice8**>(0xA32894);
 int& g_HACK_DX_CONFIG_USE_PIXEL_SHADERS_A33370 = *reinterpret_cast<int*>(0xA33370);
 BOOL& g_HACK_DX_CONFIG_USE_VERTEX_SHADERS_A33374 = *reinterpret_cast<BOOL*>(0xA33374);
+int& dword_A333B8 = *reinterpret_cast<int*>(0xA333B8);
+
+int& g_materialIndex_1DB8A28 = *reinterpret_cast<int*>(0x1DB8A28);
+DWORD* g_vsHandles_1DB88A8 = reinterpret_cast<DWORD*>(0x1DB88A8);
+DWORD* g_psHandles_1DB89A8 = reinterpret_cast<DWORD*>(0x1DB89A8);
+
+float& g_fogStart_1F5EE70 = *reinterpret_cast<float*>(0x1F5EE70);
+float& g_fogEnd_1F5EE74 = *reinterpret_cast<float*>(0x1F5EE74);
 
 float* g_FlashLightPos = reinterpret_cast<float*>(0x01FB7D18);
 float* g_FlashLightDir = reinterpret_cast<float*>(0x01FB7D28);
@@ -47,6 +58,227 @@ static void GenerateSpeculatLUT() {
             }
 
             g_SpecularLUT->UnlockRect(0u);
+        }
+    }
+}
+
+// Known arguments 0, 1, 2, 4, 6
+// Only 1 or 2 in outdoor scenes
+void __cdecl sub_5B2D40(int a1)
+{
+    D3DMATERIALCOLORSOURCE emissiveMaterialSource;
+    float ambientRed;
+    float ambientGreen;
+    float ambientBlue;
+    D3DMATERIAL8 material;
+
+    g_d3d8Device_A32894->SetRenderState(D3DRS_FOGSTART, *((DWORD*)&g_fogStart_1F5EE70));
+    g_d3d8Device_A32894->SetRenderState(D3DRS_FOGEND, *((DWORD*)&g_fogEnd_1F5EE74));
+
+    DWORD vsHandle = g_vsHandles_1DB88A8[16 * g_materialIndex_1DB8A28 + 2 * a1];
+
+    if (g_HACK_DX_CONFIG_USE_VERTEX_SHADERS_A33374)
+    {
+        g_d3d8Device_A32894->SetVertexShader(vsHandle);
+    }
+    else
+    {
+        g_d3d8Device_A32894->SetVertexShader(vsHandle);
+
+        switch (byte_8F0338[16 * g_materialIndex_1DB8A28 + 2 * a1])
+        {
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+            g_d3d8Device_A32894->SetRenderState(D3DRS_FOGENABLE, 1);
+            g_d3d8Device_A32894->SetRenderState(D3DRS_FOGVERTEXMODE, 3);
+            g_d3d8Device_A32894->SetRenderState(D3DRS_FOGTABLEMODE, 0);
+            g_d3d8Device_A32894->SetRenderState(D3DRS_COLORVERTEX, 1);
+            g_d3d8Device_A32894->SetRenderState(D3DRS_SPECULARENABLE, 0);
+            g_d3d8Device_A32894->SetRenderState(D3DRS_LIGHTING, 1);
+
+            memset(&material.Ambient, 0, 12);
+            material.Ambient.a = 1.0;
+            memset(&material, 0, 12);
+            material.Diffuse.a = 1.0;
+            memset(&material.Specular, 0, 12);
+            material.Specular.a = 1.0;
+            material.Emissive.r = 1.0;
+            material.Emissive.g = 1.0;
+            material.Emissive.b = 1.0;
+            material.Emissive.a = 1.0;
+            material.Power = 0.0;
+
+            g_d3d8Device_A32894->SetMaterial(&material);
+            g_d3d8Device_A32894->SetRenderState(D3DRS_AMBIENTMATERIALSOURCE, 0);
+            g_d3d8Device_A32894->SetRenderState(D3DRS_DIFFUSEMATERIALSOURCE, 0);
+            g_d3d8Device_A32894->SetRenderState(D3DRS_EMISSIVEMATERIALSOURCE, 1);
+            break;
+
+        case 5:
+        case 6:
+            g_d3d8Device_A32894->SetRenderState(D3DRS_FOGENABLE, 1);
+            g_d3d8Device_A32894->SetRenderState(D3DRS_FOGVERTEXMODE, 3);
+            g_d3d8Device_A32894->SetRenderState(D3DRS_FOGTABLEMODE, 0);
+            g_d3d8Device_A32894->SetRenderState(D3DRS_LIGHTING, 1);
+
+            if (dword_A333B8)
+            {
+                g_d3d8Device_A32894->SetRenderState(D3DRS_COLORVERTEX, 0);
+
+                ambientRed = 0.0;
+                ambientGreen = 0.0;
+                ambientBlue = 0.0;
+                emissiveMaterialSource = D3DMCS_MATERIAL;
+            }
+            else
+            {
+                g_d3d8Device_A32894->SetRenderState(D3DRS_COLORVERTEX, 1);
+
+                ambientRed = 1.0;
+                ambientGreen = 1.0;
+                ambientBlue = 1.0;
+                emissiveMaterialSource = D3DMCS_COLOR1;
+            }
+
+            material.Ambient.r = ambientRed;
+            material.Ambient.a = 1.0;
+            material.Ambient.b = ambientBlue;
+            material.Ambient.g = ambientGreen;
+
+            g_d3d8Device_A32894->SetRenderState(D3DRS_EMISSIVEMATERIALSOURCE, emissiveMaterialSource);
+
+            material.Diffuse.b = 1.0;
+            material.Diffuse.g = 1.0;
+            material.Diffuse.r = 1.0;
+            memset(&material.Specular, 0, 12);
+            material.Diffuse.a = 1.0;
+            memset(&material.Emissive, 0, 12);
+            material.Specular.a = 1.0;
+            material.Emissive.a = 1.0;
+            material.Power = 0.0;
+
+            g_d3d8Device_A32894->SetMaterial(&material);
+            g_d3d8Device_A32894->SetRenderState(D3DRS_AMBIENTMATERIALSOURCE, 0);
+            g_d3d8Device_A32894->SetRenderState(D3DRS_DIFFUSEMATERIALSOURCE, 0);
+            g_d3d8Device_A32894->SetRenderState(D3DRS_NORMALIZENORMALS, 0);
+            break;
+
+        case 7:
+        case 8:
+            g_d3d8Device_A32894->SetRenderState(D3DRS_FOGENABLE, 1);
+            g_d3d8Device_A32894->SetRenderState(D3DRS_FOGVERTEXMODE, 3);
+            g_d3d8Device_A32894->SetRenderState(D3DRS_LIGHTING, 1);
+            g_d3d8Device_A32894->SetRenderState(D3DRS_FOGTABLEMODE, 0);
+            g_d3d8Device_A32894->SetRenderState(D3DRS_COLORVERTEX, 1);
+
+            material.Ambient.r = 1.0;
+            material.Ambient.g = 1.0;
+            material.Ambient.b = 1.0;
+            material.Ambient.a = 1.0;
+            material.Diffuse.r = 1.0;
+            material.Diffuse.g = 1.0;
+            material.Diffuse.b = 1.0;
+            material.Diffuse.a = 1.0;
+            memset(&material.Specular, 0, 12);
+            material.Specular.a = 1.0;
+            memset(&material.Emissive, 0, 12);
+            material.Emissive.a = 1.0;
+            material.Power = 0.0;
+
+            g_d3d8Device_A32894->SetMaterial(&material);
+            g_d3d8Device_A32894->SetRenderState(D3DRS_AMBIENTMATERIALSOURCE, 0);
+            g_d3d8Device_A32894->SetRenderState(D3DRS_DIFFUSEMATERIALSOURCE, 0);
+            g_d3d8Device_A32894->SetRenderState(D3DRS_EMISSIVEMATERIALSOURCE, 1);
+            g_d3d8Device_A32894->SetRenderState(D3DRS_NORMALIZENORMALS, 0);
+            break;
+
+        default:
+            g_d3d8Device_A32894->SetRenderState(D3DRS_FOGENABLE, 0);
+            g_d3d8Device_A32894->SetRenderState(D3DRS_SPECULARENABLE, 0);
+            g_d3d8Device_A32894->SetRenderState(D3DRS_LIGHTING, 0);
+            break;
+        }
+    }
+    if (g_HACK_DX_CONFIG_USE_PIXEL_SHADERS_A33370)
+    {
+        g_d3d8Device_A32894->SetPixelShader(g_psHandles_1DB89A8[8 * g_materialIndex_1DB8A28 + a1]);
+        sub_5B20C0();
+
+        char matType = g_materialTypes_8F0339[16 * g_materialIndex_1DB8A28 + 2 * a1];
+        if (matType == 3 || matType == 1)
+            g_d3d8Device_A32894->SetTextureStageState(2, D3DTSS_TEXTURETRANSFORMFLAGS, 256);
+        else
+            g_d3d8Device_A32894->SetTextureStageState(2, D3DTSS_TEXTURETRANSFORMFLAGS, 0);
+    }
+    else
+    {
+        g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
+        g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_TEXCOORDINDEX, 1);
+
+        switch (g_materialTypes_8F0339[16 * g_materialIndex_1DB8A28 + 2 * a1])
+        {
+        case 1:
+        case 3:
+            g_d3d8Device_A32894->SetTextureStageState(0, D3DTSS_COLOROP, 4);
+            g_d3d8Device_A32894->SetTextureStageState(0, D3DTSS_COLORARG1, 2);
+            g_d3d8Device_A32894->SetTextureStageState(0, D3DTSS_COLORARG2, 0);
+            g_d3d8Device_A32894->SetTextureStageState(0, D3DTSS_ALPHAOP, 2);
+            g_d3d8Device_A32894->SetTextureStageState(0, D3DTSS_ALPHAARG1, 2);
+            g_d3d8Device_A32894->SetTextureStageState(0, D3DTSS_RESULTARG, 1);
+
+            if (!dword_A333B8)
+            {
+                g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_COLOROP, 1);
+                g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_ALPHAOP, 1);
+                break;
+            }
+
+            g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_TEXTURETRANSFORMFLAGS, 259);
+            g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_TEXCOORDINDEX, 131073);
+            g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_COLOROP, 4);
+            g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_COLORARG1, 2);
+            g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_COLORARG2, 1);
+            g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_ALPHAOP, 2);
+            g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_ALPHAARG1, 1);
+            g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_RESULTARG, 1);
+            g_d3d8Device_A32894->SetTextureStageState(2, D3DTSS_COLOROP, 1);
+            g_d3d8Device_A32894->SetTextureStageState(2, D3DTSS_ALPHAOP, 1);
+            break;
+
+        case 2:
+        case 4:
+            g_d3d8Device_A32894->SetTextureStageState(0, D3DTSS_COLOROP, 4);
+            g_d3d8Device_A32894->SetTextureStageState(0, D3DTSS_COLORARG1, 2);
+            g_d3d8Device_A32894->SetTextureStageState(0, D3DTSS_COLORARG2, 0);
+            g_d3d8Device_A32894->SetTextureStageState(0, D3DTSS_ALPHAOP, 2);
+            g_d3d8Device_A32894->SetTextureStageState(0, D3DTSS_ALPHAARG1, 2);
+            g_d3d8Device_A32894->SetTextureStageState(0, D3DTSS_RESULTARG, 1);
+            g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_COLOROP, 1);
+            g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_ALPHAOP, 1);
+            break;
+
+        case 5:
+            g_d3d8Device_A32894->SetTextureStageState(0, D3DTSS_ALPHAOP, 2);
+            g_d3d8Device_A32894->SetTextureStageState(0, D3DTSS_ALPHAARG1, 2);
+            g_d3d8Device_A32894->SetTextureStageState(0, D3DTSS_COLOROP, 2);
+            g_d3d8Device_A32894->SetTextureStageState(0, D3DTSS_COLORARG1, 2);
+            g_d3d8Device_A32894->SetTextureStageState(0, D3DTSS_RESULTARG, 1);
+            g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_COLOROP, 1);
+            g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_ALPHAOP, 1);
+            break;
+
+        default:
+            g_d3d8Device_A32894->SetTextureStageState(0, D3DTSS_COLOROP, 4);
+            g_d3d8Device_A32894->SetTextureStageState(0, D3DTSS_COLORARG1, 3);
+            g_d3d8Device_A32894->SetTextureStageState(0, D3DTSS_COLORARG2, 2);
+            g_d3d8Device_A32894->SetRenderState(D3DRS_TEXTUREFACTOR, 0xFF0000FF);
+            g_d3d8Device_A32894->SetTextureStageState(0, D3DTSS_ALPHAOP, 2);
+            g_d3d8Device_A32894->SetTextureStageState(0, D3DTSS_ALPHAARG1, 3);
+            g_d3d8Device_A32894->SetTextureStageState(0, D3DTSS_RESULTARG, 1);
+            g_d3d8Device_A32894->SetTextureStageState(1, D3DTSS_COLOROP, 1);
+            break;
         }
     }
 }

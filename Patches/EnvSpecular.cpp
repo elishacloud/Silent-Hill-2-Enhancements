@@ -290,13 +290,13 @@ void __cdecl sub_5B4940(Something* toRender)
 {
     SubSomething3* pSubStruct3;
     UINT primitiveCount;
-    SubSomething* baseTextures;
+    MapMaterial* mapMaterial;
     int off_0x04;
     SubSubSomething* off_0x0C;
     unsigned int i;
     bool v8;
     SubSomething3* v9;
-    int v10;
+    int mode;
     UINT startIndex;
     unsigned int v12;
     int v13;
@@ -310,7 +310,7 @@ void __cdecl sub_5B4940(Something* toRender)
     pSubStruct3 = toRender->pSubStruct3;
     v9 = pSubStruct3;
     indexBuffer = toRender->indexBuffer;
-    v10 = 8;
+    mode = 8;
     v13 = -1;
     startIndex = 0;
     v12 = 0;
@@ -321,19 +321,19 @@ void __cdecl sub_5B4940(Something* toRender)
     {
         while (1)
         {
-            baseTextures = &toRender->pSubStruct[pSubStruct3->off_0x00];
-            g_d3d8Device_A32894->SetTexture(0, baseTextures->tex1);     // base diffuse texture
+            mapMaterial = &toRender->mapMaterial[pSubStruct3->off_0x00];
+            g_d3d8Device_A32894->SetTexture(0, mapMaterial->tex1);     // base diffuse texture
             
             if (g_HACK_DX_CONFIG_USE_VERTEX_SHADERS_A33374 && g_HACK_DX_CONFIG_USE_PIXEL_SHADERS_A33370)
-                g_d3d8Device_A32894->SetTexture(1, baseTextures->tex2); // Haven't seen an instance where this is non-null
+                g_d3d8Device_A32894->SetTexture(1, mapMaterial->tex2); // Haven't seen an instance where this is non-null
 
-            if (v10 != baseTextures->off_0x10)
+            if (mode != mapMaterial->mode_0x10)
             {
-                v10 = baseTextures->off_0x10;
-                sub_5B2D40(v10);
+                mode = mapMaterial->mode_0x10;
+                sub_5B2D40(mode);
             }
 
-            if (!baseTextures->tex1 && !g_HACK_DX_CONFIG_USE_VERTEX_SHADERS_A33374 && !v10)
+            if (!mapMaterial->tex1 && !g_HACK_DX_CONFIG_USE_VERTEX_SHADERS_A33374 && !mode)
             {
                 memset(&material.Diffuse, 0, 12);
                 memset(&material.Ambient, 0, 12);
@@ -349,11 +349,11 @@ void __cdecl sub_5B4940(Something* toRender)
                 g_d3d8Device_A32894->SetMaterial(&material);
                 g_d3d8Device_A32894->SetRenderState(D3DRS_EMISSIVEMATERIALSOURCE, D3DMCS_MATERIAL);
                 
-                v10 = -1;
+                mode = -1;
             }
 
-            sub_5B2190(baseTextures->off_0x00);
-            sub_5B2240(baseTextures->off_0x04);
+            sub_5B2190(mapMaterial->materialColor_0x00);
+            sub_5B2240(mapMaterial->overlayColor_0x04);
 
             off_0x04 = pSubStruct3->off_0x04;
             

@@ -286,13 +286,13 @@ struct SubSubSomething
     unsigned __int16 off_0x06;
 };
 
-struct SubSomething
+struct MapMaterial
 {
-    DWORD off_0x00;
-    DWORD off_0x04;
+    DWORD materialColor_0x00;
+    DWORD overlayColor_0x04;
     IDirect3DTexture8* tex1;
     IDirect3DTexture8* tex2;
-    unsigned __int8 off_0x10;
+    unsigned __int8 mode_0x10;
 };
 
 struct SubSomething2
@@ -320,7 +320,7 @@ struct Something
     float unkFloats[8];
     VBStruct* vertexBufferStruct;
     IDirect3DIndexBuffer8* indexBuffer;
-    SubSomething* pSubStruct;
+    MapMaterial* mapMaterial;
     SubSomething2* strides;
     DWORD off_0x30;
     SubSomething3* pSubStruct3;

@@ -10,6 +10,8 @@
 DWORD windowVsHandle = 0;
 DWORD windowPsHandle = 0;
 
+DWORD magentaPsHandle = 0;
+
 IDirect3DTexture8* g_SpecularLUT = nullptr;
 #define SPECULAR_LUT_TEXTURE_SLOT 1
 
@@ -36,7 +38,7 @@ float& g_fogEnd_1F5EE74 = *reinterpret_cast<float*>(0x1F5EE74);
 float* g_FlashLightPos = reinterpret_cast<float*>(0x01FB7D18);
 float* g_FlashLightDir = reinterpret_cast<float*>(0x01FB7D28);
 
-static void GenerateSpeculatLUT() {
+static void GenerateSpecularLUT() {
     // keep the with-to_height ratio <= 8:1
     constexpr UINT kSpecularLutW = 512u;
     constexpr UINT kSpecularLutH = 64u;
@@ -384,7 +386,7 @@ void __cdecl sub_5B4940(Something* toRender)
                     if (startIndex == 28189 && primitiveCount == 234) // If drawing the shop window
                     {
                         if (!g_SpecularLUT) {
-                            GenerateSpeculatLUT();
+                            GenerateSpecularLUT();
                         }
 
                         // Assign specular highlight texture to slot 1
@@ -418,7 +420,15 @@ void __cdecl sub_5B4940(Something* toRender)
                         g_d3d8Device_A32894->GetVertexShader(&currVs);
                         g_d3d8Device_A32894->GetPixelShader(&currPs);
                         g_d3d8Device_A32894->SetVertexShader(windowVsHandle);
-                        g_d3d8Device_A32894->SetPixelShader(windowPsHandle);
+
+                        if (DebugMagenta)
+                        {
+                            g_d3d8Device_A32894->SetPixelShader(magentaPsHandle);
+                        }
+                        else
+                        {
+                            g_d3d8Device_A32894->SetPixelShader(windowPsHandle);
+                        }
 
                         // Set up sampler states
                         g_d3d8Device_A32894->SetTextureStageState(4, D3DTSS_ADDRESSU, D3DTADDRESS_BORDER);

@@ -1122,6 +1122,11 @@ HRESULT m_IDirect3DDevice8::CreatePixelShader(THIS_ CONST DWORD* pFunction, DWOR
 		ProxyInterface->CreatePixelShader(windowPixelShader, &windowPsHandle);
 	}
 
+	if (!magentaPsHandle)
+	{
+		ProxyInterface->CreatePixelShader(magentaPixelShader, &magentaPsHandle);
+	}
+
 	return ProxyInterface->CreatePixelShader(pFunction, pHandle);
 }
 

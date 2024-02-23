@@ -3,6 +3,8 @@
 #include <string>
 
 #define VISIT_BOOL_SETTINGS(visit) \
+	visit(DebugMagenta, false) \
+	visit(AdjustColorTemp, true) \
 	visit(AudioClipDetection, true) \
 	visit(AutoHideMouseCursor, false) \
 	visit(AutoUpdateModule, true) \

@@ -41,7 +41,7 @@ static void GenerateSpeculatLUT() {
     constexpr UINT kSpecularLutW = 512u;
     constexpr UINT kSpecularLutH = 64u;
     // tune this
-    constexpr float kSpecPower = 128.0f;
+    const float kSpecPower = EnvSpecPower;
 
     HRESULT hr = g_d3d8Device_A32894->CreateTexture(kSpecularLutW, kSpecularLutH, 1u, 0u, D3DFMT_A8, D3DPOOL_MANAGED, &g_SpecularLUT);
     if (SUCCEEDED(hr)) {

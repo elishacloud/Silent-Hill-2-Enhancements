@@ -1,7 +1,10 @@
 //#define WIN32_LEAN_AND_MEAN
 #include "EnvSpecular.h"
 #include "Common\Utils.h"
+#include "Patches\Patches.h"
 #include "Wrappers\d3d8\DirectX81SDK\include\d3dx8math.h"
+
+#include <cmath>    // for std::powf
 
 //#include <Windows.h>
 //#include "Patches.h"
@@ -13,6 +16,9 @@ DWORD nursePsHandle = 0;
 
 DWORD windowVsHandle = 0;
 DWORD windowPsHandle = 0;
+
+IDirect3DTexture8* g_SpecularLUT = nullptr;
+#define SPECULAR_LUT_TEXTURE_SLOT 1
 
 IDirect3DDevice8** (__cdecl* GetD3dDevice_4F5480)() = (IDirect3DDevice8 * *(__cdecl *)())(0x4F5480);
 
@@ -89,6 +95,35 @@ DWORD* dword_1F7D6C4 = reinterpret_cast<DWORD*>(0x1F7D6C4); // An array of ps sh
 //dword_1F7D714 used to index above
 
 MapVsConstants& g_mapVsConstants_1DB86E0 = *reinterpret_cast<MapVsConstants*>(0x1DB86E0);
+
+float* g_FlashLightPos = reinterpret_cast<float*>(0x01FB7D18);
+float* g_FlashLightDir = reinterpret_cast<float*>(0x01FB7D28);
+
+static void GenerateSpeculatLUT() {
+    // keep the with-to_height ratio <= 8:1
+    constexpr UINT kSpecularLutW = 512u;
+    constexpr UINT kSpecularLutH = 64u;
+    // tune this
+    constexpr float kSpecPower = 128.0f;
+
+    HRESULT hr = g_d3d8Device_A32894->CreateTexture(kSpecularLutW, kSpecularLutH, 1u, 0u, D3DFMT_A8, D3DPOOL_MANAGED, &g_SpecularLUT);
+    if (SUCCEEDED(hr)) {
+        D3DLOCKED_RECT lockedRect{};
+        hr = g_SpecularLUT->LockRect(0u, &lockedRect, nullptr, 0);
+
+        if (SUCCEEDED(hr)) {
+            BYTE* a8 = reinterpret_cast<BYTE*>(lockedRect.pBits);
+            for (UINT y = 0u; y < kSpecularLutH; ++y) {
+                for (UINT x = 0u; x < kSpecularLutW; ++x, ++a8) {
+                    const float f = std::powf(static_cast<float>(x) / static_cast<float>(kSpecularLutW - 1u), kSpecPower);
+                    *a8 = static_cast<BYTE>((std::min)(255.0f, (std::max)(0.0f, f * 255.0f)));
+                }
+            }
+
+            g_SpecularLUT->UnlockRect(0u);
+        }
+    }
+}
 
 // 4 vert shaders are still created elsewhere
 void __cdecl CreateShaders_5AF110()
@@ -438,30 +473,35 @@ void __cdecl sub_5B4940(Something* toRender)
                     // MY CODE
                     if (startIndex == 28189 && primitiveCount == 234) // If drawing the shop window
                     {
-                        // Assign specular highlight texture to slot 4
-                        g_d3d8Device_A32894->SetTexture(4, g_commonTextures_1F7D4AC[14440].tex);
+                        if (!g_SpecularLUT) {
+                            GenerateSpeculatLUT();
+                        }
 
-                        constexpr float specularSize = 3.545f; // default = 3.545
+                        // Assign specular highlight texture to slot 1
+                        IDirect3DBaseTexture8* savedTexture = nullptr;
+                        g_d3d8Device_A32894->GetTexture(SPECULAR_LUT_TEXTURE_SLOT, &savedTexture);
+                        g_d3d8Device_A32894->SetTexture(SPECULAR_LUT_TEXTURE_SLOT, g_SpecularLUT);
+                        // Set up sampler states
+                        g_d3d8Device_A32894->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_ADDRESSU, D3DTADDRESS_CLAMP);
+                        g_d3d8Device_A32894->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_ADDRESSV, D3DTADDRESS_CLAMP);
+                        g_d3d8Device_A32894->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
+                        g_d3d8Device_A32894->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
+                        g_d3d8Device_A32894->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_MIPFILTER, D3DTEXF_LINEAR);
 
-                        // Get the mystery constants in the same way as the nurse
-                        D3DMATRIX matrix;
-                        GetSomeMatrix_50C570(&matrix); // Gets matrix at 0xAAA634
+                        // tune this!
+                        float specColor[4] = { 0.619f, 0.619f, 0.619f, 1.0f };
+                        g_d3d8Device_A32894->SetVertexShaderConstant(27, specColor, 1);
 
-                        float shaderConstantMulti[4] = { 0 };
-                        shaderConstantMulti[0] = matrix._11 * specularSize;
-                        shaderConstantMulti[1] = matrix._21 * specularSize;
-                        shaderConstantMulti[2] = matrix._31 * specularSize;
-                        shaderConstantMulti[3] = 0.5;
+                        g_d3d8Device_A32894->SetVertexShaderConstant(28, g_FlashLightPos, 1);
 
-                        float vsConstant_3[4] = { 0 };
-                        vsConstant_3[0] = matrix._12 * specularSize;
-                        vsConstant_3[1] = matrix._22 * specularSize;
-                        vsConstant_3[2] = matrix._32 * specularSize;
-                        vsConstant_3[3] = 0.5;
+                        float cameraPos[4] = {
+                            GetInGameCameraPosX(),
+                            GetInGameCameraPosY(),
+                            GetInGameCameraPosZ(),
+                            0.0f
+                        };
 
-                        // Set to some unused registers
-                        g_d3d8Device_A32894->SetVertexShaderConstant(28, shaderConstantMulti, 1);
-                        g_d3d8Device_A32894->SetVertexShaderConstant(29, vsConstant_3, 1);
+                        g_d3d8Device_A32894->SetVertexShaderConstant(29, cameraPos, 1);
 
                         DWORD currVs;
                         DWORD currPs;
@@ -482,7 +522,7 @@ void __cdecl sub_5B4940(Something* toRender)
                         g_d3d8Device_A32894->SetVertexShader(currVs);
                         g_d3d8Device_A32894->SetPixelShader(currPs);
 
-                        g_d3d8Device_A32894->SetTexture(4, 0);
+                        g_d3d8Device_A32894->SetTexture(SPECULAR_LUT_TEXTURE_SLOT, savedTexture);
                     }
                     else
                     {

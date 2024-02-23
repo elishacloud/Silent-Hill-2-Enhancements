@@ -808,13 +808,13 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
     const float TopLineVerticalOffset = (90.f * (float)VerticalInternal) / 900.f;
     const float BottomLineVerticalOffset = (790.f * (float)VerticalInternal) / 900.f;
 
-    const float TextVerticalOffset = (800.f * (float)VerticalInternal) / 900.f;
-    const float TextRightOffset = ((210.f * (float)HorizontalInternal) / 1200.f);
+    const float TextVerticalOffset = (80.f * (float)VerticalInternal) / 900.f;
+    const float TextRightOffset = ((20.f * (float)HorizontalInternal) / 1200.f) + UlteriorOffset;
 
-    this->message.String = "Use keyboard to adjust inputs. Enter key to activate/change input. Escape key to clear active input."; //TODO grab string by language
+    this->message.String = "Enter: Activate/change input. Escape: Clear active input."; //TODO grab string by language
     this->message.Format = DT_NOCLIP | DT_RIGHT;
     this->message.Rect.left = 0.f;
-    this->message.Rect.top = TextVerticalOffset;
+    this->message.Rect.top = BufferHeight - TextVerticalOffset;
     this->message.Rect.right = BufferWidth - TextRightOffset;
     this->message.Rect.bottom = TextVerticalOffset + 15;
     this->message.Color = D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80);
@@ -852,7 +852,7 @@ void ButtonIcons::DrawControlOptionsText(LPDIRECT3DDEVICE8 ProxyInterface, CO_TE
 
     if (ProxyInterface != nullptr && ControlOptionsFont == nullptr)
     {
-        HFONT FontCharacteristics = CreateFontA(18, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, ANTIALIASED_QUALITY, 0, FontName);
+        HFONT FontCharacteristics = CreateFontA(22, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, ANTIALIASED_QUALITY, 0, FontName);
         if (FontCharacteristics != NULL)
         {
             Logging::LogDebug() << __FUNCTION__ << " Creating Control Options font: " << FontName;

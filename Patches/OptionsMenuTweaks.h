@@ -301,7 +301,7 @@ private:
 	DWORD ModulationPixelShader = NULL;
 	
 	LPD3DXFONT ControlOptionsFont = nullptr;
-	LPCSTR FontName = "Arial";
+	LPCSTR FontName = "Arial Narrow";
 	CO_TEXT message;
 
 	void DrawControlOptionsText(LPDIRECT3DDEVICE8 ProxyInterface, CO_TEXT FontStruct);

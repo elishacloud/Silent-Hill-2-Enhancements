@@ -1,7 +1,8 @@
 //#define WIN32_LEAN_AND_MEAN
 #include "EnvSpecular.h"
+#include "Common\Settings.h"
 #include "Common\Utils.h"
-#include "Patches\Patches.h"
+#include "Patches.h"
 #include "Wrappers\d3d8\DirectX81SDK\include\d3dx8math.h"
 
 #include <cmath>    // for std::powf
@@ -166,7 +167,7 @@ void __cdecl sub_5B4940(Something* toRender)
                         g_d3d8Device_A32894->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_MIPFILTER, D3DTEXF_LINEAR);
 
                         // tune this!
-                        float specColor[4] = { 0.619f, 0.619f, 0.619f, 1.0f };
+                        float specColor[4] = { EnvSpecRed, EnvSpecGreen, EnvSpecBlue, EnvSpecAlpha };
                         g_d3d8Device_A32894->SetVertexShaderConstant(27, specColor, 1);
 
                         g_d3d8Device_A32894->SetVertexShaderConstant(28, g_FlashLightPos, 1);

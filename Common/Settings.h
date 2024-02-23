@@ -184,6 +184,10 @@
 	visit(SpeedrunMode, 2)
 
 #define VISIT_FLOAT_SETTINGS(visit) \
+	visit(EnvSpecRed, 0.619f) \
+	visit(EnvSpecGreen, 0.619f) \
+	visit(EnvSpecBlue, 0.619f) \
+	visit(EnvSpecAlpha, 0.619f) \
 	visit(fog_layer1_x1, 0.250f) \
 	visit(fog_layer1_x2, 0.250f) \
 	visit(fog_layer1_y1, 0.125f) \

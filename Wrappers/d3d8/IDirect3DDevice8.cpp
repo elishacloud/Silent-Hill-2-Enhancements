@@ -1117,11 +1117,6 @@ HRESULT m_IDirect3DDevice8::CreatePixelShader(THIS_ CONST DWORD* pFunction, DWOR
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	if (!nursePsHandle)
-	{
-		ProxyInterface->CreatePixelShader(nursePixelShader, &nursePsHandle);
-	}
-
 	if (!windowPsHandle)
 	{
 		ProxyInterface->CreatePixelShader(windowPixelShader, &windowPsHandle);
@@ -2764,11 +2759,6 @@ HRESULT m_IDirect3DDevice8::CreateVertexShader(THIS_ CONST DWORD* pDeclaration, 
 			ReplaceMemoryBytes((void*)HalogenLightFixShaderCode[0], (void*)HalogenLightFixShaderCode[1], sizeof(HalogenLightFixShaderCode[0]), (DWORD)pFunction, 0x400, 1);
 			ReplaceMemoryBytes((void*)HalogenLightFixShaderCode[2], (void*)HalogenLightFixShaderCode[3], sizeof(HalogenLightFixShaderCode[2]), (DWORD)pFunction, 0x400, 1);
 		}
-	}
-
-	if (!nurseVsHandle)
-	{
-		ProxyInterface->CreateVertexShader(vsDecl, nurseVertexShader, &nurseVsHandle, 0);
 	}
 
 	if (!windowVsHandle)

@@ -277,8 +277,8 @@ phase
 
   // specular color = specular function (from texture 1) * specular color from vertex shader
   mul r1.xyz, r1.w, v1
-  // also modulate specular color by the albedo's alpha channel ("roughness")
-  mul r1.xyz, r1, r0.w
+  // also modulate specular color by the albedo's alpha channel ("roughness", means we have to invert the value)
+  mul r1.xyz, r1, 1-r0.w
 
   // r1 = albedo texel * ambient color (???) + specular
   // r2.w = flashlight's func * albedo alpha
@@ -317,7 +317,7 @@ constexpr DWORD windowPixelShader[] = {
     0x80e40001, 0x00000042, 0x800f0002, 0xbaf40002,
     0x00000001, 0x800f0004, 0x80e40000, 0x00000005,
     0x80070001, 0x80ff0001, 0x90e40001, 0x00000005,
-    0x80070001, 0x80e40001, 0x80ff0000, 0x00000004,
+    0x80070001, 0x80e40001, 0x86ff0000, 0x00000004,
     0x80070001, 0x80e40004, 0xa0e40001, 0x80e40001,
     0x40000005, 0x80080002, 0x80ff0002, 0x90ff0000,
     0x00000005, 0x81070002, 0x80e40001, 0x80ff0002,

@@ -89,17 +89,17 @@ mov oT0.xy, v7
 add r9.xyz, c29, -v0
 dp3 r11.x, r9, r9
 rsq r11.y, r11.x
-mul r9, r9, r11.y
+mul r9, r9.xyzz, r11.y
 
 // halfVec = normalize(dirToLight + dirToCamera)
-add r9, r9, r5
+add r9, r9, r5.xyzz
 dp3 r11.x, r9, r9
 rsq r11.y, r11.x
 mul r9, r9, r11.y
 
 // pass half vec and normal to pixel shader
 mov oT1, r9
-mov oT4, r0
+mov oT4, r0.xyzz
 
 // some weird mumbo-jumbo, have no idea tbh, calc diffuse color
 // c19 = -0.000 1.491 10.893 -9.893
@@ -150,12 +150,12 @@ constexpr DWORD windowVertexShader[] = {
     0x80070009, 0xa0e4001d, 0x91e40000, 0x00000008,
     0x8001000b, 0x80e40009, 0x80e40009, 0x00000007,
     0x8002000b, 0x8000000b, 0x00000005, 0x800f0009,
-    0x80e40009, 0x8055000b, 0x00000002, 0x800f0009,
-    0x80e40009, 0x80e40005, 0x00000008, 0x8001000b,
+    0x80a40009, 0x8055000b, 0x00000002, 0x800f0009,
+    0x80e40009, 0x80a40005, 0x00000008, 0x8001000b,
     0x80e40009, 0x80e40009, 0x00000007, 0x8002000b,
     0x8000000b, 0x00000005, 0x800f0009, 0x80e40009,
     0x8055000b, 0x00000001, 0xe00f0001, 0x80e40009,
-    0x00000001, 0xe00f0004, 0x80e40000, 0x00000002,
+    0x00000001, 0xe00f0004, 0x80a40000, 0x00000002,
     0x80070003, 0x80a40003, 0xa0a40013, 0x00000005,
     0x80070003, 0x80a40003, 0xa0a4001a, 0x00000002,
     0xd0070000, 0x80a40003, 0x80a40003, 0x00000001,

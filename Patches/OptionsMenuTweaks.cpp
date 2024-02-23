@@ -808,7 +808,7 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
     const float TopLineVerticalOffset = (90.f * (float)VerticalInternal) / 900.f;
     const float BottomLineVerticalOffset = (790.f * (float)VerticalInternal) / 900.f;
 
-    const float TextVerticalOffset = (80.f * (float)VerticalInternal) / 900.f;
+    const float TextVerticalOffset = (77.f * (float)VerticalInternal) / 900.f;
     const float TextRightOffset = ((20.f * (float)HorizontalInternal) / 1200.f) + UlteriorOffset;
 
     this->message.String = "Enter: Activate/change input. Escape: Clear active input."; //TODO grab string by language

@@ -892,7 +892,7 @@ void ButtonIcons::UpdateBinds()
         // Skip drawing dpad arrows, since they don't work with DPadMovementFix
         if (DPadMovementFix == 1 && this->binds[i + 4] >= ControllerButton::D_UP && this->binds[i + 4] <= ControllerButton::D_LEFT)
         {
-            this->binds[i + 4] = ControllerButton::UNKNOWN_BIND;
+            this->binds[i + 4] = ControllerButton::NO_BIND;
         }
     }
 

@@ -383,7 +383,7 @@ void __cdecl sub_5B4940(Something* toRender)
                     g_d3d8Device_A32894->SetIndices(indexBuffer, 0);
                     
                     // MY CODE
-                    if (startIndex == 28189 && primitiveCount == 234) // If drawing the shop window
+                    if (toRender->mapMaterial->mode_0x10 == 1 || toRender->mapMaterial->mode_0x10 == 2) // If drawing a cutout or specular material
                     {
                         if (!g_SpecularLUT) {
                             GenerateSpecularLUT();
@@ -421,14 +421,7 @@ void __cdecl sub_5B4940(Something* toRender)
                         g_d3d8Device_A32894->GetPixelShader(&currPs);
                         g_d3d8Device_A32894->SetVertexShader(windowVsHandle);
 
-                        if (DebugMagenta)
-                        {
-                            g_d3d8Device_A32894->SetPixelShader(magentaPsHandle);
-                        }
-                        else
-                        {
-                            g_d3d8Device_A32894->SetPixelShader(windowPsHandle);
-                        }
+                        g_d3d8Device_A32894->SetPixelShader(windowPsHandle);
 
                         // Set up sampler states
                         g_d3d8Device_A32894->SetTextureStageState(4, D3DTSS_ADDRESSU, D3DTADDRESS_BORDER);

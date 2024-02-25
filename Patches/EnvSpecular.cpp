@@ -421,7 +421,14 @@ void __cdecl sub_5B4940(Something* toRender)
                         g_d3d8Device_A32894->GetPixelShader(&currPs);
                         g_d3d8Device_A32894->SetVertexShader(windowVsHandle);
 
-                        g_d3d8Device_A32894->SetPixelShader(windowPsHandle);
+                        if (DebugMagenta)
+                        {
+                            g_d3d8Device_A32894->SetPixelShader(magentaPsHandle);
+                        }
+                        else
+                        {
+                            g_d3d8Device_A32894->SetPixelShader(windowPsHandle);
+                        }
 
                         // Set up sampler states
                         g_d3d8Device_A32894->SetTextureStageState(4, D3DTSS_ADDRESSU, D3DTADDRESS_BORDER);

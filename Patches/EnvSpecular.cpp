@@ -383,9 +383,15 @@ void __cdecl sub_5B4940(Something* toRender)
                     g_d3d8Device_A32894->SetIndices(indexBuffer, 0);
                     
                     // MY CODE
+                    IDirect3DTexture8 *texture;
+                    g_d3d8Device_A32894->GetTexture(0, (IDirect3DBaseTexture8**)&texture);
+
+                    D3DSURFACE_DESC desc;
+                    texture->GetLevelDesc(0, &desc);
+
                     DWORD currVs;
                     g_d3d8Device_A32894->GetVertexShader(&currVs);
-                    if (currVs == g_vsHandles_1DB88A8[2]) // If using the same vertex shader as the town east shop window
+                    if (currVs == g_vsHandles_1DB88A8[2] && desc.Format == D3DFMT_DXT4) // If using the same vertex shader as the town east shop window
                     {
                         if (!g_SpecularLUT) {
                             GenerateSpecularLUT();

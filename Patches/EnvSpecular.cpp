@@ -383,7 +383,9 @@ void __cdecl sub_5B4940(Something* toRender)
                     g_d3d8Device_A32894->SetIndices(indexBuffer, 0);
                     
                     // MY CODE
-                    if (toRender->mapMaterial->mode_0x10 == 1 || toRender->mapMaterial->mode_0x10 == 2) // If drawing a cutout or specular material
+                    DWORD currVs;
+                    g_d3d8Device_A32894->GetVertexShader(&currVs);
+                    if (currVs == g_vsHandles_1DB88A8[2]) // If using the same vertex shader as the town east shop window
                     {
                         if (!g_SpecularLUT) {
                             GenerateSpecularLUT();
@@ -415,9 +417,7 @@ void __cdecl sub_5B4940(Something* toRender)
 
                         g_d3d8Device_A32894->SetVertexShaderConstant(29, cameraPos, 1);
 
-                        DWORD currVs;
                         DWORD currPs;
-                        g_d3d8Device_A32894->GetVertexShader(&currVs);
                         g_d3d8Device_A32894->GetPixelShader(&currPs);
                         g_d3d8Device_A32894->SetVertexShader(windowVsHandle);
 

@@ -9,6 +9,13 @@
 
 DWORD windowVsHandle = 0;
 DWORD windowPsHandle = 0;
+DWORD vcolorVsHandle = 0;
+
+#define WINDOW_VSHADER_ORIGINAL  (g_vsHandles_1DB88A8[2])
+#define VCOLOR_VSHADER_ORIGINAL  (g_vsHandles_1DB88A8[8])
+
+#define VSHADER_FLASHLIGHT_POS_REGISTER 90
+#define VSHADER_CAMERA_POS_REGISTER     91
 
 DWORD magentaPsHandle = 0;
 
@@ -391,11 +398,13 @@ void __cdecl sub_5B4940(Something* toRender)
 
                     DWORD currVs;
                     g_d3d8Device_A32894->GetVertexShader(&currVs);
-                    if (currVs == g_vsHandles_1DB88A8[2] && desc.Format == D3DFMT_DXT4) // If using the same vertex shader as the town east shop window
+                    if ((currVs == WINDOW_VSHADER_ORIGINAL || currVs == VCOLOR_VSHADER_ORIGINAL) && desc.Format == D3DFMT_DXT4) // If using the same vertex shader as the town east shop window
                     {
                         if (!g_SpecularLUT) {
                             GenerateSpecularLUT();
                         }
+
+                        const bool isVColorGeometry = (currVs == VCOLOR_VSHADER_ORIGINAL);
 
                         // Assign specular highlight texture to slot 1
                         IDirect3DBaseTexture8* savedTexture = nullptr;
@@ -412,8 +421,6 @@ void __cdecl sub_5B4940(Something* toRender)
                         float specColor[4] = { EnvSpecRed, EnvSpecGreen, EnvSpecBlue, EnvSpecAlpha };
                         g_d3d8Device_A32894->SetVertexShaderConstant(27, specColor, 1);
 
-                        g_d3d8Device_A32894->SetVertexShaderConstant(28, g_FlashLightPos, 1);
-
                         float cameraPos[4] = {
                             GetInGameCameraPosX(),
                             GetInGameCameraPosY(),
@@ -421,11 +428,12 @@ void __cdecl sub_5B4940(Something* toRender)
                             0.0f
                         };
 
-                        g_d3d8Device_A32894->SetVertexShaderConstant(29, cameraPos, 1);
+                        g_d3d8Device_A32894->SetVertexShaderConstant(VSHADER_FLASHLIGHT_POS_REGISTER, g_FlashLightPos, 1);
+                        g_d3d8Device_A32894->SetVertexShaderConstant(VSHADER_CAMERA_POS_REGISTER, cameraPos, 1);
 
                         DWORD currPs;
                         g_d3d8Device_A32894->GetPixelShader(&currPs);
-                        g_d3d8Device_A32894->SetVertexShader(windowVsHandle);
+                        g_d3d8Device_A32894->SetVertexShader(isVColorGeometry ? vcolorVsHandle : windowVsHandle);
 
                         if (DebugMagenta)
                         {

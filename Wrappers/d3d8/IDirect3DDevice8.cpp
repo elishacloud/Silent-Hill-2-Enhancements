@@ -2771,6 +2771,10 @@ HRESULT m_IDirect3DDevice8::CreateVertexShader(THIS_ CONST DWORD* pDeclaration, 
 		ProxyInterface->CreateVertexShader(vsDecl, windowVertexShader, &windowVsHandle, 0);
 	}
 
+    if (!vcolorVsHandle) {
+        ProxyInterface->CreateVertexShader(vsDeclVColor, vcolorVertexShader, &vcolorVsHandle, 0);
+    }
+
 	return ProxyInterface->CreateVertexShader(pDeclaration, pFunction, pHandle, Usage);
 }
 

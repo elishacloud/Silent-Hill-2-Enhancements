@@ -27,3 +27,4 @@ Button %d
 \hConfigure in Windows Sound Settings
 \hMaster Volume
 \hAdjust Master Volume
+Enter: Activate/change input. Escape: Clear active input.

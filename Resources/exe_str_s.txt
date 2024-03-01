@@ -27,3 +27,4 @@ Bot�n %d
 \hConfigurar a trav�s de Windows
 \hVolumen general
 \hAjustar el volumen general
+Enter: Activate/change input. Escape: Clear active input.

@@ -18,10 +18,13 @@
 #include "External\injector\include\injector\utility.hpp"
 #include "External\Hooking.Patterns\Hooking.Patterns.h"
 #include "Common\FileSystemHooks.h"
-#include "Common/GfxUtils.h"
+#include "Common\GfxUtils.h"
 #include "OptionsMenuTweaks.h"
 
+extern char* getControlOptionsStr();
+
 bool DrawOptionsHookEnabled = false;
+bool wasInControlOptions = false;
 
 // Master volume
 D3DMATRIX WorldMatrix =
@@ -687,7 +690,6 @@ void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
         // Draw Dpad arrows next to movement keys
         if (DPadMovementFix == 1 &&  this->quads[i].HasUlteriorQuad)
         {
-
             IconQuad UlteriorQuad;
             float vStarting = NULL;
 
@@ -742,6 +744,18 @@ void ButtonIcons::HandleControllerIcons(LPDIRECT3DDEVICE8 ProxyInterface)
 {
     if (!IsInControlOptionsMenu() || ReplaceButtonText == BUTTON_ICONS_DISABLED)
     {
+        if (ButtonIconsTexture != NULL)
+        {
+            ButtonIconsTexture->Release();
+            ButtonIconsTexture = NULL;
+        }
+
+        if (ControlOptionsFont != nullptr)
+        {
+            ControlOptionsFont->Release();
+            ControlOptionsFont = nullptr;
+        }
+
         return;
     }
 
@@ -757,7 +771,7 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
         return;
     }
 
-    if (ButtonIconsTexture == NULL && ModulationPixelShader == NULL)
+    if (ModulationPixelShader == NULL)
     {
         HRESULT hr = ProxyInterface->CreatePixelShader(subtractionPixelShaderAsm, &this->ModulationPixelShader);
 
@@ -766,7 +780,10 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
             Logging::Log() << __FUNCTION__ << " ERROR: Couldn't create pixel shader: " << Logging::hex(hr);
             return;
         }
+    }
 
+    if (ButtonIconsTexture == NULL)
+    {
         char TexturePath[MAX_PATH];
         strcpy_s(TexturePath, MAX_PATH, "data\\pic\\etc\\");
         strcat_s(TexturePath, MAX_PATH, "controller_buttons_icons.png");
@@ -777,7 +794,7 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
         wchar_t FinalPath[MAX_PATH];
         mbstowcs(FinalPath, FinalPathChars, strlen(FinalPathChars) + 1);
 
-        hr = GfxCreateTextureFromFileW(ProxyInterface, (LPCWSTR)FinalPath, &ButtonIconsTexture, 0);
+        HRESULT hr = GfxCreateTextureFromFileW(ProxyInterface, (LPCWSTR)FinalPath, &ButtonIconsTexture, 0);
 
         if (FAILED(hr))
         {
@@ -808,16 +825,16 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
     const float TopLineVerticalOffset = (90.f * (float)VerticalInternal) / 900.f;
     const float BottomLineVerticalOffset = (790.f * (float)VerticalInternal) / 900.f;
 
-    const float TextVerticalOffset = (77.f * (float)VerticalInternal) / 900.f;
+    const float TextVerticalOffset = (91.f * (float)VerticalInternal) / 900.f;
     const float TextRightOffset = ((20.f * (float)HorizontalInternal) / 1200.f) + UlteriorOffset;
 
-    this->message.String = "Enter: Activate/change input. Escape: Clear active input."; //TODO grab string by language
+    this->message.String = getControlOptionsStr();
     this->message.Format = DT_NOCLIP | DT_RIGHT;
     this->message.Rect.left = 0.f;
     this->message.Rect.top = BufferHeight - TextVerticalOffset;
     this->message.Rect.right = BufferWidth - TextRightOffset;
     this->message.Rect.bottom = TextVerticalOffset + 15;
-    this->message.Color = D3DCOLOR_ARGB(0x40, 0x80, 0x80, 0x80);
+    this->message.Color = D3DCOLOR_RGBA(0x81, 0x81, 0x84, 0xFF);
 
     CopyVertexBuffer(this->TemplateLineVertices, this->LineVertices[0], RECT_VERT_NUM);
     CopyVertexBuffer(this->TemplateLineVertices, this->LineVertices[1], RECT_VERT_NUM);
@@ -852,7 +869,7 @@ void ButtonIcons::DrawControlOptionsText(LPDIRECT3DDEVICE8 ProxyInterface, CO_TE
 
     if (ProxyInterface != nullptr && ControlOptionsFont == nullptr)
     {
-        HFONT FontCharacteristics = CreateFontA(22, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, ANTIALIASED_QUALITY, 0, FontName);
+        HFONT FontCharacteristics = CreateFontA(40, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, ANTIALIASED_QUALITY, 0, FontName); //TODO on resolution change, scale size
         if (FontCharacteristics != NULL)
         {
             Logging::LogDebug() << __FUNCTION__ << " Creating Control Options font: " << FontName;
@@ -878,7 +895,7 @@ void ButtonIcons::UpdateBinds()
     {
         this->ControllerBindsAddr = GetKeyBindsPointer() + 0xD0;
     }
-    
+
     this->binds[0] = ControllerButton::L_LEFT;
     this->binds[1] = ControllerButton::L_RIGHT;
     this->binds[2] = ControllerButton::L_UP;

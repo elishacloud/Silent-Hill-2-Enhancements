@@ -27,3 +27,4 @@ Bouton %d
 \hChanger ce r�glage dans Windows
 \hVolume principal
 \hR�gler le volume principal
+Enter: Activate/change input. Escape: Clear active input.

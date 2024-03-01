@@ -27,3 +27,4 @@ Tasto %d
 \hConfigura attraverso Windows
 \hVolume Principale
 \hImposta volume principale
+Invio: Attiva/cambia tasto. Esc: Azzera il tasto.

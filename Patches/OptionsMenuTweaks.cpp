@@ -77,7 +77,7 @@ const float ControlOptionsChangingGreenBlue = 0.502f;
     mul r0, t0, c0
 */
 
-DWORD subtractionPixelShaderAsm[] = {
+DWORD ModulationPixelShaderAsm[] = {
     0xffff0101, 0x0009fffe, 0x58443344, 0x68532038,
     0x72656461, 0x73734120, 0x6c626d65, 0x56207265,
     0x69737265, 0x30206e6f, 0x0031392e, 0x00000042,
@@ -773,7 +773,7 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
 
     if (ModulationPixelShader == NULL)
     {
-        HRESULT hr = ProxyInterface->CreatePixelShader(subtractionPixelShaderAsm, &this->ModulationPixelShader);
+        HRESULT hr = ProxyInterface->CreatePixelShader(ModulationPixelShaderAsm, &this->ModulationPixelShader);
 
         if (FAILED(hr))
         {

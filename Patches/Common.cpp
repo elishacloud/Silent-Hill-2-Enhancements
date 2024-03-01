@@ -3296,12 +3296,9 @@ int8_t* GetControlOptionsSelectedOptionPointer()
 		return ControlOptionsSelectedOptionAddr;
 	}
 
-	if (true) //TODO address
-		return (int8_t*)0x009415a4;
-
 	// Get ControlOptionsSelectedOption address
-	constexpr BYTE ControlOptionsSelectedOptionSearchBytes[]{ 0x83, 0xC4, 0x04, 0x85, 0xC0, 0x75, 0x13, 0x56, 0x68, 0x02, 0x00, 0x00, 0x08 };
-	int8_t* ControlOptionsSelectedOption = (int8_t*)ReadSearchedAddresses(0x004671e1, 0x00467481, 0x00467691, ControlOptionsSelectedOptionSearchBytes, sizeof(ControlOptionsSelectedOptionSearchBytes), -0x18, __FUNCTION__);
+	constexpr BYTE ControlOptionsSelectedOptionSearchBytes[]{ 0x00, 0x07, 0x75, 0x07, 0xC6, 0x05 };
+	int8_t* ControlOptionsSelectedOption = (int8_t*)ReadSearchedAddresses(0x00467515, 0x004677B5, 0x004679C5, ControlOptionsSelectedOptionSearchBytes, sizeof(ControlOptionsSelectedOptionSearchBytes), -0x03, __FUNCTION__);
 
 	// Checking address pointer
 	if (!ControlOptionsSelectedOption)
@@ -3323,27 +3320,11 @@ int8_t GetControlOptionsSelectedColumn()
 }
 
 int8_t* GetControlOptionsSelectedColumnPointer()
-{
-	if (ControlOptionsSelectedColumnAddr)
+{	
+	if (!ControlOptionsSelectedColumnAddr)
 	{
-		return ControlOptionsSelectedColumnAddr;
+		ControlOptionsSelectedColumnAddr = GetControlOptionsSelectedOptionPointer() + 0x50;
 	}
-
-	if (true) //TODO address
-		return (int8_t*)0x009415f4;
-
-	// Get ControlOptionsSelectedColumn address
-	constexpr BYTE ControlOptionsSelectedColumnSearchBytes[]{ 0x83, 0xC4, 0x04, 0x85, 0xC0, 0x75, 0x13, 0x56, 0x68, 0x02, 0x00, 0x00, 0x08 };
-	int8_t* ControlOptionsSelectedColumn = (int8_t*)ReadSearchedAddresses(0x004671e1, 0x00467481, 0x00467691, ControlOptionsSelectedColumnSearchBytes, sizeof(ControlOptionsSelectedColumnSearchBytes), -0x18, __FUNCTION__);
-
-	// Checking address pointer
-	if (!ControlOptionsSelectedColumn)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find ControlOptionsSelectedColumn address!";
-		return nullptr;
-	}
-
-	ControlOptionsSelectedColumnAddr = (int8_t*)((DWORD)ControlOptionsSelectedColumn);
 
 	return ControlOptionsSelectedColumnAddr;
 }
@@ -3362,12 +3343,9 @@ int32_t* GetControlOptionsIsToStopScrollingPointer()
 		return ControlOptionsStopScrollingAddr;
 	}
 
-	if (true) //TODO address
-		return (int32_t*)0x0094178c;
-
 	// Get InternalVertical address
-	constexpr BYTE ControlOptionsStopScrollingSearchBytes[]{ 0x89, 0x44, 0x24, 0x14, 0x89, 0x44, 0x24, 0x28, 0x89 };
-	int32_t* ControlOptionsStopScrolling = (int32_t*)ReadSearchedAddresses(0x00406EF6, 0x00406EF6, 0x00406F06, ControlOptionsStopScrollingSearchBytes, sizeof(ControlOptionsStopScrollingSearchBytes), -0x0B, __FUNCTION__);
+	constexpr BYTE ControlOptionsStopScrollingSearchBytes[]{ 0x83, 0xC4, 0x30, 0x3B, 0xC6, 0x68, 0xFF, 0x00, 0x00, 0x00, 0x74, 0x04 };
+	int32_t* ControlOptionsStopScrolling = (int32_t*)ReadSearchedAddresses(0x004676C8, 0x00467968, 0x00467B78, ControlOptionsStopScrollingSearchBytes, sizeof(ControlOptionsStopScrollingSearchBytes), -0x04, __FUNCTION__);
 
 	// Checking address pointer
 	if (!ControlOptionsStopScrolling)
@@ -3390,26 +3368,10 @@ int8_t GetControlOptionsChanging()
 
 int8_t* GetControlOptionsChangingPointer()
 {
-	if (ControlOptionsChangingAddr)
+	if (!ControlOptionsChangingAddr)
 	{
-		return ControlOptionsChangingAddr;
+		ControlOptionsChangingAddr = GetControlOptionsSelectedOptionPointer() + 0x51;
 	}
-
-	if (true) //TODO address
-		return (int8_t*)0x009415f5;
-
-	// Get ControlOptionsChanging address
-	constexpr BYTE ControlOptionsChangingSearchBytes[]{ 0x83, 0xC4, 0x04, 0x85, 0xC0, 0x75, 0x13, 0x56, 0x68, 0x02, 0x00, 0x00, 0x08 };
-	int8_t* ControlOptionsChanging = (int8_t*)ReadSearchedAddresses(0x004671e1, 0x00467481, 0x00467691, ControlOptionsChangingSearchBytes, sizeof(ControlOptionsChangingSearchBytes), -0x18, __FUNCTION__);
-
-	// Checking address pointer
-	if (!ControlOptionsChanging)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find ControlOptionsChanging address!";
-		return nullptr;
-	}
-
-	ControlOptionsChangingAddr = (int8_t*)((DWORD)ControlOptionsChanging);
 
 	return ControlOptionsChangingAddr;
 }

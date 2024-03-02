@@ -576,7 +576,7 @@ void RelaunchSilentHill2();
 void CheckAdminAccess();
 void RemoveVirtualStoreFiles();
 void RemoveCompatibilityMode();
-void SetDelayedStart();
+bool SetDelayedStart();
 void SetFullscreenImagesRes(DWORD Width, DWORD Height);
 void SetFullscreenVideoRes(DWORD Width, DWORD Height);
 void UpdateResolutionPatches(LONG Width, LONG Height);

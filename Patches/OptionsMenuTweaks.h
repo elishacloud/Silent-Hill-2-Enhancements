@@ -337,6 +337,8 @@ private:
 		return 0.f;
 	}
 
+	int calcFontSize();
+
 	ControllerButton TextureMap[BUTTON_ICONS_NUM] =
 	{
 		ControllerButton::UNKNOWN_BIND,

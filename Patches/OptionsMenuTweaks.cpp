@@ -825,7 +825,7 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
     const float TopLineVerticalOffset = (90.f * (float)VerticalInternal) / 900.f;
     const float BottomLineVerticalOffset = (790.f * (float)VerticalInternal) / 900.f;
 
-    const float TextVerticalOffset = (91.f * (float)VerticalInternal) / 900.f;
+    const float TextVerticalOffset = (85.f * (float)VerticalInternal) / 900.f;
     const float TextRightOffset = ((20.f * (float)HorizontalInternal) / 1200.f) + UlteriorOffset;
 
     this->message.String = getControlOptionsStr();
@@ -858,6 +858,13 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
     }
 }
 
+int ButtonIcons::calcFontSize()
+{
+    const int baseSize = 27;
+
+    return (int)(((float)BufferHeight / 900.f) * (float)baseSize);
+}
+
 void ButtonIcons::DrawControlOptionsText(LPDIRECT3DDEVICE8 ProxyInterface, CO_TEXT FontStruct)
 {
     // This flag is set when changing resolution, we have to reload the font
@@ -869,7 +876,7 @@ void ButtonIcons::DrawControlOptionsText(LPDIRECT3DDEVICE8 ProxyInterface, CO_TE
 
     if (ProxyInterface != nullptr && ControlOptionsFont == nullptr)
     {
-        HFONT FontCharacteristics = CreateFontA(40, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, ANTIALIASED_QUALITY, 0, FontName); //TODO on resolution change, scale size
+        HFONT FontCharacteristics = CreateFontA(this->calcFontSize(), 0, 0, 0, FW_REGULAR, 0, 0, 0, 0, 0, 0, ANTIALIASED_QUALITY, 0, FontName); //TODO on resolution change, scale size
         if (FontCharacteristics != NULL)
         {
             Logging::LogDebug() << __FUNCTION__ << " Creating Control Options font: " << FontName;

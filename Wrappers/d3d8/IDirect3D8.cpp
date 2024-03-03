@@ -338,6 +338,9 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 	DeviceWindow = (pPresentationParameters->hDeviceWindow) ? pPresentationParameters->hDeviceWindow :
 		(hFocusWindow) ? hFocusWindow : DeviceWindow;
 
+	pPresentationParameters->Windowed = (ScreenMode == WINDOWED || ScreenMode == WINDOWED_FULLSCREEN);
+	pPresentationParameters->FullScreen_RefreshRateInHz = (pPresentationParameters->Windowed) ? 0 : pPresentationParameters->FullScreen_RefreshRateInHz;
+
 	// Update patches for resolution change
 	UpdateResolutionPatches(BufferWidth, BufferHeight);
 
@@ -367,9 +370,6 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 	// Set window size if window mode is enabled
 	if (ScreenMode != EXCLUSIVE_FULLSCREEN && (pPresentationParameters->hDeviceWindow || DeviceWindow || hFocusWindow))
 	{
-		pPresentationParameters->Windowed = true;
-		pPresentationParameters->FullScreen_RefreshRateInHz = 0;
-
 		if (SetWindow)
 		{
 			static int LastScreenMode = 0;

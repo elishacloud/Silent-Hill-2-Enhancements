@@ -11,6 +11,9 @@ DWORD windowVsHandle = 0;
 DWORD windowPsHandle = 0;
 DWORD vcolorVsHandle = 0;
 
+DWORD hospitalDoorVsHandle = 0;
+DWORD hospitalDoorPsHandle = 0;
+
 #define WINDOW_VSHADER_ORIGINAL  (g_vsHandles_1DB88A8[2])
 #define VCOLOR_VSHADER_ORIGINAL  (g_vsHandles_1DB88A8[8])
 
@@ -63,6 +66,8 @@ float* diffuseTint_1F7D65C = reinterpret_cast<float*>(0x1F7D65C);
 
 IDirect3DBaseTexture8*& g_cubeMapTexture_1F7D710 = *reinterpret_cast<IDirect3DBaseTexture8**>(0x1F7D710);
 BOOL& g_flashlightOn_1F7D718 = *reinterpret_cast<BOOL*>(0x1F7D718);
+
+DWORD* g_mdlVsHandles_1F7D684 = reinterpret_cast<DWORD*>(0x1F7D684); // 11 vertex shader handles
 
 float* g_FlashLightPos = reinterpret_cast<float*>(0x01FB7D18);
 float* g_FlashLightDir = reinterpret_cast<float*>(0x01FB7D28);
@@ -352,7 +357,7 @@ void __cdecl sub_5B4940(Something* toRender)
         {
             mapMaterial = &toRender->mapMaterial[pSubStruct3->off_0x00];
             g_d3d8Device_A32894->SetTexture(0, mapMaterial->tex1);     // base diffuse texture
-            
+
             if (g_HACK_DX_CONFIG_USE_VERTEX_SHADERS_A33374 && g_HACK_DX_CONFIG_USE_PIXEL_SHADERS_A33370)
                 g_d3d8Device_A32894->SetTexture(1, mapMaterial->tex2); // Haven't seen an instance where this is non-null
 
@@ -368,16 +373,16 @@ void __cdecl sub_5B4940(Something* toRender)
                 memset(&material.Ambient, 0, 12);
                 memset(&material.Emissive, 0, 12);
                 memset(&material.Specular, 0, 12);
-                
+
                 material.Diffuse.a = 1.0;
                 material.Ambient.a = 1.0;
                 material.Emissive.a = 1.0;
                 material.Specular.a = 1.0;
                 material.Power = 0.0;
-                
+
                 g_d3d8Device_A32894->SetMaterial(&material);
                 g_d3d8Device_A32894->SetRenderState(D3DRS_EMISSIVEMATERIALSOURCE, D3DMCS_MATERIAL);
-                
+
                 mode = -1;
             }
 
@@ -385,7 +390,7 @@ void __cdecl sub_5B4940(Something* toRender)
             sub_5B2240(mapMaterial->overlayColor_0x04);
 
             off_0x04 = pSubStruct3->off_0x04;
-            
+
             if (v13 != off_0x04)
             {
                 v13 = pSubStruct3->off_0x04;
@@ -395,7 +400,7 @@ void __cdecl sub_5B4940(Something* toRender)
 
             off_0x0C = pSubStruct3->off_0x0C;
             i = 0;
-            
+
             if (v9->off_0x08)
             {
                 while (i < v9->off_0x08)
@@ -410,7 +415,7 @@ void __cdecl sub_5B4940(Something* toRender)
                     }
 
                     g_d3d8Device_A32894->SetIndices(indexBuffer, 0);
-                    
+
                     // MY CODE
                     IDirect3DTexture8 *texture;
                     g_d3d8Device_A32894->GetTexture(0, (IDirect3DBaseTexture8**)&texture);
@@ -491,7 +496,7 @@ void __cdecl sub_5B4940(Something* toRender)
                     // END ORIGINAL CODE
 
                     startIndex += off_0x0C->off_0x00 * off_0x0C->off_0x03;
-                    
+
                     ++off_0x0C;
                     ++i;
                 }
@@ -895,11 +900,46 @@ LABEL_23:
 LABEL_50:
 
     // MY CODE
+    IDirect3DTexture8 *texture;
+    g_d3d8Device_A32894->GetTexture(0, (IDirect3DBaseTexture8**)&texture);
+
+    D3DSURFACE_DESC desc;
+    texture->GetLevelDesc(0, &desc);
+
+    DWORD currVs;
+    g_d3d8Device_A32894->GetVertexShader(&currVs);
+    if (currVs == g_mdlVsHandles_1F7D684[7] && desc.Format == D3DFMT_DXT4)
+    {
+        DWORD currPs;
+        g_d3d8Device_A32894->GetPixelShader(&currPs);
+
+        g_d3d8Device_A32894->SetVertexShader(hospitalDoorVsHandle);
+
+        if (DebugMagenta)
+        {
+            g_d3d8Device_A32894->SetPixelShader(magentaPsHandle);
+        }
+        else
+        {
+            g_d3d8Device_A32894->SetPixelShader(hospitalDoorPsHandle);
+        }
+
+        g_d3d8Device_A32894->SetStreamSource(0, vertexBuffer, 32);
+        g_d3d8Device_A32894->DrawIndexedPrimitive(D3DPT_TRIANGLESTRIP, 0, toRender->subStruct->numVertices, 0, toRender->primCount - 2);
+
+        g_d3d8Device_A32894->SetVertexShader(currVs);
+        g_d3d8Device_A32894->SetPixelShader(currPs);
+    }
+    else
+    {
+        g_d3d8Device_A32894->SetStreamSource(0, vertexBuffer, 32);
+        g_d3d8Device_A32894->DrawIndexedPrimitive(D3DPT_TRIANGLESTRIP, 0, toRender->subStruct->numVertices, 0, toRender->primCount - 2);
+    }
     // END MY CODE
 
     // ORIGINAL CODE
-    g_d3d8Device_A32894->SetStreamSource(0, vertexBuffer, 32);
-    g_d3d8Device_A32894->DrawIndexedPrimitive(D3DPT_TRIANGLESTRIP, 0, toRender->subStruct->numVertices, 0, toRender->primCount - 2);
+    //g_d3d8Device_A32894->SetStreamSource(0, vertexBuffer, 32);
+    //g_d3d8Device_A32894->DrawIndexedPrimitive(D3DPT_TRIANGLESTRIP, 0, toRender->subStruct->numVertices, 0, toRender->primCount - 2);
     // END ORIGINAL CODE
 }
 

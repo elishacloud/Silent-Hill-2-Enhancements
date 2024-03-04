@@ -1122,6 +1122,11 @@ HRESULT m_IDirect3DDevice8::CreatePixelShader(THIS_ CONST DWORD* pFunction, DWOR
 		ProxyInterface->CreatePixelShader(windowPixelShader, &windowPsHandle);
 	}
 
+	if (!hospitalDoorPsHandle)
+	{
+		ProxyInterface->CreatePixelShader(hospitalDoorPixelShader, &hospitalDoorPsHandle);
+	}
+
 	if (!magentaPsHandle)
 	{
 		ProxyInterface->CreatePixelShader(magentaPixelShader, &magentaPsHandle);
@@ -2774,6 +2779,10 @@ HRESULT m_IDirect3DDevice8::CreateVertexShader(THIS_ CONST DWORD* pDeclaration, 
     if (!vcolorVsHandle) {
         ProxyInterface->CreateVertexShader(vsDeclVColor, vcolorVertexShader, &vcolorVsHandle, 0);
     }
+
+	if (!hospitalDoorVsHandle) {
+		ProxyInterface->CreateVertexShader(vsDecl, hospitalDoorVertexShader, &hospitalDoorVsHandle, 0);
+	}
 
 	return ProxyInterface->CreateVertexShader(pDeclaration, pFunction, pHandle, Usage);
 }

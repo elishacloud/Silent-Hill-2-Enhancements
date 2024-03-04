@@ -421,6 +421,198 @@ constexpr DWORD vcolorVertexShader[] = {
     0xc00f0000, 0x80e4000a, 0x0000ffff
 };
 
+
+/*
+// Assembled with `vsa.exe -h0` from DirectX 8.1b SDK
+
+    vs.1.1
+    //dcl_position v0
+    //dcl_normal v3
+    //dcl_texcoord v7
+
+    mov r11, c0
+    mov r10, c0
+    mov r9, c0
+    mov r8, c0
+    mov r7, c0
+    mov r4, c0
+    mov r3, c0
+    mov r2, c0
+    mov r1, c0
+    mov oD1, c0
+    mov oD0, c0
+    mov oT2, c0
+    mov oT1, c0
+    mov oT0, c0
+    mov r7, v0
+    mov r8, v3
+    dp4 r1.x, r7, c39
+    dp4 r1.y, r7, c40
+    dp4 r1.z, r7, c41
+    dp4 r1.w, r7, c42
+    max r3.x, r1.w, c0.x
+    rcp r3.x, r3.x
+    mad oFog, r3.x, c46.y, c46.x
+    mov oPos, r1
+    dp3 r1.x, r8, c47
+    dp3 r1.y, r8, c48
+    dp3 r1.z, r8, c49
+    dp3 r1.w, r8, c50
+    max r1, r1, c0.x
+    mul r2, r1.x, c55
+    mad r2, r1.y, c56, r2
+    mad r2, r1.z, c57, r2
+    mad r2, r1.w, c58, r2
+    add r3, r7, -c65
+    add r4, r7, -c67
+    dp3 r9.x, r3, r3
+    dp3 r9.y, r4, r4
+    rsq r9.x, r9.x
+    rsq r9.y, r9.y
+    mul r3.xyz, r3.xyzz, r9.x
+    mul r4.xyz, r4.xyzz, r9.y
+    dp3 r11.x, r8, r3
+    dp3 r11.y, r8, r4
+    mov r10.xy, c63.xyyy
+    mad r10.xy, r10.xyyy, r9.xyyy, c64.xyyy
+    min r10.xy, r10.xyyy, c0.y
+    min r11.xy, r11.xyyy, c0.y
+    max r10.xy, r10.xyyy, c0.x
+    max r11.xy, r11.xyyy, c0.x
+    mul r9.xy, r10.xyyy, r11.xyyy
+    mad r2, r9.x, c66, r2
+    mad r2, r9.y, c68, r2
+    add r3, r7, -c77
+    dp3 r9.x, r3, r3
+    mov oT2.xyz, r3.xyzz
+    rsq r9.x, r9.x
+    mov r10.x, c73.x
+    mad r10.x, r10.x, r9.x, c74.x
+    min r10.x, r10.x, c0.y
+    max r10.x, r10.x, c0.x
+    mov r4.w, r10.x
+    mul r4.xyz, r8.xyzz, c0.w
+    add r4.xyz, r4.xyzz, c0.w
+    mov oD1, r4
+    dp4 oT1.x, r8, c89
+    dp4 oT1.y, r8, c90
+    mul r2, r2, c43
+    add r2, r2, c44
+    mul oD0, r2, c1.x
+    mov oT0.xy, v7
+*/
+constexpr DWORD hospitalDoorVertexShader[] = {
+    0xfffe0101, 0x0009fffe, 0x58443344, 0x68532038,
+    0x72656461, 0x73734120, 0x6c626d65, 0x56207265,
+    0x69737265, 0x30206e6f, 0x0031392e, 0x00000001,
+    0x800f000b, 0xa0e40000, 0x00000001, 0x800f000a,
+    0xa0e40000, 0x00000001, 0x800f0009, 0xa0e40000,
+    0x00000001, 0x800f0008, 0xa0e40000, 0x00000001,
+    0x800f0007, 0xa0e40000, 0x00000001, 0x800f0004,
+    0xa0e40000, 0x00000001, 0x800f0003, 0xa0e40000,
+    0x00000001, 0x800f0002, 0xa0e40000, 0x00000001,
+    0x800f0001, 0xa0e40000, 0x00000001, 0xd00f0001,
+    0xa0e40000, 0x00000001, 0xd00f0000, 0xa0e40000,
+    0x00000001, 0xe00f0002, 0xa0e40000, 0x00000001,
+    0xe00f0001, 0xa0e40000, 0x00000001, 0xe00f0000,
+    0xa0e40000, 0x00000001, 0x800f0007, 0x90e40000,
+    0x00000001, 0x800f0008, 0x90e40003, 0x00000009,
+    0x80010001, 0x80e40007, 0xa0e40027, 0x00000009,
+    0x80020001, 0x80e40007, 0xa0e40028, 0x00000009,
+    0x80040001, 0x80e40007, 0xa0e40029, 0x00000009,
+    0x80080001, 0x80e40007, 0xa0e4002a, 0x0000000b,
+    0x80010003, 0x80ff0001, 0xa0000000, 0x00000006,
+    0x80010003, 0x80000003, 0x00000004, 0xc00f0001,
+    0x80000003, 0xa055002e, 0xa000002e, 0x00000001,
+    0xc00f0000, 0x80e40001, 0x00000008, 0x80010001,
+    0x80e40008, 0xa0e4002f, 0x00000008, 0x80020001,
+    0x80e40008, 0xa0e40030, 0x00000008, 0x80040001,
+    0x80e40008, 0xa0e40031, 0x00000008, 0x80080001,
+    0x80e40008, 0xa0e40032, 0x0000000b, 0x800f0001,
+    0x80e40001, 0xa0000000, 0x00000005, 0x800f0002,
+    0x80000001, 0xa0e40037, 0x00000004, 0x800f0002,
+    0x80550001, 0xa0e40038, 0x80e40002, 0x00000004,
+    0x800f0002, 0x80aa0001, 0xa0e40039, 0x80e40002,
+    0x00000004, 0x800f0002, 0x80ff0001, 0xa0e4003a,
+    0x80e40002, 0x00000002, 0x800f0003, 0x80e40007,
+    0xa1e40041, 0x00000002, 0x800f0004, 0x80e40007,
+    0xa1e40043, 0x00000008, 0x80010009, 0x80e40003,
+    0x80e40003, 0x00000008, 0x80020009, 0x80e40004,
+    0x80e40004, 0x00000007, 0x80010009, 0x80000009,
+    0x00000007, 0x80020009, 0x80550009, 0x00000005,
+    0x80070003, 0x80a40003, 0x80000009, 0x00000005,
+    0x80070004, 0x80a40004, 0x80550009, 0x00000008,
+    0x8001000b, 0x80e40008, 0x80e40003, 0x00000008,
+    0x8002000b, 0x80e40008, 0x80e40004, 0x00000001,
+    0x8003000a, 0xa054003f, 0x00000004, 0x8003000a,
+    0x8054000a, 0x80540009, 0xa0540040, 0x0000000a,
+    0x8003000a, 0x8054000a, 0xa0550000, 0x0000000a,
+    0x8003000b, 0x8054000b, 0xa0550000, 0x0000000b,
+    0x8003000a, 0x8054000a, 0xa0000000, 0x0000000b,
+    0x8003000b, 0x8054000b, 0xa0000000, 0x00000005,
+    0x80030009, 0x8054000a, 0x8054000b, 0x00000004,
+    0x800f0002, 0x80000009, 0xa0e40042, 0x80e40002,
+    0x00000004, 0x800f0002, 0x80550009, 0xa0e40044,
+    0x80e40002, 0x00000002, 0x800f0003, 0x80e40007,
+    0xa1e4004d, 0x00000008, 0x80010009, 0x80e40003,
+    0x80e40003, 0x00000001, 0xe0070002, 0x80a40003,
+    0x00000007, 0x80010009, 0x80000009, 0x00000001,
+    0x8001000a, 0xa0000049, 0x00000004, 0x8001000a,
+    0x8000000a, 0x80000009, 0xa000004a, 0x0000000a,
+    0x8001000a, 0x8000000a, 0xa0550000, 0x0000000b,
+    0x8001000a, 0x8000000a, 0xa0000000, 0x00000001,
+    0x80080004, 0x8000000a, 0x00000005, 0x80070004,
+    0x80a40008, 0xa0ff0000, 0x00000002, 0x80070004,
+    0x80a40004, 0xa0ff0000, 0x00000001, 0xd00f0001,
+    0x80e40004, 0x00000009, 0xe0010001, 0x80e40008,
+    0xa0e40059, 0x00000009, 0xe0020001, 0x80e40008,
+    0xa0e4005a, 0x00000005, 0x800f0002, 0x80e40002,
+    0xa0e4002b, 0x00000002, 0x800f0002, 0x80e40002,
+    0xa0e4002c, 0x00000005, 0xd00f0000, 0x80e40002,
+    0xa0000001, 0x00000001, 0xe0030000, 0x90e40007,
+    0x0000ffff
+};
+
+/*
+// Assembled with `psa.exe -h0` from DirectX 8.1b SDK
+
+    ps.1.4
+    mov r3, c1
+    phase
+    texld r2, t2
+    texld r1, t1
+    texld r0, t0
+    dp3_sat r3, r2_bx2, r3_bx2
+    dp3 r2.xyz, r2_bx2, v1_bx2
+    + sub r3.w, r3, c2.w
+    mul_sat r2.xyz, r2, r0.w
+    mul_x2_sat r3.xyz, r3.w, r2
+    mul r2.xyz, r1, r0.w
+    mad_x4_sat r3.xyz, r3, c2, v0
+    mul r3.xyz, r3, r0
+    + mov r3.w, r0.w
+    mad r0.xyz, r2, c3, r3
+*/
+constexpr DWORD hospitalDoorPixelShader[] = {
+    0xffff0104, 0x0009fffe, 0x58443344, 0x68532038,
+    0x72656461, 0x73734120, 0x6c626d65, 0x56207265,
+    0x69737265, 0x30206e6f, 0x0031392e, 0x00000001,
+    0x800f0003, 0xa0e40001, 0x0000fffd, 0x00000042,
+    0x800f0002, 0xb0e40002, 0x00000042, 0x800f0001,
+    0xb0e40001, 0x00000042, 0x800f0000, 0xb0e40000,
+    0x00000008, 0x801f0003, 0x84e40002, 0x84e40003,
+    0x00000008, 0x80070002, 0x84e40002, 0x94e40001,
+    0x40000003, 0x80080003, 0x80e40003, 0xa0ff0002,
+    0x00000005, 0x80170002, 0x80e40002, 0x80ff0000,
+    0x00000005, 0x81170003, 0x80ff0003, 0x80e40002,
+    0x00000005, 0x80070002, 0x80e40001, 0x80ff0000,
+    0x00000004, 0x82170003, 0x80e40003, 0xa0e40002,
+    0x90e40000, 0x00000005, 0x80070003, 0x80e40003,
+    0x80e40000, 0x40000001, 0x80080003, 0x80ff0000,
+    0x00000004, 0x80070000, 0x80e40002, 0xa0e40003,
+    0x80e40003, 0x0000ffff
+};
+
 /*
 // Assembled with `psa.exe -h0` from DirectX 8.1b SDK
 
@@ -440,6 +632,9 @@ constexpr DWORD magentaPixelShader[] = {
 extern DWORD windowVsHandle;
 extern DWORD windowPsHandle;
 extern DWORD vcolorVsHandle;
+
+extern DWORD hospitalDoorVsHandle;
+extern DWORD hospitalDoorPsHandle;
 
 extern DWORD magentaPsHandle;
 

@@ -491,3 +491,51 @@ struct Something
     DWORD off_0x30;
     SubSomething3* pSubStruct3;
 };
+
+struct struct_a1_sub
+{
+    UINT numVertices;
+    IDirect3DIndexBuffer8* indexBuffer;
+    UINT dword8;
+    UINT dwordC;
+};
+
+struct struct_a1
+{
+    unsigned __int8 byte0[4];
+    BYTE gap4[4];
+    DWORD dword8;
+    DWORD dwordC;
+    DWORD dword10;
+    DWORD dword14;
+    BYTE gap18[4];
+    DWORD dword1C;
+    DWORD dword20;
+    BYTE byte24;
+    BYTE byte25;
+    __declspec(align(4)) BYTE cullMode;
+    float tintA;
+    float float30;
+    float specularSize;
+    struct_a1_sub* subStruct;
+    BYTE gap3C[8];
+    float tintR;
+    float tintG;
+    float tintB;
+    BYTE gap50[4];
+    float float54;
+    float float58;
+    float float5C;
+    BYTE gap60[4];
+    float specularR;
+    float specularG;
+    float specularB;
+    BYTE gap70[8];
+    UINT primCount;
+};
+static_assert(sizeof(struct_a1) == 0x7C);
+
+struct struct_dword_1F7D4AC
+{
+    IDirect3DBaseTexture8* tex;
+};

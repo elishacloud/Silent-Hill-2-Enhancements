@@ -419,7 +419,7 @@
     <ClCompile Include="Include\winmm.cpp">
       <Filter>Include</Filter>
     </ClCompile>
-    <ClCompile Include="DisplayMode.cpp">
+    <ClCompile Include="Patches\DisplayMode.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
   </ItemGroup>

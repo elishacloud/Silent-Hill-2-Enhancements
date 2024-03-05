@@ -14,16 +14,28 @@
 *   3. This notice may not be removed or altered from any source distribution.
 */
 
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
 #include "Patches\Patches.h"
+
+/*
+	00465621 option high res name selected
+	00465065 option high res name unselected
+	00465262 option high res value unselected
+	00465947 option high res value selected, shared: drawtextoverlayhook
+	0046563e option high res description
+
+	00465ec1 change option value
+*/
 
 class DisplayMode
 {
 public:
 	DisplayMode()
 	{
-		options[0] = getDisplayModeOptionWindowedStr();
-		options[1] = getDisplayModeOptionFullscreenWindowedStr();
-		options[2] = getDisplayModeOptionFullscreenStr();
+		options[0] = "Windowed"; //getDisplayModeOptionWindowedStr();
+		options[1] = "Windowed Fullscreen"; //getDisplayModeOptionFullscreenWindowedStr();
+		options[2] = "Fullscreen"; //getDisplayModeOptionFullscreenStr();
 
 		CurrentOption = 0; //TODO last selected option
 	}

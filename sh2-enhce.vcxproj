@@ -164,7 +164,6 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     <ClCompile Include="Common\md5.cpp" />
     <ClCompile Include="Common\Settings.cpp" />
     <ClCompile Include="Common\Utils.cpp" />
-    <ClCompile Include="DisplayMode.cpp" />
     <ClCompile Include="External\d3d8to9\source\d3d8to9_base.cpp" />
     <ClCompile Include="External\d3d8to9\source\d3d8to9_device.cpp" />
     <ClCompile Include="External\d3d8to9\source\d3d8to9_index_buffer.cpp" />
@@ -197,6 +196,7 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     <ClCompile Include="Include\winmm.cpp" />
     <ClCompile Include="Patches\ChangeClosetSpawn.cpp" />
     <ClCompile Include="Patches\CommandWindowMouseFix.cpp" />
+    <ClCompile Include="Patches\DisplayMode.cpp" />
     <ClCompile Include="Patches\DoubleFootstepFix.cpp" />
     <ClCompile Include="Patches\FinalBossRoomFix.cpp" />
     <ClCompile Include="Patches\FireEscapeKey.cpp" />

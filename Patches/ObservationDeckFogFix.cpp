@@ -36,7 +36,7 @@ void *jmpClampFogParticleXPosReturnAddr = nullptr;
 void *jmpFadeFogParticleXPosReturnAddr = nullptr;
 void *jmpClearFogWorkReturnAddr = nullptr;
 
-// ASM function that returns the maximum X position of the fog area for the current room.
+// Returns the width of the fog area in the X direction.
 __declspec(naked) void __stdcall GetFogMaxPosXPointer()
 {
     __asm
@@ -53,7 +53,7 @@ __declspec(naked) void __stdcall GetFogMaxPosXPointer()
     }
 }
 
-// ASM function that spawns particles in the fog area with an optional extended [-X, X] limit.
+// Spawns particles in the fog area. Uses a larger [-X, X] limit if the current room is R_OBSV_DECK.
 __declspec(naked) void __stdcall SetFogParticlePosASM()
 {
     __asm
@@ -72,8 +72,8 @@ __declspec(naked) void __stdcall SetFogParticlePosASM()
     }
 }
 
-// ASM function that wraps particles around the boundary of the fog area with an optional extended
-// [-X, X] limit.
+// Wraps particles around the boundary of the fog area. Uses a larger [-X, X] limit if the current
+// room is R_OBSV_DECK.
 __declspec(naked) void __stdcall ClampFogParticleXPosASM()
 {
     __asm
@@ -119,8 +119,8 @@ __declspec(naked) void __stdcall ClampFogParticleXPosASM()
     }
 }
 
-// ASM function that fades particles at the boundary of the fog area with an optional extended
-// [-X, X] limit.
+// Fades particles at the boundary of the fog area. Uses a larger [-X, X] limit if the current
+// room is R_OBSV_DECK.
 __declspec(naked) void __stdcall FadeFogParticleXPosASM()
 {
     __asm
@@ -171,7 +171,7 @@ void ClearFogParticleArray()
     memset(FogParticleArray, 0, sizeof(FogParticleArray));
 }
 
-// ASM function to reset fog work data.
+// Resets all fog work data.
 __declspec(naked) void __stdcall ClearFogWorkASM()
 {
     __asm

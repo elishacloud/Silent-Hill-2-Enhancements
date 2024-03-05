@@ -238,7 +238,6 @@
 	visit(LockResolution) \
 	visit(NormalFontHeight) \
 	visit(NormalFontWidth) \
-	visit(ObservationDeckFogFix) \
 	visit(OldManCoinFix) \
 	visit(QuickSaveCancelFix) \
 	visit(ResX) \

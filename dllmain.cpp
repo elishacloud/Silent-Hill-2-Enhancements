@@ -651,6 +651,18 @@ void DelayedStart()
 	{
 		PatchDisplayMode();
 	}
+	
+	// Patch to prevent James from looking at the teddy bear after picking up the bent needle
+	if (TeddyBearLookFix)
+	{
+		PatchTeddyBearLookFix();
+	}
+
+	// Overhaul the Control Options menu
+	if (ReplaceButtonText != BUTTON_ICONS_DISABLED)
+	{
+		PatchControlOptionsMenu();
+	}
 
 	// Remove the "Now loading..." message
 	switch (GameVersion)

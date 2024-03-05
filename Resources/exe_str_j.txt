@@ -27,3 +27,4 @@ d3d8.ini�t�@�C����ݒ�
 Windows���ł̂݉���������
 �}�X�^�[����
 �}�X�^�[���ʒ���
+Enter: Activate/change input. Escape: Clear active input.

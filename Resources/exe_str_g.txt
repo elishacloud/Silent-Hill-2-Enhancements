@@ -27,3 +27,4 @@ Taste %d
 \hAudioeinst. in Windows vornehmen
 \hGesamtlautst�rke
 \hGesamtlautst�rke anpassen
+Enter: Activate/change input. Escape: Clear active input.

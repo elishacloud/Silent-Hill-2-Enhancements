@@ -1,5 +1,5 @@
 /**
-* Copyright (C) 2023 mercury501
+* Copyright (C) 2024 mercury501
 *
 * This software is  provided 'as-is', without any express  or implied  warranty. In no event will the
 * authors be held liable for any damages arising from the use of this software.
@@ -203,12 +203,8 @@ public:
 
 class KeyBindsHandler
 {
-private:
-	BYTE* KeyBindsAddr;
-
 public:
 	BYTE GetKeyBind(int KeyIndex);
-	BYTE* GetKeyBindsPointer();
 	BYTE GetPauseButtonBind();
 	BYTE GetToggleFlashlightButtonBind();
 };
@@ -388,27 +384,18 @@ private:
 public:
 	void UpdateCursorPos()
 	{
-		if (!AutoHideMouseCursor)
-			return;
-
 		CursorSavedXPos = GetMouseHorizontalPosition();
 		CursorSavedYPos = GetMouseVerticalPosition();
 	}
 
 	void RestoreCursorPos()
 	{
-		if (!AutoHideMouseCursor)
-			return;
-
 		*GetMouseHorizontalPositionPointer() = CursorSavedXPos;
 		*GetMouseVerticalPositionPointer() = CursorSavedYPos;
 	}
 
 	void MoveCursorToOrigin()
 	{
-		if (!AutoHideMouseCursor)
-			return;
-
 		*GetMouseHorizontalPositionPointer() = 0;
 		*GetMouseVerticalPositionPointer() = 0;
 	}

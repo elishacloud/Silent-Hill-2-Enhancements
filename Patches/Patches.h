@@ -448,6 +448,10 @@ BYTE GetWorldColorR();
 BYTE GetWorldColorG();
 BYTE GetWorldColorB();
 BYTE GetInventoryItem();
+int8_t GetControlOptionsSelectedOption();
+int32_t GetControlOptionsIsToStopScrolling();
+int8_t GetControlOptionsSelectedColumn();
+int8_t GetControlOptionsChanging();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -569,6 +573,11 @@ BYTE* WorldColorRPointer();
 BYTE* WorldColorGPointer();
 BYTE* WorldColorBPointer();
 BYTE* InventoryItemPointer();
+BYTE* GetKeyBindsPointer();
+int8_t* GetControlOptionsSelectedOptionPointer();
+int32_t* GetControlOptionsIsToStopScrollingPointer();
+int8_t* GetControlOptionsSelectedColumnPointer();
+int8_t* GetControlOptionsChangingPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -594,6 +603,7 @@ void PatchCDCheck();
 void PatchCatacombsMeatRoom();
 void PatchClosetSpawn();
 void PatchCommandWindowMouseFix();
+void PatchControlOptionsMenu();
 void PatchCreatureVehicleSpawn();
 void PatchCriware();
 HRESULT PatchCustomExeStr();
@@ -651,6 +661,7 @@ void PatchSixtyFPS();
 void PatchSpeakerConfigText();
 void PatchSpecificSoundLoopFix();
 void PatchSwapLightHeavyAttack();
+void PatchTeddyBearLookFix();
 void PatchTexAddr();
 void PatchTownWestGateEvent();
 void PatchTreeLighting();
@@ -669,6 +680,7 @@ int CountCollectedMemos();
 bool IsInFullScreenImageEvent();
 bool IsInMainOptionsMenu();
 bool IsInOptionsMenu();
+bool IsInControlOptionsMenu();
 
 void HandleMenuSounds();
 void SetNewVolume();

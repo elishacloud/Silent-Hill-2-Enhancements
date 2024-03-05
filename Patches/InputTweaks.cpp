@@ -1,5 +1,5 @@
 /**
-* Copyright (C) 2023 mercury501
+* Copyright (C) 2024 mercury501
 *
 * This software is  provided 'as-is', without any express  or implied  warranty. In no event will the
 * authors be held liable for any damages arising from the use of this software.
@@ -21,8 +21,6 @@
 
 InputTweaks InputTweaksRef;
 KeyBindsHandler KeyBinds;
-
-BYTE* KeyBindsAddr = nullptr;
 
 const int AnalogThreshold = 15;
 const int InputDebounce = 50;
@@ -194,10 +192,11 @@ void UpdateMousePosition_Hook()
 	{
 		EnteredPuzzle = false;
 
-		if (AutoHideMouseCursor)
+		if (AutoHideMouseCursor || ReplaceButtonText != BUTTON_ICONS_DISABLED)
 		{
 			// Auto hide mouse cursor, move to top left and remember its position
-			if ((GetEventIndex() == EVENT_IN_GAME && !IsInFullScreenImageEvent()) && GetMenuEvent() != MENU_MAIN_MENU) // During normal gameplay
+			if ((AutoHideMouseCursor && (GetEventIndex() == EVENT_IN_GAME && !IsInFullScreenImageEvent()) && GetMenuEvent() != MENU_MAIN_MENU) || 
+				(ReplaceButtonText != BUTTON_ICONS_DISABLED && IsInControlOptionsMenu())) // During normal gameplay, or the options menu
 			{
 				CursorPosHandler.MoveCursorToOrigin();
 				HideMouseCursor = true;
@@ -222,7 +221,7 @@ void UpdateMousePosition_Hook()
 				LastCursorMovement = Now;
 				HideMouseCursor = false;
 			} // If too much time has passed, hide the cursor
-			else if ((std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastCursorMovement).count() > AutoHideCursorMs))
+			else if (AutoHideMouseCursor && (std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastCursorMovement).count() > AutoHideCursorMs))
 			{
 				CursorPosHandler.MoveCursorToOrigin();
 
@@ -334,7 +333,10 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 
 	// Check number keybinds after exiting the Options screen
 	if (GetEventIndex() == EVENT_OPTIONS_FMV)
+	{
 		CheckKeyBindsFlag = true;
+	}
+
 	if (GetEventIndex() != EVENT_OPTIONS_FMV && CheckKeyBindsFlag)
 	{
 		CheckKeyBindsFlag = false;
@@ -864,7 +866,7 @@ void InputTweaks::CheckNumberKeyBinds()
 {
 	// Fix for binding actions to the number keys
 	BYTE* NumberKeyBinds = GetNumKeysWeaponBindStartPointer();
-	BYTE* ActionKeyBinds = KeyBinds.GetKeyBindsPointer();
+	BYTE* ActionKeyBinds = GetKeyBindsPointer();
 	boolean FoundNumber = false;
 
 	// Iterate over Number Keybinds
@@ -1050,37 +1052,14 @@ BYTE KeyBindsHandler::GetKeyBind(int KeyIndex)
 	return (pButton) ? *(pButton + (KeyIndex * 0x08)) : 0;
 }
 
-BYTE* KeyBindsHandler::GetKeyBindsPointer()
-{
-	if (KeyBindsAddr)
-	{
-		return KeyBindsAddr;
-	}
-
-	// Get Turn Left Button address
-	constexpr BYTE TurnLeftButtonSearchBytes[]{ 0x56, 0x8B, 0x74, 0x24, 0x08, 0x83, 0xFE, 0x16, 0x7D, 0x3F };
-	BYTE* Binds = (BYTE*)ReadSearchedAddresses(0x005AEF90, 0x005AF8C0, 0x005AF1E0, TurnLeftButtonSearchBytes, sizeof(TurnLeftButtonSearchBytes), 0x1D, __FUNCTION__);
-
-	// Checking address pointer
-	if (!Binds)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find KeyBinds address!";
-		return nullptr;
-	}
-
-	KeyBindsAddr = (BYTE*)((DWORD)Binds);
-
-	return KeyBindsAddr;
-}
-
 BYTE KeyBindsHandler::GetPauseButtonBind()
 {
-	return *(this->GetKeyBindsPointer() + 0xF0);
+	return *(GetKeyBindsPointer() + 0xF0);
 }
 
 BYTE KeyBindsHandler::GetToggleFlashlightButtonBind()
 {
-	return *(this->GetKeyBindsPointer() + 0x110);
+	return *(GetKeyBindsPointer() + 0x110);
 }
 
 int CountCollectedMemos()

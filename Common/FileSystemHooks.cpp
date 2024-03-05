@@ -71,6 +71,8 @@ LPCWSTR GetModPath(LPCWSTR) { return ModPathW; }
 LPCSTR GetLangPath(LPCSTR) { return LangPathA; }
 LPCWSTR GetLangPath(LPCWSTR) { return LangPathW; }
 
+inline LPCSTR DataPath(LPCSTR) { return "data"; }
+inline LPCWSTR DataPath(LPCWSTR) { return L"data"; }
 inline LPCSTR ModPath(LPCSTR) { return ModPathA; }
 inline LPCWSTR ModPath(LPCWSTR) { return ModPathW; }
 inline LPCSTR ModPicPath(LPCSTR) { return ModPicPathA; }
@@ -81,6 +83,8 @@ inline LPCSTR GetEnding1(LPCSTR) { return "\\movie\\end.bik"; }
 inline LPCWSTR GetEnding1(LPCWSTR) { return L"\\movie\\end.bik"; }
 inline LPCSTR GetEnding2(LPCSTR) { return "\\movie\\ending.bik"; }
 inline LPCWSTR GetEnding2(LPCWSTR) { return L"\\movie\\ending.bik"; }
+inline LPCSTR LowHealthFade(LPCSTR) { return "LowHealthFade.png"; }
+inline LPCWSTR LowHealthFade(LPCWSTR) { return L"LowHealthFade.png"; }
 inline LPCSTR Start00Path(LPCSTR) { return "00.tex"; }
 inline LPCWSTR Start00Path(LPCWSTR) { return L"00.tex"; }
 
@@ -173,6 +177,39 @@ inline bool isStart01Tex(T sh2)
 		sh2[12] != '\0' && (sh2[12] == 't' || sh2[12] == 'T') &&
 		sh2[13] != '\0' && sh2[13] == '0' &&
 		sh2[14] != '\0' && sh2[14] == '1')
+	{
+		return true;
+	}
+	return false;
+}
+
+template<typename T>
+inline bool isRedCrossTex(T sh2)
+{
+	if (sh2[0] != '\0' && (sh2[0] == 'p' || sh2[0] == 'P') &&
+		sh2[1] != '\0' && (sh2[1] == 'i' || sh2[1] == 'I') &&
+		sh2[2] != '\0' && (sh2[2] == 'c' || sh2[2] == 'C') &&
+		sh2[3] != '\0' &&
+		sh2[4] != '\0' && (sh2[4] == 'e' || sh2[4] == 'E') &&
+		sh2[5] != '\0' && (sh2[5] == 't' || sh2[5] == 'T') &&
+		sh2[6] != '\0' && (sh2[6] == 'c' || sh2[6] == 'C') &&
+		sh2[7] != '\0' &&
+		sh2[8] != '\0' && (sh2[8] == 'r' || sh2[8] == 'R') &&
+		sh2[9] != '\0' && (sh2[9] == 'e' || sh2[9] == 'E') &&
+		sh2[10] != '\0' && (sh2[10] == 'd' || sh2[10] == 'D') &&
+		sh2[11] != '\0' && (sh2[11] == 'c' || sh2[11] == 'C') &&
+		sh2[12] != '\0' && (sh2[12] == 'r' || sh2[12] == 'R') &&
+		sh2[13] != '\0' && (sh2[13] == 'o' || sh2[13] == 'O') &&
+		sh2[14] != '\0' && (sh2[14] == 's' || sh2[14] == 'S') &&
+		sh2[15] != '\0' && (sh2[15] == 's' || sh2[15] == 'S') &&
+		sh2[16] != '\0' && (sh2[16] == 'i' || sh2[16] == 'I') &&
+		sh2[17] != '\0' && (sh2[17] == 'c' || sh2[17] == 'C') &&
+		sh2[18] != '\0' && (sh2[18] == 'o' || sh2[18] == 'O') &&
+		sh2[19] != '\0' && (sh2[19] == 'n' || sh2[19] == 'N') &&
+		sh2[20] != '\0' &&
+		sh2[21] != '\0' && (sh2[21] == 'p' || sh2[21] == 'P') &&
+		sh2[22] != '\0' && (sh2[22] == 'n' || sh2[22] == 'N') &&
+		sh2[23] != '\0' && (sh2[23] == 'g' || sh2[23] == 'G'))
 	{
 		return true;
 	}
@@ -318,6 +355,25 @@ inline T* UpdateModPath(T* sh2, D* str)
 			}
 		}
 
+		// Handle alternate low health indicator
+		if (LowHealthIndicatorStyle == 2 && (StrSize > padding + PathLen + 1) && isRedCrossTex(str + padding + PathLen + 1))
+		{
+			T strtmp[MAX_PATH] = {};
+			for (auto NewModPath : { LangPath(sh2), ModPath(sh2), DataPath(sh2) })
+			{
+				size_t NewPathLen = strlen(NewModPath);
+				strcpy_s(strtmp, MAX_PATH, NewModPath);
+				strcat_s(strtmp, MAX_PATH, str + padding + PathLen);
+				strcpy_s(strtmp + padding + NewPathLen + 9, MAX_PATH - padding - NewPathLen - 9, LowHealthFade(str));
+				if (PathFileExists(strtmp))
+				{
+					strcpy_s(str, MAX_PATH, strtmp);
+					LOG_ONCE("Using file: " << str);
+					return str;
+				}
+			}
+		}
+
 		// Handle PS2 low texture mod
 		if (UsePS2LowResTextures)
 		{
@@ -336,14 +392,14 @@ inline T* UpdateModPath(T* sh2, D* str)
 			// Before using custom start01 make sure that start00 exists in 'lang' or 'sh2e' folders
 			if ((StrSize > padding + PathLen + 1) && isStart01Tex(str + padding + PathLen + 1))
 			{
-				T str00[MAX_PATH] = {};
+				T strtmp[MAX_PATH] = {};
 				for (auto NewModPath : { LangPath(sh2), ModPath(sh2) })
 				{
 					size_t NewPathLen = strlen(NewModPath);
-					strcpy_s(str00, MAX_PATH, NewModPath);
-					strcat_s(str00, MAX_PATH, str + padding + PathLen);
-					strcpy_s(str00 + padding + NewPathLen + 14, MAX_PATH - padding - NewPathLen - 14, Start00Path(str));
-					if (PathFileExists(str00))
+					strcpy_s(strtmp, MAX_PATH, NewModPath);
+					strcat_s(strtmp, MAX_PATH, str + padding + PathLen);
+					strcpy_s(strtmp + padding + NewPathLen + 14, MAX_PATH - padding - NewPathLen - 14, Start00Path(str));
+					if (PathFileExists(strtmp))
 					{
 						LOG_ONCE("Using file: " << str);
 						return str;

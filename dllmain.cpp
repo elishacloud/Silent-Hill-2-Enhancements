@@ -658,6 +658,12 @@ void DelayedStart()
 		PatchOldManCoinFix();
  	}
 
+	// Set Low Health Indicator Style
+	if (LowHealthIndicatorStyle == 2)
+	{
+		PatchLowHealthIndicator();
+	}
+
 	// Remove the "Now loading..." message
 	switch (GameVersion)
 	{

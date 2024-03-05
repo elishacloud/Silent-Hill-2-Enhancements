@@ -621,6 +621,7 @@ void PatchHoldToStomp();
 void PatchInputTweaks();
 void PatchInventoryBGMBug();
 void PatchLockScreenPosition();
+void PatchLowHealthIndicator();
 void PatchMainMenu();
 void PatchMainMenuTitlePerLang();
 void PatchMapTranscription();

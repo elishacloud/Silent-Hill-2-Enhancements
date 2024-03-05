@@ -157,6 +157,7 @@
 	visit(FullscreenVideos, 3) \
 	visit(IncreaseNoiseEffectRes, 768) \
 	visit(LetterSpacing, 2) \
+	visit(LowHealthIndicatorStyle, 2) \
 	visit(NormalFontHeight, 30) \
 	visit(NormalFontWidth, 20) \
 	visit(PadNumber, 0) \

@@ -91,7 +91,7 @@ uint8_t* AdvancedOptionsSelectionIndex;
 
 void __cdecl DrawArrowRightAdvancedOptions_Hook(int32_t param1, int32_t param2)
 {
-    if (AdvancedOptionsSelectionIndex && *AdvancedOptionsSelectionIndex != 0x03) // old high res option
+    if (*AdvancedOptionsSelectionIndex != 0x03) // old high res option
     {
         orgDrawArrowRightAdvancedOptions.fun(param1, param2);
         return;

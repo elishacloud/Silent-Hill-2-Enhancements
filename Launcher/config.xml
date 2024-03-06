@@ -1019,7 +1019,16 @@
           <Value name="Enable">1</Value>
         </Choices>
       </Feature>
-
+      
+      <Feature name="LowHealthIndicatorStyle">
+        <Title>Low health indicator style</Title>
+        <Description>Displays a visual indicator during normal gameplay when low on health.&#x0a;&#x0a;Red Cross: Displays a flashing red cross on the bottom right of the screen.&#x0a;Lower Vignette: Displays a flashing red vignette on the lower half of the screen. The lower your health, the brighter the vignette will become.&#x0a;&#x0a;Note: LowHealthFade.png must be present in "sh2e\pic\etc\" for the Lower Vignette visual to display.</Description>
+        <Choices type="list">
+          <Value name="Red Cross">1</Value>
+          <Value name="Lower Vignette" default="true">2</Value>
+        </Choices>
+      </Feature>
+      
     </Section>
 
     <Section name="Environment">

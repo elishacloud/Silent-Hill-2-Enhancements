@@ -197,7 +197,6 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     <ClCompile Include="Include\winmm.cpp" />
     <ClCompile Include="Patches\ChangeClosetSpawn.cpp" />
     <ClCompile Include="Patches\CommandWindowMouseFix.cpp" />
-    <ClCompile Include="Patches\DisplayMode.cpp" />
     <ClCompile Include="Patches\DoubleFootstepFix.cpp" />
     <ClCompile Include="Patches\FinalBossRoomFix.cpp" />
     <ClCompile Include="Patches\FireEscapeKey.cpp" />

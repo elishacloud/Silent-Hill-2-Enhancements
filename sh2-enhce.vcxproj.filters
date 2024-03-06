@@ -419,9 +419,6 @@
     <ClCompile Include="Include\winmm.cpp">
       <Filter>Include</Filter>
     </ClCompile>
-    <ClCompile Include="Patches\DisplayMode.cpp">
-      <Filter>Patches</Filter>
-    </ClCompile>
     <ClCompile Include="Patches\TeddyBearLookFix.cpp">
       <Filter>Patches</Filter>
     </ClCompile>

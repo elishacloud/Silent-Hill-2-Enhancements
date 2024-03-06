@@ -1051,15 +1051,15 @@ char* getDisplayModeOptionValueStr()
 {
 	switch (ScreenMode)
 	{
-	case 1: // windowed
+	case WINDOWED:
 		return getDisplayModeOptionWindowedStr();
 
-	case 2: // windowed fullscreen
+	case WINDOWED_FULLSCREEN:
 		return getDisplayModeOptionFullscreenWindowedStr();
 
 	default:
 		Logging::Log() << __FUNCTION__ << " ERROR: invalid screen mode.";
-	case 3: // fullscreen
+	case EXCLUSIVE_FULLSCREEN:
 		return getDisplayModeOptionFullscreenStr();
 	}
 }

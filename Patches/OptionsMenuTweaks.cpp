@@ -48,7 +48,7 @@ static int SavedMasterVolumeLevel = 0;
 static int CurrentMasterVolumeLevel = 0;
 
 injector::hook_back<void(__cdecl*)(DWORD*)> orgDrawOptions;
-injector::hook_back<void(__cdecl*)(int32_t, int32_t)> orgDrawArrowRight;
+injector::hook_back<void(__cdecl*)(int32_t, int32_t)> orgDrawArrowRightMasterVolume;
 injector::hook_back<void(__cdecl*)(int32_t)> orgConfirmOptionsFun;
 injector::hook_back<int32_t(__cdecl*)(int32_t, float, DWORD)> orgPlaySound;
 
@@ -85,6 +85,39 @@ DWORD ModulationPixelShaderAsm[] = {
     0xa0e40000, 0x0000ffff
 };
 
+// Display mode
+injector::hook_back<void(__cdecl*)(int32_t, int32_t)> orgDrawArrowRightAdvancedOptions;
+uint8_t* AdvancedOptionsSelectionIndex;
+
+void __cdecl DrawArrowRightAdvancedOptions_Hook(int32_t param1, int32_t param2)
+{
+    if (AdvancedOptionsSelectionIndex && *AdvancedOptionsSelectionIndex != 0x03) // old high res option
+    {
+        orgDrawArrowRightAdvancedOptions.fun(param1, param2);
+        return;
+    }
+
+    int32_t offset = 0x00;
+
+    switch (ScreenMode) //TODO dial in offsets
+    {
+    case WINDOWED:
+        offset = 0xC5;
+        break;
+        
+    case WINDOWED_FULLSCREEN:
+        offset = 0xC5;
+        break;
+
+    default:
+    case EXCLUSIVE_FULLSCREEN:
+        offset = 0xC5;
+        break;
+    }
+    
+    orgDrawArrowRightAdvancedOptions.fun(offset, param2);
+}
+
 int32_t PlaySound_Hook(int32_t SoundId, float volume, DWORD param3)
 {
     if (GetSelectedOption() == 0x07)
@@ -96,9 +129,9 @@ int32_t PlaySound_Hook(int32_t SoundId, float volume, DWORD param3)
 }
 
 #pragma warning(disable : 4100)
-void __cdecl DrawArrowRight_Hook(int32_t param1, int32_t param2)
+void __cdecl DrawArrowRightMasterVolume_Hook(int32_t param1, int32_t param2)
 {
-    orgDrawArrowRight.fun(0xC5, param2);
+    orgDrawArrowRightMasterVolume.fun(0xC5, param2);
 }
 
 void __cdecl DrawOptions_Hook(DWORD* pointer)
@@ -237,7 +270,7 @@ void PatchMasterVolumeSlider()
     EnableDrawOptionsHook();
 
     // Hook right arrow drawing to move it to the right 
-    orgDrawArrowRight.fun = injector::MakeCALL(RenderRightArrowAddr, DrawArrowRight_Hook, true).get();
+    orgDrawArrowRightMasterVolume.fun = injector::MakeCALL(RenderRightArrowAddr, DrawArrowRightMasterVolume_Hook, true).get();
 
     // Skip drawing the old option text 
     UpdateMemoryAddress((void*)GetSpkOptionTextOnePointer(), "\x90\x90\x90\x90\x90", 5);
@@ -921,4 +954,30 @@ void ButtonIcons::UpdateBinds()
     }
 
     ButtonIconsRef.UpdateUVs();
+}
+
+// Display mode
+
+void PatchDisplayMode()
+{
+    HookDrawTextOverlay();
+
+    BYTE* RenderRightArrowAddr = (BYTE*)0x00465bf4; //TODO address
+
+    auto pattern = hook::pattern("66 A1 ? ? ? ? 8B 0D ? ? ? ? 80 3D");
+    if (pattern.size() != 1)
+    {
+        Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+        return;
+    }
+
+    AdvancedOptionsSelectionIndex = (uint8_t*)*pattern.count(1).get(0).get<uint32_t*>(2);
+
+    // Hook right arrow drawing to move it to the right 
+    orgDrawArrowRightAdvancedOptions.fun = injector::MakeCALL(RenderRightArrowAddr, DrawArrowRightAdvancedOptions_Hook, true).get();
+}
+
+void HandleDisplayMode()
+{
+
 }

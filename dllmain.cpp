@@ -649,6 +649,7 @@ void DelayedStart()
 	// Adds display mode option
 	if (true) //TODO setting
 	{
+		PatchDisplayModeText();
 		PatchDisplayMode();
 	}
 	

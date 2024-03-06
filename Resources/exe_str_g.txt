@@ -28,3 +28,8 @@ Taste %d
 \hGesamtlautst�rke
 \hGesamtlautst�rke anpassen
 Enter: Activate/change input. Escape: Clear active input.
+\hDisplay Mode
+\hChange the display mode
+\hWindowed
+\hFullscreen Windowed
+\hFullscreen

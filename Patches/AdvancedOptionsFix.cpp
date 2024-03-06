@@ -19,11 +19,14 @@
 #include "Common\Utils.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
-#include "External/Hooking.Patterns/Hooking.Patterns.h"
-#include "External/injector/include/injector/injector.hpp"
+#include "External\Hooking.Patterns\Hooking.Patterns.h"
+#include "External\injector\include\injector\injector.hpp"
+#include "Patches\Patches.h"
 
 static uint32_t* ptrConfirmationPromptState;
 static uint32_t* ptrSelectionIndex;
+
+bool HookedDrawTextOverlay = false;
 
 bool isConfirmationPromptOpen()
 {
@@ -49,31 +52,29 @@ __int16 __declspec(naked) DrawTextOverlay_hook()
 	if (iSelectionIndex() > 2 && iSelectionIndex() < 7) // if index is 3, 4, 5 or 6
 	{
 		// Don't render the 3D effect if the confirmation prompt is open
-		if (isConfirmationPromptOpen())
+		if (isConfirmationPromptOpen() && FixAdvancedOptions)
 		{
 			__asm {ret}
+		}
+
+		if (iSelectionIndex() == 0x03) // high res textures //TODO setting
+		{
+			__asm {jmp printDisplayModeValueStr}
 		}
 	}
 
 	__asm {jmp DrawTextOverlay_orig}
 }
 
-void PatchAdvancedOptions()
+void HookDrawTextOverlay()
 {
-	Logging::Log() << "Enabling Advanced Options fix...";
-
-	// Get pointer to the state of the confirmation prompt (0 or 1)
-	auto pattern = hook::pattern("A0 ? ? ? ? 84 C0 0F 85 ? ? ? ? E8 ? ? ? ? 8B 0D ? ? ? ? 68");
-	if (pattern.size() != 1)
+	if (HookedDrawTextOverlay)
 	{
-		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
 		return;
 	}
 
-	ptrConfirmationPromptState = *pattern.count(1).get(0).get<uint32_t*>(1);
-
 	// Get pointer to the selection index (0 to 9)
-	pattern = hook::pattern("66 A1 ? ? ? ? 8B 0D ? ? ? ? 80 3D");
+	auto pattern = hook::pattern("66 A1 ? ? ? ? 8B 0D ? ? ? ? 80 3D");
 	if (pattern.size() != 1)
 	{
 		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
@@ -101,6 +102,25 @@ void PatchAdvancedOptions()
 	}
 
 	injector::MakeCALL(pattern.count(1).get_first(0), DrawTextOverlay_hook, true);
+
+	HookedDrawTextOverlay = true;
+}
+
+void PatchAdvancedOptions()
+{
+	Logging::Log() << "Enabling Advanced Options fix...";
+
+	// Get pointer to the state of the confirmation prompt (0 or 1)
+	auto pattern = hook::pattern("A0 ? ? ? ? 84 C0 0F 85 ? ? ? ? E8 ? ? ? ? 8B 0D ? ? ? ? 68");
+	if (pattern.size() != 1)
+	{
+		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+		return;
+	}
+
+	ptrConfirmationPromptState = *pattern.count(1).get(0).get<uint32_t*>(1);
+
+	HookDrawTextOverlay();
 
 	// "Noise Effect"
 	pattern = hook::pattern("0F 85 ? ? ? ? E8 ? ? ? ? A1 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 6A");

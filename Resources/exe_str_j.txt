@@ -28,3 +28,8 @@ Windows���ł̂݉���������
 �}�X�^�[����
 �}�X�^�[���ʒ���
 Enter: Activate/change input. Escape: Clear active input.
+\hDisplay Mode
+\hChange the display mode
+\hWindowed
+\hFullscreen Windowed
+\hFullscreen

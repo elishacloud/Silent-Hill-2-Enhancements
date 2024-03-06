@@ -613,6 +613,7 @@ void PatchCustomSFXs();
 void PatchControllerTweaks();
 void PatchDelayedFadeIn();
 void PatchDisplayMode();
+void PatchDisplayModeText();
 void PatchDoubleFootstepFix();
 void PatchDrawDistance();
 void PatchFinalBossRoom();
@@ -686,10 +687,9 @@ void HandleMenuSounds();
 void SetNewVolume();
 
 void HandleDisplayMode();
-char* getDisplayModeOptionFullscreenStr();
-char* getDisplayModeOptionFullscreenWindowedStr();
-char* getDisplayModeOptionWindowedStr();
-char* GetCurrentDisplayOptionStr();
+void HookDrawTextOverlay();
+char* getDisplayModeOptionValueStr();
+int printDisplayModeValueStr(unsigned short, unsigned char, int x, int y);
 
 void OnFileLoadTex(LPCSTR lpFileName);
 void OnFileLoadVid(LPCSTR lpFileName);

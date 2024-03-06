@@ -28,3 +28,8 @@ Bot�n %d
 \hVolumen general
 \hAjustar el volumen general
 Enter: Activate/change input. Escape: Clear active input.
+\hDisplay Mode
+\hChange the display mode
+\hWindowed
+\hFullscreen Windowed
+\hFullscreen

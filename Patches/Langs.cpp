@@ -1047,6 +1047,23 @@ char* getDisplayModeOptionFullscreenStr()
 	return exeStrPtr[STR_PER_LANG * (int)*gLangID + 34];
 }
 
+char* getDisplayModeOptionValueStr()
+{
+	switch (ScreenMode)
+	{
+	case 1: // windowed
+		return getDisplayModeOptionWindowedStr();
+
+	case 2: // windowed fullscreen
+		return getDisplayModeOptionFullscreenWindowedStr();
+
+	default:
+		Logging::Log() << __FUNCTION__ << " ERROR: invalid screen mode.";
+	case 3: // fullscreen
+		return getDisplayModeOptionFullscreenStr();
+	}
+}
+
 constexpr BYTE TownWestGateEventSearchBytes[] = { 0x00, 0x00, 0x00, 0x90, 0x00, 0xC0, 0x3F, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x60, 0x6E, 0x20 };
 constexpr BYTE TownWestGateEventUpdateVal[] = { 0x00, 0x00, 0x00, 0x60, 0x00, 0x80, 0x13, 0x00 };
 

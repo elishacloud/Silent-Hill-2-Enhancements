@@ -28,3 +28,8 @@ Button %d
 \hMaster Volume
 \hAdjust Master Volume
 Enter: Activate/change input. Escape: Clear active input.
+\hDisplay Mode
+\hChange the display mode
+\hWindowed
+\hFullscreen Windowed
+\hFullscreen

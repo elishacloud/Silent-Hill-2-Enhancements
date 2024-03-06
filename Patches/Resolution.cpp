@@ -897,9 +897,9 @@ int printDisplayModeNameStr(unsigned short, unsigned char, int x, int y)
 	return printTextPos(ptr, x, y);
 }
 
-int printDisplayModeValue(unsigned short, unsigned char, int x, int y)
+int printDisplayModeValueStr(unsigned short, unsigned char, int x, int y)
 {
-	char* ptr = (char*)prepText(GetCurrentDisplayOptionStr());
+	char* ptr = (char*)prepText(getDisplayModeOptionValueStr());
 	return printTextPos(ptr, x, y);
 }
 
@@ -1014,9 +1014,27 @@ void PatchSpeakerConfigText()
 		WriteCalltoMemory(((BYTE*)DSpkrAddrName), *printMasterVolumeNameStr, 5);
 		WriteCalltoMemory(((BYTE*)DSpkrAddrHighlight), *printMasterVolumeNameStr, 5);
 		WriteCalltoMemory(((BYTE*)DSpkAddrB + 0x125), *printMasterVolumeDescStr, 5);
-		WriteCalltoMemory(((BYTE*)0x00465621), *printDisplayModeNameStr, 5); //TODO address
-		WriteCalltoMemory(((BYTE*)0x00465065), *printDisplayModeNameStr, 5); //TODO address
-		WriteCalltoMemory(((BYTE*)0x0046563e), *printDisplayModeDescStr, 5); //TODO address
 	}
 }
 
+void PatchDisplayModeText()
+{
+	if (GameVersion != SH2V_10 && GameVersion != SH2V_11 && GameVersion != SH2V_DC)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: unknown game version!";
+		return;
+	}
+
+	BYTE* highResName = ((BYTE*)0x00465621); //TODO address
+	BYTE* highResNameHighlight = ((BYTE*)0x00465065); //TODO address
+	BYTE* highResDesc = ((BYTE*)0x0046563e); //TODO address
+	BYTE* highResValue = (BYTE*)0x00465262; //TODO address
+
+	if (UseCustomExeStr)
+	{
+		WriteCalltoMemory(highResName, *printDisplayModeNameStr, 5); 
+		WriteCalltoMemory(highResNameHighlight, *printDisplayModeNameStr, 5); 
+		WriteCalltoMemory(highResDesc, *printDisplayModeDescStr, 5); 
+		WriteCalltoMemory(highResValue, *printDisplayModeValueStr, 5);
+	}
+}

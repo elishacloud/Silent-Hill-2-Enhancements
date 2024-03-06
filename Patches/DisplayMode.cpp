@@ -28,62 +28,9 @@
 	00465ec1 change option value
 */
 
-class DisplayMode
-{
-public:
-	DisplayMode()
-	{
-		options[0] = "Windowed"; //getDisplayModeOptionWindowedStr();
-		options[1] = "Windowed Fullscreen"; //getDisplayModeOptionFullscreenWindowedStr();
-		options[2] = "Fullscreen"; //getDisplayModeOptionFullscreenStr();
-
-		CurrentOption = 0; //TODO last selected option
-	}
-
-	void IncrementOption()
-	{
-		if (CurrentOption == 2)
-		{
-			CurrentOption = 0;
-		} 
-		else
-		{
-			CurrentOption += 1;
-		}
-	}
-
-	void DecrementOption()
-	{
-		if (CurrentOption == 0)
-		{
-			CurrentOption = 2;
-		}
-		else
-		{
-			CurrentOption -= 1;
-		}
-	}
-
-	char* GetCurrentOptionStr()
-	{
-		return options[CurrentOption];
-	}
-private:
-	char* options[3];
-	int CurrentOption;
-
-};
-
-DisplayMode display_mode;
-
-char* GetCurrentDisplayOptionStr()
-{
-	return display_mode.GetCurrentOptionStr();
-}
-
 void PatchDisplayMode()
 {
-
+	HookDrawTextOverlay();
 }
 
 void HandleDisplayMode()

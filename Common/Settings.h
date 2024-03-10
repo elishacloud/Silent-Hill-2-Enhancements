@@ -98,6 +98,7 @@
 	visit(MenuSoundsFix, true) \
 	visit(MothDrawOrderFix, true) \
 	visit(NoCDPatch, true) \
+	visit(ObservationDeckFogFix, true) \
 	visit(OldManCoinFix, true) \
 	visit(PauseScreenFix, true) \
 	visit(PistonRoomFix, true) \

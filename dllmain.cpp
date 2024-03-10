@@ -658,6 +658,12 @@ void DelayedStart()
 		PatchOldManCoinFix();
  	}
 
+	// Fix fog scale to fill the background of the Observation Deck
+	if (ObservationDeckFogFix)
+	{
+		PatchObservationDeckFogFix();
+ 	}
+
 	// Set Low Health Indicator Style
 	if (LowHealthIndicatorStyle == 2)
 	{

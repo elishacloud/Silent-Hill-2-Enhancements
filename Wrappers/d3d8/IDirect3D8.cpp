@@ -449,11 +449,6 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	static bool FirstRun = true;
 
 	// Set window active and focus
-	if (FirstRun)
-	{
-		ShowWindow(MainhWnd, SW_MINIMIZE);
-		ShowWindow(MainhWnd, SW_RESTORE);
-	}
 	SetWindowPos(MainhWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 	if (!ForceTopMost)
 	{

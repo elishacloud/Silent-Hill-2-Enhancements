@@ -945,6 +945,38 @@ void __cdecl DrawArrowRightAdvancedOptions_Hook(int32_t param1, int32_t param2)
         return;
     }
 
+    char* CurrentStr = getDisplayModeOptionValueStr();
+
+    if (strcmp(CurrentStr, LastDisplayModeValue) != 0)
+    {
+        LastDisplayModeValue = CurrentStr;
+
+        size_t length = strnlen_s(CurrentStr, 0x100);
+
+        char* temp = (char*)malloc(length + 0x10);
+
+        temp[0] = '\x00';
+        temp[1] = '\x80';
+
+        for (int i = 2; i < length; i++)
+        {
+            if (CurrentStr[i] == ' ')
+            {
+                temp[i] = '_';
+            }
+            else
+            {
+                temp[i] = CurrentStr[i] - 0x20;
+            }
+        }
+
+        temp[length] = '\xFF';
+        temp[length + 1] = '\xFF';
+
+        orgCalculateRightArrowOffset.fun(&DisplayModeRightArrowOffset, temp);
+        DisplayModeRightArrowOffset += 0x1E;
+    }
+
     orgDrawArrowRightAdvancedOptions.fun(DisplayModeRightArrowOffset, param2);
 }
 
@@ -970,37 +1002,5 @@ void PatchDisplayMode()
 
 void HandleDisplayMode()
 {
-    char* CurrentStr = getDisplayModeOptionValueStr();
-
-    if (strcmp(CurrentStr, LastDisplayModeValue) != 0)
-    {
-        LastDisplayModeValue = CurrentStr;
-
-        size_t length = strnlen_s(CurrentStr, 0x100);
-
-        char* temp = (char*)malloc(length + 0x10);
-        
-        temp[0] = '\x00';
-        temp[1] = '\x80';
-        
-        for (int i = 2; i < length; i++)
-        {
-            if (CurrentStr[i] == ' ')
-            {
-                temp[i] = '_';
-            } 
-            else
-            {
-                temp[i] = CurrentStr[i] - 0x20;
-            }
-        }
-
-        temp[length + 1] = '\xFF';
-        temp[length + 2] = '\xFF';
-        temp[length + 3] = '\x00';
-        temp[length + 4] = '\x80';
-
-        orgCalculateRightArrowOffset.fun(&DisplayModeRightArrowOffset, temp);
-        DisplayModeRightArrowOffset += 0x1E;
-    }
+   
 }

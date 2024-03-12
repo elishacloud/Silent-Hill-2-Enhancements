@@ -87,36 +87,10 @@ DWORD ModulationPixelShaderAsm[] = {
 
 // Display mode
 injector::hook_back<void(__cdecl*)(int32_t, int32_t)> orgDrawArrowRightAdvancedOptions;
+injector::hook_back<uint16_t(__cdecl*)(int32_t*, char*)> orgCalculateRightArrowOffset;
 uint8_t* AdvancedOptionsSelectionIndex;
-
-void __cdecl DrawArrowRightAdvancedOptions_Hook(int32_t param1, int32_t param2)
-{
-    if (*AdvancedOptionsSelectionIndex != 0x03) // old high res option
-    {
-        orgDrawArrowRightAdvancedOptions.fun(param1, param2);
-        return;
-    }
-
-    int32_t offset = 0x00;
-
-    switch (ScreenMode) //TODO dial in offsets
-    {
-    case WINDOWED:
-        offset = 0xC5;
-        break;
-        
-    case WINDOWED_FULLSCREEN:
-        offset = 0xC5;
-        break;
-
-    default:
-    case EXCLUSIVE_FULLSCREEN:
-        offset = 0xC5;
-        break;
-    }
-    
-    orgDrawArrowRightAdvancedOptions.fun(offset, param2);
-}
+int32_t DisplayModeRightArrowOffset = 0x00;
+char* LastDisplayModeValue = "";
 
 int32_t PlaySound_Hook(int32_t SoundId, float volume, DWORD param3)
 {
@@ -958,11 +932,28 @@ void ButtonIcons::UpdateBinds()
 
 // Display mode
 
+uint16_t __cdecl CalculateRightArrowOffset_Hook(int32_t* offset, char* str)
+{
+    return orgCalculateRightArrowOffset.fun(offset, str);
+}
+
+void __cdecl DrawArrowRightAdvancedOptions_Hook(int32_t param1, int32_t param2)
+{
+    if (*AdvancedOptionsSelectionIndex != 0x03) // old high res option
+    {
+        orgDrawArrowRightAdvancedOptions.fun(param1, param2);
+        return;
+    }
+
+    orgDrawArrowRightAdvancedOptions.fun(DisplayModeRightArrowOffset, param2);
+}
+
 void PatchDisplayMode()
 {
     HookDrawTextOverlay();
 
     BYTE* RenderRightArrowAddr = (BYTE*)0x00465bf4; //TODO address
+    void* CalculateRightArrowOffsetAddr = (void*)0x4645cc; //TODO address
 
     auto pattern = hook::pattern("66 A1 ? ? ? ? 8B 0D ? ? ? ? 80 3D");
     if (pattern.size() != 1)
@@ -973,11 +964,43 @@ void PatchDisplayMode()
 
     AdvancedOptionsSelectionIndex = (uint8_t*)*pattern.count(1).get(0).get<uint32_t*>(2);
 
-    // Hook right arrow drawing to move it to the right 
     orgDrawArrowRightAdvancedOptions.fun = injector::MakeCALL(RenderRightArrowAddr, DrawArrowRightAdvancedOptions_Hook, true).get();
+    orgCalculateRightArrowOffset.fun = injector::MakeCALL(CalculateRightArrowOffsetAddr, CalculateRightArrowOffset_Hook, true).get();
 }
 
 void HandleDisplayMode()
 {
+    char* CurrentStr = getDisplayModeOptionValueStr();
 
+    if (strcmp(CurrentStr, LastDisplayModeValue) != 0)
+    {
+        LastDisplayModeValue = CurrentStr;
+
+        size_t length = strnlen_s(CurrentStr, 0x100);
+
+        char* temp = (char*)malloc(length + 0x10);
+        
+        temp[0] = '\x00';
+        temp[1] = '\x80';
+        
+        for (int i = 2; i < length; i++)
+        {
+            if (CurrentStr[i] == ' ')
+            {
+                temp[i] = '_';
+            } 
+            else
+            {
+                temp[i] = CurrentStr[i] - 0x20;
+            }
+        }
+
+        temp[length + 1] = '\xFF';
+        temp[length + 2] = '\xFF';
+        temp[length + 3] = '\x00';
+        temp[length + 4] = '\x80';
+
+        orgCalculateRightArrowOffset.fun(&DisplayModeRightArrowOffset, temp);
+        DisplayModeRightArrowOffset += 0x1E;
+    }
 }

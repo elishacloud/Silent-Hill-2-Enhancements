@@ -1947,6 +1947,12 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 			RunFlashlightClockPush();
 		}
 
+		// Fix shadow anomalies
+		if (BFaWAtticFix)
+		{
+			RunAtticShadows();
+		}
+
 		// Fixes for final boss room
 		if (FixFinalBossRoom)
 		{

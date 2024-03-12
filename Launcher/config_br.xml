@@ -819,6 +819,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="BFaWAtticFix">
+        <Title>Fix glitchy shadow behavior</Title>
+        <Description>Fixes glitchy shadow behavior and improves/synchronizes the candle flame animation in the mansion's attic for Maria's campaign.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="HospitalChaseFix">
         <Title>Corrigir animação de perseguição no hospital</Title>
         <Description>Sincroniza corretamente a animação de ataque da "Coisa Vermelha com a Pirâmide" com o resto da cena que se desenrola durante a sequência de perseguição do elevador do hospital.</Description>

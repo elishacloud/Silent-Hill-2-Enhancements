@@ -7,6 +7,7 @@
 	visit(AudioClipDetection, true) \
 	visit(AutoHideMouseCursor, false) \
 	visit(AutoUpdateModule, true) \
+	visit(BFaWAtticFix, true) \
 	visit(CatacombsMeatRoomFix, true) \
 	visit(CenterPuzzleCursor, true) \
 	visit(ChangeClosetSpawn, true) \

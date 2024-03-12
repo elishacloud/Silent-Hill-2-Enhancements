@@ -658,6 +658,12 @@ void DelayedStart()
 		PatchOldManCoinFix();
  	}
 
+	// Fix shadow anomalies
+	if (BFaWAtticFix)
+	{
+		PatchAtticShadows();
+	}
+
 	// Fix fog scale to fill the background of the Observation Deck
 	if (ObservationDeckFogFix)
 	{

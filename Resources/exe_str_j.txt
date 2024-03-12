@@ -27,9 +27,9 @@ d3d8.ini�t�@�C����ݒ�
 Windows���ł̂݉���������
 �}�X�^�[����
 �}�X�^�[���ʒ���
-Enter: Activate/change input. Escape: Clear active input.
 \hDisplay Mode
 \hChange the display mode
 \hWindowed
 \hFullscreen Windowed
 \hFullscreen
+Enter: Activate/change input. Escape: Clear active input.

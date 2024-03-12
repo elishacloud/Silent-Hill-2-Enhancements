@@ -27,9 +27,9 @@ Button %d
 \hConfigure in Windows Sound Settings
 \hMaster Volume
 \hAdjust Master Volume
-Enter: Activate/change input. Escape: Clear active input.
 \hDisplay Mode
 \hChange the display mode
 \hWindowed
 \hFullscreen Windowed
 \hFullscreen
+Enter: Activate/change input. Escape: Clear active input.

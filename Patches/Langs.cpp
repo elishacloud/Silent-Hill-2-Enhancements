@@ -1018,31 +1018,31 @@ char* getMasterVolumeDescStr()
 	return exeStrPtr[STR_PER_LANG * (int)*gLangID + 28];
 }
 
-char* getControlOptionsStr()
+char* getDisplayModeNameStr()
 {
 	return exeStrPtr[STR_PER_LANG * (int)*gLangID + 29];
 }
-
-char* getDisplayModeNameStr()
-{
-	return exeStrPtr[STR_PER_LANG * (int)*gLangID + 30];
-}
 char* getDisplayModeDescStr()
 {
-	return exeStrPtr[STR_PER_LANG * (int)*gLangID + 31];
+	return exeStrPtr[STR_PER_LANG * (int)*gLangID + 30];
 }
 
 char* getDisplayModeOptionWindowedStr()
 {
-	return exeStrPtr[STR_PER_LANG * (int)*gLangID + 32];
+	return exeStrPtr[STR_PER_LANG * (int)*gLangID + 31];
 }
 
 char* getDisplayModeOptionFullscreenWindowedStr()
 {
-	return exeStrPtr[STR_PER_LANG * (int)*gLangID + 33];
+	return exeStrPtr[STR_PER_LANG * (int)*gLangID + 32];
 }
 
 char* getDisplayModeOptionFullscreenStr()
+{
+	return exeStrPtr[STR_PER_LANG * (int)*gLangID + 33];
+}
+
+char* getControlOptionsStr()
 {
 	return exeStrPtr[STR_PER_LANG * (int)*gLangID + 34];
 }

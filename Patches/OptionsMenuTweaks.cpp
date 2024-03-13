@@ -962,7 +962,7 @@ void __cdecl DrawArrowRightAdvancedOptions_Hook(int32_t param1, int32_t param2)
         {
             if (CurrentStr[i] == ' ')
             {
-                temp[i] = '_';
+                temp[i] = 'T';
             }
             else
             {
@@ -982,6 +982,15 @@ void __cdecl DrawArrowRightAdvancedOptions_Hook(int32_t param1, int32_t param2)
 
 void PatchDisplayMode()
 {
+
+    /*TODO
+    * draw order of strings
+    * refine right arrow / check working with japanese
+    * hook options changing
+    * replace strings for health indicator
+    * reroute changed option confirmation
+    */
+
     HookDrawTextOverlay();
 
     BYTE* RenderRightArrowAddr = (BYTE*)0x00465bf4; //TODO address

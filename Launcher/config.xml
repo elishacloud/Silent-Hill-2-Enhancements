@@ -161,15 +161,6 @@
 
     <Section name="Shaders">
 
-      <Feature name="AdjustColorTemp">
-        <Title>Adjust color temperature</Title>
-        <Description>Adjusts the color temperature of the overall game image to give it a slight cool tint.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="RestoreBrightnessSelector">
         <Title>Restore brightness selector functionality</Title>
         <Description>Restores the ability to adjust the brightness level in the game's options menu, regardless if playing in windowed or fullscreen mode.</Description>

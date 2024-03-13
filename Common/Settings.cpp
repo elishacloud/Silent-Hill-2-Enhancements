@@ -282,7 +282,7 @@ void UpdateConfigDefaults()
 	}
 
 	// Set shaders default
-	EnableCustomShaders = ((EnableSMAA || AdjustColorTemp || RestoreBrightnessSelector || EnableCRTShader) && d3d8to9);
+	EnableCustomShaders = ((EnableSMAA || RestoreBrightnessSelector || EnableCRTShader) && d3d8to9);
 
 	// Set Input Tweaks default
 	EnableInputTweaks = (EnableToggleSprint || EnableEnhancedMouse || EnableMouseWheelSwap || MemoScreenFix || EnhanceMouseCursor || AutoHideMouseCursor || CenterPuzzleCursor);

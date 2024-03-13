@@ -161,15 +161,6 @@
 
     <Section name="Shaders">
 
-      <Feature name="AdjustColorTemp">
-        <Title>Ajustar temperatura de cor</Title>
-        <Description>Ajusta a temperatura da cor da imagem geral do jogo para dar uma leve tonalidade fria.</Description>
-        <Choices type="check">
-          <Value name="Desativar">0</Value>
-          <Value name="Ativar" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="RestoreBrightnessSelector">
         <Title>Restaurar funcionalidade do regulador de brilho</Title>
         <Description>Restaura a capacidade de ajustar o nível de brilho no menu de opções do jogo, independentemente de jogar no modo janela ou tela cheia.</Description>

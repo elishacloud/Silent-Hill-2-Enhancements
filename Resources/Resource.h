@@ -9,7 +9,6 @@
 #define IDR_SETTINGS_INI                102
 
 #define IDR_SMAA_FX                     201
-#define IDR_COLORGRAD_FX                202
 #define IDR_GAMMAGAIN_FX                203
 #define IDR_PIRATEBLOOM_FX              204
 #define IDR_FRUTBUNN_FX                 205
@@ -75,7 +74,6 @@ namespace
 
 	std::vector<FILELIST> shaderList{
 		{ &EnableSMAA, IDR_SMAA_FX, "SMAA.fx" },
-		{ &AdjustColorTemp, IDR_COLORGRAD_FX, "MinimalColorGrading.fx" },
 		{ &RestoreBrightnessSelector, IDR_GAMMAGAIN_FX, "LiftGammaGain.fx" },
 		{ &EnableCRTShader, IDR_PIRATEBLOOM_FX, "PirateBloom.fx" },
 		{ &CRTNonCurveShader, IDR_FRUTBUNN_FX, "FrutbunnNonCurve.fx" },

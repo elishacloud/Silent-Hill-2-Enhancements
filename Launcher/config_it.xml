@@ -161,15 +161,6 @@
 
     <Section name="Shader">
 
-      <Feature name="AdjustColorTemp">
-        <Title>Regola la temperatura del colore</Title>
-        <Description>Regola la temperatura del colore per dare all'immagine una leggera tinta fredda.</Description>
-        <Choices type="check">
-          <Value name="Disabilitato">0</Value>
-          <Value name="Abilitato" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="RestoreBrightnessSelector">
         <Title>Ripristina la funzionalità dell'opzione luminosità</Title>
         <Description>Ripristina la funzionalità dell'opzione luminosità nel menu opzioni in gioco, sia in modalità finestra che schermo intero.</Description>

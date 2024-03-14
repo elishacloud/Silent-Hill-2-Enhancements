@@ -68,11 +68,8 @@ private:
 
 	void DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface);
 	void DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface);
-	void DrawMenuTestOverlay(LPDIRECT3DDEVICE8 ProxyInterface);
 
 	void DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, D3D8TEXT TextStruct);
-	void DrawMenuTestText(LPDIRECT3DDEVICE8 ProxyInterface, D3D8TEXT TextStruct);
-	void DrawIGTText(LPDIRECT3DDEVICE8 ProxyInterface, D3D8TEXT TextStruct);
 
 	std::string IntToHexStr(int IntValue);
 	std::string FloatToStr(float FloatValue, int precision);
@@ -81,7 +78,6 @@ private:
 	std::string GetIGTString();
 	int bitCount(uint8_t num);
 
-	bool ChangeMenuTestColor();
 	void InitializeDataStructs();
 
 	const int rectOffset = 40;
@@ -96,20 +92,16 @@ private:
 	LPCSTR FontName = "Arial";
 
 	LPD3DXFONT DebugFont = nullptr;
-	LPD3DXFONT MenuTestFont = nullptr;
 	LPD3DXFONT IGTFont = nullptr;
 
 	bool ResetDebugFontFlag = false;
-	bool ResetMenuTestFontFlag = false;
 	bool ResetIGTFontFlag = false;
 
 	std::chrono::system_clock::time_point LastColorChange = std::chrono::system_clock::now();
 	int WhiteArrayIndex = 2;
 
-	Overlay::D3D8TEXT MenuTestTextStruct;
 	Overlay::D3D8TEXT InfoOverlayTextStruct;
 	Overlay::D3D8TEXT DebugOverlayTextStruct;
-	Overlay::D3D8TEXT ControlMenuTestTextStruct;
 	LONG LastBufferWidth = 0;
 	LONG LastBufferHeight = 0;
 

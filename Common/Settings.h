@@ -35,8 +35,6 @@
 	visit(EnableInfoOverlay, true) \
 	visit(EnableLangPath, true) \
 	visit(EnableMasterVolume, true) \
-	visit(EnableMenuTest, false) \
-	visit(EnableMenuTestIGT, true) \
 	visit(EnableMouseWheelSwap, true) \
 	visit(EnableScreenshots, true) \
 	visit(EnableSFXAddrHack, true) \
@@ -210,8 +208,6 @@
 	visit(DisableLogging) \
 	visit(EnableDebugOverlay) \
 	visit(EnableInfoOverlay) \
-	visit(EnableMenuTest) \
-	visit(EnableMenuTestIGT) \
 	visit(EnableScreenshots) \
 	visit(EnableWndMode) \
 	visit(FixFMVResetIssue) \

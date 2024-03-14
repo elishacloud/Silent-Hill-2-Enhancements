@@ -55,12 +55,6 @@ void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
 		DrawInfoOverlay(ProxyInterface);
 	}
 
-	// Menu Test, if not on Pause Menu
-	if (EnableMenuTest && GetEventIndex() != EVENT_PAUSE_MENU)
-	{
-		DrawMenuTestOverlay(ProxyInterface);
-	}
-
 	// Reset Direct3D state
 	ProxyInterface->SetRenderState(D3DRS_FOGENABLE, FogEnableValue);
 	ProxyInterface->SetRenderState(D3DRS_MULTISAMPLEANTIALIAS, MultiSampleValue);
@@ -127,47 +121,6 @@ void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 
 	InfoOverlayTextStruct.String = OvlString.c_str();
 	DrawDebugText(ProxyInterface, InfoOverlayTextStruct);
-}
-
-void Overlay::DrawMenuTestOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
-{
-	if (ChangeMenuTestColor())
-	{
-		switch (WhiteArrayIndex)
-		{
-		case 0:
-		case 1:
-			WhiteArrayIndex++;
-			break;
-		case 2:
-			WhiteArrayIndex = 0;
-			break;
-		}
-	}
-
-	ControlMenuTestTextStruct.Color = WhiteArray[WhiteArrayIndex];
-
-	std::string OvlString = "";
-
-	if (EnableMenuTestIGT)
-	{
-		OvlString = GetIGTString();
-
-		MenuTestTextStruct.String = OvlString.c_str();
-		DrawIGTText(ProxyInterface, MenuTestTextStruct);
-	}
-
-	OvlString = "0.1";
-
-	MenuTestTextStruct.String = OvlString.c_str();
-	MenuTestTextStruct.Rect.top += 22;
-	MenuTestTextStruct.Rect.left += 80;
-	DrawMenuTestText(ProxyInterface, MenuTestTextStruct);
-	MenuTestTextStruct.Rect.top -= 22;
-	MenuTestTextStruct.Rect.left -= 80;
-
-	// Pulsating dot
-	DrawMenuTestText(ProxyInterface, ControlMenuTestTextStruct);
 }
 
 void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
@@ -301,66 +254,6 @@ void Overlay::DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT 
 	}
 }
 
-void Overlay::DrawMenuTestText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT FontStruct)
-{
-	RECT DropShadowRect = FontStruct.Rect;
-	DropShadowRect.top = DropShadowRect.top + DropShadowOffset;
-	DropShadowRect.left = DropShadowRect.left + DropShadowOffset;
-
-	if (ResetMenuTestFontFlag)
-	{
-		ResetMenuTestFontFlag = false;
-		MenuTestFont->OnResetDevice();
-	}
-
-	if (ProxyInterface != NULL && MenuTestFont == NULL)
-	{
-		HFONT FontCharacteristics = CreateFontA(14, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, ANTIALIASED_QUALITY, 0, FontName);
-		if (FontCharacteristics != NULL)
-		{
-			Logging::LogDebug() << __FUNCTION__ << " Creating Menu Test font: " << FontName;
-			D3DXCreateFont(ProxyInterface, FontCharacteristics, &MenuTestFont);
-			DeleteObject(FontCharacteristics);
-		}
-	}
-
-	if (MenuTestFont != NULL)
-	{
-		MenuTestFont->DrawTextA(FontStruct.String, -1, &DropShadowRect, FontStruct.Format, TextColors.Black);
-		MenuTestFont->DrawTextA(FontStruct.String, -1, &FontStruct.Rect, FontStruct.Format, FontStruct.Color);
-	}
-}
-
-void Overlay::DrawIGTText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT FontStruct)
-{
-	RECT DropShadowRect = FontStruct.Rect;
-	DropShadowRect.top = DropShadowRect.top + DropShadowOffset;
-	DropShadowRect.left = DropShadowRect.left + DropShadowOffset;
-
-	if (ResetIGTFontFlag)
-	{
-		ResetIGTFontFlag = false;
-		IGTFont->OnResetDevice();
-	}
-
-	if (ProxyInterface != NULL && IGTFont == NULL)
-	{
-		HFONT FontCharacteristics = CreateFontA(22, 0, 0, 0, FW_REGULAR, 0, 0, 0, 0, 0, 0, ANTIALIASED_QUALITY, 0, FontName);
-		if (FontCharacteristics != NULL)
-		{
-			Logging::LogDebug() << __FUNCTION__ << " Creating IGT font: " << FontName;
-			D3DXCreateFont(ProxyInterface, FontCharacteristics, &IGTFont);
-			DeleteObject(FontCharacteristics);
-		}
-	}
-
-	if (IGTFont != NULL)
-	{
-		IGTFont->DrawTextA(FontStruct.String, -1, &DropShadowRect, FontStruct.Format, TextColors.Black);
-		IGTFont->DrawTextA(FontStruct.String, -1, &FontStruct.Rect, FontStruct.Format, FontStruct.Color);
-	}
-}
-
 std::string Overlay::IntToHexStr(int IntValue)
 {
 	std::stringstream Stream;
@@ -388,12 +281,6 @@ void Overlay::ResetFont()
 	{
 		DebugFont->OnLostDevice();
 		ResetDebugFontFlag = true;
-	}
-
-	if (MenuTestFont)
-	{
-		MenuTestFont->OnLostDevice();
-		ResetMenuTestFontFlag = true;
 	}
 
 	if (IGTFont)
@@ -454,26 +341,9 @@ int Overlay::bitCount(uint8_t num)
 	return count;	
 }
 
-bool Overlay::ChangeMenuTestColor()
-{
-	auto Now = std::chrono::system_clock::now();
-	auto DeltaMs = std::chrono::duration_cast<std::chrono::milliseconds>(Now - LastColorChange);
-
-	// Every third of a second
-	if (DeltaMs.count() >= 300)
-	{
-		LastColorChange = Now;
-		return true;
-	}
-
-	return false;
-}
-
 void Overlay::InitializeDataStructs()
 {
 	Logging::LogDebug() << __FUNCTION__ << " Initializing Overlay Text Structs...";
-
-	int MenuTestLeftOffset = 130;
 
 	InfoOverlayTextStruct.Format = DT_NOCLIP | DT_LEFT;
 	InfoOverlayTextStruct.Rect.left = BufferWidth - 205;
@@ -481,21 +351,6 @@ void Overlay::InitializeDataStructs()
 	InfoOverlayTextStruct.Rect.right = BufferWidth;
 	InfoOverlayTextStruct.Rect.bottom = rectOffset + 15;
 	InfoOverlayTextStruct.Color = TextColors.Tiel;
-
-	MenuTestTextStruct.Format = DT_NOCLIP | DT_LEFT;
-	MenuTestTextStruct.Rect.left = BufferWidth - MenuTestLeftOffset;
-	MenuTestTextStruct.Rect.top = BufferHeight - rectOffset - 15;
-	MenuTestTextStruct.Rect.right = BufferWidth;
-	MenuTestTextStruct.Rect.bottom = MenuTestTextStruct.Rect.top + 15;
-	MenuTestTextStruct.Color = WhiteArray[2];
-
-	ControlMenuTestTextStruct.Format = DT_NOCLIP | DT_LEFT;
-	ControlMenuTestTextStruct.Rect.left = BufferWidth - MenuTestLeftOffset + 100;
-	ControlMenuTestTextStruct.Rect.top = BufferHeight - rectOffset + 7;
-	ControlMenuTestTextStruct.Rect.right = BufferWidth;
-	ControlMenuTestTextStruct.Rect.bottom = MenuTestTextStruct.Rect.top + 15 + 30;
-	ControlMenuTestTextStruct.Color = WhiteArray[2];
-	ControlMenuTestTextStruct.String = ".";
 
 	DebugOverlayTextStruct.Format = DT_NOCLIP | DT_LEFT;
 	DebugOverlayTextStruct.Rect.left = rectOffset;

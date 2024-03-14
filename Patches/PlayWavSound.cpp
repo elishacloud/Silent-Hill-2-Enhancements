@@ -1,5 +1,5 @@
 /**
-* Copyright (C) 2023 Elisha Riedlinger, mercury501
+* Copyright (C) 2024 Elisha Riedlinger, mercury501
 *
 * This software is  provided 'as-is', without any express  or implied  warranty. In no event will the
 * authors be held liable for any damages arising from the use of this software.

@@ -161,15 +161,6 @@
 
     <Section name="Shaders">
 
-      <Feature name="AdjustColorTemp">
-        <Title>Ajustar temperatura de cor</Title>
-        <Description>Ajusta a temperatura da cor da imagem geral do jogo para dar uma leve tonalidade fria.</Description>
-        <Choices type="check">
-          <Value name="Desativar">0</Value>
-          <Value name="Ativar" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="RestoreBrightnessSelector">
         <Title>Restaurar funcionalidade do regulador de brilho</Title>
         <Description>Restaura a capacidade de ajustar o nível de brilho no menu de opções do jogo, independentemente de jogar no modo janela ou tela cheia.</Description>
@@ -342,6 +333,15 @@
         <Choices type="check">
           <Value name="Desativar">0</Value>
           <Value name="Ativar" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="ObservationDeckFogFix">
+        <Title>Extend observation deck fog</Title>
+        <Description>Horizontally extends the fog at the beginning observation deck so that it always fills the screen, up to a 16:9 aspect ratio, for a better presentation.&#x0a;&#x0a;Note: Modified obGB.fcl file must be present in "sh2e\bg\ob\" for this feature to display properly.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -810,6 +810,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="BFaWAtticFix">
+        <Title>Fix glitchy shadow behavior</Title>
+        <Description>Fixes glitchy shadow behavior and improves/synchronizes the candle flame animation in the mansion's attic for Maria's campaign.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="HospitalChaseFix">
         <Title>Corrigir animação de perseguição no hospital</Title>
         <Description>Sincroniza corretamente a animação de ataque da "Coisa Vermelha com a Pirâmide" com o resto da cena que se desenrola durante a sequência de perseguição do elevador do hospital.</Description>
@@ -1008,6 +1017,15 @@
         <Choices type="check">
           <Value name="Desativar" default="true">0</Value>
           <Value name="Ativar">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="LowHealthIndicatorStyle">
+        <Title>Low health indicator style</Title>
+        <Description>Displays a visual indicator during normal gameplay when low on health.&#x0a;&#x0a;Red Cross: Displays a flashing red cross on the bottom right of the screen.&#x0a;Lower Vignette: Displays a flashing red vignette on the lower half of the screen. The lower your health, the brighter the vignette will become.&#x0a;&#x0a;Note: LowHealthFade.png must be present in "sh2e\pic\etc\" for the Lower Vignette visual to display.</Description>
+        <Choices type="list">
+          <Value name="Red Cross">1</Value>
+          <Value name="Lower Vignette" default="true">2</Value>
         </Choices>
       </Feature>
 

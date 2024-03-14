@@ -3,10 +3,10 @@
 #include <string>
 
 #define VISIT_BOOL_SETTINGS(visit) \
-	visit(AdjustColorTemp, true) \
 	visit(AudioClipDetection, true) \
 	visit(AutoHideMouseCursor, false) \
 	visit(AutoUpdateModule, true) \
+	visit(BFaWAtticFix, true) \
 	visit(CatacombsMeatRoomFix, true) \
 	visit(CenterPuzzleCursor, true) \
 	visit(ChangeClosetSpawn, true) \
@@ -96,6 +96,8 @@
 	visit(MenuSoundsFix, true) \
 	visit(MothDrawOrderFix, true) \
 	visit(NoCDPatch, true) \
+	visit(ObservationDeckFogFix, true) \
+	visit(OldManCoinFix, true) \
 	visit(PauseScreenFix, true) \
 	visit(PistonRoomFix, true) \
 	visit(PreserveSoundsOnLoad, true) \
@@ -154,6 +156,7 @@
 	visit(FullscreenVideos, 3) \
 	visit(IncreaseNoiseEffectRes, 768) \
 	visit(LetterSpacing, 2) \
+	visit(LowHealthIndicatorStyle, 2) \
 	visit(NormalFontHeight, 30) \
 	visit(NormalFontWidth, 20) \
 	visit(PadNumber, 0) \
@@ -232,6 +235,7 @@
 	visit(LockResolution) \
 	visit(NormalFontHeight) \
 	visit(NormalFontWidth) \
+	visit(OldManCoinFix) \
 	visit(QuickSaveCancelFix) \
 	visit(ResX) \
 	visit(ResY) \

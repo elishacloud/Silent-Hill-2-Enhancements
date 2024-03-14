@@ -161,15 +161,6 @@
 
     <Section name="Shaders">
 
-      <Feature name="AdjustColorTemp">
-        <Title>Adjust color temperature</Title>
-        <Description>Adjusts the color temperature of the overall game image to give it a slight cool tint.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="RestoreBrightnessSelector">
         <Title>Restore brightness selector functionality</Title>
         <Description>Restores the ability to adjust the brightness level in the game's options menu, regardless if playing in windowed or fullscreen mode.</Description>
@@ -339,6 +330,15 @@
       <Feature name="FogSpeedFix">
         <Title>Natural fog movement</Title>
         <Description>Adjusts the speed of the fog for slower, more natural movement to match its original behavior.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="ObservationDeckFogFix">
+        <Title>Extend observation deck fog</Title>
+        <Description>Horizontally extends the fog at the beginning observation deck so that it always fills the screen, up to a 16:9 aspect ratio, for a better presentation.&#x0a;&#x0a;Note: Modified obGB.fcl file must be present in "sh2e\bg\ob\" for this feature to display properly.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -810,6 +810,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="BFaWAtticFix">
+        <Title>Fix glitchy shadow behavior</Title>
+        <Description>Fixes glitchy shadow behavior and improves/synchronizes the candle flame animation in the mansion's attic for Maria's campaign.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="HospitalChaseFix">
         <Title>Fix hospital chase animation</Title>
         <Description>Correctly syncs Red Pyramid Thing's attack animation to the rest of the cutscene that plays out during the hospital elevator chase sequence.</Description>
@@ -1010,7 +1019,16 @@
           <Value name="Enable">1</Value>
         </Choices>
       </Feature>
-
+      
+      <Feature name="LowHealthIndicatorStyle">
+        <Title>Low health indicator style</Title>
+        <Description>Displays a visual indicator during normal gameplay when low on health.&#x0a;&#x0a;Red Cross: Displays a flashing red cross on the bottom right of the screen.&#x0a;Lower Vignette: Displays a flashing red vignette on the lower half of the screen. The lower your health, the brighter the vignette will become.&#x0a;&#x0a;Note: LowHealthFade.png must be present in "sh2e\pic\etc\" for the Lower Vignette visual to display.</Description>
+        <Choices type="list">
+          <Value name="Red Cross">1</Value>
+          <Value name="Lower Vignette" default="true">2</Value>
+        </Choices>
+      </Feature>
+      
     </Section>
 
     <Section name="Environment">

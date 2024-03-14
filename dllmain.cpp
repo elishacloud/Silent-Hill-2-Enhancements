@@ -652,6 +652,30 @@ void DelayedStart()
 		PatchTeddyBearLookFix();
 	}
 
+	// Fix spawn precondition for the Old Man Coin
+	if (OldManCoinFix)
+ 	{
+		PatchOldManCoinFix();
+ 	}
+
+	// Fix shadow anomalies
+	if (BFaWAtticFix)
+	{
+		PatchAtticShadows();
+	}
+
+	// Fix fog scale to fill the background of the Observation Deck
+	if (ObservationDeckFogFix)
+	{
+		PatchObservationDeckFogFix();
+ 	}
+
+	// Set Low Health Indicator Style
+	if (LowHealthIndicatorStyle == 2)
+	{
+		PatchLowHealthIndicator();
+	}
+
 	// Remove the "Now loading..." message
 	switch (GameVersion)
 	{
@@ -722,7 +746,10 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		}
 
 		// Set things to load on delayed access
-		SetDelayedStart();
+		if (!SetDelayedStart())
+		{
+			DelayedStart();
+		}
 	}
 	break;
 	case DLL_THREAD_ATTACH:

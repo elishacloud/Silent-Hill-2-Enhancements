@@ -56,25 +56,27 @@ __int16 __declspec(naked) DrawTextOverlay_hook()
 		{
 			__asm {ret}
 		}
-
-		if (iSelectionIndex() == 0x03) // high res textures //TODO setting
-		{
-			__asm {jmp printDisplayModeValueStr}
-		}
 	}
 
 	__asm {jmp DrawTextOverlay_orig}
 }
 
-void HookDrawTextOverlay()
+void PatchAdvancedOptions()
 {
-	if (HookedDrawTextOverlay)
+	Logging::Log() << "Enabling Advanced Options fix...";
+
+	// Get pointer to the state of the confirmation prompt (0 or 1)
+	auto pattern = hook::pattern("A0 ? ? ? ? 84 C0 0F 85 ? ? ? ? E8 ? ? ? ? 8B 0D ? ? ? ? 68");
+	if (pattern.size() != 1)
 	{
+		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
 		return;
 	}
 
+	ptrConfirmationPromptState = *pattern.count(1).get(0).get<uint32_t*>(1);
+
 	// Get pointer to the selection index (0 to 9)
-	auto pattern = hook::pattern("66 A1 ? ? ? ? 8B 0D ? ? ? ? 80 3D");
+	pattern = hook::pattern("66 A1 ? ? ? ? 8B 0D ? ? ? ? 80 3D");
 	if (pattern.size() != 1)
 	{
 		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
@@ -102,25 +104,6 @@ void HookDrawTextOverlay()
 	}
 
 	injector::MakeCALL(pattern.count(1).get_first(0), DrawTextOverlay_hook, true);
-
-	HookedDrawTextOverlay = true;
-}
-
-void PatchAdvancedOptions()
-{
-	Logging::Log() << "Enabling Advanced Options fix...";
-
-	// Get pointer to the state of the confirmation prompt (0 or 1)
-	auto pattern = hook::pattern("A0 ? ? ? ? 84 C0 0F 85 ? ? ? ? E8 ? ? ? ? 8B 0D ? ? ? ? 68");
-	if (pattern.size() != 1)
-	{
-		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
-		return;
-	}
-
-	ptrConfirmationPromptState = *pattern.count(1).get(0).get<uint32_t*>(1);
-
-	HookDrawTextOverlay();
 
 	// "Noise Effect"
 	pattern = hook::pattern("0F 85 ? ? ? ? E8 ? ? ? ? A1 ? ? ? ? 68 ? ? ? ? 68 ? ? ? ? 6A");

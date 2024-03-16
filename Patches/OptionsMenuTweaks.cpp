@@ -86,11 +86,6 @@ DWORD ModulationPixelShaderAsm[] = {
 };
 
 // Display mode
-injector::hook_back<void(__cdecl*)(int32_t, int32_t)> orgDrawArrowRightAdvancedOptions;
-injector::hook_back<uint16_t(__cdecl*)(int32_t*, char*)> orgCalculateRightArrowOffset;
-uint8_t* AdvancedOptionsSelectionIndex;
-int32_t DisplayModeRightArrowOffset = 0x00;
-char* LastDisplayModeValue = "";
 
 int32_t PlaySound_Hook(int32_t SoundId, float volume, DWORD param3)
 {
@@ -931,53 +926,85 @@ void ButtonIcons::UpdateBinds()
 }
 
 // Display mode
+BYTE* DisplayModeArrowRetAddr = nullptr;
+BYTE* DisplayModeValueHighlightRetAddr = nullptr;
+BYTE* DisplayModeValuePrintRetAddr = nullptr;
+BYTE* StoreInitialOptionValueRetAddr = nullptr;
+BYTE* RestoreInitialOptionValueRetAddr = nullptr;
+BYTE* CheckStoredOptionvalueRetAddr = nullptr;
+BYTE* DisplayModeOptionColorCheckRetAddr = nullptr;
 
-uint16_t __cdecl CalculateRightArrowOffset_Hook(int32_t* offset, char* str)
+int8_t DisplayModeValue = 0; //TODO retrieve from stored option
+
+__declspec(naked) void __stdcall DisplayModeArrow()
 {
-    return orgCalculateRightArrowOffset.fun(offset, str);
+    __asm
+    {
+        movzx eax, byte ptr[DisplayModeValue]
+        add eax, 0x100
+        push eax
+        jmp DisplayModeArrowRetAddr
+    }
 }
 
-void __cdecl DrawArrowRightAdvancedOptions_Hook(int32_t param1, int32_t param2)
+__declspec(naked) void __stdcall DisplayModeValueHighlight()
 {
-    if (*AdvancedOptionsSelectionIndex != 0x03) // old high res option
+    __asm
     {
-        orgDrawArrowRightAdvancedOptions.fun(param1, param2);
-        return;
+        movzx ax, byte ptr[DisplayModeValue]
+
+        jmp DisplayModeValueHighlightRetAddr
     }
+}
 
-    char* CurrentStr = getDisplayModeOptionValueStr();
-
-    if (strcmp(CurrentStr, LastDisplayModeValue) != 0)
+__declspec(naked) void __stdcall DisplayModeValuePrint()
+{
+    __asm
     {
-        LastDisplayModeValue = CurrentStr;
+        movzx ax, byte ptr[DisplayModeValue]
 
-        size_t length = strnlen_s(CurrentStr, 0x100);
-
-        char* temp = (char*)malloc(length + 0x10);
-
-        temp[0] = '\x00';
-        temp[1] = '\x80';
-
-        for (int i = 2; i < length; i++)
-        {
-            if (CurrentStr[i] == ' ')
-            {
-                temp[i] = 'T';
-            }
-            else
-            {
-                temp[i] = CurrentStr[i] - 0x20;
-            }
-        }
-
-        temp[length] = '\xFF';
-        temp[length + 1] = '\xFF';
-
-        orgCalculateRightArrowOffset.fun(&DisplayModeRightArrowOffset, temp);
-        DisplayModeRightArrowOffset += 0x1E;
+        jmp DisplayModeValuePrintRetAddr
     }
+}
 
-    orgDrawArrowRightAdvancedOptions.fun(DisplayModeRightArrowOffset, param2);
+__declspec(naked) void __stdcall StoreInitialOptionValue()
+{
+    __asm
+    {
+        mov dl, byte ptr[DisplayModeValue]
+
+        jmp StoreInitialOptionValueRetAddr
+    }
+}
+
+__declspec(naked) void __stdcall RestoreInitialOptionValue()
+{
+    __asm
+    {
+        mov byte ptr[DisplayModeValue], cl
+
+        jmp RestoreInitialOptionValueRetAddr
+    }
+}
+
+__declspec(naked) void __stdcall CheckStoredOptionValue()
+{
+    __asm
+    {
+        mov cl, byte ptr[DisplayModeValue]
+
+        jmp CheckStoredOptionvalueRetAddr
+    }
+}
+
+__declspec(naked) void __stdcall ColorCheckStoredOptionValue()
+{
+    __asm
+    {
+        mov dl, byte ptr[DisplayModeValue]
+
+        jmp DisplayModeOptionColorCheckRetAddr
+    }
 }
 
 void PatchDisplayMode()
@@ -991,25 +1018,70 @@ void PatchDisplayMode()
     * reroute changed option confirmation
     */
 
-    HookDrawTextOverlay();
-
     BYTE* RenderRightArrowAddr = (BYTE*)0x00465bf4; //TODO address
-    void* CalculateRightArrowOffsetAddr = (void*)0x4645cc; //TODO address
+    BYTE* HighResTextName1 = (BYTE*)0x00465060;
+    BYTE* HighResTextName2 = (BYTE*)0x0046561c;
+    BYTE* HighResTextValue1 = (BYTE*)0x0046525c;
+    BYTE* HighResTextValue2 = (BYTE*)0x00465664;
 
-    auto pattern = hook::pattern("66 A1 ? ? ? ? 8B 0D ? ? ? ? 80 3D");
-    if (pattern.size() != 1)
-    {
-        Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
-        return;
-    }
+    BYTE* HighResTextArrow = (BYTE*)0x00465994;
+    DisplayModeArrowRetAddr = HighResTextArrow + 0x16;
+    BYTE* StringOffsetToNop = HighResTextArrow + 0x1C;
 
-    AdvancedOptionsSelectionIndex = (uint8_t*)*pattern.count(1).get(0).get<uint32_t*>(2);
+    BYTE* DisplayModeValueHighlightAddr = (BYTE*)0x00465656;
+    DisplayModeValueHighlightRetAddr = DisplayModeValueHighlightAddr + 0x08;
 
-    orgDrawArrowRightAdvancedOptions.fun = injector::MakeCALL(RenderRightArrowAddr, DrawArrowRightAdvancedOptions_Hook, true).get();
-    orgCalculateRightArrowOffset.fun = injector::MakeCALL(CalculateRightArrowOffsetAddr, CalculateRightArrowOffset_Hook, true).get();
+    BYTE* DisplayModeValuePrintAddr = (BYTE*)0x00465240;
+    DisplayModeValuePrintRetAddr = DisplayModeValuePrintAddr + 0x08;
+
+    BYTE* StoreInitialOptionValueAddr = (BYTE*)0x00464e11;
+    StoreInitialOptionValueRetAddr = StoreInitialOptionValueAddr + 0x06;
+    
+    BYTE* RestoreInitialOptionValueAddr = (BYTE*)0x00464f39;
+    RestoreInitialOptionValueRetAddr = RestoreInitialOptionValueAddr + 0x06;
+
+    BYTE* CheckStoredOptionvalueAddr = (BYTE*)0x00464ba6;
+    CheckStoredOptionvalueRetAddr = CheckStoredOptionvalueAddr + 0x06;
+
+    BYTE* DisplayModeOptionColorCheckAddr = (BYTE*)0x00465221;
+    DisplayModeOptionColorCheckRetAddr = DisplayModeOptionColorCheckAddr + 0x06;
+
+    /*
+    * replace OptionHighResText with our variable
+    * 
+    * 0x0FE display mode   -  option(2 bytes): 0x0046505f, 0x0046561c
+    * 0x0FF change the display mode
+    * 0x100 windowed value(2 bytes): 0x0046525c, 0x00465664 (string is calculated with an offset from OptionHighResText)
+    * 0x101 FS windowed value highlight around 0x00465994 , set in asm optionValue + 0x100
+    * 0x102 Full Screen
+    * 
+    * 
+    * 0x00465ec1 override option toggling
+    */
+
+    // Display mode option name offset
+    UpdateMemoryAddress(HighResTextName1, "\xFE", 0x01);
+    UpdateMemoryAddress(HighResTextName2, "\xFE", 0x01);
+    // Display mode option value offset
+    UpdateMemoryAddress(HighResTextValue1, "\x00\x01", 0x02);
+    UpdateMemoryAddress(HighResTextValue2, "\x00\x01", 0x02);
+
+    // Display mode option arrow
+    WriteJMPtoMemory(HighResTextArrow, DisplayModeArrow, 15);
+    UpdateMemoryAddress(StringOffsetToNop, "\x90\x90\x90\x90\x90", 0x05);
+    // Display mode option value and highlight
+    WriteJMPtoMemory(DisplayModeValueHighlightAddr, DisplayModeValueHighlight, 0x08);
+    WriteJMPtoMemory(DisplayModeValuePrintAddr, DisplayModeValuePrint, 0x08);
+
+    // Override checks for changed option
+    WriteJMPtoMemory(StoreInitialOptionValueAddr, StoreInitialOptionValue, 0x06); // breakpoint doesn't trigger see 0x00464ed3
+    WriteJMPtoMemory(RestoreInitialOptionValueAddr, RestoreInitialOptionValue, 0x06);
+    WriteJMPtoMemory(CheckStoredOptionvalueAddr, CheckStoredOptionValue, 0x06);
+    WriteJMPtoMemory(DisplayModeOptionColorCheckAddr, ColorCheckStoredOptionValue, 0x06);
 }
 
 void HandleDisplayMode()
 {
-   
+    if (ShowDebugOverlay)
+        DisplayModeValue = 1;
 }

@@ -885,24 +885,6 @@ int printMasterVolumeNameStr(unsigned short, unsigned char, int x, int y)
 	return printTextPos(ptr, x, y);
 }
 
-int printDisplayModeDescStr(unsigned short, unsigned char, int x, int y)
-{
-	char* ptr = (char*)prepText(getDisplayModeDescStr());
-	return printTextPos(ptr, x, y);
-}
-
-int printDisplayModeNameStr(unsigned short, unsigned char, int x, int y)
-{
-	char* ptr = (char*)prepText(getDisplayModeNameStr());
-	return printTextPos(ptr, x, y);
-}
-
-int printDisplayModeValueStr(unsigned short, unsigned char, int x, int y)
-{
-	char* ptr = (char*)prepText(getDisplayModeOptionValueStr());
-	return printTextPos(ptr, x, y);
-}
-
 void PatchSpeakerConfigLock()
 {
 	constexpr BYTE SpkSearchBytesA[] = { 0x94, 0x00, 0x68, 0x12, 0x27, 0x00, 0x00, 0xF3, 0xA5, 0xE8 };
@@ -1014,27 +996,5 @@ void PatchSpeakerConfigText()
 		WriteCalltoMemory(((BYTE*)DSpkrAddrName), *printMasterVolumeNameStr, 5);
 		WriteCalltoMemory(((BYTE*)DSpkrAddrHighlight), *printMasterVolumeNameStr, 5);
 		WriteCalltoMemory(((BYTE*)DSpkAddrB + 0x125), *printMasterVolumeDescStr, 5);
-	}
-}
-
-void PatchDisplayModeText()
-{
-	if (GameVersion != SH2V_10 && GameVersion != SH2V_11 && GameVersion != SH2V_DC)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: unknown game version!";
-		return;
-	}
-
-	BYTE* highResName = ((BYTE*)0x00465621); //TODO address
-	BYTE* highResNameHighlight = ((BYTE*)0x00465065); //TODO address
-	BYTE* highResDesc = ((BYTE*)0x0046563e); //TODO address
-	BYTE* highResValue = (BYTE*)0x00465262; //TODO address
-
-	if (UseCustomExeStr)
-	{
-		WriteCalltoMemory(highResName, *printDisplayModeNameStr, 5); 
-		WriteCalltoMemory(highResNameHighlight, *printDisplayModeNameStr, 5); 
-		WriteCalltoMemory(highResDesc, *printDisplayModeDescStr, 5); 
-		WriteCalltoMemory(highResValue, *printDisplayModeValueStr, 5);
 	}
 }

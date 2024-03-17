@@ -935,6 +935,13 @@ BYTE* CheckStoredOptionvalueRetAddr = nullptr;
 BYTE* DisplayModeOptionColorCheckRetAddr = nullptr;
 BYTE* StoreInitialOptionValueRetAddr = nullptr;
 BYTE* SetHighlightColorRetAddr = nullptr;
+BYTE* InputConditionChangeRetAddr1 = nullptr;
+BYTE* InputConditionChangeRetAddr2 = nullptr;
+BYTE* InputConditionChangeRetAddr3 = nullptr;
+BYTE* InputConditionChangeRetAddr4 = nullptr;
+BYTE* InputConditionChangeRetAddr5 = nullptr;
+
+BYTE* DisplayModeValueChangedRetAddr = nullptr;
 
 BYTE* StoredDisplayModeValue = nullptr;
 
@@ -1031,15 +1038,93 @@ __declspec(naked) void __stdcall SetHighlightColor()
     }
 }
 
+__declspec(naked) void __stdcall IncrementDisplayModeValue()
+{
+    DisplayModeValue += DisplayModeValue != 0x02 ? 1 : -2;
+    
+    __asm
+    {
+        jmp DisplayModeValueChangedRetAddr
+    }
+}
+
+__declspec(naked) void __stdcall DecrementDisplayModeValue()
+{
+    DisplayModeValue += DisplayModeValue != 0x00 ? -1 : 2;
+
+    __asm
+    {
+        jmp DisplayModeValueChangedRetAddr
+    }
+}
+
+__declspec(naked) void __stdcall ConditionChangeOne()
+{
+    __asm
+    {
+        test eax, eax
+
+        jnz DecrementDisplayModeValue
+
+        push 0x4
+
+        jmp InputConditionChangeRetAddr1
+    }
+}
+
+__declspec(naked) void __stdcall ConditionChangeTwo()
+{
+    __asm
+    {
+        test eax, eax
+        jnz DecrementDisplayModeValue
+
+        cmp edi, 0x1
+        jz DecrementDisplayModeValue
+
+        push ebp
+
+        jmp InputConditionChangeRetAddr2
+    }
+}
+
+__declspec(naked) void __stdcall ConditionChangeThree()
+{
+    __asm
+    {
+        jnz IncrementDisplayModeValue
+
+        jmp InputConditionChangeRetAddr3
+    }
+}
+
+__declspec(naked) void __stdcall ConditionChangeFour()
+{
+    __asm
+    {
+        test eax, eax
+        jnz IncrementDisplayModeValue
+
+        push 0x8
+
+        jmp InputConditionChangeRetAddr4
+    }
+}
+
+__declspec(naked) void __stdcall ConditionChangeFive()
+{
+    __asm
+    {
+        jmp IncrementDisplayModeValue
+    }
+}
+
 void PatchDisplayMode()
 {
 
     /*TODO
-    * draw order of strings
-    * refine right arrow / check working with japanese
-    * hook options changing
-    * replace strings for health indicator
-    * reroute changed option confirmation
+    * store options in configdata
+    * option for health indicator
     */
 
     BYTE* RenderRightArrowAddr = (BYTE*)0x00465bf4; //TODO address
@@ -1079,17 +1164,29 @@ void PatchDisplayMode()
     BYTE* SetHighlightColorAddr = (BYTE*)0x00465649;
     SetHighlightColorRetAddr = SetHighlightColorAddr + 0x06;
 
+    BYTE* InputConditionChangeAddr1 = (BYTE*)0x465e80; //TODO address
+    InputConditionChangeRetAddr1 = InputConditionChangeAddr1 + 0x06;
+
+    BYTE* InputConditionChangeAddr2 = InputConditionChangeAddr1 + 0x0E;
+    InputConditionChangeRetAddr2 = InputConditionChangeAddr2 + 0x05;
+
+    BYTE* InputConditionChangeAddr3 = InputConditionChangeAddr1 + 0x31;
+    InputConditionChangeRetAddr3 = InputConditionChangeAddr3 + 0x07;
+
+    BYTE* InputConditionChangeAddr4 = InputConditionChangeAddr1 + 0x21;
+    InputConditionChangeRetAddr4 = InputConditionChangeAddr4 + 0x06;
+
+    BYTE* InputConditionChangeAddr5 = InputConditionChangeAddr1 + 0x41;
+    InputConditionChangeRetAddr5 = InputConditionChangeAddr5 + 0x05;
+
+    DisplayModeValueChangedRetAddr = (BYTE*)0x4661af; //TODO address
+
     /*
-    * replace OptionHighResText with our variable
-    * 
-    * 0x0FE display mode   -  option(2 bytes): 0x0046505f, 0x0046561c
+    * 0x0FE display mode
     * 0x0FF change the display mode
-    * 0x100 windowed value(2 bytes): 0x0046525c, 0x00465664 (string is calculated with an offset from OptionHighResText)
-    * 0x101 FS windowed value highlight around 0x00465994 , set in asm optionValue + 0x100
+    * 0x100 windowed 
+    * 0x101 FS windowed 
     * 0x102 Full Screen
-    * 
-    * 
-    * 0x00465ec1 override option toggling
     */
 
     // Display mode option name offset
@@ -1116,10 +1213,18 @@ void PatchDisplayMode()
     // Divert saving the option value for checks
     WriteJMPtoMemory(StoreInitialOptionValueAddr, StoreInitialOptionValue, 0x06);
     UpdateMemoryAddress(NopOriginalStoreOptionAddr, "\x90\x90\x90\x90\x90\x90", 0x06);
+
+    // Change the conditional that changes the value
+    WriteJMPtoMemory(InputConditionChangeAddr1, ConditionChangeOne, 0x06);
+    WriteJMPtoMemory(InputConditionChangeAddr2, ConditionChangeTwo, 0x05);
+    WriteJMPtoMemory(InputConditionChangeAddr3, ConditionChangeThree, 0x07);
+    WriteJMPtoMemory(InputConditionChangeAddr4, ConditionChangeFour, 0x06);
+    WriteJMPtoMemory(InputConditionChangeAddr5, ConditionChangeFive, 0x05);
 }
 
 void HandleDisplayMode()
 {
-    if (ShowDebugOverlay) //TODO remove
-        DisplayModeValue = 1;
+    //TODO remove
+    AuxDebugOvlString = "\rDisplay mode value: ";
+    AuxDebugOvlString.append(std::to_string(DisplayModeValue));
 }

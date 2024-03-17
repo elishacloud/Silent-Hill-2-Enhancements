@@ -929,10 +929,14 @@ void ButtonIcons::UpdateBinds()
 BYTE* DisplayModeArrowRetAddr = nullptr;
 BYTE* DisplayModeValueHighlightRetAddr = nullptr;
 BYTE* DisplayModeValuePrintRetAddr = nullptr;
-BYTE* StoreInitialOptionValueRetAddr = nullptr;
-BYTE* RestoreInitialOptionValueRetAddr = nullptr;
+BYTE* ConfirmInitialOptionValueRetAddr = nullptr;
+BYTE* DiscardOptionValueRetAddr = nullptr;
 BYTE* CheckStoredOptionvalueRetAddr = nullptr;
 BYTE* DisplayModeOptionColorCheckRetAddr = nullptr;
+BYTE* StoreInitialOptionValueRetAddr = nullptr;
+BYTE* SetHighlightColorRetAddr = nullptr;
+
+BYTE* StoredDisplayModeValue = nullptr;
 
 int8_t DisplayModeValue = 0; //TODO retrieve from stored option
 
@@ -967,23 +971,23 @@ __declspec(naked) void __stdcall DisplayModeValuePrint()
     }
 }
 
-__declspec(naked) void __stdcall StoreInitialOptionValue()
+__declspec(naked) void __stdcall ConfirmInitialOptionValue()
 {
     __asm
     {
         mov dl, byte ptr[DisplayModeValue]
 
-        jmp StoreInitialOptionValueRetAddr
+        jmp ConfirmInitialOptionValueRetAddr
     }
 }
 
-__declspec(naked) void __stdcall RestoreInitialOptionValue()
+__declspec(naked) void __stdcall DiscardInitialOptionValue()
 {
     __asm
     {
         mov byte ptr[DisplayModeValue], cl
 
-        jmp RestoreInitialOptionValueRetAddr
+        jmp DiscardOptionValueRetAddr
     }
 }
 
@@ -1007,6 +1011,26 @@ __declspec(naked) void __stdcall ColorCheckStoredOptionValue()
     }
 }
 
+__declspec(naked) void __stdcall StoreInitialOptionValue()
+{
+    *StoredDisplayModeValue = DisplayModeValue;
+
+    __asm
+    {
+        jmp StoreInitialOptionValueRetAddr
+    }
+}
+
+__declspec(naked) void __stdcall SetHighlightColor()
+{
+    __asm
+    {
+        mov cl, byte ptr[DisplayModeValue]
+
+        jmp SetHighlightColorRetAddr
+    }
+}
+
 void PatchDisplayMode()
 {
 
@@ -1024,6 +1048,8 @@ void PatchDisplayMode()
     BYTE* HighResTextValue1 = (BYTE*)0x0046525c;
     BYTE* HighResTextValue2 = (BYTE*)0x00465664;
 
+    StoredDisplayModeValue = (BYTE*)0x00941784;
+
     BYTE* HighResTextArrow = (BYTE*)0x00465994;
     DisplayModeArrowRetAddr = HighResTextArrow + 0x16;
     BYTE* StringOffsetToNop = HighResTextArrow + 0x1C;
@@ -1034,17 +1060,24 @@ void PatchDisplayMode()
     BYTE* DisplayModeValuePrintAddr = (BYTE*)0x00465240;
     DisplayModeValuePrintRetAddr = DisplayModeValuePrintAddr + 0x08;
 
-    BYTE* StoreInitialOptionValueAddr = (BYTE*)0x00464e11;
-    StoreInitialOptionValueRetAddr = StoreInitialOptionValueAddr + 0x06;
+    BYTE* ConfirmInitialOptionValueAddr = (BYTE*)0x00464e11;
+    ConfirmInitialOptionValueRetAddr = ConfirmInitialOptionValueAddr + 0x06;
     
-    BYTE* RestoreInitialOptionValueAddr = (BYTE*)0x00464f39;
-    RestoreInitialOptionValueRetAddr = RestoreInitialOptionValueAddr + 0x06;
+    BYTE* DiscardOptionValueAddr = (BYTE*)0x00464f39;
+    DiscardOptionValueRetAddr = DiscardOptionValueAddr + 0x06;
 
     BYTE* CheckStoredOptionvalueAddr = (BYTE*)0x00464ba6;
     CheckStoredOptionvalueRetAddr = CheckStoredOptionvalueAddr + 0x06;
 
     BYTE* DisplayModeOptionColorCheckAddr = (BYTE*)0x00465221;
     DisplayModeOptionColorCheckRetAddr = DisplayModeOptionColorCheckAddr + 0x06;
+
+    BYTE* StoreInitialOptionValueAddr = (BYTE*)0x00462d07;
+    StoreInitialOptionValueRetAddr = StoreInitialOptionValueAddr + 0x06;
+    BYTE* NopOriginalStoreOptionAddr = StoreInitialOptionValueAddr + 0x21;
+
+    BYTE* SetHighlightColorAddr = (BYTE*)0x00465649;
+    SetHighlightColorRetAddr = SetHighlightColorAddr + 0x06;
 
     /*
     * replace OptionHighResText with our variable
@@ -1070,18 +1103,23 @@ void PatchDisplayMode()
     WriteJMPtoMemory(HighResTextArrow, DisplayModeArrow, 15);
     UpdateMemoryAddress(StringOffsetToNop, "\x90\x90\x90\x90\x90", 0x05);
     // Display mode option value and highlight
-    WriteJMPtoMemory(DisplayModeValueHighlightAddr, DisplayModeValueHighlight, 0x08);
+    WriteJMPtoMemory(DisplayModeValueHighlightAddr, DisplayModeValueHighlight, 0x08); //TODO highlight wrong color, tied to inputs
+    WriteJMPtoMemory(SetHighlightColorAddr, SetHighlightColor, 0x06);
     WriteJMPtoMemory(DisplayModeValuePrintAddr, DisplayModeValuePrint, 0x08);
 
     // Override checks for changed option
-    WriteJMPtoMemory(StoreInitialOptionValueAddr, StoreInitialOptionValue, 0x06); // breakpoint doesn't trigger see 0x00464ed3
-    WriteJMPtoMemory(RestoreInitialOptionValueAddr, RestoreInitialOptionValue, 0x06);
+    WriteJMPtoMemory(ConfirmInitialOptionValueAddr, ConfirmInitialOptionValue, 0x06);
+    WriteJMPtoMemory(DiscardOptionValueAddr, DiscardInitialOptionValue, 0x06);
     WriteJMPtoMemory(CheckStoredOptionvalueAddr, CheckStoredOptionValue, 0x06);
     WriteJMPtoMemory(DisplayModeOptionColorCheckAddr, ColorCheckStoredOptionValue, 0x06);
+
+    // Divert saving the option value for checks
+    WriteJMPtoMemory(StoreInitialOptionValueAddr, StoreInitialOptionValue, 0x06);
+    UpdateMemoryAddress(NopOriginalStoreOptionAddr, "\x90\x90\x90\x90\x90\x90", 0x06);
 }
 
 void HandleDisplayMode()
 {
-    if (ShowDebugOverlay)
+    if (ShowDebugOverlay) //TODO remove
         DisplayModeValue = 1;
 }

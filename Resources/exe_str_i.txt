@@ -27,9 +27,5 @@ Tasto %d
 \hConfigura attraverso Windows
 \hVolume Principale
 \hImposta volume principale
-\hModalità Schermo
-\hCambia la modalità schermo
-\hFinestra
-\hFinestra a schermo intero
-\hSchermo intero
-Invio: Attiva/cambia tasto. Esc: Azzera il tasto.
+\hHealth indicator
+\hEnable low health indicator

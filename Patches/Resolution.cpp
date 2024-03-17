@@ -864,8 +864,8 @@ void PatchLockScreenPosition()
 extern char* getSpeakerConfigDescStr();
 extern char* getMasterVolumeDescStr();
 extern char* getMasterVolumeNameStr();
-extern char* getDisplayModeDescStr();
-extern char* getDisplayModeNameStr();
+extern char* getHealthIndicatorStr();
+extern char* getHealthIndicatorDescriptionStr();
 
 int printSpkDescStr(unsigned short, unsigned char, int x, int y)
 {
@@ -882,6 +882,18 @@ int printMasterVolumeDescStr(unsigned short, unsigned char, int x, int y)
 int printMasterVolumeNameStr(unsigned short, unsigned char, int x, int y)
 {
 	char* ptr = (char*)prepText(getMasterVolumeNameStr());
+	return printTextPos(ptr, x, y);
+}
+
+int printHealthIndicatorNameStr(unsigned short, unsigned char, int x, int y)
+{
+	char* ptr = (char*)prepText(getHealthIndicatorStr());
+	return printTextPos(ptr, x, y);
+}
+
+int printHealthIndicatorDescriptionStr(unsigned short, unsigned char, int x, int y)
+{
+	char* ptr = (char*)prepText(getHealthIndicatorDescriptionStr());
 	return printTextPos(ptr, x, y);
 }
 
@@ -996,5 +1008,19 @@ void PatchSpeakerConfigText()
 		WriteCalltoMemory(((BYTE*)DSpkrAddrName), *printMasterVolumeNameStr, 5);
 		WriteCalltoMemory(((BYTE*)DSpkrAddrHighlight), *printMasterVolumeNameStr, 5);
 		WriteCalltoMemory(((BYTE*)DSpkAddrB + 0x125), *printMasterVolumeDescStr, 5);
+	}
+}
+
+void PatchSearchViewOptionName()
+{
+	BYTE* PrintSearchViewNameAddr = (BYTE*)0x00461d3f; //TODO address
+	BYTE* PrintSearchViewNameHighlightAddr = PrintSearchViewNameAddr + 0xDE;
+	BYTE* PrintSearchViewDescriptionAddr = PrintSearchViewNameAddr + 0x6AA;
+
+	if (UseCustomExeStr)
+	{
+		WriteCalltoMemory(PrintSearchViewNameAddr, *printHealthIndicatorNameStr, 5);
+		WriteCalltoMemory(PrintSearchViewNameHighlightAddr, *printHealthIndicatorNameStr, 5);
+		WriteCalltoMemory(PrintSearchViewDescriptionAddr, *printHealthIndicatorDescriptionStr, 5);
 	}
 }

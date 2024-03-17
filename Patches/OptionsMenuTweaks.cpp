@@ -85,8 +85,6 @@ DWORD ModulationPixelShaderAsm[] = {
     0xa0e40000, 0x0000ffff
 };
 
-// Display mode
-
 int32_t PlaySound_Hook(int32_t SoundId, float volume, DWORD param3)
 {
     if (GetSelectedOption() == 0x07)
@@ -1068,6 +1066,7 @@ void PatchDisplayMode()
 {
 
     /*TODO
+    * replace high res textures option description
     * store options in configdata
     * option for health indicator
     * set high res textures enabled 
@@ -1168,9 +1167,17 @@ void PatchDisplayMode()
     WriteJMPtoMemory(InputConditionChangeAddr5, ConditionChangeFive, 0x05);
 }
 
-void HandleDisplayMode()
+void HandleDisplayMode() //TODO needed?
 {
     //TODO remove
     AuxDebugOvlString = "\rDisplay mode value: ";
     AuxDebugOvlString.append(std::to_string(DisplayModeValue));
+}
+
+// Health indicator option
+
+
+void PatchHealthIndicatorOption()
+{
+
 }

@@ -651,6 +651,13 @@ void DelayedStart()
 	{
 		PatchDisplayMode();
 	}
+
+	// Adds health indicator option
+	if (true) //TODO setting
+	{
+		PatchSearchViewOptionName();
+		PatchHealthIndicatorOption();
+	}
 	
 	// Patch to prevent James from looking at the teddy bear after picking up the bent needle
 	if (TeddyBearLookFix)

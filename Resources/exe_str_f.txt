@@ -27,9 +27,5 @@ Bouton %d
 \hChanger ce r�glage dans Windows
 \hVolume principal
 \hR�gler le volume principal
-\hDisplay Mode
-\hChange the display mode
-\hWindowed
-\hFullscreen Windowed
-\hFullscreen
-Enter: Activate/change input. Escape: Clear active input.
+\hHealth indicator
+\hEnable low health indicator

@@ -1067,6 +1067,7 @@ void PatchDisplayMode()
 
     /*TODO
     * replace high res textures option description
+    * fix save changed setting bug
     * store options in configdata
     * option for health indicator
     * set high res textures enabled 
@@ -1175,9 +1176,105 @@ void HandleDisplayMode() //TODO needed?
 }
 
 // Health indicator option
+BYTE* SetOptionValueColorRetAddr = nullptr;
+BYTE* DisplayHealthIndicatorHighlightValueRetAddr = nullptr;
 
+injector::hook_back<void(__cdecl*)(uint16_t*, uint16_t, int32_t, int32_t)> orgPrintTextAtPos;
+injector::hook_back<char*(__cdecl*)(uint16_t*, uint16_t)> orgGetStringFromMes;
+
+int8_t HealthIndicatorValue = 0; //TODO load from configdata
+DWORD MesPointer = NULL;
+
+
+__declspec(naked) void __stdcall SetHIOptionValueColor()
+{
+    __asm
+    {
+        mov dl, byte ptr[HealthIndicatorValue]
+
+        jmp SetOptionValueColorRetAddr
+    }
+}
+
+void PrintOnStr(uint16_t* MesStringsPtr, int32_t yPos, int32_t xPos)
+{
+    orgPrintTextAtPos.fun(MesStringsPtr, 0xB1, yPos, xPos);
+}
+
+void PrintOffStr(uint16_t* MesStringsPtr, int32_t yPos, int32_t xPos)
+{
+    orgPrintTextAtPos.fun(MesStringsPtr, 0xB0, yPos, xPos);
+}
+
+#pragma warning(disable : 4100)
+void __cdecl PrintOnStrSearchView_Hook(uint16_t* MesStringsPtr, uint16_t StringOffset, int32_t yPos, int32_t xPos)
+{
+    PrintOnStr(MesStringsPtr, yPos, xPos);
+}
+
+#pragma warning(disable : 4100)
+void __cdecl PrintOffStrSearchView_Hook(uint16_t* MesStringsPtr, uint16_t StringOffset, int32_t yPos, int32_t xPos)
+{
+    PrintOffStr(MesStringsPtr, yPos, xPos);
+}
+
+#pragma warning(disable : 4100)
+void __cdecl PrintSearchViewOptionValue_Hook(uint16_t* MesStringsPtr, uint16_t StringOffset, int32_t yPos, int32_t xPos)
+{
+    if (HealthIndicatorValue == 0)
+    {
+        PrintOffStr(MesStringsPtr, yPos, xPos);
+    }
+    else
+    {
+        PrintOnStr(MesStringsPtr, yPos, xPos);
+    }
+}
+
+#pragma warning(disable : 4100)
+char* __cdecl GetStringFromOffsetSearchView_Hook(uint16_t* ptr, uint16_t offset)
+{
+
+    if (HealthIndicatorValue == 0)
+    {
+        return orgGetStringFromMes.fun(ptr, 0xB0);
+    }
+    else
+    {
+        return orgGetStringFromMes.fun(ptr, 0xB1);
+    }
+}
 
 void PatchHealthIndicatorOption()
 {
+    /* TODO
+    * hook option change
+    * hook option store/restore
+    * get/set option in config data
+    */
 
+    // highlight
+    BYTE* PrintOnStrSearchViewAddr = (BYTE*)0x0046223f;
+    BYTE* PrintOffStrSearchViewAddr = PrintOnStrSearchViewAddr + 0x16;
+    // value
+    BYTE* PrintSearchViewOptionValueAddr = (BYTE*)0x00461fc9;
+
+    // arrow
+    BYTE* GetStringFromOffsetAddr = (BYTE*)0x004645c1;
+    
+    MesPointer = 0x0932b58;
+
+    BYTE* SetOptionValueColorAddr = (BYTE*)0x0046220e; //TODO address
+    SetOptionValueColorRetAddr = SetOptionValueColorAddr + 0x06;
+
+    orgPrintTextAtPos.fun = injector::MakeCALL(PrintOnStrSearchViewAddr, PrintOnStrSearchView_Hook, true).get();
+    injector::MakeCALL(PrintOffStrSearchViewAddr, PrintOffStrSearchView_Hook, true);
+    injector::MakeCALL(PrintSearchViewOptionValueAddr, PrintSearchViewOptionValue_Hook, true);
+
+
+    // Divert check for changed option
+    WriteJMPtoMemory(SetOptionValueColorAddr, SetHIOptionValueColor, 0x06);
+
+    // hook get string, to move the arrow
+    orgGetStringFromMes.fun = injector::MakeCALL(GetStringFromOffsetAddr, GetStringFromOffsetSearchView_Hook, true).get();
 }

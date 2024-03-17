@@ -112,14 +112,6 @@ struct CenterRects
 	ColorVertex vertices[RECT_VERT_NUM];
 };
 
-struct CO_TEXT
-{
-	LPCSTR     String = "";
-	RECT			  Rect;
-	DWORD           Format;
-	D3DCOLOR         Color;
-};
-
 class MasterVolume
 {
 public:
@@ -195,14 +187,6 @@ public:
 
 	void Init(LPDIRECT3DDEVICE8 ProxyInterface);
 	void UpdateBinds();
-	void ResetFont()
-	{
-		if (ControlOptionsFont)
-		{
-			ControlOptionsFont->OnLostDevice();
-			ResetFontFlag = true;
-		}
-	}
 
 	void HandleControllerIcons(LPDIRECT3DDEVICE8 ProxyInterface);
 	void DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface);
@@ -269,7 +253,6 @@ public:
 private:
 	long LastBufferWidth = 0;
 	long LastBufferHeight = 0;
-	bool ResetFontFlag = false;
 
 	IconQuad quads[BUTTON_QUADS_NUM];
 	int quadsNum = BUTTON_QUADS_NUM;
@@ -299,12 +282,6 @@ private:
 
 	LPDIRECT3DTEXTURE8  ButtonIconsTexture = NULL;
 	DWORD ModulationPixelShader = NULL;
-	
-	LPD3DXFONT ControlOptionsFont = nullptr;
-	LPCSTR FontName = "Arial Narrow";
-	CO_TEXT message;
-
-	void DrawControlOptionsText(LPDIRECT3DDEVICE8 ProxyInterface, CO_TEXT FontStruct);
 
 	float GetUStartingValue()
 	{
@@ -336,8 +313,6 @@ private:
 		Logging::Log() << __FUNCTION__ << " ERROR: Invalid keybind found: " << button;
 		return 0.f;
 	}
-
-	int calcFontSize();
 
 	ControllerButton TextureMap[BUTTON_ICONS_NUM] =
 	{

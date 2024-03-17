@@ -606,12 +606,7 @@ void ButtonIcons::DrawIcons(LPDIRECT3DDEVICE8 ProxyInterface)
         return;
     }
 
-    // iOrange - need to disable fog before we draw the text
-    // somehow it still affects the text
     ProxyInterface->SetRenderState(D3DRS_FOGENABLE, FALSE);
-
-    this->DrawControlOptionsText(ProxyInterface, this->message);
-
     ProxyInterface->SetVertexShader(D3DFVF_XYZRHW | D3DFVF_DIFFUSE);
 
     ProxyInterface->SetRenderState(D3DRS_ALPHAREF, 1);
@@ -752,12 +747,6 @@ void ButtonIcons::HandleControllerIcons(LPDIRECT3DDEVICE8 ProxyInterface)
             ButtonIconsTexture = NULL;
         }
 
-        if (ControlOptionsFont != nullptr)
-        {
-            ControlOptionsFont->Release();
-            ControlOptionsFont = nullptr;
-        }
-
         return;
     }
 
@@ -827,17 +816,6 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
     const float TopLineVerticalOffset = (90.f * (float)VerticalInternal) / 900.f;
     const float BottomLineVerticalOffset = (790.f * (float)VerticalInternal) / 900.f;
 
-    const float TextVerticalOffset = (85.f * (float)VerticalInternal) / 900.f;
-    const float TextRightOffset = ((20.f * (float)HorizontalInternal) / 1200.f) + UlteriorOffset;
-
-    this->message.String = getControlOptionsStr();
-    this->message.Format = DT_NOCLIP | DT_RIGHT;
-    this->message.Rect.left = 0.f;
-    this->message.Rect.top = BufferHeight - TextVerticalOffset;
-    this->message.Rect.right = BufferWidth - TextRightOffset;
-    this->message.Rect.bottom = TextVerticalOffset + 15;
-    this->message.Color = D3DCOLOR_RGBA(0x81, 0x81, 0x84, 0xFF);
-
     CopyVertexBuffer(this->TemplateLineVertices, this->LineVertices[0], RECT_VERT_NUM);
     CopyVertexBuffer(this->TemplateLineVertices, this->LineVertices[1], RECT_VERT_NUM);
 
@@ -857,39 +835,6 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
         this->quads[i].vertices[1].coords = { floorf(HorizontalOffset),  floorf(yy + vo), 0.0f };
         this->quads[i].vertices[2].coords = { floorf(xx + HorizontalOffset), floorf(yy + vo), 0.0f };
         this->quads[i].vertices[3].coords = { floorf(xx + HorizontalOffset), floorf(vo), 0.0f };
-    }
-}
-
-int ButtonIcons::calcFontSize()
-{
-    const int baseSize = 27;
-
-    return (int)(((float)BufferHeight / 900.f) * (float)baseSize);
-}
-
-void ButtonIcons::DrawControlOptionsText(LPDIRECT3DDEVICE8 ProxyInterface, CO_TEXT FontStruct)
-{
-    // This flag is set when changing resolution, we have to reload the font
-    if (ResetFontFlag)
-    {
-        ResetFontFlag = false;
-        ControlOptionsFont->OnResetDevice();
-    }
-
-    if (ProxyInterface != nullptr && ControlOptionsFont == nullptr)
-    {
-        HFONT FontCharacteristics = CreateFontA(this->calcFontSize(), 0, 0, 0, FW_REGULAR, 0, 0, 0, 0, 0, 0, ANTIALIASED_QUALITY, 0, FontName); //TODO on resolution change, scale size
-        if (FontCharacteristics != NULL)
-        {
-            Logging::LogDebug() << __FUNCTION__ << " Creating Control Options font: " << FontName;
-            D3DXCreateFont(ProxyInterface, FontCharacteristics, &ControlOptionsFont);
-            DeleteObject(FontCharacteristics);
-        }
-    }
-
-    if (ControlOptionsFont != nullptr)
-    {
-        ControlOptionsFont->DrawTextA(FontStruct.String, -1, &FontStruct.Rect, FontStruct.Format, FontStruct.Color);
     }
 }
 
@@ -1125,6 +1070,7 @@ void PatchDisplayMode()
     /*TODO
     * store options in configdata
     * option for health indicator
+    * set high res textures enabled 
     */
 
     BYTE* RenderRightArrowAddr = (BYTE*)0x00465bf4; //TODO address

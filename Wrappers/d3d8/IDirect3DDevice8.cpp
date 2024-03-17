@@ -171,7 +171,6 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 	}
 
 	OverlayRef.ResetFont();
-	ButtonIconsRef.ResetFont();
 
 	// Update presentation parameters
 	UpdatePresentParameter(pPresentationParameters, nullptr, true);

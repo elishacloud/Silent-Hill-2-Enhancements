@@ -876,6 +876,7 @@ BYTE* CheckStoredOptionRetAddr = nullptr;
 BYTE* RestoreSearchViewOptionRetAddr = nullptr;
 BYTE* RestoreSearchViewOption2RetAddr = nullptr;
 BYTE* SetOptionValueColor2RetAddr = nullptr;
+BYTE* DivertSearchViewOptionChangeRetAddr = nullptr;
 
 injector::hook_back<void(__cdecl*)(uint16_t*, uint16_t, int32_t, int32_t)> orgPrintTextAtPosHI;
 injector::hook_back<char* (__cdecl*)(uint16_t*, uint16_t)> orgGetStringFromMes;
@@ -885,6 +886,18 @@ DWORD MesPointer = NULL;
 BYTE* StoredHealthIndicatorValue = nullptr;
 int8_t HealthIndicatorValue = 0; //TODO load from configdata
 
+__declspec(naked) void __stdcall DivertSearchViewOptionChange()
+{
+    __asm
+    {
+        mov al, [HealthIndicatorValue]
+        mov dl, 0x01
+        sub dl, al
+        mov byte ptr[HealthIndicatorValue], dl
+
+        jmp DivertSearchViewOptionChangeRetAddr
+    }
+}
 
 __declspec(naked) void __stdcall SetHIOptionValueColor()
 {
@@ -1004,8 +1017,6 @@ char* __cdecl GetStringFromOffsetSearchView_Hook(uint16_t* ptr, uint16_t offset)
 void PatchHealthIndicatorOption()
 {
     /* TODO
-    * view_control/view_mode?
-    * hook option change
     * get/set option in config data
     */
 
@@ -1037,6 +1048,12 @@ void PatchHealthIndicatorOption()
 
     BYTE* SetOptionValueColor2Addr = (BYTE*)0x00461f85;
     SetOptionValueColor2RetAddr = SetOptionValueColor2Addr + 0x0C;
+
+    BYTE* DivertSearchViewOptionChangeAddr = (BYTE*)0x00464665;
+    DivertSearchViewOptionChangeRetAddr = DivertSearchViewOptionChangeAddr + 0x0F;
+
+    // Divert option change
+    WriteJMPtoMemory(DivertSearchViewOptionChangeAddr, DivertSearchViewOptionChange, 0x0F);
 
     // Divert string drawing
     orgPrintTextAtPosHI.fun = injector::MakeCALL(PrintOnStrSearchViewAddr, PrintSearchViewOptionValue_Hook, true).get();

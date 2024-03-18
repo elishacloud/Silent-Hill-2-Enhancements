@@ -21,8 +21,6 @@
 #include "Common\GfxUtils.h"
 #include "OptionsMenuTweaks.h"
 
-extern char* getControlOptionsStr();
-
 bool DrawOptionsHookEnabled = false;
 bool wasInControlOptions = false;
 
@@ -1221,6 +1219,7 @@ __declspec(naked) void __stdcall DecrementDisplayModeValue()
     }
 }
 
+#pragma warning(disable : 4414)
 __declspec(naked) void __stdcall ConditionChangeOne()
 {
     __asm
@@ -1235,6 +1234,7 @@ __declspec(naked) void __stdcall ConditionChangeOne()
     }
 }
 
+#pragma warning(disable : 4414)
 __declspec(naked) void __stdcall ConditionChangeTwo()
 {
     __asm
@@ -1251,6 +1251,7 @@ __declspec(naked) void __stdcall ConditionChangeTwo()
     }
 }
 
+#pragma warning(disable : 4414)
 __declspec(naked) void __stdcall ConditionChangeThree()
 {
     __asm
@@ -1261,6 +1262,7 @@ __declspec(naked) void __stdcall ConditionChangeThree()
     }
 }
 
+#pragma warning(disable : 4414)
 __declspec(naked) void __stdcall ConditionChangeFour()
 {
     __asm
@@ -1301,8 +1303,7 @@ void PatchDisplayMode()
 
     DisplayModeValue = ConfigData.DisplayModeOption;
 
-    BYTE* RenderRightArrowAddr = (BYTE*)0x00465bf4; //TODO address
-    BYTE* HighResTextName1 = (BYTE*)0x00465060;
+    BYTE* HighResTextName1 = (BYTE*)0x00465060; //TODO address
     BYTE* HighResTextName2 = (BYTE*)0x0046561c;
     BYTE* HighResTextValue1 = (BYTE*)0x0046525c;
     BYTE* HighResTextValue2 = (BYTE*)0x00465664;
@@ -1404,7 +1405,6 @@ void HandleCustomOptions()
 {
     if (PersistDisplayModeOption)
     {
-        Logging::Log() << "Config data dm initial value: " << ConfigData.DisplayModeOption;
         PersistDisplayModeOption = false;
 
         ConfigData.DisplayModeOption = DisplayModeValue;

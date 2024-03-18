@@ -869,6 +869,7 @@ void ButtonIcons::UpdateBinds()
 }
 
 // Health indicator option
+bool PersistHealthIndicatorOption = false;
 BYTE* SetOptionValueColorRetAddr = nullptr;
 BYTE* DisplayHealthIndicatorHighlightValueRetAddr = nullptr;
 BYTE* StoreSearchViewOptionRetAddr = nullptr;
@@ -884,7 +885,7 @@ injector::hook_back<char* (__cdecl*)(uint16_t*, uint16_t)> orgGetStringFromMes;
 DWORD MesPointer = NULL;
 
 BYTE* StoredHealthIndicatorValue = nullptr;
-int8_t HealthIndicatorValue = 0; //TODO load from configdata
+int8_t HealthIndicatorValue = 0;
 
 __declspec(naked) void __stdcall DivertSearchViewOptionChange()
 {
@@ -894,7 +895,7 @@ __declspec(naked) void __stdcall DivertSearchViewOptionChange()
         mov dl, 0x01
         sub dl, al
         mov byte ptr[HealthIndicatorValue], dl
-
+   
         jmp DivertSearchViewOptionChangeRetAddr
     }
 }
@@ -1017,8 +1018,10 @@ char* __cdecl GetStringFromOffsetSearchView_Hook(uint16_t* ptr, uint16_t offset)
 void PatchHealthIndicatorOption()
 {
     /* TODO
-    * get/set option in config data
+    * Search View Mode on startup set to 0
     */
+
+    HealthIndicatorValue = ConfigData.HealthIndicatorOption;
 
     // highlight
     BYTE* PrintOnStrSearchViewAddr = (BYTE*)0x0046223f;
@@ -1078,6 +1081,7 @@ void PatchHealthIndicatorOption()
 }
 
 // Display mode
+bool PersistDisplayModeOption = false;
 BYTE* DisplayModeArrowRetAddr = nullptr;
 BYTE* DisplayModeValueHighlightRetAddr = nullptr;
 BYTE* DisplayModeValuePrintRetAddr = nullptr;
@@ -1097,9 +1101,9 @@ BYTE* DisplayModeValueChangedRetAddr = nullptr;
 
 injector::hook_back<void(__cdecl*)(uint16_t*, uint16_t, int32_t, int32_t)> orgPrintTextAtPosDM;
 
-BYTE* StoredDisplayModeValue = nullptr;
+int8_t* StoredDisplayModeValue = NULL;
 
-int8_t DisplayModeValue = 0; //TODO retrieve from stored option
+int8_t DisplayModeValue = 0;
 
 __declspec(naked) void __stdcall DisplayModeArrow()
 {
@@ -1136,6 +1140,9 @@ __declspec(naked) void __stdcall ConfirmInitialOptionValue()
 {
     __asm
     {
+        mov dl, 0x01
+        mov byte ptr[PersistDisplayModeOption], dl
+
         mov dl, byte ptr[DisplayModeValue]
 
         jmp ConfirmInitialOptionValueRetAddr
@@ -1176,8 +1183,9 @@ __declspec(naked) void __stdcall StoreInitialOptionValue()
 {
     __asm
     {
-        mov bl, byte ptr[DisplayModeValue]
-        mov byte ptr[StoredDisplayModeValue], bl
+        mov dl, byte ptr[DisplayModeValue]
+        mov ecx, [StoredDisplayModeValue]
+        mov byte ptr[ecx], dl
 
         jmp StoreInitialOptionValueRetAddr
     }
@@ -1196,7 +1204,7 @@ __declspec(naked) void __stdcall SetHighlightColor()
 __declspec(naked) void __stdcall IncrementDisplayModeValue()
 {
     DisplayModeValue += DisplayModeValue != 0x02 ? 1 : -2;
-    
+
     __asm
     {
         jmp DisplayModeValueChangedRetAddr
@@ -1286,9 +1294,12 @@ void PatchDisplayMode()
 
     /*TODO
     * 
-    * store/retrieve options in configdata
-    * set high res textures enabled 
+    * set high res textures enabled = 0
+    * 
+    * - Disable the controller buttons icons feature if the texture can't be loaded
     */
+
+    DisplayModeValue = ConfigData.DisplayModeOption;
 
     BYTE* RenderRightArrowAddr = (BYTE*)0x00465bf4; //TODO address
     BYTE* HighResTextName1 = (BYTE*)0x00465060;
@@ -1297,7 +1308,7 @@ void PatchDisplayMode()
     BYTE* HighResTextValue2 = (BYTE*)0x00465664;
     BYTE* HighResDescriptionAddr = (BYTE*)0x0046563e;
 
-    StoredDisplayModeValue = (BYTE*)0x00941784;
+    StoredDisplayModeValue = (int8_t*)0x00941784;
 
     BYTE* HighResTextArrow = (BYTE*)0x00465994;
     DisplayModeArrowRetAddr = HighResTextArrow + 0x16;
@@ -1321,8 +1332,9 @@ void PatchDisplayMode()
     BYTE* DisplayModeOptionColorCheckAddr = (BYTE*)0x00465221;
     DisplayModeOptionColorCheckRetAddr = DisplayModeOptionColorCheckAddr + 0x06;
 
-    BYTE* StoreInitialOptionValueAddr = (BYTE*)0x00462d28;
+    BYTE* StoreInitialOptionValueAddr = (BYTE*)0x00462d86;
     StoreInitialOptionValueRetAddr = StoreInitialOptionValueAddr + 0x06;
+    BYTE* NopOriginalStoreOptionAddr = StoreInitialOptionValueAddr - 0x5E;
 
     BYTE* SetHighlightColorAddr = (BYTE*)0x00465649;
     SetHighlightColorRetAddr = SetHighlightColorAddr + 0x06;
@@ -1378,6 +1390,7 @@ void PatchDisplayMode()
 
     // Divert saving the option value for checks
     WriteJMPtoMemory(StoreInitialOptionValueAddr, StoreInitialOptionValue, 0x06);
+    UpdateMemoryAddress(NopOriginalStoreOptionAddr, "\x90\x90\x90\x90\x90\x90", 0x06);
 
     // Change the conditional that changes the value
     WriteJMPtoMemory(InputConditionChangeAddr1, ConditionChangeOne, 0x06);
@@ -1387,11 +1400,24 @@ void PatchDisplayMode()
     WriteJMPtoMemory(InputConditionChangeAddr5, ConditionChangeFive, 0x05);
 }
 
-void HandleDisplayMode() //TODO needed?
+void HandleCustomOptions()
 {
-    //TODO remove
-    AuxDebugOvlString = "\rDisplay mode value: ";
-    AuxDebugOvlString.append(std::to_string(DisplayModeValue));
-    if (ShowDebugOverlay)
-        HealthIndicatorValue = 1;
+    if (PersistDisplayModeOption)
+    {
+        Logging::Log() << "Config data dm initial value: " << ConfigData.DisplayModeOption;
+        PersistDisplayModeOption = false;
+
+        ConfigData.DisplayModeOption = DisplayModeValue;
+
+        SaveConfigData();
+    }
+
+    if (PersistHealthIndicatorOption)
+    {
+        PersistHealthIndicatorOption = false;
+
+        ConfigData.HealthIndicatorOption = HealthIndicatorValue;
+
+        SaveConfigData();
+    }
 }

@@ -320,6 +320,8 @@ struct CFGDATA
 	DWORD Width = 0;
 	DWORD Height = 0;
 	DWORD VolumeLevel = 15;
+	DWORD HealthIndicatorOption = 0;
+	DWORD DisplayModeOption = 0;
 };
 
 extern HMODULE m_hModule;

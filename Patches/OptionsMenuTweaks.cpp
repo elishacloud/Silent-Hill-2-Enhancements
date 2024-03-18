@@ -872,7 +872,7 @@ void ButtonIcons::UpdateBinds()
 BYTE* SetOptionValueColorRetAddr = nullptr;
 BYTE* DisplayHealthIndicatorHighlightValueRetAddr = nullptr;
 
-injector::hook_back<void(__cdecl*)(uint16_t*, uint16_t, int32_t, int32_t)> orgPrintTextAtPos;
+injector::hook_back<void(__cdecl*)(uint16_t*, uint16_t, int32_t, int32_t)> orgPrintTextAtPosHI;
 injector::hook_back<char* (__cdecl*)(uint16_t*, uint16_t)> orgGetStringFromMes;
 
 int8_t HealthIndicatorValue = 0; //TODO load from configdata
@@ -891,12 +891,12 @@ __declspec(naked) void __stdcall SetHIOptionValueColor()
 
 void PrintOnStr(uint16_t* MesStringsPtr, int32_t yPos, int32_t xPos)
 {
-    orgPrintTextAtPos.fun(MesStringsPtr, 0xB1, yPos, xPos);
+    orgPrintTextAtPosHI.fun(MesStringsPtr, 0xB1, yPos, xPos);
 }
 
 void PrintOffStr(uint16_t* MesStringsPtr, int32_t yPos, int32_t xPos)
 {
-    orgPrintTextAtPos.fun(MesStringsPtr, 0xB0, yPos, xPos);
+    orgPrintTextAtPosHI.fun(MesStringsPtr, 0xB0, yPos, xPos);
 }
 
 #pragma warning(disable : 4100)
@@ -960,7 +960,7 @@ void PatchHealthIndicatorOption()
     BYTE* SetOptionValueColorAddr = (BYTE*)0x0046220e; //TODO address
     SetOptionValueColorRetAddr = SetOptionValueColorAddr + 0x06;
 
-    orgPrintTextAtPos.fun = injector::MakeCALL(PrintOnStrSearchViewAddr, PrintOnStrSearchView_Hook, true).get();
+    orgPrintTextAtPosHI.fun = injector::MakeCALL(PrintOnStrSearchViewAddr, PrintOnStrSearchView_Hook, true).get();
     injector::MakeCALL(PrintOffStrSearchViewAddr, PrintOffStrSearchView_Hook, true);
     injector::MakeCALL(PrintSearchViewOptionValueAddr, PrintSearchViewOptionValue_Hook, true);
 
@@ -989,6 +989,8 @@ BYTE* InputConditionChangeRetAddr4 = nullptr;
 BYTE* InputConditionChangeRetAddr5 = nullptr;
 
 BYTE* DisplayModeValueChangedRetAddr = nullptr;
+
+injector::hook_back<void(__cdecl*)(uint16_t*, uint16_t, int32_t, int32_t)> orgPrintTextAtPosDM;
 
 BYTE* StoredDisplayModeValue = nullptr;
 
@@ -1171,7 +1173,7 @@ __declspec(naked) void __stdcall ConditionChangeFive()
 void __cdecl PrintDisplayModeDescription_Hook(uint16_t* MesStringsPtr, uint16_t StringOffset, int32_t yPos, int32_t xPos)
 {
     
-    orgPrintTextAtPos.fun(MesStringsPtr, 0xFF, yPos, xPos);
+    orgPrintTextAtPosDM.fun(MesStringsPtr, 0xFF, yPos, xPos);
 }
 
 void PatchDisplayMode()
@@ -1179,9 +1181,7 @@ void PatchDisplayMode()
 
     /*TODO
     * 
-    * fix save changed setting bug
-    * store options in configdata
-    * option for health indicator
+    * store/retrieve options in configdata
     * set high res textures enabled 
     */
 
@@ -1255,7 +1255,7 @@ void PatchDisplayMode()
     UpdateMemoryAddress(HighResTextValue2, "\x00\x01", 0x02);
 
     // Change the description
-    injector::MakeCALL(HighResDescriptionAddr, PrintDisplayModeDescription_Hook, true);
+    orgPrintTextAtPosDM.fun = injector::MakeCALL(HighResDescriptionAddr, PrintDisplayModeDescription_Hook, true).get();
 
     // Display mode option arrow
     WriteJMPtoMemory(HighResTextArrow, DisplayModeArrow, 15);

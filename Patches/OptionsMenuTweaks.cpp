@@ -871,12 +871,18 @@ void ButtonIcons::UpdateBinds()
 // Health indicator option
 BYTE* SetOptionValueColorRetAddr = nullptr;
 BYTE* DisplayHealthIndicatorHighlightValueRetAddr = nullptr;
+BYTE* StoreSearchViewOptionRetAddr = nullptr;
+BYTE* CheckStoredOptionRetAddr = nullptr;
+BYTE* RestoreSearchViewOptionRetAddr = nullptr;
+BYTE* RestoreSearchViewOption2RetAddr = nullptr;
 
 injector::hook_back<void(__cdecl*)(uint16_t*, uint16_t, int32_t, int32_t)> orgPrintTextAtPosHI;
 injector::hook_back<char* (__cdecl*)(uint16_t*, uint16_t)> orgGetStringFromMes;
 
-int8_t HealthIndicatorValue = 0; //TODO load from configdata
 DWORD MesPointer = NULL;
+
+BYTE* StoredHealthIndicatorValue = nullptr;
+int8_t HealthIndicatorValue = 0; //TODO load from configdata
 
 
 __declspec(naked) void __stdcall SetHIOptionValueColor()
@@ -884,8 +890,53 @@ __declspec(naked) void __stdcall SetHIOptionValueColor()
     __asm
     {
         mov dl, byte ptr[HealthIndicatorValue]
+        mov cl, byte ptr[StoredHealthIndicatorValue]
 
         jmp SetOptionValueColorRetAddr
+    }
+}
+
+__declspec(naked) void __stdcall StoreSearchViewOption()
+{
+    __asm
+    {
+        mov al, byte ptr[HealthIndicatorValue]
+        mov byte ptr[StoredHealthIndicatorValue], al
+
+        jmp StoreSearchViewOptionRetAddr
+    }
+}
+
+__declspec(naked) void __stdcall CheckStoredOption()
+{
+    __asm
+    {
+        mov cl, byte ptr[StoredHealthIndicatorValue]
+        cmp cl, byte ptr[HealthIndicatorValue]
+
+        jmp CheckStoredOptionRetAddr
+    }
+}
+
+__declspec(naked) void __stdcall RestoreSearchViewOption()
+{
+    __asm
+    {
+        mov cl, byte ptr[StoredHealthIndicatorValue]
+        mov byte ptr[HealthIndicatorValue], cl
+
+        jmp RestoreSearchViewOptionRetAddr
+    }
+}
+
+__declspec(naked) void __stdcall RestoreSearchViewOption2()
+{
+    __asm
+    {
+        mov cl, byte ptr[StoredHealthIndicatorValue]
+        mov byte ptr[HealthIndicatorValue], cl
+
+        jmp RestoreSearchViewOption2RetAddr
     }
 }
 
@@ -941,8 +992,9 @@ char* __cdecl GetStringFromOffsetSearchView_Hook(uint16_t* ptr, uint16_t offset)
 void PatchHealthIndicatorOption()
 {
     /* TODO
+    * view_control/view_mode?
+    * value has wrong color
     * hook option change
-    * hook option store/restore
     * get/set option in config data
     */
 
@@ -955,21 +1007,42 @@ void PatchHealthIndicatorOption()
     // arrow
     BYTE* GetStringFromOffsetAddr = (BYTE*)0x004645c1;
 
+    BYTE* StoreSearchViewOptionAddr = (BYTE*)0x00462cbe;
+    StoreSearchViewOptionRetAddr = StoreSearchViewOptionAddr + 0x05;
+
+    BYTE* CheckStoredOptionAddr = (BYTE*)0x004632a4;
+    CheckStoredOptionRetAddr = CheckStoredOptionAddr + 0x06;
+
+    BYTE* RestoreSearchViewOptionAddr = (BYTE*)0x004635c3;
+    RestoreSearchViewOptionRetAddr = RestoreSearchViewOptionAddr + 0x06;
+
+    BYTE* RestoreSearchViewOption2Addr = (BYTE*)0x00463792;
+    RestoreSearchViewOption2RetAddr = RestoreSearchViewOption2Addr + 0x06;
+
     MesPointer = 0x0932b58;
 
     BYTE* SetOptionValueColorAddr = (BYTE*)0x0046220e; //TODO address
     SetOptionValueColorRetAddr = SetOptionValueColorAddr + 0x06;
 
-    orgPrintTextAtPosHI.fun = injector::MakeCALL(PrintOnStrSearchViewAddr, PrintOnStrSearchView_Hook, true).get();
-    injector::MakeCALL(PrintOffStrSearchViewAddr, PrintOffStrSearchView_Hook, true);
+    // Divert string drawing
+    orgPrintTextAtPosHI.fun = injector::MakeCALL(PrintOnStrSearchViewAddr, PrintSearchViewOptionValue_Hook, true).get();
+    injector::MakeCALL(PrintOffStrSearchViewAddr, PrintSearchViewOptionValue_Hook, true);
     injector::MakeCALL(PrintSearchViewOptionValueAddr, PrintSearchViewOptionValue_Hook, true);
 
 
     // Divert check for changed option
-    WriteJMPtoMemory(SetOptionValueColorAddr, SetHIOptionValueColor, 0x06);
+    WriteJMPtoMemory(SetOptionValueColorAddr, SetHIOptionValueColor, 0x0C);
 
     // hook get string, to move the arrow
     orgGetStringFromMes.fun = injector::MakeCALL(GetStringFromOffsetAddr, GetStringFromOffsetSearchView_Hook, true).get();
+
+    // Hook option storing
+    WriteJMPtoMemory(StoreSearchViewOptionAddr, StoreSearchViewOption, 0x05);
+
+    // Override option change check
+    WriteJMPtoMemory(CheckStoredOptionAddr, CheckStoredOption, 0x06);
+    WriteJMPtoMemory(RestoreSearchViewOptionAddr, RestoreSearchViewOption, 0x06);
+    WriteJMPtoMemory(RestoreSearchViewOption2Addr, RestoreSearchViewOption2, 0x06);
 }
 
 // Display mode
@@ -1287,4 +1360,6 @@ void HandleDisplayMode() //TODO needed?
     //TODO remove
     AuxDebugOvlString = "\rDisplay mode value: ";
     AuxDebugOvlString.append(std::to_string(DisplayModeValue));
+    if (ShowDebugOverlay)
+        HealthIndicatorValue = 1;
 }

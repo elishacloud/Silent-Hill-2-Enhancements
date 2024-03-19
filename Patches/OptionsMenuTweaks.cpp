@@ -1033,9 +1033,10 @@ void PatchHealthIndicatorOption()
     * Search View Mode on startup set to 0
     */
 
-    Logging::Log() << "Initial health value: " << ConfigData.HealthIndicatorOption;
-
     HealthIndicatorValue = ConfigData.HealthIndicatorOption;
+
+    BYTE* OptionSearchViewMode = (BYTE*)0x01dbc004;
+    *OptionSearchViewMode = 0;
 
     // highlight
     BYTE* PrintOnStrSearchViewAddr = (BYTE*)0x0046223f;
@@ -1324,6 +1325,9 @@ void PatchDisplayMode()
     */
 
     DisplayModeValue = ConfigData.DisplayModeOption;
+
+    BYTE* OptionsHighResTexturesEnabled = (BYTE*)0x00941710;
+    *OptionsHighResTexturesEnabled = 0;
 
     BYTE* HighResTextName1 = (BYTE*)0x00465060; //TODO address
     BYTE* HighResTextName2 = (BYTE*)0x0046561c;

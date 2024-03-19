@@ -320,7 +320,7 @@ struct CFGDATA
 	DWORD Width = 0;
 	DWORD Height = 0;
 	DWORD VolumeLevel = 15;
-	DWORD HealthIndicatorOption = 0;
+	DWORD HealthIndicatorOption = 1;
 	DWORD DisplayModeOption = 0;
 };
 

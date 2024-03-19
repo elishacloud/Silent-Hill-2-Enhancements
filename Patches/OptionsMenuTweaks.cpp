@@ -876,6 +876,7 @@ BYTE* RestoreSearchViewOptionRetAddr = nullptr;
 BYTE* RestoreSearchViewOption2RetAddr = nullptr;
 BYTE* SetOptionValueColor2RetAddr = nullptr;
 BYTE* DivertSearchViewOptionChangeRetAddr = nullptr;
+BYTE* ConfirmOptionRetAddr = nullptr;
 
 injector::hook_back<void(__cdecl*)(uint16_t*, uint16_t, int32_t, int32_t)> orgPrintTextAtPosHI;
 injector::hook_back<char* (__cdecl*)(uint16_t*, uint16_t)> orgGetStringFromMes;
@@ -906,6 +907,19 @@ __declspec(naked) void __stdcall SetHIOptionValueColor()
         mov cl, byte ptr[StoredHealthIndicatorValue]
 
         jmp SetOptionValueColorRetAddr
+    }
+}
+
+__declspec(naked) void __stdcall ConfirmOptionHI()
+{
+    __asm
+    {
+        mov al, 0x01
+        mov byte ptr[PersistHealthIndicatorOption], al
+
+        push 0x3f800000
+
+        jmp ConfirmOptionRetAddr
     }
 }
 
@@ -1019,6 +1033,8 @@ void PatchHealthIndicatorOption()
     * Search View Mode on startup set to 0
     */
 
+    Logging::Log() << "Initial health value: " << ConfigData.HealthIndicatorOption;
+
     HealthIndicatorValue = ConfigData.HealthIndicatorOption;
 
     // highlight
@@ -1053,6 +1069,9 @@ void PatchHealthIndicatorOption()
     BYTE* DivertSearchViewOptionChangeAddr = (BYTE*)0x00464665;
     DivertSearchViewOptionChangeRetAddr = DivertSearchViewOptionChangeAddr + 0x0F;
 
+    BYTE* ConfirmOptionAddr = (BYTE*)0x00463886;
+    ConfirmOptionRetAddr = ConfirmOptionAddr + 0x05;
+
     // Divert option change
     WriteJMPtoMemory(DivertSearchViewOptionChangeAddr, DivertSearchViewOptionChange, 0x0F);
 
@@ -1076,6 +1095,9 @@ void PatchHealthIndicatorOption()
     WriteJMPtoMemory(CheckStoredOptionAddr, CheckStoredOption, 0x06);
     WriteJMPtoMemory(RestoreSearchViewOptionAddr, RestoreSearchViewOption, 0x06);
     WriteJMPtoMemory(RestoreSearchViewOption2Addr, RestoreSearchViewOption2, 0x06);
+
+    // Check confirm options to save on cfg file
+    WriteJMPtoMemory(ConfirmOptionAddr, ConfirmOptionHI, 0x05);
 }
 
 // Display mode

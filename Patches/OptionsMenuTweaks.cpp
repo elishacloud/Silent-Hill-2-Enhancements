@@ -59,6 +59,7 @@ int ChangeMasterVolume = 0;
 
 // Control options
 ButtonIcons ButtonIconsRef;
+bool ControlOptionsInitFlag = false;
 
 const float ControlOptionRedGreen = 0.502f;
 const float ControlOptionSelectedBlue = 0.8785f;
@@ -265,13 +266,7 @@ void PatchMasterVolumeSlider()
 
 void PatchControlOptionsMenu()
 {
-    BYTE* FunctionDrawControllerValues = (BYTE*)0x00467985; //TODO address
-    BYTE* FunctionDrawDashes = (BYTE*)0x00467606; //TODO address
-
     EnableDrawOptionsHook();
-
-    UpdateMemoryAddress(FunctionDrawControllerValues, "\x90\x90\x90\x90\x90", 0x05);
-    UpdateMemoryAddress(FunctionDrawDashes, "\x90\x90\x90\x90\x90", 0x05);
 }
 
 // Graphics utils
@@ -791,6 +786,17 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
         }
     }
 
+    if (!ControlOptionsInitFlag)
+    {
+        BYTE* FunctionDrawControllerValues = (BYTE*)0x00467985; //TODO address
+        BYTE* FunctionDrawDashes = (BYTE*)0x00467606; //TODO address
+
+        UpdateMemoryAddress(FunctionDrawControllerValues, "\x90\x90\x90\x90\x90", 0x05);
+        UpdateMemoryAddress(FunctionDrawDashes, "\x90\x90\x90\x90\x90", 0x05);
+
+        ControlOptionsInitFlag = true;
+    }
+
     this->LastBufferHeight = BufferHeight;
     this->LastBufferWidth = BufferWidth;
 
@@ -1029,10 +1035,6 @@ char* __cdecl GetStringFromOffsetSearchView_Hook(uint16_t* ptr, uint16_t offset)
 
 void PatchHealthIndicatorOption()
 {
-    /* TODO
-    * Search View Mode on startup set to 0
-    */
-
     HealthIndicatorValue = ConfigData.HealthIndicatorOption;
 
     BYTE* OptionSearchViewMode = (BYTE*)0x01dbc004;
@@ -1316,14 +1318,6 @@ void __cdecl PrintDisplayModeDescription_Hook(uint16_t* MesStringsPtr, uint16_t 
 
 void PatchDisplayMode()
 {
-
-    /*TODO
-    * 
-    * set high res textures enabled = 0
-    * 
-    * - Disable the controller buttons icons feature if the texture can't be loaded
-    */
-
     DisplayModeValue = ConfigData.DisplayModeOption;
 
     BYTE* OptionsHighResTexturesEnabled = (BYTE*)0x00941710;

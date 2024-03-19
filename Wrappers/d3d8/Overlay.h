@@ -87,6 +87,7 @@ private:
 	const float AntiJitterValue = 0.0001f;
 	const int DropShadowOffset = 1;
 
+	float LastFPS;
 	float LastCharYPos;
 
 	LPCSTR FontName = "Arial";
@@ -97,6 +98,7 @@ private:
 	bool ResetDebugFontFlag = false;
 	bool ResetIGTFontFlag = false;
 
+	std::chrono::time_point<std::chrono::steady_clock> lastUpdateTime = std::chrono::steady_clock::now();
 	std::chrono::system_clock::time_point LastColorChange = std::chrono::system_clock::now();
 	int WhiteArrayIndex = 2;
 
@@ -112,3 +114,4 @@ private:
 extern bool ControllerConnectedFlag;
 extern int JoystickX;
 extern int JoystickY;
+extern double AverageFPSCounter;

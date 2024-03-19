@@ -491,10 +491,13 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		}
 
 		// Activate Overlays
-		if (DebugCombo.State && !DebugCombo.Holding && EnableDebugOverlay)
-			ShowDebugOverlay = !ShowDebugOverlay;
-		if (InfoCombo.State && !InfoCombo.Holding && EnableInfoOverlay)
-			ShowInfoOverlay = !ShowInfoOverlay;
+		if (GetEventIndex() != EVENT_PAUSE_MENU)
+		{
+			if (DebugCombo.State && !DebugCombo.Holding && EnableDebugOverlay)
+				ShowDebugOverlay = !ShowDebugOverlay;
+			if (InfoCombo.State && !InfoCombo.Holding && EnableInfoOverlay)
+				ShowInfoOverlay = !ShowInfoOverlay;
+		}
 
 		// Inject Key Presses
 

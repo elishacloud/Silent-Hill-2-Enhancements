@@ -125,6 +125,14 @@ void Overlay::DrawInfoOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 
 void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 {
+	// Calculate FPS if it has been more than one second since last update
+	auto currentTime = std::chrono::steady_clock::now();
+	if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastUpdateTime).count() >= 500)
+	{
+		LastFPS = (float)AverageFPSCounter;
+		lastUpdateTime = currentTime;
+	}
+
 	float CharYPos = GetJamesPosY();
 
 	// Lock value at 0 if close enough, to avoid a rapidly changing number.
@@ -148,7 +156,7 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 					"Unknown");
 
 	OvlString.append("\rFPS: ");
-	OvlString.append(FloatToStr(GetFPSCounter(), FPSFloatPrecision));
+	OvlString.append(FloatToStr(LastFPS, FPSFloatPrecision));
 
 	OvlString.append("\rGame Resolution: ");
 	OvlString.append(std::to_string(BufferWidth));
@@ -249,7 +257,9 @@ void Overlay::DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT 
 
 	if (DebugFont != nullptr)
 	{
+		// Draw the drop shadow text
 		DebugFont->DrawTextA(FontStruct.String, -1, &DropShadowRect, FontStruct.Format, TextColors.Black);
+		// Draw the main text
 		DebugFont->DrawTextA(FontStruct.String, -1, &FontStruct.Rect, FontStruct.Format, FontStruct.Color);
 	}
 }

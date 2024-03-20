@@ -27,5 +27,5 @@ Tasto %d
 \hConfigura attraverso Windows
 \hVolume Principale
 \hImposta volume principale
-\hHealth indicator
-\hEnable low health indicator
+\hIndicatore salute
+\hAbilita l'indicatore salute bassa

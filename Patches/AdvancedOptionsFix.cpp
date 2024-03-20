@@ -21,12 +21,9 @@
 #include "Logging\Logging.h"
 #include "External\Hooking.Patterns\Hooking.Patterns.h"
 #include "External\injector\include\injector\injector.hpp"
-#include "Patches\Patches.h"
 
 static uint32_t* ptrConfirmationPromptState;
 static uint32_t* ptrSelectionIndex;
-
-bool HookedDrawTextOverlay = false;
 
 bool isConfirmationPromptOpen()
 {
@@ -52,7 +49,7 @@ __int16 __declspec(naked) DrawTextOverlay_hook()
 	if (iSelectionIndex() > 2 && iSelectionIndex() < 7) // if index is 3, 4, 5 or 6
 	{
 		// Don't render the 3D effect if the confirmation prompt is open
-		if (isConfirmationPromptOpen() && FixAdvancedOptions)
+		if (isConfirmationPromptOpen())
 		{
 			__asm {ret}
 		}

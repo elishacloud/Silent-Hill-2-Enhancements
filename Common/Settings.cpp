@@ -281,6 +281,9 @@ void UpdateConfigDefaults()
 		CRTCurveShader = true;
 	}
 
+	// Turn on best graphics if the high res textures option is replaced
+	UseBestGraphics = UseBestGraphics || true; //TODO setting
+
 	// Set shaders default
 	EnableCustomShaders = ((EnableSMAA || AdjustColorTemp || RestoreBrightnessSelector || EnableCRTShader) && d3d8to9);
 

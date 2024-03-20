@@ -883,6 +883,7 @@ BYTE* RestoreSearchViewOption2RetAddr = nullptr;
 BYTE* SetOptionValueColor2RetAddr = nullptr;
 BYTE* DivertSearchViewOptionChangeRetAddr = nullptr;
 BYTE* ConfirmOptionRetAddr = nullptr;
+BYTE* OverrideFileConfigSearchViewRetAddr = nullptr;
 
 injector::hook_back<void(__cdecl*)(uint16_t*, uint16_t, int32_t, int32_t)> orgPrintTextAtPosHI;
 injector::hook_back<char* (__cdecl*)(uint16_t*, uint16_t)> orgGetStringFromMes;
@@ -984,6 +985,16 @@ __declspec(naked) void __stdcall RestoreSearchViewOption2()
     }
 }
 
+__declspec(naked) void __stdcall OverrideFileConfigSearchView()
+{
+    __asm
+    {
+        mov al, 0x00
+
+        jmp OverrideFileConfigSearchViewRetAddr
+    }
+}
+
 void PrintOnStr(uint16_t* MesStringsPtr, int32_t yPos, int32_t xPos)
 {
     orgPrintTextAtPosHI.fun(MesStringsPtr, 0xB1, yPos, xPos);
@@ -1037,8 +1048,8 @@ void PatchHealthIndicatorOption()
 {
     HealthIndicatorValue = ConfigData.HealthIndicatorOption;
 
-    BYTE* OptionSearchViewMode = (BYTE*)0x01dbc004;
-    *OptionSearchViewMode = 0;
+    BYTE* OverrideFileConfigSearchViewAddr = (BYTE*)0x00408571;
+    OverrideFileConfigSearchViewRetAddr = OverrideFileConfigSearchViewAddr + 0x05;
 
     // highlight
     BYTE* PrintOnStrSearchViewAddr = (BYTE*)0x0046223f;
@@ -1074,6 +1085,9 @@ void PatchHealthIndicatorOption()
 
     BYTE* ConfirmOptionAddr = (BYTE*)0x00463886;
     ConfirmOptionRetAddr = ConfirmOptionAddr + 0x05;
+
+    // Override the option value stored in ini file
+    WriteJMPtoMemory(OverrideFileConfigSearchViewAddr, OverrideFileConfigSearchView, 0x05);
 
     // Divert option change
     WriteJMPtoMemory(DivertSearchViewOptionChangeAddr, DivertSearchViewOptionChange, 0x0F);
@@ -1322,9 +1336,6 @@ void __cdecl PrintDisplayModeDescription_Hook(uint16_t* MesStringsPtr, uint16_t 
 void PatchDisplayMode()
 {
     DisplayModeValue = ConfigData.DisplayModeOption;
-
-    BYTE* OptionsHighResTexturesEnabled = (BYTE*)0x00941710;
-    *OptionsHighResTexturesEnabled = 0;
 
     BYTE* HighResTextName1 = (BYTE*)0x00465060; //TODO address
     BYTE* HighResTextName2 = (BYTE*)0x0046561c;

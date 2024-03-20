@@ -8,16 +8,6 @@
 
     <Section name="Schermo">
 
-      <Feature name="ScreenMode">
-        <Title>Modalità schermo</Title>
-        <Description>Imposta la modalità schermo per il gioco.</Description>
-        <Choices type="list">
-          <Value name="In finestra" default="true">1</Value>
-          <Value name="Finestra a schermo intero">2</Value>
-          <Value name="Schermo intero">3</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="WndModeBorder">
         <Title>Bordo finestra (solo per modalità in finestra)</Title>
         <Description>Crea un bordo finestra per il gioco. Funziona soltanto in modalità finestra.&#x0a;&#x0a;Nota: la risoluzione in finestra del gioco non deve essere vicina o esattamente uguale a quella verticale/orizzontale del monitor, o il bordo non apparirà. Questa è una misura di sicurezza per assicurarsi che il bordo non venga perso al di fuori dall'area del display.</Description>
@@ -724,6 +714,24 @@
         </Choices>
       </Feature>
 
+      <Feature name="DisplayModeOption">
+        <Title>Opzione modalità schermo</Title>
+        <Description>Sostituisce Opzioni > Opzioni avanzate > Texture a bassa risoluzione con Modalità schermo, per cambiare la modalità schermo del gioco.</Description>
+        <Choices type="check">
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="HealthIndicatorOption">
+        <Title>Opzione indicatore salute</Title>
+        <Description>Sostituisce Opzioni > Opzioni di gioco > Controllo visuale con Indicatore salute, per abilitare/disabilitare la grafica di salute bassa nel gioco.</Description>
+        <Choices type="check">
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
+        </Choices>
+      </Feature>
+
     </Section>
 
   </Tab>
@@ -1011,15 +1019,6 @@
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="DisableRedCross">
-        <Title>Disabilita completamente l'indicatore salute bassa</Title>
-        <Description>Disabilita completamente l'indicatore salute bassa.&#x0a;&#x0a;Nota: Abilitare questa opzione è consigliato soltanto se si sta usando un controller con vibrazione abilitata. Altrimenti non c'è modo di sapere quando si ha salute bassa se non controllare la schermata inventario.</Description>
-        <Choices type="check">
-          <Value name="Disabilitato" default="true">0</Value>
-          <Value name="Abilitato">1</Value>
         </Choices>
       </Feature>
 

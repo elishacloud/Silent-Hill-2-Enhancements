@@ -28,6 +28,7 @@
 	visit(DisableRedCrossInCutScenes, true) \
 	visit(DisableSafeMode, true) \
 	visit(DisableScreenSaver, true) \
+	visit(DisplayModeOption, true) \
 	visit(DynamicResolution, true) \
 	visit(EnableDebugOverlay, true) \
 	visit(EnableEnhancedMouse, true) \
@@ -74,6 +75,7 @@
 	visit(GameLoadFix, true) \
 	visit(GamepadControlsFix, true) \
 	visit(HalogenLightFix, true) \
+	visit(HealthIndicatorOption, true) \
 	visit(HookDirect3D, true) \
 	visit(HookDirectInput, true) \
 	visit(HookDirectSound, true) \
@@ -209,6 +211,7 @@
 	visit(DelayedFadeIn) \
 	visit(Direct3DCreate9On12) \
 	visit(DisableLogging) \
+	visit(DisableRedCross) \
 	visit(EnableDebugOverlay) \
 	visit(EnableInfoOverlay) \
 	visit(EnableMenuTest) \
@@ -240,6 +243,7 @@
 	visit(QuickSaveCancelFix) \
 	visit(ResX) \
 	visit(ResY) \
+	visit(ScreenMode) \
 	visit(SetSwapEffectUpgradeShim) \
 	visit(SmallFontHeight) \
 	visit(SmallFontWidth) \

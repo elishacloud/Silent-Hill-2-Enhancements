@@ -8,16 +8,6 @@
 
     <Section name="Display">
 
-      <Feature name="ScreenMode">
-        <Title>Screen mode</Title>
-        <Description>Sets the screen mode for the game.</Description>
-        <Choices type="list">
-          <Value name="Windowed" default="true">1</Value>
-          <Value name="Fullscreen Windowed">2</Value>
-          <Value name="Fullscreen">3</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="WndModeBorder">
         <Title>Window border (for windowed mode only)</Title>
         <Description>Creates a window border for the game. Only works when playing in windowed mode.&#x0a;&#x0a;Note: The game's windowed resolution must not be close to or exactly the same as your display's width and/or height, otherwise the border will not appear. This is a safety measure to ensure the border doesn't get lost outside of your display area.</Description>
@@ -724,6 +714,24 @@
         </Choices>
       </Feature>
 
+      <Feature name="DisplayModeOption">
+        <Title>Display mode option</Title>
+        <Description>Replaces the Options > Advanced Options > Low Res Texture option with a Display Mode option to change the screen mode used for the game.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="HealthIndicatorOption">
+        <Title>Health indicator option</Title>
+        <Description>Replaces the Options > Game Options > Search View option with a Health Indicator option to enable/disable the low health visual used in-game.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
     </Section>
 
   </Tab>
@@ -1011,15 +1019,6 @@
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="DisableRedCross">
-        <Title>Disable low health indicator completely</Title>
-        <Description>Hides the low health indicator completely.&#x0a;&#x0a;Note: Enabling this option is only recommended if you are using a controller with vibration enabled. Otherwise, you have no way of knowing when you're low on health unless you check the inventory screen.</Description>
-        <Choices type="check">
-          <Value name="Disable" default="true">0</Value>
-          <Value name="Enable">1</Value>
         </Choices>
       </Feature>
 

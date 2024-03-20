@@ -8,16 +8,6 @@
 
     <Section name="Visualización">
 
-      <Feature name="ScreenMode">
-        <Title>Modo de pantalla</Title>
-        <Description>Establece el modo de pantalla del juego.</Description>
-        <Choices type="list">
-          <Value name="Ventana" default="true">1</Value>
-          <Value name="Ventana a pantalla completa">2</Value>
-          <Value name="Pantalla completa">3</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="WndModeBorder">
         <Title>Borde de la ventana (solo para el modo en ventana)</Title>
         <Description>Crea un borde en la ventana del juego. Solo funciona al usar el modo en ventana.&#x0a;&#x0a;Nota: la resolución de la ventana del juego no debe ser exactamente o casi la misma que el alto y ancho de tu pantalla, de lo contrario, el borde podría no aparecer. Es una medida de seguridad para evitar que el borde no se pierda fuera de tu área de visualización.</Description>
@@ -724,6 +714,24 @@
         </Choices>
       </Feature>
 
+      <Feature name="DisplayModeOption">
+        <Title>Display mode option</Title>
+        <Description>Replaces the Options > Advanced Options > Low Res Texture option with a Display Mode option to change the screen mode used for the game.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="HealthIndicatorOption">
+        <Title>Health indicator option</Title>
+        <Description>Replaces the Options > Game Options > Search View option with a Health Indicator option to enable/disable the low health visual used in-game.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
     </Section>
 
   </Tab>
@@ -1011,15 +1019,6 @@
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="DisableRedCross">
-        <Title>Desactivar el indicador de salud baja por completo</Title>
-        <Description>Oculta el indicador de salud baja por completo.&#x0a;&#x0a;Nota: únicamente se recomienda activar esta opción si utilizas un mando con función de vibración. De lo contrario, no podrás saber si tienes poca salud hasta que abras la pantalla de inventario.</Description>
-        <Choices type="check">
-          <Value name="No" default="true">0</Value>
-          <Value name="Sí">1</Value>
         </Choices>
       </Feature>
 

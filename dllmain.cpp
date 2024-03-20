@@ -647,13 +647,13 @@ void DelayedStart()
 	}
 
 	// Adds display mode option
-	if (true) //TODO setting
+	if (DisplayModeOption)
 	{
 		PatchDisplayMode();
 	}
 
 	// Adds health indicator option
-	if (true) //TODO setting
+	if (HealthIndicatorOption)
 	{
 		PatchSearchViewOptionName();
 		PatchHealthIndicatorOption();

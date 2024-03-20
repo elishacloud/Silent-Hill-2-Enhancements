@@ -8,16 +8,6 @@
 
     <Section name="Exibição">
 
-      <Feature name="ScreenMode">
-        <Title>Modo de tela</Title>
-        <Description>Defina o modo de tela para o jogo.</Description>
-        <Choices type="list">
-          <Value name="Janela" default="true">1</Value>
-          <Value name="Tela cheia em janela">2</Value>
-          <Value name="Tela cheia">3</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="WndModeBorder">
         <Title>Janela com borda (apenas para o modo janela)</Title>
         <Description>Cria uma janela com borda para o jogo. Só funciona jogando em modo janela.&#x0a;&#x0a;Nota: A resolução da janela do jogo não deve ser próxima ou exatamente igual à largura ou altura da tela, caso contrário, a borda não aparecerá. Esta é uma medida de segurança para garantir que a borda não ultrapasse a área de exibição.</Description>
@@ -724,6 +714,24 @@
         </Choices>
       </Feature>
 
+      <Feature name="DisplayModeOption">
+        <Title>Display mode option</Title>
+        <Description>Replaces the Options > Advanced Options > Low Res Texture option with a Display Mode option to change the screen mode used for the game.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="HealthIndicatorOption">
+        <Title>Health indicator option</Title>
+        <Description>Replaces the Options > Game Options > Search View option with a Health Indicator option to enable/disable the low health visual used in-game.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
     </Section>
 
   </Tab>
@@ -1011,15 +1019,6 @@
         <Choices type="check">
           <Value name="Desativar">0</Value>
           <Value name="Ativar" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="DisableRedCross">
-        <Title>Desativar completamente o indicador de saúde baixa</Title>
-        <Description>Oculta completamente o indicador de saúde baixa.&#x0a;&#x0a;Nota: Ativar esta opção só é recomendado se você estiver usando um controle com vibração ativada. Caso contrário, você não tem como saber quando está com pouca saúde, a menos que verifique a tela de inventário.</Description>
-        <Choices type="check">
-          <Value name="Desativar" default="true">0</Value>
-          <Value name="Ativar">1</Value>
         </Choices>
       </Feature>
 

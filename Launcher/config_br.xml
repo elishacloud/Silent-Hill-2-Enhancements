@@ -79,6 +79,16 @@
         </Choices>
       </Feature>
 
+      <Feature name="DisableCutsceneBorders">
+        <Title>In-engine cutscene borders</Title>
+        <Description>Choose to show or hide in-engine cutscene letterboxing. Set to "Auto" to enable the letterboxing on aspect ratios 5:4 or smaller, and disable them on aspect ratios larger than 5:4.&#x0a;&#x0a;Note: In-engine cutscene letterboxing should be disabled when playing in a widescreen aspect ratio and enabling cutscene FOV scaling. Otherwise, the letterboxing may crop off character heads when playing in widescreen.</Description>
+        <Choices type="list">
+          <Value name="Disable">0</Value>
+          <Value name="Auto" default="true">3</Value>
+          <Value name="Enable">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="ReduceCutsceneFOV">
         <Title>Dimensionar campo de visão de cenas</Title>
         <Description>As cenas do motor do jogo serão ampliadas para corresponder às suas composições horizontais originais em "4:3" ao jogar em "widescreen". Isso ocultará os modelos de personagens "congelados" que foram carregados fora dos limites "4:3", prontos e esperando para entrar em cena.&#x0a;&#x0a;Nota: Este recurso aumentará o zoom para uma proporção de 16:9. O zoom não ultrapassará essa proporção, pois, caso contrário, muito da composição vertical seria cortada. Significa que as proporções "ultra-wide" ainda terão anomalias visuais à medida que as cenas do motor forem exibidas.</Description>
@@ -91,15 +101,6 @@
       <Feature name="SetBlackPillarBoxes">
         <Title>Restaurar pillarboxing</Title>
         <Description>Principalmente corrige problemas ao visualizar o mapa. Este recurso força todas as "pillarboxing" a serem pretas dinamicamente, restaura as "pillarboxing" pretas para eventos que não as tinham e oculta as marcações do mapa atrás delas.</Description>
-        <Choices type="check">
-          <Value name="Desativar">0</Value>
-          <Value name="Ativar" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="DisableCutsceneBorders">
-        <Title>Desativar bordas de cenas</Title>
-        <Description>Remove a "letterboxing" nas cenas do motor do jogo.&#x0a;&#x0a;Nota: Recomenda-se habilitar isto se estiver jogando em uma proporção "widescreen" e habilitando a escala de campo de visão das cenas. Caso contrário, a "letterboxing" pode cortar as cabeças dos personagens ao jogar em "widescreen".</Description>
         <Choices type="check">
           <Value name="Desativar">0</Value>
           <Value name="Ativar" default="true">1</Value>
@@ -150,15 +151,6 @@
     </Section>
 
     <Section name="Shaders">
-
-      <Feature name="AdjustColorTemp">
-        <Title>Ajustar temperatura de cor</Title>
-        <Description>Ajusta a temperatura da cor da imagem geral do jogo para dar uma leve tonalidade fria.</Description>
-        <Choices type="check">
-          <Value name="Desativar">0</Value>
-          <Value name="Ativar" default="true">1</Value>
-        </Choices>
-      </Feature>
 
       <Feature name="RestoreBrightnessSelector">
         <Title>Restaurar funcionalidade do regulador de brilho</Title>
@@ -332,6 +324,15 @@
         <Choices type="check">
           <Value name="Desativar">0</Value>
           <Value name="Ativar" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="ObservationDeckFogFix">
+        <Title>Extend observation deck fog</Title>
+        <Description>Horizontally extends the fog at the beginning observation deck so that it always fills the screen, up to a 16:9 aspect ratio, for a better presentation.&#x0a;&#x0a;Note: Modified obGB.fcl file must be present in "sh2e\bg\ob\" for this feature to display properly.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -830,6 +831,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="BFaWAtticFix">
+        <Title>Fix glitchy shadow behavior</Title>
+        <Description>Fixes glitchy shadow behavior and improves/synchronizes the candle flame animation in the mansion's attic for Maria's campaign.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="HospitalChaseFix">
         <Title>Corrigir animação de perseguição no hospital</Title>
         <Description>Sincroniza corretamente a animação de ataque da "Coisa Vermelha com a Pirâmide" com o resto da cena que se desenrola durante a sequência de perseguição do elevador do hospital.</Description>
@@ -1019,6 +1029,15 @@
         <Choices type="check">
           <Value name="Desativar">0</Value>
           <Value name="Ativar" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="LowHealthIndicatorStyle">
+        <Title>Low health indicator style</Title>
+        <Description>Displays a visual indicator during normal gameplay when low on health.&#x0a;&#x0a;Red Cross: Displays a flashing red cross on the bottom right of the screen.&#x0a;Lower Vignette: Displays a flashing red vignette on the lower half of the screen. The lower your health, the brighter the vignette will become.&#x0a;&#x0a;Note: LowHealthFade.png must be present in "sh2e\pic\etc\" for the Lower Vignette visual to display.</Description>
+        <Choices type="list">
+          <Value name="Red Cross">1</Value>
+          <Value name="Lower Vignette" default="true">2</Value>
         </Choices>
       </Feature>
 

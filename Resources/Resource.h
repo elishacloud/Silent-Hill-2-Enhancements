@@ -9,7 +9,6 @@
 #define IDR_SETTINGS_INI                102
 
 #define IDR_SMAA_FX                     201
-#define IDR_COLORGRAD_FX                202
 #define IDR_GAMMAGAIN_FX                203
 #define IDR_PIRATEBLOOM_FX              204
 #define IDR_FRUTBUNN_FX                 205
@@ -34,7 +33,7 @@
 #define APP_REVISION			0
 #define APP_COMPANYNAME			"Sadrate Presents"
 #define APP_DESCRPTION			"A project designed to enhance Silent Hill 2 (SH2) graphics and audio for the PC."
-#define APP_COPYRIGHT			"Copyright (C) 2023 Elisha Riedlinger"
+#define APP_COPYRIGHT			"Copyright (C) 2024 Elisha Riedlinger"
 #define APP_ORIGINALVERSION		"d3d8.dll"
 #define APP_INTERNALNAME		"sh2-enhce"
 
@@ -75,7 +74,6 @@ namespace
 
 	std::vector<FILELIST> shaderList{
 		{ &EnableSMAA, IDR_SMAA_FX, "SMAA.fx" },
-		{ &AdjustColorTemp, IDR_COLORGRAD_FX, "MinimalColorGrading.fx" },
 		{ &RestoreBrightnessSelector, IDR_GAMMAGAIN_FX, "LiftGammaGain.fx" },
 		{ &EnableCRTShader, IDR_PIRATEBLOOM_FX, "PirateBloom.fx" },
 		{ &CRTNonCurveShader, IDR_FRUTBUNN_FX, "FrutbunnNonCurve.fx" },

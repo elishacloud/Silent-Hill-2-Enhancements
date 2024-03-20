@@ -425,6 +425,18 @@
     <ClCompile Include="Common\GfxUtils.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\OldManCoinFix.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\ObservationDeckFogFix.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\LowHealthIndicator.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\AtticShadowFixes.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">

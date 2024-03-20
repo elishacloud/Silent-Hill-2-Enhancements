@@ -1,5 +1,5 @@
 /**
-* Copyright (C) 2023 Elisha Riedlinger
+* Copyright (C) 2024 Elisha Riedlinger
 *
 * This software is  provided 'as-is', without any express  or implied  warranty. In no event will the
 * authors be held liable for any damages arising from the use of this software.
@@ -22,8 +22,7 @@
 void DelayedStart();
 
 // Variables for ASM
-DWORD GameAddressPointer;
-void *jmpDelayedStart;
+void* EntryPointExceptionFunction = nullptr;
 
 // ASM function to start functions delayed
 __declspec(naked) void __stdcall DelayedStartASM()
@@ -31,27 +30,29 @@ __declspec(naked) void __stdcall DelayedStartASM()
 	__asm
 	{
 		call DelayedStart
-		push dword ptr ds : [GameAddressPointer]
-		jmp jmpDelayedStart
+		jmp EntryPointExceptionFunction
 	}
 }
 
 // Set hook at beginning of Silent Hill 2 code to do startup functions delayed
-void SetDelayedStart()
+bool SetDelayedStart()
 {
 	// Get memory pointer
 	constexpr BYTE SearchBytes[]{ 0xFF, 0xD7, 0x66, 0x81, 0x38, 0x4D, 0x5A, 0x75, 0x1F, 0x8B, 0x48, 0x3C, 0x03, 0xC8, 0x81, 0x39 };
-	DWORD Address = SearchAndGetAddresses(0x0056FDEB, 0x0056EBBB, 0x0056E4DB, SearchBytes, sizeof(SearchBytes), -0x13, __FUNCTION__);
+	DWORD Address = SearchAndGetAddresses(0x0056FDEB, 0x0056EBBB, 0x0056E4DB, SearchBytes, sizeof(SearchBytes), -0xE, __FUNCTION__);
 
 	// Checking address pointer
-	if (!Address)
+	if (!Address || *(BYTE*)Address != 0xE8)
 	{
-		return;
+		Logging::Log() << "Error: failed to set delayed startup...";
+		return false;
 	}
-	GameAddressPointer = *(DWORD*)(Address + 2);
-	jmpDelayedStart = (void*)(Address + 5);
+	EntryPointExceptionFunction = (void*)(Address + 5 + *(DWORD*)(Address + 1));
 
 	// Update SH2 code
 	Logging::Log() << "Setting delayed startup...";
-	WriteJMPtoMemory((BYTE*)Address, *DelayedStartASM, 5);
+	WriteCalltoMemory((BYTE*)Address, *DelayedStartASM, 5);
+
+	// Return
+	return true;
 }

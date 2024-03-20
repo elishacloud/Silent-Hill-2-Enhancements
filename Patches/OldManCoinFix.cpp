@@ -1,5 +1,5 @@
 /**
-* Copyright (C) 2024 Elisha Riedlinger
+* Copyright (C) 2024 Murugo
 *
 * This software is  provided 'as-is', without any express  or implied  warranty. In no event will the
 * authors be held liable for any damages arising from the use of this software.
@@ -16,21 +16,25 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include "Patches.h"
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
-void PatchCreatureVehicleSpawn()
-{
-	// Get Lying Figures address
-	constexpr BYTE SearchBytes[]{ 0x89, 0x4E, 0x10, 0xC6, 0x46, 0x06, 0x00, 0x88, 0x46, 0x03, 0xD9, 0x86, 0x90, 0x00, 0x00, 0x00, 0xD8, 0x1D };
-	DWORD CreatureAddr = SearchAndGetAddresses(0x004C5C42, 0x004C5EF2, 0x004C57B2, SearchBytes, sizeof(SearchBytes), 0x00, __FUNCTION__);
-	if (!CreatureAddr)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
-		return;
-	}
+// Game flag set after James throws the canned juice down the garbage chute.
+constexpr WORD kCannedJuiceGameFlag = 0x5F;
 
-	// Update SH2 code
-	Logging::Log() << "Fixing behavior of Lying Figures that are hiding under vehicles...";
-	UpdateMemoryAddress((void*)CreatureAddr, "\x90\x90\x90", 3);
+// Prevents the Old Man Coin from appearing in the garbage chute outside Wood Side Apartments until
+// after James uses the canned juice in the second floor laundry room.
+void PatchOldManCoinFix()
+{
+    constexpr BYTE SearchBytes[]{ 0x1F, 0x07, 0x00, 0x00, 0x76, 0x00, 0x00, 0x00 };
+    DWORD OldManCoinPreFlagAddr = SearchAndGetAddresses(0x008DE900, 0x008E25D0, 0x008E15D0, SearchBytes, sizeof(SearchBytes), 0x06, __FUNCTION__);
+    if (!OldManCoinPreFlagAddr)
+    {
+        Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+        return;
+    }
+
+    Logging::Log() << "Patching Old Man Coin Fix...";
+    UpdateMemoryAddress((void*)OldManCoinPreFlagAddr, &kCannedJuiceGameFlag, sizeof(WORD));
 }

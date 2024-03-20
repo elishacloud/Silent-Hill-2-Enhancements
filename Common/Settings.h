@@ -3,10 +3,10 @@
 #include <string>
 
 #define VISIT_BOOL_SETTINGS(visit) \
-	visit(AdjustColorTemp, true) \
 	visit(AudioClipDetection, true) \
 	visit(AutoHideMouseCursor, false) \
 	visit(AutoUpdateModule, true) \
+	visit(BFaWAtticFix, true) \
 	visit(CatacombsMeatRoomFix, true) \
 	visit(CenterPuzzleCursor, true) \
 	visit(ChangeClosetSpawn, true) \
@@ -18,7 +18,6 @@
 	visit(d3d8to9, true) \
 	visit(DelayedFadeIn, true) \
 	visit(Direct3DCreate9On12, false) \
-	visit(DisableCutsceneBorders, true) \
 	visit(DisableEnlargedText, true) \
 	visit(DisableGameUX, true) \
 	visit(DisableHighDPIScaling, true) \
@@ -36,8 +35,6 @@
 	visit(EnableInfoOverlay, true) \
 	visit(EnableLangPath, true) \
 	visit(EnableMasterVolume, true) \
-	visit(EnableMenuTest, false) \
-	visit(EnableMenuTestIGT, true) \
 	visit(EnableMouseWheelSwap, true) \
 	visit(EnableScreenshots, true) \
 	visit(EnableSFXAddrHack, true) \
@@ -100,6 +97,8 @@
 	visit(MenuSoundsFix, true) \
 	visit(MothDrawOrderFix, true) \
 	visit(NoCDPatch, true) \
+	visit(ObservationDeckFogFix, true) \
+	visit(OldManCoinFix, true) \
 	visit(PauseScreenFix, true) \
 	visit(PistonRoomFix, true) \
 	visit(PreserveSoundsOnLoad, true) \
@@ -147,6 +146,7 @@
 	visit(CustomFontCharWidth, 20) \
 	visit(CustomFontCol, 25) \
 	visit(CustomFontRow, 17) \
+	visit(DisableCutsceneBorders, 3) \
 	visit(DPadMovementFix, 1) \
 	visit(EnableCriWareReimplementation, 1) \
 	visit(fog_transparency_layer1, 128) \
@@ -158,6 +158,7 @@
 	visit(FullscreenVideos, 3) \
 	visit(IncreaseNoiseEffectRes, 768) \
 	visit(LetterSpacing, 2) \
+	visit(LowHealthIndicatorStyle, 2) \
 	visit(NormalFontHeight, 30) \
 	visit(NormalFontWidth, 20) \
 	visit(PadNumber, 0) \
@@ -214,8 +215,6 @@
 	visit(DisableRedCross) \
 	visit(EnableDebugOverlay) \
 	visit(EnableInfoOverlay) \
-	visit(EnableMenuTest) \
-	visit(EnableMenuTestIGT) \
 	visit(EnableScreenshots) \
 	visit(EnableWndMode) \
 	visit(FixFMVResetIssue) \
@@ -240,6 +239,7 @@
 	visit(LockResolution) \
 	visit(NormalFontHeight) \
 	visit(NormalFontWidth) \
+	visit(OldManCoinFix) \
 	visit(QuickSaveCancelFix) \
 	visit(ResX) \
 	visit(ResY) \
@@ -337,6 +337,7 @@ extern bool IsUpdating;
 extern bool m_StopThreadFlag;
 extern bool AutoScaleImages;
 extern bool AutoScaleVideos;
+extern bool AutoScaleCutscenes;
 extern bool EnableCRTShader;
 extern bool CRTCurveShader;
 extern bool CRTNonCurveShader;

@@ -1,5 +1,5 @@
 /**
-* Copyright (C) 2023 Elisha Riedlinger
+* Copyright (C) 2024 Elisha Riedlinger
 *
 * This software is  provided 'as-is', without any express  or implied  warranty. In no event will the
 * authors be held liable for any damages arising from the use of this software.
@@ -44,6 +44,7 @@ const DWORD MinHeight = 480;
 
 bool AutoScaleImages = false;
 bool AutoScaleVideos = false;
+bool AutoScaleCutscenes = false;
 BYTE *ResolutionIndex = nullptr;
 BYTE *MenuResolutionIndex = nullptr;
 BYTE *TextResIndex = nullptr;
@@ -171,16 +172,19 @@ void SetDynamicScale(float AspectRatio)
 	{
 		FullscreenImages = (AutoScaleImages) ? FIT_MEDIA : FullscreenImages;
 		FullscreenVideos = (AutoScaleVideos) ? FIT_MEDIA : FullscreenVideos;
+		DisableCutsceneBorders = (AutoScaleCutscenes) ? FIT_MEDIA : DisableCutsceneBorders;
 	}
 	else if (AspectRatio < 1.76f) // 16:9 (16:10, 3:2, etc.)
 	{
 		FullscreenImages = (AutoScaleImages) ? FILL_MEDIA : FullscreenImages;
 		FullscreenVideos = (AutoScaleVideos) ? FILL_MEDIA : FullscreenVideos;
+		DisableCutsceneBorders = (AutoScaleCutscenes) ? FILL_MEDIA : DisableCutsceneBorders;
 	}
 	else // AspectRatio >= 16:9 (16:9, 21:9, etc.)
 	{
 		FullscreenImages = (AutoScaleImages) ? FILL_MEDIA : FullscreenImages;
 		FullscreenVideos = (AutoScaleVideos) ? FILL_MEDIA : FullscreenVideos;
+		DisableCutsceneBorders = (AutoScaleCutscenes) ? FILL_MEDIA : DisableCutsceneBorders;
 	}
 }
 
@@ -232,6 +236,18 @@ void UpdateWSF()
 
 	// Update Widescreen Fix for new resolution
 	WSFInit();
+
+	// Set dynamic scaling (must run before WFS)
+	if (AutoScaleCutscenes)
+	{
+		SetDynamicScale(*SetAspectRatio);
+	}
+
+	// Set cutscene borders based on aspect ratio
+	if (DisableCutsceneBorders)
+	{
+		SetCutsceneBorder();
+	}
 
 	// Flush cache
 	FlushInstructionCache(GetCurrentProcess(), nullptr, 0);

@@ -1,5 +1,5 @@
 /**
-* Copyright (C) 2023 Elisha Riedlinger
+* Copyright (C) 2024 Elisha Riedlinger
 *
 * This software is  provided 'as-is', without any express  or implied  warranty. In no event will the
 * authors be held liable for any damages arising from the use of this software.
@@ -17,6 +17,7 @@
 #include "d3d8wrapper.h"
 #include <shlwapi.h>
 #include <chrono>
+#include <deque>
 #include <ctime>
 #include "Common\Utils.h"
 #include "stb_image.h"
@@ -36,6 +37,7 @@ bool ClassReleaseFlag = false;
 bool TextureSet = false;
 DWORD TextureNum = 0;
 Overlay OverlayRef;
+double AverageFPSCounter = 0.0;
 
 struct SCREENSHOTSTRUCT
 {
@@ -980,6 +982,57 @@ HRESULT m_IDirect3DDevice8::GetPixelShaderFunction(THIS_ DWORD Handle, void* pDa
 	return ProxyInterface->GetPixelShaderFunction(Handle, pData, pSizeOfData);
 }
 
+void CalculateFPS()
+{
+	// Define a constant for the desired duration of FPS calculation
+	static const std::chrono::seconds FPS_CALCULATION_WINDOW(1);
+
+	// Store frame times in a deque
+	static std::deque<std::pair<std::chrono::steady_clock::time_point, std::chrono::duration<double>>> frameTimes;
+
+	// Store start time for PFS counter
+	static auto startTime = std::chrono::steady_clock::now();
+
+	// Calculate frame time
+	auto endTime = std::chrono::steady_clock::now();
+	auto newstart = std::chrono::steady_clock::now();
+	std::chrono::duration<double> frameTime = endTime - startTime;
+	startTime = newstart;
+
+	// Store the frame time along with the time it occurred
+	frameTimes.emplace_back(endTime, frameTime);
+
+	// Remove frame times older than FPS_CALCULATION_WINDOW
+	while (!frameTimes.empty() && (endTime - frameTimes.front().first) > FPS_CALCULATION_WINDOW)
+	{
+		frameTimes.pop_front();
+	}
+
+	if (frameTimes.empty())
+	{
+		// No frame times available
+		return;
+	}
+
+	double totalTime = 0.0;
+	for (const auto& entry : frameTimes)
+	{
+		totalTime += entry.second.count();
+	}
+
+	// Calculate average frame time
+	double averageFrameTime = totalTime / frameTimes.size();
+
+	// Calculate FPS
+	if (averageFrameTime > 0.0)
+	{
+		AverageFPSCounter = 1.0 / averageFrameTime;
+	}
+
+	// Output FPS
+	Logging::LogDebug() << "Frames: " << frameTimes.size() << " Average time: " << averageFrameTime << " FPS: " << AverageFPSCounter;
+}
+
 HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRect, HWND hDestWindowOverride, CONST RGNDATA *pDirtyRegion)
 {
 	Logging::LogDebug() << __FUNCTION__;
@@ -988,7 +1041,10 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	DisableAntiAliasing();
 
 	// Draw Overlays
-	OverlayRef.DrawOverlays(ProxyInterface);
+	if (GetEventIndex() != EVENT_PAUSE_MENU)
+	{
+		OverlayRef.DrawOverlays(ProxyInterface);
+	}
 
 	// Store reference to the ProxyInterface
 	MasterVolumeRef.HandleMasterVolume(ProxyInterface);
@@ -1022,7 +1078,12 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 		if (ClearScreen)
 		{
 			ClearScreen = false;
-			ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+			HRESULT hr = ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+
+			if (SUCCEEDED(hr))
+			{
+				CalculateFPS();
+			}
 		}
 
 		return D3D_OK;
@@ -1071,6 +1132,11 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	if (!PauseMenuFlag)
 	{
 		hr = ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+
+		if (SUCCEEDED(hr))
+		{
+			CalculateFPS();
+		}
 	}
 
 	// Take screenshot
@@ -1949,6 +2015,12 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		if (FixAptClockFlashlight)
 		{
 			RunFlashlightClockPush();
+		}
+
+		// Fix shadow anomalies
+		if (BFaWAtticFix)
+		{
+			RunAtticShadows();
 		}
 
 		// Fixes for final boss room

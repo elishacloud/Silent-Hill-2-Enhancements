@@ -1,5 +1,5 @@
 /**
-* Copyright (C) 2023 Elisha Riedlinger
+* Copyright (C) 2024 Elisha Riedlinger
 *
 * This software is  provided 'as-is', without any express  or implied  warranty. In no event will the
 * authors be held liable for any damages arising from the use of this software.
@@ -19,6 +19,8 @@
 
 #include "WidescreenFixesPack.h"
 #include <vector>
+#include "External\injector\include\injector\injector.hpp"
+#include "External\Hooking.Patterns\Hooking.Patterns.h"
 #include "Common\Utils.h"
 #include "Patches\Patches.h"
 #include "Common\Settings.h"
@@ -71,6 +73,31 @@ std::string format(const char *fmt, ...)
 	}
 }
 
+void SetCutsceneBorder()
+{
+	static float f0 = 0.0f;
+	static float f1 = 1.0f;
+
+	RUNCODEONCE({
+		auto pattern = hook::pattern("D8 0D ? ? ? ? DE C1 DA 44 24 ? E8");
+		injector::WriteMemory(pattern.count(2).get(0).get<uint32_t>(2), &f0, true); //00478A6E
+		injector::WriteMemory(pattern.count(2).get(1).get<uint32_t>(2), &f1, true); //00478ABD
+		});
+
+	// Enable letterboxing
+	if (DisableCutsceneBorders == FILL_MEDIA)
+	{
+		f0 = 0.0f;
+		f1 = 1.0f;
+	}
+	// Disable letterboxing
+	else
+	{
+		f0 = 0.5f;
+		f1 = 0.5f;
+	}
+}
+
 int GetValue(std::string_view, std::string_view szKey, int)
 {
 	int ret = 0;
@@ -97,7 +124,7 @@ int GetValue(std::string_view, std::string_view szKey, int)
 	}
 	else if (szKey.compare("DisableCutsceneBorders") == 0)
 	{
-		ret = DisableCutsceneBorders;
+		ret = 0;	// Always disable cutscene borders here
 	}
 	else if (szKey.compare("SingleCoreAffinity") == 0)
 	{

@@ -89,6 +89,16 @@
         </Choices>
       </Feature>
 
+      <Feature name="DisableCutsceneBorders">
+        <Title>In-engine cutscene borders</Title>
+        <Description>Choose to show or hide in-engine cutscene letterboxing. Set to "Auto" to enable the letterboxing on aspect ratios 5:4 or smaller, and disable them on aspect ratios larger than 5:4.&#x0a;&#x0a;Note: In-engine cutscene letterboxing should be disabled when playing in a widescreen aspect ratio and enabling cutscene FOV scaling. Otherwise, the letterboxing may crop off character heads when playing in widescreen.</Description>
+        <Choices type="list">
+          <Value name="Disable">0</Value>
+          <Value name="Auto" default="true">3</Value>
+          <Value name="Enable">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="ReduceCutsceneFOV">
         <Title>Escalar el campo visual en las cinemáticas</Title>
         <Description>Las escenas cinemáticas renderizadas en tiempo real serán ampliadas para que coincidan con sus composiciones horizontales en 4:3 mientras se juegue con un formato panorámico. Ocultará los modelos de personajes paralizados que se hayan cargado justo al otro lado del límite de la relación en 4:3 y que estén esperando a entrar en escena.&#x0a;&#x0a;Nota: esta característica solo ampliará la imagen hasta una relación de aspecto de 16:9. No cubrirá relaciones más anchas, ya que se recortaría la composición vertical en exceso, es decir, las relaciones de aspecto ultrapanorámicas seguirán mostrando anomalías visuales durante las escenas en tiempo real.</Description>
@@ -101,15 +111,6 @@
       <Feature name="SetBlackPillarBoxes">
         <Title>Restaurar las columnas negras</Title>
         <Description>Corrige principalmente los problemas al abrir el mapa. Esta característica hace que todas las columnas negras que se creen dinámicamente sean de color negro, restaura las columnas en aquellos eventos que no las tuvieran y ayuda a ocultar las marcas en el mapa que deberían estar por debajo de las columnas.</Description>
-        <Choices type="check">
-          <Value name="No">0</Value>
-          <Value name="Sí" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="DisableCutsceneBorders">
-        <Title>Desactivar los bordes en las cinemáticas</Title>
-        <Description>Elimina las bandas negras en las escenas cinemáticas en tiempo real.&#x0a;&#x0a;Nota: si estás jugando con una relación de aspecto panorámica, se recomienda activar esta opción junto con Escalar campo visual de las cinemáticas. De lo contrario, las bandas negras podrían tapar las cabezas de los personajes con una relación de aspecto panorámica.</Description>
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>

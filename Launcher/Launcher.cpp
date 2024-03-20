@@ -52,6 +52,7 @@ SH2VERSION GameVersion = SH2V_UNKNOWN;
 bool EnableCustomShaders = false;
 bool AutoScaleVideos = false;
 bool AutoScaleImages = false;
+bool AutoScaleCutscenes = false;
 bool m_StopThreadFlag = false;
 bool IsUpdating = false;
 

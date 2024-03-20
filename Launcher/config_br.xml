@@ -89,6 +89,16 @@
         </Choices>
       </Feature>
 
+      <Feature name="DisableCutsceneBorders">
+        <Title>In-engine cutscene borders</Title>
+        <Description>Choose to show or hide in-engine cutscene letterboxing. Set to "Auto" to enable the letterboxing on aspect ratios 5:4 or smaller, and disable them on aspect ratios larger than 5:4.&#x0a;&#x0a;Note: In-engine cutscene letterboxing should be disabled when playing in a widescreen aspect ratio and enabling cutscene FOV scaling. Otherwise, the letterboxing may crop off character heads when playing in widescreen.</Description>
+        <Choices type="list">
+          <Value name="Disable">0</Value>
+          <Value name="Auto" default="true">3</Value>
+          <Value name="Enable">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="ReduceCutsceneFOV">
         <Title>Dimensionar campo de visão de cenas</Title>
         <Description>As cenas do motor do jogo serão ampliadas para corresponder às suas composições horizontais originais em "4:3" ao jogar em "widescreen". Isso ocultará os modelos de personagens "congelados" que foram carregados fora dos limites "4:3", prontos e esperando para entrar em cena.&#x0a;&#x0a;Nota: Este recurso aumentará o zoom para uma proporção de 16:9. O zoom não ultrapassará essa proporção, pois, caso contrário, muito da composição vertical seria cortada. Significa que as proporções "ultra-wide" ainda terão anomalias visuais à medida que as cenas do motor forem exibidas.</Description>
@@ -101,15 +111,6 @@
       <Feature name="SetBlackPillarBoxes">
         <Title>Restaurar pillarboxing</Title>
         <Description>Principalmente corrige problemas ao visualizar o mapa. Este recurso força todas as "pillarboxing" a serem pretas dinamicamente, restaura as "pillarboxing" pretas para eventos que não as tinham e oculta as marcações do mapa atrás delas.</Description>
-        <Choices type="check">
-          <Value name="Desativar">0</Value>
-          <Value name="Ativar" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="DisableCutsceneBorders">
-        <Title>Desativar bordas de cenas</Title>
-        <Description>Remove a "letterboxing" nas cenas do motor do jogo.&#x0a;&#x0a;Nota: Recomenda-se habilitar isto se estiver jogando em uma proporção "widescreen" e habilitando a escala de campo de visão das cenas. Caso contrário, a "letterboxing" pode cortar as cabeças dos personagens ao jogar em "widescreen".</Description>
         <Choices type="check">
           <Value name="Desativar">0</Value>
           <Value name="Ativar" default="true">1</Value>

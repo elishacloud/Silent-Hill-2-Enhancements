@@ -89,6 +89,16 @@
         </Choices>
       </Feature>
 
+      <Feature name="DisableCutsceneBorders">
+        <Title>In-engine cutscene borders</Title>
+        <Description>Choose to show or hide in-engine cutscene letterboxing. Set to "Auto" to enable the letterboxing on aspect ratios 5:4 or smaller, and disable them on aspect ratios larger than 5:4.&#x0a;&#x0a;Note: In-engine cutscene letterboxing should be disabled when playing in a widescreen aspect ratio and enabling cutscene FOV scaling. Otherwise, the letterboxing may crop off character heads when playing in widescreen.</Description>
+        <Choices type="list">
+          <Value name="Disable">0</Value>
+          <Value name="Auto" default="true">3</Value>
+          <Value name="Enable">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="ReduceCutsceneFOV">
         <Title>Scala l'FOV nelle cutscene</Title>
         <Description>Le cutscene di gioco saranno più zoomate, per conformarsi alla composizione orizzontale originale in 4:3 giocando in widescreen. Questo nasconderà modelli "bloccati" che vengono caricati appena fuori dai bordi del 4:3, mentre aspettano di entrare in scena.&#x0a;&#x0a;Nota: Questa opzione zoomerà fino ad una proporzione di 16:9. Non andrà oltre questa proporzione perché si perderebbe troppo della composizione verticale altrimenti. Questo significa che in proporzioni ultra-wide si continueranno a vedere anomalie visive durante queste cutscene.</Description>
@@ -101,15 +111,6 @@
       <Feature name="SetBlackPillarBoxes">
         <Title>Ripristina barre nere verticali</Title>
         <Description>Principalmente corregge un problema che si presenta guardando la mappa. Questa opzione forza tutte le barre verticali ad essere di colore nero, ripristinando le barre per eventi che non le hanno, e nasconde segni sulla mappa dietro queste barre.</Description>
-        <Choices type="check">
-          <Value name="Disabilitato">0</Value>
-          <Value name="Abilitato" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="DisableCutsceneBorders">
-        <Title>Disabilita bordi delle cutscene</Title>
-        <Description>Rimuove le barre nere orizzontali in game.&#x0a;&#x0a;Nota: E' raccomandato abilitare questa opzione se si gioca in una proporzione widescreen ed abilitare Scala l'FOV nelle cutscene. Altrimenti, le barre orizzontali potrebbero tagliare via dalla scena delle teste dei personaggi giocando in widescreen.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>

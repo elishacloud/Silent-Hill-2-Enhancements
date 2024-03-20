@@ -326,6 +326,17 @@ void UpdateConfigDefaults()
 		AutoScaleVideos = true;
 	}
 
+	// Set Cutscene Borders
+	switch (DisableCutsceneBorders)
+	{
+	case DISABLE_MEDIA_CONTROL:
+	case FIT_MEDIA:
+		break;
+	default:
+		DisableCutsceneBorders = AUTO_MEDIA_CONTROL;
+		AutoScaleCutscenes = true;
+	}
+
 	// Set screen mode
 	switch (ScreenMode)
 	{

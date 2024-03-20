@@ -18,7 +18,6 @@
 	visit(d3d8to9, true) \
 	visit(DelayedFadeIn, true) \
 	visit(Direct3DCreate9On12, false) \
-	visit(DisableCutsceneBorders, true) \
 	visit(DisableEnlargedText, true) \
 	visit(DisableGameUX, true) \
 	visit(DisableHighDPIScaling, true) \
@@ -145,6 +144,7 @@
 	visit(CustomFontCharWidth, 20) \
 	visit(CustomFontCol, 25) \
 	visit(CustomFontRow, 17) \
+	visit(DisableCutsceneBorders, 3) \
 	visit(DPadMovementFix, 1) \
 	visit(EnableCriWareReimplementation, 1) \
 	visit(fog_transparency_layer1, 128) \
@@ -322,6 +322,7 @@ extern bool IsUpdating;
 extern bool m_StopThreadFlag;
 extern bool AutoScaleImages;
 extern bool AutoScaleVideos;
+extern bool AutoScaleCutscenes;
 extern bool EnableCRTShader;
 extern bool CRTCurveShader;
 extern bool CRTNonCurveShader;

@@ -1206,9 +1206,12 @@ __declspec(naked) void __stdcall StoreInitialOptionValue()
 {
     __asm
     {
-        mov dl, byte ptr[DisplayModeValue]
-        mov ecx, [StoredDisplayModeValue]
-        mov byte ptr[ecx], dl
+        mov al, byte ptr[DisplayModeValue]
+        mov ebx, [StoredDisplayModeValue]
+        mov byte ptr[ebx], al
+
+        xor ebx, ebx
+        mov eax, 0x01
 
         jmp StoreInitialOptionValueRetAddr
     }
@@ -1353,9 +1356,9 @@ void PatchDisplayMode()
     BYTE* DisplayModeOptionColorCheckAddr = (BYTE*)0x00465221;
     DisplayModeOptionColorCheckRetAddr = DisplayModeOptionColorCheckAddr + 0x06;
 
-    BYTE* StoreInitialOptionValueAddr = (BYTE*)0x00462d86;
-    StoreInitialOptionValueRetAddr = StoreInitialOptionValueAddr + 0x06;
-    BYTE* NopOriginalStoreOptionAddr = StoreInitialOptionValueAddr - 0x5E;
+    BYTE* NopOriginalStoreOptionAddr = (BYTE*)0x00462d28;
+    BYTE* StoreInitialOptionValueAddr = NopOriginalStoreOptionAddr + 0xD3;
+    StoreInitialOptionValueRetAddr = StoreInitialOptionValueAddr + 0x05;
 
     BYTE* SetHighlightColorAddr = (BYTE*)0x00465649;
     SetHighlightColorRetAddr = SetHighlightColorAddr + 0x06;
@@ -1410,7 +1413,7 @@ void PatchDisplayMode()
     WriteJMPtoMemory(DisplayModeOptionColorCheckAddr, ColorCheckStoredOptionValue, 0x06);
 
     // Divert saving the option value for checks
-    WriteJMPtoMemory(StoreInitialOptionValueAddr, StoreInitialOptionValue, 0x06);
+    WriteJMPtoMemory(StoreInitialOptionValueAddr, StoreInitialOptionValue, 0x05);
     UpdateMemoryAddress(NopOriginalStoreOptionAddr, "\x90\x90\x90\x90\x90\x90", 0x06);
 
     // Change the conditional that changes the value

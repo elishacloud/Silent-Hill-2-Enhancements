@@ -98,14 +98,18 @@ void PatchCustomSFXs()
 	constexpr BYTE SearchPlayMusicBytes[]{ 0x6A, 0x01, 0xE8, 0x19, 0x90, 0xFE, 0xFF, 0x83, 0xC4, 0x04 };
 	m_pPlaySound = (PlaySoundProc)(CheckMultiMemoryAddress((void*)0x00515580, (void*)0x005158B0, (void*)0x005151D0, (void*)SearchPlayMusicBytes, sizeof(SearchPlayMusicBytes), __FUNCTION__));
 
+	BYTE* LoadGameSoundNewGame = (BYTE*)(
+		GameVersion == SH2V_10 ? 0x0049870C :
+		GameVersion == SH2V_11 ? 0x004989BC :
+		GameVersion == SH2V_DC ? 0x00498201 : NULL);
+
 	// Checking address pointer
-	if (!PauseMenuButtonIndexAddr || !LoadGameSoundPauseMenu || !LoadGameSoundContinue || !SaveGameSoundRedSquares || !m_pPlaySound)
+	if (!PauseMenuButtonIndexAddr || !LoadGameSoundPauseMenu || !LoadGameSoundContinue || !SaveGameSoundRedSquares || !m_pPlaySound ||
+		!LoadGameSoundNewGame || *LoadGameSoundNewGame != 0xE8)
 	{
 		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
 		return;
 	}
-
-	BYTE* LoadGameSoundNewGame = (BYTE*)(LoadGameSoundContinue + 0x788);
 
 	// Sound effect function address, same address for all known versions of the game
 	BYTE* SoundEffectCallAddr = (BYTE*)0x00402823;

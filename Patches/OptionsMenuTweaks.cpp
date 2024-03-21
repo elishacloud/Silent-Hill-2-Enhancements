@@ -788,11 +788,21 @@ void ButtonIcons::Init(LPDIRECT3DDEVICE8 ProxyInterface)
 
     if (!ControlOptionsInitFlag)
     {
-        BYTE* FunctionDrawControllerValues = (BYTE*)0x00467985; //TODO address
-        BYTE* FunctionDrawDashes = (BYTE*)0x00467606; //TODO address
+        DWORD FunctionDrawControllerValues =    GameVersion == SH2V_10 ? 0x00467985 :
+                                                GameVersion == SH2V_11 ? 0x00467C2D :
+                                                GameVersion == SH2V_DC ? 0x00467E3D : NULL;
+        DWORD FunctionDrawDashes =  GameVersion == SH2V_10 ? 0x00467606 :
+                                    GameVersion == SH2V_11 ? 0x004678A6 :
+                                    GameVersion == SH2V_DC ? 0x00467AB6 : NULL;
 
-        UpdateMemoryAddress(FunctionDrawControllerValues, "\x90\x90\x90\x90\x90", 0x05);
-        UpdateMemoryAddress(FunctionDrawDashes, "\x90\x90\x90\x90\x90", 0x05);
+        if (*(BYTE*)FunctionDrawControllerValues != 0xE8 || *(BYTE*)FunctionDrawDashes != 0xE8)
+        {
+            Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+            return;
+        }
+
+        UpdateMemoryAddress((BYTE*)FunctionDrawControllerValues, "\x90\x90\x90\x90\x90", 0x05);
+        UpdateMemoryAddress((BYTE*)FunctionDrawDashes, "\x90\x90\x90\x90\x90", 0x05);
 
         ControlOptionsInitFlag = true;
     }
@@ -1048,49 +1058,84 @@ void PatchHealthIndicatorOption()
 {
     HealthIndicatorValue = ConfigData.HealthIndicatorOption;
 
-    BYTE* OverrideFileConfigSearchViewAddr = (BYTE*)0x00408571;
-    OverrideFileConfigSearchViewRetAddr = OverrideFileConfigSearchViewAddr + 0x05;
+    DWORD OverrideFileConfigSearchViewAddr =    GameVersion == SH2V_10 ? 0x00408571 :
+                                                GameVersion == SH2V_11 ? 0x004086D1 :
+                                                GameVersion == SH2V_DC ? 0x004086E1 : NULL;
+    OverrideFileConfigSearchViewRetAddr = (BYTE*)OverrideFileConfigSearchViewAddr + 0x05;
 
     // highlight
-    BYTE* PrintOnStrSearchViewAddr = (BYTE*)0x0046223f;
-    BYTE* PrintOffStrSearchViewAddr = PrintOnStrSearchViewAddr + 0x16;
+    DWORD PrintOnStrSearchViewAddr =    GameVersion == SH2V_10 ? 0x0046223F :
+                                        GameVersion == SH2V_11 ? 0x004624A1 :
+                                        GameVersion == SH2V_DC ? 0x004624A1 : NULL;
+    BYTE* PrintOffStrSearchViewAddr = (BYTE*)PrintOnStrSearchViewAddr + 0x16;
     // value
-    BYTE* PrintSearchViewOptionValueAddr = (BYTE*)0x00461fc9;
+    DWORD PrintSearchViewOptionValueAddr =  GameVersion == SH2V_10 ? 0x00461FC9 :
+                                            GameVersion == SH2V_11 ? 0x0046223B :
+                                            GameVersion == SH2V_DC ? 0x0046223B : NULL;
 
     // arrow
-    BYTE* GetStringFromOffsetAddr = (BYTE*)0x004645c1;
+    DWORD GetStringFromOffsetAddr = GameVersion == SH2V_10 ? 0x004645C1 :
+                                    GameVersion == SH2V_11 ? 0x0046483A :
+                                    GameVersion == SH2V_DC ? 0x00464A45 : NULL;
 
-    BYTE* StoreSearchViewOptionAddr = (BYTE*)0x00462cbe;
-    StoreSearchViewOptionRetAddr = StoreSearchViewOptionAddr + 0x05;
+    DWORD StoreSearchViewOptionAddr =   GameVersion == SH2V_10 ? 0x00462CBE :
+                                        GameVersion == SH2V_11 ? 0x00462F2E :
+                                        GameVersion == SH2V_DC ? 0x00462F2E : NULL;
+    StoreSearchViewOptionRetAddr = (BYTE*)StoreSearchViewOptionAddr + 0x05;
 
-    BYTE* CheckStoredOptionAddr = (BYTE*)0x004632a4;
-    CheckStoredOptionRetAddr = CheckStoredOptionAddr + 0x06;
+    DWORD CheckStoredOptionAddr =   GameVersion == SH2V_10 ? 0x004632A4 :
+                                    GameVersion == SH2V_11 ? 0x00463514 :
+                                    GameVersion == SH2V_DC ? 0x0046351F : NULL;
+    CheckStoredOptionRetAddr = (BYTE*)CheckStoredOptionAddr + 0x06;
 
-    BYTE* RestoreSearchViewOptionAddr = (BYTE*)0x004635c3;
-    RestoreSearchViewOptionRetAddr = RestoreSearchViewOptionAddr + 0x06;
+    DWORD RestoreSearchViewOptionAddr = GameVersion == SH2V_10 ? 0x004635C3 :
+                                        GameVersion == SH2V_11 ? 0x00463833 :
+                                        GameVersion == SH2V_DC ? 0x00463849 : NULL;
+    RestoreSearchViewOptionRetAddr = (BYTE*)RestoreSearchViewOptionAddr + 0x06;
 
-    BYTE* RestoreSearchViewOption2Addr = (BYTE*)0x00463792;
-    RestoreSearchViewOption2RetAddr = RestoreSearchViewOption2Addr + 0x06;
+    DWORD RestoreSearchViewOption2Addr =    GameVersion == SH2V_10 ? 0x00463792 :
+                                            GameVersion == SH2V_11 ? 0x00463A02 :
+                                            GameVersion == SH2V_DC ? 0x00463A1C : NULL;
+    RestoreSearchViewOption2RetAddr = (BYTE*)RestoreSearchViewOption2Addr + 0x06;
 
-    MesPointer = 0x0932b58;
+    MesPointer =    GameVersion == SH2V_10 ? 0x00932B58 :
+                    GameVersion == SH2V_11 ? 0x00936758 :
+                    GameVersion == SH2V_DC ? 0x00935758 : NULL;
 
-    BYTE* SetOptionValueColorAddr = (BYTE*)0x0046220e; //TODO address
-    SetOptionValueColorRetAddr = SetOptionValueColorAddr + 0x06;
+    DWORD SetOptionValueColorAddr = GameVersion == SH2V_10 ? 0x0046220E :
+                                    GameVersion == SH2V_11 ? 0x00462470 :
+                                    GameVersion == SH2V_DC ? 0x00462470 : NULL;
+    SetOptionValueColorRetAddr = (BYTE*)SetOptionValueColorAddr + 0x06;
 
-    BYTE* SetOptionValueColor2Addr = (BYTE*)0x00461f85;
-    SetOptionValueColor2RetAddr = SetOptionValueColor2Addr + 0x0C;
+    DWORD SetOptionValueColor2Addr =    GameVersion == SH2V_10 ? 0x00461F85 :
+                                        GameVersion == SH2V_11 ? 0x004621F7 :
+                                        GameVersion == SH2V_DC ? 0x004621F7 : NULL;
+    SetOptionValueColor2RetAddr = (BYTE*)SetOptionValueColor2Addr + 0x0C;
 
-    BYTE* DivertSearchViewOptionChangeAddr = (BYTE*)0x00464665;
-    DivertSearchViewOptionChangeRetAddr = DivertSearchViewOptionChangeAddr + 0x0F;
+    DWORD DivertSearchViewOptionChangeAddr =    GameVersion == SH2V_10 ? 0x00464665 :
+                                                GameVersion == SH2V_11 ? 0x004648DE :
+                                                GameVersion == SH2V_DC ? 0x00464AEB : NULL;
+    DivertSearchViewOptionChangeRetAddr = (BYTE*)DivertSearchViewOptionChangeAddr + 0x0F;
 
-    BYTE* ConfirmOptionAddr = (BYTE*)0x00463886;
-    ConfirmOptionRetAddr = ConfirmOptionAddr + 0x05;
+    DWORD ConfirmOptionAddr =   GameVersion == SH2V_10 ? 0x00463886 :
+                                GameVersion == SH2V_11 ? 0x00463AF6 :
+                                GameVersion == SH2V_DC ? 0x00463B14 : NULL;
+    ConfirmOptionRetAddr = (BYTE*)ConfirmOptionAddr + 0x05;
+
+    if (*(BYTE*)OverrideFileConfigSearchViewAddr != 0xA0 || *(BYTE*)PrintOnStrSearchViewAddr != 0xE8 || *(BYTE*)PrintSearchViewOptionValueAddr != 0xE8 ||
+        *(BYTE*)GetStringFromOffsetAddr != 0xE8 || *(BYTE*)StoreSearchViewOptionAddr != 0xA2 || *(BYTE*)CheckStoredOptionAddr != 0x3A ||
+        *(BYTE*)RestoreSearchViewOptionAddr != 0x88 || *(BYTE*)RestoreSearchViewOption2Addr != 0x88 || *(BYTE*)SetOptionValueColorAddr != 0x8A ||
+        *(BYTE*)SetOptionValueColor2Addr != 0x8A || *(BYTE*)DivertSearchViewOptionChangeAddr != 0xA0 || *(BYTE*)ConfirmOptionAddr != 0x68)
+    {
+        Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+        return;
+    }
 
     // Override the option value stored in ini file
-    WriteJMPtoMemory(OverrideFileConfigSearchViewAddr, OverrideFileConfigSearchView, 0x05);
+    WriteJMPtoMemory((BYTE*)OverrideFileConfigSearchViewAddr, OverrideFileConfigSearchView, 0x05);
 
     // Divert option change
-    WriteJMPtoMemory(DivertSearchViewOptionChangeAddr, DivertSearchViewOptionChange, 0x0F);
+    WriteJMPtoMemory((BYTE*)DivertSearchViewOptionChangeAddr, DivertSearchViewOptionChange, 0x0F);
 
     // Divert string drawing
     orgPrintTextAtPosHI.fun = injector::MakeCALL(PrintOnStrSearchViewAddr, PrintSearchViewOptionValue_Hook, true).get();
@@ -1099,22 +1144,22 @@ void PatchHealthIndicatorOption()
 
 
     // Divert check for changed option
-    WriteJMPtoMemory(SetOptionValueColorAddr, SetHIOptionValueColor, 0x0C);
-    WriteJMPtoMemory(SetOptionValueColor2Addr, SetHIOptionValueColor2, 0x06);
+    WriteJMPtoMemory((BYTE*)SetOptionValueColorAddr, SetHIOptionValueColor, 0x0C);
+    WriteJMPtoMemory((BYTE*)SetOptionValueColor2Addr, SetHIOptionValueColor2, 0x06);
 
     // hook get string, to move the arrow
     orgGetStringFromMes.fun = injector::MakeCALL(GetStringFromOffsetAddr, GetStringFromOffsetSearchView_Hook, true).get();
 
     // Hook option storing
-    WriteJMPtoMemory(StoreSearchViewOptionAddr, StoreSearchViewOption, 0x05);
+    WriteJMPtoMemory((BYTE*)StoreSearchViewOptionAddr, StoreSearchViewOption, 0x05);
 
     // Override option change check
-    WriteJMPtoMemory(CheckStoredOptionAddr, CheckStoredOption, 0x06);
-    WriteJMPtoMemory(RestoreSearchViewOptionAddr, RestoreSearchViewOption, 0x06);
-    WriteJMPtoMemory(RestoreSearchViewOption2Addr, RestoreSearchViewOption2, 0x06);
+    WriteJMPtoMemory((BYTE*)CheckStoredOptionAddr, CheckStoredOption, 0x06);
+    WriteJMPtoMemory((BYTE*)RestoreSearchViewOptionAddr, RestoreSearchViewOption, 0x06);
+    WriteJMPtoMemory((BYTE*)RestoreSearchViewOption2Addr, RestoreSearchViewOption2, 0x06);
 
     // Check confirm options to save on cfg file
-    WriteJMPtoMemory(ConfirmOptionAddr, ConfirmOptionHI, 0x05);
+    WriteJMPtoMemory((BYTE*)ConfirmOptionAddr, ConfirmOptionHI, 0x05);
 }
 
 // Display mode
@@ -1329,7 +1374,6 @@ __declspec(naked) void __stdcall ConditionChangeFive()
 #pragma warning(disable : 4100)
 void __cdecl PrintDisplayModeDescription_Hook(uint16_t* MesStringsPtr, uint16_t StringOffset, int32_t yPos, int32_t xPos)
 {
-    
     orgPrintTextAtPosDM.fun(MesStringsPtr, 0xFF, yPos, xPos);
 }
 

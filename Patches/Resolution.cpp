@@ -1029,13 +1029,23 @@ void PatchSpeakerConfigText()
 
 void PatchSearchViewOptionName()
 {
-	BYTE* PrintSearchViewNameAddr = (BYTE*)0x00461d3f; //TODO address
-	BYTE* PrintSearchViewNameHighlightAddr = PrintSearchViewNameAddr + 0xDE;
-	BYTE* PrintSearchViewDescriptionAddr = PrintSearchViewNameAddr + 0x6AA;
+
+
+	DWORD PrintSearchViewNameAddr = GameVersion == SH2V_10 ? 0x00461D3F :
+									GameVersion == SH2V_11 ? 0x00461FB1 :
+									GameVersion == SH2V_DC ? 0x00461FB1 : NULL;
+	BYTE* PrintSearchViewNameHighlightAddr = (BYTE*)PrintSearchViewNameAddr + 0xDE;
+	BYTE* PrintSearchViewDescriptionAddr = (BYTE*)PrintSearchViewNameAddr + 0x6AA;
+
+	if (!PrintSearchViewNameAddr || *(BYTE*)PrintSearchViewNameAddr != 0xE8 || *(BYTE*)((DWORD)PrintSearchViewNameAddr - 1) != 0x51)
+	{
+		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+		return;
+	}
 
 	if (UseCustomExeStr)
 	{
-		WriteCalltoMemory(PrintSearchViewNameAddr, *printHealthIndicatorNameStr, 5);
+		WriteCalltoMemory((BYTE*)PrintSearchViewNameAddr, *printHealthIndicatorNameStr, 5);
 		WriteCalltoMemory(PrintSearchViewNameHighlightAddr, *printHealthIndicatorNameStr, 5);
 		WriteCalltoMemory(PrintSearchViewDescriptionAddr, *printHealthIndicatorDescriptionStr, 5);
 	}

@@ -1385,7 +1385,7 @@ void PatchDisplayMode()
     BYTE* HighResTextName2 = (BYTE*)0x0046561c;
     BYTE* HighResTextValue1 = (BYTE*)0x0046525c;
     BYTE* HighResTextValue2 = (BYTE*)0x00465664;
-    BYTE* HighResDescriptionAddr = (BYTE*)0x0046563e;
+    BYTE* HighResDescriptionAddr = HighResTextValue2 - 0x26;
 
     StoredDisplayModeValue = (int8_t*)0x00941784;
 
@@ -1393,16 +1393,16 @@ void PatchDisplayMode()
     DisplayModeArrowRetAddr = HighResTextArrow + 0x16;
     BYTE* StringOffsetToNop = HighResTextArrow + 0x1C;
 
-    BYTE* DisplayModeValueHighlightAddr = (BYTE*)0x00465656;
+    BYTE* DisplayModeValueHighlightAddr = HighResTextValue2 - 0x0E;
     DisplayModeValueHighlightRetAddr = DisplayModeValueHighlightAddr + 0x08;
 
-    BYTE* DisplayModeValuePrintAddr = (BYTE*)0x00465240;
+    BYTE* DisplayModeValuePrintAddr = HighResTextValue1 - 0x1C;
     DisplayModeValuePrintRetAddr = DisplayModeValuePrintAddr + 0x08;
 
     BYTE* ConfirmInitialOptionValueAddr = (BYTE*)0x00464e11;
     ConfirmInitialOptionValueRetAddr = ConfirmInitialOptionValueAddr + 0x06;
     
-    BYTE* DiscardOptionValueAddr = (BYTE*)0x00464f39;
+    BYTE* DiscardOptionValueAddr = ConfirmInitialOptionValueAddr + 0x128;
     DiscardOptionValueRetAddr = DiscardOptionValueAddr + 0x06;
 
     BYTE* CheckStoredOptionvalueAddr = (BYTE*)0x00464ba6;

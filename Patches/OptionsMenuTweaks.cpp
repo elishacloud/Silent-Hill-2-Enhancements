@@ -1054,7 +1054,7 @@ char* __cdecl GetStringFromOffsetSearchView_Hook(uint16_t* ptr, uint16_t offset)
     }
 }
 
-void PatchHealthIndicatorOption()
+void PatchHealthIndicatorOption() // TODO find faulty address in 1.1 and DC
 {
     HealthIndicatorValue = ConfigData.HealthIndicatorOption;
 
@@ -1400,8 +1400,8 @@ void PatchDisplayMode()
                                 GameVersion == SH2V_DC ? (int8_t*)0x00944384 : NULL;
 
     DWORD HighResTextArrow =    GameVersion == SH2V_10 ? 0x00465994 :
-                                GameVersion == SH2V_11 ? 0x00465C3D :
-                                GameVersion == SH2V_DC ? 0x00465E4D : NULL;
+                                GameVersion == SH2V_11 ? 0x00465C36 :
+                                GameVersion == SH2V_DC ? 0x00465E46 : NULL;
     DisplayModeArrowRetAddr = (BYTE*)HighResTextArrow + 0x16;
     BYTE* StringOffsetToNop = (BYTE*)HighResTextArrow + 0x1C;
 
@@ -1437,8 +1437,8 @@ void PatchDisplayMode()
     SetHighlightColorRetAddr = SetHighlightColorAddr + 0x06;
 
     DWORD InputConditionChangeAddr1 =   GameVersion == SH2V_10 ? 0x00465E80 :
-                                        GameVersion == SH2V_11 ? 0x004660BD :
-                                        GameVersion == SH2V_DC ? 0x004662CD : NULL;
+                                        GameVersion == SH2V_11 ? 0x00466122 :
+                                        GameVersion == SH2V_DC ? 0x00466332 : NULL;
     InputConditionChangeRetAddr1 = (BYTE*)InputConditionChangeAddr1 + 0x06;
 
     BYTE* InputConditionChangeAddr2 = (BYTE*)InputConditionChangeAddr1 + 0x0E;
@@ -1454,8 +1454,8 @@ void PatchDisplayMode()
     InputConditionChangeRetAddr5 = InputConditionChangeAddr5 + 0x05;
 
     DisplayModeValueChangedRetAddr =    GameVersion == SH2V_10 ? (BYTE*)0x004661AF :
-                                        GameVersion == SH2V_11 ? (BYTE*)0x00466450 :
-                                        GameVersion == SH2V_DC ? (BYTE*)0x00466660 : NULL;
+                                        GameVersion == SH2V_11 ? (BYTE*)0x0046644F :
+                                        GameVersion == SH2V_DC ? (BYTE*)0x0046665F : NULL;
 
     if (*(BYTE*)HighResTextName1 != 0xC1 || *(BYTE*)HighResTextName2 != 0xC1 || *(BYTE*)HighResTextValue1 != 0xB0 || *(BYTE*)HighResTextValue2 != 0xB0 ||
         *(BYTE*)HighResTextArrow != 0x0F || *(BYTE*)DisplayModeValueHighlightAddr != 0x66 || *(BYTE*)DisplayModeValuePrintAddr != 0x66 ||

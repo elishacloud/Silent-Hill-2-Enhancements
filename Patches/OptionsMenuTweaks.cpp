@@ -1183,7 +1183,7 @@ BYTE* DisplayModeValueChangedRetAddr = nullptr;
 
 injector::hook_back<void(__cdecl*)(uint16_t*, uint16_t, int32_t, int32_t)> orgPrintTextAtPosDM;
 
-int8_t* StoredDisplayModeValue = NULL;
+int8_t* StoredDisplayModeValue = nullptr;
 
 int8_t DisplayModeValue = 0;
 
@@ -1381,59 +1381,91 @@ void PatchDisplayMode()
 {
     DisplayModeValue = ConfigData.DisplayModeOption;
 
-    BYTE* HighResTextName1 = (BYTE*)0x00465060; //TODO address
-    BYTE* HighResTextName2 = (BYTE*)0x0046561c;
-    BYTE* HighResTextValue1 = (BYTE*)0x0046525c;
-    BYTE* HighResTextValue2 = (BYTE*)0x00465664;
-    BYTE* HighResDescriptionAddr = HighResTextValue2 - 0x26;
+    DWORD HighResTextName1 =    GameVersion == SH2V_10 ? 0x00465060 :
+                                GameVersion == SH2V_11 ? 0x004652F0 :
+                                GameVersion == SH2V_DC ? 0x00465500 : NULL;
+    DWORD HighResTextName2 =    GameVersion == SH2V_10 ? 0x0046561C :
+                                GameVersion == SH2V_11 ? 0x004658B8 :
+                                GameVersion == SH2V_DC ? 0x00465AC8 : NULL;
+    DWORD HighResTextValue1 =   GameVersion == SH2V_10 ? 0x0046525C :
+                                GameVersion == SH2V_11 ? 0x004654F2 :
+                                GameVersion == SH2V_DC ? 0x00465702 : NULL;
+    DWORD HighResTextValue2 =   GameVersion == SH2V_10 ? 0x00465664 :
+                                GameVersion == SH2V_11 ? 0x00465900 :
+                                GameVersion == SH2V_DC ? 0x00465b10 : NULL;
+    BYTE* HighResDescriptionAddr = (BYTE*)HighResTextValue2 - 0x26;
 
-    StoredDisplayModeValue = (int8_t*)0x00941784;
+    StoredDisplayModeValue =    GameVersion == SH2V_10 ? (int8_t*)0x00941784 :
+                                GameVersion == SH2V_11 ? (int8_t*)0x00945384 :
+                                GameVersion == SH2V_DC ? (int8_t*)0x00944384 : NULL;
 
-    BYTE* HighResTextArrow = (BYTE*)0x00465994;
-    DisplayModeArrowRetAddr = HighResTextArrow + 0x16;
-    BYTE* StringOffsetToNop = HighResTextArrow + 0x1C;
+    DWORD HighResTextArrow =    GameVersion == SH2V_10 ? 0x00465994 :
+                                GameVersion == SH2V_11 ? 0x00465C3D :
+                                GameVersion == SH2V_DC ? 0x00465E4D : NULL;
+    DisplayModeArrowRetAddr = (BYTE*)HighResTextArrow + 0x16;
+    BYTE* StringOffsetToNop = (BYTE*)HighResTextArrow + 0x1C;
 
-    BYTE* DisplayModeValueHighlightAddr = HighResTextValue2 - 0x0E;
+    BYTE* DisplayModeValueHighlightAddr = (BYTE*)HighResTextValue2 - 0x0E;
     DisplayModeValueHighlightRetAddr = DisplayModeValueHighlightAddr + 0x08;
 
-    BYTE* DisplayModeValuePrintAddr = HighResTextValue1 - 0x1C;
+    BYTE* DisplayModeValuePrintAddr = (BYTE*)HighResTextValue1 - 0x1C;
     DisplayModeValuePrintRetAddr = DisplayModeValuePrintAddr + 0x08;
 
-    BYTE* ConfirmInitialOptionValueAddr = (BYTE*)0x00464e11;
-    ConfirmInitialOptionValueRetAddr = ConfirmInitialOptionValueAddr + 0x06;
+    DWORD ConfirmInitialOptionValueAddr =   GameVersion == SH2V_10 ? 0x00464e11 :
+                                            GameVersion == SH2V_11 ? 0x004650A1 :
+                                            GameVersion == SH2V_DC ? 0x004652B1 : NULL;
+    ConfirmInitialOptionValueRetAddr = (BYTE*)ConfirmInitialOptionValueAddr + 0x06;
     
-    BYTE* DiscardOptionValueAddr = ConfirmInitialOptionValueAddr + 0x128;
+    BYTE* DiscardOptionValueAddr = (BYTE*)ConfirmInitialOptionValueAddr + 0x128;
     DiscardOptionValueRetAddr = DiscardOptionValueAddr + 0x06;
 
-    BYTE* CheckStoredOptionvalueAddr = (BYTE*)0x00464ba6;
-    CheckStoredOptionvalueRetAddr = CheckStoredOptionvalueAddr + 0x06;
+    DWORD CheckStoredOptionvalueAddr =  GameVersion == SH2V_10 ? 0x00464ba6 :
+                                        GameVersion == SH2V_11 ? 0x00464E36 :
+                                        GameVersion == SH2V_DC ? 0x00465046 : NULL;
+    CheckStoredOptionvalueRetAddr = (BYTE*)CheckStoredOptionvalueAddr + 0x06;
 
-    BYTE* DisplayModeOptionColorCheckAddr = (BYTE*)0x00465221;
+    BYTE* DisplayModeOptionColorCheckAddr = (BYTE*)HighResTextValue1 - 0x3B;
     DisplayModeOptionColorCheckRetAddr = DisplayModeOptionColorCheckAddr + 0x06;
 
-    BYTE* NopOriginalStoreOptionAddr = (BYTE*)0x00462d28;
-    BYTE* StoreInitialOptionValueAddr = NopOriginalStoreOptionAddr + 0xD3;
+    DWORD NopOriginalStoreOptionAddr =  GameVersion == SH2V_10 ? 0x00462D28 :
+                                        GameVersion == SH2V_11 ? 0x00462F98 :
+                                        GameVersion == SH2V_DC ? 0x00462F98 : NULL;
+    BYTE* StoreInitialOptionValueAddr = (BYTE*)NopOriginalStoreOptionAddr + 0xD3;
     StoreInitialOptionValueRetAddr = StoreInitialOptionValueAddr + 0x05;
 
-    BYTE* SetHighlightColorAddr = (BYTE*)0x00465649;
+    BYTE* SetHighlightColorAddr = (BYTE*)HighResTextValue2 - 0x1B;
     SetHighlightColorRetAddr = SetHighlightColorAddr + 0x06;
 
-    BYTE* InputConditionChangeAddr1 = (BYTE*)0x465e80; //TODO address
-    InputConditionChangeRetAddr1 = InputConditionChangeAddr1 + 0x06;
+    DWORD InputConditionChangeAddr1 =   GameVersion == SH2V_10 ? 0x00465E80 :
+                                        GameVersion == SH2V_11 ? 0x004660BD :
+                                        GameVersion == SH2V_DC ? 0x004662CD : NULL;
+    InputConditionChangeRetAddr1 = (BYTE*)InputConditionChangeAddr1 + 0x06;
 
-    BYTE* InputConditionChangeAddr2 = InputConditionChangeAddr1 + 0x0E;
+    BYTE* InputConditionChangeAddr2 = (BYTE*)InputConditionChangeAddr1 + 0x0E;
     InputConditionChangeRetAddr2 = InputConditionChangeAddr2 + 0x05;
 
-    BYTE* InputConditionChangeAddr3 = InputConditionChangeAddr1 + 0x31;
+    BYTE* InputConditionChangeAddr3 = (BYTE*)InputConditionChangeAddr1 + 0x31;
     InputConditionChangeRetAddr3 = InputConditionChangeAddr3 + 0x07;
 
-    BYTE* InputConditionChangeAddr4 = InputConditionChangeAddr1 + 0x21;
+    BYTE* InputConditionChangeAddr4 = (BYTE*)InputConditionChangeAddr1 + 0x21;
     InputConditionChangeRetAddr4 = InputConditionChangeAddr4 + 0x06;
 
-    BYTE* InputConditionChangeAddr5 = InputConditionChangeAddr1 + 0x41;
+    BYTE* InputConditionChangeAddr5 = (BYTE*)InputConditionChangeAddr1 + 0x41;
     InputConditionChangeRetAddr5 = InputConditionChangeAddr5 + 0x05;
 
-    DisplayModeValueChangedRetAddr = (BYTE*)0x4661af; //TODO address
+    DisplayModeValueChangedRetAddr =    GameVersion == SH2V_10 ? (BYTE*)0x004661AF :
+                                        GameVersion == SH2V_11 ? (BYTE*)0x00466450 :
+                                        GameVersion == SH2V_DC ? (BYTE*)0x00466660 : NULL;
+
+    if (*(BYTE*)HighResTextName1 != 0xC1 || *(BYTE*)HighResTextName2 != 0xC1 || *(BYTE*)HighResTextValue1 != 0xB0 || *(BYTE*)HighResTextValue2 != 0xB0 ||
+        *(BYTE*)HighResTextArrow != 0x0F || *(BYTE*)DisplayModeValueHighlightAddr != 0x66 || *(BYTE*)DisplayModeValuePrintAddr != 0x66 ||
+        *(BYTE*)ConfirmInitialOptionValueAddr != 0x8A || *(BYTE*)DiscardOptionValueAddr != 0x88 || *(BYTE*)CheckStoredOptionvalueAddr != 0x8A ||
+        *(BYTE*)DisplayModeOptionColorCheckAddr != 0x8A || *(BYTE*)NopOriginalStoreOptionAddr != 0x88 || *(BYTE*)SetHighlightColorAddr != 0x8A ||
+        *(BYTE*)InputConditionChangeAddr1 != 0x85 || *(BYTE*)DisplayModeValueChangedRetAddr != 0x55)
+    {
+        Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+        return;
+    }
 
     /*
     * 0x0FE display mode
@@ -1444,17 +1476,17 @@ void PatchDisplayMode()
     */
 
     // Display mode option name offset
-    UpdateMemoryAddress(HighResTextName1, "\xFE", 0x01);
-    UpdateMemoryAddress(HighResTextName2, "\xFE", 0x01);
+    UpdateMemoryAddress((BYTE*)HighResTextName1, "\xFE", 0x01);
+    UpdateMemoryAddress((BYTE*)HighResTextName2, "\xFE", 0x01);
     // Display mode option value offset
-    UpdateMemoryAddress(HighResTextValue1, "\x00\x01", 0x02);
-    UpdateMemoryAddress(HighResTextValue2, "\x00\x01", 0x02);
+    UpdateMemoryAddress((BYTE*)HighResTextValue1, "\x00\x01", 0x02);
+    UpdateMemoryAddress((BYTE*)HighResTextValue2, "\x00\x01", 0x02);
 
     // Change the description
     orgPrintTextAtPosDM.fun = injector::MakeCALL(HighResDescriptionAddr, PrintDisplayModeDescription_Hook, true).get();
 
     // Display mode option arrow
-    WriteJMPtoMemory(HighResTextArrow, DisplayModeArrow, 15);
+    WriteJMPtoMemory((BYTE*)HighResTextArrow, DisplayModeArrow, 15);
     UpdateMemoryAddress(StringOffsetToNop, "\x90\x90\x90\x90\x90", 0x05);
     // Display mode option value and highlight
     WriteJMPtoMemory(DisplayModeValueHighlightAddr, DisplayModeValueHighlight, 0x08); //TODO highlight wrong color, tied to inputs
@@ -1462,17 +1494,17 @@ void PatchDisplayMode()
     WriteJMPtoMemory(DisplayModeValuePrintAddr, DisplayModeValuePrint, 0x08);
 
     // Override checks for changed option
-    WriteJMPtoMemory(ConfirmInitialOptionValueAddr, ConfirmInitialOptionValue, 0x06);
+    WriteJMPtoMemory((BYTE*)ConfirmInitialOptionValueAddr, ConfirmInitialOptionValue, 0x06);
     WriteJMPtoMemory(DiscardOptionValueAddr, DiscardInitialOptionValue, 0x06);
-    WriteJMPtoMemory(CheckStoredOptionvalueAddr, CheckStoredOptionValue, 0x06);
+    WriteJMPtoMemory((BYTE*)CheckStoredOptionvalueAddr, CheckStoredOptionValue, 0x06);
     WriteJMPtoMemory(DisplayModeOptionColorCheckAddr, ColorCheckStoredOptionValue, 0x06);
 
     // Divert saving the option value for checks
     WriteJMPtoMemory(StoreInitialOptionValueAddr, StoreInitialOptionValue, 0x05);
-    UpdateMemoryAddress(NopOriginalStoreOptionAddr, "\x90\x90\x90\x90\x90\x90", 0x06);
+    UpdateMemoryAddress((BYTE*)NopOriginalStoreOptionAddr, "\x90\x90\x90\x90\x90\x90", 0x06);
 
     // Change the conditional that changes the value
-    WriteJMPtoMemory(InputConditionChangeAddr1, ConditionChangeOne, 0x06);
+    WriteJMPtoMemory((BYTE*)InputConditionChangeAddr1, ConditionChangeOne, 0x06);
     WriteJMPtoMemory(InputConditionChangeAddr2, ConditionChangeTwo, 0x05);
     WriteJMPtoMemory(InputConditionChangeAddr3, ConditionChangeThree, 0x07);
     WriteJMPtoMemory(InputConditionChangeAddr4, ConditionChangeFour, 0x06);

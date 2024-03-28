@@ -1178,8 +1178,11 @@ BYTE* InputConditionChangeRetAddr2 = nullptr;
 BYTE* InputConditionChangeRetAddr3 = nullptr;
 BYTE* InputConditionChangeRetAddr4 = nullptr;
 BYTE* InputConditionChangeRetAddr5 = nullptr;
+BYTE* SetLowResTexturesRetAddr = nullptr;
 
 BYTE* DisplayModeValueChangedRetAddr = nullptr;
+
+DWORD* SetLowResTextures = nullptr;
 
 injector::hook_back<void(__cdecl*)(uint16_t*, uint16_t, int32_t, int32_t)> orgPrintTextAtPosDM;
 
@@ -1371,6 +1374,20 @@ __declspec(naked) void __stdcall ConditionChangeFive()
     }
 }
 
+__declspec(naked) void __stdcall UnsetLowResTextures()
+{
+    __asm
+    {
+        mov esi, 0x00
+
+        mov dword ptr[SetLowResTextures], esi
+
+        mov esi, 0x01
+
+        jmp SetLowResTexturesRetAddr
+    }
+}
+
 #pragma warning(disable : 4100)
 void __cdecl PrintDisplayModeDescription_Hook(uint16_t* MesStringsPtr, uint16_t StringOffset, int32_t yPos, int32_t xPos)
 {
@@ -1380,6 +1397,20 @@ void __cdecl PrintDisplayModeDescription_Hook(uint16_t* MesStringsPtr, uint16_t 
 void PatchDisplayMode()
 {
     DisplayModeValue = ConfigData.DisplayModeOption;
+
+    if (!UseBestGraphics)
+    {
+        // Duplicated code from UseBestGraphics
+        constexpr BYTE OptSearchBytesA[] = { 0x83, 0xEC, 0x20, 0x53, 0x56, 0x57, 0x33, 0xC0, 0xBE, 0x01, 0x00, 0x00, 0x00, 0xB9, 0x08, 0x00 };
+        void* DOptAddrA = (void*)SearchAndGetAddresses(0x004F6F70, 0x004F7220, 0x004F6AE0, OptSearchBytesA, sizeof(OptSearchBytesA), 0x00, __FUNCTION__);
+
+        BYTE* SetLowResTexturesAddr = ((BYTE*)DOptAddrA + 0x93);
+        SetLowResTexturesRetAddr = SetLowResTexturesAddr + 0x06;
+        SetLowResTextures = (DWORD*)*(DWORD*)((BYTE*)DOptAddrA + 0x95);
+
+        // Set low res textures to false
+        WriteJMPtoMemory(SetLowResTexturesAddr, UnsetLowResTextures, 0x06);
+    }
 
     DWORD HighResTextName1 =    GameVersion == SH2V_10 ? 0x00465060 :
                                 GameVersion == SH2V_11 ? 0x004652F0 :

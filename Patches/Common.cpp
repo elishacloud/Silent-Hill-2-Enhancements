@@ -142,6 +142,11 @@ BYTE* WorldColorRAddr = nullptr;
 BYTE* WorldColorGAddr = nullptr;
 BYTE* WorldColorBAddr = nullptr;
 BYTE* InventoryItemAddr = nullptr;
+BYTE* KeyBindsAddr = nullptr;
+int8_t* ControlOptionsSelectedOptionAddr = nullptr;
+int32_t* ControlOptionsStopScrollingAddr = nullptr;
+int8_t* ControlOptionsSelectedColumnAddr = nullptr;
+int8_t* ControlOptionsChangingAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -3252,4 +3257,121 @@ BYTE* InventoryItemPointer()
 	}
 
 	return InventoryItemAddr;
+}
+
+BYTE* GetKeyBindsPointer()
+{
+	if (KeyBindsAddr)
+	{
+		return KeyBindsAddr;
+	}
+
+	// Get Turn Left Button address
+	constexpr BYTE TurnLeftButtonSearchBytes[]{ 0x56, 0x8B, 0x74, 0x24, 0x08, 0x83, 0xFE, 0x16, 0x7D, 0x3F };
+	BYTE* Binds = (BYTE*)ReadSearchedAddresses(0x005AEF90, 0x005AF8C0, 0x005AF1E0, TurnLeftButtonSearchBytes, sizeof(TurnLeftButtonSearchBytes), 0x1D, __FUNCTION__);
+
+	// Checking address pointer
+	if (!Binds)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find KeyBinds address!";
+		return nullptr;
+	}
+
+	KeyBindsAddr = (BYTE*)((DWORD)Binds);
+
+	return KeyBindsAddr;
+}
+
+int8_t GetControlOptionsSelectedOption()
+{
+	int8_t* pControlOptionsSelectedOption = GetControlOptionsSelectedOptionPointer();
+
+	return (pControlOptionsSelectedOption) ? *pControlOptionsSelectedOption : 0;
+}
+
+int8_t* GetControlOptionsSelectedOptionPointer()
+{
+	if (ControlOptionsSelectedOptionAddr)
+	{
+		return ControlOptionsSelectedOptionAddr;
+	}
+
+	// Get ControlOptionsSelectedOption address
+	constexpr BYTE ControlOptionsSelectedOptionSearchBytes[]{ 0x00, 0x07, 0x75, 0x07, 0xC6, 0x05 };
+	int8_t* ControlOptionsSelectedOption = (int8_t*)ReadSearchedAddresses(0x00467515, 0x004677B5, 0x004679C5, ControlOptionsSelectedOptionSearchBytes, sizeof(ControlOptionsSelectedOptionSearchBytes), -0x03, __FUNCTION__);
+
+	// Checking address pointer
+	if (!ControlOptionsSelectedOption)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find ControlOptionsSelectedOption address!";
+		return nullptr;
+	}
+
+	ControlOptionsSelectedOptionAddr = (int8_t*)((DWORD)ControlOptionsSelectedOption);
+
+	return ControlOptionsSelectedOptionAddr;
+}
+
+int8_t GetControlOptionsSelectedColumn()
+{
+	int8_t* pControlOptionsSelectedColumn = GetControlOptionsSelectedColumnPointer();
+
+	return (pControlOptionsSelectedColumn) ? *pControlOptionsSelectedColumn : 0;
+}
+
+int8_t* GetControlOptionsSelectedColumnPointer()
+{	
+	if (!ControlOptionsSelectedColumnAddr)
+	{
+		ControlOptionsSelectedColumnAddr = GetControlOptionsSelectedOptionPointer() + 0x50;
+	}
+
+	return ControlOptionsSelectedColumnAddr;
+}
+
+int32_t GetControlOptionsIsToStopScrolling()
+{
+	int32_t* pControlOptionsStopScrolling = GetControlOptionsIsToStopScrollingPointer();
+
+	return (pControlOptionsStopScrolling) ? *pControlOptionsStopScrolling : 0;
+}
+
+int32_t* GetControlOptionsIsToStopScrollingPointer()
+{
+	if (ControlOptionsStopScrollingAddr)
+	{
+		return ControlOptionsStopScrollingAddr;
+	}
+
+	// Get InternalVertical address
+	constexpr BYTE ControlOptionsStopScrollingSearchBytes[]{ 0x83, 0xC4, 0x30, 0x3B, 0xC6, 0x68, 0xFF, 0x00, 0x00, 0x00, 0x74, 0x04 };
+	int32_t* ControlOptionsStopScrolling = (int32_t*)ReadSearchedAddresses(0x004676C8, 0x00467968, 0x00467B78, ControlOptionsStopScrollingSearchBytes, sizeof(ControlOptionsStopScrollingSearchBytes), -0x04, __FUNCTION__);
+
+	// Checking address pointer
+	if (!ControlOptionsStopScrolling)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find InternalVertical address!";
+		return nullptr;
+	}
+
+	ControlOptionsStopScrollingAddr = (int32_t*)((DWORD)ControlOptionsStopScrolling);
+
+	return ControlOptionsStopScrollingAddr;
+}
+
+int8_t GetControlOptionsChanging()
+{
+	int8_t* pControlOptionsChanging = GetControlOptionsChangingPointer();
+
+	return (pControlOptionsChanging) ? *pControlOptionsChanging : 0;
+}
+
+int8_t* GetControlOptionsChangingPointer()
+{
+	if (!ControlOptionsChangingAddr)
+	{
+		ControlOptionsChangingAddr = GetControlOptionsSelectedOptionPointer() + 0x51;
+	}
+
+	return ControlOptionsChangingAddr;
 }

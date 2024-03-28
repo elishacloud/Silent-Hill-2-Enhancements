@@ -880,6 +880,8 @@ void PatchLockScreenPosition()
 extern char* getSpeakerConfigDescStr();
 extern char* getMasterVolumeDescStr();
 extern char* getMasterVolumeNameStr();
+extern char* getHealthIndicatorStr();
+extern char* getHealthIndicatorDescriptionStr();
 
 int printSpkDescStr(unsigned short, unsigned char, int x, int y)
 {
@@ -896,6 +898,18 @@ int printMasterVolumeDescStr(unsigned short, unsigned char, int x, int y)
 int printMasterVolumeNameStr(unsigned short, unsigned char, int x, int y)
 {
 	char* ptr = (char*)prepText(getMasterVolumeNameStr());
+	return printTextPos(ptr, x, y);
+}
+
+int printHealthIndicatorNameStr(unsigned short, unsigned char, int x, int y)
+{
+	char* ptr = (char*)prepText(getHealthIndicatorStr());
+	return printTextPos(ptr, x, y);
+}
+
+int printHealthIndicatorDescriptionStr(unsigned short, unsigned char, int x, int y)
+{
+	char* ptr = (char*)prepText(getHealthIndicatorDescriptionStr());
 	return printTextPos(ptr, x, y);
 }
 
@@ -1010,5 +1024,29 @@ void PatchSpeakerConfigText()
 		WriteCalltoMemory(((BYTE*)DSpkrAddrName), *printMasterVolumeNameStr, 5);
 		WriteCalltoMemory(((BYTE*)DSpkrAddrHighlight), *printMasterVolumeNameStr, 5);
 		WriteCalltoMemory(((BYTE*)DSpkAddrB + 0x125), *printMasterVolumeDescStr, 5);
+	}
+}
+
+void PatchSearchViewOptionName()
+{
+
+
+	DWORD PrintSearchViewNameAddr = GameVersion == SH2V_10 ? 0x00461D3F :
+									GameVersion == SH2V_11 ? 0x00461FB1 :
+									GameVersion == SH2V_DC ? 0x00461FB1 : NULL;
+	BYTE* PrintSearchViewNameHighlightAddr = (BYTE*)PrintSearchViewNameAddr + 0xDE;
+	BYTE* PrintSearchViewDescriptionAddr = (BYTE*)PrintSearchViewNameAddr + 0x6AA;
+
+	if (!PrintSearchViewNameAddr || *(BYTE*)PrintSearchViewNameAddr != 0xE8 || *(BYTE*)((DWORD)PrintSearchViewNameAddr - 1) != 0x51)
+	{
+		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+		return;
+	}
+
+	if (UseCustomExeStr)
+	{
+		WriteCalltoMemory((BYTE*)PrintSearchViewNameAddr, *printHealthIndicatorNameStr, 5);
+		WriteCalltoMemory(PrintSearchViewNameHighlightAddr, *printHealthIndicatorNameStr, 5);
+		WriteCalltoMemory(PrintSearchViewDescriptionAddr, *printHealthIndicatorDescriptionStr, 5);
 	}
 }

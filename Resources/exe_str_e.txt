@@ -27,3 +27,5 @@ Button %d
 \hConfigure in Windows Sound Settings
 \hMaster Volume
 \hAdjust Master Volume
+\hHealth indicator
+\hEnable low health indicator

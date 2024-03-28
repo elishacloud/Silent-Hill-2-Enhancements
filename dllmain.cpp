@@ -646,12 +646,31 @@ void DelayedStart()
 		PatchCustomSFXs();
 	}
 
+	// Adds display mode option
+	if (DisplayModeOption)
+	{
+		PatchDisplayMode();
+	}
+
+	// Adds health indicator option
+	if (HealthIndicatorOption)
+	{
+		PatchSearchViewOptionName();
+		PatchHealthIndicatorOption();
+	}
+	
 	// Patch to prevent James from looking at the teddy bear after picking up the bent needle
 	if (TeddyBearLookFix)
 	{
 		PatchTeddyBearLookFix();
 	}
 
+	// Overhaul the Control Options menu
+	if (ReplaceButtonText != BUTTON_ICONS_DISABLED)
+	{
+		PatchControlOptionsMenu();
+	}
+	
 	// Fix spawn precondition for the Old Man Coin
 	if (OldManCoinFix)
  	{

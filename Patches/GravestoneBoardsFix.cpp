@@ -6,6 +6,7 @@
 static DWORD GravestoneBoardsRetAddr = 0;
 static UIElement* uiElement = nullptr;
 
+#pragma warning(suppress: 4740)
 __declspec(naked) void __stdcall GravestoneBoardsASM()
 {
     __asm {

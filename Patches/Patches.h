@@ -617,6 +617,7 @@ void PatchFogParameters();
 void PatchFullscreenImages();
 void PatchFullscreenVideos();
 void PatchGameLoad();
+void PatchGravestoneBoardsFix();
 void PatchHoldDamage();
 void PatchHoldToStomp();
 void PatchInputTweaks();

@@ -874,6 +874,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="GravestoneBoardsFix">
+        <Title>Fix distortion in the boards of gravestone puzzle</Title>
+        <Description>Fix the boards in the BfaW gravestone puzzle from being distorted when rotated.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="FixTownWestGateEvent">
         <Title>Corrigir comentário do portão do beco oeste</Title>
         <Description>Altera o comentário de James sobre o portão da Heaven's Night do beco à noite para refletir adequadamente o status do portão.</Description>

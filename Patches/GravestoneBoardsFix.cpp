@@ -3,11 +3,12 @@
 #include "Logging\Logging.h"
 #include "Patches\Patches.h"
 
-static DWORD GravestoneBoardsRetAddr = 0;
+using DrawUserInterfaceFunc = void (*)(/* UIElement* uiElement */);
+static DrawUserInterfaceFunc DrawUserInterface = nullptr;
+
 static UIElement* uiElement = nullptr;
 
-#pragma warning(suppress: 4740)
-__declspec(naked) void __stdcall GravestoneBoardsASM()
+void GravestoneBoardsHook(/* UIElement* uiElement */)
 {
     __asm {
         mov uiElement, esi
@@ -44,7 +45,7 @@ __declspec(naked) void __stdcall GravestoneBoardsASM()
             uiElement->texCoords.v2 = 6636.0f;
         }
 
-        // Step 2: Adjust the vertices of the boards for each orientation to properly fill the tombstone cavity
+        // Step 2: Adjust the vertices of the boards for each orientation to properly fill the gravestone cavity
 
         // Rotated right 90 deg
         if (uiElement->verts[0].x > 0 && uiElement->verts[0].y < 0 &&
@@ -94,27 +95,38 @@ __declspec(naked) void __stdcall GravestoneBoardsASM()
     }
 
     __asm {
-        // original instructions
-        mov cx, word ptr ds : [esi + 0x2E]
-        fild dword ptr ds : [0xA33480]
-
-        // return to real function
-        jmp GravestoneBoardsRetAddr
+        mov esi, uiElement
     }
+
+    DrawUserInterface(/* uiElement */);
 }
 
 void PatchGravestoneBoardsFix()
 {
-    constexpr BYTE SearchBytes[]{ 0x90, 0x90, 0x66, 0x8B, 0x4E, 0x2E, 0xDB, 0x05 };
-    DWORD GravestoneBoardsAddr = SearchAndGetAddresses(0x0049EFDE, 0x0049F28E, 0x0049EB4E, SearchBytes, sizeof(SearchBytes), 0x02, __FUNCTION__);
-    if (!GravestoneBoardsAddr)
+    switch (GameVersion)
+    {
+    case SH2V_10:
+        DrawUserInterface = reinterpret_cast<DrawUserInterfaceFunc>(0x49EFE0);
+        break;
+    case SH2V_11:
+        DrawUserInterface = reinterpret_cast<DrawUserInterfaceFunc>(0x49F290);
+        break;
+    case SH2V_DC:
+        DrawUserInterface = reinterpret_cast<DrawUserInterfaceFunc>(0x49EB50);
+        break;
+    case SH2V_UNKNOWN:
+        Logging::Log() << __FUNCTION__ << " Error: unknown game version!";
+        return;
+    }
+
+    constexpr BYTE SearchBytes[]{ 0xE8, 0x64, 0xF6, 0xFF, 0xFF, 0x8B, 0x06, 0x85 };
+    DWORD DrawUserInterfaceAddr = SearchAndGetAddresses(0x49F977, 0x49FC27, 0x49F4E7, SearchBytes, sizeof(SearchBytes), 0, __FUNCTION__);
+    if (!DrawUserInterfaceAddr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
         return;
     }
 
-    GravestoneBoardsRetAddr = GravestoneBoardsAddr + 0xA;
-
     Logging::Log() << "Patching Gravestone Boards Fix...";
-    WriteJMPtoMemory((BYTE*)GravestoneBoardsAddr, *GravestoneBoardsASM);
+    WriteCalltoMemory((BYTE*)DrawUserInterfaceAddr, GravestoneBoardsHook);
 }

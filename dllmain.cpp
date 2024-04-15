@@ -681,7 +681,13 @@ void DelayedStart()
 	{
 		PatchLowHealthIndicator();
 	}
-
+	
+	// Fix flashlight position during the hospital shower room cutscene
+	if (ShowerRoomFlashlightFix)
+	{
+		PatchShowerRoomFlashlightFix();
+	}
+	
 	// Remove the "Now loading..." and "Press Return to continue." messages
 	switch (GameVersion)
 	{

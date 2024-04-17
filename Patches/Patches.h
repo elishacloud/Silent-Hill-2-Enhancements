@@ -605,6 +605,7 @@ void PatchControllerTweaks();
 void PatchDelayedFadeIn();
 void PatchDoubleFootstepFix();
 void PatchDrawDistance();
+void PatchElevatorCursorColor();
 void PatchFinalBossRoom();
 void PatchFireEscapeKey();
 void PatchFlashlightClockPush();

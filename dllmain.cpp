@@ -688,6 +688,9 @@ void DelayedStart()
 		PatchShowerRoomFlashlightFix();
 	}
 	
+	// Hotel Employee Elevator Cursor Color Bug Fix
+	PatchElevatorCursorColor();
+
 	// Remove the "Now loading..." and "Press Return to continue." messages
 	switch (GameVersion)
 	{

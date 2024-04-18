@@ -619,6 +619,7 @@ void PatchFullscreenImages();
 void PatchFullscreenVideos();
 void PatchGameLoad();
 void PatchGravestoneBoardsFix();
+void PatchGreatKnifeBoatSpeed();
 void PatchHoldDamage();
 void PatchHoldToStomp();
 void PatchInputTweaks();

@@ -63,6 +63,7 @@ long int MouseWheel = 0;
 AnalogStick VirtualRightStick;
 
 bool CheckKeyBindsFlag = false;
+std::vector<int> NotOverriddenNumberBinds;
 
 bool SetLMButton = false;
 bool SetLeftKey = false;
@@ -643,6 +644,14 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
             ClearKey(KeyBinds.GetKeyBind(KEY_CANCEL));
         }
 
+		if ((GetBoatFlag() == 0x01 && GetRoomID() == R_TOWN_LAKE) || ShowDebugOverlay) //TODO setting
+		{
+			for (const int current: NotOverriddenNumberBinds)
+			{
+				ClearKey(current);
+			}
+		}
+
 		// Clear Keyboard Data pointer
 		KeyboardData = nullptr;
 	}
@@ -870,6 +879,8 @@ void InputTweaks::CheckNumberKeyBinds()
 	BYTE* ActionKeyBinds = KeyBinds.GetKeyBindsPointer();
 	boolean FoundNumber = false;
 
+	NotOverriddenNumberBinds.clear();
+
 	// Iterate over Number Keybinds
 	for (int i = 0; i < 0xA; i++)
 	{
@@ -892,6 +903,7 @@ void InputTweaks::CheckNumberKeyBinds()
 		else
 		{
 			*(NumberKeyBinds + (i * 0x8)) = (BYTE)DefaultNumberKeyBinds[i];
+			NotOverriddenNumberBinds.push_back(DefaultNumberKeyBinds[i]);
 		}
 	}
 }

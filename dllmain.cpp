@@ -682,6 +682,12 @@ void DelayedStart()
 		PatchLowHealthIndicator();
 	}
 
+	// Patch boat speed with great knife equipped
+	if (true) //TODO setting
+	{
+		PatchGreatKnifeBoatSpeed();
+	}
+
 	// Hotel Employee Elevator Cursor Color Bug Fix
 	PatchElevatorCursorColor();
 

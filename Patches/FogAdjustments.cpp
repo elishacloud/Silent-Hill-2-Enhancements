@@ -21,13 +21,14 @@
 #include "Logging\Logging.h"
 
 // Variables for ASM
-void *FogFrontPointer;
-void *FogBackPointer;
-void *jmpBlueCreekFogReturnAddr;
-void *NewEnvFogRGB;
-void *OriginalEnvFogRGB;
-void *jmpFinalAreaBossAddr1;
-void *jmpFinalAreaBossAddr2;
+float* FogFrontPointer;
+void* FogBackPointer;
+void* jmpBlueCreekFogReturnAddr;
+void* NewEnvFogRGB;
+void* OriginalEnvFogRGB;
+void* jmpFinalAreaBossAddr1;
+void* jmpFinalAreaBossAddr2;
+BYTE LastFlashLightMode;
 
 // Fog values
 constexpr float NewFrontFog = 2200.0f;
@@ -48,6 +49,12 @@ __declspec(naked) void __stdcall BlueCreekFogAdjustmentASM()
 		mov eax, dword ptr ds : [RoomIDAddr]
 		cmp dword ptr ds : [eax], R_APT_W_RM_208_209
 		jne near ConditionsNotMet						// jumps if not Blue Creek Apt Room 209
+		mov ecx, dword ptr ds : [FlashlightSwitchAddr]
+		cmp dword ptr ds : [ecx], 0
+		je near ConditionsNotMet						// jumps if flashlight is off
+		mov eax, dword ptr ds : [LastFlashLightMode]
+		cmp eax, dword ptr ds : [ecx]
+		je near ConditionsNotMet						// jumps if flashlight mode has not changed
 		mov ecx, BlueCreekNewFog
 		mov eax, dword ptr ds : [FogFrontPointer]
 		mov dword ptr ds : [eax], ecx					// new fog value
@@ -56,7 +63,7 @@ __declspec(naked) void __stdcall BlueCreekFogAdjustmentASM()
 	ConditionsNotMet:
 		mov ecx, BlueCreekOriginalFog
 		mov eax, dword ptr ds : [FogFrontPointer]
-		mov dword ptr ds : [eax], ecx					// original fog value; 3000 flt
+		mov dword ptr ds : [eax], ecx					// original fog value; 3000.0f flt
 
 	ExitFunction:
 		pop ecx
@@ -203,8 +210,11 @@ void PatchFogParameters()
 	// Get Camera in-game position Y
 	GetInGameCameraPosYPointer();
 
+	// Get flashlight pointer
+	GetFlashlightSwitchPointer();
+
 	// Checking address pointers
-	if (!RoomIDAddr || !CutsceneIDAddr || !CutscenePosAddr || !InGameCameraPosYAddr)
+	if (!RoomIDAddr || !CutsceneIDAddr || !CutscenePosAddr || !InGameCameraPosYAddr || !FlashlightSwitchAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to get cutscene ID or position address!";
 		return;
@@ -220,7 +230,7 @@ void PatchFogParameters()
 // Slow the fog movement in certain areas of the game to better match the PS2's fog movements
 void RunFogSpeed()
 {
-	static float *FogSpeed = nullptr;
+	static float* FogSpeed = nullptr;
 	if (!FogSpeed)
 	{
 		RUNONCE();
@@ -234,7 +244,16 @@ void RunFogSpeed()
 		}
 	}
 
-	static float *JamesFogInfluence = nullptr;
+	// Checking fog address pointer
+	if (!FogFrontPointer)
+	{
+		RUNONCE();
+
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+
+	static float* JamesFogInfluence = nullptr;
 	if (!JamesFogInfluence)
 	{
 		RUNONCE();
@@ -286,9 +305,15 @@ void RunFogSpeed()
 	}
 	}
 
-	static bool ValueSet = false;
+	// Adjust fog values for Blue Creek Apt Room 209
+	if (GetRoomID() == R_APT_W_RM_208_209 && *FogFrontPointer != BlueCreekNewFog)
+	{
+		*FogFrontPointer = BlueCreekNewFog;
+	}
+	LastFlashLightMode = GetFlashlightSwitch();
 
 	// Prevents fog from "sticking" to James during certain parts of the Forest trail
+	static bool ValueSet = false;
 	if (GetRoomID() == R_FOREST_CEMETERY && GetJamesPosY() >= 1125.0f && GetJamesPosY() <= 1575.0f)
 	{
 		if (!ValueSet)

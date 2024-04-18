@@ -71,6 +71,7 @@
 	visit(ForceTopMost, false) \
 	visit(GameLoadFix, true) \
 	visit(GamepadControlsFix, true) \
+	visit(GravestoneBoardsFix, true) \
 	visit(HalogenLightFix, true) \
 	visit(HealthIndicatorOption, true) \
 	visit(HookDirect3D, true) \
@@ -119,6 +120,7 @@
 	visit(SetBlackPillarBoxes, true) \
 	visit(SetSixtyFPS, true) \
 	visit(SetSwapEffectUpgradeShim, false) \
+	visit(ShowerRoomFlashlightFix, true) \
 	visit(Southpaw, false) \
 	visit(SpecificSoundLoopFix, true) \
 	visit(SpecularFix, true) \
@@ -245,6 +247,7 @@
 	visit(ResY) \
 	visit(ScreenMode) \
 	visit(SetSwapEffectUpgradeShim) \
+	visit(ShowerRoomFlashlightFix) \
 	visit(SmallFontHeight) \
 	visit(SmallFontWidth) \
 	visit(SpaceSize) \

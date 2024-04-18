@@ -200,6 +200,7 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     <ClCompile Include="Patches\ChangeClosetSpawn.cpp" />
     <ClCompile Include="Patches\CommandWindowMouseFix.cpp" />
     <ClCompile Include="Patches\DoubleFootstepFix.cpp" />
+    <ClCompile Include="Patches\ElevatorCursorColorFix.cpp" />
     <ClCompile Include="Patches\FinalBossRoomFix.cpp" />
     <ClCompile Include="Patches\FireEscapeKey.cpp" />
     <ClCompile Include="Patches\HoldToStomp.cpp" />
@@ -211,6 +212,8 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     <ClCompile Include="Patches\DelayedFadeIn.cpp" />
     <ClCompile Include="Patches\FmvSubtitles.cpp" />
     <ClCompile Include="Patches\OptionsMenuTweaks.cpp" />
+    <ClCompile Include="Patches\GravestoneBoardsFix.cpp" />
+    <ClCompile Include="Patches\MasterVolume.cpp" />
     <ClCompile Include="Patches\MenuSounds.cpp" />
     <ClCompile Include="Patches\MothDrawOrder.cpp" />
     <ClCompile Include="Patches\ObservationDeckFogFix.cpp" />
@@ -248,6 +251,7 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     <ClCompile Include="Patches\RotatingMannequinGlitch.cpp" />
     <ClCompile Include="Patches\SaveBGImage.cpp" />
     <ClCompile Include="Patches\AtticShadowFixes.cpp" />
+    <ClCompile Include="Patches\ShowerRoomFlashlightFix.cpp" />
     <ClCompile Include="Patches\SixtyFPSPatch.cpp" />
     <ClCompile Include="Patches\SpecialFX.cpp" />
     <ClCompile Include="Patches\Specular.cpp" />
@@ -354,6 +358,8 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     <ClInclude Include="Patches\FullscreenImages.h" />
     <ClInclude Include="Patches\InputTweaks.h" />
     <ClInclude Include="Patches\OptionsMenuTweaks.h" />
+    <ClInclude Include="Patches\GravestoneBoardsFix.h" />
+    <ClInclude Include="Patches\MasterVolume.h" />
     <ClInclude Include="Patches\ModelID.h" />
     <ClInclude Include="Patches\Patches.h" />
     <ClInclude Include="Patches\SfxPatch.h" />

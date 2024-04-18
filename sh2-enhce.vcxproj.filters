@@ -437,6 +437,15 @@
     <ClCompile Include="Patches\AtticShadowFixes.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\GravestoneBoardsFix.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\ShowerRoomFlashlightFix.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\ElevatorCursorColorFix.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">
@@ -660,6 +669,9 @@
     </ClInclude>
     <ClInclude Include="Common\GfxUtils.h">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Patches\GravestoneBoardsFix.h">
+      <Filter>Patches</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

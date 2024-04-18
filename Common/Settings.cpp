@@ -330,7 +330,9 @@ void UpdateConfigDefaults()
 	switch (DisableCutsceneBorders)
 	{
 	case DISABLE_MEDIA_CONTROL:
+		break;
 	case FIT_MEDIA:
+		DisableCutsceneBorders = FILL_MEDIA;
 		break;
 	default:
 		DisableCutsceneBorders = AUTO_MEDIA_CONTROL;

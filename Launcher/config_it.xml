@@ -80,12 +80,12 @@
       </Feature>
 
       <Feature name="DisableCutsceneBorders">
-        <Title>In-engine cutscene borders</Title>
-        <Description>Choose to show or hide in-engine cutscene letterboxing. Set to "Auto" to enable the letterboxing on aspect ratios 5:4 or smaller, and disable them on aspect ratios larger than 5:4.&#x0a;&#x0a;Note: In-engine cutscene letterboxing should be disabled when playing in a widescreen aspect ratio and enabling cutscene FOV scaling. Otherwise, the letterboxing may crop off character heads when playing in widescreen.</Description>
+        <Title>Cutscene borders</Title>
+        <Description>Choose to show or hide non-pre-rendered cutscene letterboxing. Set to "Auto" to enable the letterboxing on standard aspect ratios, and disable them on widescreen aspect ratios.&#x0a;&#x0a;Note: Non-pre-rendered cutscene letterboxing should be hidden or set to 'Auto' when playing in a widescreen aspect ratio and enabling cutscene FOV scaling. Otherwise, the letterboxing may crop off character heads when playing in widescreen. (Show = 0, Hide = 1, Auto = 3)</Description>
         <Choices type="list">
-          <Value name="Disable">0</Value>
           <Value name="Auto" default="true">3</Value>
-          <Value name="Enable">1</Value>
+          <Value name="Show">0</Value>
+          <Value name="Hide">1</Value>
         </Choices>
       </Feature>
 
@@ -891,6 +891,15 @@
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="GravestoneBoardsFix">
+        <Title>Fix distortion in the boards of gravestone puzzle</Title>
+        <Description>Fix the boards in the BfaW gravestone puzzle from being distorted when rotated.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 

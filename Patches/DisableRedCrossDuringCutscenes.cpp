@@ -37,7 +37,7 @@ BOOL CheckIfInCutscene()
 	{
 		return TRUE;
 	}
-	else if (GetCutsceneID() && GetCutsceneID() != CS_HSP_ROOF_RECOVER)
+	else if (GetCutsceneID())
 	{
 		return TRUE;
 	}

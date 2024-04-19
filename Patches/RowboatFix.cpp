@@ -64,7 +64,5 @@ void PatchGreatKnifeBoatSpeed()
 		return;
 	}
 
-	Logging::Log() << "CIRO: " << HandleMovementAddr << ", " << GreatKnifeAddr;
-
 	orgHandleMovement.fun = injector::MakeCALL(HandleMovementAddr, HandleMovement_Hook, true).get();
 }

@@ -22,7 +22,6 @@
 
 
 injector::hook_back<void(__cdecl*)(void)> orgHandleMovement;
-BYTE* HandleMovementAddr = nullptr;
 BYTE* GreatKnifeAddr = nullptr;
 
 void __cdecl HandleMovement_Hook()
@@ -39,12 +38,33 @@ void __cdecl HandleMovement_Hook()
 	orgHandleMovement.fun();
 }
 
+
+
 void PatchGreatKnifeBoatSpeed()
 {
 	Logging::Log() << "Patching boat speed with great knife...";
 
-	HandleMovementAddr = (BYTE*)0x005363ac;
-	GreatKnifeAddr = (BYTE*)0x0052ea64;
+	constexpr BYTE HandleMovementSearchBytes[]{ 0xA8, 0x04, 0x74, 0x38, 0xf6, 0xC4, 0x20, 0x0F };
+	BYTE* HandleMovementAddr = (BYTE*)SearchAndGetAddresses(0x0053639F, 0x005366CF, 0x00535FEF, HandleMovementSearchBytes, sizeof(HandleMovementSearchBytes), 0x0D, __FUNCTION__);
+
+	// Checking address pointer
+	if (!HandleMovementAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find handle movement memory address!";
+		return;
+	}
+
+	constexpr BYTE GreatKnifeSearchBytes[]{ 0xEB, 0x02, 0x32, 0xD2 };
+	GreatKnifeAddr = (BYTE*)SearchAndGetAddresses(0x0052EA5A, 0x0052ED8A, 0x0052E6AA, GreatKnifeSearchBytes, sizeof(GreatKnifeSearchBytes), 0x0A, __FUNCTION__);
+
+	// Checking address pointer
+	if (!HandleMovementAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find great knife index memory address!";
+		return;
+	}
+
+	Logging::Log() << "CIRO: " << HandleMovementAddr << ", " << GreatKnifeAddr;
 
 	orgHandleMovement.fun = injector::MakeCALL(HandleMovementAddr, HandleMovement_Hook, true).get();
 }

@@ -744,16 +744,7 @@ void PatchBestGraphics()
 	gScreenYPos = (DWORD*)*(DWORD*)((BYTE*)DOptAddrA + 0x59);
 	gLowResTexOn = (DWORD*)*(DWORD*)((BYTE*)DOptAddrA + 0x95);
 
-	DWORD CallAddr = 0;
-	if (GameVersion == SH2V_DC)
-	{
-		CallAddr = (DWORD)((BYTE*)DOptAddrB + 0x77);
-	}
-	else
-	{
-		CallAddr = (DWORD)((BYTE*)DOptAddrB + 0x78);
-	}
-
+	DWORD CallAddr = (DWORD)((BYTE*)DOptAddrB + (GameVersion == SH2V_DC ? 0x77 : 0x78));
 	AdvOptionsSetsCallAddr = (void*)(*(DWORD*)(CallAddr + 5) + (CallAddr + 5) + 4);
 	AdvOptionsSetsRetAddr = (void*)(CallAddr + 11);
 	WriteJMPtoMemory((BYTE*)CallAddr, AdvOptionsSetsASM, 11);

@@ -1179,6 +1179,8 @@ BYTE* InputConditionChangeRetAddr3 = nullptr;
 BYTE* InputConditionChangeRetAddr4 = nullptr;
 BYTE* InputConditionChangeRetAddr5 = nullptr;
 BYTE* SetLowResTexturesRetAddr = nullptr;
+BYTE* SetAdvOptionsCallAddr = nullptr;
+BYTE* SetAdvOptionsReturnAddr = nullptr;
 
 BYTE* DisplayModeValueChangedRetAddr = nullptr;
 
@@ -1388,6 +1390,18 @@ __declspec(naked) void __stdcall UnsetLowResTextures()
     }
 }
 
+__declspec(naked) void __stdcall SetAdvOptionsCallASM()
+{
+    __asm
+    {
+        call SetAdvOptionsCallAddr
+
+        mov dword ptr[SetLowResTextures], 0x00  // Disable low res textures after call that sets advanced options
+
+        jmp SetAdvOptionsReturnAddr
+    }
+}
+
 #pragma warning(disable : 4100)
 void __cdecl PrintDisplayModeDescription_Hook(uint16_t* MesStringsPtr, uint16_t StringOffset, int32_t yPos, int32_t xPos)
 {
@@ -1403,6 +1417,15 @@ void PatchDisplayMode()
         // Duplicated code from UseBestGraphics
         constexpr BYTE OptSearchBytesA[] = { 0x83, 0xEC, 0x20, 0x53, 0x56, 0x57, 0x33, 0xC0, 0xBE, 0x01, 0x00, 0x00, 0x00, 0xB9, 0x08, 0x00 };
         void* DOptAddrA = (void*)SearchAndGetAddresses(0x004F6F70, 0x004F7220, 0x004F6AE0, OptSearchBytesA, sizeof(OptSearchBytesA), 0x00, __FUNCTION__);
+        constexpr BYTE OptSearchBytesB[] = { 0x53, 0x55, 0x8B, 0x6C, 0x24, 0x0C, 0x56, 0x33, 0xF6, 0x3B, 0xEE, 0x57, 0xBB, 0x01, 0x00, 0x00 };
+        void* DOptAddrB = (void*)SearchAndGetAddresses(0x004F70E0, 0x004F7410, 0x004F6D30, OptSearchBytesB, sizeof(OptSearchBytesB), 0x00, __FUNCTION__);
+
+        // Checking address pointer
+        if (!DOptAddrA || !DOptAddrB)
+        {
+            Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+            return;
+        }
 
         BYTE* SetLowResTexturesAddr = ((BYTE*)DOptAddrA + 0x93);
         SetLowResTexturesRetAddr = SetLowResTexturesAddr + 0x06;
@@ -1410,6 +1433,13 @@ void PatchDisplayMode()
 
         // Set low res textures to false
         WriteJMPtoMemory(SetLowResTexturesAddr, UnsetLowResTextures, 0x06);
+
+        DWORD CallAddr = (DWORD)((BYTE*)DOptAddrB + (GameVersion == SH2V_DC ? 0x7B : 0x7C));
+        SetAdvOptionsCallAddr = (BYTE*)*(DWORD*)(CallAddr + 1);
+        SetAdvOptionsReturnAddr = (BYTE*)(CallAddr + 5);
+
+        // Set low res textures to false after game sets advanced options
+        WriteJMPtoMemory((BYTE*)CallAddr, SetAdvOptionsCallASM);
     }
 
     DWORD HighResTextName1 =    GameVersion == SH2V_10 ? 0x00465060 :

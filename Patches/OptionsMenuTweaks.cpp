@@ -1434,9 +1434,14 @@ void __cdecl PrintDisplayModeDescription_Hook(uint16_t* MesStringsPtr, uint16_t 
     orgPrintTextAtPosDM.fun(MesStringsPtr, 0xFF, yPos, xPos);
 }
 
+void SetNewDisplayModeSetting()
+{
+    DisplayModeValue = (ScreenMode - 1);
+}
+
 void PatchDisplayMode()
 {
-    DisplayModeValue = (ConfigData.DisplayModeOption - 1);
+    SetNewDisplayModeSetting();
 
     if (!UseBestGraphics)
     {

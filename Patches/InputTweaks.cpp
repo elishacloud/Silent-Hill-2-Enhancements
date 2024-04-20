@@ -390,8 +390,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			Sprint.State = false;
 
 		// Ignore Alt + Enter combo
-		if ((IsKeyPressed(DIK_LMENU) || IsKeyPressed(DIK_RMENU)) && IsKeyPressed(DIK_RETURN) && 
-			DynamicResolution && ScreenMode != EXCLUSIVE_FULLSCREEN)
+		if ((IsKeyPressed(DIK_LMENU) || IsKeyPressed(DIK_RMENU)) && IsKeyPressed(DIK_RETURN) && DynamicResolution)
 		{
 			ClearKey(DIK_LMENU);
 			ClearKey(DIK_RMENU);

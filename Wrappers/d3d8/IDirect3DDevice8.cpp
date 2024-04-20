@@ -174,8 +174,10 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 
 	OverlayRef.ResetFont();
 
+	HRESULT hr = D3DERR_INVALIDCALL;
+
 	// Update presentation parameters
-	UpdatePresentParameter(pPresentationParameters, nullptr, true);
+	UpdatePresentParameter(pPresentationParameters, nullptr);
 
 	// Set AntiAliasing
 	if (DeviceMultiSampleType)
@@ -188,17 +190,28 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 		UpdatePresentParameterForMultisample(&d3dpp, DeviceMultiSampleType);
 
 		// Reset device
-		if (SUCCEEDED(ProxyInterface->Reset(&d3dpp)))
-		{
-			return D3D_OK;
-		}
+		hr = ProxyInterface->Reset(&d3dpp);
 
 		// If failed
-		DeviceMultiSampleType = D3DMULTISAMPLE_NONE;
-		Logging::Log() << __FUNCTION__ << " Error: MultiSample disabled!!!";
+		if (FAILED(hr))
+		{
+			DeviceMultiSampleType = D3DMULTISAMPLE_NONE;
+			Logging::Log() << __FUNCTION__ << " Error: MultiSample disabled!!!";
+		}
 	}
 
-	return ProxyInterface->Reset(pPresentationParameters);
+	if (FAILED(hr))
+	{
+		hr = ProxyInterface->Reset(pPresentationParameters);
+	}
+
+	// Handle display modes
+	if (SUCCEEDED(hr))
+	{
+		SetScreenAndWindowSize();
+	}
+
+	return hr;
 }
 
 HRESULT m_IDirect3DDevice8::EndScene()
@@ -289,7 +302,7 @@ HRESULT m_IDirect3DDevice8::CreateAdditionalSwapChain(D3DPRESENT_PARAMETERS *pPr
 	HRESULT hr = D3DERR_INVALIDCALL;
 
 	// Update presentation parameters
-	UpdatePresentParameter(pPresentationParameters, nullptr, false);
+	UpdatePresentParameter(pPresentationParameters, nullptr);
 
 	// Set AntiAliasing
 	if (DeviceMultiSampleType)

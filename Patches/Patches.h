@@ -698,6 +698,8 @@ bool IsInControlOptionsMenu();
 void HandleMenuSounds();
 void SetNewVolume();
 
+void SetNewDisplayModeSetting();
+
 void OnFileLoadTex(LPCSTR lpFileName);
 void OnFileLoadVid(LPCSTR lpFileName);
 

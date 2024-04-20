@@ -38,7 +38,6 @@ struct RESOLUTONTEXT
 	char resStrBuf[27];
 };
 
-LONG MaxWidth = 0, MaxHeight = 0;
 const DWORD MinWidth = 640;
 const DWORD MinHeight = 480;
 
@@ -381,9 +380,8 @@ void AddResolutionToList(DWORD Width, DWORD Height, bool force = false)
 			break;
 		}
 	}
-	bool NotTooLarge = ((ScreenMode == WINDOWED) ? (Width <= (DWORD)MaxWidth && Height <= (DWORD)MaxHeight) : true);
 	bool NotTooSmall = (Width >= MinWidth && Height >= MinHeight);
-	if (!found && (force || NotTooSmall) && NotTooLarge)
+	if (!found && (force || NotTooSmall))
 	{
 		RESOLUTONLIST Resolution;
 		Resolution.Width = Width;
@@ -395,20 +393,11 @@ void AddResolutionToList(DWORD Width, DWORD Height, bool force = false)
 
 void GetCustomResolutions()
 {
-	GetDesktopRes(MaxWidth, MaxHeight);
-
 	do {
-		// Exclusive fullscreen mode
-		if (ScreenMode == EXCLUSIVE_FULLSCREEN)
+		// Try getting exclusive fullscreen mode resolutions first
+		IDirect3D8* pDirect3D = Direct3DCreate8Wrapper(D3D_SDK_VERSION);
+		if (pDirect3D)
 		{
-			IDirect3D8* pDirect3D = Direct3DCreate8Wrapper(D3D_SDK_VERSION);
-
-			if (!pDirect3D)
-			{
-				Logging::Log() << __FUNCTION__ << " Error: failed to create Direct3D8!";
-				break;
-			}
-
 			// Add custom resolution to list
 			if (ResY && ResX)
 			{
@@ -466,6 +455,9 @@ void GetCustomResolutions()
 	if (ResolutionVector.empty())
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to get resolution list!  Adding default resolutions.";
+
+		LONG MaxWidth = 0, MaxHeight = 0;
+		GetDesktopRes(MaxWidth, MaxHeight);
 
 		// Add default resolution list
 		AddResolutionToList(640, 480);

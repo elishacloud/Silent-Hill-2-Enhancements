@@ -1203,13 +1203,36 @@ HMONITOR GetMonitorHandle()
 	return MonitorFromWindow(IsWindow(DeviceWindow) ? DeviceWindow : GetDesktopWindow(), MONITOR_DEFAULTTONEAREST);
 }
 
-void GetDesktopRes(LONG &screenWidth, LONG &screenHeight)
+BOOL GetDesktopRes(LONG &screenWidth, LONG &screenHeight)
 {
 	MONITORINFO info = {};
 	info.cbSize = sizeof(MONITORINFO);
-	GetMonitorInfo(GetMonitorHandle(), &info);
+	BOOL ret = GetMonitorInfo(GetMonitorHandle(), &info);
 	screenWidth = info.rcMonitor.right - info.rcMonitor.left;
 	screenHeight = info.rcMonitor.bottom - info.rcMonitor.top;
+	return ret;
+}
+
+BOOL SetDesktopRes(LONG screenWidth, LONG screenHeight)
+{
+	// Get monitor info
+	MONITORINFOEX infoex = {};
+	infoex.cbSize = sizeof(MONITORINFOEX);
+	BOOL bRet = GetMonitorInfo(GetMonitorHandle(), &infoex);
+
+	// Get resolution list for specified monitor
+	BOOL ret = FALSE;
+	DEVMODE newSettings = {};
+	newSettings.dmSize = sizeof(newSettings);
+	if (EnumDisplaySettings(bRet ? infoex.szDevice : nullptr, ENUM_CURRENT_SETTINGS, &newSettings) != 0)
+	{
+		newSettings.dmPelsWidth = screenWidth;
+		newSettings.dmPelsHeight = screenHeight;
+		newSettings.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
+		ret = (ChangeDisplaySettingsEx(bRet ? infoex.szDevice : nullptr, &newSettings, nullptr, CDS_FULLSCREEN, nullptr) == DISP_CHANGE_SUCCESSFUL);
+	}
+
+	return ret;
 }
 
 void GetDesktopRect(RECT &screenRect)

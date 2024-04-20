@@ -22,6 +22,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 WNDPROC OriginalWndProc = nullptr;
 HWND DeviceWindow = nullptr;
 LONG BufferWidth = 0, BufferHeight = 0;
+LONG DefaultWidth = 0, DefaultHeight = 0;
 DWORD VendorID = 0;
 bool WindowInChange = false;
 bool UsingWindowBorder = true;
@@ -220,6 +221,9 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	// Get default resolution
+	RUNCODEONCE(GetDesktopRes(DefaultWidth, DefaultHeight));
+
 	// Get device information
 	D3DADAPTER_IDENTIFIER8 dai;
 	if (SUCCEEDED(ProxyInterface->GetAdapterIdentifier(Adapter, 0, &dai)))
@@ -242,7 +246,7 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	}
 
 	// Update presentation parameters
-	UpdatePresentParameter(pPresentationParameters, hFocusWindow, true);
+	UpdatePresentParameter(pPresentationParameters, hFocusWindow);
 
 	// Set Silent Hill 2 window to forground
 	SetForegroundWindow(DeviceWindow);
@@ -297,6 +301,9 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 		LOG_LIMIT(1, __FUNCTION__ << " Created device!");
 
 		*ppReturnedDeviceInterface = new m_IDirect3DDevice8(*ppReturnedDeviceInterface, this);
+
+		// Handle display modes
+		SetScreenAndWindowSize();
 	}
 	else
 	{
@@ -325,7 +332,7 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 }
 
 // Set Presentation Parameters
-void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND hFocusWindow, bool SetWindow)
+void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND hFocusWindow)
 {
 	if (!pPresentationParameters)
 	{
@@ -343,8 +350,32 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 
 	// Update patches for resolution change
 	UpdateResolutionPatches(BufferWidth, BufferHeight);
+}
 
+void UpdatePresentParameterForMultisample(D3DPRESENT_PARAMETERS* pPresentationParameters, D3DMULTISAMPLE_TYPE MultiSampleType)
+{
+	if (!pPresentationParameters)
+	{
+		return;
+	}
+
+	pPresentationParameters->MultiSampleType = MultiSampleType;
+
+	pPresentationParameters->Flags &= ~D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
+	pPresentationParameters->SwapEffect = D3DSWAPEFFECT_DISCARD;
+
+	if (!pPresentationParameters->EnableAutoDepthStencil)
+	{
+		pPresentationParameters->EnableAutoDepthStencil = true;
+		pPresentationParameters->AutoDepthStencilFormat = D3DFMT_D24S8;
+	}
+}
+
+void SetScreenAndWindowSize()
+{
 	WindowInChange = true;
+
+	// Check for iconic window
 	if (IsWindow(DeviceWindow))
 	{
 		// Check if window is minimized and restore it
@@ -365,75 +396,47 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 		{
 			SetWindowTheme(DeviceWindow);
 		}
-	}
 
-	// Set window size if window mode is enabled
-	if (ScreenMode != EXCLUSIVE_FULLSCREEN && (pPresentationParameters->hDeviceWindow || DeviceWindow || hFocusWindow))
-	{
-		if (SetWindow)
+		// Set window size if window mode is enabled
+		if (ScreenMode != EXCLUSIVE_FULLSCREEN)
 		{
-			static int LastScreenMode = 0;
-			static LONG LastBufferWidth = 0, LastBufferHeight = 0;
-			bool AnyChange = (ScreenMode != LastScreenMode || BufferWidth != LastBufferWidth || BufferHeight != LastBufferHeight);
+			// Get current resolution
+			LONG CurrentWidth = 0, CurrentHeight = 0;
+			GetDesktopRes(CurrentWidth, CurrentHeight);
 
-			// Reset display size
-			if ((ScreenMode == WINDOWED && ScreenMode != LastScreenMode) || (ScreenMode == WINDOWED_FULLSCREEN && AnyChange))
+			// Reset display
+			if (ScreenMode == WINDOWED && (CurrentWidth != DefaultWidth || CurrentHeight != DefaultHeight))
 			{
-				ChangeDisplaySettingsEx(nullptr, nullptr, nullptr, CDS_RESET, nullptr);
-			}
+				LONG result = ChangeDisplaySettingsEx(nullptr, nullptr, nullptr, CDS_RESET, nullptr);
 
-			// Update Silent Hill 2 window
-			if (AnyChange)
-			{
-				AdjustWindow(DeviceWindow, BufferWidth, BufferHeight);
-			}
-
-			// Set new display size 
-			if (ScreenMode == WINDOWED_FULLSCREEN && AnyChange)
-			{
-				// Get monitor info
-				MONITORINFOEX infoex = {};
-				infoex.cbSize = sizeof(MONITORINFOEX);
-				BOOL bRet = GetMonitorInfo(GetMonitorHandle(), &infoex);
-
-				// Get resolution list for specified monitor
-				DEVMODE newSettings = {};
-				newSettings.dmSize = sizeof(newSettings);
-				if (EnumDisplaySettings(bRet ? infoex.szDevice : nullptr, ENUM_CURRENT_SETTINGS, &newSettings) != 0)
+				while (int x = 0 && x < 20 && result == DISP_CHANGE_SUCCESSFUL && GetDesktopRes(CurrentWidth, CurrentHeight) &&
+					(CurrentWidth != DefaultWidth || CurrentHeight != DefaultHeight))
 				{
-					newSettings.dmPelsWidth = BufferWidth;
-					newSettings.dmPelsHeight = BufferHeight;
-					newSettings.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
-					ChangeDisplaySettingsEx(bRet ? infoex.szDevice : nullptr, &newSettings, nullptr, CDS_FULLSCREEN, nullptr);
+					x++;
+					Sleep(100);
 				}
 			}
 
-			// Reset variables
-			LastScreenMode = ScreenMode;
-			LastBufferWidth = BufferWidth;
-			LastBufferHeight = BufferHeight;
+			// Set new display size
+			if ((ScreenMode == WINDOWED_FULLSCREEN && (CurrentWidth != BufferWidth || CurrentHeight != BufferHeight)) ||
+				(ScreenMode == WINDOWED && (CurrentWidth < BufferWidth || CurrentHeight < BufferHeight)))
+			{
+				BOOL ret = SetDesktopRes(BufferWidth, BufferHeight);
+
+				while (int x = 0 && x < 20 && ret && GetDesktopRes(CurrentWidth, CurrentHeight) &&
+					CurrentWidth != BufferWidth && CurrentHeight != BufferHeight)
+				{
+					x++;
+					Sleep(100);
+				}
+			}
+
+			// Update Silent Hill 2 window
+			AdjustWindow(DeviceWindow, BufferWidth, BufferHeight);
 		}
 	}
+
 	WindowInChange = false;
-}
-
-void UpdatePresentParameterForMultisample(D3DPRESENT_PARAMETERS* pPresentationParameters, D3DMULTISAMPLE_TYPE MultiSampleType)
-{
-	if (!pPresentationParameters)
-	{
-		return;
-	}
-
-	pPresentationParameters->MultiSampleType = MultiSampleType;
-
-	pPresentationParameters->Flags &= ~D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
-	pPresentationParameters->SwapEffect = D3DSWAPEFFECT_DISCARD;
-
-	if (!pPresentationParameters->EnableAutoDepthStencil)
-	{
-		pPresentationParameters->EnableAutoDepthStencil = true;
-		pPresentationParameters->AutoDepthStencilFormat = D3DFMT_D24S8;
-	}
 }
 
 // Adjusting the window position for WindowMode
@@ -563,7 +566,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	switch (uMsg)
 	{
 	case WM_WININICHANGE:
-		if (lParam && WndModeBorder && ScreenMode != EXCLUSIVE_FULLSCREEN && !_stricmp((char*)lParam, "ImmersiveColorSet"))
+		if (lParam && WndModeBorder && !_stricmp((char*)lParam, "ImmersiveColorSet"))
 		{
 			SetWindowTheme(DeviceWindow);
 		}
@@ -572,6 +575,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
 			DeviceLost = true;
 			ScreenMode = (ScreenMode == WINDOWED) ? WINDOWED_FULLSCREEN : WINDOWED;
+			SetNewDisplayModeSetting();
 		}
 		break;
 	case WM_KEYUP:

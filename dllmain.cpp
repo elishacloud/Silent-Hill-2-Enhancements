@@ -339,12 +339,6 @@ void DelayedStart()
 		PatchRoom312ShadowFix();
 	}
 
-	// Red Cross health indicator in cutscene
-	if (DisableRedCrossInCutScenes)
-	{
-		PatchRedCrossInCutscene();
-	}
-
 	// Adjusts flashlight brightness
 	if (PS2FlashlightBrightness)
 	{
@@ -664,7 +658,13 @@ void DelayedStart()
 		PatchSearchViewOptionName();
 		PatchHealthIndicatorOption();
 	}
-	
+
+	// Red Cross health indicator in cutscene
+	if (HealthIndicatorOption || DisableRedCrossInCutScenes || DisableRedCross)
+	{
+		PatchRedCrossInCutscene();
+	}
+
 	// Patch to prevent James from looking at the teddy bear after picking up the bent needle
 	if (TeddyBearLookFix)
 	{

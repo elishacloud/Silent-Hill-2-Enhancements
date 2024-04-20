@@ -1365,6 +1365,21 @@ HRESULT GetConfigData()
 		}
 	}
 
+	// Update Health Indicator setting
+	if (HealthIndicatorOption)
+	{
+		// If health indicator was retrieved from the config file then use it
+		if (BytesRead >= ((DWORD)&ConfigData.HealthIndicatorOption + sizeof(ConfigData.HealthIndicatorOption) - (DWORD)&ConfigData))
+		{
+			DisableRedCross = !ConfigData.HealthIndicatorOption;
+		}
+		// Otherwise use DisableRedCross value
+		else
+		{
+			ConfigData.HealthIndicatorOption = !DisableRedCross;
+		}
+	}
+
 	return (BytesRead ? S_OK : E_FAIL);
 }
 

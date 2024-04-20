@@ -930,6 +930,8 @@ void SetHealthIndicatorOption()
 {
     ConfigData.HealthIndicatorOption = HealthIndicatorValue;
 
+    DisableRedCross = !ConfigData.HealthIndicatorOption;
+
     SaveConfigData();
 }
 

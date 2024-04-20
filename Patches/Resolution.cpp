@@ -1020,8 +1020,6 @@ void PatchSpeakerConfigText()
 
 void PatchSearchViewOptionName()
 {
-
-
 	DWORD PrintSearchViewNameAddr = GameVersion == SH2V_10 ? 0x00461D3F :
 									GameVersion == SH2V_11 ? 0x00461FB1 :
 									GameVersion == SH2V_DC ? 0x00461FB1 : NULL;

@@ -883,7 +883,6 @@ void ButtonIcons::UpdateBinds()
 }
 
 // Health indicator option
-bool PersistHealthIndicatorOption = false;
 BYTE* SetOptionValueColorRetAddr = nullptr;
 BYTE* DisplayHealthIndicatorHighlightValueRetAddr = nullptr;
 BYTE* StoreSearchViewOptionRetAddr = nullptr;
@@ -927,12 +926,24 @@ __declspec(naked) void __stdcall SetHIOptionValueColor()
     }
 }
 
+void SetHealthIndicatorOption()
+{
+    ConfigData.HealthIndicatorOption = HealthIndicatorValue;
+
+    SaveConfigData();
+}
+
 __declspec(naked) void __stdcall ConfirmOptionHI()
 {
     __asm
     {
+        pushfd
+        pushad
+        call SetHealthIndicatorOption
+        popad
+        popfd
+
         mov al, 0x01
-        mov byte ptr[PersistHealthIndicatorOption], al
 
         push 0x3f800000
 
@@ -1163,7 +1174,6 @@ void PatchHealthIndicatorOption() // TODO find faulty address in 1.1 and DC
 }
 
 // Display mode
-bool PersistDisplayModeOption = false;
 BYTE* DisplayModeArrowRetAddr = nullptr;
 BYTE* DisplayModeValueHighlightRetAddr = nullptr;
 BYTE* DisplayModeValuePrintRetAddr = nullptr;
@@ -1223,12 +1233,26 @@ __declspec(naked) void __stdcall DisplayModeValuePrint()
     }
 }
 
+void SetDisplayModeOption()
+{
+    ConfigData.DisplayModeOption = (DisplayModeValue + 1);
+
+    ScreenMode = ConfigData.DisplayModeOption;
+
+    DeviceLost = true;
+
+    SaveConfigData();
+}
+
 __declspec(naked) void __stdcall ConfirmInitialOptionValue()
 {
     __asm
     {
-        mov dl, 0x01
-        mov byte ptr[PersistDisplayModeOption], dl
+        pushfd
+        pushad
+        call SetDisplayModeOption
+        popad
+        popfd
 
         mov dl, byte ptr[DisplayModeValue]
 
@@ -1293,7 +1317,7 @@ __declspec(naked) void __stdcall SetHighlightColor()
 
 __declspec(naked) void __stdcall IncrementDisplayModeValue()
 {
-    DisplayModeValue += DisplayModeValue != 0x02 ? 1 : -2;
+    DisplayModeValue += (DisplayModeValue != 0x02 ? 1 : -2);
 
     __asm
     {
@@ -1303,7 +1327,7 @@ __declspec(naked) void __stdcall IncrementDisplayModeValue()
 
 __declspec(naked) void __stdcall DecrementDisplayModeValue()
 {
-    DisplayModeValue += DisplayModeValue != 0x00 ? -1 : 2;
+    DisplayModeValue += (DisplayModeValue != 0x00 ? -1 : 2);
 
     __asm
     {
@@ -1410,7 +1434,7 @@ void __cdecl PrintDisplayModeDescription_Hook(uint16_t* MesStringsPtr, uint16_t 
 
 void PatchDisplayMode()
 {
-    DisplayModeValue = ConfigData.DisplayModeOption;
+    DisplayModeValue = (ConfigData.DisplayModeOption - 1);
 
     if (!UseBestGraphics)
     {
@@ -1570,25 +1594,4 @@ void PatchDisplayMode()
     WriteJMPtoMemory(InputConditionChangeAddr3, ConditionChangeThree, 0x07);
     WriteJMPtoMemory(InputConditionChangeAddr4, ConditionChangeFour, 0x06);
     WriteJMPtoMemory(InputConditionChangeAddr5, ConditionChangeFive, 0x05);
-}
-
-void HandleCustomOptions()
-{
-    if (PersistDisplayModeOption)
-    {
-        PersistDisplayModeOption = false;
-
-        ConfigData.DisplayModeOption = DisplayModeValue;
-
-        SaveConfigData();
-    }
-
-    if (PersistHealthIndicatorOption)
-    {
-        PersistHealthIndicatorOption = false;
-
-        ConfigData.HealthIndicatorOption = HealthIndicatorValue;
-
-        SaveConfigData();
-    }
 }

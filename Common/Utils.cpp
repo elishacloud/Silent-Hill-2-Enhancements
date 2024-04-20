@@ -1278,34 +1278,35 @@ bool WriteRegistryStruct(const std::wstring& lpzSection, const std::wstring& lpz
 	return true;
 }
 
-HRESULT GetConfigFromFile()
+// Returns the size of data retrived from the config file
+DWORD GetConfigFromFile()
 {
 	wchar_t ConfigName[MAX_PATH] = {};
 	if (!GetConfigName(ConfigName, MAX_PATH, L".cfg") || !PathFileExists(ConfigName))
 	{
-		return E_FAIL;
+		return 0;
 	}
 
-	HANDLE hFile;
-	DWORD dwBytesRead;
+	HANDLE hFile = INVALID_HANDLE_VALUE;
+	DWORD dwBytesRead = 0;
 
 	hFile = CreateFile(ConfigName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
 		LOG_LIMIT(100, __FUNCTION__ << " Error: failed to open file: '" << ConfigName << "'");
-		return E_FAIL;
+		return 0;
 	}
 	DWORD BytesToRead = min(GetFileSize(hFile, nullptr), sizeof(CFGDATA));
 
 	BOOL hRet = ReadFile(hFile, (void*)&ConfigData, BytesToRead, &dwBytesRead, nullptr);
-	if (dwBytesRead != BytesToRead || hRet == FALSE)
+	if (hRet == FALSE)
 	{
 		CloseHandle(hFile);
-		return E_FAIL;
+		return 0;
 	}
 
 	CloseHandle(hFile);
-	return S_OK;
+	return dwBytesRead;
 }
 
 void MigrateRegistry()
@@ -1344,12 +1345,27 @@ void MigrateRegistry()
 HRESULT GetConfigData()
 {
 	// Check for config file data first
-	HRESULT hr = GetConfigFromFile();
+	DWORD BytesRead = GetConfigFromFile();
 
 	// Migrate old registry keys to config file 
 	MigrateRegistry();
 
-	return hr;
+	// Update display mode setting
+	if (DisplayModeOption)
+	{
+		// If display mode was retrieved from the config file then use it
+		if (BytesRead >= ((DWORD)&ConfigData.DisplayModeOption + sizeof(ConfigData.DisplayModeOption) - (DWORD)&ConfigData))
+		{
+			ScreenMode = ConfigData.DisplayModeOption;
+		}
+		// Otherwise use ScreenMode value
+		else
+		{
+			ConfigData.DisplayModeOption = ScreenMode;
+		}
+	}
+
+	return (BytesRead ? S_OK : E_FAIL);
 }
 
 HRESULT SaveConfigData()

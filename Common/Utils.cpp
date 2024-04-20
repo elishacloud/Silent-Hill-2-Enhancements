@@ -530,13 +530,16 @@ HMODULE SetAppTheme()
 
 	static HMODULE hUxtheme = LoadLibrary(L"uxtheme.dll");
 
-	using SetThemeAppPropertiesProc = void (WINAPI *)(_In_ DWORD dwFlags);
-	static SetThemeAppPropertiesProc SetThemeAppProperties = (SetThemeAppPropertiesProc)GetProcAddress(hUxtheme, "SetThemeAppProperties");
-
-	if (SetThemeAppProperties)
+	if (hUxtheme)
 	{
-		LOG_ONCE("Setting theme properties...");
-		SetThemeAppProperties(STAP_ALLOW_NONCLIENT);
+		using SetThemeAppPropertiesProc = void (WINAPI*)(_In_ DWORD dwFlags);
+		static SetThemeAppPropertiesProc SetThemeAppProperties = (SetThemeAppPropertiesProc)GetProcAddress(hUxtheme, "SetThemeAppProperties");
+
+		if (SetThemeAppProperties)
+		{
+			LOG_ONCE("Setting theme properties...");
+			SetThemeAppProperties(STAP_ALLOW_NONCLIENT);
+		}
 	}
 
 	return hUxtheme;

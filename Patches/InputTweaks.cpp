@@ -644,7 +644,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
             ClearKey(KeyBinds.GetKeyBind(KEY_CANCEL));
         }
 
-		if (BoatFixes && (GetBoatFlag() == 0x01 && GetRoomID() == R_TOWN_LAKE))
+		if (RowboatAnimationFix && (GetBoatFlag() == 0x01 && GetRoomID() == R_TOWN_LAKE))
 		{
 			for (const int current: NotOverriddenNumberBinds)
 			{

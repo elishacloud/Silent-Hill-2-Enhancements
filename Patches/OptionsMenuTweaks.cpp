@@ -1164,11 +1164,11 @@ void PatchHealthIndicatorOption() // TODO find faulty address in 1.1 and DC
     // Divert option change
     if (GameVersion != SH2V_DC)
     {
-        WriteJMPtoMemory((BYTE*)DivertSearchViewOptionChangeAddr, DivertSearchViewOptionChangeDC, 0x0F);
+        WriteJMPtoMemory((BYTE*)DivertSearchViewOptionChangeAddr, DivertSearchViewOptionChange, 0x0F);
     }
     else
     {
-        WriteJMPtoMemory((BYTE*)DivertSearchViewOptionChangeAddr, DivertSearchViewOptionChange, 0x0F);
+        WriteJMPtoMemory((BYTE*)DivertSearchViewOptionChangeAddr, DivertSearchViewOptionChangeDC, 0x0F);
     }
 
     // Divert string drawing

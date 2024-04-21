@@ -1093,6 +1093,11 @@ void PatchHealthIndicatorOption()
                                                 GameVersion == SH2V_DC ? 0x004086E1 : NULL;
     OverrideFileConfigSearchViewRetAddr = (BYTE*)OverrideFileConfigSearchViewAddr + 0x05;
 
+    // ini save
+    DWORD SearchViewSave =                      GameVersion == SH2V_10 ? 0x0046988D :
+                                                GameVersion == SH2V_11 ? 0x00469B2D :
+                                                GameVersion == SH2V_DC ? 0x00469D3D : NULL;
+  
     // highlight
     DWORD PrintOnStrSearchViewAddr =    GameVersion == SH2V_10 ? 0x0046223F :
                                         GameVersion == SH2V_11 ? 0x004624A1 :
@@ -1155,7 +1160,8 @@ void PatchHealthIndicatorOption()
     if (*(BYTE*)OverrideFileConfigSearchViewAddr != 0xA0 || *(BYTE*)PrintOnStrSearchViewAddr != 0xE8 || *(BYTE*)PrintSearchViewOptionValueAddr != 0xE8 ||
         *(BYTE*)GetStringFromOffsetAddr != 0xE8 || *(BYTE*)StoreSearchViewOptionAddr != 0xA2 || *(BYTE*)CheckStoredOptionAddr != 0x3A ||
         *(BYTE*)RestoreSearchViewOptionAddr != 0x88 || *(BYTE*)RestoreSearchViewOption2Addr != 0x88 || *(BYTE*)SetOptionValueColorAddr != 0x8A ||
-        *(BYTE*)SetOptionValueColor2Addr != 0x8A || (*(BYTE*)DivertSearchViewOptionChangeAddr != 0xA0 && *(BYTE*)DivertSearchViewOptionChangeAddr != 0x8A) || *(BYTE*)ConfirmOptionAddr != 0x68)
+        *(BYTE*)SetOptionValueColor2Addr != 0x8A || (*(BYTE*)DivertSearchViewOptionChangeAddr != 0xA0 && *(BYTE*)DivertSearchViewOptionChangeAddr != 0x8A) ||
+        *(BYTE*)ConfirmOptionAddr != 0x68 || *(BYTE*)SearchViewSave != 0x89)
     {
         Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
 
@@ -1189,6 +1195,9 @@ void PatchHealthIndicatorOption()
 
     // Hook option storing
     WriteJMPtoMemory((BYTE*)StoreSearchViewOptionAddr, StoreSearchViewOption, 0x05);
+    
+    // Prevent storage of search view changes
+    UpdateMemoryAddress((BYTE*)SearchViewSave, "\x90\x90\x90\x90\x90\x90", 0x06);
 
     // Override option change check
     WriteJMPtoMemory((BYTE*)CheckStoredOptionAddr, CheckStoredOption, 0x06);
@@ -1568,7 +1577,7 @@ void PatchDisplayMode()
     // Force low res textures off
     UpdateMemoryAddress((BYTE*)LowResTextureUse, "\xBF\x00\x00\x00\x00\x90", 0x06);
 
-    // Prevent storeage of low res textures changes
+    // Prevent storage of low res textures changes
     UpdateMemoryAddress((BYTE*)LowResTextureSave, "\x90\x90\x90\x90\x90\x90", 0x06);
 
     // Divert saving the option value for checks

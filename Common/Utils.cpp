@@ -1198,6 +1198,30 @@ BOOL GetAppsLightMode()
 	return bFlag;
 }
 
+void ClearGDISurface(HWND hWnd, COLORREF color)
+{
+	// Get the device context (DC) for the window
+	HDC hDC = GetDC(hWnd);
+	if (hDC)
+	{
+		// Get the dimensions of the window
+		RECT rcClient;
+		GetClientRect(hWnd, &rcClient);
+
+		// Create a brush with the specified color
+		HBRUSH hBrush = CreateSolidBrush(color);
+
+		// Fill the window's client area with the specified color
+		FillRect(hDC, &rcClient, hBrush);
+
+		// Release the brush
+		DeleteObject(hBrush);
+
+		// Release the device context
+		ReleaseDC(hWnd, hDC);
+	}
+}
+
 HMONITOR GetMonitorHandle()
 {
 	return MonitorFromWindow(IsWindow(DeviceWindow) ? DeviceWindow : GetDesktopWindow(), MONITOR_DEFAULTTONEAREST);

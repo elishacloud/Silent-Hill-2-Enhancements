@@ -63,6 +63,7 @@ DWORD WINAPI SaveScreenshotFile(LPVOID pvParam);
 extern HWND DeviceWindow;
 extern LONG BufferWidth, BufferHeight;
 extern bool DeviceLost;
+extern int UseFrontBufferControl;
 extern bool ClassReleaseFlag;
 extern bool CopyRenderTarget;
 extern bool SetSSAA;

@@ -23,6 +23,7 @@ WNDPROC OriginalWndProc = nullptr;
 HWND DeviceWindow = nullptr;
 LONG BufferWidth = 0, BufferHeight = 0;
 LONG DefaultWidth = 0, DefaultHeight = 0;
+int UseFrontBufferControl = AUTO_BUFFER;
 DWORD VendorID = 0;
 bool WindowInChange = false;
 bool UsingWindowBorder = true;
@@ -221,6 +222,8 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	UseFrontBufferControl = FrontBufferControl;
+
 	// Get default resolution
 	RUNCODEONCE(GetDesktopRes(DefaultWidth, DefaultHeight));
 
@@ -375,6 +378,15 @@ void SetScreenAndWindowSize()
 {
 	WindowInChange = true;
 
+	static int LastScreenMode = -1;
+	if (ScreenMode != LastScreenMode)
+	{
+		UseFrontBufferControl = FrontBufferControl;
+		Logging::Log() << __FUNCTION__ << " Setting display mode: " <<
+			(ScreenMode == WINDOWED ? "Windowed" : ScreenMode == WINDOWED_FULLSCREEN ? "Windowed Fullscreen" : "Exclusive Fullscreen");
+	}
+	LastScreenMode = ScreenMode;
+
 	// Check for iconic window
 	if (IsWindow(DeviceWindow))
 	{
@@ -435,6 +447,8 @@ void SetScreenAndWindowSize()
 			AdjustWindow(DeviceWindow, BufferWidth, BufferHeight);
 		}
 	}
+
+	ClearGDISurface(DeviceWindow, RGB(0, 0, 0));
 
 	WindowInChange = false;
 }
@@ -571,7 +585,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			SetWindowTheme(DeviceWindow);
 		}
 	case WM_SYSKEYDOWN:
-		if (wParam == VK_RETURN && DynamicResolution && ScreenMode != EXCLUSIVE_FULLSCREEN)
+		if (wParam == VK_RETURN && DynamicResolution)
 		{
 			DeviceLost = true;
 			ScreenMode = (ScreenMode == WINDOWED) ? WINDOWED_FULLSCREEN : WINDOWED;

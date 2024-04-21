@@ -1543,7 +1543,7 @@ void PatchDisplayMode()
     WriteJMPtoMemory((BYTE*)HighResTextArrow, DisplayModeArrow, 15);
     UpdateMemoryAddress(StringOffsetToNop, "\x90\x90\x90\x90\x90", 0x05);
     // Display mode option value and highlight
-    WriteJMPtoMemory(DisplayModeValueHighlightAddr, DisplayModeValueHighlight, 0x08); //TODO highlight wrong color, tied to inputs
+    WriteJMPtoMemory(DisplayModeValueHighlightAddr, DisplayModeValueHighlight, 0x08);
     WriteJMPtoMemory(SetHighlightColorAddr, SetHighlightColor, 0x06);
     WriteJMPtoMemory(DisplayModeValuePrintAddr, DisplayModeValuePrint, 0x08);
 

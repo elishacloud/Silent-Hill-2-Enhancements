@@ -943,9 +943,13 @@ void SetHealthIndicatorOption()
 {
     ConfigData.HealthIndicatorOption = HealthIndicatorValue;
 
-    DisableRedCross = !ConfigData.HealthIndicatorOption;
+    // Check if the health indicator value changes
+    if (DisableRedCross != !ConfigData.HealthIndicatorOption)
+    {
+        DisableRedCross = !ConfigData.HealthIndicatorOption;
 
-    SaveConfigData();
+        SaveConfigData();
+    }
 }
 
 __declspec(naked) void __stdcall ConfirmOptionHI()
@@ -1254,11 +1258,15 @@ void SetDisplayModeOption()
 {
     ConfigData.DisplayModeOption = (DisplayModeValue + 1);
 
-    ScreenMode = ConfigData.DisplayModeOption;
+    // Check if the display mode changes
+    if (ScreenMode != (int)ConfigData.DisplayModeOption)
+    {
+        ScreenMode = ConfigData.DisplayModeOption;
 
-    DeviceLost = true;
+        DeviceLost = true;
 
-    SaveConfigData();
+        SaveConfigData();
+    }
 }
 
 __declspec(naked) void __stdcall ConfirmInitialOptionValue()
@@ -1432,9 +1440,12 @@ void PatchDisplayMode()
 {
     SetNewDisplayModeSetting();
 
-    DWORD LowResTexture =       GameVersion == SH2V_10 ? 0x00459124 :
+    DWORD LowResTextureUse =    GameVersion == SH2V_10 ? 0x00459124 :
                                 GameVersion == SH2V_11 ? 0x00459384 :
                                 GameVersion == SH2V_DC ? 0x00459384 : NULL;
+    DWORD LowResTextureSave =   GameVersion == SH2V_10 ? 0x00464EEF :
+                                GameVersion == SH2V_11 ? 0x0046517F :
+                                GameVersion == SH2V_DC ? 0x0046538F : NULL;
     DWORD HighResTextName1 =    GameVersion == SH2V_10 ? 0x00465060 :
                                 GameVersion == SH2V_11 ? 0x004652F0 :
                                 GameVersion == SH2V_DC ? 0x00465500 : NULL;
@@ -1511,7 +1522,8 @@ void PatchDisplayMode()
                                         GameVersion == SH2V_11 ? (BYTE*)0x0046644F :
                                         GameVersion == SH2V_DC ? (BYTE*)0x0046665F : NULL;
 
-    if (*(BYTE*)HighResTextName1 != 0xC1 || *(BYTE*)HighResTextName2 != 0xC1 || *(BYTE*)HighResTextValue1 != 0xB0 || *(BYTE*)HighResTextValue2 != 0xB0 ||
+    if (*(BYTE*)LowResTextureUse != 0x8B || *(BYTE*)LowResTextureSave != 0x89 ||
+        *(BYTE*)HighResTextName1 != 0xC1 || *(BYTE*)HighResTextName2 != 0xC1 || *(BYTE*)HighResTextValue1 != 0xB0 || *(BYTE*)HighResTextValue2 != 0xB0 ||
         *(BYTE*)HighResTextArrow != 0x0F || *(BYTE*)DisplayModeValueHighlightAddr != 0x66 || *(BYTE*)DisplayModeValuePrintAddr != 0x66 ||
         *(BYTE*)ConfirmInitialOptionValueAddr != 0x8A || *(BYTE*)DiscardOptionValueAddr != 0x88 || *(BYTE*)CheckStoredOptionvalueAddr != 0x8A ||
         *(BYTE*)DisplayModeOptionColorCheckAddr != 0x8A || *(BYTE*)NopOriginalStoreOptionAddr != 0x88 || *(BYTE*)SetHighlightColorAddr != 0x8A ||
@@ -1554,7 +1566,10 @@ void PatchDisplayMode()
     WriteJMPtoMemory(DisplayModeOptionColorCheckAddr, ColorCheckStoredOptionValue, 0x06);
 
     // Force low res textures off
-    UpdateMemoryAddress((BYTE*)LowResTexture, "\xBF\x00\x00\x00\x00\x90", 6);
+    UpdateMemoryAddress((BYTE*)LowResTextureUse, "\xBF\x00\x00\x00\x00\x90", 0x06);
+
+    // Prevent storeage of low res textures changes
+    UpdateMemoryAddress((BYTE*)LowResTextureSave, "\x90\x90\x90\x90\x90\x90", 0x06);
 
     // Divert saving the option value for checks
     WriteJMPtoMemory(StoreInitialOptionValueAddr, StoreInitialOptionValue, 0x05);

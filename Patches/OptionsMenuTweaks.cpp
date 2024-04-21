@@ -1176,7 +1176,6 @@ void PatchHealthIndicatorOption()
     injector::MakeCALL(PrintOffStrSearchViewAddr, PrintSearchViewOptionValue_Hook, true);
     injector::MakeCALL(PrintSearchViewOptionValueAddr, PrintSearchViewOptionValue_Hook, true);
 
-
     // Divert check for changed option
     WriteJMPtoMemory((BYTE*)SetOptionValueColorAddr, SetHIOptionValueColor, 0x0C);
     WriteJMPtoMemory((BYTE*)SetOptionValueColor2Addr, SetHIOptionValueColor2, 0x06);

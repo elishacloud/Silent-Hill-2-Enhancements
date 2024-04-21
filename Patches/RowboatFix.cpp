@@ -20,7 +20,6 @@
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
-
 injector::hook_back<void(__cdecl*)(void)> orgHandleMovement;
 BYTE* GreatKnifeAddr = nullptr;
 
@@ -37,8 +36,6 @@ void __cdecl HandleMovement_Hook()
 
 	orgHandleMovement.fun();
 }
-
-
 
 void PatchGreatKnifeBoatSpeed()
 {

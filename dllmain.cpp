@@ -682,8 +682,8 @@ void DelayedStart()
 		PatchLowHealthIndicator();
 	}
 
-	// Patch boat speed with great knife equipped
-	if (true) //TODO setting
+	// Patch boat speed with great knife equipped, and disable weapon hotkeys
+	if (BoatFixes)
 	{
 		PatchGreatKnifeBoatSpeed();
 	}

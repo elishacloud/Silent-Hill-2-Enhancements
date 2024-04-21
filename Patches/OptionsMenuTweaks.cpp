@@ -1080,7 +1080,7 @@ char* __cdecl GetStringFromOffsetSearchView_Hook(uint16_t* ptr, uint16_t offset)
     }
 }
 
-void PatchHealthIndicatorOption() // TODO confirmation box not popping up on value changed
+void PatchHealthIndicatorOption()
 {
     HealthIndicatorValue = ConfigData.HealthIndicatorOption;
 

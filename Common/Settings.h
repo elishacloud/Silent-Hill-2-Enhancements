@@ -119,6 +119,7 @@
 	visit(SetBlackPillarBoxes, true) \
 	visit(SetSixtyFPS, true) \
 	visit(SetSwapEffectUpgradeShim, false) \
+	visit(ShowerRoomFlashlightFix, true) \
 	visit(Southpaw, false) \
 	visit(SpecificSoundLoopFix, true) \
 	visit(SpecularFix, true) \
@@ -242,6 +243,7 @@
 	visit(ResX) \
 	visit(ResY) \
 	visit(SetSwapEffectUpgradeShim) \
+	visit(ShowerRoomFlashlightFix) \
 	visit(SmallFontHeight) \
 	visit(SmallFontWidth) \
 	visit(SpaceSize) \

@@ -649,6 +649,7 @@ void PatchRoomLighting();
 void PatchRowboatAnimation();
 void PatchSaveBGImage();
 void PatchSFXAddr();
+void PatchShowerRoomFlashlightFix();
 void PatchSixtyFPS();
 void PatchSpeakerConfigText();
 void PatchSpeakerConfigLock();

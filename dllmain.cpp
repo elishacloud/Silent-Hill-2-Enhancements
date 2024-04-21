@@ -688,6 +688,12 @@ void DelayedStart()
 		PatchGreatKnifeBoatSpeed();
 	}
 
+	// Fix flashlight position during the hospital shower room cutscene
+	if (ShowerRoomFlashlightFix)
+	{
+		PatchShowerRoomFlashlightFix();
+	}
+	
 	// Hotel Employee Elevator Cursor Color Bug Fix
 	PatchElevatorCursorColor();
 

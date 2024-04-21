@@ -683,7 +683,7 @@ void DelayedStart()
 	}
 
 	// Patch boat speed with great knife equipped, and disable weapon hotkeys
-	if (BoatFixes)
+	if (RowboatAnimationFix)
 	{
 		PatchGreatKnifeBoatSpeed();
 	}

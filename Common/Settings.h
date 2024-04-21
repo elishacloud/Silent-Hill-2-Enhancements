@@ -7,7 +7,6 @@
 	visit(AutoHideMouseCursor, false) \
 	visit(AutoUpdateModule, true) \
 	visit(BFaWAtticFix, true) \
-	visit(BoatFixes, true) \
 	visit(CatacombsMeatRoomFix, true) \
 	visit(CenterPuzzleCursor, true) \
 	visit(ChangeClosetSpawn, true) \

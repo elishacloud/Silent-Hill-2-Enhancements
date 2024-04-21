@@ -929,8 +929,8 @@
       </Feature>
 
       <Feature name="RowboatAnimationFix">
-        <Title>Rowboat animation fix</Title>
-        <Description>Fixes an issue with James' character model being placed erratically into the rowboat if you previously entered the rowboat then load an earlier save point to enter the rowboat again.</Description>
+        <Title>Various rowboat stage fixes</Title>
+        <Description>Fixes an issue with James' character model sometimes being placed erratically into the rowboat. Fixes an issue with the rowboat's speed being negatively affected if the Great Knife was equipped before entering the boat. Disables quick weapon swapping while on the boat to prevent animation breaking.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -967,15 +967,6 @@
       <Feature name="CenterPuzzleCursor">
         <Title>Center puzzle mouse cursor</Title>
         <Description>Center mouse cursor when entering a puzzle.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="BoatFixes">
-        <Title>Various boat stage fixes</Title>
-        <Description>Fixes an issue with James' character model sometimes being placed erratically into the rowboat. Fixes an issue with the rowboat's speed being negatively affected if the Great Knife was equipped before entering the boat. Disables quick weapon swapping while on the boat to prevent animation breaking.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>

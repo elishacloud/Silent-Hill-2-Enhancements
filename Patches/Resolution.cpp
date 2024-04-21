@@ -1016,9 +1016,13 @@ void PatchSearchViewOptionName()
 									GameVersion == SH2V_11 ? 0x00461FB1 :
 									GameVersion == SH2V_DC ? 0x00461FB1 : NULL;
 	BYTE* PrintSearchViewNameHighlightAddr = (BYTE*)PrintSearchViewNameAddr + 0xDE;
-	BYTE* PrintSearchViewDescriptionAddr = (BYTE*)PrintSearchViewNameAddr + 0x6AA;
 
-	if (!PrintSearchViewNameAddr || *(BYTE*)PrintSearchViewNameAddr != 0xE8 || *(BYTE*)((DWORD)PrintSearchViewNameAddr - 1) != 0x51)
+	DWORD PrintSearchViewDescriptionAddr =	GameVersion == SH2V_10 ? 0x004623E9 :
+											GameVersion == SH2V_11 ? 0x00462653 :
+											GameVersion == SH2V_DC ? 0x00462653 : NULL;
+
+	if (!PrintSearchViewNameAddr || *(BYTE*)PrintSearchViewNameAddr != 0xE8 || *(BYTE*)((DWORD)PrintSearchViewNameAddr - 1) != 0x51 ||
+		*(BYTE*)PrintSearchViewDescriptionAddr != 0xE8)
 	{
 		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
 		return;
@@ -1028,6 +1032,6 @@ void PatchSearchViewOptionName()
 	{
 		WriteCalltoMemory((BYTE*)PrintSearchViewNameAddr, *printHealthIndicatorNameStr, 5);
 		WriteCalltoMemory(PrintSearchViewNameHighlightAddr, *printHealthIndicatorNameStr, 5);
-		WriteCalltoMemory(PrintSearchViewDescriptionAddr, *printHealthIndicatorDescriptionStr, 5);
+		WriteCalltoMemory((BYTE*)PrintSearchViewDescriptionAddr, *printHealthIndicatorDescriptionStr, 5);
 	}
 }

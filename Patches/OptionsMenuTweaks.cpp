@@ -1080,7 +1080,7 @@ char* __cdecl GetStringFromOffsetSearchView_Hook(uint16_t* ptr, uint16_t offset)
     }
 }
 
-void PatchHealthIndicatorOption() // TODO find faulty address in 1.1 and DC
+void PatchHealthIndicatorOption() // TODO confirmation box not popping up on value changed
 {
     HealthIndicatorValue = ConfigData.HealthIndicatorOption;
 

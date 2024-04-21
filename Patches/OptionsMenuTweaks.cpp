@@ -915,6 +915,19 @@ __declspec(naked) void __stdcall DivertSearchViewOptionChange()
     }
 }
 
+__declspec(naked) void __stdcall DivertSearchViewOptionChangeDC()
+{
+    __asm
+    {
+        mov cl, [HealthIndicatorValue]
+        mov al, 0x01
+        sub al, cl
+        mov byte ptr[HealthIndicatorValue], al
+
+        jmp DivertSearchViewOptionChangeRetAddr
+    }
+}
+
 __declspec(naked) void __stdcall SetHIOptionValueColor()
 {
     __asm
@@ -1138,9 +1151,10 @@ void PatchHealthIndicatorOption() // TODO find faulty address in 1.1 and DC
     if (*(BYTE*)OverrideFileConfigSearchViewAddr != 0xA0 || *(BYTE*)PrintOnStrSearchViewAddr != 0xE8 || *(BYTE*)PrintSearchViewOptionValueAddr != 0xE8 ||
         *(BYTE*)GetStringFromOffsetAddr != 0xE8 || *(BYTE*)StoreSearchViewOptionAddr != 0xA2 || *(BYTE*)CheckStoredOptionAddr != 0x3A ||
         *(BYTE*)RestoreSearchViewOptionAddr != 0x88 || *(BYTE*)RestoreSearchViewOption2Addr != 0x88 || *(BYTE*)SetOptionValueColorAddr != 0x8A ||
-        *(BYTE*)SetOptionValueColor2Addr != 0x8A || *(BYTE*)DivertSearchViewOptionChangeAddr != 0xA0 || *(BYTE*)ConfirmOptionAddr != 0x68)
+        *(BYTE*)SetOptionValueColor2Addr != 0x8A || (*(BYTE*)DivertSearchViewOptionChangeAddr != 0xA0 && *(BYTE*)DivertSearchViewOptionChangeAddr != 0x8A) || *(BYTE*)ConfirmOptionAddr != 0x68)
     {
         Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+
         return;
     }
 
@@ -1148,7 +1162,14 @@ void PatchHealthIndicatorOption() // TODO find faulty address in 1.1 and DC
     WriteJMPtoMemory((BYTE*)OverrideFileConfigSearchViewAddr, OverrideFileConfigSearchView, 0x05);
 
     // Divert option change
-    WriteJMPtoMemory((BYTE*)DivertSearchViewOptionChangeAddr, DivertSearchViewOptionChange, 0x0F);
+    if (GameVersion != SH2V_DC)
+    {
+        WriteJMPtoMemory((BYTE*)DivertSearchViewOptionChangeAddr, DivertSearchViewOptionChangeDC, 0x0F);
+    }
+    else
+    {
+        WriteJMPtoMemory((BYTE*)DivertSearchViewOptionChangeAddr, DivertSearchViewOptionChange, 0x0F);
+    }
 
     // Divert string drawing
     orgPrintTextAtPosHI.fun = injector::MakeCALL(PrintOnStrSearchViewAddr, PrintSearchViewOptionValue_Hook, true).get();

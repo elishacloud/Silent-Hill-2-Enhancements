@@ -632,20 +632,20 @@
     <Section name="Menu Additions">
 
       <Feature name="DisplayModeOption">
-        <Title>Display mode option</Title>
-        <Description>Replaces the Options > Advanced Options > Low Res Texture option with a Display Mode option to change the screen mode used for the game.</Description>
+        <Title>Opzione modalità schermo</Title>
+        <Description>Sostituisce Opzioni > Opzioni avanzate > Texture a bassa risoluzione con Modalità schermo, per cambiare la modalità schermo del gioco.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 
       <Feature name="HealthIndicatorOption">
-        <Title>Health indicator option</Title>
-        <Description>Replaces the Options > Game Options > Search View option with a Health Indicator option to enable/disable the low health visual used in-game.</Description>
+        <Title>Opzione indicatore salute</Title>
+        <Description>Sostituisce Opzioni > Opzioni di gioco > Controllo visuale con Indicatore salute, per abilitare/disabilitare la grafica di salute bassa nel gioco.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 

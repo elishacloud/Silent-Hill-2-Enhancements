@@ -929,8 +929,8 @@
       </Feature>
 
       <Feature name="RowboatAnimationFix">
-        <Title>Correggi l'animazione della barca a remi</Title>
-        <Description>Corregge un problema che causa l'errata posizione del modello di James nella barca a remi, se si fosse già entrati nella barca, ricaricando un salvataggio ed entrandovi nuovamente.</Description>
+        <Title>Vari fix per la sezione in barca</Title>
+        <Description>Corregge un problema sulla barca, dove il modello di James veniva posizionato erroneamente. Corregge un problema con la velocità della barca, dove veniva diminuita quando il Gran Coltello era equipaggiato prima di entrare in barca. Disabilita le hotkey per le armi sulla barca per evitare bug d'animazione.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>

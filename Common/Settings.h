@@ -21,6 +21,7 @@
 	visit(DisableEnlargedText, true) \
 	visit(DisableGameUX, true) \
 	visit(DisableHighDPIScaling, true) \
+	visit(DisableLoadingPressReturnMessages, true) \
 	visit(DisableLogging, false) \
 	visit(DisableMaximizedWindowedMode, true) \
 	visit(DisableRedCross, false) \
@@ -51,6 +52,7 @@
 	visit(FixChainsawSpawn, true) \
 	visit(FixCreatureVehicleSpawn, true) \
 	visit(FixDrawingTextLine, true) \
+	visit(FixElevatorCursorColor, true) \
 	visit(FixFinalBossRoom, true) \
 	visit(FixFMVResetIssue, true) \
 	visit(FixFMVSpeed, true) \
@@ -210,12 +212,14 @@
 	visit(CustomModFolder) \
 	visit(DelayedFadeIn) \
 	visit(Direct3DCreate9On12) \
+	visit(DisableLoadingPressReturnMessages) \
 	visit(DisableLogging) \
 	visit(EnableDebugOverlay) \
 	visit(EnableInfoOverlay) \
 	visit(EnableScreenshots) \
 	visit(EnableWndMode) \
 	visit(FixFMVResetIssue) \
+	visit(FixElevatorCursorColor) \
 	visit(fog_custom_on) \
 	visit(fog_layer1_x1) \
 	visit(fog_layer1_x2) \

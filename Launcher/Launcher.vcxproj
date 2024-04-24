@@ -126,7 +126,7 @@
     </Manifest>
     <PostBuildEvent>
       <Command>cmd /q /c "cd /D ""$(TargetDir)"" &amp;&amp; SH2EEconfig.exe /compileini"
-copy /y "$(TargetDir)d3d8.ini" "$(SolutionDir)Common\Settings.ini"</Command>
+copy /y "$(TargetDir)d3d8.ini" "$(ProjectDir)..\Common\Settings.ini"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Workflow|Win32'">
@@ -151,7 +151,7 @@ copy /y "$(TargetDir)d3d8.ini" "$(SolutionDir)Common\Settings.ini"</Command>
     </Manifest>
     <PostBuildEvent>
       <Command>cmd /q /c "cd /D ""$(TargetDir)"" &amp;&amp; SH2EEconfig.exe /compileini"
-copy /y "$(TargetDir)d3d8.ini" "$(SolutionDir)Common\Settings.ini"</Command>
+copy /y "$(TargetDir)d3d8.ini" "$(ProjectDir)..\Common\Settings.ini"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

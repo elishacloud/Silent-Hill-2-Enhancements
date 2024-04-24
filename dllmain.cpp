@@ -14,6 +14,7 @@
 *   3. This notice may not be removed or altered from any source distribution.
 */
 
+#define DLLMAIN_CPP
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <shlwapi.h>
@@ -30,6 +31,7 @@
 #include "Common\AutoUpdate.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
+#include "dllmain.h"
 
 // For Logging
 std::ofstream LOG;

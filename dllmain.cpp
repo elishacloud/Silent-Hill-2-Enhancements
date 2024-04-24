@@ -706,14 +706,13 @@ void DelayedStart()
 		switch (GameVersion)
 		{
 		case SH2V_10:
-			UpdateMemoryAddress((void*)0x0044740B, "\x90\x90\x90\x90\x90", 5);
 			UpdateMemoryAddress((void*)0x00497356, "\x90\x90\x90\x90\x90", 5);
+			UpdateMemoryAddress((void*)0x0044740B, "\x90\x90\x90\x90\x90", 5);
 			UpdateMemoryAddress((void*)0x0044AC90, "\xC3", 1);
 			break;
 		case SH2V_11:
-			UpdateMemoryAddress((void*)0x004475AB, "\x90\x90\x90\x90\x90", 5);
 			UpdateMemoryAddress((void*)0x00497606, "\x90\x90\x90\x90\x90", 5);
-			break;
+			[[FALLTHROUGH]]
 		case SH2V_DC:
 			UpdateMemoryAddress((void*)0x004475AB, "\x90\x90\x90\x90\x90", 5);
 			UpdateMemoryAddress((void*)0x0044AE30, "\xC3", 1);

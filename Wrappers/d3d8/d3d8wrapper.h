@@ -40,6 +40,7 @@ DWORD GetBitCount(D3DFORMAT Format);
 void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND hFocusWindow, bool SetWindow);
 void UpdatePresentParameterForMultisample(D3DPRESENT_PARAMETERS* pPresentationParameters, D3DMULTISAMPLE_TYPE MultiSampleType);
 void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight);
+void RunPresentCode(IDirect3DDevice8* ProxyInterface);
 DWORD WINAPI SaveScreenshotFile(LPVOID pvParam);
 
 #define D3DRS_ADAPTIVETESS_Y (D3DRENDERSTATETYPE)181

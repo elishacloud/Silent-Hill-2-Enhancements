@@ -18,7 +18,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <shlwapi.h>
-#include "Resource.h"
 #include "winmm.h"
 #include "Patches\Patches.h"
 #include "WidescreenFixesPack\WidescreenFixesPack.h"
@@ -31,7 +30,7 @@
 #include "Common\AutoUpdate.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
-#include "dllmain.h"
+#include "Resource.h"
 
 // For Logging
 std::ofstream LOG;

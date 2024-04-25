@@ -670,7 +670,6 @@
     <ClInclude Include="Patches\GravestoneBoardsFix.h">
       <Filter>Patches</Filter>
     </ClInclude>
-    <ClInclude Include="dllmain.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\sh2-enhce.rc">

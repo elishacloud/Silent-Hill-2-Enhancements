@@ -129,5 +129,6 @@ void RunPresentCode(IDirect3DDevice8* ProxyInterface)
 
 void RunResetCode(IDirect3DDevice8* ProxyInterface)
 {
+	UNREFERENCED_PARAMETER(ProxyInterface);
 	// Blank function
 }

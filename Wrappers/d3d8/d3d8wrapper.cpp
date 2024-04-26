@@ -126,3 +126,8 @@ void RunPresentCode(IDirect3DDevice8* ProxyInterface)
 
 	// Blank function
 }
+
+void RunResetCode(IDirect3DDevice8* ProxyInterface)
+{
+	// Blank function
+}

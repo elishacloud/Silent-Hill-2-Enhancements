@@ -73,6 +73,8 @@ void GetConfig()
 		free(szCfg);
 	}
 
+	LockConfigs();
+
 	UpdateConfigDefaults();
 }
 

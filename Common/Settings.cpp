@@ -396,3 +396,8 @@ void UpdateConfigDefaults()
 		DPadMovementFix = DPAD_MOVEMENT_MODE;
 	}
 }
+
+void LockConfigs()
+{
+	// Blank function
+}

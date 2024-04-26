@@ -40,6 +40,7 @@
 	visit(EnableSFXAddrHack, true) \
 	visit(EnableSMAA, false) \
 	visit(EnableSoftShadows, true) \
+	visit(EnableSpeedrunIGT, true) \
 	visit(EnableTexAddrHack, true) \
 	visit(EnableToggleSprint, true) \
 	visit(EnhanceMouseCursor, true) \
@@ -172,7 +173,8 @@
 	visit(SingleCoreAffinityLegacy, 0) \
 	visit(SmallFontHeight, 24) \
 	visit(SmallFontWidth, 16) \
-	visit(SpaceSize, 7)
+	visit(SpaceSize, 7) \
+	visit(SpeedrunMode, 2)
 
 #define VISIT_FLOAT_SETTINGS(visit) \
 	visit(fog_layer1_x1, 0.250f) \
@@ -217,6 +219,7 @@
 	visit(EnableDebugOverlay) \
 	visit(EnableInfoOverlay) \
 	visit(EnableScreenshots) \
+	visit(EnableSpeedrunIGT) \
 	visit(EnableWndMode) \
 	visit(FixFMVResetIssue) \
 	visit(FixElevatorCursorColor) \
@@ -250,6 +253,7 @@
 	visit(SmallFontHeight) \
 	visit(SmallFontWidth) \
 	visit(SpaceSize) \
+	visit(SpeedrunMode) \
 	visit(WrapperType)
 
 typedef enum _SCREENMODE {

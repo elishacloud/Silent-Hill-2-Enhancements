@@ -1224,12 +1224,15 @@ BYTE* InputConditionChangeRetAddr3 = nullptr;
 BYTE* InputConditionChangeRetAddr4 = nullptr;
 BYTE* InputConditionChangeRetAddr5 = nullptr;
 
+BYTE* DisplayOptionChangeResetRetAddr = nullptr;
+BYTE* DisplayOptionSkipChangeResetRetAddr = nullptr;
 BYTE* DisplayModeValueChangedRetAddr = nullptr;
 
 injector::hook_back<void(__cdecl*)(uint16_t*, uint16_t, int32_t, int32_t)> orgPrintTextAtPosDM;
 
 int8_t* StoredDisplayModeValue = nullptr;
 
+BOOL IsDisplayModeChanged = FALSE;
 int8_t DisplayModeValue = 0;
 
 __declspec(naked) void __stdcall DisplayModeArrow()
@@ -1270,15 +1273,19 @@ void SetDisplayModeOption()
     // Check if the display mode changes
     if (ScreenMode != (int)ConfigData.DisplayModeOption)
     {
-        ScreenMode = ConfigData.DisplayModeOption;
+        IsDisplayModeChanged = TRUE;
 
-        DeviceLost = true;
+        ScreenMode = ConfigData.DisplayModeOption;
 
         SaveConfigData();
     }
+    else
+    {
+        IsDisplayModeChanged = FALSE;
+    }
 }
 
-__declspec(naked) void __stdcall ConfirmInitialOptionValue()
+__declspec(naked) void __stdcall DisplayOptionResetCheck()
 {
     __asm
     {
@@ -1288,6 +1295,25 @@ __declspec(naked) void __stdcall ConfirmInitialOptionValue()
         popad
         popfd
 
+        jne ResetDisplay                            // Reset if resolution changed
+        push eax
+        mov eax, dword ptr[IsDisplayModeChanged]
+        test al, 0xFF                               // Check if display mode changed
+        pop eax
+        jne ResetDisplay                            // Reset if display mode changed
+        jmp DisplayOptionSkipChangeResetRetAddr     // Skip reset
+
+    ResetDisplay:
+        movzx edx, al
+        push edx
+        jmp DisplayOptionChangeResetRetAddr
+    }
+}
+
+__declspec(naked) void __stdcall ConfirmInitialOptionValue()
+{
+    __asm
+    {
         mov dl, byte ptr[DisplayModeValue]
 
         jmp ConfirmInitialOptionValueRetAddr
@@ -1485,11 +1511,17 @@ void PatchDisplayMode()
     BYTE* DisplayModeValuePrintAddr = (BYTE*)HighResTextValue1 - 0x1C;
     DisplayModeValuePrintRetAddr = DisplayModeValuePrintAddr + 0x08;
 
-    DWORD ConfirmInitialOptionValueAddr =   GameVersion == SH2V_10 ? 0x00464e11 :
+    DWORD ConfirmInitialOptionValueAddr =   GameVersion == SH2V_10 ? 0x00464E11 :
                                             GameVersion == SH2V_11 ? 0x004650A1 :
                                             GameVersion == SH2V_DC ? 0x004652B1 : NULL;
     ConfirmInitialOptionValueRetAddr = (BYTE*)ConfirmInitialOptionValueAddr + 0x06;
     
+    DWORD DisplayOptionChangeResetAddr =    GameVersion == SH2V_10 ? 0x00464DF3 :
+                                            GameVersion == SH2V_11 ? 0x00465083 :
+                                            GameVersion == SH2V_DC ? 0x00465293 : NULL;
+    DisplayOptionChangeResetRetAddr = (BYTE*)(DisplayOptionChangeResetAddr + 0x06);
+    DisplayOptionSkipChangeResetRetAddr = (BYTE*)(DisplayOptionChangeResetAddr + 0x18);
+
     BYTE* DiscardOptionValueAddr = (BYTE*)ConfirmInitialOptionValueAddr + 0x128;
     DiscardOptionValueRetAddr = DiscardOptionValueAddr + 0x06;
 
@@ -1536,7 +1568,7 @@ void PatchDisplayMode()
         *(BYTE*)HighResTextArrow != 0x0F || *(BYTE*)DisplayModeValueHighlightAddr != 0x66 || *(BYTE*)DisplayModeValuePrintAddr != 0x66 ||
         *(BYTE*)ConfirmInitialOptionValueAddr != 0x8A || *(BYTE*)DiscardOptionValueAddr != 0x88 || *(BYTE*)CheckStoredOptionvalueAddr != 0x8A ||
         *(BYTE*)DisplayModeOptionColorCheckAddr != 0x8A || *(BYTE*)NopOriginalStoreOptionAddr != 0x88 || *(BYTE*)SetHighlightColorAddr != 0x8A ||
-        *(BYTE*)InputConditionChangeAddr1 != 0x85 || *(BYTE*)DisplayModeValueChangedRetAddr != 0x55)
+        *(BYTE*)InputConditionChangeAddr1 != 0x85 || *(BYTE*)DisplayModeValueChangedRetAddr != 0x55 || *(BYTE*)DisplayOptionChangeResetAddr != 0x74)
     {
         Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
         return;
@@ -1561,7 +1593,7 @@ void PatchDisplayMode()
     orgPrintTextAtPosDM.fun = injector::MakeCALL(HighResDescriptionAddr, PrintDisplayModeDescription_Hook, true).get();
 
     // Display mode option arrow
-    WriteJMPtoMemory((BYTE*)HighResTextArrow, DisplayModeArrow, 15);
+    WriteJMPtoMemory((BYTE*)HighResTextArrow, DisplayModeArrow, 0x0F);
     UpdateMemoryAddress(StringOffsetToNop, "\x90\x90\x90\x90\x90", 0x05);
     // Display mode option value and highlight
     WriteJMPtoMemory(DisplayModeValueHighlightAddr, DisplayModeValueHighlight, 0x08);
@@ -1570,6 +1602,7 @@ void PatchDisplayMode()
 
     // Override checks for changed option
     WriteJMPtoMemory((BYTE*)ConfirmInitialOptionValueAddr, ConfirmInitialOptionValue, 0x06);
+    WriteJMPtoMemory((BYTE*)DisplayOptionChangeResetAddr, DisplayOptionResetCheck, 0x06);
     WriteJMPtoMemory(DiscardOptionValueAddr, DiscardInitialOptionValue, 0x06);
     WriteJMPtoMemory((BYTE*)CheckStoredOptionvalueAddr, CheckStoredOptionValue, 0x06);
     WriteJMPtoMemory(DisplayModeOptionColorCheckAddr, ColorCheckStoredOptionValue, 0x06);

@@ -508,9 +508,27 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	Rect = { 0, 0, displayWidth, displayHeight };
 	AdjustWindowRectEx(&Rect, lStyle, GetMenu(MainhWnd) != NULL, lExStyle);
 	Rect = { 0, 0, Rect.right - Rect.left, Rect.bottom - Rect.top };
+	LONG xLoc = 0, yLoc = 0;
+
+	// Load and set window placement if using window border
+	bool UseWindowPlacement = false;
+	WINDOWPLACEMENT wndpl = {};
+	if (UsingWindowBorder)
+	{
+		if (ReadRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"GameWindowPlacement", &wndpl, sizeof(WINDOWPLACEMENT)))
+		{
+			wndpl.length = sizeof(WINDOWPLACEMENT);
+			xLoc = wndpl.rcNormalPosition.left;
+			yLoc = wndpl.rcNormalPosition.top;
+			if (wndpl.rcNormalPosition.right - wndpl.rcNormalPosition.left == Rect.right &&
+				wndpl.rcNormalPosition.bottom - wndpl.rcNormalPosition.top == Rect.bottom)
+			{
+				UseWindowPlacement = true;
+			}
+		}
+	}
 
 	// Move window to center and adjust size
-	LONG xLoc = 0, yLoc = 0;
 	if (ScreenMode == WINDOWED && screenWidth >= Rect.right && screenHeight >= Rect.bottom)
 	{
 		// Center window on load or if not using window border
@@ -519,13 +537,16 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 			xLoc = (screenWidth - Rect.right) / 2;
 			yLoc = (screenHeight - Rect.bottom) / 2;
 		}
-		// Keep exsiting location after window changes
+		// Keep existing location after window changes
 		else
 		{
-			RECT wRect = {};
-			GetWindowRect(MainhWnd, &wRect);
-			xLoc = wRect.left;
-			yLoc = wRect.top;
+			if (!xLoc && !yLoc)
+			{
+				RECT wRect = {};
+				GetWindowRect(MainhWnd, &wRect);
+				xLoc = wRect.left;
+				yLoc = wRect.top;
+			}
 			if (xLoc + Rect.right > screenWidth && screenWidth >= Rect.right)
 			{
 				xLoc = screenWidth - Rect.right;
@@ -536,21 +557,13 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 			}
 		}
 	}
-	SetWindowPos(MainhWnd, HWND_TOP, xLoc, yLoc, Rect.right, Rect.bottom, SWP_SHOWWINDOW | SWP_NOZORDER);
-
-	// Load and set window placement if using window border
-	if (UsingWindowBorder)
+	if (UseWindowPlacement)
 	{
-		WINDOWPLACEMENT wndpl;
-		if (ReadRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"GameWindowPlacement", &wndpl, sizeof(WINDOWPLACEMENT)))
-		{
-			wndpl.length = sizeof(WINDOWPLACEMENT);
-			if (wndpl.rcNormalPosition.right - wndpl.rcNormalPosition.left == Rect.right &&
-				wndpl.rcNormalPosition.bottom - wndpl.rcNormalPosition.top == Rect.bottom)
-			{
-				SetWindowPlacement(MainhWnd, &wndpl);
-			}
-		}
+		SetWindowPlacement(MainhWnd, &wndpl);
+	}
+	else
+	{
+		SetWindowPos(MainhWnd, HWND_TOP, xLoc, yLoc, Rect.right, Rect.bottom, SWP_SHOWWINDOW | SWP_NOZORDER);
 	}
 
 	// Unset frist run

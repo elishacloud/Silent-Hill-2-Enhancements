@@ -14,10 +14,10 @@
 *   3. This notice may not be removed or altered from any source distribution.
 */
 
+#define DLLMAIN_CPP
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <shlwapi.h>
-#include "Resource.h"
 #include "winmm.h"
 #include "Patches\Patches.h"
 #include "WidescreenFixesPack\WidescreenFixesPack.h"
@@ -30,6 +30,7 @@
 #include "Common\AutoUpdate.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
+#include "Resource.h"
 
 // For Logging
 std::ofstream LOG;
@@ -71,6 +72,8 @@ void GetConfig()
 		Parse(szCfg, ParseCallback);
 		free(szCfg);
 	}
+
+	LockConfigs();
 
 	UpdateConfigDefaults();
 }
@@ -700,7 +703,13 @@ void DelayedStart()
 	{
 		PatchLowHealthIndicator();
 	}
-	
+
+	// Patch boat speed with great knife equipped, and disable weapon hotkeys
+	if (RowboatAnimationFix)
+	{
+		PatchGreatKnifeBoatSpeed();
+	}
+
 	// Fix flashlight position during the hospital shower room cutscene
 	if (ShowerRoomFlashlightFix)
 	{
@@ -708,23 +717,29 @@ void DelayedStart()
 	}
 	
 	// Hotel Employee Elevator Cursor Color Bug Fix
-	PatchElevatorCursorColor();
+	if (FixElevatorCursorColor)
+	{
+		PatchElevatorCursorColor();
+	}
 
 	// Remove the "Now loading..." and "Press Return to continue." messages
-	switch (GameVersion)
+	if (DisableLoadingPressReturnMessages)
 	{
-	case SH2V_10:
-		UpdateMemoryAddress((void*)0x0044740B, "\x90\x90\x90\x90\x90", 5);
-		UpdateMemoryAddress((void*)0x00497356, "\x90\x90\x90\x90\x90", 5);
-		UpdateMemoryAddress((void*)0x0044AC90, "\xC3", 1);
-		break;
-	case SH2V_11:
-		UpdateMemoryAddress((void*)0x004475AB, "\x90\x90\x90\x90\x90", 5);
-		UpdateMemoryAddress((void*)0x00497606, "\x90\x90\x90\x90\x90", 5);
-	case SH2V_DC:
-		UpdateMemoryAddress((void*)0x004475AB, "\x90\x90\x90\x90\x90", 5);
-		UpdateMemoryAddress((void*)0x0044AE30, "\xC3", 1);
-		break;
+		switch (GameVersion)
+		{
+		case SH2V_10:
+			UpdateMemoryAddress((void*)0x00497356, "\x90\x90\x90\x90\x90", 5);
+			UpdateMemoryAddress((void*)0x0044740B, "\x90\x90\x90\x90\x90", 5);
+			UpdateMemoryAddress((void*)0x0044AC90, "\xC3", 1);
+			break;
+		case SH2V_11:
+			UpdateMemoryAddress((void*)0x00497606, "\x90\x90\x90\x90\x90", 5);
+			[[fallthrough]];
+		case SH2V_DC:
+			UpdateMemoryAddress((void*)0x004475AB, "\x90\x90\x90\x90\x90", 5);
+			UpdateMemoryAddress((void*)0x0044AE30, "\xC3", 1);
+			break;
+		}
 	}
 
 	// Flush cache

@@ -14,6 +14,7 @@
 *   3. This notice may not be removed or altered from any source distribution.
 */
 
+#define IDIRECT3DDEVICE8_CPP
 #include "d3d8wrapper.h"
 #include <shlwapi.h>
 #include <chrono>
@@ -26,6 +27,8 @@
 #include "stb_image_resize.h"
 #include "Patches\ModelID.h"
 #include "Patches\OptionsMenuTweaks.h"
+#include "Patches\MasterVolume.h"
+#include "Resource.h"
 
 bool DeviceLost = false;
 bool DisableShaderOnPresent = false;
@@ -174,12 +177,14 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 
 	OverlayRef.ResetFont();
 
-	HRESULT hr = D3DERR_INVALIDCALL;
+  // Call function
+	RunResetCode(ProxyInterface);
 
 	// Update presentation parameters
 	UpdatePresentParameter(pPresentationParameters, nullptr);
 
 	// Set AntiAliasing
+	HRESULT hr = D3DERR_INVALIDCALL;
 	if (DeviceMultiSampleType)
 	{
 		D3DPRESENT_PARAMETERS d3dpp;
@@ -1082,6 +1087,9 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 
 	// Handle menu sounds
 	HandleMenuSounds();
+
+	// Call function
+	RunPresentCode(ProxyInterface);
 
 	// Skip frames in specific cutscenes to prevent flickering
 	if (SkipSceneFlag)

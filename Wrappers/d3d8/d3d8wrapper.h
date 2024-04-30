@@ -41,6 +41,8 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 void UpdatePresentParameterForMultisample(D3DPRESENT_PARAMETERS* pPresentationParameters, D3DMULTISAMPLE_TYPE MultiSampleType);
 void SetScreenAndWindowSize();
 void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight);
+void RunPresentCode(IDirect3DDevice8* ProxyInterface);
+void RunResetCode(IDirect3DDevice8* ProxyInterface);
 DWORD WINAPI SaveScreenshotFile(LPVOID pvParam);
 
 #define D3DRS_ADAPTIVETESS_Y (D3DRENDERSTATETYPE)181

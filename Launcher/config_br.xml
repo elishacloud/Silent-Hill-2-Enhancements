@@ -953,8 +953,8 @@
       </Feature>
 
       <Feature name="RowboatAnimationFix">
-        <Title>Correção de animação no barco</Title>
-        <Description>Corrige um problema com o modelo de personagem de James sendo colocado de forma irregular no barco, isso se você entrou anteriormente nele e carregou um ponto de salvamento para entrar no barco novamente.</Description>
+        <Title>Various rowboat stage fixes</Title>
+        <Description>Fixes an issue with James' character model sometimes being placed erratically into the rowboat. Fixes an issue with the rowboat's speed being negatively affected if the Great Knife was equipped before entering the boat. Disables quick weapon swapping while on the boat to prevent animation breaking.</Description>
         <Choices type="check">
           <Value name="Desativar">0</Value>
           <Value name="Ativar" default="true">1</Value>

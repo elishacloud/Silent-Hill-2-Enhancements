@@ -21,6 +21,7 @@
 	visit(DisableEnlargedText, true) \
 	visit(DisableGameUX, true) \
 	visit(DisableHighDPIScaling, true) \
+	visit(DisableLoadingPressReturnMessages, true) \
 	visit(DisableLogging, false) \
 	visit(DisableMaximizedWindowedMode, true) \
 	visit(DisableRedCross, false) \
@@ -40,6 +41,7 @@
 	visit(EnableSFXAddrHack, true) \
 	visit(EnableSMAA, false) \
 	visit(EnableSoftShadows, true) \
+	visit(EnableSpeedrunIGT, true) \
 	visit(EnableTexAddrHack, true) \
 	visit(EnableToggleSprint, true) \
 	visit(EnhanceMouseCursor, true) \
@@ -52,6 +54,7 @@
 	visit(FixChainsawSpawn, true) \
 	visit(FixCreatureVehicleSpawn, true) \
 	visit(FixDrawingTextLine, true) \
+	visit(FixElevatorCursorColor, true) \
 	visit(FixFinalBossRoom, true) \
 	visit(FixFMVResetIssue, true) \
 	visit(FixFMVSpeed, true) \
@@ -173,7 +176,8 @@
 	visit(SingleCoreAffinityLegacy, 0) \
 	visit(SmallFontHeight, 24) \
 	visit(SmallFontWidth, 16) \
-	visit(SpaceSize, 7)
+	visit(SpaceSize, 7) \
+	visit(SpeedrunMode, 2)
 
 #define VISIT_FLOAT_SETTINGS(visit) \
 	visit(fog_layer1_x1, 0.250f) \
@@ -213,13 +217,16 @@
 	visit(CustomModFolder) \
 	visit(DelayedFadeIn) \
 	visit(Direct3DCreate9On12) \
+	visit(DisableLoadingPressReturnMessages) \
 	visit(DisableLogging) \
 	visit(DisableRedCross) \
 	visit(EnableDebugOverlay) \
 	visit(EnableInfoOverlay) \
 	visit(EnableScreenshots) \
+	visit(EnableSpeedrunIGT) \
 	visit(EnableWndMode) \
 	visit(FixFMVResetIssue) \
+	visit(FixElevatorCursorColor) \
 	visit(fog_custom_on) \
 	visit(fog_layer1_x1) \
 	visit(fog_layer1_x2) \
@@ -251,6 +258,7 @@
 	visit(SmallFontHeight) \
 	visit(SmallFontWidth) \
 	visit(SpaceSize) \
+	visit(SpeedrunMode) \
 	visit(WrapperType)
 
 typedef enum _SCREENMODE {

@@ -89,3 +89,5 @@ namespace
 }
 
 #endif
+
+void LockConfigs();

@@ -409,3 +409,8 @@ void UpdateConfigDefaults()
 		ReplaceButtonText = BUTTON_ICONS_GENERIC;
 	}
 }
+
+void LockConfigs()
+{
+	// Blank function
+}

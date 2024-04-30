@@ -27,7 +27,6 @@
 #include "stb_image_resize.h"
 #include "Patches\ModelID.h"
 #include "Patches\OptionsMenuTweaks.h"
-#include "Patches\MasterVolume.h"
 #include "Resource.h"
 
 bool DeviceLost = false;

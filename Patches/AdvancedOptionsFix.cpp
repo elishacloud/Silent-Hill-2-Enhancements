@@ -19,8 +19,8 @@
 #include "Common\Utils.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
-#include "External/Hooking.Patterns/Hooking.Patterns.h"
-#include "External/injector/include/injector/injector.hpp"
+#include "External\Hooking.Patterns\Hooking.Patterns.h"
+#include "External\injector\include\injector\injector.hpp"
 
 static uint32_t* ptrConfirmationPromptState;
 static uint32_t* ptrSelectionIndex;

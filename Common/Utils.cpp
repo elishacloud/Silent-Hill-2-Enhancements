@@ -530,13 +530,16 @@ HMODULE SetAppTheme()
 
 	static HMODULE hUxtheme = LoadLibrary(L"uxtheme.dll");
 
-	using SetThemeAppPropertiesProc = void (WINAPI *)(_In_ DWORD dwFlags);
-	static SetThemeAppPropertiesProc SetThemeAppProperties = (SetThemeAppPropertiesProc)GetProcAddress(hUxtheme, "SetThemeAppProperties");
-
-	if (SetThemeAppProperties)
+	if (hUxtheme)
 	{
-		LOG_ONCE("Setting theme properties...");
-		SetThemeAppProperties(STAP_ALLOW_NONCLIENT);
+		using SetThemeAppPropertiesProc = void (WINAPI*)(_In_ DWORD dwFlags);
+		static SetThemeAppPropertiesProc SetThemeAppProperties = (SetThemeAppPropertiesProc)GetProcAddress(hUxtheme, "SetThemeAppProperties");
+
+		if (SetThemeAppProperties)
+		{
+			LOG_ONCE("Setting theme properties...");
+			SetThemeAppProperties(STAP_ALLOW_NONCLIENT);
+		}
 	}
 
 	return hUxtheme;
@@ -1195,18 +1198,65 @@ BOOL GetAppsLightMode()
 	return bFlag;
 }
 
+void ClearGDISurface(HWND hWnd, COLORREF color)
+{
+	// Get the device context (DC) for the window
+	HDC hDC = GetDC(hWnd);
+	if (hDC)
+	{
+		// Get the dimensions of the window
+		RECT rcClient;
+		GetClientRect(hWnd, &rcClient);
+
+		// Create a brush with the specified color
+		HBRUSH hBrush = CreateSolidBrush(color);
+
+		// Fill the window's client area with the specified color
+		FillRect(hDC, &rcClient, hBrush);
+
+		// Release the brush
+		DeleteObject(hBrush);
+
+		// Release the device context
+		ReleaseDC(hWnd, hDC);
+	}
+}
+
 HMONITOR GetMonitorHandle()
 {
 	return MonitorFromWindow(IsWindow(DeviceWindow) ? DeviceWindow : GetDesktopWindow(), MONITOR_DEFAULTTONEAREST);
 }
 
-void GetDesktopRes(LONG &screenWidth, LONG &screenHeight)
+BOOL GetDesktopRes(LONG &screenWidth, LONG &screenHeight)
 {
 	MONITORINFO info = {};
 	info.cbSize = sizeof(MONITORINFO);
-	GetMonitorInfo(GetMonitorHandle(), &info);
+	BOOL ret = GetMonitorInfo(GetMonitorHandle(), &info);
 	screenWidth = info.rcMonitor.right - info.rcMonitor.left;
 	screenHeight = info.rcMonitor.bottom - info.rcMonitor.top;
+	return ret;
+}
+
+BOOL SetDesktopRes(LONG screenWidth, LONG screenHeight)
+{
+	// Get monitor info
+	MONITORINFOEX infoex = {};
+	infoex.cbSize = sizeof(MONITORINFOEX);
+	BOOL bRet = GetMonitorInfo(GetMonitorHandle(), &infoex);
+
+	// Get resolution list for specified monitor
+	BOOL ret = FALSE;
+	DEVMODE newSettings = {};
+	newSettings.dmSize = sizeof(newSettings);
+	if (EnumDisplaySettings(bRet ? infoex.szDevice : nullptr, ENUM_CURRENT_SETTINGS, &newSettings) != 0)
+	{
+		newSettings.dmPelsWidth = screenWidth;
+		newSettings.dmPelsHeight = screenHeight;
+		newSettings.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
+		ret = (ChangeDisplaySettingsEx(bRet ? infoex.szDevice : nullptr, &newSettings, nullptr, CDS_FULLSCREEN, nullptr) == DISP_CHANGE_SUCCESSFUL);
+	}
+
+	return ret;
 }
 
 void GetDesktopRect(RECT &screenRect)
@@ -1275,34 +1325,35 @@ bool WriteRegistryStruct(const std::wstring& lpzSection, const std::wstring& lpz
 	return true;
 }
 
-HRESULT GetConfigFromFile()
+// Returns the size of data retrived from the config file
+DWORD GetConfigFromFile()
 {
 	wchar_t ConfigName[MAX_PATH] = {};
 	if (!GetConfigName(ConfigName, MAX_PATH, L".cfg") || !PathFileExists(ConfigName))
 	{
-		return E_FAIL;
+		return 0;
 	}
 
-	HANDLE hFile;
-	DWORD dwBytesRead;
+	HANDLE hFile = INVALID_HANDLE_VALUE;
+	DWORD dwBytesRead = 0;
 
 	hFile = CreateFile(ConfigName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
 		LOG_LIMIT(100, __FUNCTION__ << " Error: failed to open file: '" << ConfigName << "'");
-		return E_FAIL;
+		return 0;
 	}
 	DWORD BytesToRead = min(GetFileSize(hFile, nullptr), sizeof(CFGDATA));
 
 	BOOL hRet = ReadFile(hFile, (void*)&ConfigData, BytesToRead, &dwBytesRead, nullptr);
-	if (dwBytesRead != BytesToRead || hRet == FALSE)
+	if (hRet == FALSE)
 	{
 		CloseHandle(hFile);
-		return E_FAIL;
+		return 0;
 	}
 
 	CloseHandle(hFile);
-	return S_OK;
+	return dwBytesRead;
 }
 
 void MigrateRegistry()
@@ -1341,12 +1392,42 @@ void MigrateRegistry()
 HRESULT GetConfigData()
 {
 	// Check for config file data first
-	HRESULT hr = GetConfigFromFile();
+	DWORD BytesRead = GetConfigFromFile();
 
 	// Migrate old registry keys to config file 
 	MigrateRegistry();
 
-	return hr;
+	// Update display mode setting
+	if (DisplayModeOption)
+	{
+		// If display mode was retrieved from the config file then use it
+		if (BytesRead >= ((DWORD)&ConfigData.DisplayModeOption + sizeof(ConfigData.DisplayModeOption) - (DWORD)&ConfigData))
+		{
+			ScreenMode = ConfigData.DisplayModeOption;
+		}
+		// Otherwise use ScreenMode value
+		else
+		{
+			ConfigData.DisplayModeOption = ScreenMode;
+		}
+	}
+
+	// Update Health Indicator setting
+	if (HealthIndicatorOption)
+	{
+		// If health indicator was retrieved from the config file then use it
+		if (BytesRead >= ((DWORD)&ConfigData.HealthIndicatorOption + sizeof(ConfigData.HealthIndicatorOption) - (DWORD)&ConfigData))
+		{
+			DisableRedCross = !ConfigData.HealthIndicatorOption;
+		}
+		// Otherwise use DisableRedCross value
+		else
+		{
+			ConfigData.HealthIndicatorOption = !DisableRedCross;
+		}
+	}
+
+	return (BytesRead ? S_OK : E_FAIL);
 }
 
 HRESULT SaveConfigData()

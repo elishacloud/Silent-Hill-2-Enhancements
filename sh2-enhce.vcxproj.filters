@@ -389,7 +389,7 @@
     <ClCompile Include="Patches\FinalBossRoomFix.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
-    <ClCompile Include="Patches\MasterVolume.cpp">
+    <ClCompile Include="Patches\OptionsMenuTweaks.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
     <ClCompile Include="Patches\MothDrawOrder.cpp">
@@ -421,6 +421,9 @@
     </ClCompile>
     <ClCompile Include="Patches\TeddyBearLookFix.cpp">
       <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\GfxUtils.cpp">
+      <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="Patches\OldManCoinFix.cpp">
       <Filter>Patches</Filter>
@@ -661,11 +664,14 @@
     <ClInclude Include="Patches\SixtyFPSPatch.h">
       <Filter>Patches</Filter>
     </ClInclude>
-    <ClInclude Include="Patches\MasterVolume.h">
+    <ClInclude Include="Patches\OptionsMenuTweaks.h">
       <Filter>Patches</Filter>
     </ClInclude>
     <ClInclude Include="Include\winmm.h">
       <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\GfxUtils.h">
+      <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="Patches\GravestoneBoardsFix.h">
       <Filter>Patches</Filter>

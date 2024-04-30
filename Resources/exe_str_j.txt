@@ -27,3 +27,5 @@ d3d8.ini�t�@�C����ݒ�
 Windows���ł̂݉���������
 �}�X�^�[����
 �}�X�^�[���ʒ���
+\hHealth indicator
+\hEnable low health indicator

@@ -8,16 +8,6 @@
 
     <Section name="Visualización">
 
-      <Feature name="ScreenMode">
-        <Title>Modo de pantalla</Title>
-        <Description>Establece el modo de pantalla del juego.</Description>
-        <Choices type="list">
-          <Value name="Ventana" default="true">1</Value>
-          <Value name="Ventana a pantalla completa">2</Value>
-          <Value name="Pantalla completa">3</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="WndModeBorder">
         <Title>Borde de la ventana (solo para el modo en ventana)</Title>
         <Description>Crea un borde en la ventana del juego. Solo funciona al usar el modo en ventana.&#x0a;&#x0a;Nota: la resolución de la ventana del juego no debe ser exactamente o casi la misma que el alto y ancho de tu pantalla, de lo contrario, el borde podría no aparecer. Es una medida de seguridad para evitar que el borde no se pierda fuera de tu área de visualización.</Description>
@@ -639,6 +629,28 @@
 
     </Section>
 
+    <Section name="Menu Additions">
+
+      <Feature name="DisplayModeOption">
+        <Title>Display mode option</Title>
+        <Description>Replaces the Options > Advanced Options > Low Res Texture option with a Display Mode option to change the screen mode used for the game.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="HealthIndicatorOption">
+        <Title>Health indicator option</Title>
+        <Description>Replaces the Options > Game Options > Search View option with a Health Indicator option to enable/disable the low health visual used in-game.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
     <Section name="Correcciones de menús">
 
       <Feature name="MainMenuFix">
@@ -710,6 +722,18 @@
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="ReplaceButtonText">
+        <Title>Button icons in Control Options</Title>
+        <Description>Replaces the vague "Button #" text in the Control Options menu with custom controller button icons.&#x0a;&#x0a;Note: controller_buttons_icons.png must be present in "sh2e\pic\etc\" for this feature to work.</Description>
+        <Choices type="list">
+          <Value name="Disable">0</Value>
+          <Value name="Generic" default="true">1</Value>
+          <Value name="Xbox">2</Value>
+          <Value name="Playstation">3</Value>
+          <Value name="Nintendo">4</Value>
         </Choices>
       </Feature>
 
@@ -1018,15 +1042,6 @@
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="DisableRedCross">
-        <Title>Desactivar el indicador de salud baja por completo</Title>
-        <Description>Oculta el indicador de salud baja por completo.&#x0a;&#x0a;Nota: únicamente se recomienda activar esta opción si utilizas un mando con función de vibración. De lo contrario, no podrás saber si tienes poca salud hasta que abras la pantalla de inventario.</Description>
-        <Choices type="check">
-          <Value name="No" default="true">0</Value>
-          <Value name="Sí">1</Value>
         </Choices>
       </Feature>
 

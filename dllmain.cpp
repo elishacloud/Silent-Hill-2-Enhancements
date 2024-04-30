@@ -342,12 +342,6 @@ void DelayedStart()
 		PatchRoom312ShadowFix();
 	}
 
-	// Red Cross health indicator in cutscene
-	if (DisableRedCrossInCutScenes)
-	{
-		PatchRedCrossInCutscene();
-	}
-
 	// Adjusts flashlight brightness
 	if (PS2FlashlightBrightness)
 	{
@@ -655,12 +649,37 @@ void DelayedStart()
 		PatchCustomSFXs();
 	}
 
+	// Adds display mode option
+	if (DisplayModeOption)
+	{
+		PatchDisplayMode();
+	}
+
+	// Adds health indicator option
+	if (HealthIndicatorOption)
+	{
+		PatchSearchViewOptionName();
+		PatchHealthIndicatorOption();
+	}
+
+	// Red Cross health indicator in cutscene
+	if (HealthIndicatorOption || DisableRedCrossInCutScenes || DisableRedCross)
+	{
+		PatchRedCrossInCutscene();
+	}
+
 	// Patch to prevent James from looking at the teddy bear after picking up the bent needle
 	if (TeddyBearLookFix)
 	{
 		PatchTeddyBearLookFix();
 	}
 
+	// Overhaul the Control Options menu
+	if (ReplaceButtonText != BUTTON_ICONS_DISABLED)
+	{
+		PatchControlOptionsMenu();
+	}
+	
 	// Fix spawn precondition for the Old Man Coin
 	if (OldManCoinFix)
  	{
@@ -761,7 +780,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		}
 
 		// Allows application to use Windows themes
-		if (ScreenMode != EXCLUSIVE_FULLSCREEN && WndModeBorder)
+		if (WndModeBorder)
 		{
 			SetAppTheme();
 		}

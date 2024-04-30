@@ -37,8 +37,9 @@ IDirect3D8 *WINAPI Direct3DCreate8Wrapper(UINT SDKVersion);
 void genericQueryInterface(REFIID riid, LPVOID *ppvObj, m_IDirect3DDevice8* m_pDevice);
 
 DWORD GetBitCount(D3DFORMAT Format);
-void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND hFocusWindow, bool SetWindow);
+void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND hFocusWindow);
 void UpdatePresentParameterForMultisample(D3DPRESENT_PARAMETERS* pPresentationParameters, D3DMULTISAMPLE_TYPE MultiSampleType);
+void SetScreenAndWindowSize();
 void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight);
 void RunPresentCode(IDirect3DDevice8* ProxyInterface);
 void RunResetCode(IDirect3DDevice8* ProxyInterface);
@@ -64,6 +65,7 @@ DWORD WINAPI SaveScreenshotFile(LPVOID pvParam);
 extern HWND DeviceWindow;
 extern LONG BufferWidth, BufferHeight;
 extern bool DeviceLost;
+extern int UseFrontBufferControl;
 extern bool ClassReleaseFlag;
 extern bool CopyRenderTarget;
 extern bool SetSSAA;

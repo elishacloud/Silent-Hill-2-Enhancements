@@ -26,7 +26,7 @@
 #include "stb_image_write.h"
 #include "stb_image_resize.h"
 #include "Patches\ModelID.h"
-#include "Patches\MasterVolume.h"
+#include "Patches\OptionsMenuTweaks.h"
 #include "Resource.h"
 
 bool DeviceLost = false;
@@ -176,13 +176,14 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 
 	OverlayRef.ResetFont();
 
-	// Call function
+  // Call function
 	RunResetCode(ProxyInterface);
 
 	// Update presentation parameters
-	UpdatePresentParameter(pPresentationParameters, nullptr, true);
+	UpdatePresentParameter(pPresentationParameters, nullptr);
 
 	// Set AntiAliasing
+	HRESULT hr = D3DERR_INVALIDCALL;
 	if (DeviceMultiSampleType)
 	{
 		D3DPRESENT_PARAMETERS d3dpp;
@@ -193,17 +194,28 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 		UpdatePresentParameterForMultisample(&d3dpp, DeviceMultiSampleType);
 
 		// Reset device
-		if (SUCCEEDED(ProxyInterface->Reset(&d3dpp)))
-		{
-			return D3D_OK;
-		}
+		hr = ProxyInterface->Reset(&d3dpp);
 
 		// If failed
-		DeviceMultiSampleType = D3DMULTISAMPLE_NONE;
-		Logging::Log() << __FUNCTION__ << " Error: MultiSample disabled!!!";
+		if (FAILED(hr))
+		{
+			DeviceMultiSampleType = D3DMULTISAMPLE_NONE;
+			Logging::Log() << __FUNCTION__ << " Error: MultiSample disabled!!!";
+		}
 	}
 
-	return ProxyInterface->Reset(pPresentationParameters);
+	if (FAILED(hr))
+	{
+		hr = ProxyInterface->Reset(pPresentationParameters);
+	}
+
+	// Handle display modes
+	if (SUCCEEDED(hr))
+	{
+		SetScreenAndWindowSize();
+	}
+
+	return hr;
 }
 
 HRESULT m_IDirect3DDevice8::EndScene()
@@ -294,7 +306,7 @@ HRESULT m_IDirect3DDevice8::CreateAdditionalSwapChain(D3DPRESENT_PARAMETERS *pPr
 	HRESULT hr = D3DERR_INVALIDCALL;
 
 	// Update presentation parameters
-	UpdatePresentParameter(pPresentationParameters, nullptr, false);
+	UpdatePresentParameter(pPresentationParameters, nullptr);
 
 	// Set AntiAliasing
 	if (DeviceMultiSampleType)
@@ -445,7 +457,24 @@ HRESULT m_IDirect3DDevice8::CreateTexture(THIS_ UINT Width, UINT Height, UINT Le
 					D3DLOCKED_RECT LockedRect = {};
 					if (SUCCEEDED(pTmpSurface->LockRect(&LockedRect, nullptr, 0)))
 					{
-						memcpy(LockedRect.pBits, &CachedSurfaceData[0], LockedRect.Pitch * Height);
+						// Copy data to surface
+						if (Width * 4 == (UINT)LockedRect.Pitch)
+						{
+							memcpy(LockedRect.pBits, CachedSurfaceData.data(), LockedRect.Pitch * Height);
+						}
+						else
+						{
+							INT SrcPitch = Width * 4;
+							INT DestPitch = LockedRect.Pitch;
+							BYTE* SrcBuffer = CachedSurfaceData.data();
+							BYTE* DestBuffer = (BYTE*)LockedRect.pBits;
+							for (UINT x = 0; x < Height; x++)
+							{
+								memcpy(DestBuffer, SrcBuffer, min(DestPitch, SrcPitch));
+								SrcBuffer += SrcPitch;
+								DestBuffer += DestPitch;
+							}
+						}
 						pTmpSurface->UnlockRect();
 					}
 					IDirect3DSurface8 *pTmpTargetSurface = nullptr;
@@ -1053,6 +1082,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 
 	// Store reference to the ProxyInterface
 	MasterVolumeRef.HandleMasterVolume(ProxyInterface);
+	ButtonIconsRef.HandleControllerIcons(ProxyInterface);
 
 	// Handle menu sounds
 	HandleMenuSounds();
@@ -2669,28 +2699,73 @@ HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface
 
 HRESULT m_IDirect3DDevice8::GetFrontBufferFromGDI(THIS_ BYTE* lpBuffer, size_t Size)
 {
+	// Check buffer size
+	if ((LONG)Size != (BufferWidth * 4) * BufferHeight)
+	{
+		LOG_ONCE(__FUNCTION__ << " Error: Buffer size is not correct: " << BufferWidth << "x" << BufferHeight << " " << Size);
+		return D3DERR_INVALIDCALL;
+	}
+
 	// Capture Silent Hill 2 window data
 	HWND hDeviceWnd = (ScreenMode == EXCLUSIVE_FULLSCREEN) ? GetDesktopWindow() : DeviceWindow;
 	HDC hWindowDC = GetDC(hDeviceWnd);
+	if (!hWindowDC)
+	{
+		LOG_ONCE(__FUNCTION__ << " Error: Failed to get window DC.");
+		return D3DERR_INVALIDCALL;
+	}
+
 	HDC hCaptureDC = CreateCompatibleDC(hWindowDC);
+	if (!hCaptureDC)
+	{
+		ReleaseDC(hDeviceWnd, hWindowDC);
+		LOG_ONCE(__FUNCTION__ << " Error: Failed to create compatible DC.");
+		return D3DERR_INVALIDCALL;
+	}
+
 	HBITMAP hCaptureBitmap = CreateCompatibleBitmap(hWindowDC, BufferWidth, BufferHeight);
+	if (!hCaptureBitmap)
+	{
+		DeleteDC(hCaptureDC);
+		ReleaseDC(hDeviceWnd, hWindowDC);
+		LOG_ONCE(__FUNCTION__ << " Error: Failed to create compatible bitmap.");
+		return D3DERR_INVALIDCALL;
+	}
+
 	HGDIOBJ hObject = SelectObject(hCaptureDC, hCaptureBitmap);
+	if (!hObject)
+	{
+		DeleteObject(hCaptureBitmap);
+		DeleteDC(hCaptureDC);
+		ReleaseDC(hDeviceWnd, hWindowDC);
+		LOG_ONCE(__FUNCTION__ << " Error: Failed to select object.");
+		return D3DERR_INVALIDCALL;
+	}
 
 	// Blt window data to bitmap
-	BOOL rBlt = BitBlt(hCaptureDC, 0, 0, BufferWidth, BufferHeight, hWindowDC, 0, 0, SRCCOPY | CAPTUREBLT);
+	if (!BitBlt(hCaptureDC, 0, 0, BufferWidth, BufferHeight, hWindowDC, 0, 0, SRCCOPY | CAPTUREBLT))
+	{
+		SelectObject(hCaptureDC, hObject);
+		DeleteObject(hCaptureBitmap);
+		DeleteDC(hCaptureDC);
+		ReleaseDC(hDeviceWnd, hWindowDC);
+		LOG_ONCE(__FUNCTION__ << " Error: Failed to BitBlt.");
+		return D3DERR_INVALIDCALL;
+	}
 
 	// Copy bitmap to cached buffer
 	LONG rBitmap = GetBitmapBits(hCaptureBitmap, Size, lpBuffer);
 
 	// Release DC
+	SelectObject(hCaptureDC, hObject);
 	DeleteObject(hCaptureBitmap);
 	DeleteDC(hCaptureDC);
 	ReleaseDC(hDeviceWnd, hWindowDC);
 
 	// Return any errors
-	if (!hObject || !rBlt || !rBitmap)
+	if (!rBitmap)
 	{
-		LOG_ONCE(__FUNCTION__ << " Error: Could not get front buffer from GDI.");
+		LOG_ONCE(__FUNCTION__ << " Error: Could not get bitmap bits.");
 		return D3DERR_INVALIDCALL;
 	}
 
@@ -2700,9 +2775,9 @@ HRESULT m_IDirect3DDevice8::GetFrontBufferFromGDI(THIS_ BYTE* lpBuffer, size_t S
 HRESULT m_IDirect3DDevice8::GetFrontBufferFromDirectX(THIS_ BYTE* lpBuffer, size_t Size)
 {
 	// Check buffer size
-	if ((LONG)Size < (BufferWidth * 4) * BufferHeight)
+	if ((LONG)Size != (BufferWidth * 4) * BufferHeight)
 	{
-		LOG_ONCE(__FUNCTION__ << " Error: Buffer size is not large enough.");
+		LOG_ONCE(__FUNCTION__ << " Error: Buffer size is not correct: " << BufferWidth << "x" << BufferHeight << " " << Size);
 		return D3DERR_INVALIDCALL;
 	}
 
@@ -2796,102 +2871,85 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 	pDestSurface = static_cast<m_IDirect3DSurface8 *>(pDestSurface)->GetProxyInterface();
 
 	// Update cached buffer size
-	if ((LONG)CachedSurfaceData.size() != (BufferWidth * 4) * BufferHeight)
+	if (UseFrontBufferControl == AUTO_BUFFER || (LONG)CachedSurfaceData.size() != (BufferWidth * 4) * BufferHeight)
 	{
-		CachedSurfaceData.resize((BufferWidth * 4) * BufferHeight);
+		CachedSurfaceData.clear();
+		CachedSurfaceData.resize(((BufferWidth * 4) * BufferHeight), NULL);
 	}
 
 	bool SkipGetFrontBuffer = false;
 
 	// Detect if GDI will work for getting front buffer data
-	if (FrontBufferControl == AUTO_BUFFER)
+	if (UseFrontBufferControl == AUTO_BUFFER)
 	{
-		if (FAILED(GetFrontBufferFromGDI(&CachedSurfaceData[0], CachedSurfaceData.size())))
+		if (FAILED(GetFrontBufferFromGDI(CachedSurfaceData.data(), CachedSurfaceData.size())))
 		{
-			FrontBufferControl = BUFFER_FROM_DIRECTX;
+			UseFrontBufferControl = BUFFER_FROM_DIRECTX;
+			Logging::Log() << __FUNCTION__ << " Failed: Setting GetFrontBuffer mode: DirectX";
 		}
-
-		if (FrontBufferControl == AUTO_BUFFER)
+		// Check black (or solid color) screen before texture is set
+		else
 		{
-			static bool TestedBlackScreen = false;
-
-			// Check black (or solid color) screen before texture is set
-			if (!TextureSet)
+			// Get front buffer data from DirectX
+			std::vector<BYTE> TempSurfaceData;
+			TempSurfaceData.resize(CachedSurfaceData.size(), NULL);
+			if (FAILED(GetFrontBufferFromDirectX(TempSurfaceData.data(), TempSurfaceData.size())))
 			{
-				// Get front buffer data from DirectX
-				std::vector<BYTE> TempSurfaceData;
-				TempSurfaceData.resize(CachedSurfaceData.size());
-				if (FAILED(GetFrontBufferFromDirectX(&TempSurfaceData[0], TempSurfaceData.size())))
-				{
-					FrontBufferControl = BUFFER_FROM_GDI;
-					SkipGetFrontBuffer = true;
-				}
-				else
-				{
-					bool SolidColorFlag = false;
-					bool DataMatchesFlag = false;
-					for (DWORD x = 0; x < CachedSurfaceData.size(); x = x + 4)
-					{
-						// Test for a solid screen
-						if (CachedSurfaceData[0] != CachedSurfaceData[0 + x] && CachedSurfaceData[1] != CachedSurfaceData[1 + x] && CachedSurfaceData[2] != CachedSurfaceData[2 + x])
-						{
-							SolidColorFlag = true;
-						}
-						// Test if GDI matches DirectX
-						if (CachedSurfaceData[0 + x] != TempSurfaceData[0 + x] && CachedSurfaceData[1 + x] != TempSurfaceData[1 + x] && CachedSurfaceData[2 + x] != TempSurfaceData[2 + x])
-						{
-							DataMatchesFlag = true;
-						}
-						if (SolidColorFlag && DataMatchesFlag)
-						{
-							// Found that GDI does not show a solid screen and does not match DirectX, meaning that GDI cannot capture game screen correctly
-							// Need to use DirectX for front buffer
-							FrontBufferControl = BUFFER_FROM_DIRECTX;
-							break;
-						}
-						*(DWORD*)&CachedSurfaceData[x] = 0x00000000;  // Set the pixel to black
-					}
-					TestedBlackScreen = true;
-				}
+				SkipGetFrontBuffer = true;
+				UseFrontBufferControl = BUFFER_FROM_GDI;
+				Logging::Log() << __FUNCTION__ << " Failed: Setting GetFrontBuffer mode: GDI";
 			}
-
-			// Check for white (or solid color) screen after texture is set
-			if (TextureSet)
+			else
 			{
-				bool Found = false;
-				if (TestedBlackScreen)
+				bool GDISolidColorFlag = true;
+				bool DirectXSolidColorFlag = true;
+				DWORD* BufferGDI = (DWORD*)CachedSurfaceData.data();
+				DWORD* BufferDirectX = (DWORD*)TempSurfaceData.data();
+				DWORD Loops = BufferWidth * BufferHeight;
+				for (DWORD x = 0; x < Loops; x++)
 				{
-					for (DWORD x = 0; x < CachedSurfaceData.size(); x = x + 4)
+					// Test for a solid screen
+					if (BufferGDI[0] != BufferGDI[x])
 					{
-						if (CachedSurfaceData[0] != CachedSurfaceData[0 + x] && CachedSurfaceData[1] != CachedSurfaceData[1 + x] && CachedSurfaceData[2] != CachedSurfaceData[2 + x])
-						{
-							// Found non-solid color screen, meaning GDI correctly captured the game screen
-							Found = true;
-							break;
-						}
+						GDISolidColorFlag = false;
+					}
+					// Test for a solid screen
+					if (BufferDirectX[0] != BufferDirectX[x])
+					{
+						DirectXSolidColorFlag = false;
+					}
+					// Check if should break
+					if (!GDISolidColorFlag && !DirectXSolidColorFlag)
+					{
+						break;
 					}
 				}
-				if (Found)
+				Logging::LogDebug() << __FUNCTION__ << " Finish loop! GDI: " << GDISolidColorFlag << " DirectX: " << DirectXSolidColorFlag;
+
+				// Use GDI if everything else is equal
+				if (GDISolidColorFlag && DirectXSolidColorFlag)
 				{
-					// Ok to use GDI for front buffer
-					FrontBufferControl = BUFFER_FROM_GDI;
-					SkipGetFrontBuffer = true;
+					Logging::LogDebug() << __FUNCTION__ << " Failed to detect which mode to use.  Will try again next time!";
+				}
+				else if (GDISolidColorFlag && !DirectXSolidColorFlag)
+				{
+					UseFrontBufferControl = BUFFER_FROM_DIRECTX;
+					Logging::Log() << __FUNCTION__ << " Setting GetFrontBuffer mode: DirectX";
 				}
 				else
 				{
-					// Need to use DirectX for front buffer
-					FrontBufferControl = BUFFER_FROM_DIRECTX;
+					SkipGetFrontBuffer = true;
+					UseFrontBufferControl = BUFFER_FROM_GDI;
+					Logging::Log() << __FUNCTION__ << " Setting GetFrontBuffer mode: GDI";
 				}
 			}
 		}
 	}
 
 	// Use GDI to get front buffer data
-	if (FrontBufferControl == BUFFER_FROM_GDI && !SkipGetFrontBuffer)
+	if (UseFrontBufferControl == BUFFER_FROM_GDI && !SkipGetFrontBuffer)
 	{
-		LOG_ONCE(__FUNCTION__ << " Using GDI to get front buffer data.");
-
-		HRESULT hr = GetFrontBufferFromGDI(&CachedSurfaceData[0], CachedSurfaceData.size());
+		HRESULT hr = GetFrontBufferFromGDI(CachedSurfaceData.data(), CachedSurfaceData.size());
 
 		if (FAILED(hr))
 		{
@@ -2900,11 +2958,9 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 	}
 
 	// Use DirectX to get front buffer data by calling the real GetFrontBuffer()
-	if (FrontBufferControl == BUFFER_FROM_DIRECTX && !SkipGetFrontBuffer)
+	if ((UseFrontBufferControl == BUFFER_FROM_DIRECTX && !SkipGetFrontBuffer) || UseFrontBufferControl == AUTO_BUFFER)
 	{
-		LOG_ONCE(__FUNCTION__ << " Using DirectX to get front buffer data.");
-
-		HRESULT hr = GetFrontBufferFromDirectX(&CachedSurfaceData[0], CachedSurfaceData.size());
+		HRESULT hr = GetFrontBufferFromDirectX(CachedSurfaceData.data(), CachedSurfaceData.size());
 
 		if (FAILED(hr))
 		{
@@ -2919,7 +2975,23 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 	if (SUCCEEDED(pDestSurface->LockRect(&LockedRect, nullptr, 0)))
 	{
 		// Copy data to surface
-		memcpy(LockedRect.pBits, &CachedSurfaceData[0], LockedRect.Pitch * BufferHeight);
+		if (BufferWidth * 4 == LockedRect.Pitch)
+		{
+			memcpy(LockedRect.pBits, CachedSurfaceData.data(), LockedRect.Pitch * BufferHeight);
+		}
+		else
+		{
+			INT SrcPitch = BufferWidth * 4;
+			INT DestPitch = LockedRect.Pitch;
+			BYTE* SrcBuffer = CachedSurfaceData.data();
+			BYTE* DestBuffer = (BYTE*)LockedRect.pBits;
+			for (int x = 0; x < BufferHeight; x++)
+			{
+				memcpy(DestBuffer, SrcBuffer, min(DestPitch, SrcPitch));
+				SrcBuffer += SrcPitch;
+				DestBuffer += DestPitch;
+			}
+		}
 		pDestSurface->UnlockRect();
 	}
 	else
@@ -2932,7 +3004,23 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 			if (SUCCEEDED(pSrcSurface->LockRect(&LockedRect, nullptr, 0)))
 			{
 				// Copy data to new surface
-				memcpy(LockedRect.pBits, &CachedSurfaceData[0], LockedRect.Pitch * BufferHeight);
+				if (BufferWidth * 4 == LockedRect.Pitch)
+				{
+					memcpy(LockedRect.pBits, CachedSurfaceData.data(), LockedRect.Pitch * BufferHeight);
+				}
+				else
+				{
+					INT SrcPitch = BufferWidth * 4;
+					INT DestPitch = LockedRect.Pitch;
+					BYTE* SrcBuffer = CachedSurfaceData.data();
+					BYTE* DestBuffer = (BYTE*)LockedRect.pBits;
+					for (int x = 0; x < BufferHeight; x++)
+					{
+						memcpy(DestBuffer, SrcBuffer, min(DestPitch, SrcPitch));
+						SrcBuffer += SrcPitch;
+						DestBuffer += DestPitch;
+					}
+				}
 				pSrcSurface->UnlockRect();
 
 				// Copy data to destination surface
@@ -3496,8 +3584,8 @@ DWORD WINAPI SaveScreenshotFile(LPVOID)
 			if (ScreenshotVector[0].filename.size() && ScreenshotVector[0].bufferRaw.size() && ScreenshotVector[0].Width && ScreenshotVector[0].Height)
 			{
 				ScreenshotVector[0].buffer.resize(ScreenshotVector[0].size);
-				BYTE *bufferIn = &ScreenshotVector[0].bufferRaw[0];
-				BYTE *bufferOut = &ScreenshotVector[0].buffer[0];
+				BYTE *bufferIn = ScreenshotVector[0].bufferRaw.data();
+				BYTE *bufferOut = ScreenshotVector[0].buffer.data();
 
 				// Transcode buffer into RGB for image conversion
 				for (int y = 0; y < ScreenshotVector[0].Height; y++)
@@ -3523,7 +3611,7 @@ DWORD WINAPI SaveScreenshotFile(LPVOID)
 
 					Logging::Log() << "Saving screenshot to " << ScreenshotVector[0].filename.c_str() << " ...";
 
-					stbi_write_png_to_func(write_callback, file, ScreenshotVector[0].Width, ScreenshotVector[0].Height, 4, &ScreenshotVector[0].buffer[0], 0);
+					stbi_write_png_to_func(write_callback, file, ScreenshotVector[0].Width, ScreenshotVector[0].Height, 4, ScreenshotVector[0].buffer.data(), 0);
 
 					fclose(file);
 				}
@@ -3571,7 +3659,7 @@ void m_IDirect3DDevice8::CaptureScreenShot()
 		ScreenshotVector.back().bufferRaw.resize(ScreenshotVector.back().size);
 
 		// Copy memory
-		memcpy(&ScreenshotVector.back().bufferRaw[0], LockedRect.pBits, ScreenshotVector.back().size);
+		memcpy(ScreenshotVector.back().bufferRaw.data(), LockedRect.pBits, ScreenshotVector.back().size);
 
 		// Unlock surface
 		pDestSurface->UnlockRect();

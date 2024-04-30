@@ -448,6 +448,10 @@ BYTE GetWorldColorR();
 BYTE GetWorldColorG();
 BYTE GetWorldColorB();
 BYTE GetInventoryItem();
+int8_t GetControlOptionsSelectedOption();
+int32_t GetControlOptionsIsToStopScrolling();
+int8_t GetControlOptionsSelectedColumn();
+int8_t GetControlOptionsChanging();
 
 // Shared pointer function declaration
 DWORD *GetRoomIDPointer();
@@ -569,6 +573,11 @@ BYTE* WorldColorRPointer();
 BYTE* WorldColorGPointer();
 BYTE* WorldColorBPointer();
 BYTE* InventoryItemPointer();
+BYTE* GetKeyBindsPointer();
+int8_t* GetControlOptionsSelectedOptionPointer();
+int32_t* GetControlOptionsIsToStopScrollingPointer();
+int8_t* GetControlOptionsSelectedColumnPointer();
+int8_t* GetControlOptionsChangingPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -595,6 +604,7 @@ void PatchCDCheck();
 void PatchCatacombsMeatRoom();
 void PatchClosetSpawn();
 void PatchCommandWindowMouseFix();
+void PatchControlOptionsMenu();
 void PatchCreatureVehicleSpawn();
 void PatchCriware();
 HRESULT PatchCustomExeStr();
@@ -603,6 +613,7 @@ void PatchCustomFonts();
 void PatchCustomSFXs();
 void PatchControllerTweaks();
 void PatchDelayedFadeIn();
+void PatchDisplayMode();
 void PatchDoubleFootstepFix();
 void PatchDrawDistance();
 void PatchElevatorCursorColor();
@@ -618,6 +629,7 @@ void PatchFogParameters();
 void PatchFullscreenImages();
 void PatchFullscreenVideos();
 void PatchGameLoad();
+void PatchHealthIndicatorOption();
 void PatchGravestoneBoardsFix();
 void PatchGreatKnifeBoatSpeed();
 void PatchHoldDamage();
@@ -648,6 +660,11 @@ void PatchRoom312ShadowFix();
 void PatchRoomLighting();
 void PatchRowboatAnimation();
 void PatchSaveBGImage();
+void PatchSearchViewOptionName();
+void PatchSpeakerConfigLock();
+void PatchSpecialFX();
+void PatchSpecular();
+void PatchSprayEffect();
 void PatchSFXAddr();
 void PatchShowerRoomFlashlightFix();
 void PatchSixtyFPS();
@@ -677,9 +694,12 @@ int CountCollectedMemos();
 bool IsInFullScreenImageEvent();
 bool IsInMainOptionsMenu();
 bool IsInOptionsMenu();
+bool IsInControlOptionsMenu();
 
 void HandleMenuSounds();
 void SetNewVolume();
+
+void SetNewDisplayModeSetting();
 
 void OnFileLoadTex(LPCSTR lpFileName);
 void OnFileLoadVid(LPCSTR lpFileName);

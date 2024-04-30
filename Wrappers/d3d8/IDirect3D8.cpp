@@ -510,25 +510,22 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	Rect = { 0, 0, Rect.right - Rect.left, Rect.bottom - Rect.top };
 	LONG xLoc = 0, yLoc = 0;
 
-	// Load and set window placement if using window border
+	// Load window placement
 	bool UseWindowPlacement = false;
 	WINDOWPLACEMENT wndpl = {};
-	if (UsingWindowBorder)
+	if (UsingWindowBorder && ReadRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"GameWindowPlacement", &wndpl, sizeof(WINDOWPLACEMENT)))
 	{
-		if (ReadRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"GameWindowPlacement", &wndpl, sizeof(WINDOWPLACEMENT)))
+		xLoc = wndpl.rcNormalPosition.left;
+		yLoc = wndpl.rcNormalPosition.top;
+		if (wndpl.rcNormalPosition.right - wndpl.rcNormalPosition.left == Rect.right &&
+			wndpl.rcNormalPosition.bottom - wndpl.rcNormalPosition.top == Rect.bottom)
 		{
 			wndpl.length = sizeof(WINDOWPLACEMENT);
-			xLoc = wndpl.rcNormalPosition.left;
-			yLoc = wndpl.rcNormalPosition.top;
-			if (wndpl.rcNormalPosition.right - wndpl.rcNormalPosition.left == Rect.right &&
-				wndpl.rcNormalPosition.bottom - wndpl.rcNormalPosition.top == Rect.bottom)
-			{
-				UseWindowPlacement = true;
-			}
+			UseWindowPlacement = true;
 		}
 	}
 
-	// Move window to center and adjust size
+	// Adjust window location/size and center if needed
 	if (ScreenMode == WINDOWED && screenWidth >= Rect.right && screenHeight >= Rect.bottom)
 	{
 		// Center window on load or if not using window border
@@ -537,9 +534,9 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 			xLoc = (screenWidth - Rect.right) / 2;
 			yLoc = (screenHeight - Rect.bottom) / 2;
 		}
-		// Keep existing location after window changes
 		else
 		{
+			// Keep current location if not using window placement location
 			if (!xLoc && !yLoc)
 			{
 				RECT wRect = {};
@@ -547,6 +544,7 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 				xLoc = wRect.left;
 				yLoc = wRect.top;
 			}
+			// Check if window is being pushed off the screen
 			if (xLoc + Rect.right > screenWidth && screenWidth >= Rect.right)
 			{
 				xLoc = screenWidth - Rect.right;
@@ -557,13 +555,12 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 			}
 		}
 	}
+	SetWindowPos(MainhWnd, HWND_TOP, xLoc, yLoc, Rect.right, Rect.bottom, SWP_SHOWWINDOW | SWP_NOZORDER);
+
+	// Set window placement
 	if (UseWindowPlacement)
 	{
 		SetWindowPlacement(MainhWnd, &wndpl);
-	}
-	else
-	{
-		SetWindowPos(MainhWnd, HWND_TOP, xLoc, yLoc, Rect.right, Rect.bottom, SWP_SHOWWINDOW | SWP_NOZORDER);
 	}
 
 	// Unset frist run

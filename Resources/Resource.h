@@ -91,3 +91,4 @@ namespace
 #endif
 
 void LockConfigs();
+bool ResolutionAvailableCheck(int width, int height);

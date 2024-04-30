@@ -123,7 +123,6 @@ IDirect3D8 *WINAPI Direct3DCreate8Wrapper(UINT SDKVersion)
 void RunPresentCode(IDirect3DDevice8* ProxyInterface)
 {
 	UNREFERENCED_PARAMETER(ProxyInterface);
-
 	// Blank function
 }
 

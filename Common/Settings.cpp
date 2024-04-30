@@ -414,3 +414,12 @@ void LockConfigs()
 {
 	// Blank function
 }
+
+bool ResolutionAvailableCheck(int width, int height)
+{
+	UNREFERENCED_PARAMETER(width);
+	UNREFERENCED_PARAMETER(height);
+	// Blank function
+
+	return true;
+}

@@ -15,6 +15,7 @@
 */
 
 #define WIN32_LEAN_AND_MEAN
+#define RESOLUTION_CPP
 #include <Windows.h>
 #include <vector>
 #include "Common\Utils.h"
@@ -24,6 +25,7 @@
 #include "Common\Settings.h"
 #include "Patches.h"
 #include <string>
+#include "Resource.h"
 
 using namespace std;
 
@@ -370,6 +372,8 @@ void AddResolutionToList(DWORD Width, DWORD Height, bool force = false)
 	{
 		return;
 	}
+
+	if (!ResolutionAvailableCheck(Width, Height)) return;
 
 	bool found = false;
 	for (auto res : ResolutionVector)

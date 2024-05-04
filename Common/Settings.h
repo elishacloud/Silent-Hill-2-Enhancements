@@ -247,7 +247,6 @@
 	visit(LetterSpacing) \
 	visit(LoadModulesFromMemory) \
 	visit(LockResolution) \
-	visit(MainMenuInstantLoadOptions) \
 	visit(NormalFontHeight) \
 	visit(NormalFontWidth) \
 	visit(OldManCoinFix) \

@@ -135,6 +135,7 @@
 	visit(UseCustomExeStr, true) \
 	visit(UseCustomFonts, true) \
 	visit(UseCustomModFolder, true) \
+	visit(UseDSOAL, true) \
 	visit(UsePS2LowResTextures, false) \
 	visit(VHSAudioFix, false) \
 	visit(WhiteShaderFix, true) \

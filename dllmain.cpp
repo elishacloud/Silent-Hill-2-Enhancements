@@ -218,6 +218,27 @@ void DelayedStart()
 	if (HookDirectSound)
 	{
 		HookDirectSoundCreate8();
+
+		// Check if DSOAL alsoft.ini file does not exist and add it
+		if (UseDSOAL)
+		{
+			wchar_t alsoftpath[MAX_PATH] = {};
+			if (GetModuleFileNameW(nullptr, alsoftpath, MAX_PATH) != NULL)
+			{
+				wchar_t* pdest = wcsrchr(alsoftpath, '\\');
+				if (pdest)
+				{
+					*(pdest + 1) = '\0';
+					if (wcscat_s(alsoftpath, MAX_PATH, L"alsoft.ini") == 0)
+					{
+						if (!PathFileExists(alsoftpath))
+						{
+							ExtractFileFromResource(IDR_ALSOFT_INI, alsoftpath);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	// Hook DirectInput8
@@ -850,7 +871,10 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 	break;
 	}
 
-	DSOAL_DllMain(hModule, fdwReason, lpReserved);
+	if (UseDSOAL)
+	{
+		DSOAL_DllMain(hModule, fdwReason, lpReserved);
+	}
 
 	return TRUE;
 }

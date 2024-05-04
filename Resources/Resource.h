@@ -5,8 +5,9 @@
 // Included resource files
 #define OIC_SH2_ICON                    151
 
-#define IDR_RESHADE_INI                 101
-#define IDR_SETTINGS_INI                102
+#define IDR_SETTINGS_INI                101
+#define IDR_RESHADE_INI                 102
+#define IDR_ALSOFT_INI                  103
 
 #define IDR_SMAA_FX                     201
 #define IDR_GAMMAGAIN_FX                203

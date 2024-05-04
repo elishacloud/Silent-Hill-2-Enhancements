@@ -48,19 +48,42 @@ HRESULT WINAPI DirectSoundCreate8Wrapper(LPCGUID pcGuidDevice, LPDIRECTSOUND8 *p
 {
 	LOG_LIMIT(3, "Redirecting 'DirectSoundCreate8' ...");
 
-	HRESULT hr;
+	// Try using dsoal with OpenAL-Soft
+	HRESULT hr = DSOAL_DirectSoundCreate8(pcGuidDevice, ppDS8, pUnkOuter);
 
-	DWORD x = 0;
-	do {
-		hr = DSOAL_DirectSoundCreate8(pcGuidDevice, ppDS8, pUnkOuter);
+	// Failover to local dsound.dll
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " DSOAL 'DirectSoundCreate8' Failed! Error: " << (DSERR)hr << " Atepmting to use local dsound.dll.";
+		hr = m_pDirectSoundCreate8(pcGuidDevice, ppDS8, pUnkOuter);
+	}
 
-		if (FAILED(hr))
+	// Failover to System32 dsound.dll
+	if (FAILED(hr))
+	{
+		// Get System32 path
+		wchar_t systemFolderPath[MAX_PATH];
+		if (GetSystemDirectoryW(systemFolderPath, MAX_PATH))
 		{
-			Sleep(100);
-		}
-	} while (FAILED(hr) && ++x < 20);
+			std::wstring dllPath = std::wstring(systemFolderPath) + L"\\dsound.dll";
 
-	if (SUCCEEDED(hr) && ppDS8)
+			// Load dsound.dll from System32
+			HMODULE dsoundDLL = LoadLibrary(dllPath.c_str());
+			if (dsoundDLL)
+			{
+				DirectSoundCreate8Proc pDirectSoundCreate8 = (DirectSoundCreate8Proc)GetProcAddress(dsoundDLL, "DirectSoundCreate8");
+
+				// Call DirectSoundCreate8 from System32
+				if (pDirectSoundCreate8)
+				{
+					Logging::Log() << __FUNCTION__ << " local 'DirectSoundCreate8' Failed! Error: " << (DSERR)hr << " Atepmting to use system dsound.dll.";
+					hr = pDirectSoundCreate8(pcGuidDevice, ppDS8, pUnkOuter);
+				}
+			}
+		}
+	}
+
+	if (SUCCEEDED(hr))
 	{
 		*ppDS8 = new m_IDirectSound8(*ppDS8);
 	}

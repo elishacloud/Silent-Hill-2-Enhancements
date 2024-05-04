@@ -228,3 +228,87 @@ void PatchMainMenuTitlePerLang()
 		LoadMes = (DWORD(*)(int pos))(((BYTE*)DMenuAddrB - 0x21) + *(int *)((BYTE*)DMenuAddrB - 0x25));
 	}
 }
+
+namespace
+{
+	constexpr float SysLoadAttemptsMax = 100;
+	int SysLoadAttempts = 0;
+	DWORD SysLoadStateAddr = 0;
+	DWORD MainMenuStateAddr = 0;
+	DWORD* DeltaTimeFuncAddr = nullptr;
+	void* jmpMainMenuSysLoadRetryAddr = 0;
+	void* jmpMainMenuSysLoadReturnAddr = 0;
+}
+
+__declspec(naked) void __stdcall MainMenuResetLoadAttemptsASM()
+{
+	__asm
+	{
+		xor ecx, ecx
+		mov dword ptr ds : [SysLoadAttempts], ecx
+		mov ecx, 0x0A
+		ret
+	}
+}
+
+// Attempts to load sh2pc.sys in a single frame by repeatedly calling a function that checks
+// the presence of save data. Exits the loop if the number of call attempts exceeds
+// `SysLoadAttemptsMax`.
+__declspec(naked) void __stdcall MainMenuSysLoadASM()
+{
+	__asm
+	{
+		push eax
+		mov eax, dword ptr ds : [SysLoadStateAddr]
+		mov al, byte ptr ds : [eax]
+		cmp al, 0x04
+		jge ExitASM
+
+		mov eax, dword ptr ds : [SysLoadAttempts]
+		cmp eax, dword ptr ds : [SysLoadAttemptsMax]
+		jge ExitASM
+
+		inc eax
+		mov dword ptr ds : [SysLoadAttempts], eax
+		pop eax
+		jmp jmpMainMenuSysLoadRetryAddr
+
+	ExitASM:
+		pop eax
+		push esi
+		mov esi, dword ptr ds : [MainMenuStateAddr]
+		cmp eax, dword ptr ds : [esi]
+		pop esi
+		jmp jmpMainMenuSysLoadReturnAddr
+	}
+}
+
+// Patches the main menu to instantly show "Load" and "Continue" before the screen fades in.
+void PatchMainMenuInstantLoadOptions()
+{
+	constexpr BYTE ResetLoadAttemptsSearchBytes[]{ 0x00, 0x00, 0x70, 0x42, 0xB9, 0x0A, 0x00, 0x00, 0x00 };
+	const DWORD ResetLoadAttemptsAddr = SearchAndGetAddresses(0x00496F68, 0x00497212, 0x00497312, ResetLoadAttemptsSearchBytes, sizeof(ResetLoadAttemptsSearchBytes), 0x04, __FUNCTION__);
+
+	constexpr BYTE SysLoadStateSearchBytes[]{ 0x33, 0xDB, 0x83, 0xF8, 0x01, 0x75, 0x12 };
+	SysLoadStateAddr = ReadSearchedAddresses(0x00452E46, 0x004530A6, 0x004530A6, SysLoadStateSearchBytes, sizeof(SysLoadStateSearchBytes), 0x1C, __FUNCTION__);
+
+	constexpr BYTE SysLoadSearchBytes[]{ 0x68, 0x00, 0x00, 0x00, 0x40, 0x6A, 0x04 };
+	const DWORD SysLoadAddr = SearchAndGetAddresses(0x00497D25, 0x00497FD5, 0x00497665, SysLoadSearchBytes, sizeof(SysLoadSearchBytes), -0xA1, __FUNCTION__);
+
+	if (!ResetLoadAttemptsAddr || !SysLoadStateAddr || !SysLoadAddr)
+	{
+		Logging::Log() << __FUNCTION__ << "Error: failed to find memory address!";
+		return;
+	}
+	MainMenuStateAddr = *(DWORD*)(SysLoadAddr + 0x02);
+	jmpMainMenuSysLoadRetryAddr = (void*)(SysLoadAddr - 0x05);
+	jmpMainMenuSysLoadReturnAddr = (void*)(SysLoadAddr + 0x06);
+
+	DeltaTimeFuncAddr = GetDeltaTimeFunctionPointer();
+	if (!DeltaTimeFuncAddr)
+		return;
+
+	Logging::Log() << "Enabling Main Menu Instant Load Options...";
+	WriteCalltoMemory((BYTE*)(ResetLoadAttemptsAddr), *MainMenuResetLoadAttemptsASM, 0x05);
+	WriteJMPtoMemory((BYTE*)(SysLoadAddr), *MainMenuSysLoadASM, 0x06);
+}

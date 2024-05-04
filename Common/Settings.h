@@ -96,6 +96,7 @@
 	visit(LockScreenPosition, true) \
 	visit(LockSpeakerConfig, true) \
 	visit(MainMenuFix, true) \
+	visit(MainMenuInstantLoadOptions, true) \
 	visit(MainMenuTitlePerLang, true) \
 	visit(MemoScreenFix, true) \
 	visit(MenuSoundsFix, true) \
@@ -246,6 +247,7 @@
 	visit(LetterSpacing) \
 	visit(LoadModulesFromMemory) \
 	visit(LockResolution) \
+	visit(MainMenuInstantLoadOptions) \
 	visit(NormalFontHeight) \
 	visit(NormalFontWidth) \
 	visit(OldManCoinFix) \

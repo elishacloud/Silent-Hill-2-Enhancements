@@ -231,11 +231,10 @@ void PatchMainMenuTitlePerLang()
 
 namespace
 {
-	constexpr float SysLoadAttemptsMax = 100;
+	constexpr int SysLoadAttemptsMax = 100;
 	int SysLoadAttempts = 0;
 	DWORD SysLoadStateAddr = 0;
 	DWORD MainMenuStateAddr = 0;
-	DWORD* DeltaTimeFuncAddr = nullptr;
 	void* jmpMainMenuSysLoadRetryAddr = 0;
 	void* jmpMainMenuSysLoadReturnAddr = 0;
 }
@@ -303,10 +302,6 @@ void PatchMainMenuInstantLoadOptions()
 	MainMenuStateAddr = *(DWORD*)(SysLoadAddr + 0x02);
 	jmpMainMenuSysLoadRetryAddr = (void*)(SysLoadAddr - 0x05);
 	jmpMainMenuSysLoadReturnAddr = (void*)(SysLoadAddr + 0x06);
-
-	DeltaTimeFuncAddr = GetDeltaTimeFunctionPointer();
-	if (!DeltaTimeFuncAddr)
-		return;
 
 	Logging::Log() << "Enabling Main Menu Instant Load Options...";
 	WriteCalltoMemory((BYTE*)(ResetLoadAttemptsAddr), *MainMenuResetLoadAttemptsASM, 0x05);

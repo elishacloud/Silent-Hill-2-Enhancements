@@ -36,7 +36,7 @@ void HookDirectSoundCreate8()
 		return;
 	}
 
-	// Get function address
+	// Get 'DirectSoundCreate8' function address
 	m_pDirectSoundCreate8 = (DirectSoundCreate8Proc)(Address + 5 + *(DWORD*)(Address + 1));
 
 	// Write to memory
@@ -52,15 +52,13 @@ HRESULT WINAPI DirectSoundCreate8Wrapper(LPCGUID pcGuidDevice, LPDIRECTSOUND8 *p
 
 	DWORD x = 0;
 	do {
-		hr = m_pDirectSoundCreate8(pcGuidDevice, ppDS8, pUnkOuter);
+		hr = DSOAL_DirectSoundCreate8(pcGuidDevice, ppDS8, pUnkOuter);
 
 		if (FAILED(hr))
 		{
 			Sleep(100);
 		}
-	} while (FAILED(hr) && ++x < 100);
-
-	RunDelayedOneTimeItems();
+	} while (FAILED(hr) && ++x < 20);
 
 	if (SUCCEEDED(hr) && ppDS8)
 	{
@@ -70,6 +68,8 @@ HRESULT WINAPI DirectSoundCreate8Wrapper(LPCGUID pcGuidDevice, LPDIRECTSOUND8 *p
 	{
 		Logging::Log() << "'DirectSoundCreate8' Failed! Error: " << (DSERR)hr;
 	}
+
+	RunDelayedOneTimeItems();
 
 	return hr;
 }

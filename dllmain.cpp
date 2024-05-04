@@ -49,6 +49,8 @@ bool IsLoadConfig = false;
 // Paths
 wchar_t configpath[MAX_PATH] = {};
 
+extern "C" BOOL WINAPI DSOAL_DllMain(HINSTANCE hInstDLL, DWORD fdwReason, LPVOID lpvReserved);
+
 void VerifySH2EE(){}
 
 void GetConfig()
@@ -753,10 +755,8 @@ void DelayedStart()
 }
 
 // Dll main function
-bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 {
-	UNREFERENCED_PARAMETER(lpReserved);
-
 	switch (fdwReason)
 	{
 	case DLL_PROCESS_ATTACH:
@@ -850,5 +850,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 	break;
 	}
 
-	return true;
+	DSOAL_DllMain(hModule, fdwReason, lpReserved);
+
+	return TRUE;
 }

@@ -13,6 +13,7 @@ class m_IDirectSoundBuffer8;
 #include "Logging\Logging.h"
 
 typedef HRESULT(WINAPI *DirectSoundCreate8Proc)(LPCGUID, LPDIRECTSOUND8*, LPUNKNOWN);
+extern "C" HRESULT WINAPI DSOAL_DirectSoundCreate8(LPCGUID lpcGUID, IDirectSound8 * *ppDS, IUnknown * pUnkOuter);
 
 void WINAPI genericQueryInterface(REFIID riid, LPVOID * ppvObj);
 

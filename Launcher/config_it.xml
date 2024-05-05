@@ -361,13 +361,13 @@
           <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
-
-      <Feature name="EnableMasterVolume">
-        <Title>Abilita opzione Volume Generale</Title>
-        <Description>Sostituisci l'opzione inutilizzata "Configurazione altoparlanti" con la nuova opzione di "Volume Generale".</Description>
+        
+      <Feature name="UseDSOAL">
+        <Title>Use DSOAL and OpenAL for EAX audio</Title>
+        <Description>Uses DSound-to-OpenAL and OpenAL Soft to emulate EAX for newer operating systems that don't support EAX. Enable this feature for 3D binaural audio for a more immersive experience.</Description>
         <Choices type="check">
-          <Value name="Disabilitato">0</Value>
-          <Value name="Abilitato" default="true">1</Value>
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -425,7 +425,7 @@
     <Section name="Audio Bonus">
 
       <Feature name="FlashlightToggleSFX">
-        <Title>Ripristina effetti sonori mancanti della torcia</Title>
+        <Title>Flashlight sound effects</Title>
         <Description>Abilita suoni della torcia quando viene accesa o spenta. Nota: flashlight_on.wav e flashlight_off.wav devono essere presenti in "sh2e\sound\extra\" affinché questa feature funzioni.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
@@ -434,8 +434,8 @@
       </Feature>
 
       <Feature name="VHSAudioFix">
-        <Title>Ripristina l'audio per la VHS senza censura</Title>
-        <Description>Ripristina l'audio per la VHS senza censura.&#x0a;&#x0a;Nota: Bisogna avere la giusta versione del file video che contiene entrambe le versioni dell'audio, censurata e non. Altrimenti, soltanto l'audio originale verrà riprodotto. E' possibile ottenere la corretta versione di questo video scaricando l'FMV Enhancement Pack dal sito del progetto.</Description>
+        <Title>Use alternate, cut VHS audio</Title>
+        <Description>Plays an alternate, cut audio track for the VHS tape FMV. We recommend to only enable this after beating the game at least once.&#x0a;&#x0a;Note: You must have the correct version of this FMV that contains both audio tracks. If you do not, then only the original audio will play. You can obtain the correct version of this FMV by downloading the project's FMV Enhancement Pack.</Description>
         <Choices type="check">
           <Value name="Disabilitato" default="true">0</Value>
           <Value name="Abilitato">1</Value>
@@ -469,6 +469,18 @@
           <Value name="Modalità Movimento" default="true">1</Value>
           <Value name="Modalità Tasto">3</Value>
           <Value name="Modalità Ibrida">2</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="ReplaceButtonText">
+        <Title>Button icons in Control Options</Title>
+        <Description>Replaces the vague "Button #" text in the Control Options menu with custom controller button icons.&#x0a;&#x0a;Note: controller_buttons_icons.png must be present in "sh2e\pic\etc\" for this feature to work.</Description>
+        <Choices type="list">
+          <Value name="Disable">0</Value>
+          <Value name="Generic" default="true">1</Value>
+          <Value name="Xbox">2</Value>
+          <Value name="Playstation">3</Value>
+          <Value name="Nintendo">4</Value>
         </Choices>
       </Feature>
 
@@ -630,6 +642,15 @@
     </Section>
 
     <Section name="Menu Additions">
+        
+      <Feature name="EnableMasterVolume">
+        <Title>Master volume option</Title>
+        <Description>Sostituisci l'opzione inutilizzata "Configurazione altoparlanti" con la nuova opzione di "Volume Generale".</Description>
+        <Choices type="check">
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
+        </Choices>
+      </Feature>
 
       <Feature name="DisplayModeOption">
         <Title>Opzione modalità schermo</Title>
@@ -722,18 +743,6 @@
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="ReplaceButtonText">
-        <Title>Icone dei bottoni in opzioni comandi</Title>
-        <Description>Sostituisce il testo "Bottone #" nel menu opzioni comandi con icone custom.&#x0a;&#x0a;Nota: Il file controller_buttons_icons.png deve essere presente nella cartella "sh2e\pic\etc\" per il funzionamento di questa opzione.</Description>
-        <Choices type="list">
-          <Value name="Disable">0</Value>
-          <Value name="Generic" default="true">1</Value>
-          <Value name="Xbox">2</Value>
-          <Value name="Playstation">3</Value>
-          <Value name="Nintendo">4</Value>
         </Choices>
       </Feature>
 

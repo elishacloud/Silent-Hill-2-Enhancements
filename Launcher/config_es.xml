@@ -361,16 +361,16 @@
           <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
-      
-      <Feature name="EnableMasterVolume">
-        <Title>Añadir un control maestro de volumen</Title>
-        <Description>Añade dentro de las opciones del propio juego un control maestro de volumen con el que poder ajustar el audio de todo el juego.</Description>
+        
+      <Feature name="UseDSOAL">
+        <Title>Use DSOAL and OpenAL for EAX audio</Title>
+        <Description>Uses DSound-to-OpenAL and OpenAL Soft to emulate EAX for newer operating systems that don't support EAX. Enable this feature for 3D binaural audio for a more immersive experience.</Description>
         <Choices type="check">
-          <Value name="No">0</Value>
-          <Value name="Sí" default="true">1</Value>
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
-
+      
     </Section>
 
     <Section name="Correcciones de audio">
@@ -425,7 +425,7 @@
     <Section name="Audios extra">
 
       <Feature name="FlashlightToggleSFX">
-        <Title>Restaurar efectos desaparecidos de la linterna</Title>
+        <Title>Flashlight sound effects</Title>
         <Description>Habilita un efecto de sonido de la linterna al encenderla o apagarla. Nota: los archivos flashlight_on.wav y flashlight_off.wav deben estar presentes en la carpeta «sh2e\sound\extra\» para que pueda funcionar esta característica.</Description>
         <Choices type="check">
           <Value name="No">0</Value>
@@ -434,8 +434,8 @@
       </Feature>
 
       <Feature name="VHSAudioFix">
-        <Title>Restaurar audio de la cinta VHS sin censurar</Title>
-        <Description>Restaura el audio sin censura de la escena de la cinta VHS.&#x0a;&#x0a;Nota: debes tener la versión correcta de este vídeo FMV, la cual incluye tanto la pista de audio censurada como la sin censurar. Si no tienes la versión correcta, solo se reproducirá el audio original censurado. Puedes conseguir la versión correcta de este vídeo descargando el FMV Enhancement Pack (paquete de mejora de FMVs) del proyecto.</Description>
+        <Title>Use alternate, cut VHS audio</Title>
+        <Description>Plays an alternate, cut audio track for the VHS tape FMV. We recommend to only enable this after beating the game at least once.&#x0a;&#x0a;Note: You must have the correct version of this FMV that contains both audio tracks. If you do not, then only the original audio will play. You can obtain the correct version of this FMV by downloading the project's FMV Enhancement Pack.</Description>
         <Choices type="check">
           <Value name="No" default="true">0</Value>
           <Value name="Sí">1</Value>
@@ -469,6 +469,18 @@
           <Value name="Modo de movimiento" default="true">1</Value>
           <Value name="Modo de botones">3</Value>
           <Value name="Modo híbrido">2</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="ReplaceButtonText">
+        <Title>Button icons in Control Options</Title>
+        <Description>Replaces the vague "Button #" text in the Control Options menu with custom controller button icons.&#x0a;&#x0a;Note: controller_buttons_icons.png must be present in "sh2e\pic\etc\" for this feature to work.</Description>
+        <Choices type="list">
+          <Value name="Disable">0</Value>
+          <Value name="Generic" default="true">1</Value>
+          <Value name="Xbox">2</Value>
+          <Value name="Playstation">3</Value>
+          <Value name="Nintendo">4</Value>
         </Choices>
       </Feature>
 
@@ -630,6 +642,15 @@
     </Section>
 
     <Section name="Menu Additions">
+        
+      <Feature name="EnableMasterVolume">
+        <Title>Master volume option</Title>
+        <Description>Añade dentro de las opciones del propio juego un control maestro de volumen con el que poder ajustar el audio de todo el juego.</Description>
+        <Choices type="check">
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
 
       <Feature name="DisplayModeOption">
         <Title>Display mode option</Title>
@@ -722,18 +743,6 @@
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="ReplaceButtonText">
-        <Title>Button icons in Control Options</Title>
-        <Description>Replaces the vague "Button #" text in the Control Options menu with custom controller button icons.&#x0a;&#x0a;Note: controller_buttons_icons.png must be present in "sh2e\pic\etc\" for this feature to work.</Description>
-        <Choices type="list">
-          <Value name="Disable">0</Value>
-          <Value name="Generic" default="true">1</Value>
-          <Value name="Xbox">2</Value>
-          <Value name="Playstation">3</Value>
-          <Value name="Nintendo">4</Value>
         </Choices>
       </Feature>
 

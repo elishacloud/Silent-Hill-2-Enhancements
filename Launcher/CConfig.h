@@ -89,6 +89,8 @@ public:
 	std::string val;		// value in the ini
 	bool is_default;		// if this is true, this index is the default value
 	bool is_speedrun_default; // default values when speedrun mode is active
+	bool is_speedrun_set_seed_default; // default only for set seed
+	bool is_speedrun_truly_random_default; // default only for truly random
 };
 
 class CConfigOption
@@ -133,8 +135,48 @@ public:
 			}
 		}
 	}
-	void SetValueSpeedrunDefault()
+	void SetValueSpeedrunDefault(int srValue)
 	{
+		if (this->name == "SpeedrunMode") return; //TODO make global variable
+
+		if (srValue == 1) // true random
+		{
+			for (size_t i = 0, si = value.size(); i < si; i++)
+			{
+				if (value[i].is_speedrun_truly_random_default)
+				{
+					if (type == TYPE_TEXT)
+					{
+						value[cur_val].val = value[i].val;
+					}
+					else
+					{
+						cur_val = (int)i;
+					}
+					return;
+				}
+			}
+		}
+
+		if (srValue == 2) // set seed
+		{
+			for (size_t i = 0, si = value.size(); i < si; i++)
+			{
+				if (value[i].is_speedrun_set_seed_default)
+				{
+					if (type == TYPE_TEXT)
+					{
+						value[cur_val].val = value[i].val;
+					}
+					else
+					{
+						cur_val = (int)i;
+					}
+					return;
+				}
+			}
+		}
+
 		for (size_t i = 0, si = value.size(); i < si; i++)
 		{
 			if (value[i].is_speedrun_default)
@@ -314,7 +356,7 @@ class CConfig
 public:
 	bool ParseXml();
 	void SetDefault();
-	void SetSpeedrunDefault();
+	void SetSpeedrunDefault(int value);
 	const char* SetIDString(const char* id, const char* name);
 	void BuildCacheP();
 	void SetFromIni(LPCWSTR lpName);
@@ -367,14 +409,6 @@ public:
 			}
 		}
 		return 0;
-	}
-
-	void SetSpeedrunModeDefault()
-	{
-		for (auto& sec : section)
-			for (auto& opt : sec.option)
-				if (opt.name == "SpeedrunMode")
-					opt.SetValueSpeedrunDefault();
 	}
 
 	std::wstring GetSectionString(int sec);

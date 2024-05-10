@@ -1,14 +1,14 @@
 <Config>
 
   <Ini>
-  <Preface>; Archivo de configuración del módulo de mejoras de SH2&#x0a;; Para más información sobre estos ajustes, visita http://enhanced.townofsilenthill.com/SH2/config.htm&#x0a;; ¡Se recomienda experimentar Silent Hill 2: Enhanced Edition con una relación de aspecto de 16:9!</Preface>
+    <Preface>; Archivo de configuración del módulo de mejoras de SH2&#x0a;; Para más información sobre estos ajustes, visita http://enhanced.townofsilenthill.com/SH2/config.htm&#x0a;; ¡Se recomienda experimentar Silent Hill 2: Enhanced Edition con una relación de aspecto de 16:9!</Preface>
   </Ini>
 
   <Tab name="Visualización">
 
     <Section name="Visualización">
 
-      <Feature name="WndModeBorder">
+      <Feature name="WndModeBorder" speedrun="true">
         <Title>Borde de la ventana (solo para el modo en ventana)</Title>
         <Description>Crea un borde en la ventana del juego. Solo funciona al usar el modo en ventana.&#x0a;&#x0a;Nota: la resolución de la ventana del juego no debe ser exactamente o casi la misma que el alto y ancho de tu pantalla, de lo contrario, el borde podría no aparecer. Es una medida de seguridad para evitar que el borde no se pierda fuera de tu área de visualización.</Description>
         <Choices type="check">
@@ -26,7 +26,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="ForceTopMost">
+      <Feature name="ForceTopMost" speedrun="true">
         <Title>Mantener la ventana del juego en primer plano</Title>
         <Description>Fuerza a la ventana del juego a situarse por delante del resto de ventanas, incluyendo la barra del menú Inicio.&#x0a;&#x0a;Nota: esta opción solo funcionará si el modo de pantalla en ventana está activado.</Description>
         <Choices type="check">
@@ -97,7 +97,7 @@
           <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
-        
+
       <Feature name="SetBlackPillarBoxes">
         <Title>Restaurar las columnas negras</Title>
         <Description>Corrige principalmente los problemas al abrir el mapa. Esta característica hace que todas las columnas negras que se creen dinámicamente sean de color negro, restaura las columnas en aquellos eventos que no las tuvieran y ayuda a ocultar las marcas en el mapa que deberían estar por debajo de las columnas.</Description>
@@ -280,7 +280,7 @@
 
       <Feature name="FmvSubtitlesNoiseFix">
         <Title>Mostrar subtítulos por encima del grano de película en escenas FMV</Title>
-      <Description>Cambia el orden de dibujado de los subtítulos durante las escenas FMV para que aparezcan siempre por encima del efecto de ruido de grano de película.</Description>
+        <Description>Cambia el orden de dibujado de los subtítulos durante las escenas FMV para que aparezcan siempre por encima del efecto de ruido de grano de película.</Description>
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
@@ -320,7 +320,7 @@
 
       <Feature name="FogSpeedFix">
         <Title>Movimiento natural de la niebla</Title>
-      	<Description>Ajusta la velocidad de la niebla para ofrecer un movimiento más lento y natural, acorde al comportamiento original.</Description>
+        <Description>Ajusta la velocidad de la niebla para ofrecer un movimiento más lento y natural, acorde al comportamiento original.</Description>
         <Choices type="check">
           <Value name="Desactivado">0</Value>
           <Value name="Activado" default="true">1</Value>
@@ -352,7 +352,7 @@
           <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
-        
+
       <Feature name="EnableCriWareReimplementation">
         <Title>Utilizar el motor personalizado de streaming de audio</Title>
         <Description>Sustituye el motor de streaming de audio CRIWARE defectuoso del juego con una solución personalizada de streaming de audio. Corrige el tristemente célebre problema en el que el sonido del juego empezaría a tener problemas y reproduciría un bucle infinito de un segundo, lo que acabaría por bloquear el juego. Este problema era el motivo por el que el juego debía ejecutarse en un sólo núcleo de CPU antes de la llegada de esta solución. Con ella, el juego ahora funciona de forma estable en varios núcleos y con mejoras generales de rendimiento (como la reducción de parones).</Description>
@@ -361,22 +361,13 @@
           <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
-      
+
       <Feature name="UseDSOAL">
         <Title>Use DSOAL and OpenAL for EAX audio</Title>
-        <Description>Uses DSound to OpenAL and OpenAL soft to emulate EAX for newer operating systems that don't support EAX.</Description>
+        <Description>Uses DSound-to-OpenAL and OpenAL Soft to emulate EAX for newer operating systems that don't support EAX. Enable this feature for 3D binaural audio for a more immersive experience.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="EnableMasterVolume">
-        <Title>Añadir un control maestro de volumen</Title>
-        <Description>Añade dentro de las opciones del propio juego un control maestro de volumen con el que poder ajustar el audio de todo el juego.</Description>
-        <Choices type="check">
-          <Value name="No">0</Value>
-          <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -434,7 +425,7 @@
     <Section name="Audios extra">
 
       <Feature name="FlashlightToggleSFX">
-        <Title>Restaurar efectos desaparecidos de la linterna</Title>
+        <Title>Flashlight sound effects</Title>
         <Description>Habilita un efecto de sonido de la linterna al encenderla o apagarla. Nota: los archivos flashlight_on.wav y flashlight_off.wav deben estar presentes en la carpeta «sh2e\sound\extra\» para que pueda funcionar esta característica.</Description>
         <Choices type="check">
           <Value name="No">0</Value>
@@ -443,8 +434,8 @@
       </Feature>
 
       <Feature name="VHSAudioFix">
-        <Title>Restaurar audio de la cinta VHS sin censurar</Title>
-        <Description>Restaura el audio sin censura de la escena de la cinta VHS.&#x0a;&#x0a;Nota: debes tener la versión correcta de este vídeo FMV, la cual incluye tanto la pista de audio censurada como la sin censurar. Si no tienes la versión correcta, solo se reproducirá el audio original censurado. Puedes conseguir la versión correcta de este vídeo descargando el FMV Enhancement Pack (paquete de mejora de FMVs) del proyecto.</Description>
+        <Title>Use alternate, cut VHS audio</Title>
+        <Description>Plays an alternate, cut audio track for the VHS tape FMV. We recommend to only enable this after beating the game at least once.&#x0a;&#x0a;Note: You must have the correct version of this FMV that contains both audio tracks. If you do not, then only the original audio will play. You can obtain the correct version of this FMV by downloading the project's FMV Enhancement Pack.</Description>
         <Choices type="check">
           <Value name="No" default="true">0</Value>
           <Value name="Sí">1</Value>
@@ -458,10 +449,10 @@
   <Tab name="Entrada">
 
     <Section name="Mando">
-        
-      <Feature name="RestoreSearchCamMovement">
+
+      <Feature name="RestoreSearchCamMovement" speedrun="true">
         <Title>Tipo de mando para el modo de búsqueda</Title>
-      	<Description>Restaura la función del stick derecho del mando para poder mover la cámara. Cambia este ajuste en función del tipo de mando que utilices.&#x0a;&#x0a;Nota: si utilizas Xidi (un software para la compatibilidad con mandos) debes seleccionar DirectInput.</Description>
+        <Description>Restaura la función del stick derecho del mando para poder mover la cámara. Cambia este ajuste en función del tipo de mando que utilices.&#x0a;&#x0a;Nota: si utilizas Xidi (un software para la compatibilidad con mandos) debes seleccionar DirectInput.</Description>
         <Choices type="list">
           <Value name="Desactivado">0</Value>
           <Value name="XInput">1</Value>
@@ -470,7 +461,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="DPadMovementFix">
+      <Feature name="DPadMovementFix" speedrun="true">
         <Title>Restaurar movimiento de la cruceta</Title>
         <Description>Modo de movimiento: la cruceta hará de mando de movimiento adicional para controlar a James y navegar por los menús.&#x0a;Modo de botones: la cruceta hará de botones a los que podrás asignar acciones del juego. NO PODRÁS controlar a James ni navegar por los menús con la cruceta.&#x0a;Modo híbrido: la cruceta hará de botones a los que podrás asignar acciones del juego. NO PODRÁS controlar a James con la cruceta, pero SÍ PODRÁS navegar por los menús.</Description>
         <Choices type="list">
@@ -478,6 +469,18 @@
           <Value name="Modo de movimiento" default="true">1</Value>
           <Value name="Modo de botones">3</Value>
           <Value name="Modo híbrido">2</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="ReplaceButtonText">
+        <Title>Button icons in Control Options</Title>
+        <Description>Replaces the vague "Button #" text in the Control Options menu with custom controller button icons.&#x0a;&#x0a;Note: controller_buttons_icons.png must be present in "sh2e\pic\etc\" for this feature to work.</Description>
+        <Choices type="list">
+          <Value name="Disable">0</Value>
+          <Value name="Generic" default="true">1</Value>
+          <Value name="Xbox">2</Value>
+          <Value name="Playstation">3</Value>
+          <Value name="Nintendo">4</Value>
         </Choices>
       </Feature>
 
@@ -505,14 +508,14 @@
 
       <Feature name="RestoreVibration">
         <Title>Restaurar la vibración</Title>
-      	<Description>Restaura la vibración para mandos basados en XInput. Deberás activar también la vibración dentro del menú de Opciones del juego.</Description>
+        <Description>Restaura la vibración para mandos basados en XInput. Deberás activar también la vibración dentro del menú de Opciones del juego.</Description>
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
 
-      <Feature name="PadNumber">
+      <Feature name="PadNumber" speedrun="true">
         <Title>ID de mando para la vibración</Title>
         <Description>Selecciona el ID de mando (controlador) al que enviar las vibraciones. El valor para este juego suele ser 0.</Description>
         <Choices type="list">
@@ -529,7 +532,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="RemoveForceFeedbackFilter">
+      <Feature name="RemoveForceFeedbackFilter" speedrun="true">
         <Title>Desactivar filtro de vibración</Title>
         <Description>Permite detectar mandos que no tengan la función de vibración cuando el juego comience a buscarlos. Utiliza esta opción si el juego no detecta un mando que no sea compatible con la función de vibración.</Description>
         <Choices type="list">
@@ -542,19 +545,19 @@
     </Section>
 
     <Section name="Ratón/Mouse">
-      
-      <Feature name="EnableEnhancedMouse">
+
+      <Feature name="EnableEnhancedMouse" speedrun="true">
         <Title>Mejorar la entrada</Title>
-      <Description>Activa el soporte para ratones/mice dentro del juego. Desplazamiento = Controlar al personaje y la cámara en el modo de búsqueda. Botón izquierdo = Acción/Confirmar. Botón derecho = Preparar arma/Cancelar.</Description>
+        <Description>Activa el soporte para ratones/mice dentro del juego. Desplazamiento = Controlar al personaje y la cámara en el modo de búsqueda. Botón izquierdo = Acción/Confirmar. Botón derecho = Preparar arma/Cancelar.</Description>
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
 
-      <Feature name="EnableMouseWheelSwap">
+      <Feature name="EnableMouseWheelSwap" speedrun="true">
         <Title>Cambiar de armas con la rueda</Title>
-      <Description>Activa el soporte para la rueda del ratón/mouse dentro del juego. Mueve la rueda del ratón/mouse hacia arriba o hacia abajo para cambiar de arma.</Description>
+        <Description>Activa el soporte para la rueda del ratón/mouse dentro del juego. Mueve la rueda del ratón/mouse hacia arriba o hacia abajo para cambiar de arma.</Description>
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
@@ -578,7 +581,7 @@
           <Value name="Sí">1</Value>
         </Choices>
       </Feature>
-    
+
     </Section>
 
   </Tab>
@@ -640,6 +643,15 @@
 
     <Section name="Menu Additions">
 
+      <Feature name="EnableMasterVolume">
+        <Title>Master volume option</Title>
+        <Description>Añade dentro de las opciones del propio juego un control maestro de volumen con el que poder ajustar el audio de todo el juego.</Description>
+        <Choices type="check">
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="DisplayModeOption">
         <Title>Display mode option</Title>
         <Description>Replaces the Options > Advanced Options > Low Res Texture option with a Display Mode option to change the screen mode used for the game.</Description>
@@ -671,15 +683,6 @@
         </Choices>
       </Feature>
 
-      <Feature name="MainMenuInstantLoadOptions">
-        <Title>Instant load options on main menu</Title>
-        <Description>Removes the small delay before the LOAD and CONTINUE selections appear on the main menu.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="FixAdvancedOptions">
         <Title>Corregir la pantalla de Opciones avanzadas</Title>
         <Description>Corrige numerosos problemas en la visualización de los textos del menú Opciones > Opciones avanzadas dentro del juego, como las descripciones desaparecidas e incorrectas al mostrar la ventana de confirmación de guardado.</Description>
@@ -693,7 +696,7 @@
         <Title>Desactivar el menú de pausa durante los fundidos de/a negro</Title>
         <Description>Evita que el jugador pueda abrir el menú de pausa durante un fundido, lo cual utilizaría una imagen incorrecta del juego para el fondo del menú de pausa.</Description>
         <Choices type="check">
-          <Value name="No">0</Value>
+          <Value name="No" speedrun-default="true">0</Value>
           <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
@@ -743,18 +746,6 @@
         </Choices>
       </Feature>
 
-      <Feature name="ReplaceButtonText">
-        <Title>Button icons in Control Options</Title>
-        <Description>Replaces the vague "Button #" text in the Control Options menu with custom controller button icons.&#x0a;&#x0a;Note: controller_buttons_icons.png must be present in "sh2e\pic\etc\" for this feature to work.</Description>
-        <Choices type="list">
-          <Value name="Disable">0</Value>
-          <Value name="Generic" default="true">1</Value>
-          <Value name="Xbox">2</Value>
-          <Value name="Playstation">3</Value>
-          <Value name="Nintendo">4</Value>
-        </Choices>
-      </Feature>
-
     </Section>
 
   </Tab>
@@ -774,9 +765,9 @@
 
       <Feature name="FixChainsawSpawn">
         <Title>Activar la motosierra solo en una Nueva partida+</Title>
-      	<Description>Evita que aparezca la motosierra en una partida inicial, lo que es una decisión de diseño intencionada de los desarrolladores.</Description>
+        <Description>Evita que aparezca la motosierra en una partida inicial, lo que es una decisión de diseño intencionada de los desarrolladores.</Description>
         <Choices type="check">
-          <Value name="No">0</Value>
+          <Value name="No" speedrun-default="true">0</Value>
           <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
@@ -810,7 +801,7 @@
 
       <Feature name="FixAptClockFlashlight">
         <Title>Corregir la cinemática del reloj en los apartamentos</Title>
-      	<Description>Corrige el renderizado de la linterna sobre el reloj de pie de los apartamentos al final de la escena en la que no se puede empujar.</Description>
+        <Description>Corrige el renderizado de la linterna sobre el reloj de pie de los apartamentos al final de la escena en la que no se puede empujar.</Description>
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
@@ -1006,7 +997,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="CenterPuzzleCursor">
+      <Feature name="CenterPuzzleCursor" speedrun="true">
         <Title>Centrar cursor del ratón en enigmas</Title>
         <Description>Centra el cursor del ratón/mouse al acceder a un enigmas.</Description>
         <Choices type="check">
@@ -1027,14 +1018,14 @@
         <Title>Corregir los problemas al guardar y cargar</Title>
         <Description>Desactiva el guardado libre en ciertos lugares que provocarían problemas dentro del juego al volver a cargar. Es una forma de sortear fallos en el guardado rápido que no permitirían terminar el juego o dañarían las partidas guardadas.&#x0a;&#x0a;Nota: esta opción afecta a las estrategias de guardado rápido para hacer «speedruns».</Description>
         <Choices type="check">
-          <Value name="No">0</Value>
-          <Value name="Sí" default="true">1</Value>
+          <Value name="No" speedrun-set="true">0</Value>
+          <Value name="Sí" default="true" speedrun-random="true">1</Value>
         </Choices>
       </Feature>
 
       <Feature name="ImproveStorageSupport">
-        <Title>Corregir el límite de almacenamiento de más de 2 TB</Title>
-        <Description>Permite que el juego pueda comprobar correctamente el espacio libre en los discos duros de más de 2 TB de capacidad para guardar partidas. Cambia la unidad de medida usada para mostrar el espacio libre de KB a una unidad escalable y proporcionada. Por ejemplo: 99999999+ KB pasará a ser 108,21 GB.</Description>
+        <Title>Corregir el límite de almacenamiento de más de 2 TB</Title>
+        <Description>Permite que el juego pueda comprobar correctamente el espacio libre en los discos duros de más de 2 TB de capacidad para guardar partidas. Cambia la unidad de medida usada para mostrar el espacio libre de KB a una unidad escalable y proporcionada. Por ejemplo: 99999999+ KB pasará a ser 108,21 GB.</Description>
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
@@ -1043,7 +1034,7 @@
 
       <Feature name="QuickSaveTweaks">
         <Title>Correcciones visuales del guardado rápido</Title>
-      <Description>Soluciones cosméticas para los guardados rápidos del juego: colocará sus notificaciones en la esquina inferior izquierda de la ventana del juego sin importar la relación de aspecto, las coloreará para mejorar su identificación (morado: partida guardada, rojo: no guardada) y solucionará un fallo en el que las notificaciones de guardado rápido solo se mostraban durante unos pocos fotogramas.&#x0a;&#x0a;Nota: esta opción NO AFECTA a las estrategias de guardado rápido para hacer «speedruns», de hecho hasta puede ser útil, ya que el texto ahora se puede mostrar durante más tiempo.</Description>
+        <Description>Soluciones cosméticas para los guardados rápidos del juego: colocará sus notificaciones en la esquina inferior izquierda de la ventana del juego sin importar la relación de aspecto, las coloreará para mejorar su identificación (morado: partida guardada, rojo: no guardada) y solucionará un fallo en el que las notificaciones de guardado rápido solo se mostraban durante unos pocos fotogramas.&#x0a;&#x0a;Nota: esta opción NO AFECTA a las estrategias de guardado rápido para hacer «speedruns», de hecho hasta puede ser útil, ya que el texto ahora se puede mostrar durante más tiempo.</Description>
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
@@ -1087,7 +1078,7 @@
 
       <Feature name="WhiteShaderFix">
         <Title>Corregir los shaders blancos</Title>
-      	<Description>Corrige un problema en las tarjetas gráficas de Nvidia por el cual ciertas zonas aparecerían con un color blanco y deberían mostrarse en negro.</Description>
+        <Description>Corrige un problema en las tarjetas gráficas de Nvidia por el cual ciertas zonas aparecerían con un color blanco y deberían mostrarse en negro.</Description>
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
@@ -1171,7 +1162,7 @@
 
       <Feature name="RemoveEnvironmentFlicker">
         <Title>Corregir los parpadeos del entorno en las cinemáticas</Title>
-      	<Description>Elimina los parpadeos provocados al reiniciar los parámetros del entorno a sus valores originales cuando terminan ciertas escenas cinemáticas.</Description>
+        <Description>Elimina los parpadeos provocados al reiniciar los parámetros del entorno a sus valores originales cuando terminan ciertas escenas cinemáticas.</Description>
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
@@ -1224,13 +1215,13 @@
 
       <Feature name="WidescreenFix">
         <Title>Corrección para pantallas panorámicas</Title>
-      	<Description>Activa el SH2 Widescreen Fixes Pack (paquete de correcciones para pantallas panorámicas de SH2) integrado y el módulo sh2proxy.&#x0a;&#x0a;Nota: al desactivar esta opción se desactivarán otras características. Esta opción no debería ser desactivada.</Description>
+        <Description>Activa el SH2 Widescreen Fixes Pack (paquete de correcciones para pantallas panorámicas de SH2) integrado y el módulo sh2proxy.&#x0a;&#x0a;Nota: al desactivar esta opción se desactivarán otras características. Esta opción no debería ser desactivada.</Description>
         <Choices type="check">
           <Value name="Desactivada">0</Value>
           <Value name="Activada" default="true">1</Value>
         </Choices>
       </Feature>
-        
+
       <Feature name="UsePS2LowResTextures">
         <Title>Desactivar la ruta «sh2e\pic\»</Title>
         <Description>Desactiva la ruta «sh2e\pic\». Esto hará que el juego vuelva a utilizar las imágenes a pantalla completa originales y de baja resolución, pero se seguirán utilizando el resto de archivos y carpetas encontrados dentro de la ruta «sh2e».&#x0a;&#x0a;Nota: para poder utilizar el resto de archivos y carpetas que estén en la ruta «sh2e», sigue siendo necesario activar la carpeta personalizada «sh2e».</Description>
@@ -1300,7 +1291,7 @@
 
       <Feature name="NoCDPatch">
         <Title>Parche «no CD»</Title>
-      	<Description>Elimina la comprobación de disco de algunas versiones del juego. No se garantiza su buen funcionamiento en todos los ejecutables.</Description>
+        <Description>Elimina la comprobación de disco de algunas versiones del juego. No se garantiza su buen funcionamiento en todos los ejecutables.</Description>
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
@@ -1322,7 +1313,7 @@
 
       <Feature name="DisableGameUX">
         <Title>Desactivar el archivo GameUX.dll de Windows</Title>
-      	<Description>Desactiva el explorador de juegos de Microsoft (el archivo GameUX.dll) para evitar que el juego se bloquee al ejecutarse y el alto consumo de CPU del archivo rundll32.exe.</Description>
+        <Description>Desactiva el explorador de juegos de Microsoft (el archivo GameUX.dll) para evitar que el juego se bloquee al ejecutarse y el alto consumo de CPU del archivo rundll32.exe.</Description>
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
@@ -1371,7 +1362,7 @@
 
       <Feature name="LoadFromScriptsOnly">
         <Title>Cargar solo los plugins ASI de la carpeta «plugins»</Title>
-      <Description>Carga únicamente los plugins ASI de las carpetas «scripts» y «plugins». No cargará los plugins ASI de la carpeta raíz/actual.</Description>
+        <Description>Carga únicamente los plugins ASI de las carpetas «scripts» y «plugins». No cargará los plugins ASI de la carpeta raíz/actual.</Description>
         <Choices type="check">
           <Value name="No" default="true">0</Value>
           <Value name="Sí">1</Value>
@@ -1380,7 +1371,7 @@
 
       <Feature name="LoadD3d8FromScriptsFolder">
         <Title>Cargar d3d8.dll personalizado de «scripts» o «plugins»</Title>
-      	<Description>Carga un archivo d3d8.dll modificado de las carpetas «scripts» o «plugins».&#x0a;&#x0a;Es necesario desactivar el modo DirectX 9 del juego para que esta opción funcione.</Description>
+        <Description>Carga un archivo d3d8.dll modificado de las carpetas «scripts» o «plugins».&#x0a;&#x0a;Es necesario desactivar el modo DirectX 9 del juego para que esta opción funcione.</Description>
         <Choices type="check">
           <Value name="No" default="true">0</Value>
           <Value name="Sí">1</Value>
@@ -1397,11 +1388,11 @@
 
       <Feature name="SpeedrunMode" speedrun="true">
         <Title>Speedrun Mode</Title>
-        <Description>Sets the speedrun mode for the game.</Description>
+        <Description>Enables the Speedrun Mode for Silent Hill 2: Enhanced Edition. Choose between two speedrun modes:&#x0a;&#x0a;Set Seed Mode: Every run has the same, set puzzle seed. This lets you focus on the technical aspects of the run without worry of puzzle RNG. Quick save exploits/strats are retained in this mode.&#x0a;True Random Mode: The puzzle solutions are no longer determined by a frame count seed; their solutions will always be different on a per puzzle basis for every new playthrough. Quick save exploits/strats are disabled in this mode.</Description>
         <Choices type="list">
-          <Value name="Disabled">0</Value>
-          <Value name="Truly Random">1</Value>
-          <Value name="Golden seed" default="true">2</Value>
+          <Value name="Disabled" default="true">0</Value>
+          <Value name="True Random Mode">1</Value>
+          <Value name="Set Seed Mode">2</Value>
         </Choices>
       </Feature>
 
@@ -1434,8 +1425,8 @@
     <S id="PRG_Sandbox"> [MODO LOCAL]</S>
     <S id="PRG_Extra">Extra</S>
     <S id="PRG_Extra_desc">Esta sección incluye todos los ajustes que se hayan añadido de forma manual al archivo de configuración de Silent Hill 2: Enhanced Edition (d3d8.ini).</S>
-    <S id="PRG_Speedrun_warning">Warning! Toggling speedrun mode will reset settings to their defaults.</S>
-    
+    <S id="PRG_Speedrun_warning">Enabling Speedrun Mode will overwrite and lock down various settings. Upon being disabled, all settings will reset to default. Do you wish to proceed?</S>
+
   </Strings>
 
 </Config>

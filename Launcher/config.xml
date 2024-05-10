@@ -8,7 +8,7 @@
 
     <Section name="Display">
 
-      <Feature name="WndModeBorder">
+      <Feature name="WndModeBorder" speedrun="true">
         <Title>Window border (for windowed mode only)</Title>
         <Description>Creates a window border for the game. Only works when playing in windowed mode.&#x0a;&#x0a;Note: The game's windowed resolution must not be close to or exactly the same as your display's width and/or height, otherwise the border will not appear. This is a safety measure to ensure the border doesn't get lost outside of your display area.</Description>
         <Choices type="check">
@@ -26,7 +26,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="ForceTopMost">
+      <Feature name="ForceTopMost" speedrun="true">
         <Title>Game window always on top</Title>
         <Description>Forces the game window to be above all other windows, inlcuding the Start Menu bar.&#x0a;&#x0a;Note: Only works when windowed mode is enabled.</Description>
         <Choices type="check">
@@ -97,7 +97,7 @@
           <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
-        
+
       <Feature name="SetBlackPillarBoxes">
         <Title>Restore black pillarboxes</Title>
         <Description>Primarily fixes issues when viewing the map. This feature forces all dynamically made pillarboxing to be black in color, restores pillarboxing to events which did not have them, and hides map markings behind the pillarboxing.</Description>
@@ -121,7 +121,7 @@
       </Feature>
 
       <Feature name="FrontBufferControl">
-        <Title>How should the game capture front buffer data</Title>
+        <Title>Front buffer data capture method</Title>
         <Description>Determines how the game should collect the front buffer data used for fade outs and the pause screen.&#x0a;&#x0a;Note: DirectX will only work on your primary monitor. DirectX may be required when playing in fullscreen mode on certain older Windows operating systems. Linux only works with DirectX. It is recommended to keep this on "auto" unless you are experiencing visual issues with fade outs or the pause screen.</Description>
         <Choices type="list">
           <Value name="Auto" default="true">0</Value>
@@ -352,7 +352,7 @@
           <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
-        
+
       <Feature name="EnableCriWareReimplementation">
         <Title>Use custom streaming audio engine</Title>
         <Description>Replaces the game's bugged CRIWARE streaming audio engine with a custom streaming audio engine solution. This fixes the infamous issue where the game's audio would glitch out and play an infinite one second loop, which would inevitably crash the game. This audio issue was the reason why the game would need to be ran on a single processor core prior to this fix. With this fix, the game can now run stable on multiple cores with overall performance improvements (such as less game stutters).</Description>
@@ -364,16 +364,7 @@
 
       <Feature name="UseDSOAL">
         <Title>Use DSOAL and OpenAL for EAX audio</Title>
-        <Description>Uses DSound to OpenAL and OpenAL soft to emulate EAX for newer operating systems that don't support EAX.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="EnableMasterVolume">
-        <Title>Add a master volume level control</Title>
-        <Description>Adds a master volume level control to the in-game Options menu to control all audio in the game.</Description>
+        <Description>Uses DSound-to-OpenAL and OpenAL Soft to emulate EAX for newer operating systems that don't support EAX. Enable this feature for 3D binaural audio for a more immersive experience.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -397,7 +388,7 @@
         <Title>Fix specific sound looping bugs</Title>
         <Description>Fixes specific, unique sound looping bugs with the chainsaw and moth attack sounds.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
+          <Value name="Disable" speedrun-default="true">0</Value>
           <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
@@ -434,7 +425,7 @@
     <Section name="Bonus Audio">
 
       <Feature name="FlashlightToggleSFX">
-        <Title>Restore missing flashlight sound effects</Title>
+        <Title>Flashlight sound effects</Title>
         <Description>Enables a flashlight sound effect when turning the light on or off.  Note: flashlight_on.wav and flashlight_off.wav must be present in "sh2e\sound\extra\" for this feature to work.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
@@ -443,8 +434,8 @@
       </Feature>
 
       <Feature name="VHSAudioFix">
-        <Title>Restore uncensored VHS audio</Title>
-        <Description>Restores the uncensored audio for the VHS tape FMV.&#x0a;&#x0a;Note: You must have the correct version of this FMV that contains both the censored and uncensored audio tracks. If you do not, then only the original censored audio will play. You can obtain the correct version of this FMV by downloading the project's FMV Enhancement Pack.</Description>
+        <Title>Use alternate, cut VHS audio</Title>
+        <Description>Plays an alternate, cut audio track for the VHS tape FMV. We recommend to only enable this after beating the game at least once.&#x0a;&#x0a;Note: You must have the correct version of this FMV that contains both audio tracks. If you do not, then only the original audio will play. You can obtain the correct version of this FMV by downloading the project's FMV Enhancement Pack.</Description>
         <Choices type="check">
           <Value name="Disable" default="true">0</Value>
           <Value name="Enable">1</Value>
@@ -458,8 +449,8 @@
   <Tab name="Input">
 
     <Section name="Controller">
-        
-      <Feature name="RestoreSearchCamMovement">
+
+      <Feature name="RestoreSearchCamMovement" speedrun="true">
         <Title>Controller type for search cam movement</Title>
         <Description>Restores right joystick functionality for controllers to move the search camera around. Change the setting depending on what type of controller you are using.&#x0a;&#x0a;Note: If using Xidi (controller support software), set this option to "DirectInput".</Description>
         <Choices type="list">
@@ -470,7 +461,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="DPadMovementFix">
+      <Feature name="DPadMovementFix" speedrun="true">
         <Title>Restore D-pad functions</Title>
         <Description>Movement Mode: The D-pad will act as an additional movement pad to control James and navigate menu selections.&#x0a;Button Mode: The D-pad will act as additional controller buttons, allowing you to assign game functions to the D-pad. You will NOT be able to control James or navigate menus with the D-pad.&#x0a;Hybrid Mode: The D-pad will act as additional controller buttons, allowing you to assign game functions to the D-pad. You will NOT be able to control James but WILL be able to navigate menus with the D-pad.</Description>
         <Choices type="list">
@@ -478,6 +469,18 @@
           <Value name="Movement Mode" default="true">1</Value>
           <Value name="Button Mode">3</Value>
           <Value name="Hybrid Mode">2</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="ReplaceButtonText">
+        <Title>Button icons in Control Options</Title>
+        <Description>Replaces the vague "Button #" text in the Control Options menu with custom controller button icons.&#x0a;&#x0a;Note: controller_buttons_icons.png must be present in "sh2e\pic\etc\" for this feature to work.</Description>
+        <Choices type="list">
+          <Value name="Disable">0</Value>
+          <Value name="Generic" default="true">1</Value>
+          <Value name="Xbox">2</Value>
+          <Value name="Playstation">3</Value>
+          <Value name="Nintendo">4</Value>
         </Choices>
       </Feature>
 
@@ -512,7 +515,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="PadNumber">
+      <Feature name="PadNumber" speedrun="true">
         <Title>Controller ID to vibrate</Title>
         <Description>Sets what pad (controller) ID to vibrate. This is typically "0" for the game.</Description>
         <Choices type="list">
@@ -529,7 +532,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="RemoveForceFeedbackFilter">
+      <Feature name="RemoveForceFeedbackFilter" speedrun="true">
         <Title>Remove Force Feedback filter</Title>
         <Description>Allows non-force feedback controllers to be detected during the game's controller scan. Use this option if a non-force feedback controller is not being detected by the game.</Description>
         <Choices type="list">
@@ -542,8 +545,8 @@
     </Section>
 
     <Section name="Mouse">
-      
-      <Feature name="EnableEnhancedMouse">
+
+      <Feature name="EnableEnhancedMouse" speedrun="true">
         <Title>Enhance mouse input</Title>
         <Description>Enables mouse support during regular gameplay. Mouse movement = Controls the character and search camera. Left click = Action/Confirm. Right click = Ready Weapon/Cancel.</Description>
         <Choices type="check">
@@ -552,7 +555,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="EnableMouseWheelSwap">
+      <Feature name="EnableMouseWheelSwap" speedrun="true">
         <Title>Enable mouse weapon swap</Title>
         <Description>Enables mouse wheel support during regular gameplay. Scroll the mouse wheel up or down to cycle between available weapons.</Description>
         <Choices type="check">
@@ -578,7 +581,7 @@
           <Value name="Enable">1</Value>
         </Choices>
       </Feature>
-    
+
     </Section>
 
   </Tab>
@@ -640,6 +643,15 @@
 
     <Section name="Menu Additions">
 
+      <Feature name="EnableMasterVolume">
+        <Title>Master volume option</Title>
+        <Description>Adds a master volume level control to the in-game Options menu to control all audio in the game.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="DisplayModeOption">
         <Title>Display mode option</Title>
         <Description>Replaces the Options > Advanced Options > Low Res Texture option with a Display Mode option to change the screen mode used for the game.</Description>
@@ -671,15 +683,6 @@
         </Choices>
       </Feature>
 
-      <Feature name="MainMenuInstantLoadOptions">
-        <Title>Instant load options on main menu</Title>
-        <Description>Removes the small delay before the LOAD and CONTINUE selections appear on the main menu.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="FixAdvancedOptions">
         <Title>Fix Advanced Options screen</Title>
         <Description>Fixes numerous text display issues on the game's Options > Advanced Options menu, such as missing and incorrect descriptions when the save confirmation prompt is shown.</Description>
@@ -693,7 +696,7 @@
         <Title>Disable pause screen during fades</Title>
         <Description>Prevents the player from bringing up the pause menu during a fade-in, which would otherwise use a wrong screen grab of the game for the pause menu background image.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
+          <Value name="Disable" speedrun-default="true">0</Value>
           <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
@@ -735,23 +738,11 @@
       </Feature>
 
       <Feature name="LockSpeakerConfig">
-        <Title>Lock Speaker Config option</Title>
+        <Title>Lock Speaker Configuration option</Title>
         <Description>Disables changing the Speaker Configuration feature in the game's Options > Advanced Options menu as, after Windows XP, this change must be done through Windows' Sound Control panel and can no longer be changed within applications (such as this game). If you try to change this through the game's Options menu, it will just revert back to what is being used through Windows' Sound Control panel.&#x0a;&#x0a;Note: d3d8.res must be present in the game's directory for this feature to work.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="ReplaceButtonText">
-        <Title>Button icons in Control Options</Title>
-        <Description>Replaces the vague "Button #" text in the Control Options menu with custom controller button icons.&#x0a;&#x0a;Note: controller_buttons_icons.png must be present in "sh2e\pic\etc\" for this feature to work.</Description>
-        <Choices type="list">
-          <Value name="Disable">0</Value>
-          <Value name="Generic" default="true">1</Value>
-          <Value name="Xbox">2</Value>
-          <Value name="Playstation">3</Value>
-          <Value name="Nintendo">4</Value>
         </Choices>
       </Feature>
 
@@ -1006,7 +997,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="CenterPuzzleCursor">
+      <Feature name="CenterPuzzleCursor" speedrun="true">
         <Title>Center puzzle mouse cursor</Title>
         <Description>Center mouse cursor when entering a puzzle.</Description>
         <Choices type="check">
@@ -1027,8 +1018,8 @@
         <Title>Fix save/load issues</Title>
         <Description>Disables free-saving in select rooms that would cause game issues upon file loading back into the rooms. Addresses quick save bugs that could soft lock the game and/or corrupt save files.&#x0a;&#x0a;Note: This feature affects quick save strats for speedrunning.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disable" speedrun-set="true">0</Value>
+          <Value name="Enable" default="true" speedrun-random="true">1</Value>
         </Choices>
       </Feature>
 
@@ -1040,7 +1031,7 @@
           <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
-	  
+
       <Feature name="QuickSaveTweaks">
         <Title>Quick Save visual fixes</Title>
         <Description>Cosmetic fixes for the game's Quick Save feature. Always positions the quick save notifications to the bottom left corner of the game window, regardless of aspect ratio used. Color codes the quick save notifications for easier status identification (purple is successful, red is unsuccessful). Fixes a bug where the quick save notifications would only stay on screen for a few frames.&#x0a;&#x0a;Note: This feature does NOT affect quick save strats for speedrunning and might help it, thanks to fixing the issue of the quick save text only staying up for a few frames.</Description>
@@ -1062,7 +1053,7 @@
           <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
-      
+
       <Feature name="LowHealthIndicatorStyle">
         <Title>Low health indicator style</Title>
         <Description>Displays a visual indicator during normal gameplay when low on health.&#x0a;&#x0a;Red Cross: Displays a flashing red cross on the bottom right of the screen.&#x0a;Lower Vignette: Displays a flashing red vignette on the lower half of the screen. The lower your health, the brighter the vignette will become.&#x0a;&#x0a;Note: LowHealthFade.png must be present in "sh2e\pic\etc\" for the Lower Vignette visual to display.</Description>
@@ -1071,7 +1062,7 @@
           <Value name="Lower Vignette" default="true">2</Value>
         </Choices>
       </Feature>
-      
+
     </Section>
 
     <Section name="Environment">
@@ -1230,7 +1221,7 @@
           <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
-        
+
       <Feature name="UsePS2LowResTextures">
         <Title>Disable "sh2e\pic\" path</Title>
         <Description>Disables the "sh2e\pic\" path. This will revert the game to use the original, low resolution full screen images while still using all other files/folders found within the "sh2e" path.&#x0a;&#x0a;Note: Enabling the use of the custom "sh2e" folder is still required to use all other files/folders found with the "sh2e" path.</Description>
@@ -1397,11 +1388,11 @@
 
       <Feature name="SpeedrunMode" speedrun="true">
         <Title>Speedrun Mode</Title>
-        <Description>Sets the speedrun mode for the game.</Description>
+        <Description>Enables the Speedrun Mode for Silent Hill 2: Enhanced Edition. Choose between two speedrun modes:&#x0a;&#x0a;Set Seed Mode: Every run has the same, set puzzle seed. This lets you focus on the technical aspects of the run without worry of puzzle RNG. Quick save exploits/strats are retained in this mode.&#x0a;True Random Mode: The puzzle solutions are no longer determined by a frame count seed; their solutions will always be different on a per puzzle basis for every new playthrough. Quick save exploits/strats are disabled in this mode.</Description>
         <Choices type="list">
-          <Value name="Disabled" default="true" speedrun-ignore="true">0</Value>
-          <Value name="Truly Random">1</Value>
-          <Value name="Golden seed" speedrun-default="true">2</Value>
+          <Value name="Disabled" default="true">0</Value>
+          <Value name="True Random Mode">1</Value>
+          <Value name="Set Seed Mode">2</Value>
         </Choices>
       </Feature>
 
@@ -1434,7 +1425,7 @@
     <S id="PRG_Sandbox"> [SANDBOX MODE]</S>
     <S id="PRG_Extra">Extra</S>
     <S id="PRG_Extra_desc">This section includes any additional settings that were manually added to the Silent Hill 2: Enhanced Edition configuration file (d3d8.ini).</S>
-    <S id="PRG_Speedrun_warning">Warning! Toggling speedrun mode will reset settings to their defaults.</S>
+    <S id="PRG_Speedrun_warning">Enabling Speedrun Mode will overwrite and lock down various settings. Upon being disabled, all settings will reset to default. Do you wish to proceed?</S>
 
   </Strings>
 

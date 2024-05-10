@@ -792,13 +792,13 @@ bool RelaunchApp()
 	return false;
 }
 
-void SetOptionsDefaults()
+void SetOptionsDefaults() // TODO check speedrun defaults
 {
 	auto srEnabled = cfg.FindAndGetValue(speedrunOptionName);
 
 	if (srEnabled)
 	{
-		cfg.SetSpeedrunDefault();
+		cfg.SetSpeedrunDefault(srEnabled);
 	}
 	else
 	{
@@ -947,6 +947,9 @@ LRESULT CALLBACK TabProc(HWND hWndd, UINT Msg, WPARAM wParam, LPARAM lParam)
 					{
 						wnd->SetConfigValue(sel);
 						SetChanges();
+
+						SetOptionsDefaults();
+
 						CheckForIniSave(true);
 						if (!RelaunchApp())
 						{
@@ -960,8 +963,12 @@ LRESULT CALLBACK TabProc(HWND hWndd, UINT Msg, WPARAM wParam, LPARAM lParam)
 					}
 				}
 
-				wnd->SetConfigValue(sel);
-				SetChanges();
+				if (sel != 0 && wnd->GetConfigValue() != 0) // changing speedrun type
+				{
+					wnd->SetConfigValue(sel);
+					SetChanges();
+					SetOptionsDefaults();
+				}
 			}
 			break;
 			case BN_CLICKED:	// catch checkboxes

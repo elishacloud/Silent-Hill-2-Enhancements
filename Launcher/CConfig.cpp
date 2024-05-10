@@ -242,11 +242,11 @@ void CConfig::SetDefault()
 			opt.SetValueDefault();
 }
 
-void CConfig::SetSpeedrunDefault()
+void CConfig::SetSpeedrunDefault(int value)
 {
 	for (auto& sec : section)
 		for (auto& opt : sec.option)
-			opt.SetValueSpeedrunDefault();
+			opt.SetValueSpeedrunDefault(value);
 }
 
 const char* CConfig::SetIDString(const char* id, const char* name)
@@ -807,6 +807,9 @@ void CConfigValue::Parse(XMLElement& xml, CConfig& cfg)
 	id = SAFESTR(cfg.SetIDString(xml.Attribute("id"), xml.Attribute("name")));
 	is_default = SetValue(xml.Attribute("default"));
 	is_speedrun_default = SetValue(xml.Attribute("speedrun-default"));
+	is_speedrun_set_seed_default = SetValue(xml.Attribute("speedrun-set"));
+	is_speedrun_truly_random_default = SetValue(xml.Attribute("speedrun-random"));
+
 	val = SAFESTR(xml.GetText());
 }
 

@@ -242,6 +242,13 @@ void CConfig::SetDefault()
 			opt.SetValueDefault();
 }
 
+void CConfig::SetSpeedrunDefault()
+{
+	for (auto& sec : section)
+		for (auto& opt : sec.option)
+			opt.SetValueSpeedrunDefault();
+}
+
 const char* CConfig::SetIDString(const char* id, const char* name)
 {
 	if (id)
@@ -728,6 +735,9 @@ void CConfigOption::Parse(XMLElement& xml, CConfig& cfg)
 {
 	name = SAFESTR(xml.Attribute("name"));
 
+	speedrunToggleable = SetValue(xml.Attribute("speedrun"));
+	speedrunActivated = SetValue(xml.Attribute("speedrunActivated"));
+
 	// Check for <Title> otherwise use id
 	auto d = xml.FirstChildElement("Title");
 	id = SAFESTR(d ? cfg.SetIDString(nullptr, d->GetText()) : cfg.SetIDString(xml.Attribute("id"), xml.Attribute("name")));
@@ -797,6 +807,7 @@ void CConfigValue::Parse(XMLElement& xml, CConfig& cfg)
 	name = SAFESTR(GetNameValue(xml.Attribute("name"), xml.Attribute("tip")));
 	id = SAFESTR(cfg.SetIDString(xml.Attribute("id"), xml.Attribute("name")));
 	is_default = SetValue(xml.Attribute("default"));
+	is_speedrun_default = SetValue(xml.Attribute("speedrun-default"));
 	val = SAFESTR(xml.GetText());
 }
 

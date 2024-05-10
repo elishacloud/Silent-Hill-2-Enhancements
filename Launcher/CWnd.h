@@ -222,9 +222,11 @@ public:
 	static LRESULT CALLBACK proc_list(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK proc_static(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
+	void Enable(bool enable = true) { this->hList.Enable(enable); this->hStatic.Enable(enable); }
+
 private:
-	CCtrlStatic hStatic;
 	CCtrlDropBox hList;
+	CCtrlStatic hStatic;
 };
 
 class CFieldText : public CCombined
@@ -238,8 +240,10 @@ public:
 
 	static LRESULT CALLBACK proc_text(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK proc_static(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
+	
+	void Enable(bool enable = true) { this->hList.Enable(enable); this->hStatic.Enable(enable); }
 
 private:
-	CCtrlStatic hStatic;
 	CCtrlTextBox hList;
+	CCtrlStatic hStatic;
 };

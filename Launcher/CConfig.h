@@ -88,6 +88,7 @@ public:
 	std::string id;			// string id
 	std::string val;		// value in the ini
 	bool is_default;		// if this is true, this index is the default value
+	bool is_speedrun_default; // default values when speedrun mode is active
 };
 
 class CConfigOption
@@ -111,7 +112,7 @@ public:
 		}
 
 		// nothing found, load default
-		SetValueDefault();
+		SetValueDefault(); //TODO
 	}
 	void SetValueDefault()
 	{
@@ -132,6 +133,27 @@ public:
 			}
 		}
 	}
+	void SetValueSpeedrunDefault()
+	{
+		for (size_t i = 0, si = value.size(); i < si; i++)
+		{
+			if (value[i].is_speedrun_default)
+			{
+				if (type == TYPE_TEXT)
+				{
+					value[cur_val].val = value[i].val;
+				}
+				else
+				{
+					cur_val = (int)i;
+				}
+				return;
+			}
+		}
+
+		// no speedrun default found, use default
+		SetValueDefault();
+	}
 	std::string GetDefaultValue()
 	{
 		// nothing found, load default
@@ -148,6 +170,8 @@ public:
 	std::string name;		// option name
 	std::string id, desc;	// string references
 	UINT type;				// uses TYPE table to determine the control to use
+	bool speedrunToggleable;
+	bool speedrunActivated;
 
 	enum TYPE
 	{
@@ -166,7 +190,7 @@ class CConfigSection
 {
 public:
 	void Parse(XMLElement& xml, CConfig& cfg);
-	void SetValueFromName(const char* section, const char* value)
+	void SetValueFromName(const char* section, const char* value, bool speedrunActive)
 	{
 		for (auto &item : option)
 		{
@@ -291,6 +315,7 @@ class CConfig
 public:
 	bool ParseXml();
 	void SetDefault();
+	void SetSpeedrunDefault();
 	const char* SetIDString(const char* id, const char* name);
 	void BuildCacheP();
 	void SetFromIni(LPCWSTR lpName);

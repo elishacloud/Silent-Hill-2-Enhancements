@@ -409,6 +409,38 @@ std::shared_ptr<CCombined> MakeControl(CWnd &hParent, int section, int option, i
 	return c;
 }
 
+void CheckSpeedrunMode()
+{
+	int srValue = cfg.FindAndGetValue("SpeedrunMode");
+
+	for (auto ctrl : hCtrl)
+	{
+		bool enable = srValue == 0 || ctrl.get()->cValue->speedrunToggleable || ctrl.get()->cValue->speedrunActivated;
+
+		if (srValue == 0) //TODO not call this every time
+		{
+			ctrl.get()->cValue->SetValueDefault();
+		}
+		else
+		{
+			ctrl.get()->cValue->SetValueSpeedrunDefault(); //TODO at startup doesn't work
+		}
+
+		switch (ctrl.get()->uType)
+		{
+		case CCombined::TYPE_CHECK:
+			((CFieldCheck*)ctrl.get())->box.Enable(enable);
+			break;
+		case CCombined::TYPE_LIST:
+			((CFieldList*)ctrl.get())->Enable(enable);
+			break;
+		case CCombined::TYPE_TEXT:
+			((CFieldText*)ctrl.get())->Enable(enable);
+			break;
+		}
+	}
+}
+
 void PopulateTab(int section)
 {
 	uCurTab = section;
@@ -432,7 +464,7 @@ void PopulateTab(int section)
 
 	LONG Y = 20;
 
-	// process a group
+	// process a group (tab)
 	for (size_t i = 0, si = cfg.group[section].sub.size(), pos = 0; i < si; i++)
 	{
 		size_t count = cfg.group[section].sub[i].opt.size();
@@ -449,7 +481,7 @@ void PopulateTab(int section)
 		GetClientRect(*gp, &gp_rect);
 
 		pos = 0;
-		// process a sub
+		// process a sub 
 		for (size_t j = 0, sj = cfg.group[section].sub[i].opt.size(); j < sj; j++, pos++)
 		{
 			int sec, opt;
@@ -464,6 +496,8 @@ void PopulateTab(int section)
 	{
 		MessageBoxW(nullptr, L"Error: too many settings listed in tab!", GetPrgWString(STR_WARNING).c_str(), MB_OK);
 	}
+
+	CheckSpeedrunMode();
 }
 
 void UpdateTab(int section)
@@ -900,6 +934,20 @@ LRESULT CALLBACK TabProc(HWND hWndd, UINT Msg, WPARAM wParam, LPARAM lParam)
 	return hTab.CallProcedure(hWndd, Msg, wParam, lParam);
 }
 
+void SetOptionsDefaults()
+{
+	int srValue = cfg.FindAndGetValue("SpeedrunMode");
+
+	if (srValue != 0) 
+	{
+		cfg.SetSpeedrunDefault();
+	}
+	else
+	{
+		cfg.SetDefault();
+	}
+}
+
 LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
@@ -957,7 +1005,7 @@ LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 				if (MessageBoxW(hWnd, GetPrgWString(STR_DEFAULT_CONFIRM).c_str(), GetPrgWString(STR_WARNING).c_str(), MB_YESNO) == IDYES)
 				{
 					SetChanges();
-					cfg.SetDefault();
+					SetOptionsDefaults();
 					UpdateTab(hTab.GetCurSel());
 				}
 				break;

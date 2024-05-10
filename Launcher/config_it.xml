@@ -1358,6 +1358,24 @@
 
   </Tab>
 
+  <Tab name="Speedrun">
+
+    <Section name="Configs">
+
+      <Feature name="SpeedrunMode" speedrun="true">
+        <Title>Speedrun Mode</Title>
+        <Description>Sets the speedrun mode for the game.</Description>
+        <Choices type="list">
+          <Value name="Disabled">0</Value>
+          <Value name="Truly Random">1</Value>
+          <Value name="Golden seed" default="true">2</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+  </Tab>
+
   <!-- ##################################################### -->
   <!-- ================== PROGRAM STRINGS ================== -->
   <!-- ##################################################### -->

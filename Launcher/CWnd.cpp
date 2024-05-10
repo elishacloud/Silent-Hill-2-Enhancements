@@ -148,7 +148,7 @@ void CCtrlStatic::OnPaint(HDC hdc)
 	RECT rc;
 	GetClientRect(*this, &rc);
 
-	FillRect(hdc, &rc, (HBRUSH)(COLOR_WINDOW + 1));
+	FillRect(hdc, &rc, (HBRUSH)(COLOR_WINDOW + 1)); //TODO color behind labels
 
 	SetBkMode(hdc, TRANSPARENT);
 	SelectObject(hdc, hFont);

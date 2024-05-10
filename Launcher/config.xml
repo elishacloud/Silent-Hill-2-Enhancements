@@ -14,11 +14,11 @@
         <Choices type="list">
           <Value name="Windowed" default="true">1</Value>
           <Value name="Fullscreen Windowed">2</Value>
-          <Value name="Fullscreen">3</Value>
+          <Value name="Fullscreen" speedrun-default="true">3</Value>
         </Choices>
       </Feature>
 
-      <Feature name="WndModeBorder">
+      <Feature name="WndModeBorder" speedrun="true">
         <Title>Window border (for windowed mode only)</Title>
         <Description>Creates a window border for the game. Only works when playing in windowed mode.&#x0a;&#x0a;Note: The game's windowed resolution must not be close to or exactly the same as your display's width and/or height, otherwise the border will not appear. This is a safety measure to ensure the border doesn't get lost outside of your display area.</Description>
         <Choices type="check">
@@ -1351,6 +1351,24 @@
         <Choices type="check">
           <Value name="Disable" default="true">0</Value>
           <Value name="Enable">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+  </Tab>
+
+  <Tab name="Speedrun">
+
+    <Section name="Configs">
+
+      <Feature name="SpeedrunMode" speedrun="true">
+        <Title>Speedrun Mode</Title>
+        <Description>Sets the speedrun mode for the game.</Description>
+        <Choices type="list">
+          <Value name="Disabled">0</Value>
+          <Value name="Truly Random">1</Value>
+          <Value name="Golden seed" default="true">2</Value>
         </Choices>
       </Feature>
 

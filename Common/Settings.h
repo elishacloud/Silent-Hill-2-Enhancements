@@ -253,7 +253,6 @@
 	visit(SmallFontHeight) \
 	visit(SmallFontWidth) \
 	visit(SpaceSize) \
-	visit(SpeedrunMode) \
 	visit(WrapperType)
 
 typedef enum _SCREENMODE {

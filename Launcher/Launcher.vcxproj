@@ -23,7 +23,6 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141_xp</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
     <XPDeprecationWarning>false</XPDeprecationWarning>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -88,8 +87,6 @@
       <ObjectFileName>$(SolutionDir)bin\Intermediate\$(ProjectName)\$(Configuration)\Object\%(RelativeDir)</ObjectFileName>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\;$(ProjectDir)..\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>

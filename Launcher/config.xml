@@ -362,6 +362,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="UseDSOAL">
+        <Title>Use DSOAL and OpenAL for EAX audio</Title>
+        <Description>Uses DSound to OpenAL and OpenAL soft to emulate EAX for newer operating systems that don't support EAX.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="EnableMasterVolume">
         <Title>Add a master volume level control</Title>
         <Description>Adds a master volume level control to the in-game Options menu to control all audio in the game.</Description>

@@ -17,9 +17,6 @@
 #define IDR_CONFIG_XML_IT                903
 #define IDR_CONFIG_XML_BR                904
 
-#define SPEEDRUN_DISABLED				1020
-#define SPEEDRUN_ENABLED				1021
-
 // Main resource file details
 #define APP_NAME				"SH2EE Configuration Tool"
 #define APP_MAJOR				2

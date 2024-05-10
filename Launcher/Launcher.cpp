@@ -74,11 +74,7 @@ bool bHasChange;
 bool bIsCompiling;
 
 // speedrun
-int lastSpeedrunValue = NULL;
-std::wstring speedrunLabel = L"Speedrun";
 std::string speedrunOptionName = "SpeedrunMode";
-bool awaitingConfirmation = false;
-
 
 // the xml
 CConfig cfg;
@@ -433,7 +429,7 @@ std::shared_ptr<CCombined> MakeControl(CWnd &hParent, int section, int option, i
 
 void CheckSpeedrunMode()
 {
-	int srValue = cfg.FindAndGetValue(speedrunOptionName); // always 0 at the start TODO
+	int srValue = cfg.FindAndGetValue(speedrunOptionName);
 
 	for (auto ctrl : hCtrl)
 	{
@@ -853,7 +849,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	int X = (XBorder - 1);
 	int Y = r.bottom - (23 + YBorder);
 	hBnClose.CreateWindow(GetPrgWString(STR_BN_CLOSE).c_str(), X, Y, 90, 24, hWnd, hInstance, hFont); X += 94;
-	hBnDefault.CreateWindow(GetPrgWString(STR_BN_DEFAULT).c_str(), X, Y, 140, 24, hWnd, hInstance, hFont); X += 144;
+	hBnDefault.CreateWindow(GetPrgWString(STR_BN_DEFAULT).c_str(), X, Y, 140, 24, hWnd, hInstance, hFont);
 
 	X = r.right;
 	X -= (160 + XBorder - 1); hBnLaunch.CreateWindow(GetPrgWString(STR_BN_LAUNCH).c_str(), X, Y, 160, 24, hWnd, hInstance, hFont);

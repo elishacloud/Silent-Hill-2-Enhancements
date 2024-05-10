@@ -229,8 +229,8 @@ public:
 	void Enable(bool enable = true) { this->hList.Enable(enable); this->hStatic.Enable(enable); }
 
 private:
-	CCtrlDropBox hList;
 	CCtrlStatic hStatic;
+	CCtrlDropBox hList;
 };
 
 class CFieldText : public CCombined
@@ -248,6 +248,6 @@ public:
 	void Enable(bool enable = true) { this->hList.Enable(enable); this->hStatic.Enable(enable); }
 
 private:
-	CCtrlTextBox hList;
 	CCtrlStatic hStatic;
+	CCtrlTextBox hList;
 };

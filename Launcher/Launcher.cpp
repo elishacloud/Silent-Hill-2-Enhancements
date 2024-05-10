@@ -963,12 +963,9 @@ LRESULT CALLBACK TabProc(HWND hWndd, UINT Msg, WPARAM wParam, LPARAM lParam)
 					}
 				}
 
-				if (sel != 0 && wnd->GetConfigValue() != 0) // changing speedrun type
-				{
-					wnd->SetConfigValue(sel);
-					SetChanges();
-					SetOptionsDefaults();
-				}
+				wnd->SetConfigValue(sel);
+				SetChanges();
+				SetOptionsDefaults();
 			}
 			break;
 			case BN_CLICKED:	// catch checkboxes

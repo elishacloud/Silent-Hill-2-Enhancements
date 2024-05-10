@@ -1401,6 +1401,7 @@
     <S id="PRG_Sandbox"> [MODALITA' SANDBOX]</S>
     <S id="PRG_Extra">Extra</S>
     <S id="PRG_Extra_desc">Questa sezione racchiude opzioni addizionali aggiunte manualmente al file di configurazione di Silent Hill 2: Enhanced Edition (d3d8.ini).</S>
+    <S id="PRG_Speedrun_warning">Warning! Toggling speedrun mode will reset settings to their defaults.</S>
 
   </Strings>
 

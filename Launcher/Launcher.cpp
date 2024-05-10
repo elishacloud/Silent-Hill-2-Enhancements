@@ -125,6 +125,7 @@ enum ProgramStrings
 	STR_SANDBOX,
 	STR_EXTRA,
 	STR_EXTRA_TEXT,
+	STR_SPEEDR_WARN,
 };
 
 std::string GetPrgString(UINT id)
@@ -151,6 +152,7 @@ std::string GetPrgString(UINT id)
 		"PRG_Sandbox", " [SANDBOX MODE]",
 		"PRG_Extra", "Extra",
 		"PRG_Extra_desc", "This section includes any additional settings that were manually added to the Silent Hill 2: Enhanced Edition configuration file (d3d8.ini).",
+		"PRG_Speedrun_warning", "Warning! Toggling speedrun mode will reset settings to their defaults.",
 	};
 
 	auto s = cfg.GetString(str[id].name);
@@ -940,8 +942,8 @@ LRESULT CALLBACK TabProc(HWND hWndd, UINT Msg, WPARAM wParam, LPARAM lParam)
 				if (wnd->cValue->name == speedrunOptionName && ((sel != 0 && wnd->GetConfigValue() == 0) || (sel == 0 && wnd->GetConfigValue() != 0)))
 				{
 					wchar_t ConfirmSpeedrunToggle[MAX_PATH];
-					_snwprintf_s(ConfirmSpeedrunToggle, MAX_PATH, _TRUNCATE, GetPrgWString(STR_LANG_CONFIRM).c_str(), LangList[hDbLanguage.GetSelection()].Lang);
-					if (MessageBoxW(hWnd, ConfirmSpeedrunToggle, GetPrgWString(STR_WARNING).c_str(), MB_YESNO) == IDYES) //TODO string
+					_snwprintf_s(ConfirmSpeedrunToggle, MAX_PATH, _TRUNCATE, GetPrgWString(STR_SPEEDR_WARN).c_str(), LangList[hDbLanguage.GetSelection()].Lang);
+					if (MessageBoxW(hWnd, ConfirmSpeedrunToggle, GetPrgWString(STR_WARNING).c_str(), MB_YESNO) == IDYES)
 					{
 						wnd->SetConfigValue(sel);
 						SetChanges();

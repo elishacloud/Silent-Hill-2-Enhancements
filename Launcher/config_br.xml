@@ -122,7 +122,7 @@
 
       <Feature name="FrontBufferControl">
         <Title>Captura de dados do buffer frontal</Title>
-        <Description>Determina como o jogo deve coletar os dados do buffer frontal usados ​​para os "fade outs" e a tela de pausa.&#x0a;&#x0a;Nota: O DirectX só funcionará em seu monitor principal. O DirectX pode ser necessário ao reproduzir no modo de tela cheia em determinados sistemas operacionais Windows mais antigos. Linux só funciona com DirectX. Recomenda-se manter isto em "Auto", a menos que você esteja enfrentando problemas visuais com os "fade outs" ou na tela de pausa.</Description>
+        <Description>Determina como o jogo deve coletar os dados do buffer frontal usados para os "fade outs" e a tela de pausa.&#x0a;&#x0a;Nota: O DirectX só funcionará em seu monitor principal. O DirectX pode ser necessário ao reproduzir no modo de tela cheia em determinados sistemas operacionais Windows mais antigos. Linux só funciona com DirectX. Recomenda-se manter isto em "Auto", a menos que você esteja enfrentando problemas visuais com os "fade outs" ou na tela de pausa.</Description>
         <Choices type="list">
           <Value name="Auto" default="true">0</Value>
           <Value name="Usar GDI">1</Value>
@@ -1381,6 +1381,24 @@
     </Section>
 
   </Tab>
+    
+  <Tab name="Speedrun">
+
+    <Section name="Configs">
+
+      <Feature name="SpeedrunMode" speedrun="true">
+        <Title>Speedrun Mode</Title>
+        <Description>Enables the Speedrun Mode for Silent Hill 2: Enhanced Edition. Choose between two speedrun modes:&#x0a;&#x0a;Set Seed Mode: Every run has the same, set puzzle seed. This lets you focus on the technical aspects of the run without worry of puzzle RNG. Quick save exploits/strats are retained in this mode.&#x0a;True Random Mode: The puzzle solutions are no longer determined by a frame count seed; their solutions will always be different on a per puzzle basis for every new playthrough. Quick save exploits/strats are disabled in this mode.</Description>
+        <Choices type="list">
+          <Value name="Disabled" default="true">0</Value>
+          <Value name="True Random Mode">1</Value>
+          <Value name="Set Seed Mode">2</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+  </Tab>
 
   <!-- ##################################################### -->
   <!-- ================== PROGRAM STRINGS ================== -->
@@ -1408,6 +1426,7 @@
     <S id="PRG_Sandbox"> [MODO LOCAL]</S>
     <S id="PRG_Extra">Extra</S>
     <S id="PRG_Extra_desc">Esta seção inclui todas as configurações adicionais que foram adicionadas manualmente ao arquivo de configuração de Silent Hill 2: Enhanced Edition (d3d8.ini).</S>
+    <S id="PRG_Speedrun_warning">Enabling Speedrun Mode will overwrite and lock down various settings. Upon being disabled, all settings will reset to default. Do you wish to proceed?</S>
 	
   </Strings>
 

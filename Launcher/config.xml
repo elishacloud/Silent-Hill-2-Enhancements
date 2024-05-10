@@ -121,7 +121,7 @@
       </Feature>
 
       <Feature name="FrontBufferControl">
-        <Title>How should the game capture front buffer data</Title>
+        <Title>Front buffer data capture method</Title>
         <Description>Determines how the game should collect the front buffer data used for fade outs and the pause screen.&#x0a;&#x0a;Note: DirectX will only work on your primary monitor. DirectX may be required when playing in fullscreen mode on certain older Windows operating systems. Linux only works with DirectX. It is recommended to keep this on "auto" unless you are experiencing visual issues with fade outs or the pause screen.</Description>
         <Choices type="list">
           <Value name="Auto" default="true">0</Value>
@@ -1381,6 +1381,24 @@
     </Section>
 
   </Tab>
+    
+  <Tab name="Speedrun">
+
+    <Section name="Configs">
+
+      <Feature name="SpeedrunMode" speedrun="true">
+        <Title>Speedrun Mode</Title>
+        <Description>Enables the Speedrun Mode for Silent Hill 2: Enhanced Edition. Choose between two speedrun modes:&#x0a;&#x0a;Set Seed Mode: Every run has the same, set puzzle seed. This lets you focus on the technical aspects of the run without worry of puzzle RNG. Quick save exploits/strats are retained in this mode.&#x0a;True Random Mode: The puzzle solutions are no longer determined by a frame count seed; their solutions will always be different on a per puzzle basis for every new playthrough. Quick save exploits/strats are disabled in this mode.</Description>
+        <Choices type="list">
+          <Value name="Disabled" default="true">0</Value>
+          <Value name="True Random Mode">1</Value>
+          <Value name="Set Seed Mode">2</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+  </Tab>
 
   <!-- ##################################################### -->
   <!-- ================== PROGRAM STRINGS ================== -->
@@ -1407,6 +1425,7 @@
     <S id="PRG_Sandbox"> [SANDBOX MODE]</S>
     <S id="PRG_Extra">Extra</S>
     <S id="PRG_Extra_desc">This section includes any additional settings that were manually added to the Silent Hill 2: Enhanced Edition configuration file (d3d8.ini).</S>
+    <S id="PRG_Speedrun_warning">Enabling Speedrun Mode will overwrite and lock down various settings. Upon being disabled, all settings will reset to default. Do you wish to proceed?</S>
 
   </Strings>
 

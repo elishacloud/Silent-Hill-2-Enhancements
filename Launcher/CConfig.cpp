@@ -808,6 +808,7 @@ void CConfigValue::Parse(XMLElement& xml, CConfig& cfg)
 	id = SAFESTR(cfg.SetIDString(xml.Attribute("id"), xml.Attribute("name")));
 	is_default = SetValue(xml.Attribute("default"));
 	is_speedrun_default = SetValue(xml.Attribute("speedrun-default"));
+	is_speedrun_ignored = SetValue(xml.Attribute("speedrun-ignore"));
 	val = SAFESTR(xml.GetText());
 }
 

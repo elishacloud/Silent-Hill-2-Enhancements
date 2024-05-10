@@ -62,6 +62,7 @@ CCtrlTab hTab;											// tab container
 CCtrlButton hBnClose, hBnDefault, hBnSave, hBnLaunch;	// buttons at the bottom
 CCtrlDropBox hDbLaunch;									// pulldown at the bottom
 CCtrlDropBox hDbLanguage;								// language selector
+CCtrlCheckBox hChSpeedrun;								// speedrun mode selector
 CCtrlDescription hDesc;									// option description
 std::vector<std::shared_ptr<CCombined>> hCtrl;			// responsive controls for options
 std::vector<std::shared_ptr<CCtrlGroup>> hGroup;		// group controls inside the tab
@@ -72,6 +73,13 @@ UINT uCurTab;
 LONG MaxControlDataWndSize;
 bool bHasChange;
 bool bIsCompiling;
+
+// speedrun
+int lastSpeedrunValue = NULL;
+std::wstring speedrunLabel = L"Speedrun";
+std::string speedrunOptionName = "SpeedrunMode";
+
+
 
 // the xml
 CConfig cfg;
@@ -411,19 +419,31 @@ std::shared_ptr<CCombined> MakeControl(CWnd &hParent, int section, int option, i
 
 void CheckSpeedrunMode()
 {
-	int srValue = cfg.FindAndGetValue("SpeedrunMode");
+	int srValue = cfg.FindAndGetValue(speedrunOptionName); // always 0 at the start TODO
 
 	for (auto ctrl : hCtrl)
 	{
-		bool enable = srValue == 0 || ctrl.get()->cValue->speedrunToggleable || ctrl.get()->cValue->speedrunActivated;
+		bool enable = (srValue == 0 && !ctrl.get()->cValue->speedrunActivated) || ctrl.get()->cValue->speedrunToggleable || (srValue != 0 && ctrl.get()->cValue->speedrunActivated);
+		
+		if (srValue != 0) //TODO
+		{
+			std::vector<CConfigValue> temp;
+			int index = 0;
+			for (auto val : ctrl.get()->cValue->value)
+			{
+				if (!val.is_speedrun_ignored)
+				{
+					temp.push_back(val);
+					break;
+				}
+				index += 1;
+			}
 
-		if (srValue == 0) //TODO not call this every time
-		{
-			ctrl.get()->cValue->SetValueDefault();
-		}
-		else
-		{
-			ctrl.get()->cValue->SetValueSpeedrunDefault(); //TODO at startup doesn't work
+			ctrl.get()->cValue->value = temp;
+			if (ctrl.get()->cValue->cur_val == index)
+			{
+				ctrl.get()->cValue->cur_val = 2;
+			}
 		}
 
 		switch (ctrl.get()->uType)
@@ -481,7 +501,7 @@ void PopulateTab(int section)
 		GetClientRect(*gp, &gp_rect);
 
 		pos = 0;
-		// process a sub 
+		// process a sub
 		for (size_t j = 0, sj = cfg.group[section].sub[i].opt.size(); j < sj; j++, pos++)
 		{
 			int sec, opt;
@@ -641,8 +661,14 @@ void SetLanguage(DWORD RcData)
 	WriteRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"LauncherLanguage", RRF_RT_REG_DWORD, (BYTE*)&RcData, sizeof(RcData));
 }
 
-void CheckForIniSave()
+void CheckForIniSave(bool force = false)
 {
+	if (force)
+	{
+		cfg.SaveIni(ini_file.c_str(), GetPrgWString(STR_INI_ERROR).c_str(), GetPrgWString(STR_ERROR).c_str());
+		return;
+	}
+
 	if (bHasChange)
 	{
 		if (MessageBoxW(hWnd, GetPrgWString(STR_UNSAVED_TEXT).c_str(), GetPrgWString(STR_WARNING).c_str(), MB_YESNO) == IDYES)
@@ -775,6 +801,75 @@ bool RelaunchApp()
 	return false;
 }
 
+void SetSpeedrun(DWORD RcData)
+{
+	//WriteRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"SpeedrunMode", RRF_RT_REG_DWORD, (BYTE*)&RcData, sizeof(RcData));
+}
+
+void GetSpeedrun() // TODO if registry and SpeedrunMode config don't match, reset it
+{
+	DWORD val = 0;
+	/*if (ReadRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"SpeedrunMode", &val, MAX_PATH * sizeof(DWORD)))
+	{
+		hChSpeedrun.SetCheck(val == SPEEDRUN_ENABLED);
+	}
+	else
+	{
+		SetSpeedrun(cfg.FindAndGetValue(speedrunOptionName) != 0 ? SPEEDRUN_ENABLED : SPEEDRUN_DISABLED);
+	}*/
+
+	
+}
+
+void SetSpeedrunCheck()
+{
+	hChSpeedrun.SetCheck(cfg.FindAndGetValue(speedrunOptionName) != 0);
+}
+
+void SetOptionsDefaults()
+{
+	auto srEnabled = hChSpeedrun.GetCheck();
+
+	if (srEnabled)
+	{
+		cfg.SetSpeedrunDefault();
+	}
+	else
+	{
+		cfg.SetDefault();
+	}
+}
+bool awaitingConfirmation = false;
+void CheckForDisabledSpeedrun()
+{
+	int srValue = cfg.FindAndGetValue(speedrunOptionName);
+
+	if (srValue != 0 && hChSpeedrun.GetCheck())
+	{
+		awaitingConfirmation = true;
+		wchar_t SpeedrunUserCheckString[MAX_PATH];
+		_snwprintf_s(SpeedrunUserCheckString, MAX_PATH, _TRUNCATE, GetPrgWString(STR_LANG_CONFIRM).c_str(), LangList[hDbLanguage.GetSelection()].Lang); //TODO string
+		if (MessageBoxW(hWnd, SpeedrunUserCheckString, GetPrgWString(STR_WARNING).c_str(), MB_YESNO) == IDYES)
+		{
+			hChSpeedrun.SetCheck(false);
+
+			SetOptionsDefaults();
+			CheckForIniSave(true);
+
+			if (!RelaunchApp())
+			{
+				MessageBoxW(hWnd, GetPrgWString(STR_LANG_ERROR).c_str(), GetPrgWString(STR_ERROR).c_str(), MB_OK);
+			}
+		}
+		else
+		{
+			cfg.SetSpeedrunModeDefault();
+		}
+
+		awaitingConfirmation = false;
+	}
+}
+
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	m_hModule = hInstance; // Store instance handle in our global variable
@@ -820,7 +915,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	int X = (XBorder - 1);
 	int Y = r.bottom - (23 + YBorder);
 	hBnClose.CreateWindow(GetPrgWString(STR_BN_CLOSE).c_str(), X, Y, 90, 24, hWnd, hInstance, hFont); X += 94;
-	hBnDefault.CreateWindow(GetPrgWString(STR_BN_DEFAULT).c_str(), X, Y, 140, 24, hWnd, hInstance, hFont);
+	hBnDefault.CreateWindow(GetPrgWString(STR_BN_DEFAULT).c_str(), X, Y, 140, 24, hWnd, hInstance, hFont); X += 144;
+
+	// create speedrun mode check
+	hChSpeedrun.CreateWindow(L"Speedrun", X, Y, 140, 24, hWnd, hInstance, hFont);
 
 	X = r.right;
 	X -= (160 + XBorder - 1); hBnLaunch.CreateWindow(GetPrgWString(STR_BN_LAUNCH).c_str(), X, Y, 160, 24, hWnd, hInstance, hFont);
@@ -871,6 +969,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	hBnLaunch.SetID(WM_USER + 3);
 	hDbLaunch.SetID(WM_USER + 4);
 	hDbLanguage.SetID(WM_USER + 5);
+	hChSpeedrun.SetID(WM_USER + 6);
 
 	// show window
 	ShowWindow(hWnd, nCmdShow);
@@ -885,6 +984,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		hDbLanguage.AddString(item.Lang);
 	}
 	SetLanguageSelection();
+	SetSpeedrunCheck();
 
 	// subclass the tab to catch messages for controls inside it
 	hTab.Subclass(TabProc);
@@ -932,20 +1032,6 @@ LRESULT CALLBACK TabProc(HWND hWndd, UINT Msg, WPARAM wParam, LPARAM lParam)
 	}
 
 	return hTab.CallProcedure(hWndd, Msg, wParam, lParam);
-}
-
-void SetOptionsDefaults()
-{
-	int srValue = cfg.FindAndGetValue("SpeedrunMode");
-
-	if (srValue != 0) 
-	{
-		cfg.SetSpeedrunDefault();
-	}
-	else
-	{
-		cfg.SetDefault();
-	}
 }
 
 LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -1018,6 +1104,27 @@ LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 				cfg.SaveIni(ini_file.c_str(), GetPrgWString(STR_INI_ERROR).c_str(), GetPrgWString(STR_ERROR).c_str());
 				SendMessageW(hWnd, WM_DESTROY, 0, 0);
 				break;
+			case (WM_USER + 6): // Speedrun check
+			{
+				wchar_t SpeedrunUserCheckString[MAX_PATH];
+				_snwprintf_s(SpeedrunUserCheckString, MAX_PATH, _TRUNCATE, GetPrgWString(STR_LANG_CONFIRM).c_str(), LangList[hDbLanguage.GetSelection()].Lang); //TODO string
+				if (MessageBoxW(hWnd, SpeedrunUserCheckString, GetPrgWString(STR_WARNING).c_str(), MB_YESNO) == IDYES)
+				{
+					SetSpeedrun(hChSpeedrun.GetCheck() ? SPEEDRUN_ENABLED : SPEEDRUN_DISABLED);
+					SetOptionsDefaults();
+					CheckForIniSave(true);
+
+					if (!RelaunchApp())
+					{
+						MessageBoxW(hWnd, GetPrgWString(STR_LANG_ERROR).c_str(), GetPrgWString(STR_ERROR).c_str(), MB_OK);
+					}
+				}
+				else
+				{
+					hChSpeedrun.SetCheck(!hChSpeedrun.GetCheck());
+				}
+			}
+			break;
 			}
 			break;
 		case CBN_SELCHANGE:

@@ -35,3 +35,6 @@
 [submodule "External/MemoryModule"]
 	path = External/MemoryModule
 	url = https://github.com/fancycode/MemoryModule
+[submodule "External/dsoal"]
+	path = External/dsoal
+	url = https://github.com/elishacloud/dsoal

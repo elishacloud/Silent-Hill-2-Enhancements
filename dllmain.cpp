@@ -49,6 +49,8 @@ bool IsLoadConfig = false;
 // Paths
 wchar_t configpath[MAX_PATH] = {};
 
+extern "C" BOOL WINAPI DSOAL_DllMain(HINSTANCE hInstDLL, DWORD fdwReason, LPVOID lpvReserved);
+
 void VerifySH2EE(){}
 
 void GetConfig()
@@ -216,6 +218,27 @@ void DelayedStart()
 	if (HookDirectSound)
 	{
 		HookDirectSoundCreate8();
+
+		// Check if DSOAL alsoft.ini file does not exist and add it
+		if (UseDSOAL)
+		{
+			wchar_t alsoftpath[MAX_PATH] = {};
+			if (GetModuleFileNameW(nullptr, alsoftpath, MAX_PATH) != NULL)
+			{
+				wchar_t* pdest = wcsrchr(alsoftpath, '\\');
+				if (pdest)
+				{
+					*(pdest + 1) = '\0';
+					if (wcscat_s(alsoftpath, MAX_PATH, L"alsoft.ini") == 0)
+					{
+						if (!PathFileExists(alsoftpath))
+						{
+							ExtractFileFromResource(IDR_ALSOFT_INI, alsoftpath);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	// Hook DirectInput8
@@ -340,12 +363,6 @@ void DelayedStart()
 	if (Room312ShadowFix)
 	{
 		PatchRoom312ShadowFix();
-	}
-
-	// Red Cross health indicator in cutscene
-	if (DisableRedCrossInCutScenes)
-	{
-		PatchRedCrossInCutscene();
 	}
 
 	// Adjusts flashlight brightness
@@ -655,12 +672,37 @@ void DelayedStart()
 		PatchCustomSFXs();
 	}
 
+	// Adds display mode option
+	if (DisplayModeOption)
+	{
+		PatchDisplayMode();
+	}
+
+	// Adds health indicator option
+	if (HealthIndicatorOption)
+	{
+		PatchSearchViewOptionName();
+		PatchHealthIndicatorOption();
+	}
+
+	// Red Cross health indicator in cutscene
+	if (HealthIndicatorOption || DisableRedCrossInCutScenes || DisableRedCross)
+	{
+		PatchRedCrossInCutscene();
+	}
+
 	// Patch to prevent James from looking at the teddy bear after picking up the bent needle
 	if (TeddyBearLookFix)
 	{
 		PatchTeddyBearLookFix();
 	}
 
+	// Overhaul the Control Options menu
+	if (ReplaceButtonText != BUTTON_ICONS_DISABLED)
+	{
+		PatchControlOptionsMenu();
+	}
+	
 	// Fix spawn precondition for the Old Man Coin
 	if (OldManCoinFix)
  	{
@@ -703,6 +745,12 @@ void DelayedStart()
 		PatchElevatorCursorColor();
 	}
 
+	// Allow "Load" and "Continue" options on the main menu to appear instantly
+	if (MainMenuInstantLoadOptions)
+	{
+		PatchMainMenuInstantLoadOptions();
+	}
+
 	// Remove the "Now loading..." and "Press Return to continue." messages
 	if (DisableLoadingPressReturnMessages)
 	{
@@ -734,10 +782,8 @@ void DelayedStart()
 }
 
 // Dll main function
-bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 {
-	UNREFERENCED_PARAMETER(lpReserved);
-
 	switch (fdwReason)
 	{
 	case DLL_PROCESS_ATTACH:
@@ -761,7 +807,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		}
 
 		// Allows application to use Windows themes
-		if (ScreenMode != EXCLUSIVE_FULLSCREEN && WndModeBorder)
+		if (WndModeBorder)
 		{
 			SetAppTheme();
 		}
@@ -831,5 +877,10 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 	break;
 	}
 
-	return true;
+	if (UseDSOAL)
+	{
+		DSOAL_DllMain(hModule, fdwReason, lpReserved);
+	}
+
+	return TRUE;
 }

@@ -22,7 +22,6 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <PlatformToolset>v141_xp</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
     <XPDeprecationWarning>false</XPDeprecationWarning>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -36,13 +35,15 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="ReShade\stb\stb.props" />
+    <Import Project="External\dsoal\openal\common.props" />
+    <Import Project="External\dsoal\openal\OpenAL.props" />
+    <Import Project="External\dsoal\dsoal.props" />
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
@@ -70,8 +71,6 @@
       <ObjectFileName>$(SolutionDir)bin\Intermediate\$(ProjectName)\$(Configuration)\Object\%(RelativeDir)</ObjectFileName>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>Wrappers\wrapper.def</ModuleDefinitionFile>
@@ -162,6 +161,7 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
   <ItemGroup>
     <ClCompile Include="Common\AutoUpdate.cpp" />
     <ClCompile Include="Common\FileSystemHooks.cpp" />
+    <ClCompile Include="Common\GfxUtils.cpp" />
     <ClCompile Include="Common\LoadModules.cpp" />
     <ClCompile Include="Common\md5.cpp" />
     <ClCompile Include="Common\Settings.cpp" />
@@ -210,8 +210,8 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     <ClCompile Include="Patches\MapTranscription.cpp" />
     <ClCompile Include="Patches\DelayedFadeIn.cpp" />
     <ClCompile Include="Patches\FmvSubtitles.cpp" />
+    <ClCompile Include="Patches\OptionsMenuTweaks.cpp" />
     <ClCompile Include="Patches\GravestoneBoardsFix.cpp" />
-    <ClCompile Include="Patches\MasterVolume.cpp" />
     <ClCompile Include="Patches\MenuSounds.cpp" />
     <ClCompile Include="Patches\MothDrawOrder.cpp" />
     <ClCompile Include="Patches\ObservationDeckFogFix.cpp" />
@@ -322,6 +322,7 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
   <ItemGroup>
     <ClInclude Include="Common\AutoUpdate.h" />
     <ClInclude Include="Common\FileSystemHooks.h" />
+    <ClInclude Include="Common\GfxUtils.h" />
     <ClInclude Include="Common\LoadModules.h" />
     <ClInclude Include="Common\md5.h" />
     <ClInclude Include="Common\Settings.h" />
@@ -355,8 +356,8 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     <ClInclude Include="Logging\Logging.h" />
     <ClInclude Include="Patches\FullscreenImages.h" />
     <ClInclude Include="Patches\InputTweaks.h" />
+    <ClInclude Include="Patches\OptionsMenuTweaks.h" />
     <ClInclude Include="Patches\GravestoneBoardsFix.h" />
-    <ClInclude Include="Patches\MasterVolume.h" />
     <ClInclude Include="Patches\ModelID.h" />
     <ClInclude Include="Patches\Patches.h" />
     <ClInclude Include="Patches\SfxPatch.h" />

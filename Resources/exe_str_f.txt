@@ -27,3 +27,5 @@ Bouton %d
 \hChanger ce r�glage dans Windows
 \hVolume principal
 \hR�gler le volume principal
+\hHealth indicator
+\hEnable low health indicator

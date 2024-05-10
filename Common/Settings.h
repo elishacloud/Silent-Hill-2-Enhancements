@@ -28,6 +28,7 @@
 	visit(DisableRedCrossInCutScenes, true) \
 	visit(DisableSafeMode, true) \
 	visit(DisableScreenSaver, true) \
+	visit(DisplayModeOption, true) \
 	visit(DynamicResolution, true) \
 	visit(EnableDebugOverlay, true) \
 	visit(EnableEnhancedMouse, true) \
@@ -75,6 +76,7 @@
 	visit(GamepadControlsFix, true) \
 	visit(GravestoneBoardsFix, true) \
 	visit(HalogenLightFix, true) \
+	visit(HealthIndicatorOption, true) \
 	visit(HookDirect3D, true) \
 	visit(HookDirectInput, true) \
 	visit(HookDirectSound, true) \
@@ -94,6 +96,7 @@
 	visit(LockScreenPosition, true) \
 	visit(LockSpeakerConfig, true) \
 	visit(MainMenuFix, true) \
+	visit(MainMenuInstantLoadOptions, true) \
 	visit(MainMenuTitlePerLang, true) \
 	visit(MemoScreenFix, true) \
 	visit(MenuSoundsFix, true) \
@@ -133,6 +136,7 @@
 	visit(UseCustomExeStr, true) \
 	visit(UseCustomFonts, true) \
 	visit(UseCustomModFolder, true) \
+	visit(UseDSOAL, true) \
 	visit(UsePS2LowResTextures, false) \
 	visit(VHSAudioFix, false) \
 	visit(WhiteShaderFix, true) \
@@ -166,6 +170,7 @@
 	visit(NormalFontWidth, 20) \
 	visit(PadNumber, 0) \
 	visit(RemoveForceFeedbackFilter, 1) \
+	visit(ReplaceButtonText, 1) \
 	visit(RestoreSearchCamMovement, 2) \
 	visit(ResX, 0) \
 	visit(ResY, 0) \
@@ -216,6 +221,7 @@
 	visit(Direct3DCreate9On12) \
 	visit(DisableLoadingPressReturnMessages) \
 	visit(DisableLogging) \
+	visit(DisableRedCross) \
 	visit(EnableDebugOverlay) \
 	visit(EnableInfoOverlay) \
 	visit(EnableScreenshots) \
@@ -248,6 +254,7 @@
 	visit(QuickSaveCancelFix) \
 	visit(ResX) \
 	visit(ResY) \
+	visit(ScreenMode) \
 	visit(SetSwapEffectUpgradeShim) \
 	visit(ShowerRoomFlashlightFix) \
 	visit(SmallFontHeight) \
@@ -293,6 +300,14 @@ typedef enum _DPADCONTROL {
 	DPAD_BUTTON_MODE = 3,
 } DPADCONTROL;
 
+typedef enum _BUTTONICONSSET {
+	BUTTON_ICONS_DISABLED = 0,
+	BUTTON_ICONS_GENERIC = 1,
+	BUTTON_ICONS_XBOX = 2,
+	BUTTON_ICONS_PLAYSTATION = 3,
+	BUTTON_ICONS_NINTENDO = 4,
+} BUTTONICONSSET;
+
 // Configurable setting defaults
 #define DECLARE_BOOL_SETTINGS(name, unused) \
 	extern bool name;
@@ -321,6 +336,8 @@ struct CFGDATA
 	DWORD Width = 0;
 	DWORD Height = 0;
 	DWORD VolumeLevel = 15;
+	DWORD HealthIndicatorOption = 1;
+	DWORD DisplayModeOption = 0;
 };
 
 extern HMODULE m_hModule;

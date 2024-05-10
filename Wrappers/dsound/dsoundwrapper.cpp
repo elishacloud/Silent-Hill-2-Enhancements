@@ -36,7 +36,7 @@ void HookDirectSoundCreate8()
 		return;
 	}
 
-	// Get function address
+	// Get 'DirectSoundCreate8' function address
 	m_pDirectSoundCreate8 = (DirectSoundCreate8Proc)(Address + 5 + *(DWORD*)(Address + 1));
 
 	// Write to memory
@@ -48,21 +48,49 @@ HRESULT WINAPI DirectSoundCreate8Wrapper(LPCGUID pcGuidDevice, LPDIRECTSOUND8 *p
 {
 	LOG_LIMIT(3, "Redirecting 'DirectSoundCreate8' ...");
 
-	HRESULT hr;
-
-	DWORD x = 0;
-	do {
-		hr = m_pDirectSoundCreate8(pcGuidDevice, ppDS8, pUnkOuter);
-
+	// Try using dsoal with OpenAL-Soft
+	HRESULT hr = DSERR_GENERIC;
+	if (UseDSOAL)
+	{
+		hr = DSOAL_DirectSoundCreate8(pcGuidDevice, ppDS8, pUnkOuter);
 		if (FAILED(hr))
 		{
-			Sleep(100);
+			Logging::Log() << __FUNCTION__ << " DSOAL 'DirectSoundCreate8' Failed! Error: " << (DSERR)hr << " Atepmting to use local dsound.dll.";
 		}
-	} while (FAILED(hr) && ++x < 100);
+	}
 
-	RunDelayedOneTimeItems();
+	// Failover to local dsound.dll
+	if (FAILED(hr))
+	{
+		hr = m_pDirectSoundCreate8(pcGuidDevice, ppDS8, pUnkOuter);
+	}
 
-	if (SUCCEEDED(hr) && ppDS8)
+	// Failover to System32 dsound.dll
+	if (FAILED(hr))
+	{
+		// Get System32 path
+		wchar_t systemFolderPath[MAX_PATH] = {};
+		if (GetSystemDirectoryW(systemFolderPath, MAX_PATH))
+		{
+			std::wstring dllPath = std::wstring(systemFolderPath) + L"\\dsound.dll";
+
+			// Load dsound.dll from System32
+			HMODULE dsoundDLL = LoadLibrary(dllPath.c_str());
+			if (dsoundDLL)
+			{
+				DirectSoundCreate8Proc pDirectSoundCreate8 = (DirectSoundCreate8Proc)GetProcAddress(dsoundDLL, "DirectSoundCreate8");
+
+				// Call DirectSoundCreate8 from System32
+				if (pDirectSoundCreate8)
+				{
+					Logging::Log() << __FUNCTION__ << " local 'DirectSoundCreate8' Failed! Error: " << (DSERR)hr << " Atepmting to use system dsound.dll.";
+					hr = pDirectSoundCreate8(pcGuidDevice, ppDS8, pUnkOuter);
+				}
+			}
+		}
+	}
+
+	if (SUCCEEDED(hr))
 	{
 		*ppDS8 = new m_IDirectSound8(*ppDS8);
 	}
@@ -70,6 +98,8 @@ HRESULT WINAPI DirectSoundCreate8Wrapper(LPCGUID pcGuidDevice, LPDIRECTSOUND8 *p
 	{
 		Logging::Log() << "'DirectSoundCreate8' Failed! Error: " << (DSERR)hr;
 	}
+
+	RunDelayedOneTimeItems();
 
 	return hr;
 }

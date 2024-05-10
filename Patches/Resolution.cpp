@@ -15,6 +15,7 @@
 */
 
 #define WIN32_LEAN_AND_MEAN
+#define RESOLUTION_CPP
 #include <Windows.h>
 #include <vector>
 #include "Common\Utils.h"
@@ -24,6 +25,7 @@
 #include "Common\Settings.h"
 #include "Patches.h"
 #include <string>
+#include "Resource.h"
 
 using namespace std;
 
@@ -38,7 +40,6 @@ struct RESOLUTONTEXT
 	char resStrBuf[27];
 };
 
-LONG MaxWidth = 0, MaxHeight = 0;
 const DWORD MinWidth = 640;
 const DWORD MinHeight = 480;
 
@@ -372,6 +373,8 @@ void AddResolutionToList(DWORD Width, DWORD Height, bool force = false)
 		return;
 	}
 
+	if (!ResolutionAvailableCheck(Width, Height)) return;
+
 	bool found = false;
 	for (auto res : ResolutionVector)
 	{
@@ -381,9 +384,8 @@ void AddResolutionToList(DWORD Width, DWORD Height, bool force = false)
 			break;
 		}
 	}
-	bool NotTooLarge = ((ScreenMode == WINDOWED) ? (Width <= (DWORD)MaxWidth && Height <= (DWORD)MaxHeight) : true);
 	bool NotTooSmall = (Width >= MinWidth && Height >= MinHeight);
-	if (!found && (force || NotTooSmall) && NotTooLarge)
+	if (!found && (force || NotTooSmall))
 	{
 		RESOLUTONLIST Resolution;
 		Resolution.Width = Width;
@@ -395,20 +397,11 @@ void AddResolutionToList(DWORD Width, DWORD Height, bool force = false)
 
 void GetCustomResolutions()
 {
-	GetDesktopRes(MaxWidth, MaxHeight);
-
 	do {
-		// Exclusive fullscreen mode
-		if (ScreenMode == EXCLUSIVE_FULLSCREEN)
+		// Try getting exclusive fullscreen mode resolutions first
+		IDirect3D8* pDirect3D = Direct3DCreate8Wrapper(D3D_SDK_VERSION);
+		if (pDirect3D)
 		{
-			IDirect3D8* pDirect3D = Direct3DCreate8Wrapper(D3D_SDK_VERSION);
-
-			if (!pDirect3D)
-			{
-				Logging::Log() << __FUNCTION__ << " Error: failed to create Direct3D8!";
-				break;
-			}
-
 			// Add custom resolution to list
 			if (ResY && ResX)
 			{
@@ -466,6 +459,9 @@ void GetCustomResolutions()
 	if (ResolutionVector.empty())
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to get resolution list!  Adding default resolutions.";
+
+		LONG MaxWidth = 0, MaxHeight = 0;
+		GetDesktopRes(MaxWidth, MaxHeight);
 
 		// Add default resolution list
 		AddResolutionToList(640, 480);
@@ -744,16 +740,7 @@ void PatchBestGraphics()
 	gScreenYPos = (DWORD*)*(DWORD*)((BYTE*)DOptAddrA + 0x59);
 	gLowResTexOn = (DWORD*)*(DWORD*)((BYTE*)DOptAddrA + 0x95);
 
-	DWORD CallAddr = 0;
-	if (GameVersion == SH2V_DC)
-	{
-		CallAddr = (DWORD)((BYTE*)DOptAddrB + 0x77);
-	}
-	else
-	{
-		CallAddr = (DWORD)((BYTE*)DOptAddrB + 0x78);
-	}
-
+	DWORD CallAddr = (DWORD)((BYTE*)DOptAddrB + (GameVersion == SH2V_DC ? 0x77 : 0x78));
 	AdvOptionsSetsCallAddr = (void*)(*(DWORD*)(CallAddr + 5) + (CallAddr + 5) + 4);
 	AdvOptionsSetsRetAddr = (void*)(CallAddr + 11);
 	WriteJMPtoMemory((BYTE*)CallAddr, AdvOptionsSetsASM, 11);
@@ -880,6 +867,8 @@ void PatchLockScreenPosition()
 extern char* getSpeakerConfigDescStr();
 extern char* getMasterVolumeDescStr();
 extern char* getMasterVolumeNameStr();
+extern char* getHealthIndicatorStr();
+extern char* getHealthIndicatorDescriptionStr();
 
 int printSpkDescStr(unsigned short, unsigned char, int x, int y)
 {
@@ -896,6 +885,18 @@ int printMasterVolumeDescStr(unsigned short, unsigned char, int x, int y)
 int printMasterVolumeNameStr(unsigned short, unsigned char, int x, int y)
 {
 	char* ptr = (char*)prepText(getMasterVolumeNameStr());
+	return printTextPos(ptr, x, y);
+}
+
+int printHealthIndicatorNameStr(unsigned short, unsigned char, int x, int y)
+{
+	char* ptr = (char*)prepText(getHealthIndicatorStr());
+	return printTextPos(ptr, x, y);
+}
+
+int printHealthIndicatorDescriptionStr(unsigned short, unsigned char, int x, int y)
+{
+	char* ptr = (char*)prepText(getHealthIndicatorDescriptionStr());
 	return printTextPos(ptr, x, y);
 }
 
@@ -1010,5 +1011,31 @@ void PatchSpeakerConfigText()
 		WriteCalltoMemory(((BYTE*)DSpkrAddrName), *printMasterVolumeNameStr, 5);
 		WriteCalltoMemory(((BYTE*)DSpkrAddrHighlight), *printMasterVolumeNameStr, 5);
 		WriteCalltoMemory(((BYTE*)DSpkAddrB + 0x125), *printMasterVolumeDescStr, 5);
+	}
+}
+
+void PatchSearchViewOptionName()
+{
+	DWORD PrintSearchViewNameAddr = GameVersion == SH2V_10 ? 0x00461D3F :
+									GameVersion == SH2V_11 ? 0x00461FB1 :
+									GameVersion == SH2V_DC ? 0x00461FB1 : NULL;
+	BYTE* PrintSearchViewNameHighlightAddr = (BYTE*)PrintSearchViewNameAddr + 0xDE;
+
+	DWORD PrintSearchViewDescriptionAddr =	GameVersion == SH2V_10 ? 0x004623E9 :
+											GameVersion == SH2V_11 ? 0x00462653 :
+											GameVersion == SH2V_DC ? 0x00462653 : NULL;
+
+	if (!PrintSearchViewNameAddr || *(BYTE*)PrintSearchViewNameAddr != 0xE8 || *(BYTE*)((DWORD)PrintSearchViewNameAddr - 1) != 0x51 ||
+		*(BYTE*)PrintSearchViewDescriptionAddr != 0xE8)
+	{
+		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+		return;
+	}
+
+	if (UseCustomExeStr)
+	{
+		WriteCalltoMemory((BYTE*)PrintSearchViewNameAddr, *printHealthIndicatorNameStr, 5);
+		WriteCalltoMemory(PrintSearchViewNameHighlightAddr, *printHealthIndicatorNameStr, 5);
+		WriteCalltoMemory((BYTE*)PrintSearchViewDescriptionAddr, *printHealthIndicatorDescriptionStr, 5);
 	}
 }

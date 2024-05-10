@@ -736,7 +736,6 @@ void CConfigOption::Parse(XMLElement& xml, CConfig& cfg)
 	name = SAFESTR(xml.Attribute("name"));
 
 	speedrunToggleable = SetValue(xml.Attribute("speedrun"));
-	speedrunActivated = SetValue(xml.Attribute("speedrunActivated"));
 
 	// Check for <Title> otherwise use id
 	auto d = xml.FirstChildElement("Title");

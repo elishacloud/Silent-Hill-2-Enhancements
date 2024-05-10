@@ -1362,7 +1362,7 @@
 
     <Section name="Configs">
 
-      <Feature name="SpeedrunMode" speedrunActivated="true">
+      <Feature name="SpeedrunMode" speedrun="true">
         <Title>Speedrun Mode</Title>
         <Description>Sets the speedrun mode for the game.</Description>
         <Choices type="list">

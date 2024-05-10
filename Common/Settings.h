@@ -174,7 +174,7 @@
 	visit(SmallFontHeight, 24) \
 	visit(SmallFontWidth, 16) \
 	visit(SpaceSize, 7) \
-	visit(SpeedrunMode, 2)
+	visit(SpeedrunMode, 0)
 
 #define VISIT_FLOAT_SETTINGS(visit) \
 	visit(fog_layer1_x1, 0.250f) \

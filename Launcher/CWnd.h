@@ -163,6 +163,10 @@ public:
 
 	// random configuration
 	void SetConfigPtr(CConfigOption* c) { cValue = c; }
+	int GetConfigValue()
+	{
+		return cValue->cur_val;
+	}
 	void SetConfigValue(int val)
 	{
 		if (cValue)

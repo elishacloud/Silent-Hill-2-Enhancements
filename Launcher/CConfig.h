@@ -172,7 +172,6 @@ public:
 	std::string id, desc;	// string references
 	UINT type;				// uses TYPE table to determine the control to use
 	bool speedrunToggleable;
-	bool speedrunActivated;
 
 	enum TYPE
 	{

@@ -8,7 +8,7 @@
 
     <Section name="Schermo">
 
-      <Feature name="WndModeBorder">
+      <Feature name="WndModeBorder" speedrun="true">
         <Title>Bordo finestra (solo per modalità in finestra)</Title>
         <Description>Crea un bordo finestra per il gioco. Funziona soltanto in modalità finestra.&#x0a;&#x0a;Nota: la risoluzione in finestra del gioco non deve essere vicina o esattamente uguale a quella verticale/orizzontale del monitor, o il bordo non apparirà. Questa è una misura di sicurezza per assicurarsi che il bordo non venga perso al di fuori dall'area del display.</Description>
         <Choices type="check">
@@ -26,7 +26,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="ForceTopMost">
+      <Feature name="ForceTopMost" speedrun="true">
         <Title>Finestra di gioco sempre in primo piano</Title>
         <Description>Forza la finestra di gioco ad essere sempre sopra tutte le altre finestre, inclusa la barra del menu Start.&#x0a;&#x0a;Nota: Funziona soltanto in modalità finestra.</Description>
         <Choices type="check">
@@ -450,7 +450,7 @@
 
     <Section name="Controller">
 
-      <Feature name="RestoreSearchCamMovement">
+      <Feature name="RestoreSearchCamMovement" speedrun="true">
         <Title>Tipo di controller per il movimento della telecamera di ispezione</Title>
         <Description>Ripristina la funzionalità della levetta destra del controller per il movimento della telecamera di ispezione. Cambia l'opzione in base al tipo di controller utilizzato.&#x0a;&#x0a;Nota: Se si usa Xidi (software di supporto ai controller) selezionare "DirectInput".</Description>
         <Choices type="list">
@@ -461,7 +461,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="DPadMovementFix">
+      <Feature name="DPadMovementFix" speedrun="true">
         <Title>Ripristina movimento con i tasti direzionali</Title>
         <Description>Modalità Movimento: I tasti direzionali controllano il movimento di James e la navigazione nei menu.&#x0a;Modalità Tasto: I tasti direzionali fungeranno da pulsanti addizionali del controller, permettendo loro l'assegnamento di funzioni di gioco. NON sarà possibile controllare James o navigare menu coi tasti direzionali.&#x0a;Modalità Ibrida: I tasti direzionali fungeranno da tasti addizionali del controller, permettendo loro l'assegnazione di funzioni di gioco. NON sarà possibile controllare James MA sarà possibile navigare menu coi tasti direzionali.</Description>
         <Choices type="list">
@@ -515,7 +515,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="PadNumber">
+      <Feature name="PadNumber" speedrun="true">
         <Title>ID del controller da far vibrare</Title>
         <Description>Imposta il numero di controller da far vibrare. Tipicamente è "0" per il gioco.</Description>
         <Choices type="list">
@@ -532,7 +532,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="RemoveForceFeedbackFilter">
+      <Feature name="RemoveForceFeedbackFilter" speedrun="true">
         <Title>Rimuovi il filtro di vibrazione</Title>
         <Description>Permette a controller senza vibrazione di essere rilevati dal gioco. Utilizza questa opzione se un controller senza force feedback non viene rilevato dal gioco.</Description>
         <Choices type="list">
@@ -546,7 +546,7 @@
 
     <Section name="Mouse">
 
-      <Feature name="EnableEnhancedMouse">
+      <Feature name="EnableEnhancedMouse" speedrun="true">
         <Title>Migliora l'input del mouse</Title>
         <Description>Abilita l'utilizzo del mouse durante il gioco. Movimento del mouse = Controllo del personaggio e della telecamera di ispezione. Tasto sinistro = Azione/Conferma. Tasto destro = Mira l'arma/Indietro.</Description>
         <Choices type="check">
@@ -555,7 +555,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="EnableMouseWheelSwap">
+      <Feature name="EnableMouseWheelSwap" speedrun="true">
         <Title>Abilita il cambio delle armi con la rotellina del mouse</Title>
         <Description>Abilita il cambio delle armi con la rotellina durante il gioco. Gira la rotellina su o giù per cambiare arma tra quelle disponibili.</Description>
         <Choices type="check">
@@ -696,7 +696,7 @@
         <Title>Disabilita il menu di pausa durante le dissolvenze</Title>
         <Description>Impedisce al giocatore di attivare il menu di pausa durante le dissolvenze, che causerebbero una immagine errata come sfondo del menu di pausa.</Description>
         <Choices type="check">
-          <Value name="Disabilitato">0</Value>
+          <Value name="Disabilitato" speedrun-default="true">0</Value>
           <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
@@ -776,7 +776,7 @@
         <Title>Cambia lo spawn nell'armadio dell'appartamento</Title>
         <Description>Posiziona James dentro l'armadio dopo la cutscene della stanza 307 degli Wood Side Apartments, per guidare l'attenzione del giocatore sulla chiave al suo interno.</Description>
         <Choices type="check">
-          <Value name="Disabilitato">0</Value>
+          <Value name="Disabilitato" speedrun-default="true">0</Value>
           <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
@@ -997,7 +997,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="CenterPuzzleCursor">
+      <Feature name="CenterPuzzleCursor" speedrun="true">
         <Title>Centra cursore puzzle</Title>
         <Description>Centra il cursore quando si entra in un puzzle.</Description>
         <Choices type="check">
@@ -1018,8 +1018,8 @@
         <Title>Correggi problemi di salvataggio/caricamento</Title>
         <Description>Disabilita il salvataggio istantaneo in alcune stanze che porterebbero problemi al gioco, dopo il caricamento. Corregge alcuni bug del salvataggio istantaneo che potrebbero portare a un blocco del gioco e/o corruzione dei file di salvataggio.&#x0a;&#x0a;Nota: Questa opzione ha effetto sulle strategie di "quick save" di speedrun.</Description>
         <Choices type="check">
-          <Value name="Disabilitato">0</Value>
-          <Value name="Abilitato" default="true">1</Value>
+          <Value name="Disabilitato" speedrun-set="true">0</Value>
+          <Value name="Abilitato" default="true" speedrun-random="true">1</Value>
         </Choices>
       </Feature>
 

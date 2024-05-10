@@ -8,7 +8,7 @@
 
     <Section name="Visualización">
 
-      <Feature name="WndModeBorder">
+      <Feature name="WndModeBorder" speedrun="true">
         <Title>Borde de la ventana (solo para el modo en ventana)</Title>
         <Description>Crea un borde en la ventana del juego. Solo funciona al usar el modo en ventana.&#x0a;&#x0a;Nota: la resolución de la ventana del juego no debe ser exactamente o casi la misma que el alto y ancho de tu pantalla, de lo contrario, el borde podría no aparecer. Es una medida de seguridad para evitar que el borde no se pierda fuera de tu área de visualización.</Description>
         <Choices type="check">
@@ -26,7 +26,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="ForceTopMost">
+      <Feature name="ForceTopMost" speedrun="true">
         <Title>Mantener la ventana del juego en primer plano</Title>
         <Description>Fuerza a la ventana del juego a situarse por delante del resto de ventanas, incluyendo la barra del menú Inicio.&#x0a;&#x0a;Nota: esta opción solo funcionará si el modo de pantalla en ventana está activado.</Description>
         <Choices type="check">
@@ -450,7 +450,7 @@
 
     <Section name="Mando">
         
-      <Feature name="RestoreSearchCamMovement">
+      <Feature name="RestoreSearchCamMovement" speedrun="true">
         <Title>Tipo de mando para el modo de búsqueda</Title>
       	<Description>Restaura la función del stick derecho del mando para poder mover la cámara. Cambia este ajuste en función del tipo de mando que utilices.&#x0a;&#x0a;Nota: si utilizas Xidi (un software para la compatibilidad con mandos) debes seleccionar DirectInput.</Description>
         <Choices type="list">
@@ -461,7 +461,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="DPadMovementFix">
+      <Feature name="DPadMovementFix" speedrun="true">
         <Title>Restaurar movimiento de la cruceta</Title>
         <Description>Modo de movimiento: la cruceta hará de mando de movimiento adicional para controlar a James y navegar por los menús.&#x0a;Modo de botones: la cruceta hará de botones a los que podrás asignar acciones del juego. NO PODRÁS controlar a James ni navegar por los menús con la cruceta.&#x0a;Modo híbrido: la cruceta hará de botones a los que podrás asignar acciones del juego. NO PODRÁS controlar a James con la cruceta, pero SÍ PODRÁS navegar por los menús.</Description>
         <Choices type="list">
@@ -515,7 +515,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="PadNumber">
+      <Feature name="PadNumber" speedrun="true">
         <Title>ID de mando para la vibración</Title>
         <Description>Selecciona el ID de mando (controlador) al que enviar las vibraciones. El valor para este juego suele ser 0.</Description>
         <Choices type="list">
@@ -532,7 +532,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="RemoveForceFeedbackFilter">
+      <Feature name="RemoveForceFeedbackFilter" speedrun="true">
         <Title>Desactivar filtro de vibración</Title>
         <Description>Permite detectar mandos que no tengan la función de vibración cuando el juego comience a buscarlos. Utiliza esta opción si el juego no detecta un mando que no sea compatible con la función de vibración.</Description>
         <Choices type="list">
@@ -546,7 +546,7 @@
 
     <Section name="Ratón/Mouse">
       
-      <Feature name="EnableEnhancedMouse">
+      <Feature name="EnableEnhancedMouse" speedrun="true">
         <Title>Mejorar la entrada</Title>
       <Description>Activa el soporte para ratones/mice dentro del juego. Desplazamiento = Controlar al personaje y la cámara en el modo de búsqueda. Botón izquierdo = Acción/Confirmar. Botón derecho = Preparar arma/Cancelar.</Description>
         <Choices type="check">
@@ -555,7 +555,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="EnableMouseWheelSwap">
+      <Feature name="EnableMouseWheelSwap" speedrun="true">
         <Title>Cambiar de armas con la rueda</Title>
       <Description>Activa el soporte para la rueda del ratón/mouse dentro del juego. Mueve la rueda del ratón/mouse hacia arriba o hacia abajo para cambiar de arma.</Description>
         <Choices type="check">
@@ -696,7 +696,7 @@
         <Title>Desactivar el menú de pausa durante los fundidos de/a negro</Title>
         <Description>Evita que el jugador pueda abrir el menú de pausa durante un fundido, lo cual utilizaría una imagen incorrecta del juego para el fondo del menú de pausa.</Description>
         <Choices type="check">
-          <Value name="No">0</Value>
+          <Value name="No" speedrun-default="true">0</Value>
           <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
@@ -767,7 +767,7 @@
         <Title>Activar la motosierra solo en una Nueva partida+</Title>
       	<Description>Evita que aparezca la motosierra en una partida inicial, lo que es una decisión de diseño intencionada de los desarrolladores.</Description>
         <Choices type="check">
-          <Value name="No">0</Value>
+          <Value name="No" speedrun-default="true">0</Value>
           <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
@@ -997,7 +997,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="CenterPuzzleCursor">
+      <Feature name="CenterPuzzleCursor" speedrun="true">
         <Title>Centrar cursor del ratón en enigmas</Title>
         <Description>Centra el cursor del ratón/mouse al acceder a un enigmas.</Description>
         <Choices type="check">
@@ -1018,8 +1018,8 @@
         <Title>Corregir los problemas al guardar y cargar</Title>
         <Description>Desactiva el guardado libre en ciertos lugares que provocarían problemas dentro del juego al volver a cargar. Es una forma de sortear fallos en el guardado rápido que no permitirían terminar el juego o dañarían las partidas guardadas.&#x0a;&#x0a;Nota: esta opción afecta a las estrategias de guardado rápido para hacer «speedruns».</Description>
         <Choices type="check">
-          <Value name="No">0</Value>
-          <Value name="Sí" default="true">1</Value>
+          <Value name="No" speedrun-set="true">0</Value>
+          <Value name="Sí" default="true" speedrun-random="true">1</Value>
         </Choices>
       </Feature>
 

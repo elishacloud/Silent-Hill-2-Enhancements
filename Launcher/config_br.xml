@@ -8,7 +8,7 @@
 
     <Section name="Exibição">
 
-      <Feature name="WndModeBorder">
+      <Feature name="WndModeBorder" speedrun="true">
         <Title>Janela com borda (apenas para o modo janela)</Title>
         <Description>Cria uma janela com borda para o jogo. Só funciona jogando em modo janela.&#x0a;&#x0a;Nota: A resolução da janela do jogo não deve ser próxima ou exatamente igual à largura ou altura da tela, caso contrário, a borda não aparecerá. Esta é uma medida de segurança para garantir que a borda não ultrapasse a área de exibição.</Description>
         <Choices type="check">
@@ -26,7 +26,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="ForceTopMost">
+      <Feature name="ForceTopMost" speedrun="true">
         <Title>Janela do jogo sempre no topo</Title>
         <Description>Força a janela do jogo a ficar acima de todas as outras, incluindo a barra do Menu Iniciar.&#x0a;&#x0a;Nota: Só funciona quando o modo janela está ativado.</Description>
         <Choices type="check">
@@ -450,7 +450,7 @@
 
     <Section name="Controles">
         
-      <Feature name="RestoreSearchCamMovement">
+      <Feature name="RestoreSearchCamMovement" speedrun="true">
         <Title>Tipo de controle para câmera de busca</Title>
         <Description>Restaura a funcionalidade correta do joystick para que os controles movam a câmera de busca. Altere a configuração dependendo do tipo de controle que você está usando.&#x0a;&#x0a;Nota: Se estiver usando o Xidi (software de suporte de controle), defina esta opção como "DirectInput".</Description>
         <Choices type="list">
@@ -461,7 +461,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="DPadMovementFix">
+      <Feature name="DPadMovementFix" speedrun="true">
         <Title>Restaurar funções do D-pad</Title>
         <Description>Modo Movimento: O D-pad atuará como um bloco de movimento adicional para controlar James e navegar pelas seleções do menu.&#x0a;Modo Botão: O D-pad funcionará como botões adicionais do controle, permitindo que você atribua funções de jogo ao D-pad. Você NÃO poderá controlar James ou navegar pelos menus com o D-pad.&#x0a;Modo Híbrido: O D-pad atuará como botões adicionais do controle, permitindo que você atribua funções de jogo ao D-pad. Você NÃO poderá controlar James, mas PODERÁ navegar pelos menus com o D-pad.</Description>
         <Choices type="list">
@@ -515,7 +515,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="PadNumber">
+      <Feature name="PadNumber" speedrun="true">
         <Title>ID de controle para vibração</Title>
         <Description>Define o ID do gamepad (controle) para vibrar. Normalmente "0" é o padrão para o jogo.</Description>
         <Choices type="list">
@@ -532,7 +532,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="RemoveForceFeedbackFilter">
+      <Feature name="RemoveForceFeedbackFilter" speedrun="true">
         <Title>Remover filtro "Force Feedback"</Title>
         <Description>Permite que controles sem "Force Feedback" sejam detectados durante a verificação de controle do jogo. Use esta opção se um controle sem "Force Feedback" não estiver sendo detectado pelo jogo.</Description>
         <Choices type="list">
@@ -546,7 +546,7 @@
 
     <Section name="Mouse">
       
-      <Feature name="EnableEnhancedMouse">
+      <Feature name="EnableEnhancedMouse" speedrun="true">
         <Title>Aprimorar entrada do mouse</Title>
         <Description>Ativa o suporte do mouse durante o jogo regular. Movimento do mouse = Controla o personagem e a câmera de busca. Clique esquerdo = Ação/Confirmar. Clique direito = Preparar Arma/Cancelar.</Description>
         <Choices type="check">
@@ -555,7 +555,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="EnableMouseWheelSwap">
+      <Feature name="EnableMouseWheelSwap" speedrun="true">
         <Title>Ativar troca de armas do mouse</Title>
         <Description>Ativa o suporte de roda do mouse durante o jogo regular. Role a roda do mouse para cima ou para baixo para alternar entre as armas disponíveis.</Description>
         <Choices type="check">
@@ -696,7 +696,7 @@
         <Title>Desativar tela de pausa durante os fades</Title>
         <Description>Evita que o jogador abra o menu de pausa durante um "fade-in", o que, de outra forma, usaria uma captura de tela errada do jogo para a imagem de fundo do menu de pausa.</Description>
         <Choices type="check">
-          <Value name="Desativar">0</Value>
+          <Value name="Desativar" speedrun-default="true">0</Value>
           <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
@@ -767,7 +767,7 @@
         <Title>Motosserra apenas em Novo Jogo+</Title>
         <Description>Impede que a motosserra apareça na primeira jogada, que é uma escolha de design pretendida pela desenvolvedora.</Description>
         <Choices type="check">
-          <Value name="Desativar">0</Value>
+          <Value name="Desativar" speedrun-default="true">0</Value>
           <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
@@ -997,7 +997,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="CenterPuzzleCursor">
+      <Feature name="CenterPuzzleCursor" speedrun="true">
         <Title>Center puzzle mouse cursor</Title>
         <Description>Center mouse cursor when entering a puzzle.</Description>
         <Choices type="check">
@@ -1018,8 +1018,8 @@
         <Title>Corrigir problemas de salvar/carregar</Title>
         <Description>Desativa o salvamento livre em algumas áreas, o que causaria problemas no jogo ao carregar o arquivo de volta nelas. Corrige bugs de salvamento rápido que podem travar o jogo ou corromper arquivos salvos.&#x0a;&#x0a;Nota: Este recurso afeta estratégias de salvamento rápido para speedrunning.</Description>
         <Choices type="check">
-          <Value name="Desativar">0</Value>
-          <Value name="Ativar" default="true">1</Value>
+          <Value name="Desativar" speedrun-set="true">0</Value>
+          <Value name="Ativar" default="true" speedrun-random="true">1</Value>
         </Choices>
       </Feature>
 

@@ -8,7 +8,7 @@
 
     <Section name="Display">
 
-      <Feature name="WndModeBorder">
+      <Feature name="WndModeBorder" speedrun="true">
         <Title>Window border (for windowed mode only)</Title>
         <Description>Creates a window border for the game. Only works when playing in windowed mode.&#x0a;&#x0a;Note: The game's windowed resolution must not be close to or exactly the same as your display's width and/or height, otherwise the border will not appear. This is a safety measure to ensure the border doesn't get lost outside of your display area.</Description>
         <Choices type="check">
@@ -26,7 +26,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="ForceTopMost">
+      <Feature name="ForceTopMost" speedrun="true">
         <Title>Game window always on top</Title>
         <Description>Forces the game window to be above all other windows, inlcuding the Start Menu bar.&#x0a;&#x0a;Note: Only works when windowed mode is enabled.</Description>
         <Choices type="check">
@@ -388,7 +388,7 @@
         <Title>Fix specific sound looping bugs</Title>
         <Description>Fixes specific, unique sound looping bugs with the chainsaw and moth attack sounds.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
+          <Value name="Disable" speedrun-default="true">0</Value>
           <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
@@ -450,7 +450,7 @@
 
     <Section name="Controller">
         
-      <Feature name="RestoreSearchCamMovement">
+      <Feature name="RestoreSearchCamMovement" speedrun="true">
         <Title>Controller type for search cam movement</Title>
         <Description>Restores right joystick functionality for controllers to move the search camera around. Change the setting depending on what type of controller you are using.&#x0a;&#x0a;Note: If using Xidi (controller support software), set this option to "DirectInput".</Description>
         <Choices type="list">
@@ -461,7 +461,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="DPadMovementFix">
+      <Feature name="DPadMovementFix" speedrun="true">
         <Title>Restore D-pad functions</Title>
         <Description>Movement Mode: The D-pad will act as an additional movement pad to control James and navigate menu selections.&#x0a;Button Mode: The D-pad will act as additional controller buttons, allowing you to assign game functions to the D-pad. You will NOT be able to control James or navigate menus with the D-pad.&#x0a;Hybrid Mode: The D-pad will act as additional controller buttons, allowing you to assign game functions to the D-pad. You will NOT be able to control James but WILL be able to navigate menus with the D-pad.</Description>
         <Choices type="list">
@@ -515,7 +515,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="PadNumber">
+      <Feature name="PadNumber" speedrun="true">
         <Title>Controller ID to vibrate</Title>
         <Description>Sets what pad (controller) ID to vibrate. This is typically "0" for the game.</Description>
         <Choices type="list">
@@ -532,7 +532,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="RemoveForceFeedbackFilter">
+      <Feature name="RemoveForceFeedbackFilter" speedrun="true">
         <Title>Remove Force Feedback filter</Title>
         <Description>Allows non-force feedback controllers to be detected during the game's controller scan. Use this option if a non-force feedback controller is not being detected by the game.</Description>
         <Choices type="list">
@@ -546,7 +546,7 @@
 
     <Section name="Mouse">
       
-      <Feature name="EnableEnhancedMouse">
+      <Feature name="EnableEnhancedMouse" speedrun="true">
         <Title>Enhance mouse input</Title>
         <Description>Enables mouse support during regular gameplay. Mouse movement = Controls the character and search camera. Left click = Action/Confirm. Right click = Ready Weapon/Cancel.</Description>
         <Choices type="check">
@@ -555,7 +555,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="EnableMouseWheelSwap">
+      <Feature name="EnableMouseWheelSwap" speedrun="true">
         <Title>Enable mouse weapon swap</Title>
         <Description>Enables mouse wheel support during regular gameplay. Scroll the mouse wheel up or down to cycle between available weapons.</Description>
         <Choices type="check">
@@ -696,7 +696,7 @@
         <Title>Disable pause screen during fades</Title>
         <Description>Prevents the player from bringing up the pause menu during a fade-in, which would otherwise use a wrong screen grab of the game for the pause menu background image.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
+          <Value name="Disable" speedrun-default="true">0</Value>
           <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
@@ -997,7 +997,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="CenterPuzzleCursor">
+      <Feature name="CenterPuzzleCursor" speedrun="true">
         <Title>Center puzzle mouse cursor</Title>
         <Description>Center mouse cursor when entering a puzzle.</Description>
         <Choices type="check">
@@ -1018,8 +1018,8 @@
         <Title>Fix save/load issues</Title>
         <Description>Disables free-saving in select rooms that would cause game issues upon file loading back into the rooms. Addresses quick save bugs that could soft lock the game and/or corrupt save files.&#x0a;&#x0a;Note: This feature affects quick save strats for speedrunning.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disable" speedrun-set="true">0</Value>
+          <Value name="Enable" default="true" speedrun-random="true">1</Value>
         </Choices>
       </Feature>
 

@@ -745,6 +745,12 @@ void DelayedStart()
 		PatchElevatorCursorColor();
 	}
 
+	// Allow "Load" and "Continue" options on the main menu to appear instantly
+	if (MainMenuInstantLoadOptions)
+	{
+		PatchMainMenuInstantLoadOptions();
+	}
+
 	// Remove the "Now loading..." and "Press Return to continue." messages
 	if (DisableLoadingPressReturnMessages)
 	{

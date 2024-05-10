@@ -671,6 +671,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="MainMenuInstantLoadOptions">
+        <Title>Instant load options on main menu</Title>
+        <Description>Removes the small delay before the LOAD and CONTINUE selections appear on the main menu.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="FixAdvancedOptions">
         <Title>Corrigir tela de opções avançadas</Title>
         <Description>Corrige vários problemas de exibição de texto no menu em Opções > Opções Avançadas do jogo, como descrições ausentes e incorretas quando a notificação de confirmação de salvamento é exibida.</Description>

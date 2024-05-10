@@ -639,6 +639,7 @@ void PatchInventoryBGMBug();
 void PatchLockScreenPosition();
 void PatchLowHealthIndicator();
 void PatchMainMenu();
+void PatchMainMenuInstantLoadOptions();
 void PatchMainMenuTitlePerLang();
 void PatchMapTranscription();
 void PatchMasterVolumeSlider();

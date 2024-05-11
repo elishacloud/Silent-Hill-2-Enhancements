@@ -125,7 +125,9 @@ enum ProgramStrings
 	STR_SANDBOX,
 	STR_EXTRA,
 	STR_EXTRA_TEXT,
-	STR_SPEEDR_WARN,
+	STR_SPEEDR_ENABLE,
+	STR_SPEEDR_DISABLE,
+	STR_SPEEDR_ERROR,
 };
 
 std::string GetPrgString(UINT id)
@@ -152,7 +154,9 @@ std::string GetPrgString(UINT id)
 		"PRG_Sandbox", " [SANDBOX MODE]",
 		"PRG_Extra", "Extra",
 		"PRG_Extra_desc", "This section includes any additional settings that were manually added to the Silent Hill 2: Enhanced Edition configuration file (d3d8.ini).",
-		"PRG_Speedrun_warning", "Warning! Toggling speedrun mode will reset settings to their defaults.",
+		"PRG_Speedrun_enable", "Enabling Speedrun Mode will overwrite and lock down various settings. Do you wish to proceed?",
+		"PRG_Speedrun_disable", "Disabling Speedrun Mode will unlock all settings and set their values to default. Do you wish to proceed?",
+		"PRG_Speedrun_error", "Error: Inconsistencies in settings, they will be reset to default.",
 	};
 
 	auto s = cfg.GetString(str[id].name);
@@ -792,11 +796,11 @@ bool RelaunchApp()
 	return false;
 }
 
-void SetOptionsDefaults() // TODO check speedrun defaults
+void SetOptionsDefaults(bool forceDefault = false) // TODO check speedrun defaults
 {
 	auto srEnabled = cfg.FindAndGetValue(speedrunOptionName);
 
-	if (srEnabled)
+	if (srEnabled && !forceDefault)
 	{
 		cfg.SetSpeedrunDefault(srEnabled);
 	}
@@ -907,6 +911,23 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
 
+	if (!cfg.CheckSpeedrunCoherency()) {
+
+		wchar_t SpeedrunSettingsInconsistencyString[MAX_PATH];
+		_snwprintf_s(SpeedrunSettingsInconsistencyString, MAX_PATH, _TRUNCATE, GetPrgWString(STR_SPEEDR_ERROR).c_str(), LangList[hDbLanguage.GetSelection()].Lang);
+		MessageBoxW(hWnd, SpeedrunSettingsInconsistencyString, GetPrgWString(STR_WARNING).c_str(), MB_OK);
+
+		SetChanges();
+
+		SetOptionsDefaults(true);
+
+		CheckForIniSave(true);
+		if (!RelaunchApp())
+		{
+			MessageBoxW(hWnd, GetPrgWString(STR_LANG_ERROR).c_str(), GetPrgWString(STR_ERROR).c_str(), MB_OK);
+		}
+	}
+
 	// populate the first tab
 	PopulateTab(0);
 
@@ -935,14 +956,14 @@ LRESULT CALLBACK TabProc(HWND hWndd, UINT Msg, WPARAM wParam, LPARAM lParam)
 			{
 			case CBN_SELCHANGE:	// catch selections
 			{
-				CCombined* wnd = reinterpret_cast<CCombined*>(GetWindowLongPtrW((HWND)lParam, GWLP_USERDATA)); //TODO catch speedrun value changes?
+				CCombined* wnd = reinterpret_cast<CCombined*>(GetWindowLongPtrW((HWND)lParam, GWLP_USERDATA));
 
 				int sel = wnd->GetSelection();
 
 				if (wnd->cValue->name == speedrunOptionName && ((sel != 0 && wnd->GetConfigValue() == 0) || (sel == 0 && wnd->GetConfigValue() != 0)))
 				{
 					wchar_t ConfirmSpeedrunToggle[MAX_PATH];
-					_snwprintf_s(ConfirmSpeedrunToggle, MAX_PATH, _TRUNCATE, GetPrgWString(STR_SPEEDR_WARN).c_str(), LangList[hDbLanguage.GetSelection()].Lang);
+					_snwprintf_s(ConfirmSpeedrunToggle, MAX_PATH, _TRUNCATE, GetPrgWString(sel == 0 ? STR_SPEEDR_DISABLE : STR_SPEEDR_ENABLE).c_str(), LangList[hDbLanguage.GetSelection()].Lang);
 					if (MessageBoxW(hWnd, ConfirmSpeedrunToggle, GetPrgWString(STR_WARNING).c_str(), MB_YESNO) == IDYES)
 					{
 						wnd->SetConfigValue(sel);

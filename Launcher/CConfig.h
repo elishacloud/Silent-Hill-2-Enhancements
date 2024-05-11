@@ -411,6 +411,43 @@ public:
 		return 0;
 	}
 
+	bool CheckSpeedrunCoherency()
+	{
+		auto srValue = this->FindAndGetValue("SpeedrunMode"); //TODO string
+
+		if (srValue == 0) return true;
+
+		for (size_t i = 0, si = section.size(); i < si; i++)
+		{
+			for (size_t j = 0, sj = section[i].option.size(); j < sj; j++)
+			{
+				if (!section[i].option[j].speedrunToggleable)
+				{
+					int optionDefault = NULL;
+
+					for (auto opt : section[i].option[j].value)
+					{
+						if ((srValue == 1 && (opt.is_speedrun_truly_random_default || opt.is_speedrun_default)) ||
+							(srValue == 2 && (opt.is_speedrun_set_seed_default || opt.is_speedrun_default))) //TODO defines
+						{
+							if (!opt.val.empty() && std::all_of(opt.val.begin(), opt.val.end(), ::isdigit))
+							{
+								optionDefault = atoi(opt.val.c_str());
+								break;
+							}
+						}
+					}
+
+					if (optionDefault != NULL && optionDefault != section[i].option[j].cur_val)
+					{
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
+
 	std::wstring GetSectionString(int sec);
 	std::wstring GetOptionString(int sec, int opt);
 	std::wstring GetOptionDesc(int sec, int opt);

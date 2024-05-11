@@ -683,6 +683,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="MainMenuInstantLoadOptions">
+        <Title>Instant load options on main menu</Title>
+        <Description>Removes the small delay before the LOAD and CONTINUE selections appear on the main menu.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="FixAdvancedOptions">
         <Title>Corrigir tela de opções avançadas</Title>
         <Description>Corrige vários problemas de exibição de texto no menu em Opções > Opções Avançadas do jogo, como descrições ausentes e incorretas quando a notificação de confirmação de salvamento é exibida.</Description>
@@ -1426,7 +1435,9 @@
     <S id="PRG_Sandbox"> [MODO LOCAL]</S>
     <S id="PRG_Extra">Extra</S>
     <S id="PRG_Extra_desc">Esta seção inclui todas as configurações adicionais que foram adicionadas manualmente ao arquivo de configuração de Silent Hill 2: Enhanced Edition (d3d8.ini).</S>
-    <S id="PRG_Speedrun_warning">Enabling Speedrun Mode will overwrite and lock down various settings. Upon being disabled, all settings will reset to default. Do you wish to proceed?</S>
+    <S id="PRG_Speedrun_enable">Enabling Speedrun Mode will overwrite and lock down various settings. Do you wish to proceed?</S>
+    <S id="PRG_Speedrun_disable">Disabling Speedrun Mode will unlock all settings and set their values to default. Do you wish to proceed?</S>
+    <S id="PRG_Speedrun_error">Error: Inconsistencies in settings, they will be reset to default.</S>
 
   </Strings>
 

@@ -472,7 +472,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="ReplaceButtonText">
+      <Feature name="ReplaceButtonText" speedrun="true">
         <Title>Icone dei bottoni in opzioni comandi</Title>
         <Description>Sostituisce il testo "Bottone #" nel menu opzioni comandi con icone custom.&#x0a;&#x0a;Nota: Il file controller_buttons_icons.png deve essere presente nella cartella "sh2e\pic\etc\" per il funzionamento di questa opzione.</Description>
         <Choices type="list">

@@ -986,7 +986,6 @@ LRESULT CALLBACK TabProc(HWND hWndd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
 				wnd->SetConfigValue(sel);
 				SetChanges();
-				SetOptionsDefaults();
 			}
 			break;
 			case BN_CLICKED:	// catch checkboxes

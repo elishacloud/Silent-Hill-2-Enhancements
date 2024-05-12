@@ -943,7 +943,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="EnableHoldToStomp">
+      <Feature name="EnableHoldToStomp" speedrun="true">
         <Title>Ripristina pestone alternativo</Title>
         <Description>Ripristina l'animazione di pestone secondario/alternato. Quando si è vicini ad un nemico che è in terra, premendo velocemente il tasto di attacco calcia il nemico. Tenendo premuto il tasto di attacco effettua un pestone sul nemico.</Description>
         <Choices type="check">
@@ -988,7 +988,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="SwapLightHeavyAttack">
+      <Feature name="SwapLightHeavyAttack" speedrun="true">
         <Title>Scambia gli input per attacco pesante e leggero</Title>
         <Description>Scambia gli input per attacco pesante e leggero sulle armi corpo a corpo. Premendo velocemente il tasto di attacco effettua un attacco leggero. Tenendo premuto il tasto di attacco effettua un attacco pesante.</Description>
         <Choices type="check">
@@ -1063,7 +1063,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="LowHealthIndicatorStyle">
+      <Feature name="LowHealthIndicatorStyle" speedrun="true">
         <Title>Stile dell'indicatore salute bassa</Title>
         <Description>Mostra un indicatore visivo durante il gioco quando James ha salute bassa.&#x0a;&#x0a;Croce Rossa: Mostra una croce rossa lampeggiante sulla parte destra dello schermo, in basso.&#x0a;Vignetta in basso: Una vignetta rossa lampeggiante nella parte inferiore dello schermo. Più è bassa la salute, più intenso sarà il suo colore.&#x0a;&#x0a;Nota: LowHealthFade.png deve essere presente nella cartella "sh2e\pic\etc\" affinché la Vignetta in basso sia visibile.</Description>
         <Choices type="list">
@@ -1397,7 +1397,7 @@
 
       <Feature name="SpeedrunMode" speedrun="true">
         <Title>Speedrun Mode</Title>
-        <Description>Enables the Speedrun Mode for Silent Hill 2: Enhanced Edition. Choose between two speedrun modes:&#x0a;&#x0a;Set Seed Mode: Every run has the same, set puzzle solutions. This lets you focus on the technical aspects of the run without worry of puzzle RNG. Quick save exploits/strats are retained in this mode.&#x0a;True Random Mode: The puzzle solutions are no longer determined by a frame count seed and instead will always be different on a per puzzle basis for every new playthrough. Quick save exploits/strats are disabled in this mode.</Description>
+        <Description>Enables the Speedrun Mode for Silent Hill 2: Enhanced Edition. Choose between two speedrun modes:&#x0a;True Random Mode: The puzzle solutions are no longer determined by a frame count seed and instead will always be different on a per puzzle basis for every new playthrough. Quick save exploits/strats are disabled in this mode.&#x0a;&#x0a;Set Seed Mode: Every run has the same, set puzzle solutions. This lets you focus on the technical aspects of the run without worry of puzzle RNG. Quick save exploits/strats are retained in this mode.</Description>
         <Choices type="list">
           <Value name="Disabled" default="true">0</Value>
           <Value name="True Random Mode">1</Value>
@@ -1436,6 +1436,7 @@
     <S id="PRG_Extra_desc">Questa sezione racchiude opzioni addizionali aggiunte manualmente al file di configurazione di Silent Hill 2: Enhanced Edition (d3d8.ini).</S>
     <S id="PRG_Speedrun_enable">Enabling Speedrun Mode will overwrite and lock down various settings. Do you wish to proceed?</S>
     <S id="PRG_Speedrun_disable">Disabling Speedrun Mode will unlock all settings and set their values to default. Do you wish to proceed?</S>
+    <S id="PRG_Speedrun_error">Error: Inconsistencies in settings, they will be reset to default.</S>
 
   </Strings>
 

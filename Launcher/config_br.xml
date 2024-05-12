@@ -943,7 +943,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="EnableHoldToStomp">
+      <Feature name="EnableHoldToStomp" speedrun="true">
         <Title>Restore alternate stomp</Title>
         <Description>Restores the secondary/alternate stomp animation. When nearby an enemy on the ground, press and quickly release the attack button to perform a kick. Press and hold the attack button to perform a stomp.</Description>
         <Choices type="check">
@@ -988,7 +988,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="SwapLightHeavyAttack">
+      <Feature name="SwapLightHeavyAttack" speedrun="true">
         <Title>Swap light and heavy melee attack inputs</Title>
         <Description>Swaps the priority of light and heavy attacks for melee weapons. Press and quickly release the attack button to perform a light attack. Press and hold the attack button to perform a heavy attack.</Description>
         <Choices type="check">
@@ -1063,7 +1063,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="LowHealthIndicatorStyle">
+      <Feature name="LowHealthIndicatorStyle" speedrun="true">
         <Title>Low health indicator style</Title>
         <Description>Displays a visual indicator during normal gameplay when low on health.&#x0a;&#x0a;Red Cross: Displays a flashing red cross on the bottom right of the screen.&#x0a;Lower Vignette: Displays a flashing red vignette on the lower half of the screen. The lower your health, the brighter the vignette will become.&#x0a;&#x0a;Note: LowHealthFade.png must be present in "sh2e\pic\etc\" for the Lower Vignette visual to display.</Description>
         <Choices type="list">
@@ -1393,11 +1393,11 @@
 
   <Tab name="Speedrun">
 
-    <Section name="Configs">
+    <Section name="Speedrun Mode">
 
       <Feature name="SpeedrunMode" speedrun="true">
         <Title>Speedrun Mode</Title>
-        <Description>Enables the Speedrun Mode for Silent Hill 2: Enhanced Edition. Choose between two speedrun modes:&#x0a;&#x0a;Set Seed Mode: Every run has the same, set puzzle seed. This lets you focus on the technical aspects of the run without worry of puzzle RNG. Quick save exploits/strats are retained in this mode.&#x0a;True Random Mode: The puzzle solutions are no longer determined by a frame count seed; their solutions will always be different on a per puzzle basis for every new playthrough. Quick save exploits/strats are disabled in this mode.</Description>
+        <Description>Enables the Speedrun Mode for Silent Hill 2: Enhanced Edition. Choose between two speedrun modes:&#x0a;True Random Mode: The puzzle solutions are no longer determined by a frame count seed and instead will always be different on a per puzzle basis for every new playthrough. Quick save exploits/strats are disabled in this mode.&#x0a;&#x0a;Set Seed Mode: Every run has the same, set puzzle solutions. This lets you focus on the technical aspects of the run without worry of puzzle RNG. Quick save exploits/strats are retained in this mode.</Description>
         <Choices type="list">
           <Value name="Disabled" default="true">0</Value>
           <Value name="True Random Mode">1</Value>

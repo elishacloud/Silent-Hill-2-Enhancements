@@ -1045,8 +1045,8 @@
         <Title>Quick Save visual fixes</Title>
         <Description>Cosmetic fixes for the game's Quick Save feature. Always positions the quick save notifications to the bottom left corner of the game window, regardless of aspect ratio used. Color codes the quick save notifications for easier status identification (purple is successful, red is unsuccessful). Fixes a bug where the quick save notifications would only stay on screen for a few frames.&#x0a;&#x0a;Note: This feature does NOT affect quick save strats for speedrunning and might help it, thanks to fixing the issue of the quick save text only staying up for a few frames.</Description>
         <Choices type="check">
-          <Value name="Disable" speedrun-set="true">0</Value>
-          <Value name="Enable" default="true" speedrun-random="true">1</Value>
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 

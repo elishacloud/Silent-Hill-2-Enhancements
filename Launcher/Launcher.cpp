@@ -566,7 +566,7 @@ BOOL CenterWindow(HWND hwndWindow)
 	if (nX + nWidth > nScreenWidth) nX = nScreenWidth - nWidth;
 	if (nY + nHeight > nScreenHeight) nY = nScreenHeight - nHeight;
 
-	SetWindowPos(hwndWindow, NULL, nX, nY, nWidth, nHeight, SWP_NOSIZE | SWP_NOZORDER);
+	SetWindowPos(hwndWindow, HWND_TOP, nX, nY, nWidth, nHeight, SWP_NOSIZE | SWP_NOZORDER);
 
 	return TRUE;
 }
@@ -829,7 +829,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		RECT r, w;
 		GetClientRect(hWnd, &r);
 		GetWindowRect(hWnd, &w);
-		SetWindowPos(hWnd, NULL, 0, 0, (w.right - w.left) - r.right + rWidth, (w.bottom - w.top) - r.bottom + rHeight, SWP_NOMOVE | SWP_NOZORDER);
+		SetWindowPos(hWnd, HWND_TOP, 0, 0, (w.right - w.left) - r.right + rWidth, (w.bottom - w.top) - r.bottom + rHeight, SWP_NOMOVE | SWP_NOZORDER);
 	}
 
 	// set window location

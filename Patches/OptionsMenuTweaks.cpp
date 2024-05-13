@@ -217,6 +217,12 @@ void EnableDrawOptionsHook()
 
 void PatchMasterVolumeSlider()
 {
+    if (!CustomExeStrSet)
+    {
+        Logging::Log() << __FUNCTION__ << " Error: couldn't find the sh2e folder.";
+        return;
+    }
+
     // Initialize pointers
     ChangedOptionsCheckReturn = GetCheckForChangedOptionsPointer() + 0x0C;
 
@@ -1089,6 +1095,12 @@ char* __cdecl GetStringFromOffsetSearchView_Hook(uint16_t* ptr, uint16_t offset)
 
 void PatchHealthIndicatorOption()
 {
+    if (!CustomExeStrSet)
+    {
+        Logging::Log() << __FUNCTION__ << " Error: couldn't find the sh2e folder.";
+        return;
+    }
+
     HealthIndicatorValue = ConfigData.HealthIndicatorOption;
 
     DWORD OverrideFileConfigSearchViewAddr =    GameVersion == SH2V_10 ? 0x00408571 :
@@ -1467,20 +1479,8 @@ bool AreDisplayModeStringsPresent()
 {
     const int16_t MinMesSize = 0x103;
 
-    std::filesystem::path path;
-
-    if (EnableLangPath && std::filesystem::exists("lang/") || std::filesystem::is_directory("lang/"))
-    {
-        path = "lang/";
-    }
-    else if (UseCustomModFolder && std::filesystem::exists("sh2e/etc/message/") || std::filesystem::is_directory("sh2e/etc/message/"))
-    {
-        path = "sh2e/etc/message/";
-    }
-    else
-    {
-        path = "data/etc/message/";
-    }
+    char FileName[MAX_PATH];
+    std::filesystem::path path = GetFileModPath("data\\etc\\message", FileName);
 
     if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path))
     {
@@ -1521,7 +1521,7 @@ bool AreDisplayModeStringsPresent()
 
         if (temp < MinMesSize)
         {
-            Logging::Log() << __FUNCTION__ << " Error: File '" << item << "' doesn't have enough strings.";
+            Logging::Log() << __FUNCTION__ << " Error: File " << item << " doesn't have enough strings.";
             return false;
         }
     }

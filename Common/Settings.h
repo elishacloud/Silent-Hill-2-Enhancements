@@ -41,7 +41,6 @@
 	visit(EnableSFXAddrHack, true) \
 	visit(EnableSMAA, false) \
 	visit(EnableSoftShadows, true) \
-	visit(EnableSpeedrunIGT, true) \
 	visit(EnableTexAddrHack, true) \
 	visit(EnableToggleSprint, true) \
 	visit(EnhanceMouseCursor, true) \
@@ -225,7 +224,6 @@
 	visit(EnableDebugOverlay) \
 	visit(EnableInfoOverlay) \
 	visit(EnableScreenshots) \
-	visit(EnableSpeedrunIGT) \
 	visit(EnableWndMode) \
 	visit(FixFMVResetIssue) \
 	visit(FixElevatorCursorColor) \

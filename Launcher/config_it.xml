@@ -1397,7 +1397,7 @@
 
       <Feature name="SpeedrunMode" speedrun="true">
         <Title>Speedrun Mode</Title>
-        <Description>Abilita la Modalità Speedrun per Silent Hill 2: Enhanced Edition. Scegli tra due modalità:&#x0a;&#x0a;Modalità Seed Statico: Ogni partita ha le stesse soluzioni per i puzzle. Questo fa concentrare più sugli aspetti tecnici della partita senza tenere conto della casualità dei puzzle. I glitch di salvataggio rapido sono abilitati in questa modalità.&#x0a;Modalità Completamente Random: Le soluzioni dei puzzle non sono più determinate dal seme del numero di frame in cui si inizia la partita; le loro soluzioni saranno sempre diverse, una per una, in ogni partita. I glitch di salvataggio rapido sono disabilitati in questa modalità.</Description>
+        <Description>Abilita la Modalità Speedrun per Silent Hill 2: Enhanced Edition. Scegli tra due modalità:&#x0a;Modalità Seed Statico: Ogni partita ha le stesse soluzioni per i puzzle. Questo fa concentrare più sugli aspetti tecnici della partita senza tenere conto della casualità dei puzzle. I glitch di salvataggio rapido sono abilitati in questa modalità.&#x0a;&#x0a;Modalità Completamente Random: Le soluzioni dei puzzle non sono più determinate dal seme del numero di frame in cui si inizia la partita; le loro soluzioni saranno sempre diverse, una per una, in ogni partita. I glitch di salvataggio rapido sono disabilitati in questa modalità.</Description>
         <Choices type="list">
           <Value name="Disabilitato" default="true">0</Value>
           <Value name="Completamente Random">1</Value>

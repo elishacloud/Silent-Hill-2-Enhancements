@@ -21,6 +21,9 @@
 #include "Common\GfxUtils.h"
 #include "OptionsMenuTweaks.h"
 
+#include <filesystem>
+#include <fstream>
+
 bool DrawOptionsHookEnabled = false;
 bool wasInControlOptions = false;
 
@@ -1460,6 +1463,72 @@ __declspec(naked) void __stdcall ConditionChangeFive()
     }
 }
 
+bool AreDisplayModeStringsPresent()
+{
+    const int16_t MinMesSize = 0x103;
+
+    std::filesystem::path path;
+
+    if (EnableLangPath && std::filesystem::exists("lang/") || std::filesystem::is_directory("lang/"))
+    {
+        path = "lang/";
+    }
+    else if (UseCustomModFolder && std::filesystem::exists("sh2e/etc/message/") || std::filesystem::is_directory("sh2e/etc/message/"))
+    {
+        path = "sh2e/etc/message/";
+    }
+    else
+    {
+        path = "data/etc/message/";
+    }
+
+    if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path))
+    {
+        Logging::Log() << __FUNCTION__ << " Error: Couldn't find mes file directory.";
+        return false;
+    }
+
+    std::vector<std::filesystem::path> files;
+
+    for (const auto& item : std::filesystem::directory_iterator(path))
+    {
+        if (std::filesystem::is_regular_file(item.path()) && item.path().string().find("option_msg_") != std::string::npos)
+        {
+            files.push_back(item.path());
+        }
+    }
+
+    if (files.empty())
+    {
+        Logging::Log() << __FUNCTION__ << " Error: No option mes files in message directory.";
+        return false;
+    }
+
+    for (auto item : files)
+    {
+        std::ifstream file(item);
+
+        if (!file.is_open())
+        {
+            Logging::Log() << __FUNCTION__ << " Error: Couldn't open mes file.";
+            return false;
+        }
+
+        char data[2];
+        file.read(data, 2);
+
+        int16_t temp = (data[1] * 0x100) + data[0];
+
+        if (temp < MinMesSize)
+        {
+            Logging::Log() << __FUNCTION__ << " Error: File '" << item << "' doesn't have enough strings.";
+            return false;
+        }
+    }
+
+    return true;
+}
+
 #pragma warning(disable : 4100)
 void __cdecl PrintDisplayModeDescription_Hook(uint16_t* MesStringsPtr, uint16_t StringOffset, int32_t yPos, int32_t xPos)
 {
@@ -1473,6 +1542,12 @@ void SetNewDisplayModeSetting()
 
 void PatchDisplayMode()
 {
+    if (!AreDisplayModeStringsPresent())
+    {
+        Logging::Log() << __FUNCTION__ << " .mes files validation failed, disabling the display mode option feature.";
+        return;
+    }
+
     SetNewDisplayModeSetting();
 
     DWORD LowResTextureUse =    GameVersion == SH2V_10 ? 0x00459124 :

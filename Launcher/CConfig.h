@@ -114,7 +114,7 @@ public:
 		}
 
 		// nothing found, load default
-		SetValueDefault(); //TODO
+		SetValueDefault();
 	}
 	void SetValueDefault()
 	{
@@ -135,7 +135,7 @@ public:
 			}
 		}
 	}
-	void SetValueSpeedrunDefault(int srValue)
+	void SetValueSpeedrunDefault(int srValue, bool srAlreadyActive)
 	{
 		if (this->name == "SpeedrunMode") return; //TODO make global variable
 
@@ -176,6 +176,8 @@ public:
 				}
 			}
 		}
+
+		if (srAlreadyActive) return;
 
 		for (size_t i = 0, si = value.size(); i < si; i++)
 		{
@@ -356,7 +358,7 @@ class CConfig
 public:
 	bool ParseXml();
 	void SetDefault();
-	void SetSpeedrunDefault(int value);
+	void SetSpeedrunDefault(int value, bool srAlreadyActive);
 	const char* SetIDString(const char* id, const char* name);
 	void BuildCacheP();
 	void SetFromIni(LPCWSTR lpName);
@@ -413,7 +415,7 @@ public:
 
 	bool CheckSpeedrunCoherency()
 	{
-		auto srValue = this->FindAndGetValue("SpeedrunMode"); //TODO string
+		auto srValue = this->FindAndGetValue(speedrunOptionName);
 
 		if (srValue == 0) return true;
 

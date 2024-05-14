@@ -796,13 +796,13 @@ bool RelaunchApp()
 	return false;
 }
 
-void SetOptionsDefaults(bool forceDefault = false) // TODO check speedrun defaults
+void SetOptionsDefaults(bool forceDefault = false, bool srAlreadyActive = false)
 {
 	auto srEnabled = cfg.FindAndGetValue(speedrunOptionName);
 
 	if (srEnabled && !forceDefault)
 	{
-		cfg.SetSpeedrunDefault(srEnabled);
+		cfg.SetSpeedrunDefault(srEnabled, srAlreadyActive);
 	}
 	else
 	{
@@ -960,32 +960,41 @@ LRESULT CALLBACK TabProc(HWND hWndd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
 				int sel = wnd->GetSelection();
 
-				if (wnd->cValue->name == speedrunOptionName && ((sel != 0 && wnd->GetConfigValue() == 0) || (sel == 0 && wnd->GetConfigValue() != 0)))
+				if (wnd->cValue->name == speedrunOptionName)
 				{
-					wchar_t ConfirmSpeedrunToggle[MAX_PATH];
-					_snwprintf_s(ConfirmSpeedrunToggle, MAX_PATH, _TRUNCATE, GetPrgWString(sel == 0 ? STR_SPEEDR_DISABLE : STR_SPEEDR_ENABLE).c_str(), LangList[hDbLanguage.GetSelection()].Lang);
-					if (MessageBoxW(hWnd, ConfirmSpeedrunToggle, GetPrgWString(STR_WARNING).c_str(), MB_YESNO) == IDYES)
+					if (((sel != 0 && wnd->GetConfigValue() == 0) || (sel == 0 && wnd->GetConfigValue() != 0)))
 					{
-						wnd->SetConfigValue(sel);
-						SetChanges();
-
-						SetOptionsDefaults();
-
-						CheckForIniSave(true);
-						if (!RelaunchApp())
+						wchar_t ConfirmSpeedrunToggle[MAX_PATH];
+						_snwprintf_s(ConfirmSpeedrunToggle, MAX_PATH, _TRUNCATE, GetPrgWString(sel == 0 ? STR_SPEEDR_DISABLE : STR_SPEEDR_ENABLE).c_str(), LangList[hDbLanguage.GetSelection()].Lang);
+						if (MessageBoxW(hWnd, ConfirmSpeedrunToggle, GetPrgWString(STR_WARNING).c_str(), MB_YESNO) == IDYES)
 						{
-							MessageBoxW(hWnd, GetPrgWString(STR_LANG_ERROR).c_str(), GetPrgWString(STR_ERROR).c_str(), MB_OK);
+							wnd->SetConfigValue(sel);
+							SetChanges();
+
+							SetOptionsDefaults();
+
+							CheckForIniSave(true);
+							if (!RelaunchApp())
+							{
+								MessageBoxW(hWnd, GetPrgWString(STR_LANG_ERROR).c_str(), GetPrgWString(STR_ERROR).c_str(), MB_OK);
+							}
 						}
-					}
-					else
-					{
-						wnd->SetSelection(wnd->GetConfigValue());
-						break;
+						else
+						{
+							wnd->SetSelection(wnd->GetConfigValue());
+							break;
+						}
 					}
 				}
 
 				wnd->SetConfigValue(sel);
 				SetChanges();
+
+				if (wnd->GetConfigValue() > 0 && sel > 0)
+				{
+					SetOptionsDefaults(false, true);
+					UpdateTab(hTab.GetCurSel());
+				}
 			}
 			break;
 			case BN_CLICKED:	// catch checkboxes

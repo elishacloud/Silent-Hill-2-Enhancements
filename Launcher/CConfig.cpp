@@ -242,11 +242,11 @@ void CConfig::SetDefault()
 			opt.SetValueDefault();
 }
 
-void CConfig::SetSpeedrunDefault(int value)
+void CConfig::SetSpeedrunDefault(int value, bool srAlreadyActive)
 {
 	for (auto& sec : section)
 		for (auto& opt : sec.option)
-			opt.SetValueSpeedrunDefault(value);
+			opt.SetValueSpeedrunDefault(value, srAlreadyActive);
 }
 
 const char* CConfig::SetIDString(const char* id, const char* name)

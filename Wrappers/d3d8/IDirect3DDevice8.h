@@ -9,7 +9,23 @@ private:
 	LPDIRECT3DDEVICE8 ProxyInterface;
 	m_IDirect3D8* m_pD3D;
 
-	std::vector<BYTE> CachedSurfaceData;
+	// Emulated surface structure
+	struct EMUSURFACE
+	{
+		HDC DC = nullptr;
+		HBITMAP bitmap = nullptr;
+		BYTE bmiMemory[sizeof(BITMAPINFOHEADER) + sizeof(RGBQUAD) * 256] = {};
+		PBITMAPINFO bmi = (PBITMAPINFO)bmiMemory;
+		HGDIOBJ OldDCObject = nullptr;
+		BYTE* pBits = nullptr;
+		LONG Width = 0;
+		LONG Height = 0;
+		DWORD Pitch = 0;
+		DWORD Size = 0;
+	};
+
+	EMUSURFACE CacheSurface;
+	EMUSURFACE CacheSurfaceStretch;
 
 	bool isInScene = false;
 
@@ -180,6 +196,8 @@ private:
 	DWORD GetShadowIntensity();
 	void SetShadowFading();
 	void CaptureScreenShot();
+	HRESULT CreateDCSurface(EMUSURFACE& surface, LONG Width, LONG Height);
+	void ReleaseDCSurface(EMUSURFACE& surface);
 
 public:
 	m_IDirect3DDevice8(LPDIRECT3DDEVICE8 pDevice, m_IDirect3D8* pD3D) : ProxyInterface(pDevice), m_pD3D(pD3D)
@@ -197,6 +215,9 @@ public:
 	~m_IDirect3DDevice8()
 	{
 		Logging::LogDebug() << __FUNCTION__ << "(" << this << ")" << " deleting device!";
+
+		ReleaseDCSurface(CacheSurface);
+		ReleaseDCSurface(CacheSurfaceStretch);
 
 		delete ProxyAddressLookupTableD3d8;
 	}
@@ -239,8 +260,8 @@ public:
 	STDMETHOD(UpdateSurface)(THIS_ IDirect3DSurface8* pSourceSurface, IDirect3DSurface8* pDestSurface);
 	STDMETHOD(UpdateTexture)(THIS_ IDirect3DBaseTexture8* pSourceTexture, IDirect3DBaseTexture8* pDestinationTexture);
 	STDMETHOD(GetFrontBuffer)(THIS_ IDirect3DSurface8* pDestSurface);
-	STDMETHOD(GetFrontBufferFromGDI)(THIS_ BYTE* lpBuffer, size_t Size);
-	STDMETHOD(GetFrontBufferFromDirectX)(THIS_ BYTE* lpBuffer, size_t Size);
+	STDMETHOD(GetFrontBufferFromGDI)(EMUSURFACE& CachedSurface);
+	STDMETHOD(GetFrontBufferFromDirectX)(EMUSURFACE& CachedSurface, D3DFORMAT Format);
 	STDMETHOD(FakeGetFrontBuffer)(THIS_ IDirect3DSurface8* pDestSurface);
 	STDMETHOD(SetRenderTarget)(THIS_ IDirect3DSurface8* pRenderTarget, IDirect3DSurface8* pNewZStencil);
 	STDMETHOD(GetRenderTarget)(THIS_ IDirect3DSurface8** ppRenderTarget);

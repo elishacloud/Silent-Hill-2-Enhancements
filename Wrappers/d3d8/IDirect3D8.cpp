@@ -430,8 +430,7 @@ void SetScreenAndWindowSize()
 			}
 
 			// Set new display size
-			if ((ScreenMode == WINDOWED_FULLSCREEN && (CurrentWidth != BufferWidth || CurrentHeight != BufferHeight)) ||
-				(ScreenMode == WINDOWED && (CurrentWidth < BufferWidth || CurrentHeight < BufferHeight)))
+			if (ScreenMode == WINDOWED_FULLSCREEN && (CurrentWidth != BufferWidth || CurrentHeight != BufferHeight))
 			{
 				BOOL ret = SetDesktopRes(BufferWidth, BufferHeight);
 
@@ -480,6 +479,14 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	GetDesktopRes(screenWidth, screenHeight);
 	RECT screenRect = {};
 	GetDesktopRect(screenRect);
+
+	// Get update width and height
+	if (ScreenMode == WINDOWED && (screenWidth < displayWidth || screenHeight < displayHeight))
+	{
+		float Ratio = max((float)displayWidth / screenWidth, (float)displayHeight / screenHeight);
+		displayWidth /= Ratio;
+		displayHeight /= Ratio;
+	}
 
 	// Get window style
 	LONG lStyle = GetWindowLong(MainhWnd, GWL_STYLE) | WS_VISIBLE;

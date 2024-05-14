@@ -449,43 +449,58 @@ HRESULT m_IDirect3DDevice8::CreateTexture(THIS_ UINT Width, UINT Height, UINT Le
 			pInitialRenderTexture = *ppTexture;
 
 			// If cached data exists then copy to render target
-			if (PauseScreenFix && CachedSurfaceData.size() == (Width * 4) * Height)
+			if (PauseScreenFix)
 			{
-				IDirect3DSurface8 *pTmpSurface = nullptr;
-				if (SUCCEEDED(ProxyInterface->CreateImageSurface(Width, Height, Format, &pTmpSurface)))
+				BYTE* pBits = nullptr;
+				DWORD Pitch = 0;
+				if (CacheSurface.pBits && CacheSurface.Width == (LONG)Width && CacheSurface.Height == (LONG)Height)
 				{
-					D3DLOCKED_RECT LockedRect = {};
-					if (SUCCEEDED(pTmpSurface->LockRect(&LockedRect, nullptr, 0)))
+					pBits = CacheSurface.pBits;
+					Pitch = CacheSurface.Pitch;
+				}
+				else if (CacheSurfaceStretch.pBits && CacheSurfaceStretch.Width == (LONG)Width && CacheSurfaceStretch.Height == (LONG)Height)
+				{
+					pBits = CacheSurfaceStretch.pBits;
+					Pitch = CacheSurfaceStretch.Pitch;
+				}
+				if (pBits)
+				{
+					IDirect3DSurface8* pTmpSurface = nullptr;
+					if (SUCCEEDED(ProxyInterface->CreateImageSurface(Width, Height, Format, &pTmpSurface)))
 					{
-						// Copy data to surface
-						if (Width * 4 == (UINT)LockedRect.Pitch)
+						D3DLOCKED_RECT LockedRect = {};
+						if (SUCCEEDED(pTmpSurface->LockRect(&LockedRect, nullptr, 0)))
 						{
-							memcpy(LockedRect.pBits, CachedSurfaceData.data(), LockedRect.Pitch * Height);
-						}
-						else
-						{
-							INT SrcPitch = Width * 4;
-							INT DestPitch = LockedRect.Pitch;
-							BYTE* SrcBuffer = CachedSurfaceData.data();
-							BYTE* DestBuffer = (BYTE*)LockedRect.pBits;
-							for (UINT x = 0; x < Height; x++)
+							// Copy data to surface
+							if (Pitch == (UINT)LockedRect.Pitch)
 							{
-								memcpy(DestBuffer, SrcBuffer, min(DestPitch, SrcPitch));
-								SrcBuffer += SrcPitch;
-								DestBuffer += DestPitch;
+								memcpy(LockedRect.pBits, pBits, LockedRect.Pitch * Height);
 							}
+							else
+							{
+								INT SrcPitch = Pitch;
+								INT DestPitch = LockedRect.Pitch;
+								BYTE* SrcBuffer = pBits;
+								BYTE* DestBuffer = (BYTE*)LockedRect.pBits;
+								for (UINT x = 0; x < Height; x++)
+								{
+									memcpy(DestBuffer, SrcBuffer, min(DestPitch, SrcPitch));
+									SrcBuffer += SrcPitch;
+									DestBuffer += DestPitch;
+								}
+							}
+							pTmpSurface->UnlockRect();
 						}
-						pTmpSurface->UnlockRect();
+						IDirect3DSurface8* pTmpTargetSurface = nullptr;
+						if (SUCCEEDED(pCreatedTexture->GetSurfaceLevel(0, &pTmpTargetSurface)))
+						{
+							POINT PointDest = { 0, 0 };
+							RECT Rect = { 0, 0, BufferWidth, BufferHeight };
+							ProxyInterface->CopyRects(pTmpSurface, &Rect, 1, pTmpTargetSurface, &PointDest);
+							pTmpTargetSurface->Release();
+						}
+						pTmpSurface->Release();
 					}
-					IDirect3DSurface8 *pTmpTargetSurface = nullptr;
-					if (SUCCEEDED(pCreatedTexture->GetSurfaceLevel(0, &pTmpTargetSurface)))
-					{
-						POINT PointDest = { 0, 0 };
-						RECT Rect = { 0, 0, BufferWidth, BufferHeight };
-						ProxyInterface->CopyRects(pTmpSurface, &Rect, 1, pTmpTargetSurface, &PointDest);
-						pTmpTargetSurface->Release();
-					}
-					pTmpSurface->Release();
 				}
 			}
 		}
@@ -2697,15 +2712,8 @@ HRESULT m_IDirect3DDevice8::GetFrontBuffer(THIS_ IDirect3DSurface8* pDestSurface
 	return FakeGetFrontBuffer(pDestSurface);
 }
 
-HRESULT m_IDirect3DDevice8::GetFrontBufferFromGDI(THIS_ BYTE* lpBuffer, size_t Size)
+HRESULT m_IDirect3DDevice8::GetFrontBufferFromGDI(EMUSURFACE& CachedSurface)
 {
-	// Check buffer size
-	if ((LONG)Size != (BufferWidth * 4) * BufferHeight)
-	{
-		LOG_ONCE(__FUNCTION__ << " Error: Buffer size is not correct: " << BufferWidth << "x" << BufferHeight << " " << Size);
-		return D3DERR_INVALIDCALL;
-	}
-
 	// Capture Silent Hill 2 window data
 	HWND hDeviceWnd = (ScreenMode == EXCLUSIVE_FULLSCREEN) ? GetDesktopWindow() : DeviceWindow;
 	HDC hWindowDC = GetDC(hDeviceWnd);
@@ -2723,7 +2731,7 @@ HRESULT m_IDirect3DDevice8::GetFrontBufferFromGDI(THIS_ BYTE* lpBuffer, size_t S
 		return D3DERR_INVALIDCALL;
 	}
 
-	HBITMAP hCaptureBitmap = CreateCompatibleBitmap(hWindowDC, BufferWidth, BufferHeight);
+	HBITMAP hCaptureBitmap = CreateCompatibleBitmap(hWindowDC, CachedSurface.Width, CachedSurface.Height);
 	if (!hCaptureBitmap)
 	{
 		DeleteDC(hCaptureDC);
@@ -2743,7 +2751,7 @@ HRESULT m_IDirect3DDevice8::GetFrontBufferFromGDI(THIS_ BYTE* lpBuffer, size_t S
 	}
 
 	// Blt window data to bitmap
-	if (!BitBlt(hCaptureDC, 0, 0, BufferWidth, BufferHeight, hWindowDC, 0, 0, SRCCOPY | CAPTUREBLT))
+	if (!BitBlt(hCaptureDC, 0, 0, CachedSurface.Width, CachedSurface.Height, hWindowDC, 0, 0, SRCCOPY | CAPTUREBLT))
 	{
 		SelectObject(hCaptureDC, hObject);
 		DeleteObject(hCaptureBitmap);
@@ -2754,7 +2762,7 @@ HRESULT m_IDirect3DDevice8::GetFrontBufferFromGDI(THIS_ BYTE* lpBuffer, size_t S
 	}
 
 	// Copy bitmap to cached buffer
-	LONG rBitmap = GetBitmapBits(hCaptureBitmap, Size, lpBuffer);
+	LONG rBitmap = GetBitmapBits(hCaptureBitmap, CachedSurface.Size, CachedSurface.pBits);
 
 	// Release DC
 	SelectObject(hCaptureDC, hObject);
@@ -2772,15 +2780,8 @@ HRESULT m_IDirect3DDevice8::GetFrontBufferFromGDI(THIS_ BYTE* lpBuffer, size_t S
 	return D3D_OK;
 }
 
-HRESULT m_IDirect3DDevice8::GetFrontBufferFromDirectX(THIS_ BYTE* lpBuffer, size_t Size)
+HRESULT m_IDirect3DDevice8::GetFrontBufferFromDirectX(EMUSURFACE& CachedSurface, D3DFORMAT Format)
 {
-	// Check buffer size
-	if ((LONG)Size != (BufferWidth * 4) * BufferHeight)
-	{
-		LOG_ONCE(__FUNCTION__ << " Error: Buffer size is not correct: " << BufferWidth << "x" << BufferHeight << " " << Size);
-		return D3DERR_INVALIDCALL;
-	}
-
 	// Get primary monitor resolution
 	LONG ScreenWidth = GetSystemMetrics(SM_CXSCREEN);
 	LONG ScreenHeight = GetSystemMetrics(SM_CYSCREEN);
@@ -2790,61 +2791,56 @@ HRESULT m_IDirect3DDevice8::GetFrontBufferFromDirectX(THIS_ BYTE* lpBuffer, size
 		return D3DERR_INVALIDCALL;
 	}
 
-	// Location of client window
-	LONG Left = 0;
-	LONG Top = 0;
-
 	// Get location of client window if not in exclusive fullscreen mode
+	RECT ClientRect = { 0, 0, CachedSurface.Width, CachedSurface.Height };
 	if (ScreenMode != EXCLUSIVE_FULLSCREEN)
 	{
-		RECT RectSrc = { 0, 0, BufferWidth, BufferHeight };
-		RECT rcClient = { 0, 0, BufferWidth, BufferHeight };
-		if (!GetWindowRect(DeviceWindow, &RectSrc) || !GetClientRect(DeviceWindow, &rcClient))
+		// Clip rect
+		if (!MapWindowPoints(DeviceWindow, HWND_DESKTOP, (LPPOINT)&ClientRect, 2))
 		{
 			LOG_ONCE(__FUNCTION__ << " Error: Could not get window or client rect for front buffer.");
 			return D3DERR_INVALIDCALL;
 		}
-		int border_thickness = ((RectSrc.right - RectSrc.left) - rcClient.right) / 2;
-		int top_border = (RectSrc.bottom - RectSrc.top) - rcClient.bottom - border_thickness;
-		RectSrc.left += border_thickness;
-		RectSrc.top += top_border;
-		RectSrc.right = RectSrc.left + rcClient.right;
-		RectSrc.bottom = RectSrc.top + rcClient.bottom;
-		Left = RectSrc.left;
-		Top = RectSrc.top;
+		ClientRect.right = min(ScreenWidth, ClientRect.left + CachedSurface.Width);
+		ClientRect.bottom = min(ScreenHeight, ClientRect.top + CachedSurface.Height);
 	}
 
 	HRESULT hr = D3DERR_INVALIDCALL;
 
 	// Create new surface to hold data
 	IDirect3DSurface8 *pSrcSurface = nullptr;
-	if (SUCCEEDED(ProxyInterface->CreateImageSurface(ScreenWidth, ScreenHeight, D3DFMT_A8R8G8B8, &pSrcSurface)))
+	if (SUCCEEDED(ProxyInterface->CreateImageSurface(ScreenWidth, ScreenHeight, Format, &pSrcSurface)))
 	{
 		// Get front buffer data
 		if (SUCCEEDED(ProxyInterface->GetFrontBuffer(pSrcSurface)))
 		{
 			// Lock destination surface
 			D3DLOCKED_RECT LockedRect = {};
-			if (SUCCEEDED(pSrcSurface->LockRect(&LockedRect, nullptr, 0)))
+			if (SUCCEEDED(pSrcSurface->LockRect(&LockedRect, &ClientRect, 0)))
 			{
 				// Copy surface to cached buffer
-				if (LockedRect.Pitch == BufferWidth * 4 && ScreenHeight == BufferHeight && Top == 0 && Left == 0)
+				if (LockedRect.Pitch == (LONG)CachedSurface.Pitch && ScreenHeight == CachedSurface.Height && ClientRect.top == 0 && ClientRect.left == 0)
 				{
-					memcpy(lpBuffer, LockedRect.pBits, LockedRect.Pitch * BufferHeight);
+					memcpy(CachedSurface.pBits, LockedRect.pBits, LockedRect.Pitch * CachedSurface.Height);
 				}
 				else
 				{
-					BYTE *pBuffer = (BYTE*)((DWORD)LockedRect.pBits + Top * LockedRect.Pitch + Left * 4);
-					DWORD EndBuffer = (DWORD)LockedRect.pBits + (LockedRect.Pitch * ScreenHeight);
-					LONG Pitch = BufferWidth * 4;
-					for (int x = 0; x < BufferHeight && (DWORD)pBuffer + Pitch <= EndBuffer; x++)
+					BYTE* SrcBuffer = (BYTE*)LockedRect.pBits;
+					BYTE* DestBuffer = CachedSurface.pBits;
+					DWORD Pitch = (DWORD)min(LockedRect.Pitch, (ClientRect.right - ClientRect.left) * 4);
+					for (int x = 0; x < CachedSurface.Height && x + ClientRect.top < ScreenHeight; x++)
 					{
-						memcpy(&lpBuffer[x * Pitch], pBuffer, Pitch);
-						pBuffer += LockedRect.Pitch;
+						memcpy(DestBuffer, SrcBuffer, min(Pitch, CachedSurface.Pitch));
+						SrcBuffer += LockedRect.Pitch;
+						DestBuffer += CachedSurface.Pitch;
 					}
 				}
 				hr = D3D_OK;
 				pSrcSurface->UnlockRect();
+			}
+			else
+			{
+				LOG_ONCE(__FUNCTION__ << " Error: Failed to lock surface data.");
 			}
 		}
 		else
@@ -2868,21 +2864,41 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 		return D3DERR_INVALIDCALL;
 	}
 
-	pDestSurface = static_cast<m_IDirect3DSurface8 *>(pDestSurface)->GetProxyInterface();
+	pDestSurface = static_cast<m_IDirect3DSurface8*>(pDestSurface)->GetProxyInterface();
 
-	// Update cached buffer size
-	if (UseFrontBufferControl == AUTO_BUFFER || (LONG)CachedSurfaceData.size() != (BufferWidth * 4) * BufferHeight)
+	// Get source rect size
+	RECT SrcRect = {};
+	if (!GetClientRect(DeviceWindow, &SrcRect))
 	{
-		CachedSurfaceData.clear();
-		CachedSurfaceData.resize(((BufferWidth * 4) * BufferHeight), NULL);
+		LOG_ONCE(__FUNCTION__ << " Error: Failed to get surface desc.");
+		return D3DERR_INVALIDCALL;
+	}
+	LONG CacheWidth = SrcRect.right - SrcRect.left;
+	LONG CacheHeight = SrcRect.bottom - SrcRect.top;
+
+	// Get dest surface size
+	D3DSURFACE_DESC Desc = {};
+	if (FAILED(pDestSurface->GetDesc(&Desc)))
+	{
+		LOG_ONCE(__FUNCTION__ << " Error: Failed to get surface desc.");
+		return D3DERR_INVALIDCALL;
 	}
 
-	bool SkipGetFrontBuffer = false;
+	// Update cached buffer size
+	if (!CacheSurface.pBits || CacheSurface.Width != CacheWidth || CacheSurface.Height != CacheHeight)
+	{
+		ReleaseDCSurface(CacheSurface);
+		if (FAILED(CreateDCSurface(CacheSurface, CacheWidth, CacheHeight)))
+		{
+			LOG_ONCE(__FUNCTION__ << " Error: Failed to create emu surface.");
+			return D3DERR_INVALIDCALL;
+		}
+	}
 
 	// Detect if GDI will work for getting front buffer data
 	if (UseFrontBufferControl == AUTO_BUFFER)
 	{
-		if (FAILED(GetFrontBufferFromGDI(CachedSurfaceData.data(), CachedSurfaceData.size())))
+		if (FAILED(GetFrontBufferFromGDI(CacheSurface)))
 		{
 			UseFrontBufferControl = BUFFER_FROM_DIRECTX;
 			Logging::Log() << __FUNCTION__ << " Failed: Setting GetFrontBuffer mode: DirectX";
@@ -2890,12 +2906,14 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 		// Check black (or solid color) screen before texture is set
 		else
 		{
-			// Get front buffer data from DirectX
+			// Store data from GDI front buffer
 			std::vector<BYTE> TempSurfaceData;
-			TempSurfaceData.resize(CachedSurfaceData.size(), NULL);
-			if (FAILED(GetFrontBufferFromDirectX(TempSurfaceData.data(), TempSurfaceData.size())))
+			TempSurfaceData.resize(CacheSurface.Size);
+			memcpy(TempSurfaceData.data(), CacheSurface.pBits, CacheSurface.Size);
+
+			// Get front buffer data from DirectX
+			if (FAILED(GetFrontBufferFromDirectX(CacheSurface, Desc.Format)))
 			{
-				SkipGetFrontBuffer = true;
 				UseFrontBufferControl = BUFFER_FROM_GDI;
 				Logging::Log() << __FUNCTION__ << " Failed: Setting GetFrontBuffer mode: GDI";
 			}
@@ -2903,26 +2921,30 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 			{
 				bool GDISolidColorFlag = true;
 				bool DirectXSolidColorFlag = true;
-				DWORD* BufferGDI = (DWORD*)CachedSurfaceData.data();
-				DWORD* BufferDirectX = (DWORD*)TempSurfaceData.data();
-				DWORD Loops = BufferWidth * BufferHeight;
-				for (DWORD x = 0; x < Loops; x++)
+				DWORD* BufferGDI = (DWORD*)TempSurfaceData.data();
+				DWORD* BufferDirectX = (DWORD*)CacheSurface.pBits;
+				for (int y = 0; y < CacheHeight; y++)
 				{
-					// Test for a solid screen
-					if (BufferGDI[0] != BufferGDI[x])
+					for (int x = 0; x < CacheWidth; x++)
 					{
-						GDISolidColorFlag = false;
-					}
-					// Test for a solid screen
-					if (BufferDirectX[0] != BufferDirectX[x])
-					{
-						DirectXSolidColorFlag = false;
+						// Test for a solid screen
+						if (BufferGDI[0] != BufferGDI[x])
+						{
+							GDISolidColorFlag = false;
+						}
+						// Test for a solid screen
+						if (BufferDirectX[0] != BufferDirectX[x])
+						{
+							DirectXSolidColorFlag = false;
+						}
 					}
 					// Check if should break
 					if (!GDISolidColorFlag && !DirectXSolidColorFlag)
 					{
 						break;
 					}
+					BufferGDI = (DWORD*)((DWORD)BufferGDI + CacheSurface.Pitch);
+					BufferDirectX = (DWORD*)((DWORD)BufferDirectX + CacheSurface.Pitch);
 				}
 				Logging::LogDebug() << __FUNCTION__ << " Finish loop! GDI: " << GDISolidColorFlag << " DirectX: " << DirectXSolidColorFlag;
 
@@ -2938,7 +2960,6 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 				}
 				else
 				{
-					SkipGetFrontBuffer = true;
 					UseFrontBufferControl = BUFFER_FROM_GDI;
 					Logging::Log() << __FUNCTION__ << " Setting GetFrontBuffer mode: GDI";
 				}
@@ -2947,9 +2968,9 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 	}
 
 	// Use GDI to get front buffer data
-	if (UseFrontBufferControl == BUFFER_FROM_GDI && !SkipGetFrontBuffer)
+	if (UseFrontBufferControl == BUFFER_FROM_GDI)
 	{
-		HRESULT hr = GetFrontBufferFromGDI(CachedSurfaceData.data(), CachedSurfaceData.size());
+		HRESULT hr = GetFrontBufferFromGDI(CacheSurface);
 
 		if (FAILED(hr))
 		{
@@ -2958,9 +2979,9 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 	}
 
 	// Use DirectX to get front buffer data by calling the real GetFrontBuffer()
-	if ((UseFrontBufferControl == BUFFER_FROM_DIRECTX && !SkipGetFrontBuffer) || UseFrontBufferControl == AUTO_BUFFER)
+	if ((UseFrontBufferControl == BUFFER_FROM_DIRECTX) || UseFrontBufferControl == AUTO_BUFFER)
 	{
-		HRESULT hr = GetFrontBufferFromDirectX(CachedSurfaceData.data(), CachedSurfaceData.size());
+		HRESULT hr = GetFrontBufferFromDirectX(CacheSurface, Desc.Format);
 
 		if (FAILED(hr))
 		{
@@ -2970,22 +2991,44 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 
 	HRESULT hr = D3D_OK;
 
+	// Check if surface needs to be stretched
+	BYTE* BufferCache = CacheSurface.pBits;
+	DWORD BufferPitch = CacheSurface.Pitch;
+	if (CacheWidth != (LONG)Desc.Width && CacheHeight != (LONG)Desc.Height)
+	{
+		if (!CacheSurfaceStretch.pBits || CacheSurfaceStretch.Width != (LONG)Desc.Width || CacheSurfaceStretch.Height != (LONG)Desc.Height)
+		{
+			ReleaseDCSurface(CacheSurfaceStretch);
+			if (FAILED(CreateDCSurface(CacheSurfaceStretch, Desc.Width, Desc.Height)))
+			{
+				LOG_ONCE(__FUNCTION__ << " Error: Failed to create stretch emu surface.");
+				return D3DERR_INVALIDCALL;
+			}
+		}
+
+		// Stretch surface
+		StretchBlt(CacheSurfaceStretch.DC, 0, 0, (LONG)Desc.Width, (LONG)Desc.Height,
+			CacheSurface.DC, 0, 0, CacheWidth, CacheHeight, SRCCOPY);
+		BufferCache = CacheSurfaceStretch.pBits;
+		BufferPitch = CacheSurfaceStretch.Pitch;
+	}
+
 	// Lock destination surface
 	D3DLOCKED_RECT LockedRect = {};
 	if (SUCCEEDED(pDestSurface->LockRect(&LockedRect, nullptr, 0)))
 	{
 		// Copy data to surface
-		if (BufferWidth * 4 == LockedRect.Pitch)
+		if ((LONG)BufferPitch == LockedRect.Pitch)
 		{
-			memcpy(LockedRect.pBits, CachedSurfaceData.data(), LockedRect.Pitch * BufferHeight);
+			memcpy(LockedRect.pBits, BufferCache, LockedRect.Pitch * Desc.Height);
 		}
 		else
 		{
-			INT SrcPitch = BufferWidth * 4;
+			INT SrcPitch = BufferPitch;
 			INT DestPitch = LockedRect.Pitch;
-			BYTE* SrcBuffer = CachedSurfaceData.data();
+			BYTE* SrcBuffer = BufferCache;
 			BYTE* DestBuffer = (BYTE*)LockedRect.pBits;
-			for (int x = 0; x < BufferHeight; x++)
+			for (UINT x = 0; x < Desc.Height; x++)
 			{
 				memcpy(DestBuffer, SrcBuffer, min(DestPitch, SrcPitch));
 				SrcBuffer += SrcPitch;
@@ -2997,24 +3040,24 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 	else
 	{
 		// Create new surface to hold data
-		IDirect3DSurface8 *pSrcSurface = nullptr;
-		if (SUCCEEDED(ProxyInterface->CreateImageSurface(BufferWidth, BufferHeight, D3DFMT_A8R8G8B8, &pSrcSurface)))
+		IDirect3DSurface8* pSrcSurface = nullptr;
+		if (SUCCEEDED(ProxyInterface->CreateImageSurface(Desc.Width, Desc.Height, Desc.Format, &pSrcSurface)))
 		{
 			// Lock destination surface
 			if (SUCCEEDED(pSrcSurface->LockRect(&LockedRect, nullptr, 0)))
 			{
 				// Copy data to new surface
-				if (BufferWidth * 4 == LockedRect.Pitch)
+				if ((LONG)BufferPitch == LockedRect.Pitch)
 				{
-					memcpy(LockedRect.pBits, CachedSurfaceData.data(), LockedRect.Pitch * BufferHeight);
+					memcpy(LockedRect.pBits, BufferCache, LockedRect.Pitch * Desc.Height);
 				}
 				else
 				{
-					INT SrcPitch = BufferWidth * 4;
+					INT SrcPitch = BufferPitch;
 					INT DestPitch = LockedRect.Pitch;
-					BYTE* SrcBuffer = CachedSurfaceData.data();
+					BYTE* SrcBuffer = BufferCache;
 					BYTE* DestBuffer = (BYTE*)LockedRect.pBits;
-					for (int x = 0; x < BufferHeight; x++)
+					for (UINT x = 0; x < Desc.Height; x++)
 					{
 						memcpy(DestBuffer, SrcBuffer, min(DestPitch, SrcPitch));
 						SrcBuffer += SrcPitch;
@@ -3025,8 +3068,7 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 
 				// Copy data to destination surface
 				POINT PointDest = { 0, 0 };
-				RECT Rect = { 0, 0, BufferWidth, BufferHeight };
-				hr = ProxyInterface->CopyRects(pSrcSurface, &Rect, 1, pDestSurface, &PointDest);
+				hr = ProxyInterface->CopyRects(pSrcSurface, &SrcRect, 1, pDestSurface, &PointDest);
 			}
 
 			// Release surface
@@ -3702,4 +3744,100 @@ void m_IDirect3DDevice8::CaptureScreenShot()
 	pDestSurface->Release();
 
 	return;
+}
+
+// Function to create an emulated surface with a compatible DC
+HRESULT m_IDirect3DDevice8::CreateDCSurface(EMUSURFACE& surface, LONG Width, LONG Height)
+{
+	// Setup bitmap info for the emulated surface
+	surface.bmi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+	surface.bmi->bmiHeader.biWidth = Width;
+	surface.bmi->bmiHeader.biHeight = -(Height+200); // Negative height to indicate top-down bitmap
+	surface.bmi->bmiHeader.biPlanes = 1;
+	surface.bmi->bmiHeader.biBitCount = 32;
+	surface.bmi->bmiHeader.biCompression = BI_RGB; // Uncompressed RGB format
+
+	// Create compatible DC
+	surface.DC = CreateCompatibleDC(nullptr);
+	if (!surface.DC)
+	{
+		// Failed to create compatible DC
+		LOG_ONCE(__FUNCTION__ << " Error: Failed to create DC.");
+		return D3DERR_INVALIDCALL;
+	}
+
+	// Create DIB section (bitmap) for the emulated surface
+	surface.bitmap = CreateDIBSection(surface.DC, surface.bmi, DIB_RGB_COLORS, (void**)&surface.pBits, nullptr, 0);
+	if (!surface.bitmap)
+	{
+		// Failed to create DIB section
+		LOG_ONCE(__FUNCTION__ << " Error: Failed to create DIB.");
+		DeleteDC(surface.DC);
+		surface.DC = nullptr;
+		surface.pBits = nullptr;
+		return D3DERR_INVALIDCALL;
+	}
+
+	// Select the bitmap into the DC
+	surface.OldDCObject = SelectObject(surface.DC, surface.bitmap);
+	if (!surface.OldDCObject || surface.OldDCObject == HGDI_ERROR)
+	{
+		// Failed to select bitmap into DC
+		LOG_ONCE(__FUNCTION__ << " Error: Failed to select DC.");
+		DeleteObject(surface.bitmap);
+		DeleteDC(surface.DC);
+		surface.DC = nullptr;
+		surface.bitmap = nullptr;
+		surface.pBits = nullptr;
+		return D3DERR_INVALIDCALL;
+	}
+
+	// After setting the HALFTONE stretching mode, an application must call the SetBrushOrgEx
+	// function to set the brush origin. If it fails to do so, brush misalignment occurs.
+	POINT org;
+	GetBrushOrgEx(surface.DC, &org);
+	SetStretchBltMode(surface.DC, HALFTONE);
+	SetBrushOrgEx(surface.DC, org.x, org.y, nullptr);
+
+	// Set height back
+	surface.bmi->bmiHeader.biHeight = -(Height);
+
+	// Calculate pitch (bytes per scanline)
+	surface.Pitch = ((((Width * surface.bmi->bmiHeader.biBitCount) + 31) & ~31) >> 3);
+	surface.Size = surface.Pitch * Height;
+	surface.Width = Width;
+	surface.Height = Height;
+
+	// Return success
+	return D3D_OK;
+}
+
+// Function to release resources associated with the emulated surface
+void m_IDirect3DDevice8::ReleaseDCSurface(EMUSURFACE& surface)
+{
+	if (surface.DC)
+	{
+		if (surface.OldDCObject)
+		{
+			// Restore the original object into the DC
+			SelectObject(surface.DC, surface.OldDCObject);
+			surface.OldDCObject = nullptr;
+		}
+
+		// Delete the bitmap from the DC
+		if (surface.bitmap)
+		{
+			DeleteObject(surface.bitmap);
+			surface.bitmap = nullptr;
+		}
+
+		// Delete the DC
+		DeleteDC(surface.DC);
+		surface.DC = nullptr;
+	}
+	surface.pBits = nullptr;
+	surface.Width = 0;
+	surface.Height = 0;
+	surface.Pitch = 0;
+	surface.Size = 0;
 }

@@ -491,7 +491,7 @@ void DelayedStart()
 		PatchGameLoad();
 	}
 
-    // Fixes momentarily "flash" when save file is loaded
+	// Fixes momentarily "flash" when save file is loaded
 	if (GameLoadFlashFix)
 	{
 		PatchGameLoadFlashFix();

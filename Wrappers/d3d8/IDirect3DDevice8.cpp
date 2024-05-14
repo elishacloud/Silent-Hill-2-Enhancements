@@ -2835,8 +2835,7 @@ HRESULT m_IDirect3DDevice8::GetFrontBufferFromDirectX(EMUSURFACE& CachedSurface,
 						DestBuffer += CachedSurface.Pitch;
 					}
 				}
-				hr = D3D_OK;
-				pSrcSurface->UnlockRect();
+				hr = pSrcSurface->UnlockRect();
 			}
 			else
 			{
@@ -2896,6 +2895,7 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 	}
 
 	// Detect if GDI will work for getting front buffer data
+	bool FrontBufferCollected = false;
 	if (UseFrontBufferControl == AUTO_BUFFER)
 	{
 		if (FAILED(GetFrontBufferFromGDI(CacheSurface)))
@@ -2919,6 +2919,7 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 			}
 			else
 			{
+				FrontBufferCollected = false;
 				bool GDISolidColorFlag = true;
 				bool DirectXSolidColorFlag = true;
 				DWORD* BufferGDI = (DWORD*)TempSurfaceData.data();
@@ -2968,7 +2969,7 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 	}
 
 	// Use GDI to get front buffer data
-	if (UseFrontBufferControl == BUFFER_FROM_GDI)
+	if (!FrontBufferCollected && UseFrontBufferControl == BUFFER_FROM_GDI)
 	{
 		HRESULT hr = GetFrontBufferFromGDI(CacheSurface);
 
@@ -2979,7 +2980,7 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 	}
 
 	// Use DirectX to get front buffer data by calling the real GetFrontBuffer()
-	if ((UseFrontBufferControl == BUFFER_FROM_DIRECTX) || UseFrontBufferControl == AUTO_BUFFER)
+	if (!FrontBufferCollected && ((UseFrontBufferControl == BUFFER_FROM_DIRECTX) || UseFrontBufferControl == AUTO_BUFFER))
 	{
 		HRESULT hr = GetFrontBufferFromDirectX(CacheSurface, Desc.Format);
 
@@ -2989,7 +2990,7 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 		}
 	}
 
-	HRESULT hr = D3D_OK;
+	HRESULT hr = D3DERR_INVALIDCALL;
 
 	// Check if surface needs to be stretched
 	BYTE* BufferCache = CacheSurface.pBits;
@@ -3007,8 +3008,12 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 		}
 
 		// Stretch surface
-		StretchBlt(CacheSurfaceStretch.DC, 0, 0, (LONG)Desc.Width, (LONG)Desc.Height,
-			CacheSurface.DC, 0, 0, CacheWidth, CacheHeight, SRCCOPY);
+		if (!StretchBlt(CacheSurfaceStretch.DC, 0, 0, (LONG)Desc.Width, (LONG)Desc.Height,
+			CacheSurface.DC, 0, 0, CacheWidth, CacheHeight, SRCCOPY))
+		{
+			LOG_ONCE(__FUNCTION__ << " Error: Failed to stretch DC surface!");
+			return D3DERR_INVALIDCALL;
+		}
 		BufferCache = CacheSurfaceStretch.pBits;
 		BufferPitch = CacheSurfaceStretch.Pitch;
 	}
@@ -3035,7 +3040,7 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 				DestBuffer += DestPitch;
 			}
 		}
-		pDestSurface->UnlockRect();
+		hr = pDestSurface->UnlockRect();
 	}
 	else
 	{

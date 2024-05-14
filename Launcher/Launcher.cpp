@@ -566,7 +566,7 @@ BOOL CenterWindow(HWND hwndWindow)
 	if (nX + nWidth > nScreenWidth) nX = nScreenWidth - nWidth;
 	if (nY + nHeight > nScreenHeight) nY = nScreenHeight - nHeight;
 
-	SetWindowPos(hwndWindow, HWND_TOP, nX, nY, nWidth, nHeight, SWP_NOSIZE | SWP_NOZORDER);
+	SetWindowPos(hwndWindow, HWND_TOPMOST, nX, nY, nWidth, nHeight, SWP_NOSIZE | SWP_NOZORDER);
 
 	return TRUE;
 }
@@ -640,7 +640,7 @@ void GetLanguage()
 {
 	DWORD val = 0;
 	if (ReadRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"LauncherLanguage", &val, MAX_PATH * sizeof(DWORD)))
-	{		
+	{
 		for (auto item : LangList)
 		{
 			if (item.RcData == val)
@@ -744,7 +744,7 @@ void GetAllExeFiles()
 	*pdest = '\0';
 
 	// Interate through all files in the folder
-	for (const auto & entry : std::filesystem::directory_iterator(path))
+	for (const auto& entry : std::filesystem::directory_iterator(path))
 	{
 		if (!entry.is_directory())
 		{
@@ -829,7 +829,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		RECT r, w;
 		GetClientRect(hWnd, &r);
 		GetWindowRect(hWnd, &w);
-		SetWindowPos(hWnd, HWND_TOP, 0, 0, (w.right - w.left) - r.right + rWidth, (w.bottom - w.top) - r.bottom + rHeight, SWP_NOMOVE | SWP_NOZORDER);
+		SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, (w.right - w.left) - r.right + rWidth, (w.bottom - w.top) - r.bottom + rHeight, SWP_NOMOVE | SWP_NOZORDER);
 	}
 
 	// set window location

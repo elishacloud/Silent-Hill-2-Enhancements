@@ -415,7 +415,7 @@ public:
 
 	bool CheckSpeedrunCoherency()
 	{
-		auto srValue = this->FindAndGetValue(speedrunOptionName);
+		auto srValue = this->FindAndGetValue("SpeedrunMode"); //TODO string
 
 		if (srValue == 0) return true;
 

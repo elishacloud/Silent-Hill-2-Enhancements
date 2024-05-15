@@ -564,6 +564,16 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	}
 	SetWindowPos(MainhWnd, HWND_TOP, xLoc, yLoc, Rect.right, Rect.bottom, SWP_SHOWWINDOW | SWP_NOZORDER);
 
+	// Wait for window position change
+	int x = 0;
+	RECT tempRect = {};
+	while (++x < 20 && GetWindowRect(MainhWnd, &tempRect) &&
+		tempRect.left != xLoc && tempRect.top != yLoc &&
+		tempRect.right != xLoc + Rect.right && tempRect.bottom != yLoc + Rect.bottom)
+	{
+		Sleep(100);
+	}
+
 	// Set window placement
 	if (UseWindowPlacement)
 	{

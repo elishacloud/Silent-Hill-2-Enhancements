@@ -107,6 +107,8 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 
 	isInScene = false;
 
+	ReplacedLastRenderTarget = false;
+
 	pCurrentRenderTexture = nullptr;
 
 	pInitialRenderTexture = nullptr;
@@ -115,11 +117,12 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 	{
 		if (SurfaceStruct.RenderTarget)
 		{
+			SurfaceStruct.RenderTarget->QueryInterface(IID_ClearCachedSurfaces, nullptr);
 			ReleaseInterface(&SurfaceStruct.RenderTarget);
 		}
 		if (SurfaceStruct.SourceTarget)
 		{
-			SurfaceStruct.SourceTarget->QueryInterface(IID_ClearRenderTarget, nullptr);
+			SurfaceStruct.SourceTarget->QueryInterface(IID_ClearCachedSurfaces, nullptr);
 		}
 	}
 	SurfaceVector.clear();
@@ -176,7 +179,7 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 
 	OverlayRef.ResetFont();
 
-  // Call function
+	// Call function
 	RunResetCode(ProxyInterface);
 
 	// Update presentation parameters
@@ -495,7 +498,7 @@ HRESULT m_IDirect3DDevice8::CreateTexture(THIS_ UINT Width, UINT Height, UINT Le
 						if (SUCCEEDED(pCreatedTexture->GetSurfaceLevel(0, &pTmpTargetSurface)))
 						{
 							POINT PointDest = { 0, 0 };
-							RECT Rect = { 0, 0, BufferWidth, BufferHeight };
+							RECT Rect = { 0, 0, (LONG)Width, (LONG)Height };
 							ProxyInterface->CopyRects(pTmpSurface, &Rect, 1, pTmpTargetSurface, &PointDest);
 							pTmpTargetSurface->Release();
 						}
@@ -3768,6 +3771,7 @@ HRESULT m_IDirect3DDevice8::CreateDCSurface(EMUSURFACE& surface, LONG Width, LON
 	{
 		// Failed to create compatible DC
 		LOG_ONCE(__FUNCTION__ << " Error: Failed to create DC.");
+		ReleaseDCSurface(surface);
 		return D3DERR_INVALIDCALL;
 	}
 
@@ -3777,9 +3781,7 @@ HRESULT m_IDirect3DDevice8::CreateDCSurface(EMUSURFACE& surface, LONG Width, LON
 	{
 		// Failed to create DIB section
 		LOG_ONCE(__FUNCTION__ << " Error: Failed to create DIB.");
-		DeleteDC(surface.DC);
-		surface.DC = nullptr;
-		surface.pBits = nullptr;
+		ReleaseDCSurface(surface);
 		return D3DERR_INVALIDCALL;
 	}
 
@@ -3789,17 +3791,13 @@ HRESULT m_IDirect3DDevice8::CreateDCSurface(EMUSURFACE& surface, LONG Width, LON
 	{
 		// Failed to select bitmap into DC
 		LOG_ONCE(__FUNCTION__ << " Error: Failed to select DC.");
-		DeleteObject(surface.bitmap);
-		DeleteDC(surface.DC);
-		surface.DC = nullptr;
-		surface.bitmap = nullptr;
-		surface.pBits = nullptr;
+		ReleaseDCSurface(surface);
 		return D3DERR_INVALIDCALL;
 	}
 
 	// After setting the HALFTONE stretching mode, an application must call the SetBrushOrgEx
 	// function to set the brush origin. If it fails to do so, brush misalignment occurs.
-	POINT org;
+	POINT org = {};
 	GetBrushOrgEx(surface.DC, &org);
 	SetStretchBltMode(surface.DC, HALFTONE);
 	SetBrushOrgEx(surface.DC, org.x, org.y, nullptr);

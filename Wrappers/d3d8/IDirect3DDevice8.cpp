@@ -2796,14 +2796,8 @@ HRESULT m_IDirect3DDevice8::GetFrontBufferFromDirectX(EMUSURFACE& CachedSurface,
 
 	// Get location of client window if not in exclusive fullscreen mode
 	RECT ClientRect = { 0, 0, CachedSurface.Width, CachedSurface.Height };
-	if (ScreenMode != EXCLUSIVE_FULLSCREEN)
+	if (ScreenMode != EXCLUSIVE_FULLSCREEN && MapWindowPoints(DeviceWindow, HWND_DESKTOP, (LPPOINT)&ClientRect, 1))
 	{
-		// Clip rect
-		if (!MapWindowPoints(DeviceWindow, HWND_DESKTOP, (LPPOINT)&ClientRect, 2))
-		{
-			LOG_ONCE(__FUNCTION__ << " Error: Could not get window or client rect for front buffer.");
-			return D3DERR_INVALIDCALL;
-		}
 		ClientRect.right = min(ScreenWidth, ClientRect.left + CachedSurface.Width);
 		ClientRect.bottom = min(ScreenHeight, ClientRect.top + CachedSurface.Height);
 	}

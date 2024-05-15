@@ -8,21 +8,27 @@
 
     <Section name="Exibição">
 
-      <Feature name="WndModeBorder">
-        <Title>Janela com borda (apenas para o modo janela)</Title>
-        <Description>Cria uma janela com borda para o jogo. Só funciona jogando em modo janela.&#x0a;&#x0a;Nota: A resolução da janela do jogo não deve ser próxima ou exatamente igual à largura ou altura da tela, caso contrário, a borda não aparecerá. Esta é uma medida de segurança para garantir que a borda não ultrapasse a área de exibição.</Description>
-        <Choices type="check">
-          <Value name="Desativar">0</Value>
-          <Value name="Ativar" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="DynamicResolution">
         <Title>Exibir todas as resoluções no menu Opções</Title>
         <Description>Detecta todas as resoluções que seu monitor oferece e as torna escolhas selecionáveis ​​(além de mostrar suas proporções) em Opções > Opções Avançadas do Jogo.</Description>
         <Choices type="check">
           <Value name="Desativar">0</Value>
           <Value name="Ativar" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="ScaleWindowedResolution">
+        <Title>Dynamic Resolution Scaling</Title>
+        <Description>Works only in windowed and fullscreen windowed mode.</Description>
+        <Choices type="list">
+          <Value name="0.25">7</Value>
+          <Value name="0.5">6</Value>
+          <Value name="0.75">5</Value>
+          <Value name="1.0" default="true">0</Value>
+          <Value name="1.25">4</Value>
+          <Value name="1.5">3</Value>
+          <Value name="1.75">2</Value>
+          <Value name="2.0">1</Value>
         </Choices>
       </Feature>
 
@@ -41,6 +47,15 @@
         <Choices type="list">
           <Value name="30 FPS">0</Value>
           <Value name="60 FPS" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="WndModeBorder">
+        <Title>Janela com borda (apenas para o modo janela)</Title>
+        <Description>Cria uma janela com borda para o jogo. Só funciona jogando em modo janela.&#x0a;&#x0a;Nota: A resolução da janela do jogo não deve ser próxima ou exatamente igual à largura ou altura da tela, caso contrário, a borda não aparecerá. Esta é uma medida de segurança para garantir que a borda não ultrapasse a área de exibição.</Description>
+        <Choices type="check">
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
 

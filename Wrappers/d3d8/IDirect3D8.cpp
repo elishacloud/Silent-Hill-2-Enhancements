@@ -31,6 +31,7 @@ bool CopyRenderTarget = false;
 bool SetSSAA = false;
 bool SetATOC = false;
 bool TakeScreenShot = false;
+D3DFORMAT AutoDepthStencilFormat = D3DFMT_UNKNOWN;
 D3DMULTISAMPLE_TYPE DeviceMultiSampleType = D3DMULTISAMPLE_NONE;
 
 HRESULT m_IDirect3D8::QueryInterface(REFIID riid, LPVOID *ppvObj)
@@ -251,8 +252,15 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	// Update presentation parameters
 	UpdatePresentParameter(pPresentationParameters, hFocusWindow);
 
-	// Set Silent Hill 2 window to forground
-	SetForegroundWindow(DeviceWindow);
+	// Set width and height
+	if (UsingScaledResolutions)
+	{
+		AutoDepthStencilFormat = pPresentationParameters->AutoDepthStencilFormat;
+		pPresentationParameters->EnableAutoDepthStencil = FALSE;
+		pPresentationParameters->AutoDepthStencilFormat = D3DFMT_UNKNOWN;
+
+		GetNonScaledResolution(pPresentationParameters->BackBufferWidth, pPresentationParameters->BackBufferHeight);
+	}
 
 	HRESULT hr = D3DERR_INVALIDCALL;
 
@@ -632,7 +640,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		if (LastMonitorHandle && LastMonitorHandle != MonitorHandle)
 		{
 			DeviceLost = true;
-			SetResolutionList(BufferWidth, BufferHeight);
+
+			// Set width and height
+			LONG Width = BufferWidth;
+			LONG Height = BufferHeight;
+
+			// Set window size if window mode is enabled
+			if (UsingScaledResolutions)
+			{
+				GetNonScaledResolution(Width, Height);
+			}
+
+			SetResolutionList(Width, Height);
 		}
 		LastMonitorHandle = MonitorHandle;
 		if (hWnd == DeviceWindow && ScreenMode == WINDOWED && !WindowInChange)
@@ -645,7 +664,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		InputTweaksRef.ClearMouseInputs();
 	}
-
 	}
 
 	if (!OriginalWndProc)

@@ -43,6 +43,8 @@ struct RESOLUTONTEXT
 const DWORD MinWidth = 640;
 const DWORD MinHeight = 480;
 
+float ScaleFactor = 1.0f;
+bool UsingScaledResolutions = false;
 bool AutoScaleImages = false;
 bool AutoScaleVideos = false;
 bool AutoScaleCutscenes = false;
@@ -54,6 +56,7 @@ bool InitialIndexSet = false;
 float *SetAspectRatio = nullptr;
 RESOLUTONLIST *ResolutionArray = nullptr;
 std::vector<RESOLUTONLIST> ResolutionVector;
+std::vector<RESOLUTONLIST> ResolutionBackupVector;
 std::vector<RESOLUTONTEXT> ResolutionText;
 
 DWORD (*prepText)(char *str);
@@ -230,6 +233,42 @@ void UpdateResolutionPatches(LONG Width, LONG Height)
 	OldHeight = Height;
 }
 
+void UpdateResolutionVector()
+{
+	// Update the resolution vector
+	if (!UsingScaledResolutions && ScaleFactor != 1.0f)
+	{
+		// Enable scaling
+		for (auto& entry : ResolutionVector)
+		{
+			entry.Width = (LONG)((float)entry.Width * ScaleFactor);
+			entry.Height = (LONG)((float)entry.Height * ScaleFactor);
+		}
+		UsingScaledResolutions = true;
+	}
+}
+
+template void GetNonScaledResolution<LONG>(LONG&, LONG&);
+template void GetNonScaledResolution<int>(int&, int&);
+template void GetNonScaledResolution<UINT>(UINT&, UINT&);
+template void GetNonScaledResolution<DWORD>(DWORD&, DWORD&);
+template<typename T>
+void GetNonScaledResolution(T& Width, T& Height)
+{
+	for (size_t x = 0; x < ResolutionVector.size(); ++x)
+	{
+		// Check if the resolution matches
+		if (static_cast<T>(ResolutionVector[x].Width) == Width &&
+			static_cast<T>(ResolutionVector[x].Height) == Height)
+		{
+			// If matched, update Width and Height from the backup
+			Width = static_cast<T>(ResolutionBackupVector[x].Width);
+			Height = static_cast<T>(ResolutionBackupVector[x].Height);
+			break;
+		}
+	}
+}
+
 void UpdateWSF()
 {
 	// Set aspect ratio
@@ -300,6 +339,9 @@ void WSFDynamicStartup()
 		}
 	}
 
+	// Update ans scale resolution
+	UpdateResolutionVector();
+
 	// Get initial resolution from index
 	GetConfiguredResolution(ResX, ResY);
 
@@ -325,6 +367,9 @@ __declspec(naked) void __stdcall StartupResASM()
 
 void WSFDynamicChange()
 {
+	// Update ans scale resolution
+	UpdateResolutionVector();
+
 	// Detect if resolution changed
 	int Width, Height;
 	GetTextResolution(Width, Height);
@@ -337,9 +382,15 @@ void WSFDynamicChange()
 	ResX = Width;
 	ResY = Height;
 
+	// Reset resolution scaling
+	if (UsingScaledResolutions)
+	{
+		GetNonScaledResolution(Width, Height);
+	}
+
 	// Save updated resolution
-	ConfigData.Width = ResX;
-	ConfigData.Height = ResY;
+	ConfigData.Width = Width;
+	ConfigData.Height = Height;
 	SaveConfigData();
 
 	// Update Widescreen Fix for new resolution
@@ -391,12 +442,23 @@ void AddResolutionToList(DWORD Width, DWORD Height, bool force = false)
 		Resolution.Width = Width;
 		Resolution.Height = Height;
 		ResolutionVector.push_back(Resolution);
+		ResolutionBackupVector.push_back(Resolution);
 		CreateResolutionText(Width, Height);
 	}
 }
 
 void GetCustomResolutions()
 {
+	// Reset rsolutions back to non-scaled
+	if (UsingScaledResolutions)
+	{
+		for (auto& entry : ResolutionVector)
+		{
+			GetNonScaledResolution(entry.Width, entry.Height);
+		}
+		UsingScaledResolutions = false;
+	}
+	// Add resolutions to vector
 	do {
 		// Try getting exclusive fullscreen mode resolutions first
 		IDirect3D8* pDirect3D = Direct3DCreate8Wrapper(D3D_SDK_VERSION);
@@ -490,6 +552,7 @@ void SetResolutionList(DWORD Width, DWORD Height)
 			while (ResolutionVector.size())
 			{
 				ResolutionVector.pop_back();
+				ResolutionBackupVector.pop_back();
 			}
 			while (ResolutionText.size())
 			{

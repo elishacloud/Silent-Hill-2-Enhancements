@@ -70,8 +70,10 @@ extern bool ClassReleaseFlag;
 extern bool CopyRenderTarget;
 extern bool SetSSAA;
 extern bool SetATOC;
-extern D3DMULTISAMPLE_TYPE DeviceMultiSampleType;
 extern bool TakeScreenShot;
+extern bool UsingScaledResolutions;
+extern D3DFORMAT AutoDepthStencilFormat;
+extern D3DMULTISAMPLE_TYPE DeviceMultiSampleType;
 
 #include "IDirect3D8.h"
 #include "IDirect3DDevice8.h"

@@ -1266,6 +1266,11 @@ __declspec(naked) void __stdcall DisplayModeValuePrint()
     }
 }
 
+int GetNewScreenMode()
+{
+    return (DisplayModeValue + 1);
+}
+
 void SetDisplayModeOption()
 {
     ConfigData.DisplayModeOption = (DisplayModeValue + 1);

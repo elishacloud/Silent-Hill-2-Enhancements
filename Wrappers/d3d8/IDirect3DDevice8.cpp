@@ -113,6 +113,11 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 
 	pInitialRenderTexture = nullptr;
 
+	if (pAutoRenderTarget)
+	{
+		ProxyInterface->SetRenderTarget(pAutoRenderTarget, nullptr);
+	}
+
 	for (SURFACEVECTOR SurfaceStruct : SurfaceVector)
 	{
 		if (SurfaceStruct.RenderTarget)
@@ -126,6 +131,21 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 		}
 	}
 	SurfaceVector.clear();
+
+	if (pRenderSurface)
+	{
+		ReleaseInterface(&pRenderSurface);
+	}
+
+	if (pRenderTexture)
+	{
+		ReleaseInterface(&pRenderTexture);
+	}
+
+	if (pDepthStencilBuffer)
+	{
+		ReleaseInterface(&pDepthStencilBuffer);
+	}
 
 	if (pInRender)
 	{
@@ -177,6 +197,11 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 		ReleaseInterface(&silhouetteTexture);
 	}
 
+	if (ScaleVertexBuffer)
+	{
+		ReleaseInterface(&ScaleVertexBuffer);
+	}
+
 	OverlayRef.ResetFont();
 
 	// Call function
@@ -216,6 +241,8 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 	if (SUCCEEDED(hr))
 	{
 		SetScreenAndWindowSize();
+
+		SetScaledBackbuffer();
 	}
 
 	return hr;
@@ -1085,6 +1112,71 @@ void CalculateFPS()
 	Logging::LogDebug() << "Frames: " << frameTimes.size() << " Average time: " << averageFrameTime << " FPS: " << AverageFPSCounter;
 }
 
+HRESULT m_IDirect3DDevice8::PresentScaled(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
+{
+	if (UsingScaledResolutions)
+	{
+		// Set render states
+		ProxyInterface->SetRenderState(D3DRS_LIGHTING, FALSE);
+		ProxyInterface->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
+		ProxyInterface->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+		ProxyInterface->SetRenderState(D3DRS_FOGENABLE, FALSE);
+		ProxyInterface->SetRenderState(D3DRS_ZENABLE, FALSE);
+		ProxyInterface->SetRenderState(D3DRS_STENCILENABLE, FALSE);
+
+		// Set texture states
+		ProxyInterface->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
+		ProxyInterface->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
+		ProxyInterface->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
+
+		// Set original back buffer as render target
+		ProxyInterface->SetRenderTarget(pAutoRenderTarget, nullptr);
+
+		// Use the custom render target texture as a source texture
+		ProxyInterface->SetTexture(0, pRenderTexture);
+		ProxyInterface->SetTexture(1, nullptr);
+		ProxyInterface->SetTexture(2, nullptr);
+		ProxyInterface->SetTexture(3, nullptr);
+		ProxyInterface->SetTexture(4, nullptr);
+		ProxyInterface->SetTexture(5, nullptr);
+		ProxyInterface->SetTexture(6, nullptr);
+		ProxyInterface->SetTexture(7, nullptr);
+
+		ProxyInterface->SetPixelShader(NULL);
+		ProxyInterface->SetVertexShader(NULL);
+
+		// Set vertex declaration
+		ProxyInterface->SetVertexShader(D3DFVF_XYZRHW | D3DFVF_TEX1);
+
+		// Set stream source
+		ProxyInterface->SetStreamSource(0, ScaleVertexBuffer, sizeof(CUSTOMVERTEX_TEX1));
+
+		// Draw the full-screen quad with updated vertices
+		ProxyInterface->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+
+		// Set the render target texture (pRenderTexture) back to nullptr
+		ProxyInterface->SetTexture(0, nullptr);
+
+		// Set the custom render target back
+		ProxyInterface->SetRenderTarget(pRenderSurface, pDepthStencilBuffer);
+
+		// Endscene
+		isInScene = false;
+		ProxyInterface->EndScene();
+
+		// Present the contents of the back buffer
+		HRESULT hr = ProxyInterface->Present(nullptr, nullptr, nullptr, nullptr);
+
+		return hr;
+	}
+
+	// Endscene
+	isInScene = false;
+	ProxyInterface->EndScene();
+
+	return ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+}
+
 HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRect, HWND hDestWindowOverride, CONST RGNDATA *pDirtyRegion)
 {
 	Logging::LogDebug() << __FUNCTION__;
@@ -1119,10 +1211,6 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 		OverlayRef.RenderMouseCursor();
 	}
 
-	// Endscene
-	isInScene = false;
-	ProxyInterface->EndScene();
-
 	// Update in progress
 	static bool ClearScreen = true;
 	if (!m_StopThreadFlag && IsUpdating && !IsGetFrontBufferCalled)
@@ -1130,7 +1218,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 		if (ClearScreen)
 		{
 			ClearScreen = false;
-			HRESULT hr = ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+			HRESULT hr = PresentScaled(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 
 			if (SUCCEEDED(hr))
 			{
@@ -1183,7 +1271,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	// Present screen
 	if (!PauseMenuFlag)
 	{
-		hr = ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+		hr = PresentScaled(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 
 		if (SUCCEEDED(hr))
 		{
@@ -1471,7 +1559,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 		ProxyInterface->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 
 		// Draw James' silhouette to our texture
-		ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, fullscreenQuad, 20);
+		ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, fullscreenQuad, sizeof(CUSTOMVERTEX_DIF));
 
 		// Restore state
 		ProxyInterface->SetRenderState(D3DRS_ALPHABLENDENABLE, alphaBlend);
@@ -3615,6 +3703,54 @@ void m_IDirect3DDevice8::SetShadowFading()
 		ShadowMode = SHADOW_FADING_NONE;
 		LastFlashlightSwitch = GetFlashlightSwitch();
 		ShadowFadingIntensity = LastFlashlightSwitch * 100;
+	}
+}
+
+void m_IDirect3DDevice8::SetScaledBackbuffer()
+{
+	if (UsingScaledResolutions)
+	{
+		Logging::Log() << __FUNCTION__ << " Engine resolution: " << BufferWidth << "x" << BufferHeight;
+
+		ProxyInterface->GetRenderTarget(&pAutoRenderTarget);
+		if (pAutoRenderTarget)
+		{
+			pAutoRenderTarget->Release();
+		}
+
+		// Create render texture
+		ProxyInterface->CreateTexture(BufferWidth, BufferHeight, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &pRenderTexture);
+
+		// Get render surface
+		pRenderTexture->GetSurfaceLevel(0, &pRenderSurface);
+
+		// Create zbuffer
+		ProxyInterface->CreateDepthStencilSurface(BufferWidth, BufferHeight, AutoDepthStencilFormat, DeviceMultiSampleType, &pDepthStencilBuffer);
+
+		// Set new render and zbuffer
+		ProxyInterface->SetRenderTarget(pRenderSurface, pDepthStencilBuffer);
+
+		D3DSURFACE_DESC Desc = {};
+		pAutoRenderTarget->GetDesc(&Desc);
+		Logging::Log() << __FUNCTION__ << " Window resolution: " << Desc.Width << "x" << Desc.Height;
+
+		ScaledPresentVertex[2].x = (float)Desc.Width - 0.5f;
+		ScaledPresentVertex[3].x = (float)Desc.Width - 0.5f;
+
+		ScaledPresentVertex[1].y = (float)Desc.Height - 0.5f;
+		ScaledPresentVertex[3].y = (float)Desc.Height - 0.5f;
+
+		// Create vertex buffer
+		ProxyInterface->CreateVertexBuffer(sizeof(CUSTOMVERTEX_TEX1) * 4, D3DUSAGE_WRITEONLY, D3DFVF_XYZRHW | D3DFVF_TEX1, D3DPOOL_DEFAULT, &ScaleVertexBuffer);
+
+		CUSTOMVERTEX_TEX1* vertices = nullptr;
+
+		// Lock vertex buffer
+		if (SUCCEEDED(ScaleVertexBuffer->Lock(0, 0, (BYTE**)&vertices, 0)))
+		{
+			memcpy(vertices, ScaledPresentVertex, sizeof(CUSTOMVERTEX_TEX1) * 4);
+			ScaleVertexBuffer->Unlock();
+		}
 	}
 }
 

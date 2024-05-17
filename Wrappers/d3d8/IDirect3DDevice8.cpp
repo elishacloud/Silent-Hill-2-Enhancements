@@ -2883,6 +2883,7 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 	// Update cached buffer size
 	if (!CacheSurface.pBits || CacheSurface.Width != CacheWidth || CacheSurface.Height != CacheHeight)
 	{
+		UseFrontBufferControl = FrontBufferControl;
 		ReleaseDCSurface(CacheSurface);
 		if (FAILED(CreateDCSurface(CacheSurface, CacheWidth, CacheHeight)))
 		{
@@ -3760,7 +3761,8 @@ HRESULT m_IDirect3DDevice8::CreateDCSurface(EMUSURFACE& surface, LONG Width, LON
 	surface.bmi->bmiHeader.biCompression = BI_RGB; // Uncompressed RGB format
 
 	// Create compatible DC
-	surface.DC = CreateCompatibleDC(nullptr);
+	surface.hdcScreen = GetDC(nullptr);
+	surface.DC = CreateCompatibleDC(surface.hdcScreen);
 	if (!surface.DC)
 	{
 		// Failed to create compatible DC
@@ -3831,6 +3833,11 @@ void m_IDirect3DDevice8::ReleaseDCSurface(EMUSURFACE& surface)
 		// Delete the DC
 		DeleteDC(surface.DC);
 		surface.DC = nullptr;
+	}
+	if (surface.hdcScreen)
+	{
+		ReleaseDC(nullptr, surface.hdcScreen);
+		surface.hdcScreen = nullptr;
 	}
 	surface.pBits = nullptr;
 	surface.Width = 0;

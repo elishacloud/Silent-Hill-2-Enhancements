@@ -23,7 +23,6 @@ WNDPROC OriginalWndProc = nullptr;
 HWND DeviceWindow = nullptr;
 LONG BufferWidth = 0, BufferHeight = 0;
 LONG DefaultWidth = 0, DefaultHeight = 0;
-int UseFrontBufferControl = AUTO_BUFFER;
 DWORD VendorID = 0;
 bool WindowInChange = false;
 bool UsingWindowBorder = true;
@@ -222,8 +221,6 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	UseFrontBufferControl = FrontBufferControl;
-
 	// Get default resolution
 	RUNCODEONCE(GetDesktopRes(DefaultWidth, DefaultHeight));
 
@@ -381,7 +378,6 @@ void SetScreenAndWindowSize()
 	static int LastScreenMode = -1;
 	if (ScreenMode != LastScreenMode)
 	{
-		UseFrontBufferControl = FrontBufferControl;
 		Logging::Log() << __FUNCTION__ << " Setting display mode: " <<
 			(ScreenMode == WINDOWED ? "Windowed" : ScreenMode == WINDOWED_FULLSCREEN ? "Windowed Fullscreen" : "Exclusive Fullscreen");
 	}

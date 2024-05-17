@@ -12,6 +12,7 @@ private:
 	// Emulated surface structure
 	struct EMUSURFACE
 	{
+		HDC hdcScreen = nullptr;
 		HDC DC = nullptr;
 		HBITMAP bitmap = nullptr;
 		BYTE bmiMemory[sizeof(BITMAPINFOHEADER) + sizeof(RGBQUAD) * 256] = {};
@@ -33,6 +34,8 @@ private:
 	DWORD MaxAnisotropy = 0;
 	bool IsAntiAliasingEnabled = false;
 	bool IsSSAAEnabled = false;
+
+	int UseFrontBufferControl = AUTO_BUFFER;
 
 	bool IsGetFrontBufferCalled = false;
 	bool IsSnapshotTextureSet = false;

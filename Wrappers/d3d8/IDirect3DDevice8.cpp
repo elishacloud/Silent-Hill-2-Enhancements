@@ -1151,6 +1151,12 @@ HRESULT m_IDirect3DDevice8::PresentScaled(CONST RECT* pSourceRect, CONST RECT* p
 		// Draw the full-screen quad with updated vertices
 		ProxyInterface->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 
+		D3DSURFACE_DESC Desc = {};
+		pAutoRenderTarget->GetDesc(&Desc);
+
+		// Draw Overlays
+		OverlayRef.DrawOverlays(ProxyInterface, Desc.Width, Desc.Height);
+
 		// Set the render target texture (pRenderTexture) back to nullptr
 		ProxyInterface->SetTexture(0, nullptr);
 
@@ -1167,6 +1173,9 @@ HRESULT m_IDirect3DDevice8::PresentScaled(CONST RECT* pSourceRect, CONST RECT* p
 		return hr;
 	}
 
+	// Draw Overlays
+	OverlayRef.DrawOverlays(ProxyInterface, BufferWidth, BufferHeight);
+
 	// Endscene
 	isInScene = false;
 	ProxyInterface->EndScene();
@@ -1180,12 +1189,6 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 
 	// Disable antialiasing before present
 	DisableAntiAliasing();
-
-	// Draw Overlays
-	if (GetEventIndex() != EVENT_PAUSE_MENU)
-	{
-		OverlayRef.DrawOverlays(ProxyInterface);
-	}
 
 	// Store reference to the ProxyInterface
 	MasterVolumeRef.HandleMasterVolume(ProxyInterface);

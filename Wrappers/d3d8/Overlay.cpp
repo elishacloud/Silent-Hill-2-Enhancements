@@ -21,12 +21,20 @@ bool ControllerConnectedFlag = false;
 int JoystickX = 0;
 int JoystickY = 0;
 
-void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface)
+void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface, LONG Width, LONG Height)
 {
-	if (LastBufferWidth != BufferWidth || LastBufferHeight != BufferHeight)
+	if (LastWidth != Width || LastHeight != Height)
 	{
+		LastWidth = Width;
+		LastHeight = Height;
 		InitializeDataStructs();
-		InputTweaksRef.InitializeHitboxes((float)BufferWidth / (float)BufferHeight);
+		InputTweaksRef.InitializeHitboxes((float)Width / (float)Height);
+	}
+
+	// Don't draw overlay in pause menu
+	if (GetEventIndex() == EVENT_PAUSE_MENU)
+	{
+		return;
 	}
 
 	// Nvidia fix
@@ -159,9 +167,9 @@ void Overlay::DrawDebugOverlay(LPDIRECT3DDEVICE8 ProxyInterface)
 	OvlString.append(FloatToStr(LastFPS, FPSFloatPrecision));
 
 	OvlString.append("\rGame Resolution: ");
-	OvlString.append(std::to_string(BufferWidth));
+	OvlString.append(std::to_string(LastWidth));
 	OvlString.append("x");
-	OvlString.append(std::to_string(BufferHeight));
+	OvlString.append(std::to_string(LastHeight));
 
 	OvlString.append("\rRoom ID: 0x");
 	OvlString.append(IntToHexStr(GetRoomID()));
@@ -356,9 +364,9 @@ void Overlay::InitializeDataStructs()
 	Logging::LogDebug() << __FUNCTION__ << " Initializing Overlay Text Structs...";
 
 	InfoOverlayTextStruct.Format = DT_NOCLIP | DT_LEFT;
-	InfoOverlayTextStruct.Rect.left = BufferWidth - 205;
+	InfoOverlayTextStruct.Rect.left = LastWidth - 205;
 	InfoOverlayTextStruct.Rect.top = rectOffset;
-	InfoOverlayTextStruct.Rect.right = BufferWidth;
+	InfoOverlayTextStruct.Rect.right = LastWidth;
 	InfoOverlayTextStruct.Rect.bottom = rectOffset + 15;
 	InfoOverlayTextStruct.Color = TextColors.Tiel;
 
@@ -368,9 +376,6 @@ void Overlay::InitializeDataStructs()
 	DebugOverlayTextStruct.Rect.right = rectOffset + 300;
 	DebugOverlayTextStruct.Rect.bottom = rectOffset + 15;
 	DebugOverlayTextStruct.Color = TextColors.Green;
-
-	LastBufferWidth = BufferWidth;
-	LastBufferHeight = BufferHeight;
 }
 
 std::string Overlay::GetIGTString()

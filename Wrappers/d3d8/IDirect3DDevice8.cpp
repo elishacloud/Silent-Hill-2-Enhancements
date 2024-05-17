@@ -1122,10 +1122,14 @@ HRESULT m_IDirect3DDevice8::PresentScaled(CONST RECT* pSourceRect, CONST RECT* p
 		ProxyInterface->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 		ProxyInterface->SetRenderState(D3DRS_FOGENABLE, FALSE);
 		ProxyInterface->SetRenderState(D3DRS_ZENABLE, FALSE);
+		ProxyInterface->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
 		ProxyInterface->SetRenderState(D3DRS_STENCILENABLE, FALSE);
 
 		// Set texture states
 		ProxyInterface->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
+		ProxyInterface->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+		ProxyInterface->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_CURRENT);
+		ProxyInterface->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
 		ProxyInterface->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
 		ProxyInterface->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
 
@@ -1134,13 +1138,6 @@ HRESULT m_IDirect3DDevice8::PresentScaled(CONST RECT* pSourceRect, CONST RECT* p
 
 		// Use the custom render target texture as a source texture
 		ProxyInterface->SetTexture(0, pRenderTexture);
-		ProxyInterface->SetTexture(1, nullptr);
-		ProxyInterface->SetTexture(2, nullptr);
-		ProxyInterface->SetTexture(3, nullptr);
-		ProxyInterface->SetTexture(4, nullptr);
-		ProxyInterface->SetTexture(5, nullptr);
-		ProxyInterface->SetTexture(6, nullptr);
-		ProxyInterface->SetTexture(7, nullptr);
 
 		ProxyInterface->SetPixelShader(NULL);
 		ProxyInterface->SetVertexShader(NULL);

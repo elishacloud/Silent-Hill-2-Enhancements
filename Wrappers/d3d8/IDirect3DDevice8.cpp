@@ -748,6 +748,11 @@ HRESULT m_IDirect3DDevice8::SetRenderTarget(THIS_ IDirect3DSurface8* pRenderTarg
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	if (UsingScaledResolutions)
+	{
+		return D3D_OK;
+	}
+
 	// Check if surface should be copied
 	if (ReplacedLastRenderTarget)
 	{

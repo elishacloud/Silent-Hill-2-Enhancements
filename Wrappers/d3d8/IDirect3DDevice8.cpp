@@ -35,6 +35,7 @@ bool IsUsingD3d8to9 = false;
 bool IsInFullscreenImage = false;
 bool IsInBloomEffect = false;
 bool IsInFakeFadeout = false;
+bool IsDrawCalled = false;
 bool ClassReleaseFlag = false;
 bool TextureSet = false;
 DWORD TextureNum = 0;
@@ -1123,6 +1124,13 @@ HRESULT m_IDirect3DDevice8::PresentScaled(CONST RECT* pSourceRect, CONST RECT* p
 {
 	if (UsingScaledResolutions)
 	{
+		// Skip frames with no draw calls
+		if (!IsDrawCalled)
+		{
+			return D3D_OK;
+		}
+		IsDrawCalled = false;
+
 		// Set render states
 		ProxyInterface->SetRenderState(D3DRS_LIGHTING, FALSE);
 		ProxyInterface->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
@@ -1175,9 +1183,7 @@ HRESULT m_IDirect3DDevice8::PresentScaled(CONST RECT* pSourceRect, CONST RECT* p
 		ProxyInterface->EndScene();
 
 		// Present the contents of the back buffer
-		HRESULT hr = ProxyInterface->Present(nullptr, nullptr, nullptr, nullptr);
-
-		return hr;
+		return ProxyInterface->Present(nullptr, nullptr, nullptr, nullptr);
 	}
 
 	// Draw Overlays
@@ -1350,6 +1356,8 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	IsDrawCalled = true;
+
 	// Drawing opaque map geometry and dynamic objects
 	if (EnableXboxShadows && !shadowVolumeFlag)
 	{
@@ -1432,12 +1440,16 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitiveUP(D3DPRIMITIVETYPE PrimitiveTyp
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	IsDrawCalled = true;
+
 	return ProxyInterface->DrawIndexedPrimitiveUP(PrimitiveType, MinIndex, NumVertices, PrimitiveCount, pIndexData, IndexDataFormat, pVertexStreamZeroData, VertexStreamZeroStride);
 }
 
 HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, UINT PrimitiveCount)
 {
 	Logging::LogDebug() << __FUNCTION__;
+
+	IsDrawCalled = true;
 
 	// Set pillar boxes to black (removes game images from pillars)
 	if (LastFrameFullscreenImage && !IsInFullscreenImage && GetRoomID() != R_NONE && GetCutsceneID() == CS_NONE)
@@ -1591,6 +1603,8 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, CONST void *pVertexStreamZeroData, UINT VertexStreamZeroStride)
 {
 	Logging::LogDebug() << __FUNCTION__;
+
+	IsDrawCalled = true;
 
 	LastDrawPrimitiveUPStride += VertexStreamZeroStride;
 

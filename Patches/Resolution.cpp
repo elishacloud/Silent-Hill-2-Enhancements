@@ -199,7 +199,7 @@ void UpdateResolutionPatches(LONG Width, LONG Height)
 	// Check if resolution changed
 	if (OldWidth != Width || OldHeight != Height)
 	{
-		Logging::Log() << "Setting resolution: " << Width << "x" << Height;
+		Logging::Log() << "Silent Hill 2 engine resolution set to: " << Width << "x" << Height;
 
 		// Set correct resolution for Room 312
 		if (PauseScreenFix)
@@ -236,7 +236,7 @@ void UpdateResolutionPatches(LONG Width, LONG Height)
 void UpdateResolutionVector()
 {
 	// Update the resolution vector
-	if (!UsingScaledResolutions && ScaleFactor != 1.0f)
+	if (ScaleWindowedResolution && !UsingScaledResolutions)
 	{
 		// Enable scaling
 		for (auto& entry : ResolutionVector)
@@ -289,11 +289,11 @@ void UpdateWSF()
 		SetCutsceneBorder();
 	}
 
-	// Flush cache
-	FlushInstructionCache(GetCurrentProcess(), nullptr, 0);
-
 	// Update patches for resolution change
 	UpdateResolutionPatches((LONG)ResX, (LONG)ResY);
+
+	// Flush cache
+	FlushInstructionCache(GetCurrentProcess(), nullptr, 0);
 }
 
 void WSFDynamicStartup()
@@ -309,7 +309,7 @@ void WSFDynamicStartup()
 	bool found = false;
 	{
 		BYTE Index = 0;
-		for (auto res : ResolutionVector)
+		for (auto& res : ResolutionBackupVector)
 		{
 			if (res.Width == ConfigData.Width && res.Height == ConfigData.Height)
 			{
@@ -328,7 +328,7 @@ void WSFDynamicStartup()
 		LONG screenWidth, screenHeight;
 		GetDesktopRes(screenWidth, screenHeight);
 		BYTE Index = 0;
-		for (auto res : ResolutionVector)
+		for (auto& res : ResolutionBackupVector)
 		{
 			if ((LONG)res.Width == screenWidth && (LONG)res.Height == screenHeight)
 			{
@@ -339,7 +339,7 @@ void WSFDynamicStartup()
 		}
 	}
 
-	// Update ans scale resolution
+	// Update and scale resolution
 	UpdateResolutionVector();
 
 	// Get initial resolution from index
@@ -367,7 +367,7 @@ __declspec(naked) void __stdcall StartupResASM()
 
 void WSFDynamicChange()
 {
-	// Update ans scale resolution
+	// Update and scale resolution
 	UpdateResolutionVector();
 
 	// Detect if resolution changed
@@ -458,6 +458,7 @@ void GetCustomResolutions()
 		}
 		UsingScaledResolutions = false;
 	}
+
 	// Add resolutions to vector
 	do {
 		// Try getting exclusive fullscreen mode resolutions first
@@ -533,6 +534,9 @@ void GetCustomResolutions()
 		AddResolutionToList(1600, 1200);
 		AddResolutionToList(MaxWidth, MaxHeight);
 	}
+
+	// Update and scale resolution
+	UpdateResolutionVector();
 }
 
 BYTE *ResStartupAddr = nullptr;

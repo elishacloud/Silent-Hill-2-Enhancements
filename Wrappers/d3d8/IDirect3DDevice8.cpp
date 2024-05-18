@@ -116,9 +116,10 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 	if (pAutoRenderTarget)
 	{
 		ProxyInterface->SetRenderTarget(pAutoRenderTarget, nullptr);
+		pAutoRenderTarget = nullptr;
 	}
 
-	for (SURFACEVECTOR SurfaceStruct : SurfaceVector)
+	for (auto& SurfaceStruct : SurfaceVector)
 	{
 		if (SurfaceStruct.RenderTarget)
 		{
@@ -134,7 +135,8 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 
 	if (pRenderSurface)
 	{
-		ReleaseInterface(&pRenderSurface);
+		pRenderSurface->Release();
+		pRenderSurface = nullptr;
 	}
 
 	if (pRenderTexture)
@@ -2814,59 +2816,14 @@ HRESULT m_IDirect3DDevice8::GetFrontBufferFromGDI(EMUSURFACE& CachedSurface)
 		return D3DERR_INVALIDCALL;
 	}
 
-	HDC hCaptureDC = CreateCompatibleDC(hWindowDC);
-	if (!hCaptureDC)
-	{
-		ReleaseDC(hDeviceWnd, hWindowDC);
-		LOG_ONCE(__FUNCTION__ << " Error: Failed to create compatible DC.");
-		return D3DERR_INVALIDCALL;
-	}
-
-	HBITMAP hCaptureBitmap = CreateCompatibleBitmap(hWindowDC, CachedSurface.Width, CachedSurface.Height);
-	if (!hCaptureBitmap)
-	{
-		DeleteDC(hCaptureDC);
-		ReleaseDC(hDeviceWnd, hWindowDC);
-		LOG_ONCE(__FUNCTION__ << " Error: Failed to create compatible bitmap.");
-		return D3DERR_INVALIDCALL;
-	}
-
-	HGDIOBJ hObject = SelectObject(hCaptureDC, hCaptureBitmap);
-	if (!hObject)
-	{
-		DeleteObject(hCaptureBitmap);
-		DeleteDC(hCaptureDC);
-		ReleaseDC(hDeviceWnd, hWindowDC);
-		LOG_ONCE(__FUNCTION__ << " Error: Failed to select object.");
-		return D3DERR_INVALIDCALL;
-	}
-
 	// Blt window data to bitmap
-	if (!BitBlt(hCaptureDC, 0, 0, CachedSurface.Width, CachedSurface.Height, hWindowDC, 0, 0, SRCCOPY | CAPTUREBLT))
+	if (!BitBlt(CachedSurface.DC, 0, 0, CachedSurface.Width, CachedSurface.Height, hWindowDC, 0, 0, SRCCOPY | CAPTUREBLT))
 	{
-		SelectObject(hCaptureDC, hObject);
-		DeleteObject(hCaptureBitmap);
-		DeleteDC(hCaptureDC);
 		ReleaseDC(hDeviceWnd, hWindowDC);
 		LOG_ONCE(__FUNCTION__ << " Error: Failed to BitBlt.");
 		return D3DERR_INVALIDCALL;
 	}
-
-	// Copy bitmap to cached buffer
-	LONG rBitmap = GetBitmapBits(hCaptureBitmap, CachedSurface.Size, CachedSurface.pBits);
-
-	// Release DC
-	SelectObject(hCaptureDC, hObject);
-	DeleteObject(hCaptureBitmap);
-	DeleteDC(hCaptureDC);
 	ReleaseDC(hDeviceWnd, hWindowDC);
-
-	// Return any errors
-	if (!rBitmap)
-	{
-		LOG_ONCE(__FUNCTION__ << " Error: Could not get bitmap bits.");
-		return D3DERR_INVALIDCALL;
-	}
 
 	return D3D_OK;
 }
@@ -3711,8 +3668,7 @@ void m_IDirect3DDevice8::SetScaledBackbuffer()
 {
 	if (UsingScaledResolutions)
 	{
-		Logging::Log() << __FUNCTION__ << " Engine resolution: " << BufferWidth << "x" << BufferHeight;
-
+		// Get auto generated render target
 		ProxyInterface->GetRenderTarget(&pAutoRenderTarget);
 		if (pAutoRenderTarget)
 		{
@@ -3726,14 +3682,13 @@ void m_IDirect3DDevice8::SetScaledBackbuffer()
 		pRenderTexture->GetSurfaceLevel(0, &pRenderSurface);
 
 		// Create zbuffer
-		ProxyInterface->CreateDepthStencilSurface(BufferWidth, BufferHeight, AutoDepthStencilFormat, DeviceMultiSampleType, &pDepthStencilBuffer);
+		ProxyInterface->CreateDepthStencilSurface(BufferWidth, BufferHeight, D3DFMT_D24S8, DeviceMultiSampleType, &pDepthStencilBuffer);
 
 		// Set new render and zbuffer
 		ProxyInterface->SetRenderTarget(pRenderSurface, pDepthStencilBuffer);
 
 		D3DSURFACE_DESC Desc = {};
 		pAutoRenderTarget->GetDesc(&Desc);
-		Logging::Log() << __FUNCTION__ << " Window resolution: " << Desc.Width << "x" << Desc.Height;
 
 		ScaledPresentVertex[2].x = (float)Desc.Width - 0.5f;
 		ScaledPresentVertex[3].x = (float)Desc.Width - 0.5f;
@@ -3752,6 +3707,8 @@ void m_IDirect3DDevice8::SetScaledBackbuffer()
 			memcpy(vertices, ScaledPresentVertex, sizeof(CUSTOMVERTEX_TEX1) * 4);
 			ScaleVertexBuffer->Unlock();
 		}
+
+		Logging::Log() << "Silent Hill 2 game resolution set to: " << Desc.Width << "x" << Desc.Height;
 	}
 }
 

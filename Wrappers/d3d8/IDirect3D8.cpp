@@ -30,7 +30,6 @@ bool CopyRenderTarget = false;
 bool SetSSAA = false;
 bool SetATOC = false;
 bool TakeScreenShot = false;
-D3DFORMAT AutoDepthStencilFormat = D3DFMT_UNKNOWN;
 D3DMULTISAMPLE_TYPE DeviceMultiSampleType = D3DMULTISAMPLE_NONE;
 
 HRESULT m_IDirect3D8::QueryInterface(REFIID riid, LPVOID *ppvObj)
@@ -249,16 +248,6 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	// Update presentation parameters
 	UpdatePresentParameter(pPresentationParameters, hFocusWindow);
 
-	// Set width and height
-	if (UsingScaledResolutions)
-	{
-		AutoDepthStencilFormat = pPresentationParameters->AutoDepthStencilFormat;
-		pPresentationParameters->EnableAutoDepthStencil = FALSE;
-		pPresentationParameters->AutoDepthStencilFormat = D3DFMT_UNKNOWN;
-
-		GetNonScaledResolution(pPresentationParameters->BackBufferWidth, pPresentationParameters->BackBufferHeight);
-	}
-
 	HRESULT hr = D3DERR_INVALIDCALL;
 
 	// Get multisample quality level
@@ -350,6 +339,18 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 	BufferWidth = (pPresentationParameters->BackBufferWidth) ? pPresentationParameters->BackBufferWidth : BufferWidth;
 	BufferHeight = (pPresentationParameters->BackBufferHeight) ? pPresentationParameters->BackBufferHeight : BufferHeight;
 
+	// Set scaled width and height
+	if (UsingScaledResolutions)
+	{
+		if (pPresentationParameters->EnableAutoDepthStencil)
+		{
+			pPresentationParameters->EnableAutoDepthStencil = FALSE;
+			pPresentationParameters->AutoDepthStencilFormat = D3DFMT_UNKNOWN;
+		}
+
+		GetNonScaledResolution(pPresentationParameters->BackBufferWidth, pPresentationParameters->BackBufferHeight);
+	}
+
 	DeviceWindow = (pPresentationParameters->hDeviceWindow) ? pPresentationParameters->hDeviceWindow :
 		(hFocusWindow) ? hFocusWindow : DeviceWindow;
 
@@ -372,9 +373,9 @@ void UpdatePresentParameterForMultisample(D3DPRESENT_PARAMETERS* pPresentationPa
 	pPresentationParameters->Flags &= ~D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
 	pPresentationParameters->SwapEffect = D3DSWAPEFFECT_DISCARD;
 
-	if (!pPresentationParameters->EnableAutoDepthStencil)
+	if (!pPresentationParameters->EnableAutoDepthStencil && !UsingScaledResolutions)
 	{
-		pPresentationParameters->EnableAutoDepthStencil = true;
+		pPresentationParameters->EnableAutoDepthStencil = TRUE;
 		pPresentationParameters->AutoDepthStencilFormat = D3DFMT_D24S8;
 	}
 }
@@ -416,6 +417,15 @@ void SetScreenAndWindowSize()
 		// Set window size if window mode is enabled
 		if (ScreenMode != EXCLUSIVE_FULLSCREEN)
 		{
+			LONG Width = BufferWidth;
+			LONG Height = BufferHeight;
+
+			// Reset resolution scaling
+			if (UsingScaledResolutions)
+			{
+				GetNonScaledResolution(Width, Height);
+			}
+
 			// Get current resolution
 			LONG CurrentWidth = 0, CurrentHeight = 0;
 			GetDesktopRes(CurrentWidth, CurrentHeight);
@@ -434,12 +444,12 @@ void SetScreenAndWindowSize()
 			}
 
 			// Set new display size
-			if (ScreenMode == WINDOWED_FULLSCREEN && (CurrentWidth != BufferWidth || CurrentHeight != BufferHeight))
+			if (ScreenMode == WINDOWED_FULLSCREEN && (CurrentWidth != Width || CurrentHeight != Height))
 			{
-				BOOL ret = SetDesktopRes(BufferWidth, BufferHeight);
+				BOOL ret = SetDesktopRes(Width, Height);
 
 				while (int x = 0 && x < 20 && ret && GetDesktopRes(CurrentWidth, CurrentHeight) &&
-					CurrentWidth != BufferWidth && CurrentHeight != BufferHeight)
+					CurrentWidth != Width && CurrentHeight != Height)
 				{
 					x++;
 					Sleep(100);
@@ -447,7 +457,7 @@ void SetScreenAndWindowSize()
 			}
 
 			// Update Silent Hill 2 window
-			AdjustWindow(DeviceWindow, BufferWidth, BufferHeight);
+			AdjustWindow(DeviceWindow, Width, Height);
 		}
 	}
 
@@ -636,18 +646,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		if (LastMonitorHandle && LastMonitorHandle != MonitorHandle)
 		{
 			DeviceLost = true;
-
-			// Set width and height
-			LONG Width = BufferWidth;
-			LONG Height = BufferHeight;
-
-			// Set window size if window mode is enabled
-			if (UsingScaledResolutions)
-			{
-				GetNonScaledResolution(Width, Height);
-			}
-
-			SetResolutionList(Width, Height);
+			SetResolutionList(BufferWidth, BufferHeight);
 		}
 		LastMonitorHandle = MonitorHandle;
 		if (hWnd == DeviceWindow && ScreenMode == WINDOWED && !WindowInChange)

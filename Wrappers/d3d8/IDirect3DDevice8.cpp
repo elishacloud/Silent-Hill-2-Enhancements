@@ -138,7 +138,7 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 
 	for (auto& pTexture : RenderTextureVector)
 	{
-		pTexture->Release();
+		ReleaseInterface(&pTexture);
 	}
 	RenderTextureVector.clear();
 
@@ -477,7 +477,7 @@ HRESULT m_IDirect3DDevice8::CreateRenderTarget(THIS_ UINT Width, UINT Height, D3
 	}
 	else
 	{
-		ProxyInterface->CreateRenderTarget(Width, Height, Format, MultiSample, Lockable, ppSurface);
+		hr = ProxyInterface->CreateRenderTarget(Width, Height, Format, MultiSample, Lockable, ppSurface);
 	}
 
 	if (SUCCEEDED(hr) && ppSurface)
@@ -815,7 +815,7 @@ HRESULT m_IDirect3DDevice8::SetRenderTarget(THIS_ IDirect3DSurface8* pRenderTarg
 
 		// Check if surface needs to be replaced
 		pSurface = nullptr;
-		if (!UsingScaledResolutions && SUCCEEDED(pRenderTarget->QueryInterface(IID_GetRenderTarget, (void**)&pSurface)) && pSurface)
+		if (SUCCEEDED(pRenderTarget->QueryInterface(IID_GetRenderTarget, (void**)&pSurface)) && pSurface)
 		{
 			ReplacedLastRenderTarget = true;
 			pRenderTarget = pSurface;
@@ -1159,107 +1159,90 @@ void CalculateFPS()
 	Logging::LogDebug() << "Frames: " << frameTimes.size() << " Average time: " << averageFrameTime << " FPS: " << AverageFPSCounter;
 }
 
-HRESULT m_IDirect3DDevice8::PresentScaled(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
+HRESULT m_IDirect3DDevice8::DrawScaledSurface()
 {
-	if (UsingScaledResolutions)
+	// Skip frames with no draw calls
+	if (!IsDrawCalled)
 	{
-		// Skip frames with no draw calls
-		if (!IsDrawCalled)
+		return D3D_OK;
+	}
+	IsDrawCalled = false;
+
+	// Set render states
+	ProxyInterface->SetRenderState(D3DRS_LIGHTING, FALSE);
+	ProxyInterface->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
+	ProxyInterface->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+	ProxyInterface->SetRenderState(D3DRS_FOGENABLE, FALSE);
+	ProxyInterface->SetRenderState(D3DRS_ZENABLE, FALSE);
+	ProxyInterface->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+	ProxyInterface->SetRenderState(D3DRS_STENCILENABLE, FALSE);
+
+	// Set texture states
+	ProxyInterface->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
+	ProxyInterface->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+	ProxyInterface->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_CURRENT);
+	ProxyInterface->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+	ProxyInterface->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
+	ProxyInterface->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
+
+	IDirect3DSurface8* pBackBuffer = nullptr, * pStencilBuffer = nullptr;
+	IDirect3DTexture8* pTexture = nullptr;
+
+	// Back up current render target (backbuffer) and stencil buffer
+	if (SUCCEEDED(ProxyInterface->GetRenderTarget(&pBackBuffer)) && pBackBuffer)
+	{
+		if (SUCCEEDED(pBackBuffer->GetContainer(IID_IDirect3DTexture8, (void**)&pTexture)))
 		{
-			return D3D_OK;
+			pTexture->Release();
 		}
-		IsDrawCalled = false;
-
-		// Set render states
-		ProxyInterface->SetRenderState(D3DRS_LIGHTING, FALSE);
-		ProxyInterface->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
-		ProxyInterface->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
-		ProxyInterface->SetRenderState(D3DRS_FOGENABLE, FALSE);
-		ProxyInterface->SetRenderState(D3DRS_ZENABLE, FALSE);
-		ProxyInterface->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
-		ProxyInterface->SetRenderState(D3DRS_STENCILENABLE, FALSE);
-
-		// Set texture states
-		ProxyInterface->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
-		ProxyInterface->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-		ProxyInterface->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_CURRENT);
-		ProxyInterface->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
-		ProxyInterface->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
-		ProxyInterface->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
-
-		IDirect3DSurface8* pBackBuffer = nullptr, *pStencilBuffer = nullptr;
-		IDirect3DTexture8* pTexture = nullptr;
-
-		// Back up current render target (backbuffer) and stencil buffer
-		if (SUCCEEDED(ProxyInterface->GetRenderTarget(&pBackBuffer)) && pBackBuffer)
+		else
 		{
-			if (SUCCEEDED(pBackBuffer->GetContainer(IID_IDirect3DTexture8, (void**)&pTexture)))
-			{
-				pTexture->Release();
-			}
-			else
-			{
-				D3DSURFACE_DESC Desc = {};
-				pBackBuffer->GetDesc(&Desc);
-				Logging::Log() << __FUNCTION__ << " Error: Failed to get surface for render target! " << Desc.Width << "x" << Desc.Height;
-			}
-			pBackBuffer->Release();
+			D3DSURFACE_DESC Desc = {};
+			pBackBuffer->GetDesc(&Desc);
+			Logging::Log() << __FUNCTION__ << " Error: Failed to get surface for render target! " << Desc.Width << "x" << Desc.Height;
 		}
-		if (SUCCEEDED(ProxyInterface->GetDepthStencilSurface(&pStencilBuffer)) && pStencilBuffer)
-		{
-			pStencilBuffer->Release();
-		}
-
-		// Set original back buffer as render target
-		ProxyInterface->SetRenderTarget(pAutoRenderTarget, nullptr);
-
-		// Use the custom render target texture as a source texture
-		ProxyInterface->SetTexture(0, pTexture);
-		for (int x = 1; x < 8; x++)
-		{
-			ProxyInterface->SetTexture(x, nullptr);
-		}
-
-		ProxyInterface->SetPixelShader(NULL);
-		ProxyInterface->SetVertexShader(NULL);
-
-		// Set vertex declaration
-		ProxyInterface->SetVertexShader(D3DFVF_XYZRHW | D3DFVF_TEX1);
-
-		// Set stream source
-		ProxyInterface->SetStreamSource(0, ScaleVertexBuffer, sizeof(CUSTOMVERTEX_TEX1));
-
-		// Draw the full-screen quad with updated vertices
-		ProxyInterface->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
-
-		D3DSURFACE_DESC Desc = {};
-		pAutoRenderTarget->GetDesc(&Desc);
-
-		// Draw Overlays
-		OverlayRef.DrawOverlays(ProxyInterface, Desc.Width, Desc.Height);
-
-		// Set the render target texture (pRenderTexture) back to nullptr
-		ProxyInterface->SetTexture(0, nullptr);
-
-		// Set the custom render target back
-		ProxyInterface->SetRenderTarget(pBackBuffer, pStencilBuffer);
-
-		// Endscene
-		isInScene = false;
-		ProxyInterface->EndScene();
-
-		// Present the contents of the back buffer
-		return ProxyInterface->Present(nullptr, nullptr, nullptr, nullptr);
+		pBackBuffer->Release();
+	}
+	if (SUCCEEDED(ProxyInterface->GetDepthStencilSurface(&pStencilBuffer)) && pStencilBuffer)
+	{
+		pStencilBuffer->Release();
 	}
 
+	// Set original back buffer as render target
+	ProxyInterface->SetRenderTarget(pAutoRenderTarget, nullptr);
+
+	// Use the custom render target texture as a source texture
+	ProxyInterface->SetTexture(0, pTexture);
+	for (int x = 1; x < 8; x++)
+	{
+		ProxyInterface->SetTexture(x, nullptr);
+	}
+
+	ProxyInterface->SetPixelShader(NULL);
+	ProxyInterface->SetVertexShader(NULL);
+
+	// Set vertex declaration
+	ProxyInterface->SetVertexShader(D3DFVF_XYZRHW | D3DFVF_TEX1);
+
+	// Set stream source
+	ProxyInterface->SetStreamSource(0, ScaleVertexBuffer, sizeof(CUSTOMVERTEX_TEX1));
+
+	// Draw the full-screen quad with updated vertices
+	ProxyInterface->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+
+	D3DSURFACE_DESC Desc = {};
+	pAutoRenderTarget->GetDesc(&Desc);
+
 	// Draw Overlays
-	OverlayRef.DrawOverlays(ProxyInterface, BufferWidth, BufferHeight);
+	OverlayRef.DrawOverlays(ProxyInterface, Desc.Width, Desc.Height);
 
-	// Endscene
-	isInScene = false;
-	ProxyInterface->EndScene();
+	// Set the render target texture (pRenderTexture) back to nullptr
+	ProxyInterface->SetTexture(0, nullptr);
 
-	return ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+	// Set the custom render target back
+	ProxyInterface->SetRenderTarget(pBackBuffer, pStencilBuffer);
+
+	return D3D_OK;
 }
 
 HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRect, HWND hDestWindowOverride, CONST RGNDATA *pDirtyRegion)
@@ -1290,6 +1273,21 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 		OverlayRef.RenderMouseCursor();
 	}
 
+	if (UsingScaledResolutions)
+	{
+		// Draw scaled surface, inlcuding Overalys
+		DrawScaledSurface();
+	}
+	else
+	{
+		// Draw Overlays
+		OverlayRef.DrawOverlays(ProxyInterface, BufferWidth, BufferHeight);
+	}
+
+	// Endscene
+	isInScene = false;
+	ProxyInterface->EndScene();
+
 	// Update in progress
 	static bool ClearScreen = true;
 	if (!m_StopThreadFlag && IsUpdating && !IsGetFrontBufferCalled)
@@ -1297,7 +1295,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 		if (ClearScreen)
 		{
 			ClearScreen = false;
-			HRESULT hr = PresentScaled(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+			HRESULT hr = ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 
 			if (SUCCEEDED(hr))
 			{
@@ -1350,7 +1348,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	// Present screen
 	if (!PauseMenuFlag)
 	{
-		hr = PresentScaled(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+		hr = ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 
 		if (SUCCEEDED(hr))
 		{
@@ -3751,74 +3749,76 @@ void m_IDirect3DDevice8::SetShadowFading()
 
 void m_IDirect3DDevice8::SetScaledBackbuffer()
 {
-	if (UsingScaledResolutions)
+	if (!UsingScaledResolutions)
 	{
-		// Get auto generated render target
-		ProxyInterface->GetRenderTarget(&pAutoRenderTarget);
-		if (pAutoRenderTarget)
-		{
-			pAutoRenderTarget->Release();
-		}
-
-		// Create render texture
-		if (FAILED(ProxyInterface->CreateTexture(BufferWidth, BufferHeight, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &pRenderTexture)))
-		{
-			Logging::Log() << __FUNCTION__ << " Error: Failed to create new render target!";
-			return;
-		}
-
-		// Get render surface
-		if (FAILED(pRenderTexture->GetSurfaceLevel(0, &pRenderSurface)))
-		{
-			Logging::Log() << __FUNCTION__ << " Error: Failed to get surface for render target!";
-			return;
-		}
-
-		// Create zbuffer
-		if (FAILED(ProxyInterface->CreateDepthStencilSurface(BufferWidth, BufferHeight, D3DFMT_D24S8, DeviceMultiSampleType, &pDepthStencilBuffer)))
-		{
-			Logging::Log() << __FUNCTION__ << " Error: Failed to create stencil surface!";
-			return;
-		}
-
-		// Set new render and zbuffer
-		if (FAILED(ProxyInterface->SetRenderTarget(pRenderSurface, pDepthStencilBuffer)))
-		{
-			Logging::Log() << __FUNCTION__ << " Error: Failed to create stencil surface!";
-			return;
-		}
-
-		D3DSURFACE_DESC Desc = {};
-		pAutoRenderTarget->GetDesc(&Desc);
-
-		ScaledPresentVertex[2].x = (float)Desc.Width - 0.5f;
-		ScaledPresentVertex[3].x = (float)Desc.Width - 0.5f;
-
-		ScaledPresentVertex[1].y = (float)Desc.Height - 0.5f;
-		ScaledPresentVertex[3].y = (float)Desc.Height - 0.5f;
-
-		// Create vertex buffer
-		if (FAILED(ProxyInterface->CreateVertexBuffer(sizeof(CUSTOMVERTEX_TEX1) * 4, D3DUSAGE_WRITEONLY, D3DFVF_XYZRHW | D3DFVF_TEX1, D3DPOOL_DEFAULT, &ScaleVertexBuffer)))
-		{
-			Logging::Log() << __FUNCTION__ << " Error: Failed to create vertex buffer!";
-			return;
-		}
-
-		CUSTOMVERTEX_TEX1* vertices = nullptr;
-
-		// Lock vertex buffer
-		if (FAILED(ScaleVertexBuffer->Lock(0, 0, (BYTE**)&vertices, 0)))
-		{
-			Logging::Log() << __FUNCTION__ << " Error: Failed to lock vertex buffer!";
-			ScaleVertexBuffer->Release();
-			ScaleVertexBuffer = nullptr;
-			return;
-		}
-		memcpy(vertices, ScaledPresentVertex, sizeof(CUSTOMVERTEX_TEX1) * 4);
-		ScaleVertexBuffer->Unlock();
-
-		Logging::Log() << "Silent Hill 2 display resolution set to: " << Desc.Width << "x" << Desc.Height;
+		return;
 	}
+
+	// Get auto generated render target
+	ProxyInterface->GetRenderTarget(&pAutoRenderTarget);
+	if (pAutoRenderTarget)
+	{
+		pAutoRenderTarget->Release();
+	}
+
+	// Create render texture
+	if (FAILED(ProxyInterface->CreateTexture(BufferWidth, BufferHeight, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &pRenderTexture)))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to create new render target!";
+		return;
+	}
+
+	// Get render surface
+	if (FAILED(pRenderTexture->GetSurfaceLevel(0, &pRenderSurface)))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to get surface for render target!";
+		return;
+	}
+
+	// Create zbuffer
+	if (FAILED(ProxyInterface->CreateDepthStencilSurface(BufferWidth, BufferHeight, D3DFMT_D24S8, DeviceMultiSampleType, &pDepthStencilBuffer)))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to create stencil surface!";
+		return;
+	}
+
+	// Set new render and zbuffer
+	if (FAILED(ProxyInterface->SetRenderTarget(pRenderSurface, pDepthStencilBuffer)))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to create stencil surface!";
+		return;
+	}
+
+	D3DSURFACE_DESC Desc = {};
+	pAutoRenderTarget->GetDesc(&Desc);
+
+	ScaledPresentVertex[2].x = (float)Desc.Width - 0.5f;
+	ScaledPresentVertex[3].x = (float)Desc.Width - 0.5f;
+
+	ScaledPresentVertex[1].y = (float)Desc.Height - 0.5f;
+	ScaledPresentVertex[3].y = (float)Desc.Height - 0.5f;
+
+	// Create vertex buffer
+	if (FAILED(ProxyInterface->CreateVertexBuffer(sizeof(CUSTOMVERTEX_TEX1) * 4, D3DUSAGE_WRITEONLY, D3DFVF_XYZRHW | D3DFVF_TEX1, D3DPOOL_DEFAULT, &ScaleVertexBuffer)))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to create vertex buffer!";
+		return;
+	}
+
+	CUSTOMVERTEX_TEX1* vertices = nullptr;
+
+	// Lock vertex buffer
+	if (FAILED(ScaleVertexBuffer->Lock(0, 0, (BYTE**)&vertices, 0)))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to lock vertex buffer!";
+		ScaleVertexBuffer->Release();
+		ScaleVertexBuffer = nullptr;
+		return;
+	}
+	memcpy(vertices, ScaledPresentVertex, sizeof(CUSTOMVERTEX_TEX1) * 4);
+	ScaleVertexBuffer->Unlock();
+
+	Logging::Log() << "Silent Hill 2 display resolution set to: " << Desc.Width << "x" << Desc.Height;
 }
 
 DWORD WINAPI SaveScreenshotFile(LPVOID)

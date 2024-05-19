@@ -753,11 +753,6 @@ HRESULT m_IDirect3DDevice8::SetRenderTarget(THIS_ IDirect3DSurface8* pRenderTarg
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	if (UsingScaledResolutions)
-	{
-		return D3D_OK;
-	}
-
 	// Check if surface should be copied
 	if (ReplacedLastRenderTarget)
 	{
@@ -1157,6 +1152,10 @@ HRESULT m_IDirect3DDevice8::PresentScaled(CONST RECT* pSourceRect, CONST RECT* p
 
 		// Use the custom render target texture as a source texture
 		ProxyInterface->SetTexture(0, pRenderTexture);
+		for (int x = 1; x < 8; x++)
+		{
+			ProxyInterface->SetTexture(x, nullptr);
+		}
 
 		ProxyInterface->SetPixelShader(NULL);
 		ProxyInterface->SetVertexShader(NULL);

@@ -1642,7 +1642,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 		ProxyInterface->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 
 		// Draw James' silhouette to our texture
-		ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, fullscreenQuad, sizeof(CUSTOMVERTEX_DIF));
+		ProxyInterface->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, fullscreenQuad, 20);
 
 		// Restore state
 		ProxyInterface->SetRenderState(D3DRS_ALPHABLENDENABLE, alphaBlend);

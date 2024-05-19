@@ -57,9 +57,10 @@ HRESULT m_IDirect3DSurface8::QueryInterface(THIS_ REFIID riid, void** ppvObj)
 	}
 
 	// Clear render target interface
-	if (riid == IID_ClearRenderTarget)
+	if (riid == IID_ClearCachedSurfaces)
 	{
 		RenderInterface = nullptr;
+		ReplacedInterface = nullptr;
 		return S_OK;
 	}
 

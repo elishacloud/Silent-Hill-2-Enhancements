@@ -23,7 +23,6 @@ WNDPROC OriginalWndProc = nullptr;
 HWND DeviceWindow = nullptr;
 LONG BufferWidth = 0, BufferHeight = 0;
 LONG DefaultWidth = 0, DefaultHeight = 0;
-int UseFrontBufferControl = AUTO_BUFFER;
 DWORD VendorID = 0;
 bool WindowInChange = false;
 bool UsingWindowBorder = true;
@@ -222,8 +221,6 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	UseFrontBufferControl = FrontBufferControl;
-
 	// Get default resolution
 	RUNCODEONCE(GetDesktopRes(DefaultWidth, DefaultHeight));
 
@@ -381,7 +378,6 @@ void SetScreenAndWindowSize()
 	static int LastScreenMode = -1;
 	if (ScreenMode != LastScreenMode)
 	{
-		UseFrontBufferControl = FrontBufferControl;
 		Logging::Log() << __FUNCTION__ << " Setting display mode: " <<
 			(ScreenMode == WINDOWED ? "Windowed" : ScreenMode == WINDOWED_FULLSCREEN ? "Windowed Fullscreen" : "Exclusive Fullscreen");
 	}
@@ -430,8 +426,7 @@ void SetScreenAndWindowSize()
 			}
 
 			// Set new display size
-			if ((ScreenMode == WINDOWED_FULLSCREEN && (CurrentWidth != BufferWidth || CurrentHeight != BufferHeight)) ||
-				(ScreenMode == WINDOWED && (CurrentWidth < BufferWidth || CurrentHeight < BufferHeight)))
+			if (ScreenMode == WINDOWED_FULLSCREEN && (CurrentWidth != BufferWidth || CurrentHeight != BufferHeight))
 			{
 				BOOL ret = SetDesktopRes(BufferWidth, BufferHeight);
 
@@ -480,6 +475,14 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	GetDesktopRes(screenWidth, screenHeight);
 	RECT screenRect = {};
 	GetDesktopRect(screenRect);
+
+	// Get update width and height
+	if (ScreenMode == WINDOWED && (screenWidth < displayWidth || screenHeight < displayHeight))
+	{
+		float Ratio = max((float)displayWidth / screenWidth, (float)displayHeight / screenHeight);
+		displayWidth /= Ratio;
+		displayHeight /= Ratio;
+	}
 
 	// Get window style
 	LONG lStyle = GetWindowLong(MainhWnd, GWL_STYLE) | WS_VISIBLE;
@@ -556,6 +559,16 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 		}
 	}
 	SetWindowPos(MainhWnd, HWND_TOP, xLoc, yLoc, Rect.right, Rect.bottom, SWP_SHOWWINDOW | SWP_NOZORDER);
+
+	// Wait for window position change
+	int x = 0;
+	RECT tempRect = {};
+	while (++x < 20 && GetWindowRect(MainhWnd, &tempRect) &&
+		tempRect.left != xLoc && tempRect.top != yLoc &&
+		tempRect.right != xLoc + Rect.right && tempRect.bottom != yLoc + Rect.bottom)
+	{
+		Sleep(100);
+	}
 
 	// Set window placement
 	if (UseWindowPlacement)

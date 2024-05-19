@@ -3817,7 +3817,7 @@ void m_IDirect3DDevice8::SetScaledBackbuffer()
 		memcpy(vertices, ScaledPresentVertex, sizeof(CUSTOMVERTEX_TEX1) * 4);
 		ScaleVertexBuffer->Unlock();
 
-		Logging::Log() << "Silent Hill 2 game resolution set to: " << Desc.Width << "x" << Desc.Height;
+		Logging::Log() << "Silent Hill 2 display resolution set to: " << Desc.Width << "x" << Desc.Height;
 	}
 }
 

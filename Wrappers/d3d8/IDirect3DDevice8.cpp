@@ -3892,6 +3892,15 @@ void m_IDirect3DDevice8::CaptureScreenShot()
 		return;
 	}
 
+	// Get surface size
+	D3DSURFACE_DESC Desc = {};
+	if (FAILED(pDestSurface->GetDesc(&Desc)))
+	{
+		LOG_LIMIT(3, __FUNCTION__ << " Failed to get surface desc!");
+		pDestSurface->Release();
+		return;
+	}
+
 	// Lock surface, read it into a memory buffer and add it to a queue (vector)
 	D3DLOCKED_RECT LockedRect = {};
 	if (SUCCEEDED(pDestSurface->LockRect(&LockedRect, nullptr, D3DLOCK_READONLY)) && LockedRect.pBits)
@@ -3899,9 +3908,9 @@ void m_IDirect3DDevice8::CaptureScreenShot()
 		// Set variables
 		SCREENSHOTSTRUCT scElement;
 		ScreenshotVector.push_back(scElement);
-		ScreenshotVector.back().Width = BufferWidth;
-		ScreenshotVector.back().Height = BufferHeight;
-		ScreenshotVector.back().size = LockedRect.Pitch * BufferHeight;
+		ScreenshotVector.back().Width = Desc.Width;
+		ScreenshotVector.back().Height = Desc.Height;
+		ScreenshotVector.back().size = LockedRect.Pitch * ScreenshotVector.back().Height;
 		ScreenshotVector.back().Pitch = LockedRect.Pitch;
 		ScreenshotVector.back().bufferRaw.resize(ScreenshotVector.back().size);
 

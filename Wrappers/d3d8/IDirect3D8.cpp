@@ -248,10 +248,13 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	// Update presentation parameters
 	UpdatePresentParameter(pPresentationParameters, hFocusWindow);
 
+	// Set Silent Hill 2 window to forground
+	SetForegroundWindow(DeviceWindow);
+
 	HRESULT hr = D3DERR_INVALIDCALL;
 
 	// Get multisample quality level
-	if (AntiAliasing && !UsingScaledResolutions)
+	if (AntiAliasing)
 	{
 		D3DPRESENT_PARAMETERS d3dpp;
 

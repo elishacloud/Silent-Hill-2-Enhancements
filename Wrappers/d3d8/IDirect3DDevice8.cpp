@@ -471,7 +471,7 @@ HRESULT m_IDirect3DDevice8::CreateRenderTarget(THIS_ UINT Width, UINT Height, D3
 			}
 			else
 			{
-				pTexture = nullptr;
+				ReleaseInterface(&pTexture);
 			}
 		}
 	}

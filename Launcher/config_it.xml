@@ -8,21 +8,27 @@
 
     <Section name="Schermo">
 
-      <Feature name="WndModeBorder" speedrun="true">
-        <Title>Bordo finestra (solo per modalità in finestra)</Title>
-        <Description>Crea un bordo finestra per il gioco. Funziona soltanto in modalità finestra.&#x0a;&#x0a;Nota: la risoluzione in finestra del gioco non deve essere vicina o esattamente uguale a quella verticale/orizzontale del monitor, o il bordo non apparirà. Questa è una misura di sicurezza per assicurarsi che il bordo non venga perso al di fuori dall'area del display.</Description>
-        <Choices type="check">
-          <Value name="Disabilitato">0</Value>
-          <Value name="Abilitato" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="DynamicResolution">
         <Title>Mostra tutte le risoluzioni nel menu opzioni</Title>
         <Description>Individua tutte le risoluzioni che offre il monitor, e le rende selezionabili (comprese le proporzioni) nel menu di gioco Opzioni > Opzioni Avanzate.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="ScaleWindowedResolution">
+        <Title>Moltiplicatore della risoluzione di rendering</Title>
+        <Description>Imposta il moltiplicatore della risoluzione di rendering. Comporta l'adattamento della risoluzione interna di rendering del gioco  senza cambiare la risoluzione finale del display. Il fattore 1.0 è di default, e non comporta nessun cambiamento. Quando è superiore a 1.0, il gioco verrà renderizzato ad una risoluzione maggiore e ridimensionato per rientrare nel display. Questa è una delle migliori forme di anti-aliasing ma comporta un consumo di risorse elevato. Quando è minore di 1.0, il gioco userà una risoluzione interna minore di quella del display, e verrà ridimensionata alla risoluzione del display. Questo creerà un effetto sfocato, a bassa risoluzione. &#x0a;&#x0a;Nota: Non è raccomandato aumentare la risoluzione di render oltre 1.0 se il pc non possiede le specifiche necessarie.</Description>
+        <Choices type="list">
+          <Value name="0.25">7</Value>
+          <Value name="0.5">6</Value>
+          <Value name="0.75">5</Value>
+          <Value name="1.0" default="true">0</Value>
+          <Value name="1.25">4</Value>
+          <Value name="1.5">3</Value>
+          <Value name="1.75">2</Value>
+          <Value name="2.0">1</Value>
         </Choices>
       </Feature>
 
@@ -41,6 +47,15 @@
         <Choices type="list">
           <Value name="30 FPS">0</Value>
           <Value name="60 FPS" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="WndModeBorder" speedrun="true">
+        <Title>Bordo finestra (solo per modalità in finestra)</Title>
+        <Description>Crea un bordo finestra per il gioco. Funziona soltanto in modalità finestra.&#x0a;&#x0a;Nota: la risoluzione in finestra del gioco non deve essere vicina o esattamente uguale a quella verticale/orizzontale del monitor, o il bordo non apparirà. Questa è una misura di sicurezza per assicurarsi che il bordo non venga perso al di fuori dall'area del display.</Description>
+        <Choices type="check">
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -255,6 +270,24 @@
         </Choices>
       </Feature>
 
+      <Feature name="FlashlightReflection">
+        <Title>Riflesso della torcia</Title>
+        <Description>Crea riflessi della torcia sulle superfici vetrose o lucide del gioco.</Description>
+        <Choices type="check">
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="ImprovedWaterFX">
+        <Title>Effetti dell'acqua miglirati</Title>
+        <Description>Migliora la qualità degli effetti dell'acqua nel gioco.</Description>
+        <Choices type="check">
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
+        </Choices>
+      </Feature>
+
     </Section>
 
     <Section name="Filtro rumore">
@@ -328,11 +361,11 @@
       </Feature>
 
       <Feature name="ObservationDeckFogFix">
-        <Title>Estendi la nebbia del punto di osservazione</Title>
-        <Description>Estende orizzontalmente la nebbia al punto di osservazione all'inizio del gioco così da riempire lo schermo, fino a rapporti di 16:9, per una presentazione migliore.&#x0a;&#x0a;Nota: Il file modificato obGB.fcl deve essere presente in "sh2e\bg\ob\" affinché la nebbia si comporti correttamente.</Description>
+        <Title>Extend observation deck fog</Title>
+        <Description>Horizontally extends the fog at the beginning observation deck so that it always fills the screen, up to a 16:9 aspect ratio, for a better presentation.&#x0a;&#x0a;Note: Modified obGB.fcl file must be present in "sh2e\bg\ob\" for this feature to display properly.</Description>
         <Choices type="check">
-          <Value name="Disabilitato">0</Value>
-          <Value name="Abilitato" default="true">1</Value>
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -364,7 +397,7 @@
 
       <Feature name="UseDSOAL">
         <Title>Utilizza DSOAL e OpenAL per l'audio EAX</Title>
-        <Description>Utilizza DSound-to-OpenAL e OpenAL Soft per emulare EAX sui nuovi sistemi operativi che non lo supportano. Abilita questa opzione per audio binaurale 3D e per una esperienza più immersiva.</Description>
+        <Description>Utilizza DSound to OpenAL e OpenAL per emulare EAX sui sistemi operativi moderni che non lo supportano.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>
@@ -425,7 +458,7 @@
     <Section name="Audio Bonus">
 
       <Feature name="FlashlightToggleSFX">
-        <Title>Flashlight sound effects</Title>
+        <Title>Effetti sonori della torcia</Title>
         <Description>Abilita suoni della torcia quando viene accesa o spenta. Nota: flashlight_on.wav e flashlight_off.wav devono essere presenti in "sh2e\sound\extra\" affinché questa feature funzioni.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
@@ -434,8 +467,8 @@
       </Feature>
 
       <Feature name="VHSAudioFix">
-        <Title>Use alternate, cut VHS audio</Title>
-        <Description>Plays an alternate, cut audio track for the VHS tape FMV. We recommend to only enable this after beating the game at least once.&#x0a;&#x0a;Note: You must have the correct version of this FMV that contains both audio tracks. If you do not, then only the original audio will play. You can obtain the correct version of this FMV by downloading the project's FMV Enhancement Pack.</Description>
+        <Title>Ripristina l'audio per la VHS senza censura</Title>
+        <Description>Utilizza una traccia audio scartata per la cutscene della VHS. E' raccomandato abilitarlo solo in partite successive alla prima. &#x0a;&#x0a;Nota: Bisogna avere la giusta versione del file video che contiene entrambe le versioni dell'audio, censurata e non. Altrimenti, soltanto l'audio originale verrà riprodotto. E' possibile ottenere la corretta versione di questo video scaricando l'FMV Enhancement Pack dal sito del progetto.</Description>
         <Choices type="check">
           <Value name="Disabilitato" default="true">0</Value>
           <Value name="Abilitato">1</Value>
@@ -465,19 +498,19 @@
         <Title>Ripristina movimento con i tasti direzionali</Title>
         <Description>Modalità Movimento: I tasti direzionali controllano il movimento di James e la navigazione nei menu.&#x0a;Modalità Tasto: I tasti direzionali fungeranno da pulsanti addizionali del controller, permettendo loro l'assegnamento di funzioni di gioco. NON sarà possibile controllare James o navigare menu coi tasti direzionali.&#x0a;Modalità Ibrida: I tasti direzionali fungeranno da tasti addizionali del controller, permettendo loro l'assegnazione di funzioni di gioco. NON sarà possibile controllare James MA sarà possibile navigare menu coi tasti direzionali.</Description>
         <Choices type="list">
-          <Value name="Disabilitato">0</Value>
+          <Value name="Disable">0</Value>
           <Value name="Modalità Movimento" default="true">1</Value>
           <Value name="Modalità Tasto">3</Value>
           <Value name="Modalità Ibrida">2</Value>
         </Choices>
       </Feature>
 
-      <Feature name="ReplaceButtonText" speedrun="true">
+      <Feature name="ReplaceButtonText">
         <Title>Icone dei bottoni in opzioni comandi</Title>
         <Description>Sostituisce il testo "Bottone #" nel menu opzioni comandi con icone custom.&#x0a;&#x0a;Nota: Il file controller_buttons_icons.png deve essere presente nella cartella "sh2e\pic\etc\" per il funzionamento di questa opzione.</Description>
         <Choices type="list">
-          <Value name="Disabilitato">0</Value>
-          <Value name="Generici" default="true">1</Value>
+          <Value name="Disable">0</Value>
+          <Value name="Generic" default="true">1</Value>
           <Value name="Xbox">2</Value>
           <Value name="Playstation">3</Value>
           <Value name="Nintendo">4</Value>
@@ -644,7 +677,7 @@
     <Section name="Menu Additions">
 
       <Feature name="EnableMasterVolume">
-        <Title>Master volume option</Title>
+        <Title>Abilita opzione Volume Generale</Title>
         <Description>Sostituisci l'opzione inutilizzata "Configurazione altoparlanti" con la nuova opzione di "Volume Generale".</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
@@ -684,11 +717,11 @@
       </Feature>
 
       <Feature name="MainMenuInstantLoadOptions">
-        <Title>Carica le opzioni del menu principale all'istante</Title>
-        <Description>Rimuove la breve pausa prima che CARICA e CONTINUA appaiano nel menu principale.</Description>
+        <Title>Instant load options on main menu</Title>
+        <Description>Removes the small delay before the LOAD and CONTINUE selections appear on the main menu.</Description>
         <Choices type="check">
-          <Value name="Disabilitato">0</Value>
-          <Value name="Abilitato" default="true">1</Value>
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -785,7 +818,7 @@
         <Title>Cambia lo spawn nell'armadio dell'appartamento</Title>
         <Description>Posiziona James dentro l'armadio dopo la cutscene della stanza 307 degli Wood Side Apartments, per guidare l'attenzione del giocatore sulla chiave al suo interno.</Description>
         <Choices type="check">
-          <Value name="Disabilitato" speedrun-default="true">0</Value>
+          <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
@@ -854,11 +887,11 @@
       </Feature>
 
       <Feature name="BFaWAtticFix">
-        <Title>Corregge comportamento delle ombre</Title>
-        <Description>Corregge il comportamento delle ombre e migliora/sincronizza l'animazione della candela nell'attico della magione per la campagna di Maria.</Description>
+        <Title>Fix glitchy shadow behavior</Title>
+        <Description>Fixes glitchy shadow behavior and improves/synchronizes the candle flame animation in the mansion's attic for Maria's campaign.</Description>
         <Choices type="check">
-          <Value name="Disabilitato">0</Value>
-          <Value name="Abilitato" default="true">1</Value>
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -917,11 +950,11 @@
       </Feature>
 
       <Feature name="GravestoneBoardsFix">
-        <Title>Corregge la distorsione delle placche nel puzzle del cimitero</Title>
-        <Description>Corregge la distorsione delle placche nel puzzle del cimitero nello scenario BfaW, impedendone la distorsione quando ruotate.</Description>
+        <Title>Fix distortion in the boards of gravestone puzzle</Title>
+        <Description>Fix the boards in the BfaW gravestone puzzle from being distorted when rotated.</Description>
         <Choices type="check">
-          <Value name="Disabilitato">0</Value>
-          <Value name="Abilitato" default="true">1</Value>
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -1396,8 +1429,8 @@
     <Section name="Modalità Speedrun">
 
       <Feature name="SpeedrunMode" speedrun="true">
-        <Title>Speedrun Mode</Title>
-        <Description>Abilita la Modalità Speedrun per Silent Hill 2: Enhanced Edition. Scegli tra due modalità:&#x0a;Modalità Seed Statico: Ogni partita ha le stesse soluzioni per i puzzle. Questo fa concentrare più sugli aspetti tecnici della partita senza tenere conto della casualità dei puzzle. I glitch di salvataggio rapido sono abilitati in questa modalità.&#x0a;&#x0a;Modalità Completamente Random: Le soluzioni dei puzzle non sono più determinate dal seme del numero di frame in cui si inizia la partita; le loro soluzioni saranno sempre diverse, una per una, in ogni partita. I glitch di salvataggio rapido sono disabilitati in questa modalità.</Description>
+        <Title>Modalità Speedrun</Title>
+        <Description>Abilita la modalità speedrun per Silent Hill 2: Enhanced Edition. Scegli tra due modalità:&#x0a;&#x0a;Modalità completamente random: Le soluzioni dei puzzle non sono più determinate dal seed, saranno sempre diverse e indipendenti tra loro. I glitch di salvataggio rapido sono disabilitati in questa modalità.&#x0a;Modalità seed statico: Ogni run ha le stesse soluzioni ai puzzle. Questo permette di concentrarsi sull'aspetto tecnico della run e non sull'aspetto random. I glitch di salvataggio rapido sono preservati in questa modalità.</Description>
         <Choices type="list">
           <Value name="Disabilitato" default="true">0</Value>
           <Value name="Completamente Random">1</Value>
@@ -1434,9 +1467,6 @@
     <S id="PRG_Sandbox"> [MODALITA' SANDBOX]</S>
     <S id="PRG_Extra">Extra</S>
     <S id="PRG_Extra_desc">Questa sezione racchiude opzioni addizionali aggiunte manualmente al file di configurazione di Silent Hill 2: Enhanced Edition (d3d8.ini).</S>
-    <S id="PRG_Speedrun_enable">Abilitando la Modalità Speedrun verranno sovrascritte e bloccate svariate opzioni. Desideri continuare?</S>
-    <S id="PRG_Speedrun_disable">Disabilitando la Modalità Speedrun verranno sbloccate tutte le opzioni resettandole ai loro valori di default. Desideri continuare?</S>
-    <S id="PRG_Speedrun_error">Errore: Le opzioni non sono coerenti, saranno resettate a quelle di default.</S>
 
   </Strings>
 

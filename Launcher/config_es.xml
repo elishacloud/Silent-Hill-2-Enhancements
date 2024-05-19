@@ -8,21 +8,27 @@
 
     <Section name="Visualización">
 
-      <Feature name="WndModeBorder" speedrun="true">
-        <Title>Borde de la ventana (solo para el modo en ventana)</Title>
-        <Description>Crea un borde en la ventana del juego. Solo funciona al usar el modo en ventana.&#x0a;&#x0a;Nota: la resolución de la ventana del juego no debe ser exactamente o casi la misma que el alto y ancho de tu pantalla, de lo contrario, el borde podría no aparecer. Es una medida de seguridad para evitar que el borde no se pierda fuera de tu área de visualización.</Description>
-        <Choices type="check">
-          <Value name="Desactivado">0</Value>
-          <Value name="Activado" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="DynamicResolution">
         <Title>Mostrar todas las resoluciones en el menú de Opciones</Title>
         <Description>Detecta todas las resoluciones disponibles de tu pantalla y permite selecionarlas (mostrando a la vez sus relaciones de aspecto) dentro del juego, en el menú Opciones > Opciones avanzadas.</Description>
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="ScaleWindowedResolution">
+        <Title>Render Resolution Scaling Factor</Title>
+        <Description>Set the scaling factor for the game's rendering resolution. Render scaling involves adjusting the internal rendering resolution of the game without changing the output resolution of the display. A factor of 1.0 is default, or no scaling. When scaled above 1.0, the game will render larger than the output resolution and then shrink the image to fit. This is one of the best forms of anti-aliasing but can cost a lot of system resources to perform. When scaled below 1.0, the game will render smaller than the output resolution and enlarge the image to fit the output resolution. This will create a blurry, "low res" effect. &#x0a;&#x0a;Note: It is not recommended to increase the render resolution beyond 1.0 if you are using a low-end computer system.</Description>
+        <Choices type="list">
+          <Value name="0.25">7</Value>
+          <Value name="0.5">6</Value>
+          <Value name="0.75">5</Value>
+          <Value name="1.0" default="true">0</Value>
+          <Value name="1.25">4</Value>
+          <Value name="1.5">3</Value>
+          <Value name="1.75">2</Value>
+          <Value name="2.0">1</Value>
         </Choices>
       </Feature>
 
@@ -41,6 +47,15 @@
         <Choices type="list">
           <Value name="30 FPS">0</Value>
           <Value name="60 FPS" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="WndModeBorder" speedrun="true">
+        <Title>Borde de la ventana (solo para el modo en ventana)</Title>
+        <Description>Crea un borde en la ventana del juego. Solo funciona al usar el modo en ventana.&#x0a;&#x0a;Nota: la resolución de la ventana del juego no debe ser exactamente o casi la misma que el alto y ancho de tu pantalla, de lo contrario, el borde podría no aparecer. Es una medida de seguridad para evitar que el borde no se pierda fuera de tu área de visualización.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -252,6 +267,24 @@
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FlashlightReflection">
+        <Title>Flashlight reflection</Title>
+        <Description>Creates a reflection of the flashlight on glass and glossy surfaces throughout the game.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="ImprovedWaterFX">
+        <Title>Improved water visuals</Title>
+        <Description>Improves the overall look and feel of the water effects used throughout the game.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 

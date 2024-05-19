@@ -8,21 +8,27 @@
 
     <Section name="Display">
 
-      <Feature name="WndModeBorder" speedrun="true">
-        <Title>Window border (for windowed mode only)</Title>
-        <Description>Creates a window border for the game. Only works when playing in windowed mode.&#x0a;&#x0a;Note: The game's windowed resolution must not be close to or exactly the same as your display's width and/or height, otherwise the border will not appear. This is a safety measure to ensure the border doesn't get lost outside of your display area.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="DynamicResolution">
         <Title>Show all resolutions in Options menu</Title>
         <Description>Detects every resolution your display offers and makes them selectable choices (along with showing their aspect ratios) in the game's Options > Advanced Options menu.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="ScaleWindowedResolution">
+        <Title>Render Resolution Scaling Factor</Title>
+        <Description>Set the scaling factor for the game's rendering resolution. Render scaling involves adjusting the internal rendering resolution of the game without changing the output resolution of the display. A factor of 1.0 is default, or no scaling. When scaled above 1.0, the game will render larger than the output resolution and then shrink the image to fit. This is one of the best forms of anti-aliasing but can cost a lot of system resources to perform. When scaled below 1.0, the game will render smaller than the output resolution and enlarge the image to fit the output resolution. This will create a blurry, "low res" effect. &#x0a;&#x0a;Note: It is not recommended to increase the render resolution beyond 1.0 if you are using a low-end computer system.</Description>
+        <Choices type="list">
+          <Value name="0.25">7</Value>
+          <Value name="0.5">6</Value>
+          <Value name="0.75">5</Value>
+          <Value name="1.0" default="true">0</Value>
+          <Value name="1.25">4</Value>
+          <Value name="1.5">3</Value>
+          <Value name="1.75">2</Value>
+          <Value name="2.0">1</Value>
         </Choices>
       </Feature>
 
@@ -41,6 +47,15 @@
         <Choices type="list">
           <Value name="30 FPS">0</Value>
           <Value name="60 FPS" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="WndModeBorder" speedrun="true">
+        <Title>Window border (for windowed mode only)</Title>
+        <Description>Creates a window border for the game. Only works when playing in windowed mode.&#x0a;&#x0a;Note: The game's windowed resolution must not be close to or exactly the same as your display's width and/or height, otherwise the border will not appear. This is a safety measure to ensure the border doesn't get lost outside of your display area.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -249,6 +264,24 @@
       <Feature name="IncreaseBlood">
         <Title>Increase blood pool sizes</Title>
         <Description>Increases the blood pool size of dead enemies back to their original amount.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FlashlightReflection">
+        <Title>Flashlight reflection</Title>
+        <Description>Creates a reflection of the flashlight on glass and glossy surfaces throughout the game.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="ImprovedWaterFX">
+        <Title>Improved water visuals</Title>
+        <Description>Improves the overall look and feel of the water effects used throughout the game.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>

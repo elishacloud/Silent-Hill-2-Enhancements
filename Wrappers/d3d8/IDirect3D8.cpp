@@ -251,7 +251,7 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	HRESULT hr = D3DERR_INVALIDCALL;
 
 	// Get multisample quality level
-	if (AntiAliasing)
+	if (AntiAliasing && !UsingScaledResolutions)
 	{
 		D3DPRESENT_PARAMETERS d3dpp;
 

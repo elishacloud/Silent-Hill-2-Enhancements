@@ -34,6 +34,13 @@ HRESULT m_IDirect3DSurface8::QueryInterface(THIS_ REFIID riid, void** ppvObj)
 		return S_OK;
 	}
 
+	// Set as a surface of a texture
+	if (riid == IID_SetSurfaceOfTexture)
+	{
+		IsTextureOfSurface = true;
+		return S_OK;
+	}
+
 	// Get render target interface
 	if (riid == IID_GetRenderTarget && ppvObj)
 	{
@@ -109,6 +116,11 @@ ULONG m_IDirect3DSurface8::Release(THIS)
 	Logging::LogDebug() << __FUNCTION__;
 
 	ULONG ref = ProxyInterface->Release();
+
+	if (IsTextureOfSurface)
+	{
+		ref = min(ref, ref - 1);
+	}
 
 	if (ref == 0 && pEmuSurface)
 	{

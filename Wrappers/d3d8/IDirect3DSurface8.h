@@ -9,6 +9,7 @@ private:
 	IDirect3DSurface8* ReplacedInterface = nullptr;
 
 	bool IsTextureRenderTarget = false;
+	bool IsTextureOfSurface = false;
 
 	// For fake emulated locking
 	bool IsLocked = false;

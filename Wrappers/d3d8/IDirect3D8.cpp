@@ -299,6 +299,8 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 
 		*ppReturnedDeviceInterface = new m_IDirect3DDevice8(*ppReturnedDeviceInterface, this);
 
+		RestorePresentParameter(pPresentationParameters);
+
 		// Handle display modes
 		SetScreenAndWindowSize();
 	}
@@ -326,6 +328,19 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	GameWindowHandle = DeviceWindow;
 
 	return hr;
+}
+
+// Restore Presentation Parameters
+void RestorePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters)
+{
+	if (UsingScaledResolutions && pPresentationParameters)
+	{
+		pPresentationParameters->BackBufferWidth = BufferWidth;
+		pPresentationParameters->BackBufferHeight = BufferHeight;
+
+		pPresentationParameters->EnableAutoDepthStencil = TRUE;
+		pPresentationParameters->AutoDepthStencilFormat = D3DFMT_D24S8;
+	}
 }
 
 // Set Presentation Parameters

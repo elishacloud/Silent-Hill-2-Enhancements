@@ -246,6 +246,8 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 		SetScreenAndWindowSize();
 
 		SetScaledBackbuffer();
+
+		RestorePresentParameter(pPresentationParameters);
 	}
 
 	return hr;
@@ -363,6 +365,8 @@ HRESULT m_IDirect3DDevice8::CreateAdditionalSwapChain(D3DPRESENT_PARAMETERS *pPr
 	if (SUCCEEDED(hr))
 	{
 		*ppSwapChain = new m_IDirect3DSwapChain8(*ppSwapChain, this);
+
+		RestorePresentParameter(pPresentationParameters);
 	}
 
 	if (FAILED(hr))

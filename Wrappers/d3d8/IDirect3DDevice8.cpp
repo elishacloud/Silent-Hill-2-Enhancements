@@ -1260,14 +1260,7 @@ HRESULT m_IDirect3DDevice8::DrawScaledSurface()
 		}
 		pBackBuffer->Release();
 	}
-	if (pBackBuffer == pRenderSurface1)
-	{
-		pRenderSurfaceLast = pRenderSurface1;
-	}
-	else if (pBackBuffer == pRenderSurface2)
-	{
-		pRenderSurfaceLast = pRenderSurface2;
-	}
+	pRenderSurfaceLast = pBackBuffer;
 
 	if (SUCCEEDED(ProxyInterface->GetDepthStencilSurface(&pStencilBuffer)) && pStencilBuffer)
 	{

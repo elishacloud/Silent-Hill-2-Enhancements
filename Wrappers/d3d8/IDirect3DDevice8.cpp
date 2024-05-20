@@ -4036,7 +4036,7 @@ void m_IDirect3DDevice8::CaptureScreenShot()
 
 	// Get BackBuffer
 	IDirect3DSurface8 *pDestSurface = nullptr;
-	if (FAILED(GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &pDestSurface)))
+	if (FAILED(ProxyInterface->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &pDestSurface)))
 	{
 		LOG_LIMIT(3, __FUNCTION__ << " Failed to get back buffer!");
 		return;

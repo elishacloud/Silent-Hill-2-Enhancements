@@ -1206,6 +1206,25 @@ HRESULT m_IDirect3DDevice8::DrawScaledSurface()
 		return D3D_OK;
 	}
 
+	// Get render states
+	DWORD rsLighting, rsAlphaTestEnable, rsAlphaBlendEnable, rsFogEnable, rsZEnable, rsZWriteEnable, reStencilEnable;
+	ProxyInterface->GetRenderState(D3DRS_LIGHTING, &rsLighting);
+	ProxyInterface->GetRenderState(D3DRS_ALPHATESTENABLE, &rsAlphaTestEnable);
+	ProxyInterface->GetRenderState(D3DRS_ALPHABLENDENABLE, &rsAlphaBlendEnable);
+	ProxyInterface->GetRenderState(D3DRS_FOGENABLE, &rsFogEnable);
+	ProxyInterface->GetRenderState(D3DRS_ZENABLE, &rsZEnable);
+	ProxyInterface->GetRenderState(D3DRS_ZWRITEENABLE, &rsZWriteEnable);
+	ProxyInterface->GetRenderState(D3DRS_STENCILENABLE, &reStencilEnable);
+
+	// Get texture states
+	DWORD tsColorOP, tsColorArg1, tsColorArg2, tsAlphaOP, tsMinFilter, tsMagFilter;
+	ProxyInterface->GetTextureStageState(0, D3DTSS_COLOROP, &tsColorOP);
+	ProxyInterface->GetTextureStageState(0, D3DTSS_COLORARG1, &tsColorArg1);
+	ProxyInterface->GetTextureStageState(0, D3DTSS_COLORARG2, &tsColorArg2);
+	ProxyInterface->GetTextureStageState(0, D3DTSS_ALPHAOP, &tsAlphaOP);
+	ProxyInterface->GetTextureStageState(0, D3DTSS_MINFILTER, &tsMinFilter);
+	ProxyInterface->GetTextureStageState(0, D3DTSS_MAGFILTER, &tsMagFilter);
+
 	// Set render states
 	ProxyInterface->SetRenderState(D3DRS_LIGHTING, FALSE);
 	ProxyInterface->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
@@ -1299,6 +1318,23 @@ HRESULT m_IDirect3DDevice8::DrawScaledSurface()
 	{
 		ProxyInterface->SetRenderTarget(pBackBuffer, pStencilBuffer);
 	}
+
+	// Reset render states
+	ProxyInterface->SetRenderState(D3DRS_LIGHTING, rsLighting);
+	ProxyInterface->SetRenderState(D3DRS_ALPHATESTENABLE, rsAlphaTestEnable);
+	ProxyInterface->SetRenderState(D3DRS_ALPHABLENDENABLE, rsAlphaBlendEnable);
+	ProxyInterface->SetRenderState(D3DRS_FOGENABLE, rsFogEnable);
+	ProxyInterface->SetRenderState(D3DRS_ZENABLE, rsZEnable);
+	ProxyInterface->SetRenderState(D3DRS_ZWRITEENABLE, rsZWriteEnable);
+	ProxyInterface->SetRenderState(D3DRS_STENCILENABLE, reStencilEnable);
+
+	// Reset texture states
+	ProxyInterface->SetTextureStageState(0, D3DTSS_COLOROP, tsColorOP);
+	ProxyInterface->SetTextureStageState(0, D3DTSS_COLORARG1, tsColorArg1);
+	ProxyInterface->SetTextureStageState(0, D3DTSS_COLORARG2, tsColorArg2);
+	ProxyInterface->SetTextureStageState(0, D3DTSS_ALPHAOP, tsAlphaOP);
+	ProxyInterface->SetTextureStageState(0, D3DTSS_MINFILTER, tsMinFilter);
+	ProxyInterface->SetTextureStageState(0, D3DTSS_MAGFILTER, tsMagFilter);
 
 	return hr;
 }

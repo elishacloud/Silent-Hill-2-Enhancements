@@ -643,6 +643,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
 			SetWindowTheme(DeviceWindow);
 		}
+		break;
 	case WM_SYSKEYDOWN:
 		if (wParam == VK_RETURN && DynamicResolution)
 		{
@@ -659,24 +660,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_MOVE:
 	case WM_WINDOWPOSCHANGED:
-	{
-		HMONITOR MonitorHandle = GetMonitorHandle();
-		if (LastMonitorHandle && LastMonitorHandle != MonitorHandle)
+		if (!WindowInChange)
 		{
-			DeviceLost = true;
-			SetResolutionList(BufferWidth, BufferHeight);
-		}
-		LastMonitorHandle = MonitorHandle;
-		if (hWnd == DeviceWindow && ScreenMode == WINDOWED && !WindowInChange)
-		{
-			SaveWindowPlacement();
+			HMONITOR MonitorHandle = GetMonitorHandle();
+			if (LastMonitorHandle && LastMonitorHandle != MonitorHandle)
+			{
+				SetResolutionList(BufferWidth, BufferHeight);
+				DeviceLost = true;
+			}
+			LastMonitorHandle = MonitorHandle;
+			if (hWnd == DeviceWindow && ScreenMode == WINDOWED)
+			{
+				SaveWindowPlacement();
+			}
 		}
 		break;
-	}
 	case WM_SETFOCUS:
-	{
 		InputTweaksRef.ClearMouseInputs();
-	}
+		break;
 	}
 
 	if (!OriginalWndProc)

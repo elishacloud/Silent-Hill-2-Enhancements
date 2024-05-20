@@ -107,6 +107,8 @@ private:
 	LPDIRECT3DSURFACE8 pAutoRenderTarget = nullptr;
 	LPDIRECT3DTEXTURE8 pRenderTexture = nullptr;
 	LPDIRECT3DSURFACE8 pRenderSurface = nullptr;
+	LPDIRECT3DTEXTURE8 pAutoRenderTextureMirror = nullptr;
+	LPDIRECT3DSURFACE8 pAutoRenderSurfaceMirror = nullptr;
 	LPDIRECT3DSURFACE8 pDepthStencilBuffer = nullptr;
 	IDirect3DVertexBuffer8* ScaleVertexBuffer = nullptr;
 

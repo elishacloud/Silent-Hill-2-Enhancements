@@ -155,6 +155,17 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 		ReleaseInterface(&pRenderTexture);
 	}
 
+	if (pAutoRenderSurfaceMirror)
+	{
+		pAutoRenderSurfaceMirror->Release();
+		pAutoRenderSurfaceMirror = nullptr;
+	}
+
+	if (pAutoRenderTextureMirror)
+	{
+		ReleaseInterface(&pAutoRenderTextureMirror);
+	}
+
 	if (pDepthStencilBuffer)
 	{
 		ReleaseInterface(&pDepthStencilBuffer);
@@ -696,6 +707,12 @@ HRESULT m_IDirect3DDevice8::GetRenderTarget(THIS_ IDirect3DSurface8** ppRenderTa
 
 	if (SUCCEEDED(hr) && ppRenderTarget)
 	{
+		if (UsingScaledResolutions && *ppRenderTarget == pAutoRenderTarget)
+		{
+			(*ppRenderTarget)->Release();
+			*ppRenderTarget = pAutoRenderSurfaceMirror;
+			pAutoRenderSurfaceMirror->AddRef();
+		}
 		*ppRenderTarget = ProxyAddressLookupTableD3d8->FindAddress<m_IDirect3DSurface8>(*ppRenderTarget);
 	}
 
@@ -831,7 +848,7 @@ HRESULT m_IDirect3DDevice8::SetRenderTarget(THIS_ IDirect3DSurface8* pRenderTarg
 		}
 
 		// Check if game is trying to reassign render target
-		if (pRenderTarget == pAutoRenderTarget)
+		if (UsingScaledResolutions && pRenderTarget == pAutoRenderSurfaceMirror)
 		{
 			pRenderTarget = pRenderSurface;
 		}
@@ -2316,6 +2333,12 @@ HRESULT m_IDirect3DDevice8::GetBackBuffer(THIS_ UINT iBackBuffer, D3DBACKBUFFER_
 
 	if (SUCCEEDED(hr) && ppBackBuffer)
 	{
+		if (UsingScaledResolutions && *ppBackBuffer == pAutoRenderTarget)
+		{
+			(*ppBackBuffer)->Release();
+			*ppBackBuffer = pAutoRenderSurfaceMirror;
+			pAutoRenderSurfaceMirror->AddRef();
+		}
 		*ppBackBuffer = ProxyAddressLookupTableD3d8->FindAddress<m_IDirect3DSurface8>(*ppBackBuffer);
 	}
 
@@ -3773,6 +3796,20 @@ void m_IDirect3DDevice8::SetScaledBackbuffer()
 	if (FAILED(pRenderTexture->GetSurfaceLevel(0, &pRenderSurface)))
 	{
 		Logging::Log() << __FUNCTION__ << " Error: Failed to get surface for render target!";
+		return;
+	}
+
+	// Create second render texture
+	if (FAILED(ProxyInterface->CreateTexture(BufferWidth, BufferHeight, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &pAutoRenderTextureMirror)))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to create render target mirror!";
+		return;
+	}
+
+	// Get second render surface
+	if (FAILED(pAutoRenderTextureMirror->GetSurfaceLevel(0, &pAutoRenderSurfaceMirror)))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to get surface for render target mirror!";
 		return;
 	}
 

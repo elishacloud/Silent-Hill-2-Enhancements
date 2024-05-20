@@ -72,7 +72,6 @@ extern bool CopyRenderTarget;
 extern bool SetSSAA;
 extern bool SetATOC;
 extern bool TakeScreenShot;
-extern bool UsingScaledResolutions;
 extern D3DMULTISAMPLE_TYPE DeviceMultiSampleType;
 
 #include "IDirect3D8.h"

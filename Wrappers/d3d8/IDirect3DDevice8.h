@@ -105,8 +105,11 @@ private:
 	IDirect3DTexture8 *pInitialRenderTexture = nullptr;
 
 	LPDIRECT3DSURFACE8 pAutoRenderTarget = nullptr;
-	LPDIRECT3DTEXTURE8 pRenderTexture = nullptr;
-	LPDIRECT3DSURFACE8 pRenderSurface = nullptr;
+	LPDIRECT3DTEXTURE8 pRenderTexture1 = nullptr;
+	LPDIRECT3DSURFACE8 pRenderSurface1 = nullptr;
+	LPDIRECT3DTEXTURE8 pRenderTexture2 = nullptr;
+	LPDIRECT3DSURFACE8 pRenderSurface2 = nullptr;
+	LPDIRECT3DSURFACE8 pRenderSurfaceLast = nullptr;
 	LPDIRECT3DTEXTURE8 pAutoRenderTextureMirror = nullptr;
 	LPDIRECT3DSURFACE8 pAutoRenderSurfaceMirror = nullptr;
 	LPDIRECT3DSURFACE8 pDepthStencilBuffer = nullptr;

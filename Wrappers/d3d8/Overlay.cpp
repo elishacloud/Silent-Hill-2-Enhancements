@@ -31,12 +31,6 @@ void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface, LONG Width, LONG He
 		InputTweaksRef.InitializeHitboxes((float)Width / (float)Height);
 	}
 
-	// Don't draw overlay in pause menu
-	if (GetEventIndex() == EVENT_PAUSE_MENU)
-	{
-		return;
-	}
-
 	// Nvidia fix
 	ProxyInterface->GetRenderState(D3DRS_FOGENABLE, &FogEnableValue);
 	ProxyInterface->SetRenderState(D3DRS_FOGENABLE, 0x0);

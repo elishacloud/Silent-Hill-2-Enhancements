@@ -357,6 +357,7 @@ extern bool CRTCurveShader;
 extern bool CRTNonCurveShader;
 extern bool EnableInputTweaks;
 extern float ScaleFactor;
+extern bool UsingScaledResolutions;
 
 bool SetValue(const char* value);
 bool IsValidSettings(char* name, char* value);

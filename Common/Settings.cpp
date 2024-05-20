@@ -415,6 +415,7 @@ void UpdateConfigDefaults()
 	default:
 	case 0:
 		ScaleFactor = 1.0f;
+		ScaleWindowedResolution = (FixGPUAntiAliasing == false);
 		break;
 	case 1:
 		ScaleFactor = 2.0f;

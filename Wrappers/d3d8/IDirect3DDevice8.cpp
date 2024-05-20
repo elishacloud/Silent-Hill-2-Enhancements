@@ -1200,12 +1200,6 @@ void CalculateFPS()
 
 HRESULT m_IDirect3DDevice8::DrawScaledSurface()
 {
-	// Skip frames with no draw calls
-	if (!IsDrawCalled)
-	{
-		return D3D_OK;
-	}
-
 	// Get render states
 	DWORD rsLighting, rsAlphaTestEnable, rsAlphaBlendEnable, rsFogEnable, rsZEnable, rsZWriteEnable, reStencilEnable;
 	ProxyInterface->GetRenderState(D3DRS_LIGHTING, &rsLighting);
@@ -1336,6 +1330,12 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	// Skip frames in specific cutscenes to prevent flickering or frames with no draw calls
+	if (SkipSceneFlag || !IsDrawCalled)
+	{
+		return D3D_OK;
+	}
+
 	// Disable antialiasing before present
 	DisableAntiAliasing();
 
@@ -1348,12 +1348,6 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 
 	// Call function
 	RunPresentCode(ProxyInterface);
-
-	// Skip frames in specific cutscenes to prevent flickering
-	if (SkipSceneFlag)
-	{
-		return D3D_OK;
-	}
 
 	if (EnableEnhancedMouse)
 	{

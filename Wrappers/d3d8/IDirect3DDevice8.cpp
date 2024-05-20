@@ -110,6 +110,8 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 
 	isInScene = false;
 
+	IsDrawCalled = false;
+
 	ReplacedLastRenderTarget = false;
 
 	pCurrentRenderTexture = nullptr;
@@ -1166,7 +1168,6 @@ HRESULT m_IDirect3DDevice8::DrawScaledSurface()
 	{
 		return D3D_OK;
 	}
-	IsDrawCalled = false;
 
 	// Set render states
 	ProxyInterface->SetRenderState(D3DRS_LIGHTING, FALSE);

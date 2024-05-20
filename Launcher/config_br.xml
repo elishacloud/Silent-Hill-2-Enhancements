@@ -958,12 +958,12 @@
         </Choices>
       </Feature>
 
-      <Feature name="FixTownWestGateEvent">
-        <Title>Corrigir comentário do portão do beco oeste</Title>
-        <Description>Altera o comentário de James sobre o portão da Heaven's Night do beco à noite para refletir adequadamente o status do portão.</Description>
+      <Feature name="FixTownGateEvents">
+        <Title>Fix commentary about town gates</Title>
+        <Description>Changes James' commentary about the gated entrance at Wood Side apartments and back alley gate at Heaven's Night to properly reflect the gate's status when revisiting them at night.</Description>
         <Choices type="check">
-          <Value name="Desativar">0</Value>
-          <Value name="Ativar" default="true">1</Value>
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 

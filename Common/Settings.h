@@ -174,6 +174,7 @@
 	visit(RestoreSearchCamMovement, 2) \
 	visit(ResX, 0) \
 	visit(ResY, 0) \
+	visit(ScaleWindowedResolution, 0) \
 	visit(ScreenMode, 0xFFFF) /* Overloading the old 'EnableWndMode' and 'FullscreenWndMode' options */ \
 	visit(SingleCoreAffinityLegacy, 0) \
 	visit(SmallFontHeight, 24) \
@@ -355,6 +356,8 @@ extern bool EnableCRTShader;
 extern bool CRTCurveShader;
 extern bool CRTNonCurveShader;
 extern bool EnableInputTweaks;
+extern float ScaleFactor;
+extern bool UsingScaledResolutions;
 
 bool SetValue(const char* value);
 bool IsValidSettings(char* name, char* value);

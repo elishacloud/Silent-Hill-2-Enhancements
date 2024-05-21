@@ -55,6 +55,8 @@ bool AutoScaleImages = false;
 bool AutoScaleCutscenes = false;
 bool m_StopThreadFlag = false;
 bool IsUpdating = false;
+float ScaleFactor = 1.0f;
+bool UsingScaledResolutions = false;
 
 // all controls used by the program
 CWnd hWnd;												// program window

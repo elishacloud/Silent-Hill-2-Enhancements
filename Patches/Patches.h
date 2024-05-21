@@ -731,6 +731,12 @@ void RunShadowCutscene();
 void RunSpecialFXScale(DWORD Height);
 void RunTreeColor();
 
+int GetNewScreenMode();
+
+// Define the template function declaration
+template<typename T>
+void GetNonScaledResolution(T& Width, T& Height);
+
 // Variable forward declaration
 extern SH2VERSION GameVersion;
 extern bool IsInFullscreenImage;

@@ -8,21 +8,27 @@
 
     <Section name="Visualización">
 
-      <Feature name="WndModeBorder">
-        <Title>Borde de la ventana (solo para el modo en ventana)</Title>
-        <Description>Crea un borde en la ventana del juego. Solo funciona al usar el modo en ventana.&#x0a;&#x0a;Nota: la resolución de la ventana del juego no debe ser exactamente o casi la misma que el alto y ancho de tu pantalla, de lo contrario, el borde podría no aparecer. Es una medida de seguridad para evitar que el borde no se pierda fuera de tu área de visualización.</Description>
-        <Choices type="check">
-          <Value name="Desactivado">0</Value>
-          <Value name="Activado" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="DynamicResolution">
         <Title>Mostrar todas las resoluciones en el menú de Opciones</Title>
         <Description>Detecta todas las resoluciones disponibles de tu pantalla y permite selecionarlas (mostrando a la vez sus relaciones de aspecto) dentro del juego, en el menú Opciones > Opciones avanzadas.</Description>
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="ScaleWindowedResolution">
+        <Title>Dynamic Resolution Scaling</Title>
+        <Description>Works only in windowed and fullscreen windowed mode.</Description>
+        <Choices type="list">
+          <Value name="0.25">7</Value>
+          <Value name="0.5">6</Value>
+          <Value name="0.75">5</Value>
+          <Value name="1.0" default="true">0</Value>
+          <Value name="1.25">4</Value>
+          <Value name="1.5">3</Value>
+          <Value name="1.75">2</Value>
+          <Value name="2.0">1</Value>
         </Choices>
       </Feature>
 
@@ -41,6 +47,15 @@
         <Choices type="list">
           <Value name="30 FPS">0</Value>
           <Value name="60 FPS" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="WndModeBorder">
+        <Title>Borde de la ventana (solo para el modo en ventana)</Title>
+        <Description>Crea un borde en la ventana del juego. Solo funciona al usar el modo en ventana.&#x0a;&#x0a;Nota: la resolución de la ventana del juego no debe ser exactamente o casi la misma que el alto y ancho de tu pantalla, de lo contrario, el borde podría no aparecer. Es una medida de seguridad para evitar que el borde no se pierda fuera de tu área de visualización.</Description>
+        <Choices type="check">
+          <Value name="Desactivado">0</Value>
+          <Value name="Activado" default="true">1</Value>
         </Choices>
       </Feature>
 

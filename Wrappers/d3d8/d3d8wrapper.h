@@ -29,6 +29,7 @@ DEFINE_GUID(IID_GetReplacedInterface, 0x22222222, 0x1c77, 0x4d40, 0xb0, 0xcf, 0x
 DEFINE_GUID(IID_SetReplacedInterface, 0x33333333, 0x1c77, 0x4d40, 0xb0, 0xcf, 0x98, 0xfe, 0xfd, 0xff, 0xff, 0xff);
 DEFINE_GUID(IID_ClearCachedSurfaces, 0x44444444, 0x1c77, 0x4d40, 0xb0, 0xcf, 0x98, 0xfe, 0xfd, 0xff, 0xff, 0xff);
 DEFINE_GUID(IID_SetTextureRenderTarget, 0x55555555, 0x1c77, 0x4d40, 0xb0, 0xcf, 0x98, 0xfe, 0xfd, 0xff, 0xff, 0xff);
+DEFINE_GUID(IID_SetSurfaceOfTexture, 0x66666666, 0x1c77, 0x4d40, 0xb0, 0xcf, 0x98, 0xfe, 0xfd, 0xff, 0xff, 0xff);
 
 typedef IDirect3D8 *(WINAPI *Direct3DCreate8Proc)(UINT);
 
@@ -37,6 +38,7 @@ IDirect3D8 *WINAPI Direct3DCreate8Wrapper(UINT SDKVersion);
 void genericQueryInterface(REFIID riid, LPVOID *ppvObj, m_IDirect3DDevice8* m_pDevice);
 
 DWORD GetBitCount(D3DFORMAT Format);
+void RestorePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters);
 void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND hFocusWindow);
 void UpdatePresentParameterForMultisample(D3DPRESENT_PARAMETERS* pPresentationParameters, D3DMULTISAMPLE_TYPE MultiSampleType);
 void SetScreenAndWindowSize();
@@ -69,8 +71,8 @@ extern bool ClassReleaseFlag;
 extern bool CopyRenderTarget;
 extern bool SetSSAA;
 extern bool SetATOC;
-extern D3DMULTISAMPLE_TYPE DeviceMultiSampleType;
 extern bool TakeScreenShot;
+extern D3DMULTISAMPLE_TYPE DeviceMultiSampleType;
 
 #include "IDirect3D8.h"
 #include "IDirect3DDevice8.h"

@@ -302,6 +302,8 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 
 		*ppReturnedDeviceInterface = new m_IDirect3DDevice8(*ppReturnedDeviceInterface, this);
 
+		RestorePresentParameter(pPresentationParameters);
+
 		// Handle display modes
 		SetScreenAndWindowSize();
 	}
@@ -331,6 +333,19 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	return hr;
 }
 
+// Restore Presentation Parameters
+void RestorePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters)
+{
+	if (UsingScaledResolutions && pPresentationParameters)
+	{
+		pPresentationParameters->BackBufferWidth = BufferWidth;
+		pPresentationParameters->BackBufferHeight = BufferHeight;
+
+		pPresentationParameters->EnableAutoDepthStencil = TRUE;
+		pPresentationParameters->AutoDepthStencilFormat = D3DFMT_D24S8;
+	}
+}
+
 // Set Presentation Parameters
 void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND hFocusWindow)
 {
@@ -341,6 +356,18 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 
 	BufferWidth = (pPresentationParameters->BackBufferWidth) ? pPresentationParameters->BackBufferWidth : BufferWidth;
 	BufferHeight = (pPresentationParameters->BackBufferHeight) ? pPresentationParameters->BackBufferHeight : BufferHeight;
+
+	// Set scaled width and height
+	if (UsingScaledResolutions)
+	{
+		if (pPresentationParameters->EnableAutoDepthStencil)
+		{
+			pPresentationParameters->EnableAutoDepthStencil = FALSE;
+			pPresentationParameters->AutoDepthStencilFormat = D3DFMT_UNKNOWN;
+		}
+
+		GetNonScaledResolution(pPresentationParameters->BackBufferWidth, pPresentationParameters->BackBufferHeight);
+	}
 
 	DeviceWindow = (pPresentationParameters->hDeviceWindow) ? pPresentationParameters->hDeviceWindow :
 		(hFocusWindow) ? hFocusWindow : DeviceWindow;
@@ -364,9 +391,9 @@ void UpdatePresentParameterForMultisample(D3DPRESENT_PARAMETERS* pPresentationPa
 	pPresentationParameters->Flags &= ~D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
 	pPresentationParameters->SwapEffect = D3DSWAPEFFECT_DISCARD;
 
-	if (!pPresentationParameters->EnableAutoDepthStencil)
+	if (!pPresentationParameters->EnableAutoDepthStencil && !UsingScaledResolutions)
 	{
-		pPresentationParameters->EnableAutoDepthStencil = true;
+		pPresentationParameters->EnableAutoDepthStencil = TRUE;
 		pPresentationParameters->AutoDepthStencilFormat = D3DFMT_D24S8;
 	}
 }
@@ -408,6 +435,15 @@ void SetScreenAndWindowSize()
 		// Set window size if window mode is enabled
 		if (ScreenMode != EXCLUSIVE_FULLSCREEN)
 		{
+			LONG Width = BufferWidth;
+			LONG Height = BufferHeight;
+
+			// Reset resolution scaling
+			if (UsingScaledResolutions)
+			{
+				GetNonScaledResolution(Width, Height);
+			}
+
 			// Get current resolution
 			LONG CurrentWidth = 0, CurrentHeight = 0;
 			GetDesktopRes(CurrentWidth, CurrentHeight);
@@ -426,12 +462,12 @@ void SetScreenAndWindowSize()
 			}
 
 			// Set new display size
-			if (ScreenMode == WINDOWED_FULLSCREEN && (CurrentWidth != BufferWidth || CurrentHeight != BufferHeight))
+			if (ScreenMode == WINDOWED_FULLSCREEN && (CurrentWidth != Width || CurrentHeight != Height))
 			{
-				BOOL ret = SetDesktopRes(BufferWidth, BufferHeight);
+				BOOL ret = SetDesktopRes(Width, Height);
 
 				while (int x = 0 && x < 20 && ret && GetDesktopRes(CurrentWidth, CurrentHeight) &&
-					CurrentWidth != BufferWidth && CurrentHeight != BufferHeight)
+					CurrentWidth != Width && CurrentHeight != Height)
 				{
 					x++;
 					Sleep(100);
@@ -439,7 +475,7 @@ void SetScreenAndWindowSize()
 			}
 
 			// Update Silent Hill 2 window
-			AdjustWindow(DeviceWindow, BufferWidth, BufferHeight);
+			AdjustWindow(DeviceWindow, Width, Height);
 		}
 	}
 
@@ -607,6 +643,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
 			SetWindowTheme(DeviceWindow);
 		}
+		break;
 	case WM_SYSKEYDOWN:
 		if (wParam == VK_RETURN && DynamicResolution)
 		{
@@ -623,25 +660,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_MOVE:
 	case WM_WINDOWPOSCHANGED:
-	{
-		HMONITOR MonitorHandle = GetMonitorHandle();
-		if (LastMonitorHandle && LastMonitorHandle != MonitorHandle)
+		if (!WindowInChange)
 		{
-			DeviceLost = true;
-			SetResolutionList(BufferWidth, BufferHeight);
-		}
-		LastMonitorHandle = MonitorHandle;
-		if (hWnd == DeviceWindow && ScreenMode == WINDOWED && !WindowInChange)
-		{
-			SaveWindowPlacement();
+			HMONITOR MonitorHandle = GetMonitorHandle();
+			if (LastMonitorHandle && LastMonitorHandle != MonitorHandle)
+			{
+				SetResolutionList(BufferWidth, BufferHeight);
+				DeviceLost = true;
+			}
+			LastMonitorHandle = MonitorHandle;
+			if (hWnd == DeviceWindow && ScreenMode == WINDOWED)
+			{
+				SaveWindowPlacement();
+			}
 		}
 		break;
-	}
 	case WM_SETFOCUS:
-	{
 		InputTweaksRef.ClearMouseInputs();
-	}
-
+		break;
 	}
 
 	if (!OriginalWndProc)

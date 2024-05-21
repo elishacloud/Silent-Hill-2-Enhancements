@@ -493,7 +493,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		}
 
 		// Activate Overlays
-		if (GetEventIndex() != EVENT_PAUSE_MENU)
+		if (UsingScaledResolutions || GetEventIndex() != EVENT_PAUSE_MENU)
 		{
 			if (DebugCombo.State && !DebugCombo.Holding && EnableDebugOverlay)
 				ShowDebugOverlay = !ShowDebugOverlay;

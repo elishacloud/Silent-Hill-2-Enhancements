@@ -439,6 +439,13 @@ void UpdateConfigDefaults()
 		ScaleFactor = 0.25f;
 		break;
 	}
+
+	// Disable features that don't work with scaled resolutions and might cause a perf issue
+	if (ScaleWindowedResolution)
+	{
+		AntiAliasing = 0;
+		FixGPUAntiAliasing = false;
+	}
 }
 
 void LockConfigs()

@@ -1326,7 +1326,33 @@ HRESULT m_IDirect3DDevice8::DrawScaledSurface()
 	return hr;
 }
 
-HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRect, HWND hDestWindowOverride, CONST RGNDATA *pDirtyRegion)
+// Fix pause menu
+bool m_IDirect3DDevice8::FixPauseMenuOnPresent()
+{
+	bool PauseMenuFlag = false;
+	if (GetEventIndex() == EVENT_PAUSE_MENU)
+	{
+		if (PauseScreenFix && !InPauseMenu && pCurrentRenderTexture)
+		{
+			IDirect3DSurface8* pCurrentRenderSurface = nullptr;
+			if (SUCCEEDED(pCurrentRenderTexture->GetSurfaceLevel(0, &pCurrentRenderSurface)))
+			{
+				PauseMenuFlag = true;
+				FakeGetFrontBuffer(pCurrentRenderSurface);
+				pCurrentRenderSurface->Release();
+			}
+		}
+		InPauseMenu = true;
+	}
+	else
+	{
+		InPauseMenu = false;
+	}
+
+	return PauseMenuFlag;
+}
+
+HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
 {
 	Logging::LogDebug() << __FUNCTION__;
 
@@ -1354,8 +1380,12 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 		OverlayRef.RenderMouseCursor();
 	}
 
+	bool PauseMenuFlag = false;
 	if (UsingScaledResolutions)
 	{
+		// Fix pause menu before drawing scaled surface
+		PauseMenuFlag = FixPauseMenuOnPresent();
+
 		// Draw scaled surface, inlcuding Overalys
 		DrawScaledSurface();
 	}
@@ -1391,25 +1421,10 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT *pSourceRect, CONST RECT *pDestRe
 	}
 	ClearScreen = true;
 
-	// Fix pause menu
-	bool PauseMenuFlag = false;
-	if (GetEventIndex() == EVENT_PAUSE_MENU)
+	// Fix pause menu before Present if not using a scaled surface
+	if (!UsingScaledResolutions)
 	{
-		if (!UsingScaledResolutions && PauseScreenFix && !InPauseMenu && pCurrentRenderTexture)
-		{
-			IDirect3DSurface8 *pCurrentRenderSurface = nullptr;
-			if (SUCCEEDED(pCurrentRenderTexture->GetSurfaceLevel(0, &pCurrentRenderSurface)))
-			{
-				FakeGetFrontBuffer(pCurrentRenderSurface);
-				PauseMenuFlag = true;
-				pCurrentRenderSurface->Release();
-			}
-		}
-		InPauseMenu = true;
-	}
-	else
-	{
-		InPauseMenu = false;
+		PauseMenuFlag = FixPauseMenuOnPresent();
 	}
 
 	// Check if shader needs to be disabled

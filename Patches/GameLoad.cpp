@@ -261,6 +261,24 @@ void PatchGameLoad()
 	WriteCalltoMemory(UnsetLoadActiveFlagAddr, *UnsetLoadActiveFlagASM, 6);
 }
 
+void PatchGameLoadFlashFix()
+{
+	// Fix momentarily "flash" when save file is loaded
+	constexpr BYTE FlashFixSearchBytes[]{ 0x5F, 0x5E, 0x5D, 0x33, 0xC0, 0x5B, 0xC3, 0x90, 0x90, 0x33, 0xC0, 0xA3 };
+	DWORD FlashFixAddr = SearchAndGetAddresses(0x004EEA37, 0x004EECE7, 0x004EE5A7, FlashFixSearchBytes, sizeof(FlashFixSearchBytes), 0x0B, __FUNCTION__);
+	EventIndexAddr = GetEventIndexPointer();
+	if (!FlashFixAddr || !EventIndexAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+	FlashFixEAXAddr = (void*)*(DWORD*)(FlashFixAddr + 1);
+	jmpFlashFixAddr = (void*)(FlashFixAddr + 5);
+
+	Logging::Log() << "Enabling Load Game Flash Fix...";
+	WriteJMPtoMemory((BYTE*)FlashFixAddr, *FlashFixASM, 5);
+}
+
 DWORD quickSaveToggle;
 
 void SetGameLoad()
@@ -273,18 +291,6 @@ void SetGameLoad()
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
-
-	// Fix momentarily "flash" when save file is loaded
-	constexpr BYTE FlashFixSearchBytes[]{ 0x5F, 0x5E, 0x5D, 0x33, 0xC0, 0x5B, 0xC3, 0x90, 0x90, 0x33, 0xC0, 0xA3 };
-	DWORD FlashFixAddr = SearchAndGetAddresses(0x004EEA37, 0x004EECE7, 0x004EE5A7, FlashFixSearchBytes, sizeof(FlashFixSearchBytes), 0x0B, __FUNCTION__);
-	EventIndexAddr = GetEventIndexPointer();
-	if (!FlashFixAddr || !EventIndexAddr)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
-		return;
-	}
-	FlashFixEAXAddr = (void*)*(DWORD*)(FlashFixAddr + 1);
-	jmpFlashFixAddr = (void*)(FlashFixAddr + 5);
 
 	// Disable Quick Save Reset
 	constexpr BYTE QuickSaveResetSearchBytes[]{ 0x57, 0x8D, 0x7D, 0x30, 0xEB, 0x03, 0x8D, 0x49, 0x00, 0x0F, 0xBE, 0x46, 0x11, 0x85, 0xC0, 0x0F, 0x8E };
@@ -348,7 +354,6 @@ void SetGameLoad()
 	UpdateMemoryAddress((void*)GameLoadAddr, &Value, sizeof(DWORD));
 	UpdateMemoryAddress((void*)QuickSaveResetFunction, "\x90\x90\x90\x90\x90", 5);
 	WriteJMPtoMemory((BYTE*)SoftLockFunction, *SoftLockASM, 6);
-	WriteJMPtoMemory((BYTE*)FlashFixAddr, *FlashFixASM, 5);
 	WriteJMPtoMemory((BYTE*)SaveTimerFunction, *SaveTimerASM, 6);
 	WriteJMPtoMemory((BYTE*)TextOverlapFunction, *TextOverlapASM, 6);
 	WriteJMPtoMemory((BYTE*)QuickSaveFunction, *QuickSaveASM, 6);

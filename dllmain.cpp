@@ -491,6 +491,12 @@ void DelayedStart()
 		PatchGameLoad();
 	}
 
+	// Fixes momentarily "flash" when save file is loaded
+	if (GameLoadFlashFix)
+	{
+		PatchGameLoadFlashFix();
+	}
+
 	// Fixes quick save text position and the text fading too quickly bug
 	if (QuickSaveTweaks)
 	{

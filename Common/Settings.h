@@ -73,6 +73,7 @@
 	visit(FogSpeedFix, true) \
 	visit(ForceTopMost, false) \
 	visit(GameLoadFix, true) \
+	visit(GameLoadFlashFix, true) \
 	visit(GamepadControlsFix, true) \
 	visit(GravestoneBoardsFix, true) \
 	visit(HalogenLightFix, true) \
@@ -242,6 +243,7 @@
 	visit(fog_transparency_layer2) \
 	visit(Fog2DFix) \
 	visit(FullscreenWndMode) \
+	visit(GameLoadFlashFix) \
 	visit(HookDirect3D) \
 	visit(HookDirectInput) \
 	visit(HookDirectSound) \

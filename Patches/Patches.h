@@ -678,7 +678,7 @@ void PatchSprayEffect();
 void PatchSwapLightHeavyAttack();
 void PatchTeddyBearLookFix();
 void PatchTexAddr();
-void PatchTownWestGateEvent();
+void PatchTownGateEvents();
 void PatchTreeLighting();
 void PatchVHSAudio();
 void PatchWindowIcon();

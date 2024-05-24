@@ -925,7 +925,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="FixTownWestGateEvent">
+      <Feature name="FixTownGateEvents">
         <Title>Corrigir comentário do portão do beco oeste</Title>
         <Description>Altera o comentário de James sobre o portão da Heaven's Night do beco à noite para refletir adequadamente o status do portão.</Description>
         <Choices type="check">

@@ -467,10 +467,10 @@ void DelayedStart()
 		PatchHoldToStomp();
 	}
 
-	// Changes the event at the gate near Heaven's Night to that when trying to re-enter the door to Blue Creek Apartments
-	if (FixTownWestGateEvent)
+	// Removes the lock on the Wood Side Apartments gate after entering, and updates commentary on the gates near Heaven's Night and Wood Side Apartments at night
+	if (FixTownGateEvents)
 	{
-		PatchTownWestGateEvent();
+		PatchTownGateEvents();
 	}
 
 	// Disables the screen position feature in the game's options menu, which is no longer needed for modern displays

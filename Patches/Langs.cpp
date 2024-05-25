@@ -1040,8 +1040,8 @@ constexpr BYTE TownEastGateLockDisplayUpdateVal = 0;
 void PatchTownGateEvents()
 {
 	void* DTownWestGateEventAddr = (void*)SearchAndGetAddresses(0x008DB440, 0x008DF110, 0x008DE110, TownWestGateEventSearchBytes, sizeof(TownWestGateEventSearchBytes), 0x00, __FUNCTION__);
-    void* DTownEastGateEventAddr = (void*)SearchAndGetAddresses(0x008E3F98, 0x008E7C68, 0x008E6C68, TownEastGateEventSearchBytes, sizeof(TownEastGateEventSearchBytes), 0x0C, __FUNCTION__);
-    void* DTownEastGateLockDisplayAddr = (void*)SearchAndGetAddresses(0x00595EA0, 0x00596750, 0x00596070, TownEastGateLockDisplaySearchBytes, sizeof(TownEastGateLockDisplaySearchBytes), 0x20, __FUNCTION__);
+	void* DTownEastGateEventAddr = (void*)SearchAndGetAddresses(0x008E3F98, 0x008E7C68, 0x008E6C68, TownEastGateEventSearchBytes, sizeof(TownEastGateEventSearchBytes), 0x0C, __FUNCTION__);
+	void* DTownEastGateLockDisplayAddr = (void*)SearchAndGetAddresses(0x00595EA0, 0x00596750, 0x00596070, TownEastGateLockDisplaySearchBytes, sizeof(TownEastGateLockDisplaySearchBytes), 0x20, __FUNCTION__);
 
 	// Checking address pointer
 	if (!DTownWestGateEventAddr || !DTownEastGateEventAddr || !DTownEastGateLockDisplayAddr)
@@ -1050,9 +1050,8 @@ void PatchTownGateEvents()
 		return;
 	}
 
-    // TODO: Remove "West" from feature and function name(s)
-	Logging::Log() << "Enabling Town West Gate Event Fix...";
+	Logging::Log() << "Enabling Town Gate Event Fixes...";
 	UpdateMemoryAddress(DTownWestGateEventAddr, (void*)TownWestGateEventUpdateVal, sizeof(TownWestGateEventUpdateVal));
-    UpdateMemoryAddress(DTownEastGateEventAddr, &TownEastGateEventUpdateVal, sizeof(DWORD));
-    UpdateMemoryAddress(DTownEastGateLockDisplayAddr, &TownEastGateLockDisplayUpdateVal, sizeof(BYTE));
+	UpdateMemoryAddress(DTownEastGateEventAddr, &TownEastGateEventUpdateVal, sizeof(DWORD));
+	UpdateMemoryAddress(DTownEastGateLockDisplayAddr, &TownEastGateLockDisplayUpdateVal, sizeof(BYTE));
 }

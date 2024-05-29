@@ -64,7 +64,7 @@
 	visit(FixMemoFading, true) \
 	visit(FixMissingWallChunks, true) \
 	visit(FixSaveBGImage, true) \
-	visit(FixTownWestGateEvent, true) \
+	visit(FixTownGateEvents, true) \
 	visit(FlashlightFlickerFix, true) \
 	visit(FlashlightToggleSFX, true) \
 	visit(FmvSubtitlesNoiseFix, true) \

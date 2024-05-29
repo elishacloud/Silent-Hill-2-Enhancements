@@ -940,7 +940,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="FixTownWestGateEvent">
+      <Feature name="FixTownGateEvents">
         <Title>Correggi il commento nel vicolo nella parte ovest della città</Title>
         <Description>Cambia il commento di James sul cancello di Heaven's Night nel vicolo per rispecchiare lo stato del cancello.</Description>
         <Choices type="check">

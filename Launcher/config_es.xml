@@ -940,7 +940,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="FixTownWestGateEvent">
+      <Feature name="FixTownGateEvents">
         <Title>Corregir el comentario de la reja del callejón de la parte oeste</Title>
         <Description>Cambia el comentario de James sobre la reja del callejón que da al Heaven's Night por la noche para reflejar correctamente su situación.</Description>
         <Choices type="check">

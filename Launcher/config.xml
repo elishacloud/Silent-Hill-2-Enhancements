@@ -940,9 +940,9 @@
         </Choices>
       </Feature>
 
-      <Feature name="FixTownWestGateEvent">
-        <Title>Fix town west back alley gate commentary</Title>
-        <Description>Changes James' commentary about the back alley Heaven's Night gate at night to properly reflect the gate's status.</Description>
+      <Feature name="FixTownGateEvents">
+        <Title>Fix town gates commentary and appearance</Title>
+        <Description>Visually removes the lock from the Wood Side Apartments gate once James is inside. Changes James' commentary about the gated entrance at Wood Side apartments and back alley gate at Heaven's Night to properly reflect the gate's status when revisiting them at night.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>

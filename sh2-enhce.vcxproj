@@ -86,7 +86,8 @@
       <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul
 copy /Y "$(ProjectDir)Resources\alsoft.ini" "$(TargetDir)" &gt;nul
 copy /Y "$(ProjectDir)Resources\dinput8.dll" "$(TargetDir)" &gt;nul
-copy /Y "$(ProjectDir)Resources\Xidi.ini" "$(TargetDir)" &gt;nul</Command>
+copy /Y "$(ProjectDir)Resources\Xidi.ini" "$(TargetDir)" &gt;nul
+copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -128,7 +129,8 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
       <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul
 copy /Y "$(ProjectDir)Resources\alsoft.ini" "$(TargetDir)" &gt;nul
 copy /Y "$(ProjectDir)Resources\dinput8.dll" "$(TargetDir)" &gt;nul
-copy /Y "$(ProjectDir)Resources\Xidi.ini" "$(TargetDir)" &gt;nul</Command>
+copy /Y "$(ProjectDir)Resources\Xidi.ini" "$(TargetDir)" &gt;nul
+copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Workflow|Win32'">
@@ -156,7 +158,8 @@ copy /Y "$(ProjectDir)Resources\Xidi.ini" "$(TargetDir)" &gt;nul</Command>
       <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul
 copy /Y "$(ProjectDir)Resources\alsoft.ini" "$(TargetDir)" &gt;nul
 copy /Y "$(ProjectDir)Resources\dinput8.dll" "$(TargetDir)" &gt;nul
-copy /Y "$(ProjectDir)Resources\Xidi.ini" "$(TargetDir)" &gt;nul</Command>
+copy /Y "$(ProjectDir)Resources\Xidi.ini" "$(TargetDir)" &gt;nul
+copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

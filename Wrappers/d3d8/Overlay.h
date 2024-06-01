@@ -32,7 +32,7 @@ public:
 		D3DCOLOR         Color;
 	};
 
-	void DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface);
+	void DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface, LONG Width, LONG Height);
 	void ResetFont();
 	void RenderMouseCursor();
 
@@ -104,8 +104,8 @@ private:
 
 	Overlay::D3D8TEXT InfoOverlayTextStruct;
 	Overlay::D3D8TEXT DebugOverlayTextStruct;
-	LONG LastBufferWidth = 0;
-	LONG LastBufferHeight = 0;
+	LONG LastWidth = -1;
+	LONG LastHeight = -1;
 
 	DWORD FogEnableValue;
 	DWORD MultiSampleValue;

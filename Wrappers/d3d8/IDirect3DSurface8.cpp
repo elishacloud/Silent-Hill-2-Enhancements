@@ -34,6 +34,13 @@ HRESULT m_IDirect3DSurface8::QueryInterface(THIS_ REFIID riid, void** ppvObj)
 		return S_OK;
 	}
 
+	// Set as a surface of a texture
+	if (riid == IID_SetSurfaceOfTexture)
+	{
+		IsTextureOfSurface = true;
+		return S_OK;
+	}
+
 	// Get render target interface
 	if (riid == IID_GetRenderTarget && ppvObj)
 	{
@@ -110,6 +117,11 @@ ULONG m_IDirect3DSurface8::Release(THIS)
 
 	ULONG ref = ProxyInterface->Release();
 
+	if (IsTextureOfSurface)
+	{
+		ref = min(ref, ref - 1);
+	}
+
 	if (ref == 0 && pEmuSurface)
 	{
 		pEmuSurface->UnlockRect();
@@ -184,7 +196,7 @@ HRESULT m_IDirect3DSurface8::LockRect(THIS_ D3DLOCKED_RECT* pLockedRect, CONST R
 
 	HRESULT hr = ProxyInterface->LockRect(pLockedRect, pRect, Flags);
 
-	if (hr == D3DERR_INVALIDCALL && !IsLocked && pLockedRect && !pEmuSurface && DeviceMultiSampleType != D3DMULTISAMPLE_NONE)
+	if (hr == D3DERR_INVALIDCALL && !IsLocked && pLockedRect && !pEmuSurface && (DeviceMultiSampleType != D3DMULTISAMPLE_NONE || UsingScaledResolutions))
 	{
 		D3DSURFACE_DESC Desc;
 		if (SUCCEEDED(GetDesc(&Desc)))

@@ -408,6 +408,44 @@ void UpdateConfigDefaults()
 	default:
 		ReplaceButtonText = BUTTON_ICONS_GENERIC;
 	}
+
+	// Set resolution scaling
+	switch (ScaleWindowedResolution)
+	{
+	default:
+	case 0:
+		ScaleFactor = 1.0f;
+		ScaleWindowedResolution = (FixGPUAntiAliasing == false);
+		break;
+	case 1:
+		ScaleFactor = 2.0f;
+		break;
+	case 2:
+		ScaleFactor = 1.75f;
+		break;
+	case 3:
+		ScaleFactor = 1.5f;
+		break;
+	case 4:
+		ScaleFactor = 1.25f;
+		break;
+	case 5:
+		ScaleFactor = 0.75f;
+		break;
+	case 6:
+		ScaleFactor = 0.5f;
+		break;
+	case 7:
+		ScaleFactor = 0.25f;
+		break;
+	}
+
+	// Disable features that don't work with scaled resolutions and might cause a perf issue
+	if (ScaleWindowedResolution)
+	{
+		AntiAliasing = 0;
+		FixGPUAntiAliasing = false;
+	}
 }
 
 void LockConfigs()

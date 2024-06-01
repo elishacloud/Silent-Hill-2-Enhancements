@@ -104,6 +104,17 @@ private:
 	IDirect3DTexture8 *pCurrentRenderTexture = nullptr;
 	IDirect3DTexture8 *pInitialRenderTexture = nullptr;
 
+	LPDIRECT3DSURFACE8 pAutoRenderTarget = nullptr;
+	LPDIRECT3DTEXTURE8 pRenderTexture1 = nullptr;
+	LPDIRECT3DSURFACE8 pRenderSurface1 = nullptr;
+	LPDIRECT3DTEXTURE8 pRenderTexture2 = nullptr;
+	LPDIRECT3DSURFACE8 pRenderSurface2 = nullptr;
+	LPDIRECT3DSURFACE8 pRenderSurfaceLast = nullptr;
+	LPDIRECT3DTEXTURE8 pAutoRenderTextureMirror = nullptr;
+	LPDIRECT3DSURFACE8 pAutoRenderSurfaceMirror = nullptr;
+	LPDIRECT3DSURFACE8 pDepthStencilBuffer = nullptr;
+	IDirect3DVertexBuffer8* ScaleVertexBuffer = nullptr;
+
 	struct SURFACEVECTOR
 	{
 		m_IDirect3DSurface8 *SourceTarget = nullptr;
@@ -168,6 +179,14 @@ private:
 		{   -0.5f, 1115.5f, 0.01f, 1.0f, 0.0f, 1.0f }
 	};
 
+	CUSTOMVERTEX_TEX1 ScaledPresentVertex[4]
+	{
+		{   -0.5f,   -0.5f, 0.0f, 1.0f, 0.0f, 0.0f },
+		{   -0.5f, 1079.5f, 0.0f, 1.0f, 0.0f, 1.0f },
+		{ 1919.5f,   -0.5f, 0.0f, 1.0f, 1.0f, 0.0f },
+		{ 1919.5f, 1079.5f, 0.0f, 1.0f, 1.0f, 1.0f }
+	};
+
 	CUSTOMVERTEX_TEX1 FMVVertex[4] = {};
 
 	struct D3DSTATE
@@ -198,6 +217,7 @@ private:
 	DWORD GetShadowOpacity();
 	DWORD GetShadowIntensity();
 	void SetShadowFading();
+	void SetScaledBackbuffer();
 	void CaptureScreenShot();
 	HRESULT CreateDCSurface(EMUSURFACE& surface, LONG Width, LONG Height);
 	void ReleaseDCSurface(EMUSURFACE& surface);
@@ -214,6 +234,8 @@ public:
 		{
 			BlankTexture = nullptr;
 		}
+
+		SetScaledBackbuffer();
 	}
 	~m_IDirect3DDevice8()
 	{
@@ -246,6 +268,8 @@ public:
 	STDMETHOD_(BOOL, ShowCursor)(THIS_ BOOL bShow);
 	STDMETHOD(CreateAdditionalSwapChain)(THIS_ D3DPRESENT_PARAMETERS* pPresentationParameters, IDirect3DSwapChain8** pSwapChain);
 	STDMETHOD(Reset)(THIS_ D3DPRESENT_PARAMETERS* pPresentationParameters);
+	STDMETHOD(DrawScaledSurface)(THIS_);
+	STDMETHOD_(bool, FixPauseMenuOnPresent)(THIS_);
 	STDMETHOD(Present)(THIS_ CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion);
 	STDMETHOD(GetBackBuffer)(THIS_ UINT BackBuffer, D3DBACKBUFFER_TYPE Type, IDirect3DSurface8** ppBackBuffer);
 	STDMETHOD(GetRasterStatus)(THIS_ D3DRASTER_STATUS* pRasterStatus);

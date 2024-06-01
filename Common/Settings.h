@@ -63,7 +63,7 @@
 	visit(FixMemoFading, true) \
 	visit(FixMissingWallChunks, true) \
 	visit(FixSaveBGImage, true) \
-	visit(FixTownWestGateEvent, true) \
+	visit(FixTownGateEvents, true) \
 	visit(FlashlightFlickerFix, true) \
 	visit(FlashlightToggleSFX, true) \
 	visit(FmvSubtitlesNoiseFix, true) \
@@ -72,6 +72,7 @@
 	visit(FogSpeedFix, true) \
 	visit(ForceTopMost, false) \
 	visit(GameLoadFix, true) \
+	visit(GameLoadFlashFix, true) \
 	visit(GamepadControlsFix, true) \
 	visit(GravestoneBoardsFix, true) \
 	visit(HalogenLightFix, true) \
@@ -173,6 +174,7 @@
 	visit(RestoreSearchCamMovement, 2) \
 	visit(ResX, 0) \
 	visit(ResY, 0) \
+	visit(ScaleWindowedResolution, 0) \
 	visit(ScreenMode, 0xFFFF) /* Overloading the old 'EnableWndMode' and 'FullscreenWndMode' options */ \
 	visit(SingleCoreAffinityLegacy, 0) \
 	visit(SmallFontHeight, 24) \
@@ -239,6 +241,7 @@
 	visit(fog_transparency_layer2) \
 	visit(Fog2DFix) \
 	visit(FullscreenWndMode) \
+	visit(GameLoadFlashFix) \
 	visit(HookDirect3D) \
 	visit(HookDirectInput) \
 	visit(HookDirectSound) \
@@ -352,6 +355,8 @@ extern bool EnableCRTShader;
 extern bool CRTCurveShader;
 extern bool CRTNonCurveShader;
 extern bool EnableInputTweaks;
+extern float ScaleFactor;
+extern bool UsingScaledResolutions;
 
 bool SetValue(const char* value);
 bool IsValidSettings(char* name, char* value);

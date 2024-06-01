@@ -629,6 +629,7 @@ void PatchFogParameters();
 void PatchFullscreenImages();
 void PatchFullscreenVideos();
 void PatchGameLoad();
+void PatchGameLoadFlashFix();
 void PatchHealthIndicatorOption();
 void PatchGravestoneBoardsFix();
 void PatchGreatKnifeBoatSpeed();
@@ -678,7 +679,7 @@ void PatchSprayEffect();
 void PatchSwapLightHeavyAttack();
 void PatchTeddyBearLookFix();
 void PatchTexAddr();
-void PatchTownWestGateEvent();
+void PatchTownGateEvents();
 void PatchTreeLighting();
 void PatchVHSAudio();
 void PatchWindowIcon();
@@ -730,6 +731,12 @@ void RunSaveBGImage();
 void RunShadowCutscene();
 void RunSpecialFXScale(DWORD Height);
 void RunTreeColor();
+
+int GetNewScreenMode();
+
+// Define the template function declaration
+template<typename T>
+void GetNonScaledResolution(T& Width, T& Height);
 
 // Variable forward declaration
 extern SH2VERSION GameVersion;

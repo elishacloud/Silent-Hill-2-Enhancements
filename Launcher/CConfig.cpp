@@ -15,7 +15,7 @@
 *
 * Code taken from: https://github.com/Gemini-Loboto3/SH2config
 * 
-* Updated by Elisha Riedlinger 2023
+* Updated by Elisha Riedlinger 2024
 */
 
 #define WIN32_LEAN_AND_MEAN
@@ -262,24 +262,17 @@ void CConfig::BuildCacheP()
 			p.list.push_back(&opt);
 }
 
-void __stdcall PreCheckIniCallback(char* lpName, char* lpValue, void*)
-{
-	// Check for valid entries
-	if (!IsValidSettings(lpName, lpValue)) return;
-
-	std::string name;
-	name.assign("ScaleWindowedResolution");
-
-	if (name.compare(lpName) == 0)
-	{
-		Does_ScaleWindowedResolution_exist = true;
-	}
-}
-
 void __stdcall ParseIniCallback(char* lpName, char* lpValue, void* lpParam)
 {
 	// Check for valid entries
 	if (!IsValidSettings(lpName, lpValue)) return;
+
+	// Check for 'ScaleWindowedResolution' option
+	std::string name("ScaleWindowedResolution");
+	if (name.compare(lpName) == 0)
+	{
+		Does_ScaleWindowedResolution_exist = true;
+	}
 
 	auto cb = reinterpret_cast<cb_parse*>(lpParam);
 	for (auto& item : cb->list)
@@ -300,9 +293,6 @@ void CConfig::SetFromIni(LPCWSTR lpName)
 	auto ini = Read(lpName);
 	if (ini == nullptr) return;
 
-	// pre parce file to check for values
-	Parse(ini, PreCheckIniCallback, (void*)&p);
-
 	// do the parsing (can be slightly slow)
 	Parse(ini, ParseIniCallback, (void*)&p);
 
@@ -310,13 +300,14 @@ void CConfig::SetFromIni(LPCWSTR lpName)
 	free(ini);
 
 	// Set default values
-	if (Does_ScaleWindowedResolution_exist)
+	if (!Does_ScaleWindowedResolution_exist)
 	{
 		for (auto& item : p.list)
 		{
 			if (item->name.compare("FixGPUAntiAliasing") == 0)
 			{
 				item->SetValueFromName("0");
+				break;
 			}
 		}
 	}

@@ -209,8 +209,9 @@ void EraseCppComments(char* str)
 //  0x20 - space
 //	0x09 - horizontal tab
 //	0x0D - carriage return
-void Parse(char* str, NV NameValueCallback, void* lpParam)
+void Parse(char* strParse, NV NameValueCallback, void* lpParam)
 {
+	char* str = strParse;
 	char *next_token = nullptr;
 	EraseCppComments(str);
 	for (str = strtok_s(str, "\n", &next_token); str; str = strtok_s(0, "\n", &next_token))

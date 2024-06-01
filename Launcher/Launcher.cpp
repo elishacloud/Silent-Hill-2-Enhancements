@@ -15,7 +15,7 @@
 *
 * Code taken from: https://github.com/Gemini-Loboto3/SH2config
 *
-* Updated by Elisha Riedlinger 2023
+* Updated by Elisha Riedlinger 2024
 */
 
 #define WIN32_LEAN_AND_MEAN
@@ -699,7 +699,7 @@ void GetAllExeFiles()
 			if (_wcsicmp(entry.path().extension().c_str(), L".exe") == 0)
 			{
 				bool Matches = false;
-				for (auto& name : { toolname.c_str(), L"SH2EEconfig.exe", L"SH2EEsetup.exe" })
+				for (auto name : { toolname.c_str(), L"SH2EEconfig.exe", L"SH2EEsetup.exe" })
 				{
 					if (_wcsicmp(entry.path().filename().c_str(), name) == 0)
 					{

@@ -364,7 +364,7 @@ extern bool UsingScaledResolutions;
 bool SetValue(const char* value);
 bool IsValidSettings(char* name, char* value);
 char* Read(const wchar_t* szFileName);
-void Parse(char* str, NV NameValueCallback, void* lpParam = nullptr);
+void Parse(char* strParse, NV NameValueCallback, void* lpParam = nullptr);
 void __stdcall ParseCallback(char* lpName, char* lpValue, void*);
 void LogSettings();
 void UpdateConfigDefaults();

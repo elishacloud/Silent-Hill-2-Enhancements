@@ -55,7 +55,7 @@ public:
 	// simulate strcmp
 	int compare(std::string s)
 	{
-		if (XXH64(str.c_str(), str.size(), 0) == hash)
+		if (XXH64(str.c_str(), str.size() - 1, 0) == hash)
 			return 0;
 
 		return 1;
@@ -63,7 +63,7 @@ public:
 
 	int compare(const char* s)
 	{
-		if (XXH64(s, strlen(s), 0) == hash)
+		if (XXH64(s, strlen(s) - 1, 0) == hash)
 			return 0;
 
 		return 1;
@@ -72,7 +72,7 @@ public:
 private:
 	void GenerateHash()
 	{
-		hash = XXH64(str.c_str(), str.size(), 0);
+		hash = XXH64(str.c_str(), str.size() - 1, 0);
 	}
 
 	std::string str;
@@ -199,7 +199,7 @@ public:
 	{
 		CConfigString s;
 		s.str = SAFESTR(multis);
-		s.hash = XXH64(id, strlen(id), 0);
+		s.hash = XXH64(id, strlen(id) - 1, 0);
 
 		str.push_back(s);
 	}
@@ -244,7 +244,7 @@ public:
 
 	std::string Find(std::string id)
 	{
-		auto hash = XXH64(id.c_str(), id.size(), 0);
+		auto hash = XXH64(id.c_str(), id.size() - 1, 0);
 
 		auto f = quickfind(hash);
 		if (f >= 0) return str[f].str;
@@ -264,8 +264,8 @@ public:
 	public:
 		void Set(std::string section, std::string option)
 		{
-			sec = XXH64(section.c_str(), section.size(), 0);
-			op = XXH64(option.c_str(), option.size(), 0);
+			sec = XXH64(section.c_str(), section.size() - 1, 0);
+			op = XXH64(option.c_str(), option.size() - 1, 0);
 		}
 
 		XXH64_hash_t sec, op;		// section and option from the <Sections> table
@@ -310,10 +310,10 @@ public:
 	{
 		for (size_t i = 0, si = section.size(); i < si; i++)
 		{
-			auto xs = XXH64(section[i].name.c_str(), section[i].name.size(), 0);
+			auto xs = XXH64(section[i].name.c_str(), section[i].name.size() - 1, 0);
 			for (size_t j = 0, sj = section[i].option.size(); j < sj; j++)
 			{
-				auto xh = XXH64(section[i].option[j].name.c_str(), section[i].option[j].name.size(), 0);
+				auto xh = XXH64(section[i].option[j].name.c_str(), section[i].option[j].name.size() - 1, 0);
 				if (xs == ss && xh == sh)
 				{
 					found_sec = (int)i;

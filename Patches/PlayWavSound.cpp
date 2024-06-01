@@ -17,6 +17,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include "Patches.h"
+#include <shlwapi.h>
 #include "Common\Utils.h"
 #include "Common\FileSystemHooks.h"
 #include "Logging\Logging.h"
@@ -29,13 +30,18 @@ HRESULT PlayWavFile(const char* filePath, DWORD BifferID);
 typedef int32_t(WINAPIV* PlaySoundProc)(int32_t SoundId, float volume, DWORD param3);
 PlaySoundProc m_pPlaySound = nullptr;
 
+const char* SaveGameWav = "\\sound\\extra\\save_sound.wav";
+const char* LoadGameWav = "\\sound\\extra\\g_start.wav";
+const char* FlashLightOnWav = "\\sound\\extra\\flashlight_on.wav";
+const char* FlashLightOffWav = "\\sound\\extra\\flashlight_off.wav";
+
 int32_t PlaySaveSound(int32_t SoundId, float volume, DWORD param3)
 {
 	UNREFERENCED_PARAMETER(SoundId);
 	UNREFERENCED_PARAMETER(volume);
 	UNREFERENCED_PARAMETER(param3);
 
-	PlayWavFile((std::string(GetModPath("")) + "\\sound\\extra\\save_sound.wav").c_str(), 0);
+	PlayWavFile((std::string(GetModPath("")) + SaveGameWav).c_str(), 0);
 
 	return 0x10;	// PlaySound function success
 }
@@ -46,7 +52,7 @@ int32_t PlayLoadSound(int32_t SoundId, float volume, DWORD param3)
 	UNREFERENCED_PARAMETER(volume);
 	UNREFERENCED_PARAMETER(param3);
 
-	PlayWavFile((std::string(GetModPath("")) + "\\sound\\extra\\g_start.wav").c_str(), 1);
+	PlayWavFile((std::string(GetModPath("")) + LoadGameWav).c_str(), 1);
 
 	return 0x10;	// PlaySound function success
 }
@@ -116,11 +122,25 @@ void PatchCustomSFXs()
 	GameSoundReturnAddress = reinterpret_cast<void*>(SoundEffectCallAddr + 16);
 
 	// Update SH2 code
-	WriteJMPtoMemory(SoundEffectCallAddr, *SaveGameSoundASM, 16);
-	WriteCalltoMemory(LoadGameSoundPauseMenu, PlayLoadSound);
-	WriteCalltoMemory(LoadGameSoundNewGame, PlayLoadSound);
-	WriteCalltoMemory(LoadGameSoundContinue, PlayLoadSound);
-	WriteCalltoMemory(SaveGameSoundRedSquares, PlaySaveSound);
+	if (PathFileExistsA((std::string(GetModPath("")) + LoadGameWav).c_str()))
+	{
+		WriteCalltoMemory(LoadGameSoundPauseMenu, PlayLoadSound);
+		WriteCalltoMemory(LoadGameSoundNewGame, PlayLoadSound);
+		WriteCalltoMemory(LoadGameSoundContinue, PlayLoadSound);
+	}
+	else
+	{
+		Logging::Log() << __FUNCTION__ << " Error: could not find Load Game WAV file: " << LoadGameWav;
+	}
+	if (PathFileExistsA((std::string(GetModPath("")) + SaveGameWav).c_str()))
+	{
+		WriteJMPtoMemory(SoundEffectCallAddr, *SaveGameSoundASM, 16);
+		WriteCalltoMemory(SaveGameSoundRedSquares, PlaySaveSound);
+	}
+	else
+	{
+		Logging::Log() << __FUNCTION__ << " Error: could not find Save Game WAV file: " << SaveGameWav;
+	}
 }
 
 void RunPlayAdditionalSounds()
@@ -194,12 +214,12 @@ void RunPlayAdditionalSounds()
 		// play flashlight_off.wav
 		if (FlashLightSwitch == 0)
 		{
-			PlayWavFile((std::string(GetModPath("")) + "\\sound\\extra\\flashlight_off.wav").c_str(), 2);
+			PlayWavFile((std::string(GetModPath("")) + FlashLightOffWav).c_str(), 2);
 		}
 		// play flashlight_on.wav
 		else if (FlashLightSwitch == 1)
 		{
-			PlayWavFile((std::string(GetModPath("")) + "\\sound\\extra\\flashlight_on.wav").c_str(), 2);
+			PlayWavFile((std::string(GetModPath("")) + FlashLightOnWav).c_str(), 2);
 		}
 	}
 	LastRoomID = RoomID;

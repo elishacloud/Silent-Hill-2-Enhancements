@@ -1348,8 +1348,8 @@
         <Title>Corrigir anti-aliasing de GPU</Title>
         <Description>Corrige problemas para placas de vídeo Nvidia, como sombras ausentes/incorretas, ao ativar o anti-aliasing por meio do painel de controle da GPU.</Description>
         <Choices type="check">
-          <Value name="Desativar">0</Value>
-          <Value name="Ativar" default="true">1</Value>
+          <Value name="Desativar" default="true">0</Value>
+          <Value name="Ativar">1</Value>
         </Choices>
       </Feature>
 

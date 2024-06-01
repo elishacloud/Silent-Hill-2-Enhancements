@@ -1348,8 +1348,8 @@
         <Title>Fix GPU anti-aliasing</Title>
         <Description>Fixes issues for Nvidia graphics cards, such as missing/incorrect shadows, when force-enabling anti-aliasing through of your GPU's control panel.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disable" default="true">0</Value>
+          <Value name="Enable">1</Value>
         </Choices>
       </Feature>
 

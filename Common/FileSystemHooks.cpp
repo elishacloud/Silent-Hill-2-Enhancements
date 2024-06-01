@@ -763,7 +763,7 @@ void InstallFileSystemHooks()
 		{ FindNextFileA_bytes, FindNextFileAHandler, 6 },
 	};
 
-	for (auto item : HookList)
+	for (auto& item : HookList)
 	{
 		auto pattern = hook::pattern(item.Bytes);
 		if (!pattern.size())

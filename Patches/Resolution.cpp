@@ -427,7 +427,7 @@ void AddResolutionToList(DWORD Width, DWORD Height, bool force = false)
 	if (!ResolutionAvailableCheck(Width, Height)) return;
 
 	bool found = false;
-	for (auto res : ResolutionVector)
+	for (auto& res : ResolutionVector)
 	{
 		if (res.Width == Width && res.Height == Height)
 		{

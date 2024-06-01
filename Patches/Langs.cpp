@@ -744,7 +744,7 @@ HRESULT PatchCustomExeStr()
 			return E_FAIL;
 		}
 		strcat_s(txtpath, MAX_PATH, "\\");
-		for (auto item : LangList)
+		for (auto& item : LangList)
 		{
 			// Get modpath
 			char txtmodname[MAX_PATH];
@@ -760,7 +760,7 @@ HRESULT PatchCustomExeStr()
 	}
 
 	int i = 0;
-	for (auto item : LangList)
+	for (auto& item : LangList)
 	{
 		char txtname[MAX_PATH];
 		strcpy_s(txtname, MAX_PATH, "data\\etc\\resource\\");

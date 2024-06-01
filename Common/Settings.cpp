@@ -409,6 +409,13 @@ void UpdateConfigDefaults()
 		ReplaceButtonText = BUTTON_ICONS_GENERIC;
 	}
 
+	// Check if ScaleWindowedResolution exists in ini file
+	if (ScaleWindowedResolution == 0xFFFF)
+	{
+		FixGPUAntiAliasing = false;
+		ScaleWindowedResolution = 0;
+	}
+
 	// Set resolution scaling
 	switch (ScaleWindowedResolution)
 	{

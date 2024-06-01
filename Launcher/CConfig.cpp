@@ -56,6 +56,8 @@ bool DisableDefaultValueWarning = false;
 bool DisableXMLErrorWarning = false;
 bool DisableTabOverloadWarning = false;
 
+bool Does_ScaleWindowedResolution_exist = false;
+
 struct cb_parse
 {
 	std::vector<CConfigOption*> list;
@@ -237,8 +239,8 @@ bool CConfig::ParseXml()
 
 void CConfig::SetDefault()
 {
-	for (auto &sec: section)
-		for (auto &opt : sec.option)
+	for (auto& sec: section)
+		for (auto& opt : sec.option)
 			opt.SetValueDefault();
 }
 
@@ -255,18 +257,32 @@ const char* CConfig::SetIDString(const char* id, const char* name)
 
 void CConfig::BuildCacheP()
 {
-	for (auto &sec : section)
-		for (auto &opt : sec.option)
+	for (auto& sec : section)
+		for (auto& opt : sec.option)
 			p.list.push_back(&opt);
 }
 
-void __stdcall ParseIniCallback(char* lpName, char* lpValue, void *lpParam)
+void __stdcall PreCheckIniCallback(char* lpName, char* lpValue, void*)
+{
+	// Check for valid entries
+	if (!IsValidSettings(lpName, lpValue)) return;
+
+	std::string name;
+	name.assign("ScaleWindowedResolution");
+
+	if (name.compare(lpName) == 0)
+	{
+		Does_ScaleWindowedResolution_exist = true;
+	}
+}
+
+void __stdcall ParseIniCallback(char* lpName, char* lpValue, void* lpParam)
 {
 	// Check for valid entries
 	if (!IsValidSettings(lpName, lpValue)) return;
 
 	auto cb = reinterpret_cast<cb_parse*>(lpParam);
-	for (auto &item : cb->list)
+	for (auto& item : cb->list)
 	{
 		if (item->name.compare(lpName) == 0)
 		{
@@ -284,11 +300,26 @@ void CConfig::SetFromIni(LPCWSTR lpName)
 	auto ini = Read(lpName);
 	if (ini == nullptr) return;
 
+	// pre parce file to check for values
+	Parse(ini, PreCheckIniCallback, (void*)&p);
+
 	// do the parsing (can be slightly slow)
 	Parse(ini, ParseIniCallback, (void*)&p);
 
 	// done, disengage!
 	free(ini);
+
+	// Set default values
+	if (Does_ScaleWindowedResolution_exist)
+	{
+		for (auto& item : p.list)
+		{
+			if (item->name.compare("FixGPUAntiAliasing") == 0)
+			{
+				item->SetValueFromName("0");
+			}
+		}
+	}
 
 	// Create "Extra" tab
 	if (ExtraOptions.size())
@@ -394,7 +425,7 @@ void CConfig::SaveIni(LPCWSTR lpName, LPCWSTR error_mes, LPCWSTR error_caption)
 	}
 
 	// Write out the rest of the new ini file
-	for (auto &sec : section)
+	for (auto& sec : section)
 	{
 		if (sec.extra)
 		{
@@ -478,7 +509,7 @@ void CConfig::SaveIni(LPCWSTR lpName, LPCWSTR error_mes, LPCWSTR error_caption)
 
 bool CConfig::IsSettingInXml(std::string lpName)
 {
-	for (auto &item : p.list)
+	for (auto& item : p.list)
 		if (item->name.compare(lpName) == 0)
 			return true;
 
@@ -487,7 +518,7 @@ bool CConfig::IsSettingInXml(std::string lpName)
 
 std::string CConfig::GetDefaultSetting(std::string name)
 {
-	for (auto &item : AllValues)
+	for (auto& item : AllValues)
 		if (item.name.compare(name) == 0)
 			return item.val;
 
@@ -496,7 +527,7 @@ std::string CConfig::GetDefaultSetting(std::string name)
 
 bool CConfig::IsVisibleSetting(std::string name)
 {
-	for (auto &item : AllValues)
+	for (auto& item : AllValues)
 		if (item.name.compare(name) == 0)
 			if (!IsHiddenSetting(name))
 				return true;
@@ -506,7 +537,7 @@ bool CConfig::IsVisibleSetting(std::string name)
 
 bool CConfig::IsHiddenSetting(std::string name)
 {
-	for (auto &item : HiddenValues)
+	for (auto& item : HiddenValues)
 		if (item.compare(name) == 0)
 			return true;
 
@@ -570,7 +601,7 @@ void CConfig::CheckAllXmlSettings(LPCWSTR error_caption)
 	// Check for missing settings in xml file
 	if (!DisableMissingSettingsWarning)
 	{
-		for (auto &item : AllValues)
+		for (auto& item : AllValues)
 		{
 			if (!IsHiddenSetting(item.name) && !IsSettingInXml(item.name))
 			{
@@ -590,7 +621,7 @@ void CConfig::CheckAllXmlSettings(LPCWSTR error_caption)
 	// Check for extra settings in xml file
 	if (!DisableExtraSettingsWarning)
 	{
-		for (auto &item : p.list)
+		for (auto& item : p.list)
 		{
 			if (!IsVisibleSetting(item->name))
 			{
@@ -610,7 +641,14 @@ void CConfig::CheckAllXmlSettings(LPCWSTR error_caption)
 	// Check default value of settings in xml file
 	if (!DisableDefaultValueWarning)
 	{
-		for (auto &item : p.list)
+		for (auto& item : AllValues)
+		{
+			if (item.name.compare("ScaleWindowedResolution") == 0)
+			{
+				item.val.assign("0");
+			}
+		}
+		for (auto& item : p.list)
 		{
 			std::string defval = GetDefaultSetting(item->name);
 			std::string xmldefval = item->GetDefaultValue();
@@ -700,7 +738,7 @@ void CConfigSection::Parse(XMLElement& xml, CConfig& cfg)
 	id = SAFESTR(cfg.SetIDString(xml.Attribute("id"), xml.Attribute("name")));
 	extra = false;
 
-	for (auto &element : {"Option", "Feature"})
+	for (auto& element : {"Option", "Feature"})
 	{
 		auto s = xml.FirstChildElement(element);
 		while (s)

@@ -418,12 +418,12 @@ void PopulateTab(int section)
 	hDesc.SetCaption(GroupString.c_str());
 	hDesc.SetText(L"");
 
-	for (auto &Ctrl : hCtrl)
+	for (auto& Ctrl : hCtrl)
 	{
 		Ctrl->Release();
 	}
 	hCtrl.clear();
-	for (auto &Group : hGroup)
+	for (auto& Group : hGroup)
 	{
 		DestroyWindow(*Group);
 	}
@@ -594,7 +594,7 @@ void GetLanguage()
 	DWORD val = 0;
 	if (ReadRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"LauncherLanguage", &val, MAX_PATH * sizeof(DWORD)))
 	{		
-		for (auto item : LangList)
+		for (auto& item : LangList)
 		{
 			if (item.RcData == val)
 			{
@@ -633,7 +633,7 @@ void GetModuleName(std::wstring& modulename)
 	*(pdest + 1) = '\0';
 
 	// Check default module names
-	for (auto entry : { L"d3d8", L"dinput8", L"dsound" })
+	for (auto& entry : { L"d3d8", L"dinput8", L"dsound" })
 	{
 		wchar_t fullpath[MAX_PATH];
 		wcscpy_s(fullpath, MAX_PATH, path);
@@ -691,7 +691,7 @@ void GetAllExeFiles()
 	*pdest = '\0';
 
 	// Interate through all files in the folder
-	for (const auto & entry : std::filesystem::directory_iterator(path))
+	for (const auto&  entry : std::filesystem::directory_iterator(path))
 	{
 		if (!entry.is_directory())
 		{
@@ -699,7 +699,7 @@ void GetAllExeFiles()
 			if (_wcsicmp(entry.path().extension().c_str(), L".exe") == 0)
 			{
 				bool Matches = false;
-				for (auto name : { toolname.c_str(), L"SH2EEconfig.exe", L"SH2EEsetup.exe" })
+				for (auto& name : { toolname.c_str(), L"SH2EEconfig.exe", L"SH2EEsetup.exe" })
 				{
 					if (_wcsicmp(entry.path().filename().c_str(), name) == 0)
 					{
@@ -719,7 +719,7 @@ void GetAllExeFiles()
 void SetLanguageSelection()
 {
 	int x = 0;
-	for (auto item : LangList)
+	for (auto& item : LangList)
 	{
 		if (item.RcData == DefaultLang)
 		{
@@ -848,7 +848,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	PopulateTab(0);
 
 	// populate language pulldown
-	for (auto item : LangList)
+	for (auto& item : LangList)
 	{
 		hDbLanguage.AddString(item.Lang);
 	}

@@ -453,7 +453,7 @@ void m_IDirectSoundBuffer8::SetStopped()
 
 void SetNewVolume()
 {
-	for (auto pBuffer : BufferList)
+	for (auto& pBuffer : BufferList)
 	{
 		pBuffer->CheckMasterVolume();
 	}

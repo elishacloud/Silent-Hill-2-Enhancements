@@ -173,7 +173,7 @@ void CheckAdminAccess()
 
 			// Remove non-applicable compatibility variables
 			std::string string(str);
-			for (auto remove : {" ", "ElevateCreateProcess"})
+			for (auto& remove : {" ", "ElevateCreateProcess"})
 			{
 				string = std::regex_replace(string, std::regex(remove), "");
 			}

@@ -944,7 +944,7 @@ bool InputTweaks::ElevatorFix()
 
 bool InputTweaks::HotelFix()
 {
-	return (GetRoomID() == R_HLT_ALT_ELEVATOR &&
+	return (GetRoomID() == R_HTL_ALT_ELEVATOR &&
 		(((std::abs(GetInGameCameraPosY() - (-840.)) < FloatTolerance) || (std::abs(GetInGameCameraPosY() - (-1350.)) < FloatTolerance))) &&
 		IsInFullScreenImageEvent());
 }

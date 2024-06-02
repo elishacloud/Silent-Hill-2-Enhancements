@@ -3810,7 +3810,7 @@ void m_IDirect3DDevice8::SetShadowFading()
 	case R_HTL_ALT_MAIN_HALL_3F:
 	case R_HTL_ALT_BAR:
 	case R_HTL_ALT_BAR_KITCHEN:
-	case R_HLT_ALT_ELEVATOR:
+	case R_HTL_ALT_ELEVATOR:
 	case R_HTL_ALT_EMPLOYEE_HALL_BF:
 	case R_HTL_ALT_FINAL_HALL:
 	case R_FINAL_BOSS_RM:

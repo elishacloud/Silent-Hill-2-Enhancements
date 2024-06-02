@@ -188,7 +188,7 @@ void RunPlayAdditionalSounds()
 		RoomID == R_HTL_ALT_MAIN_HALL_3F ||
 		RoomID == R_HTL_ALT_BAR ||
 		RoomID == R_HTL_ALT_BAR_KITCHEN ||
-		RoomID == R_HLT_ALT_ELEVATOR ||
+		RoomID == R_HTL_ALT_ELEVATOR ||
 		RoomID == R_HTL_ALT_EMPLOYEE_HALL_BF ||
 		RoomID == R_HTL_ALT_FINAL_HALL ||
 		RoomID == R_FINAL_BOSS_RM);

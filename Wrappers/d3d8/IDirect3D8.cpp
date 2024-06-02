@@ -355,15 +355,12 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 		return;
 	}
 
+	// Get updated width and height
 	BufferWidth = (pPresentationParameters->BackBufferWidth) ? pPresentationParameters->BackBufferWidth : BufferWidth;
 	BufferHeight = (pPresentationParameters->BackBufferHeight) ? pPresentationParameters->BackBufferHeight : BufferHeight;
 
-	// Get screen width and height
-	LONG screenWidth = 0, screenHeight = 0;
-	GetDesktopRes(screenWidth, screenHeight);
-
-	// Get update width and height
-	IsWindowShrunk = (ScreenMode == WINDOWED && (screenWidth < BufferWidth || screenHeight < BufferHeight));
+	// Check if window size is larger than screen resolution
+	IsWindowShrunk = (ScreenMode == WINDOWED && (DefaultWidth < BufferWidth || DefaultHeight < BufferHeight));
 
 	// Set scaled width and height
 	if (IsScaledResolutionsEnabled())
@@ -678,6 +675,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			HMONITOR MonitorHandle = GetMonitorHandle();
 			if (LastMonitorHandle && LastMonitorHandle != MonitorHandle)
 			{
+				GetDesktopRes(DefaultWidth, DefaultHeight);
 				SetResolutionList(BufferWidth, BufferHeight);
 				DeviceLost = true;
 			}

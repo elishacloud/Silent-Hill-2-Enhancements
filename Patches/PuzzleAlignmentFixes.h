@@ -25,7 +25,7 @@ struct UIElement
     struct {
         short x;
         short y;
-    } verts[4];   // If style.fourCorners == true, only verts[0] and verts[1] are used
+    } verts[4];   // If style.fourCorners == 0, only verts[0] and verts[1] are used
 
     struct {
         float u1;
@@ -54,4 +54,4 @@ struct UIElement
 };
 static_assert(sizeof(UIElement) == 0x44);
 
-void PatchGravestoneBoardsFix();
+void PatchPuzzleAlignmentFixes();

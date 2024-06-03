@@ -449,10 +449,10 @@ void DelayedStart()
 		PatchMainMenuTitlePerLang();
 	}
 
-	// Fix the boards in the BfaW gravestone puzzle being distorted when rotated
-	if (GravestoneBoardsFix)
+	// Fix puzzle alignment issues
+	if (PuzzleAlignmentFixes)
 	{
-		PatchGravestoneBoardsFix();
+		PatchPuzzleAlignmentFixes();
 	}
 
 	// Reenable game's special FX

@@ -1,4 +1,4 @@
-#include "GravestoneBoardsFix.h"
+#include "PuzzleAlignmentFixes.h"
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 #include "Patches\Patches.h"
@@ -6,14 +6,8 @@
 using DrawUserInterfaceFunc = void (*)(/* UIElement* uiElement */);
 static DrawUserInterfaceFunc DrawUserInterface = nullptr;
 
-static UIElement* uiElement = nullptr;
-
-void GravestoneBoardsHook(/* UIElement* uiElement */)
+void GravestoneBoardsFix(UIElement* uiElement)
 {
-    __asm {
-        mov uiElement, esi
-    }
-
     // Check we're in the grave room and examining the gravestone
     if (GetRoomID() == R_MAN_GRAVE_ROOM && IsInFullScreenImageEvent())
     {
@@ -44,6 +38,11 @@ void GravestoneBoardsHook(/* UIElement* uiElement */)
             uiElement->texCoords.u2 = 2542.0f;
             uiElement->texCoords.v2 = 6636.0f;
         }
+        // Anything else
+        else
+        {
+            return;
+        }
 
         // Step 2: Adjust the vertices of the boards for each orientation to properly fill the gravestone cavity
 
@@ -64,9 +63,9 @@ void GravestoneBoardsHook(/* UIElement* uiElement */)
         }
         // Rotated 180 deg
         else if (uiElement->verts[0].x > 0 && uiElement->verts[0].y > 0 &&
-                 uiElement->verts[1].x < 0 && uiElement->verts[1].y > 0 &&
-                 uiElement->verts[2].x > 0 && uiElement->verts[2].y < 0 &&
-                 uiElement->verts[3].x < 0 && uiElement->verts[3].y < 0)
+            uiElement->verts[1].x < 0 && uiElement->verts[1].y > 0 &&
+            uiElement->verts[2].x > 0 && uiElement->verts[2].y < 0 &&
+            uiElement->verts[3].x < 0 && uiElement->verts[3].y < 0)
         {
             uiElement->verts[0].x = 1287;
             uiElement->verts[0].y = 1262;
@@ -79,9 +78,9 @@ void GravestoneBoardsHook(/* UIElement* uiElement */)
         }
         // Rotated left 90 deg
         else if (uiElement->verts[0].x < 0 && uiElement->verts[0].y > 0 &&
-                 uiElement->verts[1].x < 0 && uiElement->verts[1].y < 0 &&
-                 uiElement->verts[2].x > 0 && uiElement->verts[2].y > 0 &&
-                 uiElement->verts[3].x > 0 && uiElement->verts[3].y < 0)
+            uiElement->verts[1].x < 0 && uiElement->verts[1].y < 0 &&
+            uiElement->verts[2].x > 0 && uiElement->verts[2].y > 0 &&
+            uiElement->verts[3].x > 0 && uiElement->verts[3].y < 0)
         {
             uiElement->verts[0].x = -1353;
             uiElement->verts[0].y = 1176;
@@ -93,6 +92,103 @@ void GravestoneBoardsHook(/* UIElement* uiElement */)
             uiElement->verts[3].y = -2005;
         }
     }
+}
+
+void CoinPuzzleFix(UIElement* uiElement)
+{
+    // Check we're in Apts room 105 and examining the coin puzzle
+    if (GetRoomID() == R_APT_W_RM_105 && IsInFullScreenImageEvent())
+    {
+        // Step 1: Adjust the texture coordinates for each coin to more closely match eachother
+
+        // Old man coin
+        if (uiElement->texCoords.u1 == 0.0f && uiElement->texCoords.v1 == 0.0f &&
+            uiElement->texCoords.u2 == 752.0f && uiElement->texCoords.v2 == 1008.0f)
+        {
+            uiElement->texCoords.u1 = 0.0f;
+            uiElement->texCoords.v1 = 0.0f;
+            uiElement->texCoords.u2 = 1024.0f;
+            uiElement->texCoords.v2 = 1024.0f;
+        }
+        // Snake coin
+        else if (uiElement->texCoords.u1 == 0.0f && uiElement->texCoords.v1 == 1024.0f &&
+            uiElement->texCoords.u2 == 752.0f && uiElement->texCoords.v2 == 2032.0f)
+        {
+            uiElement->texCoords.u1 = 0.0f;
+            uiElement->texCoords.v1 = 1055.0f;
+            uiElement->texCoords.u2 = 1024.0f;
+            uiElement->texCoords.v2 = 2075.0f;
+        }
+        // Prisoner coin
+        else if (uiElement->texCoords.u1 == 0.0f && uiElement->texCoords.v1 == 2048.0f &&
+            uiElement->texCoords.u2 == 752.0f && uiElement->texCoords.v2 == 3056.0f)
+        {
+            uiElement->texCoords.u1 = -4.0f;
+            uiElement->texCoords.v1 = 2082.0f;
+            uiElement->texCoords.u2 = 1028.0f;
+            uiElement->texCoords.v2 = 3108.0f;
+        }
+        // Anything else
+        else
+        {
+            return;
+        }
+
+        // Step 2: Adjust the vertices of the coins for each position to properly fill the cabinet slot
+
+        // Position 1
+        if (uiElement->verts[0].x > -3200 && uiElement->verts[0].x < -3100)
+        {
+            uiElement->verts[0].x = -3160;
+            uiElement->verts[0].y = -708;
+            uiElement->verts[1].x = -2090;
+            uiElement->verts[1].y = 362;
+        }
+        // Position 2
+        else if (uiElement->verts[0].x > -1800 && uiElement->verts[0].x < -1700)
+        {
+            uiElement->verts[0].x = -1790;
+            uiElement->verts[0].y = -682;
+            uiElement->verts[1].x = -720;
+            uiElement->verts[1].y = 388;
+        }
+        // Position 3
+        else if (uiElement->verts[0].x > -500 && uiElement->verts[0].x < -400)
+        {
+            uiElement->verts[0].x = -414;
+            uiElement->verts[0].y = -650;
+            uiElement->verts[1].x = 656;
+            uiElement->verts[1].y = 420;
+        }
+        // Position 4
+        else if (uiElement->verts[0].x > 900 && uiElement->verts[0].x < 1000)
+        {
+            uiElement->verts[0].x = 962;
+            uiElement->verts[0].y = -612;
+            uiElement->verts[1].x = 2032;
+            uiElement->verts[1].y = 458;
+        }
+        // Position 5
+        else if (uiElement->verts[0].x > 2300 && uiElement->verts[0].x < 2400)
+        {
+            uiElement->verts[0].x = 2348;
+            uiElement->verts[0].y = -580;
+            uiElement->verts[1].x = 3418;
+            uiElement->verts[1].y = 490;
+        }
+    }
+}
+
+void PuzzleAlignmentFixesHook(/* UIElement* uiElement */)
+{
+    static UIElement* uiElement = nullptr;
+
+    __asm {
+        mov uiElement, esi
+    }
+
+    GravestoneBoardsFix(uiElement);
+    CoinPuzzleFix(uiElement);
 
     __asm {
         mov esi, uiElement
@@ -101,7 +197,7 @@ void GravestoneBoardsHook(/* UIElement* uiElement */)
     DrawUserInterface(/* uiElement */);
 }
 
-void PatchGravestoneBoardsFix()
+void PatchPuzzleAlignmentFixes()
 {
     switch (GameVersion)
     {
@@ -128,5 +224,5 @@ void PatchGravestoneBoardsFix()
     }
 
     Logging::Log() << "Patching Gravestone Boards Fix...";
-    WriteCalltoMemory((BYTE*)DrawUserInterfaceAddr, GravestoneBoardsHook);
+    WriteCalltoMemory((BYTE*)DrawUserInterfaceAddr, PuzzleAlignmentFixesHook);
 }

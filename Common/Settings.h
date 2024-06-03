@@ -75,7 +75,7 @@
 	visit(GameLoadFix, true) \
 	visit(GameLoadFlashFix, true) \
 	visit(GamepadControlsFix, true) \
-	visit(GravestoneBoardsFix, true) \
+	visit(PuzzleAlignmentFixes, true) \
 	visit(HalogenLightFix, true) \
 	visit(HealthIndicatorOption, true) \
 	visit(HookDirect3D, true) \

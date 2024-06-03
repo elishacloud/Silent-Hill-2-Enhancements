@@ -30,10 +30,11 @@ class CConfig;
 
 using namespace tinyxml2;
 
-static XXH64_hash_t Hash64(const char* name)
+static XXH64_hash_t Hash64(std::string name)
 {
-	std::string str(std::string(name) + "zz");
-	return XXH64(str.c_str(), str.size() - 1, 0);
+	// Ensure string is at least 64 characters long
+	std::string str(name + "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
+	return XXH64(str.c_str(), max(name.size(), 64), 0);
 }
 
 class CHashString

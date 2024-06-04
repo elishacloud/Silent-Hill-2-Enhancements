@@ -41,6 +41,7 @@ DWORD GetBitCount(D3DFORMAT Format);
 void RestorePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters);
 void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND hFocusWindow);
 void UpdatePresentParameterForMultisample(D3DPRESENT_PARAMETERS* pPresentationParameters, D3DMULTISAMPLE_TYPE MultiSampleType);
+bool IsScaledResolutionsEnabled();
 void SetScreenAndWindowSize();
 void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight);
 void RunPresentCode(IDirect3DDevice8* ProxyInterface);

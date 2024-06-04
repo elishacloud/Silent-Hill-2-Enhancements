@@ -163,7 +163,7 @@ void GetTextureOnLoad()
 {
 	if (TexNameAddr && *TexNameAddr)
 	{
-		for (auto TexItem : DefaultTextureList)
+		for (auto& TexItem : DefaultTextureList)
 		{
 			if (TexItem.IsReference && strcmp(TexItem.Name, *TexNameAddr) == 0)
 			{

@@ -19,6 +19,9 @@
 #include "Common\Utils.h"
 
 Direct3DCreate8Proc m_pDirect3DCreate8 = nullptr;
+Direct3DCreate8Proc m_pDirect3DCreate8_d3d8to9 = nullptr;
+Direct3DCreate8Proc m_pDirect3DCreate8_script = nullptr;
+Direct3DCreate8Proc m_pDirect3DCreate8_local = nullptr;
 
 HMODULE GetD3d8ScriptDll()
 {
@@ -81,30 +84,77 @@ void HookDirect3DCreate8(HMODULE ScriptDll)
 		return;
 	}
 
+	// Get function address
+	m_pDirect3DCreate8 = (Direct3DCreate8Proc)(Address + 5 + *(DWORD*)(Address + 1));
+
 	// Get defined d3d8 script wrapper
 	if (ScriptDll)
 	{
-		m_pDirect3DCreate8 = (Direct3DCreate8Proc)GetProcAddress(ScriptDll, "Direct3DCreate8");
-	}
-
-	// Get function address
-	if (!m_pDirect3DCreate8)
-	{
-		m_pDirect3DCreate8 = (Direct3DCreate8Proc)(Address + 5 + *(DWORD*)(Address + 1));
+		m_pDirect3DCreate8_script = (Direct3DCreate8Proc)GetProcAddress(ScriptDll, "Direct3DCreate8");
 	}
 
 	// Write to memory
 	WriteCalltoMemory((BYTE*)Address, *Direct3DCreate8Wrapper, 5);
 }
 
+// Get 'Direct3DCreate8' for local d3d8.dll
+bool GetLocalDirect3DCreate8()
+{
+	// Only allow function to run once
+	static bool AlreadyRun = false;
+	if (AlreadyRun)
+	{
+		return (m_pDirect3DCreate8_local != nullptr);
+	}
+	AlreadyRun = true;
+
+	// Get proc address
+	char Path[MAX_PATH] = {};
+	GetModulePath(Path, MAX_PATH);
+	strcat_s(Path, "\\d3d8.dll");
+	HMODULE h_d3d8 = LoadLibraryA(Path);
+	if (h_d3d8)
+	{
+		m_pDirect3DCreate8_local = (Direct3DCreate8Proc)GetProcAddress(h_d3d8, "Direct3DCreate8");
+		if (m_pDirect3DCreate8_local)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 IDirect3D8 *WINAPI Direct3DCreate8Wrapper(UINT SDKVersion)
 {
 	LOG_LIMIT(3, "Redirecting 'Direct3DCreate8' ...");
 
-	LPDIRECT3D8 pD3D8 = m_pDirect3DCreate8(SDKVersion);
+	LPDIRECT3D8 pD3D8 = nullptr;
 
-	RunDelayedOneTimeItems();
+	// Try loading d3d8to9
+	if (m_pDirect3DCreate8_d3d8to9)
+	{
+		pD3D8 = m_pDirect3DCreate8_d3d8to9(SDKVersion);
+	}
 
+	// Try loading script version of dll
+	if (!pD3D8 && m_pDirect3DCreate8_script)
+	{
+		pD3D8 = m_pDirect3DCreate8_script(SDKVersion);
+	}
+
+	// Try loading local version of dll
+	if (!pD3D8 && GetLocalDirect3DCreate8())
+	{
+		pD3D8 = m_pDirect3DCreate8_local(SDKVersion);
+	}
+
+	// Try loading base version of dll
+	if (!pD3D8 && m_pDirect3DCreate8)
+	{
+		pD3D8 = m_pDirect3DCreate8(SDKVersion);
+	}
+
+	// Check device creation
 	if (!pD3D8)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: 'Direct3DCreate8' Failed!";
@@ -116,6 +166,8 @@ IDirect3D8 *WINAPI Direct3DCreate8Wrapper(UINT SDKVersion)
 	{
 		Logging::Log() << __FUNCTION__ << " Warning: WineD3D detected!  It is not recommended to use WineD3D with Silent Hill 2 Enhancements.";
 	}
+
+	RunDelayedOneTimeItems();
 
 	return new m_IDirect3D8(pD3D8);
 }

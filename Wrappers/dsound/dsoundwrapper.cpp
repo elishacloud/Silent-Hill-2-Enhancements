@@ -21,6 +21,8 @@
 AddressLookupTableDsound<void> ProxyAddressLookupTableDsound = AddressLookupTableDsound<void>();
 
 DirectSoundCreate8Proc m_pDirectSoundCreate8 = nullptr;
+DirectSoundCreate8Proc m_pDirectSoundCreate8_local = nullptr;
+DirectSoundCreate8Proc m_pDirectSoundCreate8_system32 = nullptr;
 
 // Hook dsound API
 void HookDirectSoundCreate8()
@@ -43,13 +45,68 @@ void HookDirectSoundCreate8()
 	WriteCalltoMemory((BYTE*)Address, *DirectSoundCreate8Wrapper, 5);
 }
 
+// Get 'DirectSoundCreate8' for local dsound.dll
+bool GetLocalDirectSoundCreate8()
+{
+	// Only allow function to run once
+	static bool AlreadyRun = false;
+	if (AlreadyRun)
+	{
+		return (m_pDirectSoundCreate8_local != nullptr);
+	}
+	AlreadyRun = true;
+
+	// Get proc address
+	char Path[MAX_PATH] = {};
+	GetModulePath(Path, MAX_PATH);
+	strcat_s(Path, "\\dsound.dll");
+	HMODULE h_dsound = LoadLibraryA(Path);
+	if (h_dsound)
+	{
+		m_pDirectSoundCreate8_local = (DirectSoundCreate8Proc)GetProcAddress(h_dsound, "DirectSoundCreate8");
+		if (m_pDirectSoundCreate8_local)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+// Get 'DirectSoundCreate8' for System32 dsound.dll
+bool GetSystem32DirectSoundCreate8()
+{
+	// Only allow function to run once
+	static bool AlreadyRun = false;
+	if (AlreadyRun)
+	{
+		return (m_pDirectSoundCreate8_system32 != nullptr);
+	}
+	AlreadyRun = true;
+
+	// Get proc address
+	char Path[MAX_PATH] = {};
+	GetSystemDirectoryA(Path, MAX_PATH);
+	strcat_s(Path, "\\dsound.dll");
+	HMODULE h_dsound = LoadLibraryA(Path);
+	if (h_dsound)
+	{
+		m_pDirectSoundCreate8_system32 = (DirectSoundCreate8Proc)GetProcAddress(h_dsound, "DirectSoundCreate8");
+		if (m_pDirectSoundCreate8_system32)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 // Dsound DirectSoundCreate8 API wrapper
-HRESULT WINAPI DirectSoundCreate8Wrapper(LPCGUID pcGuidDevice, LPDIRECTSOUND8 *ppDS8, LPUNKNOWN pUnkOuter)
+HRESULT WINAPI DirectSoundCreate8Wrapper(LPCGUID pcGuidDevice, LPDIRECTSOUND8* ppDS8, LPUNKNOWN pUnkOuter)
 {
 	LOG_LIMIT(3, "Redirecting 'DirectSoundCreate8' ...");
 
-	// Try using dsoal with OpenAL-Soft
 	HRESULT hr = DSERR_GENERIC;
+
+	// Try using dsoal with OpenAL-Soft
 	if (UseDSOAL)
 	{
 		hr = DSOAL_DirectSoundCreate8(pcGuidDevice, ppDS8, pUnkOuter);
@@ -59,45 +116,32 @@ HRESULT WINAPI DirectSoundCreate8Wrapper(LPCGUID pcGuidDevice, LPDIRECTSOUND8 *p
 		}
 	}
 
-	// Failover to local dsound.dll
-	if (FAILED(hr))
+	// Try loading local version of dll
+	if (FAILED(hr) && GetLocalDirectSoundCreate8())
+	{
+		hr = m_pDirectSoundCreate8_local(pcGuidDevice, ppDS8, pUnkOuter);
+	}
+
+	// Try loading base version of dll
+	if (FAILED(hr) && m_pDirectSoundCreate8)
 	{
 		hr = m_pDirectSoundCreate8(pcGuidDevice, ppDS8, pUnkOuter);
 	}
 
-	// Failover to System32 dsound.dll
+	// Try loading System32 version of dll
+	if (FAILED(hr) && GetSystem32DirectSoundCreate8())
+	{
+		hr = m_pDirectSoundCreate8_system32(pcGuidDevice, ppDS8, pUnkOuter);
+	}
+
+	// Check device creation
 	if (FAILED(hr))
 	{
-		// Get System32 path
-		wchar_t systemFolderPath[MAX_PATH] = {};
-		if (GetSystemDirectoryW(systemFolderPath, MAX_PATH))
-		{
-			std::wstring dllPath = std::wstring(systemFolderPath) + L"\\dsound.dll";
-
-			// Load dsound.dll from System32
-			HMODULE dsoundDLL = LoadLibrary(dllPath.c_str());
-			if (dsoundDLL)
-			{
-				DirectSoundCreate8Proc pDirectSoundCreate8 = (DirectSoundCreate8Proc)GetProcAddress(dsoundDLL, "DirectSoundCreate8");
-
-				// Call DirectSoundCreate8 from System32
-				if (pDirectSoundCreate8)
-				{
-					Logging::Log() << __FUNCTION__ << " local 'DirectSoundCreate8' Failed! Error: " << (DSERR)hr << " Atepmting to use system dsound.dll.";
-					hr = pDirectSoundCreate8(pcGuidDevice, ppDS8, pUnkOuter);
-				}
-			}
-		}
-	}
-
-	if (SUCCEEDED(hr))
-	{
-		*ppDS8 = new m_IDirectSound8(*ppDS8);
-	}
-	else
-	{
 		Logging::Log() << "'DirectSoundCreate8' Failed! Error: " << (DSERR)hr;
+		return hr;
 	}
+
+	*ppDS8 = new m_IDirectSound8(*ppDS8);
 
 	RunDelayedOneTimeItems();
 

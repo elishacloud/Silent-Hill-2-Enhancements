@@ -27,6 +27,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenAL", "External\dsoal\op
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dsoal", "External\dsoal\dsoal.vcxproj", "{457D22C0-E3D3-4BF7-BD01-144A085C7B75}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "d3dx", "d3dx\d3dx.vcxproj", "{5117B33A-8FA9-4074-A340-8E4E11C9568D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -76,6 +78,12 @@ Global
 		{457D22C0-E3D3-4BF7-BD01-144A085C7B75}.Release|Win32.Build.0 = Release|Win32
 		{457D22C0-E3D3-4BF7-BD01-144A085C7B75}.Workflow|Win32.ActiveCfg = Workflow|Win32
 		{457D22C0-E3D3-4BF7-BD01-144A085C7B75}.Workflow|Win32.Build.0 = Workflow|Win32
+		{5117B33A-8FA9-4074-A340-8E4E11C9568D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5117B33A-8FA9-4074-A340-8E4E11C9568D}.Debug|Win32.Build.0 = Debug|Win32
+		{5117B33A-8FA9-4074-A340-8E4E11C9568D}.Release|Win32.ActiveCfg = Release|Win32
+		{5117B33A-8FA9-4074-A340-8E4E11C9568D}.Release|Win32.Build.0 = Release|Win32
+		{5117B33A-8FA9-4074-A340-8E4E11C9568D}.Workflow|Win32.ActiveCfg = Workflow|Win32
+		{5117B33A-8FA9-4074-A340-8E4E11C9568D}.Workflow|Win32.Build.0 = Workflow|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -87,6 +95,7 @@ Global
 		{8C8236B6-D2B8-380E-B18F-BD996ABA53C4} = {11B78243-91C3-4357-9FDD-4EAFBF4EE52B}
 		{CC004D4B-A618-3FEC-837B-CAA03225A2E7} = {11B78243-91C3-4357-9FDD-4EAFBF4EE52B}
 		{457D22C0-E3D3-4BF7-BD01-144A085C7B75} = {11B78243-91C3-4357-9FDD-4EAFBF4EE52B}
+		{5117B33A-8FA9-4074-A340-8E4E11C9568D} = {11B78243-91C3-4357-9FDD-4EAFBF4EE52B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D62E660A-3A0C-4026-8DCB-D3B7959E0951}

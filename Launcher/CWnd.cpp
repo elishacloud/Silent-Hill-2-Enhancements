@@ -15,7 +15,7 @@
 *
 * Code taken from: https://github.com/Gemini-Loboto3/SH2config
 *
-* Updated by Elisha Riedlinger 2023
+* Updated by Elisha Riedlinger 2024
 */
 
 #include "CWnd.h"

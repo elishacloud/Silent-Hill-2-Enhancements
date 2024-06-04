@@ -112,7 +112,7 @@ BOOL CheckIfInCutscene()
 		return TRUE;
 	}
 	// Alt Hotel flooded elevator ride
-	else if (GetRoomID() == R_HLT_ALT_ELEVATOR && GetJamesPosZ() == -56599.01953f && GetFullscreenImageEvent() == 2)
+	else if (GetRoomID() == R_HTL_ALT_ELEVATOR && GetJamesPosZ() == -56599.01953f && GetFullscreenImageEvent() == 2)
 	{
 		return TRUE;
 	}

@@ -336,7 +336,7 @@ typedef enum _ROOMID {
 	R_HTL_ALT_MAIN_HALL_3F = 0xB5,
 	R_HTL_ALT_BAR = 0xB6,
 	R_HTL_ALT_BAR_KITCHEN = 0xB7,
-	R_HLT_ALT_ELEVATOR = 0xB8,
+	R_HTL_ALT_ELEVATOR = 0xB8,
 	R_HTL_ALT_EMPLOYEE_HALL_BF = 0xB9,
 	R_HTL_ALT_FINAL_HALL = 0xBA,
 	R_FINAL_BOSS_RM = 0xBB,
@@ -631,7 +631,6 @@ void PatchFullscreenVideos();
 void PatchGameLoad();
 void PatchGameLoadFlashFix();
 void PatchHealthIndicatorOption();
-void PatchGravestoneBoardsFix();
 void PatchGreatKnifeBoatSpeed();
 void PatchHoldDamage();
 void PatchHoldToStomp();
@@ -655,6 +654,7 @@ void PatchPreventChainsawSpawn();
 void PatchPrisonerTimer();
 void PatchPS2Flashlight();
 void PatchPS2NoiseFilter();
+void PatchPuzzleAlignmentFixes();
 void PatchQuickSaveTweaks();
 void PatchQuickSaveCancelFix();
 void PatchRedCrossInCutscene();

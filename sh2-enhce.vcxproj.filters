@@ -437,7 +437,7 @@
     <ClCompile Include="Patches\AtticShadowFixes.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
-    <ClCompile Include="Patches\GravestoneBoardsFix.cpp">
+    <ClCompile Include="Patches\PuzzleAlignmentFixes.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
     <ClCompile Include="Patches\ShowerRoomFlashlightFix.cpp">
@@ -673,7 +673,7 @@
     <ClInclude Include="Common\GfxUtils.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="Patches\GravestoneBoardsFix.h">
+    <ClInclude Include="Patches\PuzzleAlignmentFixes.h">
       <Filter>Patches</Filter>
     </ClInclude>
   </ItemGroup>

@@ -483,7 +483,7 @@ HRESULT m_IDirect3DDevice8::CreateRenderTarget(THIS_ UINT Width, UINT Height, D3
 	}
 
 	HRESULT hr = D3DERR_INVALIDCALL;
-	if (UsingScaledResolutions)
+	if (IsScaledResolutionsEnabled())
 	{
 		// Create render texture
 		IDirect3DTexture8* pTexture = nullptr;
@@ -509,7 +509,7 @@ HRESULT m_IDirect3DDevice8::CreateRenderTarget(THIS_ UINT Width, UINT Height, D3
 	if (SUCCEEDED(hr) && ppSurface)
 	{
 		*ppSurface = new m_IDirect3DSurface8(*ppSurface, this);
-		if (UsingScaledResolutions)
+		if (IsScaledResolutionsEnabled())
 		{
 			(*ppSurface)->QueryInterface(IID_SetSurfaceOfTexture, nullptr);
 		}
@@ -720,7 +720,7 @@ HRESULT m_IDirect3DDevice8::GetRenderTarget(THIS_ IDirect3DSurface8** ppRenderTa
 
 	if (SUCCEEDED(hr) && ppRenderTarget)
 	{
-		if (UsingScaledResolutions && *ppRenderTarget == pAutoRenderTarget)
+		if (IsScaledResolutionsEnabled() && *ppRenderTarget == pAutoRenderTarget)
 		{
 			(*ppRenderTarget)->Release();
 			*ppRenderTarget = pAutoRenderSurfaceMirror;
@@ -861,7 +861,7 @@ HRESULT m_IDirect3DDevice8::SetRenderTarget(THIS_ IDirect3DSurface8* pRenderTarg
 		}
 
 		// Check if game is trying to reassign render target
-		if (UsingScaledResolutions && pRenderTarget == pAutoRenderSurfaceMirror)
+		if (IsScaledResolutionsEnabled() && pRenderTarget == pAutoRenderSurfaceMirror)
 		{
 			if (pRenderSurfaceLast == pRenderSurface1)
 			{
@@ -1381,7 +1381,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 	}
 
 	bool PauseMenuFlag = false;
-	if (UsingScaledResolutions)
+	if (IsScaledResolutionsEnabled())
 	{
 		// Fix pause menu before drawing scaled surface
 		PauseMenuFlag = FixPauseMenuOnPresent();
@@ -1422,7 +1422,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 	ClearScreen = true;
 
 	// Fix pause menu before Present if not using a scaled surface
-	if (!UsingScaledResolutions)
+	if (!IsScaledResolutionsEnabled())
 	{
 		PauseMenuFlag = FixPauseMenuOnPresent();
 	}
@@ -1435,7 +1435,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 		IsGetFrontBufferCalled = (GetTransitionState() == FADE_TO_BLACK || GetLoadingScreen() != 0) ? IsGetFrontBufferCalled : false;
 
 		// Set shader disable flag
-		DisableShaderOnPresent = !UsingScaledResolutions && (IsGetFrontBufferCalled || (PauseScreenFix && (GetEventIndex() == EVENT_PAUSE_MENU || (LastEvent == EVENT_PAUSE_MENU && IsSnapshotTextureSet))));
+		DisableShaderOnPresent = !IsScaledResolutionsEnabled() && (IsGetFrontBufferCalled || (PauseScreenFix && (GetEventIndex() == EVENT_PAUSE_MENU || (LastEvent == EVENT_PAUSE_MENU && IsSnapshotTextureSet))));
 
 		// Reset variables
 		LastEvent = GetEventIndex();
@@ -2414,7 +2414,7 @@ HRESULT m_IDirect3DDevice8::GetBackBuffer(THIS_ UINT iBackBuffer, D3DBACKBUFFER_
 
 	if (SUCCEEDED(hr) && ppBackBuffer)
 	{
-		if (UsingScaledResolutions && *ppBackBuffer == pAutoRenderTarget)
+		if (IsScaledResolutionsEnabled() && *ppBackBuffer == pAutoRenderTarget)
 		{
 			(*ppBackBuffer)->Release();
 			*ppBackBuffer = pAutoRenderSurfaceMirror;
@@ -3103,7 +3103,7 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 		return D3DERR_INVALIDCALL;
 	}
 
-	if (UsingScaledResolutions && pRenderSurfaceLast)
+	if (IsScaledResolutionsEnabled() && pRenderSurfaceLast)
 	{
 		D3DSURFACE_DESC SrcDesc = {};
 		pRenderSurfaceLast->GetDesc(&SrcDesc);
@@ -3810,7 +3810,7 @@ void m_IDirect3DDevice8::SetShadowFading()
 	case R_HTL_ALT_MAIN_HALL_3F:
 	case R_HTL_ALT_BAR:
 	case R_HTL_ALT_BAR_KITCHEN:
-	case R_HLT_ALT_ELEVATOR:
+	case R_HTL_ALT_ELEVATOR:
 	case R_HTL_ALT_EMPLOYEE_HALL_BF:
 	case R_HTL_ALT_FINAL_HALL:
 	case R_FINAL_BOSS_RM:
@@ -3873,7 +3873,7 @@ void m_IDirect3DDevice8::SetShadowFading()
 
 void m_IDirect3DDevice8::SetScaledBackbuffer()
 {
-	if (!UsingScaledResolutions)
+	if (!IsScaledResolutionsEnabled())
 	{
 		return;
 	}

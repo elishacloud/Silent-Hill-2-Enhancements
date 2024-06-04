@@ -168,7 +168,7 @@ void RunHotelWater()
 		switch (GetRoomID())
 		{
 		case R_HTL_ALT_BAR:
-		case R_HLT_ALT_ELEVATOR:
+		case R_HTL_ALT_ELEVATOR:
 		case R_HTL_ALT_EMPLOYEE_HALL_BF:
 		case R_FINAL_BOSS_RM:
 			RoomsMatch = true;

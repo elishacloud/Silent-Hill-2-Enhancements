@@ -1,0 +1,17 @@
+About sh2pc.ips:
+
+ - Removes CD protection
+ - Adds code to load d3dx.dll
+ - Adds an icon into the file
+
+last updated 6/3/2024
+
+Original file:
+MD5: c16ed8436fdcfc53a07ab21723994770
+SHA-1: 41f100f3f93b448bee739342acb9539c428dc1c8
+SHA-256: ff8aac516350b4e0db182bb18f98e760742bc482fc4dc4ad52f04ef276e7207e
+
+Patched file:
+MD5: edfa1f826b49ea177473130d82185bb8
+SHA-1: 6a3780b59839190f0d55f2b5129e061a5c92cbae
+SHA-256: b6d43474347a935b4cc1a49fe2a4efaf36a054ab0a093b9deb1cb7253260b8ea

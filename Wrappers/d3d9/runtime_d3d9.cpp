@@ -184,8 +184,6 @@ void reshade::d3d9::runtime_d3d9::reset_gamma(bool reload)
 			runtime::on_reset(false);
 
 			runtime::on_init(nullptr);
-
-			update_and_render_effects();
 		}
 	});
 }

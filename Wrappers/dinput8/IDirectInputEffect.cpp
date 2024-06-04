@@ -250,7 +250,7 @@ void PatchXInputVibration()
 	}
 
 	// Load xinput module
-	for (auto dllname : { L"xinput1_4.dll" , L"xinput9_1_0.dll",  L"xinput1_3.dll",  L"xinput1_2.dll",  L"xinput1_1.dll" })
+	for (auto& dllname : { L"xinput1_4.dll" , L"xinput9_1_0.dll",  L"xinput1_3.dll",  L"xinput1_2.dll",  L"xinput1_1.dll" })
 	{
 		HMODULE dll = LoadLibrary(dllname);
 		if (dll)

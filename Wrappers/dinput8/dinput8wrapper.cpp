@@ -21,6 +21,7 @@
 AddressLookupTableDinput8<void> ProxyAddressLookupTableDinput8 = AddressLookupTableDinput8<void>();
 
 DirectInput8CreateProc m_pDirectInput8Create = nullptr;
+DirectInput8CreateProc m_pDirectInput8Create_local = nullptr;
 
 bool LostWindowFocus = false;
 HWND CooperativeLevelWindow = nullptr;
@@ -47,29 +48,68 @@ void HookDirectInput8Create()
 	WriteCalltoMemory((BYTE*)Address, *DirectInput8CreateWrapper, 5);
 }
 
+// Get 'DirectInput8Create' for local dinput8.dll
+bool GetLocalDirectInput8Create()
+{
+	// Only allow function to run once
+	static bool AlreadyRun = false;
+	if (AlreadyRun)
+	{
+		return (m_pDirectInput8Create_local != nullptr);
+	}
+	AlreadyRun = true;
+
+	// Get proc address
+	HMODULE h_dinput8 = nullptr;
+	char Path[MAX_PATH] = {};
+	GetModulePath(Path, MAX_PATH);
+	strcat_s(Path, "\\dinput8.dll");
+	GetModuleHandleExA(NULL, Path, &h_dinput8);
+	if (h_dinput8)
+	{
+		m_pDirectInput8Create_local = (DirectInput8CreateProc)GetProcAddress(h_dinput8, "DirectInput8Create");
+		if (m_pDirectInput8Create_local)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 // Dinput8 DirectInput8Create API wrapper
-HRESULT WINAPI DirectInput8CreateWrapper(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID * ppvOut, LPUNKNOWN punkOuter)
+HRESULT WINAPI DirectInput8CreateWrapper(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID* ppvOut, LPUNKNOWN punkOuter)
 {
 	LOG_LIMIT(3, "Redirecting 'DirectInput8Create' ...");
 
-	HRESULT hr = m_pDirectInput8Create(hinst, dwVersion, riidltf, ppvOut, punkOuter);
+	HRESULT hr = DIERR_GENERIC;
 
-	RunDelayedOneTimeItems();
-
-	if (SUCCEEDED(hr))
+	// Try loading local version of dll
+	if (GetLocalDirectInput8Create())
 	{
-		if (riidltf == IID_IDirectInput8A)
-		{
-			*ppvOut = new m_IDirectInput8A((IDirectInput8A*)*ppvOut);
-		}
-		else
-		{
-			genericQueryInterface(riidltf, ppvOut);
-		}
+		hr = m_pDirectInput8Create_local(hinst, dwVersion, riidltf, ppvOut, punkOuter);
+	}
+
+	// Try loading base version of dll
+	if (FAILED(hr) && m_pDirectInput8Create)
+	{
+		hr = m_pDirectInput8Create(hinst, dwVersion, riidltf, ppvOut, punkOuter);
+	}
+
+	// Check device creation
+	if (FAILED(hr))
+	{
+		Logging::Log() << "'DirectInput8Create' Failed! Error: " << (DIERR)hr;
+		return hr;
+	}
+
+	// Check riid
+	if (riidltf == IID_IDirectInput8A)
+	{
+		*ppvOut = new m_IDirectInput8A((IDirectInput8A*)*ppvOut);
 	}
 	else
 	{
-		Logging::Log() << "'DirectInput8Create' Failed! Error: " << (DIERR)hr;
+		genericQueryInterface(riidltf, ppvOut);
 	}
 
 	// Set window hook to check when SH2 loses focus
@@ -88,6 +128,8 @@ HRESULT WINAPI DirectInput8CreateWrapper(HINSTANCE hinst, DWORD dwVersion, REFII
 		// Reset FirstRun
 		FirstRun = false;
 	}
+
+	RunDelayedOneTimeItems();
 
 	return hr;
 }

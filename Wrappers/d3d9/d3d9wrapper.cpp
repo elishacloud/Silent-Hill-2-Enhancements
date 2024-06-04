@@ -24,6 +24,7 @@
 #include "External\Hooking\Hook.h"
 
 Direct3DCreate9Proc m_pDirect3DCreate9 = nullptr;
+Direct3DCreate9Proc m_pDirect3DCreate9_local = nullptr;
 Direct3DCreate9On12Proc m_pDirect3DCreate9On12 = nullptr;
 
 HMODULE GetSystemD3d9()
@@ -40,6 +41,83 @@ HMODULE GetSystemD3d9()
 	}
 
 	return h_d3d9;
+}
+
+// Get 'Direct3DCreate9On12' for d3d9.dll
+bool GetDirect3DCreate9On12()
+{
+	// Only allow function to run once
+	static bool AlreadyRun = false;
+	if (AlreadyRun)
+	{
+		return (m_pDirect3DCreate9On12 != nullptr);
+	}
+	AlreadyRun = true;
+
+	// Load d3d9.dll
+	HMODULE h_d3d9 = GetSystemD3d9();
+	if (h_d3d9)
+	{
+		m_pDirect3DCreate9On12 = (Direct3DCreate9On12Proc)GetProcAddress(h_d3d9, "Direct3DCreate9On12");
+		if (m_pDirect3DCreate9On12)
+		{
+			return true;
+		}
+	}
+	Logging::Log() << __FUNCTION__ << " Warning: Failed to get `Direct3DCreate9On12` proc!";
+	return false;
+}
+
+// Get 'Direct3DCreate9' for d3d9.dll
+bool GetDirect3DCreate9()
+{
+	// Only allow function to run once
+	static bool AlreadyRun = false;
+	if (AlreadyRun)
+	{
+		return (m_pDirect3DCreate9 != nullptr);
+	}
+	AlreadyRun = true;
+
+	HMODULE h_d3d9 = LoadLibrary(L"d3d9.dll");
+	if (h_d3d9)
+	{
+		m_pDirect3DCreate9 = (Direct3DCreate9Proc)GetProcAddress(h_d3d9, "Direct3DCreate9");
+		if (m_pDirect3DCreate9)
+		{
+			return true;
+		}
+	}
+	Logging::Log() << __FUNCTION__ << " Warning: Failed to get `Direct3DCreate9` proc!";
+	return false;
+}
+
+// Get 'Direct3DCreate9' for local d3d9.dll
+bool GetLocalDirect3DCreate9()
+{
+	// Only allow function to run once
+	static bool AlreadyRun = false;
+	if (AlreadyRun)
+	{
+		return (m_pDirect3DCreate9_local != nullptr);
+	}
+	AlreadyRun = true;
+
+	// Get proc address
+	HMODULE h_d3d9 = nullptr;
+	char Path[MAX_PATH] = {};
+	GetModulePath(Path, MAX_PATH);
+	strcat_s(Path, "\\d3d9.dll");
+	GetModuleHandleExA(NULL, Path, &h_d3d9);
+	if (h_d3d9)
+	{
+		m_pDirect3DCreate9_local = (Direct3DCreate9Proc)GetProcAddress(h_d3d9, "Direct3DCreate9");
+		if (m_pDirect3DCreate9_local)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 FARPROC GetD3d9UnnamedOrdinal(WORD Ordinal)
@@ -171,8 +249,6 @@ void WINAPI Direct3D9DisableMaximizedWindowedMode()
 
 IDirect3D9* WINAPI Direct3DCreate9Wrapper(UINT SDKVersion)
 {
-	IDirect3D9* pD3D9 = nullptr;
-
 	if (ForceHybridEnumeration)
 	{
 		Direct3D9ForceHybridEnumeration(1);
@@ -188,8 +264,10 @@ IDirect3D9* WINAPI Direct3DCreate9Wrapper(UINT SDKVersion)
 		Direct3D9DisableMaximizedWindowedMode();
 	}
 
-	// Direct3DCreate9On12
-	if (m_pDirect3DCreate9On12)
+	IDirect3D9* pD3D9 = nullptr;
+
+	// Try loading 9On12 version of dll
+	if (Direct3DCreate9On12 && GetDirect3DCreate9On12())
 	{
 		Logging::Log() << __FUNCTION__ << " Attempting to load 'Direct3DCreate9On12'...";
 
@@ -201,15 +279,16 @@ IDirect3D9* WINAPI Direct3DCreate9Wrapper(UINT SDKVersion)
 		// Call function
 		pD3D9 = m_pDirect3DCreate9On12(SDKVersion, &args, 1);
 	}
-	// Direct3DCreate9
-	else
-	{
-		if (!m_pDirect3DCreate9)
-		{
-			Logging::Log() << __FUNCTION__ << " Error: failed to find 'Direct3DCreate9'";
-			return nullptr;
-		}
 
+	// Try loading local version of dll
+	if (!pD3D9 && GetLocalDirect3DCreate9())
+	{
+		pD3D9 = m_pDirect3DCreate9_local(SDKVersion);
+	}
+
+	// Try loading base version of dll
+	if (!pD3D9 && GetDirect3DCreate9())
+	{
 		pD3D9 = m_pDirect3DCreate9(SDKVersion);
 	}
 

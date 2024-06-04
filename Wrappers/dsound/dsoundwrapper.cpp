@@ -57,11 +57,10 @@ bool GetLocalDirectSoundCreate8()
 	AlreadyRun = true;
 
 	// Get proc address
-	HMODULE h_dsound = nullptr;
 	char Path[MAX_PATH] = {};
 	GetModulePath(Path, MAX_PATH);
 	strcat_s(Path, "\\dsound.dll");
-	GetModuleHandleExA(NULL, Path, &h_dsound);
+	HMODULE h_dsound = LoadLibraryA(Path);
 	if (h_dsound)
 	{
 		m_pDirectSoundCreate8_local = (DirectSoundCreate8Proc)GetProcAddress(h_dsound, "DirectSoundCreate8");
@@ -85,11 +84,10 @@ bool GetSystem32DirectSoundCreate8()
 	AlreadyRun = true;
 
 	// Get proc address
-	HMODULE h_dsound = nullptr;
 	char Path[MAX_PATH] = {};
 	GetSystemDirectoryA(Path, MAX_PATH);
 	strcat_s(Path, "\\dsound.dll");
-	GetModuleHandleExA(NULL, Path, &h_dsound);
+	HMODULE h_dsound = LoadLibraryA(Path);
 	if (h_dsound)
 	{
 		m_pDirectSoundCreate8_system32 = (DirectSoundCreate8Proc)GetProcAddress(h_dsound, "DirectSoundCreate8");

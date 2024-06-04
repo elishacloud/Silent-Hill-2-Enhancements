@@ -863,7 +863,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		}
 
 		// Set things to load on delayed access
-		if (!SetDelayedStart())
+		if (GetModuleHandleA("d3dx.dll") || !SetDelayedStart())
 		{
 			DelayedStart();
 		}

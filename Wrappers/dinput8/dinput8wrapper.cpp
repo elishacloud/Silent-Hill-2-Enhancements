@@ -60,11 +60,10 @@ bool GetLocalDirectInput8Create()
 	AlreadyRun = true;
 
 	// Get proc address
-	HMODULE h_dinput8 = nullptr;
 	char Path[MAX_PATH] = {};
 	GetModulePath(Path, MAX_PATH);
 	strcat_s(Path, "\\dinput8.dll");
-	GetModuleHandleExA(NULL, Path, &h_dinput8);
+	HMODULE h_dinput8 = LoadLibraryA(Path);
 	if (h_dinput8)
 	{
 		m_pDirectInput8Create_local = (DirectInput8CreateProc)GetProcAddress(h_dinput8, "DirectInput8Create");

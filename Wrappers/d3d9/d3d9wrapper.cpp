@@ -104,11 +104,10 @@ bool GetLocalDirect3DCreate9()
 	AlreadyRun = true;
 
 	// Get proc address
-	HMODULE h_d3d9 = nullptr;
 	char Path[MAX_PATH] = {};
 	GetModulePath(Path, MAX_PATH);
 	strcat_s(Path, "\\d3d9.dll");
-	GetModuleHandleExA(NULL, Path, &h_d3d9);
+	HMODULE h_d3d9 = LoadLibraryA(Path);
 	if (h_d3d9)
 	{
 		m_pDirect3DCreate9_local = (Direct3DCreate9Proc)GetProcAddress(h_d3d9, "Direct3DCreate9");
@@ -247,7 +246,7 @@ void WINAPI Direct3D9DisableMaximizedWindowedMode()
 	return;
 }
 
-IDirect3D9* WINAPI Direct3DCreate9Wrapper(UINT SDKVersion)
+void CallDirect3D9System32Functions()
 {
 	if (ForceHybridEnumeration)
 	{
@@ -263,6 +262,10 @@ IDirect3D9* WINAPI Direct3DCreate9Wrapper(UINT SDKVersion)
 	{
 		Direct3D9DisableMaximizedWindowedMode();
 	}
+}
+
+IDirect3D9* WINAPI Direct3DCreate9Wrapper(UINT SDKVersion)
+{
 
 	IDirect3D9* pD3D9 = nullptr;
 
@@ -270,6 +273,8 @@ IDirect3D9* WINAPI Direct3DCreate9Wrapper(UINT SDKVersion)
 	if (Direct3DCreate9On12 && GetDirect3DCreate9On12())
 	{
 		Logging::Log() << __FUNCTION__ << " Attempting to load 'Direct3DCreate9On12'...";
+
+		CallDirect3D9System32Functions();
 
 		// Setup arguments
 		D3D9ON12_ARGS args;
@@ -289,6 +294,8 @@ IDirect3D9* WINAPI Direct3DCreate9Wrapper(UINT SDKVersion)
 	// Try loading base version of dll
 	if (!pD3D9 && GetDirect3DCreate9())
 	{
+		CallDirect3D9System32Functions();
+
 		pD3D9 = m_pDirect3DCreate9(SDKVersion);
 	}
 

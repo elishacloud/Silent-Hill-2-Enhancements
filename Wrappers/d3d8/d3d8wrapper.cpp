@@ -109,11 +109,10 @@ bool GetLocalDirect3DCreate8()
 	AlreadyRun = true;
 
 	// Get proc address
-	HMODULE h_d3d8 = nullptr;
 	char Path[MAX_PATH] = {};
 	GetModulePath(Path, MAX_PATH);
 	strcat_s(Path, "\\d3d8.dll");
-	GetModuleHandleExA(NULL, Path, &h_d3d8);
+	HMODULE h_d3d8 = LoadLibraryA(Path);
 	if (h_d3d8)
 	{
 		m_pDirect3DCreate8_local = (Direct3DCreate8Proc)GetProcAddress(h_d3d8, "Direct3DCreate8");

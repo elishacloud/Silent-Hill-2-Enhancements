@@ -69,6 +69,8 @@ BOOL& g_flashlightOn_1F7D718 = *reinterpret_cast<BOOL*>(0x1F7D718);
 
 DWORD* g_mdlVsHandles_1F7D684 = reinterpret_cast<DWORD*>(0x1F7D684); // 11 vertex shader handles
 
+IDirect3DTexture8*& g_flashLightTexture_1F5F16C = *reinterpret_cast<IDirect3DTexture8**>(0x1F5F16C);
+
 float* g_FlashLightPos = reinterpret_cast<float*>(0x01FB7D18);
 float* g_FlashLightDir = reinterpret_cast<float*>(0x01FB7D28);
 
@@ -516,25 +518,25 @@ void __cdecl sub_5B4940(Something* toRender)
 
 void MatrixVectorProduct_4FE750(D3DMATRIX* pM, D3DXVECTOR4* pV, D3DMATRIX* pOut)
 {
-    double x = pV->x;
+    float x = pV->x;
     pOut->_11 = x * pM->_11;
     pOut->_12 = x * pM->_12;
     pOut->_13 = x * pM->_13;
     pOut->_14 = x * pM->_14;
 
-    double y = pV->y;
+    float y = pV->y;
     pOut->_21 = y * pM->_21;
     pOut->_22 = y * pM->_22;
     pOut->_23 = y * pM->_23;
     pOut->_24 = y * pM->_24;
 
-    double z = pV->z;
+    float z = pV->z;
     pOut->_31 = z * pM->_31;
     pOut->_32 = z * pM->_32;
     pOut->_33 = z * pM->_33;
     pOut->_34 = z * pM->_34;
 
-    double w = pV->w;
+    float w = pV->w;
     pOut->_41 = w * pM->_41;
     pOut->_42 = w * pM->_42;
     pOut->_43 = w * pM->_43;
@@ -568,7 +570,7 @@ HRESULT AnimateActor_5014C0(struct_a1* toRender)
     IDirect3DVertexBuffer8* vertexBuffer; // esi
 
     unsigned int vbIndex = 8;
-    while (toRender->subStruct->numVertices + 4 > 1 << vbIndex)
+    while (toRender->subStruct->numVertices + 4u > 1u << vbIndex)
     {
         if (++vbIndex > 14)
         {
@@ -836,16 +838,16 @@ LABEL_23:
 
         if (toRender->byte24 == 4)
         {
-            shaderConstantMulti[0] = toRender->specularR * 0.0078125;
-            shaderConstantMulti[1] = toRender->specularG * 0.0078125;
-            shaderConstantMulti[2] = toRender->specularB * 0.0078125;
+            shaderConstantMulti[0] = toRender->specularR * 0.0078125f;
+            shaderConstantMulti[1] = toRender->specularG * 0.0078125f;
+            shaderConstantMulti[2] = toRender->specularB * 0.0078125f;
         }
         else
         {
             memset(shaderConstantMulti, 0, 12);
         }
 
-        shaderConstantMulti[3] = 0.0;
+        shaderConstantMulti[3] = 0.0f;
         g_d3d8Device_A32894->SetPixelShaderConstant(3, shaderConstantMulti, 1);
     }
 
@@ -886,7 +888,7 @@ LABEL_23:
     g_d3d8Device_A32894->SetIndices(toRender->subStruct->indexBuffer, 0);
     vbIndex = 8;
 
-    while (toRender->subStruct->numVertices + 4 > 1 << vbIndex)
+    while (toRender->subStruct->numVertices + 4u > 1u << vbIndex)
     {
         if (++vbIndex > 14)
         {
@@ -910,9 +912,72 @@ LABEL_50:
     g_d3d8Device_A32894->GetVertexShader(&currVs);
     if (currVs == g_mdlVsHandles_1F7D684[7] && desc.Format == D3DFMT_DXT4)
     {
+        if (!g_SpecularLUT)
+        {
+            GenerateSpecularLUT();
+        }
+
+        // Assign specular highlight texture to slot 1
+        IDirect3DBaseTexture8* savedTexture = nullptr;
+        g_d3d8Device_A32894->GetTexture(SPECULAR_LUT_TEXTURE_SLOT, &savedTexture);
+        g_d3d8Device_A32894->SetTexture(SPECULAR_LUT_TEXTURE_SLOT, g_SpecularLUT);
+        // Set up sampler states
+        g_d3d8Device_A32894->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_ADDRESSU, D3DTADDRESS_CLAMP);
+        g_d3d8Device_A32894->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_ADDRESSV, D3DTADDRESS_CLAMP);
+        g_d3d8Device_A32894->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
+        g_d3d8Device_A32894->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
+        g_d3d8Device_A32894->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_MIPFILTER, D3DTEXF_LINEAR);
+
+        IDirect3DBaseTexture8* savedTexture2 = nullptr;
+        g_d3d8Device_A32894->GetTexture(2, &savedTexture2);
+        g_d3d8Device_A32894->SetTexture(2, g_flashLightTexture_1F5F16C);
+        g_d3d8Device_A32894->SetTextureStageState(2, D3DTSS_ADDRESSU, D3DTADDRESS_BORDER);
+        g_d3d8Device_A32894->SetTextureStageState(2, D3DTSS_ADDRESSV, D3DTADDRESS_BORDER);
+        g_d3d8Device_A32894->SetTextureStageState(2, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
+        g_d3d8Device_A32894->SetTextureStageState(2, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
+        g_d3d8Device_A32894->SetTextureStageState(2, D3DTSS_MIPFILTER, D3DTEXF_LINEAR);
+
+        // tune this!
+        float specColor[4] = { EnvSpecRed, EnvSpecGreen, EnvSpecBlue, EnvSpecAlpha };
+        g_d3d8Device_A32894->SetVertexShaderConstant(27, specColor, 1);
+
+        float cameraPos[4] = {
+            GetInGameCameraPosX(),
+            GetInGameCameraPosY(),
+            GetInGameCameraPosZ(),
+            0.0f
+        };
+
+        float savedConstants[6 * 4] = {};
+
+        float savedConstants2[4 * 4] = {};
+
+        g_d3d8Device_A32894->GetVertexShaderConstant(VSHADER_FLASHLIGHT_POS_REGISTER, savedConstants, 6);
+        g_d3d8Device_A32894->GetVertexShaderConstant(20, savedConstants2, 4);
+
+        D3DXMATRIX viewMat = {};
+        D3DXMATRIX projMat, viewProjTransMat;
+        D3DXMATRIX viewMatInv = {};
+        D3DXMATRIX viewMatInvTrans = {};
+        g_d3d8Device_A32894->GetTransform(D3DTS_VIEW, &viewMat);
+        g_d3d8Device_A32894->GetTransform(D3DTS_PROJECTION, &projMat);
+
+        D3DXVECTOR4 dxFlashLightPos = {}, dxFlashLightPosIn = {g_FlashLightPos[0], g_FlashLightPos[1], g_FlashLightPos[2], 1.0f};
+        D3DXVECTOR4 dxCameraPos = {}, dxCameraPosIn = { cameraPos[0], cameraPos[1], cameraPos[2], 1.0f};
+        D3DXVec4Transform(&dxFlashLightPos, &dxFlashLightPosIn, &viewMat);
+        D3DXVec4Transform(&dxCameraPos, &dxCameraPosIn, &viewMat);
+
+        g_d3d8Device_A32894->SetVertexShaderConstant(VSHADER_FLASHLIGHT_POS_REGISTER, &dxFlashLightPos.x, 1);
+
+        D3DXMatrixMultiplyTranspose(&viewProjTransMat, &viewMat, &projMat);
+        g_d3d8Device_A32894->SetVertexShaderConstant(20, &viewProjTransMat, 4);
+
+        D3DXMatrixInverse(&viewMatInv, nullptr, &viewMat);
+        D3DXMatrixTranspose(&viewMatInvTrans, &viewMatInv);
+        g_d3d8Device_A32894->SetVertexShaderConstant(92, &viewMatInvTrans, 4);
+
         DWORD currPs;
         g_d3d8Device_A32894->GetPixelShader(&currPs);
-
         g_d3d8Device_A32894->SetVertexShader(hospitalDoorVsHandle);
 
         if (DebugMagenta)
@@ -929,6 +994,11 @@ LABEL_50:
 
         g_d3d8Device_A32894->SetVertexShader(currVs);
         g_d3d8Device_A32894->SetPixelShader(currPs);
+
+        g_d3d8Device_A32894->SetTexture(SPECULAR_LUT_TEXTURE_SLOT, savedTexture);
+
+        g_d3d8Device_A32894->SetVertexShaderConstant(20, savedConstants2, 4);
+        g_d3d8Device_A32894->SetVertexShaderConstant(VSHADER_FLASHLIGHT_POS_REGISTER, savedConstants, 6);
     }
     else
     {

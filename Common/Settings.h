@@ -15,6 +15,7 @@
 	visit(ClosetCutsceneFix, true) \
 	visit(CommandWindowMouseFix, true) \
 	visit(CreateLocalFix, true) \
+	visit(CustomAdvancedOptions, true) \
 	visit(d3d8to9, true) \
 	visit(DelayedFadeIn, true) \
 	visit(Direct3DCreate9On12, false) \
@@ -214,6 +215,7 @@
 	visit(AntiAliasing) \
 	visit(AudioFadeOutDelayMS) \
 	visit(CommandWindowMouseFix) \
+	visit(CustomAdvancedOptions) \
 	visit(CustomFontCharHeight) \
 	visit(CustomFontCharWidth) \
 	visit(CustomFontCol) \

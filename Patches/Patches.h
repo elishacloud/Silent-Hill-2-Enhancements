@@ -607,6 +607,7 @@ void PatchCommandWindowMouseFix();
 void PatchControlOptionsMenu();
 void PatchCreatureVehicleSpawn();
 void PatchCriware();
+void PatchCustomAdvancedOptions();
 HRESULT PatchCustomExeStr();
 void PatchCustomFog();
 void PatchCustomFonts();

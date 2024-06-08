@@ -576,7 +576,7 @@ void DelayedStart()
 	}
 
 	// Fixes issues in the Advanced Options screen
-	if (FixAdvancedOptions)
+	if (FixAdvancedOptions && !CustomAdvancedOptions)
 	{
 		PatchAdvancedOptions();
 	}
@@ -757,6 +757,12 @@ void DelayedStart()
 		PatchMainMenuInstantLoadOptions();
 	}
 
+	// Replace Advanced Options menu with custom options
+	if (CustomAdvancedOptions)
+	{
+		PatchCustomAdvancedOptions();
+	}
+	
 	// Remove the "Now loading..." and "Press Return to continue." messages
 	if (DisableLoadingPressReturnMessages)
 	{

@@ -510,6 +510,12 @@ mul oD0, r2, c1.x
 // pass specular color to pixel shader
 mov oD1.xyz, c27.xyzz
 
+// some direction that we calculate the diffuse lighing against
+add r3, r7, -c77
+dp3 r1.x, r3, r3
+rsq r1.x, r1.x
+mul oT5, r3.xyzz, r1.x
+
 // texcoord passthrough
 mov oT0.xy, v7
 
@@ -537,6 +543,7 @@ mul r9, r9, r11.y
 // pass half vec and normal to pixel shader
 mov oT1, r9
 mov oT4, r8
+
 
 */
 constexpr DWORD hospitalDoorVertexShader[] = {
@@ -593,20 +600,24 @@ constexpr DWORD hospitalDoorVertexShader[] = {
     0xa0e4002b, 0x00000002, 0x800f0002, 0x80e40002,
     0xa0e4002c, 0x00000005, 0xd00f0000, 0x80e40002,
     0xa0000001, 0x00000001, 0xd0070001, 0xa0a4001b,
-    0x00000001, 0xe0030000, 0x90e40007, 0x00000002,
-    0x80070005, 0x80e40007, 0xa1e4005a, 0x00000008,
-    0x80010001, 0x80e40005, 0x80e40005, 0x00000007,
-    0x80010001, 0x80000001, 0x00000005, 0x80070005,
-    0x80a40005, 0x80000001, 0x00000001, 0x80070009,
-    0x80e40007, 0x00000008, 0x80010001, 0x80e40009,
-    0x80e40009, 0x00000007, 0x80020001, 0x80000001,
-    0x00000005, 0x800f0009, 0x80a40009, 0x80550001,
-    0x00000002, 0x800f0009, 0x80e40009, 0x80a40005,
-    0x00000008, 0x8001000b, 0x80e40009, 0x80e40009,
-    0x00000007, 0x8002000b, 0x8000000b, 0x00000005,
-    0x800f0009, 0x80e40009, 0x8055000b, 0x00000001,
-    0xe00f0001, 0x80e40009, 0x00000001, 0xe00f0004,
-    0x80e40008, 0x0000ffff
+    0x00000002, 0x800f0003, 0x80e40007, 0xa1e4004d,
+    0x00000008, 0x80010001, 0x80e40003, 0x80e40003,
+    0x00000007, 0x80010001, 0x80000001, 0x00000005,
+    0xe00f0005, 0x80a40003, 0x80000001, 0x00000001,
+    0xe0030000, 0x90e40007, 0x00000002, 0x80070005,
+    0x80e40007, 0xa1e4005a, 0x00000008, 0x80010001,
+    0x80e40005, 0x80e40005, 0x00000007, 0x80010001,
+    0x80000001, 0x00000005, 0x80070005, 0x80a40005,
+    0x80000001, 0x00000001, 0x80070009, 0x80e40007,
+    0x00000008, 0x80010001, 0x80e40009, 0x80e40009,
+    0x00000007, 0x80020001, 0x80000001, 0x00000005,
+    0x800f0009, 0x80a40009, 0x80550001, 0x00000002,
+    0x800f0009, 0x80e40009, 0x80a40005, 0x00000008,
+    0x8001000b, 0x80e40009, 0x80e40009, 0x00000007,
+    0x8002000b, 0x8000000b, 0x00000005, 0x800f0009,
+    0x80e40009, 0x8055000b, 0x00000001, 0xe00f0001,
+    0x80e40009, 0x00000001, 0xe00f0004, 0x80e40008,
+    0x0000ffff
 };
 
 /*
@@ -617,45 +628,67 @@ constexpr DWORD hospitalDoorVertexShader[] = {
   def c4, 0.0, 0.0, 0.0, 0.0
   def c5, 0.0, 0.0, 1.0, 0.0
 
-  texcrd r3.xyz, t3
+  // sample flashlight func texture
+  texld r2, t2_dw.xyw
 
-  // load vector and normal from texcoords
+  // load vector "depth in light's coordinates"
+  texcrd r0.xyz, t3
+
+  // load half vector and normal from texcoords
   texcrd r4.xyz, t1
   texcrd r5.xyz, t4
+
+  // check if looking towards pixel
+  dp3 r0, r0, c5
 
   // normalization approximation by Nvidia (using normalization cube somehow looks like shit)
   // half vector
   mov r4.w, c4
   mul r1, r4, c0
-  dp3 r2, r4, r4
-  mad r4, 1-r2, r1, r4
+  dp3 r3, r4, r4
+  mad r4, 1-r3, r1, r4
 
   // angle between half vector and normal
   dp3_sat r1, r4, r5
 
-  // check if looking towards pixel
-  dp3 r5, r3, c5
+  // if looking towards -> take flashlight, else - take black (c4)
+  cnd r4.xyz, r0.x, r2, c4
+
+  // diffuse lighting
+  mov r3, c1
 
 phase
 
+  // load albedo
   texld r0, t0
+  // load specular func
   texld r1, r1
-  texld r2, t2_dw.xyw
+  // load diffuse light dir
+  texcrd r2.xyz, t5
 
-  // specular color = specular function (from texture 1) * specular color
-  //mul r1.xyz, r1.w, c3
-  mul r1.xyz, r1.w, 1-r0.w
-  // if looking towards -> take flashlight, else - take black (c4)
-  cnd r2.xyz, r5.x, r2, c4
-  // mask specular by the flashlight's func
-  mul r1.xyz, r1, r2
+  // flashlight calc
+  dp3_sat r3, r2, r3_bx2
+  // diffuse light ?
+  dp3_sat r2.xyz, r2, r5
++ sub r3.w, r3, c2.w
+
+  mul_x2_sat r3.xyz, r3.w, r2
+
+  // specular * albedo alpha
+  mul r2.xyz, r1.w, 1-r0.w
+  // and mask by flashlight's func
+  mul r2.xyz, r2, r4
+
   // flashligh * c2 + diffuse color ?
-  mad_x4_sat r3.xyz, r2, c2, v0
+  mad_x4_sat r3.xyz, r3, c2, v0
+
   // now all this * albedo
   mul r3.xyz, r3, r0
-  // specular + diffuse
-  add r0.xyz, r1, r3
+  // copy alpha from albedo
++ mov r3.w, r0.w
 
+  // specular * spec_color + diffuse
+  mad r0.xyz, r2, v1, r3
 
 */
 constexpr DWORD hospitalDoorPixelShader[] = {
@@ -666,24 +699,31 @@ constexpr DWORD hospitalDoorPixelShader[] = {
     0x3f000000, 0x00000051, 0xa00f0004, 0x00000000,
     0x00000000, 0x00000000, 0x00000000, 0x00000051,
     0xa00f0005, 0x00000000, 0x00000000, 0x3f800000,
-    0x00000000, 0x00000040, 0x80070003, 0xb0e40003,
-    0x00000040, 0x80070004, 0xb0e40001, 0x00000040,
-    0x80070005, 0xb0e40004, 0x00000001, 0x80080004,
-    0xa0e40004, 0x00000005, 0x800f0001, 0x80e40004,
-    0xa0e40000, 0x00000008, 0x800f0002, 0x80e40004,
-    0x80e40004, 0x00000004, 0x800f0004, 0x86e40002,
-    0x80e40001, 0x80e40004, 0x00000008, 0x801f0001,
-    0x80e40004, 0x80e40005, 0x00000008, 0x800f0005,
-    0x80e40003, 0xa0e40005, 0x0000fffd, 0x00000042,
-    0x800f0000, 0xb0e40000, 0x00000042, 0x800f0001,
-    0x80e40001, 0x00000042, 0x800f0002, 0xbaf40002,
-    0x00000005, 0x80070001, 0x80ff0001, 0x86ff0000,
-    0x00000050, 0x80070002, 0x80000005, 0x80e40002,
-    0xa0e40004, 0x00000005, 0x80070001, 0x80e40001,
-    0x80e40002, 0x00000004, 0x82170003, 0x80e40002,
-    0xa0e40002, 0x90e40000, 0x00000005, 0x80070003,
-    0x80e40003, 0x80e40000, 0x00000002, 0x80070000,
-    0x80e40001, 0x80e40003, 0x0000ffff
+    0x00000000, 0x00000042, 0x800f0002, 0xbaf40002,
+    0x00000040, 0x80070000, 0xb0e40003, 0x00000040,
+    0x80070004, 0xb0e40001, 0x00000040, 0x80070005,
+    0xb0e40004, 0x00000008, 0x800f0000, 0x80e40000,
+    0xa0e40005, 0x00000001, 0x80080004, 0xa0e40004,
+    0x00000005, 0x800f0001, 0x80e40004, 0xa0e40000,
+    0x00000008, 0x800f0003, 0x80e40004, 0x80e40004,
+    0x00000004, 0x800f0004, 0x86e40003, 0x80e40001,
+    0x80e40004, 0x00000008, 0x801f0001, 0x80e40004,
+    0x80e40005, 0x00000050, 0x80070004, 0x80000000,
+    0x80e40002, 0xa0e40004, 0x00000001, 0x800f0003,
+    0xa0e40001, 0x0000fffd, 0x00000042, 0x800f0000,
+    0xb0e40000, 0x00000042, 0x800f0001, 0x80e40001,
+    0x00000040, 0x80070002, 0xb0e40005, 0x00000008,
+    0x801f0003, 0x80e40002, 0x84e40003, 0x00000008,
+    0x80170002, 0x80e40002, 0x80e40005, 0x40000003,
+    0x80080003, 0x80e40003, 0xa0ff0002, 0x00000005,
+    0x81170003, 0x80ff0003, 0x80e40002, 0x00000005,
+    0x80070002, 0x80ff0001, 0x86ff0000, 0x00000005,
+    0x80070002, 0x80e40002, 0x80e40004, 0x00000004,
+    0x82170003, 0x80e40003, 0xa0e40002, 0x90e40000,
+    0x00000005, 0x80070003, 0x80e40003, 0x80e40000,
+    0x40000001, 0x80080003, 0x80ff0000, 0x00000004,
+    0x80070000, 0x80e40002, 0x90e40001, 0x80e40003,
+    0x0000ffff
 };
 
 /*

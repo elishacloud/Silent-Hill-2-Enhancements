@@ -910,7 +910,8 @@ LABEL_50:
 
     DWORD currVs;
     g_d3d8Device_A32894->GetVertexShader(&currVs);
-    if (currVs == g_mdlVsHandles_1F7D684[7] && desc.Format == D3DFMT_DXT4)
+    // only using it if flashlight is fully on, else - use their original shaders to avoid headaches 
+    if (currVs == g_mdlVsHandles_1F7D684[7] && desc.Format == D3DFMT_DXT4 && (GetFlashLightRender() && GetFlashlightBrightnessRed() >= 6.999f))
     {
         if (!g_SpecularLUT)
         {
@@ -976,9 +977,10 @@ LABEL_50:
         D3DXMatrixTranspose(&viewMatInvTrans, &viewMatInv);
         g_d3d8Device_A32894->SetVertexShaderConstant(92, &viewMatInvTrans, 4);
 
+        g_d3d8Device_A32894->SetVertexShader(hospitalDoorVsHandle);
+
         DWORD currPs;
         g_d3d8Device_A32894->GetPixelShader(&currPs);
-        g_d3d8Device_A32894->SetVertexShader(hospitalDoorVsHandle);
 
         if (DebugMagenta)
         {
@@ -994,7 +996,6 @@ LABEL_50:
 
         g_d3d8Device_A32894->SetVertexShader(currVs);
         g_d3d8Device_A32894->SetPixelShader(currPs);
-
         g_d3d8Device_A32894->SetTexture(SPECULAR_LUT_TEXTURE_SLOT, savedTexture);
 
         g_d3d8Device_A32894->SetVertexShaderConstant(20, savedConstants2, 4);

@@ -12,7 +12,7 @@ DWORD windowPsHandle = 0;
 DWORD vcolorVsHandle = 0;
 
 DWORD hospitalDoorVsHandle = 0;
-DWORD hospitalDoorPsHandle = 0;
+DWORD hospitalDoorPsHandles[4] = {0, 0, 0, 0};
 
 #define WINDOW_VSHADER_ORIGINAL  (g_vsHandles_1DB88A8[2])
 #define VCOLOR_VSHADER_ORIGINAL  (g_vsHandles_1DB88A8[8])
@@ -68,11 +68,26 @@ IDirect3DBaseTexture8*& g_cubeMapTexture_1F7D710 = *reinterpret_cast<IDirect3DBa
 BOOL& g_flashlightOn_1F7D718 = *reinterpret_cast<BOOL*>(0x1F7D718);
 
 DWORD* g_mdlVsHandles_1F7D684 = reinterpret_cast<DWORD*>(0x1F7D684); // 11 vertex shader handles
+DWORD* g_mdlPsHandles_1F7D6C4 = reinterpret_cast<DWORD*>(0x1F7D6C4); // 5 pixel shader handles
 
 IDirect3DTexture8*& g_flashLightTexture_1F5F16C = *reinterpret_cast<IDirect3DTexture8**>(0x1F5F16C);
 
 float* g_FlashLightPos = reinterpret_cast<float*>(0x01FB7D18);
 float* g_FlashLightDir = reinterpret_cast<float*>(0x01FB7D28);
+
+static int IsPixelShaderMDLFadeOrFullBright(DWORD handle) {
+    if (g_mdlPsHandles_1F7D6C4[0] == handle) {
+        return 0;
+    }  else if (g_mdlPsHandles_1F7D6C4[1] == handle) {
+        return 1;
+    } else if (g_mdlPsHandles_1F7D6C4[2] == handle) {
+        return 2;
+    } else if (g_mdlPsHandles_1F7D6C4[3] == handle) {
+        return 3;
+    } else {
+        return -1;
+    }
+}
 
 static void GenerateSpecularLUT() {
     // keep the with-to_height ratio <= 8:1
@@ -595,6 +610,8 @@ LABEL_5:
     return vertexBuffer->Unlock();
 }
 
+extern void ActorOpaqueDrawPrelude(void* materialPtr);
+
 // Function responsible for drawing ACTORS
 void __cdecl sub_501540(struct_a1* toRender)
 {
@@ -631,6 +648,10 @@ void __cdecl sub_501540(struct_a1* toRender)
     float vsConstant[4]; // [esp+1F0h] [ebp-90h] BYREF
     D3DMATRIX matrix; // [esp+200h] [ebp-80h] BYREF
     D3DMATRIX matrix_1; // [esp+240h] [ebp-40h] BYREF
+
+    /// doing same as HookActorOpaqueDraw
+    ActorOpaqueDrawPrelude(toRender);
+    ///
 
     float_AAA5E0 = GetFloat_AAA5E0_50C500();
     v1 = 0;
@@ -910,11 +931,15 @@ LABEL_50:
 
     DWORD currVs;
     g_d3d8Device_A32894->GetVertexShader(&currVs);
+    DWORD currPs;
+    g_d3d8Device_A32894->GetPixelShader(&currPs);
+
+    int flashlightPhase = IsPixelShaderMDLFadeOrFullBright(currPs);
+
     // only using it if flashlight is fully on, else - use their original shaders to avoid headaches 
-    if (currVs == g_mdlVsHandles_1F7D684[7] && desc.Format == D3DFMT_DXT4 && (GetFlashLightRender() && GetFlashlightBrightnessRed() >= 6.999f))
+    if (currVs == g_mdlVsHandles_1F7D684[7] && desc.Format == D3DFMT_DXT4 && flashlightPhase >= 0)
     {
-        if (!g_SpecularLUT)
-        {
+        if(!g_SpecularLUT) {
             GenerateSpecularLUT();
         }
 
@@ -939,7 +964,8 @@ LABEL_50:
         g_d3d8Device_A32894->SetTextureStageState(2, D3DTSS_MIPFILTER, D3DTEXF_LINEAR);
 
         // tune this!
-        float specColor[4] = { EnvSpecRed, EnvSpecGreen, EnvSpecBlue, EnvSpecAlpha };
+        const float flashlightIntensity = GetFlashlightBrightnessRed() / 7.0f;
+        const float specColor[4] = { EnvSpecRed * flashlightIntensity, EnvSpecGreen * flashlightIntensity, EnvSpecBlue * flashlightIntensity, EnvSpecAlpha };
         g_d3d8Device_A32894->SetVertexShaderConstant(27, specColor, 1);
 
         float cameraPos[4] = {
@@ -979,16 +1005,13 @@ LABEL_50:
 
         g_d3d8Device_A32894->SetVertexShader(hospitalDoorVsHandle);
 
-        DWORD currPs;
-        g_d3d8Device_A32894->GetPixelShader(&currPs);
-
         if (DebugMagenta)
         {
             g_d3d8Device_A32894->SetPixelShader(magentaPsHandle);
         }
         else
         {
-            g_d3d8Device_A32894->SetPixelShader(hospitalDoorPsHandle);
+            g_d3d8Device_A32894->SetPixelShader(hospitalDoorPsHandles[flashlightPhase]);
         }
 
         g_d3d8Device_A32894->SetStreamSource(0, vertexBuffer, 32);

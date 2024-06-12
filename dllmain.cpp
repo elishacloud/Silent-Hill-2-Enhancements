@@ -576,7 +576,7 @@ void DelayedStart()
 	}
 
 	// Fixes issues in the Advanced Options screen
-	if (FixAdvancedOptions && !CustomAdvancedOptions)
+	if (FixAdvancedOptions)
 	{
 		PatchAdvancedOptions();
 	}

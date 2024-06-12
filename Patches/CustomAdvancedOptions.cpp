@@ -28,11 +28,21 @@ namespace
 
     DWORD* MsgFileAddr = nullptr;
     BYTE* OptionsPage = nullptr;
+    BYTE* OptionsState = nullptr;
     short* OptionsSelectIndex = nullptr;
     short* OptionsSelectDeltaIndex = nullptr;
+    BYTE* OptionsSaveChangesActive = nullptr;
+    BYTE* OptionsSaveChangesIndex = nullptr;
+    void* ScreenBrightnessHandlerAddr = nullptr;
     void* jmpHandleInputAddr = nullptr;
     void* jmpSkipDisabledOptionsReturnAddr1 = nullptr;
     void* jmpSkipDisabledOptionsReturnAddr2 = nullptr;
+    void* jmpCheckChangedOptionsReturnAddr = nullptr;
+    void* jmpSaveOrDiscardChangesReturnAddr1 = nullptr;
+    void* jmpSaveOrDiscardChangesReturnAddr2 = nullptr;
+
+    BYTE* NoiseEffectOptionValue = nullptr;
+    BYTE* NoiseEffectOptionCommitValue = nullptr;
 
     char*(*prepText)(const char *str);
     void(*printText)(const char *str, int x, int y);
@@ -48,6 +58,9 @@ namespace
     bool(*joyDown)(DWORD port, DWORD key1, DWORD key2);
     bool(*keyDown)(DWORD key);
     void(*playSound)(int index, float volume, int pan);
+    bool(*mouseDown)(DWORD key);
+    int(*mouseX)();
+    int(*mouseY)();
 
     void SetTextColorUnselected() { textSetColor(0x3F, 0x3F, 0x3F, 0x60); }
     void SetTextColorUnselectedChanged() { textSetColor(0x3F, 0x3F, 0x1F, 0x60); }
@@ -131,8 +144,18 @@ namespace
             return values_;
         }
 
+        virtual void Init() {}
+
         virtual void Draw() const
         {
+            if (*OptionsSaveChangesActive > 0 && index_ > 2 && index_ < 7)
+            {
+                if (*OptionsSelectIndex == index_ && enabled_)
+                    DrawDescription();
+
+                return;
+            }
+
             DrawBase();
             if (*OptionsSelectIndex == index_ && enabled_)
             {
@@ -144,8 +167,24 @@ namespace
 
         virtual void Run() {}
 
+        virtual void Apply()
+        {
+            committed_value_index_ = value_index_;
+        }
+
+        virtual void Reset()
+        {
+            value_index_ = committed_value_index_;
+        }
+
+        virtual bool IsChanged()
+        {
+            return !values_.empty() && value_index_ != committed_value_index_;
+        }
+
         virtual void NextValue()
         {
+            if (values_.empty()) return;
             if (++value_index_ >= (int)values_.size())
                 value_index_ = 0;
             playSound(10000, 1.0, 0);
@@ -153,9 +192,39 @@ namespace
 
         virtual void PreviousValue()
         {
+            if (values_.empty()) return;
             if (--value_index_ < 0)
                 value_index_ = values_.size() - 1;
             playSound(10000, 1.0, 0);
+        }
+
+        virtual void HandleMouseSelection()
+        {
+            const int x = mouseX();
+            const int y = mouseY();
+
+            if (y < index_ * 0x1B + 0x53 || y > index_ * 0x1B + 0x6E)
+                return;
+
+            if (values_.empty())
+            {
+                if (name_ == nullptr) return;
+                const int text_half_width = name_->GetTextWidth() / 2;
+                if (x > 0xFC - text_half_width && x < 0xFC + text_half_width)
+                    Run();
+            }
+            else
+            {
+                if (x >= 0xF1 && x <= 0x10A)
+                {
+                    PreviousValue();
+                    return;
+                }
+                if (value_index_ < 0 || (size_t)value_index_ >= values_.size()) return;
+                const int text_width = values_[value_index_]->GetTextWidth();
+                if (x > text_width + 0x104 && x < text_width + 0x11F)
+                    NextValue();
+            }
         }
 
         virtual bool Enabled() const { return enabled_; }
@@ -217,6 +286,7 @@ namespace
 
         virtual void DrawSelectArrows() const
         {
+            if (*OptionsSaveChangesActive > 0) return;
             if (values_.empty() || value_index_ < 0 || (size_t)value_index_ >= values_.size()) return;
             const int y = index_ * 0x1B - 0x8C;
             drawLeftSelectArrow(-0x05, y);
@@ -233,7 +303,7 @@ namespace
             description_->Draw(0x46, 0x18B);
         }
 
-    private:
+    protected:
         int index_;
         std::unique_ptr<OptionText> name_;
         std::unique_ptr<OptionText> description_;
@@ -244,72 +314,46 @@ namespace
         int option_y_;
     };
 
-    class FirstOption : public Option
+    class ScreenBrightnessOption : public Option
     {
     public:
-        FirstOption(int index, bool enabled = true) : Option(
+        ScreenBrightnessOption(int index, bool enabled = true) : Option(
             index,
-            /*name=*/std::make_unique<OptionExeText>("\\hFirst option"),
-            /*description=*/std::make_unique<OptionExeText>("\\hThis is the first option"),
+            /*name=*/std::make_unique<OptionMsgText>((short)0x02),
+            /*description=*/std::make_unique<OptionMsgText>((short)0x03),
             /*enabled=*/enabled
         ) {}
 
         void Run() override
         {
-            playSound(0x3A9A, 1.0, 0);
+            __asm { call ScreenBrightnessHandlerAddr }
         }
     };
 
-    class SecondOption : public Option
+    class NoiseEffectOption : public Option
     {
     public:
-        SecondOption(int index, bool enabled = true) : Option(
+        NoiseEffectOption(int index, bool enabled = true) : Option(
             index,
-            /*name=*/std::make_unique<OptionExeText>("\\hSecond option"),
-            /*description=*/std::make_unique<OptionExeText>("\\hThis is the second option"),
+            /*name=*/std::make_unique<OptionMsgText>((short)0x61),
+            /*description=*/std::make_unique<OptionMsgText>((short)0x62),
             /*enabled=*/enabled
         )
         {
-            AddValue(std::make_unique<OptionExeText>("\\hOne"));
-            AddValue(std::make_unique<OptionExeText>("\\hTwo"));
-            AddValue(std::make_unique<OptionExeText>("\\hThree"));
+            AddValue(std::make_unique<OptionMsgText>((short)0x45));  // "Off"
+            AddValue(std::make_unique<OptionMsgText>((short)0x44));  // "On"
         }
-    };
 
-    class ThirdOption : public Option
-    {
-    public:
-        ThirdOption(int index, bool enabled = true) : Option(
-            index,
-            /*name=*/std::make_unique<OptionExeText>("\\hThird option"),
-            /*description=*/std::make_unique<OptionExeText>("\\hThis is the third option"),
-            /*enabled=*/enabled
-        )
+        void Init() override
         {
-            if (enabled)
-            {
-                AddValue(std::make_unique<OptionExeText>("\\hA"));
-                AddValue(std::make_unique<OptionExeText>("\\hB"));
-                AddValue(std::make_unique<OptionExeText>("\\hC"));
-            }
-            else
-                AddValue(std::make_unique<OptionExeText>("\\hDisabled"));
+            value_index_ = *NoiseEffectOptionValue;
+            committed_value_index_ = *NoiseEffectOptionCommitValue;
         }
-    };
 
-    class FourthOption : public Option
-    {
-    public:
-        FourthOption(int index, bool enabled = true) : Option(
-            index,
-            /*name=*/std::make_unique<OptionExeText>("\\hFourth option"),
-            /*description=*/std::make_unique<OptionExeText>("\\hThis is the fourth option"),
-            /*enabled=*/enabled
-        )
+        void Apply() override
         {
-            AddValue(std::make_unique<OptionExeText>("\\h1.0"));
-            AddValue(std::make_unique<OptionExeText>("\\h2.0"));
-            AddValue(std::make_unique<OptionExeText>("\\h3.0"));
+            Option::Apply();
+            *NoiseEffectOptionValue = *NoiseEffectOptionCommitValue = (BYTE)value_index_;
         }
     };
 
@@ -318,10 +362,37 @@ namespace
     void InitializeOptions()
     {
         int index = 0;
-        options.push_back(std::make_unique<FirstOption>(index++));
-        options.push_back(std::make_unique<SecondOption>(index++));
-        options.push_back(std::make_unique<ThirdOption>(index++, /*enabled=*/false));
-        options.push_back(std::make_unique<FourthOption>(index++));
+        options.push_back(std::make_unique<ScreenBrightnessOption>(index++));
+        options.push_back(std::make_unique<NoiseEffectOption>(index++));
+    }
+    
+    void HandleAdvancedOptionsInput()
+    {
+        if (*OptionsState != 0x00)
+            return;
+
+        const short select_index = *OptionsSelectIndex;
+        if (select_index < 0 && select_index >= (int)options.size())
+            return;
+
+        Option* selected_option = options[select_index].get();
+
+        // Mouse selection
+        if (mouseDown(0x01))
+        {
+            selected_option->HandleMouseSelection();
+            return;
+        }
+
+        // Select submenu with keyboard/controller
+        if (joyDown(0, 0x10, 0) || joyDown(0, 0x200, 0) || keyDown(0x10))
+            selected_option->Run();
+
+        // Increment/decrement options with keyboard/controller
+        if (joyDown(0, 0x2000004, 0) || keyDown(0x04))
+            selected_option->PreviousValue();
+        else if (joyDown(0, 0x1000008, 0) || keyDown(0x08))
+            selected_option->NextValue();
     }
 
     void DrawAdvancedOptions()
@@ -330,23 +401,7 @@ namespace
         {
             option->Draw();
         }
-
-        const short select_index = *OptionsSelectIndex;
-        if (select_index < 0 && select_index >= (int)options.size())
-            return;
-
-        Option* selected_option = options[select_index].get();
-
-        // TODO: Mouse input
-
-        // TODO: Does not work with other confirm buttons?
-        if (joyDown(0, 0x10, 0) || keyDown(0x10))
-            selected_option->Run();
-
-        if (joyDown(0, 0x2000004, 0) || keyDown(0x04))
-            selected_option->PreviousValue();
-        else if (joyDown(0, 0x1000008, 0) || keyDown(0x08))
-            selected_option->NextValue();
+        HandleAdvancedOptionsInput();
     }
 
     __declspec(naked) void __stdcall DrawAdvancedOptionsASM()
@@ -382,8 +437,6 @@ namespace
                 return;
             }
         }
-        // If all options are disabled, fall back to the first option
-        *OptionsSelectIndex = 0;
     }
 
     __declspec(naked) void __stdcall SkipDisabledOptionsASM()
@@ -407,6 +460,81 @@ namespace
             jmp jmpSkipDisabledOptionsReturnAddr2
         }
     }
+
+    bool AnyOptionChanged()
+    {
+        for (const auto& option : options)
+        {
+            if (option->IsChanged())
+                return true;
+        }
+        return false;
+    }
+
+    __declspec(naked) void __stdcall CheckChangedOptionsASM()
+    {
+        __asm
+        {
+            call AnyOptionChanged
+            test eax,eax
+            jmp jmpCheckChangedOptionsReturnAddr
+        }
+    }
+
+    void SaveChanges()
+    {
+        for (auto& option : options)
+        {
+            option->Apply();
+        }
+    }
+
+    void DiscardChanges()
+    {
+        for (auto& option : options)
+        {
+            option->Reset();
+        }
+    }
+
+    __declspec(naked) void __stdcall SaveOrDiscardChangesASM()
+    {
+        __asm
+        {
+            mov eax, dword ptr ds : [OptionsSaveChangesIndex]
+            mov al, byte ptr ds : [eax]
+            test al, al
+            jnz Discard
+            
+            call SaveChanges
+            jmp jmpSaveOrDiscardChangesReturnAddr1
+
+        Discard:
+            call DiscardChanges
+            jmp jmpSaveOrDiscardChangesReturnAddr2
+        }
+    }
+
+    void InitOptions()
+    {
+        for (auto& option : options)
+        {
+            option->Init();
+        }
+    }
+
+    _declspec(naked) void __stdcall InitOptionsASM()
+    {
+        __asm
+        {
+            push esi
+            call InitOptions
+            pop esi
+            mov eax, dword ptr ds : [OptionsSelectIndex]
+            mov word ptr ds : [eax], si
+            ret
+        }
+    }
 }
 
 void PatchCustomAdvancedOptions()
@@ -417,6 +545,9 @@ void PatchCustomAdvancedOptions()
     constexpr BYTE SkipDisabledOptionsSearchBytes[]{ 0x83, 0xC4, 0x0C, 0x85, 0xC0, 0x75, 0x19, 0x66, 0xA1 };
     const DWORD SkipDisabledOptionsAddr = SearchAndGetAddresses(0x0045FC06, 0x0045FE66, 0x0045FE66, SkipDisabledOptionsSearchBytes, sizeof(SkipDisabledOptionsSearchBytes), 0x2C, __FUNCTION__);
 
+    constexpr BYTE InitOptionsSearchBytes[]{ 0x8B, 0x44, 0x24, 0x10, 0x8B, 0x10, 0x8B, 0x4C, 0x24, 0x04 };
+    const DWORD InitOptionsAddr = SearchAndGetAddresses(0x0045BBC0, 0x0045BE20, 0x0045BE20, InitOptionsSearchBytes, sizeof(InitOptionsSearchBytes), 0x23, __FUNCTION__);
+
     constexpr BYTE SpkSearchBytesC[] = { 0x8B, 0x08, 0x83, 0xC4, 0x10, 0x68, 0xA4, 0x00, 0x00, 0x00, 0x68, 0x00, 0x01, 0x00, 0x00, 0x51, 0xE8 };
     void* DSpkAddrC = (void*)SearchAndGetAddresses(0x00407368, 0x00407368, 0x00407378, SpkSearchBytesC, sizeof(SpkSearchBytesC), 0x00, __FUNCTION__);
 
@@ -426,13 +557,26 @@ void PatchCustomAdvancedOptions()
         return;
     }
 
+    const DWORD CheckChangedOptionsAddr = DrawAdvancedOptionsAddr - 0x44A;
+
     MsgFileAddr = (DWORD*)*(DWORD*)(DrawAdvancedOptionsAddr + 0x14);
     OptionsPage = (BYTE*)*(DWORD*)(SkipDisabledOptionsAddr + 0x02);
+    OptionsState = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0x3BD);
     OptionsSelectIndex = (short*)*(DWORD*)(SkipDisabledOptionsAddr - 0x0A);
     OptionsSelectDeltaIndex = (short*)*(DWORD*)(SkipDisabledOptionsAddr - 0x04);
+    OptionsSaveChangesActive = (BYTE*)*(DWORD*)(CheckChangedOptionsAddr - 0x0C);
+    OptionsSaveChangesIndex = (BYTE*)*(DWORD*)(CheckChangedOptionsAddr + 0x243);
+    ScreenBrightnessHandlerAddr = (void*)(DrawAdvancedOptionsAddr + 0xD98);
+
+    jmpHandleInputAddr = (void*)(DrawAdvancedOptionsAddr + 0xC19);
     jmpSkipDisabledOptionsReturnAddr1 = (void*)(SkipDisabledOptionsAddr + 0xD0);
     jmpSkipDisabledOptionsReturnAddr2 = (void*)(SkipDisabledOptionsAddr + 0x75);
-    jmpHandleInputAddr = (void*)(DrawAdvancedOptionsAddr + 0xC19);
+    jmpCheckChangedOptionsReturnAddr = (void*)(DrawAdvancedOptionsAddr - 0x3DF);
+    jmpSaveOrDiscardChangesReturnAddr1 = (void*)(CheckChangedOptionsAddr + 0x379);
+    jmpSaveOrDiscardChangesReturnAddr2 = (void*)(CheckChangedOptionsAddr + 0x3DF);
+
+    NoiseEffectOptionValue = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0x449);
+    NoiseEffectOptionCommitValue = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0x443);
 
     // Get functions
     prepText = (char*(*)(const char* str))(((BYTE*)DSpkAddrC + 0x15) + *(int*)((BYTE*)DSpkAddrC + 0x11));
@@ -449,6 +593,9 @@ void PatchCustomAdvancedOptions()
     joyDown = (bool(*)(DWORD, DWORD, DWORD))(((BYTE*)DrawAdvancedOptionsAddr + 0xD67) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0xD63));
     keyDown = (bool(*)(DWORD))(((BYTE*)DrawAdvancedOptionsAddr + 0xD88) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0xD84));
     playSound = (void(*)(int, float, int))(((BYTE*)DrawAdvancedOptionsAddr + 0x11DC) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0x11D8));
+    mouseDown = (bool(*)(DWORD))(((BYTE*)DrawAdvancedOptionsAddr + 0xC20) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0xC1C));
+    mouseX = (int(*)())(((BYTE*)DrawAdvancedOptionsAddr + 0xC47) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0xC43));
+    mouseY = (int(*)())(((BYTE*)DrawAdvancedOptionsAddr + 0xC5F) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0xC5B));
 
     Logging::Log() << "Patching Custom Advanced Options...";
 
@@ -456,7 +603,13 @@ void PatchCustomAdvancedOptions()
 
     WriteJMPtoMemory((BYTE*)DrawAdvancedOptionsAddr, *DrawAdvancedOptionsASM, 0x06);
     WriteJMPtoMemory((BYTE*)SkipDisabledOptionsAddr, *SkipDisabledOptionsASM, 0x07);
+    WriteJMPtoMemory((BYTE*)CheckChangedOptionsAddr, *CheckChangedOptionsASM, 0x05);
+    WriteJMPtoMemory((BYTE*)(CheckChangedOptionsAddr + 0x242), *SaveOrDiscardChangesASM, 0x05);
+    WriteCalltoMemory((BYTE*)InitOptionsAddr, *InitOptionsASM, 0x07);
 
     const BYTE option_count = options.size() & 0xFF;
     UpdateMemoryAddress((void*)(SkipDisabledOptionsAddr - 0x18E), &option_count, 1);
+    
+    // Early return in advanced options handler
+    UpdateMemoryAddress((void*)(DrawAdvancedOptionsAddr + 0x11DF), "\xC3\x90\x90\x90\x90", 0x05);
 }

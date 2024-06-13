@@ -43,6 +43,8 @@ namespace
 
     BYTE* NoiseEffectOptionValue = nullptr;
     BYTE* NoiseEffectOptionCommitValue = nullptr;
+    BYTE* DxConfigShadowsEnabled = nullptr;
+    BYTE* DxConfigFogEnabled = nullptr;
 
     char*(*prepText)(const char *str);
     void(*printText)(const char *str, int x, int y);
@@ -317,11 +319,10 @@ namespace
     class ScreenBrightnessOption : public Option
     {
     public:
-        ScreenBrightnessOption(int index, bool enabled = true) : Option(
+        ScreenBrightnessOption(int index) : Option(
             index,
             /*name=*/std::make_unique<OptionMsgText>((short)0x02),
-            /*description=*/std::make_unique<OptionMsgText>((short)0x03),
-            /*enabled=*/enabled
+            /*description=*/std::make_unique<OptionMsgText>((short)0x03)
         ) {}
 
         void Run() override
@@ -333,11 +334,10 @@ namespace
     class NoiseEffectOption : public Option
     {
     public:
-        NoiseEffectOption(int index, bool enabled = true) : Option(
+        NoiseEffectOption(int index) : Option(
             index,
             /*name=*/std::make_unique<OptionMsgText>((short)0x61),
-            /*description=*/std::make_unique<OptionMsgText>((short)0x62),
-            /*enabled=*/enabled
+            /*description=*/std::make_unique<OptionMsgText>((short)0x62)
         )
         {
             AddValue(std::make_unique<OptionMsgText>((short)0x45));  // "Off"
@@ -346,14 +346,63 @@ namespace
 
         void Init() override
         {
-            value_index_ = *NoiseEffectOptionValue;
-            committed_value_index_ = *NoiseEffectOptionCommitValue;
+            value_index_ = committed_value_index_ = *NoiseEffectOptionValue;
         }
 
         void Apply() override
         {
             Option::Apply();
             *NoiseEffectOptionValue = *NoiseEffectOptionCommitValue = (BYTE)value_index_;
+        }
+    };
+
+    class ShadowsOption : public Option
+    {
+    public:
+        ShadowsOption(int index) : Option(
+            index,
+            /*name=*/std::make_unique<OptionMsgText>((short)0xAF),
+            /*description=*/std::make_unique<OptionMsgText>((short)0xCB)
+        )
+        {
+            AddValue(std::make_unique<OptionMsgText>((short)0xB0));  // "Off"
+            AddValue(std::make_unique<OptionMsgText>((short)0xB1));  // "On"
+        }
+
+        void Init() override
+        {
+            value_index_ = committed_value_index_ = *DxConfigShadowsEnabled;
+        }
+
+        void Apply() override
+        {
+            Option::Apply();
+            *DxConfigShadowsEnabled = (BYTE)value_index_;
+        }
+    };
+
+    class FogOption : public Option
+    {
+    public:
+        FogOption(int index) : Option(
+            index,
+            /*name=*/std::make_unique<OptionMsgText>((short)0xB2),
+            /*description=*/std::make_unique<OptionMsgText>((short)0xCC)
+        )
+        {
+            AddValue(std::make_unique<OptionMsgText>((short)0xB3));  // "Simple"
+            AddValue(std::make_unique<OptionMsgText>((short)0xB4));  // "Complex"
+        }
+
+        void Init() override
+        {
+            value_index_ = committed_value_index_ = *DxConfigFogEnabled;
+        }
+
+        void Apply() override
+        {
+            Option::Apply();
+            *DxConfigFogEnabled = (BYTE)value_index_;
         }
     };
 
@@ -364,6 +413,8 @@ namespace
         int index = 0;
         options.push_back(std::make_unique<ScreenBrightnessOption>(index++));
         options.push_back(std::make_unique<NoiseEffectOption>(index++));
+        options.push_back(std::make_unique<ShadowsOption>(index++));
+        options.push_back(std::make_unique<FogOption>(index++));
     }
     
     void HandleAdvancedOptionsInput()
@@ -577,6 +628,8 @@ void PatchCustomAdvancedOptions()
 
     NoiseEffectOptionValue = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0x449);
     NoiseEffectOptionCommitValue = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0x443);
+    DxConfigShadowsEnabled = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0x10B);
+    DxConfigFogEnabled = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0xFF);
 
     // Get functions
     prepText = (char*(*)(const char* str))(((BYTE*)DSpkAddrC + 0x15) + *(int*)((BYTE*)DSpkAddrC + 0x11));

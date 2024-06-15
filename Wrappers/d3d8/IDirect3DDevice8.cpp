@@ -1122,9 +1122,12 @@ HRESULT m_IDirect3DDevice8::CreatePixelShader(THIS_ CONST DWORD* pFunction, DWOR
 		ProxyInterface->CreatePixelShader(windowPixelShader, &windowPsHandle);
 	}
 
-	if (!hospitalDoorPsHandle)
+	if (!hospitalDoorPsHandles[0])
 	{
-		ProxyInterface->CreatePixelShader(hospitalDoorPixelShader, &hospitalDoorPsHandle);
+		ProxyInterface->CreatePixelShader(hospitalDoorPixelShader_stage0, &hospitalDoorPsHandles[0]);
+        ProxyInterface->CreatePixelShader(hospitalDoorPixelShader_stage1, &hospitalDoorPsHandles[1]);
+        ProxyInterface->CreatePixelShader(hospitalDoorPixelShader_stage2, &hospitalDoorPsHandles[2]);
+        ProxyInterface->CreatePixelShader(hospitalDoorPixelShader_stage3, &hospitalDoorPsHandles[3]);
 	}
 
 	if (!magentaPsHandle)

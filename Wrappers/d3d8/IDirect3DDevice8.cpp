@@ -1615,6 +1615,166 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 		return hr;
 	}
 
+	bool EnvSpecularFix = false;
+	if (EnvSpecularFix)
+	{
+		#define WINDOW_VSHADER_ORIGINAL  (g_vsHandles_1DB88A8[2])
+		#define VCOLOR_VSHADER_ORIGINAL  (g_vsHandles_1DB88A8[8])
+
+		#define SPECULAR_LUT_TEXTURE_SLOT 1
+
+		#define VSHADER_FLASHLIGHT_POS_REGISTER 90
+		#define VSHADER_CAMERA_POS_REGISTER     91
+
+		IDirect3DTexture8* texture;
+		ProxyInterface->GetTexture(0, (IDirect3DBaseTexture8**)&texture);
+
+		D3DSURFACE_DESC desc;
+		texture->GetLevelDesc(0, &desc);
+
+		DWORD currVs, currPs;
+		ProxyInterface->GetVertexShader(&currVs);
+		ProxyInterface->GetPixelShader(&currPs);
+
+		int flashlightPhase = IsPixelShaderMDLFadeOrFullBright(currPs);
+
+		if ((currVs == WINDOW_VSHADER_ORIGINAL || currVs == VCOLOR_VSHADER_ORIGINAL) && desc.Format == D3DFMT_DXT4) // If using the same vertex shader as the town east shop window
+		{
+			if (!g_SpecularLUT) {
+				GenerateSpecularLUT(ProxyInterface);
+			}
+
+			const bool isVColorGeometry = (currVs == VCOLOR_VSHADER_ORIGINAL);
+
+			// Assign specular highlight texture to slot 1
+			IDirect3DBaseTexture8* savedTexture = nullptr;
+			ProxyInterface->GetTexture(SPECULAR_LUT_TEXTURE_SLOT, &savedTexture);
+			ProxyInterface->SetTexture(SPECULAR_LUT_TEXTURE_SLOT, g_SpecularLUT);
+
+			// Set up sampler states
+			ProxyInterface->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_ADDRESSU, D3DTADDRESS_CLAMP);
+			ProxyInterface->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_ADDRESSV, D3DTADDRESS_CLAMP);
+			ProxyInterface->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
+			ProxyInterface->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
+			ProxyInterface->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_MIPFILTER, D3DTEXF_LINEAR);
+
+			// tune this!
+			float specColor[4] = { EnvSpecRed, EnvSpecGreen, EnvSpecBlue, EnvSpecAlpha };
+			ProxyInterface->SetVertexShaderConstant(27, specColor, 1);
+
+			float cameraPos[4] = {
+				GetInGameCameraPosX(),
+				GetInGameCameraPosY(),
+				GetInGameCameraPosZ(),
+				0.0f
+			};
+
+			ProxyInterface->SetVertexShaderConstant(VSHADER_FLASHLIGHT_POS_REGISTER, g_FlashLightPos, 1);
+			ProxyInterface->SetVertexShaderConstant(VSHADER_CAMERA_POS_REGISTER, cameraPos, 1);
+
+			ProxyInterface->SetVertexShader(isVColorGeometry ? vcolorVsHandle : windowVsHandle);
+
+			ProxyInterface->SetPixelShader(windowPsHandle);
+
+			// Set up sampler states
+			ProxyInterface->SetTextureStageState(4, D3DTSS_ADDRESSU, D3DTADDRESS_BORDER);
+			ProxyInterface->SetTextureStageState(4, D3DTSS_ADDRESSV, D3DTADDRESS_BORDER);
+			ProxyInterface->SetTextureStageState(4, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
+			ProxyInterface->SetTextureStageState(4, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
+			ProxyInterface->SetTextureStageState(4, D3DTSS_MIPFILTER, D3DTEXF_LINEAR);
+
+			HRESULT hr = ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
+
+			ProxyInterface->SetVertexShader(currVs);
+			ProxyInterface->SetPixelShader(currPs);
+
+			ProxyInterface->SetTexture(SPECULAR_LUT_TEXTURE_SLOT, savedTexture);
+
+			return hr;
+		}
+		else if (currVs == g_mdlVsHandles_1F7D684[7] && desc.Format == D3DFMT_DXT4 && flashlightPhase >= 0)
+		{
+			if (!g_SpecularLUT) {
+				GenerateSpecularLUT(ProxyInterface);
+			}
+
+			// Assign specular highlight texture to slot 1
+			IDirect3DBaseTexture8* savedTexture = nullptr;
+			ProxyInterface->GetTexture(SPECULAR_LUT_TEXTURE_SLOT, &savedTexture);
+			ProxyInterface->SetTexture(SPECULAR_LUT_TEXTURE_SLOT, g_SpecularLUT);
+			// Set up sampler states
+			ProxyInterface->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_ADDRESSU, D3DTADDRESS_CLAMP);
+			ProxyInterface->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_ADDRESSV, D3DTADDRESS_CLAMP);
+			ProxyInterface->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
+			ProxyInterface->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
+			ProxyInterface->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_MIPFILTER, D3DTEXF_LINEAR);
+
+			IDirect3DBaseTexture8* savedTexture2 = nullptr;
+			ProxyInterface->GetTexture(2, &savedTexture2);
+			//ProxyInterface->SetTexture(2, g_flashLightTexture_1F5F16C);
+			ProxyInterface->SetTextureStageState(2, D3DTSS_ADDRESSU, D3DTADDRESS_BORDER);
+			ProxyInterface->SetTextureStageState(2, D3DTSS_ADDRESSV, D3DTADDRESS_BORDER);
+			ProxyInterface->SetTextureStageState(2, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
+			ProxyInterface->SetTextureStageState(2, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
+			ProxyInterface->SetTextureStageState(2, D3DTSS_MIPFILTER, D3DTEXF_LINEAR);
+
+			// tune this!
+			const float flashlightIntensity = GetFlashlightBrightnessRed() / 7.0f;
+			const float specColor[4] = { EnvSpecRed * flashlightIntensity, EnvSpecGreen * flashlightIntensity, EnvSpecBlue * flashlightIntensity, EnvSpecAlpha };
+			ProxyInterface->SetVertexShaderConstant(27, specColor, 1);
+
+			float cameraPos[4] = {
+				GetInGameCameraPosX(),
+				GetInGameCameraPosY(),
+				GetInGameCameraPosZ(),
+				0.0f
+			};
+
+			float savedConstants[6 * 4] = {};
+
+			float savedConstants2[4 * 4] = {};
+
+			ProxyInterface->GetVertexShaderConstant(VSHADER_FLASHLIGHT_POS_REGISTER, savedConstants, 6);
+			ProxyInterface->GetVertexShaderConstant(20, savedConstants2, 4);
+
+			D3DXMATRIX viewMat = {};
+			D3DXMATRIX projMat, viewProjTransMat;
+			D3DXMATRIX viewMatInv = {};
+			D3DXMATRIX viewMatInvTrans = {};
+			ProxyInterface->GetTransform(D3DTS_VIEW, &viewMat);
+			ProxyInterface->GetTransform(D3DTS_PROJECTION, &projMat);
+
+			D3DXVECTOR4 dxFlashLightPos = {}, dxFlashLightPosIn = { g_FlashLightPos[0], g_FlashLightPos[1], g_FlashLightPos[2], 1.0f };
+			D3DXVECTOR4 dxCameraPos = {}, dxCameraPosIn = { cameraPos[0], cameraPos[1], cameraPos[2], 1.0f };
+			D3DXVec4Transform(&dxFlashLightPos, &dxFlashLightPosIn, &viewMat);
+			D3DXVec4Transform(&dxCameraPos, &dxCameraPosIn, &viewMat);
+
+			ProxyInterface->SetVertexShaderConstant(VSHADER_FLASHLIGHT_POS_REGISTER, &dxFlashLightPos.x, 1);
+
+			D3DXMatrixMultiplyTranspose(&viewProjTransMat, &viewMat, &projMat);
+			ProxyInterface->SetVertexShaderConstant(20, &viewProjTransMat, 4);
+
+			D3DXMatrixInverse(&viewMatInv, nullptr, &viewMat);
+			D3DXMatrixTranspose(&viewMatInvTrans, &viewMatInv);
+			ProxyInterface->SetVertexShaderConstant(92, &viewMatInvTrans, 4);
+
+			ProxyInterface->SetVertexShader(hospitalDoorVsHandle);
+
+			ProxyInterface->SetPixelShader(hospitalDoorPsHandles[flashlightPhase]);
+
+			HRESULT hr = ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
+
+			ProxyInterface->SetVertexShader(currVs);
+			ProxyInterface->SetPixelShader(currPs);
+			ProxyInterface->SetTexture(SPECULAR_LUT_TEXTURE_SLOT, savedTexture);
+
+			ProxyInterface->SetVertexShaderConstant(20, savedConstants2, 4);
+			ProxyInterface->SetVertexShaderConstant(VSHADER_FLASHLIGHT_POS_REGISTER, savedConstants, 6);
+
+			return hr;
+		}
+	}
+
 	return ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
 }
 

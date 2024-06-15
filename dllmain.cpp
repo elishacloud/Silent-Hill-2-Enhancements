@@ -609,7 +609,7 @@ void DelayedStart()
 	bool EnvSpecularFix = true;
 	if (EnvSpecularFix)
 	{
-		PatchEnvSpecular();
+		//PatchEnvSpecular();
 	}
 
 	// Enables a complete rewrite of the game's audio engine

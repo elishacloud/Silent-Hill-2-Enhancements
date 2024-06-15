@@ -75,7 +75,7 @@ IDirect3DTexture8*& g_flashLightTexture_1F5F16C = *reinterpret_cast<IDirect3DTex
 float* g_FlashLightPos = reinterpret_cast<float*>(0x01FB7D18);
 float* g_FlashLightDir = reinterpret_cast<float*>(0x01FB7D28);
 
-static int IsPixelShaderMDLFadeOrFullBright(DWORD handle) {
+int IsPixelShaderMDLFadeOrFullBright(DWORD handle) {
     if (g_mdlPsHandles_1F7D6C4[0] == handle) {
         return 0;
     }  else if (g_mdlPsHandles_1F7D6C4[1] == handle) {
@@ -89,14 +89,14 @@ static int IsPixelShaderMDLFadeOrFullBright(DWORD handle) {
     }
 }
 
-static void GenerateSpecularLUT() {
+void GenerateSpecularLUT(LPDIRECT3DDEVICE8 ProxyInterface) {
     // keep the with-to_height ratio <= 8:1
     constexpr UINT kSpecularLutW = 512u;
     constexpr UINT kSpecularLutH = 64u;
     // tune this
     const float kSpecPower = EnvSpecPower;
 
-    HRESULT hr = g_d3d8Device_A32894->CreateTexture(kSpecularLutW, kSpecularLutH, 1u, 0u, D3DFMT_A8, D3DPOOL_MANAGED, &g_SpecularLUT);
+    HRESULT hr = ProxyInterface->CreateTexture(kSpecularLutW, kSpecularLutH, 1u, 0u, D3DFMT_A8, D3DPOOL_MANAGED, &g_SpecularLUT);
     if (SUCCEEDED(hr)) {
         D3DLOCKED_RECT lockedRect{};
         hr = g_SpecularLUT->LockRect(0u, &lockedRect, nullptr, 0);
@@ -445,7 +445,7 @@ void __cdecl sub_5B4940(Something* toRender)
                     if ((currVs == WINDOW_VSHADER_ORIGINAL || currVs == VCOLOR_VSHADER_ORIGINAL) && desc.Format == D3DFMT_DXT4) // If using the same vertex shader as the town east shop window
                     {
                         if (!g_SpecularLUT) {
-                            GenerateSpecularLUT();
+                            GenerateSpecularLUT(g_d3d8Device_A32894);
                         }
 
                         const bool isVColorGeometry = (currVs == VCOLOR_VSHADER_ORIGINAL);
@@ -940,7 +940,7 @@ LABEL_50:
     if (currVs == g_mdlVsHandles_1F7D684[7] && desc.Format == D3DFMT_DXT4 && flashlightPhase >= 0)
     {
         if(!g_SpecularLUT) {
-            GenerateSpecularLUT();
+            GenerateSpecularLUT(g_d3d8Device_A32894);
         }
 
         // Assign specular highlight texture to slot 1

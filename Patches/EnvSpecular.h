@@ -970,3 +970,17 @@ struct struct_dword_1F7D4AC
 {
     IDirect3DBaseTexture8* tex;
 };
+
+void GenerateSpecularLUT(LPDIRECT3DDEVICE8 ProxyInterface);
+
+int IsPixelShaderMDLFadeOrFullBright(DWORD handle);
+
+extern IDirect3DTexture8* g_SpecularLUT;
+extern DWORD* g_vsHandles_1DB88A8;
+
+extern DWORD* g_mdlVsHandles_1F7D684;
+//extern DWORD* g_mdlPsHandles_1F7D6C4;
+
+extern IDirect3DTexture8*& g_flashLightTexture_1F5F16C;
+
+extern float* g_FlashLightPos;

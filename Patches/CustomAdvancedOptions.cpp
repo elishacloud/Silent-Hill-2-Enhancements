@@ -44,10 +44,12 @@ namespace
     BYTE* NoiseEffectOptionValue = nullptr;
     BYTE* NoiseEffectOptionCommitValue = nullptr;
     BYTE* AdvancedFiltersAvailable = nullptr;
+    BYTE* LensFlareAvailable = nullptr;
     BYTE* DxConfigShadowsEnabled = nullptr;
     BYTE* DxConfigFogEnabled = nullptr;
     BYTE* DxConfigMotionBlurEnabled = nullptr;
     BYTE* DxConfigDepthOfFieldEnabled = nullptr;
+    BYTE* DxConfigLensFlareEnabled = nullptr;
     void(*HandleAdvancedFiltersChange)();
 
     char*(*prepText)(const char *str);
@@ -453,6 +455,41 @@ namespace
         }
     };
 
+    class LensFlareOption : public Option
+    {
+    public:
+        LensFlareOption(int index) : Option(
+            index,
+            /*name=*/std::make_unique<OptionMsgText>((short)0xC0),
+            /*description=*/std::make_unique<OptionMsgText>((short)0xD0)
+        )
+        {
+            AddValue(std::make_unique<OptionMsgText>((short)0xB0));  // "Off"
+            AddValue(std::make_unique<OptionMsgText>((short)0xB1));  // "On"
+            SetDisabledValue(std::make_unique<OptionMsgText>((short)0xBC));  // "Not Available"
+        }
+
+        void Init() override
+        {
+            if (*LensFlareAvailable)
+            {
+                enabled_ = true;
+                value_index_ = committed_value_index_ = *DxConfigLensFlareEnabled;
+            }
+            else
+            {
+                enabled_ = false;
+                value_index_ = committed_value_index_ = 0;
+            }
+        }
+
+        void Apply() override
+        {
+            Option::Apply();
+            *DxConfigLensFlareEnabled = (BYTE)value_index_;
+        }
+    };
+
     std::vector<std::unique_ptr<Option>> options;
 
     void InitializeOptions()
@@ -463,6 +500,7 @@ namespace
         options.push_back(std::make_unique<ShadowsOption>(index++));
         options.push_back(std::make_unique<FogOption>(index++));
         options.push_back(std::make_unique<AdvancedFiltersOption>(index++));
+        options.push_back(std::make_unique<LensFlareOption>(index++));
     }
     
     void HandleAdvancedOptionsInput()
@@ -679,10 +717,12 @@ void PatchCustomAdvancedOptions()
     NoiseEffectOptionValue = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0x449);
     NoiseEffectOptionCommitValue = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0x443);
     AdvancedFiltersAvailable = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr + 0xDC);
+    LensFlareAvailable = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr + 0x12D);
     DxConfigShadowsEnabled = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0x10B);
     DxConfigFogEnabled = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0xFF);
     DxConfigMotionBlurEnabled = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0xE1);
     DxConfigDepthOfFieldEnabled = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0xE6);
+    DxConfigLensFlareEnabled = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0xDB);
     HandleAdvancedFiltersChange = (void (*)())(BYTE*)(DrawAdvancedOptionsAddr - 0x16F);
 
     // Get functions

@@ -1615,7 +1615,7 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 		return hr;
 	}
 
-	bool EnvSpecularFix = false;
+	bool EnvSpecularFix = true;
 	if (EnvSpecularFix)
 	{
 		#define WINDOW_VSHADER_ORIGINAL  (g_vsHandles_1DB88A8[2])

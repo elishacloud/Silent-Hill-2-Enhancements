@@ -43,8 +43,12 @@ namespace
 
     BYTE* NoiseEffectOptionValue = nullptr;
     BYTE* NoiseEffectOptionCommitValue = nullptr;
+    BYTE* AdvancedFiltersAvailable = nullptr;
     BYTE* DxConfigShadowsEnabled = nullptr;
     BYTE* DxConfigFogEnabled = nullptr;
+    BYTE* DxConfigMotionBlurEnabled = nullptr;
+    BYTE* DxConfigDepthOfFieldEnabled = nullptr;
+    void(*HandleAdvancedFiltersChange)();
 
     char*(*prepText)(const char *str);
     void(*printText)(const char *str, int x, int y);
@@ -77,10 +81,10 @@ namespace
         virtual int GetTextWidth() const = 0;
     };
 
-    class OptionExeText : public OptionText
+    class OptionRawText : public OptionText
     {
     public:
-        OptionExeText(const char* text) : text_(text) {}
+        OptionRawText(const char* text) : text_(text) {}
 
         void Draw(int x, int y) const override
         {
@@ -127,11 +131,11 @@ namespace
     class Option
     {
     public:
-        Option(int index, std::unique_ptr<OptionText> name, std::unique_ptr<OptionText> description, bool enabled = true) :
+        Option(int index, std::unique_ptr<OptionText> name, std::unique_ptr<OptionText> description) :
             index_(index),
             name_(std::move(name)),
             description_(std::move(description)),
-            enabled_(enabled)
+            enabled_(true)
         {
             option_y_ = index * 0x1B + 0x64;
         }
@@ -139,6 +143,11 @@ namespace
         void AddValue(std::unique_ptr<OptionText> value)
         {
             values_.push_back(std::move(value));
+        }
+
+        void SetDisabledValue(std::unique_ptr<OptionText> value)
+        {
+            value_disabled_ = std::move(value);
         }
 
         const std::vector<std::unique_ptr<OptionText>>& Values() const
@@ -186,7 +195,7 @@ namespace
 
         virtual void NextValue()
         {
-            if (values_.empty()) return;
+            if (!enabled_ || values_.empty()) return;
             if (++value_index_ >= (int)values_.size())
                 value_index_ = 0;
             playSound(10000, 1.0, 0);
@@ -194,7 +203,7 @@ namespace
 
         virtual void PreviousValue()
         {
-            if (values_.empty()) return;
+            if (!enabled_ || values_.empty()) return;
             if (--value_index_ < 0)
                 value_index_ = values_.size() - 1;
             playSound(10000, 1.0, 0);
@@ -202,6 +211,8 @@ namespace
 
         virtual void HandleMouseSelection()
         {
+            if (!enabled_) return;
+
             const int x = mouseX();
             const int y = mouseY();
 
@@ -249,10 +260,11 @@ namespace
                 name_->Draw(0xF3, option_y_);
                 textUnsetRightAlign();
                 if (committed_value_index_ != value_index_)
-                {
                     SetTextColorUnselectedChanged();
-                }
-                values_[value_index_]->Draw(0x10E, option_y_);
+                if (enabled_)
+                    values_[value_index_]->Draw(0x10E, option_y_);
+                else if (value_disabled_ != nullptr)
+                    value_disabled_->Draw(0x10E, option_y_);
             }
             else
             {
@@ -273,9 +285,7 @@ namespace
                 name_->Draw(0xF1, option_y_ - 0x02);
                 textUnsetRightAlign();
                 if (committed_value_index_ != value_index_)
-                {
                     SetTextColorSelectedChanged();
-                }
                 values_[value_index_]->Draw(0x10C, option_y_ - 0x02);
             }
             else
@@ -310,6 +320,7 @@ namespace
         std::unique_ptr<OptionText> name_;
         std::unique_ptr<OptionText> description_;
         std::vector<std::unique_ptr<OptionText>> values_;
+        std::unique_ptr<OptionText> value_disabled_;
         int value_index_ = 0;
         int committed_value_index_ = 0;
         bool enabled_;
@@ -406,6 +417,42 @@ namespace
         }
     };
 
+    class AdvancedFiltersOption : public Option
+    {
+    public:
+        AdvancedFiltersOption(int index) : Option(
+            index,
+            /*name=*/std::make_unique<OptionMsgText>((short)0xB5),
+            /*description=*/std::make_unique<OptionMsgText>((short)0xCD)
+        )
+        {
+            AddValue(std::make_unique<OptionMsgText>((short)0xB0));  // "Off"
+            AddValue(std::make_unique<OptionMsgText>((short)0xB1));  // "On"
+            SetDisabledValue(std::make_unique<OptionMsgText>((short)0xBC));  // "Not Available"
+        }
+
+        void Init() override
+        {
+            if (*AdvancedFiltersAvailable)
+            {
+                enabled_ = true;
+                value_index_ = committed_value_index_ = (*DxConfigMotionBlurEnabled || *DxConfigDepthOfFieldEnabled) ? 1 : 0;
+            }
+            else
+            {
+                enabled_ = false;
+                value_index_ = committed_value_index_ = 0;
+            }
+        }
+
+        void Apply() override
+        {
+            Option::Apply();
+            *DxConfigMotionBlurEnabled = *DxConfigDepthOfFieldEnabled = (BYTE)value_index_;
+            HandleAdvancedFiltersChange();
+        }
+    };
+
     std::vector<std::unique_ptr<Option>> options;
 
     void InitializeOptions()
@@ -415,6 +462,7 @@ namespace
         options.push_back(std::make_unique<NoiseEffectOption>(index++));
         options.push_back(std::make_unique<ShadowsOption>(index++));
         options.push_back(std::make_unique<FogOption>(index++));
+        options.push_back(std::make_unique<AdvancedFiltersOption>(index++));
     }
     
     void HandleAdvancedOptionsInput()
@@ -427,6 +475,8 @@ namespace
             return;
 
         Option* selected_option = options[select_index].get();
+        if (!selected_option->Enabled())
+            return;
 
         // Mouse selection
         if (mouseDown(0x01))
@@ -628,8 +678,12 @@ void PatchCustomAdvancedOptions()
 
     NoiseEffectOptionValue = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0x449);
     NoiseEffectOptionCommitValue = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0x443);
+    AdvancedFiltersAvailable = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr + 0xDC);
     DxConfigShadowsEnabled = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0x10B);
     DxConfigFogEnabled = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0xFF);
+    DxConfigMotionBlurEnabled = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0xE1);
+    DxConfigDepthOfFieldEnabled = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0xE6);
+    HandleAdvancedFiltersChange = (void (*)())(BYTE*)(DrawAdvancedOptionsAddr - 0x16F);
 
     // Get functions
     prepText = (char*(*)(const char* str))(((BYTE*)DSpkAddrC + 0x15) + *(int*)((BYTE*)DSpkAddrC + 0x11));
@@ -663,6 +717,9 @@ void PatchCustomAdvancedOptions()
     const BYTE option_count = options.size() & 0xFF;
     UpdateMemoryAddress((void*)(SkipDisabledOptionsAddr - 0x18E), &option_count, 1);
     
-    // Early return in advanced options handler
+    // Early return in options updaate handler
     UpdateMemoryAddress((void*)(DrawAdvancedOptionsAddr + 0x11DF), "\xC3\x90\x90\x90\x90", 0x05);
+
+    // Early return in advanced filters handler
+    UpdateMemoryAddress((void*)(DrawAdvancedOptionsAddr - 0x127), "\xC3\x90\x90\x90\x90", 0x05);
 }

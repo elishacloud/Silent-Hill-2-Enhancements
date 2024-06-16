@@ -1130,11 +1130,6 @@ HRESULT m_IDirect3DDevice8::CreatePixelShader(THIS_ CONST DWORD* pFunction, DWOR
         ProxyInterface->CreatePixelShader(hospitalDoorPixelShader_stage3, &hospitalDoorPsHandles[3]);
 	}
 
-	if (!magentaPsHandle)
-	{
-		ProxyInterface->CreatePixelShader(magentaPixelShader, &magentaPsHandle);
-	}
-
 	return ProxyInterface->CreatePixelShader(pFunction, pHandle);
 }
 
@@ -1658,8 +1653,7 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 			ProxyInterface->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
 			ProxyInterface->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_MIPFILTER, D3DTEXF_LINEAR);
 
-			// tune this!
-			float specColor[4] = { EnvSpecRed, EnvSpecGreen, EnvSpecBlue, EnvSpecAlpha };
+			float specColor[4] = { 0.4f, 0.4f, 0.4f, 1.0f };
 			ProxyInterface->SetVertexShaderConstant(27, specColor, 1);
 
 			float cameraPos[4] = {
@@ -1698,6 +1692,10 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 				GenerateSpecularLUT(ProxyInterface);
 			}
 
+			if (!g_flashLightTexture) {
+				GenerateFlashLightTexture(ProxyInterface);
+			}
+
 			// Assign specular highlight texture to slot 1
 			IDirect3DBaseTexture8* savedTexture = nullptr;
 			ProxyInterface->GetTexture(SPECULAR_LUT_TEXTURE_SLOT, &savedTexture);
@@ -1711,16 +1709,15 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 
 			IDirect3DBaseTexture8* savedTexture2 = nullptr;
 			ProxyInterface->GetTexture(2, &savedTexture2);
-			//ProxyInterface->SetTexture(2, g_flashLightTexture_1F5F16C);
+			ProxyInterface->SetTexture(2, g_flashLightTexture);
 			ProxyInterface->SetTextureStageState(2, D3DTSS_ADDRESSU, D3DTADDRESS_BORDER);
 			ProxyInterface->SetTextureStageState(2, D3DTSS_ADDRESSV, D3DTADDRESS_BORDER);
 			ProxyInterface->SetTextureStageState(2, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
 			ProxyInterface->SetTextureStageState(2, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
 			ProxyInterface->SetTextureStageState(2, D3DTSS_MIPFILTER, D3DTEXF_LINEAR);
 
-			// tune this!
 			const float flashlightIntensity = GetFlashlightBrightnessRed() / 7.0f;
-			const float specColor[4] = { EnvSpecRed * flashlightIntensity, EnvSpecGreen * flashlightIntensity, EnvSpecBlue * flashlightIntensity, EnvSpecAlpha };
+			const float specColor[4] = { 0.4f * flashlightIntensity, 0.4f * flashlightIntensity, 0.4f * flashlightIntensity, 1.0f };
 			ProxyInterface->SetVertexShaderConstant(27, specColor, 1);
 
 			float cameraPos[4] = {

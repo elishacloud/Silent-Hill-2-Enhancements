@@ -3,7 +3,6 @@
 #include <string>
 
 #define VISIT_BOOL_SETTINGS(visit) \
-	visit(DebugMagenta, false) \
 	visit(AdjustColorTemp, true) \
 	visit(AudioClipDetection, true) \
 	visit(AutoHideMouseCursor, false) \
@@ -186,11 +185,6 @@
 	visit(SpeedrunMode, 2)
 
 #define VISIT_FLOAT_SETTINGS(visit) \
-	visit(EnvSpecRed, 0.619f) \
-	visit(EnvSpecGreen, 0.619f) \
-	visit(EnvSpecBlue, 0.619f) \
-	visit(EnvSpecAlpha, 1.0f) \
-	visit(EnvSpecPower, 128.0f) \
 	visit(fog_layer1_x1, 0.250f) \
 	visit(fog_layer1_x2, 0.250f) \
 	visit(fog_layer1_y1, 0.125f) \

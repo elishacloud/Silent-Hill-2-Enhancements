@@ -7,6 +7,8 @@
 
 #include <cmath>    // for std::powf
 
+IDirect3DTexture8* g_flashLightTexture = nullptr;
+
 DWORD windowVsHandle = 0;
 DWORD windowPsHandle = 0;
 DWORD vcolorVsHandle = 0;
@@ -19,8 +21,6 @@ DWORD hospitalDoorPsHandles[4] = {0, 0, 0, 0};
 
 #define VSHADER_FLASHLIGHT_POS_REGISTER 90
 #define VSHADER_CAMERA_POS_REGISTER     91
-
-DWORD magentaPsHandle = 0;
 
 IDirect3DTexture8* g_SpecularLUT = nullptr;
 #define SPECULAR_LUT_TEXTURE_SLOT 1
@@ -94,7 +94,7 @@ void GenerateSpecularLUT(LPDIRECT3DDEVICE8 ProxyInterface) {
     constexpr UINT kSpecularLutW = 512u;
     constexpr UINT kSpecularLutH = 64u;
     // tune this
-    const float kSpecPower = EnvSpecPower;
+    const float kSpecPower = 400.0;
 
     HRESULT hr = ProxyInterface->CreateTexture(kSpecularLutW, kSpecularLutH, 1u, 0u, D3DFMT_A8, D3DPOOL_MANAGED, &g_SpecularLUT);
     if (SUCCEEDED(hr)) {
@@ -111,6 +111,19 @@ void GenerateSpecularLUT(LPDIRECT3DDEVICE8 ProxyInterface) {
             }
 
             g_SpecularLUT->UnlockRect(0u);
+        }
+    }
+}
+
+void GenerateFlashLightTexture(LPDIRECT3DDEVICE8 ProxyInterface) {
+    HRESULT hr = ProxyInterface->CreateTexture(128, 128, 0u, 0u, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &g_flashLightTexture);
+    if (SUCCEEDED(hr)) {
+        D3DLOCKED_RECT lockedRect{};
+        hr = g_flashLightTexture->LockRect(0u, &lockedRect, nullptr, 0);
+
+        if (SUCCEEDED(hr)) {
+            std::memcpy(lockedRect.pBits, flashLightTexture, sizeof(flashLightTexture));
+            g_flashLightTexture->UnlockRect(0u);
         }
     }
 }
@@ -461,8 +474,7 @@ void __cdecl sub_5B4940(Something* toRender)
                         g_d3d8Device_A32894->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
                         g_d3d8Device_A32894->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_MIPFILTER, D3DTEXF_LINEAR);
 
-                        // tune this!
-                        float specColor[4] = { EnvSpecRed, EnvSpecGreen, EnvSpecBlue, EnvSpecAlpha };
+                        float specColor[4] = { 0.4f, 0.4f, 0.4f, 1.0f };
                         g_d3d8Device_A32894->SetVertexShaderConstant(27, specColor, 1);
 
                         float cameraPos[4] = {
@@ -479,14 +491,7 @@ void __cdecl sub_5B4940(Something* toRender)
                         g_d3d8Device_A32894->GetPixelShader(&currPs);
                         g_d3d8Device_A32894->SetVertexShader(isVColorGeometry ? vcolorVsHandle : windowVsHandle);
 
-                        if (DebugMagenta)
-                        {
-                            g_d3d8Device_A32894->SetPixelShader(magentaPsHandle);
-                        }
-                        else
-                        {
-                            g_d3d8Device_A32894->SetPixelShader(windowPsHandle);
-                        }
+                        g_d3d8Device_A32894->SetPixelShader(windowPsHandle);
 
                         // Set up sampler states
                         g_d3d8Device_A32894->SetTextureStageState(4, D3DTSS_ADDRESSU, D3DTADDRESS_BORDER);
@@ -965,7 +970,7 @@ LABEL_50:
 
         // tune this!
         const float flashlightIntensity = GetFlashlightBrightnessRed() / 7.0f;
-        const float specColor[4] = { EnvSpecRed * flashlightIntensity, EnvSpecGreen * flashlightIntensity, EnvSpecBlue * flashlightIntensity, EnvSpecAlpha };
+        const float specColor[4] = { 0.4f * flashlightIntensity, 0.4f * flashlightIntensity, 0.4f * flashlightIntensity, 1.0f };
         g_d3d8Device_A32894->SetVertexShaderConstant(27, specColor, 1);
 
         float cameraPos[4] = {
@@ -1005,14 +1010,7 @@ LABEL_50:
 
         g_d3d8Device_A32894->SetVertexShader(hospitalDoorVsHandle);
 
-        if (DebugMagenta)
-        {
-            g_d3d8Device_A32894->SetPixelShader(magentaPsHandle);
-        }
-        else
-        {
-            g_d3d8Device_A32894->SetPixelShader(hospitalDoorPsHandles[flashlightPhase]);
-        }
+        g_d3d8Device_A32894->SetPixelShader(hospitalDoorPsHandles[flashlightPhase]);
 
         g_d3d8Device_A32894->SetStreamSource(0, vertexBuffer, 32);
         g_d3d8Device_A32894->DrawIndexedPrimitive(D3DPT_TRIANGLESTRIP, 0, toRender->subStruct->numVertices, 0, toRender->primCount - 2);

@@ -234,7 +234,7 @@
         </Choices>
       </Feature>
 
-	  <Feature name="FlashlightReflection">
+      <Feature name="FlashlightReflection">
         <Title>Flashlight reflection</Title>
         <Description>Creates a reflection of the flashlight on glass and glossy surfaces throughout the game.</Description>
         <Choices type="check">

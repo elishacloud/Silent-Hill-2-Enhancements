@@ -3,6 +3,15 @@
 #include <Windows.h>
 #include "Wrappers\d3d8\DirectX81SDK\include\d3d8.h"
 
+extern DWORD windowVsHandle;
+extern DWORD windowPsHandle;
+extern DWORD vcolorVsHandle;
+
+extern DWORD hospitalDoorVsHandle;
+extern DWORD hospitalDoorPsHandles[4];
+
+HRESULT DrawFlashlightReflection(LPDIRECT3DDEVICE8 ProxyInterface, D3DPRIMITIVETYPE Type, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount);
+
 constexpr DWORD vsDecl[] =
 {
     D3DVSD_STREAM(0),
@@ -848,124 +857,6 @@ constexpr DWORD hospitalDoorPixelShader_stage3[] = {
     0x80070000, 0x80e40002, 0x90e40001, 0x80e40003,
     0x0000ffff
 };
-
-extern DWORD windowVsHandle;
-extern DWORD windowPsHandle;
-extern DWORD vcolorVsHandle;
-
-extern DWORD hospitalDoorVsHandle;
-extern DWORD hospitalDoorPsHandles[4];
-
-struct SubSubSomething
-{
-    unsigned __int16 off_0x00;
-    unsigned __int8 off_0x02;
-    unsigned __int8 off_0x03;
-    unsigned __int16 off_0x04;
-    unsigned __int16 off_0x06;
-};
-
-struct MapMaterial
-{
-    DWORD materialColor_0x00;
-    DWORD overlayColor_0x04;
-    IDirect3DTexture8* tex1;
-    IDirect3DTexture8* tex2;
-    unsigned __int8 mode_0x10;
-};
-
-struct SubSomething2
-{
-    UINT off_0x00;
-    UINT off_0x04;
-    UINT off_0x08;
-};
-
-struct SubSomething3
-{
-    int off_0x00;
-    int off_0x04;
-    unsigned int off_0x08;
-    SubSubSomething off_0x0C[];
-};
-
-struct VBStruct
-{
-    IDirect3DVertexBuffer8* vertexBuffer;
-};
-
-struct Something
-{
-    float unkFloats[8];
-    VBStruct* vertexBufferStruct;
-    IDirect3DIndexBuffer8* indexBuffer;
-    MapMaterial* mapMaterial;
-    SubSomething2* strides;
-    DWORD off_0x30;
-    SubSomething3* pSubStruct3;
-};
-
-struct struct_a1_sub
-{
-    UINT numVertices;
-    IDirect3DIndexBuffer8* indexBuffer;
-    UINT dword8;
-    UINT dwordC;
-};
-
-struct struct_a1
-{
-    unsigned __int8 byte0[4];
-    BYTE gap4[4];
-    DWORD dword8;
-    DWORD dwordC;
-    DWORD dword10;
-    DWORD dword14;
-    BYTE gap18[4];
-    DWORD dword1C;
-    DWORD dword20;
-    BYTE byte24;
-    BYTE byte25;
-    __declspec(align(4)) BYTE cullMode;
-    float tintA;
-    float float30;
-    float specularSize;
-    struct_a1_sub* subStruct;
-    BYTE gap3C[8];
-    float tintR;
-    float tintG;
-    float tintB;
-    BYTE gap50[4];
-    float float54;
-    float float58;
-    float float5C;
-    BYTE gap60[4];
-    float specularR;
-    float specularG;
-    float specularB;
-    BYTE gap70[8];
-    UINT primCount;
-};
-static_assert(sizeof(struct_a1) == 0x7C);
-
-struct struct_dword_1F7D4AC
-{
-    IDirect3DBaseTexture8* tex;
-};
-
-void GenerateSpecularLUT(LPDIRECT3DDEVICE8 ProxyInterface);
-void GenerateFlashLightTexture(LPDIRECT3DDEVICE8 ProxyInterface);
-
-int IsPixelShaderMDLFadeOrFullBright(DWORD handle);
-
-extern IDirect3DTexture8* g_SpecularLUT;
-extern DWORD* g_vsHandles_1DB88A8;
-
-extern DWORD* g_mdlVsHandles_1F7D684;
-
-extern IDirect3DTexture8* g_flashLightTexture;
-
-extern float* g_FlashLightPos;
 
 constexpr unsigned char flashLightTexture[] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,

@@ -446,7 +446,7 @@
     <ClCompile Include="Patches\ElevatorCursorColorFix.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
-	<ClCompile Include="Patches\EnvSpecular.cpp">
+    <ClCompile Include="Patches\FlashlightReflection.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
     <ClCompile Include="Patches\RowboatFix.cpp">
@@ -679,7 +679,7 @@
     <ClInclude Include="Patches\GravestoneBoardsFix.h">
       <Filter>Patches</Filter>
     </ClInclude>
-    <ClInclude Include="Patches\EnvSpecular.h">
+    <ClInclude Include="Patches\FlashlightReflection.h">
       <Filter>Patches</Filter>
     </ClInclude>
   </ItemGroup>

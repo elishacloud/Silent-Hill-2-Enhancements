@@ -25,6 +25,7 @@
 #include "Common\Settings.h"
 #include "Patches.h"
 #include <string>
+#include "Resolution.h"
 #include "Resource.h"
 
 using namespace std;
@@ -33,11 +34,6 @@ struct RESOLUTONLIST
 {
 	DWORD Width;
 	DWORD Height;
-};
-
-struct RESOLUTONTEXT
-{
-	char resStrBuf[27];
 };
 
 const DWORD MinWidth = 640;
@@ -121,6 +117,11 @@ void CreateResolutionText(int gWidth, int gHeight)
 	RESOLUTONTEXT Buffer;
 	sprintf_s((char *)Buffer.resStrBuf, sizeof(Buffer.resStrBuf), text, gWidth, gHeight);
 	ResolutionText.push_back(Buffer);
+}
+
+const std::vector<RESOLUTONTEXT>& GetResolutionText()
+{
+	return ResolutionText;
 }
 
 int printResStr(unsigned short, unsigned char, int x, int y)
@@ -415,6 +416,12 @@ __declspec(naked) void __stdcall ChangeResASM()
 		pop ebx
 		jmp jmpChangeRes
 	}
+}
+
+void WSFDynamicChangeWithResIndex(BYTE NewIndex)
+{
+	*TextResIndex = NewIndex;
+	WSFDynamicChange();
 }
 
 void AddResolutionToList(DWORD Width, DWORD Height, bool force = false)

@@ -21,6 +21,7 @@
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 #include "Patches\Patches.h"
+#include "Resolution.h"
 
 namespace
 {
@@ -50,6 +51,7 @@ namespace
     BYTE* DxConfigMotionBlurEnabled = nullptr;
     BYTE* DxConfigDepthOfFieldEnabled = nullptr;
     BYTE* DxConfigLensFlareEnabled = nullptr;
+    BYTE* DxConfigResolution = nullptr;
     void(*HandleAdvancedFiltersChange)();
 
     char*(*prepText)(const char *str);
@@ -69,6 +71,8 @@ namespace
     bool(*mouseDown)(DWORD key);
     int(*mouseX)();
     int(*mouseY)();
+    void(*updateResolution)(BYTE index);
+    void(*updateRenderEffects)();
 
     void SetTextColorUnselected() { textSetColor(0x3F, 0x3F, 0x3F, 0x60); }
     void SetTextColorUnselectedChanged() { textSetColor(0x3F, 0x3F, 0x1F, 0x60); }
@@ -180,9 +184,14 @@ namespace
 
         virtual void Run() {}
 
-        virtual void Apply()
+        virtual bool Apply()
         {
-            committed_value_index_ = value_index_;
+            if (value_index_ != committed_value_index_)
+            {
+                committed_value_index_ = value_index_;
+                return true;
+            }
+            return false;
         }
 
         virtual void Reset()
@@ -344,6 +353,35 @@ namespace
         }
     };
 
+    class ResolutionOption : public Option
+    {
+    public:
+        ResolutionOption(int index) : Option(
+            index,
+            /*name=*/std::make_unique<OptionMsgText>((short)0xA8),
+            /*description=*/std::make_unique<OptionMsgText>((short)0xCA)
+        ) {}
+
+        void Init() override
+        {
+            values_.clear();
+            for (const auto& text : GetResolutionText())
+            {
+                AddValue(std::make_unique<OptionRawText>(text.resStrBuf));
+            }
+            value_index_ = committed_value_index_ = *DxConfigResolution;
+        }
+
+        bool Apply() override
+        {
+            if (!Option::Apply()) return false;
+            WSFDynamicChangeWithResIndex((BYTE)value_index_);
+            updateResolution((BYTE)value_index_);
+            updateRenderEffects();
+            return true;
+        }
+    };
+
     class NoiseEffectOption : public Option
     {
     public:
@@ -362,10 +400,11 @@ namespace
             value_index_ = committed_value_index_ = *NoiseEffectOptionValue;
         }
 
-        void Apply() override
+        bool Apply() override
         {
-            Option::Apply();
+            if (!Option::Apply()) return false;
             *NoiseEffectOptionValue = *NoiseEffectOptionCommitValue = (BYTE)value_index_;
+            return true;
         }
     };
 
@@ -387,10 +426,11 @@ namespace
             value_index_ = committed_value_index_ = *DxConfigShadowsEnabled;
         }
 
-        void Apply() override
+        bool Apply() override
         {
-            Option::Apply();
+            if (!Option::Apply()) return false;
             *DxConfigShadowsEnabled = (BYTE)value_index_;
+            return true;
         }
     };
 
@@ -412,10 +452,11 @@ namespace
             value_index_ = committed_value_index_ = *DxConfigFogEnabled;
         }
 
-        void Apply() override
+        bool Apply() override
         {
-            Option::Apply();
+            if (!Option::Apply()) return false;
             *DxConfigFogEnabled = (BYTE)value_index_;
+            return true;
         }
     };
 
@@ -447,11 +488,12 @@ namespace
             }
         }
 
-        void Apply() override
+        bool Apply() override
         {
-            Option::Apply();
+            if (!Option::Apply()) return false;
             *DxConfigMotionBlurEnabled = *DxConfigDepthOfFieldEnabled = (BYTE)value_index_;
             HandleAdvancedFiltersChange();
+            return true;
         }
     };
 
@@ -483,19 +525,21 @@ namespace
             }
         }
 
-        void Apply() override
+        bool Apply() override
         {
-            Option::Apply();
+            if (!Option::Apply()) return false;
             *DxConfigLensFlareEnabled = (BYTE)value_index_;
+            return true;
         }
     };
 
     std::vector<std::unique_ptr<Option>> options;
 
-    void InitializeOptions()
+    void CreateOptions()
     {
         int index = 0;
         options.push_back(std::make_unique<ScreenBrightnessOption>(index++));
+        options.push_back(std::make_unique<ResolutionOption>(index++));
         options.push_back(std::make_unique<NoiseEffectOption>(index++));
         options.push_back(std::make_unique<ShadowsOption>(index++));
         options.push_back(std::make_unique<FogOption>(index++));
@@ -540,7 +584,10 @@ namespace
         {
             option->Draw();
         }
-        HandleAdvancedOptionsInput();
+        if (!*OptionsSaveChangesActive)
+        {
+            HandleAdvancedOptionsInput();
+        }
     }
 
     __declspec(naked) void __stdcall DrawAdvancedOptionsASM()
@@ -690,6 +737,9 @@ void PatchCustomAdvancedOptions()
     constexpr BYTE SpkSearchBytesC[] = { 0x8B, 0x08, 0x83, 0xC4, 0x10, 0x68, 0xA4, 0x00, 0x00, 0x00, 0x68, 0x00, 0x01, 0x00, 0x00, 0x51, 0xE8 };
     void* DSpkAddrC = (void*)SearchAndGetAddresses(0x00407368, 0x00407368, 0x00407378, SpkSearchBytesC, sizeof(SpkSearchBytesC), 0x00, __FUNCTION__);
 
+    constexpr BYTE DxConfigResolutionSearchBytes[] = { 0x8B, 0x44, 0x24, 0x24, 0x8B, 0x4C, 0x24, 0x28, 0x50, 0x51 };
+    DxConfigResolution = (BYTE*)ReadSearchedAddresses(0x00407DEE, 0x00407E8E, 0x00407E9E, DxConfigResolutionSearchBytes, sizeof(DxConfigResolutionSearchBytes), 0x12, __FUNCTION__);
+
     if (!DrawAdvancedOptionsAddr || !SkipDisabledOptionsAddr || !DSpkAddrC)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find pointer address!";
@@ -743,10 +793,12 @@ void PatchCustomAdvancedOptions()
     mouseDown = (bool(*)(DWORD))(((BYTE*)DrawAdvancedOptionsAddr + 0xC20) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0xC1C));
     mouseX = (int(*)())(((BYTE*)DrawAdvancedOptionsAddr + 0xC47) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0xC43));
     mouseY = (int(*)())(((BYTE*)DrawAdvancedOptionsAddr + 0xC5F) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0xC5B));
+    updateResolution = (void (*)(BYTE))(((BYTE*)DrawAdvancedOptionsAddr - 0x1E5) + *(int*)((BYTE*)DrawAdvancedOptionsAddr - 0x1E9));
+    updateRenderEffects = (void (*)())(((BYTE*)DrawAdvancedOptionsAddr - 0x1DD) + *(int*)((BYTE*)DrawAdvancedOptionsAddr - 0x1E1));
 
     Logging::Log() << "Patching Custom Advanced Options...";
 
-    InitializeOptions();
+    CreateOptions();
 
     WriteJMPtoMemory((BYTE*)DrawAdvancedOptionsAddr, *DrawAdvancedOptionsASM, 0x06);
     WriteJMPtoMemory((BYTE*)SkipDisabledOptionsAddr, *SkipDisabledOptionsASM, 0x07);

@@ -363,6 +363,7 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     <ClInclude Include="Patches\Patches.h" />
     <ClInclude Include="Patches\SfxPatch.h" />
     <ClInclude Include="Patches\SixtyFPSPatch.h" />
+    <ClInclude Include="Resolution.h" />
     <ClInclude Include="Resources\Resource.h" />
     <ClInclude Include="WidescreenFixesPack\WidescreenFixesPack.h" />
     <ClInclude Include="Wrappers\d3d8.h" />

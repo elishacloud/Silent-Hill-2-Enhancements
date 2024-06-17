@@ -19,6 +19,7 @@
 #include <vector>
 #include <Windows.h>
 #include "Common\Utils.h"
+#include "Common\Settings.h"
 #include "Logging\Logging.h"
 #include "Patches\Patches.h"
 #include "Resolution.h"
@@ -26,6 +27,8 @@
 namespace
 {
     constexpr BYTE kAdvancedOptionsPage = 0x07;
+
+    bool DisplayChangeRequired = false;
 
     DWORD* MsgFileAddr = nullptr;
     BYTE* OptionsPage = nullptr;
@@ -159,6 +162,11 @@ namespace
         const std::vector<std::unique_ptr<OptionText>>& Values() const
         {
             return values_;
+        }
+
+        int ValueIndex() const
+        {
+            return value_index_;
         }
 
         virtual void Init() {}
@@ -353,6 +361,36 @@ namespace
         }
     };
 
+    class DisplayModeOption : public Option
+    {
+    public:
+        DisplayModeOption(int index) : Option(
+            index,
+            /*name=*/std::make_unique<OptionMsgText>((short)0xFE),
+            /*description=*/std::make_unique<OptionMsgText>((short)0xFF)
+        )
+        {
+            AddValue(std::make_unique<OptionMsgText>((short)0x100));  // "Windowe"
+            AddValue(std::make_unique<OptionMsgText>((short)0x101));  // "FS Windowed"
+            AddValue(std::make_unique<OptionMsgText>((short)0x102));  // "Full Screen"
+        }
+
+        void Init() override
+        {
+            value_index_ = committed_value_index_ = ConfigData.DisplayModeOption - 1;
+        }
+
+        bool Apply() override
+        {
+            if (!Option::Apply()) return false;
+            DisplayChangeRequired = true;
+            ConfigData.DisplayModeOption = value_index_ + 1;
+            ScreenMode = value_index_ + 1;
+            SaveConfigData();
+            return true;
+        }
+    };
+
     class ResolutionOption : public Option
     {
     public:
@@ -375,9 +413,8 @@ namespace
         bool Apply() override
         {
             if (!Option::Apply()) return false;
+            DisplayChangeRequired = true;
             WSFDynamicChangeWithResIndex((BYTE)value_index_);
-            updateResolution((BYTE)value_index_);
-            updateRenderEffects();
             return true;
         }
     };
@@ -534,12 +571,15 @@ namespace
     };
 
     std::vector<std::unique_ptr<Option>> options;
+    Option* ResolutionOptionPtr = nullptr;
 
     void CreateOptions()
     {
         int index = 0;
         options.push_back(std::make_unique<ScreenBrightnessOption>(index++));
+        options.push_back(std::make_unique<DisplayModeOption>(index++));
         options.push_back(std::make_unique<ResolutionOption>(index++));
+        ResolutionOptionPtr = options.back().get();
         options.push_back(std::make_unique<NoiseEffectOption>(index++));
         options.push_back(std::make_unique<ShadowsOption>(index++));
         options.push_back(std::make_unique<FogOption>(index++));
@@ -672,6 +712,12 @@ namespace
         for (auto& option : options)
         {
             option->Apply();
+        }
+        if (DisplayChangeRequired)
+        {
+            updateResolution((BYTE)ResolutionOptionPtr->ValueIndex());
+            updateRenderEffects();
+            DisplayChangeRequired = false;
         }
     }
 

@@ -1613,7 +1613,9 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 	// Creates a reflection of the flashlight on glassand glossy surfaces throughout the game.
 	if (FlashlightReflection)
 	{
-		HRESULT hr = DrawFlashlightReflection(ProxyInterface, Type, MinVertexIndex, NumVertices, startIndex, primCount);
+        // iOrange - please beware! We need to pass "this" instead of ProxyInterface
+        //           so that any object's setup went through us to grab the underlying proxy interface!
+		HRESULT hr = DrawFlashlightReflection(this, Type, MinVertexIndex, NumVertices, startIndex, primCount);
 		if (hr != -1)
 		{
 			return hr;

@@ -2,12 +2,11 @@
 #include "FlashlightReflection.h"
 #include "Common\Settings.h"
 #include "Common\Utils.h"
+#include "Common\IUnknownPtr.h"
 #include "Patches.h"
 #include "Wrappers\d3d8\DirectX81SDK\include\d3dx8math.h"
 
 #include <cmath>    // for std::powf
-
-IDirect3DTexture8* g_flashLightTexture = nullptr;
 
 DWORD windowVsHandle = 0;
 DWORD windowPsHandle = 0;
@@ -24,6 +23,8 @@ DWORD hospitalDoorPsHandles[4] = {0, 0, 0, 0};
 
 IDirect3DTexture8* g_SpecularLUT = nullptr;
 #define SPECULAR_LUT_TEXTURE_SLOT 1
+
+IDirect3DTexture8*& g_flashLightTexture_1F5F16C = *reinterpret_cast<IDirect3DTexture8**>(0x1F5F16C);
 
 DWORD* g_vsHandles_1DB88A8 = reinterpret_cast<DWORD*>(0x1DB88A8);
 
@@ -72,23 +73,10 @@ static void GenerateSpecularLUT(LPDIRECT3DDEVICE8 ProxyInterface) {
     }
 }
 
-static void GenerateFlashLightTexture(LPDIRECT3DDEVICE8 ProxyInterface) {
-    HRESULT hr = ProxyInterface->CreateTexture(128, 128, 0u, 0u, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &g_flashLightTexture);
-    if (SUCCEEDED(hr)) {
-        D3DLOCKED_RECT lockedRect{};
-        hr = g_flashLightTexture->LockRect(0u, &lockedRect, nullptr, 0);
-
-        if (SUCCEEDED(hr)) {
-            std::memcpy(lockedRect.pBits, flashLightTexture, sizeof(flashLightTexture));
-            g_flashLightTexture->UnlockRect(0u);
-        }
-    }
-}
-
 HRESULT DrawFlashlightReflection(LPDIRECT3DDEVICE8 ProxyInterface, D3DPRIMITIVETYPE Type, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount)
 {
-	IDirect3DTexture8* texture;
-	ProxyInterface->GetTexture(0, (IDirect3DBaseTexture8**)&texture);
+    IUnknownPtr<IDirect3DTexture8> texture;
+	ProxyInterface->GetTexture(0, (IDirect3DBaseTexture8**)texture.ReleaseAndGetAddressOf());
 
 	D3DSURFACE_DESC desc;
 	texture->GetLevelDesc(0, &desc);
@@ -108,8 +96,8 @@ HRESULT DrawFlashlightReflection(LPDIRECT3DDEVICE8 ProxyInterface, D3DPRIMITIVET
 		const bool isVColorGeometry = (currVs == VCOLOR_VSHADER_ORIGINAL);
 
 		// Assign specular highlight texture to slot 1
-		IDirect3DBaseTexture8* savedTexture = nullptr;
-		ProxyInterface->GetTexture(SPECULAR_LUT_TEXTURE_SLOT, &savedTexture);
+        IUnknownPtr<IDirect3DBaseTexture8> savedTexture;
+		ProxyInterface->GetTexture(SPECULAR_LUT_TEXTURE_SLOT, savedTexture.ReleaseAndGetAddressOf());
 		ProxyInterface->SetTexture(SPECULAR_LUT_TEXTURE_SLOT, g_SpecularLUT);
 
 		// Set up sampler states
@@ -148,7 +136,7 @@ HRESULT DrawFlashlightReflection(LPDIRECT3DDEVICE8 ProxyInterface, D3DPRIMITIVET
 		ProxyInterface->SetVertexShader(currVs);
 		ProxyInterface->SetPixelShader(currPs);
 
-		ProxyInterface->SetTexture(SPECULAR_LUT_TEXTURE_SLOT, savedTexture);
+		ProxyInterface->SetTexture(SPECULAR_LUT_TEXTURE_SLOT, savedTexture.GetPtr());
 
 		return hr;
 	}
@@ -158,13 +146,9 @@ HRESULT DrawFlashlightReflection(LPDIRECT3DDEVICE8 ProxyInterface, D3DPRIMITIVET
 			GenerateSpecularLUT(ProxyInterface);
 		}
 
-		if (!g_flashLightTexture) {
-			GenerateFlashLightTexture(ProxyInterface);
-		}
-
 		// Assign specular highlight texture to slot 1
-		IDirect3DBaseTexture8* savedTexture = nullptr;
-		ProxyInterface->GetTexture(SPECULAR_LUT_TEXTURE_SLOT, &savedTexture);
+        IUnknownPtr<IDirect3DBaseTexture8> savedTexture;
+		ProxyInterface->GetTexture(SPECULAR_LUT_TEXTURE_SLOT, savedTexture.ReleaseAndGetAddressOf());
 		ProxyInterface->SetTexture(SPECULAR_LUT_TEXTURE_SLOT, g_SpecularLUT);
 		// Set up sampler states
 		ProxyInterface->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_ADDRESSU, D3DTADDRESS_CLAMP);
@@ -173,9 +157,9 @@ HRESULT DrawFlashlightReflection(LPDIRECT3DDEVICE8 ProxyInterface, D3DPRIMITIVET
 		ProxyInterface->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
 		ProxyInterface->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_MIPFILTER, D3DTEXF_LINEAR);
 
-		IDirect3DBaseTexture8* savedTexture2 = nullptr;
-		ProxyInterface->GetTexture(2, &savedTexture2);
-		ProxyInterface->SetTexture(2, g_flashLightTexture);
+        IUnknownPtr<IDirect3DBaseTexture8> savedTexture2;
+		ProxyInterface->GetTexture(2, savedTexture2.ReleaseAndGetAddressOf());
+		ProxyInterface->SetTexture(2, g_flashLightTexture_1F5F16C);
 		ProxyInterface->SetTextureStageState(2, D3DTSS_ADDRESSU, D3DTADDRESS_BORDER);
 		ProxyInterface->SetTextureStageState(2, D3DTSS_ADDRESSV, D3DTADDRESS_BORDER);
 		ProxyInterface->SetTextureStageState(2, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
@@ -229,7 +213,8 @@ HRESULT DrawFlashlightReflection(LPDIRECT3DDEVICE8 ProxyInterface, D3DPRIMITIVET
 
 		ProxyInterface->SetVertexShader(currVs);
 		ProxyInterface->SetPixelShader(currPs);
-		ProxyInterface->SetTexture(SPECULAR_LUT_TEXTURE_SLOT, savedTexture);
+		ProxyInterface->SetTexture(SPECULAR_LUT_TEXTURE_SLOT, savedTexture.GetPtr());
+        ProxyInterface->SetTexture(2, savedTexture2.GetPtr());
 
 		ProxyInterface->SetVertexShaderConstant(20, savedConstants2, 4);
 		ProxyInterface->SetVertexShaderConstant(VSHADER_FLASHLIGHT_POS_REGISTER, savedConstants, 6);

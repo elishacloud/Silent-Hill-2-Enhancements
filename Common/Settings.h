@@ -344,6 +344,8 @@ struct CFGDATA
 	DWORD VolumeLevel = 15;
 	DWORD HealthIndicatorOption = 1;
 	DWORD DisplayModeOption = 0;
+	DWORD ScaleWindowedResolutionOption = 0;
+	DWORD UseDSOALOption = 0;
 };
 
 extern HMODULE m_hModule;
@@ -370,3 +372,4 @@ void Parse(char* str, NV NameValueCallback, void* lpParam = nullptr);
 void __stdcall ParseCallback(char* lpName, char* lpValue, void*);
 void LogSettings();
 void UpdateConfigDefaults();
+void UpdateScaleResolution();

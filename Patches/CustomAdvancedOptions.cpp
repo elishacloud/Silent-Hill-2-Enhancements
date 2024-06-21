@@ -15,20 +15,26 @@
 */
 
 #define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
 #include <memory>
 #include <vector>
-#include <Windows.h>
 #include "Common\Utils.h"
 #include "Common\Settings.h"
 #include "Logging\Logging.h"
 #include "Patches\Patches.h"
 #include "Resolution.h"
 
+extern char* getRenderResolutionStr();
+extern char* getRenderResolutionDescriptionStr();
+extern char* get3DSoundStr();
+extern char* get3DSoundDescriptionStr();
+
 namespace
 {
     constexpr BYTE kAdvancedOptionsPage = 0x07;
 
     bool DisplayChangeRequired = false;
+    bool SaveConfigRequired = false;
 
     DWORD* MsgFileAddr = nullptr;
     BYTE* OptionsPage = nullptr;
@@ -37,6 +43,7 @@ namespace
     short* OptionsSelectDeltaIndex = nullptr;
     BYTE* OptionsSaveChangesActive = nullptr;
     BYTE* OptionsSaveChangesIndex = nullptr;
+    BYTE* OptionCountAddr = nullptr;
     void* ScreenBrightnessHandlerAddr = nullptr;
     void* jmpHandleInputAddr = nullptr;
     void* jmpSkipDisabledOptionsReturnAddr1 = nullptr;
@@ -383,18 +390,18 @@ namespace
         bool Apply() override
         {
             if (!Option::Apply()) return false;
-            DisplayChangeRequired = true;
             ConfigData.DisplayModeOption = value_index_ + 1;
             ScreenMode = value_index_ + 1;
-            SaveConfigData();
+            DisplayChangeRequired = true;
+            SaveConfigRequired = true;
             return true;
         }
     };
 
-    class ResolutionOption : public Option
+    class DisplayResolutionOption : public Option
     {
     public:
-        ResolutionOption(int index) : Option(
+        DisplayResolutionOption(int index) : Option(
             index,
             /*name=*/std::make_unique<OptionMsgText>((short)0xA8),
             /*description=*/std::make_unique<OptionMsgText>((short)0xCA)
@@ -415,6 +422,60 @@ namespace
             if (!Option::Apply()) return false;
             DisplayChangeRequired = true;
             WSFDynamicChangeWithResIndex((BYTE)value_index_);
+            return true;
+        }
+    };
+
+    Option* DisplayResolutionOptionPtr = nullptr;
+
+    static const std::pair<int, const char*> kRenderResolutionScaleArray[]{
+        {7, "\\hx0.25"},
+        {6, "\\hx0.5"},
+        {5, "\\hx0.75"},
+        {0, "\\hx1.0"},
+        {4, "\\hx1.25"},
+        {3, "\\hx1.5"},
+        {2, "\\hx1.75"},
+        {1, "\\hx2.0"},
+    };
+
+    class RenderResolutionOption : public Option
+    {
+    public:
+        RenderResolutionOption(int index) : Option(
+            index,
+            /*name=*/std::make_unique<OptionRawText>(getRenderResolutionStr()),
+            /*description=*/std::make_unique<OptionRawText>(getRenderResolutionDescriptionStr())
+        )
+        {
+            for (const auto& [ind, text] : kRenderResolutionScaleArray)
+            {
+                AddValue(std::make_unique<OptionRawText>(text));
+            }
+        }
+
+        void Init() override
+        {
+            for (int i = 0; i < sizeof(kRenderResolutionScaleArray); ++i)
+            {
+                if (kRenderResolutionScaleArray[i].first == (int)ConfigData.ScaleWindowedResolutionOption)
+                {
+                    value_index_ = committed_value_index_ = i;
+                    return;
+                }
+            }
+        }
+
+        bool Apply() override
+        {
+            if (!Option::Apply()) return false;
+            if (DisplayResolutionOptionPtr == nullptr) return false;
+            ConfigData.ScaleWindowedResolutionOption = kRenderResolutionScaleArray[value_index_].first;
+            SaveConfigRequired = true;
+
+            // TODO: Update scale resolution here.
+            // DisplayChangeRequired = true;
+            // WSFDynamicChangeWithResIndex((BYTE)DisplayResolutionOptionPtr->ValueIndex());
             return true;
         }
     };
@@ -570,21 +631,53 @@ namespace
         }
     };
 
+    class DsoalOption : public Option
+    {
+    public:
+        DsoalOption(int index) : Option(
+            index,
+            /*name=*/std::make_unique<OptionRawText>(get3DSoundStr()),
+            /*description=*/std::make_unique<OptionRawText>(get3DSoundDescriptionStr())
+        )
+        {
+            AddValue(std::make_unique<OptionMsgText>((short)0x45));  // "Off"
+            AddValue(std::make_unique<OptionMsgText>((short)0x44));  // "On"
+        }
+
+        void Init() override
+        {
+            value_index_ = committed_value_index_ = ConfigData.UseDSOALOption;
+        }
+
+        bool Apply() override
+        {
+            if (!Option::Apply()) return false;
+            ConfigData.UseDSOALOption = value_index_;
+            SaveConfigRequired = true;
+
+            // TODO: Enable or disable DSOAL here.
+            return true;
+        }
+    };
+
     std::vector<std::unique_ptr<Option>> options;
-    Option* ResolutionOptionPtr = nullptr;
 
     void CreateOptions()
     {
         int index = 0;
         options.push_back(std::make_unique<ScreenBrightnessOption>(index++));
         options.push_back(std::make_unique<DisplayModeOption>(index++));
-        options.push_back(std::make_unique<ResolutionOption>(index++));
-        ResolutionOptionPtr = options.back().get();
+        options.push_back(std::make_unique<DisplayResolutionOption>(index++));
+        DisplayResolutionOptionPtr = options.back().get();
+        options.push_back(std::make_unique< RenderResolutionOption>(index++));
         options.push_back(std::make_unique<NoiseEffectOption>(index++));
         options.push_back(std::make_unique<ShadowsOption>(index++));
         options.push_back(std::make_unique<FogOption>(index++));
         options.push_back(std::make_unique<AdvancedFiltersOption>(index++));
         options.push_back(std::make_unique<LensFlareOption>(index++));
+        options.push_back(std::make_unique<DsoalOption>(index++));
+
+        UpdateMemoryAddress((void*)(OptionCountAddr), &index, 1);
     }
     
     void HandleAdvancedOptionsInput()
@@ -715,9 +808,14 @@ namespace
         }
         if (DisplayChangeRequired)
         {
-            updateResolution((BYTE)ResolutionOptionPtr->ValueIndex());
+            updateResolution((BYTE)DisplayResolutionOptionPtr->ValueIndex());
             updateRenderEffects();
             DisplayChangeRequired = false;
+        }
+        if (SaveConfigRequired)
+        {
+            SaveConfigData();
+            SaveConfigRequired = false;
         }
     }
 
@@ -786,6 +884,9 @@ void PatchCustomAdvancedOptions()
     constexpr BYTE DxConfigResolutionSearchBytes[] = { 0x8B, 0x44, 0x24, 0x24, 0x8B, 0x4C, 0x24, 0x28, 0x50, 0x51 };
     DxConfigResolution = (BYTE*)ReadSearchedAddresses(0x00407DEE, 0x00407E8E, 0x00407E9E, DxConfigResolutionSearchBytes, sizeof(DxConfigResolutionSearchBytes), 0x12, __FUNCTION__);
 
+    constexpr BYTE CreateOptionsSearchBytes[] = { 0x8B, 0x08, 0xC7, 0x00, 0x00, 0x00, 0x00, 0x00, 0x8B, 0xC1, 0xC3 };
+    const DWORD CreateOptionsAddr = SearchAndGetAddresses(0x005075ED, 0x0050791D, 0x0050723D, CreateOptionsSearchBytes, sizeof(CreateOptionsSearchBytes), 0x13, __FUNCTION__);
+
     if (!DrawAdvancedOptionsAddr || !SkipDisabledOptionsAddr || !DSpkAddrC)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find pointer address!";
@@ -801,6 +902,7 @@ void PatchCustomAdvancedOptions()
     OptionsSelectDeltaIndex = (short*)*(DWORD*)(SkipDisabledOptionsAddr - 0x04);
     OptionsSaveChangesActive = (BYTE*)*(DWORD*)(CheckChangedOptionsAddr - 0x0C);
     OptionsSaveChangesIndex = (BYTE*)*(DWORD*)(CheckChangedOptionsAddr + 0x243);
+    OptionCountAddr = (BYTE*)(SkipDisabledOptionsAddr - 0x18E);
     ScreenBrightnessHandlerAddr = (void*)(DrawAdvancedOptionsAddr + 0xD98);
 
     jmpHandleInputAddr = (void*)(DrawAdvancedOptionsAddr + 0xC19);
@@ -844,16 +946,12 @@ void PatchCustomAdvancedOptions()
 
     Logging::Log() << "Patching Custom Advanced Options...";
 
-    CreateOptions();
-
     WriteJMPtoMemory((BYTE*)DrawAdvancedOptionsAddr, *DrawAdvancedOptionsASM, 0x06);
     WriteJMPtoMemory((BYTE*)SkipDisabledOptionsAddr, *SkipDisabledOptionsASM, 0x07);
     WriteJMPtoMemory((BYTE*)CheckChangedOptionsAddr, *CheckChangedOptionsASM, 0x05);
     WriteJMPtoMemory((BYTE*)(CheckChangedOptionsAddr + 0x242), *SaveOrDiscardChangesASM, 0x05);
+    WriteJMPtoMemory((BYTE*)(CreateOptionsAddr), *CreateOptions, 0x05);
     WriteCalltoMemory((BYTE*)InitOptionsAddr, *InitOptionsASM, 0x07);
-
-    const BYTE option_count = options.size() & 0xFF;
-    UpdateMemoryAddress((void*)(SkipDisabledOptionsAddr - 0x18E), &option_count, 1);
     
     // Early return in options updaate handler
     UpdateMemoryAddress((void*)(DrawAdvancedOptionsAddr + 0x11DF), "\xC3\x90\x90\x90\x90", 0x05);

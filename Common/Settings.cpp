@@ -409,6 +409,25 @@ void UpdateConfigDefaults()
 		ReplaceButtonText = BUTTON_ICONS_GENERIC;
 	}
 
+	UpdateScaleResolution();
+}
+
+void LockConfigs()
+{
+	// Blank function
+}
+
+bool ResolutionAvailableCheck(int width, int height)
+{
+	UNREFERENCED_PARAMETER(width);
+	UNREFERENCED_PARAMETER(height);
+	// Blank function
+
+	return true;
+}
+
+void UpdateScaleResolution()
+{
 	// Set resolution scaling
 	switch (ScaleWindowedResolution)
 	{
@@ -446,18 +465,4 @@ void UpdateConfigDefaults()
 		AntiAliasing = 0;
 		FixGPUAntiAliasing = false;
 	}
-}
-
-void LockConfigs()
-{
-	// Blank function
-}
-
-bool ResolutionAvailableCheck(int width, int height)
-{
-	UNREFERENCED_PARAMETER(width);
-	UNREFERENCED_PARAMETER(height);
-	// Blank function
-
-	return true;
 }

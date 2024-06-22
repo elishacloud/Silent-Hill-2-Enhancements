@@ -1,9 +1,8 @@
-//#define WIN32_LEAN_AND_MEAN
 #include "FlashlightReflection.h"
+#include "Patches.h"
+#include "Common\IUnknownPtr.h"
 #include "Common\Settings.h"
 #include "Common\Utils.h"
-#include "Common\IUnknownPtr.h"
-#include "Patches.h"
 #include "Wrappers\d3d8\DirectX81SDK\include\d3dx8math.h"
 
 #include <cmath>    // for std::powf
@@ -15,8 +14,13 @@ DWORD vcolorVsHandle = 0;
 DWORD hospitalDoorVsHandle = 0;
 DWORD hospitalDoorPsHandles[4] = {0, 0, 0, 0};
 
+constexpr float specColor[4] = { 0.4f, 0.4f, 0.4f, 1.0f };
+#define SPECULAR_POWER 400.0f
+
 #define WINDOW_VSHADER_ORIGINAL  (g_vsHandles_1DB88A8[2])
 #define VCOLOR_VSHADER_ORIGINAL  (g_vsHandles_1DB88A8[8])
+
+#define MODEL_VSHADER_ORIGINAL   (g_mdlVsHandles_1F7D684[7])
 
 #define VSHADER_FLASHLIGHT_POS_REGISTER 90
 #define VSHADER_CAMERA_POS_REGISTER     91
@@ -52,7 +56,7 @@ static void GenerateSpecularLUT(LPDIRECT3DDEVICE8 ProxyInterface) {
     constexpr UINT kSpecularLutW = 512u;
     constexpr UINT kSpecularLutH = 64u;
     // tune this
-    const float kSpecPower = 400.0;
+    const float kSpecPower = SPECULAR_POWER;
 
     HRESULT hr = ProxyInterface->CreateTexture(kSpecularLutW, kSpecularLutH, 1u, 0u, D3DFMT_A8, D3DPOOL_MANAGED, &g_SpecularLUT);
     if (SUCCEEDED(hr)) {
@@ -87,7 +91,9 @@ HRESULT DrawFlashlightReflection(LPDIRECT3DDEVICE8 ProxyInterface, D3DPRIMITIVET
 
 	int flashlightPhase = IsPixelShaderMDLFadeOrFullBright(currPs);
 
-	if ((currVs == WINDOW_VSHADER_ORIGINAL || currVs == VCOLOR_VSHADER_ORIGINAL) && desc.Format == D3DFMT_DXT4) // If using the same vertex shader as the town east shop window
+	// SH2 uses DXT3 exclusively for transparent textures, when DXT4 is detected we know it is one of our
+	// enhanced textures which we've added a "grime" layer to to restore the flashlight reflection effect
+	if ((currVs == WINDOW_VSHADER_ORIGINAL || currVs == VCOLOR_VSHADER_ORIGINAL) && desc.Format == D3DFMT_DXT4)
 	{
 		if (!g_SpecularLUT) {
 			GenerateSpecularLUT(ProxyInterface);
@@ -107,7 +113,6 @@ HRESULT DrawFlashlightReflection(LPDIRECT3DDEVICE8 ProxyInterface, D3DPRIMITIVET
 		ProxyInterface->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
 		ProxyInterface->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_MIPFILTER, D3DTEXF_LINEAR);
 
-		float specColor[4] = { 0.4f, 0.4f, 0.4f, 1.0f };
 		ProxyInterface->SetVertexShaderConstant(27, specColor, 1);
 
 		float cameraPos[4] = {
@@ -140,7 +145,7 @@ HRESULT DrawFlashlightReflection(LPDIRECT3DDEVICE8 ProxyInterface, D3DPRIMITIVET
 
 		return hr;
 	}
-	else if (currVs == g_mdlVsHandles_1F7D684[7] && desc.Format == D3DFMT_DXT4 && flashlightPhase >= 0)
+	else if (currVs == MODEL_VSHADER_ORIGINAL && desc.Format == D3DFMT_DXT4 && flashlightPhase >= 0)
 	{
 		if (!g_SpecularLUT) {
 			GenerateSpecularLUT(ProxyInterface);
@@ -167,8 +172,8 @@ HRESULT DrawFlashlightReflection(LPDIRECT3DDEVICE8 ProxyInterface, D3DPRIMITIVET
 		ProxyInterface->SetTextureStageState(2, D3DTSS_MIPFILTER, D3DTEXF_LINEAR);
 
 		const float flashlightIntensity = GetFlashlightBrightnessRed() / 7.0f;
-		const float specColor[4] = { 0.4f * flashlightIntensity, 0.4f * flashlightIntensity, 0.4f * flashlightIntensity, 1.0f };
-		ProxyInterface->SetVertexShaderConstant(27, specColor, 1);
+		const float specColorInt[4] = { specColor[0] * flashlightIntensity, specColor[1] * flashlightIntensity, specColor[2] * flashlightIntensity, specColor[3] };
+		ProxyInterface->SetVertexShaderConstant(27, specColorInt, 1);
 
 		float cameraPos[4] = {
 			GetInGameCameraPosX(),

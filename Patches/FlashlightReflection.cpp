@@ -55,7 +55,6 @@ static void GenerateSpecularLUT(LPDIRECT3DDEVICE8 ProxyInterface) {
     // keep the with-to_height ratio <= 8:1
     constexpr UINT kSpecularLutW = 512u;
     constexpr UINT kSpecularLutH = 64u;
-    // tune this
     const float kSpecPower = SPECULAR_POWER;
 
     HRESULT hr = ProxyInterface->CreateTexture(kSpecularLutW, kSpecularLutH, 1u, 0u, D3DFMT_A8, D3DPOOL_MANAGED, &g_SpecularLUT);
@@ -102,7 +101,7 @@ HRESULT DrawFlashlightReflection(LPDIRECT3DDEVICE8 ProxyInterface, D3DPRIMITIVET
 		const bool isVColorGeometry = (currVs == VCOLOR_VSHADER_ORIGINAL);
 
 		// Assign specular highlight texture to slot 1
-        IUnknownPtr<IDirect3DBaseTexture8> savedTexture;
+		IUnknownPtr<IDirect3DBaseTexture8> savedTexture;
 		ProxyInterface->GetTexture(SPECULAR_LUT_TEXTURE_SLOT, savedTexture.ReleaseAndGetAddressOf());
 		ProxyInterface->SetTexture(SPECULAR_LUT_TEXTURE_SLOT, g_SpecularLUT);
 
@@ -152,7 +151,7 @@ HRESULT DrawFlashlightReflection(LPDIRECT3DDEVICE8 ProxyInterface, D3DPRIMITIVET
 		}
 
 		// Assign specular highlight texture to slot 1
-        IUnknownPtr<IDirect3DBaseTexture8> savedTexture;
+		IUnknownPtr<IDirect3DBaseTexture8> savedTexture;
 		ProxyInterface->GetTexture(SPECULAR_LUT_TEXTURE_SLOT, savedTexture.ReleaseAndGetAddressOf());
 		ProxyInterface->SetTexture(SPECULAR_LUT_TEXTURE_SLOT, g_SpecularLUT);
 		// Set up sampler states
@@ -162,7 +161,7 @@ HRESULT DrawFlashlightReflection(LPDIRECT3DDEVICE8 ProxyInterface, D3DPRIMITIVET
 		ProxyInterface->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
 		ProxyInterface->SetTextureStageState(SPECULAR_LUT_TEXTURE_SLOT, D3DTSS_MIPFILTER, D3DTEXF_LINEAR);
 
-        IUnknownPtr<IDirect3DBaseTexture8> savedTexture2;
+		IUnknownPtr<IDirect3DBaseTexture8> savedTexture2;
 		ProxyInterface->GetTexture(2, savedTexture2.ReleaseAndGetAddressOf());
 		ProxyInterface->SetTexture(2, g_flashLightTexture_1F5F16C);
 		ProxyInterface->SetTextureStageState(2, D3DTSS_ADDRESSU, D3DTADDRESS_BORDER);
@@ -219,7 +218,7 @@ HRESULT DrawFlashlightReflection(LPDIRECT3DDEVICE8 ProxyInterface, D3DPRIMITIVET
 		ProxyInterface->SetVertexShader(currVs);
 		ProxyInterface->SetPixelShader(currPs);
 		ProxyInterface->SetTexture(SPECULAR_LUT_TEXTURE_SLOT, savedTexture.GetPtr());
-        ProxyInterface->SetTexture(2, savedTexture2.GetPtr());
+		ProxyInterface->SetTexture(2, savedTexture2.GetPtr());
 
 		ProxyInterface->SetVertexShaderConstant(20, savedConstants2, 4);
 		ProxyInterface->SetVertexShaderConstant(VSHADER_FLASHLIGHT_POS_REGISTER, savedConstants, 6);

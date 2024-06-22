@@ -223,17 +223,14 @@ static LightSource* __cdecl HookGetLightSourceAt(int index)
 		return GetLightSourceAt(index);
 }
 
-void ActorOpaqueDrawPrelude(void* materialPtr) {
-    SpecularFlag = 2;
-    pCurrentMaterial = reinterpret_cast<ModelMaterial*>(materialPtr);
-}
-
 static void HookActorOpaqueDraw(ModelMaterial* pModelMaterial)
 {
 	// Here we hook a call to `void ActorOpaqueDraw(ModelMaterial* pModelMaterial)`
 	// Hooking allows us to note the current material for later use
 
-    ActorOpaqueDrawPrelude(pModelMaterial);
+	SpecularFlag = 2;
+
+	pCurrentMaterial = reinterpret_cast<ModelMaterial*>(pModelMaterial);
 	ActorOpaqueDraw(pModelMaterial);
 }
 

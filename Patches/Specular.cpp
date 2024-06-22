@@ -230,7 +230,7 @@ static void HookActorOpaqueDraw(ModelMaterial* pModelMaterial)
 
 	SpecularFlag = 2;
 
-	pCurrentMaterial = reinterpret_cast<ModelMaterial*>(pModelMaterial);
+	pCurrentMaterial = pModelMaterial;
 	ActorOpaqueDraw(pModelMaterial);
 }
 

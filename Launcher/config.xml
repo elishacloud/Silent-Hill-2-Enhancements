@@ -940,9 +940,9 @@
         </Choices>
       </Feature>
 
-      <Feature name="GravestoneBoardsFix">
-        <Title>Fix distortion in the boards of gravestone puzzle</Title>
-        <Description>Fix the boards in the BfaW gravestone puzzle from being distorted when rotated.</Description>
+      <Feature name="PuzzleAlignmentFixes">
+        <Title>Fix puzzle alignment issues</Title>
+        <Description>Fixes the coins used in the apartment puzzle from being misaligned in the hole slots. Fixes the boards used in the BfaW gravestone puzzle from being misaligned or distorted when rotated.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>

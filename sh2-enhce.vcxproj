@@ -224,7 +224,7 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClCompile Include="Patches\DelayedFadeIn.cpp" />
     <ClCompile Include="Patches\FmvSubtitles.cpp" />
     <ClCompile Include="Patches\OptionsMenuTweaks.cpp" />
-    <ClCompile Include="Patches\GravestoneBoardsFix.cpp" />
+    <ClCompile Include="Patches\PuzzleAlignmentFixes.cpp" />
     <ClCompile Include="Patches\MenuSounds.cpp" />
     <ClCompile Include="Patches\MothDrawOrder.cpp" />
     <ClCompile Include="Patches\ObservationDeckFogFix.cpp" />
@@ -372,7 +372,7 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClInclude Include="Patches\FullscreenImages.h" />
     <ClInclude Include="Patches\InputTweaks.h" />
     <ClInclude Include="Patches\OptionsMenuTweaks.h" />
-    <ClInclude Include="Patches\GravestoneBoardsFix.h" />
+    <ClInclude Include="Patches\PuzzleAlignmentFixes.h" />
     <ClInclude Include="Patches\ModelID.h" />
     <ClInclude Include="Patches\Patches.h" />
     <ClInclude Include="Patches\SfxPatch.h" />

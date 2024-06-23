@@ -3,6 +3,7 @@
 #include "Common\IUnknownPtr.h"
 #include "Common\Settings.h"
 #include "Common\Utils.h"
+#include "Logging\Logging.h"
 #include "Wrappers\d3d8\DirectX81SDK\include\d3dx8math.h"
 
 #include <cmath>    // for std::powf
@@ -17,10 +18,10 @@ DWORD hospitalDoorPsHandles[4] = {0, 0, 0, 0};
 constexpr float specColor[4] = { 0.4f, 0.4f, 0.4f, 1.0f };
 #define SPECULAR_POWER 400.0f
 
-#define WINDOW_VSHADER_ORIGINAL  (g_vsHandles_1DB88A8[2])
-#define VCOLOR_VSHADER_ORIGINAL  (g_vsHandles_1DB88A8[8])
+#define WINDOW_VSHADER_ORIGINAL  (g_vsHandles[2])
+#define VCOLOR_VSHADER_ORIGINAL  (g_vsHandles[8])
 
-#define MODEL_VSHADER_ORIGINAL   (g_mdlVsHandles_1F7D684[7])
+#define MODEL_VSHADER_ORIGINAL   (g_mdlVsHandles[7])
 
 #define VSHADER_FLASHLIGHT_POS_REGISTER 90
 #define VSHADER_CAMERA_POS_REGISTER     91
@@ -28,23 +29,20 @@ constexpr float specColor[4] = { 0.4f, 0.4f, 0.4f, 1.0f };
 IDirect3DTexture8* g_SpecularLUT = nullptr;
 #define SPECULAR_LUT_TEXTURE_SLOT 1
 
-IDirect3DTexture8*& g_flashLightTexture_1F5F16C = *reinterpret_cast<IDirect3DTexture8**>(0x1F5F16C);
-
-DWORD* g_vsHandles_1DB88A8 = reinterpret_cast<DWORD*>(0x1DB88A8);
-
-DWORD* g_mdlVsHandles_1F7D684 = reinterpret_cast<DWORD*>(0x1F7D684); // 11 vertex shader handles
-DWORD* g_mdlPsHandles_1F7D6C4 = reinterpret_cast<DWORD*>(0x1F7D6C4); // 5 pixel shader handles
-
-float* g_FlashLightPos = reinterpret_cast<float*>(0x01FB7D18);
+IDirect3DTexture8* g_flashLightTexture = nullptr;
+DWORD* g_vsHandles = nullptr;
+DWORD* g_mdlVsHandles = nullptr; // 11 vertex shader handles
+DWORD* g_mdlPsHandles = nullptr; // 5 pixel shader handles
+float* g_FlashLightPos = nullptr;
 
 static int IsPixelShaderMDLFadeOrFullBright(DWORD handle) {
-    if (g_mdlPsHandles_1F7D6C4[0] == handle) {
+    if (g_mdlPsHandles[0] == handle) {
         return 0;
-    }  else if (g_mdlPsHandles_1F7D6C4[1] == handle) {
+    }  else if (g_mdlPsHandles[1] == handle) {
         return 1;
-    } else if (g_mdlPsHandles_1F7D6C4[2] == handle) {
+    } else if (g_mdlPsHandles[2] == handle) {
         return 2;
-    } else if (g_mdlPsHandles_1F7D6C4[3] == handle) {
+    } else if (g_mdlPsHandles[3] == handle) {
         return 3;
     } else {
         return -1;
@@ -163,7 +161,7 @@ HRESULT DrawFlashlightReflection(LPDIRECT3DDEVICE8 ProxyInterface, D3DPRIMITIVET
 
 		IUnknownPtr<IDirect3DBaseTexture8> savedTexture2;
 		ProxyInterface->GetTexture(2, savedTexture2.ReleaseAndGetAddressOf());
-		ProxyInterface->SetTexture(2, g_flashLightTexture_1F5F16C);
+		ProxyInterface->SetTexture(2, g_flashLightTexture);
 		ProxyInterface->SetTextureStageState(2, D3DTSS_ADDRESSU, D3DTADDRESS_BORDER);
 		ProxyInterface->SetTextureStageState(2, D3DTSS_ADDRESSV, D3DTADDRESS_BORDER);
 		ProxyInterface->SetTextureStageState(2, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
@@ -227,4 +225,36 @@ HRESULT DrawFlashlightReflection(LPDIRECT3DDEVICE8 ProxyInterface, D3DPRIMITIVET
 	}
 
 	return -1;
+}
+
+void PatchFlashlightReflection()
+{
+	switch (GameVersion)
+	{
+	case SH2V_10:
+		g_flashLightTexture = *reinterpret_cast<IDirect3DTexture8**>(0x1F5F16C);
+		g_vsHandles = reinterpret_cast<DWORD*>(0x1DB88A8);
+		g_mdlVsHandles = reinterpret_cast<DWORD*>(0x1F7D684);
+		g_mdlPsHandles = reinterpret_cast<DWORD*>(0x1F7D6C4);
+		g_FlashLightPos = reinterpret_cast<float*>(0x1FB7D18);
+		break;
+	case SH2V_11:
+		g_flashLightTexture = *reinterpret_cast<IDirect3DTexture8**>(0x1F62D6C);
+		g_vsHandles = reinterpret_cast<DWORD*>(0x1DBC4A8);
+		g_mdlVsHandles = reinterpret_cast<DWORD*>(0x1F81284);
+		g_mdlPsHandles = reinterpret_cast<DWORD*>(0x1F812C4);
+		g_FlashLightPos = reinterpret_cast<float*>(0x1FBB918);
+		break;
+	case SH2V_DC:
+		g_flashLightTexture = *reinterpret_cast<IDirect3DTexture8**>(0x1F61D6C);
+		g_vsHandles = reinterpret_cast<DWORD*>(0x1DBB4A8);
+		g_mdlVsHandles = reinterpret_cast<DWORD*>(0x1F80284);
+		g_mdlPsHandles = reinterpret_cast<DWORD*>(0x1F802C4);
+		g_FlashLightPos = reinterpret_cast<float*>(0x1FBA918);
+		break;
+	case SH2V_UNKNOWN:
+		Logging::Log() << __FUNCTION__ << " Error: unknown game version!";
+		FlashlightReflection = false;
+		return;
+	}
 }

@@ -622,6 +622,12 @@ void DelayedStart()
 		PatchSpecular();
 	}
 
+	// Creates a reflection of the flashlight on glass and glossy surfaces throughout the game.
+	if (FlashlightReflection)
+	{
+		PatchFlashlightReflection();
+	}
+
 	// Enables a complete rewrite of the game's audio engine
 	if (EnableCriWareReimplementation)
 	{

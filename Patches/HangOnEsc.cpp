@@ -1,5 +1,5 @@
 /**
-* Copyright (C) 2024 Elisha Riedlinger
+* Copyright (C) 2024 Elisha Riedlinger, mercury501, Aero_
 *
 * This software is  provided 'as-is', without any express  or implied  warranty. In no event will the
 * authors be held liable for any damages arising from the use of this software.
@@ -24,6 +24,10 @@
 DWORD EscPressAddress;
 void *jmpCutsceneEscReturnAddr;
 void *jmpCutsceneKeyPressReturnAddr;
+
+BYTE* InhibitOneAddr = nullptr;
+BYTE* InhibitTwoAddr = nullptr;
+BYTE* InhibitThreeAddr = nullptr;
 
 // ASM function to disables Esc key during in-game cutscenes
 __declspec(naked) void __stdcall CutsceneEscASM()
@@ -68,6 +72,18 @@ void RunHangOnEsc()
 	if (RunOnlyOnce)
 	{
 		RunOnlyOnce = false;
+
+		constexpr BYTE InputInhibitionSearchBytes[]{ 0x0b, 0xC2, 0x74, 0x27 };
+		DWORD InputInhibitionAddress = SearchAndGetAddresses(0x004464f9, 0x00446699, 0x00446699, InputInhibitionSearchBytes, sizeof(InputInhibitionSearchBytes), 0x02, __FUNCTION__);
+		if (!InputInhibitionAddress)
+		{
+			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+			return;
+		}
+
+		InhibitOneAddr = (BYTE*)InputInhibitionAddress;
+		InhibitTwoAddr = InhibitOneAddr + 0x90;
+		InhibitThreeAddr = InhibitOneAddr + 0x130;
 
 		// Get Esc address
 		constexpr BYTE EscSearchBytes[]{ 0x8B, 0x44, 0x24, 0x04, 0x8D, 0x04, 0x40, 0xC1, 0xE0, 0x05, 0x0F, 0xBF, 0x80 };
@@ -117,5 +133,18 @@ void RunHangOnEsc()
 	{
 		DWORD Value = 3;
 		UpdateMemoryAddress((void*)Address, &Value, sizeof(DWORD));
+	}
+
+	if (IsInFakeFadeout)
+	{
+		UpdateMemoryAddress(InhibitOneAddr, "\xEB", 0x01);
+		UpdateMemoryAddress(InhibitTwoAddr, "\xEB", 0x01);
+		UpdateMemoryAddress(InhibitThreeAddr, "\xEB", 0x01);
+	}
+	else
+	{
+		UpdateMemoryAddress(InhibitOneAddr, "\x74", 0x01);
+		UpdateMemoryAddress(InhibitTwoAddr, "\x74", 0x01);
+		UpdateMemoryAddress(InhibitThreeAddr, "\x74", 0x01);
 	}
 }

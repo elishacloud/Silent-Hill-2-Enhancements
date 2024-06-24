@@ -345,7 +345,6 @@ struct CFGDATA
 	DWORD HealthIndicatorOption = 1;
 	DWORD DisplayModeOption = 0;
 	DWORD ScaleWindowedResolutionOption = 0;
-	DWORD UseDSOALOption = 0;
 };
 
 extern HMODULE m_hModule;

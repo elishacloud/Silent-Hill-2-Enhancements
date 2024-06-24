@@ -1439,21 +1439,6 @@ HRESULT GetConfigData()
 		ConfigData.ScaleWindowedResolutionOption = ScaleWindowedResolution;
 	}
 
-	// Update DSOAL setting
-	if (UseDSOAL)
-	{
-		// If DSOAL was retrieved from the config file then use it
-		if (BytesRead >= ((DWORD)&ConfigData.UseDSOALOption + sizeof(ConfigData.UseDSOALOption) - (DWORD)&ConfigData))
-		{
-			UseDSOAL = ConfigData.UseDSOALOption;
-		}
-		// Otherwise use UseDSOAL value
-		else
-		{
-			ConfigData.UseDSOALOption = UseDSOAL;
-		}
-	}
-
 	return (BytesRead ? S_OK : E_FAIL);
 }
 

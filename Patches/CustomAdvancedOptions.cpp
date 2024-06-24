@@ -26,8 +26,6 @@
 
 extern char* getRenderResolutionStr();
 extern char* getRenderResolutionDescriptionStr();
-extern char* get3DSoundStr();
-extern char* get3DSoundDescriptionStr();
 
 namespace
 {
@@ -631,35 +629,6 @@ namespace
         }
     };
 
-    class DsoalOption : public Option
-    {
-    public:
-        DsoalOption(int index) : Option(
-            index,
-            /*name=*/std::make_unique<OptionRawText>(get3DSoundStr()),
-            /*description=*/std::make_unique<OptionRawText>(get3DSoundDescriptionStr())
-        )
-        {
-            AddValue(std::make_unique<OptionMsgText>((short)0x45));  // "Off"
-            AddValue(std::make_unique<OptionMsgText>((short)0x44));  // "On"
-        }
-
-        void Init() override
-        {
-            value_index_ = committed_value_index_ = ConfigData.UseDSOALOption;
-        }
-
-        bool Apply() override
-        {
-            if (!Option::Apply()) return false;
-            ConfigData.UseDSOALOption = value_index_;
-            SaveConfigRequired = true;
-
-            // TODO: Enable or disable DSOAL here.
-            return true;
-        }
-    };
-
     std::vector<std::unique_ptr<Option>> options;
 
     void CreateOptions()
@@ -675,7 +644,6 @@ namespace
         options.push_back(std::make_unique<FogOption>(index++));
         options.push_back(std::make_unique<AdvancedFiltersOption>(index++));
         options.push_back(std::make_unique<LensFlareOption>(index++));
-        options.push_back(std::make_unique<DsoalOption>(index++));
 
         UpdateMemoryAddress((void*)(OptionCountAddr), &index, 1);
     }

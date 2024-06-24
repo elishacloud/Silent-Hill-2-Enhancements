@@ -55,7 +55,7 @@ constexpr LANGSTRUCT LangList[] = {
 	{ "r_menu_s.res", IDR_LANG_RES_ES },
 };
 
-#define STR_PER_LANG 35
+#define STR_PER_LANG 33
 
 BYTE langMin = 1;
 char *exeStrPtr[STR_PER_LANG * 6];
@@ -1036,16 +1036,6 @@ char* getRenderResolutionStr()
 char* getRenderResolutionDescriptionStr()
 {
 	return exeStrPtr[STR_PER_LANG * (int)*gLangID + 32];
-}
-
-char* get3DSoundStr()
-{
-	return exeStrPtr[STR_PER_LANG * (int)*gLangID + 33];
-}
-
-char* get3DSoundDescriptionStr()
-{
-	return exeStrPtr[STR_PER_LANG * (int)*gLangID + 34];
 }
 
 constexpr BYTE TownWestGateEventSearchBytes[] = { 0x00, 0x00, 0x00, 0x90, 0x00, 0xC0, 0x3F, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x60, 0x6E, 0x20 };

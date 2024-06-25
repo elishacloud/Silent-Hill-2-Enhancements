@@ -26,6 +26,8 @@
 
 extern char* getRenderResolutionStr();
 extern char* getRenderResolutionDescriptionStr();
+extern char* getHealthIndicatorStr();
+extern char* getHealthIndicatorDescriptionStr();
 
 namespace
 {
@@ -629,6 +631,34 @@ namespace
         }
     };
 
+    class HealthIndicatorOption : public Option
+    {
+    public:
+        HealthIndicatorOption(int index) : Option(
+            index,
+            /*name=*/std::make_unique<OptionRawText>(getHealthIndicatorStr()),
+            /*description=*/std::make_unique<OptionRawText>(getHealthIndicatorDescriptionStr())
+        )
+        {
+            AddValue(std::make_unique<OptionMsgText>((short)0xB0));  // "Off"
+            AddValue(std::make_unique<OptionMsgText>((short)0xB1));  // "On"
+        }
+
+        void Init() override
+        {
+            value_index_ = committed_value_index_ = ConfigData.HealthIndicatorOption;
+        }
+
+        bool Apply() override
+        {
+            if (!Option::Apply()) return false;
+            SaveConfigRequired = true;
+            ConfigData.HealthIndicatorOption = value_index_;
+            DisableRedCross = !ConfigData.HealthIndicatorOption;
+            return true;
+        }
+    };
+
     std::vector<std::unique_ptr<Option>> options;
 
     void CreateOptions()
@@ -638,12 +668,13 @@ namespace
         options.push_back(std::make_unique<DisplayModeOption>(index++));
         options.push_back(std::make_unique<DisplayResolutionOption>(index++));
         DisplayResolutionOptionPtr = options.back().get();
-        options.push_back(std::make_unique< RenderResolutionOption>(index++));
+        options.push_back(std::make_unique<RenderResolutionOption>(index++));
         options.push_back(std::make_unique<NoiseEffectOption>(index++));
         options.push_back(std::make_unique<ShadowsOption>(index++));
         options.push_back(std::make_unique<FogOption>(index++));
         options.push_back(std::make_unique<AdvancedFiltersOption>(index++));
         options.push_back(std::make_unique<LensFlareOption>(index++));
+        options.push_back(std::make_unique<HealthIndicatorOption>(index++));
 
         UpdateMemoryAddress((void*)(OptionCountAddr), &index, 1);
     }

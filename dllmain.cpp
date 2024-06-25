@@ -684,8 +684,8 @@ void DelayedStart()
 		PatchDisplayMode();
 	}
 
-	// Adds health indicator option
-	if (HealthIndicatorOption)
+	// Adds health indicator option to game options menu
+	if (HealthIndicatorOption && !CustomAdvancedOptions)
 	{
 		PatchSearchViewOptionName();
 		PatchHealthIndicatorOption();

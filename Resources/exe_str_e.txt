@@ -31,3 +31,5 @@ Button %d
 \hEnable the low health indicator
 \hRender Resolution
 \hAdjust rendering resolution
+\h3D Sound
+\hEnable 3D sound effects

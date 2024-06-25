@@ -470,12 +470,14 @@ namespace
         {
             if (!Option::Apply()) return false;
             if (DisplayResolutionOptionPtr == nullptr) return false;
+
             ConfigData.ScaleWindowedResolutionOption = kRenderResolutionScaleArray[value_index_].first;
+            ScaleWindowedResolution = ConfigData.ScaleWindowedResolutionOption;
             SaveConfigRequired = true;
 
-            // TODO: Update scale resolution here.
-            // DisplayChangeRequired = true;
-            // WSFDynamicChangeWithResIndex((BYTE)DisplayResolutionOptionPtr->ValueIndex());
+            UpdateScaleResolution();
+            WSFDynamicChangeWithResIndex((BYTE)DisplayResolutionOptionPtr->ValueIndex());
+            DisplayChangeRequired = true;
             return true;
         }
     };

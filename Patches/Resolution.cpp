@@ -237,16 +237,12 @@ void UpdateResolutionPatches(LONG Width, LONG Height)
 void UpdateResolutionVector()
 {
 	// Update the resolution vector
-	if (ScaleWindowedResolution && !UsingScaledResolutions)
-	{
-		// Enable scaling
-		for (auto& entry : ResolutionVector)
-		{
-			entry.Width = (LONG)((float)entry.Width * ScaleFactor);
-			entry.Height = (LONG)((float)entry.Height * ScaleFactor);
-		}
-		UsingScaledResolutions = true;
-	}
+    for (size_t i = 0; i < ResolutionVector.size() && i < ResolutionBackupVector.size(); ++i)
+    {
+        ResolutionVector[i].Width = (LONG)((float)ResolutionBackupVector[i].Width * ScaleFactor);
+        ResolutionVector[i].Height = (LONG)((float)ResolutionBackupVector[i].Height * ScaleFactor);
+    }
+	UsingScaledResolutions = (ScaleWindowedResolution != 0);
 }
 
 template void GetNonScaledResolution<LONG>(LONG&, LONG&);

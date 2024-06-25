@@ -237,11 +237,11 @@ void UpdateResolutionPatches(LONG Width, LONG Height)
 void UpdateResolutionVector()
 {
 	// Update the resolution vector
-    for (size_t i = 0; i < ResolutionVector.size() && i < ResolutionBackupVector.size(); ++i)
-    {
-        ResolutionVector[i].Width = (LONG)((float)ResolutionBackupVector[i].Width * ScaleFactor);
-        ResolutionVector[i].Height = (LONG)((float)ResolutionBackupVector[i].Height * ScaleFactor);
-    }
+	for (size_t i = 0; i < ResolutionVector.size() && i < ResolutionBackupVector.size(); ++i)
+	{
+		ResolutionVector[i].Width = (LONG)((float)ResolutionBackupVector[i].Width * ScaleFactor);
+		ResolutionVector[i].Height = (LONG)((float)ResolutionBackupVector[i].Height * ScaleFactor);
+	}
 	UsingScaledResolutions = (ScaleWindowedResolution != 0);
 }
 

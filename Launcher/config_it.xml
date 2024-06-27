@@ -234,6 +234,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="FlashlightReflection">
+        <Title>Flashlight reflection</Title>
+        <Description>Creates a reflection of the flashlight on glass and glossy surfaces throughout the game.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="RestoreSpecialFX">
         <Title>Ripristina gli effetti di post-processing</Title>
         <Description>Ripristina gli effetti di post-processing alla loro intensità originale durante il gioco. Gli effetti includono sfocamento dovuto a profondità di campo, sfocamento dovuto al movimento, sfocamento statico e pseudo bloom.</Description>

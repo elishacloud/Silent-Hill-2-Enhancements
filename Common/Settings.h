@@ -66,6 +66,7 @@
 	visit(FixSaveBGImage, true) \
 	visit(FixTownGateEvents, true) \
 	visit(FlashlightFlickerFix, true) \
+	visit(FlashlightReflection, true) \
 	visit(FlashlightToggleSFX, true) \
 	visit(FmvSubtitlesNoiseFix, true) \
 	visit(FmvSubtitlesSyncFix, true) \

@@ -629,6 +629,12 @@ void DelayedStart()
 		PatchSpecular();
 	}
 
+	// Creates a reflection of the flashlight on glass and glossy surfaces throughout the game.
+	if (FlashlightReflection)
+	{
+		PatchFlashlightReflection();
+	}
+
 	// Enables a complete rewrite of the game's audio engine
 	if (EnableCriWareReimplementation)
 	{
@@ -818,6 +824,9 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 	{
 	case DLL_PROCESS_ATTACH:
 	{
+		// Clear the error code
+		SetLastError(ERROR_SUCCESS);
+
 		// Create a unique mutex name using the process ID
 		std::wstring mutexName = CreateUniqueMutexName();
 		g_hMutex = CreateMutex(nullptr, TRUE, mutexName.c_str());
@@ -830,7 +839,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 
 			// Mutex already exists, another instance of the DLL is loaded in this process
 			g_hMutex = nullptr;
-			return FALSE; // Return FALSE to prevent the DLL from loading
+			return TRUE; // Return TRUE, needs to still load but not do anything
 		}
 
 		// Store Module handle

@@ -27,6 +27,7 @@
 #include "stb_image_resize.h"
 #include "Patches\ModelID.h"
 #include "Patches\OptionsMenuTweaks.h"
+#include "Patches\FlashlightReflection.h"
 #include "Resource.h"
 
 bool DeviceLost = false;
@@ -1116,6 +1117,19 @@ HRESULT m_IDirect3DDevice8::CreatePixelShader(THIS_ CONST DWORD* pFunction, DWOR
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	if (!windowPsHandle)
+	{
+		ProxyInterface->CreatePixelShader(windowPixelShader, &windowPsHandle);
+	}
+
+	if (!hospitalDoorPsHandles[0])
+	{
+		ProxyInterface->CreatePixelShader(hospitalDoorPixelShader_stage0, &hospitalDoorPsHandles[0]);
+		ProxyInterface->CreatePixelShader(hospitalDoorPixelShader_stage1, &hospitalDoorPsHandles[1]);
+		ProxyInterface->CreatePixelShader(hospitalDoorPixelShader_stage2, &hospitalDoorPsHandles[2]);
+		ProxyInterface->CreatePixelShader(hospitalDoorPixelShader_stage3, &hospitalDoorPsHandles[3]);
+	}
+
 	return ProxyInterface->CreatePixelShader(pFunction, pHandle);
 }
 
@@ -1594,6 +1608,17 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, stencilPass);
 
 		return hr;
+	}
+
+	// Creates a reflection of the flashlight on glass and glossy surfaces throughout the game.
+	if (FlashlightReflection)
+	{
+		// iOrange - please beware! We need to pass "this" instead of ProxyInterface
+		//           so that any object's setup went through us to grab the underlying proxy interface!
+		HRESULT hr = DrawFlashlightReflection(this, Type, MinVertexIndex, NumVertices, startIndex, primCount);
+		if (hr != -1) {
+			return hr;
+		}
 	}
 
 	return ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
@@ -2753,6 +2778,19 @@ HRESULT m_IDirect3DDevice8::CreateVertexShader(THIS_ CONST DWORD* pDeclaration, 
 			ReplaceMemoryBytes((void*)HalogenLightFixShaderCode[0], (void*)HalogenLightFixShaderCode[1], sizeof(HalogenLightFixShaderCode[0]), (DWORD)pFunction, 0x400, 1);
 			ReplaceMemoryBytes((void*)HalogenLightFixShaderCode[2], (void*)HalogenLightFixShaderCode[3], sizeof(HalogenLightFixShaderCode[2]), (DWORD)pFunction, 0x400, 1);
 		}
+	}
+
+	if (!windowVsHandle)
+	{
+		ProxyInterface->CreateVertexShader(vsDecl, windowVertexShader, &windowVsHandle, 0);
+	}
+
+	if (!vcolorVsHandle) {
+		ProxyInterface->CreateVertexShader(vsDeclVColor, vcolorVertexShader, &vcolorVsHandle, 0);
+	}
+
+	if (!hospitalDoorVsHandle) {
+		ProxyInterface->CreateVertexShader(vsDecl, hospitalDoorVertexShader, &hospitalDoorVsHandle, 0);
 	}
 
 	return ProxyInterface->CreateVertexShader(pDeclaration, pFunction, pHandle, Usage);

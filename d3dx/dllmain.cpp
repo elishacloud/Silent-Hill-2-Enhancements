@@ -37,10 +37,13 @@ BOOL WINAPI DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
 		{
 			*pdest = '\0';
 		}
-		wcscat_s(Path, MAX_PATH, L"\\d3d8x.dll");
+		wcscat_s(Path, MAX_PATH, L"\\d3d8.dll");
 
-		// Load d3d8 module locally
-		d3d8_dll = LoadLibrary(Path);
+		// Load d3d8 module locally if not already loaded
+		if (!GetModuleHandle(Path))
+		{
+			d3d8_dll = LoadLibrary(Path);
+		}
 		break;
 	}
 	case DLL_PROCESS_DETACH:

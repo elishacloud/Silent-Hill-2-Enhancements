@@ -6,6 +6,7 @@
 #include "Logging\Logging.h"
 #include "Wrappers\d3d8\DirectX81SDK\include\d3dx8math.h"
 
+#include <algorithm>	// for std::min/max
 #include <cmath>    // for std::powf
 
 DWORD windowVsHandle = 0;

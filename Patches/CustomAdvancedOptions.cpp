@@ -870,8 +870,14 @@ namespace
 
 void PatchCustomAdvancedOptions()
 {
-    constexpr BYTE DrawAdvancedOptionsSearchBytes[]{ 0x55, 0x84, 0xC0, 0x0F, 0x94, 0xC2 };
-    const DWORD DrawAdvancedOptionsAddr = SearchAndGetAddresses(0x00464F86, 0x00465216, 0x00465426, DrawAdvancedOptionsSearchBytes, sizeof(DrawAdvancedOptionsSearchBytes), 0x5D, __FUNCTION__);
+    constexpr BYTE DrawAdvancedOptionsSearchBytesA[]{ 0x55, 0x84, 0xC0, 0x0F, 0x94, 0xC2 };
+    const DWORD DrawAdvancedOptionsAddrA = SearchAndGetAddresses(0x00464F86, 0x00465216, 0x00465426, DrawAdvancedOptionsSearchBytesA, sizeof(DrawAdvancedOptionsSearchBytesA), 0x5D, __FUNCTION__);
+
+    constexpr BYTE DrawAdvancedOptionsSearchBytesB[]{ 0x83, 0xF8, 0x05, 0x0F, 0x87, 0x3B, 0x01, 0x00, 0x00 };
+    const DWORD DrawAdvancedOptionsAddrB = SearchAndGetAddresses(0x004659C2, 0x00465C64, 0x00465E74, DrawAdvancedOptionsSearchBytesB, sizeof(DrawAdvancedOptionsSearchBytesB), 0x00, __FUNCTION__);
+
+    constexpr BYTE DrawAdvancedOptionsSearchBytesC[]{ 0x84, 0xC0, 0x76, 0x04, 0xFE, 0xC8, 0xEB, 0x02, 0xB0 };
+    const DWORD DrawAdvancedOptionsAddrC = SearchAndGetAddresses(0x00465F55, 0x004661F5, 0x00466405, DrawAdvancedOptionsSearchBytesC, sizeof(DrawAdvancedOptionsSearchBytesC), 0x00, __FUNCTION__);
 
     constexpr BYTE SkipDisabledOptionsSearchBytes[]{ 0x83, 0xC4, 0x0C, 0x85, 0xC0, 0x75, 0x19, 0x66, 0xA1 };
     const DWORD SkipDisabledOptionsAddr = SearchAndGetAddresses(0x0045FC06, 0x0045FE66, 0x0045FE66, SkipDisabledOptionsSearchBytes, sizeof(SkipDisabledOptionsSearchBytes), 0x2C, __FUNCTION__);
@@ -879,8 +885,8 @@ void PatchCustomAdvancedOptions()
     constexpr BYTE InitOptionsSearchBytes[]{ 0x8B, 0x44, 0x24, 0x10, 0x8B, 0x10, 0x8B, 0x4C, 0x24, 0x04 };
     const DWORD InitOptionsAddr = SearchAndGetAddresses(0x0045BBC0, 0x0045BE20, 0x0045BE20, InitOptionsSearchBytes, sizeof(InitOptionsSearchBytes), 0x23, __FUNCTION__);
 
-    constexpr BYTE SpkSearchBytesC[] = { 0x8B, 0x08, 0x83, 0xC4, 0x10, 0x68, 0xA4, 0x00, 0x00, 0x00, 0x68, 0x00, 0x01, 0x00, 0x00, 0x51, 0xE8 };
-    void* DSpkAddrC = (void*)SearchAndGetAddresses(0x00407368, 0x00407368, 0x00407378, SpkSearchBytesC, sizeof(SpkSearchBytesC), 0x00, __FUNCTION__);
+    constexpr BYTE SpkSearchBytes[] = { 0x8B, 0x08, 0x83, 0xC4, 0x10, 0x68, 0xA4, 0x00, 0x00, 0x00, 0x68, 0x00, 0x01, 0x00, 0x00, 0x51, 0xE8 };
+    void* DSpkAddr = (void*)SearchAndGetAddresses(0x00407368, 0x00407368, 0x00407378, SpkSearchBytes, sizeof(SpkSearchBytes), 0x00, __FUNCTION__);
 
     constexpr BYTE DxConfigResolutionSearchBytes[] = { 0x8B, 0x44, 0x24, 0x24, 0x8B, 0x4C, 0x24, 0x28, 0x50, 0x51 };
     DxConfigResolution = (BYTE*)ReadSearchedAddresses(0x00407DEE, 0x00407E8E, 0x00407E9E, DxConfigResolutionSearchBytes, sizeof(DxConfigResolutionSearchBytes), 0x12, __FUNCTION__);
@@ -888,75 +894,82 @@ void PatchCustomAdvancedOptions()
     constexpr BYTE CreateOptionsSearchBytes[] = { 0x8B, 0x08, 0xC7, 0x00, 0x00, 0x00, 0x00, 0x00, 0x8B, 0xC1, 0xC3 };
     const DWORD CreateOptionsAddr = SearchAndGetAddresses(0x005075ED, 0x0050791D, 0x0050723D, CreateOptionsSearchBytes, sizeof(CreateOptionsSearchBytes), 0x13, __FUNCTION__);
 
-    if (!DrawAdvancedOptionsAddr || !SkipDisabledOptionsAddr || !DSpkAddrC)
+    if (!DrawAdvancedOptionsAddrA ||
+        !DrawAdvancedOptionsAddrB ||
+        !DrawAdvancedOptionsAddrC ||
+        !SkipDisabledOptionsAddr ||
+        !InitOptionsAddr ||
+        !DSpkAddr ||
+        !DxConfigResolution ||
+        !CreateOptionsAddr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find pointer address!";
         return;
     }
 
-    const DWORD CheckChangedOptionsAddr = DrawAdvancedOptionsAddr - 0x44A;
+    const DWORD CheckChangedOptionsAddr = DrawAdvancedOptionsAddrA - 0x44A;
 
-    MsgFileAddr = (DWORD*)*(DWORD*)(DrawAdvancedOptionsAddr + 0x14);
+    MsgFileAddr = (DWORD*)*(DWORD*)(DrawAdvancedOptionsAddrA + 0x14);
     OptionsPage = (BYTE*)*(DWORD*)(SkipDisabledOptionsAddr + 0x02);
-    OptionsState = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0x3BD);
+    OptionsState = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddrA - 0x3BD);
     OptionsSelectIndex = (short*)*(DWORD*)(SkipDisabledOptionsAddr - 0x0A);
     OptionsSelectDeltaIndex = (short*)*(DWORD*)(SkipDisabledOptionsAddr - 0x04);
     OptionsSaveChangesActive = (BYTE*)*(DWORD*)(CheckChangedOptionsAddr - 0x0C);
     OptionsSaveChangesIndex = (BYTE*)*(DWORD*)(CheckChangedOptionsAddr + 0x243);
     OptionCountAddr = (BYTE*)(SkipDisabledOptionsAddr - 0x18E);
-    ScreenBrightnessHandlerAddr = (void*)(DrawAdvancedOptionsAddr + 0xD98);
+    ScreenBrightnessHandlerAddr = (void*)(DrawAdvancedOptionsAddrB + 0x3B9);
 
-    jmpHandleInputAddr = (void*)(DrawAdvancedOptionsAddr + 0xC19);
+    jmpHandleInputAddr = (void*)(DrawAdvancedOptionsAddrB + 0x23A);
     jmpSkipDisabledOptionsReturnAddr1 = (void*)(SkipDisabledOptionsAddr + 0xD0);
     jmpSkipDisabledOptionsReturnAddr2 = (void*)(SkipDisabledOptionsAddr + 0x75);
-    jmpCheckChangedOptionsReturnAddr = (void*)(DrawAdvancedOptionsAddr - 0x3DF);
+    jmpCheckChangedOptionsReturnAddr = (void*)(DrawAdvancedOptionsAddrA - 0x3DF);
     jmpSaveOrDiscardChangesReturnAddr1 = (void*)(CheckChangedOptionsAddr + 0x379);
     jmpSaveOrDiscardChangesReturnAddr2 = (void*)(CheckChangedOptionsAddr + 0x3DF);
 
-    NoiseEffectOptionValue = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0x449);
-    NoiseEffectOptionCommitValue = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0x443);
-    AdvancedFiltersAvailable = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr + 0xDC);
-    LensFlareAvailable = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr + 0x12D);
-    DxConfigShadowsEnabled = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0x10B);
-    DxConfigFogEnabled = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0xFF);
-    DxConfigMotionBlurEnabled = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0xE1);
-    DxConfigDepthOfFieldEnabled = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0xE6);
-    DxConfigLensFlareEnabled = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0xDB);
-    HandleAdvancedFiltersChange = (void(*)())(BYTE*)(DrawAdvancedOptionsAddr - 0x16F);
+    NoiseEffectOptionValue = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddrA - 0x449);
+    NoiseEffectOptionCommitValue = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddrA - 0x443);
+    AdvancedFiltersAvailable = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddrA + 0xDC);
+    LensFlareAvailable = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddrA + 0x12D);
+    DxConfigShadowsEnabled = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddrA - 0x10B);
+    DxConfigFogEnabled = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddrA - 0xFF);
+    DxConfigMotionBlurEnabled = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddrA - 0xE1);
+    DxConfigDepthOfFieldEnabled = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddrA - 0xE6);
+    DxConfigLensFlareEnabled = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddrA - 0xDB);
+    HandleAdvancedFiltersChange = (void(*)())(BYTE*)(DrawAdvancedOptionsAddrA - 0x16F);
 
     // Get functions
-    prepText = (char*(*)(const char* str))(((BYTE*)DSpkAddrC + 0x15) + *(int*)((BYTE*)DSpkAddrC + 0x11));
-    printText = (void(*)(const char* str, int x, int y))(((BYTE*)DSpkAddrC + 0x1E) + *(int*)((BYTE*)DSpkAddrC + 0x1A));
-    printTextMsg = (void(*)(const short* msg_file, short index, int x, int y))(((BYTE*)DrawAdvancedOptionsAddr) + *(int*)((BYTE*)DrawAdvancedOptionsAddr - 0x04));
-    textSetColor = (void(*)(BYTE, BYTE, BYTE, BYTE))(((BYTE*)DrawAdvancedOptionsAddr + 0x0D) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0x09));
-    textSetCenterAlign = (void(*)())(((BYTE*)DrawAdvancedOptionsAddr - 0x17) + *(int*)((BYTE*)DrawAdvancedOptionsAddr - 0x1B));
-    textUnsetCenterAlign = (void(*)())(((BYTE*)DrawAdvancedOptionsAddr + 0x49) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0x45));
-    textSetRightAlign = (void(*)())(((BYTE*)DrawAdvancedOptionsAddr + 0x44) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0x40));
-    textUnsetRightAlign = (void(*)())(((BYTE*)DrawAdvancedOptionsAddr + 0x12) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0x0E));
-    drawLeftSelectArrow = (void(*)(int x, int y))(((BYTE*)DrawAdvancedOptionsAddr + 0xB3A) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0xB36));
-    drawRightSelectArrow = (void(*)(int x, int y))(((BYTE*)DrawAdvancedOptionsAddr + 0xC16) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0xC12));
-    getTextWidth = (int(*)(int*, USHORT*))(((BYTE*)DrawAdvancedOptionsAddr + 0xAA2) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0xA9E));
-    joyDown = (bool(*)(DWORD, DWORD, DWORD))(((BYTE*)DrawAdvancedOptionsAddr + 0xD67) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0xD63));
-    keyDown = (bool(*)(DWORD))(((BYTE*)DrawAdvancedOptionsAddr + 0xD88) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0xD84));
-    playSound = (void(*)(int, float, int))(((BYTE*)DrawAdvancedOptionsAddr + 0x11DC) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0x11D8));
-    mouseDown = (bool(*)(DWORD))(((BYTE*)DrawAdvancedOptionsAddr + 0xC20) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0xC1C));
-    mouseX = (int(*)())(((BYTE*)DrawAdvancedOptionsAddr + 0xC47) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0xC43));
-    mouseY = (int(*)())(((BYTE*)DrawAdvancedOptionsAddr + 0xC5F) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0xC5B));
-    updateResolution = (void(*)(BYTE))(((BYTE*)DrawAdvancedOptionsAddr - 0x1E5) + *(int*)((BYTE*)DrawAdvancedOptionsAddr - 0x1E9));
-    updateRenderEffects = (void(*)())(((BYTE*)DrawAdvancedOptionsAddr - 0x1DD) + *(int*)((BYTE*)DrawAdvancedOptionsAddr - 0x1E1));
+    prepText = (char*(*)(const char* str))(((BYTE*)DSpkAddr + 0x15) + *(int*)((BYTE*)DSpkAddr + 0x11));
+    printText = (void(*)(const char* str, int x, int y))(((BYTE*)DSpkAddr + 0x1E) + *(int*)((BYTE*)DSpkAddr + 0x1A));
+    printTextMsg = (void(*)(const short* msg_file, short index, int x, int y))(((BYTE*)DrawAdvancedOptionsAddrA) + *(int*)((BYTE*)DrawAdvancedOptionsAddrA - 0x04));
+    textSetColor = (void(*)(BYTE, BYTE, BYTE, BYTE))(((BYTE*)DrawAdvancedOptionsAddrA + 0x0D) + *(int*)((BYTE*)DrawAdvancedOptionsAddrA + 0x09));
+    textSetCenterAlign = (void(*)())(((BYTE*)DrawAdvancedOptionsAddrA - 0x17) + *(int*)((BYTE*)DrawAdvancedOptionsAddrA - 0x1B));
+    textUnsetCenterAlign = (void(*)())(((BYTE*)DrawAdvancedOptionsAddrA + 0x49) + *(int*)((BYTE*)DrawAdvancedOptionsAddrA + 0x45));
+    textSetRightAlign = (void(*)())(((BYTE*)DrawAdvancedOptionsAddrA + 0x44) + *(int*)((BYTE*)DrawAdvancedOptionsAddrA + 0x40));
+    textUnsetRightAlign = (void(*)())(((BYTE*)DrawAdvancedOptionsAddrA + 0x12) + *(int*)((BYTE*)DrawAdvancedOptionsAddrA + 0x0E));
+    drawLeftSelectArrow = (void(*)(int x, int y))(((BYTE*)DrawAdvancedOptionsAddrB + 0x15B) + *(int*)((BYTE*)DrawAdvancedOptionsAddrB + 0x157));
+    drawRightSelectArrow = (void(*)(int x, int y))(((BYTE*)DrawAdvancedOptionsAddrB + 0x237) + *(int*)((BYTE*)DrawAdvancedOptionsAddrB + 0x233));
+    getTextWidth = (int(*)(int*, USHORT*))(((BYTE*)DrawAdvancedOptionsAddrB + 0xC3) + *(int*)((BYTE*)DrawAdvancedOptionsAddrB + 0xBF));
+    joyDown = (bool(*)(DWORD, DWORD, DWORD))(((BYTE*)DrawAdvancedOptionsAddrB + 0x388) + *(int*)((BYTE*)DrawAdvancedOptionsAddrB + 0x384));
+    keyDown = (bool(*)(DWORD))(((BYTE*)DrawAdvancedOptionsAddrB + 0x3A9) + *(int*)((BYTE*)DrawAdvancedOptionsAddrB + 0x3A5));
+    playSound = (void(*)(int, float, int))(((BYTE*)DrawAdvancedOptionsAddrC + 0x26A) + *(int*)((BYTE*)DrawAdvancedOptionsAddrC + 0x266));
+    mouseDown = (bool(*)(DWORD))(((BYTE*)DrawAdvancedOptionsAddrB + 0x241) + *(int*)((BYTE*)DrawAdvancedOptionsAddrB + 0x23D));
+    mouseX = (int(*)())(((BYTE*)DrawAdvancedOptionsAddrB + 0x268) + *(int*)((BYTE*)DrawAdvancedOptionsAddrB + 0x264));
+    mouseY = (int(*)())(((BYTE*)DrawAdvancedOptionsAddrB + 0x280) + *(int*)((BYTE*)DrawAdvancedOptionsAddrB + 0x27C));
+    updateResolution = (void(*)(BYTE))(((BYTE*)DrawAdvancedOptionsAddrA - 0x1E5) + *(int*)((BYTE*)DrawAdvancedOptionsAddrA - 0x1E9));
+    updateRenderEffects = (void(*)())(((BYTE*)DrawAdvancedOptionsAddrA - 0x1DD) + *(int*)((BYTE*)DrawAdvancedOptionsAddrA - 0x1E1));
 
     Logging::Log() << "Patching Custom Advanced Options...";
 
-    WriteJMPtoMemory((BYTE*)DrawAdvancedOptionsAddr, *DrawAdvancedOptionsASM, 0x06);
+    WriteJMPtoMemory((BYTE*)DrawAdvancedOptionsAddrA, *DrawAdvancedOptionsASM, 0x06);
     WriteJMPtoMemory((BYTE*)SkipDisabledOptionsAddr, *SkipDisabledOptionsASM, 0x07);
     WriteJMPtoMemory((BYTE*)CheckChangedOptionsAddr, *CheckChangedOptionsASM, 0x05);
     WriteJMPtoMemory((BYTE*)(CheckChangedOptionsAddr + 0x242), *SaveOrDiscardChangesASM, 0x05);
     WriteJMPtoMemory((BYTE*)(CreateOptionsAddr), *CreateOptions, 0x05);
     WriteCalltoMemory((BYTE*)InitOptionsAddr, *InitOptionsASM, 0x07);
 
-    // Early return in options updaate handler
-    UpdateMemoryAddress((void*)(DrawAdvancedOptionsAddr + 0x11DF), "\xC3\x90\x90\x90\x90", 0x05);
+    // Early return in options update handler
+    UpdateMemoryAddress((void*)(DrawAdvancedOptionsAddrC + 0x26D), "\xC3\x90\x90\x90\x90", 0x05);
 
     // Early return in advanced filters handler
-    UpdateMemoryAddress((void*)(DrawAdvancedOptionsAddr - 0x127), "\xC3\x90\x90\x90\x90", 0x05);
+    UpdateMemoryAddress((void*)(DrawAdvancedOptionsAddrA - 0x127), "\xC3\x90\x90\x90\x90", 0x05);
 }

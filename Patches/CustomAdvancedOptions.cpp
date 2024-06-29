@@ -429,14 +429,14 @@ namespace
     Option* DisplayResolutionOptionPtr = nullptr;
 
     static const std::pair<int, const char*> kRenderResolutionScaleArray[]{
-        {7, "\\hx0.25"},
-        {6, "\\hx0.5"},
-        {5, "\\hx0.75"},
         {0, "\\hx1.0"},
         {4, "\\hx1.25"},
         {3, "\\hx1.5"},
         {2, "\\hx1.75"},
         {1, "\\hx2.0"},
+        {7, "\\hx0.25"},
+        {6, "\\hx0.5"},
+        {5, "\\hx0.75"},
     };
 
     class RenderResolutionOption : public Option
@@ -922,17 +922,17 @@ void PatchCustomAdvancedOptions()
     DxConfigMotionBlurEnabled = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0xE1);
     DxConfigDepthOfFieldEnabled = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0xE6);
     DxConfigLensFlareEnabled = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddr - 0xDB);
-    HandleAdvancedFiltersChange = (void (*)())(BYTE*)(DrawAdvancedOptionsAddr - 0x16F);
+    HandleAdvancedFiltersChange = (void(*)())(BYTE*)(DrawAdvancedOptionsAddr - 0x16F);
 
     // Get functions
     prepText = (char*(*)(const char* str))(((BYTE*)DSpkAddrC + 0x15) + *(int*)((BYTE*)DSpkAddrC + 0x11));
-    printText = (void (*)(const char* str, int x, int y))(((BYTE*)DSpkAddrC + 0x1E) + *(int*)((BYTE*)DSpkAddrC + 0x1A));
-    printTextMsg = (void (*)(const short* msg_file, short index, int x, int y))(((BYTE*)DrawAdvancedOptionsAddr) + *(int*)((BYTE*)DrawAdvancedOptionsAddr - 0x04));
-    textSetColor = (void (*)(BYTE, BYTE, BYTE, BYTE))(((BYTE*)DrawAdvancedOptionsAddr + 0x0D) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0x09));
-    textSetCenterAlign = (void (*)())(((BYTE*)DrawAdvancedOptionsAddr - 0x17) + *(int*)((BYTE*)DrawAdvancedOptionsAddr - 0x1B));
-    textUnsetCenterAlign = (void (*)())(((BYTE*)DrawAdvancedOptionsAddr + 0x49) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0x45));
-    textSetRightAlign = (void (*)())(((BYTE*)DrawAdvancedOptionsAddr + 0x44) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0x40));
-    textUnsetRightAlign = (void (*)())(((BYTE*)DrawAdvancedOptionsAddr + 0x12) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0x0E));
+    printText = (void(*)(const char* str, int x, int y))(((BYTE*)DSpkAddrC + 0x1E) + *(int*)((BYTE*)DSpkAddrC + 0x1A));
+    printTextMsg = (void(*)(const short* msg_file, short index, int x, int y))(((BYTE*)DrawAdvancedOptionsAddr) + *(int*)((BYTE*)DrawAdvancedOptionsAddr - 0x04));
+    textSetColor = (void(*)(BYTE, BYTE, BYTE, BYTE))(((BYTE*)DrawAdvancedOptionsAddr + 0x0D) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0x09));
+    textSetCenterAlign = (void(*)())(((BYTE*)DrawAdvancedOptionsAddr - 0x17) + *(int*)((BYTE*)DrawAdvancedOptionsAddr - 0x1B));
+    textUnsetCenterAlign = (void(*)())(((BYTE*)DrawAdvancedOptionsAddr + 0x49) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0x45));
+    textSetRightAlign = (void(*)())(((BYTE*)DrawAdvancedOptionsAddr + 0x44) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0x40));
+    textUnsetRightAlign = (void(*)())(((BYTE*)DrawAdvancedOptionsAddr + 0x12) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0x0E));
     drawLeftSelectArrow = (void(*)(int x, int y))(((BYTE*)DrawAdvancedOptionsAddr + 0xB3A) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0xB36));
     drawRightSelectArrow = (void(*)(int x, int y))(((BYTE*)DrawAdvancedOptionsAddr + 0xC16) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0xC12));
     getTextWidth = (int(*)(int*, USHORT*))(((BYTE*)DrawAdvancedOptionsAddr + 0xAA2) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0xA9E));
@@ -942,8 +942,8 @@ void PatchCustomAdvancedOptions()
     mouseDown = (bool(*)(DWORD))(((BYTE*)DrawAdvancedOptionsAddr + 0xC20) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0xC1C));
     mouseX = (int(*)())(((BYTE*)DrawAdvancedOptionsAddr + 0xC47) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0xC43));
     mouseY = (int(*)())(((BYTE*)DrawAdvancedOptionsAddr + 0xC5F) + *(int*)((BYTE*)DrawAdvancedOptionsAddr + 0xC5B));
-    updateResolution = (void (*)(BYTE))(((BYTE*)DrawAdvancedOptionsAddr - 0x1E5) + *(int*)((BYTE*)DrawAdvancedOptionsAddr - 0x1E9));
-    updateRenderEffects = (void (*)())(((BYTE*)DrawAdvancedOptionsAddr - 0x1DD) + *(int*)((BYTE*)DrawAdvancedOptionsAddr - 0x1E1));
+    updateResolution = (void(*)(BYTE))(((BYTE*)DrawAdvancedOptionsAddr - 0x1E5) + *(int*)((BYTE*)DrawAdvancedOptionsAddr - 0x1E9));
+    updateRenderEffects = (void(*)())(((BYTE*)DrawAdvancedOptionsAddr - 0x1DD) + *(int*)((BYTE*)DrawAdvancedOptionsAddr - 0x1E1));
 
     Logging::Log() << "Patching Custom Advanced Options...";
 
@@ -953,7 +953,7 @@ void PatchCustomAdvancedOptions()
     WriteJMPtoMemory((BYTE*)(CheckChangedOptionsAddr + 0x242), *SaveOrDiscardChangesASM, 0x05);
     WriteJMPtoMemory((BYTE*)(CreateOptionsAddr), *CreateOptions, 0x05);
     WriteCalltoMemory((BYTE*)InitOptionsAddr, *InitOptionsASM, 0x07);
-    
+
     // Early return in options updaate handler
     UpdateMemoryAddress((void*)(DrawAdvancedOptionsAddr + 0x11DF), "\xC3\x90\x90\x90\x90", 0x05);
 

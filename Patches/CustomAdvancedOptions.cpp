@@ -353,10 +353,10 @@ namespace
         int option_y_;
     };
 
-    class ScreenBrightnessOption : public Option
+    class ScreenBrightnessAdvancedOption : public Option
     {
     public:
-        ScreenBrightnessOption(int index) : Option(
+        ScreenBrightnessAdvancedOption(int index) : Option(
             index,
             /*name=*/std::make_unique<OptionMsgText>((short)0x02),
             /*description=*/std::make_unique<OptionMsgText>((short)0x03)
@@ -368,10 +368,10 @@ namespace
         }
     };
 
-    class DisplayModeOption : public Option
+    class DisplayModeAdvancedOption : public Option
     {
     public:
-        DisplayModeOption(int index) : Option(
+        DisplayModeAdvancedOption(int index) : Option(
             index,
             /*name=*/std::make_unique<OptionMsgText>((short)0xFE),
             /*description=*/std::make_unique<OptionMsgText>((short)0xFF)
@@ -398,10 +398,10 @@ namespace
         }
     };
 
-    class DisplayResolutionOption : public Option
+    class DisplayResolutionAdvancedOption : public Option
     {
     public:
-        DisplayResolutionOption(int index) : Option(
+        DisplayResolutionAdvancedOption(int index) : Option(
             index,
             /*name=*/std::make_unique<OptionMsgText>((short)0xA8),
             /*description=*/std::make_unique<OptionMsgText>((short)0xCA)
@@ -426,7 +426,7 @@ namespace
         }
     };
 
-    Option* DisplayResolutionOptionPtr = nullptr;
+    Option* DisplayResolutionAdvancedOptionPtr = nullptr;
 
     static const std::pair<int, const char*> kRenderResolutionScaleArray[]{
         {0, "\\hx1.0"},
@@ -439,10 +439,10 @@ namespace
         {5, "\\hx0.75"},
     };
 
-    class RenderResolutionOption : public Option
+    class RenderResolutionAdvancedOption : public Option
     {
     public:
-        RenderResolutionOption(int index) : Option(
+        RenderResolutionAdvancedOption(int index) : Option(
             index,
             /*name=*/std::make_unique<OptionRawText>(getRenderResolutionStr()),
             /*description=*/std::make_unique<OptionRawText>(getRenderResolutionDescriptionStr())
@@ -469,23 +469,23 @@ namespace
         bool Apply() override
         {
             if (!Option::Apply()) return false;
-            if (DisplayResolutionOptionPtr == nullptr) return false;
+            if (DisplayResolutionAdvancedOptionPtr == nullptr) return false;
 
             ConfigData.ScaleWindowedResolutionOption = kRenderResolutionScaleArray[value_index_].first;
             ScaleWindowedResolution = ConfigData.ScaleWindowedResolutionOption;
             SaveConfigRequired = true;
 
             UpdateScaleResolution();
-            WSFDynamicChangeWithResIndex((BYTE)DisplayResolutionOptionPtr->ValueIndex());
+            WSFDynamicChangeWithResIndex((BYTE)DisplayResolutionAdvancedOptionPtr->ValueIndex());
             DisplayChangeRequired = true;
             return true;
         }
     };
 
-    class NoiseEffectOption : public Option
+    class NoiseEffectAdvancedOption : public Option
     {
     public:
-        NoiseEffectOption(int index) : Option(
+        NoiseEffectAdvancedOption(int index) : Option(
             index,
             /*name=*/std::make_unique<OptionMsgText>((short)0x61),
             /*description=*/std::make_unique<OptionMsgText>((short)0x62)
@@ -508,10 +508,10 @@ namespace
         }
     };
 
-    class ShadowsOption : public Option
+    class ShadowsAdvancedOption : public Option
     {
     public:
-        ShadowsOption(int index) : Option(
+        ShadowsAdvancedOption(int index) : Option(
             index,
             /*name=*/std::make_unique<OptionMsgText>((short)0xAF),
             /*description=*/std::make_unique<OptionMsgText>((short)0xCB)
@@ -534,10 +534,10 @@ namespace
         }
     };
 
-    class FogOption : public Option
+    class FogAdvancedOption : public Option
     {
     public:
-        FogOption(int index) : Option(
+        FogAdvancedOption(int index) : Option(
             index,
             /*name=*/std::make_unique<OptionMsgText>((short)0xB2),
             /*description=*/std::make_unique<OptionMsgText>((short)0xCC)
@@ -560,10 +560,10 @@ namespace
         }
     };
 
-    class AdvancedFiltersOption : public Option
+    class AdvancedFiltersAdvancedOption : public Option
     {
     public:
-        AdvancedFiltersOption(int index) : Option(
+        AdvancedFiltersAdvancedOption(int index) : Option(
             index,
             /*name=*/std::make_unique<OptionMsgText>((short)0xB5),
             /*description=*/std::make_unique<OptionMsgText>((short)0xCD)
@@ -597,10 +597,10 @@ namespace
         }
     };
 
-    class LensFlareOption : public Option
+    class LensFlareAdvancedOption : public Option
     {
     public:
-        LensFlareOption(int index) : Option(
+        LensFlareAdvancedOption(int index) : Option(
             index,
             /*name=*/std::make_unique<OptionMsgText>((short)0xC0),
             /*description=*/std::make_unique<OptionMsgText>((short)0xD0)
@@ -633,10 +633,10 @@ namespace
         }
     };
 
-    class HealthIndicatorOption : public Option
+    class HealthIndicatorAdvancedOption : public Option
     {
     public:
-        HealthIndicatorOption(int index) : Option(
+        HealthIndicatorAdvancedOption(int index) : Option(
             index,
             /*name=*/std::make_unique<OptionRawText>(getHealthIndicatorStr()),
             /*description=*/std::make_unique<OptionRawText>(getHealthIndicatorDescriptionStr())
@@ -666,17 +666,17 @@ namespace
     void CreateOptions()
     {
         int index = 0;
-        options.push_back(std::make_unique<ScreenBrightnessOption>(index++));
-        options.push_back(std::make_unique<DisplayModeOption>(index++));
-        options.push_back(std::make_unique<DisplayResolutionOption>(index++));
-        DisplayResolutionOptionPtr = options.back().get();
-        options.push_back(std::make_unique<RenderResolutionOption>(index++));
-        options.push_back(std::make_unique<NoiseEffectOption>(index++));
-        options.push_back(std::make_unique<ShadowsOption>(index++));
-        options.push_back(std::make_unique<FogOption>(index++));
-        options.push_back(std::make_unique<AdvancedFiltersOption>(index++));
-        options.push_back(std::make_unique<LensFlareOption>(index++));
-        options.push_back(std::make_unique<HealthIndicatorOption>(index++));
+        options.push_back(std::make_unique<ScreenBrightnessAdvancedOption>(index++));
+        if (DisplayModeOption) options.push_back(std::make_unique<DisplayModeAdvancedOption>(index++));
+        options.push_back(std::make_unique<DisplayResolutionAdvancedOption>(index++));
+        DisplayResolutionAdvancedOptionPtr = options.back().get();
+        options.push_back(std::make_unique<RenderResolutionAdvancedOption>(index++));
+        options.push_back(std::make_unique<NoiseEffectAdvancedOption>(index++));
+        options.push_back(std::make_unique<ShadowsAdvancedOption>(index++));
+        options.push_back(std::make_unique<FogAdvancedOption>(index++));
+        options.push_back(std::make_unique<AdvancedFiltersAdvancedOption>(index++));
+        options.push_back(std::make_unique<LensFlareAdvancedOption>(index++));
+        options.push_back(std::make_unique<HealthIndicatorAdvancedOption>(index++));
 
         UpdateMemoryAddress((void*)(OptionCountAddr), &index, 1);
     }
@@ -809,7 +809,7 @@ namespace
         }
         if (DisplayChangeRequired)
         {
-            updateResolution((BYTE)DisplayResolutionOptionPtr->ValueIndex());
+            updateResolution((BYTE)DisplayResolutionAdvancedOptionPtr->ValueIndex());
             updateRenderEffects();
             DisplayChangeRequired = false;
         }

@@ -78,7 +78,6 @@
 	visit(GamepadControlsFix, true) \
 	visit(GravestoneBoardsFix, true) \
 	visit(HalogenLightFix, true) \
-	visit(HealthIndicatorOption, true) \
 	visit(HookDirect3D, true) \
 	visit(HookDirectInput, true) \
 	visit(HookDirectSound, true) \

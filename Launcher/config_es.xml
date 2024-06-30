@@ -664,17 +664,8 @@
         </Choices>
       </Feature>
 
-      <Feature name="HealthIndicatorOption">
-        <Title>Health indicator option</Title>
-        <Description>Replaces the Options > Game Options > Search View option with a Health Indicator option to enable/disable the low health visual used in-game.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="CustomAdvancedOptions">
-        <Title>Extend advanced options</Title>
+        <Title>Render resolution and health indicator options</Title>
         <Description>Adds Render Resolution and Health Indicator options to the Options > Advanced Options menu.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>

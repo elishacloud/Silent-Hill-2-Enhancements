@@ -684,15 +684,8 @@ void DelayedStart()
 		PatchDisplayMode();
 	}
 
-	// Adds health indicator option to game options menu
-	if (HealthIndicatorOption && !CustomAdvancedOptions)
-	{
-		PatchSearchViewOptionName();
-		PatchHealthIndicatorOption();
-	}
-
 	// Red Cross health indicator in cutscene
-	if (HealthIndicatorOption || DisableRedCrossInCutScenes || DisableRedCross)
+	if (CustomAdvancedOptions || DisableRedCrossInCutScenes || DisableRedCross)
 	{
 		PatchRedCrossInCutscene();
 	}

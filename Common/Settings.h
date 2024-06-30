@@ -215,7 +215,6 @@
 	visit(AntiAliasing) \
 	visit(AudioFadeOutDelayMS) \
 	visit(CommandWindowMouseFix) \
-	visit(CustomAdvancedOptions) \
 	visit(CustomFontCharHeight) \
 	visit(CustomFontCharWidth) \
 	visit(CustomFontCol) \

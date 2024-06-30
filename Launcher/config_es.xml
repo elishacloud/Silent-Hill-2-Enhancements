@@ -673,6 +673,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="CustomAdvancedOptions">
+        <Title>Extend advanced options</Title>
+        <Description>Adds Display Mode, Render Resolution, and Health Indicator options to the Options > Advanced Options menu.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
     </Section>
 
     <Section name="Correcciones de menús">
@@ -1084,6 +1093,15 @@
         <Choices type="list">
           <Value name="Red Cross">1</Value>
           <Value name="Lower Vignette" default="true">2</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="CustomAdvancedOptions">
+        <Title>Extend advanced options</Title>
+        <Description>Adds Display Mode, Render Resolution, and Health Indicator options to the Options > Advanced Options menu.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 

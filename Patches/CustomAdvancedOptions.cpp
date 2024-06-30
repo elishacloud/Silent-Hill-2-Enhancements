@@ -26,6 +26,7 @@
 
 extern char* getRenderResolutionStr();
 extern char* getRenderResolutionDescriptionStr();
+extern char *getResolutionDescStr();
 extern char* getHealthIndicatorStr();
 extern char* getHealthIndicatorDescriptionStr();
 
@@ -221,7 +222,7 @@ namespace
 
         virtual void NextValue()
         {
-            if (!enabled_ || values_.empty()) return;
+            if (!enabled_ || values_.size() <= 1) return;
             if (++value_index_ >= (int)values_.size())
                 value_index_ = 0;
             playSound(10000, 1.0, 0);
@@ -229,7 +230,7 @@ namespace
 
         virtual void PreviousValue()
         {
-            if (!enabled_ || values_.empty()) return;
+            if (!enabled_ || values_.size() <= 1) return;
             if (--value_index_ < 0)
                 value_index_ = values_.size() - 1;
             playSound(10000, 1.0, 0);
@@ -237,7 +238,7 @@ namespace
 
         virtual void HandleMouseSelection()
         {
-            if (!enabled_) return;
+            if (!enabled_ || values_.size() <= 1) return;
 
             const int x = mouseX();
             const int y = mouseY();
@@ -404,16 +405,27 @@ namespace
         DisplayResolutionAdvancedOption(int index) : Option(
             index,
             /*name=*/std::make_unique<OptionMsgText>((short)0xA8),
-            /*description=*/std::make_unique<OptionMsgText>((short)0xCA)
+            /*description=*/nullptr
         ) {}
 
         void Init() override
         {
-            values_.clear();
-            for (const auto& text : GetResolutionText())
+            if (!values_.empty()) return;
+
+            const auto& resolution_text = GetResolutionText();
+            if (resolution_text.size() > 1 && !strcmp(resolution_text[0].resStrBuf, resolution_text[1].resStrBuf))
+            {
+                // Resolution is locked
+                AddValue(std::make_unique<OptionRawText>(resolution_text[0].resStrBuf));
+                description_ = std::make_unique<OptionRawText>(getResolutionDescStr());
+                return;
+            }
+
+            for (const auto& text : resolution_text)
             {
                 AddValue(std::make_unique<OptionRawText>(text.resStrBuf));
             }
+            description_ = std::make_unique<OptionMsgText>((short)0xCA);
             value_index_ = committed_value_index_ = *DxConfigResolution;
         }
 

@@ -238,7 +238,7 @@ namespace
 
         virtual void HandleMouseSelection()
         {
-            if (!enabled_ || values_.size() <= 1) return;
+            if (!enabled_) return;
 
             const int x = mouseX();
             const int y = mouseY();
@@ -253,7 +253,7 @@ namespace
                 if (x > 0xFC - text_half_width && x < 0xFC + text_half_width)
                     Run();
             }
-            else
+            else if (values_.size() > 1)
             {
                 if (x >= 0xF1 && x <= 0x10A)
                 {

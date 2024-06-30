@@ -288,10 +288,10 @@ namespace
                 textUnsetRightAlign();
                 if (committed_value_index_ != value_index_)
                     SetTextColorUnselectedChanged();
-                if (enabled_)
-                    values_[value_index_]->Draw(0x10E, option_y_);
-                else if (value_disabled_ != nullptr)
+                if (!enabled_ && value_disabled_ != nullptr)
                     value_disabled_->Draw(0x10E, option_y_);
+                else
+                    values_[value_index_]->Draw(0x10E, option_y_);
             }
             else
             {
@@ -413,14 +413,12 @@ namespace
             if (!values_.empty()) return;
 
             const auto& resolution_text = GetResolutionText();
-            if (resolution_text.size() > 1 && !strcmp(resolution_text[0].resStrBuf, resolution_text[1].resStrBuf))
+            if (IsResolutionLocked())
             {
-                // Resolution is locked
                 AddValue(std::make_unique<OptionRawText>(resolution_text[0].resStrBuf));
                 description_ = std::make_unique<OptionRawText>(getResolutionDescStr());
                 return;
             }
-
             for (const auto& text : resolution_text)
             {
                 AddValue(std::make_unique<OptionRawText>(text.resStrBuf));
@@ -468,6 +466,11 @@ namespace
 
         void Init() override
         {
+            if (IsResolutionLocked())
+            {
+                enabled_ = false;
+                return;
+            }
             for (int i = 0; i < sizeof(kRenderResolutionScaleArray); ++i)
             {
                 if (kRenderResolutionScaleArray[i].first == (int)ConfigData.ScaleWindowedResolutionOption)

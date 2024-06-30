@@ -8,5 +8,5 @@ struct RESOLUTONTEXT
 };
 
 const std::vector<RESOLUTONTEXT>& GetResolutionText();
-
 void WSFDynamicChangeWithResIndex(BYTE NewIndex);
+bool IsResolutionLocked();

@@ -41,6 +41,7 @@ const DWORD MinHeight = 480;
 
 float ScaleFactor = 1.0f;
 bool UsingScaledResolutions = false;
+bool ResolutionLocked = false;
 bool AutoScaleImages = false;
 bool AutoScaleVideos = false;
 bool AutoScaleCutscenes = false;
@@ -714,6 +715,7 @@ void SetResolutionPatch()
 	if (*(DWORD*)((BYTE*)ResolutionArray) == *(DWORD*)((BYTE*)ResolutionArray + 8) &&
 		*(DWORD*)((BYTE*)ResolutionArray + 4) == *(DWORD*)((BYTE*)ResolutionArray + 12))
 	{
+        ResolutionLocked = true;
 		Logging::Log() << "Enabling Resolution Lock...";
 
 		// Lock resolution
@@ -747,6 +749,8 @@ void SetResolutionPatch()
 	ResArrowRetAddr = (DWORD *)(((BYTE*)DResAddrA + arrowOffset + 0x27) + *(int *)((BYTE*)DResAddrA + arrowOffset + 0x23) + 6);
 	WriteJMPtoMemory(((BYTE*)DResAddrA + arrowOffset + 0x22), *ResArrowASM, 5);
 }
+
+bool IsResolutionLocked() { return ResolutionLocked; }
 
 static DWORD* gFogOn;
 static DWORD* gShadowsOn;

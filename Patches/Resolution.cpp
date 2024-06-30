@@ -415,7 +415,7 @@ __declspec(naked) void __stdcall ChangeResASM()
 	}
 }
 
-void WSFDynamicChangeWithResIndex(BYTE NewIndex)
+void WSFDynamicChangeWithIndex(BYTE NewIndex)
 {
 	*TextResIndex = NewIndex;
 	WSFDynamicChange();

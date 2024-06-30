@@ -758,7 +758,7 @@ void DelayedStart()
 	}
 
 	// Replace Advanced Options menu with custom options
-	if (CustomAdvancedOptions)
+	if (CustomAdvancedOptions && CustomExeStrSet)
 	{
 		PatchCustomAdvancedOptions();
 	}

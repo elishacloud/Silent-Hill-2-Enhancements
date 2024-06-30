@@ -431,7 +431,6 @@ namespace
         {
             if (!Option::Apply()) return false;
             DisplayChangeRequired = true;
-            WSFDynamicChangeWithResIndex((BYTE)value_index_);
             return true;
         }
     };
@@ -491,7 +490,6 @@ namespace
             SaveConfigRequired = true;
 
             UpdateScaleResolution();
-            WSFDynamicChangeWithResIndex((BYTE)DisplayResolutionAdvancedOptionPtr->ValueIndex());
             DisplayChangeRequired = true;
             return true;
         }
@@ -824,6 +822,8 @@ namespace
         }
         if (DisplayChangeRequired)
         {
+            if (DynamicResolution && WidescreenFix)
+                WSFDynamicChangeWithIndex((BYTE)DisplayResolutionAdvancedOptionPtr->ValueIndex());
             updateResolution((BYTE)DisplayResolutionAdvancedOptionPtr->ValueIndex());
             updateRenderEffects();
             DisplayChangeRequired = false;

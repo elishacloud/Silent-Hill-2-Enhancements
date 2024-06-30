@@ -8,5 +8,9 @@ struct RESOLUTONTEXT
 };
 
 const std::vector<RESOLUTONTEXT>& GetResolutionText();
-void WSFDynamicChangeWithResIndex(BYTE NewIndex);
+
+// Updates WSF and updates the text resolution index.
+void WSFDynamicChangeWithIndex(BYTE NewIndex);
+
+// Returns whether the resolution option is locked.
 bool IsResolutionLocked();

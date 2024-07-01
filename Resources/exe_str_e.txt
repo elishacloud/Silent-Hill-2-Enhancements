@@ -26,6 +26,6 @@ Button %d
 \hConfigure in d3d8.ini file
 \hConfigure in Windows Sound Settings
 \hMaster Volume
-\hAdjust Master Volume
-\hHealth indicator
-\hEnable low health indicator
+\hAdjust master volume
+\hHealth Indicator
+\hEnable the low health indicator

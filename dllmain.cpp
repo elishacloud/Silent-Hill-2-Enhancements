@@ -142,6 +142,13 @@ void DelayedStart()
 	Logging::LogOSVersion();
 	Logging::LogProcessNameAndPID();
 
+#ifndef SPEEDRUN_VERSION
+	if (SpeedrunMode != 0)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: SpeedrunMode is enabled, but this SH2:EE version doesn't support it. Please download a Speedrun Version of the SH2:EE.";
+	}
+#endif // !SPEEDRUN_VERSION
+
 	// Check arguments for PID
 	CheckArgumentsForPID();
 

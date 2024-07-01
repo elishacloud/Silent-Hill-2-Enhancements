@@ -446,6 +446,9 @@
     <ClCompile Include="Patches\ElevatorCursorColorFix.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\FlashlightReflection.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
     <ClCompile Include="Patches\RowboatFix.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
@@ -675,6 +678,12 @@
     </ClInclude>
     <ClInclude Include="Patches\PuzzleAlignmentFixes.h">
       <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Patches\FlashlightReflection.h">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\IUnknownPtr.h">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

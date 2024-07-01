@@ -627,6 +627,7 @@ void PatchFinalBossRoom();
 void PatchFireEscapeKey();
 void PatchFlashlightClockPush();
 void PatchFlashlightFlicker();
+void PatchFlashlightReflection();
 void PatchFMV();
 void PatchFMVFramerate();
 void PatchFmvSubtitlesNoiseFix();

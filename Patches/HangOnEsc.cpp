@@ -29,6 +29,9 @@ BYTE* InhibitOneAddr = nullptr;
 BYTE* InhibitTwoAddr = nullptr;
 BYTE* InhibitThreeAddr = nullptr;
 
+BYTE* ControlTypePtr = nullptr;
+bool overriddenControlType = false;
+
 // ASM function to disables Esc key during in-game cutscenes
 __declspec(naked) void __stdcall CutsceneEscASM()
 {
@@ -72,6 +75,8 @@ void RunHangOnEsc()
 	if (RunOnlyOnce)
 	{
 		RunOnlyOnce = false;
+
+		ControlTypePtr = GetControlTypePointer();
 
 		constexpr BYTE InputInhibitionSearchBytes[]{ 0x0b, 0xC2, 0x74, 0x27 };
 		DWORD InputInhibitionAddress = SearchAndGetAddresses(0x004464f9, 0x00446699, 0x00446699, InputInhibitionSearchBytes, sizeof(InputInhibitionSearchBytes), 0x02, __FUNCTION__);
@@ -140,11 +145,23 @@ void RunHangOnEsc()
 		UpdateMemoryAddress(InhibitOneAddr, "\xEB", 0x01);
 		UpdateMemoryAddress(InhibitTwoAddr, "\xEB", 0x01);
 		UpdateMemoryAddress(InhibitThreeAddr, "\xEB", 0x01);
+
+		if (!overriddenControlType && *ControlTypePtr == ROTATIONAL_CONTROL)
+		{
+			*ControlTypePtr = DIRECTIONAL_CONTROL;
+			overriddenControlType = true;
+		}
 	}
 	else
 	{
 		UpdateMemoryAddress(InhibitOneAddr, "\x74", 0x01);
 		UpdateMemoryAddress(InhibitTwoAddr, "\x74", 0x01);
 		UpdateMemoryAddress(InhibitThreeAddr, "\x74", 0x01);
+
+		if (overriddenControlType)
+		{
+			*ControlTypePtr = ROTATIONAL_CONTROL;
+			overriddenControlType = false;
+		}
 	}
 }

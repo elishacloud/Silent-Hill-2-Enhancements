@@ -62,12 +62,6 @@ static const char *KEY_NAMES[] =
 	FOREACH_KEY(GENERATE_STRING)
 };
 
-typedef enum _CONTROL_TYPE 
-{
-	ROTATIONAL_CONTROL,
-	DIRECTIONAL_CONTROL,
-} CONTROL_TYPE;
-
 typedef enum _RUN_SETTING 
 {
 	OPT_WALK,

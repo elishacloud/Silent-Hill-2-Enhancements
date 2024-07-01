@@ -352,6 +352,32 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		// Save controller data
 		ControllerData = (DIJOYSTATE*)lpvData;
 
+		if (IsInFakeFadeout && FixHangOnEsc)
+		{
+			for (int i = 0; i < 32; i++)
+				ControllerData->rgbButtons[i] = KEY_CLEAR;
+
+			ControllerData->lRx = KEY_CLEAR;
+			ControllerData->lRy = KEY_CLEAR;
+			ControllerData->lRz = KEY_CLEAR;
+			ControllerData->lX = KEY_CLEAR;
+			ControllerData->lY = KEY_CLEAR;
+			ControllerData->lZ = KEY_CLEAR;
+
+			ControllerData->rglSlider[0] = KEY_CLEAR;
+			ControllerData->rglSlider[1] = KEY_CLEAR;
+
+			ControllerData->rgdwPOV[0] = 0xFFFF;
+			ControllerData->rgdwPOV[1] = 0xFFFF;
+			ControllerData->rgdwPOV[2] = 0xFFFF;
+			ControllerData->rgdwPOV[3] = 0xFFFF;
+
+			// Clear controller data
+			ControllerData = nullptr;
+
+			return;
+		}
+
 		// Clear the the pause button if a quicksave is in progress
 		if (GameLoadFix && (GetIsWritingQuicksave() == 1 || GetTextAddr() == 1))
 			ControllerData->rgbButtons[KeyBinds.GetPauseButtonBind()] = KEY_CLEAR;

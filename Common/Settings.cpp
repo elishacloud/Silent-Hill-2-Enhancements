@@ -437,25 +437,25 @@ void UpdateScaleResolution()
 		ScaleWindowedResolution = (FixGPUAntiAliasing == false);
 		break;
 	case 1:
-		ScaleFactor = 2.0f;
+		ScaleFactor = 4.0f;
 		break;
 	case 2:
-		ScaleFactor = 1.75f;
+		ScaleFactor = 3.0f;
 		break;
 	case 3:
-		ScaleFactor = 1.5f;
+		ScaleFactor = 2.5f;
 		break;
 	case 4:
-		ScaleFactor = 1.25f;
+		ScaleFactor = 2.0f;
 		break;
 	case 5:
-		ScaleFactor = 0.75f;
+		ScaleFactor = 1.5f;
 		break;
 	case 6:
-		ScaleFactor = 0.5f;
+		ScaleFactor = 0.75f;
 		break;
 	case 7:
-		ScaleFactor = 0.25f;
+		ScaleFactor = 0.5f;
 		break;
 	}
 

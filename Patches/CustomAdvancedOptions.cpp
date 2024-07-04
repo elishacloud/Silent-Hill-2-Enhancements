@@ -462,13 +462,13 @@ namespace
 
     static const std::pair<int, const char*> kRenderResolutionScaleArray[]{
         {0, "\\hx1.0"},
-        {4, "\\hx1.25"},
-        {3, "\\hx1.5"},
-        {2, "\\hx1.75"},
-        {1, "\\hx2.0"},
-        {7, "\\hx0.25"},
-        {6, "\\hx0.5"},
-        {5, "\\hx0.75"},
+        {5, "\\hx1.5"},
+        {4, "\\hx2.0"},
+        {3, "\\hx2.5"},
+        {2, "\\hx3.0"},
+        {1, "\\hx4.0"},
+        {7, "\\hx0.5"},
+        {6, "\\hx0.75"},
     };
 
     class RenderResolutionAdvancedOption : public Option

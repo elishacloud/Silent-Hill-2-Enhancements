@@ -16,6 +16,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <functional>
 #include <memory>
 #include <vector>
 #include "Common\Utils.h"
@@ -118,6 +119,28 @@ namespace
 
     private:
         const char* text_;
+    };
+
+    class OptionExeText : public OptionText
+    {
+    public:
+        OptionExeText(std::function<char*()> text_func) : text_func_(std::move(text_func)) {}
+
+        void Draw(int x, int y) const override
+        {
+            if (text_func_ == nullptr) return;
+            printText(prepText(text_func_()), x, y);
+        }
+
+        int GetTextWidth() const override
+        {
+            int len = 0;
+            getTextWidth(&len, (USHORT*)(prepText(text_func_())));
+            return len;
+        }
+
+    private:
+        std::function<char*()> text_func_;
     };
 
     class OptionMsgText : public OptionText
@@ -416,7 +439,7 @@ namespace
             if (IsResolutionLocked())
             {
                 AddValue(std::make_unique<OptionRawText>(resolution_text[0].resStrBuf));
-                description_ = std::make_unique<OptionRawText>(getResolutionDescStr());
+                description_ = std::make_unique<OptionExeText>(getResolutionDescStr);
                 return;
             }
             for (const auto& text : resolution_text)
@@ -453,8 +476,8 @@ namespace
     public:
         RenderResolutionAdvancedOption(int index) : Option(
             index,
-            /*name=*/std::make_unique<OptionRawText>(getRenderResolutionStr()),
-            /*description=*/std::make_unique<OptionRawText>(getRenderResolutionDescriptionStr())
+            /*name=*/std::make_unique<OptionExeText>(getRenderResolutionStr),
+            /*description=*/std::make_unique<OptionExeText>(getRenderResolutionDescriptionStr)
         )
         {
             for (const auto& [ind, text] : kRenderResolutionScaleArray)
@@ -651,8 +674,8 @@ namespace
     public:
         HealthIndicatorAdvancedOption(int index) : Option(
             index,
-            /*name=*/std::make_unique<OptionRawText>(getHealthIndicatorStr()),
-            /*description=*/std::make_unique<OptionRawText>(getHealthIndicatorDescriptionStr())
+            /*name=*/std::make_unique<OptionExeText>(getHealthIndicatorStr),
+            /*description=*/std::make_unique<OptionExeText>(getHealthIndicatorDescriptionStr)
         )
         {
             AddValue(std::make_unique<OptionMsgText>((short)0xB0));  // "Off"

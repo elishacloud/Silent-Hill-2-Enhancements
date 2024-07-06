@@ -57,7 +57,7 @@
 	visit(FixFinalBossRoom, true) \
 	visit(FixFMVResetIssue, true) \
 	visit(FixFMVSpeed, true) \
-	visit(FixGPUAntiAliasing, false) \
+	visit(FixGPUAntiAliasing, true) \
 	visit(FixHangOnEsc, true) \
 	visit(FixInventoryBGM, true) \
 	visit(FixMemoFading, true) \

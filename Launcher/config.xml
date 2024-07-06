@@ -17,24 +17,9 @@
         </Choices>
       </Feature>
 
-      <Feature name="ScaleWindowedResolution">
-        <Title>Render Resolution Scaling Factor</Title>
-        <Description>Set the scaling factor for the game's rendering resolution. Render scaling involves adjusting the internal rendering resolution of the game without changing the output resolution of the display. A factor of 1.0 is default, or no scaling. When scaled above 1.0, the game will render larger than the output resolution and then shrink the image to fit. This is one of the best forms of anti-aliasing but can cost a lot of system resources to perform. When scaled below 1.0, the game will render smaller than the output resolution and enlarge the image to fit the output resolution. This will create a blurry, "low res" effect. &#x0a;&#x0a;Note: It is not recommended to increase the render resolution beyond 1.0 if you are using a low-end computer system.</Description>
-        <Choices type="list">
-          <Value name="0.25">7</Value>
-          <Value name="0.5">6</Value>
-          <Value name="0.75">5</Value>
-          <Value name="1.0" default="true">0</Value>
-          <Value name="1.25">4</Value>
-          <Value name="1.5">3</Value>
-          <Value name="1.75">2</Value>
-          <Value name="2.0">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="ForceTopMost" speedrun="true">
         <Title>Game window always on top</Title>
-        <Description>Forces the game window to be above all other windows, inlcuding the Start Menu bar.&#x0a;&#x0a;Note: Only works when windowed mode is enabled.</Description>
+        <Description>Forces the game window to be above all other windows, inlcuding the Start Menu bar.&#x0a;&#x0a;Note: Only works when playing in windowed mode.</Description>
         <Choices type="check">
           <Value name="Disable" default="true">0</Value>
           <Value name="Enable">1</Value>
@@ -234,15 +219,6 @@
         </Choices>
       </Feature>
 
-      <Feature name="FlashlightReflection">
-        <Title>Flashlight reflection</Title>
-        <Description>Creates a reflection of the flashlight on glass and glossy surfaces throughout the game.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="RestoreSpecialFX">
         <Title>Restore post-processing effects</Title>
         <Description>Restores post-processing effects to their original intensities throughout the game. Effects include depth-of-field blur, motion blur, static blur, and pseudo blooms.</Description>
@@ -281,7 +257,7 @@
 
       <Feature name="FlashlightReflection">
         <Title>Flashlight reflection</Title>
-        <Description>Creates a reflection of the flashlight on glass and glossy surfaces throughout the game.</Description>
+        <Description>Restores the flashlight reflection on the town's shop windows at night. Also creates reflections on additional glass and glossy surfaces throughout the game.&#x0a;&#x0a;Note: The project's "Enhanced Edition Essential Files" package must be used in conjunction with this feature for the reflection to work.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -446,7 +422,7 @@
 
       <Feature name="PreserveSoundsOnLoad">
         <Title>Preserve game save and load sound effects</Title>
-        <Description>Preserves the "game load" and "game save" sound effects when loading/saving while in-game. Otherwise, these sounds would be cut off prematurely under certain circumstances. Note: g_start.wav and save_sound.wav must be present in "sh2e\sound\extra\" for this feature to work.</Description>
+        <Description>Preserves the "game load" and "game save" sound effects when loading/saving while in-game. Otherwise, these sounds would be cut off prematurely under certain circumstances.&#x0a;&#x0a;Note: g_start.wav and save_sound.wav must be present in "sh2e\sound\extra\" for this feature to work.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -468,7 +444,7 @@
 
       <Feature name="FlashlightToggleSFX">
         <Title>Flashlight sound effects</Title>
-        <Description>Enables a flashlight sound effect when turning the light on or off.  Note: flashlight_on.wav and flashlight_off.wav must be present in "sh2e\sound\extra\" for this feature to work.</Description>
+        <Description>Enables a flashlight sound effect when turning the light on or off.&#x0a;&#x0a;Note: flashlight_on.wav and flashlight_off.wav must be present in "sh2e\sound\extra\" for this feature to work.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -687,7 +663,7 @@
 
       <Feature name="EnableMasterVolume">
         <Title>Master volume option</Title>
-        <Description>Adds a master volume level control to the in-game Options menu to control all audio in the game.</Description>
+        <Description>Adds a master volume level control to the in-game Options menu to control all audio in the game.&#x0a;&#x0a;Note: .\sh2e\resources\r_menu_*.res must be present in the game's directory for this feature to work.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -696,16 +672,16 @@
 
       <Feature name="DisplayModeOption">
         <Title>Display mode option</Title>
-        <Description>Replaces the Options > Advanced Options > Low Res Texture option with a Display Mode option to change the screen mode used for the game.</Description>
+        <Description>Replaces the Options > Advanced Options > Low Res Texture option with a Display Mode option to change the screen mode used for the game.&#x0a;&#x0a;Note: Modified option_msg_*.mes file must be present in "sh2e\etc\message\" for this feature to work.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
-
-      <Feature name="HealthIndicatorOption">
-        <Title>Health indicator option</Title>
-        <Description>Replaces the Options > Game Options > Search View option with a Health Indicator option to enable/disable the low health visual used in-game.</Description>
+        
+      <Feature name="CustomAdvancedOptions">
+        <Title>Render resolution and health indicator options</Title>
+        <Description>Adds Render Resolution and Health Indicator options to the Options > Advanced Options menu.&#x0a;&#x0a;Note: .\sh2e\resources\r_menu_*.res must be present in the game's directory for this feature to work.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -790,7 +766,7 @@
 
       <Feature name="LockSpeakerConfig">
         <Title>Lock Speaker Configuration option</Title>
-        <Description>Disables changing the Speaker Configuration feature in the game's Options > Advanced Options menu as, after Windows XP, this change must be done through Windows' Sound Control panel and can no longer be changed within applications (such as this game). If you try to change this through the game's Options menu, it will just revert back to what is being used through Windows' Sound Control panel.&#x0a;&#x0a;Note: d3d8.res must be present in the game's directory for this feature to work.</Description>
+        <Description>Disables changing the Speaker Configuration feature in the game's Options > Advanced Options menu as, after Windows XP, this change must be done through Windows' Sound Control panel and can no longer be changed within applications (such as this game). If you try to change this through the game's Options menu, it will just revert back to what is being used through Windows' Sound Control panel.&#x0a;&#x0a;Note: .\sh2e\resources\r_menu_*.res must be present in the game's directory for this feature to work.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -968,8 +944,8 @@
       </Feature>
 
       <Feature name="FixTownGateEvents">
-        <Title>Fix commentary about town gates</Title>
-        <Description>Changes James' commentary about the gated entrance at Wood Side apartments and back alley gate at Heaven's Night to properly reflect the gate's status when revisiting them at night.</Description>
+        <Title>Fix town gates commentary and appearance</Title>
+        <Description>Visually removes the lock from the Wood Side Apartments gate once James is inside. Changes James' commentary about the gated entrance at Wood Side apartments and back alley gate at Heaven's Night to properly reflect the gate's status when revisiting them at night.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -1375,8 +1351,8 @@
         <Title>Fix GPU anti-aliasing</Title>
         <Description>Fixes issues for Nvidia graphics cards, such as missing/incorrect shadows, when force-enabling anti-aliasing through of your GPU's control panel.</Description>
         <Choices type="check">
-          <Value name="Disable" default="true">0</Value>
-          <Value name="Enable">1</Value>
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 

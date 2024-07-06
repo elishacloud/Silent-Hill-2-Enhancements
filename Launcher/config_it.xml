@@ -17,27 +17,12 @@
         </Choices>
       </Feature>
 
-      <Feature name="ScaleWindowedResolution">
-        <Title>Moltiplicatore della risoluzione di rendering</Title>
-        <Description>Imposta il moltiplicatore della risoluzione di rendering. Comporta l'adattamento della risoluzione interna di rendering del gioco  senza cambiare la risoluzione finale del display. Il fattore 1.0 è di default, e non comporta nessun cambiamento. Quando è superiore a 1.0, il gioco verrà renderizzato ad una risoluzione maggiore e ridimensionato per rientrare nel display. Questa è una delle migliori forme di anti-aliasing ma comporta un consumo di risorse elevato. Quando è minore di 1.0, il gioco userà una risoluzione interna minore di quella del display, e verrà ridimensionata alla risoluzione del display. Questo creerà un effetto sfocato, a bassa risoluzione. &#x0a;&#x0a;Nota: Non è raccomandato aumentare la risoluzione di render oltre 1.0 se il pc non possiede le specifiche necessarie.</Description>
-        <Choices type="list">
-          <Value name="0.25">7</Value>
-          <Value name="0.5">6</Value>
-          <Value name="0.75">5</Value>
-          <Value name="1.0" default="true">0</Value>
-          <Value name="1.25">4</Value>
-          <Value name="1.5">3</Value>
-          <Value name="1.75">2</Value>
-          <Value name="2.0">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="ForceTopMost" speedrun="true">
-        <Title>Finestra di gioco sempre in primo piano</Title>
-        <Description>Forza la finestra di gioco ad essere sempre sopra tutte le altre finestre, inclusa la barra del menu Start.&#x0a;&#x0a;Nota: Funziona soltanto in modalità finestra.</Description>
-        <Choices type="check">
-          <Value name="Disabilitato" default="true">0</Value>
-          <Value name="Abilitato">1</Value>
+        <Title>Finestra del gioco sempre in primo piano</Title>
+        <Description>Forza la finestra del gioco al di sopra di tutte le altre finestre, compresa la barra del menu Start.&#x0a;&#x0a;Nota: Funziona soltanto in modalità Finestra.</Description>
+        <Choices type="check">1
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -234,15 +219,6 @@
         </Choices>
       </Feature>
 
-      <Feature name="FlashlightReflection">
-        <Title>Flashlight reflection</Title>
-        <Description>Creates a reflection of the flashlight on glass and glossy surfaces throughout the game.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="RestoreSpecialFX">
         <Title>Ripristina gli effetti di post-processing</Title>
         <Description>Ripristina gli effetti di post-processing alla loro intensità originale durante il gioco. Gli effetti includono sfocamento dovuto a profondità di campo, sfocamento dovuto al movimento, sfocamento statico e pseudo bloom.</Description>
@@ -281,7 +257,7 @@
 
       <Feature name="FlashlightReflection">
         <Title>Riflesso della torcia</Title>
-        <Description>Crea riflessi della torcia sulle superfici vetrose o lucide del gioco.</Description>
+        <Description>Ripristina il riflesso della torcia sulle finestre dei negozi della città, di notte. Crea anche riflessi su altre superfici lucide nel gioco.&#x0a;&#x0a;Nota: Il pacchetto "Enhanced Edition Essential Files" deve essere usato assieme a questa feature affinché funzioni.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>
@@ -370,11 +346,11 @@
       </Feature>
 
       <Feature name="ObservationDeckFogFix">
-        <Title>Extend observation deck fog</Title>
-        <Description>Horizontally extends the fog at the beginning observation deck so that it always fills the screen, up to a 16:9 aspect ratio, for a better presentation.&#x0a;&#x0a;Note: Modified obGB.fcl file must be present in "sh2e\bg\ob\" for this feature to display properly.</Description>
+        <Title>Estendi la nebbia del ponte di osservazione</Title>
+        <Description>Estende orizzontalmente la nebbia al ponte di osservazione all'inizio del gioco in modo che riempia sempre lo schermo, fino a rapporti di 16:9, per una presentazione migliore.&#x0a;&#x0a;Nota: Il file modificato obGB.fcl deve essere presente in "sh2e\bg\ob\" affinché questa feature funzioni correttamente.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -446,7 +422,7 @@
 
       <Feature name="PreserveSoundsOnLoad">
         <Title>Corregge l'effetto sonoro di Salva e Carica gioco</Title>
-        <Description>Corregge il suono di "salva gioco" e "carica gioco" quando si carica/salva durante il gioco. Altrimenti, questi suoni verrebbero tagliati prematuramente in certe circostanze. Nota: g_start.wav e save_sound.wav devono essere presenti in "sh2e\sound\extra\" affinché questa feature funzioni.</Description>
+        <Description>Corregge il suono di "salva gioco" e "carica gioco" quando si carica/salva durante il gioco. Altrimenti, questi suoni verrebbero tagliati prematuramente in certe circostanze.&#x0a;&#x0a;Nota: g_start.wav e save_sound.wav devono essere presenti in "sh2e\sound\extra\" affinché questa feature funzioni.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>
@@ -468,7 +444,7 @@
 
       <Feature name="FlashlightToggleSFX">
         <Title>Effetti sonori della torcia</Title>
-        <Description>Abilita suoni della torcia quando viene accesa o spenta. Nota: flashlight_on.wav e flashlight_off.wav devono essere presenti in "sh2e\sound\extra\" affinché questa feature funzioni.</Description>
+        <Description>Abilita suoni della torcia quando viene accesa o spenta.&#x0a;&#x0a;Nota: flashlight_on.wav e flashlight_off.wav devono essere presenti in "sh2e\sound\extra\" affinché questa feature funzioni.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>
@@ -477,7 +453,7 @@
 
       <Feature name="VHSAudioFix">
         <Title>Ripristina l'audio per la VHS senza censura</Title>
-        <Description>Utilizza una traccia audio scartata per la cutscene della VHS. E' raccomandato abilitarlo solo in partite successive alla prima. &#x0a;&#x0a;Nota: Bisogna avere la giusta versione del file video che contiene entrambe le versioni dell'audio, censurata e non. Altrimenti, soltanto l'audio originale verrà riprodotto. E' possibile ottenere la corretta versione di questo video scaricando l'FMV Enhancement Pack dal sito del progetto.</Description>
+        <Description>Utilizza una traccia audio scartata per la cutscene della VHS. E' raccomandato abilitarlo solo in partite successive alla prima.&#x0a;&#x0a;Nota: Bisogna avere la giusta versione del file video che contiene entrambe le versioni dell'audio, censurata e non. Altrimenti, soltanto l'audio originale verrà riprodotto. E' possibile ottenere la corretta versione di questo video scaricando l'FMV Enhancement Pack dal sito del progetto.</Description>
         <Choices type="check">
           <Value name="Disabilitato" default="true">0</Value>
           <Value name="Abilitato">1</Value>
@@ -686,8 +662,8 @@
     <Section name="Menu Additions">
 
       <Feature name="EnableMasterVolume">
-        <Title>Abilita opzione Volume Generale</Title>
-        <Description>Sostituisci l'opzione inutilizzata "Configurazione altoparlanti" con la nuova opzione di "Volume Generale".</Description>
+        <Title>Opzione volume generale</Title>
+        <Description>Aggiunge l'opzione Volume generale al menu opzioni per controllare tutto l'audio del gioco.&#x0a;&#x0a;Nota: Il file .\sh2e\resources\r_menu_*.res deve essere presente nella cartella del gioco affinché questa feature funzioni.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>
@@ -696,16 +672,16 @@
 
       <Feature name="DisplayModeOption">
         <Title>Opzione modalità schermo</Title>
-        <Description>Sostituisce Opzioni > Opzioni avanzate > Texture a bassa risoluzione con Modalità schermo, per cambiare la modalità schermo del gioco.</Description>
+        <Description>Sostituisce l'opzione Opzioni > Opzioni Avanzate > Texture a bassa risoluzione con una opzione Modalità schermo per cambiare la modalità schermo usata nel gioco.&#x0a;&#x0a;Nota: Il file .\sh2e\resources\r_menu_*.res deve essere presente nella cartella del gioco affinché questa feature funzioni.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
-
-      <Feature name="HealthIndicatorOption">
-        <Title>Opzione indicatore salute</Title>
-        <Description>Sostituisce Opzioni > Opzioni di gioco > Controllo visuale con Indicatore salute, per abilitare/disabilitare la grafica di salute bassa nel gioco.</Description>
+        
+      <Feature name="CustomAdvancedOptions">
+        <Title>Opzioni risoluzione di render e indicatore salute</Title>
+        <Description>Aggiunge le opzioni Risoluzione di Render e Indicatore Salute nel menu Opzioni > Opzioni Avanzate.&#x0a;&#x0a;Nota: Il file .\sh2e\resources\r_menu_*.res deve essere presente nella cartella del gioco affinché questa feature funzioni.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>
@@ -726,11 +702,11 @@
       </Feature>
 
       <Feature name="MainMenuInstantLoadOptions">
-        <Title>Instant load options on main menu</Title>
-        <Description>Removes the small delay before the LOAD and CONTINUE selections appear on the main menu.</Description>
+        <Title>Carica pulsanti istantaneamente nel menu principale</Title>
+        <Description>Rimuove il piccolo ritardo prima che le opzioni CARICA e CONTINUA appaiano nel menu principale.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -789,8 +765,8 @@
       </Feature>
 
       <Feature name="LockSpeakerConfig">
-        <Title>Blocca l'opzione di Configurazione Altoparlanti</Title>
-        <Description>Disabilita l'opzione di Configurazione Altoparlanti nel menu Opzioni > Opzioni Avanzate dato che, dopo Windows XP, questa opzione va cambiata nel pannello di controllo del suono di Windows e non può più essere cambiata dalle applicazioni (come il gioco). Se si prova a cambiare questa opzione attraverso il menu Opzioni, questa tornerà all'opzione usata dal Pannello di Controllo di Windows.&#x0a;&#x0a;Nota: Il file d3d8.res deve essere presente nella cartella del gioco per il funzionamento di questa opzione.</Description>
+        <Title>Blocca l'opzione Configurazione Altoparlanti</Title>
+        <Description>Disabilita l'opzione Configurazione Altoparlanti nel menu Opzioni > Opzioni Avanzate dato che, dopo Windows XP, questa opzione va cambiata attraverso il pannello di controllo audio di Windows e non può essere cambiata dagli applicativi (come ad esempio questo gioco). Se si prova a cambiarla attraverso il gioco, tornerà semplicemente a quella selezionata nel Pannello di controllo audio di Windows.&#x0a;&#x0a;Nota: Il file .\sh2e\resources\r_menu_*.res deve essere presente nella cartella del gioco affinché questa feature funzioni.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>
@@ -896,11 +872,11 @@
       </Feature>
 
       <Feature name="BFaWAtticFix">
-        <Title>Fix glitchy shadow behavior</Title>
-        <Description>Fixes glitchy shadow behavior and improves/synchronizes the candle flame animation in the mansion's attic for Maria's campaign.</Description>
+        <Title>Corregge comportamento anomalo delle ombre</Title>
+        <Description>Corregge il comportamento anomalo delle ombre e migliora/sincronizza l'animazione della fiamma delle candele nell'attico della magione nella campagna di Maria.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -959,17 +935,17 @@
       </Feature>
 
       <Feature name="PuzzleAlignmentFixes">
-        <Title>Fix puzzle alignment issues</Title>
-        <Description>Fixes the coins used in the apartment puzzle from being misaligned in the hole slots. Fixes the boards used in the BfaW gravestone puzzle from being misaligned or distorted when rotated.</Description>
+        <Title>Correggi problemi di allineamento dei puzzle</Title>
+        <Description>Corregge l'allineamento delle monete nel puzzle dell'appartamento negli slot. Corregge l'allineamento delle tavole nel puzzle del cimitero nello scenario BfaW.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 
-      <Feature name="FixTownGateEvent">
-        <Title>Correggi il commento sulle porte della città</Title>
-        <Description>Cambia il commento di James sul cancello di Heaven's Night nel vicolo e del cancello dei Wood Side Apartments per rispecchiare lo stato del cancello.</Description>
+      <Feature name="FixTownGateEvents">
+        <Title>Correggi il commento e l'aspetto dei cancelli della città</Title>
+        <Description>Rimuove visivamente il lucchetto dal cancello degli appartamenti Wood Side una volta che James è all'interno. Cambia il commento di James riguardo il cancello degli appartamenti Wood Side e sul cancello sul retro di Heaven's Night affinché rispecchino lo stato del cancello quando rivisitati di notte.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>
@@ -1375,8 +1351,8 @@
         <Title>Correggi anti-aliasing tramite GPU</Title>
         <Description>Corregge problemi per schede grafiche Nvidia, come ombre mancanti/errate, quando viene abilitato forzatamente l'anti-aliasing attraverso il pannello di controllo Nvidia.</Description>
         <Choices type="check">
-          <Value name="Disabilitato" default="true">0</Value>
-          <Value name="Abilitato">1</Value>
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -1476,6 +1452,9 @@
     <S id="PRG_Sandbox"> [MODALITA' SANDBOX]</S>
     <S id="PRG_Extra">Extra</S>
     <S id="PRG_Extra_desc">Questa sezione racchiude opzioni addizionali aggiunte manualmente al file di configurazione di Silent Hill 2: Enhanced Edition (d3d8.ini).</S>
+    <S id="PRG_Speedrun_enable">Abilitare la Modalità Speedrun sovrascriverà e bloccherà varie opzioni. Desideri continuare?</S>
+    <S id="PRG_Speedrun_disable">Disabilitare la Modalità Speedrun sbloccherà tutte le opzioni e le imposterà al loro default. Desideri continuare?</S>
+    <S id="PRG_Speedrun_error">Errore: Inconsistenze trovate nelle opzioni, saranno resettate al loro default.</S>
 
   </Strings>
 

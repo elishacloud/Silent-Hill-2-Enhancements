@@ -29,3 +29,7 @@ Taste %d
 \hGesamtlautstärke anpassen
 \hGesundheitsanzeige
 \hAnzeige niedriger Gesundheit aktivieren
+\hRenderauflösung
+\hAnpassen der Rendering-Auflösung
+\h3D-Ton
+\h3D-Soundeffekte aktivieren

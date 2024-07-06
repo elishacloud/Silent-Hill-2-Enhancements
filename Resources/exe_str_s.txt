@@ -29,3 +29,7 @@ Botón %d
 \hAjustar el volumen general
 \hIndicador de salud
 \hActivar el indicador de salud baja
+\hRes. de renderizado
+\hAjustar la resolución de renderizado
+\hSonido 3D
+\hHabilitar efectos de sonido 3D

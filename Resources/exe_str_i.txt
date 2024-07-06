@@ -29,3 +29,7 @@ Tasto %d
 \hRegola il volume generale
 \hIndicatore salute
 \hAbilita l'indicatore salute bassa
+\hRisol. di rendering
+\hRegola la risoluzione del rendering
+\hSonori 3D
+\hAbilita gli effetti sonori 3D

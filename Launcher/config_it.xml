@@ -1351,8 +1351,8 @@
         <Title>Correggi anti-aliasing tramite GPU</Title>
         <Description>Corregge problemi per schede grafiche Nvidia, come ombre mancanti/errate, quando viene abilitato forzatamente l'anti-aliasing attraverso il pannello di controllo Nvidia.</Description>
         <Choices type="check">
-          <Value name="Disabilitato">0</Value>
-          <Value name="Abilitato" default="true">1</Value>
+          <Value name="Disabilitato" default="true">0</Value>
+          <Value name="Abilitato">1</Value>
         </Choices>
       </Feature>
 

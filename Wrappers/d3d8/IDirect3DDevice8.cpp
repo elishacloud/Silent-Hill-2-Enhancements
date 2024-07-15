@@ -1389,7 +1389,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 	// Call function
 	RunPresentCode(ProxyInterface);
 
-	if (EnableEnhancedMouse)
+	if (EnableEnhancedMouse || EnhanceMouseCursor)
 	{
 		OverlayRef.RenderMouseCursor();
 	}

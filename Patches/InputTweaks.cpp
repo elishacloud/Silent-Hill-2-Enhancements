@@ -532,12 +532,12 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		// Inject Key Presses
 
 		// Inject ready weapon or cancel based on context, on RMB press
-		if (EnableEnhancedMouse && GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTIONS_FMV && 
+		if (GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTIONS_FMV && 
 			GetEventIndex() != EVENT_GAME_FMV && GetCutsceneID() == CS_NONE)
 		{
-			if (RMB.State)
+			if (RMB.State && (EnableEnhancedMouse || EnhanceMouseCursor))
 			{
-				if (SetRMBAimFunction())
+				if (SetRMBAimFunction() && EnableEnhancedMouse)
 				{
 					SetKey(KeyBinds.GetKeyBind(KEY_READY_WEAPON));
 				}
@@ -551,7 +551,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		}
 
 		// Inject action, same condition as RMB but without CutsceneID == CS_NONE to enable input on FIE in the middle of cutscenes, eg Laura's letter in the hotel
-		if (EnableEnhancedMouse && GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTIONS_FMV &&
+		if ((EnableEnhancedMouse || EnhanceMouseCursor) && GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTIONS_FMV &&
 			GetEventIndex() != EVENT_GAME_FMV)
 		{
 			if (SetLMButton)
@@ -709,7 +709,7 @@ void PatchInputTweaks()
 	}
 
 	// Hooking the mouse visibility function
-	if (EnableEnhancedMouse)
+	if (EnableEnhancedMouse || EnhanceMouseCursor || ReplaceButtonText != BUTTON_ICONS_DISABLED)
 	{
 		orgDrawCursor.fun = injector::MakeCALL(GetDrawCursorPointer(), DrawCursor_Hook, true).get();
 		orgSetShowCursorFlag.fun = injector::MakeCALL(GetSetShowCursorPointer(), SetShowCursorFlag_Hook, true).get();

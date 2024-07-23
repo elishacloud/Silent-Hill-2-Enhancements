@@ -483,29 +483,7 @@ HRESULT m_IDirect3DDevice8::CreateRenderTarget(THIS_ UINT Width, UINT Height, D3
 		MultiSample = DeviceMultiSampleType;
 	}
 
-	HRESULT hr = D3DERR_INVALIDCALL;
-	if (IsScaledResolutionsEnabled())
-	{
-		// Create render texture
-		IDirect3DTexture8* pTexture = nullptr;
-		if (SUCCEEDED(ProxyInterface->CreateTexture(BufferWidth, BufferHeight, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &pTexture)))
-		{
-			// Get render surface
-			if (SUCCEEDED(pTexture->GetSurfaceLevel(0, ppSurface)))
-			{
-				RenderTextureVector.push_back(pTexture);
-				hr = D3D_OK;
-			}
-			else
-			{
-				ReleaseInterface(&pTexture);
-			}
-		}
-	}
-	else
-	{
-		hr = ProxyInterface->CreateRenderTarget(Width, Height, Format, MultiSample, Lockable, ppSurface);
-	}
+	HRESULT hr = ProxyInterface->CreateRenderTarget(Width, Height, Format, MultiSample, Lockable, ppSurface);
 
 	if (SUCCEEDED(hr) && ppSurface)
 	{

@@ -56,8 +56,6 @@ bool DisableDefaultValueWarning = false;
 bool DisableXMLErrorWarning = false;
 bool DisableTabOverloadWarning = false;
 
-bool Does_ScaleWindowedResolution_exist = false;
-
 struct cb_parse
 {
 	std::vector<CConfigOption*> list;
@@ -244,6 +242,13 @@ void CConfig::SetDefault()
 			opt.SetValueDefault();
 }
 
+void CConfig::SetSpeedrunDefault(int value, bool srAlreadyActive)
+{
+	for (auto& sec : section)
+		for (auto& opt : sec.option)
+			opt.SetValueSpeedrunDefault(value, srAlreadyActive);
+}
+
 const char* CConfig::SetIDString(const char* id, const char* name)
 {
 	if (id)
@@ -266,13 +271,6 @@ void __stdcall ParseIniCallback(char* lpName, char* lpValue, void* lpParam)
 {
 	// Check for valid entries
 	if (!IsValidSettings(lpName, lpValue)) return;
-
-	// Check for 'ScaleWindowedResolution' option
-	std::string name("ScaleWindowedResolution");
-	if (name.compare(lpName) == 0)
-	{
-		Does_ScaleWindowedResolution_exist = true;
-	}
 
 	auto cb = reinterpret_cast<cb_parse*>(lpParam);
 	for (auto& item : cb->list)
@@ -298,19 +296,6 @@ void CConfig::SetFromIni(LPCWSTR lpName)
 
 	// done, disengage!
 	free(ini);
-
-	// Set default values
-	if (!Does_ScaleWindowedResolution_exist)
-	{
-		for (auto& item : p.list)
-		{
-			if (item->name.compare("FixGPUAntiAliasing") == 0)
-			{
-				item->SetValueFromName("0");
-				break;
-			}
-		}
-	}
 
 	// Create "Extra" tab
 	if (ExtraOptions.size())
@@ -632,13 +617,6 @@ void CConfig::CheckAllXmlSettings(LPCWSTR error_caption)
 	// Check default value of settings in xml file
 	if (!DisableDefaultValueWarning)
 	{
-		for (auto& item : AllValues)
-		{
-			if (item.name.compare("ScaleWindowedResolution") == 0)
-			{
-				item.val.assign("0");
-			}
-		}
 		for (auto& item : p.list)
 		{
 			std::string defval = GetDefaultSetting(item->name);
@@ -757,6 +735,8 @@ void CConfigOption::Parse(XMLElement& xml, CConfig& cfg)
 {
 	name = SAFESTR(xml.Attribute("name"));
 
+	speedrunToggleable = SetValue(xml.Attribute("speedrun"));
+
 	// Check for <Title> otherwise use id
 	auto d = xml.FirstChildElement("Title");
 	id = SAFESTR(d ? cfg.SetIDString(nullptr, d->GetText()) : cfg.SetIDString(xml.Attribute("id"), xml.Attribute("name")));
@@ -826,6 +806,10 @@ void CConfigValue::Parse(XMLElement& xml, CConfig& cfg)
 	name = SAFESTR(GetNameValue(xml.Attribute("name"), xml.Attribute("tip")));
 	id = SAFESTR(cfg.SetIDString(xml.Attribute("id"), xml.Attribute("name")));
 	is_default = SetValue(xml.Attribute("default"));
+	is_speedrun_default = SetValue(xml.Attribute("speedrun-default"));
+	is_speedrun_set_seed_default = SetValue(xml.Attribute("speedrun-set"));
+	is_speedrun_truly_random_default = SetValue(xml.Attribute("speedrun-random"));
+
 	val = SAFESTR(xml.GetText());
 }
 

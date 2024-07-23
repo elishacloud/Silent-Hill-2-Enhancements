@@ -95,6 +95,9 @@ public:
 	std::string id;			// string id
 	std::string val;		// value in the ini
 	bool is_default;		// if this is true, this index is the default value
+	bool is_speedrun_default; // default values when speedrun mode is active
+	bool is_speedrun_set_seed_default; // default only for set seed
+	bool is_speedrun_truly_random_default; // default only for truly random
 };
 
 class CConfigOption
@@ -139,6 +142,69 @@ public:
 			}
 		}
 	}
+	void SetValueSpeedrunDefault(int srValue, bool srAlreadyActive)
+	{
+		if (this->name == "SpeedrunMode") return; //TODO make global variable
+
+		if (srValue == 1) // true random
+		{
+			for (size_t i = 0, si = value.size(); i < si; i++)
+			{
+				if (value[i].is_speedrun_truly_random_default)
+				{
+					if (type == TYPE_TEXT)
+					{
+						value[cur_val].val = value[i].val;
+					}
+					else
+					{
+						cur_val = (int)i;
+					}
+					return;
+				}
+			}
+		}
+
+		if (srValue == 2) // set seed
+		{
+			for (size_t i = 0, si = value.size(); i < si; i++)
+			{
+				if (value[i].is_speedrun_set_seed_default)
+				{
+					if (type == TYPE_TEXT)
+					{
+						value[cur_val].val = value[i].val;
+					}
+					else
+					{
+						cur_val = (int)i;
+					}
+					return;
+				}
+			}
+		}
+
+		if (srAlreadyActive) return;
+
+		for (size_t i = 0, si = value.size(); i < si; i++)
+		{
+			if (value[i].is_speedrun_default)
+			{
+				if (type == TYPE_TEXT)
+				{
+					value[cur_val].val = value[i].val;
+				}
+				else
+				{
+					cur_val = (int)i;
+				}
+				return;
+			}
+		}
+
+		// no speedrun default found, use default
+		SetValueDefault();
+	}
 	std::string GetDefaultValue()
 	{
 		// nothing found, load default
@@ -155,6 +221,7 @@ public:
 	std::string name;		// option name
 	std::string id, desc;	// string references
 	UINT type;				// uses TYPE table to determine the control to use
+	bool speedrunToggleable;
 
 	enum TYPE
 	{
@@ -298,6 +365,7 @@ class CConfig
 public:
 	bool ParseXml();
 	void SetDefault();
+	void SetSpeedrunDefault(int value, bool srAlreadyActive);
 	const char* SetIDString(const char* id, const char* name);
 	void BuildCacheP();
 	void SetFromIni(LPCWSTR lpName);
@@ -350,6 +418,43 @@ public:
 			}
 		}
 		return 0;
+	}
+
+	bool CheckSpeedrunCoherency()
+	{
+		auto srValue = this->FindAndGetValue("SpeedrunMode"); //TODO string
+
+		if (srValue == 0) return true;
+
+		for (size_t i = 0, si = section.size(); i < si; i++)
+		{
+			for (size_t j = 0, sj = section[i].option.size(); j < sj; j++)
+			{
+				if (!section[i].option[j].speedrunToggleable)
+				{
+					int optionDefault = NULL;
+
+					for (auto opt : section[i].option[j].value)
+					{
+						if ((srValue == 1 && (opt.is_speedrun_truly_random_default || opt.is_speedrun_default)) ||
+							(srValue == 2 && (opt.is_speedrun_set_seed_default || opt.is_speedrun_default))) //TODO defines
+						{
+							if (!opt.val.empty() && std::all_of(opt.val.begin(), opt.val.end(), ::isdigit))
+							{
+								optionDefault = atoi(opt.val.c_str());
+								break;
+							}
+						}
+					}
+
+					if (optionDefault != NULL && optionDefault != section[i].option[j].cur_val)
+					{
+						return false;
+					}
+				}
+			}
+		}
+		return true;
 	}
 
 	std::wstring GetSectionString(int sec);

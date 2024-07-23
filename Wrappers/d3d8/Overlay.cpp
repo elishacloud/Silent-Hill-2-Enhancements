@@ -40,7 +40,7 @@ void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface, LONG Width, LONG He
 	{
 		ProxyInterface->SetRenderState(D3DRS_ADAPTIVETESS_Y, FOURCC_ATOC);
 	}
-	else if (FixGPUAntiAliasing)
+	else if (IsFixGPUAntiAliasingEnabled)
 	{
 		ProxyInterface->SetRenderState(D3DRS_POINTSIZE, FOURCC_A2M_ENABLE);
 	}
@@ -64,7 +64,7 @@ void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface, LONG Width, LONG He
 	{
 		ProxyInterface->SetRenderState(D3DRS_ADAPTIVETESS_Y, D3DFMT_UNKNOWN);
 	}
-	else if (FixGPUAntiAliasing)
+	else if (IsFixGPUAntiAliasingEnabled)
 	{
 		ProxyInterface->SetRenderState(D3DRS_POINTSIZE, FOURCC_A2M_DISABLE);
 	}

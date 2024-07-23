@@ -27,6 +27,8 @@ bool EnableCRTShader = false;
 bool CRTCurveShader = false;
 bool CRTNonCurveShader = false;
 bool EnableInputTweaks = false;
+bool IsFixGPUAntiAliasingEnabled = false;
+bool IsScaledResolutionEnabled = false;
 
 CFGDATA ConfigData;
 
@@ -410,20 +412,13 @@ void UpdateConfigDefaults()
 		ReplaceButtonText = BUTTON_ICONS_GENERIC;
 	}
 
-	// Check if ScaleWindowedResolution exists in ini file
-	if (ScaleWindowedResolution == 0xFFFF)
-	{
-		FixGPUAntiAliasing = false;
-		ScaleWindowedResolution = 0;
-	}
-
 	// Set resolution scaling
 	switch (ScaleWindowedResolution)
 	{
 	default:
 	case 0:
 		ScaleFactor = 1.0f;
-		ScaleWindowedResolution = (FixGPUAntiAliasing == false);
+		ScaleWindowedResolution = 0;
 		break;
 	case 1:
 		ScaleFactor = 2.0f;
@@ -448,11 +443,17 @@ void UpdateConfigDefaults()
 		break;
 	}
 
+	IsScaledResolutionEnabled = (ScaleWindowedResolution != 0 || LegacyFixGPUAntiAliasing == false);
+
 	// Disable features that don't work with scaled resolutions and might cause a perf issue
-	if (ScaleWindowedResolution)
+	if (IsScaledResolutionEnabled)
 	{
 		AntiAliasing = 0;
-		FixGPUAntiAliasing = false;
+		IsFixGPUAntiAliasingEnabled = false;
+	}
+	else
+	{
+		IsFixGPUAntiAliasingEnabled = LegacyFixGPUAntiAliasing;
 	}
 }
 

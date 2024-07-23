@@ -1347,7 +1347,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="FixGPUAntiAliasing">
+      <Feature name="LegacyFixGPUAntiAliasing">
         <Title>Fix GPU anti-aliasing</Title>
         <Description>Fixes issues for Nvidia graphics cards, such as missing/incorrect shadows, when force-enabling anti-aliasing through of your GPU's control panel.</Description>
         <Choices type="check">

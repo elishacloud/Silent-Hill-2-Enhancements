@@ -1347,7 +1347,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="FixGPUAntiAliasing">
+      <Feature name="LegacyFixGPUAntiAliasing">
         <Title>Corrigir anti-aliasing de GPU</Title>
         <Description>Corrige problemas para placas de vídeo Nvidia, como sombras ausentes/incorretas, ao ativar o anti-aliasing por meio do painel de controle da GPU.</Description>
         <Choices type="check">

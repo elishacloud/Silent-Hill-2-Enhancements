@@ -57,7 +57,6 @@
 	visit(FixFinalBossRoom, true) \
 	visit(FixFMVResetIssue, true) \
 	visit(FixFMVSpeed, true) \
-	visit(FixGPUAntiAliasing, false) \
 	visit(FixHangOnEsc, true) \
 	visit(FixInventoryBGM, true) \
 	visit(FixMemoFading, true) \
@@ -87,6 +86,7 @@
 	visit(ImproveStorageSupport, true) \
 	visit(IncreaseBlood, true) \
 	visit(IncreaseDrawDistance, true) \
+	visit(LegacyFixGPUAntiAliasing, false) \
 	visit(LightingFix, true) \
 	visit(LightingTransitionFix, true) \
 	visit(LoadD3d8FromScriptsFolder, false) \
@@ -175,7 +175,7 @@
 	visit(RestoreSearchCamMovement, 2) \
 	visit(ResX, 0) \
 	visit(ResY, 0) \
-	visit(ScaleWindowedResolution, 0xFFFF) /* Overwrites old 'FixGPUAntiAliasing' setting */ \
+	visit(ScaleWindowedResolution, 0)\
 	visit(ScreenMode, 0xFFFF) /* Overloading the old 'EnableWndMode' and 'FullscreenWndMode' options */ \
 	visit(SingleCoreAffinityLegacy, 0) \
 	visit(SmallFontHeight, 24) \
@@ -357,6 +357,8 @@ extern bool CRTCurveShader;
 extern bool CRTNonCurveShader;
 extern bool EnableInputTweaks;
 extern float ScaleFactor;
+extern bool IsFixGPUAntiAliasingEnabled;
+extern bool IsScaledResolutionEnabled;
 extern bool UsingScaledResolutions;
 
 bool SetValue(const char* value);

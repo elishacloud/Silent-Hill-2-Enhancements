@@ -1347,7 +1347,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="FixGPUAntiAliasing">
+      <Feature name="LegacyFixGPUAntiAliasing">
         <Title>Corregir el suavizado de bordes por GPU</Title>
         <Description>Corrige problemas en las tarjetas gráficas de Nvidia, tales como sombras que falten o incorrectas, al forzar el uso del suavizado de bordes a través del panel de control de la GPU.</Description>
         <Choices type="check">

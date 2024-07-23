@@ -56,8 +56,6 @@ bool DisableDefaultValueWarning = false;
 bool DisableXMLErrorWarning = false;
 bool DisableTabOverloadWarning = false;
 
-bool Does_ScaleWindowedResolution_exist = false;
-
 struct cb_parse
 {
 	std::vector<CConfigOption*> list;
@@ -274,13 +272,6 @@ void __stdcall ParseIniCallback(char* lpName, char* lpValue, void* lpParam)
 	// Check for valid entries
 	if (!IsValidSettings(lpName, lpValue)) return;
 
-	// Check for 'ScaleWindowedResolution' option
-	std::string name("ScaleWindowedResolution");
-	if (name.compare(lpName) == 0)
-	{
-		Does_ScaleWindowedResolution_exist = true;
-	}
-
 	auto cb = reinterpret_cast<cb_parse*>(lpParam);
 	for (auto& item : cb->list)
 	{
@@ -305,19 +296,6 @@ void CConfig::SetFromIni(LPCWSTR lpName)
 
 	// done, disengage!
 	free(ini);
-
-	// Set default values
-	if (!Does_ScaleWindowedResolution_exist)
-	{
-		for (auto& item : p.list)
-		{
-			if (item->name.compare("FixGPUAntiAliasing") == 0)
-			{
-				item->SetValueFromName("0");
-				break;
-			}
-		}
-	}
 
 	// Create "Extra" tab
 	if (ExtraOptions.size())
@@ -639,13 +617,6 @@ void CConfig::CheckAllXmlSettings(LPCWSTR error_caption)
 	// Check default value of settings in xml file
 	if (!DisableDefaultValueWarning)
 	{
-		for (auto& item : AllValues)
-		{
-			if (item.name.compare("ScaleWindowedResolution") == 0)
-			{
-				item.val.assign("0");
-			}
-		}
 		for (auto& item : p.list)
 		{
 			std::string defval = GetDefaultSetting(item->name);

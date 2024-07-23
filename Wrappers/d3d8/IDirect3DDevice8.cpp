@@ -2124,7 +2124,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 		}
 	}
 
-	if ((DeviceMultiSampleType || FixGPUAntiAliasing) && pVertexStreamZeroData)
+	if ((DeviceMultiSampleType || IsFixGPUAntiAliasingEnabled) && pVertexStreamZeroData)
 	{
 		DWORD Handle = 0;
 		ProxyInterface->GetVertexShader(&Handle);

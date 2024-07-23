@@ -236,7 +236,7 @@ void UpdateResolutionPatches(LONG Width, LONG Height)
 void UpdateResolutionVector()
 {
 	// Update the resolution vector
-	if (ScaleWindowedResolution && !UsingScaledResolutions)
+	if (IsScaledResolutionEnabled && !UsingScaledResolutions)
 	{
 		// Enable scaling
 		for (auto& entry : ResolutionVector)

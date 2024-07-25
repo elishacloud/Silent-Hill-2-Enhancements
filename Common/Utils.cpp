@@ -1428,19 +1428,19 @@ HRESULT GetConfigData()
 	}
 
 	// If scale resolution was retrieved from the config file then use it
-    if (CustomAdvancedOptions)
-    {
-        if (BytesRead >= ((DWORD)&ConfigData.ScaleWindowedResolutionOption + sizeof(ConfigData.ScaleWindowedResolutionOption) - (DWORD)&ConfigData))
-        {
-            ScaleWindowedResolution = ConfigData.ScaleWindowedResolutionOption;
-            UpdateScaleResolution();
-        }
-        // Otherwise use ScaleWindowedResolution value
-        else
-        {
-            ConfigData.ScaleWindowedResolutionOption = ScaleWindowedResolution;
-        }
-    }
+	if (CustomAdvancedOptions)
+	{
+		if (BytesRead >= ((DWORD)&ConfigData.ScaleWindowedResolutionOption + sizeof(ConfigData.ScaleWindowedResolutionOption) - (DWORD)&ConfigData))
+		{
+			ScaleWindowedResolution = ConfigData.ScaleWindowedResolutionOption;
+			UpdateScaleResolution();
+		}
+		// Otherwise use ScaleWindowedResolution value
+		else
+		{
+			ConfigData.ScaleWindowedResolutionOption = ScaleWindowedResolution;
+		}
+	}
 	
 	return (BytesRead ? S_OK : E_FAIL);
 }

@@ -715,7 +715,7 @@ void SetResolutionPatch()
 	if (*(DWORD*)((BYTE*)ResolutionArray) == *(DWORD*)((BYTE*)ResolutionArray + 8) &&
 		*(DWORD*)((BYTE*)ResolutionArray + 4) == *(DWORD*)((BYTE*)ResolutionArray + 12))
 	{
-        ResolutionLocked = true;
+		ResolutionLocked = true;
 		Logging::Log() << "Enabling Resolution Lock...";
 
 		// Lock resolution

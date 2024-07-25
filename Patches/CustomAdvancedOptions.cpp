@@ -27,7 +27,7 @@
 
 extern char* getRenderResolutionStr();
 extern char* getRenderResolutionDescriptionStr();
-extern char *getResolutionDescStr();
+extern char* getResolutionDescStr();
 extern char* getHealthIndicatorStr();
 extern char* getHealthIndicatorDescriptionStr();
 
@@ -66,31 +66,31 @@ namespace
     BYTE* DxConfigResolution = nullptr;
     void(*HandleAdvancedFiltersChange)();
 
-    char*(*prepText)(const char *str);
-    void(*printText)(const char *str, int x, int y);
-    void(*printTextMsg)(const short* msg_file, short index, int x, int y);
-    void(*textSetColor)(BYTE r, BYTE g, BYTE b, BYTE a);
-    void(*textSetCenterAlign)();
-    void(*textUnsetCenterAlign)();
-    void(*textSetRightAlign)();
-    void(*textUnsetRightAlign)();
-    void(*drawLeftSelectArrow)(int x, int y);
-    void(*drawRightSelectArrow)(int x, int y);
-    int(*getTextWidth)(int* len, USHORT* str);
-    bool(*joyDown)(DWORD port, DWORD key1, DWORD key2);
-    bool(*keyDown)(DWORD key);
-    void(*playSound)(int index, float volume, int pan);
-    bool(*mouseDown)(DWORD key);
-    int(*mouseX)();
-    int(*mouseY)();
-    void(*updateResolution)(BYTE index);
-    void(*updateRenderEffects)();
+    char*(*shPrepText)(const char* str);
+    void(*shPrintText)(const char* str, int x, int y);
+    void(*shPrintTextMsg)(const short* msg_file, short index, int x, int y);
+    void(*shTextSetColor)(BYTE r, BYTE g, BYTE b, BYTE a);
+    void(*shTextSetCenterAlign)();
+    void(*shTextUnsetCenterAlign)();
+    void(*shTextSetRightAlign)();
+    void(*shTextUnsetRightAlign)();
+    void(*shDrawLeftSelectArrow)(int x, int y);
+    void(*shDrawRightSelectArrow)(int x, int y);
+    int(*shGetTextWidth)(int* len, USHORT* str);
+    bool(*shJoyDown)(DWORD port, DWORD key1, DWORD key2);
+    bool(*shKeyDown)(DWORD key);
+    void(*shPlaySound)(int index, float volume, int pan);
+    bool(*shMouseDown)(DWORD key);
+    int(*shMouseX)();
+    int(*shMouseY)();
+    void(*shUpdateResolution)(BYTE index);
+    void(*shUpdateRenderEffects)();
 
-    void SetTextColorUnselected() { textSetColor(0x3F, 0x3F, 0x3F, 0x60); }
-    void SetTextColorUnselectedChanged() { textSetColor(0x3F, 0x3F, 0x1F, 0x60); }
-    void SetTextColorSelected() { textSetColor(0x3F, 0x3F, 0x3F, 0xFF); }
-    void SetTextColorSelectedChanged() { textSetColor(0x3F, 0x3F, 0x1F, 0xFF); }
-    void SetTextColorDisabled() { textSetColor(0x33, 0x33, 0x33, 0x60); }
+    void SetTextColorUnselected() { shTextSetColor(0x3F, 0x3F, 0x3F, 0x60); }
+    void SetTextColorUnselectedChanged() { shTextSetColor(0x3F, 0x3F, 0x1F, 0x60); }
+    void SetTextColorSelected() { shTextSetColor(0x3F, 0x3F, 0x3F, 0xFF); }
+    void SetTextColorSelectedChanged() { shTextSetColor(0x3F, 0x3F, 0x1F, 0xFF); }
+    void SetTextColorDisabled() { shTextSetColor(0x33, 0x33, 0x33, 0x60); }
 
     class OptionText
     {
@@ -107,13 +107,13 @@ namespace
         void Draw(int x, int y) const override
         {
             if (text_ == nullptr) return;
-            printText(prepText(text_), x, y);
+            shPrintText(shPrepText(text_), x, y);
         }
 
         int GetTextWidth() const override
         {
             int len = 0;
-            getTextWidth(&len, (USHORT*)(prepText(text_)));
+            shGetTextWidth(&len, (USHORT*)(shPrepText(text_)));
             return len;
         }
 
@@ -129,13 +129,13 @@ namespace
         void Draw(int x, int y) const override
         {
             if (text_func_ == nullptr) return;
-            printText(prepText(text_func_()), x, y);
+            shPrintText(shPrepText(text_func_()), x, y);
         }
 
         int GetTextWidth() const override
         {
             int len = 0;
-            getTextWidth(&len, (USHORT*)(prepText(text_func_())));
+            shGetTextWidth(&len, (USHORT*)(shPrepText(text_func_())));
             return len;
         }
 
@@ -151,7 +151,7 @@ namespace
         void Draw(int x, int y) const override
         {
             if (msg_index_ <= 0) return;
-            printTextMsg((const short*)*MsgFileAddr, msg_index_, x, y);
+            shPrintTextMsg((const short*)*MsgFileAddr, msg_index_, x, y);
         }
 
         int GetTextWidth() const override
@@ -160,7 +160,7 @@ namespace
             int len = 0;
             USHORT* msg_ptr = (USHORT*)(*MsgFileAddr);
             USHORT* text_ptr = msg_ptr + msg_ptr[msg_index_ + 1];
-            getTextWidth(&len, text_ptr);
+            shGetTextWidth(&len, text_ptr);
             return len;
         }
 
@@ -221,6 +221,7 @@ namespace
             }
         }
 
+        // Logic to run when selecting an option with no values, e.g. "Brightness Level"
         virtual void Run() {}
 
         virtual bool Apply()
@@ -248,7 +249,7 @@ namespace
             if (!enabled_ || values_.size() <= 1) return;
             if (++value_index_ >= (int)values_.size())
                 value_index_ = 0;
-            playSound(10000, 1.0, 0);
+            shPlaySound(10000, 1.0, 0);
         }
 
         virtual void PreviousValue()
@@ -256,15 +257,15 @@ namespace
             if (!enabled_ || values_.size() <= 1) return;
             if (--value_index_ < 0)
                 value_index_ = values_.size() - 1;
-            playSound(10000, 1.0, 0);
+            shPlaySound(10000, 1.0, 0);
         }
 
         virtual void HandleMouseSelection()
         {
             if (!enabled_) return;
 
-            const int x = mouseX();
-            const int y = mouseY();
+            const int x = shMouseX();
+            const int y = shMouseY();
 
             if (y < index_ * 0x1B + 0x53 || y > index_ * 0x1B + 0x6E)
                 return;
@@ -274,7 +275,9 @@ namespace
                 if (name_ == nullptr) return;
                 const int text_half_width = name_->GetTextWidth() / 2;
                 if (x > 0xFC - text_half_width && x < 0xFC + text_half_width)
+                {
                     Run();
+                }
             }
             else if (values_.size() > 1)
             {
@@ -286,7 +289,9 @@ namespace
                 if (value_index_ < 0 || (size_t)value_index_ >= values_.size()) return;
                 const int text_width = values_[value_index_]->GetTextWidth();
                 if (x > text_width + 0x104 && x < text_width + 0x11F)
+                {
                     NextValue();
+                }
             }
         }
 
@@ -305,12 +310,13 @@ namespace
                 
             if (!values_.empty())
             {
-                textUnsetCenterAlign();
-                textSetRightAlign();
+                shTextUnsetCenterAlign();
+                shTextSetRightAlign();
                 name_->Draw(0xF3, option_y_);
-                textUnsetRightAlign();
+                shTextUnsetRightAlign();
                 if (committed_value_index_ != value_index_)
                     SetTextColorUnselectedChanged();
+
                 if (!enabled_ && value_disabled_ != nullptr)
                     value_disabled_->Draw(0x10E, option_y_);
                 else
@@ -318,8 +324,8 @@ namespace
             }
             else
             {
-                textSetCenterAlign();
-                textUnsetRightAlign();
+                shTextSetCenterAlign();
+                shTextUnsetRightAlign();
                 name_->Draw(0x100, option_y_);
             }
         }
@@ -330,18 +336,20 @@ namespace
             SetTextColorSelected();
             if (!values_.empty())
             {
-                textUnsetCenterAlign();
-                textSetRightAlign();
+                shTextUnsetCenterAlign();
+                shTextSetRightAlign();
                 name_->Draw(0xF1, option_y_ - 0x02);
-                textUnsetRightAlign();
+                shTextUnsetRightAlign();
                 if (committed_value_index_ != value_index_)
+                {
                     SetTextColorSelectedChanged();
+                }
                 values_[value_index_]->Draw(0x10C, option_y_ - 0x02);
             }
             else
             {
-                textSetCenterAlign();
-                textUnsetRightAlign();
+                shTextSetCenterAlign();
+                shTextUnsetRightAlign();
                 name_->Draw(0xFE, option_y_ - 0x02);
             }
         }
@@ -351,17 +359,18 @@ namespace
             if (*OptionsSaveChangesActive > 0) return;
             if (values_.empty() || value_index_ < 0 || (size_t)value_index_ >= values_.size()) return;
             const int y = index_ * 0x1B - 0x8C;
-            drawLeftSelectArrow(-0x05, y);
+            shDrawLeftSelectArrow(-0x05, y);
+
             const OptionText* value_text = values_[value_index_].get();
             if (value_text == nullptr) return;
-            drawRightSelectArrow(value_text->GetTextWidth() + 0x1E, y);
+            shDrawRightSelectArrow(value_text->GetTextWidth() + 0x1E, y);
         }
 
         virtual void DrawDescription() const
         {
             SetTextColorSelected();
-            textUnsetCenterAlign();
-            textUnsetRightAlign();
+            shTextUnsetCenterAlign();
+            shTextUnsetRightAlign();
             description_->Draw(0x46, 0x18B);
         }
 
@@ -728,20 +737,20 @@ namespace
             return;
 
         // Mouse selection
-        if (mouseDown(0x01))
+        if (shMouseDown(0x01))
         {
             selected_option->HandleMouseSelection();
             return;
         }
 
         // Select submenu with keyboard/controller
-        if (joyDown(0, 0x10, 0) || joyDown(0, 0x200, 0) || keyDown(0x10))
+        if (shJoyDown(0, 0x10, 0) || shJoyDown(0, 0x200, 0) || shKeyDown(0x10))
             selected_option->Run();
 
         // Increment/decrement options with keyboard/controller
-        if (joyDown(0, 0x2000004, 0) || keyDown(0x04))
+        if (shJoyDown(0, 0x2000004, 0) || shKeyDown(0x04))
             selected_option->PreviousValue();
-        else if (joyDown(0, 0x1000008, 0) || keyDown(0x08))
+        else if (shJoyDown(0, 0x1000008, 0) || shKeyDown(0x08))
             selected_option->NextValue();
     }
 
@@ -843,9 +852,11 @@ namespace
         if (DisplayChangeRequired)
         {
             if (DynamicResolution && WidescreenFix)
+            {
                 WSFDynamicChangeWithIndex((BYTE)DisplayResolutionAdvancedOptionPtr->ValueIndex());
-            updateResolution((BYTE)DisplayResolutionAdvancedOptionPtr->ValueIndex());
-            updateRenderEffects();
+            }
+            shUpdateResolution((BYTE)DisplayResolutionAdvancedOptionPtr->ValueIndex());
+            shUpdateRenderEffects();
             DisplayChangeRequired = false;
         }
         if (SaveConfigRequired)
@@ -972,26 +983,25 @@ void PatchCustomAdvancedOptions()
     DxConfigLensFlareEnabled = (BYTE*)*(DWORD*)(DrawAdvancedOptionsAddrA - 0xDB);
     HandleAdvancedFiltersChange = (void(*)())(BYTE*)(DrawAdvancedOptionsAddrA - 0x16F);
 
-    // Get functions
-    prepText = (char*(*)(const char* str))(((BYTE*)DSpkAddr + 0x15) + *(int*)((BYTE*)DSpkAddr + 0x11));
-    printText = (void(*)(const char* str, int x, int y))(((BYTE*)DSpkAddr + 0x1E) + *(int*)((BYTE*)DSpkAddr + 0x1A));
-    printTextMsg = (void(*)(const short* msg_file, short index, int x, int y))(((BYTE*)DrawAdvancedOptionsAddrA) + *(int*)((BYTE*)DrawAdvancedOptionsAddrA - 0x04));
-    textSetColor = (void(*)(BYTE, BYTE, BYTE, BYTE))(((BYTE*)DrawAdvancedOptionsAddrA + 0x0D) + *(int*)((BYTE*)DrawAdvancedOptionsAddrA + 0x09));
-    textSetCenterAlign = (void(*)())(((BYTE*)DrawAdvancedOptionsAddrA - 0x17) + *(int*)((BYTE*)DrawAdvancedOptionsAddrA - 0x1B));
-    textUnsetCenterAlign = (void(*)())(((BYTE*)DrawAdvancedOptionsAddrA + 0x49) + *(int*)((BYTE*)DrawAdvancedOptionsAddrA + 0x45));
-    textSetRightAlign = (void(*)())(((BYTE*)DrawAdvancedOptionsAddrA + 0x44) + *(int*)((BYTE*)DrawAdvancedOptionsAddrA + 0x40));
-    textUnsetRightAlign = (void(*)())(((BYTE*)DrawAdvancedOptionsAddrA + 0x12) + *(int*)((BYTE*)DrawAdvancedOptionsAddrA + 0x0E));
-    drawLeftSelectArrow = (void(*)(int x, int y))(((BYTE*)DrawAdvancedOptionsAddrB + 0x15B) + *(int*)((BYTE*)DrawAdvancedOptionsAddrB + 0x157));
-    drawRightSelectArrow = (void(*)(int x, int y))(((BYTE*)DrawAdvancedOptionsAddrB + 0x237) + *(int*)((BYTE*)DrawAdvancedOptionsAddrB + 0x233));
-    getTextWidth = (int(*)(int*, USHORT*))(((BYTE*)DrawAdvancedOptionsAddrB + 0xC3) + *(int*)((BYTE*)DrawAdvancedOptionsAddrB + 0xBF));
-    joyDown = (bool(*)(DWORD, DWORD, DWORD))(((BYTE*)DrawAdvancedOptionsAddrB + 0x388) + *(int*)((BYTE*)DrawAdvancedOptionsAddrB + 0x384));
-    keyDown = (bool(*)(DWORD))(((BYTE*)DrawAdvancedOptionsAddrB + 0x3A9) + *(int*)((BYTE*)DrawAdvancedOptionsAddrB + 0x3A5));
-    playSound = (void(*)(int, float, int))(((BYTE*)DrawAdvancedOptionsAddrC + 0x26A) + *(int*)((BYTE*)DrawAdvancedOptionsAddrC + 0x266));
-    mouseDown = (bool(*)(DWORD))(((BYTE*)DrawAdvancedOptionsAddrB + 0x241) + *(int*)((BYTE*)DrawAdvancedOptionsAddrB + 0x23D));
-    mouseX = (int(*)())(((BYTE*)DrawAdvancedOptionsAddrB + 0x268) + *(int*)((BYTE*)DrawAdvancedOptionsAddrB + 0x264));
-    mouseY = (int(*)())(((BYTE*)DrawAdvancedOptionsAddrB + 0x280) + *(int*)((BYTE*)DrawAdvancedOptionsAddrB + 0x27C));
-    updateResolution = (void(*)(BYTE))(((BYTE*)DrawAdvancedOptionsAddrA - 0x1E5) + *(int*)((BYTE*)DrawAdvancedOptionsAddrA - 0x1E9));
-    updateRenderEffects = (void(*)())(((BYTE*)DrawAdvancedOptionsAddrA - 0x1DD) + *(int*)((BYTE*)DrawAdvancedOptionsAddrA - 0x1E1));
+    shPrepText = (char*(*)(const char* str))(((BYTE*)DSpkAddr + 0x15) + *(int*)((BYTE*)DSpkAddr + 0x11));
+    shPrintText = (void(*)(const char* str, int x, int y))(((BYTE*)DSpkAddr + 0x1E) + *(int*)((BYTE*)DSpkAddr + 0x1A));
+    shPrintTextMsg = (void(*)(const short* msg_file, short index, int x, int y))(((BYTE*)DrawAdvancedOptionsAddrA) + *(int*)((BYTE*)DrawAdvancedOptionsAddrA - 0x04));
+    shTextSetColor = (void(*)(BYTE, BYTE, BYTE, BYTE))(((BYTE*)DrawAdvancedOptionsAddrA + 0x0D) + *(int*)((BYTE*)DrawAdvancedOptionsAddrA + 0x09));
+    shTextSetCenterAlign = (void(*)())(((BYTE*)DrawAdvancedOptionsAddrA - 0x17) + *(int*)((BYTE*)DrawAdvancedOptionsAddrA - 0x1B));
+    shTextUnsetCenterAlign = (void(*)())(((BYTE*)DrawAdvancedOptionsAddrA + 0x49) + *(int*)((BYTE*)DrawAdvancedOptionsAddrA + 0x45));
+    shTextSetRightAlign = (void(*)())(((BYTE*)DrawAdvancedOptionsAddrA + 0x44) + *(int*)((BYTE*)DrawAdvancedOptionsAddrA + 0x40));
+    shTextUnsetRightAlign = (void(*)())(((BYTE*)DrawAdvancedOptionsAddrA + 0x12) + *(int*)((BYTE*)DrawAdvancedOptionsAddrA + 0x0E));
+    shDrawLeftSelectArrow = (void(*)(int x, int y))(((BYTE*)DrawAdvancedOptionsAddrB + 0x15B) + *(int*)((BYTE*)DrawAdvancedOptionsAddrB + 0x157));
+    shDrawRightSelectArrow = (void(*)(int x, int y))(((BYTE*)DrawAdvancedOptionsAddrB + 0x237) + *(int*)((BYTE*)DrawAdvancedOptionsAddrB + 0x233));
+    shGetTextWidth = (int(*)(int*, USHORT*))(((BYTE*)DrawAdvancedOptionsAddrB + 0xC3) + *(int*)((BYTE*)DrawAdvancedOptionsAddrB + 0xBF));
+    shJoyDown = (bool(*)(DWORD, DWORD, DWORD))(((BYTE*)DrawAdvancedOptionsAddrB + 0x388) + *(int*)((BYTE*)DrawAdvancedOptionsAddrB + 0x384));
+    shKeyDown = (bool(*)(DWORD))(((BYTE*)DrawAdvancedOptionsAddrB + 0x3A9) + *(int*)((BYTE*)DrawAdvancedOptionsAddrB + 0x3A5));
+    shPlaySound = (void(*)(int, float, int))(((BYTE*)DrawAdvancedOptionsAddrC + 0x26A) + *(int*)((BYTE*)DrawAdvancedOptionsAddrC + 0x266));
+    shMouseDown = (bool(*)(DWORD))(((BYTE*)DrawAdvancedOptionsAddrB + 0x241) + *(int*)((BYTE*)DrawAdvancedOptionsAddrB + 0x23D));
+    shMouseX = (int(*)())(((BYTE*)DrawAdvancedOptionsAddrB + 0x268) + *(int*)((BYTE*)DrawAdvancedOptionsAddrB + 0x264));
+    shMouseY = (int(*)())(((BYTE*)DrawAdvancedOptionsAddrB + 0x280) + *(int*)((BYTE*)DrawAdvancedOptionsAddrB + 0x27C));
+    shUpdateResolution = (void(*)(BYTE))(((BYTE*)DrawAdvancedOptionsAddrA - 0x1E5) + *(int*)((BYTE*)DrawAdvancedOptionsAddrA - 0x1E9));
+    shUpdateRenderEffects = (void(*)())(((BYTE*)DrawAdvancedOptionsAddrA - 0x1DD) + *(int*)((BYTE*)DrawAdvancedOptionsAddrA - 0x1E1));
 
     Logging::Log() << "Patching Custom Advanced Options...";
 
@@ -1002,9 +1012,9 @@ void PatchCustomAdvancedOptions()
     WriteJMPtoMemory((BYTE*)(CreateOptionsAddr), *CreateOptions, 0x05);
     WriteCalltoMemory((BYTE*)InitOptionsAddr, *InitOptionsASM, 0x07);
 
-    // Early return in options update handler
+    // Set early return in options update handler
     UpdateMemoryAddress((void*)(DrawAdvancedOptionsAddrC + 0x26D), "\xC3\x90\x90\x90\x90", 0x05);
 
-    // Early return in advanced filters handler
+    // Set early return in advanced filters handler
     UpdateMemoryAddress((void*)(DrawAdvancedOptionsAddrA - 0x127), "\xC3\x90\x90\x90\x90", 0x05);
 }

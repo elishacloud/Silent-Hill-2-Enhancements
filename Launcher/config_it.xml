@@ -21,13 +21,10 @@
         <Title>Dynamic Resolution Scaling</Title>
         <Description>Works only in windowed and fullscreen windowed mode.</Description>
         <Choices type="list">
-          <Value name="0.25">7</Value>
-          <Value name="0.5">6</Value>
-          <Value name="0.75">5</Value>
+          <Value name="0.5">4</Value>
+          <Value name="0.75">3</Value>
           <Value name="1.0" default="true">0</Value>
-          <Value name="1.25">4</Value>
-          <Value name="1.5">3</Value>
-          <Value name="1.75">2</Value>
+          <Value name="1.5">2</Value>
           <Value name="2.0">1</Value>
         </Choices>
       </Feature>
@@ -673,12 +670,12 @@
         </Choices>
       </Feature>
 
-      <Feature name="HealthIndicatorOption">
-        <Title>Opzione indicatore salute</Title>
-        <Description>Sostituisce Opzioni > Opzioni di gioco > Controllo visuale con Indicatore salute, per abilitare/disabilitare la grafica di salute bassa nel gioco.</Description>
+      <Feature name="CustomAdvancedOptions">
+        <Title>Render resolution and health indicator options</Title>
+        <Description>Adds Render Resolution and Health Indicator options to the Options > Advanced Options menu.</Description>
         <Choices type="check">
-          <Value name="Disabilitato">0</Value>
-          <Value name="Abilitato" default="true">1</Value>
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 

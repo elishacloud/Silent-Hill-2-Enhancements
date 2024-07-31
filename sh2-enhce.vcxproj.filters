@@ -452,6 +452,9 @@
     <ClCompile Include="Patches\RowboatFix.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\CustomAdvancedOptions.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">
@@ -680,6 +683,9 @@
       <Filter>Patches</Filter>
     </ClInclude>
     <ClInclude Include="Patches\FlashlightReflection.h">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Resolution.h">
       <Filter>Patches</Filter>
     </ClInclude>
     <ClInclude Include="Common\IUnknownPtr.h">

@@ -15,6 +15,7 @@
 	visit(ClosetCutsceneFix, true) \
 	visit(CommandWindowMouseFix, true) \
 	visit(CreateLocalFix, true) \
+	visit(CustomAdvancedOptions, true) \
 	visit(d3d8to9, true) \
 	visit(DelayedFadeIn, true) \
 	visit(Direct3DCreate9On12, false) \
@@ -78,7 +79,6 @@
 	visit(GamepadControlsFix, true) \
 	visit(PuzzleAlignmentFixes, true) \
 	visit(HalogenLightFix, true) \
-	visit(HealthIndicatorOption, true) \
 	visit(HookDirect3D, true) \
 	visit(HookDirectInput, true) \
 	visit(HookDirectSound, true) \
@@ -343,6 +343,7 @@ struct CFGDATA
 	DWORD VolumeLevel = 15;
 	DWORD HealthIndicatorOption = 1;
 	DWORD DisplayModeOption = 0;
+	DWORD ScaleWindowedResolutionOption = 0;
 };
 
 extern HMODULE m_hModule;
@@ -369,3 +370,4 @@ void Parse(char* strParse, NV NameValueCallback, void* lpParam = nullptr);
 void __stdcall ParseCallback(char* lpName, char* lpValue, void*);
 void LogSettings();
 void UpdateConfigDefaults();
+void UpdateScaleResolution();

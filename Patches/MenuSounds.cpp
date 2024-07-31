@@ -185,12 +185,12 @@ bool OptionsOrMovieMenuChanged()
 	bool result = ((OptionsPage == 8 && OptionsSubPage == 0) || // In Movies Menu
 		(OptionsPage == 2 && OptionsSubPage == 0 || OptionsSubPage == 1) || // Subpage 0 = main options, 1 = game options
 		(OptionsPage == 7 && OptionsSubPage == 0)) &&
-		!(LockScreenPosition && OptionsPage == 7 && OptionsSubPage == 0 && // In advanced options
+		!(!CustomAdvancedOptions && LockScreenPosition && OptionsPage == 7 && OptionsSubPage == 0 && // In advanced options
 			SelectedOption == 1) && // "Screen Position" option is selected
 		SelectedOption != LastOptionsSelectedItem &&
 		OptionsPage == LastOptionsPage &&
 		OptionsSubPage == LastOptionsSubPage && 
-		!(IsHardwareSoundEnabled() && OptionsPage == 7 && OptionsSubPage == 0 && SelectedOption == 9); // Avoid playing the sound if Hardware 3D Used option isn't active
+		!(!CustomAdvancedOptions && IsHardwareSoundEnabled() && OptionsPage == 7 && OptionsSubPage == 0 && SelectedOption == 9); // Avoid playing the sound if Hardware 3D Used option isn't active
 
 	LastOptionsSelectedItem = SelectedOption;
 	LastOptionsPage = OptionsPage;

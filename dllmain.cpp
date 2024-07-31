@@ -707,15 +707,8 @@ void DelayedStart()
 		PatchDisplayMode();
 	}
 
-	// Adds health indicator option
-	if (HealthIndicatorOption)
-	{
-		PatchSearchViewOptionName();
-		PatchHealthIndicatorOption();
-	}
-
 	// Red Cross health indicator in cutscene
-	if (HealthIndicatorOption || DisableRedCrossInCutScenes || DisableRedCross)
+	if (CustomAdvancedOptions || DisableRedCrossInCutScenes || DisableRedCross)
 	{
 		PatchRedCrossInCutscene();
 	}
@@ -780,6 +773,12 @@ void DelayedStart()
 		PatchMainMenuInstantLoadOptions();
 	}
 
+	// Replace Advanced Options menu with custom options
+	if (CustomAdvancedOptions && CustomExeStrSet)
+	{
+		PatchCustomAdvancedOptions();
+	}
+	
 	// Remove the "Now loading..." and "Press Return to continue." messages
 	if (DisableLoadingPressReturnMessages)
 	{

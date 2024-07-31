@@ -410,6 +410,25 @@ void UpdateConfigDefaults()
 		ReplaceButtonText = BUTTON_ICONS_GENERIC;
 	}
 
+	UpdateScaleResolution();
+}
+
+void LockConfigs()
+{
+	// Blank function
+}
+
+bool ResolutionAvailableCheck(int width, int height)
+{
+	UNREFERENCED_PARAMETER(width);
+	UNREFERENCED_PARAMETER(height);
+	// Blank function
+
+	return true;
+}
+
+void UpdateScaleResolution()
+{
 	// Check if ScaleWindowedResolution exists in ini file
 	if (ScaleWindowedResolution == 0xFFFF)
 	{
@@ -429,22 +448,13 @@ void UpdateConfigDefaults()
 		ScaleFactor = 2.0f;
 		break;
 	case 2:
-		ScaleFactor = 1.75f;
-		break;
-	case 3:
 		ScaleFactor = 1.5f;
 		break;
-	case 4:
-		ScaleFactor = 1.25f;
-		break;
-	case 5:
+	case 3:
 		ScaleFactor = 0.75f;
 		break;
-	case 6:
+	case 4:
 		ScaleFactor = 0.5f;
-		break;
-	case 7:
-		ScaleFactor = 0.25f;
 		break;
 	}
 
@@ -454,18 +464,4 @@ void UpdateConfigDefaults()
 		AntiAliasing = 0;
 		FixGPUAntiAliasing = false;
 	}
-}
-
-void LockConfigs()
-{
-	// Blank function
-}
-
-bool ResolutionAvailableCheck(int width, int height)
-{
-	UNREFERENCED_PARAMETER(width);
-	UNREFERENCED_PARAMETER(height);
-	// Blank function
-
-	return true;
 }

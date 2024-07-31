@@ -448,7 +448,7 @@ void RunGameLoad()
 		(GetRoomID() == R_TOWN_EAST && GetJamesPosZ() > 49000.0f) ||
 		(GetRoomID() == R_PS_ELEVATOR && GetJamesPosX() < -18600.0f) ||
 		(GetRoomID() == R_HTL_EMPLOYEE_ELEV_RM && GetJamesPosX() < 60650.0f) ||
-		(GetRoomID() == R_HLT_ALT_ELEVATOR && GetJamesPosX() > -15800.0f))
+		(GetRoomID() == R_HTL_ALT_ELEVATOR && GetJamesPosX() > -15800.0f))
 	{
 		*SaveGameAddress = 0;
 		ValueUnSet = true;

@@ -17,6 +17,7 @@
 #define DLLMAIN_CPP
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <sstream>
 #include <shlwapi.h>
 #include "winmm.h"
 #include "Patches\Patches.h"
@@ -39,6 +40,7 @@ std::ofstream LOG;
 HMODULE m_hModule = nullptr;
 SH2VERSION GameVersion = SH2V_UNKNOWN;
 HMODULE wrapper_dll = nullptr;
+HANDLE g_hMutex = nullptr;
 EXECUTION_STATE esFlags = 0;
 bool CustomExeStrSet = false;
 bool EnableCustomShaders = false;
@@ -52,6 +54,13 @@ wchar_t configpath[MAX_PATH] = {};
 extern "C" BOOL WINAPI DSOAL_DllMain(HINSTANCE hInstDLL, DWORD fdwReason, LPVOID lpvReserved);
 
 void VerifySH2EE(){}
+
+std::wstring CreateUniqueMutexName()
+{
+	std::wstringstream ss;
+	ss << L"SH2EECoreModule_" << GetCurrentProcessId();
+	return ss.str();
+}
 
 void GetConfig()
 {
@@ -120,6 +129,14 @@ void GetGameVersion()
 
 void DelayedStart()
 {
+	// Only allow function to run once
+	static bool AlreadyRun = false;
+	if (AlreadyRun)
+	{
+		return;
+	}
+	AlreadyRun = true;
+
 	// Init Logs
 	Logging::LogComputerManufacturer();
 	Logging::LogOSVersion();
@@ -449,10 +466,10 @@ void DelayedStart()
 		PatchMainMenuTitlePerLang();
 	}
 
-	// Fix the boards in the BfaW gravestone puzzle being distorted when rotated
-	if (GravestoneBoardsFix)
+	// Fix puzzle alignment issues
+	if (PuzzleAlignmentFixes)
 	{
-		PatchGravestoneBoardsFix();
+		PatchPuzzleAlignmentFixes();
 	}
 
 	// Reenable game's special FX
@@ -467,10 +484,10 @@ void DelayedStart()
 		PatchHoldToStomp();
 	}
 
-	// Changes the event at the gate near Heaven's Night to that when trying to re-enter the door to Blue Creek Apartments
-	if (FixTownWestGateEvent)
+	// Removes the lock on the Wood Side Apartments gate after entering, and updates commentary on the gates near Heaven's Night and Wood Side Apartments at night
+	if (FixTownGateEvents)
 	{
-		PatchTownWestGateEvent();
+		PatchTownGateEvents();
 	}
 
 	// Disables the screen position feature in the game's options menu, which is no longer needed for modern displays
@@ -603,6 +620,12 @@ void DelayedStart()
 	if (SpecularFix)
 	{
 		PatchSpecular();
+	}
+
+	// Creates a reflection of the flashlight on glass and glossy surfaces throughout the game.
+	if (FlashlightReflection)
+	{
+		PatchFlashlightReflection();
 	}
 
 	// Enables a complete rewrite of the game's audio engine
@@ -793,6 +816,24 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 	{
 	case DLL_PROCESS_ATTACH:
 	{
+		// Clear the error code
+		SetLastError(ERROR_SUCCESS);
+
+		// Create a unique mutex name using the process ID
+		std::wstring mutexName = CreateUniqueMutexName();
+		g_hMutex = CreateMutex(nullptr, TRUE, mutexName.c_str());
+
+		// Check if the mutex already exists
+		if (GetLastError() == ERROR_ALREADY_EXISTS)
+		{
+			// Clear the error code
+			SetLastError(ERROR_SUCCESS);
+
+			// Mutex already exists, another instance of the DLL is loaded in this process
+			g_hMutex = nullptr;
+			return TRUE; // Return TRUE, needs to still load but not do anything
+		}
+
 		// Store Module handle
 		m_hModule = hModule;
 
@@ -830,7 +871,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		}
 
 		// Set things to load on delayed access
-		if (!SetDelayedStart())
+		if (GetModuleHandleA("d3dx.dll") || !SetDelayedStart())
 		{
 			DelayedStart();
 		}
@@ -842,6 +883,14 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		break;
 	case DLL_PROCESS_DETACH:
 	{
+		// Release the mutex when the DLL is unloaded
+		if (g_hMutex)
+		{
+			ReleaseMutex(g_hMutex);
+			CloseHandle(g_hMutex);
+			g_hMutex = nullptr;
+		}
+
 		// Stop thread
 		m_StopThreadFlag = true;
 

@@ -41,42 +41,15 @@ PFN_D3DXAssembleShader D3DXAssembleShader = (PFN_D3DXAssembleShader)f_D3DXAssemb
 PFN_D3DXDisassembleShader D3DXDisassembleShader = (PFN_D3DXDisassembleShader)f_D3DXDisassembleShader;
 PFN_D3DXLoadSurfaceFromSurface D3DXLoadSurfaceFromSurface = (PFN_D3DXLoadSurfaceFromSurface)f_D3DXLoadSurfaceFromSurface;
 
+extern Direct3DCreate8Proc m_pDirect3DCreate8_d3d8to9;
+
 // Redirects 'Direct3DCreate8' to go to d3d8to9
 void EnableD3d8to9()
 {
-	// Load d3d9.dll
-	Logging::Log() << "Loading d3d9.dll";
-	HMODULE d3d9dll = LoadLibrary(L"d3d9.dll");
-	if (!d3d9dll)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: Failed to load `d3d9.dll`!";
-		return;
-	}
-
-	// Get function addresses
-	if (Direct3DCreate9On12)
-	{
-		m_pDirect3DCreate9On12 = (Direct3DCreate9On12Proc)GetProcAddress(d3d9dll, "Direct3DCreate9On12");
-		if (!m_pDirect3DCreate9On12)
-		{
-			Logging::Log() << __FUNCTION__ << " Warning: Failed to get `Direct3DCreate9On12` proc!";
-		}
-	}
-	if (!m_pDirect3DCreate9On12)
-	{
-		m_pDirect3DCreate9 = (Direct3DCreate9Proc)GetProcAddress(d3d9dll, "Direct3DCreate9");
-	}
-	if (!m_pDirect3DCreate9 && !m_pDirect3DCreate9On12)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: Failed to get d3d9.dll procs!";
-		return;
-	}
-
-	// Enable d3d8to9
 	d3d8::ValidatePixelShader_var = (FARPROC)*d8_ValidatePixelShader;
 	d3d8::ValidateVertexShader_var = (FARPROC)*d8_ValidateVertexShader;
 	d3d8::Direct3DCreate8_var = (FARPROC)*Direct3DCreate8to9;
-	m_pDirect3DCreate8 = (Direct3DCreate8Proc)*Direct3DCreate8to9;
+	m_pDirect3DCreate8_d3d8to9 = (Direct3DCreate8Proc)*Direct3DCreate8to9;
 }
 
 HRESULT WINAPI d8_ValidatePixelShader(DWORD* pixelshader, DWORD* reserved1, BOOL flag, DWORD* toto)

@@ -103,6 +103,8 @@ BYTE* AnalogStringThree;
 
 uint8_t keyNotSetWarning[21] = { 0 };
 
+bool IsScaledResolutionsEnabled();
+
 int32_t CanSave_Hook()
 {
 	return orgCanSave.fun();
@@ -493,7 +495,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		}
 
 		// Activate Overlays
-		if (UsingScaledResolutions || GetEventIndex() != EVENT_PAUSE_MENU)
+		if (IsScaledResolutionsEnabled() || GetEventIndex() != EVENT_PAUSE_MENU)
 		{
 			if (DebugCombo.State && !DebugCombo.Holding && EnableDebugOverlay)
 				ShowDebugOverlay = !ShowDebugOverlay;
@@ -942,7 +944,7 @@ bool InputTweaks::ElevatorFix()
 
 bool InputTweaks::HotelFix()
 {
-	return (GetRoomID() == R_HLT_ALT_ELEVATOR &&
+	return (GetRoomID() == R_HTL_ALT_ELEVATOR &&
 		(((std::abs(GetInGameCameraPosY() - (-840.)) < FloatTolerance) || (std::abs(GetInGameCameraPosY() - (-1350.)) < FloatTolerance))) &&
 		IsInFullScreenImageEvent());
 }

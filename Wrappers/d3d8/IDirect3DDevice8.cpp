@@ -27,6 +27,7 @@
 #include "stb_image_resize.h"
 #include "Patches\ModelID.h"
 #include "Patches\OptionsMenuTweaks.h"
+#include "Patches\FlashlightReflection.h"
 #include "Resource.h"
 
 bool DeviceLost = false;
@@ -482,34 +483,12 @@ HRESULT m_IDirect3DDevice8::CreateRenderTarget(THIS_ UINT Width, UINT Height, D3
 		MultiSample = DeviceMultiSampleType;
 	}
 
-	HRESULT hr = D3DERR_INVALIDCALL;
-	if (UsingScaledResolutions)
-	{
-		// Create render texture
-		IDirect3DTexture8* pTexture = nullptr;
-		if (SUCCEEDED(ProxyInterface->CreateTexture(BufferWidth, BufferHeight, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &pTexture)))
-		{
-			// Get render surface
-			if (SUCCEEDED(pTexture->GetSurfaceLevel(0, ppSurface)))
-			{
-				RenderTextureVector.push_back(pTexture);
-				hr = D3D_OK;
-			}
-			else
-			{
-				ReleaseInterface(&pTexture);
-			}
-		}
-	}
-	else
-	{
-		hr = ProxyInterface->CreateRenderTarget(Width, Height, Format, MultiSample, Lockable, ppSurface);
-	}
+	HRESULT hr = ProxyInterface->CreateRenderTarget(Width, Height, Format, MultiSample, Lockable, ppSurface);
 
 	if (SUCCEEDED(hr) && ppSurface)
 	{
 		*ppSurface = new m_IDirect3DSurface8(*ppSurface, this);
-		if (UsingScaledResolutions)
+		if (IsScaledResolutionsEnabled())
 		{
 			(*ppSurface)->QueryInterface(IID_SetSurfaceOfTexture, nullptr);
 		}
@@ -720,7 +699,7 @@ HRESULT m_IDirect3DDevice8::GetRenderTarget(THIS_ IDirect3DSurface8** ppRenderTa
 
 	if (SUCCEEDED(hr) && ppRenderTarget)
 	{
-		if (UsingScaledResolutions && *ppRenderTarget == pAutoRenderTarget)
+		if (IsScaledResolutionsEnabled() && *ppRenderTarget == pAutoRenderTarget)
 		{
 			(*ppRenderTarget)->Release();
 			*ppRenderTarget = pAutoRenderSurfaceMirror;
@@ -861,7 +840,7 @@ HRESULT m_IDirect3DDevice8::SetRenderTarget(THIS_ IDirect3DSurface8* pRenderTarg
 		}
 
 		// Check if game is trying to reassign render target
-		if (UsingScaledResolutions && pRenderTarget == pAutoRenderSurfaceMirror)
+		if (IsScaledResolutionsEnabled() && pRenderTarget == pAutoRenderSurfaceMirror)
 		{
 			if (pRenderSurfaceLast == pRenderSurface1)
 			{
@@ -1115,6 +1094,19 @@ HRESULT m_IDirect3DDevice8::SetPaletteEntries(UINT PaletteNumber, CONST PALETTEE
 HRESULT m_IDirect3DDevice8::CreatePixelShader(THIS_ CONST DWORD* pFunction, DWORD* pHandle)
 {
 	Logging::LogDebug() << __FUNCTION__;
+
+	if (!windowPsHandle)
+	{
+		ProxyInterface->CreatePixelShader(windowPixelShader, &windowPsHandle);
+	}
+
+	if (!hospitalDoorPsHandles[0])
+	{
+		ProxyInterface->CreatePixelShader(hospitalDoorPixelShader_stage0, &hospitalDoorPsHandles[0]);
+		ProxyInterface->CreatePixelShader(hospitalDoorPixelShader_stage1, &hospitalDoorPsHandles[1]);
+		ProxyInterface->CreatePixelShader(hospitalDoorPixelShader_stage2, &hospitalDoorPsHandles[2]);
+		ProxyInterface->CreatePixelShader(hospitalDoorPixelShader_stage3, &hospitalDoorPsHandles[3]);
+	}
 
 	return ProxyInterface->CreatePixelShader(pFunction, pHandle);
 }
@@ -1381,7 +1373,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 	}
 
 	bool PauseMenuFlag = false;
-	if (UsingScaledResolutions)
+	if (IsScaledResolutionsEnabled())
 	{
 		// Fix pause menu before drawing scaled surface
 		PauseMenuFlag = FixPauseMenuOnPresent();
@@ -1422,7 +1414,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 	ClearScreen = true;
 
 	// Fix pause menu before Present if not using a scaled surface
-	if (!UsingScaledResolutions)
+	if (!IsScaledResolutionsEnabled())
 	{
 		PauseMenuFlag = FixPauseMenuOnPresent();
 	}
@@ -1435,7 +1427,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 		IsGetFrontBufferCalled = (GetTransitionState() == FADE_TO_BLACK || GetLoadingScreen() != 0) ? IsGetFrontBufferCalled : false;
 
 		// Set shader disable flag
-		DisableShaderOnPresent = !UsingScaledResolutions && (IsGetFrontBufferCalled || (PauseScreenFix && (GetEventIndex() == EVENT_PAUSE_MENU || (LastEvent == EVENT_PAUSE_MENU && IsSnapshotTextureSet))));
+		DisableShaderOnPresent = !IsScaledResolutionsEnabled() && (IsGetFrontBufferCalled || (PauseScreenFix && (GetEventIndex() == EVENT_PAUSE_MENU || (LastEvent == EVENT_PAUSE_MENU && IsSnapshotTextureSet))));
 
 		// Reset variables
 		LastEvent = GetEventIndex();
@@ -1594,6 +1586,17 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, stencilPass);
 
 		return hr;
+	}
+
+	// Creates a reflection of the flashlight on glass and glossy surfaces throughout the game.
+	if (FlashlightReflection)
+	{
+		// iOrange - please beware! We need to pass "this" instead of ProxyInterface
+		//           so that any object's setup went through us to grab the underlying proxy interface!
+		HRESULT hr = DrawFlashlightReflection(this, Type, MinVertexIndex, NumVertices, startIndex, primCount);
+		if (hr != -1) {
+			return hr;
+		}
 	}
 
 	return ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
@@ -2414,7 +2417,7 @@ HRESULT m_IDirect3DDevice8::GetBackBuffer(THIS_ UINT iBackBuffer, D3DBACKBUFFER_
 
 	if (SUCCEEDED(hr) && ppBackBuffer)
 	{
-		if (UsingScaledResolutions && *ppBackBuffer == pAutoRenderTarget)
+		if (IsScaledResolutionsEnabled() && *ppBackBuffer == pAutoRenderTarget)
 		{
 			(*ppBackBuffer)->Release();
 			*ppBackBuffer = pAutoRenderSurfaceMirror;
@@ -2753,6 +2756,19 @@ HRESULT m_IDirect3DDevice8::CreateVertexShader(THIS_ CONST DWORD* pDeclaration, 
 			ReplaceMemoryBytes((void*)HalogenLightFixShaderCode[0], (void*)HalogenLightFixShaderCode[1], sizeof(HalogenLightFixShaderCode[0]), (DWORD)pFunction, 0x400, 1);
 			ReplaceMemoryBytes((void*)HalogenLightFixShaderCode[2], (void*)HalogenLightFixShaderCode[3], sizeof(HalogenLightFixShaderCode[2]), (DWORD)pFunction, 0x400, 1);
 		}
+	}
+
+	if (!windowVsHandle)
+	{
+		ProxyInterface->CreateVertexShader(vsDecl, windowVertexShader, &windowVsHandle, 0);
+	}
+
+	if (!vcolorVsHandle) {
+		ProxyInterface->CreateVertexShader(vsDeclVColor, vcolorVertexShader, &vcolorVsHandle, 0);
+	}
+
+	if (!hospitalDoorVsHandle) {
+		ProxyInterface->CreateVertexShader(vsDecl, hospitalDoorVertexShader, &hospitalDoorVsHandle, 0);
 	}
 
 	return ProxyInterface->CreateVertexShader(pDeclaration, pFunction, pHandle, Usage);
@@ -3103,7 +3119,7 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 		return D3DERR_INVALIDCALL;
 	}
 
-	if (UsingScaledResolutions && pRenderSurfaceLast)
+	if (IsScaledResolutionsEnabled() && pRenderSurfaceLast)
 	{
 		D3DSURFACE_DESC SrcDesc = {};
 		pRenderSurfaceLast->GetDesc(&SrcDesc);
@@ -3810,7 +3826,7 @@ void m_IDirect3DDevice8::SetShadowFading()
 	case R_HTL_ALT_MAIN_HALL_3F:
 	case R_HTL_ALT_BAR:
 	case R_HTL_ALT_BAR_KITCHEN:
-	case R_HLT_ALT_ELEVATOR:
+	case R_HTL_ALT_ELEVATOR:
 	case R_HTL_ALT_EMPLOYEE_HALL_BF:
 	case R_HTL_ALT_FINAL_HALL:
 	case R_FINAL_BOSS_RM:
@@ -3873,7 +3889,7 @@ void m_IDirect3DDevice8::SetShadowFading()
 
 void m_IDirect3DDevice8::SetScaledBackbuffer()
 {
-	if (!UsingScaledResolutions)
+	if (!IsScaledResolutionsEnabled())
 	{
 		return;
 	}

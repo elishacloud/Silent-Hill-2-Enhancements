@@ -281,13 +281,13 @@ static BOOL loadExternalFontData(void)
 	const bool IsUsingModPath = (GetFileModPath("data\\font", Filename) == Filename) ? true : false;
 
 	const char* DataPath = "data";
-	for (auto &IntPath : { GetLangPath(""), GetModPath(DataPath), DataPath })
+	for (auto& IntPath : { GetLangPath(""), GetModPath(DataPath), DataPath })
 	{
 		if (IsUsingModPath || IntPath == DataPath)
 		{
 			for (int j : { 4, 3, 2, 1, 0 })
 			{
-				for (auto format : { "png", "jpg", "tga", "dds" })
+				for (auto& format : { "png", "jpg", "tga", "dds" })
 				{
 					char path[32];
 					snprintf(path, 32, "%s\\font\\font%03d.%s", IntPath, j, format);

@@ -30,6 +30,13 @@ class CConfig;
 
 using namespace tinyxml2;
 
+static XXH64_hash_t Hash64(std::string name)
+{
+	// Ensure string is at least 64 characters long
+	std::string str(name + "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
+	return XXH64(str.c_str(), max(name.size(), 64), 0);
+}
+
 class CHashString
 {
 public:
@@ -55,7 +62,7 @@ public:
 	// simulate strcmp
 	int compare(std::string s)
 	{
-		if (XXH64(str.c_str(), str.size(), 0) == hash)
+		if (Hash64(str.c_str()) == hash)
 			return 0;
 
 		return 1;
@@ -63,7 +70,7 @@ public:
 
 	int compare(const char* s)
 	{
-		if (XXH64(s, strlen(s), 0) == hash)
+		if (Hash64(s) == hash)
 			return 0;
 
 		return 1;
@@ -72,7 +79,7 @@ public:
 private:
 	void GenerateHash()
 	{
-		hash = XXH64(str.c_str(), str.size(), 0);
+		hash = Hash64(str.c_str());
 	}
 
 	std::string str;
@@ -135,7 +142,7 @@ public:
 	std::string GetDefaultValue()
 	{
 		// nothing found, load default
-		for (auto &item : value)
+		for (auto& item : value)
 		{
 			if (item.is_default)
 			{
@@ -168,7 +175,7 @@ public:
 	void Parse(XMLElement& xml, CConfig& cfg);
 	void SetValueFromName(const char* section, const char* value)
 	{
-		for (auto &item : option)
+		for (auto& item : option)
 		{
 			if (item.name.compare(section) == 0)
 			{
@@ -199,7 +206,7 @@ public:
 	{
 		CConfigString s;
 		s.str = SAFESTR(multis);
-		s.hash = XXH64(id, strlen(id), 0);
+		s.hash = Hash64(id);
 
 		str.push_back(s);
 	}
@@ -244,7 +251,7 @@ public:
 
 	std::string Find(std::string id)
 	{
-		auto hash = XXH64(id.c_str(), id.size(), 0);
+		auto hash = Hash64(id.c_str());
 
 		auto f = quickfind(hash);
 		if (f >= 0) return str[f].str;
@@ -264,8 +271,8 @@ public:
 	public:
 		void Set(std::string section, std::string option)
 		{
-			sec = XXH64(section.c_str(), section.size(), 0);
-			op = XXH64(option.c_str(), option.size(), 0);
+			sec = Hash64(section.c_str());
+			op = Hash64(option.c_str());
 		}
 
 		XXH64_hash_t sec, op;		// section and option from the <Sections> table
@@ -310,10 +317,10 @@ public:
 	{
 		for (size_t i = 0, si = section.size(); i < si; i++)
 		{
-			auto xs = XXH64(section[i].name.c_str(), section[i].name.size(), 0);
+			auto xs = Hash64(section[i].name.c_str());
 			for (size_t j = 0, sj = section[i].option.size(); j < sj; j++)
 			{
-				auto xh = XXH64(section[i].option[j].name.c_str(), section[i].option[j].name.size(), 0);
+				auto xh = Hash64(section[i].option[j].name.c_str());
 				if (xs == ss && xh == sh)
 				{
 					found_sec = (int)i;

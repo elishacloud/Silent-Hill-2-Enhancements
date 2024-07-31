@@ -83,7 +83,11 @@
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul</Command>
+      <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul
+copy /Y "$(ProjectDir)Resources\alsoft.ini" "$(TargetDir)" &gt;nul
+copy /Y "$(ProjectDir)Resources\dinput8.dll" "$(TargetDir)" &gt;nul
+copy /Y "$(ProjectDir)Resources\Xidi.ini" "$(TargetDir)" &gt;nul
+copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -122,7 +126,11 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; call build.bat"
 cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul</Command>
+      <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul
+copy /Y "$(ProjectDir)Resources\alsoft.ini" "$(TargetDir)" &gt;nul
+copy /Y "$(ProjectDir)Resources\dinput8.dll" "$(TargetDir)" &gt;nul
+copy /Y "$(ProjectDir)Resources\Xidi.ini" "$(TargetDir)" &gt;nul
+copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Workflow|Win32'">
@@ -147,7 +155,11 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     </Link>
     <PreBuildEvent />
     <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul</Command>
+      <Command>copy /Y "$(ProjectDir)Common\Settings.ini" "$(TargetDir)$(TargetName).ini" &gt;nul
+copy /Y "$(ProjectDir)Resources\alsoft.ini" "$(TargetDir)" &gt;nul
+copy /Y "$(ProjectDir)Resources\dinput8.dll" "$(TargetDir)" &gt;nul
+copy /Y "$(ProjectDir)Resources\Xidi.ini" "$(TargetDir)" &gt;nul
+copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -201,6 +213,7 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     <ClCompile Include="Patches\CustomAdvancedOptions.cpp" />
     <ClCompile Include="Patches\DoubleFootstepFix.cpp" />
     <ClCompile Include="Patches\ElevatorCursorColorFix.cpp" />
+    <ClCompile Include="Patches\FlashlightReflection.cpp" />
     <ClCompile Include="Patches\FinalBossRoomFix.cpp" />
     <ClCompile Include="Patches\FireEscapeKey.cpp" />
     <ClCompile Include="Patches\HoldToStomp.cpp" />
@@ -212,7 +225,7 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     <ClCompile Include="Patches\DelayedFadeIn.cpp" />
     <ClCompile Include="Patches\FmvSubtitles.cpp" />
     <ClCompile Include="Patches\OptionsMenuTweaks.cpp" />
-    <ClCompile Include="Patches\GravestoneBoardsFix.cpp" />
+    <ClCompile Include="Patches\PuzzleAlignmentFixes.cpp" />
     <ClCompile Include="Patches\MenuSounds.cpp" />
     <ClCompile Include="Patches\MothDrawOrder.cpp" />
     <ClCompile Include="Patches\ObservationDeckFogFix.cpp" />
@@ -324,6 +337,7 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     <ClInclude Include="Common\AutoUpdate.h" />
     <ClInclude Include="Common\FileSystemHooks.h" />
     <ClInclude Include="Common\GfxUtils.h" />
+    <ClInclude Include="Common\IUnknownPtr.h" />
     <ClInclude Include="Common\LoadModules.h" />
     <ClInclude Include="Common\md5.h" />
     <ClInclude Include="Common\Settings.h" />
@@ -355,10 +369,11 @@ cmd /q /c "cd /D ""$(ProjectDir)Wrappers\"" &amp;&amp; del build.bat"</Command>
     <ClInclude Include="Include\VersionHelpers.h" />
     <ClInclude Include="Include\winmm.h" />
     <ClInclude Include="Logging\Logging.h" />
+    <ClInclude Include="Patches\FlashlightReflection.h" />
     <ClInclude Include="Patches\FullscreenImages.h" />
     <ClInclude Include="Patches\InputTweaks.h" />
     <ClInclude Include="Patches\OptionsMenuTweaks.h" />
-    <ClInclude Include="Patches\GravestoneBoardsFix.h" />
+    <ClInclude Include="Patches\PuzzleAlignmentFixes.h" />
     <ClInclude Include="Patches\ModelID.h" />
     <ClInclude Include="Patches\Patches.h" />
     <ClInclude Include="Patches\SfxPatch.h" />

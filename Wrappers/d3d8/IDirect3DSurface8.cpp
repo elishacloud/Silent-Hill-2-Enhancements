@@ -196,7 +196,7 @@ HRESULT m_IDirect3DSurface8::LockRect(THIS_ D3DLOCKED_RECT* pLockedRect, CONST R
 
 	HRESULT hr = ProxyInterface->LockRect(pLockedRect, pRect, Flags);
 
-	if (hr == D3DERR_INVALIDCALL && !IsLocked && pLockedRect && !pEmuSurface && (DeviceMultiSampleType != D3DMULTISAMPLE_NONE || UsingScaledResolutions))
+	if (hr == D3DERR_INVALIDCALL && !IsLocked && pLockedRect && !pEmuSurface && DeviceMultiSampleType != D3DMULTISAMPLE_NONE)
 	{
 		D3DSURFACE_DESC Desc;
 		if (SUCCEEDED(GetDesc(&Desc)))

@@ -59,14 +59,15 @@
 	visit(FixFinalBossRoom, true) \
 	visit(FixFMVResetIssue, true) \
 	visit(FixFMVSpeed, true) \
-	visit(FixGPUAntiAliasing, true) \
+	visit(FixGPUAntiAliasing, false) \
 	visit(FixHangOnEsc, true) \
 	visit(FixInventoryBGM, true) \
 	visit(FixMemoFading, true) \
 	visit(FixMissingWallChunks, true) \
 	visit(FixSaveBGImage, true) \
-	visit(FixTownWestGateEvent, true) \
+	visit(FixTownGateEvents, true) \
 	visit(FlashlightFlickerFix, true) \
+	visit(FlashlightReflection, true) \
 	visit(FlashlightToggleSFX, true) \
 	visit(FmvSubtitlesNoiseFix, true) \
 	visit(FmvSubtitlesSyncFix, true) \
@@ -76,7 +77,7 @@
 	visit(GameLoadFix, true) \
 	visit(GameLoadFlashFix, true) \
 	visit(GamepadControlsFix, true) \
-	visit(GravestoneBoardsFix, true) \
+	visit(PuzzleAlignmentFixes, true) \
 	visit(HalogenLightFix, true) \
 	visit(HookDirect3D, true) \
 	visit(HookDirectInput, true) \
@@ -175,7 +176,7 @@
 	visit(RestoreSearchCamMovement, 2) \
 	visit(ResX, 0) \
 	visit(ResY, 0) \
-	visit(ScaleWindowedResolution, 0) \
+	visit(ScaleWindowedResolution, 0xFFFF) /* Overwrites old 'FixGPUAntiAliasing' setting */ \
 	visit(ScreenMode, 0xFFFF) /* Overloading the old 'EnableWndMode' and 'FullscreenWndMode' options */ \
 	visit(SingleCoreAffinityLegacy, 0) \
 	visit(SmallFontHeight, 24) \
@@ -365,7 +366,7 @@ extern bool UsingScaledResolutions;
 bool SetValue(const char* value);
 bool IsValidSettings(char* name, char* value);
 char* Read(const wchar_t* szFileName);
-void Parse(char* str, NV NameValueCallback, void* lpParam = nullptr);
+void Parse(char* strParse, NV NameValueCallback, void* lpParam = nullptr);
 void __stdcall ParseCallback(char* lpName, char* lpValue, void*);
 void LogSettings();
 void UpdateConfigDefaults();

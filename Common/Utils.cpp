@@ -1491,7 +1491,7 @@ void LogDirectory()
 	Logging::Log() << "|- ";
 
 	// Directories
-	for (const auto & entry : std::filesystem::directory_iterator(path))
+	for (const auto&  entry : std::filesystem::directory_iterator(path))
 	{
 		if (entry.is_directory())
 		{
@@ -1506,7 +1506,7 @@ void LogDirectory()
 		}
 	}
 	// Files
-	for (const auto & entry : std::filesystem::directory_iterator(path))
+	for (const auto&  entry : std::filesystem::directory_iterator(path))
 	{
 		if (!entry.is_directory())
 		{

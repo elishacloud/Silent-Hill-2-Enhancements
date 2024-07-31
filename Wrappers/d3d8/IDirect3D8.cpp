@@ -29,6 +29,7 @@ bool UsingWindowBorder = true;
 bool CopyRenderTarget = false;
 bool SetSSAA = false;
 bool SetATOC = false;
+bool IsWindowShrunk = false;
 bool TakeScreenShot = false;
 D3DMULTISAMPLE_TYPE DeviceMultiSampleType = D3DMULTISAMPLE_NONE;
 
@@ -336,7 +337,7 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 // Restore Presentation Parameters
 void RestorePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters)
 {
-	if (UsingScaledResolutions && pPresentationParameters)
+	if (IsScaledResolutionsEnabled() && pPresentationParameters)
 	{
 		pPresentationParameters->BackBufferWidth = BufferWidth;
 		pPresentationParameters->BackBufferHeight = BufferHeight;
@@ -354,11 +355,15 @@ void UpdatePresentParameter(D3DPRESENT_PARAMETERS* pPresentationParameters, HWND
 		return;
 	}
 
+	// Get updated width and height
 	BufferWidth = (pPresentationParameters->BackBufferWidth) ? pPresentationParameters->BackBufferWidth : BufferWidth;
 	BufferHeight = (pPresentationParameters->BackBufferHeight) ? pPresentationParameters->BackBufferHeight : BufferHeight;
 
+	// Check if window size is larger than screen resolution
+	IsWindowShrunk = (ScreenMode == WINDOWED && (DefaultWidth < BufferWidth || DefaultHeight < BufferHeight));
+
 	// Set scaled width and height
-	if (UsingScaledResolutions)
+	if (IsScaledResolutionsEnabled())
 	{
 		if (pPresentationParameters->EnableAutoDepthStencil)
 		{
@@ -391,11 +396,16 @@ void UpdatePresentParameterForMultisample(D3DPRESENT_PARAMETERS* pPresentationPa
 	pPresentationParameters->Flags &= ~D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
 	pPresentationParameters->SwapEffect = D3DSWAPEFFECT_DISCARD;
 
-	if (!pPresentationParameters->EnableAutoDepthStencil && !UsingScaledResolutions)
+	if (!pPresentationParameters->EnableAutoDepthStencil && !IsScaledResolutionsEnabled())
 	{
 		pPresentationParameters->EnableAutoDepthStencil = TRUE;
 		pPresentationParameters->AutoDepthStencilFormat = D3DFMT_D24S8;
 	}
+}
+
+bool IsScaledResolutionsEnabled()
+{
+	return (UsingScaledResolutions || IsWindowShrunk);
 }
 
 void SetScreenAndWindowSize()
@@ -439,7 +449,7 @@ void SetScreenAndWindowSize()
 			LONG Height = BufferHeight;
 
 			// Reset resolution scaling
-			if (UsingScaledResolutions)
+			if (IsScaledResolutionsEnabled())
 			{
 				GetNonScaledResolution(Width, Height);
 			}
@@ -665,6 +675,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			HMONITOR MonitorHandle = GetMonitorHandle();
 			if (LastMonitorHandle && LastMonitorHandle != MonitorHandle)
 			{
+				GetDesktopRes(DefaultWidth, DefaultHeight);
 				SetResolutionList(BufferWidth, BufferHeight);
 				DeviceLost = true;
 			}

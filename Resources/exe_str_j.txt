@@ -1,31 +1,35 @@
 PAUSE
-\hResume
-\hSave Game
-\hLoad Game
-\hOptions
-\hQuit
+ƒQ[ƒ€ÄŠJ
+ƒZ[ƒu
+ƒ[ƒh
+ƒIƒvƒVƒ‡ƒ“
+I—¹
 \hExit to Main Menu?
 \hYes
 \hNo
-\cï¿½Tï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½gï¿½qï¿½ï¿½ 2ï¿½Ìƒfï¿½Bï¿½Xï¿½Nï¿½ï¿½}ï¿½ï¿½ï¿½ï¿½ï¿½Ä‰ï¿½ï¿½ï¿½ï¿½ï¿½
-\cï¿½|ï¿½[ï¿½Y
-\cï¿½Ù‚È‚ï¿½fï¿½Bï¿½Xï¿½Nï¿½Å‚ï¿½
-\cï¿½Qï¿½[ï¿½ï¿½ï¿½pï¿½bï¿½hï¿½ï¿½ï¿½ï¿½ï¿½Ú‘ï¿½ï¿½Å‚ï¿½
-\cï¿½fï¿½Bï¿½Xï¿½Nï¿½ï¿½ï¿½ï¿½ï¿½Â‚ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½
-\cï¿½Ä“xï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+\cƒTƒCƒŒƒ“ƒgƒqƒ‹ 2‚ÌƒfƒBƒXƒN‚ð‘}“ü‚µ‚Ä‰º‚³‚¢
+\cƒ|[ƒY
+\cˆÙ‚È‚éƒfƒBƒXƒN‚Å‚·
+\cƒQ[ƒ€ƒpƒbƒh‚ª–¢Ú‘±‚Å‚·
+\cƒfƒBƒXƒN‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ
+\cÄ“x‚¨ŽŽ‚µ‰º‚³‚¢
 \c\hNow loading
-\cï¿½ï¿½ï¿½Ò‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½c
-\cï¿½fï¿½Bï¿½Xï¿½Nï¿½ï¿½ï¿½mï¿½Fï¿½ï¿½
-\cï¿½^ï¿½Cï¿½gï¿½ï¿½ï¿½ï¿½Ê‚É–ß‚ï¿½Ü‚ï¿½ï¿½ï¿½ï¿½H
-\cï¿½Í‚ï¿½ï¿½@
-\cï¿½@ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+\c‚¨‘Ò‚¿‚­‚¾‚³‚¢c
+\cƒfƒBƒXƒN‚ðŠm”F’†
+\cƒ^ƒCƒgƒ‹‰æ–Ê‚É–ß‚è‚Ü‚·‚©H
+\c‚Í‚¢@
+\c@‚¢‚¢‚¦
 Button %d
-ï¿½Zï¿½[ï¿½uï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½
-ï¿½Zï¿½[ï¿½uï¿½Å‚ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½
-ï¿½Nï¿½Cï¿½bï¿½Nï¿½Zï¿½[ï¿½uï¿½sï¿½ï¿½
-d3d8.iniï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½Ý’ï¿½
-Windowsï¿½ï¿½ï¿½Å‚Ì‚Ý‰ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-ï¿½}ï¿½Xï¿½^ï¿½[ï¿½ï¿½ï¿½ï¿½
-ï¿½}ï¿½Xï¿½^ï¿½[ï¿½ï¿½ï¿½Ê’ï¿½ï¿½ï¿½
-\hHealth indicator
-\hEnable low health indicator
+ƒZ[ƒu‚µ‚Ü‚µ‚½
+ƒZ[ƒu‚Å‚«‚Ü‚¹‚ñ
+ƒNƒCƒbƒNƒZ[ƒu•s‰Â
+d3d8.iniƒtƒ@ƒCƒ‹‚ðÝ’è
+Windows‘¤‚Å‚Ì‚Ý‰¹‹¿’²®‰Â
+ƒ}ƒXƒ^[‰¹—Ê
+ƒ}ƒXƒ^[‰¹—Ê’²®
+Œ’Nó‘Ô•\Ž¦
+Œ’Nó‘Ô’á‰º‚ÌŒx‚ð•\Ž¦‚µ‚Ü‚·
+ƒŒƒ“ƒ_ƒŠƒ“ƒO‰ð‘œ“x
+ƒŒƒ“ƒ_ƒŠƒ“ƒO‰ð‘œ“x‚ð’²®‚·‚é
+3DƒTƒEƒ“ƒh
+3DƒTƒEƒ“ƒhŒø‰Ê‚ð—LŒø‚É‚·‚é

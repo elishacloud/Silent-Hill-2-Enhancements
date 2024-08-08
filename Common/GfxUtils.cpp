@@ -235,6 +235,13 @@ HRESULT GfxCreateTextureFromFileW(LPDIRECT3DDEVICE8 device, LPCWSTR srcFile, LPD
         int channels = 0;
         pixels = stbi_load_from_callbacks(&callbacks, fh, &width, &height, &channels, STBI_rgb_alpha);
 
+        if (pixels) {
+            // convert ABGR -> ARGB
+            for (int i = 0, numPixels = width * height; i < numPixels; ++i) {
+                std::swap(pixels[i * 4 + 0], pixels[i * 4 + 2]);
+            }
+        }
+
         format = D3DFMT_A8R8G8B8;
     }
 

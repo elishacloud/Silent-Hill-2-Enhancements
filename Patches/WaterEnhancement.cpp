@@ -20,30 +20,9 @@ DWORD vsDeclWater[] = {
     D3DVSD_END()
 };
 
-// vshader
-// vs_1_1
-// dcl_position v0
-// dcl_color v5
-// dcl_texcoord v7
-// mov oD0, c0
-// mov oT0, c0
-// dp4 oPos.x, v0, c32
-// dp4 oPos.y, v0, c33
-// dp4 oPos.z, v0, c34
-// dp4 oPos.w, v0, c35
-// mov oT0, v7
-// mov oD0, v5
-
-// Tex0 - albedo
-// Tex1 - NULL
-// Tex2 - normalization cube
-
-// pshader
-// none
 
 // eax == 3
 //eax, dword ptr[eax * 4 + 1DB9288h]
-
 DWORD* g_vsHandles_1DB9288 = reinterpret_cast<DWORD*>(0x1DB9288);
 
 #define WATER_VSHADER_ORIGINAL  (g_vsHandles_1DB9288[3])
@@ -52,6 +31,16 @@ DWORD* g_vsHandles_1DB9288 = reinterpret_cast<DWORD*>(0x1DB9288);
 #define WATER_TEXTURE_SLOT_REFRACTION   1
 #define WATER_TEXTURE_SLOT_DUDV         2
 
+/*
+vs.1.1
+
+m4x4 r0, v0, c32
+mov oPos, r0
+mov oT0, v7
+add oT1, v7, c90
+mov oT2, r0
+mov oD0, v5
+*/
 DWORD g_WaterVSBytecode[] = {
     0xfffe0101, 0x0009fffe, 0x58443344, 0x68532038,
     0x72656461, 0x73734120, 0x6c626d65, 0x56207265,
@@ -63,6 +52,45 @@ DWORD g_WaterVSBytecode[] = {
     0x00000001, 0xd00f0000, 0x90e40005, 0x0000ffff
 };
 
+/*
+ps.1.4
+def c0, 0.5, 0.5, 1, 1
+def c1, 0.5, -0.5, 1, 1
+def c2, 0.01, 0.01, 0.01, 0.01
+
+// calc projected uv
+texcrd r3.xy, t2_dw.xyw
+
+// save aside base texture coords
+texcrd r4.xyz, t0
+
+// sample dudv map, restore and rescale
+texld r2, t1
+mul r2, c2, r2_bx2
+
+// fill the void
+mov r3.zw, c0
+mov r4.zw, c0
+
+// [-1;1] -> [0;1]
+mad r3, r3, c1, c0
+// disturb projected uv
+add r3, r3, r2
+// pass along the disturbed base texture coords
+add r2, r4, r2
+
+phase
+
+// sample water texture
+texld r0, r2
+// sample refraction texture
+texld r1, r3
+// tint water texture by the vertex colour
+mul r0, r0, v0
+// blend them
+lrp_sat r0, r0.w, r0, r1
+mov r0.w, c0
+*/
 DWORD g_WaterPSBytecode[] = {
     0xffff0104, 0x0009fffe, 0x58443344, 0x68532038,
     0x72656461, 0x73734120, 0x6c626d65, 0x56207265,
@@ -72,16 +100,19 @@ DWORD g_WaterPSBytecode[] = {
     0xbf000000, 0x3f800000, 0x3f800000, 0x00000051,
     0xa00f0002, 0x3c23d70a, 0x3c23d70a, 0x3c23d70a,
     0x3c23d70a, 0x00000040, 0x80030003, 0xbaf40002,
-    0x00000042, 0x800f0002, 0xb0e40001, 0x00000005,
-    0x800f0002, 0xa0e40002, 0x84e40002, 0x00000001,
-    0x800c0003, 0xa0e40000, 0x00000004, 0x800f0003,
-    0x80e40003, 0xa0e40001, 0xa0e40000, 0x00000002,
-    0x800f0003, 0x80e40003, 0x80e40002, 0x0000fffd,
-    0x00000042, 0x800f0000, 0xb0e40000, 0x00000042,
-    0x800f0001, 0x80e40003, 0x00000005, 0x800f0000,
-    0x80e40000, 0x90e40000, 0x00000012, 0x800f0000,
-    0x80ff0000, 0x80e40000, 0x80e40001, 0x00000001,
-    0x80080000, 0xa0e40000, 0x0000ffff
+    0x00000040, 0x80070004, 0xb0e40000, 0x00000042,
+    0x800f0002, 0xb0e40001, 0x00000005, 0x800f0002,
+    0xa0e40002, 0x84e40002, 0x00000001, 0x800c0003,
+    0xa0e40000, 0x00000001, 0x800c0004, 0xa0e40000,
+    0x00000004, 0x800f0003, 0x80e40003, 0xa0e40001,
+    0xa0e40000, 0x00000002, 0x800f0003, 0x80e40003,
+    0x80e40002, 0x00000002, 0x800f0002, 0x80e40004,
+    0x80e40002, 0x0000fffd, 0x00000042, 0x800f0000,
+    0x80e40002, 0x00000042, 0x800f0001, 0x80e40003,
+    0x00000005, 0x800f0000, 0x80e40000, 0x90e40000,
+    0x00000012, 0x801f0000, 0x80ff0000, 0x80e40000,
+    0x80e40001, 0x00000001, 0x80080000, 0xa0e40000,
+    0x0000ffff
 };
 
 DWORD g_WaterVSHandle = 0;
@@ -206,10 +237,19 @@ static bool CheckWaterPrimitivesCountByRoom(const UINT PrimitiveCount) {
         break;
         // Labyrinth West
         case R_LAB_BOTTOM_C:
+        case R_LAB_BOTTOM_E:
+        case R_LAB_BOTTOM_F:
+        case R_LAB_BOTTOM_G:
+        case R_LAB_BOTTOM_H:
+        case R_LAB_BOTTOM_I:
             isWater = (PrimitiveCount == 38u || PrimitiveCount == 14u);
         break;
         // Hotel Alternate Basement
+        case R_HTL_ALT_EMPLOYEE_STAIRS:
+        case R_HTL_ALT_BAR:
+        case R_HTL_ALT_BAR_KITCHEN:
         case R_HTL_ALT_ELEVATOR:
+        case R_HTL_ALT_EMPLOYEE_HALL_BF:
             isWater = (PrimitiveCount == 82u);
         break;
         // Hotel Alternate 1F

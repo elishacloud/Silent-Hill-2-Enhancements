@@ -85,6 +85,9 @@ private:
 	bool OverrideTextureLoop = false;
 	bool PresentFlag = false;
 
+    // Enhanced water rendering
+    bool NeedToGrabScreenForWater = true;
+
 	IDirect3DTexture8 *pInTexture = nullptr;
 	IDirect3DSurface8 *pInSurface = nullptr;
 	IDirect3DSurface8 *pInRender = nullptr;

@@ -30,6 +30,15 @@
 #include "Patches\FlashlightReflection.h"
 #include "Resource.h"
 
+// enhanced water drawing
+extern DWORD g_WaterVSHandle;
+extern DWORD g_WaterPSHandle;
+extern DWORD g_WaterVSBytecode[];
+extern DWORD g_WaterPSBytecode[];
+extern DWORD vsDeclWater[];
+extern void WaterEnhancedReleaseScreenCopy();
+extern HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 ProxyInterface, D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, const void* pVertexStreamZeroData, UINT VertexStreamZeroStride);
+
 bool DeviceLost = false;
 bool DisableShaderOnPresent = false;
 bool IsUsingD3d8to9 = false;
@@ -239,6 +248,8 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 	{
 		ReleaseInterface(&ScaleVertexBuffer);
 	}
+
+    WaterEnhancedReleaseScreenCopy();
 
 	OverlayRef.ResetFont();
 
@@ -699,12 +710,13 @@ HRESULT m_IDirect3DDevice8::GetRenderTarget(THIS_ IDirect3DSurface8** ppRenderTa
 
 	if (SUCCEEDED(hr) && ppRenderTarget)
 	{
-		if (IsScaledResolutionsEnabled() && *ppRenderTarget == pAutoRenderTarget)
-		{
-			(*ppRenderTarget)->Release();
-			*ppRenderTarget = pAutoRenderSurfaceMirror;
-			pAutoRenderSurfaceMirror->AddRef();
-		}
+        // iOrange: TODO - how to avoid for the water ???
+		//if (IsScaledResolutionsEnabled() && *ppRenderTarget == pAutoRenderTarget)
+		//{
+		//	(*ppRenderTarget)->Release();
+		//	*ppRenderTarget = pAutoRenderSurfaceMirror;
+		//	pAutoRenderSurfaceMirror->AddRef();
+		//}
 		*ppRenderTarget = ProxyAddressLookupTableD3d8->FindAddress<m_IDirect3DSurface8>(*ppRenderTarget);
 	}
 
@@ -1107,6 +1119,11 @@ HRESULT m_IDirect3DDevice8::CreatePixelShader(THIS_ CONST DWORD* pFunction, DWOR
 		ProxyInterface->CreatePixelShader(hospitalDoorPixelShader_stage2, &hospitalDoorPsHandles[2]);
 		ProxyInterface->CreatePixelShader(hospitalDoorPixelShader_stage3, &hospitalDoorPsHandles[3]);
 	}
+
+    if (!g_WaterPSHandle)
+    {
+        ProxyInterface->CreatePixelShader(g_WaterPSBytecode, &g_WaterPSHandle);
+    }
 
 	return ProxyInterface->CreatePixelShader(pFunction, pHandle);
 }
@@ -2170,6 +2187,16 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 		}
 	}
 
+    if (WaterEnhancedRender)
+    {
+        HRESULT hr = DrawWaterEnhanced(NeedToGrabScreenForWater, this, PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride);
+        if (hr != -1)
+        {
+            NeedToGrabScreenForWater = false;
+            return hr;
+        }
+    }
+
 	return ProxyInterface->DrawPrimitiveUP(PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride);
 }
 
@@ -2361,6 +2388,8 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		{
 			RunPlayAdditionalSounds();
 		}
+
+        NeedToGrabScreenForWater = true;
 	}
 
 	if (!isInScene)
@@ -2763,13 +2792,21 @@ HRESULT m_IDirect3DDevice8::CreateVertexShader(THIS_ CONST DWORD* pDeclaration, 
 		ProxyInterface->CreateVertexShader(vsDecl, windowVertexShader, &windowVsHandle, 0);
 	}
 
-	if (!vcolorVsHandle) {
+	if (!vcolorVsHandle)
+    {
 		ProxyInterface->CreateVertexShader(vsDeclVColor, vcolorVertexShader, &vcolorVsHandle, 0);
 	}
 
-	if (!hospitalDoorVsHandle) {
+	if (!hospitalDoorVsHandle)
+    {
 		ProxyInterface->CreateVertexShader(vsDecl, hospitalDoorVertexShader, &hospitalDoorVsHandle, 0);
 	}
+
+    if (!g_WaterVSHandle)
+    {
+        ProxyInterface->CreateVertexShader(vsDeclWater, g_WaterVSBytecode, &g_WaterVSHandle, 0);
+    }
+
 
 	return ProxyInterface->CreateVertexShader(pDeclaration, pFunction, pHandle, Usage);
 }

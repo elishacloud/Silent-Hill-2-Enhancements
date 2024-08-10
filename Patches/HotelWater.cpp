@@ -131,7 +131,7 @@ void RunHotelWater()
 		if (!ImprovedWaterFX)
 		{
 			Value = 1.75f;
-			UpdateMemoryAddress((void*)Address1, &Value, sizeof(float));				// Water texture Z stretch/shrink
+			UpdateMemoryAddress((void*)Address1, &Value, sizeof(float));		// Water texture Z stretch/shrink
 		}
 
 		// Alternate Hotel Kitchen Water

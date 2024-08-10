@@ -86,6 +86,7 @@
 	visit(HospitalChaseFix, true) \
 	visit(HotelWaterFix, true) \
 	visit(ImproveStorageSupport, true) \
+    visit(ImprovedWaterFX, false) \
 	visit(IncreaseBlood, true) \
 	visit(IncreaseDrawDistance, true) \
 	visit(LightingFix, true) \
@@ -249,6 +250,7 @@
 	visit(HookDirectInput) \
 	visit(HookDirectSound) \
 	visit(HookWndProc) \
+    visit(ImprovedWaterFX) \
 	visit(LetterSpacing) \
 	visit(LoadModulesFromMemory) \
 	visit(LockResolution) \

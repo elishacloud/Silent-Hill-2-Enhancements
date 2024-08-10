@@ -17,6 +17,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include "patches.h"
+#include "Common\Settings.h"
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
@@ -106,9 +107,13 @@ void RunHotelWater()
 	{
 		Logging::Log() << "Setting Hotel Water Fix...";
 
+        float Value = 0.0f;
 		// Hallway After Alternate Hotel Kitchen Water
-		float Value = 1.75f;
-		UpdateMemoryAddress((void*)Address1, &Value, sizeof(float));				// Water texture Z stretch/shrink
+        if (!ImprovedWaterFX)
+        {
+            Value = 1.75f;
+            UpdateMemoryAddress((void*)Address1, &Value, sizeof(float));				// Water texture Z stretch/shrink
+        }
 
 		// Alternate Hotel Kitchen Water
 		Value = 100.0f;

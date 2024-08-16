@@ -11,6 +11,7 @@
 #include <cmath>
 
 #include "WaterEnhancement_dudv.h"
+#include "WaterEnhancement_caustics.h"
 
 DWORD vsDeclWater[] = {
     D3DVSD_STREAM(0),
@@ -28,8 +29,16 @@ DWORD* g_vsHandles_1DB9288 = reinterpret_cast<DWORD*>(0x1DB9288);
 #define WATER_VSHADER_ORIGINAL  (g_vsHandles_1DB9288[3])
 #define WATER_FVF               (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
 
-#define WATER_TEXTURE_SLOT_REFRACTION   1
-#define WATER_TEXTURE_SLOT_DUDV         2
+#define WATER_TEXTURE_SLOT_REFRACTION       1
+#define WATER_TEXTURE_SLOT_DUDV             2
+#define WATER_TEXTURE_SLOT_CAUSTICS         3
+
+#define WATER_DUDV_SCALE_PS_CB_SLOT         5
+#define WATER_DUDV_SPEC_SCALE_PS_CB_SLOT    6
+#define WATER_SPEC_MULT_PS_CB_SLOT          7
+
+#define WATER_UVADD_VS_CB_SLOT              90
+#define WATER_UVMUL_VS_CB_SLOT              91
 
 /*
 vs.1.1
@@ -39,6 +48,7 @@ mov oPos, r0
 mov oT0, v7
 add oT1, v7, c90
 mov oT2, r0
+mul oT3, v7, c91
 mov oD0, v5
 */
 DWORD g_WaterVSBytecode[] = {
@@ -49,6 +59,7 @@ DWORD g_WaterVSBytecode[] = {
     0xc00f0000, 0x80e40000, 0x00000001, 0xe00f0000,
     0x90e40007, 0x00000002, 0xe00f0001, 0x90e40007,
     0xa0e4005a, 0x00000001, 0xe00f0002, 0x80e40000,
+    0x00000005, 0xe00f0003, 0x90e40007, 0xa0e4005b,
     0x00000001, 0xd00f0000, 0x90e40005, 0x0000ffff
 };
 
@@ -56,28 +67,28 @@ DWORD g_WaterVSBytecode[] = {
 ps.1.4
 def c0, 0.5, 0.5, 1, 1
 def c1, 0.5, -0.5, 1, 1
-def c2, 0.01, 0.01, 0.01, 0.01
 
 // calc projected uv
 texcrd r3.xy, t2_dw.xyw
-
 // save aside base texture coords
 texcrd r4.xyz, t0
-
+// save aside caustics texture coords
+texcrd r5.xyz, t3
 // sample dudv map, restore and rescale
 texld r2, t1
-mul r2, c2, r2_bx2
-
+mul r1, c5, r2_bx2
 // fill the void
 mov r3.zw, c0
 mov r4.zw, c0
-
+mov r5.zw, c0
 // [-1;1] -> [0;1]
 mad r3, r3, c1, c0
 // disturb projected uv
-add r3, r3, r2
+add r3, r3, r1
+// disturb caustics uv
+mad r5, r2_bx2, c6, r5
 // pass along the disturbed base texture coords
-add r2, r4, r2
+add r2, r4, r1
 
 phase
 
@@ -85,10 +96,14 @@ phase
 texld r0, r2
 // sample refraction texture
 texld r1, r3
+// sample caustics texture
+texld r3, r5
 // tint water texture by the vertex colour
 mul r0, r0, v0
 // blend them
 lrp_sat r0, r0.w, r0, r1
+// add modulated caustics
+mad_sat r0, r3, c7, r0
 // fill alpha
 mov r0.w, c0
 */
@@ -98,25 +113,25 @@ DWORD g_WaterPSBytecode[] = {
     0x69737265, 0x30206e6f, 0x0031392e, 0x00000051,
     0xa00f0000, 0x3f000000, 0x3f000000, 0x3f800000,
     0x3f800000, 0x00000051, 0xa00f0001, 0x3f000000,
-    0xbf000000, 0x3f800000, 0x3f800000, 0x00000051,
-    0xa00f0002, 0x3c23d70a, 0x3c23d70a, 0x3c23d70a,
-    0x3c23d70a, 0x00000051, 0xa00f0003, 0x00000000,
-    0x3f54fdf4, 0x3f0e00d2, 0x00000000, 0x00000051,
-    0xa00f0004, 0x00000000, 0x3f800000, 0x00000000,
-    0x00000000, 0x00000040, 0x80030003, 0xbaf40002,
-    0x00000040, 0x80070004, 0xb0e40000, 0x00000042,
-    0x800f0002, 0xb0e40001, 0x00000005, 0x800f0002,
-    0xa0e40002, 0x84e40002, 0x00000001, 0x800c0003,
-    0xa0e40000, 0x00000001, 0x800c0004, 0xa0e40000,
+    0xbf000000, 0x3f800000, 0x3f800000, 0x00000040,
+    0x80030003, 0xbaf40002, 0x00000040, 0x80070004,
+    0xb0e40000, 0x00000040, 0x80070005, 0xb0e40003,
+    0x00000042, 0x800f0002, 0xb0e40001, 0x00000005,
+    0x800f0001, 0xa0e40005, 0x84e40002, 0x00000001,
+    0x800c0003, 0xa0e40000, 0x00000001, 0x800c0004,
+    0xa0e40000, 0x00000001, 0x800c0005, 0xa0e40000,
     0x00000004, 0x800f0003, 0x80e40003, 0xa0e40001,
     0xa0e40000, 0x00000002, 0x800f0003, 0x80e40003,
-    0x80e40002, 0x00000002, 0x800f0002, 0x80e40004,
-    0x80e40002, 0x0000fffd, 0x00000042, 0x800f0000,
-    0x80e40002, 0x00000042, 0x800f0001, 0x80e40003,
+    0x80e40001, 0x00000004, 0x800f0005, 0x84e40002,
+    0xa0e40006, 0x80e40005, 0x00000002, 0x800f0002,
+    0x80e40004, 0x80e40001, 0x0000fffd, 0x00000042,
+    0x800f0000, 0x80e40002, 0x00000042, 0x800f0001,
+    0x80e40003, 0x00000042, 0x800f0003, 0x80e40005,
     0x00000005, 0x800f0000, 0x80e40000, 0x90e40000,
     0x00000012, 0x801f0000, 0x80ff0000, 0x80e40000,
-    0x80e40001, 0x00000001, 0x80080000, 0xa0e40000,
-    0x0000ffff
+    0x80e40001, 0x00000004, 0x801f0000, 0x80e40003,
+    0xa0e40007, 0x80e40000, 0x00000001, 0x80080000,
+    0xa0e40000, 0x0000ffff
 };
 
 DWORD g_WaterVSHandle = 0;
@@ -125,6 +140,7 @@ DWORD g_WaterPSHandle = 0;
 IDirect3DTexture8* g_ScreenCopyTexture = nullptr;
 IDirect3DSurface8* g_ScreenCopySurface = nullptr;
 IDirect3DTexture8* g_DuDvTexture = nullptr;
+IDirect3DTexture8* g_CausticsTexture = nullptr;
 
 LARGE_INTEGER      g_QPCFreq = {};
 uint64_t           g_StartTimeMS = 0;
@@ -194,14 +210,19 @@ void WaterEnhancedReleaseScreenCopy() {
     SafeRelease(g_ScreenCopyTexture);
 }
 
-static void LoadDUDV(LPDIRECT3DDEVICE8 Device) {
-    if (g_DuDvTexture) {
-        return;
+static void LoadWaterUtilityTextures(LPDIRECT3DDEVICE8 Device) {
+    if (!g_DuDvTexture) {
+        HRESULT hr = GfxCreateTextureFromFileInMem(Device, DuDv_128x128_data, sizeof(DuDv_128x128_data), &g_DuDvTexture);
+        if (FAILED(hr)) {
+            g_DuDvTexture = nullptr;
+        }
     }
 
-    HRESULT hr = GfxCreateTextureFromFileInMem(Device, DuDv_128x128_data, sizeof(DuDv_128x128_data), &g_DuDvTexture);
-    if (FAILED(hr)) {
-        g_DuDvTexture = nullptr;
+    if (!g_CausticsTexture) {
+        HRESULT hr = GfxCreateTextureFromFileInMem(Device, Caustics_128x128_data, sizeof(Caustics_128x128_data), &g_CausticsTexture);
+        if (FAILED(hr)) {
+            g_CausticsTexture = nullptr;
+        }
     }
 }
 
@@ -246,7 +267,7 @@ static bool CheckWaterPrimitivesCountByRoom(const UINT PrimitiveCount) {
         case R_LAB_BOTTOM_G:
         case R_LAB_BOTTOM_H:
         case R_LAB_BOTTOM_I:
-            isWater = (PrimitiveCount <= 46u && PrimitiveCount >= 10u) && PrimitiveCount != 22u; // excluding muzzle
+            isWater = (PrimitiveCount <= 46u && PrimitiveCount >= 10u);
         break;
         // Hotel Alternate Basement
         case R_HTL_ALT_EMPLOYEE_STAIRS:
@@ -254,7 +275,7 @@ static bool CheckWaterPrimitivesCountByRoom(const UINT PrimitiveCount) {
         case R_HTL_ALT_BAR_KITCHEN:
         case R_HTL_ALT_ELEVATOR:
         case R_HTL_ALT_EMPLOYEE_HALL_BF:
-            isWater = (PrimitiveCount <= 82u && PrimitiveCount >= 16u) && PrimitiveCount != 22u; // excluding muzzle
+            isWater = (PrimitiveCount <= 82u && PrimitiveCount >= 16u);
         break;
         // Hotel Alternate 1F
         case R_FINAL_BOSS_RM:
@@ -265,9 +286,39 @@ static bool CheckWaterPrimitivesCountByRoom(const UINT PrimitiveCount) {
     return isWater;
 }
 
+static void GetWaterConstantsByRoom(D3DXVECTOR4& specMult, D3DXVECTOR4& specUvMult, D3DXVECTOR4& dudvScale, D3DXVECTOR4& dudvSpecScale) {
+    const DWORD roomID = GetRoomID();
+    specMult = { 0.0f, 0.0f, 0.0f, 0.0f };
+    specUvMult = { 2.0f, 2.0f, 2.0f, 2.0f };
+    dudvScale = { 0.01f, 0.01f, 0.01f, 0.01f };
+    dudvSpecScale = { 0.04f, 0.04f, 0.04f, 0.04f };
+
+    switch (roomID) {
+        // Pyramidhead submerge
+        case R_APT_W_STAIRCASE_N:
+            specMult = { 0.1f, 0.1f, 0.1f, 0.0f };
+        break;
+        // Strange Area 2
+        case R_STRANGE_AREA_2_B:
+            specMult = { 0.05f, 0.05f, 0.05f, 0.0f };
+        break;
+        // Labyrinth West
+        case R_LAB_BOTTOM_C:
+        case R_LAB_BOTTOM_E:
+        case R_LAB_BOTTOM_F:
+        case R_LAB_BOTTOM_G:
+        case R_LAB_BOTTOM_H:
+        case R_LAB_BOTTOM_I:
+            specMult = { 0.05f, 0.05f, 0.05f, 0.0f };
+        break;
+    }
+}
+
 HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 Device, D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, const void* pVertexStreamZeroData, UINT VertexStreamZeroStride) {
-    // looks like water
-    if (PrimitiveType == D3DPT_TRIANGLESTRIP && CheckWaterPrimitivesCountByRoom(PrimitiveCount) && VertexStreamZeroStride == 24u && pVertexStreamZeroData != nullptr) {
+    DWORD colorOp0 = 0;
+    Device->GetTextureStageState(0, D3DTSS_COLOROP, &colorOp0);
+
+    if (colorOp0 == D3DTOP_MODULATE2X && PrimitiveType == D3DPT_TRIANGLESTRIP && CheckWaterPrimitivesCountByRoom(PrimitiveCount) && VertexStreamZeroStride == 24u && pVertexStreamZeroData != nullptr) {
         DWORD currVS = 0u;
         Device->GetVertexShader(&currVS);
         DWORD currPS = 0u;
@@ -277,7 +328,7 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 Devic
             if (needToGrabScreenForWater) {
                 WaterEnhancedGrabScreen(Device);
             }
-            LoadDUDV(Device);
+            LoadWaterUtilityTextures(Device);
 
             if (!g_StartTimeMS) {
                 g_StartTimeMS = TimeGetNowMS();
@@ -287,24 +338,34 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 Devic
 
             const float fraction = GetFracPart(static_cast<float>(timeDelta) * 0.00005f);
             const D3DXVECTOR4 uvAddition(fraction, fraction, fraction, fraction);
-            
+
+            D3DXVECTOR4 specMult;
+            D3DXVECTOR4 specUvMult;
+            D3DXVECTOR4 dudvScale;
+            D3DXVECTOR4 dudvSpecScale;
+            GetWaterConstantsByRoom(specMult, specUvMult, dudvScale, dudvSpecScale);
 
             IDirect3DBaseTexture8* tex0 = nullptr;
             IDirect3DBaseTexture8* tex1 = nullptr;
+            IDirect3DBaseTexture8* tex2 = nullptr;
             Device->GetTexture(WATER_TEXTURE_SLOT_REFRACTION, &tex0);
             Device->GetTexture(WATER_TEXTURE_SLOT_DUDV, &tex1);
+            Device->GetTexture(WATER_TEXTURE_SLOT_CAUSTICS, &tex2);
 
             Device->SetVertexShader(g_WaterVSHandle);
             Device->SetPixelShader(g_WaterPSHandle);
 
             Device->SetTexture(WATER_TEXTURE_SLOT_REFRACTION, g_ScreenCopyTexture);
             Device->SetTexture(WATER_TEXTURE_SLOT_DUDV, g_DuDvTexture);
+            Device->SetTexture(WATER_TEXTURE_SLOT_CAUSTICS, g_CausticsTexture);
 
             DWORD texStageRefrStates[5] = {};
             DWORD texStageDudvStates[5] = {};
+            DWORD texStageCausticsStates[5] = {};
 
             SaveTextureStates(Device, WATER_TEXTURE_SLOT_REFRACTION, texStageRefrStates);
             SaveTextureStates(Device, WATER_TEXTURE_SLOT_DUDV, texStageDudvStates);
+            SaveTextureStates(Device, WATER_TEXTURE_SLOT_CAUSTICS, texStageCausticsStates);
 
             Device->SetTextureStageState(WATER_TEXTURE_SLOT_REFRACTION, D3DTSS_ADDRESSU, D3DTADDRESS_CLAMP);
             Device->SetTextureStageState(WATER_TEXTURE_SLOT_REFRACTION, D3DTSS_ADDRESSV, D3DTADDRESS_CLAMP);
@@ -318,7 +379,18 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 Devic
             Device->SetTextureStageState(WATER_TEXTURE_SLOT_DUDV, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
             Device->SetTextureStageState(WATER_TEXTURE_SLOT_DUDV, D3DTSS_MIPFILTER, D3DTEXF_LINEAR);
 
-            Device->SetVertexShaderConstant(90, &uvAddition, 1);
+            Device->SetTextureStageState(WATER_TEXTURE_SLOT_CAUSTICS, D3DTSS_ADDRESSU, D3DTADDRESS_WRAP);
+            Device->SetTextureStageState(WATER_TEXTURE_SLOT_CAUSTICS, D3DTSS_ADDRESSV, D3DTADDRESS_WRAP);
+            Device->SetTextureStageState(WATER_TEXTURE_SLOT_CAUSTICS, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
+            Device->SetTextureStageState(WATER_TEXTURE_SLOT_CAUSTICS, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
+            Device->SetTextureStageState(WATER_TEXTURE_SLOT_CAUSTICS, D3DTSS_MIPFILTER, D3DTEXF_LINEAR);
+
+            Device->SetVertexShaderConstant(WATER_UVADD_VS_CB_SLOT, &uvAddition, 1);
+            Device->SetVertexShaderConstant(WATER_UVMUL_VS_CB_SLOT, &specUvMult, 1);
+
+            Device->SetPixelShaderConstant(WATER_DUDV_SCALE_PS_CB_SLOT, &dudvScale, 1u);
+            Device->SetPixelShaderConstant(WATER_DUDV_SPEC_SCALE_PS_CB_SLOT, &dudvSpecScale, 1u);
+            Device->SetPixelShaderConstant(WATER_SPEC_MULT_PS_CB_SLOT, &specMult, 1u);
 
             HRESULT hr = Device->DrawPrimitiveUP(PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride);
 
@@ -327,9 +399,11 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 Devic
 
             Device->SetTexture(WATER_TEXTURE_SLOT_REFRACTION, tex0);
             Device->SetTexture(WATER_TEXTURE_SLOT_DUDV, tex1);
+            Device->SetTexture(WATER_TEXTURE_SLOT_CAUSTICS, tex2);
 
             RestoreTextureStates(Device, WATER_TEXTURE_SLOT_REFRACTION, texStageRefrStates);
             RestoreTextureStates(Device, WATER_TEXTURE_SLOT_DUDV, texStageDudvStates);
+            RestoreTextureStates(Device, WATER_TEXTURE_SLOT_CAUSTICS, texStageCausticsStates);
 
             return hr;
         }

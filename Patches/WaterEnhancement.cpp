@@ -89,6 +89,7 @@ texld r1, r3
 mul r0, r0, v0
 // blend them
 lrp_sat r0, r0.w, r0, r1
+// fill alpha
 mov r0.w, c0
 */
 DWORD g_WaterPSBytecode[] = {
@@ -99,7 +100,10 @@ DWORD g_WaterPSBytecode[] = {
     0x3f800000, 0x00000051, 0xa00f0001, 0x3f000000,
     0xbf000000, 0x3f800000, 0x3f800000, 0x00000051,
     0xa00f0002, 0x3c23d70a, 0x3c23d70a, 0x3c23d70a,
-    0x3c23d70a, 0x00000040, 0x80030003, 0xbaf40002,
+    0x3c23d70a, 0x00000051, 0xa00f0003, 0x00000000,
+    0x3f54fdf4, 0x3f0e00d2, 0x00000000, 0x00000051,
+    0xa00f0004, 0x00000000, 0x3f800000, 0x00000000,
+    0x00000000, 0x00000040, 0x80030003, 0xbaf40002,
     0x00000040, 0x80070004, 0xb0e40000, 0x00000042,
     0x800f0002, 0xb0e40001, 0x00000005, 0x800f0002,
     0xa0e40002, 0x84e40002, 0x00000001, 0x800c0003,
@@ -242,7 +246,7 @@ static bool CheckWaterPrimitivesCountByRoom(const UINT PrimitiveCount) {
         case R_LAB_BOTTOM_G:
         case R_LAB_BOTTOM_H:
         case R_LAB_BOTTOM_I:
-            isWater = (PrimitiveCount == 38u || PrimitiveCount == 14u);
+            isWater = (PrimitiveCount <= 46u && PrimitiveCount >= 10u) && PrimitiveCount != 22u; // excluding muzzle
         break;
         // Hotel Alternate Basement
         case R_HTL_ALT_EMPLOYEE_STAIRS:
@@ -250,7 +254,7 @@ static bool CheckWaterPrimitivesCountByRoom(const UINT PrimitiveCount) {
         case R_HTL_ALT_BAR_KITCHEN:
         case R_HTL_ALT_ELEVATOR:
         case R_HTL_ALT_EMPLOYEE_HALL_BF:
-            isWater = (PrimitiveCount == 82u);
+            isWater = (PrimitiveCount <= 82u && PrimitiveCount >= 16u) && PrimitiveCount != 22u; // excluding muzzle
         break;
         // Hotel Alternate 1F
         case R_FINAL_BOSS_RM:

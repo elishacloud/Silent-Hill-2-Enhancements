@@ -145,7 +145,7 @@ void RunHotelWater()
 		UpdateMemoryAddress((void*)(Address2 + 0x18), &Value, sizeof(float));	// Ripple specularity - B
 
 		// Staircase After Angela Fire Cutscene Water
-		Value = 125.0f;
+		Value = 300.0f;
 		UpdateMemoryAddress((void*)(Address3 + 0x20), &Value, sizeof(float));	// Water color (flashlight off) - R
 		UpdateMemoryAddress((void*)(Address3 + 0x24), &Value, sizeof(float));	// Water color (flashlight off) - G
 		UpdateMemoryAddress((void*)(Address3 + 0x28), &Value, sizeof(float));	// Water color (flashlight off) - B

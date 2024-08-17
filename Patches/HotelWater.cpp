@@ -135,7 +135,7 @@ void RunHotelWater()
 		}
 
 		// Alternate Hotel Kitchen Water
-		Value = 100.0f;
+		Value = 150.0f;
 		UpdateMemoryAddress((void*)(Address2 + 0x00), &Value, sizeof(float));	// Water color (flashlight off) - R
 		UpdateMemoryAddress((void*)(Address2 + 0x04), &Value, sizeof(float));	// Water color (flashlight off) - G
 		UpdateMemoryAddress((void*)(Address2 + 0x08), &Value, sizeof(float));	// Water color (flashlight off) - B

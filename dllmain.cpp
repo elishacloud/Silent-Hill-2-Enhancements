@@ -628,6 +628,12 @@ void DelayedStart()
 		PatchFlashlightReflection();
 	}
 
+	// Make water prettier in various areas
+	if (WaterEnhancedRender)
+	{
+		PatchWaterEnhancement();
+	}
+
 	// Enables a complete rewrite of the game's audio engine
 	if (EnableCriWareReimplementation)
 	{

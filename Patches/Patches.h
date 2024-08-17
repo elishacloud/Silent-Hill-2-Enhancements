@@ -623,6 +623,7 @@ void PatchFireEscapeKey();
 void PatchFlashlightClockPush();
 void PatchFlashlightFlicker();
 void PatchFlashlightReflection();
+void PatchWaterEnhancement();
 void PatchFMV();
 void PatchFMVFramerate();
 void PatchFmvSubtitlesNoiseFix();

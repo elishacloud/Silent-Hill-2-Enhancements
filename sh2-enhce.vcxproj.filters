@@ -694,6 +694,12 @@
     <ClInclude Include="Common\IUnknownPtr.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="Patches\WaterEnhancement_caustics.h">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Patches\WaterEnhancement_dudv.h">
+      <Filter>Patches</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\sh2-enhce.rc">

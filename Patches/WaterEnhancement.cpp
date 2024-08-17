@@ -24,9 +24,9 @@ DWORD vsDeclWater[] = {
 
 // eax == 3
 //eax, dword ptr[eax * 4 + 1DB9288h]
-DWORD* g_vsHandles_1DB9288 = reinterpret_cast<DWORD*>(0x1DB9288);
+static DWORD* g_vsHandles = nullptr;
 
-#define WATER_VSHADER_ORIGINAL  (g_vsHandles_1DB9288[3])
+#define WATER_VSHADER_ORIGINAL  (g_vsHandles[3])
 #define WATER_FVF               (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
 
 #define WATER_TEXTURE_SLOT_REFRACTION       1
@@ -431,4 +431,24 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 Devic
     }
 
     return -1;
+}
+
+void PatchWaterEnhancement()
+{
+    switch (GameVersion)
+    {
+    case SH2V_10:
+        g_vsHandles = reinterpret_cast<DWORD*>(0x1DB9288);
+        break;
+    case SH2V_11:
+        g_vsHandles = reinterpret_cast<DWORD*>(0x1DBCE88);
+        break;
+    case SH2V_DC:
+        g_vsHandles = reinterpret_cast<DWORD*>(0x1DBBE88);
+        break;
+    case SH2V_UNKNOWN:
+        Logging::Log() << __FUNCTION__ << " Error: unknown game version!";
+        WaterEnhancedRender = false;
+        return;
+    }
 }

@@ -252,6 +252,14 @@ static bool CheckWaterPrimitivesCountByRoom(const UINT PrimitiveCount) {
     const DWORD roomID = GetRoomID();
 
     switch (roomID) {
+        // Pond
+        //case R_FOREST_CEMETERY:
+        //    isWater = (PrimitiveCount == 102u);
+        //break;
+        // Lake
+        //case R_TOWN_LAKE:
+        //    isWater = (PrimitiveCount == 68u);
+        //break;
         // Pyramidhead submerge
         case R_APT_W_STAIRCASE_N:
             isWater = (PrimitiveCount == 38u);
@@ -296,11 +304,11 @@ static void GetWaterConstantsByRoom(D3DXVECTOR4& specMult, D3DXVECTOR4& specUvMu
     switch (roomID) {
         // Pyramidhead submerge
         case R_APT_W_STAIRCASE_N:
-            specMult = { 0.1f, 0.1f, 0.1f, 0.0f };
+            specMult = { water_spec_mult_apt_staircase, water_spec_mult_apt_staircase, water_spec_mult_apt_staircase, 0.0f };
         break;
         // Strange Area 2
         case R_STRANGE_AREA_2_B:
-            specMult = { 0.05f, 0.05f, 0.05f, 0.0f };
+            specMult = { water_spec_mult_strange_area, water_spec_mult_strange_area, water_spec_mult_strange_area, 0.0f };
         break;
         // Labyrinth West
         case R_LAB_BOTTOM_C:
@@ -309,8 +317,21 @@ static void GetWaterConstantsByRoom(D3DXVECTOR4& specMult, D3DXVECTOR4& specUvMu
         case R_LAB_BOTTOM_G:
         case R_LAB_BOTTOM_H:
         case R_LAB_BOTTOM_I:
-            specMult = { 0.05f, 0.05f, 0.05f, 0.0f };
+            specMult = { water_spec_mult_labyrinth, water_spec_mult_labyrinth, water_spec_mult_labyrinth, 0.0f };
         break;
+        // Hotel Alternate Basement
+        case R_HTL_ALT_EMPLOYEE_STAIRS:
+        case R_HTL_ALT_BAR:
+        case R_HTL_ALT_BAR_KITCHEN:
+        case R_HTL_ALT_ELEVATOR:
+        case R_HTL_ALT_EMPLOYEE_HALL_BF:
+        // Hotel Alternate 1F
+        case R_FINAL_BOSS_RM: {
+            specMult = { water_spec_mult_hotel, water_spec_mult_hotel, water_spec_mult_hotel, 0.0f };
+            specUvMult = { water_spec_uv_mult_hotel, water_spec_uv_mult_hotel, water_spec_uv_mult_hotel, water_spec_uv_mult_hotel };
+            const float f = water_spec_uv_mult_hotel * 0.02f;
+            dudvSpecScale = { f, f, f, f };
+        } break;
     }
 }
 

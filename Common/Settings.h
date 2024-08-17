@@ -192,7 +192,12 @@
 	visit(fog_layer1_y2, 0.125f) \
 	visit(fog_layer2_complexity, 0.055f) \
 	visit(fog_layer2_density_add, 100.0f) \
-	visit(fog_layer2_density_mult, 1.4f)
+	visit(fog_layer2_density_mult, 1.4f) \
+    visit(water_spec_mult_apt_staircase, 0.035f) \
+    visit(water_spec_mult_strange_area, 0.02f) \
+    visit(water_spec_mult_labyrinth, 0.02f) \
+    visit(water_spec_mult_hotel, 0.05f) \
+    visit(water_spec_uv_mult_hotel, 0.45f)
 
 #define VISIT_STR_SETTINGS(visit) \
 	visit(CustomModFolder, "") \

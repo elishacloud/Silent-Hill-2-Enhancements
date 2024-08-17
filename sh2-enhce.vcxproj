@@ -295,6 +295,7 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClCompile Include="Patches\SpecificSoundLoopFix.cpp" />
     <ClCompile Include="Patches\PatchInventoryBGM.cpp" />
     <ClCompile Include="Patches\VHSAudio.cpp" />
+    <ClCompile Include="Patches\WaterDrawOrderFix.cpp" />
     <ClCompile Include="WidescreenFixesPack\WidescreenFixesPack.cpp" />
     <ClCompile Include="Wrappers\d3d8to9.cpp" />
     <ClCompile Include="Wrappers\d3d8\d3d8wrapper.cpp" />

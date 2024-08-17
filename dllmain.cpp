@@ -779,6 +779,12 @@ void DelayedStart()
 		PatchCustomAdvancedOptions();
 	}
 	
+	// Fix draw order of water and particle effects that appear underwater in certain rooms
+	if (WaterDrawOrderFix)
+	{
+		PatchWaterDrawOrderFix();
+	}
+	
 	// Remove the "Now loading..." and "Press Return to continue." messages
 	if (DisableLoadingPressReturnMessages)
 	{

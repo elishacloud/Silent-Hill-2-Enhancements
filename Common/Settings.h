@@ -141,6 +141,7 @@
 	visit(UseDSOAL, true) \
 	visit(UsePS2LowResTextures, false) \
 	visit(VHSAudioFix, false) \
+	visit(WaterDrawOrderFix, true) \
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, true) \
@@ -265,6 +266,7 @@
 	visit(SmallFontWidth) \
 	visit(SpaceSize) \
 	visit(SpeedrunMode) \
+	visit(WaterDrawOrderFix) \
 	visit(WrapperType)
 
 typedef enum _SCREENMODE {

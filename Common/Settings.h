@@ -141,7 +141,7 @@
 	visit(UseDSOAL, true) \
 	visit(UsePS2LowResTextures, false) \
 	visit(VHSAudioFix, false) \
-    visit(WaterEnhancedRender, true) \
+	visit(WaterEnhancedRender, true) \
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, true) \
@@ -193,11 +193,11 @@
 	visit(fog_layer2_complexity, 0.055f) \
 	visit(fog_layer2_density_add, 100.0f) \
 	visit(fog_layer2_density_mult, 1.4f) \
-    visit(water_spec_mult_apt_staircase, 0.035f) \
-    visit(water_spec_mult_strange_area, 0.02f) \
-    visit(water_spec_mult_labyrinth, 0.02f) \
-    visit(water_spec_mult_hotel, 0.05f) \
-    visit(water_spec_uv_mult_hotel, 0.45f)
+	visit(water_spec_mult_apt_staircase, 0.035f) \
+	visit(water_spec_mult_strange_area, 0.017f) \
+	visit(water_spec_mult_labyrinth, 0.017f) \
+	visit(water_spec_mult_hotel, 0.05f) \
+	visit(water_spec_uv_mult_hotel, 0.45f)
 
 #define VISIT_STR_SETTINGS(visit) \
 	visit(CustomModFolder, "") \

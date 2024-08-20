@@ -744,6 +744,11 @@ void RunTreeColor();
 
 int GetNewScreenMode();
 
+void CheckFlashlightAvailable();
+float GetConditionalFlashlightBrightnessRed();
+float GetConditionalFlashlightBrightnessGreen();
+float GetConditionalFlashlightBrightnessBlue();
+
 // Define the template function declaration
 template<typename T>
 void GetNonScaledResolution(T& Width, T& Height);

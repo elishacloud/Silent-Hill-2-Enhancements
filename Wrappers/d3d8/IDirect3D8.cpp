@@ -236,10 +236,10 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	}
 
 	// Check if render target needs to be replaced
-	CopyRenderTarget = (DeviceMultiSampleType || FixGPUAntiAliasing);
+	CopyRenderTarget = (DeviceMultiSampleType || IsFixGPUAntiAliasingEnabled);
 
 	// Check Transparency Antialiasing
-	if (DeviceMultiSampleType || FixGPUAntiAliasing)
+	if (DeviceMultiSampleType || IsFixGPUAntiAliasingEnabled)
 	{
 		SetSSAA = (ProxyInterface->CheckDeviceFormat(Adapter, D3DDEVTYPE_HAL, D3DFMT_X8R8G8B8, 0, D3DRTYPE_SURFACE, FOURCC_SSAA) == D3D_OK);
 		SetATOC = (ProxyInterface->CheckDeviceFormat(Adapter, D3DDEVTYPE_HAL, D3DFMT_X8R8G8B8, 0, D3DRTYPE_SURFACE, FOURCC_ATOC) == D3D_OK);

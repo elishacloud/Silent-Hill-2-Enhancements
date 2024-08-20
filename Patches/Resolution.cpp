@@ -1041,6 +1041,12 @@ void PatchSpeakerConfigLock()
 
 void PatchSpeakerConfigText()
 {
+	if (!CustomExeStrSet)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: couldn't find the sh2e folder.";
+		return;
+	}
+
 	if (GameVersion != SH2V_10 && GameVersion != SH2V_11 && GameVersion != SH2V_DC)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: unknown game version!";
@@ -1090,6 +1096,12 @@ void PatchSpeakerConfigText()
 
 void PatchSearchViewOptionName()
 {
+	if (!CustomExeStrSet)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: couldn't find the sh2e folder.";
+		return;
+	}
+
 	DWORD PrintSearchViewNameAddr = GameVersion == SH2V_10 ? 0x00461D3F :
 									GameVersion == SH2V_11 ? 0x00461FB1 :
 									GameVersion == SH2V_DC ? 0x00461FB1 : NULL;

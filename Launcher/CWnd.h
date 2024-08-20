@@ -163,6 +163,10 @@ public:
 
 	// random configuration
 	void SetConfigPtr(CConfigOption* c) { cValue = c; }
+	int GetConfigValue()
+	{
+		return cValue->cur_val;
+	}
 	void SetConfigValue(int val)
 	{
 		if (cValue)
@@ -222,6 +226,8 @@ public:
 	static LRESULT CALLBACK proc_list(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK proc_static(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
+	void Enable(bool enable = true) { this->hList.Enable(enable); this->hStatic.Enable(enable); }
+
 private:
 	CCtrlStatic hStatic;
 	CCtrlDropBox hList;
@@ -238,6 +244,8 @@ public:
 
 	static LRESULT CALLBACK proc_text(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK proc_static(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
+	
+	void Enable(bool enable = true) { this->hList.Enable(enable); this->hStatic.Enable(enable); }
 
 private:
 	CCtrlStatic hStatic;

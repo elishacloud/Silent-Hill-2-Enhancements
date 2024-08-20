@@ -42,7 +42,6 @@
 	visit(EnableSFXAddrHack, true) \
 	visit(EnableSMAA, false) \
 	visit(EnableSoftShadows, true) \
-	visit(EnableSpeedrunIGT, true) \
 	visit(EnableTexAddrHack, true) \
 	visit(EnableToggleSprint, true) \
 	visit(EnhanceMouseCursor, true) \
@@ -59,7 +58,6 @@
 	visit(FixFinalBossRoom, true) \
 	visit(FixFMVResetIssue, true) \
 	visit(FixFMVSpeed, true) \
-	visit(FixGPUAntiAliasing, false) \
 	visit(FixHangOnEsc, true) \
 	visit(FixInventoryBGM, true) \
 	visit(FixMemoFading, true) \
@@ -88,6 +86,7 @@
 	visit(ImproveStorageSupport, true) \
 	visit(IncreaseBlood, true) \
 	visit(IncreaseDrawDistance, true) \
+	visit(LegacyFixGPUAntiAliasing, false) \
 	visit(LightingFix, true) \
 	visit(LightingTransitionFix, true) \
 	visit(LoadD3d8FromScriptsFolder, false) \
@@ -177,13 +176,13 @@
 	visit(RestoreSearchCamMovement, 2) \
 	visit(ResX, 0) \
 	visit(ResY, 0) \
-	visit(ScaleWindowedResolution, 0xFFFF) /* Overwrites old 'FixGPUAntiAliasing' setting */ \
+	visit(ScaleWindowedResolution, 0)\
 	visit(ScreenMode, 0xFFFF) /* Overloading the old 'EnableWndMode' and 'FullscreenWndMode' options */ \
 	visit(SingleCoreAffinityLegacy, 0) \
 	visit(SmallFontHeight, 24) \
 	visit(SmallFontWidth, 16) \
 	visit(SpaceSize, 7) \
-	visit(SpeedrunMode, 2)
+	visit(SpeedrunMode, 0)
 
 #define VISIT_FLOAT_SETTINGS(visit) \
 	visit(fog_layer1_x1, 0.250f) \
@@ -234,7 +233,6 @@
 	visit(EnableDebugOverlay) \
 	visit(EnableInfoOverlay) \
 	visit(EnableScreenshots) \
-	visit(EnableSpeedrunIGT) \
 	visit(EnableWndMode) \
 	visit(FixFMVResetIssue) \
 	visit(FixElevatorCursorColor) \
@@ -264,13 +262,18 @@
 	visit(QuickSaveCancelFix) \
 	visit(ResX) \
 	visit(ResY) \
+	visit(ScaleWindowedResolution)\
 	visit(ScreenMode) \
 	visit(SetSwapEffectUpgradeShim) \
 	visit(ShowerRoomFlashlightFix) \
 	visit(SmallFontHeight) \
 	visit(SmallFontWidth) \
 	visit(SpaceSize) \
-	visit(SpeedrunMode) \
+	visit(water_spec_mult_apt_staircase) \
+	visit(water_spec_mult_strange_area) \
+	visit(water_spec_mult_labyrinth) \
+	visit(water_spec_mult_hotel) \
+	visit(water_spec_uv_mult_hotel) \
 	visit(WrapperType)
 
 typedef enum _SCREENMODE {
@@ -367,6 +370,8 @@ extern bool CRTCurveShader;
 extern bool CRTNonCurveShader;
 extern bool EnableInputTweaks;
 extern float ScaleFactor;
+extern bool IsFixGPUAntiAliasingEnabled;
+extern bool IsScaledResolutionEnabled;
 extern bool UsingScaledResolutions;
 
 bool SetValue(const char* value);

@@ -47,7 +47,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="WndModeBorder">
+      <Feature name="WndModeBorder" speedrun="true">
         <Title>Janela com borda (apenas para o modo janela)</Title>
         <Description>Cria uma janela com borda para o jogo. Só funciona jogando em modo janela.&#x0a;&#x0a;Nota: A resolução da janela do jogo não deve ser próxima ou exatamente igual à largura ou altura da tela, caso contrário, a borda não aparecerá. Esta é uma medida de segurança para garantir que a borda não ultrapasse a área de exibição.</Description>
         <Choices type="check">
@@ -92,12 +92,12 @@
       </Feature>
 
       <Feature name="DisableCutsceneBorders">
-        <Title>Cutscene borders</Title>
-        <Description>Choose to show or hide non-pre-rendered cutscene letterboxing. Set to "Auto" to enable the letterboxing on standard aspect ratios, and disable them on widescreen aspect ratios.&#x0a;&#x0a;Note: Non-pre-rendered cutscene letterboxing should be hidden or set to 'Auto' when playing in a widescreen aspect ratio and enabling cutscene FOV scaling. Otherwise, the letterboxing may crop off character heads when playing in widescreen. (Show = 0, Hide = 1, Auto = 3)</Description>
+        <Title>Bordas das Cutscenes</Title>
+        <Description>Escolha mostrar ou ocultar o "letterboxing" (Barras Pretas), das cenas renderizadas em tempo real. Defina como "Auto" para ativar o letterbox em proporções padrões e desativá-lo em proporções widescreen.&#x0a;&#x0a;Nota: O letterboxing das cenas renderizadas em tempo real deve ser oculto ou definido como "Auto" ao jogar em uma proporção de tela widescreen e ativar o dimensionamento FOV (Campo de Visão) da cena. Caso contrário, o letterbox pode cortar as cabeças dos personagens ao jogar em widescreen. (Mostrar = 0, Ocultar = 1, Auto = 3)</Description>
         <Choices type="list">
           <Value name="Auto" default="true">3</Value>
-          <Value name="Show">0</Value>
-          <Value name="Hide">1</Value>
+          <Value name="Mostrar">0</Value>
+          <Value name="Ocultar">1</Value>
         </Choices>
       </Feature>
 
@@ -109,10 +109,10 @@
           <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
-        
+
       <Feature name="SetBlackPillarBoxes">
         <Title>Restaurar pillarboxing</Title>
-        <Description>Principalmente corrige problemas ao visualizar o mapa. Este recurso força todas as "pillarboxing" a serem pretas dinamicamente, restaura as "pillarboxing" pretas para eventos que não as tinham e oculta as marcações do mapa atrás delas.</Description>
+        <Description>Corrige principalmente problemas ao visualizar o mapa. Este recurso força todas as "pillarboxing" a serem pretas dinamicamente, restaura as "pillarboxing" pretas para eventos que não as tinham e oculta as marcações do mapa atrás delas.</Description>
         <Choices type="check">
           <Value name="Desativar">0</Value>
           <Value name="Ativar" default="true">1</Value>
@@ -134,7 +134,7 @@
 
       <Feature name="FrontBufferControl">
         <Title>Captura de dados do buffer frontal</Title>
-        <Description>Determina como o jogo deve coletar os dados do buffer frontal usados ​​para os "fade outs" e a tela de pausa.&#x0a;&#x0a;Nota: O DirectX só funcionará em seu monitor principal. O DirectX pode ser necessário ao reproduzir no modo de tela cheia em determinados sistemas operacionais Windows mais antigos. Linux só funciona com DirectX. Recomenda-se manter isto em "Auto", a menos que você esteja enfrentando problemas visuais com os "fade outs" ou na tela de pausa.</Description>
+        <Description>Determina como o jogo deve coletar os dados do buffer frontal usados para os "fade outs" e a tela de pausa.&#x0a;&#x0a;Nota: O DirectX só funcionará em seu monitor principal. O DirectX pode ser necessário ao reproduzir no modo de tela cheia em determinados sistemas operacionais Windows mais antigos. Linux só funciona com DirectX. Recomenda-se manter isto em "Auto", a menos que você esteja enfrentando problemas visuais com os "fade outs" ou na tela de pausa.</Description>
         <Choices type="list">
           <Value name="Auto" default="true">0</Value>
           <Value name="Usar GDI">1</Value>
@@ -143,20 +143,20 @@
       </Feature>
 
       <Feature name="DisableMaximizedWindowedMode">
-        <Title>Disable Maximized Windowed Mode</Title>
-        <Description>Disables the Direct3D9 Maximized Windowed Mode feature on newer versions of Windows. Allows antialiasing to work in fullscreen mode.&#x0a;&#x0a;Requires running the game in DirectX 9 to work.</Description>
+        <Title>Desativar modo de janela maximizada</Title>
+        <Description>Desativa o recurso Modo de Janela Maximizada Direct3D9 em versões mais recentes do Windows. Permite que o anti-aliasing (antisserrilhamento) funcione no modo de tela cheia.&#x0a;&#x0a;Requer rodar o jogo em DirectX 9 para funcionar.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
 
       <Feature name="ForceHybridEnumeration">
-        <Title>Use dedicated graphics card</Title>
-        <Description>Attempts to use the secondary dedicated display adapter on a laptop with more than one GPU (hybrid video cards).&#x0a;&#x0a;Requires running the game in DirectX 9 to work.</Description>
+        <Title>Usar placa gráfica dedicada</Title>
+        <Description>Tenta usar o adaptador de vídeo dedicado secundário em um laptop com mais de uma GPU (placas de vídeo híbridas).&#x0a;&#x0a;Requer rodar o jogo em DirectX 9 para funcionar.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -175,7 +175,7 @@
 
       <Feature name="EnableSMAA">
         <Title>SMAA (anti-aliasing)</Title>
-        <Description>Ativa o anti-aliasing morfológico de subpixel (SMAA).&#x0a;&#x0a;Nota: Recomenda-se desativar isso se estiver usando anti-aliasing baseado em GPU.</Description>
+        <Description>Ativa o anti-aliasing (antisserrilhamento) morfológico de subpixel (SMAA).&#x0a;&#x0a;Nota: Recomenda-se desativar isso se estiver usando anti-aliasing baseado em GPU.</Description>
         <Choices type="check">
           <Value name="Desativar" default="true">0</Value>
           <Value name="Ativar">1</Value>
@@ -231,15 +231,6 @@
         </Choices>
       </Feature>
 
-      <Feature name="FlashlightReflection">
-        <Title>Flashlight reflection</Title>
-        <Description>Creates a reflection of the flashlight on glass and glossy surfaces throughout the game.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="RestoreSpecialFX">
         <Title>Restaurar efeitos de pós-processamento</Title>
         <Description>Restaura os efeitos de pós-processamento às suas intensidades originais ao longo do jogo. Os efeitos incluem desfoque de profundidade de campo, desfoque de movimento, desfoque estático e pseudo bloom.</Description>
@@ -276,6 +267,24 @@
         </Choices>
       </Feature>
 
+      <Feature name="FlashlightReflection">
+        <Title>Reflexos da lanterna</Title>
+        <Description>Restaura o reflexo da lanterna nas vitrines da cidade à noite. Também cria reflexos em vidros adicionais e superfícies brilhantes durante o jogo.&#x0a;&#x0a;Nota: O pacote "Enhanced Edition Essential Files" do projeto deve ser usado em conjunto com este recurso para que a reflexão funcione.</Description>
+        <Choices type="check">
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="WaterEnhancedRender">
+        <Title>Visual da água aprimorado</Title>
+        <Description>Melhora a aparência geral dos efeitos de água usados ​​durante o jogo.</Description>
+        <Choices type="check">
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true">1</Value>
+        </Choices>
+      </Feature>
+
     </Section>
 
     <Section name="Filtro de Ruído">
@@ -301,7 +310,7 @@
 
       <Feature name="FmvSubtitlesNoiseFix">
         <Title>Renderizar legendas sobre o filtro de ruído durante FMVs</Title>
-        <Description>Corrige um problema em que o jogo renderizava as legendas por trás do filtro de ruído durante FMVs.</Description>
+        <Description>Corrige um problema em que o jogo renderizava as legendas por trás do filtro de ruído durante as FMVs.</Description>
         <Choices type="check">
           <Value name="Desativar">0</Value>
           <Value name="Ativar" default="true">1</Value>
@@ -349,11 +358,11 @@
       </Feature>
 
       <Feature name="ObservationDeckFogFix">
-        <Title>Extend observation deck fog</Title>
-        <Description>Horizontally extends the fog at the beginning observation deck so that it always fills the screen, up to a 16:9 aspect ratio, for a better presentation.&#x0a;&#x0a;Note: Modified obGB.fcl file must be present in "sh2e\bg\ob\" for this feature to display properly.</Description>
+        <Title>Ampliar a neblina no deck de observação</Title>
+        <Description>Amplia horizontalmente a neblina no deck de observação inicial para que ela sempre preencha a tela, até uma proporção de 16:9, para uma melhor apresentação.&#x0a;&#x0a;Nota: O arquivo obGB.fcl modificado deve estar presente em "sh2e\bg\ob\" para que este recurso seja exibido corretamente.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -367,13 +376,13 @@
 
       <Feature name="EnableSFXAddrHack">
         <Title>Permitir áudio de alta qualidade</Title>
-        <Description>Permite o uso de arquivos de áudio de alta qualidade. Deve ser ativado se estiver usando o pacote Audio Enhancement do projeto.</Description>
+        <Description>Permite o uso de arquivos de áudio de alta qualidade. Deve ser ativado se estiver usando o pacote "Audio Enhancement" do projeto.</Description>
         <Choices type="check">
           <Value name="Desativar">0</Value>
           <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
-        
+
       <Feature name="EnableCriWareReimplementation">
         <Title>Usar motor de streaming de áudio personalizado</Title>
         <Description>Este recurso substitui o problemático motor de streaming de áudio do jogo, o CRIWARE, por uma solução personalizada. Isso corrige o infame problema em que o áudio falhava e reproduzia um loop infinito de um segundo, o que inevitavelmente travava o jogo. Esse problema era o motivo pelo qual o jogo precisava ser executado em um único núcleo de processador antes desta correção. Com esta correção, o jogo pode rodar estável em vários núcleos com melhorias gerais de desempenho (como menos "engasgos" durante o jogo).</Description>
@@ -384,17 +393,8 @@
       </Feature>
 
       <Feature name="UseDSOAL">
-        <Title>Use DSOAL and OpenAL for EAX audio</Title>
-        <Description>Uses DSound to OpenAL and OpenAL soft to emulate EAX for newer operating systems that don't support EAX.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="EnableMasterVolume">
-        <Title>Adicionar controle de volume principal</Title>
-        <Description>Adiciona um controle de nível de volume ao menu de opções para controlar todo o áudio do jogo.</Description>
+        <Title>Usar DSOAL e OpenAL para áudio EAX</Title>
+        <Description>Usa DSound-to-OpenAL e OpenAL Soft para emular EAX para sistemas operacionais mais recentes que não suportam EAX. Ative este recurso para áudio binaural 3D para uma experiência mais envolvente.</Description>
         <Choices type="check">
           <Value name="Desativar">0</Value>
           <Value name="Ativar" default="true">1</Value>
@@ -433,42 +433,42 @@
       </Feature>
 
       <Feature name="PreserveSoundsOnLoad">
-        <Title>Preserve game save and load sound effects</Title>
-        <Description>Preserves the "game load" and "game save" sound effects when loading/saving while in-game. Otherwise, these sounds would be cut off prematurely under certain circumstances. Note: g_start.wav and save_sound.wav must be present in "sh2e\sound\extra\" for this feature to work.</Description>
+        <Title>Preservar efeitos sonoros de salvar e carregar</Title>
+        <Description>Preserva os efeitos sonoros de "carregamento" e "salvamento" ao carregar/salvar durante o jogo. Caso contrário, estes sons seriam cortados prematuramente em determinadas circunstâncias.&#x0a;&#x0a;Nota: g_start.wav e save_sound.wav devem estar presentes em "sh2e\sound\extra\" para que este recurso funcione.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
 
       <Feature name="MenuSoundsFix">
-        <Title>Restore selection sounds in menus</Title>
-        <Description>Adds selection sounds to menus that did not originally have them. Also restores selection sounds when navigating menu choices with the mouse. Affects the Pause menu, Movies menu, and various Options menus.</Description>
+        <Title>Restaurar sons de seleção dos menus</Title>
+        <Description>Adiciona sons de seleção a menus que originalmente não os possuíam. Também restaura sons de seleção ao navegar pelas opções de menu com o mouse. Afeta o menu "Pausa", o menu "Vídeos" e vários menus de Opções.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
 
     </Section>
 
-    <Section name="Bonus Audio">
+    <Section name="Áudio Bônus">
 
       <Feature name="FlashlightToggleSFX">
-        <Title>Restore missing flashlight sound effects</Title>
-        <Description>Enables a flashlight sound effect when turning the light on or off.  Note: flashlight_on.wav and flashlight_off.wav must be present in "sh2e\sound\extra\" for this feature to work.</Description>
+        <Title>Efeitos sonoros da lanterna</Title>
+        <Description>Ativa um efeito sonoro de lanterna ao ligar ou desligar a luz.&#x0a;&#x0a;Nota: flashlight_on.wav e flashlight_off.wav devem estar presentes em "sh2e\sound\extra\" para que este recurso funcione.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
 
       <Feature name="VHSAudioFix">
-        <Title>Restore uncensored VHS audio</Title>
-        <Description>Restores the uncensored audio for the VHS tape FMV.&#x0a;&#x0a;Note: You must have the correct version of this FMV that contains both the censored and uncensored audio tracks. If you do not, then only the original censored audio will play. You can obtain the correct version of this FMV by downloading the project's FMV Enhancement Pack.</Description>
+        <Title>Usar áudio alternativo e cortado da VHS</Title>
+        <Description>Reproduz uma faixa de áudio alternativa que foi cortada para a FMV da fita VHS. Recomendamos ativar isso apenas depois de ter terminado o jogo pelo menos uma vez.&#x0a;&#x0a;Nota: Você deve ter a versão correta deste FMV que contém ambas as faixas de áudio. Caso contrário, apenas o áudio original será reproduzido. Você pode obter a versão correta deste FMV baixando o "FMV Enhancement Pack" do projeto.</Description>
         <Choices type="check">
-          <Value name="Disable" default="true">0</Value>
-          <Value name="Enable">1</Value>
+          <Value name="Desativar" default="true">0</Value>
+          <Value name="Ativar">1</Value>
         </Choices>
       </Feature>
 
@@ -479,10 +479,10 @@
   <Tab name="Entradas">
 
     <Section name="Controles">
-        
-      <Feature name="RestoreSearchCamMovement">
+
+      <Feature name="RestoreSearchCamMovement" speedrun="true">
         <Title>Tipo de controle para câmera de busca</Title>
-        <Description>Restaura a funcionalidade correta do joystick para que os controles movam a câmera de busca. Altere a configuração dependendo do tipo de controle que você está usando.&#x0a;&#x0a;Nota: Se estiver usando o Xidi (software de suporte de controle), defina esta opção como "DirectInput".</Description>
+        <Description>Restaura a funcionalidade correta do controle para que os comandos movam a câmera de busca. Altere a configuração dependendo do tipo de controle que você está usando.&#x0a;&#x0a;Nota: Se estiver usando o Xidi (software de suporte de controle), defina esta opção como "DirectInput".</Description>
         <Choices type="list">
           <Value name="Desativar">0</Value>
           <Value name="XInput">1</Value>
@@ -491,14 +491,26 @@
         </Choices>
       </Feature>
 
-      <Feature name="DPadMovementFix">
+      <Feature name="DPadMovementFix" speedrun="true">
         <Title>Restaurar funções do D-pad</Title>
         <Description>Modo Movimento: O D-pad atuará como um bloco de movimento adicional para controlar James e navegar pelas seleções do menu.&#x0a;Modo Botão: O D-pad funcionará como botões adicionais do controle, permitindo que você atribua funções de jogo ao D-pad. Você NÃO poderá controlar James ou navegar pelos menus com o D-pad.&#x0a;Modo Híbrido: O D-pad atuará como botões adicionais do controle, permitindo que você atribua funções de jogo ao D-pad. Você NÃO poderá controlar James, mas PODERÁ navegar pelos menus com o D-pad.</Description>
         <Choices type="list">
-          <Value name="Disable">0</Value>
+          <Value name="Desativar">0</Value>
           <Value name="Modo Movimento" default="true">1</Value>
           <Value name="Modo Botão">3</Value>
           <Value name="Modo Híbrido">2</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="ReplaceButtonText" speedrun="true">
+        <Title>Ícones dos botões em Opções de Controle</Title>
+        <Description>Substitui o texto vago "Botão #" no menu Opções de Controle por ícones personalizados de botões de controles.&#x0a;&#x0a;Nota: controller_buttons_icons.png deve estar presente em "sh2e\pic\etc\" para que este recurso funcione.</Description>
+        <Choices type="list">
+          <Value name="Desativar">0</Value>
+          <Value name="Genérico" default="true">1</Value>
+          <Value name="Xbox">2</Value>
+          <Value name="PlayStation">3</Value>
+          <Value name="Nintendo">4</Value>
         </Choices>
       </Feature>
 
@@ -533,7 +545,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="PadNumber">
+      <Feature name="PadNumber" speedrun="true">
         <Title>ID de controle para vibração</Title>
         <Description>Define o ID do gamepad (controle) para vibrar. Normalmente "0" é o padrão para o jogo.</Description>
         <Choices type="list">
@@ -550,7 +562,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="RemoveForceFeedbackFilter">
+      <Feature name="RemoveForceFeedbackFilter" speedrun="true">
         <Title>Remover filtro "Force Feedback"</Title>
         <Description>Permite que controles sem "Force Feedback" sejam detectados durante a verificação de controle do jogo. Use esta opção se um controle sem "Force Feedback" não estiver sendo detectado pelo jogo.</Description>
         <Choices type="list">
@@ -563,8 +575,8 @@
     </Section>
 
     <Section name="Mouse">
-      
-      <Feature name="EnableEnhancedMouse">
+
+      <Feature name="EnableEnhancedMouse" speedrun="true">
         <Title>Aprimorar entrada do mouse</Title>
         <Description>Ativa o suporte do mouse durante o jogo regular. Movimento do mouse = Controla o personagem e a câmera de busca. Clique esquerdo = Ação/Confirmar. Clique direito = Preparar Arma/Cancelar.</Description>
         <Choices type="check">
@@ -573,7 +585,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="EnableMouseWheelSwap">
+      <Feature name="EnableMouseWheelSwap" speedrun="true">
         <Title>Ativar troca de armas do mouse</Title>
         <Description>Ativa o suporte de roda do mouse durante o jogo regular. Role a roda do mouse para cima ou para baixo para alternar entre as armas disponíveis.</Description>
         <Choices type="check">
@@ -583,23 +595,23 @@
       </Feature>
 
       <Feature name="EnhanceMouseCursor">
-        <Title>Enable mouse cursor navigation in menus</Title>
-        <Description>Enables mouse cursor navigation in menus such as the pause menu and memo list.</Description>
+        <Title>Ativar navegação do mouse nos menus</Title>
+        <Description>Permite a navegação do cursor do mouse em menus, como o menu de pausa e a lista de notas.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
 
       <Feature name="AutoHideMouseCursor">
-        <Title>Hide mouse cursor when idle</Title>
-        <Description>Hides the mouse cursor after a few seconds of inactivity, in menus where the cursor is enabled.</Description>
+        <Title>Ocultar o cursor do mouse quando inativo</Title>
+        <Description>Oculta o cursor do mouse após alguns segundos de inatividade: nos menus onde o cursor está habilitado.</Description>
         <Choices type="check">
-          <Value name="Disable" default="true">0</Value>
-          <Value name="Enable">1</Value>
+          <Value name="Desativar" default="true">0</Value>
+          <Value name="Ativar">1</Value>
         </Choices>
       </Feature>
-    
+
     </Section>
 
   </Tab>
@@ -659,23 +671,32 @@
 
     </Section>
 
-    <Section name="Menu Additions">
+    <Section name="Adições ao Menu">
 
-      <Feature name="DisplayModeOption">
-        <Title>Display mode option</Title>
-        <Description>Replaces the Options > Advanced Options > Low Res Texture option with a Display Mode option to change the screen mode used for the game.</Description>
+      <Feature name="EnableMasterVolume">
+        <Title>Opção de volume principal</Title>
+        <Description>Adiciona um controle de nível de volume principal ao menu de Opções do jogo para controlar todo o áudio do jogo.&#x0a;&#x0a;Nota: .\sh2e\resources\r_menu_*.res deve estar presente no diretório do jogo para que este recurso funcione.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
 
-      <Feature name="CustomAdvancedOptions">
-        <Title>Render resolution and health indicator options</Title>
-        <Description>Adds Render Resolution and Health Indicator options to the Options > Advanced Options menu.</Description>
+      <Feature name="DisplayModeOption">
+        <Title>Opção de modo de exibição</Title>
+        <Description>Substitui a opção "Opções > Opções Avançadas > Textura de Baixa Resolução" por uma opção de "Modo de Exibição" para alterar o modo de tela usado no jogo.&#x0a;&#x0a;Nota: O arquivo option_msg_*.mes deve estar presente em "sh2e\etc\message\" para que este recurso funcione.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="CustomAdvancedOptions">
+        <Title>Opções de resolução interna e indicador de saúde</Title>
+        <Description>Adiciona as opções de Resolução Interna e Indicador de Saúde ao menu Opções > Opções Avançadas.&#x0a;&#x0a;Nota: .\sh2e\resources\r_menu_*.res deve estar presente no diretório do jogo para que este recurso funcione.</Description>
+        <Choices type="check">
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -693,11 +714,11 @@
       </Feature>
 
       <Feature name="MainMenuInstantLoadOptions">
-        <Title>Instant load options on main menu</Title>
-        <Description>Removes the small delay before the LOAD and CONTINUE selections appear on the main menu.</Description>
+        <Title>Carregamento instantâneo no menu principal</Title>
+        <Description>Remove o pequeno atraso antes que as seleções "CARREGAR" e "CONTINUAR" apareçam no menu principal.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -714,7 +735,7 @@
         <Title>Desativar tela de pausa durante os fades</Title>
         <Description>Evita que o jogador abra o menu de pausa durante um "fade-in", o que, de outra forma, usaria uma captura de tela errada do jogo para a imagem de fundo do menu de pausa.</Description>
         <Choices type="check">
-          <Value name="Desativar">0</Value>
+          <Value name="Desativar" speedrun-default="true">0</Value>
           <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
@@ -756,23 +777,11 @@
       </Feature>
 
       <Feature name="LockSpeakerConfig">
-        <Title>Bloquear opção de configuração do alto-falante</Title>
-        <Description>Desativa a alteração do recurso de configuração de alto-falantes no menu em Opções > Opções Avançadas do jogo, pois, após o Windows XP, essa alteração deve ser feita através do painel de controle de som do Windows e não pode mais ser alterada em aplicativos (como este jogo). Se você tentar mudar isso através do menu Opções do jogo, ele simplesmente voltará ao que está sendo usado através do painel de controle de som do Windows.&#x0a;&#x0a;Nota: O arquivo "d3d8.res" deve estar presente no diretório do jogo para que este recurso funcione.</Description>
+        <Title>Bloquear configuração de alto-falantes</Title>
+        <Description>Desativa a alteração do recurso "Configuração de Alto-falantes" no menu Opções > Opções Avançadas do jogo, pois, após o Windows XP, essa alteração deve ser feita através do Painel de Controle de Som do Windows e não pode mais ser alterada em aplicativos (como este jogo). Se você tentar alterar isso através do menu Opções do jogo, ele retornará ao que está sendo usado no Painel de Controle de Som do Windows.&#x0a;&#x0a;Nota: .\sh2e\resources\r_menu_*.res deve estar presente no diretório do jogo para que este recurso funcione.</Description>
         <Choices type="check">
           <Value name="Desativar">0</Value>
           <Value name="Ativar" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="ReplaceButtonText">
-        <Title>Button icons in Control Options</Title>
-        <Description>Replaces the vague "Button #" text in the Control Options menu with custom controller button icons.&#x0a;&#x0a;Note: controller_buttons_icons.png must be present in "sh2e\pic\etc\" for this feature to work.</Description>
-        <Choices type="list">
-          <Value name="Disable">0</Value>
-          <Value name="Generic" default="true">1</Value>
-          <Value name="Xbox">2</Value>
-          <Value name="Playstation">3</Value>
-          <Value name="Nintendo">4</Value>
         </Choices>
       </Feature>
 
@@ -797,14 +806,14 @@
         <Title>Motosserra apenas em Novo Jogo+</Title>
         <Description>Impede que a motosserra apareça na primeira jogada, que é uma escolha de design pretendida pela desenvolvedora.</Description>
         <Choices type="check">
-          <Value name="Desativar">0</Value>
+          <Value name="Desativar" speedrun-default="true">0</Value>
           <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
 
       <Feature name="ChangeClosetSpawn">
         <Title>Alterar "spawn" do armário</Title>
-        <Description>Mantém James dentro do armário depois que a cena dos Apartamentos Wood Side no quarto 307 termina, para ajudar a guiar a atenção do jogador para a chave que há dentro.</Description>
+        <Description>Ativar este recurso mantém James dentro do armário depois que a cena dos Apartamentos Wood Side no quarto 307 termina, para ajudar a guiar a atenção do jogador para a chave que há dentro.</Description>
         <Choices type="check">
           <Value name="Desativar">0</Value>
           <Value name="Ativar" default="true">1</Value>
@@ -813,7 +822,7 @@
 
       <Feature name="EnableToggleSprint">
         <Title>Ativar alternância de corrida</Title>
-        <Description>Altera a seleção de movimento "Analógico" para "Alternar", encontrada no menu em Opções > Opções de Jogo. Esta opção permitirá que você alterne entre andar/correr, em vez de ter que segurar o botão. (O movimento analógico para controles é retido quando este recurso está ativado.)</Description>
+        <Description>Altera a seleção de movimento "Analógico" para "Alternar", encontrada no menu em Opções > Opções de Jogo. Esta opção permitirá que você alterne entre caminhar/correr, em vez de ter que segurar o botão. (O movimento analógico para controles é retido quando este recurso está ativado).</Description>
         <Choices type="check">
           <Value name="Desativar">0</Value>
           <Value name="Ativar" default="true">1</Value>
@@ -821,11 +830,11 @@
       </Feature>
 
       <Feature name="FireEscapeKeyFix">
-        <Title>Fire Escape Key Fix</Title>
-        <Description>Allows the fire escape key to be interacted with without the flashlight.</Description>
+        <Title>Correção da chave da saída de emergência</Title>
+        <Description>Permite interagir com a chave da saída de emergência sem a lanterna.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -875,11 +884,11 @@
       </Feature>
 
       <Feature name="BFaWAtticFix">
-        <Title>Fix glitchy shadow behavior</Title>
-        <Description>Fixes glitchy shadow behavior and improves/synchronizes the candle flame animation in the mansion's attic for Maria's campaign.</Description>
+        <Title>Corrigir comportamento problemático de sombras</Title>
+        <Description>Corrige o comportamento problemático das sombras e melhora/sincroniza a animação da chama da vela no sótão da mansão para a campanha de Maria.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -893,11 +902,11 @@
       </Feature>
 
       <Feature name="TeddyBearLookFix">
-        <Title>Fix looking at teddy bear after cutscene</Title>
-        <Description>Prevents James from looking at the teddy bear in the women's locker room on the second floor of Brookhaven Hospital after acquiring the bent needle.</Description>
+        <Title>Correção de olhar para o ursinho após a cena</Title>
+        <Description>Impede que James olhe para o ursinho de pelúcia no vestiário feminino do segundo andar do Hospital Brookhaven após adquirir a "Agulha Dobrada".</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -920,11 +929,11 @@
       </Feature>
 
       <Feature name="MothDrawOrderFix">
-        <Title>Fix moth draw order</Title>
-        <Description>Fixes a visual bug which causes the moths in Wood Side Apartments Room 202 and the final boss room to appear behind translucent objects such as glass.</Description>
+        <Title>Corrigir a ordem de desenho das mariposas</Title>
+        <Description>Corrige um bug visual que faz com que as mariposas no apartamento 202 do Wood Side Apartments, e na área do chefe final apareçam atrás de objetos translúcidos, como vidro.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -938,17 +947,17 @@
       </Feature>
 
       <Feature name="PuzzleAlignmentFixes">
-        <Title>Fix puzzle alignment issues</Title>
-        <Description>Fixes the coins used in the apartment puzzle from being misaligned in the hole slots. Fixes the boards used in the BfaW gravestone puzzle from being misaligned or distorted when rotated.</Description>
+        <Title>Corrigir problemas de alinhamento de enigmas</Title>
+        <Description>Evita que as moedas usadas no enigma do apartamento fiquem desalinhadas nos buracos. Corrige as placas usadas no enigma da lápide do cenário secundário, evitando que fiquem desalinhadas ou distorcidas quando giradas.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
 
       <Feature name="FixTownGateEvents">
-        <Title>Corrigir comentário do portão do beco oeste</Title>
-        <Description>Altera o comentário de James sobre o portão da Heaven's Night do beco à noite para refletir adequadamente o status do portão.</Description>
+        <Title>Corrigir comentários e aparência de portões</Title>
+        <Description>Remove visualmente a fechadura do portão do Wood Side Apartments assim que James entra. Altera o comentário de James sobre o portão de entrada do Wood Side Apartments e o portão dos fundos no "Noite do Céu" para refletir adequadamente o status do portão ao revisitá-los à noite.</Description>
         <Choices type="check">
           <Value name="Desativar">0</Value>
           <Value name="Ativar" default="true">1</Value>
@@ -964,12 +973,12 @@
         </Choices>
       </Feature>
 
-      <Feature name="EnableHoldToStomp">
-        <Title>Restore alternate stomp</Title>
-        <Description>Restores the secondary/alternate stomp animation. When nearby an enemy on the ground, press and quickly release the attack button to perform a kick. Press and hold the attack button to perform a stomp.</Description>
+      <Feature name="EnableHoldToStomp" speedrun="true">
+        <Title>Restaurar pisada alternativa</Title>
+        <Description>Restaura a animação de pisada secundária/alternativa. Quando estiver próximo de um inimigo no chão, pressione e solte rapidamente o botão de ataque para executar um chute. Pressione e segure o botão de ataque para dar uma pisada.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -992,8 +1001,8 @@
       </Feature>
 
       <Feature name="RowboatAnimationFix">
-        <Title>Various rowboat stage fixes</Title>
-        <Description>Fixes an issue with James' character model sometimes being placed erratically into the rowboat. Fixes an issue with the rowboat's speed being negatively affected if the Great Knife was equipped before entering the boat. Disables quick weapon swapping while on the boat to prevent animation breaking.</Description>
+        <Title>Várias correções na parte do barco</Title>
+        <Description>Corrige um problema com o modelo de James, que às vezes é colocado de forma errada no barco. Corrige um problema em que a velocidade do barco é afetada negativamente se a Faca Grande for equipada antes de entrar no barco. Desativa a troca rápida de armas enquanto estiver no barco para evitar quebras de animação.</Description>
         <Choices type="check">
           <Value name="Desativar">0</Value>
           <Value name="Ativar" default="true">1</Value>
@@ -1001,20 +1010,20 @@
       </Feature>
 
       <Feature name="FmvSubtitlesSyncFix">
-        <Title>Sync subtitles with FMV framerate</Title>
-        <Description>Adjusts the playback speed of subtitles to match the framerate of the FMV.</Description>
+        <Title>Sincronizar legendas com taxa de quadros de FMVs</Title>
+        <Description>Ajusta a velocidade de reprodução das legendas para corresponder à taxa de quadros dos FMVs.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
 
-      <Feature name="SwapLightHeavyAttack">
-        <Title>Swap light and heavy melee attack inputs</Title>
-        <Description>Swaps the priority of light and heavy attacks for melee weapons. Press and quickly release the attack button to perform a light attack. Press and hold the attack button to perform a heavy attack.</Description>
+      <Feature name="SwapLightHeavyAttack" speedrun="true">
+        <Title>Trocar ataques corpo a corpo leves e pesados</Title>
+        <Description>Troca a prioridade de ataques leves e pesados ​​de armas corpo a corpo. Pressione e solte rapidamente o botão de ataque para realizar um ataque leve. Pressione e segure o botão de ataque para realizar um ataque pesado.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -1027,12 +1036,12 @@
         </Choices>
       </Feature>
 
-      <Feature name="CenterPuzzleCursor">
-        <Title>Center puzzle mouse cursor</Title>
-        <Description>Center mouse cursor when entering a puzzle.</Description>
+      <Feature name="CenterPuzzleCursor" speedrun="true">
+        <Title>Centralizar cursor do mouse em enigmas</Title>
+        <Description>Centraliza o cursor do mouse ao entrar em um enigma.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -1048,8 +1057,8 @@
         <Title>Corrigir problemas de salvar/carregar</Title>
         <Description>Desativa o salvamento livre em algumas áreas, o que causaria problemas no jogo ao carregar o arquivo de volta nelas. Corrige bugs de salvamento rápido que podem travar o jogo ou corromper arquivos salvos.&#x0a;&#x0a;Nota: Este recurso afeta estratégias de salvamento rápido para speedrunning.</Description>
         <Choices type="check">
-          <Value name="Desativar">0</Value>
-          <Value name="Ativar" default="true">1</Value>
+          <Value name="Desativar" speedrun-set="true">0</Value>
+          <Value name="Ativar" default="true" speedrun-random="true">1</Value>
         </Choices>
       </Feature>
 
@@ -1061,7 +1070,7 @@
           <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
-	  
+
       <Feature name="QuickSaveTweaks">
         <Title>Correções visuais de salvamento rápido</Title>
         <Description>Correções cosméticas para o recurso de salvamento rápido do jogo. Sempre posiciona as notificações de salvamento rápido no canto inferior esquerdo da janela do jogo, independentemente da proporção usada. A cor codifica as notificações para facilitar a identificação do status (o roxo é bem-sucedido, o vermelho é malsucedido). Corrige um bug em que as notificações de salvamento rápido só ficavam na tela por alguns quadros.&#x0a;&#x0a;Nota: Este recurso NÃO afeta as estratégias de speedrunning e pode até ajudar, graças à correção do problema do texto que ficava ativo apenas por alguns quadros.</Description>
@@ -1084,12 +1093,12 @@
         </Choices>
       </Feature>
 
-      <Feature name="LowHealthIndicatorStyle">
-        <Title>Low health indicator style</Title>
-        <Description>Displays a visual indicator during normal gameplay when low on health.&#x0a;&#x0a;Red Cross: Displays a flashing red cross on the bottom right of the screen.&#x0a;Lower Vignette: Displays a flashing red vignette on the lower half of the screen. The lower your health, the brighter the vignette will become.&#x0a;&#x0a;Note: LowHealthFade.png must be present in "sh2e\pic\etc\" for the Lower Vignette visual to display.</Description>
+      <Feature name="LowHealthIndicatorStyle" speedrun="true">
+        <Title>Estilo de indicador de saúde baixa</Title>
+        <Description>Exibe um indicador visual durante o jogo quando a saúde está baixa.&#x0a;&#x0a;Cruz Vermelha: Exibe uma cruz vermelha piscando no canto inferior direito da tela.&#x0a;Vinheta Inferior: Exibe uma vinheta vermelha piscando na metade inferior da tela. Quanto menor for a sua saúde, mais brilhante se tornará a vinheta.&#x0a;&#x0a;Nota: LowHealthFade.png deve estar presente em "sh2e\pic\etc\" para que o visual da Vinheta Inferior seja exibido.</Description>
         <Choices type="list">
-          <Value name="Red Cross">1</Value>
-          <Value name="Lower Vignette" default="true">2</Value>
+          <Value name="Cruz Vermelha">1</Value>
+          <Value name="Vinheta Inferior" default="true">2</Value>
         </Choices>
       </Feature>
 
@@ -1161,7 +1170,7 @@
 
       <Feature name="LightingFix">
         <Title>Correção de iluminação</Title>
-        <Description>Restaura as configurações ambientais apropriadas para o final "Maria" e restaura as condições de iluminação para as árvores 3D nos finais "Despedida" e "Maria".</Description>
+        <Description>Restaura as configurações ambientais apropriadas para o final "Maria" e restaura as condições de iluminação para as árvores 3D nos finais "Partir" e "Maria".</Description>
         <Choices type="check">
           <Value name="Desativar">0</Value>
           <Value name="Ativar" default="true">1</Value>
@@ -1235,11 +1244,11 @@
       </Feature>
 
       <Feature name="EnableLangPath">
-        <Title>Use "lang" folder</Title>
-        <Description>Silent Hill 2: Enhanced Edition will read and use fonts and language files in the "lang" folder, rather than the "data" or "sh2e" folders, whenever possible. This allows custom language files to replace/overwrite original game files.&#x0a;&#x0a;Note: requires "Use custom 'sh2e' folder" to be enabled.</Description>
+        <Title>Usar pasta "lang"</Title>
+        <Description>Silent Hill 2: Enhanced Edition lerá e usará fontes e arquivos de idiomas na pasta "lang", em vez das pastas "data" ou "sh2e", sempre que possível. Isso permite que arquivos de idiomas personalizados substituam os arquivos originais do jogo.&#x0a;&#x0a;Nota: Requer que a opção "Usar pasta 'sh2e' personalizada" esteja ativada.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -1251,7 +1260,7 @@
           <Value name="Ativar" default="true">1</Value>
         </Choices>
       </Feature>
-        
+
       <Feature name="UsePS2LowResTextures">
         <Title>Desativar caminho "sh2e\pic\"</Title>
         <Description>Desativa o caminho "sh2e\pic\". Isso reverterá o jogo para usar as imagens originais em tela cheia de baixa resolução, enquanto ainda usa todos os outros arquivos/pastas encontrados na pasta "sh2e".&#x0a;&#x0a;Nota: Ativar o uso da pasta "sh2e" personalizada ainda é necessário para usar todos os outros arquivos/pastas encontrados nela.</Description>
@@ -1350,7 +1359,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="FixGPUAntiAliasing">
+      <Feature name="LegacyFixGPUAntiAliasing">
         <Title>Corrigir anti-aliasing de GPU</Title>
         <Description>Corrige problemas para placas de vídeo Nvidia, como sombras ausentes/incorretas, ao ativar o anti-aliasing por meio do painel de controle da GPU.</Description>
         <Choices type="check">
@@ -1412,6 +1421,24 @@
 
   </Tab>
 
+  <Tab name="Speedrun">
+
+    <Section name="Modo Speedrun">
+
+      <Feature name="SpeedrunMode" speedrun="true">
+        <Title>Modo Speedrun</Title>
+        <Description>Ativa o modo Speedrun para Silent Hill 2: Enhanced Edition. Escolha entre dois modos speedrun:&#x0a;&#x0a;Modo Aleatório Verdadeiro: As soluções dos enigmas não são mais determinadas por uma contagem de quadros iniciais e, em vez disso, serão sempre diferentes por enigma a cada nova jogada. Explorações/estratégias de salvamento rápido são desabilitadas neste modo.&#x0a;Modo Semente Definida: Cada corrida tem as mesmas soluções de enigmas definidas. Isso permite que você se concentre nos aspectos técnicos da corrida sem se preocupar com os enigmas RNG. Explorações/estratégias de salvamento rápido são mantidos neste modo.</Description>
+        <Choices type="list">
+          <Value name="Desativar" default="true">0</Value>
+          <Value name="Modo Aleatório Verdadeiro">1</Value>
+          <Value name="Modo Semente Definida">2</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
+  </Tab>
+
   <!-- ##################################################### -->
   <!-- ================== PROGRAM STRINGS ================== -->
   <!-- ##################################################### -->
@@ -1438,7 +1465,10 @@
     <S id="PRG_Sandbox"> [MODO LOCAL]</S>
     <S id="PRG_Extra">Extra</S>
     <S id="PRG_Extra_desc">Esta seção inclui todas as configurações adicionais que foram adicionadas manualmente ao arquivo de configuração de Silent Hill 2: Enhanced Edition (d3d8.ini).</S>
-	
+    <S id="PRG_Speedrun_enable">A ativação do Modo Speedrun substituirá e bloqueará várias configurações. Você deseja continuar?</S>
+    <S id="PRG_Speedrun_disable">Desativar o Modo Speedrun desbloqueará todas as configurações e definirá seus valores como padrão. Você deseja continuar?</S>
+    <S id="PRG_Speedrun_error">Erro: Inconsistências nas configurações, elas serão redefinidas para o padrão.</S>
+
   </Strings>
 
 </Config>

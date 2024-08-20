@@ -352,6 +352,32 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		// Save controller data
 		ControllerData = (DIJOYSTATE*)lpvData;
 
+		if (IsInFakeFadeout && FixHangOnEsc)
+		{
+			for (int i = 0; i < 32; i++)
+				ControllerData->rgbButtons[i] = KEY_CLEAR;
+
+			ControllerData->lRx = KEY_CLEAR;
+			ControllerData->lRy = KEY_CLEAR;
+			ControllerData->lRz = KEY_CLEAR;
+			ControllerData->lX = KEY_CLEAR;
+			ControllerData->lY = KEY_CLEAR;
+			ControllerData->lZ = KEY_CLEAR;
+
+			ControllerData->rglSlider[0] = KEY_CLEAR;
+			ControllerData->rglSlider[1] = KEY_CLEAR;
+
+			ControllerData->rgdwPOV[0] = 0xFFFF;
+			ControllerData->rgdwPOV[1] = 0xFFFF;
+			ControllerData->rgdwPOV[2] = 0xFFFF;
+			ControllerData->rgdwPOV[3] = 0xFFFF;
+
+			// Clear controller data
+			ControllerData = nullptr;
+
+			return;
+		}
+
 		// Clear the the pause button if a quicksave is in progress
 		if (GameLoadFix && (GetIsWritingQuicksave() == 1 || GetTextAddr() == 1))
 			ControllerData->rgbButtons[KeyBinds.GetPauseButtonBind()] = KEY_CLEAR;
@@ -506,12 +532,12 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		// Inject Key Presses
 
 		// Inject ready weapon or cancel based on context, on RMB press
-		if (EnableEnhancedMouse && GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTIONS_FMV && 
+		if (GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTIONS_FMV && 
 			GetEventIndex() != EVENT_GAME_FMV && GetCutsceneID() == CS_NONE)
 		{
-			if (RMB.State)
+			if (RMB.State && (EnableEnhancedMouse || EnhanceMouseCursor))
 			{
-				if (SetRMBAimFunction())
+				if (SetRMBAimFunction() && EnableEnhancedMouse)
 				{
 					SetKey(KeyBinds.GetKeyBind(KEY_READY_WEAPON));
 				}
@@ -525,7 +551,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		}
 
 		// Inject action, same condition as RMB but without CutsceneID == CS_NONE to enable input on FIE in the middle of cutscenes, eg Laura's letter in the hotel
-		if (EnableEnhancedMouse && GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTIONS_FMV &&
+		if ((EnableEnhancedMouse || EnhanceMouseCursor) && GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTIONS_FMV &&
 			GetEventIndex() != EVENT_GAME_FMV)
 		{
 			if (SetLMButton)
@@ -683,7 +709,7 @@ void PatchInputTweaks()
 	}
 
 	// Hooking the mouse visibility function
-	if (EnableEnhancedMouse)
+	if (EnableEnhancedMouse || EnhanceMouseCursor || ReplaceButtonText != BUTTON_ICONS_DISABLED)
 	{
 		orgDrawCursor.fun = injector::MakeCALL(GetDrawCursorPointer(), DrawCursor_Hook, true).get();
 		orgSetShowCursorFlag.fun = injector::MakeCALL(GetSetShowCursorPointer(), SetShowCursorFlag_Hook, true).get();

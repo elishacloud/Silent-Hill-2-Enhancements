@@ -75,6 +75,9 @@ LONG MaxControlDataWndSize;
 bool bHasChange;
 bool bIsCompiling;
 
+// speedrun
+std::string speedrunOptionName = "SpeedrunMode";
+
 // the xml
 CConfig cfg;
 
@@ -124,6 +127,9 @@ enum ProgramStrings
 	STR_SANDBOX,
 	STR_EXTRA,
 	STR_EXTRA_TEXT,
+	STR_SPEEDR_ENABLE,
+	STR_SPEEDR_DISABLE,
+	STR_SPEEDR_ERROR,
 };
 
 std::string GetPrgString(UINT id)
@@ -150,6 +156,9 @@ std::string GetPrgString(UINT id)
 		"PRG_Sandbox", " [SANDBOX MODE]",
 		"PRG_Extra", "Extra",
 		"PRG_Extra_desc", "This section includes any additional settings that were manually added to the Silent Hill 2: Enhanced Edition configuration file (d3d8.ini).",
+		"PRG_Speedrun_enable", "Enabling Speedrun Mode will overwrite and lock down various settings. Do you wish to proceed?",
+		"PRG_Speedrun_disable", "Disabling Speedrun Mode will unlock all settings and set their values to default. Do you wish to proceed?",
+		"PRG_Speedrun_error", "Error: Inconsistencies in settings, they will be reset to default.",
 	};
 
 	auto s = cfg.GetString(str[id].name);
@@ -165,6 +174,21 @@ std::string GetPrgString(UINT id)
 	if (id == STR_TITLE && ShowSandboxWarning)
 	{
 		return std::string(str[id].def + GetPrgString(STR_SANDBOX));
+	}
+
+	if (id == STR_TITLE)
+	{
+		std::string title = "";
+
+		if (cfg.FindAndGetValue(speedrunOptionName) != 0)
+		{
+			title.append("SPEEDRUN MODE"); //TODO string
+			title.append(" ");
+		}
+
+		title.append(str[id].def);
+
+		return title;
 	}
 
 	if (s.size())
@@ -411,6 +435,29 @@ std::shared_ptr<CCombined> MakeControl(CWnd &hParent, int section, int option, i
 	return c;
 }
 
+void CheckSpeedrunMode()
+{
+	int srValue = cfg.FindAndGetValue(speedrunOptionName);
+
+	for (auto ctrl : hCtrl)
+	{
+		bool enable = srValue == 0 || ctrl.get()->cValue->speedrunToggleable;
+
+		switch (ctrl.get()->uType)
+		{
+		case CCombined::TYPE_CHECK:
+			((CFieldCheck*)ctrl.get())->box.Enable(enable);
+			break;
+		case CCombined::TYPE_LIST:
+			((CFieldList*)ctrl.get())->Enable(enable);
+			break;
+		case CCombined::TYPE_TEXT:
+			((CFieldText*)ctrl.get())->Enable(enable);
+			break;
+		}
+	}
+}
+
 void PopulateTab(int section)
 {
 	uCurTab = section;
@@ -434,7 +481,7 @@ void PopulateTab(int section)
 
 	LONG Y = 20;
 
-	// process a group
+	// process a group (tab)
 	for (size_t i = 0, si = cfg.group[section].sub.size(), pos = 0; i < si; i++)
 	{
 		size_t count = cfg.group[section].sub[i].opt.size();
@@ -466,6 +513,8 @@ void PopulateTab(int section)
 	{
 		MessageBoxW(nullptr, L"Error: too many settings listed in tab!", GetPrgWString(STR_WARNING).c_str(), MB_OK);
 	}
+
+	CheckSpeedrunMode();
 }
 
 void UpdateTab(int section)
@@ -519,7 +568,7 @@ BOOL CenterWindow(HWND hwndWindow)
 	if (nX + nWidth > nScreenWidth) nX = nScreenWidth - nWidth;
 	if (nY + nHeight > nScreenHeight) nY = nScreenHeight - nHeight;
 
-	SetWindowPos(hwndWindow, NULL, nX, nY, nWidth, nHeight, SWP_NOSIZE | SWP_NOZORDER);
+	SetWindowPos(hwndWindow, HWND_TOPMOST, nX, nY, nWidth, nHeight, SWP_NOSIZE | SWP_NOZORDER);
 
 	return TRUE;
 }
@@ -609,8 +658,14 @@ void SetLanguage(DWORD RcData)
 	WriteRegistryStruct(L"Konami\\Silent Hill 2\\sh2e", L"LauncherLanguage", RRF_RT_REG_DWORD, (BYTE*)&RcData, sizeof(RcData));
 }
 
-void CheckForIniSave()
+void CheckForIniSave(bool force = false)
 {
+	if (force)
+	{
+		cfg.SaveIni(ini_file.c_str(), GetPrgWString(STR_INI_ERROR).c_str(), GetPrgWString(STR_ERROR).c_str());
+		return;
+	}
+
 	if (bHasChange)
 	{
 		if (MessageBoxW(hWnd, GetPrgWString(STR_UNSAVED_TEXT).c_str(), GetPrgWString(STR_WARNING).c_str(), MB_YESNO) == IDYES)
@@ -691,7 +746,7 @@ void GetAllExeFiles()
 	*pdest = '\0';
 
 	// Interate through all files in the folder
-	for (const auto&  entry : std::filesystem::directory_iterator(path))
+	for (const auto& entry : std::filesystem::directory_iterator(path))
 	{
 		if (!entry.is_directory())
 		{
@@ -743,6 +798,20 @@ bool RelaunchApp()
 	return false;
 }
 
+void SetOptionsDefaults(bool forceDefault = false, bool srAlreadyActive = false)
+{
+	auto srEnabled = cfg.FindAndGetValue(speedrunOptionName);
+
+	if (srEnabled && !forceDefault)
+	{
+		cfg.SetSpeedrunDefault(srEnabled, srAlreadyActive);
+	}
+	else
+	{
+		cfg.SetDefault();
+	}
+}
+
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	m_hModule = hInstance; // Store instance handle in our global variable
@@ -762,7 +831,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		RECT r, w;
 		GetClientRect(hWnd, &r);
 		GetWindowRect(hWnd, &w);
-		SetWindowPos(hWnd, NULL, 0, 0, (w.right - w.left) - r.right + rWidth, (w.bottom - w.top) - r.bottom + rHeight, SWP_NOMOVE | SWP_NOZORDER);
+		SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, (w.right - w.left) - r.right + rWidth, (w.bottom - w.top) - r.bottom + rHeight, SWP_NOMOVE | SWP_NOZORDER);
 	}
 
 	// set window location
@@ -844,6 +913,23 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
 
+	if (!cfg.CheckSpeedrunCoherency()) {
+
+		wchar_t SpeedrunSettingsInconsistencyString[MAX_PATH];
+		_snwprintf_s(SpeedrunSettingsInconsistencyString, MAX_PATH, _TRUNCATE, GetPrgWString(STR_SPEEDR_ERROR).c_str(), LangList[hDbLanguage.GetSelection()].Lang);
+		MessageBoxW(hWnd, SpeedrunSettingsInconsistencyString, GetPrgWString(STR_WARNING).c_str(), MB_OK);
+
+		SetChanges();
+
+		SetOptionsDefaults(true);
+
+		CheckForIniSave(true);
+		if (!RelaunchApp())
+		{
+			MessageBoxW(hWnd, GetPrgWString(STR_LANG_ERROR).c_str(), GetPrgWString(STR_ERROR).c_str(), MB_OK);
+		}
+	}
+
 	// populate the first tab
 	PopulateTab(0);
 
@@ -873,9 +959,44 @@ LRESULT CALLBACK TabProc(HWND hWndd, UINT Msg, WPARAM wParam, LPARAM lParam)
 			case CBN_SELCHANGE:	// catch selections
 			{
 				CCombined* wnd = reinterpret_cast<CCombined*>(GetWindowLongPtrW((HWND)lParam, GWLP_USERDATA));
+
 				int sel = wnd->GetSelection();
+
+				if (wnd->cValue->name == speedrunOptionName)
+				{
+					if (((sel != 0 && wnd->GetConfigValue() == 0) || (sel == 0 && wnd->GetConfigValue() != 0)))
+					{
+						wchar_t ConfirmSpeedrunToggle[MAX_PATH];
+						_snwprintf_s(ConfirmSpeedrunToggle, MAX_PATH, _TRUNCATE, GetPrgWString(sel == 0 ? STR_SPEEDR_DISABLE : STR_SPEEDR_ENABLE).c_str(), LangList[hDbLanguage.GetSelection()].Lang);
+						if (MessageBoxW(hWnd, ConfirmSpeedrunToggle, GetPrgWString(STR_WARNING).c_str(), MB_YESNO) == IDYES)
+						{
+							wnd->SetConfigValue(sel);
+							SetChanges();
+
+							SetOptionsDefaults();
+
+							CheckForIniSave(true);
+							if (!RelaunchApp())
+							{
+								MessageBoxW(hWnd, GetPrgWString(STR_LANG_ERROR).c_str(), GetPrgWString(STR_ERROR).c_str(), MB_OK);
+							}
+						}
+						else
+						{
+							wnd->SetSelection(wnd->GetConfigValue());
+							break;
+						}
+					}
+				}
+
 				wnd->SetConfigValue(sel);
 				SetChanges();
+
+				if (wnd->GetConfigValue() > 0 && sel > 0)
+				{
+					SetOptionsDefaults(false, true);
+					UpdateTab(hTab.GetCurSel());
+				}
 			}
 			break;
 			case BN_CLICKED:	// catch checkboxes
@@ -959,7 +1080,7 @@ LRESULT CALLBACK WndProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 				if (MessageBoxW(hWnd, GetPrgWString(STR_DEFAULT_CONFIRM).c_str(), GetPrgWString(STR_WARNING).c_str(), MB_YESNO) == IDYES)
 				{
 					SetChanges();
-					cfg.SetDefault();
+					SetOptionsDefaults();
 					UpdateTab(hTab.GetCurSel());
 				}
 				break;

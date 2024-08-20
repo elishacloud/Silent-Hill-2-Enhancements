@@ -21,6 +21,9 @@
 #include "Common\GfxUtils.h"
 #include "OptionsMenuTweaks.h"
 
+#include <filesystem>
+#include <fstream>
+
 bool DrawOptionsHookEnabled = false;
 bool wasInControlOptions = false;
 
@@ -214,6 +217,12 @@ void EnableDrawOptionsHook()
 
 void PatchMasterVolumeSlider()
 {
+    if (!CustomExeStrSet)
+    {
+        Logging::Log() << __FUNCTION__ << " Error: couldn't find the sh2e folder.";
+        return;
+    }
+
     // Initialize pointers
     ChangedOptionsCheckReturn = GetCheckForChangedOptionsPointer() + 0x0C;
 
@@ -882,6 +891,338 @@ void ButtonIcons::UpdateBinds()
     ButtonIconsRef.UpdateUVs();
 }
 
+// Health indicator option
+BYTE* SetOptionValueColorRetAddr = nullptr;
+BYTE* DisplayHealthIndicatorHighlightValueRetAddr = nullptr;
+BYTE* StoreSearchViewOptionRetAddr = nullptr;
+BYTE* CheckStoredOptionRetAddr = nullptr;
+BYTE* RestoreSearchViewOptionRetAddr = nullptr;
+BYTE* RestoreSearchViewOption2RetAddr = nullptr;
+BYTE* SetOptionValueColor2RetAddr = nullptr;
+BYTE* DivertSearchViewOptionChangeRetAddr = nullptr;
+BYTE* ConfirmOptionRetAddr = nullptr;
+BYTE* OverrideFileConfigSearchViewRetAddr = nullptr;
+
+injector::hook_back<void(__cdecl*)(uint16_t*, uint16_t, int32_t, int32_t)> orgPrintTextAtPosHI;
+injector::hook_back<char* (__cdecl*)(uint16_t*, uint16_t)> orgGetStringFromMes;
+
+DWORD MesPointer = NULL;
+
+BYTE* StoredHealthIndicatorValue = nullptr;
+int8_t HealthIndicatorValue = 0;
+
+__declspec(naked) void __stdcall DivertSearchViewOptionChange()
+{
+    __asm
+    {
+        mov al, [HealthIndicatorValue]
+        mov dl, 0x01
+        sub dl, al
+        mov byte ptr[HealthIndicatorValue], dl
+   
+        jmp DivertSearchViewOptionChangeRetAddr
+    }
+}
+
+__declspec(naked) void __stdcall DivertSearchViewOptionChangeDC()
+{
+    __asm
+    {
+        mov cl, [HealthIndicatorValue]
+        mov al, 0x01
+        sub al, cl
+        mov byte ptr[HealthIndicatorValue], al
+
+        jmp DivertSearchViewOptionChangeRetAddr
+    }
+}
+
+__declspec(naked) void __stdcall SetHIOptionValueColor()
+{
+    __asm
+    {
+        mov dl, byte ptr[HealthIndicatorValue]
+        mov cl, byte ptr[StoredHealthIndicatorValue]
+
+        jmp SetOptionValueColorRetAddr
+    }
+}
+
+void SetHealthIndicatorOption()
+{
+    ConfigData.HealthIndicatorOption = HealthIndicatorValue;
+
+    // Check if the health indicator value changes
+    if (DisableRedCross != !ConfigData.HealthIndicatorOption)
+    {
+        DisableRedCross = !ConfigData.HealthIndicatorOption;
+
+        SaveConfigData();
+    }
+}
+
+__declspec(naked) void __stdcall ConfirmOptionHI()
+{
+    __asm
+    {
+        pushfd
+        pushad
+        call SetHealthIndicatorOption
+        popad
+        popfd
+
+        mov al, 0x01
+
+        push 0x3f800000
+
+        jmp ConfirmOptionRetAddr
+    }
+}
+
+__declspec(naked) void __stdcall SetHIOptionValueColor2()
+{
+    __asm
+    {
+        mov dl, byte ptr[StoredHealthIndicatorValue]
+        cmp dl, byte ptr[HealthIndicatorValue]
+
+        jmp SetOptionValueColor2RetAddr
+    }
+}
+
+__declspec(naked) void __stdcall StoreSearchViewOption()
+{
+    __asm
+    {
+        mov al, byte ptr[HealthIndicatorValue]
+        mov byte ptr[StoredHealthIndicatorValue], al
+
+        jmp StoreSearchViewOptionRetAddr
+    }
+}
+
+__declspec(naked) void __stdcall CheckStoredOption()
+{
+    __asm
+    {
+        mov cl, byte ptr[StoredHealthIndicatorValue]
+        cmp cl, byte ptr[HealthIndicatorValue]
+
+        jmp CheckStoredOptionRetAddr
+    }
+}
+
+__declspec(naked) void __stdcall RestoreSearchViewOption()
+{
+    __asm
+    {
+        mov cl, byte ptr[StoredHealthIndicatorValue]
+        mov byte ptr[HealthIndicatorValue], cl
+
+        jmp RestoreSearchViewOptionRetAddr
+    }
+}
+
+__declspec(naked) void __stdcall RestoreSearchViewOption2()
+{
+    __asm
+    {
+        mov cl, byte ptr[StoredHealthIndicatorValue]
+        mov byte ptr[HealthIndicatorValue], cl
+
+        jmp RestoreSearchViewOption2RetAddr
+    }
+}
+
+__declspec(naked) void __stdcall OverrideFileConfigSearchView()
+{
+    __asm
+    {
+        mov al, 0x00
+
+        jmp OverrideFileConfigSearchViewRetAddr
+    }
+}
+
+void PrintOnStr(uint16_t* MesStringsPtr, int32_t yPos, int32_t xPos)
+{
+    orgPrintTextAtPosHI.fun(MesStringsPtr, 0xB1, yPos, xPos);
+}
+
+void PrintOffStr(uint16_t* MesStringsPtr, int32_t yPos, int32_t xPos)
+{
+    orgPrintTextAtPosHI.fun(MesStringsPtr, 0xB0, yPos, xPos);
+}
+
+#pragma warning(disable : 4100)
+void __cdecl PrintOnStrSearchView_Hook(uint16_t* MesStringsPtr, uint16_t StringOffset, int32_t yPos, int32_t xPos)
+{
+    PrintOnStr(MesStringsPtr, yPos, xPos);
+}
+
+#pragma warning(disable : 4100)
+void __cdecl PrintOffStrSearchView_Hook(uint16_t* MesStringsPtr, uint16_t StringOffset, int32_t yPos, int32_t xPos)
+{
+    PrintOffStr(MesStringsPtr, yPos, xPos);
+}
+
+#pragma warning(disable : 4100)
+void __cdecl PrintSearchViewOptionValue_Hook(uint16_t* MesStringsPtr, uint16_t StringOffset, int32_t yPos, int32_t xPos)
+{
+    if (HealthIndicatorValue == 0)
+    {
+        PrintOffStr(MesStringsPtr, yPos, xPos);
+    }
+    else
+    {
+        PrintOnStr(MesStringsPtr, yPos, xPos);
+    }
+}
+
+#pragma warning(disable : 4100)
+char* __cdecl GetStringFromOffsetSearchView_Hook(uint16_t* ptr, uint16_t offset)
+{
+
+    if (HealthIndicatorValue == 0)
+    {
+        return orgGetStringFromMes.fun(ptr, 0xB0);
+    }
+    else
+    {
+        return orgGetStringFromMes.fun(ptr, 0xB1);
+    }
+}
+
+void PatchHealthIndicatorOption()
+{
+    if (!CustomExeStrSet)
+    {
+        Logging::Log() << __FUNCTION__ << " Error: couldn't find the sh2e folder.";
+        return;
+    }
+
+    HealthIndicatorValue = ConfigData.HealthIndicatorOption;
+
+    DWORD OverrideFileConfigSearchViewAddr =    GameVersion == SH2V_10 ? 0x00408571 :
+                                                GameVersion == SH2V_11 ? 0x004086D1 :
+                                                GameVersion == SH2V_DC ? 0x004086E1 : NULL;
+    OverrideFileConfigSearchViewRetAddr = (BYTE*)OverrideFileConfigSearchViewAddr + 0x05;
+
+    // ini save
+    DWORD SearchViewSave =                      GameVersion == SH2V_10 ? 0x0046988D :
+                                                GameVersion == SH2V_11 ? 0x00469B2D :
+                                                GameVersion == SH2V_DC ? 0x00469D3D : NULL;
+  
+    // highlight
+    DWORD PrintOnStrSearchViewAddr =    GameVersion == SH2V_10 ? 0x0046223F :
+                                        GameVersion == SH2V_11 ? 0x004624A1 :
+                                        GameVersion == SH2V_DC ? 0x004624A1 : NULL;
+    BYTE* PrintOffStrSearchViewAddr = (BYTE*)PrintOnStrSearchViewAddr + 0x16;
+    // value
+    DWORD PrintSearchViewOptionValueAddr =  GameVersion == SH2V_10 ? 0x00461FC9 :
+                                            GameVersion == SH2V_11 ? 0x0046223B :
+                                            GameVersion == SH2V_DC ? 0x0046223B : NULL;
+
+    // arrow
+    DWORD GetStringFromOffsetAddr = GameVersion == SH2V_10 ? 0x004645C1 :
+                                    GameVersion == SH2V_11 ? 0x0046483A :
+                                    GameVersion == SH2V_DC ? 0x00464A45 : NULL;
+
+    DWORD StoreSearchViewOptionAddr =   GameVersion == SH2V_10 ? 0x00462CBE :
+                                        GameVersion == SH2V_11 ? 0x00462F2E :
+                                        GameVersion == SH2V_DC ? 0x00462F2E : NULL;
+    StoreSearchViewOptionRetAddr = (BYTE*)StoreSearchViewOptionAddr + 0x05;
+
+    DWORD CheckStoredOptionAddr =   GameVersion == SH2V_10 ? 0x004632A4 :
+                                    GameVersion == SH2V_11 ? 0x00463514 :
+                                    GameVersion == SH2V_DC ? 0x0046351F : NULL;
+    CheckStoredOptionRetAddr = (BYTE*)CheckStoredOptionAddr + 0x06;
+
+    DWORD RestoreSearchViewOptionAddr = GameVersion == SH2V_10 ? 0x004635C3 :
+                                        GameVersion == SH2V_11 ? 0x00463833 :
+                                        GameVersion == SH2V_DC ? 0x00463849 : NULL;
+    RestoreSearchViewOptionRetAddr = (BYTE*)RestoreSearchViewOptionAddr + 0x06;
+
+    DWORD RestoreSearchViewOption2Addr =    GameVersion == SH2V_10 ? 0x00463792 :
+                                            GameVersion == SH2V_11 ? 0x00463A02 :
+                                            GameVersion == SH2V_DC ? 0x00463A1C : NULL;
+    RestoreSearchViewOption2RetAddr = (BYTE*)RestoreSearchViewOption2Addr + 0x06;
+
+    MesPointer =    GameVersion == SH2V_10 ? 0x00932B58 :
+                    GameVersion == SH2V_11 ? 0x00936758 :
+                    GameVersion == SH2V_DC ? 0x00935758 : NULL;
+
+    DWORD SetOptionValueColorAddr = GameVersion == SH2V_10 ? 0x0046220E :
+                                    GameVersion == SH2V_11 ? 0x00462470 :
+                                    GameVersion == SH2V_DC ? 0x00462470 : NULL;
+    SetOptionValueColorRetAddr = (BYTE*)SetOptionValueColorAddr + 0x06;
+
+    DWORD SetOptionValueColor2Addr =    GameVersion == SH2V_10 ? 0x00461F85 :
+                                        GameVersion == SH2V_11 ? 0x004621F7 :
+                                        GameVersion == SH2V_DC ? 0x004621F7 : NULL;
+    SetOptionValueColor2RetAddr = (BYTE*)SetOptionValueColor2Addr + 0x0C;
+
+    DWORD DivertSearchViewOptionChangeAddr =    GameVersion == SH2V_10 ? 0x00464665 :
+                                                GameVersion == SH2V_11 ? 0x004648DE :
+                                                GameVersion == SH2V_DC ? 0x00464AEB : NULL;
+    DivertSearchViewOptionChangeRetAddr = (BYTE*)DivertSearchViewOptionChangeAddr + 0x0F;
+
+    DWORD ConfirmOptionAddr =   GameVersion == SH2V_10 ? 0x00463886 :
+                                GameVersion == SH2V_11 ? 0x00463AF6 :
+                                GameVersion == SH2V_DC ? 0x00463B14 : NULL;
+    ConfirmOptionRetAddr = (BYTE*)ConfirmOptionAddr + 0x05;
+
+    if (*(BYTE*)OverrideFileConfigSearchViewAddr != 0xA0 || *(BYTE*)PrintOnStrSearchViewAddr != 0xE8 || *(BYTE*)PrintSearchViewOptionValueAddr != 0xE8 ||
+        *(BYTE*)GetStringFromOffsetAddr != 0xE8 || *(BYTE*)StoreSearchViewOptionAddr != 0xA2 || *(BYTE*)CheckStoredOptionAddr != 0x3A ||
+        *(BYTE*)RestoreSearchViewOptionAddr != 0x88 || *(BYTE*)RestoreSearchViewOption2Addr != 0x88 || *(BYTE*)SetOptionValueColorAddr != 0x8A ||
+        *(BYTE*)SetOptionValueColor2Addr != 0x8A || (*(BYTE*)DivertSearchViewOptionChangeAddr != 0xA0 && *(BYTE*)DivertSearchViewOptionChangeAddr != 0x8A) ||
+        *(BYTE*)ConfirmOptionAddr != 0x68 || *(BYTE*)SearchViewSave != 0x89)
+    {
+        Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+
+        return;
+    }
+
+    // Override the option value stored in ini file
+    WriteJMPtoMemory((BYTE*)OverrideFileConfigSearchViewAddr, OverrideFileConfigSearchView, 0x05);
+
+    // Divert option change
+    if (GameVersion != SH2V_DC)
+    {
+        WriteJMPtoMemory((BYTE*)DivertSearchViewOptionChangeAddr, DivertSearchViewOptionChange, 0x0F);
+    }
+    else
+    {
+        WriteJMPtoMemory((BYTE*)DivertSearchViewOptionChangeAddr, DivertSearchViewOptionChangeDC, 0x0F);
+    }
+
+    // Divert string drawing
+    orgPrintTextAtPosHI.fun = injector::MakeCALL(PrintOnStrSearchViewAddr, PrintSearchViewOptionValue_Hook, true).get();
+    injector::MakeCALL(PrintOffStrSearchViewAddr, PrintSearchViewOptionValue_Hook, true);
+    injector::MakeCALL(PrintSearchViewOptionValueAddr, PrintSearchViewOptionValue_Hook, true);
+
+    // Divert check for changed option
+    WriteJMPtoMemory((BYTE*)SetOptionValueColorAddr, SetHIOptionValueColor, 0x0C);
+    WriteJMPtoMemory((BYTE*)SetOptionValueColor2Addr, SetHIOptionValueColor2, 0x06);
+
+    // hook get string, to move the arrow
+    orgGetStringFromMes.fun = injector::MakeCALL(GetStringFromOffsetAddr, GetStringFromOffsetSearchView_Hook, true).get();
+
+    // Hook option storing
+    WriteJMPtoMemory((BYTE*)StoreSearchViewOptionAddr, StoreSearchViewOption, 0x05);
+    
+    // Prevent storage of search view changes
+    UpdateMemoryAddress((BYTE*)SearchViewSave, "\x90\x90\x90\x90\x90\x90", 0x06);
+
+    // Override option change check
+    WriteJMPtoMemory((BYTE*)CheckStoredOptionAddr, CheckStoredOption, 0x06);
+    WriteJMPtoMemory((BYTE*)RestoreSearchViewOptionAddr, RestoreSearchViewOption, 0x06);
+    WriteJMPtoMemory((BYTE*)RestoreSearchViewOption2Addr, RestoreSearchViewOption2, 0x06);
+
+    // Check confirm options to save on cfg file
+    WriteJMPtoMemory((BYTE*)ConfirmOptionAddr, ConfirmOptionHI, 0x05);
+}
+
 // Display mode
 BYTE* DisplayModeArrowRetAddr = nullptr;
 BYTE* DisplayModeValueHighlightRetAddr = nullptr;
@@ -1139,6 +1480,60 @@ __declspec(naked) void __stdcall ConditionChangeFive()
     }
 }
 
+bool AreDisplayModeStringsPresent()
+{
+    const int16_t MinMesSize = 0x103;
+
+    char FileName[MAX_PATH];
+    std::filesystem::path path = GetFileModPath("data\\etc\\message", FileName);
+
+    if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path))
+    {
+        Logging::Log() << __FUNCTION__ << " Error: Couldn't find mes file directory.";
+        return false;
+    }
+
+    std::vector<std::filesystem::path> files;
+
+    for (const auto& item : std::filesystem::directory_iterator(path))
+    {
+        if (std::filesystem::is_regular_file(item.path()) && item.path().string().find("option_msg_") != std::string::npos)
+        {
+            files.push_back(item.path());
+        }
+    }
+
+    if (files.empty())
+    {
+        Logging::Log() << __FUNCTION__ << " Error: No option mes files in message directory.";
+        return false;
+    }
+
+    for (auto item : files)
+    {
+        std::ifstream file(item);
+
+        if (!file.is_open())
+        {
+            Logging::Log() << __FUNCTION__ << " Error: Couldn't open mes file.";
+            return false;
+        }
+
+        char data[2];
+        file.read(data, 2);
+
+        int16_t temp = (data[1] * 0x100) + data[0];
+
+        if (temp < MinMesSize)
+        {
+            Logging::Log() << __FUNCTION__ << " Error: File " << item << " doesn't have enough strings.";
+            return false;
+        }
+    }
+
+    return true;
+}
+
 #pragma warning(disable : 4100)
 void __cdecl PrintDisplayModeDescription_Hook(uint16_t* MesStringsPtr, uint16_t StringOffset, int32_t yPos, int32_t xPos)
 {
@@ -1152,6 +1547,12 @@ void SetNewDisplayModeSetting()
 
 void PatchDisplayMode()
 {
+    if (!AreDisplayModeStringsPresent())
+    {
+        Logging::Log() << __FUNCTION__ << " .mes files validation failed, disabling the display mode option feature.";
+        return;
+    }
+
     SetNewDisplayModeSetting();
 
     DWORD LowResTextureUse =    GameVersion == SH2V_10 ? 0x00459124 :

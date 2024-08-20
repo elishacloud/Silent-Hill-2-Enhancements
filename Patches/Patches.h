@@ -368,6 +368,12 @@ typedef enum _ROOMID {
 	R_BFAW_MARIA_ROOM = 0xD5,
 } ROOMID;
 
+typedef enum _CONTROL_TYPE
+{
+	ROTATIONAL_CONTROL,
+	DIRECTIONAL_CONTROL,
+} CONTROL_TYPE;
+
 enum class ModelID;
 
 // Shared function declaration

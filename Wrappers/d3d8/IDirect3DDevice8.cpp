@@ -37,7 +37,7 @@ extern DWORD g_WaterVSBytecode[];
 extern DWORD g_WaterPSBytecode[];
 extern DWORD vsDeclWater[];
 extern void WaterEnhancedReleaseScreenCopy();
-extern HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 ProxyInterface, D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, const void* pVertexStreamZeroData, UINT VertexStreamZeroStride);
+extern HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 ProxyInterface, LPDIRECT3DSURFACE8 pRenderTarget, D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, const void* pVertexStreamZeroData, UINT VertexStreamZeroStride);
 
 bool DeviceLost = false;
 bool DisableShaderOnPresent = false;
@@ -710,13 +710,12 @@ HRESULT m_IDirect3DDevice8::GetRenderTarget(THIS_ IDirect3DSurface8** ppRenderTa
 
 	if (SUCCEEDED(hr) && ppRenderTarget)
 	{
-        // iOrange: TODO - how to avoid for the water ???
-		//if (IsScaledResolutionsEnabled() && *ppRenderTarget == pAutoRenderTarget)
-		//{
-		//	(*ppRenderTarget)->Release();
-		//	*ppRenderTarget = pAutoRenderSurfaceMirror;
-		//	pAutoRenderSurfaceMirror->AddRef();
-		//}
+		if (IsScaledResolutionsEnabled() && *ppRenderTarget == pAutoRenderTarget)
+		{
+			(*ppRenderTarget)->Release();
+			*ppRenderTarget = pAutoRenderSurfaceMirror;
+			pAutoRenderSurfaceMirror->AddRef();
+		}
 		*ppRenderTarget = ProxyAddressLookupTableD3d8->FindAddress<m_IDirect3DSurface8>(*ppRenderTarget);
 	}
 
@@ -2189,12 +2188,21 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 
     if (WaterEnhancedRender)
     {
-        HRESULT hr = DrawWaterEnhanced(NeedToGrabScreenForWater, this, PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride);
+		LPDIRECT3DSURFACE8 backBufferSurface = nullptr;
+		if (SUCCEEDED(ProxyInterface->GetRenderTarget(&backBufferSurface)))
+		{
+			backBufferSurface = ProxyAddressLookupTableD3d8->FindAddress<m_IDirect3DSurface8>(backBufferSurface);
+		}
+        HRESULT hr = DrawWaterEnhanced(NeedToGrabScreenForWater, this, backBufferSurface, PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride);
         if (hr != -1)
         {
             NeedToGrabScreenForWater = false;
             return hr;
         }
+		if (backBufferSurface)
+		{
+			backBufferSurface->Release();
+		}
     }
 
 	return ProxyInterface->DrawPrimitiveUP(PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride);

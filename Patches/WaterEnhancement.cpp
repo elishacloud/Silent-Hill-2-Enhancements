@@ -168,10 +168,8 @@ static bool CompareSurfaceDescs(const D3DSURFACE_DESC& a, const D3DSURFACE_DESC&
     return a.Format == b.Format && a.Width == b.Width && a.Height == b.Height;
 }
 
-static void WaterEnhancedGrabScreen(LPDIRECT3DDEVICE8 Device) {
-    IUnknownPtr<IDirect3DSurface8> backBufferSurface;
-    HRESULT hr = Device->GetRenderTarget(backBufferSurface.ReleaseAndGetAddressOf());
-    if (SUCCEEDED(hr)) {
+static void WaterEnhancedGrabScreen(LPDIRECT3DDEVICE8 Device, LPDIRECT3DSURFACE8 backBufferSurface) {
+    if (backBufferSurface) {
         D3DSURFACE_DESC desc = {};
         backBufferSurface->GetDesc(&desc);
 
@@ -181,7 +179,7 @@ static void WaterEnhancedGrabScreen(LPDIRECT3DDEVICE8 Device) {
             SafeRelease(g_ScreenCopySurface);
             SafeRelease(g_ScreenCopyTexture);
 
-            hr = Device->CreateTexture(desc.Width, desc.Height, 1, D3DUSAGE_RENDERTARGET, desc.Format, D3DPOOL_DEFAULT, &g_ScreenCopyTexture);
+            HRESULT hr = Device->CreateTexture(desc.Width, desc.Height, 1, D3DUSAGE_RENDERTARGET, desc.Format, D3DPOOL_DEFAULT, &g_ScreenCopyTexture);
             if (FAILED(hr)) {
                 return;
             }
@@ -192,15 +190,10 @@ static void WaterEnhancedGrabScreen(LPDIRECT3DDEVICE8 Device) {
                 SafeRelease(g_ScreenCopyTexture);
                 return;
             }
-
-            D3DSURFACE_DESC newDesc = {};
-            g_ScreenCopySurface->GetDesc(&newDesc);
-
-            newDesc.Pool = newDesc.Pool;
         }
 
         if (g_ScreenCopySurface) {
-            hr = Device->CopyRects(backBufferSurface.GetPtr(), nullptr, 0, g_ScreenCopySurface, nullptr);
+            Device->CopyRects(backBufferSurface, nullptr, 0, g_ScreenCopySurface, nullptr);
         }
     }
 }
@@ -335,7 +328,7 @@ static void GetWaterConstantsByRoom(D3DXVECTOR4& specMult, D3DXVECTOR4& specUvMu
     }
 }
 
-HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 Device, D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, const void* pVertexStreamZeroData, UINT VertexStreamZeroStride) {
+HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 Device, LPDIRECT3DSURFACE8 backBufferSurface, D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, const void* pVertexStreamZeroData, UINT VertexStreamZeroStride) {
     DWORD colorOp0 = 0;
     Device->GetTextureStageState(0, D3DTSS_COLOROP, &colorOp0);
 
@@ -347,7 +340,7 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 Devic
 
         if ((currVS == WATER_VSHADER_ORIGINAL || currVS == WATER_FVF) && currPS == 0u && g_WaterVSHandle != 0u && g_WaterPSHandle != 0u) {
             if (needToGrabScreenForWater) {
-                WaterEnhancedGrabScreen(Device);
+                WaterEnhancedGrabScreen(Device, backBufferSurface);
             }
             LoadWaterUtilityTextures(Device);
 

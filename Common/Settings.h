@@ -262,12 +262,18 @@
 	visit(QuickSaveCancelFix) \
 	visit(ResX) \
 	visit(ResY) \
+	visit(ScaleWindowedResolution)\
 	visit(ScreenMode) \
 	visit(SetSwapEffectUpgradeShim) \
 	visit(ShowerRoomFlashlightFix) \
 	visit(SmallFontHeight) \
 	visit(SmallFontWidth) \
 	visit(SpaceSize) \
+	visit(water_spec_mult_apt_staircase) \
+	visit(water_spec_mult_strange_area) \
+	visit(water_spec_mult_labyrinth) \
+	visit(water_spec_mult_hotel) \
+	visit(water_spec_uv_mult_hotel) \
 	visit(WrapperType)
 
 typedef enum _SCREENMODE {

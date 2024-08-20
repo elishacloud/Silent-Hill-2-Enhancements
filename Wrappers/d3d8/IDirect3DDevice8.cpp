@@ -2186,24 +2186,24 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 		}
 	}
 
-    if (WaterEnhancedRender)
-    {
+	if (WaterEnhancedRender)
+	{
 		LPDIRECT3DSURFACE8 backBufferSurface = nullptr;
 		if (SUCCEEDED(ProxyInterface->GetRenderTarget(&backBufferSurface)))
 		{
 			backBufferSurface = ProxyAddressLookupTableD3d8->FindAddress<m_IDirect3DSurface8>(backBufferSurface);
 		}
-        HRESULT hr = DrawWaterEnhanced(NeedToGrabScreenForWater, this, backBufferSurface, PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride);
-        if (hr != -1)
-        {
-            NeedToGrabScreenForWater = false;
-            return hr;
-        }
+		HRESULT hr = DrawWaterEnhanced(NeedToGrabScreenForWater, this, backBufferSurface, PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride);
 		if (backBufferSurface)
 		{
 			backBufferSurface->Release();
 		}
-    }
+		if (hr != -1)
+		{
+			NeedToGrabScreenForWater = false;
+			return hr;
+		}
+	}
 
 	return ProxyInterface->DrawPrimitiveUP(PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride);
 }

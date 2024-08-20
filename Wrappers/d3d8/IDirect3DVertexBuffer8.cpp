@@ -50,9 +50,14 @@ ULONG m_IDirect3DVertexBuffer8::Release(THIS)
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	ClassReleaseFlag = true;
+	ULONG Ref = ProxyInterface->Release();
 
-	return ProxyInterface->Release();
+	if (Ref == 0)
+	{
+		ClassReleaseFlag = true;
+	}
+
+	return Ref;
 }
 
 HRESULT m_IDirect3DVertexBuffer8::GetDevice(THIS_ IDirect3DDevice8** ppDevice)

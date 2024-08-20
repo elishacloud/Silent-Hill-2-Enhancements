@@ -264,7 +264,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="ImprovedWaterFX">
+      <Feature name="WaterEnhancedRender">
         <Title>Improved water visuals</Title>
         <Description>Improves the overall look and feel of the water effects used throughout the game.</Description>
         <Choices type="check">

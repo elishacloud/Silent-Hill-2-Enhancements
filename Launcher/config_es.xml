@@ -17,7 +17,19 @@
         </Choices>
       </Feature>
 
-      <Feature name="ForceTopMost" speedrun="true">
+      <Feature name="ScaleWindowedResolution">
+        <Title>Dynamic Resolution Scaling</Title>
+        <Description>Works only in windowed and fullscreen windowed mode.</Description>
+        <Choices type="list">
+          <Value name="0.5">4</Value>
+          <Value name="0.75">3</Value>
+          <Value name="1.0" default="true">0</Value>
+          <Value name="1.5">2</Value>
+          <Value name="2.0">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="ForceTopMost">
         <Title>Mantener la ventana del juego en primer plano</Title>
         <Description>Fuerza a la ventana del juego a situarse por delante del resto de ventanas, incluyendo la barra del menú Inicio.&#x0a;&#x0a;Esta opción solo funcionará si utilizas el modo en ventana.</Description>
         <Choices type="check">
@@ -264,7 +276,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="ImprovedWaterFX">
+      <Feature name="WaterEnhancedRender">
         <Title>Mejora visual del agua</Title>
         <Description>Mejora la apariencia de los efectos de agua que hay en el juego.</Description>
         <Choices type="check">
@@ -1087,6 +1099,15 @@
         <Choices type="list">
           <Value name="Cruz roja">1</Value>
           <Value name="Viñeta inferior" default="true">2</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="CustomAdvancedOptions">
+        <Title>Extend advanced options</Title>
+        <Description>Adds Display Mode, Render Resolution, and Health Indicator options to the Options > Advanced Options menu.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 

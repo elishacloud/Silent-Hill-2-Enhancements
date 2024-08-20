@@ -31,7 +31,7 @@ IDirect3DTexture8* g_SpecularLUT = nullptr;
 #define SPECULAR_LUT_TEXTURE_SLOT 1
 
 IDirect3DTexture8* g_flashLightTexture = nullptr;
-DWORD* g_vsHandles = nullptr;
+static DWORD* g_vsHandles = nullptr;
 DWORD* g_mdlVsHandles = nullptr; // 11 vertex shader handles
 DWORD* g_mdlPsHandles = nullptr; // 5 pixel shader handles
 float* g_FlashLightPos = nullptr;

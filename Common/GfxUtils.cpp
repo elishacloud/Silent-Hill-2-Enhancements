@@ -235,6 +235,13 @@ HRESULT GfxCreateTextureFromFileW(LPDIRECT3DDEVICE8 device, LPCWSTR srcFile, LPD
         int channels = 0;
         pixels = stbi_load_from_callbacks(&callbacks, fh, &width, &height, &channels, STBI_rgb_alpha);
 
+        if (pixels) {
+            // convert ABGR -> ARGB
+            for (int i = 0, numPixels = width * height; i < numPixels; ++i) {
+                std::swap(pixels[i * 4 + 0], pixels[i * 4 + 2]);
+            }
+        }
+
         format = D3DFMT_A8R8G8B8;
     }
 
@@ -300,6 +307,52 @@ HRESULT GfxCreateTextureFromFileW(LPDIRECT3DDEVICE8 device, LPCWSTR srcFile, LPD
     } else {
         stbi_image_free(pixels);
     }
+
+    return hr;
+}
+
+HRESULT GfxCreateTextureFromFileInMem(LPDIRECT3DDEVICE8 device, void* fileMem, DWORD fileSize, LPDIRECT3DTEXTURE8* dstTexture) {
+    if (!device || (!fileMem || !fileSize) || !dstTexture) {
+        return D3DERR_INVALIDCALL;
+    }
+
+    int width = 0, height = 0;
+    uint8_t* pixels = nullptr;
+    D3DFORMAT format = D3DFMT_UNKNOWN;
+
+    int channels = 0;
+    pixels = stbi_load_from_memory((stbi_uc const*)fileMem, (int)fileSize, &width, &height, &channels, STBI_rgb_alpha);
+
+    if (pixels) {
+        // convert ABGR -> ARGB
+        for (int i = 0, numPixels = width * height; i < numPixels; ++i) {
+            std::swap(pixels[i * 4 + 0], pixels[i * 4 + 2]);
+        }
+    }
+
+    format = D3DFMT_A8R8G8B8;
+
+    if (!pixels || format == D3DFMT_UNKNOWN) {
+        return D3DXERR_INVALIDDATA;
+    }
+
+    HRESULT hr = device->CreateTexture(static_cast<UINT>(width),
+                                       static_cast<UINT>(height),
+                                       1u, 0u,
+                                       format,
+                                       D3DPOOL_MANAGED,
+                                       dstTexture);
+    if (SUCCEEDED(hr)) {
+        D3DLOCKED_RECT lockedRect{};
+        hr = dstTexture[0]->LockRect(0u, &lockedRect, nullptr, 0);
+
+        if (SUCCEEDED(hr)) {
+            std::memcpy(lockedRect.pBits, pixels, static_cast<size_t>(width * height * 4));
+            hr = dstTexture[0]->UnlockRect(0u);
+        }
+    }
+
+    stbi_image_free(pixels);
 
     return hr;
 }

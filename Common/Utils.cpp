@@ -1413,7 +1413,7 @@ HRESULT GetConfigData()
 	}
 
 	// Update Health Indicator setting
-	if (HealthIndicatorOption)
+	if (CustomAdvancedOptions)
 	{
 		// If health indicator was retrieved from the config file then use it
 		if (BytesRead >= ((DWORD)&ConfigData.HealthIndicatorOption + sizeof(ConfigData.HealthIndicatorOption) - (DWORD)&ConfigData))
@@ -1427,6 +1427,21 @@ HRESULT GetConfigData()
 		}
 	}
 
+	// If scale resolution was retrieved from the config file then use it
+	if (CustomAdvancedOptions)
+	{
+		if (BytesRead >= ((DWORD)&ConfigData.ScaleWindowedResolutionOption + sizeof(ConfigData.ScaleWindowedResolutionOption) - (DWORD)&ConfigData))
+		{
+			ScaleWindowedResolution = ConfigData.ScaleWindowedResolutionOption;
+			UpdateScaleResolution();
+		}
+		// Otherwise use ScaleWindowedResolution value
+		else
+		{
+			ConfigData.ScaleWindowedResolutionOption = ScaleWindowedResolution;
+		}
+	}
+	
 	return (BytesRead ? S_OK : E_FAIL);
 }
 

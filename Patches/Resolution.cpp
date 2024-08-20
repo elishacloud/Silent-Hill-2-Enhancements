@@ -25,6 +25,7 @@
 #include "Common\Settings.h"
 #include "Patches.h"
 #include <string>
+#include "Resolution.h"
 #include "Resource.h"
 
 using namespace std;
@@ -35,16 +36,12 @@ struct RESOLUTONLIST
 	DWORD Height;
 };
 
-struct RESOLUTONTEXT
-{
-	char resStrBuf[27];
-};
-
 const DWORD MinWidth = 640;
 const DWORD MinHeight = 480;
 
 float ScaleFactor = 1.0f;
 bool UsingScaledResolutions = false;
+bool ResolutionLocked = false;
 bool AutoScaleImages = false;
 bool AutoScaleVideos = false;
 bool AutoScaleCutscenes = false;
@@ -121,6 +118,11 @@ void CreateResolutionText(int gWidth, int gHeight)
 	RESOLUTONTEXT Buffer;
 	sprintf_s((char *)Buffer.resStrBuf, sizeof(Buffer.resStrBuf), text, gWidth, gHeight);
 	ResolutionText.push_back(Buffer);
+}
+
+const std::vector<RESOLUTONTEXT>& GetResolutionText()
+{
+	return ResolutionText;
 }
 
 int printResStr(unsigned short, unsigned char, int x, int y)
@@ -236,16 +238,12 @@ void UpdateResolutionPatches(LONG Width, LONG Height)
 void UpdateResolutionVector()
 {
 	// Update the resolution vector
-	if (IsScaledResolutionEnabled && !UsingScaledResolutions)
+	for (size_t i = 0; i < ResolutionVector.size() && i < ResolutionBackupVector.size(); ++i)
 	{
-		// Enable scaling
-		for (auto& entry : ResolutionVector)
-		{
-			entry.Width = (LONG)((float)entry.Width * ScaleFactor);
-			entry.Height = (LONG)((float)entry.Height * ScaleFactor);
-		}
-		UsingScaledResolutions = true;
+		ResolutionVector[i].Width = (LONG)((float)ResolutionBackupVector[i].Width * ScaleFactor);
+		ResolutionVector[i].Height = (LONG)((float)ResolutionBackupVector[i].Height * ScaleFactor);
 	}
+	UsingScaledResolutions = (ScaleWindowedResolution != 0);
 }
 
 template void GetNonScaledResolution<LONG>(LONG&, LONG&);
@@ -415,6 +413,12 @@ __declspec(naked) void __stdcall ChangeResASM()
 		pop ebx
 		jmp jmpChangeRes
 	}
+}
+
+void WSFDynamicChangeWithIndex(BYTE NewIndex)
+{
+	*TextResIndex = NewIndex;
+	WSFDynamicChange();
 }
 
 void AddResolutionToList(DWORD Width, DWORD Height, bool force = false)
@@ -711,6 +715,7 @@ void SetResolutionPatch()
 	if (*(DWORD*)((BYTE*)ResolutionArray) == *(DWORD*)((BYTE*)ResolutionArray + 8) &&
 		*(DWORD*)((BYTE*)ResolutionArray + 4) == *(DWORD*)((BYTE*)ResolutionArray + 12))
 	{
+		ResolutionLocked = true;
 		Logging::Log() << "Enabling Resolution Lock...";
 
 		// Lock resolution
@@ -744,6 +749,8 @@ void SetResolutionPatch()
 	ResArrowRetAddr = (DWORD *)(((BYTE*)DResAddrA + arrowOffset + 0x27) + *(int *)((BYTE*)DResAddrA + arrowOffset + 0x23) + 6);
 	WriteJMPtoMemory(((BYTE*)DResAddrA + arrowOffset + 0x22), *ResArrowASM, 5);
 }
+
+bool IsResolutionLocked() { return ResolutionLocked; }
 
 static DWORD* gFogOn;
 static DWORD* gShadowsOn;

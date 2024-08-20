@@ -23,7 +23,7 @@
 // Forward declaration
 DWORD CheckUpdateMemory(void *dataSrc, void *dataDest, size_t size, bool SearchMemory);
 
-// ASM functions to fix an issue with a certain water-filled hallway
+// ASM function to always draw all water chunks in certain hallways
 __declspec(naked) void __stdcall DrawDistanceASM()
 {
 	__asm
@@ -139,15 +139,49 @@ void PatchDrawDistance()
 		}
 	}
 
-	// Fix draw distance in water-filled hallway
-	constexpr BYTE DrawFunctionSearchBytes[]{ 0x8D, 0x9E, 0xA0, 0x1A, 0x00, 0x00, 0x6A, 0x07, 0x53, 0x8B, 0xF8, 0xE8 };
-	DWORD DrawFunctionAddr = SearchAndGetAddresses(0x004E6C42, 0x004E6EF2, 0x004E67B2, DrawFunctionSearchBytes, sizeof(DrawFunctionSearchBytes), 0x0B, __FUNCTION__);
-	if (!DrawFunctionAddr)
-	{
-		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
-		return;
-	}
-	WriteCalltoMemory((BYTE*)DrawFunctionAddr, DrawDistanceASM);
+	// Fix draw distance in water-filled hallways
+    std::vector<DWORD> DrawFunctionAddrVec;
+    {
+        constexpr BYTE DrawFunctionSearchBytes[]{ 0x8D, 0x9E, 0xBC, 0x18, 0x00, 0x00, 0x6A, 0x04, 0x53, 0x8B, 0xF8, 0xE8 };
+        DrawFunctionAddrVec.push_back(SearchAndGetAddresses(0x004E3611, 0x004E38C1, 0x004E3181, DrawFunctionSearchBytes, sizeof(DrawFunctionSearchBytes), 0x0B, __FUNCTION__));
+    }
+    {
+        constexpr BYTE DrawFunctionSearchBytes[]{ 0x8D, 0x9E, 0x48, 0x0E, 0x00, 0x00, 0x6A, 0x03, 0x53, 0x8B, 0xF8, 0xE8 };
+        DrawFunctionAddrVec.push_back(SearchAndGetAddresses(0x004E4E14, 0x004E50C4, 0x004E4984, DrawFunctionSearchBytes, sizeof(DrawFunctionSearchBytes), 0x0B, __FUNCTION__));
+    }
+    {
+        constexpr BYTE DrawFunctionSearchBytes[]{ 0x8D, 0x9E, 0xD4, 0x16, 0x00, 0x00, 0x6A, 0x07, 0x53, 0x8B, 0xF8, 0xE8 };
+        DrawFunctionAddrVec.push_back(SearchAndGetAddresses(0x004E5582, 0x004E5832, 0x004E50F2, DrawFunctionSearchBytes, sizeof(DrawFunctionSearchBytes), 0x0B, __FUNCTION__));
+    }
+    {
+        constexpr BYTE DrawFunctionSearchBytes[]{ 0x8D, 0x9E, 0xE0, 0x22, 0x00, 0x00, 0x6A, 0x07, 0x53, 0x8B, 0xF8, 0xE8 };
+        DrawFunctionAddrVec.push_back(SearchAndGetAddresses(0x004E5D02, 0x004E5FB2, 0x004E5872, DrawFunctionSearchBytes, sizeof(DrawFunctionSearchBytes), 0x0B, __FUNCTION__));
+    }
+    {
+        constexpr BYTE DrawFunctionSearchBytes[]{ 0x8D, 0x9E, 0x30, 0x20, 0x00, 0x00, 0x6A, 0x08, 0x53, 0x8B, 0xF8, 0xE8 };
+        DrawFunctionAddrVec.push_back(SearchAndGetAddresses(0x004E64B2, 0x004E6762, 0x004E6022, DrawFunctionSearchBytes, sizeof(DrawFunctionSearchBytes), 0x0B, __FUNCTION__));
+    }
+    {
+        constexpr BYTE DrawFunctionSearchBytes[]{ 0x8D, 0x9E, 0xA0, 0x1A, 0x00, 0x00, 0x6A, 0x07, 0x53, 0x8B, 0xF8, 0xE8 };
+        DrawFunctionAddrVec.push_back(SearchAndGetAddresses(0x004E6C42, 0x004E6EF2, 0x004E67B2, DrawFunctionSearchBytes, sizeof(DrawFunctionSearchBytes), 0x0B, __FUNCTION__));
+    }
+    {
+        constexpr BYTE DrawFunctionSearchBytes[]{ 0x8D, 0x9E, 0x00, 0x19, 0x00, 0x00, 0x6A, 0x04, 0x53, 0x8B, 0xF8, 0xE8 };
+        DrawFunctionAddrVec.push_back(SearchAndGetAddresses(0x004E7371, 0x004E7621, 0x004E6EE1, DrawFunctionSearchBytes, sizeof(DrawFunctionSearchBytes), 0x0B, __FUNCTION__));
+    }
+    {
+        constexpr BYTE DrawFunctionSearchBytes[]{ 0x8D, 0xBE, 0xA4, 0x13, 0x00, 0x00, 0x6A, 0x05, 0x57, 0x8B, 0xD8, 0xE8 };
+        DrawFunctionAddrVec.push_back(SearchAndGetAddresses(0x004E8003, 0x004E82B3, 0x004E7B73, DrawFunctionSearchBytes, sizeof(DrawFunctionSearchBytes), 0x0B, __FUNCTION__));
+    }
+    for (const DWORD addr : DrawFunctionAddrVec)
+    {
+        if (!addr)
+        {
+            Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+            return;
+        }
+        WriteCalltoMemory((BYTE*)addr, DrawDistanceASM);
+    }
 }
 
 DWORD CheckUpdateMemory(void *dataSrc, void *dataDest, size_t size, bool SearchMemoryFlag)

@@ -452,6 +452,12 @@
     <ClCompile Include="Patches\RowboatFix.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\CustomAdvancedOptions.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\WaterEnhancement.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">
@@ -682,8 +688,17 @@
     <ClInclude Include="Patches\FlashlightReflection.h">
       <Filter>Patches</Filter>
     </ClInclude>
+    <ClInclude Include="Resolution.h">
+      <Filter>Patches</Filter>
+    </ClInclude>
     <ClInclude Include="Common\IUnknownPtr.h">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Patches\WaterEnhancement_caustics.h">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Patches\WaterEnhancement_dudv.h">
+      <Filter>Patches</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -15,6 +15,7 @@
 	visit(ClosetCutsceneFix, true) \
 	visit(CommandWindowMouseFix, true) \
 	visit(CreateLocalFix, true) \
+	visit(CustomAdvancedOptions, true) \
 	visit(d3d8to9, true) \
 	visit(DelayedFadeIn, true) \
 	visit(Direct3DCreate9On12, false) \
@@ -76,7 +77,6 @@
 	visit(GamepadControlsFix, true) \
 	visit(PuzzleAlignmentFixes, true) \
 	visit(HalogenLightFix, true) \
-	visit(HealthIndicatorOption, true) \
 	visit(HookDirect3D, true) \
 	visit(HookDirectInput, true) \
 	visit(HookDirectSound, true) \
@@ -140,6 +140,7 @@
 	visit(UseDSOAL, true) \
 	visit(UsePS2LowResTextures, false) \
 	visit(VHSAudioFix, false) \
+    visit(WaterEnhancedRender, true) \
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, true) \
@@ -190,7 +191,12 @@
 	visit(fog_layer1_y2, 0.125f) \
 	visit(fog_layer2_complexity, 0.055f) \
 	visit(fog_layer2_density_add, 100.0f) \
-	visit(fog_layer2_density_mult, 1.4f)
+	visit(fog_layer2_density_mult, 1.4f) \
+    visit(water_spec_mult_apt_staircase, 0.035f) \
+    visit(water_spec_mult_strange_area, 0.02f) \
+    visit(water_spec_mult_labyrinth, 0.02f) \
+    visit(water_spec_mult_hotel, 0.05f) \
+    visit(water_spec_uv_mult_hotel, 0.45f)
 
 #define VISIT_STR_SETTINGS(visit) \
 	visit(CustomModFolder, "") \
@@ -340,6 +346,7 @@ struct CFGDATA
 	DWORD VolumeLevel = 15;
 	DWORD HealthIndicatorOption = 1;
 	DWORD DisplayModeOption = 0;
+	DWORD ScaleWindowedResolutionOption = 0;
 };
 
 extern HMODULE m_hModule;
@@ -368,3 +375,4 @@ void Parse(char* strParse, NV NameValueCallback, void* lpParam = nullptr);
 void __stdcall ParseCallback(char* lpName, char* lpValue, void*);
 void LogSettings();
 void UpdateConfigDefaults();
+void UpdateScaleResolution();

@@ -455,7 +455,7 @@
     <ClCompile Include="Patches\CustomAdvancedOptions.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
-	<ClCompile Include="Patches\WaterDrawOrderFix.cpp">
+    <ClCompile Include="Patches\WaterDrawOrderFix.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
     <ClCompile Include="Patches\WaterEnhancement.cpp">

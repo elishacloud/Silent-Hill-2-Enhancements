@@ -30,7 +30,7 @@ DWORD DrawDistanceAddr = 0;
 
 bool CurrentRoomHasWater()
 {
-    // Excludes R_FOREST_CEMETERY, R_TOWN_LAKE, and R_FINAL_BOSS_RM since the player does not interact
+    // Exclude R_FOREST_CEMETERY, R_TOWN_LAKE, and R_FINAL_BOSS_RM since the player does not interact
     // directly with the water in these rooms.
     static const std::unordered_set<DWORD> rooms_with_water = {
         R_APT_W_STAIRCASE_N,
@@ -74,7 +74,7 @@ __declspec(naked) void __stdcall AdjustWaterDepthASM()
     {
         mov esi, dword ptr ds : [DrawDistanceAddr]
         fadd dword ptr ds : [esi]
-        fmul dword ptr ds : [kWaterDepthFactor]  // Depth = (Depth + DrawDistanceAddr) / 2
+        fmul dword ptr ds : [kWaterDepthFactor]  // Depth = (Depth + DrawDistance) / 2
         mov esi, eax
         fmul dword ptr ds : [esi + 0x08]  // st(0) = Depth sort index
         ret

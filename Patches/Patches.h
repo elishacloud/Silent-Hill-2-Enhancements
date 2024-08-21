@@ -692,6 +692,7 @@ void PatchTexAddr();
 void PatchTownGateEvents();
 void PatchTreeLighting();
 void PatchVHSAudio();
+void PatchWaterDrawOrderFix();
 void PatchWindowIcon();
 void PatchWindowTitle();
 void PatchXInputVibration();

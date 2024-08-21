@@ -128,7 +128,7 @@ void RunHotelWater()
 
 		float Value = 0.0f;
 		// Hallway After Alternate Hotel Kitchen Water
-		if (!ImprovedWaterFX)
+		if (!WaterEnhancedRender)
 		{
 			Value = 1.75f;
 			UpdateMemoryAddress((void*)Address1, &Value, sizeof(float));		// Water texture Z stretch/shrink

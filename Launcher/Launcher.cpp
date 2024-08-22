@@ -332,6 +332,13 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 		CreateThread(nullptr, 0, CheckForUpdate, (LPVOID)name.c_str(), 0, nullptr);
 	}
 
+	// Set to top
+	LONG lExStyle = GetWindowLong(DeviceWindow, GWL_EXSTYLE);
+	SetWindowLong(DeviceWindow, GWL_EXSTYLE, lExStyle | WS_EX_TOPMOST);
+	SetWindowPos(DeviceWindow, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
+	SetWindowLong(DeviceWindow, GWL_EXSTYLE, lExStyle & ~WS_EX_TOPMOST);
+	SetWindowPos(DeviceWindow, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
+
 	MSG msg = { 0 };
 
 	// Main message loop:

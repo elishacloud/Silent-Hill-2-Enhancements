@@ -507,14 +507,33 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	static bool FirstRun = true;
 
 	// Set window active and focus
-	SetWindowPos(MainhWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-	if (!ForceTopMost)
 	{
-		SetWindowPos(MainhWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE);
+		DWORD currentThreadId = GetCurrentThreadId();
+		DWORD foregroundThreadId = GetWindowThreadProcessId(GetForegroundWindow(), NULL);
+
+		// Attach the input of the foreground window and current window
+		AttachThreadInput(currentThreadId, foregroundThreadId, TRUE);
+
+		// Set the window as the foreground window and active
+		SetForegroundWindow(MainhWnd);
+		SetFocus(MainhWnd);
+		SetActiveWindow(MainhWnd);
+		BringWindowToTop(MainhWnd);
+
+		// Detach the input from the foreground window
+		AttachThreadInput(currentThreadId, foregroundThreadId, FALSE);
+
+		// Set topmost
+		LONG lExStyle = GetWindowLong(MainhWnd, GWL_EXSTYLE);
+		SetWindowLong(MainhWnd, GWL_EXSTYLE, lExStyle | WS_EX_TOPMOST);
+		SetWindowPos(MainhWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
+
+		if (!ForceTopMost)
+		{
+			SetWindowLong(MainhWnd, GWL_EXSTYLE, lExStyle & ~WS_EX_TOPMOST);
+			SetWindowPos(MainhWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
+		}
 	}
-	SetForegroundWindow(MainhWnd);
-	SetFocus(MainhWnd);
-	SetActiveWindow(MainhWnd);
 
 	// Get screen width and height
 	LONG screenWidth = 0, screenHeight = 0;

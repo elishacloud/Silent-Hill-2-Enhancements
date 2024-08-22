@@ -17,18 +17,6 @@
         </Choices>
       </Feature>
 
-      <Feature name="ScaleWindowedResolution">
-        <Title>Dynamic Resolution Scaling</Title>
-        <Description>Works only in windowed and fullscreen windowed mode.</Description>
-        <Choices type="list">
-          <Value name="0.5">4</Value>
-          <Value name="0.75">3</Value>
-          <Value name="1.0" default="true">0</Value>
-          <Value name="1.5">2</Value>
-          <Value name="2.0">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="ForceTopMost">
         <Title>Finestra di gioco sempre in primo piano</Title>
         <Description>Forza la finestra di gioco ad essere sempre sopra tutte le altre finestre, inclusa la barra del menu Start.&#x0a;&#x0a;Nota: Funziona soltanto in modalità finestra.</Description>

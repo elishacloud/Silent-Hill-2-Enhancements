@@ -1380,6 +1380,9 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 	// Handle menu sounds
 	HandleMenuSounds();
 
+	// Check flashlight availability
+	CheckFlashlightAvailable();
+
 	// Call function
 	RunPresentCode(ProxyInterface);
 
@@ -3842,7 +3845,7 @@ DWORD m_IDirect3DDevice8::GetShadowOpacity()
 // Get shadow fading intensity
 DWORD m_IDirect3DDevice8::GetShadowIntensity()
 {
-	return (DWORD)(((GetFlashlightBrightnessRed() + GetFlashlightBrightnessGreen() + GetFlashlightBrightnessBlue()) * 33.3333333f) / 7.0f);
+	return (DWORD)(((GetConditionalFlashlightBrightnessRed() + GetConditionalFlashlightBrightnessGreen() + GetConditionalFlashlightBrightnessBlue()) * 33.3333333f) / 7.0f);
 }
 
 // Check if shadow fading needs to be done and set the shadow intensity

@@ -36,6 +36,10 @@ DWORD* g_mdlVsHandles = nullptr; // 11 vertex shader handles
 DWORD* g_mdlPsHandles = nullptr; // 5 pixel shader handles
 float* g_FlashLightPos = nullptr;
 
+bool g_FlashlightDisable = false;
+DWORD g_LastRoomId = 0x00;
+bool g_RunFlashlightConditonCheck = false;
+
 static int IsPixelShaderMDLFadeOrFullBright(DWORD handle) {
     if (g_mdlPsHandles[0] == handle) {
         return 0;
@@ -169,7 +173,7 @@ HRESULT DrawFlashlightReflection(LPDIRECT3DDEVICE8 ProxyInterface, D3DPRIMITIVET
 		ProxyInterface->SetTextureStageState(2, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
 		ProxyInterface->SetTextureStageState(2, D3DTSS_MIPFILTER, D3DTEXF_LINEAR);
 
-		const float flashlightIntensity = GetFlashlightBrightnessRed() / 7.0f;
+		const float flashlightIntensity = GetConditionalFlashlightBrightnessRed() / 7.0f;
 		const float specColorInt[4] = { specColor[0] * flashlightIntensity, specColor[1] * flashlightIntensity, specColor[2] * flashlightIntensity, specColor[3] };
 		ProxyInterface->SetVertexShaderConstant(27, specColorInt, 1);
 
@@ -257,5 +261,56 @@ void PatchFlashlightReflection()
 		Logging::Log() << __FUNCTION__ << " Error: unknown game version!";
 		FlashlightReflection = false;
 		return;
+	}
+}
+
+float GetConditionalFlashlightBrightnessRed() 
+{
+	if (g_FlashlightDisable)
+	{
+		return 0.f;
+	}
+
+	return GetFlashlightBrightnessRed();
+}
+
+float GetConditionalFlashlightBrightnessGreen()
+{
+	if (g_FlashlightDisable)
+	{
+		return 0.f;
+	}
+
+	return GetFlashlightBrightnessGreen();
+}
+
+float GetConditionalFlashlightBrightnessBlue()
+{
+	if (g_FlashlightDisable)
+	{
+		return 0.f;
+	}
+
+	return GetFlashlightBrightnessBlue();
+}
+
+void CheckFlashlightAvailable() 
+{
+	DWORD CurrentRoomId = GetRoomID();
+	
+	if (g_RunFlashlightConditonCheck) 
+	{
+
+		g_FlashlightDisable = ((g_LastRoomId == R_TOWN_EAST || g_LastRoomId == R_TOWN_WEST || g_LastRoomId == R_TOWN_LAKE) &&
+			(GetWorldColorR() > 0x00 && (GetWorldColorG() > 0x00 && GetWorldColorB() > 0x00)));
+
+		g_RunFlashlightConditonCheck = false;
+		return;
+	}
+
+	if (CurrentRoomId != g_LastRoomId)
+	{
+		g_RunFlashlightConditonCheck = true;
+		g_LastRoomId = CurrentRoomId;
 	}
 }

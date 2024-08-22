@@ -17,6 +17,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include "patches.h"
+#include "Common\Settings.h"
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
@@ -100,18 +101,41 @@ void RunHotelWater()
 	static float *Address4_c = (float*)(Address4 + 0x08);
 	static float *Address4_d = (float*)(Address4 + 0x0C);
 
+	// Get Address5
+	static DWORD Address5 = NULL;
+	if (!Address5)
+	{
+		RUNONCE();
+
+		constexpr BYTE SearchBytes[]{ 0xD8, 0x4C, 0x24, 0x50, 0xEB, 0x30, 0xD8, 0x0D };
+
+		// Get Pyramid Head boss fight water opacity address
+		Address5 = SearchAndGetAddresses(0x004E217D, 0x004E242D, 0x004E1CED, SearchBytes, sizeof(SearchBytes), 0x12, __FUNCTION__);
+
+		// Checking address pointer
+		if (!Address5)
+		{
+			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+			return;
+		}
+	}
+
 	// Static updates
 	static bool FirstRun = true;
 	if (FirstRun)
 	{
 		Logging::Log() << "Setting Hotel Water Fix...";
 
+		float Value = 0.0f;
 		// Hallway After Alternate Hotel Kitchen Water
-		float Value = 1.75f;
-		UpdateMemoryAddress((void*)Address1, &Value, sizeof(float));				// Water texture Z stretch/shrink
+		if (!WaterEnhancedRender)
+		{
+			Value = 1.75f;
+			UpdateMemoryAddress((void*)Address1, &Value, sizeof(float));		// Water texture Z stretch/shrink
+		}
 
 		// Alternate Hotel Kitchen Water
-		Value = 100.0f;
+		Value = 150.0f;
 		UpdateMemoryAddress((void*)(Address2 + 0x00), &Value, sizeof(float));	// Water color (flashlight off) - R
 		UpdateMemoryAddress((void*)(Address2 + 0x04), &Value, sizeof(float));	// Water color (flashlight off) - G
 		UpdateMemoryAddress((void*)(Address2 + 0x08), &Value, sizeof(float));	// Water color (flashlight off) - B
@@ -121,7 +145,7 @@ void RunHotelWater()
 		UpdateMemoryAddress((void*)(Address2 + 0x18), &Value, sizeof(float));	// Ripple specularity - B
 
 		// Staircase After Angela Fire Cutscene Water
-		Value = 125.0f;
+		Value = 300.0f;
 		UpdateMemoryAddress((void*)(Address3 + 0x20), &Value, sizeof(float));	// Water color (flashlight off) - R
 		UpdateMemoryAddress((void*)(Address3 + 0x24), &Value, sizeof(float));	// Water color (flashlight off) - G
 		UpdateMemoryAddress((void*)(Address3 + 0x28), &Value, sizeof(float));	// Water color (flashlight off) - B
@@ -129,6 +153,10 @@ void RunHotelWater()
 		UpdateMemoryAddress((void*)(Address3 + 0x00), &Value, sizeof(float));	// Ripple specularity - R
 		UpdateMemoryAddress((void*)(Address3 + 0x04), &Value, sizeof(float));	// Ripple specularity - G
 		UpdateMemoryAddress((void*)(Address3 + 0x08), &Value, sizeof(float));	// Ripple specularity - B
+
+		// Blue Creek Apartments Stairway (Pyramid Head Boss Fight) Water
+		Value = 128.0f;
+		UpdateMemoryAddress((void*)(Address5 + 0x00), &Value, sizeof(float));	// Water opacity (flashlight off)
 
 		// Reset FirstRun
 		FirstRun = false;

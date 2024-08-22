@@ -639,6 +639,7 @@ void DelayedStart()
 	if (WaterEnhancedRender)
 	{
 		PatchWaterEnhancement();
+		PatchWaterDrawOrderFix();
 	}
 
 	// Enables a complete rewrite of the game's audio engine

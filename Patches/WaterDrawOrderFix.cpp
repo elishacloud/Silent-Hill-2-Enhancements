@@ -111,8 +111,11 @@ void PatchWaterDrawOrderFix()
     constexpr BYTE InitBloodDropEffectSearchBytes[]{ 0x5F, 0x66, 0xC7, 0x46, 0x08, 0x02, 0x00, 0x5E, 0xC3 };
     const DWORD InitBloodDropEffectAddr = SearchAndGetAddresses(0x004CFC33, 0x004CFEE3, 0x004CF7A3, InitBloodDropEffectSearchBytes, sizeof(InitBloodDropEffectSearchBytes), 0x16, __FUNCTION__);
 
-    constexpr BYTE WaterDepthSearchBytes[]{ 0xD9, 0x44, 0x24, 0x3C, 0x8B, 0xF0, 0xD8, 0x4E, 0x08 };
-    const DWORD WaterDepthAddr = SearchAndGetAddresses(0x004D2CDE, 0x004D2F8E, 0x004D284E, WaterDepthSearchBytes, sizeof(WaterDepthSearchBytes), 0x04, __FUNCTION__);
+    constexpr BYTE WaterDepthSearchBytesA[]{ 0xD9, 0x44, 0x24, 0x3C, 0x8B, 0xF0, 0xD8, 0x4E, 0x08 };
+    constexpr BYTE WaterDepthSearchBytesBC[]{ 0xD9, 0x44, 0x24, 0x38, 0x8B, 0xF0, 0xD8, 0x4E, 0x08 };
+    const DWORD WaterDepthAddrA = SearchAndGetAddresses(0x004D2CDE, 0x004D2F8E, 0x004D284E, WaterDepthSearchBytesA, sizeof(WaterDepthSearchBytesA), 0x04, __FUNCTION__);
+    const DWORD WaterDepthAddrB = SearchAndGetAddresses(0x004D7DA2, 0x004D8052, 0x004D7912, WaterDepthSearchBytesBC, sizeof(WaterDepthSearchBytesBC), 0x04, __FUNCTION__);
+    const DWORD WaterDepthAddrC = SearchAndGetAddresses(0x004D9542, 0x004D97F2, 0x004D90B2, WaterDepthSearchBytesBC, sizeof(WaterDepthSearchBytesBC), 0x04, __FUNCTION__);
 
     constexpr BYTE BloodPoolDepthSearchBytes[]{ 0x8B, 0x8C, 0x24, 0x88, 0x00, 0x00, 0x00, 0xC7, 0x84, 0x24, 0x8C };
     const DWORD BloodPoolDepthAddr = SearchAndGetAddresses(0x004CD10F, 0x004CD3BF, 0x004CCC7F, BloodPoolDepthSearchBytes, sizeof(BloodPoolDepthSearchBytes), 0x1F, __FUNCTION__);
@@ -123,7 +126,7 @@ void PatchWaterDrawOrderFix()
     constexpr BYTE DrawDistanceSearchBytes[]{ 0x8B, 0x44, 0x24, 0x78, 0x85, 0xC0, 0xD9, 0xFF };
     DrawDistanceAddr = ReadSearchedAddresses(0x004ED5D4, 0x004ED884, 0x004ED144, DrawDistanceSearchBytes, sizeof(DrawDistanceSearchBytes), 0x0A, __FUNCTION__);
 
-    if (!InitBloodDropEffectAddr || !WaterDepthAddr || !BloodPoolDepthAddr || !DustDepthAddr || !DrawDistanceAddr)
+    if (!InitBloodDropEffectAddr || !WaterDepthAddrA || !WaterDepthAddrB || !WaterDepthAddrC || !BloodPoolDepthAddr || !DustDepthAddr || !DrawDistanceAddr)
     {
         Logging::Log() << __FUNCTION__ << "Error: failed to find memory address!";
         return;
@@ -131,7 +134,9 @@ void PatchWaterDrawOrderFix()
 
     Logging::Log() << "Enabling Water Draw Order Fix...";
     WriteCalltoMemory((BYTE*)InitBloodDropEffectAddr, *InitBloodDropEffectASM, 0x06);
-    WriteCalltoMemory((BYTE*)WaterDepthAddr, *AdjustWaterDepthASM, 0x05);
+    WriteCalltoMemory((BYTE*)WaterDepthAddrA, *AdjustWaterDepthASM, 0x05);
+    WriteCalltoMemory((BYTE*)WaterDepthAddrB, *AdjustWaterDepthASM, 0x05);
+    WriteCalltoMemory((BYTE*)WaterDepthAddrC, *AdjustWaterDepthASM, 0x05);
     WriteCalltoMemory((BYTE*)BloodPoolDepthAddr, *AdjustUnderwaterEffectDepthASM, 0x05);
     WriteCalltoMemory((BYTE*)DustDepthAddr, *AdjustUnderwaterEffectDepthASM, 0x05);
 }

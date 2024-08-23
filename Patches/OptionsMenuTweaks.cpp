@@ -399,10 +399,10 @@ void MasterVolume::HandleConfirmOptions(bool ConfirmChange)
 
 void MasterVolume::HandleMasterVolume(LPDIRECT3DDEVICE8 ProxyInterface)
 {
+    DirectXInterface = ProxyInterface;
+    
     if (!EnableMasterVolume)
         return;
-
-    DirectXInterface = ProxyInterface;
 
     if (DiscardOptions)
     {

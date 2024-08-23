@@ -1033,7 +1033,7 @@ void PatchSpeakerConfigLock()
 	WriteJMPtoMemory((BYTE*)SpkSelectorAddr, SpkSelectorAddrExit, 5);
 
 	// Update speaker config description string
-	if (UseCustomExeStr)
+	if (CustomExeStrSet)
 	{
 		WriteCalltoMemory(((BYTE*)DSpkAddrB + 0x125), *printSpkDescStr, 5);
 	}

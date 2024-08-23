@@ -406,8 +406,8 @@
         <Title>Fix specific sound looping bugs</Title>
         <Description>Fixes specific, unique sound looping bugs with the chainsaw and moth attack sounds.</Description>
         <Choices type="check">
-          <Value name="Disable" speedrun-default="true">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disable">0</Value>
+          <Value name="Enable" speedrun-default="true" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -795,7 +795,7 @@
         <Description>Prevents the chainsaw from spawning on a first playthrough, which is a developer-intended design choice.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Enable" default="true" speedrun-default="true">1</Value>
         </Choices>
       </Feature>
 

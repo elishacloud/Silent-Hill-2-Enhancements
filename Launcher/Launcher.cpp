@@ -999,7 +999,7 @@ LRESULT CALLBACK TabProc(HWND hWndd, UINT Msg, WPARAM wParam, LPARAM lParam)
 				wnd->SetConfigValue(sel);
 				SetChanges();
 
-				if (wnd->GetConfigValue() > 0 && sel > 0)
+				if (wnd->cValue->name == speedrunOptionName && wnd->GetConfigValue() > 0 && sel > 0)
 				{
 					SetOptionsDefaults(false, true);
 					UpdateTab(hTab.GetCurSel());

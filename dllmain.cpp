@@ -569,12 +569,6 @@ void DelayedStart()
 		PatchBestGraphics();
 	}
 
-	// Disables changing the speaker configuration in the game's options menu
-	if (LockSpeakerConfig && CustomExeStrSet)
-	{
-		PatchSpeakerConfigLock();
-	}
-
 	// Fog Fix
 	if (FogFix)
 	{
@@ -697,10 +691,23 @@ void DelayedStart()
 	}
 
 	// Patch master volume slider and strings
-	if (EnableMasterVolume && CustomExeStrSet)
+	if (EnableMasterVolume)
 	{
-		PatchSpeakerConfigText();
-		PatchMasterVolumeSlider();
+		if (!CustomExeStrSet)
+		{
+			EnableMasterVolume = false;
+		}
+		else
+		{
+			PatchSpeakerConfigText();
+			PatchMasterVolumeSlider();
+		}
+	}
+
+	// Disables changing the speaker configuration in the game's options menu
+	if (LockSpeakerConfig && !EnableMasterVolume)
+	{
+		PatchSpeakerConfigLock();
 	}
 
 	// Patch swap light and heavy melee attacks

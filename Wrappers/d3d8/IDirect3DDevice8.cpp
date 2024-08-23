@@ -1294,6 +1294,9 @@ HRESULT m_IDirect3DDevice8::DrawScaledSurface()
 	D3DSURFACE_DESC Desc = {};
 	pAutoRenderTarget->GetDesc(&Desc);
 
+	// Call function
+	RunPresentCode(ProxyInterface, Desc.Width, Desc.Height);
+
 	// Draw Overlays
 	OverlayRef.DrawOverlays(ProxyInterface, Desc.Width, Desc.Height);
 
@@ -1383,9 +1386,6 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 	// Check flashlight availability
 	CheckFlashlightAvailable();
 
-	// Call function
-	RunPresentCode(ProxyInterface);
-
 	if (EnableEnhancedMouse || EnhanceMouseCursor)
 	{
 		OverlayRef.RenderMouseCursor();
@@ -1402,6 +1402,9 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 	}
 	else
 	{
+		// Call function
+		RunPresentCode(ProxyInterface, BufferWidth, BufferHeight);
+
 		// Draw Overlays
 		if (GetEventIndex() != EVENT_PAUSE_MENU)
 		{

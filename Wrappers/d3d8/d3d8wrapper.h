@@ -44,7 +44,7 @@ void UpdatePresentParameterForMultisample(D3DPRESENT_PARAMETERS* pPresentationPa
 bool IsScaledResolutionsEnabled();
 void SetScreenAndWindowSize();
 void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight);
-void RunPresentCode(IDirect3DDevice8* ProxyInterface);
+void RunPresentCode(IDirect3DDevice8* ProxyInterface, LONG Width, LONG Height);
 void RunResetCode(IDirect3DDevice8* ProxyInterface);
 DWORD WINAPI SaveScreenshotFile(LPVOID pvParam);
 

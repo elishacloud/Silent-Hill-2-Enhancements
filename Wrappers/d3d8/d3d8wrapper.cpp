@@ -172,9 +172,11 @@ IDirect3D8 *WINAPI Direct3DCreate8Wrapper(UINT SDKVersion)
 	return new m_IDirect3D8(pD3D8);
 }
 
-void RunPresentCode(IDirect3DDevice8* ProxyInterface)
+void RunPresentCode(IDirect3DDevice8* ProxyInterface, LONG Width, LONG Height)
 {
 	UNREFERENCED_PARAMETER(ProxyInterface);
+	UNREFERENCED_PARAMETER(Width);
+	UNREFERENCED_PARAMETER(Height);
 	// Blank function
 }
 

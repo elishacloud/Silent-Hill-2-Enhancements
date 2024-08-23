@@ -17,7 +17,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="ForceTopMost">
+      <Feature name="ForceTopMost" speedrun="true">
         <Title>Finestra di gioco sempre in primo piano</Title>
         <Description>Forza la finestra di gioco ad essere sempre sopra tutte le altre finestre, inclusa la barra del menu Start.&#x0a;&#x0a;Nota: Funziona soltanto in modalità finestra.</Description>
         <Choices type="check">
@@ -795,7 +795,7 @@
         <Description>Impedisce alla motosega di comparire durante la prima giocata, che è una scelta di design degli sviluppatori originali.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
-          <Value name="Abilitato" default="true">1</Value>
+          <Value name="Abilitato" default="true" speedrun-default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -997,18 +997,18 @@
         </Choices>
       </Feature>
 
-      <Feature name="FmvSubtitlesSyncFix">
-        <Title>Sincronizza i sottotitoli con la frequenza degli FMV</Title>
-        <Description>Regola la velocità di riproduzione dei sottotitoli per seguire la frequenza di aggiornamento degli FMV.</Description>
+      <Feature name="SwapLightHeavyAttack" speedrun="true">
+        <Title>Scambia gli input per attacco pesante e leggero</Title>
+        <Description>Scambia gli input per attacco pesante e leggero sulle armi corpo a corpo. Premendo velocemente il tasto di attacco effettua un attacco leggero. Tenendo premuto il tasto di attacco effettua un attacco pesante.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 
-      <Feature name="SwapLightHeavyAttack" speedrun="true">
-        <Title>Scambia gli input per attacco pesante e leggero</Title>
-        <Description>Scambia gli input per attacco pesante e leggero sulle armi corpo a corpo. Premendo velocemente il tasto di attacco effettua un attacco leggero. Tenendo premuto il tasto di attacco effettua un attacco pesante.</Description>
+      <Feature name="FmvSubtitlesSyncFix">
+        <Title>Sincronizza i sottotitoli con la frequenza degli FMV</Title>
+        <Description>Regola la velocità di riproduzione dei sottotitoli per seguire la frequenza di aggiornamento degli FMV.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>

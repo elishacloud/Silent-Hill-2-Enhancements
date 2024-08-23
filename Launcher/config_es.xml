@@ -794,8 +794,8 @@
         <Title>Activar la motosierra solo en una Nueva partida+</Title>
         <Description>Evita que aparezca la motosierra en una partida inicial, lo que es una decisión de diseño intencionada de los desarrolladores.</Description>
         <Choices type="check">
-          <Value name="No" speedrun-default="true">0</Value>
-          <Value name="Sí" default="true">1</Value>
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true" speedrun-default="true">1</Value>
         </Choices>
       </Feature>
 

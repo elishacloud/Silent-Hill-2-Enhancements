@@ -794,8 +794,8 @@
         <Title>Motosserra apenas em Novo Jogo+</Title>
         <Description>Impede que a motosserra apareça na primeira jogada, que é uma escolha de design pretendida pela desenvolvedora.</Description>
         <Choices type="check">
-          <Value name="Desativar" speedrun-default="true">0</Value>
-          <Value name="Ativar" default="true">1</Value>
+          <Value name="Desativar">0</Value>
+          <Value name="Ativar" default="true" speedrun-default="true">1</Value>
         </Choices>
       </Feature>
 

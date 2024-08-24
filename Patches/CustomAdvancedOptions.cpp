@@ -30,6 +30,8 @@ extern char* getRenderResolutionDescriptionStr();
 extern char* getResolutionDescStr();
 extern char* getHealthIndicatorStr();
 extern char* getHealthIndicatorDescriptionStr();
+extern bool hasHealthIndicatorStrings();
+extern bool hasRenderResolutionStrings();
 
 namespace
 {
@@ -712,13 +714,22 @@ namespace
         if (DisplayModeOption) options.push_back(std::make_unique<DisplayModeAdvancedOption>(index++));
         options.push_back(std::make_unique<DisplayResolutionAdvancedOption>(index++));
         DisplayResolutionAdvancedOptionPtr = options.back().get();
-        options.push_back(std::make_unique<RenderResolutionAdvancedOption>(index++));
+
+        if (hasRenderResolutionStrings())
+            options.push_back(std::make_unique<RenderResolutionAdvancedOption>(index++));
+        else
+            Logging::Log() << __FUNCTION__ << " Error: Render resolution option is missing required strings!";
+
         options.push_back(std::make_unique<NoiseEffectAdvancedOption>(index++));
         options.push_back(std::make_unique<ShadowsAdvancedOption>(index++));
         options.push_back(std::make_unique<FogAdvancedOption>(index++));
         options.push_back(std::make_unique<AdvancedFiltersAdvancedOption>(index++));
         options.push_back(std::make_unique<LensFlareAdvancedOption>(index++));
-        options.push_back(std::make_unique<HealthIndicatorAdvancedOption>(index++));
+
+        if (hasHealthIndicatorStrings())
+            options.push_back(std::make_unique<HealthIndicatorAdvancedOption>(index++));
+        else
+            Logging::Log() << __FUNCTION__ << " Error: Health indicator option is missing required strings!";
 
         UpdateMemoryAddress((void*)(OptionCountAddr), &index, 1);
     }

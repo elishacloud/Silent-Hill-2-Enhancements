@@ -699,8 +699,10 @@ void DelayedStart()
 		}
 		else
 		{
-			PatchSpeakerConfigText();
-			PatchMasterVolumeSlider();
+			EnableMasterVolume = (
+				SUCCEEDED(PatchSpeakerConfigText()) &&
+				SUCCEEDED(PatchMasterVolumeSlider())
+			);
 		}
 	}
 

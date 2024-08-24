@@ -943,6 +943,7 @@ extern char* getMasterVolumeDescStr();
 extern char* getMasterVolumeNameStr();
 extern char* getHealthIndicatorStr();
 extern char* getHealthIndicatorDescriptionStr();
+extern bool hasMasterVolumeStrings();
 
 int printSpkDescStr(unsigned short, unsigned char, int x, int y)
 {
@@ -1039,18 +1040,24 @@ void PatchSpeakerConfigLock()
 	}
 }
 
-void PatchSpeakerConfigText()
+HRESULT PatchSpeakerConfigText()
 {
 	if (!CustomExeStrSet)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: couldn't find the sh2e folder.";
-		return;
+		return E_FAIL;
 	}
+
+	if (!hasMasterVolumeStrings())
+	{
+		Logging::Log() << __FUNCTION__ << " Error: missing required exe strings!";
+		return E_FAIL;
+    }
 
 	if (GameVersion != SH2V_10 && GameVersion != SH2V_11 && GameVersion != SH2V_DC)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: unknown game version!";
-		return;
+		return E_FAIL;
 	}
 
 	constexpr BYTE SpkSearchBytesA[] = { 0x94, 0x00, 0x68, 0x12, 0x27, 0x00, 0x00, 0xF3, 0xA5, 0xE8 };
@@ -1070,7 +1077,7 @@ void PatchSpeakerConfigText()
 		if (!DSpkAddrC)
 		{
 			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
-			return;
+			return E_FAIL;
 		}
 
 		// Get functions
@@ -1082,7 +1089,7 @@ void PatchSpeakerConfigText()
 	if (!DSpkAddrA || !DSpkAddrB)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
-		return;
+		return E_FAIL;
 	}
 
 	// Update speaker config description string
@@ -1092,6 +1099,8 @@ void PatchSpeakerConfigText()
 		WriteCalltoMemory(((BYTE*)DSpkrAddrHighlight), *printMasterVolumeNameStr, 5);
 		WriteCalltoMemory(((BYTE*)DSpkAddrB + 0x125), *printMasterVolumeDescStr, 5);
 	}
+	
+	return S_OK;
 }
 
 void PatchSearchViewOptionName()

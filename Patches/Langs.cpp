@@ -61,6 +61,8 @@ BYTE langMin = 1;
 char *exeStrPtr[STR_PER_LANG * 6];
 BYTE *gLangID;
 
+int exeStrMinCount = INT_MAX;
+
 void *LangsPauseRetAddr;
 void *LangsPauseStrPtr;
 BYTE LangsPauseLangID = 255;
@@ -798,6 +800,9 @@ HRESULT PatchCustomExeStr()
 		}
 		file.close();
 
+		// Count the minimum number of lines across all languages
+		exeStrMinCount = min(exeStrMinCount, l);
+
 		// Add any missing lines
 		if (l < STR_PER_LANG)
 		{
@@ -1036,6 +1041,21 @@ char* getRenderResolutionStr()
 char* getRenderResolutionDescriptionStr()
 {
 	return exeStrPtr[STR_PER_LANG * (int)*gLangID + 32];
+}
+
+bool hasMasterVolumeStrings()
+{
+	return exeStrMinCount > 28;
+}
+
+bool hasHealthIndicatorStrings()
+{
+	return exeStrMinCount > 30;
+}
+
+bool hasRenderResolutionStrings()
+{
+	return exeStrMinCount > 32;
 }
 
 constexpr BYTE TownWestGateEventSearchBytes[] = { 0x00, 0x00, 0x00, 0x90, 0x00, 0xC0, 0x3F, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x60, 0x6E, 0x20 };

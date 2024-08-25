@@ -215,12 +215,20 @@ void EnableDrawOptionsHook()
     DrawOptionsHookEnabled = true;
 }
 
-void PatchMasterVolumeSlider()
+extern bool hasMasterVolumeStrings();
+
+HRESULT PatchMasterVolumeSlider()
 {
     if (!CustomExeStrSet)
     {
         Logging::Log() << __FUNCTION__ << " Error: couldn't find the sh2e folder.";
-        return;
+        return E_FAIL;
+    }
+
+    if (!hasMasterVolumeStrings())
+    {
+        Logging::Log() << __FUNCTION__ << " Error: missing required exe strings!";
+        return E_FAIL;
     }
 
     // Initialize pointers
@@ -271,6 +279,8 @@ void PatchMasterVolumeSlider()
 
     // Hook the function that plays sounds at the end of the options switch
     orgPlaySound.fun = injector::MakeCALL(GetPlaySoundFunPointer(), PlaySound_Hook, true).get();
+
+    return S_OK;
 }
 
 void PatchControlOptionsMenu()

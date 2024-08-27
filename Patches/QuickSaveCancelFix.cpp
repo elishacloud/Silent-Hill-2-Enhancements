@@ -106,8 +106,8 @@ void RunQuickSaveCancelFix()
         SaveLoadSubState = SaveLoadState + 1;
     }
 
-    // Cancel an active quick save before entering another room or when opening the save menu
-    if (GetIsWritingQuicksave() == 1 && (GetEventIndex() == EVENT_LOAD_ROOM || GetEventIndex() == EVENT_SAVE_SCREEN))
+    // Cancel an active quick save on any event change, or when a cutscene is playing
+    if (GetIsWritingQuicksave() == 1 && (GetEventIndex() != EVENT_IN_GAME || GetCutsceneID() != CS_NONE))
     {
         *GetIsWritingQuicksavePointer() = 0;
         *SaveLoadState = 0;

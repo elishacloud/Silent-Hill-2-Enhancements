@@ -130,6 +130,8 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 
 	pRenderSurfaceLast = nullptr;
 
+	UseFrontBufferControl = FrontBufferControl;
+
 	if (pAutoRenderTarget)
 	{
 		ProxyInterface->SetRenderTarget(pAutoRenderTarget, nullptr);

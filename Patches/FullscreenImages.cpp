@@ -95,6 +95,7 @@ void *VerBoundNegAddr3 = nullptr;
 bool CheckingTexture = false;
 char **TexNameAddr = nullptr;
 char *ResetTexNameAddr = nullptr;
+extern bool DetectAltTab;
 
 void SetImageScaling();
 void SetMapImageScaling();
@@ -119,11 +120,12 @@ BOOL CheckTexture()
 	}
 
 	// After a device Reset() then put texture name address back to what it was
-	if (ResetTexNameAddr)
+	if (DetectAltTab && ResetTexNameAddr)
 	{
 		*TexNameAddr = ResetTexNameAddr;
-		ResetTexNameAddr = nullptr;
 	}
+	ResetTexNameAddr = nullptr;
+	DetectAltTab = false;
 
 	if (last == *TexNameAddr ||
 		std::any_of(TexList.begin(), TexList.end(), [](const ImageCache& TexCache) { if (TexCache.Addr == *TexNameAddr) { flag = TexCache.Flag; return true; } return false; }))

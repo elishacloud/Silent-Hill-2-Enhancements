@@ -82,6 +82,11 @@ void RunAtticShadows()
 		float Value = 10.0f;
 		UpdateMemoryAddress(atticShadowCutoffPoint, &Value, sizeof(float));
 	}
+	else if (*atticShadowCutoffPoint != -10.0f && GetRoomID() != R_MAN_ATTIC)
+	{
+		float Value = -10.0f;
+		UpdateMemoryAddress(atticShadowCutoffPoint, &Value, sizeof(float));
+	}
 }
 
 void PatchAtticShadows()

@@ -42,6 +42,7 @@ extern void WaterEnhancedReleaseScreenCopy();
 extern HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 ProxyInterface, LPDIRECT3DSURFACE8 pRenderTarget, D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, const void* pVertexStreamZeroData, UINT VertexStreamZeroStride);
 
 bool DeviceLost = false;
+bool DetectAltTab = false;
 bool DisableShaderOnPresent = false;
 bool IsUsingD3d8to9 = false;
 bool IsInFullscreenImage = false;
@@ -1080,7 +1081,14 @@ HRESULT m_IDirect3DDevice8::TestCooperativeLevel()
 		return D3DERR_DEVICENOTRESET;
 	}
 
-	return ProxyInterface->TestCooperativeLevel();
+	HRESULT hr = ProxyInterface->TestCooperativeLevel();
+
+	if (hr == D3DERR_DEVICELOST || hr == D3DERR_DEVICENOTRESET)
+	{
+		DetectAltTab = true;
+	}
+
+	return hr;
 }
 
 HRESULT m_IDirect3DDevice8::GetCurrentTexturePalette(UINT *pPaletteNumber)

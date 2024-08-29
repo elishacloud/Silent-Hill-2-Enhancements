@@ -31,6 +31,8 @@
 #include "Resource.h"
 
 // enhanced water drawing
+extern char** TexNameAddr;
+extern char* ResetTexNameAddr;
 extern DWORD g_WaterVSHandle;
 extern DWORD g_WaterPSHandle;
 extern DWORD g_WaterVSBytecode[];
@@ -296,6 +298,11 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 		SetScaledBackbuffer();
 
 		RestorePresentParameter(pPresentationParameters);
+	}
+
+	if (TexNameAddr && *TexNameAddr)
+	{
+		ResetTexNameAddr = *TexNameAddr;
 	}
 
 	return hr;

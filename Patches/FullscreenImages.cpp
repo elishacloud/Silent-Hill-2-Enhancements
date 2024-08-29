@@ -94,6 +94,7 @@ void *VerBoundNegAddr3 = nullptr;
 
 bool CheckingTexture = false;
 char **TexNameAddr = nullptr;
+char *ResetTexNameAddr = nullptr;
 
 void SetImageScaling();
 void SetMapImageScaling();
@@ -115,6 +116,13 @@ BOOL CheckTexture()
 	if (!TexNameAddr || !*TexNameAddr)
 	{
 		return FALSE;
+	}
+
+	// After a device Reset() then put texture name address back to what it was
+	if (ResetTexNameAddr)
+	{
+		*TexNameAddr = ResetTexNameAddr;
+		ResetTexNameAddr = nullptr;
 	}
 
 	if (last == *TexNameAddr ||

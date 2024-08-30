@@ -28,8 +28,8 @@
 
 // Main resource file details
 #define APP_NAME				"Silent Hill 2: Enhanced Edition"
-#define APP_MAJOR				2
-#define APP_MINOR				1
+#define APP_MAJOR				3
+#define APP_MINOR				0
 #define APP_BUILDNUMBER			BUILD_NUMBER
 #define APP_REVISION			0
 #define APP_COMPANYNAME			"Sadrate Presents"

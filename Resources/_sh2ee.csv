@@ -1,0 +1,12 @@
+# SH2EE web csv,,,,
+id,name,version,url,SHA256
+setup_tool,SH2:EE Setup Tool,1.1.4,https://files.townofsilenthill.com/SH2EE/SH2EEsetup.exe,notUsed
+sh2emodule,SH2 Enhancements Module,3.0.2100.0,https://files.townofsilenthill.com/SH2EE/packages/SH2EE_Enhancements_Module_3.0.2100.0.zip,B2845A4EE163AB2D1DF0426EAC7164BF5A7EFDB0A6106870EEB6AC34415F81D7
+sh2emodule\wine_stub,SH2 Enhancements Module Wine Stub,1.0,https://files.townofsilenthill.com/SH2EE/packages/SH2EE_Wine_Stub_1.0.0.zip,3F673CBC34DBDA05CABEAAD02DDD12E1650FE18017A91B70B230D45F795EAF94
+ee_exe,Enhanced Executable,1.0.i,https://files.townofsilenthill.com/SH2EE/packages/SH2EE_Enhanced_EXE_NA_v1.0.i.zip,21D645DD972E4D7B38AA59FEA4A0A1068B5052807C0C08FDFE73427CDE9F6AB8
+ee_essentials,Enhanced Edition Essential Files,1.3.0,https://files.townofsilenthill.com/SH2EE/packages/SH2EE_Essential_Files_1.3.0.zip,C58E162BC6B13B9CDB92598635D291CB25532D954FE9F6023287DEF9148B2882
+img_pack,Image Enhancement Pack,1.2.0,https://files.townofsilenthill.com/SH2EE/packages/SH2EE_Image_Enhancement_Pack_1.2.0.zip,2093D43A2727BBD26B37ED29FEF7CECF8E5445BFA37F31D0E942F1961CA766FF
+fmv_pack,FMV Enhancement Pack,1.6.0,https://files.townofsilenthill.com/SH2EE/packages/SH2EE_FMV_Enhancement_Pack_1.6.0.zip,5F43308F6E2612171279FB2D9B9971DF9A85C442DB9C745354382FD4C76DB02F
+audio_pack,Audio Enhancement Pack,2.1.0,https://files.townofsilenthill.com/SH2EE/packages/SH2EE_Audio_Enhancement_Pack_2.1.0.zip,6F38961459CA89E7206EA427EE591459C835D88DFB91D4992C6E93525789FC7C
+xidi,Xidi,4.2.0,https://files.townofsilenthill.com/SH2EE/packages/SH2EE_Xidi_4.2.0.zip,5F688580E248E4292DCA21417D26897587F788F679312B06FD727C7125DCE6E4
+credits,Credits,1.6.0,https://files.townofsilenthill.com/SH2EE/packages/SH2EE_FMV_Credits_1.6.0.zip,FE7C384D06C8A2172451D02B71A7BAD05CA8FFB1A12EE63038C52B08F24CCCF0

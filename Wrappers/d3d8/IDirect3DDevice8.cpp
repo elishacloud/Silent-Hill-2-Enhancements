@@ -1334,6 +1334,12 @@ HRESULT m_IDirect3DDevice8::DrawScaledSurface()
 		ProxyInterface->SetRenderTarget(pBackBuffer, pStencilBuffer);
 	}
 
+	// Draw Overlays
+	OverlayRef.DrawOverlays(ProxyInterface, Desc.Width * ScaleFactor, Desc.Height * ScaleFactor);
+
+	// Call function
+	RunPresentCode(ProxyInterface, Desc.Width * ScaleFactor, Desc.Height * ScaleFactor);
+
 	// Reset render states
 	ProxyInterface->SetRenderState(D3DRS_LIGHTING, rsLighting);
 	ProxyInterface->SetRenderState(D3DRS_ALPHATESTENABLE, rsAlphaTestEnable);

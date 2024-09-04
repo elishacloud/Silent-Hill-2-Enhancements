@@ -1406,7 +1406,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 	RunPresentCode(ProxyInterface, BufferWidth, BufferHeight);
 
 	// Draw Overlays
-	if (GetEventIndex() != EVENT_PAUSE_MENU)
+	if (IsScaledResolutionsEnabled() || GetEventIndex() != EVENT_PAUSE_MENU)
 	{
 		OverlayRef.DrawOverlays(ProxyInterface, BufferWidth, BufferHeight);
 	}

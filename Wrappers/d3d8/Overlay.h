@@ -78,9 +78,10 @@ private:
 	std::string GetIGTString();
 	int bitCount(uint8_t num);
 
-	void InitializeDataStructs();
+	void InitializeDataStructs(LONG Width);
+	int ScaleOffsetsWidth(LONG Width, int offset);
 
-	const int rectOffset = 40;
+	const int BaseRectOffset = 40;
 	const int FloatPrecision = 4;
 	const int FPSFloatPrecision = 2;
 	const int KMConstant = 500000;

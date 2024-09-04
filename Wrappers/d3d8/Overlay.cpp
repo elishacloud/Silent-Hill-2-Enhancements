@@ -21,14 +21,19 @@ bool ControllerConnectedFlag = false;
 int JoystickX = 0;
 int JoystickY = 0;
 
+int DebugFontSize = 16;
+int DebugFontCurrentSize = 16;
+
 void Overlay::DrawOverlays(LPDIRECT3DDEVICE8 ProxyInterface, LONG Width, LONG Height)
 {
 	if (LastWidth != Width || LastHeight != Height)
 	{
 		LastWidth = Width;
 		LastHeight = Height;
-		InitializeDataStructs();
+		InitializeDataStructs(Width);
 		InputTweaksRef.InitializeHitboxes((float)Width / (float)Height);
+
+		DebugFontCurrentSize = (Width * DebugFontSize) / 1600;
 	}
 
 	// Nvidia fix
@@ -244,11 +249,13 @@ void Overlay::DrawDebugText(LPDIRECT3DDEVICE8 ProxyInterface, Overlay::D3D8TEXT 
 	{
 		ResetDebugFontFlag = false;
 		DebugFont->OnResetDevice();
+		DebugFont->Release();
+		DebugFont = NULL;
 	}
 
 	if (ProxyInterface != nullptr && DebugFont == nullptr)
 	{
-		HFONT FontCharacteristics = CreateFontA(16, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, ANTIALIASED_QUALITY, 0, FontName);
+		HFONT FontCharacteristics = CreateFontA(DebugFontCurrentSize, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, ANTIALIASED_QUALITY, 0, FontName);
 		if (FontCharacteristics != NULL)
 		{
 			Logging::LogDebug() << __FUNCTION__ << " Creating Debug font: " << FontName;
@@ -353,12 +360,19 @@ int Overlay::bitCount(uint8_t num)
 	return count;	
 }
 
-void Overlay::InitializeDataStructs()
+int Overlay::ScaleOffsetsWidth(LONG Width, int offset) {
+
+	return (Width * offset) / 1600;
+}
+
+void Overlay::InitializeDataStructs(LONG Width)
 {
 	Logging::LogDebug() << __FUNCTION__ << " Initializing Overlay Text Structs...";
 
+	int rectOffset = this->ScaleOffsetsWidth(Width, BaseRectOffset);
+
 	InfoOverlayTextStruct.Format = DT_NOCLIP | DT_LEFT;
-	InfoOverlayTextStruct.Rect.left = LastWidth - 205;
+	InfoOverlayTextStruct.Rect.left = LastWidth - this->ScaleOffsetsWidth(Width, 205);
 	InfoOverlayTextStruct.Rect.top = rectOffset;
 	InfoOverlayTextStruct.Rect.right = LastWidth;
 	InfoOverlayTextStruct.Rect.bottom = rectOffset + 15;
@@ -367,7 +381,7 @@ void Overlay::InitializeDataStructs()
 	DebugOverlayTextStruct.Format = DT_NOCLIP | DT_LEFT;
 	DebugOverlayTextStruct.Rect.left = rectOffset;
 	DebugOverlayTextStruct.Rect.top = rectOffset;
-	DebugOverlayTextStruct.Rect.right = rectOffset + 300;
+	DebugOverlayTextStruct.Rect.right = rectOffset + this->ScaleOffsetsWidth(Width, 300);
 	DebugOverlayTextStruct.Rect.bottom = rectOffset + 15;
 	DebugOverlayTextStruct.Color = TextColors.Green;
 }

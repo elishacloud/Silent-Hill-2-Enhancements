@@ -794,8 +794,8 @@
         <Title>Activar la motosierra solo en una Nueva partida+</Title>
         <Description>Evita que aparezca la motosierra en una partida inicial, lo que es una decisión de diseño intencionada de los desarrolladores.</Description>
         <Choices type="check">
-          <Value name="No">0</Value>
-          <Value name="Sí" default="true" speedrun-default="true">1</Value>
+          <Value name="No" speedrun-default="true">0</Value>
+          <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -1356,11 +1356,11 @@
         </Choices>
       </Feature>
 
-      <Feature name="LegacyFixGPUAntiAliasing">
+      <Feature name="LegacyFixGPUAntiAliasing" speedrun="true">
         <Title>Corregir el suavizado de bordes por GPU</Title>
         <Description>Corrige problemas en las tarjetas gráficas de Nvidia, tales como sombras que falten o incorrectas, al forzar el uso del suavizado de bordes a través del panel de control de la GPU.</Description>
         <Choices type="check">
-          <Value name="No" default="true">0</Value>
+          <Value name="No" default="true" speedrun-default="true">0</Value>
           <Value name="Sí">1</Value>
         </Choices>
       </Feature>

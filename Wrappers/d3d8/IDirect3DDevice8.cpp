@@ -1311,12 +1311,6 @@ HRESULT m_IDirect3DDevice8::DrawScaledSurface()
 	D3DSURFACE_DESC Desc = {};
 	pAutoRenderTarget->GetDesc(&Desc);
 
-	// Call function
-	RunPresentCode(ProxyInterface, Desc.Width, Desc.Height);
-
-	// Draw Overlays
-	OverlayRef.DrawOverlays(ProxyInterface, Desc.Width, Desc.Height);
-
 	// Set the render target texture (pRenderTexture) back to nullptr
 	ProxyInterface->SetTexture(0, nullptr);
 
@@ -1408,6 +1402,15 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 		OverlayRef.RenderMouseCursor();
 	}
 
+	// Call function
+	RunPresentCode(ProxyInterface, BufferWidth, BufferHeight);
+
+	// Draw Overlays
+	if (IsScaledResolutionsEnabled() || GetEventIndex() != EVENT_PAUSE_MENU)
+	{
+		OverlayRef.DrawOverlays(ProxyInterface, BufferWidth, BufferHeight);
+	}
+
 	bool PauseMenuFlag = false;
 	if (IsScaledResolutionsEnabled())
 	{
@@ -1416,17 +1419,6 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 
 		// Draw scaled surface, inlcuding Overalys
 		DrawScaledSurface();
-	}
-	else
-	{
-		// Call function
-		RunPresentCode(ProxyInterface, BufferWidth, BufferHeight);
-
-		// Draw Overlays
-		if (GetEventIndex() != EVENT_PAUSE_MENU)
-		{
-			OverlayRef.DrawOverlays(ProxyInterface, BufferWidth, BufferHeight);
-		}
 	}
 
 	// Endscene

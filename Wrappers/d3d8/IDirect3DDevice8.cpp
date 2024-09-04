@@ -1402,31 +1402,23 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 		OverlayRef.RenderMouseCursor();
 	}
 
+	// Call function
+	RunPresentCode(ProxyInterface, BufferWidth, BufferHeight);
+
+	// Draw Overlays
+	if (GetEventIndex() != EVENT_PAUSE_MENU)
+	{
+		OverlayRef.DrawOverlays(ProxyInterface, BufferWidth, BufferHeight);
+	}
+
 	bool PauseMenuFlag = false;
 	if (IsScaledResolutionsEnabled())
 	{
 		// Fix pause menu before drawing scaled surface
 		PauseMenuFlag = FixPauseMenuOnPresent();
 
-		// Call function
-		RunPresentCode(ProxyInterface, BufferWidth, BufferHeight);
-
-		// Draw Overlays
-		OverlayRef.DrawOverlays(ProxyInterface, BufferWidth, BufferHeight);
-
 		// Draw scaled surface, inlcuding Overalys
 		DrawScaledSurface();
-	}
-	else
-	{
-		// Call function
-		RunPresentCode(ProxyInterface, BufferWidth, BufferHeight);
-
-		// Draw Overlays
-		if (GetEventIndex() != EVENT_PAUSE_MENU)
-		{
-			OverlayRef.DrawOverlays(ProxyInterface, BufferWidth, BufferHeight);
-		}
 	}
 
 	// Endscene

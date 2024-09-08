@@ -814,7 +814,9 @@ void DelayedStart()
 			break;
 		case SH2V_11:
 			UpdateMemoryAddress((void*)0x00497606, "\x90\x90\x90\x90\x90", 5);
-			[[fallthrough]];
+			UpdateMemoryAddress((void*)0x004475AB, "\x90\x90\x90\x90\x90", 5);
+			UpdateMemoryAddress((void*)0x00406CE5, "\x90\x90\x90\x90\x90", 5);
+			break;
 		case SH2V_DC:
 			UpdateMemoryAddress((void*)0x004475AB, "\x90\x90\x90\x90\x90", 5);
 			UpdateMemoryAddress((void*)0x00406CF5, "\x90\x90\x90\x90\x90", 5);

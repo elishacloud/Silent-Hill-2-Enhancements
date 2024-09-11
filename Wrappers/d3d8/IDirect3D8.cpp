@@ -506,32 +506,40 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	// Remember first run
 	static bool FirstRun = true;
 
+	// Set topmost
+	LONG lExStyle = GetWindowLong(MainhWnd, GWL_EXSTYLE);
+	SetWindowLong(MainhWnd, GWL_EXSTYLE, lExStyle | WS_EX_TOPMOST);
+	SetWindowPos(MainhWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
+
+	if (!ForceTopMost)
+	{
+		SetWindowLong(MainhWnd, GWL_EXSTYLE, lExStyle & ~WS_EX_TOPMOST);
+		SetWindowPos(MainhWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
+	}
+
 	// Set window active and focus
+	if (MainhWnd != GetForegroundWindow() || MainhWnd != GetFocus() || MainhWnd != GetActiveWindow())
 	{
 		DWORD currentThreadId = GetCurrentThreadId();
 		DWORD foregroundThreadId = GetWindowThreadProcessId(GetForegroundWindow(), NULL);
 
-		// Attach the input of the foreground window and current window
-		AttachThreadInput(currentThreadId, foregroundThreadId, TRUE);
+		bool isForeground = (MainhWnd == GetForegroundWindow()) || (currentThreadId == foregroundThreadId);
 
-		// Set the window as the foreground window and active
-		SetForegroundWindow(MainhWnd);
+		// Attach the input of the foreground window and current window
+		if (!isForeground)
+		{
+			AttachThreadInput(currentThreadId, foregroundThreadId, TRUE);
+			SetForegroundWindow(MainhWnd);
+		}
+
 		SetFocus(MainhWnd);
 		SetActiveWindow(MainhWnd);
 		BringWindowToTop(MainhWnd);
 
 		// Detach the input from the foreground window
-		AttachThreadInput(currentThreadId, foregroundThreadId, FALSE);
-
-		// Set topmost
-		LONG lExStyle = GetWindowLong(MainhWnd, GWL_EXSTYLE);
-		SetWindowLong(MainhWnd, GWL_EXSTYLE, lExStyle | WS_EX_TOPMOST);
-		SetWindowPos(MainhWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
-
-		if (!ForceTopMost)
+		if (!isForeground)
 		{
-			SetWindowLong(MainhWnd, GWL_EXSTYLE, lExStyle & ~WS_EX_TOPMOST);
-			SetWindowPos(MainhWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
+			AttachThreadInput(currentThreadId, foregroundThreadId, FALSE);
 		}
 	}
 
@@ -551,7 +559,7 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 
 	// Get window style
 	LONG lStyle = GetWindowLong(MainhWnd, GWL_STYLE) | WS_VISIBLE;
-	LONG lExStyle = GetWindowLong(MainhWnd, GWL_EXSTYLE);
+	lExStyle = GetWindowLong(MainhWnd, GWL_EXSTYLE);
 
 	// Get new style
 	LONG lNewStyle = (lStyle | WS_OVERLAPPEDWINDOW) & ~(WS_MAXIMIZEBOX | WS_THICKFRAME);

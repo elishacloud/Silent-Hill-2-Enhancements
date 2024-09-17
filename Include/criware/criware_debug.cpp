@@ -8,6 +8,7 @@
 */
 
 #include "criware.h"
+#include "Wrappers\d3d8\d3d8wrapper.h"
 
 static int dlevel = 0;
 
@@ -22,7 +23,7 @@ void ADXD_Error(const char* caption, const char* fmt, ...)
 		vsprintf_s(buf, sizeof(buf), fmt, ap);
 		va_end(ap);
 
-		MessageBoxA(nullptr, buf, caption, MB_ICONERROR | MB_DEFAULT_DESKTOP_ONLY);
+		MessageBoxA(DeviceWindow, buf, caption, MB_ICONERROR | MB_SYSTEMMODAL | MB_TOPMOST);
 		exit(0);
 	}
 }
@@ -38,7 +39,7 @@ void ADXD_Warning(const char* caption, const char* fmt, ...)
 		vsprintf_s(buf, sizeof(buf), fmt, ap);
 		va_end(ap);
 
-		MessageBoxA(nullptr, buf, caption, MB_ICONEXCLAMATION | MB_DEFAULT_DESKTOP_ONLY);
+		MessageBoxA(DeviceWindow, buf, caption, MB_ICONEXCLAMATION | MB_SYSTEMMODAL | MB_TOPMOST);
 	}
 }
 

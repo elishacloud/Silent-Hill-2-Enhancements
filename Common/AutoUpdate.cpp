@@ -630,7 +630,7 @@ DWORD WINAPI CheckForUpdate(LPVOID lpName)
 			std::wstring param;
 
 			// Ask user for update
-			int Response = MessageBox(DeviceWindow, L"There is an update for Silent Hill 2: Enhanced Edition. Would you like to close the game and launch the updater?", MsgTitle.c_str(), MB_YESNO | MB_ICONINFORMATION | MB_SYSTEMMODAL);
+			int Response = MessageBox(DeviceWindow, L"There is an update for Silent Hill 2: Enhanced Edition. Would you like to close the game and launch the updater?", MsgTitle.c_str(), MB_YESNO | MB_ICONINFORMATION | MB_SYSTEMMODAL | MB_TOPMOST);
 			if (Response == IDYES)
 			{
 				// Decide which parameter to use
@@ -664,7 +664,7 @@ DWORD WINAPI CheckForUpdate(LPVOID lpName)
 			IsUpdating = true;
 
 			// Ask user for update
-			int Response = MessageBox(DeviceWindow, L"There is an update for the SH2 Enhancements module. Would you like to update?", MsgTitle.c_str(), MB_YESNO | MB_ICONINFORMATION | MB_SYSTEMMODAL);
+			int Response = MessageBox(DeviceWindow, L"There is an update for the SH2 Enhancements module. Would you like to update?", MsgTitle.c_str(), MB_YESNO | MB_ICONINFORMATION | MB_SYSTEMMODAL | MB_TOPMOST);
 			if (Response == IDNO)
 			{
 				Logging::Log() << __FUNCTION__ " User chose not to update the build!";
@@ -675,7 +675,7 @@ DWORD WINAPI CheckForUpdate(LPVOID lpName)
 
 			// Notify user to download other packages
 			HHOOK hook = SetWindowsHookEx(WH_CBT, ChangeCaptionButtons, GetModuleHandle(nullptr), GetCurrentThreadId());
-			MessageBox(DeviceWindow, L"Note: This only updates the SH2 Enhancements module. You must manually download and update other enhancement packages from the project's website.", MsgTitle.c_str(), MB_OK | MB_ICONWARNING | MB_SYSTEMMODAL);
+			MessageBox(DeviceWindow, L"Note: This only updates the SH2 Enhancements module. You must manually download and update other enhancement packages from the project's website.", MsgTitle.c_str(), MB_OK | MB_ICONWARNING | MB_SYSTEMMODAL | MB_TOPMOST);
 			UnhookWindowsHookEx(hook);
 		}
 	}
@@ -742,7 +742,7 @@ DWORD WINAPI CheckForUpdate(LPVOID lpName)
 			Logging::Log() << __FUNCTION__ " Successfully updated module!";
 
 #ifndef ISLAUNCHER
-			int Response = MessageBox(DeviceWindow, L"Update complete! You must restart the game for the update to take effect. Would you like to restart the game now?", MsgTitle.c_str(), MB_YESNO | MB_ICONINFORMATION | MB_SYSTEMMODAL);
+			int Response = MessageBox(DeviceWindow, L"Update complete! You must restart the game for the update to take effect. Would you like to restart the game now?", MsgTitle.c_str(), MB_YESNO | MB_ICONINFORMATION | MB_SYSTEMMODAL | MB_TOPMOST);
 			if (Response == IDYES)
 			{
 				// Get Silent Hill 2 file path and restart
@@ -754,7 +754,7 @@ DWORD WINAPI CheckForUpdate(LPVOID lpName)
 				}
 			}
 #else
-			MessageBox(DeviceWindow, L"Update complete!", MsgTitle.c_str(), MB_OK);
+			MessageBox(DeviceWindow, L"Update complete!", MsgTitle.c_str(), MB_OK | MB_SYSTEMMODAL | MB_TOPMOST);
 #endif
 		}
 		// Update failed
@@ -764,11 +764,11 @@ DWORD WINAPI CheckForUpdate(LPVOID lpName)
 			
 			if (!IsProjectUpdateAvailable)
 			{
-				MessageBox(DeviceWindow, L"Update FAILED! You will need to manually update the SH2 Enhancements module!", MsgTitle.c_str(), MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
+				MessageBox(DeviceWindow, L"Update FAILED! You will need to manually update the SH2 Enhancements module!", MsgTitle.c_str(), MB_OK | MB_ICONERROR | MB_SYSTEMMODAL | MB_TOPMOST);
 			}
 			else
 			{
-				MessageBox(DeviceWindow, std::wstring(L"Failed to launch the updater! Please try to manually run " + std::wstring(TEXT(SH2EE_SETUP_EXE_FILE)) + L" and update from there.").c_str(), MsgTitle.c_str(), MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
+				MessageBox(DeviceWindow, std::wstring(L"Failed to launch the updater! Please try to manually run " + std::wstring(TEXT(SH2EE_SETUP_EXE_FILE)) + L" and update from there.").c_str(), MsgTitle.c_str(), MB_OK | MB_ICONERROR | MB_SYSTEMMODAL | MB_TOPMOST);
 			}
 		}
 	}

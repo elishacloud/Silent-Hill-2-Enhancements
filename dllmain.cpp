@@ -922,10 +922,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		// Unhook window handle
 		UnhookWindowHandle();
 
-		// Unhook APIs
-		Logging::Log() << "Unhooking library functions";
-		Hook::UnhookAll();
-
 #ifdef DEBUG
 		// Unloading all modules
 		Logging::Log() << "Unloading all loaded modules";

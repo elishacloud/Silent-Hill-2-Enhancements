@@ -279,7 +279,7 @@ void PatchLakeMoonSize()
 
 void CheckLakeMoonSize()
 {
-	LakeLightResolutionMultiplier = (float)BufferHeight / 480.;
+	LakeLightResolutionMultiplier = (float)BufferHeight / 240.;
 }
 
 template void GetNonScaledResolution<LONG>(LONG&, LONG&);

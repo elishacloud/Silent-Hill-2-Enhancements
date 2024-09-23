@@ -593,6 +593,9 @@ void DelayedStart()
 		SetResolutionPatch();
 	}
 
+	// Fix lake moon size
+	PatchLakeMoonSize();
+
 	// Fixes issues in the Advanced Options screen
 	if (FixAdvancedOptions)
 	{

@@ -246,6 +246,42 @@ void UpdateResolutionVector()
 	UsingScaledResolutions = (ScaleWindowedResolution != 0);
 }
 
+float LakeLightResolutionMultiplier = 1.;
+
+BYTE* LoadLakeCustomValueReturn = nullptr;
+
+__declspec(naked) void __stdcall LoadLakeCustomValue()
+{
+	__asm
+	{
+		fld dword ptr[LakeLightResolutionMultiplier]
+		fld dword ptr[LakeLightResolutionMultiplier]
+
+		jmp LoadLakeCustomValueReturn
+	}
+}
+
+void PatchLakeMoonSize()
+{
+	constexpr BYTE LakeCustomValueSearchBytes[]{ 0x83, 0xC4, 0x18, 0xD8, 0x74 };
+	BYTE* LakeCustomValueAddr = (BYTE*)SearchAndGetAddresses(0x004DBE17, 0x004DC0C7, 0x004DB987, LakeCustomValueSearchBytes, sizeof(LakeCustomValueSearchBytes), 0x84, __FUNCTION__);
+
+	if (!LakeCustomValueAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+
+	LoadLakeCustomValueReturn = LakeCustomValueAddr + 0x0C;
+
+	WriteJMPtoMemory(LakeCustomValueAddr, LoadLakeCustomValue, 0x06);
+}
+
+void CheckLakeMoonSize()
+{
+	LakeLightResolutionMultiplier = (float)BufferHeight / 240.;
+}
+
 template void GetNonScaledResolution<LONG>(LONG&, LONG&);
 template void GetNonScaledResolution<int>(int&, int&);
 template void GetNonScaledResolution<UINT>(UINT&, UINT&);

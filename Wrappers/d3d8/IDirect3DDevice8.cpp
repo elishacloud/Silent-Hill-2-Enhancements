@@ -1397,6 +1397,9 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 	// Check flashlight availability
 	CheckFlashlightAvailable();
 
+	// Fix moon size on the lake
+	CheckLakeMoonSize();
+
 	if (EnableEnhancedMouse || EnhanceMouseCursor)
 	{
 		OverlayRef.RenderMouseCursor();

@@ -69,6 +69,7 @@ bool GetLocalDirectInput8Create()
 		m_pDirectInput8Create_local = (DirectInput8CreateProc)GetProcAddress(h_dinput8, "DirectInput8Create");
 		if (m_pDirectInput8Create_local)
 		{
+			PinModule(h_dinput8);
 			return true;
 		}
 	}

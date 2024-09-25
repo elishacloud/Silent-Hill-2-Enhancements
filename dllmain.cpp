@@ -903,6 +903,9 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		{
 			DelayedStart();
 		}
+
+		// Pin current module
+		PinModule(m_hModule);
 	}
 	break;
 	case DLL_THREAD_ATTACH:

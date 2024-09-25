@@ -66,6 +66,7 @@ bool GetLocalDirectSoundCreate8()
 		m_pDirectSoundCreate8_local = (DirectSoundCreate8Proc)GetProcAddress(h_dsound, "DirectSoundCreate8");
 		if (m_pDirectSoundCreate8_local)
 		{
+			PinModule(h_dsound);
 			return true;
 		}
 	}
@@ -93,6 +94,7 @@ bool GetSystem32DirectSoundCreate8()
 		m_pDirectSoundCreate8_system32 = (DirectSoundCreate8Proc)GetProcAddress(h_dsound, "DirectSoundCreate8");
 		if (m_pDirectSoundCreate8_system32)
 		{
+			PinModule(h_dsound);
 			return true;
 		}
 	}

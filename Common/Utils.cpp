@@ -1177,6 +1177,12 @@ void CopyReplaceSlash(char* DestStr, size_t Size, LPCSTR SrcStr)
 	}
 }
 
+void PinModule(HMODULE dll)
+{
+	HMODULE dummy = nullptr;
+	GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_PIN | GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, reinterpret_cast<LPCSTR>(dll), &dummy);
+}
+
 BOOL GetAppsLightMode()
 {
 	HKEY hKey;

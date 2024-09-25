@@ -51,6 +51,7 @@ HMODULE GetD3d8ScriptDll()
 	if (script_d3d8_dll)
 	{
 		Logging::Log() << "Loaded d3d8.dll from: " << script_path_dll.c_str();
+		PinModule(script_d3d8_dll);
 	}
 
 	// Load d3d8.dll from 'plugins' folder
@@ -61,6 +62,7 @@ HMODULE GetD3d8ScriptDll()
 		if (script_d3d8_dll)
 		{
 			Logging::Log() << "Loaded d3d8.dll from: " << plugin_path_dll.c_str();
+			PinModule(script_d3d8_dll);
 		}
 	}
 
@@ -118,6 +120,7 @@ bool GetLocalDirect3DCreate8()
 		m_pDirect3DCreate8_local = (Direct3DCreate8Proc)GetProcAddress(h_d3d8, "Direct3DCreate8");
 		if (m_pDirect3DCreate8_local)
 		{
+			PinModule(h_d3d8);
 			return true;
 		}
 	}

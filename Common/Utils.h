@@ -44,6 +44,7 @@ bool GetConfigName(char* ConfigName, rsize_t size, char* ext);
 bool GetConfigName(wchar_t* ConfigName, rsize_t size, wchar_t* ext);
 bool CheckPathNameMatch(LPCSTR lpFileName1, LPCSTR lpFileName2);
 void CopyReplaceSlash(char* DestStr, size_t Size, LPCSTR SrcStr);
+void PinModule(HMODULE dll);
 BOOL GetAppsLightMode();
 void ClearGDISurface(HWND hWnd, COLORREF color);
 HMONITOR GetMonitorHandle();

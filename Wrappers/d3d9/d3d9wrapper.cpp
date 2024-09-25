@@ -38,6 +38,10 @@ HMODULE GetSystemD3d9()
 		GetSystemDirectoryA(Path, MAX_PATH);
 		strcat_s(Path, "\\d3d9.dll");
 		GetModuleHandleExA(NULL, Path, &h_d3d9);
+		if (h_d3d9)
+		{
+			PinModule(h_d3d9);
+		}
 	}
 
 	return h_d3d9;
@@ -85,6 +89,7 @@ bool GetDirect3DCreate9()
 		m_pDirect3DCreate9 = (Direct3DCreate9Proc)GetProcAddress(h_d3d9, "Direct3DCreate9");
 		if (m_pDirect3DCreate9)
 		{
+			PinModule(h_d3d9);
 			return true;
 		}
 	}
@@ -113,6 +118,7 @@ bool GetLocalDirect3DCreate9()
 		m_pDirect3DCreate9_local = (Direct3DCreate9Proc)GetProcAddress(h_d3d9, "Direct3DCreate9");
 		if (m_pDirect3DCreate9_local)
 		{
+			PinModule(h_d3d9);
 			return true;
 		}
 	}

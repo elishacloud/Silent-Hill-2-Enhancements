@@ -1,6 +1,6 @@
 # SH2EE web csv,,,,
 id,name,version,url,SHA256
-setup_tool,SH2:EE Setup Tool,1.1.4,https://files.townofsilenthill.com/SH2EE/SH2EEsetup.exe,notUsed
+setup_tool,SH2:EE Setup Tool,1.1.5,https://files.townofsilenthill.com/SH2EE/SH2EEsetup.exe,notUsed
 sh2emodule,SH2 Enhancements Module,3.0.2210.0,https://files.townofsilenthill.com/SH2EE/packages/SH2EE_Enhancements_Module_3.0.2210.0.zip,81B492CA841DB8321FDC549C13DE063D6D0DBB5BDE55A1280EB462E83069FC1D
 sh2emodule\wine_stub,SH2 Enhancements Module Wine Stub,1.0.1,https://files.townofsilenthill.com/SH2EE/packages/SH2EE_Wine_Stub_1.0.1.zip,279B25E70F2A5D163A52397B0BFA677BFAE23114B3EBE9EF917614C621EF84E7
 ee_exe,Enhanced Executable,1.0.4GB,https://files.townofsilenthill.com/SH2EE/packages/SH2EE_Enhanced_EXE_NA_v1.0.4GB.zip,5CF3BCA870545DB6F31B56DA2C511C6FFCDD2A82FCF4462471D47B700AA84376

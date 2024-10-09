@@ -39,16 +39,22 @@ static DWORD* g_vsHandles = nullptr;
 
 #define WATER_UVADD_VS_CB_SLOT              90
 #define WATER_UVMUL_VS_CB_SLOT              91
+#define WATER_WORLD_VS_CB_SLOT              92
 
 /*
 vs.1.1
-
+// to clip pos
 m4x4 r0, v0, c32
 mov oPos, r0
+// pass-through UVs
 mov oT0, v7
+// animate UVs for the DuDv map
 add oT1, v7, c90
+// pass our ptojected pos for the refraction perspective UVs
 mov oT2, r0
+// scale caustics UVs
 mul oT3, v7, c91
+// pass-through vertex colour
 mov oD0, v5
 */
 DWORD g_WaterVSBytecode[] = {
@@ -60,6 +66,37 @@ DWORD g_WaterVSBytecode[] = {
     0x90e40007, 0x00000002, 0xe00f0001, 0x90e40007,
     0xa0e4005a, 0x00000001, 0xe00f0002, 0x80e40000,
     0x00000005, 0xe00f0003, 0x90e40007, 0xa0e4005b,
+    0x00000001, 0xd00f0000, 0x90e40005, 0x0000ffff
+};
+
+/*
+vs.1.1
+// to clip pos
+m4x4 r0, v0, c32
+mov oPos, r0
+// make main UVs by using world pos
+mul r1, v0.xzzz, c92
+// pass-through UVs
+mov oT0, r1
+// animate UVs for the DuDv map
+add oT1, r1, c90
+// pass our ptojected pos for the refraction perspective UVs
+mov oT2, r0
+// scale caustics UVs
+mul oT3, r1, c91
+// pass-through vertex colour
+mov oD0, v5
+*/
+DWORD g_WaterPondVSBytecode[] = {
+    0xfffe0101, 0x0009fffe, 0x58443344, 0x68532038,
+    0x72656461, 0x73734120, 0x6c626d65, 0x56207265,
+    0x69737265, 0x30206e6f, 0x0031392e, 0x00000014,
+    0x800f0000, 0x90e40000, 0xa0e40020, 0x00000001,
+    0xc00f0000, 0x80e40000, 0x00000005, 0x800f0001,
+    0x90a80000, 0xa0e4005c, 0x00000001, 0xe00f0000,
+    0x80e40001, 0x00000002, 0xe00f0001, 0x80e40001,
+    0xa0e4005a, 0x00000001, 0xe00f0002, 0x80e40000,
+    0x00000005, 0xe00f0003, 0x80e40001, 0xa0e4005b,
     0x00000001, 0xd00f0000, 0x90e40005, 0x0000ffff
 };
 
@@ -135,6 +172,7 @@ DWORD g_WaterPSBytecode[] = {
 };
 
 DWORD g_WaterVSHandle = 0;
+DWORD g_WaterPondVSHandle = 0;
 DWORD g_WaterPSHandle = 0;
 
 IDirect3DTexture8* g_ScreenCopyTexture = nullptr;
@@ -246,9 +284,9 @@ static bool CheckWaterPrimitivesCountByRoom(const UINT PrimitiveCount) {
 
     switch (roomID) {
         // Pond
-        //case R_FOREST_CEMETERY:
-        //    isWater = (PrimitiveCount == 102u);
-        //break;
+        case R_FOREST_CEMETERY:
+            isWater = (PrimitiveCount == 102u);
+        break;
         // Lake
         //case R_TOWN_LAKE:
         //    isWater = (PrimitiveCount == 68u);
@@ -295,6 +333,10 @@ static void GetWaterConstantsByRoom(D3DXVECTOR4& specMult, D3DXVECTOR4& specUvMu
     dudvSpecScale = { 0.04f, 0.04f, 0.04f, 0.04f };
 
     switch (roomID) {
+        // Pond
+        case R_FOREST_CEMETERY:
+            dudvScale = { 0.005f, 0.005f, 0.005f, 0.005f };
+        break;
         // Pyramidhead submerge
         case R_APT_W_STAIRCASE_N:
             specMult = { water_spec_mult_apt_staircase, water_spec_mult_apt_staircase, water_spec_mult_apt_staircase, 0.0f };
@@ -332,7 +374,9 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 Devic
     DWORD colorOp0 = 0;
     Device->GetTextureStageState(0, D3DTSS_COLOROP, &colorOp0);
 
-    if (colorOp0 == D3DTOP_MODULATE2X && PrimitiveType == D3DPT_TRIANGLESTRIP && CheckWaterPrimitivesCountByRoom(PrimitiveCount) && VertexStreamZeroStride == 24u && pVertexStreamZeroData != nullptr) {
+    const DWORD roomID = GetRoomID();
+
+    if ((colorOp0 == D3DTOP_MODULATE2X || roomID == R_FOREST_CEMETERY) && PrimitiveType == D3DPT_TRIANGLESTRIP && CheckWaterPrimitivesCountByRoom(PrimitiveCount) && VertexStreamZeroStride == 24u && pVertexStreamZeroData != nullptr) {
         DWORD currVS = 0u;
         Device->GetVertexShader(&currVS);
         DWORD currPS = 0u;
@@ -366,7 +410,7 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 Devic
             Device->GetTexture(WATER_TEXTURE_SLOT_DUDV, &tex1);
             Device->GetTexture(WATER_TEXTURE_SLOT_CAUSTICS, &tex2);
 
-            Device->SetVertexShader(g_WaterVSHandle);
+            Device->SetVertexShader((roomID == R_FOREST_CEMETERY) ? g_WaterPondVSHandle : g_WaterVSHandle);
             Device->SetPixelShader(g_WaterPSHandle);
 
             Device->SetTexture(WATER_TEXTURE_SLOT_REFRACTION, g_ScreenCopyTexture);
@@ -401,6 +445,16 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 Devic
 
             Device->SetVertexShaderConstant(WATER_UVADD_VS_CB_SLOT, &uvAddition, 1);
             Device->SetVertexShaderConstant(WATER_UVMUL_VS_CB_SLOT, &specUvMult, 1);
+
+            if (roomID == R_FOREST_CEMETERY) {
+                //D3DXMATRIX woldMat = {}, woldMatTrans = {};
+                //Device->GetTransform(D3DTS_WORLD, &woldMat);
+                //D3DXMatrixTranspose(&woldMatTrans, &woldMat);
+                //Device->SetVertexShaderConstant(WATER_WORLD_VS_CB_SLOT, &woldMatTrans, 4);
+                const float worldScale = 1.0f / 3000.0f;
+                D3DXVECTOR4 worldDiv = { worldScale, worldScale, worldScale, worldScale };
+                Device->SetVertexShaderConstant(WATER_WORLD_VS_CB_SLOT, &worldDiv, 1);
+            }
 
             Device->SetPixelShaderConstant(WATER_DUDV_SCALE_PS_CB_SLOT, &dudvScale, 1u);
             Device->SetPixelShaderConstant(WATER_DUDV_SPEC_SCALE_PS_CB_SLOT, &dudvSpecScale, 1u);

@@ -389,7 +389,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
         }
 		
 		// If James is in room 312 and has the VHS in his inventory
-		if (GetRoomID() == R_HTL_RM_312 && GetInventoryItem() > 0x80)
+		if (GetRoomID() == R_HTL_RM_312 && (GetInventoryItem() & 0x80))
 		{
 			ControllerData->rgbButtons[KeyBinds.GetToggleFlashlightButtonBind()] = KEY_CLEAR;
 		}

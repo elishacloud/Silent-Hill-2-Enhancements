@@ -461,6 +461,9 @@
     <ClCompile Include="Patches\WaterEnhancement.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\LeaveEndingDrawDistance.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">

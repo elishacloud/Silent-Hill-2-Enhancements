@@ -647,6 +647,7 @@ void PatchHoldToStomp();
 void PatchInputTweaks();
 void PatchInventoryBGMBug();
 void PatchLakeMoonSize();
+void PatchLeaveEndingCemeteryDrawDistance();
 void PatchLockScreenPosition();
 void PatchLowHealthIndicator();
 void PatchMainMenu();

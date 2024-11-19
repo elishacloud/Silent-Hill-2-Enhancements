@@ -87,6 +87,8 @@ private:
 
     // Enhanced water rendering
     bool NeedToGrabScreenForWater = true;
+    // Cockroaches replacement
+    int RoachesDrawingCounter = 0;
 
 	IDirect3DTexture8 *pInTexture = nullptr;
 	IDirect3DSurface8 *pInSurface = nullptr;

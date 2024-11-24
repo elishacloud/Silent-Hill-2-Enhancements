@@ -387,12 +387,6 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
         {
             ControllerData->rgbButtons[KeyBinds.GetPauseButtonBind()] = KEY_CLEAR;
         }
-		
-		// If James is in room 312 and has the VHS in his inventory
-		if (GetRoomID() == R_HTL_RM_312 && (GetInventoryItem() & 0x80))
-		{
-			ControllerData->rgbButtons[KeyBinds.GetToggleFlashlightButtonBind()] = KEY_CLEAR;
-		}
 
 		// Clear controller data
 		ControllerData = nullptr;
@@ -565,12 +559,6 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 				SetKey(KeyBinds.GetKeyBind(KEY_TURN_LEFT));
 			if (IsKeyPressed(KeyBinds.GetKeyBind(KEY_STRAFE_RIGHT)))
 				SetKey(KeyBinds.GetKeyBind(KEY_TURN_RIGHT));
-		}
-
-		// If James is in room 312 and has the VHS in his inventory
-		if (GetRoomID() == R_HTL_RM_312 && GetInventoryItem() > 0x80)
-		{
-			ClearKey(KeyBinds.GetKeyBind(KEY_FLASHLIGHT));
 		}
 
 		if (SetUpKey)
@@ -1097,11 +1085,6 @@ BYTE KeyBindsHandler::GetKeyBind(int KeyIndex)
 BYTE KeyBindsHandler::GetPauseButtonBind()
 {
 	return *(GetKeyBindsPointer() + 0xF0);
-}
-
-BYTE KeyBindsHandler::GetToggleFlashlightButtonBind()
-{
-	return *(GetKeyBindsPointer() + 0x110);
 }
 
 int CountCollectedMemos()

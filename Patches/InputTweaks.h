@@ -200,7 +200,6 @@ class KeyBindsHandler
 public:
 	BYTE GetKeyBind(int KeyIndex);
 	BYTE GetPauseButtonBind();
-	BYTE GetToggleFlashlightButtonBind();
 };
 
 // Hitboxes for pause and memo menu

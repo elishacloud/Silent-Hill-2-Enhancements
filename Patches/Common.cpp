@@ -3240,10 +3240,10 @@ BYTE* InventoryItemPointer()
 {
 	if (InventoryItemAddr)
 	{
-		return WorldColorBAddr;
+		return InventoryItemAddr;
 	}
 
-	// Get WorldColorB address
+	// Get InventoryItem address
 	InventoryItemAddr =
 		GameVersion == SH2V_10 ? (BYTE*)0x01F7A7E2 :
 		GameVersion == SH2V_11 ? (BYTE*)0x01F7E3E2 :

@@ -176,6 +176,7 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClCompile Include="Common\GfxUtils.cpp" />
     <ClCompile Include="Common\LoadModules.cpp" />
     <ClCompile Include="Common\md5.cpp" />
+    <ClCompile Include="Common\ModelGLTF.cpp" />
     <ClCompile Include="Common\Settings.cpp" />
     <ClCompile Include="Common\Utils.cpp" />
     <ClCompile Include="External\d3d8to9\source\d3d8to9_base.cpp" />
@@ -209,6 +210,7 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClCompile Include="Include\criware\criware_xaudio2.cpp" />
     <ClCompile Include="Include\winmm.cpp" />
     <ClCompile Include="Patches\ChangeClosetSpawn.cpp" />
+    <ClCompile Include="Patches\CockroachesReplacement.cpp" />
     <ClCompile Include="Patches\CommandWindowMouseFix.cpp" />
     <ClCompile Include="Patches\CustomAdvancedOptions.cpp" />
     <ClCompile Include="Patches\DoubleFootstepFix.cpp" />
@@ -344,6 +346,7 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClInclude Include="Common\IUnknownPtr.h" />
     <ClInclude Include="Common\LoadModules.h" />
     <ClInclude Include="Common\md5.h" />
+    <ClInclude Include="Common\ModelGLTF.h" />
     <ClInclude Include="Common\Settings.h" />
     <ClInclude Include="Common\Unicode.h" />
     <ClInclude Include="Common\Utils.h" />

@@ -52,6 +52,64 @@ static void DecodeGLTFVertexColor(ModelGLTF::Vertex_PNCT& v, const tinygltf::Acc
     }
 }
 
+//TINYGLTF_COMPONENT_TYPE_FLOAT
+template <bool normalized>
+static size_t UnpackComponent(const void* srcData, float& dstData, const int componentType) {
+    switch (componentType) {
+        case TINYGLTF_COMPONENT_TYPE_BYTE: {
+            if constexpr (normalized) {
+                dstData = fmaxf(*reinterpret_cast<const int8_t*>(srcData) / 127.0f, -1.0f);
+            } else {
+                dstData = *reinterpret_cast<const int8_t*>(srcData);
+            }
+            return 1;
+        } break;
+        case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE: {
+            if constexpr (normalized) {
+                dstData = *reinterpret_cast<const uint8_t*>(srcData) / 255.0f;
+            } else {
+                dstData = *reinterpret_cast<const uint8_t*>(srcData);
+            }
+            return 1;
+        } break;
+        case TINYGLTF_COMPONENT_TYPE_SHORT: {
+            if constexpr (normalized) {
+                dstData = fmaxf(*reinterpret_cast<const int16_t*>(srcData) / 32767.0f, -1.0f);
+            } else {
+                dstData = *reinterpret_cast<const int16_t*>(srcData);
+            }
+            return 2;
+        } break;
+        case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT: {
+            if constexpr (normalized) {
+                dstData = *reinterpret_cast<const uint16_t*>(srcData) / 65535.0f;
+            } else {
+                dstData = *reinterpret_cast<const uint16_t*>(srcData);
+            }
+            return 2;
+        } break;
+
+        default: {
+            dstData = *reinterpret_cast<const float*>(srcData);
+            return 4;
+        }
+    }
+}
+
+template <size_t vecSize, bool normalized>
+static size_t UnpackVec(const void* srcData, float* dstData, const int componentType) {
+    size_t offset = UnpackComponent<normalized>(srcData, dstData[0], componentType);
+    offset += UnpackComponent<normalized>(reinterpret_cast<const uint8_t*>(srcData) + offset, dstData[1], componentType);
+    if constexpr (vecSize > 2) {
+        offset += UnpackComponent<normalized>(reinterpret_cast<const uint8_t*>(srcData) + offset, dstData[2], componentType);
+        if constexpr (vecSize > 3) {
+            offset += UnpackComponent<normalized>(reinterpret_cast<const uint8_t*>(srcData) + offset, dstData[3], componentType);
+        }
+    }
+
+    return offset;
+}
+
 
 static void ReadGLTFTransformation(const tinygltf::Node& srcNode, ModelGLTF::SceneNode& dstNode) {
     if (srcNode.matrix.size() == 16) {
@@ -560,12 +618,14 @@ void ModelGLTF::CollectAnimation(const void* gltfModel) {
         assert(channelAcc.count == timelineAcc.count);
 
         if (channel.target_path == "rotation") {
-            assert(channelAcc.type == TINYGLTF_TYPE_VEC4 && channelAcc.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT);
+            assert(channelAcc.type == TINYGLTF_TYPE_VEC4);
             assert(track->rotations.empty());
 
-            const D3DXQUATERNION* rotationsPtr = reinterpret_cast<const D3DXQUATERNION*>(channelBuff.data.data() + channelAcc.byteOffset + channelView.byteOffset);
             track->rotations.resize(channelAcc.count);
-            std::memcpy(track->rotations.data(), rotationsPtr, channelAcc.count * sizeof(D3DXQUATERNION));
+            const uint8_t* srcData = channelBuff.data.data() + channelAcc.byteOffset + channelView.byteOffset;
+            for (size_t i = 0, offset = 0; i < channelAcc.count; ++i) {
+                offset += UnpackVec<4, true>(srcData + offset, track->rotations[i], channelAcc.componentType);
+            }
         } else if (channel.target_path == "translation") {
             assert(channelAcc.type == TINYGLTF_TYPE_VEC3 && channelAcc.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT);
             assert(track->offsets.empty());

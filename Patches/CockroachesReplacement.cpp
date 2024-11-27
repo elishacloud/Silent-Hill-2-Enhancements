@@ -12,7 +12,6 @@
 std::filesystem::path               gModelPath;
 static LARGE_INTEGER                gQPCFreq = {};
 static ModelGLTF*                   gCocroachesModel = nullptr;
-std::vector<ModelGLTF::Vertex_PNT>  gXformedVerts;
 static float                        gUpdateTimers[32] = {};
 
 // mov     eax, 0x00A3F5AC
@@ -20,7 +19,6 @@ static float                        gUpdateTimers[32] = {};
 // fmul    dword ptr [eax-1Ch]
 D3DXMATRIX* gActorTransformMatrix = reinterpret_cast<D3DXMATRIX*>(0xA3F590);  // 0x00A3F5AC - 0x1C
 
-//#pragma optimize( "", off )
 void PatchCockroachesReplacement() {
     gModelPath = GetModPath("");
     gModelPath = gModelPath / R"(model\ty3.glb)";
@@ -105,66 +103,13 @@ HRESULT DrawCockroachesReplacement_DIP(int* counter, float deltaTime, LPDIRECT3D
                 return result;
             }
 
-            model->Update(deltaTime, &gUpdateTimers[*counter]);
-            counter[0]++;
-
-            if (gXformedVerts.size() < model->GetNumCPUVertices()) {
-                gXformedVerts.resize(model->GetNumCPUVertices());
-            }
-            const ModelGLTF::Vertex_PNT* vertices = reinterpret_cast<const ModelGLTF::Vertex_PNT*>(model->GetCPUVertices());
-
             D3DXMATRIX actorXForm;
             D3DXMatrixTranspose(&actorXForm, gActorTransformMatrix);
 
-            const size_t numNodes = model->GetNumSceneNodes();
-            for (size_t i = 0; i < numNodes; ++i) {
-                const ModelGLTF::SceneNode* node = model->GetSceneNode(i);
-                if (node->meshIdx < 0) {
-                    continue;
-                }
+            model->Update(deltaTime, actorXForm, &gUpdateTimers[*counter]);
+            counter[0]++;
 
-                const D3DXMATRIX& nodeXForm = model->GetAnimatedSceneNodeXForm(i);
-
-                D3DXMATRIX fullXForm = nodeXForm * actorXForm;
-                D3DXMATRIX fullXFormI, fullXFormTI;
-                D3DXMatrixInverse(&fullXFormI, nullptr, &fullXForm);
-                D3DXMatrixTranspose(&fullXFormTI, &fullXFormI);
-
-                const ModelGLTF::Mesh& mesh = model->GetMesh(node->meshIdx);
-                for (const ModelGLTF::Section& section : mesh.sections) {
-                    for (size_t j = section.vbOffset; j < (section.vbOffset + section.numVertices); ++j) {
-                        D3DXVECTOR4 xformedV;
-                        D3DXVECTOR3 xformedN;
-                        D3DXVec3Transform(&xformedV, &vertices[j].pos, &fullXForm);
-                        D3DXVec3TransformNormal(&xformedN, &vertices[j].normal, &fullXFormTI);
-                        gXformedVerts[j].pos.x = xformedV.x;
-                        gXformedVerts[j].pos.y = xformedV.y;
-                        gXformedVerts[j].pos.z = xformedV.z;
-                        gXformedVerts[j].normal = xformedN;
-                        gXformedVerts[j].uv = vertices[j].uv;
-                    }
-                }
-            }
-
-            vertices = gXformedVerts.data();
-
-            IUnknownPtr<IDirect3DBaseTexture8> savedTexture;
-            ProxyInterface->GetTexture(0, savedTexture.ReleaseAndGetAddressOf());
-            ProxyInterface->SetTexture(0, model->GetTexture(0));
-
-            const uint16_t* indices = model->GetCPUIndices();
-
-            const size_t numMeshes = model->GetNumMeshes();
-            for (size_t meshIdx = 0; meshIdx < numMeshes; ++meshIdx) {
-                const ModelGLTF::Mesh& mesh = model->GetMesh(meshIdx);
-                for (const ModelGLTF::Section& section : mesh.sections) {
-                    ProxyInterface->DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST, 0, section.numVertices, section.numIndices / 3u, indices + section.ibOffset, D3DFMT_INDEX16, vertices + section.vbOffset, sizeof(ModelGLTF::Vertex_PNT));
-                }
-            }
-
-            ProxyInterface->SetTexture(0, savedTexture.GetPtr());
-
-            result = S_OK;
+            result = model->Draw(ProxyInterface);
         } else if (isThisTy3Shadow) {
             // just ignore it
             result = S_OK;
@@ -202,4 +147,3 @@ HRESULT DrawCockroachesReplacement_DP(LPDIRECT3DDEVICE8 ProxyInterface, D3DPRIMI
 
     return result;
 }
-//#pragma optimize( "", on )

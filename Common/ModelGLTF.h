@@ -37,7 +37,7 @@ public:
         uint32_t vbOffset;
         uint32_t ibOffset;
         uint32_t textureIdx;
-        uint32_t padding;
+        uint32_t skinningOffset;
     };
 
     struct Mesh {
@@ -47,6 +47,7 @@ public:
     struct SceneNode {
         int              meshIdx = -1;      // index into mMeshes
         int              animTrackIdx = -1; // index into mAnimTracks
+        int              skinIdx = -1;      // index into mSkins
         D3DXVECTOR3      position;
         D3DXQUATERNION   rotation;
         D3DXVECTOR3      scale;
@@ -61,13 +62,19 @@ public:
         std::vector<D3DXVECTOR3>    scales;
     };
 
+    struct Skin {
+        std::vector<int>        joints;
+        std::vector<D3DXMATRIX> invBindMatrices;
+    };
+
 public:
     ModelGLTF() = delete;
     ModelGLTF(const VertexType vtype, const bool uploadToGPU);
     ~ModelGLTF();
 
     bool                                LoadFromFile(const std::string& filePath, IDirect3DDevice8* device);
-    void                                Update(const float deltaInSeconds, float* customTimer = nullptr);
+    void                                Update(const float deltaInSeconds, const D3DXMATRIX& globalXForm, float* customTimer = nullptr);
+    HRESULT                             Draw(IDirect3DDevice8* device);
 
     size_t                              GetNumMeshes() const;
     const Mesh&                         GetMesh(const size_t idx) const;
@@ -76,6 +83,8 @@ public:
     const size_t                        GetNumCPUIndices() const;
     const uint8_t*                      GetCPUVertices() const;
     const uint16_t*                     GetCPUIndices() const;
+
+    const uint8_t*                      GetCPUXFormedVertices() const;
 
     IDirect3DVertexBuffer8*             GetGPUVertices() const;
     IDirect3DIndexBuffer8*              GetGPUIndices() const;
@@ -90,7 +99,11 @@ public:
 
 private:
     void                                CollectAnimation(const void* gltfModel);
+    void                                CollectSkinning(const void* gltfModel);
     void                                RecursiveBuildChildrenXForm(const int nodeIdx, const D3DXMATRIX& parentXForm);
+
+    template <typename T>
+    void                                XFormVertices(const D3DXMATRIX& globalXForm, T* dstVertices);
 
 private:
     VertexType                          mVertexType;
@@ -99,10 +112,10 @@ private:
     std::vector<uint8_t>                mVertices;
     std::vector<uint16_t>               mIndices;
 
-    std::vector<Vertex_Skin>            mSkinVertices;
-
     IUnknownPtr<IDirect3DVertexBuffer8> mVB;
     IUnknownPtr<IDirect3DIndexBuffer8>  mIB;
+
+    std::vector<uint8_t>                mXFormedVertices;
 
     std::vector<Mesh>                   mMeshes;
 
@@ -118,4 +131,8 @@ private:
     std::vector<AnimTrack>              mAnimTracks;
     std::vector<D3DXMATRIX>             mAnimatedNodesXForms;
     float                               mAnimTime;
+
+    // skinning
+    std::vector<Vertex_Skin>            mSkinVertices;
+    std::vector<Skin>                   mSkins;
 };

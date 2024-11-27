@@ -12,7 +12,6 @@
 #include "GfxUtils.h"
 #include <filesystem>
 
-
 static bool ExtensionEqual(const char* filePath, const char* extToCompare) {
     const size_t len = strnlen_s(filePath, 1024);
     return tolower(filePath[len - 3]) == tolower(extToCompare[0]) &&
@@ -163,6 +162,9 @@ bool ModelGLTF::LoadFromFile(const std::string& filePath, IDirect3DDevice8* devi
             const tinygltf::Primitive& prim = srcMesh.primitives[i];
             assert(prim.mode == TINYGLTF_MODE_TRIANGLES);
 
+            Section& section = dstMesh.sections[i];
+            section.skinningOffset = ~0u;
+
             const int posIdx = map_contains(prim.attributes, std::string("POSITION")) ? prim.attributes.at("POSITION") : -1;
             const int normIdx = map_contains(prim.attributes, std::string("NORMAL")) ? prim.attributes.at("NORMAL") : -1;
             const int colorIdx = map_contains(prim.attributes, std::string("COLOR_0")) ? prim.attributes.at("COLOR_0") : -1;
@@ -244,7 +246,7 @@ bool ModelGLTF::LoadFromFile(const std::string& filePath, IDirect3DDevice8* devi
                     const uint16_t* bonesPtr = reinterpret_cast<const uint16_t*>(bonesBuff->data.data() + bonesAcc->byteOffset + bonesView->byteOffset) + (j * 4);
                     const float* weightsPtr = reinterpret_cast<const float*>(weightsBuff->data.data() + weightsAcc->byteOffset + weightsView->byteOffset) + (j * 4);
 
-                    Vertex_Skin& vs = mSkinVertices.data()[skinVertsOffset + j];
+                    Vertex_Skin& vs = mSkinVertices[skinVertsOffset + j];
                     vs.bones[0] = static_cast<uint8_t>(bonesPtr[0]);
                     vs.bones[1] = static_cast<uint8_t>(bonesPtr[1]);
                     vs.bones[2] = static_cast<uint8_t>(bonesPtr[2]);
@@ -252,6 +254,8 @@ bool ModelGLTF::LoadFromFile(const std::string& filePath, IDirect3DDevice8* devi
                     vs.weights[0] = weightsPtr[0]; vs.weights[1] = weightsPtr[1];
                     vs.weights[2] = weightsPtr[2]; vs.weights[3] = weightsPtr[3];
                 }
+
+                section.skinningOffset = static_cast<uint32_t>(skinVertsOffset);
             }
 
             const tinygltf::Accessor& idxAcc = model.accessors[prim.indices];
@@ -271,13 +275,11 @@ bool ModelGLTF::LoadFromFile(const std::string& filePath, IDirect3DDevice8* devi
                 }
             }
 
-            Section& section = dstMesh.sections[i];
             section.numVertices = static_cast<uint32_t>(posAcc.count);
             section.numIndices = static_cast<uint32_t>(idxAcc.count);
             section.vbOffset = static_cast<uint32_t>(vertsOffset);
             section.ibOffset = static_cast<uint32_t>(indicesOffset);
             section.textureIdx = static_cast<uint32_t>(model.materials[prim.material].pbrMetallicRoughness.baseColorTexture.index);
-            section.padding = 0u;
         }
     }
 
@@ -306,6 +308,9 @@ bool ModelGLTF::LoadFromFile(const std::string& filePath, IDirect3DDevice8* devi
 
         mVertices.clear();
         mIndices.clear();
+    } else {
+        mXFormedVertices.resize(mVertices.size());
+        std::memcpy(mXFormedVertices.data(), mVertices.data(), mVertices.size());
     }
 
     // now collect textures
@@ -326,6 +331,7 @@ bool ModelGLTF::LoadFromFile(const std::string& filePath, IDirect3DDevice8* devi
         SceneNode& dstNode = mSceneNodes[i];
 
         dstNode.meshIdx = srcNode.mesh;
+        dstNode.skinIdx = srcNode.skin;
         ReadGLTFTransformation(srcNode, dstNode);
         dstNode.children = srcNode.children;
 
@@ -339,10 +345,14 @@ bool ModelGLTF::LoadFromFile(const std::string& filePath, IDirect3DDevice8* devi
     mRootNode.scale = { 1.0f, 1.0f, 1.0f };
     mRootNode.children = scene.nodes;
 
+    mAnimatedNodesXForms.resize(model.nodes.size());
+
     if (!model.animations.empty()) {
         this->CollectAnimation(&model);
-    } else {
-        mAnimatedNodesXForms.resize(model.nodes.size());
+    }
+
+    if (!model.skins.empty()) {
+        this->CollectSkinning(&model);
     }
 
     mAnimTime = 0.0f;
@@ -355,7 +365,7 @@ bool ModelGLTF::LoadFromFile(const std::string& filePath, IDirect3DDevice8* devi
     return true;
 }
 
-void ModelGLTF::Update(const float deltaInSeconds, float* customTimer) {
+void ModelGLTF::Update(const float deltaInSeconds, const D3DXMATRIX& globalXForm, float* customTimer) {
     if (!mAnimTimeline.empty()) {
         float& timer = (customTimer == nullptr) ? mAnimTime : *customTimer;
 
@@ -402,6 +412,47 @@ void ModelGLTF::Update(const float deltaInSeconds, float* customTimer) {
     for (const int idx : mRootNode.children) {
         this->RecursiveBuildChildrenXForm(idx, rootXForm);
     }
+
+    if (!mUploadToGPU) {
+        if (mVertexType == VertexType::PosNormalTexcoord) {
+            this->XFormVertices<Vertex_PNT>(globalXForm, reinterpret_cast<Vertex_PNT*>(mXFormedVertices.data()));
+        } else {
+            this->XFormVertices<Vertex_PNCT>(globalXForm, reinterpret_cast<Vertex_PNCT*>(mXFormedVertices.data()));
+        }
+    }
+}
+
+HRESULT ModelGLTF::Draw(IDirect3DDevice8* device) {
+    const DWORD vertexSize = (mVertexType == VertexType::PosNormalTexcoord) ? sizeof(Vertex_PNT) : sizeof(Vertex_PNCT);
+
+    HRESULT hr = S_OK;
+
+    IUnknownPtr<IDirect3DBaseTexture8> savedTexture;
+    hr = device->GetTexture(0, savedTexture.ReleaseAndGetAddressOf());
+    if (FAILED(hr)) {
+        return hr;
+    }
+
+    const uint8_t* vertices = mXFormedVertices.data();
+    const uint16_t* indices = mIndices.data();
+
+    uint32_t lastTextureIdx = ~0u;
+    for (const ModelGLTF::Mesh& mesh : mMeshes) {
+        for (const ModelGLTF::Section& section : mesh.sections) {
+            if (section.textureIdx != lastTextureIdx) {
+                device->SetTexture(0, mTextures[section.textureIdx].GetPtr());
+                lastTextureIdx = section.textureIdx;
+            }
+
+            hr = device->DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST, 0, section.numVertices, section.numIndices / 3u, indices + section.ibOffset, D3DFMT_INDEX16, vertices + section.vbOffset * vertexSize, vertexSize);
+            if (FAILED(hr)) {
+                return hr;
+            }
+        }
+    }
+
+    hr = device->SetTexture(0, savedTexture.GetPtr());
+    return hr;
 }
 
 size_t ModelGLTF::GetNumMeshes() const {
@@ -427,6 +478,10 @@ const uint8_t* ModelGLTF::GetCPUVertices() const {
 
 const uint16_t* ModelGLTF::GetCPUIndices() const {
     return mIndices.data();
+}
+
+const uint8_t* ModelGLTF::GetCPUXFormedVertices() const {
+    return mXFormedVertices.data();
 }
 
 IDirect3DVertexBuffer8* ModelGLTF::GetGPUVertices() const {
@@ -464,8 +519,6 @@ const D3DXMATRIX& ModelGLTF::GetAnimatedSceneNodeXForm(const size_t idx) const {
 
 void ModelGLTF::CollectAnimation(const void* gltfModel) {
     const tinygltf::Model* model = reinterpret_cast<const tinygltf::Model*>(gltfModel);
-
-    mAnimatedNodesXForms.resize(model->nodes.size());
 
     const tinygltf::Animation& anim = model->animations.front();
     // iOrange: I assume only one input sampler for simplicity
@@ -531,6 +584,31 @@ void ModelGLTF::CollectAnimation(const void* gltfModel) {
     }
 }
 
+void ModelGLTF::CollectSkinning(const void* gltfModel) {
+    const tinygltf::Model* model = reinterpret_cast<const tinygltf::Model*>(gltfModel);
+
+    const size_t numSkins = model->skins.size();
+    mSkins.resize(numSkins);
+
+    for (size_t skinIdx = 0; skinIdx < numSkins; ++skinIdx) {
+        const tinygltf::Skin& srcSkin = model->skins.front();
+        Skin& dstSkin = mSkins[skinIdx];
+
+        dstSkin.joints = srcSkin.joints;
+
+        const tinygltf::Accessor& invBindMatsAcc = model->accessors[srcSkin.inverseBindMatrices];
+        const tinygltf::BufferView& invBindMatsView = model->bufferViews[invBindMatsAcc.bufferView];
+        const tinygltf::Buffer& invBindMatsBuff = model->buffers[invBindMatsView.buffer];
+
+        assert(invBindMatsAcc.type == TINYGLTF_TYPE_MAT4 && invBindMatsAcc.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT);
+
+        dstSkin.invBindMatrices.resize(invBindMatsAcc.count);
+
+        const float* invBindMatsPtr = reinterpret_cast<const float*>(invBindMatsBuff.data.data() + invBindMatsAcc.byteOffset + invBindMatsView.byteOffset);
+        std::memcpy(dstSkin.invBindMatrices.data(), invBindMatsPtr, invBindMatsAcc.count * sizeof(D3DXMATRIX));
+    }
+}
+
 void ModelGLTF::RecursiveBuildChildrenXForm(const int nodeIdx, const D3DXMATRIX& parentXForm) {
     const SceneNode& node = mSceneNodes[nodeIdx];
     if (node.animTrackIdx < 0) {
@@ -539,5 +617,82 @@ void ModelGLTF::RecursiveBuildChildrenXForm(const int nodeIdx, const D3DXMATRIX&
     mAnimatedNodesXForms[nodeIdx] *= parentXForm;
     for (const int childIdx : node.children) {
         this->RecursiveBuildChildrenXForm(childIdx, mAnimatedNodesXForms[nodeIdx]);
+    }
+}
+
+template <typename T>
+void ModelGLTF::XFormVertices(const D3DXMATRIX& globalXForm, T* dstVertices) {
+    const T* srcVertices = reinterpret_cast<const T*>(mVertices.data());
+
+    std::vector<D3DXMATRIX> jointXForms;
+    const D3DXVECTOR3* vpos, * vnorm;
+    D3DXVECTOR3 skinnedPos, skinnedNorm;
+
+    for (size_t i = 0, numNodes = mSceneNodes.size(); i < numNodes; ++i) {
+        const ModelGLTF::SceneNode& node = mSceneNodes[i];
+        if (node.meshIdx < 0) {
+            continue;
+        }
+
+        const D3DXMATRIX& nodeXForm = mAnimatedNodesXForms[i];
+
+        D3DXMATRIX fullXForm = nodeXForm * globalXForm;
+        D3DXMATRIX fullXFormI, fullXFormTI;
+        D3DXMatrixInverse(&fullXFormI, nullptr, &fullXForm);
+        D3DXMatrixTranspose(&fullXFormTI, &fullXFormI);
+
+        const ModelGLTF::Mesh& mesh = mMeshes[node.meshIdx];
+        const Skin* skin = (node.skinIdx >= 0) ? &mSkins[node.skinIdx] : nullptr;
+
+        if (skin) {
+            const size_t numJoints = skin->invBindMatrices.size();
+            jointXForms.resize((std::max)(jointXForms.size(), numJoints));
+
+            D3DXMATRIX nodeXFormI;
+            D3DXMatrixInverse(&nodeXFormI, nullptr, &nodeXForm);
+
+            for (size_t j = 0; j < numJoints; ++j) {
+                jointXForms[j] = skin->invBindMatrices[j] * mAnimatedNodesXForms[skin->joints[j]] * nodeXFormI;
+            }
+        }
+
+        for (const ModelGLTF::Section& section : mesh.sections) {
+            for (size_t j = 0; j < section.numVertices; ++j) {
+                if (skin) {
+                    D3DXMATRIX skinMat;
+                    std::memset(&skinMat, 0, sizeof(skinMat));
+                    const Vertex_Skin& skinVert = mSkinVertices[section.skinningOffset + j];
+                    for (size_t k = 0; k < 4; ++k) {
+                        if (skinVert.weights[k] > 0.0f) {
+                            skinMat += (jointXForms[skinVert.bones[k]] * skinVert.weights[k]);
+                        }
+                    }
+
+                    D3DXVECTOR4 temp;
+                    D3DXVec3Transform(&temp, &srcVertices[section.vbOffset + j].pos, &skinMat);
+                    D3DXVec3TransformNormal(&skinnedNorm, &srcVertices[section.vbOffset + j].normal, &skinMat);
+
+                    skinnedPos.x = temp.x;
+                    skinnedPos.y = temp.y;
+                    skinnedPos.z = temp.z;
+
+                    vpos = &skinnedPos;
+                    vnorm = &skinnedNorm;
+                } else {
+                    vpos = &srcVertices[section.vbOffset + j].pos;
+                    vnorm = &srcVertices[section.vbOffset + j].normal;
+                }
+
+                D3DXVECTOR4 xformedV;
+                D3DXVECTOR3 xformedN;
+                D3DXVec3Transform(&xformedV, vpos, &fullXForm);
+                D3DXVec3TransformNormal(&xformedN, vnorm, &fullXFormTI);
+
+                dstVertices[section.vbOffset + j].pos.x = xformedV.x;
+                dstVertices[section.vbOffset + j].pos.y = xformedV.y;
+                dstVertices[section.vbOffset + j].pos.z = xformedV.z;
+                dstVertices[section.vbOffset + j].normal = xformedN;
+            }
+        }
     }
 }

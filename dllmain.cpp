@@ -809,6 +809,9 @@ void DelayedStart()
 	{
 		PatchCustomAdvancedOptions();
 	}
+
+	// Increase cemetery draw distance for leave ending
+	PatchLeaveEndingCemeteryDrawDistance();
 	
 	// Remove the "Now loading..." and "Press Return to continue." messages
 	if (DisableLoadingPressReturnMessages)

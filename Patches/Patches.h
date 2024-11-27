@@ -648,6 +648,7 @@ void PatchHoldToStomp();
 void PatchInputTweaks();
 void PatchInventoryBGMBug();
 void PatchLakeMoonSize();
+void PatchLeaveEndingCemeteryDrawDistance();
 void PatchLockScreenPosition();
 void PatchLowHealthIndicator();
 void PatchMainMenu();
@@ -752,6 +753,7 @@ float GetConditionalFlashlightBrightnessRed();
 float GetConditionalFlashlightBrightnessGreen();
 float GetConditionalFlashlightBrightnessBlue();
 void CheckLakeMoonSize();
+void CheckRoom312Flashlight();
 
 // Define the template function declaration
 template<typename T>

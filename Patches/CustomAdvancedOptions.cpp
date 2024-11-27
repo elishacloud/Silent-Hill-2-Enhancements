@@ -636,7 +636,12 @@ namespace
         {
             if (!Option::Apply()) return false;
             *DxConfigMotionBlurEnabled = *DxConfigDepthOfFieldEnabled = (BYTE)value_index_;
-            HandleAdvancedFiltersChange();
+            __asm
+            {
+                sub esp, 0x1C
+                call HandleAdvancedFiltersChange
+                add esp, 0x1C
+            }
             return true;
         }
     };

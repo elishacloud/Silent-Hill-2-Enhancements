@@ -417,6 +417,10 @@ void SetScreenAndWindowSize()
 	{
 		Logging::Log() << __FUNCTION__ << " Setting display mode: " <<
 			(ScreenMode == WINDOWED ? "Windowed" : ScreenMode == WINDOWED_FULLSCREEN ? "Windowed Fullscreen" : "Exclusive Fullscreen");
+		if (ScreenMode != EXCLUSIVE_FULLSCREEN)
+		{
+			ShowCursor(FALSE);
+		}
 	}
 	LastScreenMode = ScreenMode;
 

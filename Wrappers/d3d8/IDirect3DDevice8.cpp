@@ -20,6 +20,7 @@
 #include <chrono>
 #include <deque>
 #include <ctime>
+#include <numeric>
 #include "Common\Utils.h"
 #include "stb_image.h"
 #include "stb_image_dds.h"
@@ -1374,6 +1375,58 @@ bool m_IDirect3DDevice8::FixPauseMenuOnPresent()
 	return PauseMenuFlag;
 }
 
+void m_IDirect3DDevice8::LimitFrameRate()
+{
+	// Count the number of frames
+	Counter.FrameCounter++;
+
+	// Get performance frequency if not already cached
+	static LARGE_INTEGER Frequency = {};
+	if (!Frequency.QuadPart)
+	{
+		QueryPerformanceFrequency(&Frequency);
+	}
+	static LONGLONG TicksPerMS = Frequency.QuadPart / 1000;
+
+	// Calculate the delay time in ticks
+	static long double PerFrameFPS = LimitPerFrameFPS ? LimitPerFrameFPS : (SetSixtyFPS ? 59.94 : 29.97);
+	static LONGLONG PreFrameTicks = static_cast<LONGLONG>(static_cast<long double>(Frequency.QuadPart) / PerFrameFPS);
+
+	// Get next tick time
+	LARGE_INTEGER ClickTime = {};
+	QueryPerformanceCounter(&ClickTime);
+	LONGLONG TargetEndTicks = Counter.LastPresentTime.QuadPart;
+	LONGLONG FramesSinceLastCall = ((ClickTime.QuadPart - Counter.LastPresentTime.QuadPart - 1) / PreFrameTicks) + 1;
+	if (Counter.LastPresentTime.QuadPart == 0 || FramesSinceLastCall > 2)
+	{
+		QueryPerformanceCounter(&Counter.LastPresentTime);
+		TargetEndTicks = Counter.LastPresentTime.QuadPart;
+	}
+	else
+	{
+		TargetEndTicks += FramesSinceLastCall * PreFrameTicks;
+	}
+	
+	// Wait for time to expire
+	bool DoLoop;
+	do {
+		QueryPerformanceCounter(&ClickTime);
+		LONGLONG RemainingTicks = TargetEndTicks - ClickTime.QuadPart;
+
+		// Check if we still need to wait
+		DoLoop = RemainingTicks > 0;
+
+		if (DoLoop)
+		{
+			// Busy wait until we reach the target time
+			BusyWaitYield(static_cast<DWORD>(RemainingTicks / TicksPerMS));
+		}
+	} while (DoLoop);
+
+	// Update the last present time
+	Counter.LastPresentTime.QuadPart = TargetEndTicks;
+}
+
 HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
 {
 	Logging::LogDebug() << __FUNCTION__;
@@ -1438,6 +1491,11 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 		if (ClearScreen)
 		{
 			ClearScreen = false;
+			if (ScreenMode != EXCLUSIVE_FULLSCREEN)
+			{
+				LimitFrameRate();
+			}
+
 			HRESULT hr = ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 
 			if (SUCCEEDED(hr))
@@ -1476,6 +1534,11 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 	// Present screen
 	if (!PauseMenuFlag)
 	{
+		if (ScreenMode != EXCLUSIVE_FULLSCREEN)
+		{
+			LimitFrameRate();
+		}
+
 		hr = ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 
 		if (SUCCEEDED(hr))

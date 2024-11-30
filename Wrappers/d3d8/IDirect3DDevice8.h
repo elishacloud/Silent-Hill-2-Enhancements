@@ -208,6 +208,12 @@ private:
 		UINT stream0Stride;
 	};
 
+	// Limit frame rate
+	struct {
+		DWORD FrameCounter = 0;
+		LARGE_INTEGER LastPresentTime = {};
+	} Counter;
+
 	// Helper functions
 	void EnableAntiAliasing();
 	void DisableAntiAliasing();
@@ -224,6 +230,7 @@ private:
 	void CaptureScreenShot();
 	HRESULT CreateDCSurface(EMUSURFACE& surface, LONG Width, LONG Height);
 	void ReleaseDCSurface(EMUSURFACE& surface);
+	void LimitFrameRate();
 
 public:
 	m_IDirect3DDevice8(LPDIRECT3DDEVICE8 pDevice, m_IDirect3D8* pD3D) : ProxyInterface(pDevice), m_pD3D(pD3D)

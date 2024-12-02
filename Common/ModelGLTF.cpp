@@ -250,8 +250,8 @@ bool ModelGLTF::LoadFromFile(const std::string& filePath, IDirect3DDevice8* devi
             assert(posAcc.count == normAcc.count && posAcc.count == uvAcc.count);
 
             if (bonesAcc && weightsAcc) {
-                assert(bonesAcc->componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT && bonesAcc->type == TINYGLTF_TYPE_VEC4);
-                assert(weightsAcc->componentType == TINYGLTF_COMPONENT_TYPE_FLOAT && weightsAcc->type == TINYGLTF_TYPE_VEC4);
+                assert((bonesAcc->componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE || bonesAcc->componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) && bonesAcc->type == TINYGLTF_TYPE_VEC4);
+                assert(weightsAcc->type == TINYGLTF_TYPE_VEC4);
 
                 assert(posAcc.count == bonesAcc->count && posAcc.count == weightsAcc->count);
             }
@@ -281,36 +281,37 @@ bool ModelGLTF::LoadFromFile(const std::string& filePath, IDirect3DDevice8* devi
 
                 if (mVertexType == VertexType::PosNormalTexcoord) {
                     Vertex_PNT& v = reinterpret_cast<Vertex_PNT*>(mVertices.data())[vertsOffset + j];
-                    v.pos.x      = posPtr[0];  v.pos.y    = posPtr[1];  v.pos.z    = posPtr[2];
-                    v.normal.x   = normPtr[0]; v.normal.y = normPtr[1]; v.normal.z = normPtr[2];
-                    v.uv.x       = uvPtr[0];   v.uv.y     = uvPtr[1];
+                    v.pos.x     = posPtr[0];  v.pos.y    = posPtr[1];  v.pos.z    = posPtr[2];
+                    v.normal.x  = normPtr[0]; v.normal.y = normPtr[1]; v.normal.z = normPtr[2];
+                    v.uv.x      = uvPtr[0];   v.uv.y     = uvPtr[1];
                 } else {
                     Vertex_PNCT& v = reinterpret_cast<Vertex_PNCT*>(mVertices.data())[vertsOffset + j];
-                    v.pos.x       = posPtr[0];  v.pos.y    = posPtr[1];  v.pos.z    = posPtr[2];
-                    v.normal.x    = normPtr[0]; v.normal.y = normPtr[1]; v.normal.z = normPtr[2];
+                    v.pos.x     = posPtr[0];  v.pos.y    = posPtr[1];  v.pos.z    = posPtr[2];
+                    v.normal.x  = normPtr[0]; v.normal.y = normPtr[1]; v.normal.z = normPtr[2];
                     if (colorAcc) {
                         DecodeGLTFVertexColor(v, colorAcc, colorView, colorBuff, j);
                     } else {
-                        v.color    = ~0u;
+                        v.color = ~0u;
                     }
-                    v.uv.x        = uvPtr[0];   v.uv.y     = uvPtr[1];
+                    v.uv.x      = uvPtr[0];   v.uv.y     = uvPtr[1];
                 }
             }
 
             if (bonesBuff && weightsBuff) {
                 const size_t skinVertsOffset = mSkinVertices.size();
                 mSkinVertices.resize(mSkinVertices.size() + posAcc.count);
-                for (size_t j = 0; j < posAcc.count; ++j) {
-                    const uint16_t* bonesPtr = reinterpret_cast<const uint16_t*>(bonesBuff->data.data() + bonesAcc->byteOffset + bonesView->byteOffset) + (j * 4);
-                    const float* weightsPtr = reinterpret_cast<const float*>(weightsBuff->data.data() + weightsAcc->byteOffset + weightsView->byteOffset) + (j * 4);
+                const bool bonesAreU8 = bonesAcc->componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE;
+                const uint8_t* weightsPtr = weightsBuff->data.data() + weightsAcc->byteOffset + weightsView->byteOffset;
+                for (size_t j = 0, weightsOff = 0; j < posAcc.count; ++j) {
+                    const uint16_t* bonesPtrU16 = reinterpret_cast<const uint16_t*>(bonesBuff->data.data() + bonesAcc->byteOffset + bonesView->byteOffset) + (j * 4);
+                    const uint8_t* bonesPtrU8 = bonesBuff->data.data() + bonesAcc->byteOffset + bonesView->byteOffset + (j * 4);
 
                     Vertex_Skin& vs = mSkinVertices[skinVertsOffset + j];
-                    vs.bones[0] = static_cast<uint8_t>(bonesPtr[0]);
-                    vs.bones[1] = static_cast<uint8_t>(bonesPtr[1]);
-                    vs.bones[2] = static_cast<uint8_t>(bonesPtr[2]);
-                    vs.bones[3] = static_cast<uint8_t>(bonesPtr[3]);
-                    vs.weights[0] = weightsPtr[0]; vs.weights[1] = weightsPtr[1];
-                    vs.weights[2] = weightsPtr[2]; vs.weights[3] = weightsPtr[3];
+                    vs.bones[0] = bonesAreU8 ? bonesPtrU8[0] : static_cast<uint8_t>(bonesPtrU16[0]);
+                    vs.bones[1] = bonesAreU8 ? bonesPtrU8[1] : static_cast<uint8_t>(bonesPtrU16[1]);
+                    vs.bones[2] = bonesAreU8 ? bonesPtrU8[2] : static_cast<uint8_t>(bonesPtrU16[2]);
+                    vs.bones[3] = bonesAreU8 ? bonesPtrU8[3] : static_cast<uint8_t>(bonesPtrU16[3]);
+                    weightsOff += UnpackVec<4, true>(weightsPtr + weightsOff, vs.weights, weightsAcc->componentType);
                 }
 
                 section.skinningOffset = static_cast<uint32_t>(skinVertsOffset);
@@ -337,7 +338,8 @@ bool ModelGLTF::LoadFromFile(const std::string& filePath, IDirect3DDevice8* devi
             section.numIndices = static_cast<uint32_t>(idxAcc.count);
             section.vbOffset = static_cast<uint32_t>(vertsOffset);
             section.ibOffset = static_cast<uint32_t>(indicesOffset);
-            section.textureIdx = static_cast<uint32_t>(model.materials[prim.material].pbrMetallicRoughness.baseColorTexture.index);
+            const int albedoIdx = model.materials[prim.material].pbrMetallicRoughness.baseColorTexture.index;
+            section.textureIdx = static_cast<uint32_t>(model.textures[albedoIdx].source);
         }
     }
 

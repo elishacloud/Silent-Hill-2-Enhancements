@@ -1377,6 +1377,17 @@ bool m_IDirect3DDevice8::FixPauseMenuOnPresent()
 
 void m_IDirect3DDevice8::LimitFrameRate()
 {
+	// Try using raster status for timing
+	D3DDISPLAYMODE Mode = {};
+	if (SUCCEEDED(ProxyInterface->GetDisplayMode(&Mode)) && (Mode.RefreshRate % (SetSixtyFPS ? 60 : 30)) == 0)
+	{
+		D3DRASTER_STATUS RasterStatus = {};
+		do {
+			BusyWaitYield(static_cast<DWORD>(-1));
+		} while (SUCCEEDED(ProxyInterface->GetRasterStatus(&RasterStatus)) && !RasterStatus.InVBlank);
+		return;
+	}
+
 	// Count the number of frames
 	Counter.FrameCounter++;
 
@@ -1389,7 +1400,7 @@ void m_IDirect3DDevice8::LimitFrameRate()
 	static LONGLONG TicksPerMS = Frequency.QuadPart / 1000;
 
 	// Calculate the delay time in ticks
-	static long double PerFrameFPS = LimitPerFrameFPS ? LimitPerFrameFPS : (SetSixtyFPS ? 59.94 : 29.97);
+	static long double PerFrameFPS = LimitPerFrameFPS;
 	static LONGLONG PreFrameTicks = static_cast<LONGLONG>(static_cast<long double>(Frequency.QuadPart) / PerFrameFPS);
 
 	// Get next tick time
@@ -1491,7 +1502,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 		if (ClearScreen)
 		{
 			ClearScreen = false;
-			if (ScreenMode != EXCLUSIVE_FULLSCREEN)
+			if (LimitPerFrameFPS && ScreenMode != EXCLUSIVE_FULLSCREEN)
 			{
 				LimitFrameRate();
 			}
@@ -1534,7 +1545,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 	// Present screen
 	if (!PauseMenuFlag)
 	{
-		if (ScreenMode != EXCLUSIVE_FULLSCREEN)
+		if (LimitPerFrameFPS && ScreenMode != EXCLUSIVE_FULLSCREEN)
 		{
 			LimitFrameRate();
 		}

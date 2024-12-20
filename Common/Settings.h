@@ -192,7 +192,7 @@
 	visit(fog_layer2_complexity, 0.055f) \
 	visit(fog_layer2_density_add, 100.0f) \
 	visit(fog_layer2_density_mult, 1.4f) \
-	visit(LimitPerFrameFPS, 0.0f) \
+	visit(LimitPerFrameFPS, 59.997f) \
 	visit(water_spec_mult_apt_staircase, 0.035f) \
 	visit(water_spec_mult_strange_area, 0.017f) \
 	visit(water_spec_mult_labyrinth, 0.017f) \

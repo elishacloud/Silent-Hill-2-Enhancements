@@ -639,6 +639,11 @@ void DelayedStart()
 		PatchWaterDrawOrderFix();
 	}
 
+    if (CockroachesReplacement)
+    {
+        PatchCockroachesReplacement();
+    }
+
 	// Enables a complete rewrite of the game's audio engine
 	if (EnableCriWareReimplementation)
 	{

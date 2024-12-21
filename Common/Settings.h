@@ -14,6 +14,7 @@
 	visit(CheckForAdminAccess, true) \
 	visit(ClosetCutsceneFix, true) \
 	visit(CommandWindowMouseFix, true) \
+    visit(CockroachesReplacement, true) \
 	visit(CreateLocalFix, true) \
 	visit(CustomAdvancedOptions, true) \
 	visit(d3d8to9, true) \

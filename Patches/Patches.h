@@ -619,6 +619,7 @@ void PatchCustomFog();
 void PatchCustomFonts();
 void PatchCustomSFXs();
 void PatchControllerTweaks();
+void PatchCockroachesReplacement();
 void PatchDelayedFadeIn();
 void PatchDisplayMode();
 void PatchDoubleFootstepFix();

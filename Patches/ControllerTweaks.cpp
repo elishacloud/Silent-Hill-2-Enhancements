@@ -376,7 +376,6 @@ void PatchControllerTweaks()
 			auto DirectionalWalk3Match = DirectionalWalk3.get_one();
 			
 			WriteCalltoMemory(DirectionalWalk1Match.get<BYTE>( -5 ), UsingSearchCamera_SeparateAnalogs);
-			WriteCalltoMemory(DirectionalWalk1Match.get<BYTE>( 0x3A ), UsingSearchCamera_SeparateAnalogs);
 			WriteCalltoMemory(DirectionalWalk1Match.get<BYTE>( 0xBA ), UsingSearchCamera_SeparateAnalogs);
 			WriteCalltoMemory(DirectionalWalk2Match.get<BYTE>( 0 ), UsingSearchCamera_SeparateAnalogs);
 			WriteCalltoMemory(DirectionalWalk2Match.get<BYTE>( 0x42 ), UsingSearchCamera_SeparateAnalogs);

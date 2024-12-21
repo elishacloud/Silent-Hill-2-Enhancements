@@ -356,6 +356,19 @@
 
     </Section>
 
+    <Section name="Bonus Graphics">
+
+      <Feature name="CockroachesReplacement" speedrun="true">
+        <Title>Improved cockroaches in bug room</Title>
+        <Description>Replaces the static, scenery cockroaches in the prison's bug room with large clusters of animated cockroaches.&#x0a;&#x0a;Note: ty3.glb must be present in "sh2e\model\" for this feature to work.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+    </Section>
+
   </Tab>
 
   <Tab name="Áudio">

@@ -1204,7 +1204,7 @@ HRESULT m_IDirect3DDevice8::GetPixelShaderFunction(THIS_ DWORD Handle, void* pDa
 	return ProxyInterface->GetPixelShaderFunction(Handle, pData, pSizeOfData);
 }
 
-void CalculateFPS()
+static void CalculateFPS()
 {
 	// Define a constant for the desired duration of FPS calculation
 	static const std::chrono::seconds FPS_CALCULATION_WINDOW(1);

@@ -62,6 +62,7 @@ void PatchCockroachesReplacement() {
     }
 }
 
+#pragma warning (suppress : 4505)
 static double TimeGetNowSec() {
     if (!gQPCFreq.QuadPart) {
         ::QueryPerformanceFrequency(&gQPCFreq);
@@ -85,6 +86,9 @@ static ModelGLTF* GetOrCreateModel(IDirect3DDevice8* device) {
 }
 
 HRESULT DrawCockroachesReplacement_DIP(int* counter, float deltaTime, LPDIRECT3DDEVICE8 ProxyInterface, D3DPRIMITIVETYPE Type, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount) {
+    UNREFERENCED_PARAMETER(MinVertexIndex);
+    UNREFERENCED_PARAMETER(startIndex);
+
     HRESULT result = (HRESULT)-1;
     if (gModelPath.empty()) {
         return result;

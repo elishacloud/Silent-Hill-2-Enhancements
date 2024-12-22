@@ -259,7 +259,7 @@ public:
 		delete ProxyAddressLookupTableD3d8;
 	}
 
-	LPDIRECT3DDEVICE8 GetProxyInterface() { return ProxyInterface; }
+	LPDIRECT3DDEVICE8 GetProxyInterface() const { return ProxyInterface; }
 	AddressLookupTableD3d8<m_IDirect3DDevice8> *ProxyAddressLookupTableD3d8;
 
 	/*** IUnknown methods ***/

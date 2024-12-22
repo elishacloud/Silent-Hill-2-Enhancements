@@ -657,12 +657,12 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	FirstRun = false;
 }
 
-void SaveWindowPlacement()
+static void SaveWindowPlacement()
 {
 	// Save window placement if using window border
 	if (IsWindow(DeviceWindow) && UsingWindowBorder)
 	{
-		WINDOWPLACEMENT wndpl;
+		WINDOWPLACEMENT wndpl = {};
 		wndpl.length = sizeof(WINDOWPLACEMENT);
 		GetWindowPlacement(DeviceWindow, &wndpl);
 

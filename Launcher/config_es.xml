@@ -420,7 +420,7 @@
         <Description>Corrige fallos específicos de ciertos sonidos en bucle, como los de la motosierra y los ataques de las polillas.</Description>
         <Choices type="check">
           <Value name="No">0</Value>
-          <Value name="Sí" speedrun-default="true" default="true">1</Value>
+          <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
 

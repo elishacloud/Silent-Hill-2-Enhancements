@@ -639,6 +639,11 @@ void DelayedStart()
 		PatchWaterDrawOrderFix();
 	}
 
+    if (CockroachesReplacement)
+    {
+        PatchCockroachesReplacement();
+    }
+
 	// Enables a complete rewrite of the game's audio engine
 	if (EnableCriWareReimplementation)
 	{
@@ -804,6 +809,9 @@ void DelayedStart()
 	{
 		PatchCustomAdvancedOptions();
 	}
+
+	// Increase cemetery draw distance for leave ending
+	PatchLeaveEndingCemeteryDrawDistance();
 	
 	// Remove the "Now loading..." and "Press Return to continue." messages
 	if (DisableLoadingPressReturnMessages)

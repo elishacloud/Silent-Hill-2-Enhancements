@@ -180,8 +180,8 @@ IDirect3DSurface8* g_ScreenCopySurface = nullptr;
 IDirect3DTexture8* g_DuDvTexture = nullptr;
 IDirect3DTexture8* g_CausticsTexture = nullptr;
 
-LARGE_INTEGER      g_QPCFreq = {};
-uint64_t           g_StartTimeMS = 0;
+static LARGE_INTEGER    g_QPCFreq = {};
+static uint64_t         g_StartTimeMS = 0;
 
 static uint64_t TimeGetNowMS() {
     if (!g_QPCFreq.QuadPart) {

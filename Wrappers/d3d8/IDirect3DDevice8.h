@@ -87,6 +87,8 @@ private:
 
     // Enhanced water rendering
     bool NeedToGrabScreenForWater = true;
+    // Cockroaches replacement
+    int RoachesDrawingCounter = 0;
 
 	IDirect3DTexture8 *pInTexture = nullptr;
 	IDirect3DSurface8 *pInSurface = nullptr;
@@ -208,6 +210,12 @@ private:
 		UINT stream0Stride;
 	};
 
+	// Limit frame rate
+	struct {
+		DWORD FrameCounter = 0;
+		LARGE_INTEGER LastPresentTime = {};
+	} Counter;
+
 	// Helper functions
 	void EnableAntiAliasing();
 	void DisableAntiAliasing();
@@ -224,6 +232,7 @@ private:
 	void CaptureScreenShot();
 	HRESULT CreateDCSurface(EMUSURFACE& surface, LONG Width, LONG Height);
 	void ReleaseDCSurface(EMUSURFACE& surface);
+	void LimitFrameRate();
 
 public:
 	m_IDirect3DDevice8(LPDIRECT3DDEVICE8 pDevice, m_IDirect3D8* pD3D) : ProxyInterface(pDevice), m_pD3D(pD3D)
@@ -250,7 +259,7 @@ public:
 		delete ProxyAddressLookupTableD3d8;
 	}
 
-	LPDIRECT3DDEVICE8 GetProxyInterface() { return ProxyInterface; }
+	LPDIRECT3DDEVICE8 GetProxyInterface() const { return ProxyInterface; }
 	AddressLookupTableD3d8<m_IDirect3DDevice8> *ProxyAddressLookupTableD3d8;
 
 	/*** IUnknown methods ***/

@@ -417,6 +417,10 @@ void SetScreenAndWindowSize()
 	{
 		Logging::Log() << __FUNCTION__ << " Setting display mode: " <<
 			(ScreenMode == WINDOWED ? "Windowed" : ScreenMode == WINDOWED_FULLSCREEN ? "Windowed Fullscreen" : "Exclusive Fullscreen");
+		if (ScreenMode != EXCLUSIVE_FULLSCREEN)
+		{
+			ShowCursor(FALSE);
+		}
 	}
 	LastScreenMode = ScreenMode;
 
@@ -653,12 +657,12 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 	FirstRun = false;
 }
 
-void SaveWindowPlacement()
+static void SaveWindowPlacement()
 {
 	// Save window placement if using window border
 	if (IsWindow(DeviceWindow) && UsingWindowBorder)
 	{
-		WINDOWPLACEMENT wndpl;
+		WINDOWPLACEMENT wndpl = {};
 		wndpl.length = sizeof(WINDOWPLACEMENT);
 		GetWindowPlacement(DeviceWindow, &wndpl);
 

@@ -461,6 +461,18 @@
     <ClCompile Include="Patches\WaterEnhancement.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\LeaveEndingDrawDistance.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\Room312FlashlightFix.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\ModelGLTF.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\CockroachesReplacement.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">
@@ -702,6 +714,9 @@
     </ClInclude>
     <ClInclude Include="Patches\WaterEnhancement_dudv.h">
       <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\ModelGLTF.h">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

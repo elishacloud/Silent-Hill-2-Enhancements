@@ -20,6 +20,7 @@
 #include <chrono>
 #include <deque>
 #include <ctime>
+#include <numeric>
 #include "Common\Utils.h"
 #include "stb_image.h"
 #include "stb_image_dds.h"
@@ -30,16 +31,35 @@
 #include "Patches\FlashlightReflection.h"
 #include "Resource.h"
 
-// enhanced water drawing
 extern char** TexNameAddr;
 extern char* ResetTexNameAddr;
+
+// enhanced water drawing
 extern DWORD g_WaterVSHandle;
+extern DWORD g_WaterPondVSHandle;
 extern DWORD g_WaterPSHandle;
 extern DWORD g_WaterVSBytecode[];
+extern DWORD g_WaterPondVSBytecode[];
 extern DWORD g_WaterPSBytecode[];
 extern DWORD vsDeclWater[];
 extern void WaterEnhancedReleaseScreenCopy();
 extern HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 ProxyInterface, LPDIRECT3DSURFACE8 pRenderTarget, D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, const void* pVertexStreamZeroData, UINT VertexStreamZeroStride);
+
+// roaches replacement
+static float sFrameTimeInSeconds = 0.0f;
+static double sStartTime = 0.0;
+static LARGE_INTEGER sQPCFreq = {};
+extern HRESULT DrawCockroachesReplacement_DIP(int* counter, float deltaTime, LPDIRECT3DDEVICE8 ProxyInterface, D3DPRIMITIVETYPE Type, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount);
+extern HRESULT DrawCockroachesReplacement_DP(LPDIRECT3DDEVICE8 ProxyInterface, D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, UINT PrimitiveCount);
+static double TimeGetNowSec() {
+    if (!sQPCFreq.QuadPart) {
+        ::QueryPerformanceFrequency(&sQPCFreq);
+    }
+
+    LARGE_INTEGER qpcNow = {};
+    ::QueryPerformanceCounter(&qpcNow);
+    return static_cast<double>(qpcNow.QuadPart) / static_cast<double>(sQPCFreq.QuadPart);
+}
 
 bool DeviceLost = false;
 bool DetectAltTab = false;
@@ -358,6 +378,18 @@ HRESULT m_IDirect3DDevice8::EndScene()
 	{
 		DontModifyClear = false;
 	}
+
+    if (CockroachesReplacement)
+    {
+        if (!sStartTime) {
+            sStartTime = TimeGetNowSec();
+        }
+        const double timeNow = TimeGetNowSec();
+        const double timeDelta = timeNow - sStartTime;
+        sStartTime = timeNow;
+
+        sFrameTimeInSeconds = static_cast<float>(timeDelta);
+    }
 
 	EndSceneCounter++;
 
@@ -1172,7 +1204,7 @@ HRESULT m_IDirect3DDevice8::GetPixelShaderFunction(THIS_ DWORD Handle, void* pDa
 	return ProxyInterface->GetPixelShaderFunction(Handle, pData, pSizeOfData);
 }
 
-void CalculateFPS()
+static void CalculateFPS()
 {
 	// Define a constant for the desired duration of FPS calculation
 	static const std::chrono::seconds FPS_CALCULATION_WINDOW(1);
@@ -1374,6 +1406,69 @@ bool m_IDirect3DDevice8::FixPauseMenuOnPresent()
 	return PauseMenuFlag;
 }
 
+void m_IDirect3DDevice8::LimitFrameRate()
+{
+	// Try using raster status for timing
+	D3DDISPLAYMODE Mode = {};
+	if (SUCCEEDED(ProxyInterface->GetDisplayMode(&Mode)) && (Mode.RefreshRate % (SetSixtyFPS ? 60 : 30)) == 0)
+	{
+		D3DRASTER_STATUS RasterStatus = {};
+		do {
+			BusyWaitYield(static_cast<DWORD>(-1));
+		} while (SUCCEEDED(ProxyInterface->GetRasterStatus(&RasterStatus)) && !RasterStatus.InVBlank);
+		return;
+	}
+
+	// Count the number of frames
+	Counter.FrameCounter++;
+
+	// Get performance frequency if not already cached
+	static LARGE_INTEGER Frequency = {};
+	if (!Frequency.QuadPart)
+	{
+		QueryPerformanceFrequency(&Frequency);
+	}
+	static LONGLONG TicksPerMS = Frequency.QuadPart / 1000;
+
+	// Calculate the delay time in ticks
+	static long double PerFrameFPS = LimitPerFrameFPS;
+	static LONGLONG PreFrameTicks = static_cast<LONGLONG>(static_cast<long double>(Frequency.QuadPart) / PerFrameFPS);
+
+	// Get next tick time
+	LARGE_INTEGER ClickTime = {};
+	QueryPerformanceCounter(&ClickTime);
+	LONGLONG TargetEndTicks = Counter.LastPresentTime.QuadPart;
+	LONGLONG FramesSinceLastCall = ((ClickTime.QuadPart - Counter.LastPresentTime.QuadPart - 1) / PreFrameTicks) + 1;
+	if (Counter.LastPresentTime.QuadPart == 0 || FramesSinceLastCall > 2)
+	{
+		QueryPerformanceCounter(&Counter.LastPresentTime);
+		TargetEndTicks = Counter.LastPresentTime.QuadPart;
+	}
+	else
+	{
+		TargetEndTicks += FramesSinceLastCall * PreFrameTicks;
+	}
+	
+	// Wait for time to expire
+	bool DoLoop;
+	do {
+		QueryPerformanceCounter(&ClickTime);
+		LONGLONG RemainingTicks = TargetEndTicks - ClickTime.QuadPart;
+
+		// Check if we still need to wait
+		DoLoop = RemainingTicks > 0;
+
+		if (DoLoop)
+		{
+			// Busy wait until we reach the target time
+			BusyWaitYield(static_cast<DWORD>(RemainingTicks / TicksPerMS));
+		}
+	} while (DoLoop);
+
+	// Update the last present time
+	Counter.LastPresentTime.QuadPart = TargetEndTicks;
+}
+
 HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
 {
 	Logging::LogDebug() << __FUNCTION__;
@@ -1399,6 +1494,9 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 
 	// Fix moon size on the lake
 	CheckLakeMoonSize();
+
+	// Fix flashlight glitch in room 312
+	CheckRoom312Flashlight();
 
 	if (EnableEnhancedMouse || EnhanceMouseCursor)
 	{
@@ -1435,6 +1533,11 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 		if (ClearScreen)
 		{
 			ClearScreen = false;
+			if (LimitPerFrameFPS && ScreenMode != EXCLUSIVE_FULLSCREEN)
+			{
+				LimitFrameRate();
+			}
+
 			HRESULT hr = ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 
 			if (SUCCEEDED(hr))
@@ -1473,6 +1576,11 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 	// Present screen
 	if (!PauseMenuFlag)
 	{
+		if (LimitPerFrameFPS && ScreenMode != EXCLUSIVE_FULLSCREEN)
+		{
+			LimitFrameRate();
+		}
+
 		hr = ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 
 		if (SUCCEEDED(hr))
@@ -1632,6 +1740,15 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 			return hr;
 		}
 	}
+
+    if (CockroachesReplacement)
+    {
+        HRESULT hr = DrawCockroachesReplacement_DIP(&RoachesDrawingCounter, sFrameTimeInSeconds, this, Type, MinVertexIndex, NumVertices, startIndex, primCount);
+        if (hr != -1)
+        {
+            return hr;
+        }
+    }
 
 	return ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
 }
@@ -1796,6 +1913,15 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 		}
 		ProxyInterface->Clear(0, NULL, D3DCLEAR_STENCIL, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 0x80);
 	}
+
+    if (CockroachesReplacement)
+    {
+        HRESULT hr = DrawCockroachesReplacement_DP(this, PrimitiveType, StartVertex, PrimitiveCount);
+        if (hr != -1)
+        {
+            return hr;
+        }
+    }
 
 	return ProxyInterface->DrawPrimitive(PrimitiveType, StartVertex, PrimitiveCount);
 }
@@ -2416,6 +2542,7 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		}
 
         NeedToGrabScreenForWater = true;
+        RoachesDrawingCounter = 0;
 	}
 
 	if (!isInScene)
@@ -2831,6 +2958,10 @@ HRESULT m_IDirect3DDevice8::CreateVertexShader(THIS_ CONST DWORD* pDeclaration, 
     if (!g_WaterVSHandle)
     {
         ProxyInterface->CreateVertexShader(vsDeclWater, g_WaterVSBytecode, &g_WaterVSHandle, 0);
+    }
+    if (!g_WaterPondVSHandle)
+    {
+        ProxyInterface->CreateVertexShader(vsDeclWater, g_WaterPondVSBytecode, &g_WaterPondVSHandle, 0);
     }
 
 

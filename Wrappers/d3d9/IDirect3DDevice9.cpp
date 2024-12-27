@@ -21,7 +21,6 @@
 
 extern bool DisableShaderOnPresent;
 
-bool ShadersReady = false;
 DWORD GammaLevel = 3;
 
 HRESULT m_IDirect3DDevice9::QueryInterface(REFIID riid, void** ppvObj)
@@ -253,25 +252,11 @@ HRESULT m_IDirect3DDevice9::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 
 HRESULT m_IDirect3DDevice9::Present(const RECT *pSourceRect, const RECT *pDestRect, HWND hDestWindowOverride, const RGNDATA *pDirtyRegion)
 {
-	bool SkipScene = false;
-	// Only call into runtime if the entire surface is presented, to avoid partial updates messing up effects and the GUI
-	if (ShadersReady && !DisableShaderOnPresent && m_IDirect3DSwapChain9::is_presenting_entire_surface(pSourceRect, hDestWindowOverride))
-	{
-		SkipScene = _implicit_swapchain->_runtime->get_gamma();
-		_implicit_swapchain->_runtime->on_present();
-	}
-
 	// Endscene
 	isInScene = false;
 	ProxyInterface->EndScene();
 
 	_buffer_detection.reset(false);
-
-	if (SkipScene)
-	{
-		Logging::Log() << __FUNCTION__ << " Skipping frame after gamma change!";
-		return D3D_OK;
-	}
 
 	return ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 }

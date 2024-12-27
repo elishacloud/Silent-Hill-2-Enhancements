@@ -89,6 +89,11 @@ private:
     bool NeedToGrabScreenForWater = true;
     // Cockroaches replacement
     int RoachesDrawingCounter = 0;
+    // GammaRamp stuff
+    DWORD BrightnessLevel = ~0u;
+    IDirect3DVolumeTexture8* GammaRampLUT = nullptr;
+    IDirect3DTexture8* ScreenCopy = nullptr;
+    D3DGAMMARAMP CachedRamp = {};
 
 	IDirect3DTexture8 *pInTexture = nullptr;
 	IDirect3DSurface8 *pInSurface = nullptr;
@@ -371,4 +376,7 @@ public:
 
 	// Extra functions
 	void m_IDirect3DDevice8::AddSurfaceToVector(m_IDirect3DSurface8 *pSourceTarget, IDirect3DSurface8 *pRenderTarget);
+
+    void OnSetBrightnessLevel(const DWORD level);
+    void ApplyBrightnessLevel();
 };

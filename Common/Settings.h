@@ -362,7 +362,6 @@ extern HMODULE m_hModule;
 extern CFGDATA ConfigData;
 extern bool CustomExeStrSet;
 extern bool EnableCustomShaders;
-extern bool ShadersReady;
 extern bool IsUpdating;
 extern bool m_StopThreadFlag;
 extern bool AutoScaleImages;

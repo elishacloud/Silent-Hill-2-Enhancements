@@ -18,6 +18,7 @@
 #include "d3d8wrapper.h"
 #include <shlwapi.h>
 #include <chrono>
+#include <array>
 #include <deque>
 #include <ctime>
 #include <numeric>
@@ -1579,6 +1580,11 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 		OverlayRef.DrawOverlays(ProxyInterface, BufferWidth, BufferHeight);
 	}
 
+    if (RestoreBrightnessSelector)
+    {
+        ApplyBrightnessLevel();
+    }
+
 	bool PauseMenuFlag = false;
 	if (IsScaledResolutionsEnabled())
 	{
@@ -1588,11 +1594,6 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 		// Draw scaled surface, inlcuding Overalys
 		DrawScaledSurface();
 	}
-
-    if (RestoreBrightnessSelector)
-    {
-        ApplyBrightnessLevel();
-    }
 
 	// Endscene
 	isInScene = false;
@@ -3660,28 +3661,25 @@ void m_IDirect3DDevice8::OnSetBrightnessLevel(const DWORD level)
 
         D3DLOCKED_BOX lockedBox{};
         HRESULT hr = GammaRampLUT->LockBox(0, &lockedBox, nullptr, 0);
-
         if (SUCCEEDED(hr)) {
             const float gamma = 1.0f / gammaValues[BrightnessLevel];
             const float gain = gainValues[BrightnessLevel];
 
+            std::array<BYTE, kGammaRampLUTDim> rampValues;
+            for (UINT i = 0; i < kGammaRampLUTDim; ++i) {
+                float value = static_cast<float>(i) / static_cast<float>(kGammaRampLUTDim - 1);
+                value = powf(fabs(value * gain), gamma);
+                rampValues[i] = static_cast<BYTE>((std::min)(255.0f, (std::max)(0.0f, value * 255.0f)));
+            }
+
             BYTE* pixels = reinterpret_cast<BYTE*>(lockedBox.pBits);
             for (UINT z = 0u; z < kGammaRampLUTDim; ++z) {
-                float blue = static_cast<float>(z) / static_cast<float>(kGammaRampLUTDim - 1);
-                blue = powf(fabs(blue * gain), gamma);
-
                 for (UINT y = 0u; y < kGammaRampLUTDim; ++y) {
-                    float green = static_cast<float>(y) / static_cast<float>(kGammaRampLUTDim - 1);
-                    green = powf(fabs(green * gain), gamma);
-
                     for (UINT x = 0u; x < kGammaRampLUTDim; ++x, pixels += 4) {
-                        float red = static_cast<float>(x) / static_cast<float>(kGammaRampLUTDim - 1);
-                        red = powf(fabs(red * gain), gamma);
-
                         // ARGB
-                        pixels[0] = static_cast<BYTE>((std::min)(255.0f, (std::max)(0.0f, blue * 255.0f)));
-                        pixels[1] = static_cast<BYTE>((std::min)(255.0f, (std::max)(0.0f, green * 255.0f)));
-                        pixels[2] = static_cast<BYTE>((std::min)(255.0f, (std::max)(0.0f, red * 255.0f)));
+                        pixels[0] = rampValues[z];
+                        pixels[1] = rampValues[y];
+                        pixels[2] = rampValues[x];
                         pixels[3] = 0xFF; // alpha
                     }
                 }

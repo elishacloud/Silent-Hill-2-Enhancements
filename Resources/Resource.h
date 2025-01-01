@@ -10,7 +10,6 @@
 #define IDR_ALSOFT_INI                  103
 
 #define IDR_SMAA_FX                     201
-#define IDR_GAMMAGAIN_FX                203
 #define IDR_PIRATEBLOOM_FX              204
 #define IDR_FRUTBUNN_FX                 205
 #define IDR_LOTTES_FX                   206
@@ -75,7 +74,6 @@ namespace
 
 	std::vector<FILELIST> shaderList{
 		{ &EnableSMAA, IDR_SMAA_FX, "SMAA.fx" },
-		{ &RestoreBrightnessSelector, IDR_GAMMAGAIN_FX, "LiftGammaGain.fx" },
 		{ &EnableCRTShader, IDR_PIRATEBLOOM_FX, "PirateBloom.fx" },
 		{ &CRTNonCurveShader, IDR_FRUTBUNN_FX, "FrutbunnNonCurve.fx" },
 		{ &CRTCurveShader, IDR_FRUTBUNN_FX, "FrutbunnCurve.fx" },

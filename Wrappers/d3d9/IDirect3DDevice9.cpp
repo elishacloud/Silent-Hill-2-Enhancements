@@ -252,6 +252,12 @@ HRESULT m_IDirect3DDevice9::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 
 HRESULT m_IDirect3DDevice9::Present(const RECT *pSourceRect, const RECT *pDestRect, HWND hDestWindowOverride, const RGNDATA *pDirtyRegion)
 {
+	// Only call into runtime if the entire surface is presented, to avoid partial updates messing up effects and the GUI
+	if (!DisableShaderOnPresent && m_IDirect3DSwapChain9::is_presenting_entire_surface(pSourceRect, hDestWindowOverride))
+	{
+		_implicit_swapchain->_runtime->on_present();
+	}
+
 	// Endscene
 	isInScene = false;
 	ProxyInterface->EndScene();
@@ -296,26 +302,6 @@ void m_IDirect3DDevice9::SetGammaRamp(UINT iSwapChain, DWORD Flags, const D3DGAM
 		return;
 	}
 
-	if (RestoreBrightnessSelector)
-	{
-		memcpy(&Ramp, pRamp, sizeof(D3DGAMMARAMP));
-
-		GammaLevel = (pRamp->red[127] == 19018) ? 0 :
-			(pRamp->red[127] == 22873) ? 1 :
-			(pRamp->red[127] == 28013) ? 2 :
-			(pRamp->red[127] == 32639) ? 3 :
-			(pRamp->red[127] == 35466) ? 4 :
-			(pRamp->red[127] == 39321) ? 5 :
-			(pRamp->red[127] == 45746) ? 6 :
-			(pRamp->red[127] == 56026) ? 7 : 3;
-
-		const auto runtime = _implicit_swapchain->_runtime;
-
-		runtime->reset_gamma(true);
-
-		return;
-	}
-
 	return ProxyInterface->SetGammaRamp(0, Flags, pRamp);
 }
 
@@ -324,12 +310,6 @@ void m_IDirect3DDevice9::GetGammaRamp(UINT iSwapChain, D3DGAMMARAMP *pRamp)
 	if (iSwapChain != 0 || !pRamp)
 	{
 		Logging::Log() << "Access to multi-head swap chain at index " << iSwapChain << " is unsupported.";
-		return;
-	}
-
-	if (RestoreBrightnessSelector)
-	{
-		memcpy(pRamp, &Ramp, sizeof(D3DGAMMARAMP));
 		return;
 	}
 

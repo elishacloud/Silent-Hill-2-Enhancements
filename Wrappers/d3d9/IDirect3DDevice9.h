@@ -30,7 +30,6 @@ private:
 	LPDIRECT3DDEVICE9 ProxyInterface;
 	bool isInScene = false;
 	bool UseSoftwareRendering;
-	D3DGAMMARAMP Ramp = {};
 
 public:
 	m_IDirect3DSwapChain9 *_implicit_swapchain = nullptr;

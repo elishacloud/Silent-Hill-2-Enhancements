@@ -322,6 +322,17 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 		ReleaseInterface(&ScaleVertexBuffer);
 	}
 
+	if (GammaRampLUT)
+	{
+		ReleaseInterface(&GammaRampLUT);
+		BrightnessLevel = ~0u;
+	}
+
+	if (ScreenCopy)
+	{
+		ReleaseInterface(&ScreenCopy);
+	}
+
     WaterEnhancedReleaseScreenCopy();
 
 	OverlayRef.ResetFont();
@@ -978,6 +989,12 @@ void m_IDirect3DDevice8::GetGammaRamp(THIS_ D3DGAMMARAMP* pRamp)
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	if (RestoreBrightnessSelector)
+	{
+		memcpy(pRamp, &CachedRamp, sizeof(D3DGAMMARAMP));
+		return;
+	}
+
 	ProxyInterface->GetGammaRamp(pRamp);
 }
 
@@ -989,19 +1006,19 @@ void m_IDirect3DDevice8::SetGammaRamp(THIS_ DWORD Flags, CONST D3DGAMMARAMP* pRa
     {
         memcpy(&CachedRamp, pRamp, sizeof(D3DGAMMARAMP));
 
-        const DWORD level = (pRamp->red[127] == 19018) ? 0 :
-                            (pRamp->red[127] == 22873) ? 1 :
-                            (pRamp->red[127] == 28013) ? 2 :
-                            (pRamp->red[127] == 32639) ? 3 :
-                            (pRamp->red[127] == 35466) ? 4 :
-                            (pRamp->red[127] == 39321) ? 5 :
-                            (pRamp->red[127] == 45746) ? 6 :
-                            (pRamp->red[127] == 56026) ? 7 : 3;
+		GammaLevel = (pRamp->red[127] == 19018) ? 0 :
+                     (pRamp->red[127] == 22873) ? 1 :
+                     (pRamp->red[127] == 28013) ? 2 :
+                     (pRamp->red[127] == 32639) ? 3 :
+                     (pRamp->red[127] == 35466) ? 4 :
+                     (pRamp->red[127] == 39321) ? 5 :
+                     (pRamp->red[127] == 45746) ? 6 :
+                     (pRamp->red[127] == 56026) ? 7 : 3;
 
         // iOrange - tbh, we can just convert input pRamp into our 3D Lut
         //           but I wanted to keep the code as close as possible to
         //           initial implementation
-        OnSetBrightnessLevel(level);
+        OnSetBrightnessLevel(GammaLevel);
     }
 	else if (ScreenMode != WINDOWED)
 	{
@@ -1580,10 +1597,10 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 		OverlayRef.DrawOverlays(ProxyInterface, BufferWidth, BufferHeight);
 	}
 
-    if (RestoreBrightnessSelector)
-    {
-        ApplyBrightnessLevel();
-    }
+	if (RestoreBrightnessSelector && !DisableShaderOnPresent && (IsScaledResolutionsEnabled() || GetEventIndex() != EVENT_PAUSE_MENU))
+	{
+		ApplyBrightnessLevel();
+	}
 
 	bool PauseMenuFlag = false;
 	if (IsScaledResolutionsEnabled())
@@ -3699,6 +3716,11 @@ const float g_FullScreenQuadVertices[6*4] = {
 };
 void m_IDirect3DDevice8::ApplyBrightnessLevel()
 {
+    if (!GammaRampLUT)
+    {
+        OnSetBrightnessLevel(GammaLevel);
+    }
+
     IDirect3DSurface8* backBuffer = nullptr;
     HRESULT hr = ProxyInterface->GetRenderTarget(&backBuffer);
     if (FAILED(hr) || !backBuffer)

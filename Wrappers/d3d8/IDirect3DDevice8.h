@@ -90,6 +90,7 @@ private:
     // Cockroaches replacement
     int RoachesDrawingCounter = 0;
     // GammaRamp stuff
+    DWORD GammaLevel = 0;
     DWORD BrightnessLevel = ~0u;
     IDirect3DVolumeTexture8* GammaRampLUT = nullptr;
     IDirect3DTexture8* ScreenCopy = nullptr;

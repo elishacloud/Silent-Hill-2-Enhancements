@@ -51,7 +51,7 @@ int16_t *MeleeKillsAddr = nullptr;
 float *BoatMaxSpeedAddr = nullptr;
 int8_t *ActionDifficultyAddr = nullptr;
 int8_t *RiddleDifficultyAddr = nullptr;
-int8_t *NumberOfSavesAddr = nullptr;
+uint16_t *NumberOfSavesAddr = nullptr;
 float *InGameTimeAddr = nullptr;
 float *WalkingDistanceAddr = nullptr;
 float *RunningDistanceAddr = nullptr;
@@ -1029,14 +1029,14 @@ int8_t *GetRiddleDifficultyPointer()
 	return RiddleDifficultyAddr;
 }
 
-int8_t GetNumberOfSaves()
+uint16_t GetNumberOfSaves()
 {
-	int8_t *pNumberOfSaves = GetNumberOfSavesPointer();
+	uint16_t *pNumberOfSaves = GetNumberOfSavesPointer();
 
 	return (pNumberOfSaves) ? *pNumberOfSaves : 0;
 }
 
-int8_t *GetNumberOfSavesPointer()
+uint16_t *GetNumberOfSavesPointer()
 {
 	if (NumberOfSavesAddr)
 	{
@@ -1054,7 +1054,7 @@ int8_t *GetNumberOfSavesPointer()
 		return nullptr;
 	}
 
-	NumberOfSavesAddr = (int8_t*)((DWORD)NumberOfSaves);
+	NumberOfSavesAddr = (uint16_t*)((DWORD)NumberOfSaves);
 
 	return NumberOfSavesAddr;
 }

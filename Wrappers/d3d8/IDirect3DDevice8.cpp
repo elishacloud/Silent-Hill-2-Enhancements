@@ -1425,9 +1425,6 @@ HRESULT m_IDirect3DDevice8::DrawScaledSurface()
 	// Draw the full-screen quad with updated vertices
 	HRESULT hr = ProxyInterface->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 
-	D3DSURFACE_DESC Desc = {};
-	pAutoRenderTarget->GetDesc(&Desc);
-
 	// Set the render target texture (pRenderTexture) back to nullptr
 	ProxyInterface->SetTexture(0, nullptr);
 
@@ -1597,11 +1594,6 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 		OverlayRef.DrawOverlays(ProxyInterface, BufferWidth, BufferHeight);
 	}
 
-	if (RestoreBrightnessSelector && !DisableShaderOnPresent && (IsScaledResolutionsEnabled() || GetEventIndex() != EVENT_PAUSE_MENU))
-	{
-		ApplyBrightnessLevel();
-	}
-
 	bool PauseMenuFlag = false;
 	if (IsScaledResolutionsEnabled())
 	{
@@ -1628,7 +1620,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 				LimitFrameRate();
 			}
 
-			HRESULT hr = ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+			HRESULT hr = PresentInternal(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 
 			if (SUCCEEDED(hr))
 			{
@@ -1647,7 +1639,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 	}
 
 	// Check if shader needs to be disabled
-	if (EnableCustomShaders && !PauseMenuFlag)
+	if ((EnableCustomShaders || RestoreBrightnessSelector) && !PauseMenuFlag)
 	{
 		// Get variables
 		static BYTE LastEvent = 0;
@@ -1671,7 +1663,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 			LimitFrameRate();
 		}
 
-		hr = ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+		hr = PresentInternal(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 
 		if (SUCCEEDED(hr))
 		{
@@ -3714,29 +3706,33 @@ const float g_FullScreenQuadVertices[6*4] = {
      1.0f,-1.0f, 0.0f, 1.0f, 1.0f, 1.0f,
     -1.0f,-1.0f, 0.0f, 1.0f, 0.0f, 1.0f
 };
-void m_IDirect3DDevice8::ApplyBrightnessLevel()
+void m_IDirect3DDevice8::ApplyBrightnessLevel(IDirect3DSurface8* backBuffer)
 {
     if (!GammaRampLUT)
     {
         OnSetBrightnessLevel(GammaLevel);
     }
 
-    IDirect3DSurface8* backBuffer = nullptr;
-    HRESULT hr = ProxyInterface->GetRenderTarget(&backBuffer);
-    if (FAILED(hr) || !backBuffer)
+    HRESULT hr;
+
+    if (!backBuffer)
     {
-        Logging::Log() << __FUNCTION__ << " Error: Failed to get backbuffer surface!";
-        return;
+        hr = ProxyInterface->GetRenderTarget(&backBuffer);
+        if (FAILED(hr) || !backBuffer)
+        {
+            Logging::Log() << __FUNCTION__ << " Error: Failed to get backbuffer surface!";
+            return;
+        }
+
+        // to not forget
+        backBuffer->Release();
     }
-
-    // to not forget
-    backBuffer->Release();
-
-    D3DSURFACE_DESC bbDesc{};
-    backBuffer->GetDesc(&bbDesc);
 
     if (!ScreenCopy)
     {
+        D3DSURFACE_DESC bbDesc{};
+        backBuffer->GetDesc(&bbDesc);
+
         // Create render texture
         if (FAILED(ProxyInterface->CreateTexture(bbDesc.Width, bbDesc.Height, 1, 0, bbDesc.Format, D3DPOOL_DEFAULT, &ScreenCopy)))
         {
@@ -3767,15 +3763,17 @@ void m_IDirect3DDevice8::ApplyBrightnessLevel()
     ProxyInterface->GetRenderState(D3DRS_STENCILENABLE, &reStencilEnable);
 
     // Get texture states
-    DWORD tsColorOP, tsColorArg1, tsColorArg2, tsAlphaOP, tsMinFilter, tsMagFilter, addressU, addressV, addressW;
+    DWORD tsColorOP, tsColorArg1, tsColorArg2, tsAlphaOP, tsMinFilter, tsMagFilter, addressU[2], addressV[2], addressW;
     ProxyInterface->GetTextureStageState(0, D3DTSS_COLOROP, &tsColorOP);
     ProxyInterface->GetTextureStageState(0, D3DTSS_COLORARG1, &tsColorArg1);
     ProxyInterface->GetTextureStageState(0, D3DTSS_COLORARG2, &tsColorArg2);
     ProxyInterface->GetTextureStageState(0, D3DTSS_ALPHAOP, &tsAlphaOP);
     ProxyInterface->GetTextureStageState(0, D3DTSS_MINFILTER, &tsMinFilter);
     ProxyInterface->GetTextureStageState(0, D3DTSS_MAGFILTER, &tsMagFilter);
-    ProxyInterface->GetTextureStageState(1, D3DTSS_ADDRESSU, &addressU);
-    ProxyInterface->GetTextureStageState(1, D3DTSS_ADDRESSV, &addressV);
+    ProxyInterface->GetTextureStageState(0, D3DTSS_ADDRESSU, &addressU[0]);
+    ProxyInterface->GetTextureStageState(0, D3DTSS_ADDRESSV, &addressV[0]);
+    ProxyInterface->GetTextureStageState(1, D3DTSS_ADDRESSU, &addressU[1]);
+    ProxyInterface->GetTextureStageState(1, D3DTSS_ADDRESSV, &addressV[1]);
     ProxyInterface->GetTextureStageState(1, D3DTSS_ADDRESSW, &addressW);
 
     // Set render states
@@ -3794,6 +3792,8 @@ void m_IDirect3DDevice8::ApplyBrightnessLevel()
     ProxyInterface->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
     ProxyInterface->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
     ProxyInterface->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
+    ProxyInterface->SetTextureStageState(0, D3DTSS_ADDRESSU, D3DTADDRESS_CLAMP);
+    ProxyInterface->SetTextureStageState(0, D3DTSS_ADDRESSV, D3DTADDRESS_CLAMP);
     ProxyInterface->SetTextureStageState(1, D3DTSS_ADDRESSU, D3DTADDRESS_CLAMP);
     ProxyInterface->SetTextureStageState(1, D3DTSS_ADDRESSV, D3DTADDRESS_CLAMP);
     ProxyInterface->SetTextureStageState(1, D3DTSS_ADDRESSW, D3DTADDRESS_CLAMP);
@@ -3827,12 +3827,48 @@ void m_IDirect3DDevice8::ApplyBrightnessLevel()
     ProxyInterface->SetTextureStageState(0, D3DTSS_ALPHAOP, tsAlphaOP);
     ProxyInterface->SetTextureStageState(0, D3DTSS_MINFILTER, tsMinFilter);
     ProxyInterface->SetTextureStageState(0, D3DTSS_MAGFILTER, tsMagFilter);
-    ProxyInterface->SetTextureStageState(1, D3DTSS_ADDRESSU, addressU);
-    ProxyInterface->SetTextureStageState(1, D3DTSS_ADDRESSV, addressV);
+    ProxyInterface->SetTextureStageState(0, D3DTSS_ADDRESSU, addressU[0]);
+    ProxyInterface->SetTextureStageState(0, D3DTSS_ADDRESSV, addressV[0]);
+    ProxyInterface->SetTextureStageState(1, D3DTSS_ADDRESSU, addressU[1]);
+    ProxyInterface->SetTextureStageState(1, D3DTSS_ADDRESSV, addressV[1]);
     ProxyInterface->SetTextureStageState(1, D3DTSS_ADDRESSW, addressW);
 
     ProxyInterface->SetVertexShader(0);
     ProxyInterface->SetPixelShader(0);
+
+    ProxyInterface->SetTexture(0, nullptr);
+    ProxyInterface->SetTexture(1, nullptr);
+}
+
+HRESULT m_IDirect3DDevice8::PresentInternal(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)
+{
+    if (RestoreBrightnessSelector && !DisableShaderOnPresent)
+    {
+        if (IsScaledResolutionsEnabled())
+        {
+            IDirect3DSurface8* currentTarget = nullptr;
+            if (SUCCEEDED(ProxyInterface->GetRenderTarget(&currentTarget)) && currentTarget)
+            {
+                currentTarget->Release();
+            }
+
+            IDirect3DSurface8* depthStencil = nullptr;
+            if (SUCCEEDED(ProxyInterface->GetDepthStencilSurface(&depthStencil)) && depthStencil)
+            {
+                depthStencil->Release();
+            }
+
+            ProxyInterface->SetRenderTarget(pAutoRenderTarget, nullptr);
+            ApplyBrightnessLevel(pAutoRenderTarget);
+            ProxyInterface->SetRenderTarget(currentTarget, depthStencil);
+        }
+        else
+        {
+            ApplyBrightnessLevel(nullptr);
+        }
+    }
+
+    return ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 }
 
 void m_IDirect3DDevice8::EnableAntiAliasing()

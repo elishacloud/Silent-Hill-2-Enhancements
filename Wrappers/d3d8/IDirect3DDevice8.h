@@ -379,5 +379,6 @@ public:
 	void m_IDirect3DDevice8::AddSurfaceToVector(m_IDirect3DSurface8 *pSourceTarget, IDirect3DSurface8 *pRenderTarget);
 
     void OnSetBrightnessLevel(const DWORD level);
-    void ApplyBrightnessLevel();
+    void ApplyBrightnessLevel(IDirect3DSurface8* backBuffer);
+    HRESULT PresentInternal(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion);
 };

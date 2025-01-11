@@ -152,15 +152,6 @@
 
     <Section name="Shaders">
 
-      <Feature name="RestoreBrightnessSelector">
-        <Title>Restaurar la funcionalidad del selector de brillo</Title>
-        <Description>Restaura la capacidad de ajustar el nivel del brillo dentro del menú de opciones del juego, sin importar si estás jugando en el modo de ventana o a pantalla completa.</Description>
-        <Choices type="check">
-          <Value name="No">0</Value>
-          <Value name="Sí" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="EnableSMAA">
         <Title>SMAA (suavizado de bordes)</Title>
         <Description>Activa el SMAA (subpixel morphological anti-aliasing, o suavizado de bordes morfológico por subpíxeles).&#x0a;&#x0a;Nota: se recomienda desactivar esta opción si has activado un suavizado de bordes a través de la GPU.</Description>
@@ -780,6 +771,15 @@
       <Feature name="LockSpeakerConfig">
         <Title>Bloquear la opción Altavoces</Title>
         <Description>Impide el cambio del ajuste de altavoces en el menú Opciones > Opciones avanzadas dentro del juego, ya que a partir de Windows XP, este cambio debe realizarse desde el panel de control de sonido de Windows y ya no se permite su cambio desde una aplicación (como este juego). Si intentas cambiar este ajuste desde el menú de Opciones dentro del juego, cambiará directamente a la configuración utilizada en el panel de control de sonido de Windows.&#x0a;&#x0a;Nota: los archivos «.\sh2e\resources\r_menu_*.res» deben estar presentes en la carpeta del juego para que esta característica pueda funcionar.</Description>
+        <Choices type="check">
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="RestoreBrightnessSelector">
+        <Title>Restaurar la funcionalidad del selector de brillo</Title>
+        <Description>Restaura la capacidad de ajustar el nivel del brillo dentro del menú de opciones del juego, sin importar si estás jugando en el modo de ventana o a pantalla completa.</Description>
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>

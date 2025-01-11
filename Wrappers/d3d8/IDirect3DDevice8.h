@@ -286,7 +286,7 @@ public:
 	STDMETHOD_(BOOL, ShowCursor)(THIS_ BOOL bShow);
 	STDMETHOD(CreateAdditionalSwapChain)(THIS_ D3DPRESENT_PARAMETERS* pPresentationParameters, IDirect3DSwapChain8** pSwapChain);
 	STDMETHOD(Reset)(THIS_ D3DPRESENT_PARAMETERS* pPresentationParameters);
-	STDMETHOD(DrawScaledSurface)(THIS_);
+	STDMETHOD(DrawShadersAndScaledSurface)(THIS_);
 	STDMETHOD_(bool, FixPauseMenuOnPresent)(THIS_);
 	STDMETHOD(Present)(THIS_ CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion);
 	STDMETHOD(GetBackBuffer)(THIS_ UINT BackBuffer, D3DBACKBUFFER_TYPE Type, IDirect3DSurface8** ppBackBuffer);
@@ -379,6 +379,4 @@ public:
 	void m_IDirect3DDevice8::AddSurfaceToVector(m_IDirect3DSurface8 *pSourceTarget, IDirect3DSurface8 *pRenderTarget);
 
     void OnSetBrightnessLevel(const DWORD level);
-    void ApplyBrightnessLevel(IDirect3DSurface8* backBuffer);
-    HRESULT PresentInternal(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion);
 };

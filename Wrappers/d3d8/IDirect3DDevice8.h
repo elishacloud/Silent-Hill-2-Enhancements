@@ -92,7 +92,7 @@ private:
     // GammaRamp stuff
     DWORD GammaLevel = 0;
     DWORD BrightnessLevel = ~0u;
-    IDirect3DVolumeTexture8* GammaRampLUT = nullptr;
+    IDirect3DTexture8* GammaRampLUT = nullptr;
     IDirect3DTexture8* ScreenCopy = nullptr;
     D3DGAMMARAMP CachedRamp = {};
 

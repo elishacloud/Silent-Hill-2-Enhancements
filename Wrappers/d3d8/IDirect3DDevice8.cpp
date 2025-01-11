@@ -65,24 +65,41 @@ static double TimeGetNowSec() {
 // brightness (gamma) shader
 /*
 ps.1.4
-// load backbuffer
-texld r0, t0
-mov_sat r4, r0
+  def c0, 1, 1, 1, 1
+
+  // load backbuffer
+  texld r0, t0
+  // now separate colour into channels
+  mov_sat r1, r0.x
+  mov_sat r2, r0.y
+  mov_sat r3, r0.z
 
 phase
 
-// now look up in our 3D LUT using colour as texcoords
-texld r1, r4.xyz
-mov_sat r0, r1
+  // now look up in our 1D LUT using separate colour channels as texcoords
+  texld r1, r1
+  texld r2, r2
+  texld r3, r3
+
+  mov r0, c0
+  mov_sat r0.x, r1.w
+  mov_sat r0.y, r2.w
+  mov_sat r0.z, r3.w
 */
 const DWORD g_GammaLUTShaderCodePS[] = {
     0xffff0104, 0x0009fffe, 0x58443344, 0x68532038,
     0x72656461, 0x73734120, 0x6c626d65, 0x56207265,
-    0x69737265, 0x30206e6f, 0x0031392e, 0x00000042,
-    0x800f0000, 0xb0e40000, 0x00000001, 0x801f0004,
-    0x80e40000, 0x0000fffd, 0x00000042, 0x800f0001,
-    0x80a40004, 0x00000001, 0x801f0000, 0x80e40001,
-    0x0000ffff
+    0x69737265, 0x30206e6f, 0x0031392e, 0x00000051,
+    0xa00f0000, 0x3f800000, 0x3f800000, 0x3f800000,
+    0x3f800000, 0x00000042, 0x800f0000, 0xb0e40000,
+    0x00000001, 0x801f0001, 0x80000000, 0x00000001,
+    0x801f0002, 0x80550000, 0x00000001, 0x801f0003,
+    0x80aa0000, 0x0000fffd, 0x00000042, 0x800f0001,
+    0x80e40001, 0x00000042, 0x800f0002, 0x80e40002,
+    0x00000042, 0x800f0003, 0x80e40003, 0x00000001,
+    0x800f0000, 0xa0e40000, 0x00000001, 0x80110000,
+    0x80ff0001, 0x00000001, 0x80120000, 0x80ff0002,
+    0x00000001, 0x80140000, 0x80ff0003, 0x0000ffff
 };
 DWORD g_GammaPSHandle = 0u;
 
@@ -322,11 +339,11 @@ HRESULT m_IDirect3DDevice8::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 		ReleaseInterface(&ScaleVertexBuffer);
 	}
 
-	if (GammaRampLUT)
-	{
-		ReleaseInterface(&GammaRampLUT);
-		BrightnessLevel = ~0u;
-	}
+    if (GammaRampLUT)
+    {
+        ReleaseInterface(&GammaRampLUT);
+        BrightnessLevel = ~0u;
+    }
 
 	if (ScreenCopy)
 	{
@@ -1015,9 +1032,6 @@ void m_IDirect3DDevice8::SetGammaRamp(THIS_ DWORD Flags, CONST D3DGAMMARAMP* pRa
                      (pRamp->red[127] == 45746) ? 6 :
                      (pRamp->red[127] == 56026) ? 7 : 3;
 
-        // iOrange - tbh, we can just convert input pRamp into our 3D Lut
-        //           but I wanted to keep the code as close as possible to
-        //           initial implementation
         OnSetBrightnessLevel(GammaLevel);
     }
 	else if (ScreenMode != WINDOWED)
@@ -3650,51 +3664,48 @@ void m_IDirect3DDevice8::AddSurfaceToVector(m_IDirect3DSurface8 *pSourceTarget, 
 
 void m_IDirect3DDevice8::OnSetBrightnessLevel(const DWORD level)
 {
+    Logging::Log() << __FUNCTION__;
+
     constexpr DWORD kGammaRampLUTDim = 256;
 
     if (level != BrightnessLevel)
     {
         BrightnessLevel = min(level, 7);
 
+        Logging::Log() << __FUNCTION__ << " New BrightnessLevel = " << BrightnessLevel;
+
         const float gammaValues[8] = { 0.85f, 0.9f, 0.95f, 1.0f, 1.1f, 1.2f, 1.225f, 1.25f };
         const float gainValues[8] = { 0.7f, 0.8f, 0.9f, 1.0f, 1.125f, 1.3f, 1.475f, 1.7f };
 
+        HRESULT hr;
         if (!GammaRampLUT)
         {
-            if (FAILED(ProxyInterface->CreateVolumeTexture(kGammaRampLUTDim, kGammaRampLUTDim, kGammaRampLUTDim, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &GammaRampLUT)))
+            hr = ProxyInterface->CreateTexture(kGammaRampLUTDim, 1, 1, 0, D3DFMT_A8, D3DPOOL_MANAGED, &GammaRampLUT);
+            if (FAILED(hr))
             {
                 GammaRampLUT = nullptr;
+
+                Logging::Log() << __FUNCTION__ << " Failed to create GammaRampLUT ! hr = " << hr;
                 return;
             }
         }
 
-        D3DLOCKED_BOX lockedBox{};
-        HRESULT hr = GammaRampLUT->LockBox(0, &lockedBox, nullptr, 0);
+        D3DLOCKED_RECT lockedRect{};
+        hr = GammaRampLUT->LockRect(0u, &lockedRect, nullptr, 0u);
         if (SUCCEEDED(hr)) {
             const float gamma = 1.0f / gammaValues[BrightnessLevel];
             const float gain = gainValues[BrightnessLevel];
 
-            std::array<BYTE, kGammaRampLUTDim> rampValues;
+            BYTE* rampValues = reinterpret_cast<BYTE*>(lockedRect.pBits);
             for (UINT i = 0; i < kGammaRampLUTDim; ++i) {
                 float value = static_cast<float>(i) / static_cast<float>(kGammaRampLUTDim - 1);
                 value = powf(fabs(value * gain), gamma);
                 rampValues[i] = static_cast<BYTE>((std::min)(255.0f, (std::max)(0.0f, value * 255.0f)));
             }
 
-            BYTE* pixels = reinterpret_cast<BYTE*>(lockedBox.pBits);
-            for (UINT z = 0u; z < kGammaRampLUTDim; ++z) {
-                for (UINT y = 0u; y < kGammaRampLUTDim; ++y) {
-                    for (UINT x = 0u; x < kGammaRampLUTDim; ++x, pixels += 4) {
-                        // ARGB
-                        pixels[0] = rampValues[z];
-                        pixels[1] = rampValues[y];
-                        pixels[2] = rampValues[x];
-                        pixels[3] = 0xFF; // alpha
-                    }
-                }
-            }
-
-            GammaRampLUT->UnlockBox(0u);
+            GammaRampLUT->UnlockRect(0u);
+        } else {
+            Logging::Log() << "Failed to GammaRampLUT->LockRect !";
         }
     }
 }
@@ -3708,7 +3719,7 @@ const float g_FullScreenQuadVertices[6*4] = {
 };
 void m_IDirect3DDevice8::ApplyBrightnessLevel(IDirect3DSurface8* backBuffer)
 {
-    if (!GammaRampLUT)
+    if (!GammaRampLUT || BrightnessLevel == ~0u)
     {
         OnSetBrightnessLevel(GammaLevel);
     }
@@ -3763,18 +3774,17 @@ void m_IDirect3DDevice8::ApplyBrightnessLevel(IDirect3DSurface8* backBuffer)
     ProxyInterface->GetRenderState(D3DRS_STENCILENABLE, &reStencilEnable);
 
     // Get texture states
-    DWORD tsColorOP, tsColorArg1, tsColorArg2, tsAlphaOP, tsMinFilter, tsMagFilter, addressU[2], addressV[2], addressW;
+    DWORD tsColorOP, tsColorArg1, tsColorArg2, tsAlphaOP, tsMinFilter, tsMagFilter, addressU[4], addressV[4];
     ProxyInterface->GetTextureStageState(0, D3DTSS_COLOROP, &tsColorOP);
     ProxyInterface->GetTextureStageState(0, D3DTSS_COLORARG1, &tsColorArg1);
     ProxyInterface->GetTextureStageState(0, D3DTSS_COLORARG2, &tsColorArg2);
     ProxyInterface->GetTextureStageState(0, D3DTSS_ALPHAOP, &tsAlphaOP);
     ProxyInterface->GetTextureStageState(0, D3DTSS_MINFILTER, &tsMinFilter);
     ProxyInterface->GetTextureStageState(0, D3DTSS_MAGFILTER, &tsMagFilter);
-    ProxyInterface->GetTextureStageState(0, D3DTSS_ADDRESSU, &addressU[0]);
-    ProxyInterface->GetTextureStageState(0, D3DTSS_ADDRESSV, &addressV[0]);
-    ProxyInterface->GetTextureStageState(1, D3DTSS_ADDRESSU, &addressU[1]);
-    ProxyInterface->GetTextureStageState(1, D3DTSS_ADDRESSV, &addressV[1]);
-    ProxyInterface->GetTextureStageState(1, D3DTSS_ADDRESSW, &addressW);
+    for (DWORD i = 0; i < 4; ++i) {
+        ProxyInterface->GetTextureStageState(i, D3DTSS_ADDRESSU, &addressU[i]);
+        ProxyInterface->GetTextureStageState(i, D3DTSS_ADDRESSV, &addressV[i]);
+    }
 
     // Set render states
     ProxyInterface->SetRenderState(D3DRS_LIGHTING, FALSE);
@@ -3792,16 +3802,17 @@ void m_IDirect3DDevice8::ApplyBrightnessLevel(IDirect3DSurface8* backBuffer)
     ProxyInterface->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
     ProxyInterface->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
     ProxyInterface->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
-    ProxyInterface->SetTextureStageState(0, D3DTSS_ADDRESSU, D3DTADDRESS_CLAMP);
-    ProxyInterface->SetTextureStageState(0, D3DTSS_ADDRESSV, D3DTADDRESS_CLAMP);
-    ProxyInterface->SetTextureStageState(1, D3DTSS_ADDRESSU, D3DTADDRESS_CLAMP);
-    ProxyInterface->SetTextureStageState(1, D3DTSS_ADDRESSV, D3DTADDRESS_CLAMP);
-    ProxyInterface->SetTextureStageState(1, D3DTSS_ADDRESSW, D3DTADDRESS_CLAMP);
+    for (DWORD i = 0; i < 4; ++i) {
+        ProxyInterface->SetTextureStageState(i, D3DTSS_ADDRESSU, D3DTADDRESS_CLAMP);
+        ProxyInterface->SetTextureStageState(i, D3DTSS_ADDRESSV, D3DTADDRESS_CLAMP);
+    }
 
     // Use the custom render target texture as a source texture
     ProxyInterface->SetTexture(0, ScreenCopy);
     ProxyInterface->SetTexture(1, GammaRampLUT);
-    for (int x = 2; x < 8; x++)
+    ProxyInterface->SetTexture(2, GammaRampLUT);
+    ProxyInterface->SetTexture(3, GammaRampLUT);
+    for (int x = 4; x < 8; x++)
     {
         ProxyInterface->SetTexture(x, nullptr);
     }
@@ -3827,17 +3838,18 @@ void m_IDirect3DDevice8::ApplyBrightnessLevel(IDirect3DSurface8* backBuffer)
     ProxyInterface->SetTextureStageState(0, D3DTSS_ALPHAOP, tsAlphaOP);
     ProxyInterface->SetTextureStageState(0, D3DTSS_MINFILTER, tsMinFilter);
     ProxyInterface->SetTextureStageState(0, D3DTSS_MAGFILTER, tsMagFilter);
-    ProxyInterface->SetTextureStageState(0, D3DTSS_ADDRESSU, addressU[0]);
-    ProxyInterface->SetTextureStageState(0, D3DTSS_ADDRESSV, addressV[0]);
-    ProxyInterface->SetTextureStageState(1, D3DTSS_ADDRESSU, addressU[1]);
-    ProxyInterface->SetTextureStageState(1, D3DTSS_ADDRESSV, addressV[1]);
-    ProxyInterface->SetTextureStageState(1, D3DTSS_ADDRESSW, addressW);
+    for (DWORD i = 0; i < 4; ++i) {
+        ProxyInterface->SetTextureStageState(i, D3DTSS_ADDRESSU, addressU[i]);
+        ProxyInterface->SetTextureStageState(i, D3DTSS_ADDRESSV, addressV[i]);
+    }
 
     ProxyInterface->SetVertexShader(0);
     ProxyInterface->SetPixelShader(0);
 
     ProxyInterface->SetTexture(0, nullptr);
     ProxyInterface->SetTexture(1, nullptr);
+    ProxyInterface->SetTexture(2, nullptr);
+    ProxyInterface->SetTexture(3, nullptr);
 }
 
 HRESULT m_IDirect3DDevice8::PresentInternal(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion)

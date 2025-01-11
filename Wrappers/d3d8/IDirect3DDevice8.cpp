@@ -1687,8 +1687,6 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 		return D3D_OK;
 	}
 
-	const bool DontDisableShaders = ((IsScaledResolutionsEnabled() && pRenderSurfaceLast) || (RestoreBrightnessSelector && ScreenCopy));
-
 	// Disable antialiasing before present
 	DisableAntiAliasing();
 
@@ -1722,7 +1720,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 		DrawShadersAndScaledSurface();
 	}
 	// Draw Overlays
-	else if (DontDisableShaders || GetEventIndex() != EVENT_PAUSE_MENU)
+	else if (GetEventIndex() != EVENT_PAUSE_MENU)
 	{
 		RunPresentCode(ProxyInterface, BufferWidth, BufferHeight);
 
@@ -1757,7 +1755,8 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 		IsGetFrontBufferCalled = (GetTransitionState() == FADE_TO_BLACK || GetLoadingScreen() != 0) ? IsGetFrontBufferCalled : false;
 
 		// Set shader disable flag
-		DisableShaderOnPresent = !DontDisableShaders &&	(IsGetFrontBufferCalled || (PauseScreenFix && (GetEventIndex() == EVENT_PAUSE_MENU || (LastEvent == EVENT_PAUSE_MENU && IsSnapshotTextureSet))));
+		const bool DontDisableShaders = ((IsScaledResolutionsEnabled() && pRenderSurfaceLast) || (RestoreBrightnessSelector && ScreenCopy));
+		DisableShaderOnPresent = !DontDisableShaders && (IsGetFrontBufferCalled || (PauseScreenFix && (GetEventIndex() == EVENT_PAUSE_MENU || (LastEvent == EVENT_PAUSE_MENU && IsSnapshotTextureSet))));
 
 		// Reset variables
 		LastEvent = GetEventIndex();

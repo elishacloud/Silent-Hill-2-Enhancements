@@ -30,6 +30,9 @@ private:
 
 	bool isInScene = false;
 
+	DWORD ScaledBufferWidth = 0;
+	DWORD ScaledBufferHeight = 0;
+
 	bool AnisotropyFlag = (bool)AnisotropicFiltering;
 	DWORD MaxAnisotropy = 0;
 	bool IsAntiAliasingEnabled = false;

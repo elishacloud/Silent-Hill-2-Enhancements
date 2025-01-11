@@ -1486,7 +1486,7 @@ HRESULT m_IDirect3DDevice8::DrawShadersAndScaledSurface()
 	}
 
 	// Set texture for gamma shader
-	if (RestoreBrightnessSelector && !DisableShaderOnPresent)
+	if (RestoreBrightnessSelector)
 	{
 		if (!GammaRampLUT || BrightnessLevel == ~0u)
 		{
@@ -1561,6 +1561,12 @@ HRESULT m_IDirect3DDevice8::DrawShadersAndScaledSurface()
 	ProxyInterface->SetTexture(1, nullptr);
 	ProxyInterface->SetTexture(2, nullptr);
 	ProxyInterface->SetTexture(3, nullptr);
+
+	// Call function
+	RunPresentCode(ProxyInterface, ScaledBufferWidth, ScaledBufferHeight);
+
+	// Draw Overlays
+	OverlayRef.DrawOverlays(ProxyInterface, ScaledBufferWidth, ScaledBufferHeight);
 
 	// Swap scaled render targets
 	if (IsScaledResolutionsEnabled())
@@ -1707,22 +1713,20 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 		OverlayRef.RenderMouseCursor();
 	}
 
-	// Call function
-	RunPresentCode(ProxyInterface, BufferWidth, BufferHeight);
-
-	// Draw Overlays
-	if (DontDisableShaders || GetEventIndex() != EVENT_PAUSE_MENU)
-	{
-		OverlayRef.DrawOverlays(ProxyInterface, BufferWidth, BufferHeight);
-	}
-
 	// Fix pause menu before drawing scaled surface
 	bool PauseMenuFlag = FixPauseMenuOnPresent();
 
 	// Draw shader and scaled surface, inlcuding Overalys
-	if (IsScaledResolutionsEnabled() || (RestoreBrightnessSelector && !DisableShaderOnPresent))
+	if (IsScaledResolutionsEnabled() || RestoreBrightnessSelector)
 	{
 		DrawShadersAndScaledSurface();
+	}
+	// Draw Overlays
+	else if (DontDisableShaders || GetEventIndex() != EVENT_PAUSE_MENU)
+	{
+		RunPresentCode(ProxyInterface, BufferWidth, BufferHeight);
+
+		OverlayRef.DrawOverlays(ProxyInterface, BufferWidth, BufferHeight);
 	}
 
 	// Endscene
@@ -4351,6 +4355,9 @@ void m_IDirect3DDevice8::SetShadowFading()
 
 void m_IDirect3DDevice8::SetScaledBackbuffer()
 {
+	ScaledBufferWidth = BufferWidth;
+	ScaledBufferHeight = BufferHeight;
+
 	if (!IsScaledResolutionsEnabled())
 	{
 		return;
@@ -4421,6 +4428,9 @@ void m_IDirect3DDevice8::SetScaledBackbuffer()
 
 	D3DSURFACE_DESC Desc = {};
 	pAutoRenderTarget->GetDesc(&Desc);
+
+	ScaledBufferWidth = Desc.Width;
+	ScaledBufferHeight = Desc.Height;
 
 	ScaledPresentVertex[2].x = (float)Desc.Width - 0.5f;
 	ScaledPresentVertex[3].x = (float)Desc.Width - 0.5f;

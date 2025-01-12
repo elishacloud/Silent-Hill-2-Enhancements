@@ -1450,7 +1450,7 @@ HRESULT m_IDirect3DDevice8::DrawShadersAndScaledSurface()
 	ProxyInterface->GetRenderState(D3DRS_STENCILENABLE, &reStencilEnable);
 
 	// Get texture states
-	DWORD tsColorOP, tsColorArg1, tsColorArg2, tsAlphaOP, tsMinFilter, tsMagFilter, addressU[4], addressV[4];
+	DWORD tsColorOP, tsColorArg1, tsColorArg2, tsAlphaOP, tsMinFilter, tsMagFilter, addressU[4] = {}, addressV[4] = {};
 	ProxyInterface->GetTextureStageState(0, D3DTSS_COLOROP, &tsColorOP);
 	ProxyInterface->GetTextureStageState(0, D3DTSS_COLORARG1, &tsColorArg1);
 	ProxyInterface->GetTextureStageState(0, D3DTSS_COLORARG2, &tsColorArg2);
@@ -1706,6 +1706,7 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 	// Fix flashlight glitch in room 312
 	CheckRoom312Flashlight();
 
+	// Enable enhaced mouse cursor
 	if (EnableEnhancedMouse || EnhanceMouseCursor)
 	{
 		OverlayRef.RenderMouseCursor();
@@ -2733,8 +2734,8 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 			RunPlayAdditionalSounds();
 		}
 
-        NeedToGrabScreenForWater = true;
-        RoachesDrawingCounter = 0;
+		NeedToGrabScreenForWater = true;
+		RoachesDrawingCounter = 0;
 	}
 
 	if (!isInScene)

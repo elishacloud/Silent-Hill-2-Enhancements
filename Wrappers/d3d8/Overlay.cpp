@@ -420,10 +420,24 @@ std::string Overlay::GetIGTString()
 
 void Overlay::RenderMouseCursor()
 {
-	if ((GetEventIndex() != EVENT_PAUSE_MENU && GetEventIndex() != EVENT_MEMO_LIST) || GetReadingMemoFlag() != 0 || GetTransitionState() != FADE_NONE)
-		return;
+	static BYTE* pMousePointerVisibleFlagPointer = GetMousePointerVisibleFlagPointer();
+	if (pMousePointerVisibleFlagPointer)
+	{
+		if (GetTransitionState() != FADE_NONE)
+		{
+			*pMousePointerVisibleFlagPointer = 0;
+		}
+		else
+		{
+			*pMousePointerVisibleFlagPointer = 1;
+		}
+	}
 
-	*GetMousePointerVisibleFlagPointer() = 1;
+	if (!EnhanceMouseCursor || (GetEventIndex() != EVENT_PAUSE_MENU && GetEventIndex() != EVENT_MEMO_LIST) || GetReadingMemoFlag() != 0 || GetTransitionState() != FADE_NONE)
+	{
+		return;
+	}
+
 	SetShowCursorFlag_Hook();
 	DrawCursor_Hook();
 }

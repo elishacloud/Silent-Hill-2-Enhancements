@@ -112,7 +112,7 @@ int32_t CanSave_Hook()
 
 void DrawCursor_Hook()
 {
-	if (HideMouseCursor || GetTransitionState() != FADE_NONE)
+	if (HideMouseCursor)
 		return;
 
 	orgDrawCursor.fun();
@@ -215,7 +215,6 @@ void UpdateMousePosition_Hook()
 			} // If cursor is not visible, and has moved from 0:0, set cursor to visible and restore its position
 			else if (HideMouseCursor && (GetMouseVerticalPosition() != 0 || GetMouseHorizontalPosition() != 0))
 			{
-
 				CursorPosHandler.RestoreCursorPos();
 
 				LastCursorXPos = GetMouseHorizontalPosition();
@@ -253,7 +252,7 @@ void UpdateMousePosition_Hook()
 				if (!(futureIndex == 0x01 && orgCanSave.fun() != 0x01))
 				{
 #pragma warning(disable : 4244)
-					* GetPauseMenuButtonIndexPointer() = futureIndex;
+					*GetPauseMenuButtonIndexPointer() = futureIndex;
 				}
 			}
 

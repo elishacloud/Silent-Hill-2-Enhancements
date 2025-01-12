@@ -249,8 +249,15 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	// Update presentation parameters
 	UpdatePresentParameter(pPresentationParameters, hFocusWindow);
 
-	// Set Silent Hill 2 window to forground
-	SetForegroundWindow(DeviceWindow);
+	// Get WndProc
+	if (HookWndProc && DeviceWindow && !OriginalWndProc)
+	{
+		OriginalWndProc = (WNDPROC)GetWindowLongA(DeviceWindow, GWL_WNDPROC);
+		if (OriginalWndProc)
+		{
+			SetWindowLongA(DeviceWindow, GWL_WNDPROC, (LONG)WndProc);
+		}
+	}
 
 	HRESULT hr = D3DERR_INVALIDCALL;
 
@@ -317,16 +324,6 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 	if (EnableScreenshots)
 	{
 		RUNCODEONCE(CreateThread(nullptr, 0, SaveScreenshotFile, nullptr, 0, nullptr));
-	}
-
-	// Get WndProc
-	if (HookWndProc && DeviceWindow && !OriginalWndProc)
-	{
-		OriginalWndProc = (WNDPROC)GetWindowLongA(DeviceWindow, GWL_WNDPROC);
-		if (OriginalWndProc)
-		{
-			SetWindowLongA(DeviceWindow, GWL_WNDPROC, (LONG)WndProc);
-		}
 	}
 
 	GameWindowHandle = DeviceWindow;

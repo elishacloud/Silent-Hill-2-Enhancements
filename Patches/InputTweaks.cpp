@@ -112,7 +112,7 @@ int32_t CanSave_Hook()
 
 void DrawCursor_Hook()
 {
-	if (HideMouseCursor)
+	if (HideMouseCursor || GetTransitionState() != FADE_NONE)
 		return;
 
 	orgDrawCursor.fun();

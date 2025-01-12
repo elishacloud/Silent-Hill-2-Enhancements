@@ -18,6 +18,7 @@
 #include "Patches\InputTweaks.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+void SetWindowToTop(HWND MainhWnd);
 
 WNDPROC OriginalWndProc = nullptr;
 HWND DeviceWindow = nullptr;
@@ -248,6 +249,9 @@ HRESULT m_IDirect3D8::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 
 	// Update presentation parameters
 	UpdatePresentParameter(pPresentationParameters, hFocusWindow);
+
+	// Bring window to the forefront
+	SetWindowToTop(DeviceWindow);
 
 	// Get WndProc
 	if (HookWndProc && DeviceWindow && !OriginalWndProc)
@@ -495,18 +499,8 @@ void SetScreenAndWindowSize()
 	WindowInChange = false;
 }
 
-// Adjusting the window position for WindowMode
-void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
+void SetWindowToTop(HWND MainhWnd)
 {
-	if (!IsWindow(MainhWnd) || !displayWidth || !displayHeight)
-	{
-		LOG_LIMIT(100, __FUNCTION__ << " Error: could not set window size, nullptr.");
-		return;
-	}
-
-	// Remember first run
-	static bool FirstRun = true;
-
 	// Set topmost
 	LONG lExStyle = GetWindowLong(MainhWnd, GWL_EXSTYLE);
 	SetWindowLong(MainhWnd, GWL_EXSTYLE, lExStyle | WS_EX_TOPMOST);
@@ -543,6 +537,22 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 			AttachThreadInput(currentThreadId, foregroundThreadId, FALSE);
 		}
 	}
+}
+
+// Adjusting the window position for WindowMode
+void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
+{
+	if (!IsWindow(MainhWnd) || !displayWidth || !displayHeight)
+	{
+		LOG_LIMIT(100, __FUNCTION__ << " Error: could not set window size, nullptr.");
+		return;
+	}
+
+	// Remember first run
+	static bool FirstRun = true;
+
+	// Bring window to the forefront
+	SetWindowToTop(MainhWnd);
 
 	// Get screen width and height
 	LONG screenWidth = 0, screenHeight = 0;
@@ -560,7 +570,7 @@ void AdjustWindow(HWND MainhWnd, LONG displayWidth, LONG displayHeight)
 
 	// Get window style
 	LONG lStyle = GetWindowLong(MainhWnd, GWL_STYLE) | WS_VISIBLE;
-	lExStyle = GetWindowLong(MainhWnd, GWL_EXSTYLE);
+	LONG lExStyle = GetWindowLong(MainhWnd, GWL_EXSTYLE);
 
 	// Get new style
 	LONG lNewStyle = (lStyle | WS_OVERLAPPEDWINDOW) & ~(WS_MAXIMIZEBOX | WS_THICKFRAME);

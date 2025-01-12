@@ -167,26 +167,6 @@ bool reshade::d3d9::runtime_d3d9::on_init(const D3DPRESENT_PARAMETERS &pp)
 
 	return runtime::on_init(pp.hDeviceWindow);
 }
-bool reshade::d3d9::runtime_d3d9::get_gamma()
-{
-	return _gamma_set;
-}
-void reshade::d3d9::runtime_d3d9::reset_gamma(bool reload)
-{
-	subscribe_to_save_config([this, reload](ini_file &config) {
-
-		config.reset_config();
-
-		if (reload)
-		{
-			_gamma_set = true;
-
-			runtime::on_reset(false);
-
-			runtime::on_init(nullptr);
-		}
-	});
-}
 void reshade::d3d9::runtime_d3d9::on_reset()
 {
 	runtime::on_reset();
@@ -270,8 +250,6 @@ bool reshade::d3d9::runtime_d3d9::init_effect(size_t index)
 {
 	effect &effect = _effects[index];
 
-	bool is_gamma = (_gamma_set && effect.source_file.compare(GammaEffectName + ".fx") == 0);
-
 	// Add specialization constant defines to source code
 	effect.preamble +=
 		"#define COLOR_PIXEL_SIZE 1.0 / " + std::to_string(_width) + ", 1.0 / " + std::to_string(_height) + "\n"
@@ -315,7 +293,7 @@ bool reshade::d3d9::runtime_d3d9::init_effect(size_t index)
 
 		HRESULT hr = D3D_OK;
 
-		if (_compile_cache[entry_index].size() == 0 || is_gamma)
+		if (_compile_cache[entry_index].size() == 0)
 		{
 			hr = D3DCompile(
 				hlsl, hlsl_size,
@@ -375,11 +353,6 @@ bool reshade::d3d9::runtime_d3d9::init_effect(size_t index)
 		}
 
 		++loop_count;
-	}
-
-	if (is_gamma)
-	{
-		_gamma_set = false;
 	}
 
 	d3d9_technique_data technique_init;

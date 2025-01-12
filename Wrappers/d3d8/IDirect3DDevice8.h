@@ -30,6 +30,9 @@ private:
 
 	bool isInScene = false;
 
+	DWORD ScaledBufferWidth = 0;
+	DWORD ScaledBufferHeight = 0;
+
 	bool AnisotropyFlag = (bool)AnisotropicFiltering;
 	DWORD MaxAnisotropy = 0;
 	bool IsAntiAliasingEnabled = false;
@@ -89,6 +92,12 @@ private:
     bool NeedToGrabScreenForWater = true;
     // Cockroaches replacement
     int RoachesDrawingCounter = 0;
+    // GammaRamp stuff
+    DWORD GammaLevel = 0;
+    DWORD BrightnessLevel = ~0u;
+    IDirect3DTexture8* GammaRampLUT = nullptr;
+    IDirect3DTexture8* ScreenCopy = nullptr;
+    D3DGAMMARAMP CachedRamp = {};
 
 	IDirect3DTexture8 *pInTexture = nullptr;
 	IDirect3DSurface8 *pInSurface = nullptr;
@@ -280,7 +289,7 @@ public:
 	STDMETHOD_(BOOL, ShowCursor)(THIS_ BOOL bShow);
 	STDMETHOD(CreateAdditionalSwapChain)(THIS_ D3DPRESENT_PARAMETERS* pPresentationParameters, IDirect3DSwapChain8** pSwapChain);
 	STDMETHOD(Reset)(THIS_ D3DPRESENT_PARAMETERS* pPresentationParameters);
-	STDMETHOD(DrawScaledSurface)(THIS_);
+	STDMETHOD(DrawShadersAndScaledSurface)(THIS_);
 	STDMETHOD_(bool, FixPauseMenuOnPresent)(THIS_);
 	STDMETHOD(Present)(THIS_ CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion);
 	STDMETHOD(GetBackBuffer)(THIS_ UINT BackBuffer, D3DBACKBUFFER_TYPE Type, IDirect3DSurface8** ppBackBuffer);
@@ -371,4 +380,6 @@ public:
 
 	// Extra functions
 	void m_IDirect3DDevice8::AddSurfaceToVector(m_IDirect3DSurface8 *pSourceTarget, IDirect3DSurface8 *pRenderTarget);
+
+    void OnSetBrightnessLevel(const DWORD level);
 };

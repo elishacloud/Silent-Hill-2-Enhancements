@@ -32,8 +32,6 @@ namespace reshade::d3d9
 		~runtime_d3d9();
 
 		bool on_init(const D3DPRESENT_PARAMETERS &pp);
-		bool get_gamma();
-		void reset_gamma(bool reload);
 		void on_reset();
 		void on_present();
 
@@ -77,7 +75,6 @@ namespace reshade::d3d9
 		com_ptr<IDirect3DTexture9> _depth_texture;
 		com_ptr<IDirect3DSurface9> _depth_surface;
 
-		bool _gamma_set = false;
 		bool _disable_intz = false;
 		bool _reset_buffer_detection = false;
 		bool _filter_aspect_ratio = true;

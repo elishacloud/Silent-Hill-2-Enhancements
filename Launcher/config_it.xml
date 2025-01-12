@@ -152,15 +152,6 @@
 
     <Section name="Shader">
 
-      <Feature name="RestoreBrightnessSelector">
-        <Title>Ripristina la funzionalità dell'opzione luminosità</Title>
-        <Description>Ripristina la funzionalità dell'opzione luminosità nel menu opzioni in gioco, sia in modalità finestra che schermo intero.</Description>
-        <Choices type="check">
-          <Value name="Disabilitato">0</Value>
-          <Value name="Abilitato" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="EnableSMAA">
         <Title>SMAA (anti-aliasing)</Title>
         <Description>Abilita anti-aliasing morfologico subpixel (SMAA).&#x0a;&#x0a;Nota: E' raccomandato disabilitare questa opzione se si sta usando un anti aliasing GPU.</Description>
@@ -780,6 +771,15 @@
       <Feature name="LockSpeakerConfig">
         <Title>Blocca l'opzione Configurazione Altoparlanti</Title>
         <Description>Disabilita l'opzione Configurazione Altoparlanti nel menu Opzioni > Opzioni Avanzate dato che, dopo Windows XP, questa opzione va cambiata attraverso il pannello di controllo audio di Windows e non può essere cambiata dagli applicativi (come ad esempio questo gioco). Se si prova a cambiarla attraverso il gioco, tornerà semplicemente a quella selezionata nel Pannello di controllo audio di Windows.&#x0a;&#x0a;Nota: Il file .\sh2e\resources\r_menu_*.res deve essere presente nella cartella del gioco affinché questa feature funzioni.</Description>
+        <Choices type="check">
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="RestoreBrightnessSelector">
+        <Title>Ripristina la funzionalità dell'opzione luminosità</Title>
+        <Description>Ripristina la funzionalità dell'opzione luminosità nel menu opzioni in gioco, sia in modalità finestra che schermo intero.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>

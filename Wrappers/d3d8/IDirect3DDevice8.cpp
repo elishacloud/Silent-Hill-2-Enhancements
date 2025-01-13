@@ -3513,16 +3513,7 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 
 	if (IsScaledResolutionsEnabled() && pRenderSurfaceLast)
 	{
-		D3DSURFACE_DESC SrcDesc = {};
-		pRenderSurfaceLast->GetDesc(&SrcDesc);
-		if (SrcDesc.Width != DestDesc.Width || SrcDesc.Height != DestDesc.Height)
-		{
-			LOG_ONCE(__FUNCTION__ << " Error: Surface size does not match render target!");
-			return D3DERR_INVALIDCALL;
-		}
-		POINT PointDest = { 0, 0 };
-		RECT SrcRect = { 0, 0, (LONG)SrcDesc.Width, (LONG)SrcDesc.Height };
-		if (FAILED(ProxyInterface->CopyRects(pRenderSurfaceLast, &SrcRect, 1, pDestSurface, &PointDest)))
+		if (FAILED(ProxyInterface->CopyRects(pRenderSurfaceLast, nullptr, 0, pDestSurface, nullptr)))
 		{
 			LOG_ONCE(__FUNCTION__ << " Error: Failed to copy surface!");
 			return D3DERR_INVALIDCALL;
@@ -3531,29 +3522,19 @@ HRESULT m_IDirect3DDevice8::FakeGetFrontBuffer(THIS_ IDirect3DSurface8* pDestSur
 	}
 	else if (RestoreBrightnessSelector && ScreenCopy)
 	{
-		LPDIRECT3DSURFACE8 pLastRenderSurface = nullptr;
-		if (ScreenCopy && !IsScaledResolutionsEnabled())
+		LPDIRECT3DSURFACE8 pLastScreenCopy = nullptr;
+		if (SUCCEEDED(ScreenCopy->GetSurfaceLevel(0, &pLastScreenCopy)))
 		{
-			if (SUCCEEDED(ScreenCopy->GetSurfaceLevel(0, &pLastRenderSurface)))
+			if (FAILED(ProxyInterface->CopyRects(pLastScreenCopy, nullptr, 0, pDestSurface, nullptr)))
 			{
-				D3DSURFACE_DESC SrcDesc = {};
-				pLastRenderSurface->GetDesc(&SrcDesc);
-				if (SrcDesc.Width != DestDesc.Width || SrcDesc.Height != DestDesc.Height)
-				{
-					LOG_ONCE(__FUNCTION__ << " Error: Surface size does not match render target!");
-					return D3DERR_INVALIDCALL;
-				}
-				POINT PointDest = { 0, 0 };
-				RECT SrcRect = { 0, 0, (LONG)SrcDesc.Width, (LONG)SrcDesc.Height };
-				if (FAILED(ProxyInterface->CopyRects(pLastRenderSurface, &SrcRect, 1, pDestSurface, &PointDest)))
-				{
-					LOG_ONCE(__FUNCTION__ << " Error: Failed to copy surface!");
-					return D3DERR_INVALIDCALL;
-				}
+				LOG_ONCE(__FUNCTION__ << " Error: Failed to copy surface!");
+				pLastScreenCopy->Release();
+
+				return D3DERR_INVALIDCALL;
 			}
-			pLastRenderSurface->Release();
-			return D3D_OK;
+			pLastScreenCopy->Release();
 		}
+		return D3D_OK;
 	}
 
 	// Get source rect size

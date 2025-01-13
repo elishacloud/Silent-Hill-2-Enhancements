@@ -1516,11 +1516,11 @@ HRESULT m_IDirect3DDevice8::DrawShadersAndScaledSurface()
 		ProxyInterface->SetVertexShader(0);
 	}
 
+	// Set vertex declaration
+	ProxyInterface->SetVertexShader(D3DFVF_XYZRHW | D3DFVF_TEX1);
+
 	if (IsScaledResolutionsEnabled())
 	{
-		// Set vertex declaration
-		ProxyInterface->SetVertexShader(D3DFVF_XYZRHW | D3DFVF_TEX1);
-
 		// Set stream source
 		ProxyInterface->SetStreamSource(0, ScaleVertexBuffer, sizeof(CUSTOMVERTEX_TEX1));
 

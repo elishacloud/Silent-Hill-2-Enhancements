@@ -101,6 +101,7 @@ float *RPTClosetCutsceneBlurredBarsDespawnAddr = nullptr;
 BYTE *InputAssignmentFlagAddr = nullptr;
 BYTE *PauseMenuQuitIndexAddr = nullptr;
 int16_t *MemoCountIndexAddr = nullptr;
+BYTE *MemoUniqueIdAddr = nullptr;
 BYTE *QuitSubmenuFlagAddr = nullptr;
 BYTE *MousePointerVisibleFlagAddr = nullptr;
 int32_t *MemoListIndexAddr = nullptr;
@@ -2434,6 +2435,36 @@ BYTE* GetReadingMemoFlagPointer()
 	}
 	
 	return ReadingMemoFlagAddr;
+}
+
+BYTE GetMemoUniqueId()
+{
+	BYTE* pMemoUniqueId = GetMemoUniqueIdPointer();
+
+	return (pMemoUniqueId) ? *pMemoUniqueId : 0;
+}
+
+BYTE* GetMemoUniqueIdPointer()
+{
+	if (MemoUniqueIdAddr)
+	{
+		return MemoUniqueIdAddr;
+	}
+
+	switch (GameVersion)
+	{
+	case SH2V_10:
+		MemoUniqueIdAddr = reinterpret_cast<BYTE*>(0x94D860);
+		break;
+	case SH2V_11:
+		MemoUniqueIdAddr = reinterpret_cast<BYTE*>(0x951460);
+		break;
+	case SH2V_DC:
+		MemoUniqueIdAddr = reinterpret_cast<BYTE*>(0x950460);
+		break;
+	}
+
+	return MemoUniqueIdAddr;
 }
 
 DWORD* GetDrawCursorPointer()

@@ -8,8 +8,9 @@ static DrawUserInterfaceFunc DrawUserInterface = nullptr;
 
 void GravestoneBoardsFix(UIElement* uiElement)
 {
-    // Check we're in the grave room and examining the gravestone
-    if (GetRoomID() == R_MAN_GRAVE_ROOM && IsInFullScreenImageEvent())
+    // Check we're in the grave room and examining the gravestone or reading memo 54
+    if ((GetRoomID() == R_MAN_GRAVE_ROOM && IsInFullScreenImageEvent()) ||
+        (GetReadingMemoFlag() && GetEventIndex() == EVENT_MEMO_LIST && GetMemoUniqueId() == 54))
     {
         // Step 1: Adjust the texture coordinates for each board to more closely match eachother
 

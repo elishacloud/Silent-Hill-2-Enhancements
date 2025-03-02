@@ -31,6 +31,20 @@ The following dialog files should loop in Silent Hill 2:
 * suiteki.wav
 * tv_noiz_1.wav
 
+For the looped dialog audio found in our project's Audio Enhancement Pack, here are their loop parameters:
+```
+1fwb_rain.wav -lps1 -lpe923844
+clock_4.wav -lps1710 -lpe102657
+forest_wind.wav -lps85632 -lpe803278
+gero_ed.wav -lps483700 -lpe1065230
+goki_jet.wav -lps63335 -lpe644599
+ind_ev_mv.wav -lps1 -lpe1737606
+lakeside.wav -lps88921 -lpe752775
+silen.wav -lps0 -lpe591491
+suiteki.wav -lps64032 -lpe338299
+tv_noiz_1.wav -lps1 -lpe53759
+```
+
 ### Instructions:
 To create the `voice.afs` file for Silent Hill 2 copy all the WAV files into a folder and run the `Build-Dialog-Files.bat` tool.  This tool will create the `voice.afs` file.  All you need to do is copy the `voice` folder over the top of the `voice` folder in the `Silent Hill 2\data\sound\adx` folder.
 

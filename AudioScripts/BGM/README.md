@@ -10,17 +10,23 @@ Thanks to [Polymega](https://github.com/Polymega) for help in creating this map!
 
 ### Multiplexed files:
 
-The AIX files can include multiple ADX files in them.  For example `bgm_115.aix` includes the following files in it:
+[In reference to the extracted, individual BGM audio files:](#audio-files) If the filename is `bgm_###.wav` then it will be saved out as an individual ADX file (`bgm_###.adx`) upon conversion to its game-ready file.  If the filename is `bgm_###_####.wav` then it will be contained inside an AIX multiplex file (as `bgm_###.aix`) with all other tracks that share the same naming convention.
+
+For example `bgm_115.aix` would include the following files in it:
 * bgm_115_0000.adx
 * bgm_115_0001.adx
 * bgm_115_0002.adx
 * bgm_115_0003.adx
 * bgm_115_0004.adx
 
-** NOTE: All of the audio files in an AIX multiplex file needs to be the exact same length, format and have the exact same audio metadata in them for them to work correctly with Silent Hill 2.  In addition, ADX metadata is not supported with multiplexed AIX files in Silent Hill 2.
+** NOTE: All of the audio files in an AIX multiplex file needs to be the exact same length, format, and have the exact same audio metadata in them for them to work correctly with Silent Hill 2.  In addition, ADX metadata is not supported with multiplexed AIX files in Silent Hill 2.
 
 ### Looping:
-All of the BGM files in Silent Hill 2 should loop.  To do this requires modification of the adx file metadata.  The `adxencd.exe` tool has two parameters to handle this.  The first is `-lps` and the second is `-lpe`.  `-lps` stands for "loop start" and indicates the first audio [sample](https://en.wikipedia.org/wiki/Sampling_(signal_processing)) of the area in the file where you want to loop.  `-lpe` stands for "loop end" and indicates the last audio sample that you want to include in the loop.  A loop can start or end anywhere in the wav file
+All of the BGM files in Silent Hill 2 should loop.  
+
+Audio tracks (`bgm_###_####.wav`) that are inside of an AIX multiplex file (`bgm_###.aix`) loop automatically from the very beginning to very end. Therefor, no specific looping parameters need to be made for these files, as their looping parameters cannot be adjusted.
+
+For audio (`bgm_###.wav`) that is saved out as individual ADX files (`bgm_###.adx`), these files will need to have looping parameters specified.  To do this requires modification of the adx file metadata.  The `adxencd.exe` tool has two parameters to handle this.  The first is `-lps` and the second is `-lpe`.  `-lps` stands for "loop start" and indicates the first audio [sample](https://en.wikipedia.org/wiki/Sampling_(signal_processing)) of the area in the file where you want to loop.  `-lpe` stands for "loop end" and indicates the last audio sample that you want to include in the loop.  A loop can start or end anywhere in the wav file.
 
 The `Build-Dialog-Files.bat` file should be modified with the loop parameters before running it so that you ensure that these files loop correctly.
 
@@ -29,7 +35,32 @@ Here is an example:
 adxencd bgm_001.wav -lps3241390 -lpe7106605
 ```
 
-In this example the loop starts at audio sample 3241390 and ends at audio sample 7106605.
+In this example, the audio will play from the very beginning but its loop point will start at audio sample 3241390 and ends at audio sample 7106605.
+
+For the looped BGM audio found in our project's Audio Enhancement Pack, here are their loop parameters:
+
+```
+adxencd bgm_001.wav -lps3241390 -lpe7106605
+adxencd bgm_002.wav -lps6747278 -lpe13725371
+adxencd bgm_003.wav -lps2367912 -lpe10120058
+adxencd bgm_004.wav -lps518 -lpe11888040
+adxencd bgm_005.wav -lps6151452 -lpe12266688
+adxencd bgm_007.wav -lps311895 -lpe11245638
+adxencd bgm_009.wav -lps4778619 -lpe8961600
+adxencd bgm_012.wav -lps2330010 -lpe4660244
+adxencd bgm_014.wav -lps4323555 -lpe9231536
+adxencd bgm_015.wav -lps2367318 -lpe10487402
+adxencd bgm_016.wav -lps182019 -lpe8360105
+adxencd bgm_017.wav -lps4728288 -lpe9385895
+adxencd bgm_018.wav -lps3947531 -lpe6616053
+adxencd bgm_020.wav -lps6527984 -lpe13225644
+adxencd bgm_021.wav -lps1 -lpe5241623
+adxencd bgm_022.wav -lps3139267 -lpe9311296
+...
+adxencd bgm_114_a.wav -lps2869278 -lpe13386156
+...
+adxencd bgm_126.wav -lps299693 -lpe2046092
+```
 
 ### Instructions:
 To create the ADX and AIX files for Silent Hill 2 copy all the WAV files into a folder, copy and run the `Build-BGM-Files.bat` tool.  This tool will create all the ADX and AIX.  It will also create a folder call `sound` and put all the files in their correct folders under `sound`.  Just copy the `sound` folder over the top of the `sound` folder in the `Silent Hill 2\data` folder.

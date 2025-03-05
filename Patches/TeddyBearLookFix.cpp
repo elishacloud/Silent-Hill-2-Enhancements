@@ -70,7 +70,7 @@ void PatchTeddyBearLookFix()
 
     constexpr BYTE GameFlagSearchBytes[]{ 0x83, 0xFE, 0x01, 0x55, 0x57, 0xBD, 0x00, 0x01, 0x00, 0x00 };
     GameFlagAddr = (BYTE*)ReadSearchedAddresses(0x0048AA9E, 0x0048AD3E, 0x0048AF4E, GameFlagSearchBytes, sizeof(LookAtSearchBytes), 0x24, __FUNCTION__);
-    if (!LookAtInjectAddr)
+    if (!GameFlagAddr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
         return;

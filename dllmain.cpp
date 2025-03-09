@@ -812,6 +812,11 @@ void DelayedStart()
 
 	// Increase cemetery draw distance for leave ending
 	PatchLeaveEndingCemeteryDrawDistance();
+
+    if (MusicBoxVolume)
+    {
+        PatchMusicBoxVolume();
+    }
 	
 	// Remove the "Now loading..." and "Press Return to continue." messages
 	if (DisableLoadingPressReturnMessages)

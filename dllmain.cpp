@@ -813,10 +813,11 @@ void DelayedStart()
 	// Increase cemetery draw distance for leave ending
 	PatchLeaveEndingCemeteryDrawDistance();
 
-    if (MusicBoxVolume)
-    {
-        PatchMusicBoxVolume();
-    }
+	// Play a quieter music box track in certain rooms of the Lakeview Hotel.
+	if (MusicBoxVolume)
+	{
+		PatchMusicBoxVolume();
+	}
 	
 	// Remove the "Now loading..." and "Press Return to continue." messages
 	if (DisableLoadingPressReturnMessages)

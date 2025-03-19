@@ -22,6 +22,7 @@
 
 namespace
 {
+    // Game flag set after unlocking the music box in the Lakeview Hotel 1F lobby.
     constexpr int kMusicBoxSolvedFlag = 0x1D8;
 
     // Variables for ASM
@@ -34,13 +35,14 @@ namespace
         return GameFlagAddr[kMusicBoxSolvedFlag >> 3] & (1 << (kMusicBoxSolvedFlag & 0x07));
     }
 
-    // Returns the BGM bank index to use for Hotel 2F.
+    // Returns the BGM bank index to use for Lakeview Hotel 2F.
     int GetStageBgmBank()
     {
         return IsHotelMusicBoxSolved() ? 4 : 0;
     }
 
-    // Loads "sound\adx\hotel\bgm_121.aix" in Hotel 2F only if the music box puzzle was solved.
+    // Loads "sound\adx\hotel\bgm_112.aix" for Lakeview Hotel 2F if the music box puzzle is solved.
+    // Otherwise, loads "sound\adx\hotel\bgm_121.aix" as the default.
     __declspec(naked) void __stdcall BgmChangeASM()
     {
         __asm
@@ -64,70 +66,70 @@ namespace
     }
 }
 
+// Plays a quieter version of the music box in certain rooms of the Lakeview Hotel.
+// This assumes that the quieter BGM is track 7 of "sound\adx\hotel\bgm_112.aix" (this track is silent in vanilla).
 void PatchMusicBoxVolume()
 {
-    const DWORD Hotel2FStageAddr = 0x008CA3D0;  // 1.0 only
+    const BYTE Hotel1FSoundDataSearchBytes[]{ 0x00, 0x40, 0x83, 0xC6, 0x00, 0x40, 0xB5, 0x46, 0x00, 0x00, 0x48, 0x42 };
+    const DWORD Hotel1FSoundDataAddr = SearchAndGetAddresses(0x008B3E20, 0x008B7A10, 0x008B6A10, Hotel1FSoundDataSearchBytes, sizeof(Hotel1FSoundDataSearchBytes), -0x50, __FUNCTION__);
 
-    constexpr BYTE GameFlagSearchBytes[]{ 0x83, 0xFE, 0x01, 0x55, 0x57, 0xBD, 0x00, 0x01, 0x00, 0x00 };
+    const BYTE Hotel2FSoundDataSearchBytes[]{ 0x00, 0xC4, 0x6A, 0xC7, 0x00, 0x68, 0xBF, 0x47, 0x00, 0x00, 0x48, 0x42 };
+    const DWORD Hotel2FSoundDataAddr = SearchAndGetAddresses(0x008B44A0, 0x008B8090, 0x008B7090, Hotel2FSoundDataSearchBytes, sizeof(Hotel2FSoundDataSearchBytes), 0x70, __FUNCTION__);
+
+    const BYTE Hotel2FStageSearchBytes[]{ 0x64, 0x68, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F, 0x74 };
+    const DWORD Hotel2FStageAddr = SearchAndGetAddresses(0x008CA414, 0x008CE0E4, 0x008CD0E4, Hotel2FStageSearchBytes, sizeof(Hotel2FStageSearchBytes), -0x44, __FUNCTION__);
+
+    const BYTE BgmChangeSearchBytes[]{ 0x83, 0xC1, 0xFE, 0x83, 0xF9, 0x38 };
+    const DWORD BgmChangeAddr = SearchAndGetAddresses(0x0051601C, 0x0051634C, 0x00515C6C, BgmChangeSearchBytes, sizeof(BgmChangeSearchBytes), 0x00, __FUNCTION__);
+
+    const BYTE GameFlagSearchBytes[]{ 0x83, 0xFE, 0x01, 0x55, 0x57, 0xBD, 0x00, 0x01, 0x00, 0x00 };
     GameFlagAddr = (BYTE*)ReadSearchedAddresses(0x0048AA9E, 0x0048AD3E, 0x0048AF4E, GameFlagSearchBytes, sizeof(GameFlagSearchBytes), 0x24, __FUNCTION__);
-    if (!GameFlagAddr)
+
+    if (!Hotel1FSoundDataAddr || !Hotel2FSoundDataAddr || !Hotel2FStageAddr || !BgmChangeAddr || !GameFlagAddr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
         return;
     }
 
-    constexpr BYTE BgmChangeSearchBytes[]{ 0x83, 0xC1, 0xFE, 0x83, 0xF9, 0x38 };
-    const DWORD BgmChangeAddr = SearchAndGetAddresses(0x0051601C, 0, 0, BgmChangeSearchBytes, sizeof(BgmChangeSearchBytes), 0x00, __FUNCTION__);
-    if (!BgmChangeAddr)
-    {
-        Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
-        return;
-    }
     BgmChangeReturnAddr = BgmChangeAddr + 0x06;
     shBgmCall = (void(*)(int))(BgmChangeAddr + 0x2B + *(DWORD*)(BgmChangeAddr + 0x27));
 
-    // TODO: Can simply use &GetStageBgmBank ?
-    int(*pfn)(void) = std::addressof(GetStageBgmBank);
-
     Logging::Log() << "Patching Music Box Volume...";
-    // Set custom BGM control function for Hotel 2F.
-    UpdateMemoryAddress((void*)(Hotel2FStageAddr + 0x30), &pfn, sizeof(&pfn));
 
     WriteJMPtoMemory((BYTE*)BgmChangeAddr, *BgmChangeASM, 0x06);
 
-    // Update BGM sound regions in Hotel 1F
-    const DWORD Hotel1FSoundDataAddr = 0x008B3DD0;  // 1.0 only
+    // Set custom BGM control function for Hotel 2F.
+    int(*GetStageBgmBankAddr)(void) = GetStageBgmBank;
+    UpdateMemoryAddress((void*)(Hotel2FStageAddr + 0x30), &GetStageBgmBankAddr, sizeof(&GetStageBgmBank));
+
+    // Update BGM sound regions in Hotel 1F.
     const DWORD ChannelNoBanks = 0x00;
     const DWORD ChannelBank4 = 0x00100000;
-
     for (int i = 6; i <= 11; ++i)
     {
-        // Muffled music box in 1F hallway
+        // Quieter music box in 1F hallway.
         UpdateMemoryAddress((void*)(Hotel1FSoundDataAddr + i * 0x40 + 0x34), &ChannelNoBanks, sizeof(DWORD));
         UpdateMemoryAddress((void*)(Hotel1FSoundDataAddr + i * 0x40 + 0x3C), &ChannelBank4, sizeof(DWORD));
     }
-    for (int i = 12; i <= 18; ++i)
+    for (int i = 12; i <= 27; ++i)
     {
-        // No music box in rooms other than lobby and reception
+        // No music box in rooms other than lobby and reception.
+        if (i == 19 || i == 20) continue;
         UpdateMemoryAddress((void*)(Hotel1FSoundDataAddr + i * 0x40 + 0x34), &ChannelNoBanks, sizeof(DWORD));
     }
-    for (int i = 21; i <= 27; ++i)
-    {
-        // No music box in rooms other than lobby and reception
-        UpdateMemoryAddress((void*)(Hotel1FSoundDataAddr + i * 0x40 + 0x34), &ChannelNoBanks, sizeof(DWORD));
-    }
+    // No music box outside of known regions. This covers the 1F employee hallway since the sound regions
+    // for this hallway are actually misplaced on top of a different room.
+    UpdateMemoryAddress((void*)(Hotel1FSoundDataAddr + 0x34), &ChannelNoBanks, sizeof(DWORD));
 
-    // Update BGM sound regions in Hotel 2F
-    const DWORD Hotel2FSoundDataAddr = 0x008B4510;  // 1.0 only
+    // Update BGM sound regions in Hotel 2F.
     const DWORD EnableAreaFlag = 0x40000010;
-
     for (int i = 3; i <= 9; ++i)
     {
-        // Muffled music box in 2F hallways connected to the lobby
+        // Quieter music box in 2F hallways connected to the lobby.
         UpdateMemoryAddress((void*)(Hotel2FSoundDataAddr + i * 0x40 + 0x20), &EnableAreaFlag, sizeof(DWORD));
         UpdateMemoryAddress((void*)(Hotel2FSoundDataAddr + i * 0x40 + 0x3C), &ChannelBank4, sizeof(DWORD));
     }
-    // Muffled music box in cloak room
+    // Quieter music box in cloak room.
     UpdateMemoryAddress((void*)(Hotel2FSoundDataAddr + 12 * 0x40 + 0x20), &EnableAreaFlag, sizeof(DWORD));
     UpdateMemoryAddress((void*)(Hotel2FSoundDataAddr + 12 * 0x40 + 0x3C), &ChannelBank4, sizeof(DWORD));
 }

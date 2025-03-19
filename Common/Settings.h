@@ -103,7 +103,7 @@
 	visit(MemoScreenFix, true) \
 	visit(MenuSoundsFix, true) \
 	visit(MothDrawOrderFix, true) \
-    visit(MusicBoxVolume, true) \
+	visit(MusicBoxVolume, true) \
 	visit(NoCDPatch, true) \
 	visit(ObservationDeckFogFix, true) \
 	visit(OldManCoinFix, true) \
@@ -260,7 +260,7 @@
 	visit(LimitPerFrameFPS) \
 	visit(LoadModulesFromMemory) \
 	visit(LockResolution) \
-    visit(MusicBoxVolume) \
+	visit(MusicBoxVolume) \
 	visit(NormalFontHeight) \
 	visit(NormalFontWidth) \
 	visit(OldManCoinFix) \

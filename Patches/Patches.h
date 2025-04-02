@@ -610,6 +610,7 @@ void PatchBestGraphics();
 void PatchBinary();
 void PatchCDCheck();
 void PatchCatacombsMeatRoom();
+void PatchChainsawSoundFix();
 void PatchClosetSpawn();
 void PatchCommandWindowMouseFix();
 void PatchControlOptionsMenu();

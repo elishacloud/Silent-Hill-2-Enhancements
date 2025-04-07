@@ -724,6 +724,7 @@ void OnFileLoadVid(LPCSTR lpFileName);
 
 void RunAtticShadows();
 void RunBloodSize();
+void RunChainsawSoundFix();
 void RunClosetCutscene();
 void RunClosetSpawn();
 void RunDynamicDrawDistance();

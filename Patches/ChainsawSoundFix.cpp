@@ -34,6 +34,7 @@ float ChainsawIdleVolume = 0.0f;
 
 int(*shSetSoundVolume)(int sound_index, float volume, float* pos, byte status) = nullptr;
 float *WeaponVolumePtr = nullptr;
+BYTE *CurrentAttackIndexPtr = nullptr;
 
 DWORD jmpUpdateLastHitResultReturnAddr = 0;
 DWORD jmpPlayChainsawHitSoundReturnAddr1 = 0;
@@ -156,7 +157,10 @@ void RunChainsawSoundFix()
         constexpr BYTE WeaponVolumeSearchBytes[]{ 0x6A, 0x00, 0x83, 0xC0, 0x1C, 0x50, 0xD9, 0x1D };
         WeaponVolumePtr = (float*)ReadSearchedAddresses(0x0054A915, 0x0054AC45, 0x0054A565, WeaponVolumeSearchBytes, sizeof(WeaponVolumeSearchBytes), 0x08, __FUNCTION__);
 
-        if (!SetSoundVolumeAddr || !WeaponVolumePtr)
+        constexpr BYTE CurrentAttackIndexSearchBytes[]{ 0xE9, 0x15, 0x04, 0x00, 0x00 };
+        CurrentAttackIndexPtr = (BYTE*)ReadSearchedAddresses(0x0053045F, 0x0053078F, 0x005300AF, CurrentAttackIndexSearchBytes, sizeof(CurrentAttackIndexSearchBytes), 0x07, __FUNCTION__);
+
+        if (!SetSoundVolumeAddr || !WeaponVolumePtr || !CurrentAttackIndexPtr)
         {
             Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
             return;
@@ -164,7 +168,7 @@ void RunChainsawSoundFix()
         shSetSoundVolume = (int(*)(int, float, float*, byte))((BYTE*)(SetSoundVolumeAddr + 0x04) + *(DWORD*)SetSoundVolumeAddr);
     }
 
-    if (!shSetSoundVolume || !WeaponVolumePtr) return;
+    if (!shSetSoundVolume || !WeaponVolumePtr || !CurrentAttackIndexPtr) return;
     if (ChainsawIdleState == 0 || *WeaponVolumePtr < 1e-5f)
     {
         ChainsawIdleState = 0;
@@ -173,9 +177,10 @@ void RunChainsawSoundFix()
         return;
     }
 
-    // Cross-fade between the start of the chainsaw idle sound and the looping portion.
+    
     switch (ChainsawIdleState)
     {
+    // Wait until the start of the chainsaw idle loop point.
     case 1:
         ChainsawIdleTimer -= SetSixtyFPS ? kFrameTimeSixtyFPS : kFrameTimeThirtyFPS;
         if (ChainsawIdleTimer < 0.0f) {
@@ -185,17 +190,24 @@ void RunChainsawSoundFix()
         }
         break;
 
+    // Cross-fade between the start of the chainsaw idle sound and the looping portion.
     case 2:
         ChainsawIdleVolume += (SetSixtyFPS ? kFrameTimeSixtyFPS : kFrameTimeThirtyFPS) / kChainsawIdleFadeSpeedSec;
         if (ChainsawIdleVolume >= *WeaponVolumePtr) {
             ChainsawIdleVolume = *WeaponVolumePtr;
-            ChainsawIdleState = 3;  // Continue to update panning while chainsaw is idle
+            ChainsawIdleState = 3;
         }
+        break;
+
+    // Continue to update the idle sound's world position while the chainsaw is active.
+    case 3:
+        // Silence the idle loop while attacking with the chainsaw.
+        ChainsawIdleVolume = *CurrentAttackIndexPtr == 0 ? *WeaponVolumePtr : 0.0f;
         break;
 
     default:
         break;
     }
-    shSetSoundVolume(/*sound_index=*/0x2B24, /*volume=*/(*WeaponVolumePtr - ChainsawIdleVolume), /*pos=*/GetJamesPosXPointer(), /*status=*/0);
+    shSetSoundVolume(/*sound_index=*/0x2B24, /*volume=*/ChainsawIdleState < 3 ? (*WeaponVolumePtr - ChainsawIdleVolume) : 0.0f, /*pos=*/GetJamesPosXPointer(), /*status=*/0);
     shSetSoundVolume(/*sound_index=*/0x1642, /*volume=*/ChainsawIdleVolume, /*pos=*/GetJamesPosXPointer(), /*status=*/0);
 }

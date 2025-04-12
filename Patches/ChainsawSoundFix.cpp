@@ -131,7 +131,7 @@ __declspec(naked) void __stdcall SetChainsawLoopBufferStartASM()
         pop ecx
         jne ExitASM
         cmp esi, 0x1642
-        lea esi, dword ptr ds : [ebp + 0xAB60]
+        lea esi, dword ptr ds : [ebp + 0xAB8C]  // 0xAB60 + 0x2C (RIFF header size)
         ret
 
     ExitASM:

@@ -111,7 +111,7 @@ __declspec(naked) void __stdcall SetChainsawLoopBufferLengthASM()
         mov ecx, dword ptr ds : [ebp + 0x18]
         cmp ecx, 48000  // Sample rate == 48000 Hz?
         jne ExitASM
-        sub ebx, 0xAB60
+        sub ebx, 0x12180
         ret
 
     ExitASM:
@@ -131,7 +131,7 @@ __declspec(naked) void __stdcall SetChainsawLoopBufferStartASM()
         pop ecx
         jne ExitASM
         cmp esi, 0x1642
-        lea esi, dword ptr ds : [ebp + 0xAB8C]  // 0xAB60 + 0x2C (RIFF header size)
+        lea esi, dword ptr ds : [ebp + 0x121AC]  // 0x12180 + 0x2C (RIFF header size)
         ret
 
     ExitASM:
@@ -220,7 +220,6 @@ void RunChainsawSoundFix()
         ChainsawIdleTimer = 0.0f;
         return;
     }
-
     
     switch (ChainsawIdleState)
     {

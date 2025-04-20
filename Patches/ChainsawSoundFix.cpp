@@ -35,6 +35,7 @@ float ChainsawIdleVolume = 0.0f;
 int(*shSetSoundVolume)(int sound_index, float volume, float* pos, byte status) = nullptr;
 float *WeaponVolumePtr = nullptr;
 BYTE *CurrentAttackIndexPtr = nullptr;
+DWORD *CollisionResultPtr = nullptr;
 
 DWORD jmpUpdateLastHitResultReturnAddr = 0;
 DWORD jmpPlayChainsawHitSoundReturnAddr1 = 0;
@@ -42,6 +43,8 @@ DWORD jmpPlayChainsawHitSoundReturnAddr2 = 0;
 DWORD jmpSilenceChainsawLoopReturnAddr = 0;
 DWORD jmpSetChainsawLoopVolumeReturnAddr1 = 0;
 DWORD jmpSetChainsawLoopVolumeReturnAddr2 = 0;
+DWORD jmpSetChainsawLoopBufferLengthReturnAddr = 0;
+DWORD jmpSetChainsawLoopBufferStartReturnAddr = 0;
 
 // Stores the last weapon hit result for the current frame.
 __declspec(naked) void __stdcall UpdateLastHitResultASM()
@@ -103,41 +106,90 @@ __declspec(naked) void __stdcall SetChainsawLoopVolumeASM()
     }
 }
 
-// Adjusts the length of the chainsaw idle loop sound buffer.
+// Adjusts the length of the chainsaw idle loop sound buffer at 48,000 Hz.
+// Also reduces the length of the initial crank sound if James starts the
+// chainsaw on his left side, since this animation plays faster.
 __declspec(naked) void __stdcall SetChainsawLoopBufferLengthASM()
 {
     __asm
     {
-        mov ecx, dword ptr ds : [ebp + 0x18]
-        cmp ecx, 48000  // Sample rate == 48000 Hz?
-        jne ExitASM
-        sub ebx, 0x12180
-        ret
+        push eax
+        mov eax, dword ptr ds : [ebp + 0x18]
+        cmp esi, 0x14E8
+        je ChainsawCrank
+        cmp esi, 0x1642
+        je ChainsawIdleLoop
+        jmp ExitASM
 
-    ExitASM:
+    ChainsawCrank:
+        cmp eax, 48000  // Sample rate == 48000 Hz?
+        jne ExitASM
+        mov eax, dword ptr ds : [CollisionResultPtr]
+        mov eax, dword ptr ds : [eax]
+        test eax, eax
+        jz ExitASM
+        sub ebx, 0x7CFC
+        jmp SetBufferLength
+
+    ChainsawIdleLoop:
+        cmp eax, 48000  // Sample rate = 48000 Hz?
+        jne ChainsawIdleLoopOriginal
+        sub ebx, 0x12180
+        jmp SetBufferLength
+    
+    ChainsawIdleLoopOriginal:
         sub ebx, 0x4796
-        ret
+
+    SetBufferLength:
+        mov dword ptr ds : [esp + 0x68], ebx
+
+    ExitAsm:
+        pop eax
+        jmp jmpSetChainsawLoopBufferLengthReturnAddr
     }
 }
 
-// Adjusts the start offset of the chainsaw idle loop sound buffer.
+// Adjusts the start offset of the chainsaw idle loop sound buffer at 48,000 Hz.
+// Also cuts silence at the beginning of the initial crank sound if James starts
+// the chainsaw on his left side, since this animation plays faster.
 __declspec(naked) void __stdcall SetChainsawLoopBufferStartASM()
 {
     __asm
     {
+        push eax
         push ecx
-        mov ecx, dword ptr ds : [ebp + 0x18]
-        cmp ecx, 48000  // Sample rate == 48000 Hz?
-        pop ecx
+        mov eax, dword ptr ds : [ebp + 0x18]
+        mov ecx, esi
+        lea esi, dword ptr ds : [ebp + 0x2C]
+        cmp ecx, 0x14E8
+        je ChainsawCrank
+        cmp ecx, 0x1642
+        je ChainsawIdleLoop
+        jmp ExitASM
+
+    ChainsawCrank:
+        cmp eax, 48000  // Sample rate == 48000 Hz?
         jne ExitASM
-        cmp esi, 0x1642
+        mov eax, dword ptr ds : [CollisionResultPtr]
+        mov eax, dword ptr ds : [eax]
+        test eax, eax
+        jz ExitASM
+        lea esi, dword ptr ds : [ebp + 0x7D28]  // 0x7CFC + 0x2C (RIFF header size)
+        jmp ExitASM
+
+    ChainsawIdleLoop:
+        cmp eax, 48000  // Sample rate = 48000 Hz?
+        jne ChainsawIdleLoopOriginal
         lea esi, dword ptr ds : [ebp + 0x121AC]  // 0x12180 + 0x2C (RIFF header size)
-        ret
+        jmp ExitASM
+
+    ChainsawIdleLoopOriginal:
+        lea esi, dword ptr ds : [ebp + 0x47C2]
 
     ExitASM:
-        cmp esi, 0x1642
-        lea esi, dword ptr ds : [ebp + 0x47C2]
-        ret
+        pop ecx
+        pop eax
+        jmp jmpSetChainsawLoopBufferStartReturnAddr
     }
 }
 
@@ -159,9 +211,12 @@ void PatchChainsawSoundFix()
     const DWORD SetChainsawLoopVolumeAddr = SearchAndGetAddresses(0x00514DD0, 0x00515100, 0x00514A20, SetChainsawLoopVolumeSearchBytes, sizeof(SetChainsawLoopVolumeSearchBytes), 0x01, __FUNCTION__);
 
     constexpr BYTE SetChainsawLoopBufferLengthSearchBytes[]{ 0xC7, 0x44, 0x24, 0x34, 0x90, 0x02, 0x04, 0x00 };
-    const DWORD SetChainsawLoopBufferLengthAddr = SearchAndGetAddresses(0x0051790A, 0x00517C3A, 0x0051755A, SetChainsawLoopBufferLengthSearchBytes, sizeof(SetChainsawLoopBufferLengthSearchBytes), 0x22, __FUNCTION__);
+    const DWORD SetChainsawLoopBufferLengthAddr = SearchAndGetAddresses(0x0051790A, 0x00517C3A, 0x0051755A, SetChainsawLoopBufferLengthSearchBytes, sizeof(SetChainsawLoopBufferLengthSearchBytes), 0x1A, __FUNCTION__);
 
-    if (!ChainsawHitAddr || !SetSoundDamageAddr || !SetSoundVolumeAddr || !SilenceChainsawLoopAddr || !SetChainsawLoopVolumeAddr || !SetChainsawLoopBufferLengthAddr)
+    constexpr BYTE CollisionResultSearchBytes[]{ 0x66, 0x3D, 0x95, 0x01, 0x74, 0x10 };
+    CollisionResultPtr = (DWORD*)ReadSearchedAddresses(0x005329AD, 0x00532CDD, 0x005325FD, CollisionResultSearchBytes, sizeof(CollisionResultSearchBytes), 0x08, __FUNCTION__);
+
+    if (!ChainsawHitAddr || !SetSoundDamageAddr || !SetSoundVolumeAddr || !SilenceChainsawLoopAddr || !SetChainsawLoopVolumeAddr || !SetChainsawLoopBufferLengthAddr || !CollisionResultPtr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
         return;
@@ -173,7 +228,9 @@ void PatchChainsawSoundFix()
     jmpSilenceChainsawLoopReturnAddr = SilenceChainsawLoopAddr + 0x06;
     jmpSetChainsawLoopVolumeReturnAddr1 = SetChainsawLoopVolumeAddr + 0x49;
     jmpSetChainsawLoopVolumeReturnAddr2 = SetChainsawLoopVolumeAddr + 0x06;
-    const DWORD SetChainsawLoopBufferStartAddr = SetChainsawLoopBufferLengthAddr + 0x169;
+    jmpSetChainsawLoopBufferLengthReturnAddr = SetChainsawLoopBufferLengthAddr + 0x12;
+    jmpSetChainsawLoopBufferStartReturnAddr = SetChainsawLoopBufferLengthAddr + 0x182;
+    const DWORD SetChainsawLoopBufferStartAddr = SetChainsawLoopBufferLengthAddr + 0x171;
 
     Logging::Log() << "Patching Chainsaw Sound Fixes...";
 
@@ -181,8 +238,8 @@ void PatchChainsawSoundFix()
     WriteJMPtoMemory((BYTE*)(ChainsawHitAddr - 0x92), *UpdateLastHitResultASM, 0x05);
     WriteJMPtoMemory((BYTE*)SilenceChainsawLoopAddr, *SilenceChainsawLoopASM, 0x07);
     WriteJMPtoMemory((BYTE*)SetChainsawLoopVolumeAddr, *SetChainsawLoopVolumeASM, 0x06);
-    WriteCalltoMemory((BYTE*)SetChainsawLoopBufferLengthAddr, *SetChainsawLoopBufferLengthASM, 0x06);
-    WriteCalltoMemory((BYTE*)SetChainsawLoopBufferStartAddr, *SetChainsawLoopBufferStartASM, 0x0C);
+    WriteJMPtoMemory((BYTE*)SetChainsawLoopBufferLengthAddr, *SetChainsawLoopBufferLengthASM, 0x06);
+    WriteJMPtoMemory((BYTE*)SetChainsawLoopBufferStartAddr, *SetChainsawLoopBufferStartASM, 0x06);
 
     // There are two functions that play the chainsaw hit sound every frame. Skip the second callsite.
     UpdateMemoryAddress((void*)SetSoundDamageAddr, "\x5F\x5B\x59\xC3\x90", 0x05);

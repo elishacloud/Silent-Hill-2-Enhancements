@@ -23,6 +23,9 @@
 
 constexpr float kChainsawIdleFadeStartTimeSec = 1.0f;
 constexpr float kChainsawIdleFadeSpeedSec = 0.5f;
+constexpr int kChainsawIdleStartSoundIndex = 0x2B24;
+constexpr int kChainsawIdleLoopSoundIndex = 0x1642;
+constexpr int kChainsawAttackSoundIndex = 0x2B25;
 
 constexpr float kFrameTimeThirtyFPS = 1.0f / 30.0f;
 constexpr float kFrameTimeSixtyFPS = 1.0f / 60.0f;
@@ -31,11 +34,13 @@ DWORD PlayerLastHitResult = 0;
 BYTE ChainsawIdleState = 0;
 float ChainsawIdleTimer = 0.0f;
 float ChainsawIdleVolume = 0.0f;
+bool ChainsawAttackActive = false;
 
 int(*shSetSoundVolume)(int sound_index, float volume, float* pos, byte status) = nullptr;
+int(*shPlaySoundDirectional)(int sound_index, float volume, float* pos, int status) = nullptr;
 float *WeaponVolumePtr = nullptr;
-BYTE *CurrentAttackIndexPtr = nullptr;
 DWORD *CollisionResultPtr = nullptr;
+BYTE *AttackActivePtr = nullptr;
 
 DWORD jmpUpdateLastHitResultReturnAddr = 0;
 DWORD jmpPlayChainsawHitSoundReturnAddr1 = 0;
@@ -216,7 +221,11 @@ void PatchChainsawSoundFix()
     constexpr BYTE CollisionResultSearchBytes[]{ 0x66, 0x3D, 0x95, 0x01, 0x74, 0x10 };
     CollisionResultPtr = (DWORD*)ReadSearchedAddresses(0x005329AD, 0x00532CDD, 0x005325FD, CollisionResultSearchBytes, sizeof(CollisionResultSearchBytes), 0x08, __FUNCTION__);
 
-    if (!ChainsawHitAddr || !SetSoundDamageAddr || !SetSoundVolumeAddr || !SilenceChainsawLoopAddr || !SetChainsawLoopVolumeAddr || !SetChainsawLoopBufferLengthAddr || !CollisionResultPtr)
+    constexpr BYTE PlayChainsawAttackSoundSearchBytes[]{ 0x8D, 0x84, 0x76, 0x8E, 0xF9, 0xFF, 0xFF, 0x83, 0xC4, 0x10 };
+    const DWORD PlayChainsawAttackSoundAddr = SearchAndGetAddresses(0x005316CC, 0x005319FC, 0x0053131C, PlayChainsawAttackSoundSearchBytes, sizeof(PlayChainsawAttackSoundSearchBytes), -0x05, __FUNCTION__);
+
+    if (!ChainsawHitAddr || !SetSoundDamageAddr || !SetSoundVolumeAddr || !SilenceChainsawLoopAddr ||
+        !SetChainsawLoopVolumeAddr || !SetChainsawLoopBufferLengthAddr || !CollisionResultPtr || !PlayChainsawAttackSoundAddr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
         return;
@@ -243,6 +252,10 @@ void PatchChainsawSoundFix()
 
     // There are two functions that play the chainsaw hit sound every frame. Skip the second callsite.
     UpdateMemoryAddress((void*)SetSoundDamageAddr, "\x5F\x5B\x59\xC3\x90", 0x05);
+
+    // Skip the original function call that plays the chainsaw attack sound. This is now called in RunChainsawSoundFix().
+    // This instruction sometimes runs before the start of the animation, causing the sound to desync.
+    UpdateMemoryAddress((void*)PlayChainsawAttackSoundAddr, "\x90\x90\x90\x90\x90", 0x05);
 }
 
 // Controls the pan and volume of the chainsaw idle sound.
@@ -258,24 +271,40 @@ void RunChainsawSoundFix()
         constexpr BYTE WeaponVolumeSearchBytes[]{ 0x6A, 0x00, 0x83, 0xC0, 0x1C, 0x50, 0xD9, 0x1D };
         WeaponVolumePtr = (float*)ReadSearchedAddresses(0x0054A915, 0x0054AC45, 0x0054A565, WeaponVolumeSearchBytes, sizeof(WeaponVolumeSearchBytes), 0x08, __FUNCTION__);
 
-        constexpr BYTE CurrentAttackIndexSearchBytes[]{ 0xE9, 0x15, 0x04, 0x00, 0x00 };
-        CurrentAttackIndexPtr = (BYTE*)ReadSearchedAddresses(0x0053045F, 0x0053078F, 0x005300AF, CurrentAttackIndexSearchBytes, sizeof(CurrentAttackIndexSearchBytes), 0x07, __FUNCTION__);
+        constexpr BYTE AttackActiveSearchBytes[]{ 0xD9, 0x9F, 0xAC, 0x00, 0x00, 0x00, 0x84, 0x15 };
+        AttackActivePtr = (BYTE*)ReadSearchedAddresses(0x00558ED8, 0x00559208, 0x00558B28, AttackActiveSearchBytes, sizeof(AttackActiveSearchBytes), 0x10, __FUNCTION__);
 
-        if (!SetSoundVolumeAddr || !WeaponVolumePtr || !CurrentAttackIndexPtr)
+        if (!SetSoundVolumeAddr || !WeaponVolumePtr || !AttackActivePtr)
         {
             Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
             return;
         }
         shSetSoundVolume = (int(*)(int, float, float*, byte))((BYTE*)(SetSoundVolumeAddr + 0x04) + *(DWORD*)SetSoundVolumeAddr);
+        shPlaySoundDirectional = (int(*)(int, float, float*, int))(SetSoundVolumeAddr - 0x250);
     }
 
-    if (!shSetSoundVolume || !WeaponVolumePtr || !CurrentAttackIndexPtr) return;
+    if (!shSetSoundVolume || !shPlaySoundDirectional || !WeaponVolumePtr || !AttackActivePtr) return;
     if (ChainsawIdleState == 0 || *WeaponVolumePtr < 1e-5f)
     {
         ChainsawIdleState = 0;
         ChainsawIdleVolume = 0.0f;
         ChainsawIdleTimer = 0.0f;
+        ChainsawAttackActive = 0;
         return;
+    }
+
+    // Play the chainsaw attack sound at the start of the attack animation.
+    if (*AttackActivePtr)
+    {
+        if (!ChainsawAttackActive)
+        {
+            ChainsawAttackActive = true;
+            shPlaySoundDirectional(kChainsawAttackSoundIndex, *WeaponVolumePtr, GetJamesPosXPointer(), /*status=*/0);
+        }
+    }
+    else
+    {
+        ChainsawAttackActive = false;
     }
     
     switch (ChainsawIdleState)
@@ -302,12 +331,17 @@ void RunChainsawSoundFix()
     // Continue to update the idle sound's world position while the chainsaw is active.
     case 3:
         // Silence the idle loop while attacking with the chainsaw.
-        ChainsawIdleVolume = *CurrentAttackIndexPtr == 0 ? *WeaponVolumePtr : 0.0f;
+        ChainsawIdleVolume = *AttackActivePtr == 0 ? *WeaponVolumePtr : 0.0f;
         break;
 
     default:
         break;
     }
-    shSetSoundVolume(/*sound_index=*/0x2B24, /*volume=*/ChainsawIdleState < 3 ? (*WeaponVolumePtr - ChainsawIdleVolume) : 0.0f, /*pos=*/GetJamesPosXPointer(), /*status=*/0);
-    shSetSoundVolume(/*sound_index=*/0x1642, /*volume=*/ChainsawIdleVolume, /*pos=*/GetJamesPosXPointer(), /*status=*/0);
+    shSetSoundVolume(
+        kChainsawIdleStartSoundIndex,
+        ChainsawIdleState < 3 ? (*WeaponVolumePtr - ChainsawIdleVolume) : 0.0f,
+        GetJamesPosXPointer(),
+        /*status=*/0
+    );
+    shSetSoundVolume(kChainsawIdleLoopSoundIndex, ChainsawIdleVolume, GetJamesPosXPointer(), /*status=*/0);
 }

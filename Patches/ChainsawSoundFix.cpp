@@ -22,7 +22,7 @@
 #include "Logging\Logging.h"
 
 constexpr float kChainsawIdleFadeStartTimeSec = 1.0f;
-constexpr float kChainsawIdleFadeSpeedSec = 0.5f;
+constexpr float kChainsawIdleFadeSpeedSec = 0.1f;
 constexpr int kChainsawIdleStartSoundIndex = 0x2B24;
 constexpr int kChainsawIdleLoopSoundIndex = 0x1642;
 constexpr int kChainsawAttackSoundIndex = 0x2B25;
@@ -33,7 +33,7 @@ constexpr float kFrameTimeSixtyFPS = 1.0f / 60.0f;
 DWORD PlayerLastHitResult = 0;
 BYTE ChainsawIdleState = 0;
 float ChainsawIdleTimer = 0.0f;
-float ChainsawIdleVolume = 0.0f;
+float ChainsawIdleVolumeFactor = 0.0f;
 bool ChainsawAttackActive = false;
 
 int(*shSetSoundVolume)(int sound_index, float volume, float* pos, byte status) = nullptr;
@@ -75,6 +75,10 @@ __declspec(naked) void __stdcall PlayChainsawHitSoundASM()
 
     ExitASM:
         mov eax, 0x2B26
+        push 0x00
+        lea ecx, [esi + 0x1C]
+        push ecx
+        push 0x3F800000  // Volume = 1.0
         jmp jmpPlayChainsawHitSoundReturnAddr2
     }
 }
@@ -224,15 +228,19 @@ void PatchChainsawSoundFix()
     constexpr BYTE PlayChainsawAttackSoundSearchBytes[]{ 0x8D, 0x84, 0x76, 0x8E, 0xF9, 0xFF, 0xFF, 0x83, 0xC4, 0x10 };
     const DWORD PlayChainsawAttackSoundAddr = SearchAndGetAddresses(0x005316CC, 0x005319FC, 0x0053131C, PlayChainsawAttackSoundSearchBytes, sizeof(PlayChainsawAttackSoundSearchBytes), -0x05, __FUNCTION__);
 
+    constexpr BYTE ChainsawIdleInitVolumeSearchBytes[]{ 0x53, 0x83, 0xC1, 0x1C, 0x51, 0x68 };
+    const DWORD ChainsawIdleInitVolumeAddr = SearchAndGetAddresses(0x00530DAE, 0x005310DE, 0x005309FE, ChainsawIdleInitVolumeSearchBytes, sizeof(ChainsawIdleInitVolumeSearchBytes), 0x15, __FUNCTION__);
+
     if (!ChainsawHitAddr || !SetSoundDamageAddr || !SetSoundVolumeAddr || !SilenceChainsawLoopAddr ||
-        !SetChainsawLoopVolumeAddr || !SetChainsawLoopBufferLengthAddr || !CollisionResultPtr || !PlayChainsawAttackSoundAddr)
+        !SetChainsawLoopVolumeAddr || !SetChainsawLoopBufferLengthAddr || !CollisionResultPtr ||
+        !PlayChainsawAttackSoundAddr || !ChainsawIdleInitVolumeAddr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
         return;
     }
 
     jmpPlayChainsawHitSoundReturnAddr1 = ChainsawHitAddr - 0x97;
-    jmpPlayChainsawHitSoundReturnAddr2 = ChainsawHitAddr + 0x05;
+    jmpPlayChainsawHitSoundReturnAddr2 = ChainsawHitAddr - 0xA0;
     jmpUpdateLastHitResultReturnAddr = ChainsawHitAddr - 0x8D;
     jmpSilenceChainsawLoopReturnAddr = SilenceChainsawLoopAddr + 0x06;
     jmpSetChainsawLoopVolumeReturnAddr1 = SetChainsawLoopVolumeAddr + 0x49;
@@ -256,6 +264,10 @@ void PatchChainsawSoundFix()
     // Skip the original function call that plays the chainsaw attack sound. This is now called in RunChainsawSoundFix().
     // This instruction sometimes runs before the start of the animation, causing the sound to desync.
     UpdateMemoryAddress((void*)PlayChainsawAttackSoundAddr, "\x90\x90\x90\x90\x90", 0x05);
+
+    // Set volume of other chainsaw sound effects to 1.0.
+    UpdateMemoryAddress((void*)ChainsawIdleInitVolumeAddr, "\x00\x00\x80\x3F", 0x04);
+    UpdateMemoryAddress((void*)(ChainsawHitAddr - 0xF0), "\x00\x00\x80\x3F", 0x04);
 }
 
 // Controls the pan and volume of the chainsaw idle sound.
@@ -282,12 +294,12 @@ void RunChainsawSoundFix()
         shSetSoundVolume = (int(*)(int, float, float*, byte))((BYTE*)(SetSoundVolumeAddr + 0x04) + *(DWORD*)SetSoundVolumeAddr);
         shPlaySoundDirectional = (int(*)(int, float, float*, int))(SetSoundVolumeAddr - 0x250);
     }
-
     if (!shSetSoundVolume || !shPlaySoundDirectional || !WeaponVolumePtr || !AttackActivePtr) return;
+
     if (ChainsawIdleState == 0 || *WeaponVolumePtr < 1e-5f)
     {
         ChainsawIdleState = 0;
-        ChainsawIdleVolume = 0.0f;
+        ChainsawIdleVolumeFactor = 0.0f;
         ChainsawIdleTimer = 0.0f;
         ChainsawAttackActive = 0;
         return;
@@ -307,31 +319,37 @@ void RunChainsawSoundFix()
         ChainsawAttackActive = false;
     }
     
+    float IdleVolume = 0.0f;
+    float IdleStartVolume = 0.0f;
     switch (ChainsawIdleState)
     {
-    // Wait until the start of the chainsaw idle loop point.
+    // Wait until the start of the custom chainsaw idle loop point.
     case 1:
         ChainsawIdleTimer -= SetSixtyFPS ? kFrameTimeSixtyFPS : kFrameTimeThirtyFPS;
         if (ChainsawIdleTimer < 0.0f) {
             ChainsawIdleTimer = 0.0f;
-            ChainsawIdleVolume = 0.0f;
+            ChainsawIdleVolumeFactor = 0.0f;
             ChainsawIdleState = 2;
         }
+        IdleStartVolume = *WeaponVolumePtr;
         break;
 
     // Cross-fade between the start of the chainsaw idle sound and the looping portion.
     case 2:
-        ChainsawIdleVolume += (SetSixtyFPS ? kFrameTimeSixtyFPS : kFrameTimeThirtyFPS) / kChainsawIdleFadeSpeedSec;
-        if (ChainsawIdleVolume >= *WeaponVolumePtr) {
-            ChainsawIdleVolume = *WeaponVolumePtr;
+        ChainsawIdleVolumeFactor += (SetSixtyFPS ? kFrameTimeSixtyFPS : kFrameTimeThirtyFPS) / kChainsawIdleFadeSpeedSec;
+        if (ChainsawIdleVolumeFactor >= 1.0f) {
+            ChainsawIdleVolumeFactor = 1.0f;
             ChainsawIdleState = 3;
         }
+        IdleStartVolume = (1.0f - pow(ChainsawIdleVolumeFactor, 3)) * *WeaponVolumePtr;
+        IdleVolume = (1.0f - pow(1.0f - ChainsawIdleVolumeFactor, 3)) * *WeaponVolumePtr;
         break;
 
     // Continue to update the idle sound's world position while the chainsaw is active.
     case 3:
         // Silence the idle loop while attacking with the chainsaw.
-        ChainsawIdleVolume = *AttackActivePtr == 0 ? *WeaponVolumePtr : 0.0f;
+        ChainsawIdleVolumeFactor = *AttackActivePtr != 0 ? 0.0f : 1.0f;
+        IdleVolume = ChainsawIdleVolumeFactor * *WeaponVolumePtr;
         break;
 
     default:
@@ -339,9 +357,9 @@ void RunChainsawSoundFix()
     }
     shSetSoundVolume(
         kChainsawIdleStartSoundIndex,
-        ChainsawIdleState < 3 ? (*WeaponVolumePtr - ChainsawIdleVolume) : 0.0f,
+        ChainsawIdleState < 3 ? IdleStartVolume : 0.0f,
         GetJamesPosXPointer(),
         /*status=*/0
     );
-    shSetSoundVolume(kChainsawIdleLoopSoundIndex, ChainsawIdleVolume, GetJamesPosXPointer(), /*status=*/0);
+    shSetSoundVolume(kChainsawIdleLoopSoundIndex, IdleVolume, GetJamesPosXPointer(), /*status=*/0);
 }

@@ -184,8 +184,8 @@ __declspec(naked) void __stdcall SetChainsawLoopBufferStartASM()
         jne ExitASM
         mov eax, dword ptr ds : [CollisionResultPtr]
         mov eax, dword ptr ds : [eax]
-        test eax, eax
-        jz ExitASM
+        cmp eax, 0x01
+        jne ExitASM
         lea esi, dword ptr ds : [ebp + 0x7D28]  // 0x7CFC + 0x2C (RIFF header size)
         jmp ExitASM
 

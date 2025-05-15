@@ -35,6 +35,7 @@ BYTE ChainsawIdleState = 0;
 float ChainsawIdleTimer = 0.0f;
 float ChainsawIdleVolumeFactor = 0.0f;
 bool ChainsawAttackActive = false;
+bool ChainsawAttackSoundPlayed = false;
 
 int(*shSetSoundVolume)(int sound_index, float volume, float* pos, byte status) = nullptr;
 int(*shPlaySoundDirectional)(int sound_index, float volume, float* pos, int status) = nullptr;
@@ -50,6 +51,8 @@ DWORD jmpSetChainsawLoopVolumeReturnAddr1 = 0;
 DWORD jmpSetChainsawLoopVolumeReturnAddr2 = 0;
 DWORD jmpSetChainsawLoopBufferLengthReturnAddr = 0;
 DWORD jmpSetChainsawLoopBufferStartReturnAddr = 0;
+DWORD jmpCheckChainsawAttackStartReturnAddr1 = 0;
+DWORD jmpCheckChainsawAttackStartReturnAddr2 = 0;
 
 // Stores the last weapon hit result for the current frame.
 __declspec(naked) void __stdcall UpdateLastHitResultASM()
@@ -202,6 +205,39 @@ __declspec(naked) void __stdcall SetChainsawLoopBufferStartASM()
     }
 }
 
+// Sets `ChainsawAttackActive` to true on frame 0 of the attack animation.
+__declspec(naked) void __stdcall CheckChainsawAttackStartASM()
+{
+    __asm
+    {
+        push edx
+        cmp eax, 0x07
+        jne ExitASM
+        mov edx, dword ptr ds : [esp + 0x14]  // Current frame
+        test edx, edx
+        jnz NotAttackStart
+        mov edx, dword ptr ds : [AttackActivePtr]
+        movzx edx, byte ptr ds : [edx]
+        test dl, dl
+        jz NotAttackStart
+        mov byte ptr ds : [ChainsawAttackActive], 0x01
+        jmp ExitASM
+
+    NotAttackStart:
+        mov byte ptr ds : [ChainsawAttackActive], 0x00
+
+    ExitASM:
+        pop edx
+        dec eax
+        cmp eax, 0x07
+        ja SkipSwitch
+        jmp jmpCheckChainsawAttackStartReturnAddr1
+
+    SkipSwitch:
+        jmp jmpCheckChainsawAttackStartReturnAddr2
+    }
+}
+
 void PatchChainsawSoundFix()
 {
     const BYTE ChainsawHitSearchBytes[]{ 0xB8, 0x26, 0x2B, 0x00, 0x00, 0xE9, 0x4B };
@@ -231,9 +267,16 @@ void PatchChainsawSoundFix()
     constexpr BYTE ChainsawIdleInitVolumeSearchBytes[]{ 0x53, 0x83, 0xC1, 0x1C, 0x51, 0x68 };
     const DWORD ChainsawIdleInitVolumeAddr = SearchAndGetAddresses(0x00530DAE, 0x005310DE, 0x005309FE, ChainsawIdleInitVolumeSearchBytes, sizeof(ChainsawIdleInitVolumeSearchBytes), 0x15, __FUNCTION__);
 
+    constexpr BYTE AttackActiveSearchBytes[]{ 0xD9, 0x9F, 0xAC, 0x00, 0x00, 0x00, 0x84, 0x15 };
+    AttackActivePtr = (BYTE*)ReadSearchedAddresses(0x00558ED8, 0x00559208, 0x00558B28, AttackActiveSearchBytes, sizeof(AttackActiveSearchBytes), 0x10, __FUNCTION__);
+
+    constexpr BYTE CheckChainsawAttackStartSearchBytes[]{ 0x48, 0x83, 0xF8, 0x07, 0x0F, 0x87, 0xBB, 0x02 };
+    const DWORD CheckChainsawAttackStartAddr = SearchAndGetAddresses(0x0054A592, 0x0054A8C2, 0x0054A1E2, CheckChainsawAttackStartSearchBytes, sizeof(CheckChainsawAttackStartSearchBytes), 0x00, __FUNCTION__);
+
     if (!ChainsawHitAddr || !SetSoundDamageAddr || !SetSoundVolumeAddr || !SilenceChainsawLoopAddr ||
         !SetChainsawLoopVolumeAddr || !SetChainsawLoopBufferLengthAddr || !CollisionResultPtr ||
-        !PlayChainsawAttackSoundAddr || !ChainsawIdleInitVolumeAddr)
+        !PlayChainsawAttackSoundAddr || !ChainsawIdleInitVolumeAddr || !AttackActivePtr ||
+        !CheckChainsawAttackStartAddr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
         return;
@@ -247,6 +290,8 @@ void PatchChainsawSoundFix()
     jmpSetChainsawLoopVolumeReturnAddr2 = SetChainsawLoopVolumeAddr + 0x06;
     jmpSetChainsawLoopBufferLengthReturnAddr = SetChainsawLoopBufferLengthAddr + 0x12;
     jmpSetChainsawLoopBufferStartReturnAddr = SetChainsawLoopBufferLengthAddr + 0x182;
+    jmpCheckChainsawAttackStartReturnAddr1 = CheckChainsawAttackStartAddr + 0x0A;
+    jmpCheckChainsawAttackStartReturnAddr2 = CheckChainsawAttackStartAddr + 0x2C5;
     const DWORD SetChainsawLoopBufferStartAddr = SetChainsawLoopBufferLengthAddr + 0x171;
 
     Logging::Log() << "Patching Chainsaw Sound Fixes...";
@@ -257,6 +302,7 @@ void PatchChainsawSoundFix()
     WriteJMPtoMemory((BYTE*)SetChainsawLoopVolumeAddr, *SetChainsawLoopVolumeASM, 0x06);
     WriteJMPtoMemory((BYTE*)SetChainsawLoopBufferLengthAddr, *SetChainsawLoopBufferLengthASM, 0x06);
     WriteJMPtoMemory((BYTE*)SetChainsawLoopBufferStartAddr, *SetChainsawLoopBufferStartASM, 0x06);
+    WriteJMPtoMemory((BYTE*)CheckChainsawAttackStartAddr, *CheckChainsawAttackStartASM, 0x0A);
 
     // There are two functions that play the chainsaw hit sound every frame. Skip the second callsite.
     UpdateMemoryAddress((void*)SetSoundDamageAddr, "\x5F\x5B\x59\xC3\x90", 0x05);
@@ -283,10 +329,7 @@ void RunChainsawSoundFix()
         constexpr BYTE WeaponVolumeSearchBytes[]{ 0x6A, 0x00, 0x83, 0xC0, 0x1C, 0x50, 0xD9, 0x1D };
         WeaponVolumePtr = (float*)ReadSearchedAddresses(0x0054A915, 0x0054AC45, 0x0054A565, WeaponVolumeSearchBytes, sizeof(WeaponVolumeSearchBytes), 0x08, __FUNCTION__);
 
-        constexpr BYTE AttackActiveSearchBytes[]{ 0xD9, 0x9F, 0xAC, 0x00, 0x00, 0x00, 0x84, 0x15 };
-        AttackActivePtr = (BYTE*)ReadSearchedAddresses(0x00558ED8, 0x00559208, 0x00558B28, AttackActiveSearchBytes, sizeof(AttackActiveSearchBytes), 0x10, __FUNCTION__);
-
-        if (!SetSoundVolumeAddr || !WeaponVolumePtr || !AttackActivePtr)
+        if (!SetSoundVolumeAddr || !WeaponVolumePtr)
         {
             Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
             return;
@@ -301,22 +344,23 @@ void RunChainsawSoundFix()
         ChainsawIdleState = 0;
         ChainsawIdleVolumeFactor = 0.0f;
         ChainsawIdleTimer = 0.0f;
-        ChainsawAttackActive = 0;
+        ChainsawAttackActive = false;
+        ChainsawAttackSoundPlayed = false;
         return;
     }
 
     // Play the chainsaw attack sound at the start of the attack animation.
-    if (*AttackActivePtr)
+    if (ChainsawAttackActive)
     {
-        if (!ChainsawAttackActive)
+        if (!ChainsawAttackSoundPlayed)
         {
-            ChainsawAttackActive = true;
             shPlaySoundDirectional(kChainsawAttackSoundIndex, *WeaponVolumePtr, GetJamesPosXPointer(), /*status=*/0);
+            ChainsawAttackSoundPlayed = true;
         }
     }
     else
     {
-        ChainsawAttackActive = false;
+        ChainsawAttackSoundPlayed = false;
     }
     
     float IdleVolume = 0.0f;

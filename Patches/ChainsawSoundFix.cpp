@@ -42,6 +42,7 @@ int(*shPlaySoundDirectional)(int sound_index, float volume, float* pos, int stat
 float *WeaponVolumePtr = nullptr;
 DWORD *CollisionResultPtr = nullptr;
 BYTE *AttackActivePtr = nullptr;
+DWORD *PlayerSubCharPtr = nullptr;
 
 DWORD jmpUpdateLastHitResultReturnAddr = 0;
 DWORD jmpPlayChainsawHitSoundReturnAddr1 = 0;
@@ -220,6 +221,14 @@ __declspec(naked) void __stdcall CheckChainsawAttackStartASM()
         movzx edx, byte ptr ds : [edx]
         test dl, dl
         jz NotAttackStart
+        mov edx, dword ptr ds : [PlayerSubCharPtr]
+        mov edx, dword ptr ds : [edx]
+        mov edx, dword ptr ds : [edx + 0x1D8]
+        test edx, edx
+        je NotAttackStart
+        movsx edx, word ptr [edx + 0x04]  // Current animation speed
+        test edx, edx
+        js NotAttackStart  // Ignore recoil/reverse animation (speed < 0)
         mov byte ptr ds : [ChainsawAttackActive], 0x01
         jmp ExitASM
 
@@ -273,10 +282,13 @@ void PatchChainsawSoundFix()
     constexpr BYTE CheckChainsawAttackStartSearchBytes[]{ 0x48, 0x83, 0xF8, 0x07, 0x0F, 0x87, 0xBB, 0x02 };
     const DWORD CheckChainsawAttackStartAddr = SearchAndGetAddresses(0x0054A592, 0x0054A8C2, 0x0054A1E2, CheckChainsawAttackStartSearchBytes, sizeof(CheckChainsawAttackStartSearchBytes), 0x00, __FUNCTION__);
 
+    constexpr BYTE PlayerSubCharSearchBytes[]{ 0x85, 0xFF, 0x75, 0x04, 0x33, 0xC0, 0x5F };
+    PlayerSubCharPtr = (DWORD*)ReadSearchedAddresses(0x00494D77, 0x00495017, 0x00495227, PlayerSubCharSearchBytes, sizeof(PlayerSubCharSearchBytes), -0x04, __FUNCTION__);
+
     if (!ChainsawHitAddr || !SetSoundDamageAddr || !SetSoundVolumeAddr || !SilenceChainsawLoopAddr ||
         !SetChainsawLoopVolumeAddr || !SetChainsawLoopBufferLengthAddr || !CollisionResultPtr ||
         !PlayChainsawAttackSoundAddr || !ChainsawIdleInitVolumeAddr || !AttackActivePtr ||
-        !CheckChainsawAttackStartAddr)
+        !CheckChainsawAttackStartAddr || !PlayerSubCharPtr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
         return;

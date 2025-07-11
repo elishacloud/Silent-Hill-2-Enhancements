@@ -158,7 +158,6 @@ copy /y "$(TargetDir)d3d8.ini" "$(ProjectDir)..\Common\Settings.ini"</Command>
     <ClInclude Include="..\Common\Unicode.h" />
     <ClInclude Include="..\Common\Utils.h" />
     <ClInclude Include="..\External\Logging\Logging.h" />
-    <ClInclude Include="..\External\MemoryModule\MemoryModule.h" />
     <ClInclude Include="..\External\tinyxml2\tinyxml2.h" />
     <ClInclude Include="..\External\xxHash\xxh3.h" />
     <ClInclude Include="..\External\xxHash\xxhash.h" />
@@ -173,7 +172,6 @@ copy /y "$(TargetDir)d3d8.ini" "$(ProjectDir)..\Common\Settings.ini"</Command>
     <ClCompile Include="..\Common\Settings.cpp" />
     <ClCompile Include="..\Common\Utils.cpp" />
     <ClCompile Include="..\External\Logging\Logging.cpp" />
-    <ClCompile Include="..\External\MemoryModule\MemoryModule.c" />
     <ClCompile Include="..\External\tinyxml2\tinyxml2.cpp" />
     <ClCompile Include="..\External\xxHash\xxhash.c" />
     <ClCompile Include="..\Logging\Logging.cpp" />

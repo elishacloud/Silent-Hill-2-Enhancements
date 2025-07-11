@@ -39,6 +39,11 @@
 #include "Logging\Logging.h"
 #include "Unicode.h"
 
+#pragma warning(push)          // Save current warning state
+#pragma warning(disable: 4996) // Disable warning C4996
+#include "External\MemoryModule\MemoryModule.c"
+#pragma warning(pop)           // Restore previous warning state
+
 #ifndef _DPI_AWARENESS_CONTEXTS_
 
 #define _DPI_AWARENESS_CONTEXTS_

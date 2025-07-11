@@ -835,6 +835,20 @@ void DelayedStart()
 		}
 	}
 
+	// Allow the Hotel map to be acquired without the flashlight
+	BYTE* pHotelMap =
+		(BYTE*)(GameVersion == SH2V_10 ? 0x008CB17C :
+			GameVersion == SH2V_11 ? 0x008CEE4C :
+			GameVersion == SH2V_DC ? 0x008CDE4C : NULL);
+
+	if (pHotelMap && *pHotelMap == 0x04)
+	{
+		Logging::Log() << "Patching hotel map to not require the flashlight...";
+
+		BYTE Value = 0;
+		UpdateMemoryAddress(pHotelMap, &Value, sizeof(Value));
+	}
+
 	// Flush cache
 	FlushInstructionCache(GetCurrentProcess(), nullptr, 0);
 

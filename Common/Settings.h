@@ -17,6 +17,7 @@
     visit(CockroachesReplacement, true) \
 	visit(CreateLocalFix, true) \
 	visit(CustomAdvancedOptions, true) \
+	visit(CutsceneUnequip, true) \
 	visit(d3d8to9, true) \
 	visit(DelayedFadeIn, true) \
 	visit(Direct3DCreate9On12, false) \

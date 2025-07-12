@@ -148,6 +148,8 @@ int8_t* ControlOptionsSelectedOptionAddr = nullptr;
 int32_t* ControlOptionsStopScrollingAddr = nullptr;
 int8_t* ControlOptionsSelectedColumnAddr = nullptr;
 int8_t* ControlOptionsChangingAddr = nullptr;
+WEAPONTYPE* WeaponRenderAddr = nullptr;
+WEAPONTYPE* WeaponHandGripAddr = nullptr;
 
 bool ShowDebugOverlay = false;
 bool ShowInfoOverlay = false;
@@ -3405,4 +3407,72 @@ int8_t* GetControlOptionsChangingPointer()
 	}
 
 	return ControlOptionsChangingAddr;
+}
+
+WEAPONTYPE GetWeaponRender()
+{
+	if (WeaponRenderAddr)
+	{
+		return *WeaponRenderAddr;
+	}
+
+	// Get WeaponRender address
+	constexpr BYTE WeaponRenderSearchBytes[]{ 0x69, 0xF6, 0x94, 0x00, 0x00, 0x00, 0x51, 0x8D, 0x54, 0x24, 0x18, 0x52, 0x8D, 0x4C, 0x24, 0x2C, 0x51, 0x8B, 0x8E };
+	DWORD pWeaponRender = ReadSearchedAddresses(0x0050B5F0, 0x0050B920, 0x0050B240, WeaponRenderSearchBytes, sizeof(WeaponRenderSearchBytes), 0x13, __FUNCTION__);
+
+	// Checking address pointer
+	if (!pWeaponRender)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find WeaponRender address!";
+		return WEAPONTYPE::WT_NONE;
+	}
+
+	WeaponRenderAddr = (WEAPONTYPE*)(pWeaponRender + 0x484);
+
+	return *WeaponRenderAddr;
+}
+
+WEAPONTYPE GetWeaponHandGrip()
+{
+	if (WeaponHandGripAddr)
+	{
+		return *WeaponHandGripAddr;
+	}
+
+	// Get WeaponHandGrip address
+	constexpr BYTE WeaponHandGripSearchBytes[]{ 0xDF, 0xE0, 0xF6, 0xC4, 0x41, 0x0F, 0x84, 0xC6, 0x00, 0x00, 0x00, 0x6A, 0x01, 0xE8 };
+	DWORD pWeaponHandGrip = ReadSearchedAddresses(0x0048E9F0, 0x0048EC90, 0x0048EEA0, WeaponHandGripSearchBytes, sizeof(WeaponHandGripSearchBytes), 0xD4, __FUNCTION__);
+
+	// Checking address pointer
+	if (!pWeaponHandGrip)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find WeaponHandGrip address!";
+		return WEAPONTYPE::WT_NONE;
+	}
+
+	WeaponHandGripAddr = (WEAPONTYPE*)pWeaponHandGrip;
+
+	return *WeaponHandGripAddr;
+}
+
+// Get in-game voice event address
+BYTE* GetInGameVoiceEvent()
+{
+	static BYTE* InGameVoiceEvent = nullptr;
+
+	if (InGameVoiceEvent)
+	{
+		return InGameVoiceEvent;
+	}
+
+	// Get address for in game voice event
+	constexpr BYTE SearchBytes[]{ 0x85, 0xC0, 0x75, 0x07, 0xD9, 0x05 };
+	InGameVoiceEvent = (BYTE*)ReadSearchedAddresses(0x004A0305, 0x004A05B5, 0x0049FE75, SearchBytes, sizeof(SearchBytes), -0x04, __FUNCTION__);
+	if (!InGameVoiceEvent)
+	{
+		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+		return nullptr;
+	}
+
+	return InGameVoiceEvent;
 }

@@ -470,6 +470,9 @@
     <ClCompile Include="External\Hooking\Disasm.cpp">
       <Filter>External\Hooking</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\RemoveWeaponFromCutscene.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">

@@ -409,6 +409,12 @@ HRESULT m_IDirect3DDevice8::EndScene()
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	// Removes James' weapon during cutscenes (needs to run in EndSecene before skipping the scene)
+	if (CutsceneUnequip)
+	{
+		PatchRemoveWeaponFromCutscene();
+	}
+
 	// Skip frames in specific cutscenes to prevent flickering
 	if (RemoveEnvironmentFlicker)
 	{
@@ -447,6 +453,16 @@ HRESULT m_IDirect3DDevice8::EndScene()
 		LastCutscenePos = GetCutscenePos();
 		LastInGameCameraPosY = GetInGameCameraPosY();
 		LastJamesPosX = GetJamesPosX();
+	}
+
+	// Skip frame in cutscene when transitioning James to unequip the weapon
+	if (CutsceneUnequip && CheckForSkipFrameCutscene())
+	{
+		LOG_LIMIT(1, "Skipping frame during cutscene!");
+
+		SkipSceneFlag = true;
+
+		return D3D_OK;
 	}
 
 	// Reset flag for black pillar boxes

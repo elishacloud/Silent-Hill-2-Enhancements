@@ -104,6 +104,9 @@
     <ClCompile Include="External\Hooking\HotPatch.cpp">
       <Filter>External\Hooking</Filter>
     </ClCompile>
+    <ClCompile Include="External\Hooking\IATPatch.cpp">
+      <Filter>External\Hooking</Filter>
+    </ClCompile>
     <ClCompile Include="Common\FileSystemHooks.cpp">
       <Filter>Common</Filter>
     </ClCompile>
@@ -467,9 +470,6 @@
     <ClCompile Include="Patches\CockroachesReplacement.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
-    <ClCompile Include="External\Hooking\Disasm.cpp">
-      <Filter>External\Hooking</Filter>
-    </ClCompile>
     <ClCompile Include="Patches\RemoveWeaponFromCutscene.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
@@ -714,9 +714,6 @@
     </ClInclude>
     <ClInclude Include="Common\ModelGLTF.h">
       <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="External\Hooking\Disasm.h">
-      <Filter>External\Hooking</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

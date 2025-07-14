@@ -61,10 +61,8 @@ namespace {
 	{
 		// Get weapon and in voice event addresses
 		RUNCODEONCE({
-			GetWeaponRender();
-			GetWeaponHandGrip();
-			pWeaponRenderAddr = WeaponRenderAddr;
-			pWeaponHandGripAddr = WeaponHandGripAddr;
+			pWeaponRenderAddr = GetWeaponRenderPointer();
+			pWeaponHandGripAddr = GetWeaponHandGripPointer();
 			pInGameVoiceEvent = GetInGameVoiceEvent();
 			}
 		);
@@ -106,6 +104,12 @@ void PatchRemoveWeaponFromCutscene()
 	bool IsInDefinedCutsceen = IsDefinedCutscene();
 	static bool LastIsInDefinedCutsceen = false;
 	CUTSCENEID CurrentCutscene = (CUTSCENEID)GetCutsceneID();
+
+	// Check addresses
+	if (!pWeaponRenderAddr || !pWeaponHandGripAddr)
+	{
+		return;
+	}
 
 	// Remove weapon in specified cutsceen
 	if (IsInDefinedCutsceen)

@@ -3409,11 +3409,11 @@ int8_t* GetControlOptionsChangingPointer()
 	return ControlOptionsChangingAddr;
 }
 
-WEAPONTYPE GetWeaponRender()
+WEAPONTYPE* GetWeaponRenderPointer()
 {
 	if (WeaponRenderAddr)
 	{
-		return *WeaponRenderAddr;
+		return WeaponRenderAddr;
 	}
 
 	// Get WeaponRender address
@@ -3424,19 +3424,26 @@ WEAPONTYPE GetWeaponRender()
 	if (!pWeaponRender)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find WeaponRender address!";
-		return WEAPONTYPE::WT_NONE;
+		return nullptr;
 	}
 
 	WeaponRenderAddr = (WEAPONTYPE*)(pWeaponRender + 0x484);
 
-	return *WeaponRenderAddr;
+	return WeaponRenderAddr;
 }
 
-WEAPONTYPE GetWeaponHandGrip()
+WEAPONTYPE GetWeaponRender()
+{
+	WEAPONTYPE* pWeaponRender = GetWeaponRenderPointer();
+
+	return (pWeaponRender) ? *pWeaponRender : WEAPONTYPE::WT_NONE;
+}
+
+WEAPONTYPE* GetWeaponHandGripPointer()
 {
 	if (WeaponHandGripAddr)
 	{
-		return *WeaponHandGripAddr;
+		return WeaponHandGripAddr;
 	}
 
 	// Get WeaponHandGrip address
@@ -3447,12 +3454,19 @@ WEAPONTYPE GetWeaponHandGrip()
 	if (!pWeaponHandGrip)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find WeaponHandGrip address!";
-		return WEAPONTYPE::WT_NONE;
+		return nullptr;
 	}
 
 	WeaponHandGripAddr = (WEAPONTYPE*)pWeaponHandGrip;
 
-	return *WeaponHandGripAddr;
+	return WeaponHandGripAddr;
+}
+
+WEAPONTYPE GetWeaponHandGrip()
+{
+	WEAPONTYPE* pWeaponHandGrip = GetWeaponHandGripPointer();
+
+	return (pWeaponHandGrip) ? *pWeaponHandGrip : WEAPONTYPE::WT_NONE;
 }
 
 // Get in-game voice event address

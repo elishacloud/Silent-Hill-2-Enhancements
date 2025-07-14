@@ -601,7 +601,9 @@ int8_t* GetControlOptionsSelectedOptionPointer();
 int32_t* GetControlOptionsIsToStopScrollingPointer();
 int8_t* GetControlOptionsSelectedColumnPointer();
 int8_t* GetControlOptionsChangingPointer();
+WEAPONTYPE* GetWeaponRenderPointer();
 WEAPONTYPE GetWeaponRender();
+WEAPONTYPE* GetWeaponHandGripPointer();
 WEAPONTYPE GetWeaponHandGrip();
 BYTE* GetInGameVoiceEvent();
 

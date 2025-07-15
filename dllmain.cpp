@@ -926,6 +926,12 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			DelayedStart();
 		}
 
+		// Load DSOAL
+		if (UseDSOAL)
+		{
+			DSOAL_DllMain(hModule, fdwReason, lpReserved);
+		}
+
 		// Pin current module
 		PinModule(m_hModule);
 	}
@@ -936,6 +942,12 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		break;
 	case DLL_PROCESS_DETACH:
 	{
+		// Unload DSOAL
+		if (UseDSOAL)
+		{
+			DSOAL_DllMain(hModule, fdwReason, lpReserved);
+		}
+
 		// Release the mutex when the DLL is unloaded
 		if (g_hMutex)
 		{
@@ -976,13 +988,11 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 
 		// Quitting
 		Logging::Log() << "Unloading Silent Hill 2 Enhancements!";
+
+		// Exit process when unloading
+		ExitProcess(0);
 	}
 	break;
-	}
-
-	if (UseDSOAL)
-	{
-		DSOAL_DllMain(hModule, fdwReason, lpReserved);
 	}
 
 	return TRUE;

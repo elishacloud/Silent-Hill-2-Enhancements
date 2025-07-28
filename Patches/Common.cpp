@@ -29,6 +29,7 @@ float *CameraFOVAddr = nullptr;
 float *FlashlightBrightnessAddr = nullptr;
 BYTE *FlashLightRenderAddr = nullptr;
 BYTE *FlashlightSwitchAddr = nullptr;
+DWORD *FlashLightAcquiredAddr = nullptr;
 float *JamesPosXAddr = nullptr;
 float *JamesPosYAddr = nullptr;
 float *JamesPosZAddr = nullptr;
@@ -405,6 +406,34 @@ BYTE *GetFlashLightRenderPointer()
 	}
 
 	return FlashLightRenderAddr;
+}
+
+bool GetFlashLightAcquired()
+{
+	DWORD *pFlashLightAcquired = GetFlashLightAcquiredPointer();
+
+	return *pFlashLightAcquired & 0x40000;
+}
+
+DWORD *GetFlashLightAcquiredPointer()
+{
+	if (FlashLightAcquiredAddr)
+	{
+		return FlashLightAcquiredAddr;
+	}
+
+	// Get address for if flashlight has been acquired
+	constexpr BYTE FlashLightAcquiredSearchBytes[]{ 0x8D, 0x50, 0x1C, 0x8B, 0x0A, 0x89, 0x0D };
+	FlashLightAcquiredAddr = (DWORD*)ReadSearchedAddresses(0x0045507D, 0x004552DD, 0x004552DD, FlashLightAcquiredSearchBytes, sizeof(FlashLightAcquiredSearchBytes), 0x56, __FUNCTION__);
+
+	// Checking address pointer
+	if (!FlashLightAcquiredAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find flashlight acquired memory address!";
+		return nullptr;
+	}
+
+	return FlashLightAcquiredAddr;
 }
 
 BYTE GetChapterID()

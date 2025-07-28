@@ -1196,6 +1196,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="EnemyRevealLighting">
+        <Title>Adjust lighting of enemies during reveal setpieces</Title>
+        <Description>Adjust the lighting of the enemies in the tunnel radio cutscene and Apt Room 205 to make them less conspicuous before their reveal.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
     </Section>
 
     <Section name="Flicker">

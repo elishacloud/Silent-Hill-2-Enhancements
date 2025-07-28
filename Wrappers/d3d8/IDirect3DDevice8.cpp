@@ -1959,6 +1959,31 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
         }
     }
 
+	if (EnemyRevealLighting)
+	{
+		// Darken the lying figure in the tunnel radio cutscene
+		if (GetCutsceneID() == CS_TUNNEL_RADIO && GetCutsceneTimer() < 705.5f && GetModelID() == ModelID::chr_scu_scu)
+		{
+			constexpr float shaderConstants[][4] =
+			{
+				{ 0.065f, 0.065f, 0.065f, 0.0f }, // Ambient,  Game default: 0.7f, 0.7f, 0.7f, 0.0f
+				{ 0.03f,  0.03f,  0.03f,  0.0f }, // Diffuse,  Game default: 0.1209223f, 0.1209223f, 0.1209223f, 0.0f
+				{ 0.05f,  0.05f,  0.05f,  0.0f }  // Specular, Game default: 0.15f, 0.15f, 0.15f, GARBAGE
+			};
+
+			ProxyInterface->SetVertexShaderConstant(43, shaderConstants, 2);
+			ProxyInterface->SetPixelShaderConstant(3, &shaderConstants[2], 1);
+		}
+
+		// Disable specular highlights for the mannequin in apartments room 205 before acquring the flashlight
+		if (GetRoomID() == R_APT_E_RM_205 && !GetFlashLightAcquired() && GetModelID() == ModelID::chr_mkn_mkn)
+		{
+			constexpr float shaderConstants[] = { 0.0f, 0.0f, 0.0f, 0.0f }; // Specular, Game default: 0.4f, 0.4f, 0.4f, GARBAGE
+
+			ProxyInterface->SetPixelShaderConstant(3, shaderConstants, 1);
+		}
+	}
+
 	return ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
 }
 

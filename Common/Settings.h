@@ -62,6 +62,7 @@
 	visit(FixFMVSpeed, true) \
 	visit(FixHangOnEsc, true) \
 	visit(FixInventoryBGM, true) \
+	visit(FixLyingFigureFootsteps, true) \
 	visit(FixMemoFading, true) \
 	visit(FixMissingWallChunks, true) \
 	visit(FixSaveBGImage, true) \

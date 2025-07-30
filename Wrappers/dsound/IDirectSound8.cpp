@@ -19,13 +19,12 @@
 #include <shlwapi.h>
 #include "Patches\Patches.h"
 
-CRITICAL_SECTION dscs = {};
-constexpr DWORD MaxBuffers = 3;
-m_IDirectSound8* pCurrentDirectSound = nullptr;
-m_IDirectSoundBuffer8* pDirectSoundWavBuffer[MaxBuffers] = {};
-
-HRESULT ParseWavFile(const char* filePath, DSBUFFERDESC& dsbd, WAVEFORMATEX& waveFormat, std::vector<char>& AudioBuffer);
-void ReleaseSoundBuffer(DWORD BifferID);
+namespace {
+	CRITICAL_SECTION dscs = {};
+	constexpr DWORD MaxBuffers = 4;
+	m_IDirectSound8* pCurrentDirectSound = nullptr;
+	m_IDirectSoundBuffer8* pDirectSoundWavBuffer[MaxBuffers] = {};
+}
 
 HRESULT m_IDirectSound8::QueryInterface(REFIID riid, LPVOID * ppvObj)
 {
@@ -62,6 +61,11 @@ ULONG m_IDirectSound8::Release()
 	Logging::LogDebug() << __FUNCTION__ << " (" << this << ")";
 
 	EnterCriticalSection(&dscs);
+
+	for (DWORD x = 0; x < MaxBuffers; x++)
+	{
+		ReleaseSoundBuffer(x);
+	}
 
 	ULONG x = ProxyInterface->Release();
 
@@ -263,7 +267,7 @@ HRESULT m_IDirectSound8::CreateWAVSoundBuffer(const char* filePath, m_IDirectSou
 	return hr;
 }
 
-HRESULT ParseWavFile(const char* filePath, DSBUFFERDESC& dsbd, WAVEFORMATEX& waveFormat, std::vector<char>& AudioBuffer)
+HRESULT m_IDirectSound8::ParseWavFile(const char* filePath, DSBUFFERDESC& dsbd, WAVEFORMATEX& waveFormat, std::vector<char>& AudioBuffer)
 {
 	// Check for nullptr
 	if (!filePath)
@@ -397,7 +401,7 @@ HRESULT ParseWavFile(const char* filePath, DSBUFFERDESC& dsbd, WAVEFORMATEX& wav
 	return hr;
 }
 
-HRESULT PlayWavFile(const char* filePath, DWORD BifferID)
+HRESULT m_IDirectSound8::PlayWavFile(const char* filePath, DWORD BifferID)
 {
 	if (!filePath)
 	{
@@ -461,10 +465,40 @@ HRESULT PlayWavFile(const char* filePath, DWORD BifferID)
 	return hr;
 }
 
-void ReleaseSoundBuffer(DWORD BifferID)
+HRESULT m_IDirectSound8::StopWavFile(DWORD BifferID)
+{
+	if (BifferID + 1 > MaxBuffers)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: invalid buffer ID!";
+		return DSERR_INVALIDPARAM;
+	}
+
+	if (!pCurrentDirectSound)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: current DriectSound8 not setup!";
+		return DSERR_DS8_REQUIRED;
+	}
+
+	if (pDirectSoundWavBuffer[BifferID])
+	{
+		EnterCriticalSection(&dscs);
+
+		ReleaseSoundBuffer(BifferID);
+
+		LeaveCriticalSection(&dscs);
+	}
+
+	return DS_OK;
+}
+
+void m_IDirectSound8::ReleaseSoundBuffer(DWORD BifferID)
 {
 	if (pDirectSoundWavBuffer[BifferID])
 	{
+		// Mute volume
+		pDirectSoundWavBuffer[BifferID]->SetVolume(0);
+
+		// Release buffer
 		UINT ref = pDirectSoundWavBuffer[BifferID]->Release();
 		if (ref != 0)
 		{

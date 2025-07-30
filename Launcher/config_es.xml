@@ -415,6 +415,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="FixLyingFigureFootsteps">
+        <Title>Fade first creature's footsteps</Title>
+        <Description>Fades the Lying Figure's footsteps in and out during the cutscene first introducing the creature as it's walking away. Otherwise, the footsteps remain at a constant volume throughout the whole cutscene until the creature despawns.&#x0a;&#x0a;Note: machi.wav must be present in "sh2\sound\extra\" for this feature to work.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="FixInventoryBGM">
         <Title>Corregir las músicas incorrectas al abrir un menú</Title>
         <Description>Corrige un problema por el cual el juego reproduciría una música errónea al abrir menús (Inventario, Notas, Mapa, Guardar/Cargar, etc.) en ciertas circunstancias.</Description>

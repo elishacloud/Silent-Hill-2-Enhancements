@@ -2747,7 +2747,11 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		// Additional sounds added to the game
 		if (FlashlightToggleSFX)
 		{
-			RunPlayAdditionalSounds();
+			RunPlayFlashlightSounds();
+		}
+		if (FixLyingFigureFootsteps)
+		{
+			RunPlayLyingFigureSounds();
 		}
 
 		NeedToGrabScreenForWater = true;

@@ -1632,17 +1632,6 @@ bool m_IDirect3DDevice8::FixPauseMenuOnPresent()
 
 void m_IDirect3DDevice8::LimitFrameRate()
 {
-	// Try using raster status for timing
-	D3DDISPLAYMODE Mode = {};
-	if (SUCCEEDED(ProxyInterface->GetDisplayMode(&Mode)) && (Mode.RefreshRate % (SetSixtyFPS ? 60 : 30)) == 0)
-	{
-		D3DRASTER_STATUS RasterStatus = {};
-		do {
-			BusyWaitYield(static_cast<DWORD>(-1));
-		} while (SUCCEEDED(ProxyInterface->GetRasterStatus(&RasterStatus)) && !RasterStatus.InVBlank);
-		return;
-	}
-
 	// Count the number of frames
 	Counter.FrameCounter++;
 
@@ -1785,15 +1774,15 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 	// Present screen
 	if (!PauseMenuFlag)
 	{
-		if (LimitPerFrameFPS && ScreenMode != EXCLUSIVE_FULLSCREEN)
-		{
-			LimitFrameRate();
-		}
-
 		hr = ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 
 		if (SUCCEEDED(hr))
 		{
+			if (LimitPerFrameFPS && ScreenMode != EXCLUSIVE_FULLSCREEN)
+			{
+				LimitFrameRate();
+			}
+
 			CalculateFPS();
 		}
 	}

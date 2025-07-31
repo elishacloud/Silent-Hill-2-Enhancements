@@ -62,21 +62,46 @@ ULONG m_IDirectSound8::Release()
 
 	EnterCriticalSection(&dscs);
 
+	DWORD BufferCount = 0;
+
+	// Release all buffers that are not playing and count non-released buffers
 	for (DWORD x = 0; x < MaxBuffers; x++)
 	{
-		ReleaseSoundBuffer(x);
+		if (pDirectSoundWavBuffer[x])
+		{
+			DWORD Status = 0;
+			if (SUCCEEDED(pDirectSoundWavBuffer[x]->GetStatus(&Status)) && !(Status & DSBSTATUS_PLAYING))
+			{
+				ReleaseSoundBuffer(x);
+			}
+			else
+			{
+				BufferCount++;
+			}
+		}
 	}
 
-	ULONG x = ProxyInterface->Release();
+	ULONG count = ProxyInterface->Release();
+
+	// Release all buffers before destroying device
+	if (count > 0 && count == BufferCount)
+	{
+		ProxyInterface->AddRef();
+		for (DWORD x = 0; x < MaxBuffers; x++)
+		{
+			ReleaseSoundBuffer(x);
+		}
+		count = ProxyInterface->Release();
+	}
 
 	LeaveCriticalSection(&dscs);
 
-	if (x == 0)
+	if (count == 0)
 	{
 		delete this;
 	}
 
-	return x;
+	return count;
 }
 
 // IDirectSound methods

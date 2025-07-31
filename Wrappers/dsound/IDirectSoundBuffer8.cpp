@@ -59,14 +59,14 @@ ULONG m_IDirectSoundBuffer8::Release()
 		ProxyInterface->Stop();
 	}
 
-	ULONG x = ProxyInterface->Release();
+	ULONG count = ProxyInterface->Release();
 
-	if (x == 0)
+	if (count == 0)
 	{
 		delete this;
 	}
 
-	return x;
+	return count;
 }
 
 HRESULT m_IDirectSoundBuffer8::GetCaps(LPDSBCAPS pDSBufferCaps)

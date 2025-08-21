@@ -812,6 +812,12 @@ void DelayedStart()
 
 	// Increase cemetery draw distance for leave ending
 	PatchLeaveEndingCemeteryDrawDistance();
+
+	// Fix Mannequin state in Woodside Apartments room 205
+	if (WoodsideRoom205Fix)
+	{
+		PatchWoodsideMannequinState();
+	}
 	
 	// Remove the "Now loading..." and "Press Return to continue." messages
 	if (DisableLoadingPressReturnMessages)

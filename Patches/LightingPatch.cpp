@@ -119,7 +119,11 @@ void RunRoomLighting()
 		// Main scenario
 		if (GetChapterID() == CHAPTER_MAIN_SCENARIO)
 		{
-			if (CurrentRoomID == R_TOWN_EAST || CurrentRoomID == R_MOTORHOME || CurrentRoomID == R_APT_E_COURTYARD || CurrentRoomID == R_TOWN_WEST || CurrentRoomID == R_TOWN_LAKE)
+			if (CurrentRoomID == R_MOTORHOME && (GetWorldColorR() == 70 && GetWorldColorG() == 70 && GetWorldColorB() == 7e0))
+			{
+				*RoomLevels = 1.0f;
+			}
+			else if (CurrentRoomID == R_TOWN_EAST || CurrentRoomID == R_APT_E_COURTYARD || CurrentRoomID == R_TOWN_WEST || CurrentRoomID == R_TOWN_LAKE)
 			{
 				*RoomLevels = 0.0f;
 			}

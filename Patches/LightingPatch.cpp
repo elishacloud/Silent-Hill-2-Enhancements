@@ -119,7 +119,7 @@ void RunRoomLighting()
 		// Main scenario
 		if (GetChapterID() == CHAPTER_MAIN_SCENARIO)
 		{
-			if (CurrentRoomID == R_MOTORHOME && (GetWorldColorR() == 70 && GetWorldColorG() == 70 && GetWorldColorB() == 7e0))
+			if (CurrentRoomID == R_MOTORHOME && (GetWorldColorR() == 70 && GetWorldColorG() == 70 && GetWorldColorB() == 70))
 			{
 				*RoomLevels = 1.0f;
 			}

@@ -812,6 +812,12 @@ void DelayedStart()
 
 	// Increase cemetery draw distance for leave ending
 	PatchLeaveEndingCemeteryDrawDistance();
+
+	// Fix volume of the sound that plays in the labyrinth elevator
+	if (LabyrinthElevatorVolumeFix)
+	{
+		PatchLabyrinthElevatorVolumeFix();
+	}
 	
 	// Remove the "Now loading..." and "Press Return to continue." messages
 	if (DisableLoadingPressReturnMessages)

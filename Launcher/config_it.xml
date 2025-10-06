@@ -415,6 +415,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="FixLyingFigureFootsteps">
+        <Title>Fade first creature's footsteps</Title>
+        <Description>Fades the Lying Figure's footsteps in and out during the cutscene first introducing the creature as it's walking away. Otherwise, the footsteps remain at a constant volume throughout the whole cutscene until the creature despawns.&#x0a;&#x0a;Note: machi.wav must be present in "sh2\sound\extra\" for this feature to work.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
       <Feature name="FixInventoryBGM">
         <Title>Correggi tracce audio sbagliate all'apertura di menu</Title>
         <Description>Corregge un problema dove il gioco riprodurrebbe la canzone sbagliata all'apertura di menu (Inventario, Note, Mappa, Salvataggio/Caricamento etc) in certe circostanze.</Description>
@@ -1043,6 +1052,15 @@
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="CutsceneUnequip" speedrun="true">
+        <Title>Remove weapon during cutscenes</Title>
+        <Description>Unequips James during cutscenes so that the weapons don't appear "weightless" in his hands as his animation plays out.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 

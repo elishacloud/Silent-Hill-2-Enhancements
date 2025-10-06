@@ -522,6 +522,8 @@ bool CConfig::IsHiddenSetting(std::string name)
 
 bool CompareSettings(std::string name, std::string setting, std::string xml)
 {
+	UNREFERENCED_PARAMETER(name);
+
 	if (setting.compare("0xFFFF") == 0)
 		return SetValue(xml.c_str()); // Special handling is needed for 0xFFFF, but for now all the settings default to 'true' or '1'. May need to change this later!
 	else if (setting.compare("true") == 0)

@@ -409,6 +409,12 @@ HRESULT m_IDirect3DDevice8::EndScene()
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+	// Removes James' weapon during cutscenes (needs to run in EndSecene before skipping the scene)
+	if (CutsceneUnequip)
+	{
+		PatchRemoveWeaponFromCutscene();
+	}
+
 	// Skip frames in specific cutscenes to prevent flickering
 	if (RemoveEnvironmentFlicker)
 	{
@@ -447,6 +453,16 @@ HRESULT m_IDirect3DDevice8::EndScene()
 		LastCutscenePos = GetCutscenePos();
 		LastInGameCameraPosY = GetInGameCameraPosY();
 		LastJamesPosX = GetJamesPosX();
+	}
+
+	// Skip frame in cutscene when transitioning James to unequip the weapon
+	if (CutsceneUnequip && CheckForSkipFrameCutscene())
+	{
+		LOG_LIMIT(1, "Skipping frame during cutscene!");
+
+		SkipSceneFlag = true;
+
+		return D3D_OK;
 	}
 
 	// Reset flag for black pillar boxes
@@ -1616,64 +1632,47 @@ bool m_IDirect3DDevice8::FixPauseMenuOnPresent()
 
 void m_IDirect3DDevice8::LimitFrameRate()
 {
-	// Try using raster status for timing
-	D3DDISPLAYMODE Mode = {};
-	if (SUCCEEDED(ProxyInterface->GetDisplayMode(&Mode)) && (Mode.RefreshRate % (SetSixtyFPS ? 60 : 30)) == 0)
-	{
-		D3DRASTER_STATUS RasterStatus = {};
-		do {
-			BusyWaitYield(static_cast<DWORD>(-1));
-		} while (SUCCEEDED(ProxyInterface->GetRasterStatus(&RasterStatus)) && !RasterStatus.InVBlank);
-		return;
-	}
-
 	// Count the number of frames
 	Counter.FrameCounter++;
 
-	// Get performance frequency if not already cached
-	static LARGE_INTEGER Frequency = {};
-	if (!Frequency.QuadPart)
-	{
-		QueryPerformanceFrequency(&Frequency);
-	}
-	static LONGLONG TicksPerMS = Frequency.QuadPart / 1000;
+	// Get performance frequency once
+	static const LARGE_INTEGER Frequency = [] {
+		LARGE_INTEGER freq = {};
+		QueryPerformanceFrequency(&freq);
+		return freq;
+		}();
+	static const LONGLONG TicksPerMS = Frequency.QuadPart / 1000;
 
-	// Calculate the delay time in ticks
+	// Calculate time per frame in ticks
 	static long double PerFrameFPS = LimitPerFrameFPS;
-	static LONGLONG PreFrameTicks = static_cast<LONGLONG>(static_cast<long double>(Frequency.QuadPart) / PerFrameFPS);
+	static LONGLONG PerFrameTicks = static_cast<LONGLONG>(static_cast<long double>(Frequency.QuadPart) / PerFrameFPS);
 
-	// Get next tick time
+	// Get current time
 	LARGE_INTEGER ClickTime = {};
 	QueryPerformanceCounter(&ClickTime);
-	LONGLONG TargetEndTicks = Counter.LastPresentTime.QuadPart;
-	LONGLONG FramesSinceLastCall = ((ClickTime.QuadPart - Counter.LastPresentTime.QuadPart - 1) / PreFrameTicks) + 1;
-	if (Counter.LastPresentTime.QuadPart == 0 || FramesSinceLastCall > 2)
+
+	LONGLONG TargetEndTicks = Counter.LastPresentTime.QuadPart + PerFrameTicks;
+
+	// First frame or if we fell behind, reset base time
+	if (Counter.LastPresentTime.QuadPart == 0 || ClickTime.QuadPart >= TargetEndTicks)
 	{
-		QueryPerformanceCounter(&Counter.LastPresentTime);
-		TargetEndTicks = Counter.LastPresentTime.QuadPart;
+		Counter.LastPresentTime.QuadPart = ClickTime.QuadPart;
+		return;
 	}
-	else
+
+	// Wait until target time
+	while (true)
 	{
-		TargetEndTicks += FramesSinceLastCall * PreFrameTicks;
-	}
-	
-	// Wait for time to expire
-	bool DoLoop;
-	do {
 		QueryPerformanceCounter(&ClickTime);
 		LONGLONG RemainingTicks = TargetEndTicks - ClickTime.QuadPart;
 
-		// Check if we still need to wait
-		DoLoop = RemainingTicks > 0;
+		if (RemainingTicks <= 0) break;
 
-		if (DoLoop)
-		{
-			// Busy wait until we reach the target time
-			BusyWaitYield(static_cast<DWORD>(RemainingTicks / TicksPerMS));
-		}
-	} while (DoLoop);
+		// Busy wait until we reach the target time
+		BusyWaitYield(static_cast<DWORD>(RemainingTicks / TicksPerMS));
+	}
 
-	// Update the last present time
+	// Store target time for next frame
 	Counter.LastPresentTime.QuadPart = TargetEndTicks;
 }
 
@@ -1769,15 +1768,15 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 	// Present screen
 	if (!PauseMenuFlag)
 	{
-		if (LimitPerFrameFPS && ScreenMode != EXCLUSIVE_FULLSCREEN)
-		{
-			LimitFrameRate();
-		}
-
 		hr = ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 
 		if (SUCCEEDED(hr))
 		{
+			if (LimitPerFrameFPS && ScreenMode != EXCLUSIVE_FULLSCREEN)
+			{
+				LimitFrameRate();
+			}
+
 			CalculateFPS();
 		}
 	}
@@ -2731,7 +2730,11 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		// Additional sounds added to the game
 		if (FlashlightToggleSFX)
 		{
-			RunPlayAdditionalSounds();
+			RunPlayFlashlightSounds();
+		}
+		if (FixLyingFigureFootsteps)
+		{
+			RunPlayLyingFigureSounds();
 		}
 
         // Volume fixes for chainsaw sound effects

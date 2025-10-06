@@ -49,4 +49,10 @@ public:
 
 	// Helper functions
 	HRESULT CreateWAVSoundBuffer(const char* filePath, m_IDirectSoundBuffer8** ppDSBuffer);
+
+	// static functions
+	static HRESULT ParseWavFile(const char* filePath, DSBUFFERDESC& dsbd, WAVEFORMATEX& waveFormat, std::vector<char>& AudioBuffer);
+	static HRESULT PlayWavFile(const char* filePath, DWORD BifferID);
+	static HRESULT StopWavFile(DWORD BifferID);
+	static void ReleaseSoundBuffer(DWORD BifferID);
 };

@@ -24,6 +24,7 @@ void* jmp_return;
 void* jmp_to_loop;
 
 DWORD* muteSound;
+DWORD RoomID;
 DWORD LastRoomID;
 bool SoundFixFlag;
 DWORD EventIndex;
@@ -33,6 +34,7 @@ BYTE MenuEventIndex;
 #pragma warning(suppress: 4740)
 __declspec(naked) void __stdcall FixInventoryBGMBugASM()
 {
+	RoomID = GetRoomID();
 	EventIndex = GetEventIndex();
 	MenuEventIndex = GetMenuEvent();
 
@@ -51,8 +53,8 @@ __declspec(naked) void __stdcall FixInventoryBGMBugASM()
 		if (EventIndex == EVENT_IN_GAME || EventIndex == EVENT_MAP || EventIndex == EVENT_INVENTORY || EventIndex == EVENT_OPTIONS_FMV ||
 			EventIndex == EVENT_MEMO_LIST || EventIndex == EVENT_SAVE_SCREEN || EventIndex == EVENT_PAUSE_MENU || MenuEventIndex == MENU_LOAD_SCR)
 		{
-			SoundFixFlag = (LastRoomID != GetRoomID());
-			LastRoomID = GetRoomID();
+			SoundFixFlag = (LastRoomID != RoomID);
+			LastRoomID = RoomID;
 
 			if (SoundFixFlag || EventIndex == EVENT_IN_GAME)
 			{

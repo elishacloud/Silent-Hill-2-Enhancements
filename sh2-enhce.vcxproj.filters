@@ -104,9 +104,6 @@
     <ClCompile Include="External\Hooking\HotPatch.cpp">
       <Filter>External\Hooking</Filter>
     </ClCompile>
-    <ClCompile Include="External\Hooking\IATPatch.cpp">
-      <Filter>External\Hooking</Filter>
-    </ClCompile>
     <ClCompile Include="Common\FileSystemHooks.cpp">
       <Filter>Common</Filter>
     </ClCompile>
@@ -341,9 +338,6 @@
     <ClCompile Include="Patches\PatchInventoryBGM.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
-    <ClCompile Include="External\MemoryModule\MemoryModule.c">
-      <Filter>External\MemoryModule</Filter>
-    </ClCompile>
     <ClCompile Include="Wrappers\d3d9\d3dx9.cpp">
       <Filter>Wrappers\d3d9</Filter>
     </ClCompile>
@@ -473,7 +467,13 @@
     <ClCompile Include="Patches\CockroachesReplacement.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
-    <ClCompile Include="Patches\ChainsawSoundFix.cpp">
+    <ClCompile Include="Patches\RemoveWeaponFromCutscene.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="External\Hooking\Disasm.cpp">
+      <Filter>External\Hooking</Filter>
+    </ClCompile>
+	<ClCompile Include="Patches\ChainsawSoundFix.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
   </ItemGroup>
@@ -673,9 +673,6 @@
     <ClInclude Include="Resources\Resource.h">
       <Filter>Resources</Filter>
     </ClInclude>
-    <ClInclude Include="External\MemoryModule\MemoryModule.h">
-      <Filter>External\MemoryModule</Filter>
-    </ClInclude>
     <ClInclude Include="Wrappers\d3d9\d3dx9.h">
       <Filter>Wrappers\d3d9</Filter>
     </ClInclude>
@@ -720,6 +717,9 @@
     </ClInclude>
     <ClInclude Include="Common\ModelGLTF.h">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Hooking\Disasm.h">
+      <Filter>External\Hooking</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -810,9 +810,6 @@
     </Filter>
     <Filter Include="Include\criware">
       <UniqueIdentifier>{5448b3d6-8d77-4320-8d53-37aed07543cf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="External\MemoryModule">
-      <UniqueIdentifier>{3ce3eff9-8225-4947-963d-ff492c58ebba}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

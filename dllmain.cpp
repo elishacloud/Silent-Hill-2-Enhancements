@@ -988,6 +988,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 
 		// Quitting
 		Logging::Log() << "Unloading Silent Hill 2 Enhancements!";
+		Logging::EnableLogging = false;
 
 		// Exit process when unloading
 		ExitProcess(0);

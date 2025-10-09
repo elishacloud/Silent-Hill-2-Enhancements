@@ -668,6 +668,7 @@ void PatchHoldDamage();
 void PatchHoldToStomp();
 void PatchInputTweaks();
 void PatchInventoryBGMBug();
+void PatchLabyrinthElevatorVolumeFix();
 void PatchLakeMoonSize();
 void PatchLeaveEndingCemeteryDrawDistance();
 void PatchLockScreenPosition();

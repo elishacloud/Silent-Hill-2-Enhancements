@@ -25,10 +25,12 @@
 BYTE *ChapterIDAddr = nullptr;
 DWORD *CutsceneIDAddr = nullptr;
 float *CutscenePosAddr = nullptr;
+float *CutsceneTimerAddr = nullptr;
 float *CameraFOVAddr = nullptr;
 float *FlashlightBrightnessAddr = nullptr;
 BYTE *FlashLightRenderAddr = nullptr;
 BYTE *FlashlightSwitchAddr = nullptr;
+DWORD *FlashLightAcquiredAddr = nullptr;
 float *JamesPosXAddr = nullptr;
 float *JamesPosYAddr = nullptr;
 float *JamesPosZAddr = nullptr;
@@ -266,6 +268,34 @@ float *GetCutscenePosPointer()
 	return CutscenePosAddr;
 }
 
+float GetCutsceneTimer()
+{
+	float *pCutsceneTimer = GetCutsceneTimerPointer();
+
+	return (pCutsceneTimer) ? *pCutsceneTimer : 0.0f;
+}
+
+float *GetCutsceneTimerPointer()
+{
+	if (CutsceneTimerAddr)
+	{
+		return CutsceneTimerAddr;
+	}
+
+	// Get cutscene timer address
+	constexpr BYTE CutsceneTimerSearchBytes[]{ 0x89, 0x44, 0x24, 0x00, 0x8B, 0x44, 0x24, 0x4C, 0x56, 0x8B, 0x74, 0x24, 0x4C, 0x83, 0xC0, 0xF7 };
+	CutsceneTimerAddr = (float*)ReadSearchedAddresses(0x005ACD68, 0x005AD618, 0x005ACF38, CutsceneTimerSearchBytes, sizeof(CutsceneTimerSearchBytes), -0x04, __FUNCTION__);
+
+	// Checking address pointer
+	if (!CutsceneTimerAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find cutscene timer address!";
+		return nullptr;
+	}
+
+	return CutsceneTimerAddr;
+}
+
 float GetCameraFOV()
 {
 	float *pCameraFOV = GetCameraFOVPointer();
@@ -405,6 +435,34 @@ BYTE *GetFlashLightRenderPointer()
 	}
 
 	return FlashLightRenderAddr;
+}
+
+bool GetFlashLightAcquired()
+{
+	DWORD *pFlashLightAcquired = GetFlashLightAcquiredPointer();
+
+	return *pFlashLightAcquired & 0x40000;
+}
+
+DWORD *GetFlashLightAcquiredPointer()
+{
+	if (FlashLightAcquiredAddr)
+	{
+		return FlashLightAcquiredAddr;
+	}
+
+	// Get address for if flashlight has been acquired
+	constexpr BYTE FlashLightAcquiredSearchBytes[]{ 0x8D, 0x50, 0x1C, 0x8B, 0x0A, 0x89, 0x0D };
+	FlashLightAcquiredAddr = (DWORD*)ReadSearchedAddresses(0x0045507D, 0x004552DD, 0x004552DD, FlashLightAcquiredSearchBytes, sizeof(FlashLightAcquiredSearchBytes), 0x56, __FUNCTION__);
+
+	// Checking address pointer
+	if (!FlashLightAcquiredAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find flashlight acquired memory address!";
+		return nullptr;
+	}
+
+	return FlashLightAcquiredAddr;
 }
 
 BYTE GetChapterID()

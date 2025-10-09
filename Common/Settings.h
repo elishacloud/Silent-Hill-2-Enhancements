@@ -46,6 +46,7 @@
 	visit(EnableSoftShadows, true) \
 	visit(EnableTexAddrHack, true) \
 	visit(EnableToggleSprint, true) \
+	visit(EnemyRevealLighting, true) \
 	visit(EnhanceMouseCursor, true) \
 	visit(FastTransitions, true) \
 	visit(ForceHybridEnumeration, true) \

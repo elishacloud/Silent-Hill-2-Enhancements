@@ -23,24 +23,6 @@
 // Run SH2 code to fix the rotating Mannequin glitch
 void RunRotatingMannequin()
 {
-	// Get flashlight acquired Address
-	static DWORD *FlashlightAcquiredAddr = nullptr;
-	if (!FlashlightAcquiredAddr)
-	{
-		RUNONCE();
-
-		// Get address
-		constexpr BYTE SearchBytes[]{ 0x8D, 0x50, 0x1C, 0x8B, 0x0A, 0x89, 0x0D };
-		FlashlightAcquiredAddr = (DWORD*)ReadSearchedAddresses(0x0045507D, 0x004552DD, 0x004552DD, SearchBytes, sizeof(SearchBytes), 0x56, __FUNCTION__);
-
-		// Checking address pointer
-		if (!FlashlightAcquiredAddr)
-		{
-			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
-			return;
-		}
-	}
-
 	// Get Mannequin state Address
 	static DWORD *MannequinStateAddr = nullptr;
 	if (!MannequinStateAddr)
@@ -64,7 +46,7 @@ void RunRotatingMannequin()
 
 	// Static updates
 	static bool ValueSet = false;
-	if (GetRoomID() == R_APT_E_HALLWAY_2F && *MannequinStateAddr != 0x00 && (*FlashlightAcquiredAddr & 0x40000))
+	if (GetRoomID() == R_APT_E_HALLWAY_2F && *MannequinStateAddr != 0x00 && GetFlashLightAcquired())
 	{
 		if (!ValueSet && *MannequinStateAddr == 0x206)
 		{

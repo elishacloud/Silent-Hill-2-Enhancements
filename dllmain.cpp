@@ -812,6 +812,12 @@ void DelayedStart()
 
 	// Increase cemetery draw distance for leave ending
 	PatchLeaveEndingCemeteryDrawDistance();
+
+	// Fix chainsaw idle and attack sound playback
+	if (ChainsawSoundFix)
+	{
+		PatchChainsawSoundFix();
+	}
 	
 	// Remove the "Now loading..." and "Press Return to continue." messages
 	if (DisableLoadingPressReturnMessages)

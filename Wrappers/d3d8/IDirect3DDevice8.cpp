@@ -879,10 +879,10 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	// Fix for 2D Fog and glow around the flashlight lens for Nvidia cards
-	if (FogLayerFix && State == D3DRS_ZBIAS)
+	// Fix for 2D Fog, light switches, pictures and glow around the flashlight lens
+	if (d3d8to9 && State == D3DRS_ZBIAS)
 	{
-		Value = (Value * 15) / 16;
+		Value = 0;
 	}
 
 	// Restores self shadows

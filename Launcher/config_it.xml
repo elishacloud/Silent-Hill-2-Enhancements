@@ -309,15 +309,6 @@
         </Choices>
       </Feature>
 
-      <Feature name="FogLayerFix">
-        <Title>Ripristina lo strato 2D di nebbia</Title>
-        <Description>Corregge un problema legato alle schede video Nvidia dove lo strato 2D di nebbia e la luce attorno alla torcia di James non sono presenti in gioco.</Description>
-        <Choices type="check">
-          <Value name="Disabilitato">0</Value>
-          <Value name="Abilitato" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="FogParameterFix">
         <Title>Regola i limiti della nebbia di guerra</Title>
         <Description>Regola i limiti della nebbia di guerra in determinate aree per correggere degli errori visivi.</Description>

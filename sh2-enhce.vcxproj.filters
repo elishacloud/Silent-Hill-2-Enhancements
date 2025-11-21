@@ -473,6 +473,9 @@
     <ClCompile Include="External\Hooking\Disasm.cpp">
       <Filter>External\Hooking</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\ChainsawSoundFix.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
     <ClCompile Include="Patches\LabyrinthElevatorVolumeFix.cpp">
       <Filter>Patches</Filter>
     </ClCompile>

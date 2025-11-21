@@ -634,6 +634,7 @@ void PatchBestGraphics();
 void PatchBinary();
 void PatchCDCheck();
 void PatchCatacombsMeatRoom();
+void PatchChainsawSoundFix();
 void PatchClosetSpawn();
 void PatchCommandWindowMouseFix();
 void PatchControlOptionsMenu();
@@ -750,6 +751,7 @@ void OnFileLoadVid(LPCSTR lpFileName);
 
 void RunAtticShadows();
 void RunBloodSize();
+void RunChainsawSoundFix();
 void RunClosetCutscene();
 void RunClosetSpawn();
 void RunDynamicDrawDistance();

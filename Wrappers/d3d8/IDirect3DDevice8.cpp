@@ -2762,6 +2762,12 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 			RunPlayLyingFigureSounds();
 		}
 
+		// Volume fixes for chainsaw sound effects
+		if (ChainsawSoundFix)
+		{
+			RunChainsawSoundFix();
+		}
+
 		NeedToGrabScreenForWater = true;
 		RoachesDrawingCounter = 0;
 	}

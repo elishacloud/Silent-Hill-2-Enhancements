@@ -813,6 +813,12 @@ void DelayedStart()
 	// Increase cemetery draw distance for leave ending
 	PatchLeaveEndingCemeteryDrawDistance();
 
+	// Fix chainsaw idle and attack sound playback
+	if (ChainsawSoundFix)
+	{
+		PatchChainsawSoundFix();
+	}
+	
 	// Fix volume of the sound that plays in the labyrinth elevator
 	if (LabyrinthElevatorVolumeFix)
 	{

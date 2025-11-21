@@ -47,6 +47,7 @@
 	visit(EnableSoftShadows, true) \
 	visit(EnableTexAddrHack, true) \
 	visit(EnableToggleSprint, true) \
+	visit(EnemyRevealLighting, true) \
 	visit(EnhanceMouseCursor, true) \
 	visit(FastTransitions, true) \
 	visit(ForceHybridEnumeration, true) \
@@ -90,6 +91,7 @@
 	visit(ImproveStorageSupport, true) \
 	visit(IncreaseBlood, true) \
 	visit(IncreaseDrawDistance, true) \
+	visit(LabyrinthElevatorVolumeFix, true) \
 	visit(LegacyFixGPUAntiAliasing, false) \
 	visit(LightingFix, true) \
 	visit(LightingTransitionFix, true) \
@@ -165,7 +167,6 @@
 	visit(fog_transparency_layer1, 128) \
 	visit(fog_transparency_layer2, 112) \
 	visit(FogFix, 0xFFFF) /* Overloading the old 'fog_custom_on' option */ \
-	visit(FogLayerFix, 0xFFFF) /* Overloading the old 'Fog2DFix' option */ \
 	visit(FrontBufferControl, 0) \
 	visit(FullscreenImages, 3) \
 	visit(FullscreenVideos, 3) \
@@ -210,7 +211,6 @@
 #define VISIT_LEGACY_BOOL_SETTINGS(visit) \
 	visit(EnableWndMode, true) \
 	visit(fog_custom_on, true) \
-	visit(Fog2DFix, true) \
 	visit(FullscreenWndMode, false)
 
 #define VISIT_ALL_SETTING(visit) \
@@ -252,13 +252,13 @@
 	visit(fog_layer2_density_mult) \
 	visit(fog_transparency_layer1) \
 	visit(fog_transparency_layer2) \
-	visit(Fog2DFix) \
 	visit(FullscreenWndMode) \
 	visit(GameLoadFlashFix) \
 	visit(HookDirect3D) \
 	visit(HookDirectInput) \
 	visit(HookDirectSound) \
 	visit(HookWndProc) \
+	visit(LabyrinthElevatorVolumeFix) \
 	visit(LetterSpacing) \
 	visit(LimitPerFrameFPS) \
 	visit(LoadModulesFromMemory) \

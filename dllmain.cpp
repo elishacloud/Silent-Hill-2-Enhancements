@@ -819,6 +819,12 @@ void DelayedStart()
 		PatchChainsawSoundFix();
 	}
 	
+	// Fix volume of the sound that plays in the labyrinth elevator
+	if (LabyrinthElevatorVolumeFix)
+	{
+		PatchLabyrinthElevatorVolumeFix();
+	}
+	
 	// Remove the "Now loading..." and "Press Return to continue." messages
 	if (DisableLoadingPressReturnMessages)
 	{
@@ -994,6 +1000,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 
 		// Quitting
 		Logging::Log() << "Unloading Silent Hill 2 Enhancements!";
+		Logging::EnableLogging = false;
 
 		// Exit process when unloading
 		ExitProcess(0);

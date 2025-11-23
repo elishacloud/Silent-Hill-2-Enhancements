@@ -865,7 +865,7 @@ void InputTweaks::ReadMouseButtons()
 	RMB.State = (MouseState.rgbButtons[1] == KEY_SET);
 	
 	// Update right mouse button state, avoiding setting RMB for angela's mirror room
-	if (GetRoomID() != R_APT_W_RM_109_2)
+	if (GetRoomID() == R_APT_W_RM_109_2)
 	{
 		RMB.State = false;
 	}

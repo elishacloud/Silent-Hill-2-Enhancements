@@ -39,6 +39,11 @@
 #include "Logging\Logging.h"
 #include "Unicode.h"
 
+#pragma warning(push)          // Save current warning state
+#pragma warning(disable: 4996) // Disable warning C4996
+#include "External\MemoryModule\MemoryModule.c"
+#pragma warning(pop)           // Restore previous warning state
+
 #ifndef _DPI_AWARENESS_CONTEXTS_
 
 #define _DPI_AWARENESS_CONTEXTS_
@@ -419,32 +424,6 @@ bool GetCoreCount(DWORD& pBits, DWORD& sBits)
 		}
 	}
 	return false;
-}
-
-void BusyWaitYield(DWORD RemainingMS)
-{
-	static bool supports_pause = []() {
-		int cpu_info[4] = { 0 };
-		__cpuid(cpu_info, 1); // Query CPU features
-		return (cpu_info[3] & (1 << 26)) != 0; // Check for SSE2 support
-		}();
-
-	// If remaining time is very small (e.g., 1 ms or less), use busy-wait with no operations
-	if (RemainingMS < 3 && supports_pause)
-	{
-		// Use _mm_pause or __asm { nop } to prevent unnecessary CPU cycles
-#ifdef YieldProcessor
-		YieldProcessor();
-#else
-		_mm_pause();
-#endif
-	}
-	else
-	{
-		// For larger remaining times, we can relax by yielding to the OS
-		// Sleep(0) yields without consuming CPU excessively
-		Sleep(0); // Let the OS schedule other tasks if there's significant time left
-	}
 }
 
 // Log process affinity

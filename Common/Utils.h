@@ -3,7 +3,9 @@
 #include <string>
 #include <vector>
 #include <Shldisp.h>
+#include <intrin.h>
 #include "External\MemoryModule\MemoryModule.h"
+#include "Logging\Logging.h"
 
 void *GetAddressOfData(const void *data, size_t len, DWORD step = 1);
 void *GetAddressOfData(const void *data, size_t len, DWORD step, DWORD start, DWORD distance = 0x0FFFFFFF);
@@ -17,7 +19,6 @@ bool UpdateMemoryAddress(void *dataAddr, const void *dataBytes, size_t dataSize)
 bool WriteCalltoMemory(BYTE *dataAddr, const void *JMPAddr, DWORD count = 5);
 bool WriteJMPtoMemory(BYTE *dataAddr, const void *JMPAddr, DWORD count = 5);
 DWORD ReplaceMemoryBytes(void *dataSrc, void *dataDest, size_t size, DWORD start, DWORD distance, DWORD count = 0);
-void BusyWaitYield(DWORD RemainingMS);
 void LogAffinity();
 DWORD_PTR GetProcessMask();
 void SetSingleCoreAffinity();
@@ -59,3 +60,31 @@ HRESULT SaveConfigData();
 void LogDirectory();
 void LogAllModules();
 void RunDelayedOneTimeItems();
+
+inline void BusyWaitYield(DWORD RemainingMS)
+{
+	static bool supports_pause = []() {
+		int cpu_info[4] = { 0 };
+		__cpuid(cpu_info, 1); // Query CPU features
+		bool SSE2 = (cpu_info[3] & (1 << 26)) != 0; // Check for SSE2 support
+		LOG_ONCE(__FUNCTION__ << " SSE2 CPU support: " << SSE2);
+		return SSE2;
+		}();
+
+	// If remaining time is very small (e.g., 3 ms or less), use busy-wait with no operations
+	if (RemainingMS < 4 && supports_pause)
+	{
+		// Use _mm_pause or __asm { nop } to prevent unnecessary CPU cycles
+#ifdef YieldProcessor
+		YieldProcessor();
+#else
+		_mm_pause();
+#endif
+	}
+	else
+	{
+		// For larger remaining times, we can relax by yielding to the OS
+		// Sleep(0) yields without consuming CPU excessively
+		Sleep(0); // Let the OS schedule other tasks if there's significant time left
+	}
+}

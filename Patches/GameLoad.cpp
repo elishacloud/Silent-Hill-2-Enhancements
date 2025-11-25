@@ -402,19 +402,11 @@ void RunGameLoad()
 	}
 
 	// Get in-game voice event address
-	static BYTE *InGameVoiceEvent = nullptr;
+	static BYTE *InGameVoiceEvent = GetInGameVoiceEvent();
 	if (!InGameVoiceEvent)
 	{
-		RUNONCE();
-
-		// Get address for in game voice event
-		constexpr BYTE SearchBytes[]{ 0x85, 0xC0, 0x75, 0x07, 0xD9, 0x05 };
-		InGameVoiceEvent = (BYTE*)ReadSearchedAddresses(0x004A0305, 0x004A05B5, 0x0049FE75, SearchBytes, sizeof(SearchBytes), -0x04, __FUNCTION__);
-		if (!InGameVoiceEvent)
-		{
-			Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
-			return;
-		}
+		Logging::Log() << __FUNCTION__ " Error: failed to find memory address!";
+		return;
 	}
 
 	// Get Pause Menu Button address

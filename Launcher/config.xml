@@ -309,15 +309,6 @@
         </Choices>
       </Feature>
 
-      <Feature name="FogLayerFix">
-        <Title>Restore 2D fog layer</Title>
-        <Description>Fixes an issue on Nvidia graphics cards where the 2D fog layer and the glow around James' flashlight did not render.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="FogParameterFix">
         <Title>Adjust fog-of-war boundaries</Title>
         <Description>Adjusts the fog-of-war boundaries for specific areas to fix visual errors.</Description>
@@ -409,6 +400,15 @@
       <Feature name="SpecificSoundLoopFix">
         <Title>Fix specific sound looping bugs</Title>
         <Description>Fixes specific, unique sound looping bugs with the chainsaw and moth attack sounds.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FixLyingFigureFootsteps">
+        <Title>Fade first creature's footsteps</Title>
+        <Description>Fades the Lying Figure's footsteps in and out during the cutscene first introducing the creature as it's walking away. Otherwise, the footsteps remain at a constant volume throughout the whole cutscene until the creature despawns.&#x0a;&#x0a;Note: machi.wav must be present in "sh2\sound\extra\" for this feature to work.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -1046,6 +1046,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="CutsceneUnequip" speedrun="true">
+        <Title>Remove weapon during cutscenes</Title>
+        <Description>Unequips James during cutscenes so that the weapons don't appear "weightless" in his hands as his animation plays out.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
     </Section>
 
   </Tab>
@@ -1181,6 +1190,15 @@
       <Feature name="LightingTransitionFix">
         <Title>Lighting transition fix</Title>
         <Description>Fixes an issue where some light sources would not properly brighten and darken James.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="EnemyRevealLighting">
+        <Title>Adjust lighting of enemies during reveal setpieces</Title>
+        <Description>Adjust the lighting of the enemies in the tunnel radio cutscene and Apt Room 205 to make them less conspicuous before their reveal.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>

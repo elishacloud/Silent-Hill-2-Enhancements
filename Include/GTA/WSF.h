@@ -17,6 +17,8 @@
 #include <map>
 #include <iomanip>
 #include "WidescreenFixesPack\WidescreenFixesPack.h"
+#pragma warning(push)          // Save current warning state
+#pragma warning(disable: 4706) // Disable warning C4706
 #include "External\injector\include\injector\injector.hpp"
 #include "External\injector\include\injector\calling.hpp"
 #include "External\injector\include\injector\hooking.hpp"
@@ -25,6 +27,7 @@
 #endif
 #include "External\injector\include\injector\utility.hpp"
 #include "External\Hooking.Patterns\Hooking.Patterns.h"
+#pragma warning(pop)           // Restore previous warning state
 #include <filesystem>
 #include "Common\Utils.h"
 

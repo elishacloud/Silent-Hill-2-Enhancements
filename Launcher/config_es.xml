@@ -309,15 +309,6 @@
         </Choices>
       </Feature>
 
-      <Feature name="FogLayerFix">
-        <Title>Restaurar la capa de niebla 2D</Title>
-        <Description>Corrige un problema con las tarjetas gráficas de Nvidia por el cual no se renderizarían la capa de niebla 2D ni el resplandor que rodea a la linterna de James.</Description>
-        <Choices type="check">
-          <Value name="No">0</Value>
-          <Value name="Sí" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="FogParameterFix">
         <Title>Ajustar los límites de la niebla total</Title>
         <Description>Ajusta los límites de la niebla total en ciertas áreas para corregir errores visuales.</Description>
@@ -350,11 +341,11 @@
     <Section name="Bonus Graphics">
 
       <Feature name="CockroachesReplacement" speedrun="true">
-        <Title>Improved cockroaches in bug room</Title>
-        <Description>Replaces the static, scenery cockroaches in the prison's bug room with large clusters of animated cockroaches.&#x0a;&#x0a;Note: ty3.glb must be present in "sh2e\model\" for this feature to work.</Description>
+        <Title>Cucarachas mejoradas en la sala de los bichos</Title>
+        <Description>Sustituye las cucarachas estáticas de la sala de los bichos en la prisión con grandes grupos de cucarachas animadas.&#x0a;&#x0a;Nota: el archivo ty3.glb debe estar presente en la carpeta «sh2e\model\» para que pueda funcionar esta característica.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -412,6 +403,15 @@
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FixLyingFigureFootsteps">
+        <Title>Fade first creature's footsteps</Title>
+        <Description>Fades the Lying Figure's footsteps in and out during the cutscene first introducing the creature as it's walking away. Otherwise, the footsteps remain at a constant volume throughout the whole cutscene until the creature despawns.&#x0a;&#x0a;Note: machi.wav must be present in "sh2\sound\extra\" for this feature to work.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -1046,6 +1046,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="CutsceneUnequip" speedrun="true">
+        <Title>Remove weapon during cutscenes</Title>
+        <Description>Unequips James during cutscenes so that the weapons don't appear "weightless" in his hands as his animation plays out.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
     </Section>
 
   </Tab>
@@ -1193,6 +1202,15 @@
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="EnemyRevealLighting">
+        <Title>Adjust lighting of enemies during reveal setpieces</Title>
+        <Description>Adjust the lighting of the enemies in the tunnel radio cutscene and Apt Room 205 to make them less conspicuous before their reveal.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 

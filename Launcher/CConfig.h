@@ -62,7 +62,7 @@ public:
 	// simulate strcmp
 	int compare(std::string s)
 	{
-		if (Hash64(str.c_str()) == hash)
+		if (Hash64(s.c_str()) == hash)
 			return 0;
 
 		return 1;

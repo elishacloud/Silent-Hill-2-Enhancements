@@ -226,3 +226,8 @@ To create the `voice.afs` file for Silent Hill 2 copy all the WAV files into a f
 	yarinaoshi_2_2.wav
 	yarinaoshi_letter.wav
 	YARINAOSHI_LETTER_MIX.wav
+
+### Extract audio files from compiled `voice.afs` container:
+Run `Extract-Dialog-Files.bat` in the same folder as the `voice.afs` container file. This will create a new `Extracted-Dialog-Files` folder in the directory with the audio files extracted out as .wav.
+
+Note: If an audio file had loop parameters set when compiling the `voice.afs` file, these particular audio files will be extracted out as .adx instead of .wav. There might be the possibility of quality loss due to the ADX being a lossy format.

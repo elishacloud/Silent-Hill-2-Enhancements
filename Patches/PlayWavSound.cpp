@@ -18,13 +18,12 @@
 #include <Windows.h>
 #include "Patches.h"
 #include <shlwapi.h>
+#include "Wrappers\dsound\dsoundwrapper.h"
 #include "Common\Utils.h"
 #include "Common\FileSystemHooks.h"
 #include "Logging\Logging.h"
 
 void* GameSoundReturnAddress = nullptr;
-
-HRESULT PlayWavFile(const char* filePath, DWORD BifferID);
 
 // Function instance created
 typedef int32_t(WINAPIV* PlaySoundProc)(int32_t SoundId, float volume, DWORD param3);
@@ -34,30 +33,36 @@ const char* SaveGameWav = "\\sound\\extra\\save_sound.wav";
 const char* LoadGameWav = "\\sound\\extra\\g_start.wav";
 const char* FlashLightOnWav = "\\sound\\extra\\flashlight_on.wav";
 const char* FlashLightOffWav = "\\sound\\extra\\flashlight_off.wav";
+const char* LyingFigureFootstepWav = "\\sound\\extra\\machi.wav";
 
-int32_t PlaySaveSound(int32_t SoundId, float volume, DWORD param3)
+constexpr DWORD SaveID = 0;
+constexpr DWORD LoadID = 1;
+constexpr DWORD FlashlightID = 2;
+constexpr DWORD FootstepsID = 3;
+
+static int32_t PlaySaveSound(int32_t SoundId, float volume, DWORD param3)
 {
 	UNREFERENCED_PARAMETER(SoundId);
 	UNREFERENCED_PARAMETER(volume);
 	UNREFERENCED_PARAMETER(param3);
 
-	PlayWavFile((std::string(GetModPath("")) + SaveGameWav).c_str(), 0);
+	m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + SaveGameWav).c_str(), SaveID);
 
 	return 0x10;	// PlaySound function success
 }
 
-int32_t PlayLoadSound(int32_t SoundId, float volume, DWORD param3)
+static int32_t PlayLoadSound(int32_t SoundId, float volume, DWORD param3)
 {
 	UNREFERENCED_PARAMETER(SoundId);
 	UNREFERENCED_PARAMETER(volume);
 	UNREFERENCED_PARAMETER(param3);
 
-	PlayWavFile((std::string(GetModPath("")) + LoadGameWav).c_str(), 1);
+	m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + LoadGameWav).c_str(), LoadID);
 
 	return 0x10;	// PlaySound function success
 }
 
-__declspec(naked) void __stdcall SaveGameSoundASM()
+static __declspec(naked) void __stdcall SaveGameSoundASM()
 {
 	__asm
 	{
@@ -84,6 +89,13 @@ __declspec(naked) void __stdcall SaveGameSoundASM()
 void PatchCustomSFXs()
 {
 	Logging::Log() << "Patching custom save and load SFXs...";
+
+	if (!PathFileExistsA((std::string(GetModPath("")) + SaveGameWav).c_str()) ||
+		!PathFileExistsA((std::string(GetModPath("")) + LoadGameWav).c_str()))
+	{
+		LOG_ONCE(__FUNCTION__ " Error: SaveLoadWav file(s) not found!");
+		return;
+	}
 
 	// Calls this function for the getting PauseMenuButtonIndexAddr
 	GetPauseMenuButtonIndex();
@@ -143,7 +155,7 @@ void PatchCustomSFXs()
 	}
 }
 
-void RunPlayAdditionalSounds()
+void RunPlayFlashlightSounds()
 {
 	static BYTE* CanUseFlashlight1 =
 		GameVersion == SH2V_10 ? (BYTE*)0x01F7DC2C :
@@ -159,6 +171,20 @@ void RunPlayAdditionalSounds()
 	if (!CanUseFlashlight1 || !CanUseFlashlight2)
 	{
 		LOG_ONCE(__FUNCTION__ " Error: failed to find memory address!");
+		return;
+	}
+
+	// Checking wav file
+	static bool wavFound = false;
+	RUNCODEONCE(
+		if (PathFileExistsA((std::string(GetModPath("")) + FlashLightOffWav).c_str()) &&
+			PathFileExistsA((std::string(GetModPath("")) + FlashLightOnWav).c_str()))
+		{
+			wavFound = true;
+		});
+	if (!wavFound)
+	{
+		LOG_ONCE(__FUNCTION__ " Error: FlashLightWav file not found!");
 		return;
 	}
 
@@ -214,14 +240,61 @@ void RunPlayAdditionalSounds()
 		// play flashlight_off.wav
 		if (FlashLightSwitch == 0)
 		{
-			PlayWavFile((std::string(GetModPath("")) + FlashLightOffWav).c_str(), 2);
+			m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + FlashLightOffWav).c_str(), FlashlightID);
 		}
 		// play flashlight_on.wav
 		else if (FlashLightSwitch == 1)
 		{
-			PlayWavFile((std::string(GetModPath("")) + FlashLightOnWav).c_str(), 2);
+			m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + FlashLightOnWav).c_str(), FlashlightID);
 		}
 	}
 	LastRoomID = RoomID;
 	LastFlashLightSwitch = FlashLightSwitch;
+}
+
+void RunPlayLyingFigureSounds()
+{
+	static DWORD* LyingFigureFootstepSFX =
+		GameVersion == SH2V_10 ? (DWORD*)0x004C427C :
+		GameVersion == SH2V_11 ? (DWORD*)0x004C452C :
+		GameVersion == SH2V_DC ? (DWORD*)0x004C3DEC : nullptr;
+
+	// Checking address pointer
+	if (!LyingFigureFootstepSFX)
+	{
+		LOG_ONCE(__FUNCTION__ " Error: failed to find memory address!");
+		return;
+	}
+
+	// Checking wav file
+	static bool wavFound = false;
+	RUNCODEONCE(
+		if (PathFileExistsA((std::string(GetModPath("")) + LyingFigureFootstepWav).c_str()))
+		{
+			wavFound = true;
+		});
+	if (!wavFound)
+	{
+		LOG_ONCE(__FUNCTION__ " Error: LyingFigureFootstepWav file not found!");
+		return;
+	}
+
+	static bool MatchFound = false;
+	if (GetRoomID() == R_TOWN_EAST && GetCutsceneID() == CS_HSP_BOSS_FINISH)
+	{
+		if (!MatchFound)
+		{
+			MatchFound = true;
+			DWORD Value = 0x00000000;
+			UpdateMemoryAddress(LyingFigureFootstepSFX, &Value, sizeof(Value));
+			m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + LyingFigureFootstepWav).c_str(), FootstepsID);
+		}
+	}
+	else if (MatchFound)
+	{
+		MatchFound = false;
+		DWORD Value = 0x00002EF3;
+		UpdateMemoryAddress(LyingFigureFootstepSFX, &Value, sizeof(Value));
+		m_IDirectSound8::StopWavFile(FootstepsID);
+	}
 }

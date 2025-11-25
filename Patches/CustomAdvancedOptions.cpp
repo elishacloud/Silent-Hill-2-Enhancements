@@ -17,7 +17,10 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <functional>
+#pragma warning(push)          // Save current warning state
+#pragma warning(disable: 5205) // Disable warning C5205
 #include <memory>
+#pragma warning(pop)           // Restore previous warning state
 #include <vector>
 #include "Common\Utils.h"
 #include "Common\Settings.h"

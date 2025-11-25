@@ -61,6 +61,7 @@ typedef enum _CUTSCENEID {
 	CS_APT_CLOCK = 0x0C,
 	CS_APT_MEET_EDDIE = 0x0D,
 	CS_APT_RPT_CLOSET = 0x0E,
+	CS_APT_JUICE_CHUTE = 0x0F,
 	CS_APT_CROSSOVER = 0x10,
 	CS_APT_TOILET_FISH = 0x11,
 	CS_APT_ANGELA = 0x12,
@@ -374,17 +375,33 @@ typedef enum _CONTROL_TYPE
 	DIRECTIONAL_CONTROL,
 } CONTROL_TYPE;
 
+enum class WEAPONTYPE : uint8_t {
+	WT_NONE = 0,
+	WT_HANDGUN = 1,
+	WT_SHOTGUN = 2,
+	WT_RIFLE = 3,
+	WT_HYPER_SPRAY = 4,
+	WT_PLANK = 5,
+	WT_PIPE = 6,
+	WT_CHAINSAW = 7,
+	WT_GREAT_KNIFE = 8,
+	WT_REVOLVER = 9,
+	WT_CLEAVER = 10,
+};
+
 enum class ModelID;
 
 // Shared function declaration
 DWORD GetRoomID();
 DWORD GetCutsceneID();
 float GetCutscenePos();
+float GetCutsceneTimer();
 float GetCameraFOV();
 float GetJamesPosX();
 float GetJamesPosY();
 float GetJamesPosZ();
 BYTE GetFlashLightRender();
+bool GetFlashLightAcquired();
 BYTE GetChapterID();
 DWORD GetSpecializedLight1();
 DWORD GetSpecializedLight2();
@@ -464,11 +481,13 @@ int8_t GetControlOptionsChanging();
 DWORD *GetRoomIDPointer();
 DWORD *GetCutsceneIDPointer();
 float *GetCutscenePosPointer();
+float *GetCutsceneTimerPointer();
 float *GetCameraFOVPointer();
 float *GetJamesPosXPointer();
 float *GetJamesPosYPointer();
 float *GetJamesPosZPointer();
 BYTE *GetFlashLightRenderPointer();
+DWORD *GetFlashLightAcquiredPointer();
 BYTE *GetChapterIDPointer();
 DWORD *GetSpecializedLight1Pointer();
 DWORD *GetSpecializedLight2Pointer();
@@ -586,6 +605,11 @@ int8_t* GetControlOptionsSelectedOptionPointer();
 int32_t* GetControlOptionsIsToStopScrollingPointer();
 int8_t* GetControlOptionsSelectedColumnPointer();
 int8_t* GetControlOptionsChangingPointer();
+WEAPONTYPE* GetWeaponRenderPointer();
+WEAPONTYPE GetWeaponRender();
+WEAPONTYPE* GetWeaponHandGripPointer();
+WEAPONTYPE GetWeaponHandGrip();
+BYTE* GetInGameVoiceEvent();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -610,6 +634,7 @@ void PatchBestGraphics();
 void PatchBinary();
 void PatchCDCheck();
 void PatchCatacombsMeatRoom();
+void PatchChainsawSoundFix();
 void PatchClosetSpawn();
 void PatchCommandWindowMouseFix();
 void PatchControlOptionsMenu();
@@ -648,6 +673,7 @@ void PatchHoldDamage();
 void PatchHoldToStomp();
 void PatchInputTweaks();
 void PatchInventoryBGMBug();
+void PatchLabyrinthElevatorVolumeFix();
 void PatchLakeMoonSize();
 void PatchLeaveEndingCemeteryDrawDistance();
 void PatchLockScreenPosition();
@@ -673,6 +699,7 @@ void PatchPuzzleAlignmentFixes();
 void PatchQuickSaveTweaks();
 void PatchQuickSaveCancelFix();
 void PatchRedCrossInCutscene();
+void PatchRemoveWeaponFromCutscene();
 void PatchRoom312ShadowFix();
 void PatchRoomLighting();
 void PatchRowboatAnimation();
@@ -713,6 +740,7 @@ bool IsInFullScreenImageEvent();
 bool IsInMainOptionsMenu();
 bool IsInOptionsMenu();
 bool IsInControlOptionsMenu();
+bool CheckForSkipFrameCutscene();
 
 void HandleMenuSounds();
 void SetNewVolume();
@@ -724,6 +752,7 @@ void OnFileLoadVid(LPCSTR lpFileName);
 
 void RunAtticShadows();
 void RunBloodSize();
+void RunChainsawSoundFix();
 void RunClosetCutscene();
 void RunClosetSpawn();
 void RunDynamicDrawDistance();
@@ -738,7 +767,8 @@ void RunHotelWater();
 void RunInfiniteRumbleFix();
 void RunInnerFlashlightGlow(DWORD Height);
 void RunLightingTransition();
-void RunPlayAdditionalSounds();
+void RunPlayFlashlightSounds();
+void RunPlayLyingFigureSounds();
 void RunQuickSaveTweaks();
 void RunQuickSaveCancelFix();
 void RunRoomLighting();
@@ -769,6 +799,7 @@ extern bool IsInFakeFadeout;
 extern DWORD *RoomIDAddr;
 extern DWORD *CutsceneIDAddr;
 extern float *CutscenePosAddr;
+extern float *CutsceneTimerAddr;
 extern float *CameraFOVAddr;
 extern float *JamesPosXAddr;
 extern float *JamesPosYAddr;
@@ -824,6 +855,8 @@ extern BYTE* InputAssignmentFlagAddr;
 extern float* PuzzleCursorHorizontalPosAddr;
 extern float* PuzzleCursorVerticalPosAddr;
 extern DWORD* GetDeltaTimeFunctionAddr;
+extern WEAPONTYPE* WeaponRenderAddr;
+extern WEAPONTYPE* WeaponHandGripAddr;
 
 extern bool ShowDebugOverlay;
 extern bool ShowInfoOverlay;

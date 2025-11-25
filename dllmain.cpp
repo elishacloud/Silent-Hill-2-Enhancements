@@ -813,6 +813,18 @@ void DelayedStart()
 	// Increase cemetery draw distance for leave ending
 	PatchLeaveEndingCemeteryDrawDistance();
 
+	// Fix chainsaw idle and attack sound playback
+	if (ChainsawSoundFix)
+	{
+		PatchChainsawSoundFix();
+	}
+	
+	// Fix volume of the sound that plays in the labyrinth elevator
+	if (LabyrinthElevatorVolumeFix)
+	{
+		PatchLabyrinthElevatorVolumeFix();
+	}
+
 	// Play a quieter music box track in certain rooms of the Lakeview Hotel.
 	if (MusicBoxVolume)
 	{
@@ -839,6 +851,20 @@ void DelayedStart()
 			UpdateMemoryAddress((void*)0x00406CF5, "\x90\x90\x90\x90\x90", 5);
 			break;
 		}
+	}
+
+	// Allow the Hotel map to be acquired without the flashlight
+	BYTE* pHotelMap =
+		(BYTE*)(GameVersion == SH2V_10 ? 0x008CB17C :
+			GameVersion == SH2V_11 ? 0x008CEE4C :
+			GameVersion == SH2V_DC ? 0x008CDE4C : NULL);
+
+	if (pHotelMap && *pHotelMap == 0x04)
+	{
+		Logging::Log() << "Patching hotel map to not require the flashlight...";
+
+		BYTE Value = 0;
+		UpdateMemoryAddress(pHotelMap, &Value, sizeof(Value));
 	}
 
 	// Flush cache
@@ -918,6 +944,12 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 			DelayedStart();
 		}
 
+		// Load DSOAL
+		if (UseDSOAL)
+		{
+			DSOAL_DllMain(hModule, fdwReason, lpReserved);
+		}
+
 		// Pin current module
 		PinModule(m_hModule);
 	}
@@ -928,6 +960,12 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 		break;
 	case DLL_PROCESS_DETACH:
 	{
+		// Unload DSOAL
+		if (UseDSOAL)
+		{
+			DSOAL_DllMain(hModule, fdwReason, lpReserved);
+		}
+
 		// Release the mutex when the DLL is unloaded
 		if (g_hMutex)
 		{
@@ -968,13 +1006,12 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 
 		// Quitting
 		Logging::Log() << "Unloading Silent Hill 2 Enhancements!";
+		Logging::EnableLogging = false;
+
+		// Exit process when unloading
+		ExitProcess(0);
 	}
 	break;
-	}
-
-	if (UseDSOAL)
-	{
-		DSOAL_DllMain(hModule, fdwReason, lpReserved);
 	}
 
 	return TRUE;

@@ -397,8 +397,8 @@ void RunChainsawSoundFix()
             ChainsawIdleVolumeFactor = 1.0f;
             ChainsawIdleState = 3;
         }
-        IdleStartVolume = (1.0f - pow(ChainsawIdleVolumeFactor, 3)) * *WeaponVolumePtr;
-        IdleVolume = (1.0f - pow(1.0f - ChainsawIdleVolumeFactor, 3)) * *WeaponVolumePtr;
+        IdleStartVolume = (1.0f - powf(ChainsawIdleVolumeFactor, 3)) * *WeaponVolumePtr;
+        IdleVolume = (1.0f - powf(1.0f - ChainsawIdleVolumeFactor, 3)) * *WeaponVolumePtr;
         break;
 
     // Continue to update the idle sound's world position while the chainsaw is active.

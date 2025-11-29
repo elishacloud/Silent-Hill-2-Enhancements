@@ -309,15 +309,6 @@
         </Choices>
       </Feature>
 
-      <Feature name="FogLayerFix">
-        <Title>Restaurar camada de neblina 2D</Title>
-        <Description>Corrige um problema nas placas gráficas Nvidia em que a camada de neblina 2D e o brilho ao redor da lanterna de James não eram renderizados.</Description>
-        <Choices type="check">
-          <Value name="Desativar">0</Value>
-          <Value name="Ativar" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="FogParameterFix">
         <Title>Ajustar limites totais de neblina</Title>
         <Description>Ajusta os limites totais de neblina em determinadas áreas para corrigir erros visuais.</Description>
@@ -1202,6 +1193,15 @@
         <Choices type="check">
           <Value name="Desativar">0</Value>
           <Value name="Ativar" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="EnemyRevealLighting">
+        <Title>Adjust lighting of enemies during reveal setpieces</Title>
+        <Description>Adjust the lighting of the enemies in the tunnel radio cutscene and Apt Room 205 to make them less conspicuous before their reveal.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 

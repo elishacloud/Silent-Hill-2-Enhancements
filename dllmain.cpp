@@ -813,6 +813,18 @@ void DelayedStart()
 	// Increase cemetery draw distance for leave ending
 	PatchLeaveEndingCemeteryDrawDistance();
 
+	// Fix chainsaw idle and attack sound playback
+	if (ChainsawSoundFix)
+	{
+		PatchChainsawSoundFix();
+	}
+	
+	// Fix volume of the sound that plays in the labyrinth elevator
+	if (LabyrinthElevatorVolumeFix)
+	{
+		PatchLabyrinthElevatorVolumeFix();
+	}
+
 	// Fix Mannequin state in Woodside Apartments room 205
 	if (WoodsideRoom205Fix)
 	{
@@ -994,6 +1006,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD fdwReason, LPVOID lpReserved)
 
 		// Quitting
 		Logging::Log() << "Unloading Silent Hill 2 Enhancements!";
+		Logging::EnableLogging = false;
 
 		// Exit process when unloading
 		ExitProcess(0);

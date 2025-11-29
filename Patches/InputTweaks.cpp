@@ -377,6 +377,12 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			return;
 		}
 
+		// Clear the Ready Weapon button in the mirror room to avoid clipping issues
+		if (GetRoomID() == R_APT_W_RM_109_2)
+		{
+			ControllerData->rgbButtons[KeyBinds.GetReadyWeaponButtonBind()] = KEY_CLEAR;
+		}
+
 		// Clear the the pause button if a quicksave is in progress
 		if (GameLoadFix && (GetIsWritingQuicksave() == 1 || GetTextAddr() == 1))
 			ControllerData->rgbButtons[KeyBinds.GetPauseButtonBind()] = KEY_CLEAR;
@@ -444,6 +450,12 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		else
 		{
 			InfoCombo.State = false;
+		}
+
+		// Clear the Ready Weapon keybind in the mirror room to avoid clipping issues
+		if (GetRoomID() == R_APT_W_RM_109_2)
+		{
+			ClearKey(KeyBinds.GetKeyBind(KEY_READY_WEAPON));
 		}
 
 		// Update Esc/Cancel input states
@@ -851,6 +863,12 @@ void InputTweaks::ReadMouseButtons()
 
 	SetLMButton = (MouseState.rgbButtons[0] == KEY_SET);
 	RMB.State = (MouseState.rgbButtons[1] == KEY_SET);
+	
+	// Update right mouse button state, avoiding setting RMB for angela's mirror room
+	if (GetRoomID() == R_APT_W_RM_109_2)
+	{
+		RMB.State = false;
+	}
 }
 
 float InputTweaks::GetMouseAnalogX()
@@ -1084,6 +1102,11 @@ BYTE KeyBindsHandler::GetKeyBind(int KeyIndex)
 BYTE KeyBindsHandler::GetPauseButtonBind()
 {
 	return *(GetKeyBindsPointer() + 0xF0);
+}
+
+BYTE KeyBindsHandler::GetReadyWeaponButtonBind()
+{
+	return *(GetKeyBindsPointer() + 0x128);
 }
 
 int CountCollectedMemos()

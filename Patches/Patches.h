@@ -686,6 +686,7 @@ HRESULT PatchMasterVolumeSlider();
 void PatchMemoBrightnes();
 void PatchMenuSounds();
 void PatchMothDrawOrder();
+void PatchMusicBoxVolume();
 void PatchOldManCoinFix();
 void PatchObservationDeckFogFix();
 void PatchPauseScreen();

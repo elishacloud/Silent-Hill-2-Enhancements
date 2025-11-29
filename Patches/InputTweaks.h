@@ -200,6 +200,7 @@ class KeyBindsHandler
 public:
 	BYTE GetKeyBind(int KeyIndex);
 	BYTE GetPauseButtonBind();
+	BYTE GetReadyWeaponButtonBind();
 };
 
 // Hitboxes for pause and memo menu

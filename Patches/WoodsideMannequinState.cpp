@@ -76,9 +76,9 @@ void PatchWoodsideMannequinState()
     MannequinFlagsAddr = (DWORD*)ReadSearchedAddresses(0x0059BC29, 0x0059C4D9, 0x000059BDF9, MannequinFlagsSearchBytes, sizeof(MannequinFlagsSearchBytes), 0x08, __FUNCTION__);
 
     constexpr BYTE FixMannequinStateSearchBytes[]{ 0xBE, 0x20, 0x00, 0x00, 0x00, 0xB9, 0x00, 0x80 };
-    const DWORD FixMannequinStateAddr = SearchAndGetAddresses(0x0059BA35, 0x005688293, 0x0059BC05, FixMannequinStateSearchBytes, sizeof(FixMannequinStateSearchBytes), -0x11, __FUNCTION__);
+    const DWORD FixMannequinStateAddr = SearchAndGetAddresses(0x0059BA35, 0x0059C2E5, 0x0059BC05, FixMannequinStateSearchBytes, sizeof(FixMannequinStateSearchBytes), -0x11, __FUNCTION__);
 
-    if (!FlashlightAcquiredAddr || !SubCharStartAddr || !MannequinFlagsAddr || !FixMannequinStateSearchBytes)
+    if (!FlashlightAcquiredAddr || !SubCharStartAddr || !MannequinFlagsAddr || !FixMannequinStateAddr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
         return;

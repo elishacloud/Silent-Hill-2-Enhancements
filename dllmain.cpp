@@ -825,6 +825,12 @@ void DelayedStart()
 		PatchLabyrinthElevatorVolumeFix();
 	}
 
+	// Fix Mannequin state in Woodside Apartments room 205
+	if (WoodsideRoom205Fix)
+	{
+		PatchWoodsideMannequinState();
+	}
+
 	// Play a quieter music box track in certain rooms of the Lakeview Hotel.
 	if (MusicBoxVolume)
 	{

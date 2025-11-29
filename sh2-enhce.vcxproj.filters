@@ -479,6 +479,9 @@
     <ClCompile Include="Patches\LabyrinthElevatorVolumeFix.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\WoodsideMannequinState.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
     <ClCompile Include="Patches\MusicBoxVolume.cpp">
       <Filter>Patches</Filter>
     </ClCompile>

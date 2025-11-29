@@ -727,6 +727,7 @@ void PatchVHSAudio();
 void PatchWaterDrawOrderFix();
 void PatchWindowIcon();
 void PatchWindowTitle();
+void PatchWoodsideMannequinState();
 void PatchXInputVibration();
 
 void FindGetModelID();

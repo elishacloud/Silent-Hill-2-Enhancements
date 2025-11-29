@@ -824,6 +824,12 @@ void DelayedStart()
 	{
 		PatchLabyrinthElevatorVolumeFix();
 	}
+
+	// Play a quieter music box track in certain rooms of the Lakeview Hotel.
+	if (MusicBoxVolume)
+	{
+		PatchMusicBoxVolume();
+	}
 	
 	// Remove the "Now loading..." and "Press Return to continue." messages
 	if (DisableLoadingPressReturnMessages)

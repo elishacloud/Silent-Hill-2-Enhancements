@@ -144,40 +144,52 @@ HRESULT m_IDirect3D9::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, HWND hFo
 		<< ", ppReturnedDeviceInterface = " << ppReturnedDeviceInterface
 		<< ')' << " ...";
 
-	if (pPresentationParameters == nullptr)
+	if (pPresentationParameters == nullptr || ppReturnedDeviceInterface == nullptr)
 	{
 		return D3DERR_INVALIDCALL;
 	}
 
-	if ((BehaviorFlags & D3DCREATE_ADAPTERGROUP_DEVICE) != 0)
+	if (EnableCustomShaders)
 	{
-		Logging::Log() << "Adapter group devices are unsupported.";
-		return D3DERR_NOTAVAILABLE;
-	}
+		if ((BehaviorFlags & D3DCREATE_ADAPTERGROUP_DEVICE) != 0)
+		{
+			Logging::Log() << "Adapter group devices are unsupported.";
+			return D3DERR_NOTAVAILABLE;
+		}
 
-	D3DPRESENT_PARAMETERS pp = *pPresentationParameters;
+		D3DPRESENT_PARAMETERS pp = *pPresentationParameters;
 
-	const bool use_software_rendering = (BehaviorFlags & D3DCREATE_SOFTWARE_VERTEXPROCESSING) != 0;
-	if (use_software_rendering)
-	{
-		Logging::Log() << "> Replacing 'D3DCREATE_SOFTWARE_VERTEXPROCESSING' flag with 'D3DCREATE_MIXED_VERTEXPROCESSING' to allow for hardware rendering ...";
-		BehaviorFlags = (BehaviorFlags & ~D3DCREATE_SOFTWARE_VERTEXPROCESSING) | D3DCREATE_MIXED_VERTEXPROCESSING;
-	}
+		const bool use_software_rendering = (BehaviorFlags & D3DCREATE_SOFTWARE_VERTEXPROCESSING) != 0;
+		if (use_software_rendering)
+		{
+			Logging::Log() << "> Replacing 'D3DCREATE_SOFTWARE_VERTEXPROCESSING' flag with 'D3DCREATE_MIXED_VERTEXPROCESSING' to allow for hardware rendering ...";
+			BehaviorFlags = (BehaviorFlags & ~D3DCREATE_SOFTWARE_VERTEXPROCESSING) | D3DCREATE_MIXED_VERTEXPROCESSING;
+		}
 
-	const HRESULT hr = ProxyInterface->CreateDevice(Adapter, DeviceType, hFocusWindow, BehaviorFlags, &pp, ppReturnedDeviceInterface);
-	// Update output values (see https://docs.microsoft.com/windows/win32/api/d3d9/nf-d3d9-idirect3d9-createdevice)
-	pPresentationParameters->BackBufferWidth = pp.BackBufferWidth;
-	pPresentationParameters->BackBufferHeight = pp.BackBufferHeight;
-	pPresentationParameters->BackBufferFormat = pp.BackBufferFormat;
-	pPresentationParameters->BackBufferCount = pp.BackBufferCount;
+		const HRESULT hr = ProxyInterface->CreateDevice(Adapter, DeviceType, hFocusWindow, BehaviorFlags, &pp, ppReturnedDeviceInterface);
+		// Update output values (see https://docs.microsoft.com/windows/win32/api/d3d9/nf-d3d9-idirect3d9-createdevice)
+		pPresentationParameters->BackBufferWidth = pp.BackBufferWidth;
+		pPresentationParameters->BackBufferHeight = pp.BackBufferHeight;
+		pPresentationParameters->BackBufferFormat = pp.BackBufferFormat;
+		pPresentationParameters->BackBufferCount = pp.BackBufferCount;
 
-	if (FAILED(hr))
-	{
-		Logging::Log() << "IDirect3D9::CreateDevice" << " failed with error code " << (D3DERR)hr << '!';
+		if (FAILED(hr))
+		{
+			Logging::Log() << "IDirect3D9::CreateDevice" << " failed with error code " << (D3DERR)hr << '!';
+			return hr;
+		}
+
+		init_runtime_d3d(*ppReturnedDeviceInterface, DeviceType, pp, use_software_rendering);
+
 		return hr;
 	}
 
-	init_runtime_d3d(*ppReturnedDeviceInterface, DeviceType, pp, use_software_rendering);
+	const HRESULT hr = ProxyInterface->CreateDevice(Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface);
+
+	if (SUCCEEDED(hr))
+	{
+		*ppReturnedDeviceInterface = new m_IDirect3DDevice9(*ppReturnedDeviceInterface, false);
+	}
 
 	return hr;
 }

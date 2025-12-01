@@ -49,9 +49,12 @@ ULONG m_IDirect3DDevice9::Release()
 	if (ref == 0)
 	{
 		// Release remaining references to this device
-		_buffer_detection.reset(true);
-		_auto_depthstencil.reset();
-		_implicit_swapchain->Release();
+		if (EnableCustomShaders)
+		{
+			_buffer_detection.reset(true);
+			_auto_depthstencil.reset();
+			_implicit_swapchain->Release();
+		}
 
 		delete this;
 	}
@@ -86,13 +89,18 @@ HRESULT m_IDirect3DDevice9::GetDeviceCaps(D3DCAPS9 *pCaps)
 
 HRESULT m_IDirect3DDevice9::GetDisplayMode(UINT iSwapChain, D3DDISPLAYMODE *pMode)
 {
-	if (iSwapChain != 0)
+	if (EnableCustomShaders)
 	{
-		Logging::Log() << "Access to multi-head swap chain at index " << iSwapChain << " is unsupported.";
-		return D3DERR_INVALIDCALL;
+		if (iSwapChain != 0)
+		{
+			Logging::Log() << "Access to multi-head swap chain at index " << iSwapChain << " is unsupported.";
+			return D3DERR_INVALIDCALL;
+		}
+
+		return _implicit_swapchain->GetDisplayMode(pMode);
 	}
 
-	return _implicit_swapchain->GetDisplayMode(pMode);
+	return ProxyInterface->GetDisplayMode(iSwapChain, pMode);
 }
 
 HRESULT m_IDirect3DDevice9::GetCreationParameters(D3DDEVICE_CREATION_PARAMETERS *pParameters)
@@ -124,75 +132,90 @@ HRESULT m_IDirect3DDevice9::CreateAdditionalSwapChain(D3DPRESENT_PARAMETERS *pPr
 		return D3DERR_INVALIDCALL;
 	}
 
-	com_ptr<IDirect3D9> d3d;
-	ProxyInterface->GetDirect3D(&d3d);
-	D3DDEVICE_CREATION_PARAMETERS cp = {};
-	ProxyInterface->GetCreationParameters(&cp);
-
-	D3DPRESENT_PARAMETERS pp = *pPresentationParameters;
-	d3d.reset();
-
-	const HRESULT hr = ProxyInterface->CreateAdditionalSwapChain(&pp, ppSwapChain);
-	// Update output values (see https://docs.microsoft.com/windows/win32/api/d3d9/nf-d3d9-idirect3ddevice9-createadditionalswapchain)
-	pPresentationParameters->BackBufferWidth = pp.BackBufferWidth;
-	pPresentationParameters->BackBufferHeight = pp.BackBufferHeight;
-	pPresentationParameters->BackBufferFormat = pp.BackBufferFormat;
-	pPresentationParameters->BackBufferCount = pp.BackBufferCount;
-
-	if (FAILED(hr))
+	if (EnableCustomShaders)
 	{
-		Logging::Log() << "IDirect3DDevice9::CreateAdditionalSwapChain" << " failed with error code " << (D3DERR)hr << '!';
-		return hr;
+		com_ptr<IDirect3D9> d3d;
+		ProxyInterface->GetDirect3D(&d3d);
+		D3DDEVICE_CREATION_PARAMETERS cp = {};
+		ProxyInterface->GetCreationParameters(&cp);
+
+		D3DPRESENT_PARAMETERS pp = *pPresentationParameters;
+		d3d.reset();
+
+		const HRESULT hr = ProxyInterface->CreateAdditionalSwapChain(&pp, ppSwapChain);
+		// Update output values (see https://docs.microsoft.com/windows/win32/api/d3d9/nf-d3d9-idirect3ddevice9-createadditionalswapchain)
+		pPresentationParameters->BackBufferWidth = pp.BackBufferWidth;
+		pPresentationParameters->BackBufferHeight = pp.BackBufferHeight;
+		pPresentationParameters->BackBufferFormat = pp.BackBufferFormat;
+		pPresentationParameters->BackBufferCount = pp.BackBufferCount;
+
+		if (FAILED(hr))
+		{
+			Logging::Log() << "IDirect3DDevice9::CreateAdditionalSwapChain" << " failed with error code " << (D3DERR)hr << '!';
+			return hr;
+		}
+
+		IDirect3DDevice9* const device = ProxyInterface;
+		IDirect3DSwapChain9* const swapchain = *ppSwapChain;
+		assert(swapchain != nullptr);
+
+		// Retrieve present parameters here again, to get correct values for 'BackBufferWidth' and 'BackBufferHeight'
+		// They may otherwise still be set to zero (which is valid for creation)
+		swapchain->GetPresentParameters(&pp);
+
+		const auto runtime = std::make_shared<reshade::d3d9::runtime_d3d9>(device, swapchain, &_buffer_detection);
+		if (!runtime->on_init(pp))
+		{
+			Logging::Log() << "Failed to initialize Direct3D 9 runtime environment on runtime " << runtime.get() << '.';
+		}
+
+		AddRef(); // Add reference which is released when the swap chain is destroyed (see 'm_IDirect3DSwapChain9::Release')
+
+		const auto swapchain_proxy = new m_IDirect3DSwapChain9(this, swapchain, runtime);
+
+		_additional_swapchains.push_back(swapchain_proxy);
+		*ppSwapChain = swapchain_proxy;
+
+		Logging::LogDebug() << "Returning IDirect3DSwapChain9 object: " << swapchain_proxy << '.';
+
+		return D3D_OK;
 	}
 
-	IDirect3DDevice9 *const device = ProxyInterface;
-	IDirect3DSwapChain9 *const swapchain = *ppSwapChain;
-	assert(swapchain != nullptr);
-
-	// Retrieve present parameters here again, to get correct values for 'BackBufferWidth' and 'BackBufferHeight'
-	// They may otherwise still be set to zero (which is valid for creation)
-	swapchain->GetPresentParameters(&pp);
-
-	const auto runtime = std::make_shared<reshade::d3d9::runtime_d3d9>(device, swapchain, &_buffer_detection);
-	if (!runtime->on_init(pp))
-	{
-		Logging::Log() << "Failed to initialize Direct3D 9 runtime environment on runtime " << runtime.get() << '.';
-	}
-
-	AddRef(); // Add reference which is released when the swap chain is destroyed (see 'm_IDirect3DSwapChain9::Release')
-
-	const auto swapchain_proxy = new m_IDirect3DSwapChain9(this, swapchain, runtime);
-
-	_additional_swapchains.push_back(swapchain_proxy);
-	*ppSwapChain = swapchain_proxy;
-
-	Logging::LogDebug() << "Returning IDirect3DSwapChain9 object: " << swapchain_proxy << '.';
-
-	return D3D_OK;
+	return ProxyInterface->CreateAdditionalSwapChain(pPresentationParameters, ppSwapChain);
 }
 
 HRESULT m_IDirect3DDevice9::GetSwapChain(UINT iSwapChain, IDirect3DSwapChain9 **ppSwapChain)
 {
-	if (iSwapChain != 0)
+	if (EnableCustomShaders)
 	{
-		Logging::Log() << "Access to multi-head swap chain at index " << iSwapChain << " is unsupported.";
-		return D3DERR_INVALIDCALL;
+		if (iSwapChain != 0)
+		{
+			Logging::Log() << "Access to multi-head swap chain at index " << iSwapChain << " is unsupported.";
+			return D3DERR_INVALIDCALL;
+		}
+
+		if (ppSwapChain == nullptr)
+		{
+			return D3DERR_INVALIDCALL;
+		}
+
+		_implicit_swapchain->AddRef();
+		*ppSwapChain = _implicit_swapchain;
+
+		return D3D_OK;
 	}
 
-	if (ppSwapChain == nullptr)
-	{
-		return D3DERR_INVALIDCALL;
-	}
-
-	_implicit_swapchain->AddRef();
-	*ppSwapChain = _implicit_swapchain;
-
-	return D3D_OK;
+	return ProxyInterface->GetSwapChain(iSwapChain, ppSwapChain);
 }
 
 UINT m_IDirect3DDevice9::GetNumberOfSwapChains()
 {
-	return 1;
+	if (EnableCustomShaders)
+	{
+		return 1;
+	}
+
+	return ProxyInterface->GetNumberOfSwapChains();
 }
 
 HRESULT m_IDirect3DDevice9::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters)
@@ -206,87 +229,107 @@ HRESULT m_IDirect3DDevice9::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters
 
 	isInScene = false;
 
-	com_ptr<IDirect3D9> d3d;
-	ProxyInterface->GetDirect3D(&d3d);
-	D3DDEVICE_CREATION_PARAMETERS cp = {};
-	ProxyInterface->GetCreationParameters(&cp);
-
-	D3DPRESENT_PARAMETERS pp = *pPresentationParameters;
-	d3d.reset();
-
-	const auto runtime = _implicit_swapchain->_runtime;
-	runtime->on_reset();
-
-	_buffer_detection.reset(true);
-	_auto_depthstencil.reset();
-
-	const HRESULT hr = ProxyInterface->Reset(&pp);
-	// Update output values (see https://docs.microsoft.com/windows/win32/api/d3d9/nf-d3d9-idirect3ddevice9-reset)
-	pPresentationParameters->BackBufferWidth = pp.BackBufferWidth;
-	pPresentationParameters->BackBufferHeight = pp.BackBufferHeight;
-	pPresentationParameters->BackBufferFormat = pp.BackBufferFormat;
-	pPresentationParameters->BackBufferCount = pp.BackBufferCount;
-
-	if (FAILED(hr))
+	if (EnableCustomShaders)
 	{
-		Logging::Log() << "IDirect3DDevice9::Reset" << " failed with error code " << (D3DERR)hr << '!';
+		com_ptr<IDirect3D9> d3d;
+		ProxyInterface->GetDirect3D(&d3d);
+		D3DDEVICE_CREATION_PARAMETERS cp = {};
+		ProxyInterface->GetCreationParameters(&cp);
+
+		D3DPRESENT_PARAMETERS pp = *pPresentationParameters;
+		d3d.reset();
+
+		_implicit_swapchain->_runtime->on_reset();
+
+		_buffer_detection.reset(true);
+		_auto_depthstencil.reset();
+
+		const HRESULT hr = ProxyInterface->Reset(&pp);
+		// Update output values (see https://docs.microsoft.com/windows/win32/api/d3d9/nf-d3d9-idirect3ddevice9-reset)
+		pPresentationParameters->BackBufferWidth = pp.BackBufferWidth;
+		pPresentationParameters->BackBufferHeight = pp.BackBufferHeight;
+		pPresentationParameters->BackBufferFormat = pp.BackBufferFormat;
+		pPresentationParameters->BackBufferCount = pp.BackBufferCount;
+
+		if (FAILED(hr))
+		{
+			Logging::Log() << "IDirect3DDevice9::Reset" << " failed with error code " << (D3DERR)hr << '!';
+			return hr;
+		}
+
+		_implicit_swapchain->GetPresentParameters(&pp);
+
+		if (!_implicit_swapchain->_runtime->on_init(pp))
+		{
+			Logging::Log() << "Failed to recreate Direct3D 9 runtime environment on runtime " << _implicit_swapchain->_runtime.get() << '.';
+		}
+
+		// Reload auto depth-stencil surface
+		if (pp.EnableAutoDepthStencil)
+		{
+			ProxyInterface->GetDepthStencilSurface(&_auto_depthstencil);
+			SetDepthStencilSurface(_auto_depthstencil.get());
+		}
+
 		return hr;
 	}
 
-	_implicit_swapchain->GetPresentParameters(&pp);
-
-	if (!runtime->on_init(pp))
-	{
-		Logging::Log() << "Failed to recreate Direct3D 9 runtime environment on runtime " << runtime.get() << '.';
-	}
-
-	// Reload auto depth-stencil surface
-	if (pp.EnableAutoDepthStencil)
-	{
-		ProxyInterface->GetDepthStencilSurface(&_auto_depthstencil);
-		SetDepthStencilSurface(_auto_depthstencil.get());
-	}
-
-	return hr;
+	return ProxyInterface->Reset(pPresentationParameters);
 }
 
-HRESULT m_IDirect3DDevice9::Present(const RECT *pSourceRect, const RECT *pDestRect, HWND hDestWindowOverride, const RGNDATA *pDirtyRegion)
+HRESULT m_IDirect3DDevice9::Present(const RECT* pSourceRect, const RECT* pDestRect, HWND hDestWindowOverride, const RGNDATA* pDirtyRegion)
 {
-	// Only call into runtime if the entire surface is presented, to avoid partial updates messing up effects and the GUI
-	if (!DisableShaderOnPresent && m_IDirect3DSwapChain9::is_presenting_entire_surface(pSourceRect, hDestWindowOverride))
+	if (EnableCustomShaders)
 	{
-		_implicit_swapchain->_runtime->on_present();
+		// Only call into runtime if the entire surface is presented, to avoid partial updates messing up effects and the GUI
+		if (!DisableShaderOnPresent && m_IDirect3DSwapChain9::is_presenting_entire_surface(pSourceRect, hDestWindowOverride))
+		{
+			_implicit_swapchain->_runtime->on_present();
+		}
 	}
 
 	// Endscene
 	isInScene = false;
 	ProxyInterface->EndScene();
 
-	_buffer_detection.reset(false);
+	if (EnableCustomShaders)
+	{
+		_buffer_detection.reset(false);
+	}
 
 	return ProxyInterface->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 }
 
 HRESULT m_IDirect3DDevice9::GetBackBuffer(UINT iSwapChain, UINT iBackBuffer, D3DBACKBUFFER_TYPE Type, IDirect3DSurface9 **ppBackBuffer)
 {
-	if (iSwapChain != 0)
+	if (EnableCustomShaders)
 	{
-		Logging::Log() << "Access to multi-head swap chain at index " << iSwapChain << " is unsupported.";
-		return D3DERR_INVALIDCALL;
+		if (iSwapChain != 0)
+		{
+			Logging::Log() << "Access to multi-head swap chain at index " << iSwapChain << " is unsupported.";
+			return D3DERR_INVALIDCALL;
+		}
+
+		return _implicit_swapchain->GetBackBuffer(iBackBuffer, Type, ppBackBuffer);
 	}
 
-	return _implicit_swapchain->GetBackBuffer(iBackBuffer, Type, ppBackBuffer);
+	return ProxyInterface->GetBackBuffer(iSwapChain, iBackBuffer, Type, ppBackBuffer);
 }
 
 HRESULT m_IDirect3DDevice9::GetRasterStatus(UINT iSwapChain, D3DRASTER_STATUS *pRasterStatus)
 {
-	if (iSwapChain != 0)
+	if (EnableCustomShaders)
 	{
-		Logging::Log() << "Access to multi-head swap chain at index " << iSwapChain << " is unsupported.";
-		return D3DERR_INVALIDCALL;
+		if (iSwapChain != 0)
+		{
+			Logging::Log() << "Access to multi-head swap chain at index " << iSwapChain << " is unsupported.";
+			return D3DERR_INVALIDCALL;
+		}
+
+		return _implicit_swapchain->GetRasterStatus(pRasterStatus);
 	}
 
-	return _implicit_swapchain->GetRasterStatus(pRasterStatus);
+	return ProxyInterface->GetRasterStatus(iSwapChain, pRasterStatus);
 }
 
 HRESULT m_IDirect3DDevice9::SetDialogBoxMode(BOOL bEnableDialogs)
@@ -296,24 +339,30 @@ HRESULT m_IDirect3DDevice9::SetDialogBoxMode(BOOL bEnableDialogs)
 
 void m_IDirect3DDevice9::SetGammaRamp(UINT iSwapChain, DWORD Flags, const D3DGAMMARAMP *pRamp)
 {
-	if (iSwapChain != 0 || !pRamp)
+	if (EnableCustomShaders)
 	{
-		Logging::Log() << "Access to multi-head swap chain at index " << iSwapChain << " is unsupported.";
-		return;
+		if (iSwapChain != 0 || !pRamp)
+		{
+			Logging::Log() << "Access to multi-head swap chain at index " << iSwapChain << " is unsupported.";
+			return;
+		}
 	}
 
-	return ProxyInterface->SetGammaRamp(0, Flags, pRamp);
+	return ProxyInterface->SetGammaRamp(iSwapChain, Flags, pRamp);
 }
 
 void m_IDirect3DDevice9::GetGammaRamp(UINT iSwapChain, D3DGAMMARAMP *pRamp)
 {
-	if (iSwapChain != 0 || !pRamp)
+	if (EnableCustomShaders)
 	{
-		Logging::Log() << "Access to multi-head swap chain at index " << iSwapChain << " is unsupported.";
-		return;
+		if (iSwapChain != 0 || !pRamp)
+		{
+			Logging::Log() << "Access to multi-head swap chain at index " << iSwapChain << " is unsupported.";
+			return;
+		}
 	}
 
-	return ProxyInterface->GetGammaRamp(0, pRamp);
+	return ProxyInterface->GetGammaRamp(iSwapChain, pRamp);
 }
 
 HRESULT m_IDirect3DDevice9::CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, IDirect3DTexture9 **ppTexture, HANDLE *pSharedHandle)
@@ -379,13 +428,18 @@ HRESULT m_IDirect3DDevice9::GetRenderTargetData(IDirect3DSurface9 *pRenderTarget
 
 HRESULT m_IDirect3DDevice9::GetFrontBufferData(UINT iSwapChain, IDirect3DSurface9 *pDestSurface)
 {
-	if (iSwapChain != 0)
+	if (EnableCustomShaders)
 	{
-		Logging::Log() << "Access to multi-head swap chain at index " << iSwapChain << " is unsupported.";
-		return D3DERR_INVALIDCALL;
+		if (iSwapChain != 0)
+		{
+			Logging::Log() << "Access to multi-head swap chain at index " << iSwapChain << " is unsupported.";
+			return D3DERR_INVALIDCALL;
+		}
+
+		return _implicit_swapchain->GetFrontBufferData(pDestSurface);
 	}
 
-	return _implicit_swapchain->GetFrontBufferData(pDestSurface);
+	return ProxyInterface->GetFrontBufferData(iSwapChain, pDestSurface);
 }
 
 HRESULT m_IDirect3DDevice9::StretchRect(IDirect3DSurface9 *pSourceSurface, const RECT *pSourceRect, IDirect3DSurface9 *pDestSurface, const RECT *pDestRect, D3DTEXTUREFILTERTYPE Filter)
@@ -415,23 +469,31 @@ HRESULT m_IDirect3DDevice9::GetRenderTarget(DWORD RenderTargetIndex, IDirect3DSu
 
 HRESULT m_IDirect3DDevice9::SetDepthStencilSurface(IDirect3DSurface9 *pNewZStencil)
 {
-	_buffer_detection.on_set_depthstencil(pNewZStencil);
+	if (EnableCustomShaders)
+	{
+		_buffer_detection.on_set_depthstencil(pNewZStencil);
+	}
 
 	return ProxyInterface->SetDepthStencilSurface(pNewZStencil);
 }
 
 HRESULT m_IDirect3DDevice9::GetDepthStencilSurface(IDirect3DSurface9 **ppZStencilSurface)
 {
-	const HRESULT hr = ProxyInterface->GetDepthStencilSurface(ppZStencilSurface);
-
-	if (SUCCEEDED(hr))
+	if (EnableCustomShaders)
 	{
-		assert(ppZStencilSurface != nullptr);
+		const HRESULT hr = ProxyInterface->GetDepthStencilSurface(ppZStencilSurface);
 
-		_buffer_detection.on_get_depthstencil(*ppZStencilSurface);
+		if (SUCCEEDED(hr))
+		{
+			assert(ppZStencilSurface != nullptr);
+
+			_buffer_detection.on_get_depthstencil(*ppZStencilSurface);
+		}
+
+		return hr;
 	}
 
-	return hr;
+	return ProxyInterface->GetDepthStencilSurface(ppZStencilSurface);
 }
 
 HRESULT m_IDirect3DDevice9::BeginScene()
@@ -452,10 +514,13 @@ HRESULT m_IDirect3DDevice9::EndScene()
 
 HRESULT m_IDirect3DDevice9::Clear(DWORD Count, const D3DRECT *pRects, DWORD Flags, D3DCOLOR Color, float Z, DWORD Stencil)
 {
-	// Skip partial clears, since buffer detection logic replaces entire depth-stencil surface and therefore may otherwise break rendering after those
-	if (Flags != D3DCLEAR_TARGET && (Count == 0 || (pRects->x1 == 0 && pRects->y1 == 0)))
+	if (EnableCustomShaders)
 	{
-		_buffer_detection.on_clear_depthstencil(Flags);
+		// Skip partial clears, since buffer detection logic replaces entire depth-stencil surface and therefore may otherwise break rendering after those
+		if (Flags != D3DCLEAR_TARGET && (Count == 0 || (pRects->x1 == 0 && pRects->y1 == 0)))
+		{
+			_buffer_detection.on_clear_depthstencil(Flags);
+		}
 	}
 
 	return ProxyInterface->Clear(Count, pRects, Flags, Color, Z, Stencil);
@@ -528,6 +593,12 @@ HRESULT m_IDirect3DDevice9::GetClipPlane(DWORD Index, float *pPlane)
 
 HRESULT m_IDirect3DDevice9::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value)
 {
+	if (State == D3DRS_DEPTHBIAS)
+	{
+		float fValue = *reinterpret_cast<float*>(&Value) / 30.0f;
+		Value = *reinterpret_cast<DWORD*>(&fValue);
+	}
+
 	return ProxyInterface->SetRenderState(State, Value);
 }
 
@@ -647,28 +718,40 @@ float m_IDirect3DDevice9::GetNPatchMode()
 
 HRESULT m_IDirect3DDevice9::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, UINT PrimitiveCount)
 {
-	_buffer_detection.on_draw(PrimitiveType, PrimitiveCount);
+	if (EnableCustomShaders)
+	{
+		_buffer_detection.on_draw(PrimitiveType, PrimitiveCount);
+	}
 
 	return ProxyInterface->DrawPrimitive(PrimitiveType, StartVertex, PrimitiveCount);
 }
 
 HRESULT m_IDirect3DDevice9::DrawIndexedPrimitive(D3DPRIMITIVETYPE PrimitiveType, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT StartIndex, UINT PrimitiveCount)
 {
-	_buffer_detection.on_draw(PrimitiveType, PrimitiveCount);
+	if (EnableCustomShaders)
+	{
+		_buffer_detection.on_draw(PrimitiveType, PrimitiveCount);
+	}
 
 	return ProxyInterface->DrawIndexedPrimitive(PrimitiveType, BaseVertexIndex, MinVertexIndex, NumVertices, StartIndex, PrimitiveCount);
 }
 
 HRESULT m_IDirect3DDevice9::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, const void *pVertexStreamZeroData, UINT VertexStreamZeroStride)
 {
-	_buffer_detection.on_draw(PrimitiveType, PrimitiveCount);
+	if (EnableCustomShaders)
+	{
+		_buffer_detection.on_draw(PrimitiveType, PrimitiveCount);
+	}
 
 	return ProxyInterface->DrawPrimitiveUP(PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride);
 }
 
 HRESULT m_IDirect3DDevice9::DrawIndexedPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT MinVertexIndex, UINT NumVertices, UINT PrimitiveCount, const void *pIndexData, D3DFORMAT IndexDataFormat, const void *pVertexStreamZeroData, UINT VertexStreamZeroStride)
 {
-	_buffer_detection.on_draw(PrimitiveType, PrimitiveCount);
+	if (EnableCustomShaders)
+	{
+		_buffer_detection.on_draw(PrimitiveType, PrimitiveCount);
+	}
 
 	return ProxyInterface->DrawIndexedPrimitiveUP(PrimitiveType, MinVertexIndex, NumVertices, PrimitiveCount, pIndexData, IndexDataFormat, pVertexStreamZeroData, VertexStreamZeroStride);
 }

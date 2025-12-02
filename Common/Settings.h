@@ -33,6 +33,7 @@
 	visit(DisableSafeMode, true) \
 	visit(DisableScreenSaver, true) \
 	visit(DisplayModeOption, true) \
+    visit(DogRoomEnhanced, true) \
 	visit(DynamicResolution, true) \
 	visit(EnableDebugOverlay, true) \
 	visit(EnableEnhancedMouse, true) \
@@ -203,7 +204,9 @@
 	visit(water_spec_mult_strange_area, 0.017f) \
 	visit(water_spec_mult_labyrinth, 0.017f) \
 	visit(water_spec_mult_hotel, 0.05f) \
-	visit(water_spec_uv_mult_hotel, 0.45f)
+	visit(water_spec_uv_mult_hotel, 0.45f) \
+    visit(water_spec_mult_cemetery, 0.015f) \
+	visit(water_spec_uv_mult_cemetery, 1.0f)
 
 #define VISIT_STR_SETTINGS(visit) \
 	visit(CustomModFolder, "") \
@@ -237,6 +240,7 @@
 	visit(DisableLoadingPressReturnMessages) \
 	visit(DisableLogging) \
 	visit(DisableRedCross) \
+	visit(DogRoomEnhanced) \
 	visit(EnableDebugOverlay) \
 	visit(EnableInfoOverlay) \
 	visit(EnableScreenshots) \
@@ -283,6 +287,8 @@
 	visit(water_spec_mult_labyrinth) \
 	visit(water_spec_mult_hotel) \
 	visit(water_spec_uv_mult_hotel) \
+    visit(water_spec_mult_cemetery) \
+	visit(water_spec_uv_mult_cemetery) \
 	visit(WrapperType)
 
 typedef enum _SCREENMODE {
@@ -390,3 +396,5 @@ void __stdcall ParseCallback(char* lpName, char* lpValue, void*);
 void LogSettings();
 void UpdateConfigDefaults();
 void UpdateScaleResolution();
+
+

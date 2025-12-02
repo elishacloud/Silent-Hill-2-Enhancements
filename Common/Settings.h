@@ -33,6 +33,7 @@
 	visit(DisableSafeMode, true) \
 	visit(DisableScreenSaver, true) \
 	visit(DisplayModeOption, true) \
+    visit(DogRoomEnhanced, true) \
 	visit(DynamicResolution, true) \
 	visit(EnableDebugOverlay, true) \
 	visit(EnableEnhancedMouse, true) \

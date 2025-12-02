@@ -4,6 +4,7 @@
 #include "Common\Utils.h"
 #include "Wrappers\d3d8\DirectX81SDK\include\d3d8.h"
 #include "ModelID.h"
+#include "ActorDrawingHook.h"
 
 struct LightSource
 {
@@ -11,68 +12,6 @@ struct LightSource
 	float extraFloats[12]; // Purpose unknown
 };
 
-struct ModelOffsetTable
-{
-	int field_0;
-	int field_4;
-	int skeleton_points_offset;
-	int skeleton_point_count;
-	int skeleton_index_buffer_part_1_offset;
-	int field_14;
-	int skeleton_index_buffer_part_2_offset;
-	int field_1C;
-	int materialCount;
-	unsigned int materialsOffset;
-	int field_2C;
-	unsigned int offset_30;
-	int field_34;
-	unsigned int offset_38;
-	int field_3C;
-	unsigned int offset_40;
-	int field_44;
-	int field_48;
-	int field_4C;
-	int field_50;
-};
-
-struct ModelMaterial
-{
-	int materialLength;
-	int reserved0;
-	int unkU16Count0;
-	unsigned int unkU16Array0Offset;
-	int unkU16Count1;
-	unsigned int unkU16Array1Offset;
-	int unkU16Count2;
-	unsigned int unkU16Array2Offset;
-	unsigned int samplerStatesOffset;
-	char materialType;
-	char unkMaterialSubtype;
-	char poseId;
-	char unkByte0x27;
-	int cullMode;
-	float unkDiffuseFloat;
-	float unkAmbientFloat;
-	float specularHighlightScale;
-	void* reserved1;
-	int reserved2;
-	float diffuseX;
-	float diffuseR;
-	float diffuseG;
-	float diffuseB;
-	float ambientX;
-	float ambientR;
-	float ambientG;
-	float ambientB;
-	float specularX;
-	float specularR;
-	float specularG;
-	float specularB;
-	int reserved3;
-	int unkIndex;
-	int primCount;
-	int reserved4;
-};
 
 int SpecularFlag = 0;
 bool UseFakeLight = false;
@@ -86,7 +25,6 @@ static ModelMaterial* pCurrentMaterial = nullptr;
 
 ModelID(__cdecl* GetModelID)() = nullptr;
 
-static void(__cdecl* ActorDrawTop)(ModelOffsetTable*, void*) = nullptr;
 static int(__cdecl* GetLightSourceCount)() = nullptr;
 static LightSource* (__cdecl* GetLightSourceAt)(int) = nullptr;
 
@@ -167,17 +105,6 @@ bool IsMariaEyes(ModelID id)
 	return false;
 }
 
-static void __cdecl HookActorDrawTop(ModelOffsetTable* pOffsetTable, void* arg2)
-{
-	// Here we hook a call to `void ActorDrawTop(ModelOffsetTable* pOffsetTable, void* arg2)`
-	// This is the earliest function we're concerned with during an Actor draw
-	// Hooking allows us to note the materialCount and pointer to the materialArray for later traversal
-
-	materialCount = pOffsetTable->materialCount;
-	pMaterialArray = reinterpret_cast<ModelMaterial*>(reinterpret_cast<char*>(pOffsetTable) + pOffsetTable->materialsOffset);
-
-	ActorDrawTop(pOffsetTable, arg2);
-}
 
 static int __cdecl HookGetLightSourceCount()
 {
@@ -257,39 +184,47 @@ void FindGetModelID()
 
 void PatchSpecular()
 {
+    RegisterActorDrawTopPrologue([](ModelOffsetTable* pOffsetTable, void* /*arg2*/)->bool {
+        // Here we hook a call to `void ActorDrawTop(ModelOffsetTable* pOffsetTable, void* arg2)`
+        // This is the earliest function we're concerned with during an Actor draw
+        // Hooking allows us to note the materialCount and pointer to the materialArray for later traversal
+
+        materialCount = pOffsetTable->materialCount;
+        pMaterialArray = reinterpret_cast<ModelMaterial*>(reinterpret_cast<char*>(pOffsetTable) + pOffsetTable->materialsOffset);
+
+        // return false to not skip the actual draw
+        return(false);
+    });
+
+
+
 	switch (GameVersion)
 	{
 	case SH2V_10:
-		ActorDrawTop = reinterpret_cast<decltype(ActorDrawTop)>(0x501F90);
 		GetLightSourceCount = reinterpret_cast<decltype(GetLightSourceCount)>(0x50C590);
 		GetLightSourceAt = reinterpret_cast<decltype(GetLightSourceAt)>(0x50C5A0);
 		ActorOpaqueDraw = reinterpret_cast<decltype(ActorOpaqueDraw)>(0x501540);
 
-		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x50EB2B), HookActorDrawTop, 5);
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FECD0), HookGetLightSourceCount, 5);
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FED28), HookGetLightSourceAt, 5);
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501F77), HookActorOpaqueDraw, 5);
 		break;
 
 	case SH2V_11:
-		ActorDrawTop = reinterpret_cast<decltype(ActorDrawTop)>(0x5022C0);
 		GetLightSourceCount = reinterpret_cast<decltype(GetLightSourceCount)>(0x50C8C0);
 		GetLightSourceAt = reinterpret_cast<decltype(GetLightSourceAt)>(0x50C8D0);
 		ActorOpaqueDraw = reinterpret_cast<decltype(ActorOpaqueDraw)>(0x501870);
 
-		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x50EE5B), HookActorDrawTop, 5);
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FF000), HookGetLightSourceCount, 5);
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FF058), HookGetLightSourceAt, 5);
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x5022A7), HookActorOpaqueDraw, 5);
 		break;
 
 	case SH2V_DC:
-		ActorDrawTop = reinterpret_cast<decltype(ActorDrawTop)>(0x501BE0);
 		GetLightSourceCount = reinterpret_cast<decltype(GetLightSourceCount)>(0x50C1E0);
 		GetLightSourceAt = reinterpret_cast<decltype(GetLightSourceAt)>(0x50C1F0);
 		ActorOpaqueDraw = reinterpret_cast<decltype(ActorOpaqueDraw)>(0x501190);
 
-		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x50E77B), HookActorDrawTop, 5);
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FE920), HookGetLightSourceCount, 5);
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x4FE978), HookGetLightSourceAt, 5);
 		WriteCalltoMemory(reinterpret_cast<BYTE*>(0x501BC7), HookActorOpaqueDraw, 5);

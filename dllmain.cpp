@@ -626,6 +626,11 @@ void DelayedStart()
 		PatchSpecular();
 	}
 
+    if (DogRoomEnhanced)
+    {
+        PatchDogRoom();
+    }
+
 	// Creates a reflection of the flashlight on glass and glossy surfaces throughout the game.
 	if (FlashlightReflection)
 	{

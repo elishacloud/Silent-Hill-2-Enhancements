@@ -232,6 +232,11 @@ bool ModelGLTF::LoadFromFile(const std::string& filePath, IDirect3DDevice8* devi
             const int bonesIdx = map_contains(prim.attributes, std::string("JOINTS_0")) ? prim.attributes.at("JOINTS_0") : -1;
             const int weightsIdx = map_contains(prim.attributes, std::string("WEIGHTS_0")) ? prim.attributes.at("WEIGHTS_0") : -1;
 
+            if (uvIdx == -1) {
+                section.numVertices = 0;
+                continue;
+            }
+
             const tinygltf::Accessor& posAcc = model.accessors[posIdx];
             const tinygltf::Accessor& normAcc = model.accessors[normIdx];
             const tinygltf::Accessor* colorAcc = (colorIdx != -1) ? &model.accessors[colorIdx] : nullptr;
@@ -243,7 +248,7 @@ bool ModelGLTF::LoadFromFile(const std::string& filePath, IDirect3DDevice8* devi
             assert(posAcc.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT && posAcc.type == TINYGLTF_TYPE_VEC3);
             assert(normAcc.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT && normAcc.type == TINYGLTF_TYPE_VEC3);
             if (colorAcc) {
-                assert((colorAcc->componentType == TINYGLTF_COMPONENT_TYPE_FLOAT || colorAcc->componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT || colorAcc->componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) && colorAcc->type == TINYGLTF_TYPE_VEC4);
+                assert((colorAcc->componentType == TINYGLTF_COMPONENT_TYPE_FLOAT || colorAcc->componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT || colorAcc->componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) && (colorAcc->type == TINYGLTF_TYPE_VEC4 || colorAcc->type == TINYGLTF_TYPE_VEC3));
             }
             assert(uvAcc.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT && uvAcc.type == TINYGLTF_TYPE_VEC2);
 
@@ -377,9 +382,9 @@ bool ModelGLTF::LoadFromFile(const std::string& filePath, IDirect3DDevice8* devi
     mTextures.resize(model.images.size());
     for (size_t i = 0, n = model.images.size(); i < n; ++i) {
         const tinygltf::Image& img = model.images[i];
-        IUnknownPtr<IDirect3DTexture8>& texture = mTextures[i];
+        Texture& tex = mTextures[i];
 
-        HRESULT hr = GfxCreateTextureFromFileInMem(device, (void*)img.image.data(), img.image.size(), texture.ReleaseAndGetAddressOf());
+        HRESULT hr = GfxCreateTextureFromFileInMem(device, (void*)img.image.data(), img.image.size(), tex.texture.ReleaseAndGetAddressOf(), &tex.transparent);
         if (FAILED(hr)) {
             return false;
         }
@@ -482,7 +487,7 @@ void ModelGLTF::Update(const float deltaInSeconds, const D3DXMATRIX& globalXForm
     }
 }
 
-HRESULT ModelGLTF::Draw(IDirect3DDevice8* device) {
+HRESULT ModelGLTF::Draw(IDirect3DDevice8* device, BOOL enableTransparency) {
     const DWORD vertexSize = (mVertexType == VertexType::PosNormalTexcoord) ? sizeof(Vertex_PNT) : sizeof(Vertex_PNCT);
 
     HRESULT hr = S_OK;
@@ -496,17 +501,42 @@ HRESULT ModelGLTF::Draw(IDirect3DDevice8* device) {
     const uint8_t* vertices = mXFormedVertices.data();
     const uint16_t* indices = mIndices.data();
 
-    uint32_t lastTextureIdx = ~0u;
-    for (const ModelGLTF::Mesh& mesh : mMeshes) {
-        for (const ModelGLTF::Section& section : mesh.sections) {
-            if (section.textureIdx != lastTextureIdx) {
-                device->SetTexture(0, mTextures[section.textureIdx].GetPtr());
-                lastTextureIdx = section.textureIdx;
-            }
+    const size_t numPasses = enableTransparency ? 2 : 1;
+    for (size_t pass = 0; pass < numPasses; ++pass) {
+        uint32_t lastTextureIdx = ~0u;
 
-            hr = device->DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST, 0, section.numVertices, section.numIndices / 3u, indices + section.ibOffset, D3DFMT_INDEX16, vertices + section.vbOffset * vertexSize, vertexSize);
-            if (FAILED(hr)) {
-                return hr;
+        for (const ModelGLTF::Mesh& mesh : mMeshes) {
+            for (const ModelGLTF::Section& section : mesh.sections) {
+                if (!section.numVertices) {
+                    continue;
+                }
+
+                const Texture& tex = mTextures[section.textureIdx];
+                if (enableTransparency) {
+                    if (pass == 0 && tex.transparent) {
+                        continue;
+                    } else if (pass == 1 && !tex.transparent) {
+                        continue;
+                    }
+                }
+
+                if (section.textureIdx != lastTextureIdx) {
+                    device->SetTexture(0, mTextures[section.textureIdx].texture.GetPtr());
+                    lastTextureIdx = section.textureIdx;
+                }
+
+                if (mUploadToGPU) {
+                    device->SetIndices(mIB.GetPtr(), section.vbOffset);
+                    device->SetStreamSource(0, mVB.GetPtr(), vertexSize);
+
+                    hr = device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, section.numVertices, section.ibOffset, section.numIndices / 3u);
+                } else {
+                    hr = device->DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST, 0, section.numVertices, section.numIndices / 3u, indices + section.ibOffset, D3DFMT_INDEX16, vertices + section.vbOffset * vertexSize, vertexSize);
+                }
+
+                if (FAILED(hr)) {
+                    return hr;
+                }
             }
         }
     }
@@ -557,7 +587,7 @@ size_t ModelGLTF::GetNumTextures() const {
 }
 
 IDirect3DTexture8* ModelGLTF::GetTexture(const size_t idx) const {
-    return mTextures[idx].GetPtr();
+    return mTextures[idx].texture.GetPtr();
 }
 
 const ModelGLTF::SceneNode* ModelGLTF::GetRootNode() const {

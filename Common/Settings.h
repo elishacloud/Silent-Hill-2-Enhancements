@@ -240,7 +240,7 @@
 	visit(DisableLoadingPressReturnMessages) \
 	visit(DisableLogging) \
 	visit(DisableRedCross) \
-	visit(DogRoomEnhanced, true) \
+	visit(DogRoomEnhanced) \
 	visit(EnableDebugOverlay) \
 	visit(EnableInfoOverlay) \
 	visit(EnableScreenshots) \
@@ -396,4 +396,5 @@ void __stdcall ParseCallback(char* lpName, char* lpValue, void*);
 void LogSettings();
 void UpdateConfigDefaults();
 void UpdateScaleResolution();
+
 

@@ -208,11 +208,13 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClCompile Include="Include\criware\criware_sound.cpp" />
     <ClCompile Include="Include\criware\criware_xaudio2.cpp" />
     <ClCompile Include="Include\winmm.cpp" />
+    <ClCompile Include="Patches\ActorDrawingHook.cpp" />
     <ClCompile Include="Patches\ChainsawSoundFix.cpp" />
     <ClCompile Include="Patches\ChangeClosetSpawn.cpp" />
     <ClCompile Include="Patches\CockroachesReplacement.cpp" />
     <ClCompile Include="Patches\CommandWindowMouseFix.cpp" />
     <ClCompile Include="Patches\CustomAdvancedOptions.cpp" />
+    <ClCompile Include="Patches\DogRoomEnhanced.cpp" />
     <ClCompile Include="Patches\DoubleFootstepFix.cpp" />
     <ClCompile Include="Patches\ElevatorCursorColorFix.cpp" />
     <ClCompile Include="Patches\FlashlightReflection.cpp" />
@@ -380,6 +382,7 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClInclude Include="Include\VersionHelpers.h" />
     <ClInclude Include="Include\winmm.h" />
     <ClInclude Include="Logging\Logging.h" />
+    <ClInclude Include="Patches\ActorDrawingHook.h" />
     <ClInclude Include="Patches\FlashlightReflection.h" />
     <ClInclude Include="Patches\FullscreenImages.h" />
     <ClInclude Include="Patches\InputTweaks.h" />

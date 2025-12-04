@@ -39,9 +39,11 @@ extern char* ResetTexNameAddr;
 extern DWORD g_WaterVSHandle;
 extern DWORD g_WaterPondVSHandle;
 extern DWORD g_WaterPSHandle;
+extern DWORD g_WaterPondPSHandle;
 extern DWORD g_WaterVSBytecode[];
 extern DWORD g_WaterPondVSBytecode[];
 extern DWORD g_WaterPSBytecode[];
+extern DWORD g_WaterPondPSBytecode[];
 extern DWORD vsDeclWater[];
 extern void WaterEnhancedReleaseScreenCopy();
 extern HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 ProxyInterface, LPDIRECT3DSURFACE8 pRenderTarget, D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, const void* pVertexStreamZeroData, UINT VertexStreamZeroStride);
@@ -1282,6 +1284,10 @@ HRESULT m_IDirect3DDevice8::CreatePixelShader(THIS_ CONST DWORD* pFunction, DWOR
     {
         ProxyInterface->CreatePixelShader(g_WaterPSBytecode, &g_WaterPSHandle);
     }
+    if (!g_WaterPondPSHandle)
+    {
+        ProxyInterface->CreatePixelShader(g_WaterPondPSBytecode, &g_WaterPondPSHandle);
+    }
 
     if (!g_GammaPSHandle)
     {
@@ -1529,13 +1535,10 @@ HRESULT m_IDirect3DDevice8::DrawShadersAndScaledSurface()
 		}
 
 		ProxyInterface->SetPixelShader(0);
-		ProxyInterface->SetVertexShader(0);
+		ProxyInterface->SetVertexShader(D3DFVF_XYZRHW | D3DFVF_TEX1);
 	}
 
-	// Set vertex declaration
-	ProxyInterface->SetVertexShader(D3DFVF_XYZRHW | D3DFVF_TEX1);
-
-	if (IsScaledResolutionsEnabled())
+	if (IsScaledResolutionsEnabled() && !RestoreBrightnessSelector)
 	{
 		// Set stream source
 		ProxyInterface->SetStreamSource(0, ScaleVertexBuffer, sizeof(CUSTOMVERTEX_TEX1));

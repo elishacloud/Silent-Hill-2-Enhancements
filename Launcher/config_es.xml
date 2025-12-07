@@ -464,6 +464,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="PlayUnusedAudio">
+        <Title>Usar el audio no utilizado de la carta de Laura.</Title>
+        <Description>En la escena en la que James lee la carta de Laura, se reproducirá el audio no utilizado de Mary leyendo la carta.</Description>
+        <Choices type="check">
+          <Value name="Disable" default="true">0</Value>
+          <Value name="Enable">1</Value>
+        </Choices>
+      </Feature>
+
     </Section>
 
   </Tab>

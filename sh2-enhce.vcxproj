@@ -232,6 +232,7 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClCompile Include="Patches\FmvSubtitles.cpp" />
     <ClCompile Include="Patches\MusicBoxVolume.cpp" />
     <ClCompile Include="Patches\OptionsMenuTweaks.cpp" />
+    <ClCompile Include="Patches\PlayUnusedAudio.cpp" />
     <ClCompile Include="Patches\PuzzleAlignmentFixes.cpp" />
     <ClCompile Include="Patches\MenuSounds.cpp" />
     <ClCompile Include="Patches\MothDrawOrder.cpp" />

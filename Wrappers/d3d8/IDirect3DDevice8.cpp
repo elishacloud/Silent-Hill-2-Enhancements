@@ -2771,6 +2771,12 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 			RunChainsawSoundFix();
 		}
 
+		// Prevent Maria from spawning out of bounds in certain rooms
+		if (MariaSpawnFix)
+		{
+			RunMariaSpawnFix();
+		}
+
 		NeedToGrabScreenForWater = true;
 		RoachesDrawingCounter = 0;
 	}

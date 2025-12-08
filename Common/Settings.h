@@ -134,6 +134,7 @@
 	visit(SetSixtyFPS, true) \
 	visit(SetSwapEffectUpgradeShim, false) \
 	visit(ShowerRoomFlashlightFix, true) \
+	visit(SmokeFogFix, true) \
 	visit(Southpaw, false) \
 	visit(SpecificSoundLoopFix, true) \
 	visit(SpecularFix, true) \
@@ -281,6 +282,7 @@
 	visit(ShowerRoomFlashlightFix) \
 	visit(SmallFontHeight) \
 	visit(SmallFontWidth) \
+	visit(SmokeFogFix) \
 	visit(SpaceSize) \
 	visit(water_spec_mult_apt_staircase) \
 	visit(water_spec_mult_strange_area) \

@@ -2569,6 +2569,17 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 		}
 	}
 
+	// Draw smoke particles with fog enabled
+	if (SmokeFogFix && PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 24 &&
+		pVertexStreamZeroData && GetEventIndex() == EVENT_IN_GAME)
+	{
+		CUSTOMVERTEX_TEX1 *pVertex = (CUSTOMVERTEX_TEX1*)pVertexStreamZeroData;
+		if (fabs(pVertex[0].x + 200.0f) < 1e-6 && fabs(pVertex[0].y + 400.0f) < 1e-6) {
+			ProxyInterface->SetRenderState(D3DRS_FOGENABLE, TRUE);
+			ProxyInterface->SetRenderState(D3DRS_FOGTABLEMODE, D3DFOG_LINEAR);
+		}
+	}
+
 	return ProxyInterface->DrawPrimitiveUP(PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride);
 }
 
@@ -2769,6 +2780,12 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		if (ChainsawSoundFix)
 		{
 			RunChainsawSoundFix();
+		}
+
+		// Prevent Maria from spawning out of bounds in certain rooms
+		if (MariaSpawnFix)
+		{
+			RunMariaSpawnFix();
 		}
 
 		NeedToGrabScreenForWater = true;

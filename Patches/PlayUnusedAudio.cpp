@@ -332,7 +332,7 @@ static bool ShouldActivateSequence(DWORD room, DWORD cutscene, DWORD fade, float
 
 static bool StabilizeCutscene()
 {
-    bool first = (GetCutsceneID() == CS_HTL_LAURA_PIANO && GetCutsceneTimer() >= 1600.0f);
+    bool first = (GetCutsceneID() == CS_HTL_LAURA_PIANO && GetCutsceneTimer() >= 1600.0f && GetTransitionState() != 3);
     if (first) return true;
     Logging::LogDebug() << __FUNCTION__ << " Cutscene changed — performing additional check...";
     Sleep(30);
@@ -448,7 +448,7 @@ DWORD WINAPI AudioMonitorThread(LPVOID) {
             InterlockedExchange(&g_blockPlayerInputs, 1);
             InterlockedExchange(&g_stopAutoplay, 0);
 
-            Sleep(500);
+            Sleep(1500);
             if (WaitForGameFocusOrStop()) 
                 InjectAction();
 
@@ -463,7 +463,9 @@ DWORD WINAPI AudioMonitorThread(LPVOID) {
                 // Controlled wait loop allowing responsive interruption
                 DWORD waitMs = (DWORD)((seqEnd[i] - seqStart[i]) * 1000.0f) + 200;
                 for (DWORD t = 0; t < waitMs; t += 50) {
-                    if (AtomicRead(&g_stopAutoplay)) goto end_sequence;
+                    if (AtomicRead(&g_stopAutoplay) || !StabilizeCutscene())
+                        goto end_sequence;
+                    
                     Sleep(50);
                 }
 

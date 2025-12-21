@@ -438,18 +438,17 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			bool blocked = IsInputBlocked();
 			BYTE skipKey = KeyBinds.GetKeyBind(KEY_SKIP);
 			BYTE actionKey = KeyBinds.GetKeyBind(KEY_ACTION);
-			BYTE cancelKey = KeyBinds.GetKeyBind(KEY_CANCEL);
 
 			if (blocked) 
 			{
-				// If SKIP is pressed, stop the autoplay immediately
-				if (skipKey && KeyboardData[skipKey] == KEY_SET) {
+				// If SKIP or ESC is pressed, stop the autoplay immediately
+				if ((skipKey && KeyboardData[skipKey] == KEY_SET) || (KeyboardData[DIK_ESCAPE] == KEY_SET)) 
+				{
 					StopAutoplayImmediate();
 				}
 
-				// Clear essential player inputs (Action / Cancel)
+				// Clear essential player inputs (Action)
 				ClearKey(actionKey);
-				ClearKey(cancelKey);
 				// Keep SKIP cleared
 				ClearKey(skipKey);
 				// Explicitly block ENTER

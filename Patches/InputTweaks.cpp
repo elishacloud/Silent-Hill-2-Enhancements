@@ -18,6 +18,7 @@
 #include "External\injector\include\injector\utility.hpp"
 #include "External\Hooking.Patterns\Hooking.Patterns.h"
 #include "InputTweaks.h"
+extern "C" void StopAutoplayImmediate();
 
 InputTweaks InputTweaksRef;
 KeyBindsHandler KeyBinds;
@@ -105,6 +106,9 @@ uint8_t keyNotSetWarning[21] = { 0 };
 
 bool IsScaledResolutionsEnabled();
 
+DIMOUSESTATE2 MouseState = {};
+extern volatile LONG  g_forceAction;
+
 int32_t CanSave_Hook()
 {
 	return orgCanSave.fun();
@@ -132,8 +136,13 @@ int8_t GetControllerLXAxis_Hook(DWORD* arg)
 		RMB.State = false;
 		return 0;
 	}
-		
+
 	return orgGetControllerLXAxis.fun(arg);
+}
+
+bool InputTweaks::IsInputBlocked() {
+	extern volatile LONG g_blockPlayerInputs;
+	return InterlockedCompareExchange(&g_blockPlayerInputs, 0, 0) == 1;
 }
 
 int8_t GetControllerLYAxis_Hook(DWORD* arg)
@@ -198,7 +207,7 @@ void UpdateMousePosition_Hook()
 		if (AutoHideMouseCursor || ReplaceButtonText != BUTTON_ICONS_DISABLED)
 		{
 			// Auto hide mouse cursor, move to top left and remember its position
-			if ((AutoHideMouseCursor && (GetEventIndex() == EVENT_IN_GAME && !IsInFullScreenImageEvent()) && GetMenuEvent() != MENU_MAIN_MENU) || 
+			if ((AutoHideMouseCursor && (GetEventIndex() == EVENT_IN_GAME && !IsInFullScreenImageEvent()) && GetMenuEvent() != MENU_MAIN_MENU) ||
 				(ReplaceButtonText != BUTTON_ICONS_DISABLED && IsInControlOptionsMenu())) // During normal gameplay, or the options menu
 			{
 				CursorPosHandler.MoveCursorToOrigin();
@@ -231,7 +240,7 @@ void UpdateMousePosition_Hook()
 			}
 		}
 	}
-	
+
 	if (EnhanceMouseCursor)
 	{
 		CurrentMouseHorizontalPos = GetMouseHorizontalPosition();
@@ -289,7 +298,7 @@ void UpdateMousePosition_Hook()
 				{
 					*GetMemoListIndexPointer() = MemoMenu.GetEnabledVerticalIndex(CurrentMouseVerticalPos, NormalizedMemos);
 				}
-				else 
+				else
 				{
 					if (TopOrBot != 0)
 					{
@@ -351,6 +360,23 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		// Save controller data
 		ControllerData = (DIJOYSTATE*)lpvData;
 
+		// Blocks player inputs during Laura's letter when the PlayUnusedAudio patch is enabled
+		if (PlayUnusedAudio && IsInputBlocked()) {
+			BYTE skipBtn = KeyBinds.GetPauseButtonBind();
+
+			// The Skip button will be the only exception and will skip the cutscene.
+			if (skipBtn != 0 && ControllerData->rgbButtons[skipBtn] == KEY_SET) {
+				StopAutoplayImmediate();
+				ControllerData->rgbButtons[skipBtn] = KEY_CLEAR;
+			}
+
+			// Blocks all other buttons.
+			for (int i = 0; i < 32; ++i) {
+				if (i != skipBtn) ControllerData->rgbButtons[i] = KEY_CLEAR;
+			}
+			return;
+		}
+
 		if (IsInFakeFadeout && FixHangOnEsc)
 		{
 			for (int i = 0; i < 32; i++)
@@ -387,11 +413,11 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		if (GameLoadFix && (GetIsWritingQuicksave() == 1 || GetTextAddr() == 1))
 			ControllerData->rgbButtons[KeyBinds.GetPauseButtonBind()] = KEY_CLEAR;
 
-        // Clear the pause button if either the player or Maria (NPC) is dying
-        if (GameLoadFix && (GetPlayerIsDying() != 0 || GetMariaNpcIsDying() != 0))
-        {
-            ControllerData->rgbButtons[KeyBinds.GetPauseButtonBind()] = KEY_CLEAR;
-        }
+		// Clear the pause button if either the player or Maria (NPC) is dying
+		if (GameLoadFix && (GetPlayerIsDying() != 0 || GetMariaNpcIsDying() != 0))
+		{
+			ControllerData->rgbButtons[KeyBinds.GetPauseButtonBind()] = KEY_CLEAR;
+		}
 
 		// Clear controller data
 		ControllerData = nullptr;
@@ -405,6 +431,37 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 
 		// Save Keyboard Data
 		KeyboardData = (BYTE*)lpvData;
+
+		// Blocks player inputs during Laura's letter when the PlayUnusedAudio patch is enabled
+		if (PlayUnusedAudio) 
+		{
+			bool blocked = IsInputBlocked();
+			BYTE skipKey = KeyBinds.GetKeyBind(KEY_SKIP);
+			BYTE actionKey = KeyBinds.GetKeyBind(KEY_ACTION);
+			BYTE cancelKey = KeyBinds.GetKeyBind(KEY_CANCEL);
+
+			if (blocked) 
+			{
+				// If SKIP is pressed, stop the autoplay immediately
+				if (skipKey && KeyboardData[skipKey] == KEY_SET) {
+					StopAutoplayImmediate();
+				}
+
+				// Clear essential player inputs (Action / Cancel)
+				ClearKey(actionKey);
+				ClearKey(cancelKey);
+				// Keep SKIP cleared
+				ClearKey(skipKey);
+				// Explicitly block ENTER
+				ClearKey(DIK_RETURN);
+			}
+
+			// Automatic ACTION injection used to advance dialogue during autoplay
+			if (g_forceAction && actionKey) {
+				KeyboardData[actionKey] = KEY_SET;
+				g_forceAction = false;
+			}
+		}
 
 		// Fix for ALT + TAB
 		if (GetForegroundWindow() != GameWindowHandle)
@@ -537,7 +594,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		// Inject Key Presses
 
 		// Inject ready weapon or cancel based on context, on RMB press
-		if (GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTIONS_FMV && 
+		if (GetEventIndex() != EVENT_MAP && GetEventIndex() != EVENT_INVENTORY && GetEventIndex() != EVENT_OPTIONS_FMV &&
 			GetEventIndex() != EVENT_GAME_FMV && GetCutsceneID() == CS_NONE)
 		{
 			if (RMB.State && (EnableEnhancedMouse || EnhanceMouseCursor))
@@ -587,7 +644,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		if (SetLeftKey)
 		{
 			SetKey(KeyBinds.GetKeyBind(KEY_TURN_LEFT));
-			SetLeftKey = false; 
+			SetLeftKey = false;
 		}
 
 		if (SetRightKey)
@@ -611,7 +668,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		if (MouseWheel != 0 && DeltaMsWeaponSwap.count() > InputDebounce)
 		{
 			// Inject up and down in the memo screen
-			switch (GetEventIndex()) 
+			switch (GetEventIndex())
 			{
 			case EVENT_MEMO_LIST:
 				if (MouseWheel > 0)
@@ -665,12 +722,12 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			CleanKeys = false;
 		}
 
-        // Clear the ESC and SKIP key if either the player or Maria (NPC) is dying
-        if (GameLoadFix && (GetPlayerIsDying() != 0 || GetMariaNpcIsDying() != 0))
-        {
-            ClearKey(KeyBinds.GetKeyBind(KEY_SKIP));
-            ClearKey(KeyBinds.GetKeyBind(KEY_CANCEL));
-        }
+		// Clear the ESC and SKIP key if either the player or Maria (NPC) is dying
+		if (GameLoadFix && (GetPlayerIsDying() != 0 || GetMariaNpcIsDying() != 0))
+		{
+			ClearKey(KeyBinds.GetKeyBind(KEY_SKIP));
+			ClearKey(KeyBinds.GetKeyBind(KEY_CANCEL));
+		}
 
 		if (RowboatAnimationFix && (GetBoatFlag() == 0x01 && GetRoomID() == R_TOWN_LAKE))
 		{
@@ -716,7 +773,7 @@ void PatchInputTweaks()
 	}
 }
 
-void InputTweaks::TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbObjectData, 
+void InputTweaks::TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD cbObjectData,
 	LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD dwFlags)
 {
 	UNREFERENCED_PARAMETER(dwFlags);
@@ -728,6 +785,17 @@ void InputTweaks::TweakGetDeviceData(LPDIRECTINPUTDEVICE8A ProxyInterface, DWORD
 		// Save Mouse Data for axis movement
 		MouseData = rgdod;
 		MouseDataSize = *pdwInOut;
+
+		// While PlayUnusedAudio autoplay is active, fully block mouse input
+		if (PlayUnusedAudio && IsInputBlocked()) {
+			if (pdwInOut) *pdwInOut = 0;
+
+			// Reset mouse button and wheel state to avoid residual input
+			SetLMButton = false;
+			RMB.State = false;
+			MouseWheel = 0;
+			return; // Prevent mouse input from reaching the game
+		}
 
 		// Get the current mouse state, to handle LMB/RMB
 		MouseInterfaceAddress->GetDeviceState(sizeof(MouseState), &MouseState);
@@ -843,7 +911,7 @@ int32_t InputTweaks::GetMouseRelYChange()
 }
 
 void InputTweaks::ReadMouseButtons()
-{		
+{
 	if (!MouseData || GetForegroundWindow() != GameWindowHandle) return;
 
 	for (UINT i = 0; i < MouseDataSize; i++)
@@ -863,7 +931,7 @@ void InputTweaks::ReadMouseButtons()
 
 	SetLMButton = (MouseState.rgbButtons[0] == KEY_SET);
 	RMB.State = (MouseState.rgbButtons[1] == KEY_SET);
-	
+
 	// Update right mouse button state, avoiding setting RMB for angela's mirror room
 	if (GetRoomID() == R_APT_W_RM_109_2)
 	{
@@ -1003,9 +1071,9 @@ bool InputTweaks::FleshRoomFix()
 bool InputTweaks::SetRMBAimFunction()
 {
 	return (GetEventIndex() == EVENT_IN_GAME &&
-		(ElevatorFix() || HotelFix() || JamesVaultingBuildingsFix() || 
-		RosewaterParkFix() || HospitalMonologueFix() || FleshRoomFix() ||
-		!IsInFullScreenImageEvent()));
+		(ElevatorFix() || HotelFix() || JamesVaultingBuildingsFix() ||
+			RosewaterParkFix() || HospitalMonologueFix() || FleshRoomFix() ||
+			!IsInFullScreenImageEvent()));
 }
 
 bool InputTweaks::GetAnalogStringAddr()
@@ -1055,7 +1123,7 @@ bool InputTweaks::GetAnalogStringAddr()
 bool InputTweaks::IsMovementPressed()
 {
 	return IsKeyPressed(KeyBinds.GetKeyBind(KEY_MOVE_FORWARDS)) || IsKeyPressed(KeyBinds.GetKeyBind(KEY_MOVE_BACKWARDS)) ||
-		IsKeyPressed(KeyBinds.GetKeyBind(KEY_TURN_LEFT)) || IsKeyPressed(KeyBinds.GetKeyBind(KEY_TURN_RIGHT)) || 
+		IsKeyPressed(KeyBinds.GetKeyBind(KEY_TURN_LEFT)) || IsKeyPressed(KeyBinds.GetKeyBind(KEY_TURN_RIGHT)) ||
 		IsKeyPressed(KeyBinds.GetKeyBind(KEY_STRAFE_RIGHT)) || IsKeyPressed(KeyBinds.GetKeyBind(KEY_STRAFE_LEFT));
 }
 

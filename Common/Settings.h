@@ -106,6 +106,7 @@
 	visit(MainMenuFix, true) \
 	visit(MainMenuInstantLoadOptions, true) \
 	visit(MainMenuTitlePerLang, true) \
+	visit(MariaSpawnFix, true) \
 	visit(MemoScreenFix, true) \
 	visit(MenuSoundsFix, true) \
 	visit(MothDrawOrderFix, true) \
@@ -134,6 +135,7 @@
 	visit(SetSixtyFPS, true) \
 	visit(SetSwapEffectUpgradeShim, false) \
 	visit(ShowerRoomFlashlightFix, true) \
+	visit(SmokeFogFix, true) \
 	visit(Southpaw, false) \
 	visit(SpecificSoundLoopFix, true) \
 	visit(SpecularFix, true) \
@@ -269,6 +271,7 @@
 	visit(LimitPerFrameFPS) \
 	visit(LoadModulesFromMemory) \
 	visit(LockResolution) \
+	visit(MariaSpawnFix) \
 	visit(MusicBoxVolume) \
 	visit(NormalFontHeight) \
 	visit(NormalFontWidth) \
@@ -282,6 +285,7 @@
 	visit(ShowerRoomFlashlightFix) \
 	visit(SmallFontHeight) \
 	visit(SmallFontWidth) \
+	visit(SmokeFogFix) \
 	visit(SpaceSize) \
 	visit(water_spec_mult_apt_staircase) \
 	visit(water_spec_mult_strange_area) \

@@ -205,8 +205,8 @@
 	visit(water_spec_mult_labyrinth, 0.017f) \
 	visit(water_spec_mult_hotel, 0.05f) \
 	visit(water_spec_uv_mult_hotel, 0.45f) \
-    visit(water_spec_mult_cemetery, 0.035f) \
-	visit(water_spec_uv_mult_cemetery, 1.0f)
+    visit(water_spec_mult_cemetery, 0.15f) \
+	visit(water_spec_uv_mult_cemetery, 0.85f)
 
 #define VISIT_STR_SETTINGS(visit) \
 	visit(CustomModFolder, "") \

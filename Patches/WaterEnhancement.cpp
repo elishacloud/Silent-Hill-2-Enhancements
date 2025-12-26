@@ -236,10 +236,9 @@ DWORD g_WaterPondPSBytecode[] = {
     0x80e40004, 0x80e40001, 0x0000fffd, 0x00000042,
     0x800f0000, 0x80e40002, 0x00000042, 0x800f0001,
     0x80e40003, 0x00000042, 0x800f0003, 0x80e40005,
-    0x00000012, 0x800f0000, 0x90ff0000, 0x90e40000,
-    0x80e40001, 0x00000004, 0x80170000, 0x80e40003,
-    0xa0e40006, 0x80e40000, 0x40000001, 0x80080000,
-    0xa0e40000, 0x0000ffff
+    0x00000001, 0x800f0000, 0x80e40001, 0x00000004,
+    0x80170000, 0x80e40003, 0xa0e40006, 0x80e40000,
+    0x40000001, 0x80080000, 0xa0e40000, 0x0000ffff
 };
 
 DWORD g_WaterVSHandle = 0;
@@ -520,11 +519,8 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 Devic
             Device->SetVertexShaderConstant(WATER_UVADD_VS_CB_SLOT, &uvAddition, 1);
             Device->SetVertexShaderConstant(WATER_UVMUL_VS_CB_SLOT, &specUvMult, 1);
 
+            bool forceFog = false;
             if (roomID == R_FOREST_CEMETERY) {
-                //D3DXMATRIX woldMat = {}, woldMatTrans = {};
-                //Device->GetTransform(D3DTS_WORLD, &woldMat);
-                //D3DXMatrixTranspose(&woldMatTrans, &woldMat);
-                //Device->SetVertexShaderConstant(WATER_WORLD_VS_CB_SLOT, &woldMatTrans, 4);
                 const float worldScale = 1.0f / 3000.0f;
                 D3DXVECTOR4 worldDiv = { worldScale, worldScale, worldScale, worldScale };
                 Device->SetVertexShaderConstant(WATER_WORLD_VS_CB_SLOT, &worldDiv, 1);
@@ -536,6 +532,10 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 Devic
                 Device->GetRenderState(D3DRS_FOGCOLOR, &dwFogColour);
                 D3DXVECTOR4 fogColour(float((dwFogColour >> 16) & 0xFF) / 255.0f, float((dwFogColour >> 8) & 0xFF) / 255.0f, float(dwFogColour & 0xFF) / 255.0f, 1.0f);
                 Device->SetPixelShaderConstant(WATER_FOG_COLOUR_PS_CB_SLOT, &fogColour, 1u);
+
+                Device->SetRenderState(D3DRS_FOGENABLE, TRUE);
+                Device->SetRenderState(D3DRS_FOGTABLEMODE, D3DFOG_LINEAR);
+                forceFog = true;
             }
 
             Device->SetPixelShaderConstant(WATER_DUDV_SCALE_PS_CB_SLOT, &dudvScale, 1u);

@@ -99,7 +99,7 @@ void RunEddieLauraCutscene()
     static AnimInfo* LauraAnimInfo = nullptr;
     static AnimInfo* PizzaAnimInfo = nullptr;
 
-    if (!MaxCutsceneFrame)
+    if (!MaxCutsceneFrame || !EddieAnimInfo || !LauraAnimInfo || !PizzaAnimInfo)
     {
         RUNONCE();
 

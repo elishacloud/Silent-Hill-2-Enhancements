@@ -25,6 +25,10 @@ struct ModelOffsetTable {
     int field_48;
     int field_4C;
     int field_50;
+
+    inline bool operator ==(const ModelOffsetTable& other) {
+        return memcmp(this, &other, sizeof(ModelOffsetTable)) == 0;
+    }
 };
 
 struct ModelGeometryData {

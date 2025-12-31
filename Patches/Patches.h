@@ -636,6 +636,7 @@ void PatchCDCheck();
 void PatchCatacombsMeatRoom();
 void PatchChainsawSoundFix();
 void PatchClosetSpawn();
+void PatchClosetRoomModel();
 void PatchCommandWindowMouseFix();
 void PatchControlOptionsMenu();
 void PatchCreatureVehicleSpawn();

@@ -14,6 +14,7 @@
 	visit(CheckCompatibilityMode, true) \
 	visit(CheckForAdminAccess, true) \
 	visit(ClosetCutsceneFix, true) \
+    visit(ClosetRoomEnhanced, true) \
 	visit(CommandWindowMouseFix, true) \
     visit(CockroachesReplacement, true) \
 	visit(CreateLocalFix, true) \
@@ -206,7 +207,9 @@
 	visit(water_spec_mult_hotel, 0.05f) \
 	visit(water_spec_uv_mult_hotel, 0.45f) \
     visit(water_spec_mult_cemetery, 0.15f) \
-	visit(water_spec_uv_mult_cemetery, 0.85f)
+	visit(water_spec_uv_mult_cemetery, 0.85f) \
+    visit(closet_replacement_model_hide_time, 9999.0f) \
+    visit(closet_replacement_model_reveal_time, 9999.0f)
 
 #define VISIT_STR_SETTINGS(visit) \
 	visit(CustomModFolder, "") \
@@ -229,6 +232,7 @@
 	visit(AntiAliasing) \
 	visit(AudioFadeOutDelayMS) \
 	visit(ChainsawSoundFix) \
+	visit(ClosetRoomEnhanced) \
 	visit(CommandWindowMouseFix) \
 	visit(CustomFontCharHeight) \
 	visit(CustomFontCharWidth) \
@@ -289,6 +293,8 @@
 	visit(water_spec_uv_mult_hotel) \
     visit(water_spec_mult_cemetery) \
 	visit(water_spec_uv_mult_cemetery) \
+    visit(closet_replacement_model_hide_time) \
+    visit(closet_replacement_model_reveal_time) \
 	visit(WrapperType)
 
 typedef enum _SCREENMODE {

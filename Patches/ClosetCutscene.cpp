@@ -18,6 +18,7 @@
 #include <Windows.h>
 #include "Patches.h"
 #include "Common\Utils.h"
+#include "Common\Settings.h"
 #include "Logging\Logging.h"
 
 // Variables for ASM
@@ -25,6 +26,8 @@ void *jmpClosetCutsceneReturnAddr;
 DWORD ClosetCutsceneObject;
 float f_ClosetCutsceneCameraPos = -21376.56445f;
 DWORD ClosetCutsceneCameraPos = *(DWORD*)(&f_ClosetCutsceneCameraPos);
+
+void RunClosetDoorReplacementUpdateFunc();
 
 // ASM function to update to Fix RPT Apartment Closet Cutscene blur
 __declspec(naked) void __stdcall ClosetCutsceneASM()
@@ -172,4 +175,219 @@ void RunClosetCutscene()
 	{
 		ValueSet3 = false;
 	}
+
+    if (ClosetRoomEnhanced) {
+        RunClosetDoorReplacementUpdateFunc();
+    }
+}
+
+
+// closet model replacement
+#include "Common/ModelGLTF.h"
+#include "Common/FileSystemHooks.h"
+#include "ActorDrawingHook.h"
+
+#include <filesystem>
+
+constexpr ModelOffsetTable kClosetModelTable = { -65533, 4, 176, 2, 304, 0, 320, 320, 2, 560, 1, 5232, 3, 320, 3, 336, 368, 0, 416, 0 };
+
+static IDirect3DDevice8* (__cdecl* SH2_GetD3dDevice)() = (IDirect3DDevice8 * (__cdecl*)())(0x4F5480);
+
+//static D3DXMATRIX* gWorldTransform = reinterpret_cast<D3DXMATRIX*>(0x1F7D5F0);
+static D3DXMATRIX* gViewTransform  = reinterpret_cast<D3DXMATRIX*>(0x1F7D530);
+
+static std::filesystem::path    gModelPath;
+static ModelGLTF*               gClosetModel = nullptr;
+static LARGE_INTEGER            gQPCFreq = {};
+static double                   gStartTime = 0.0;
+static float                    gModelAnimTimer = 0.0f;
+static bool                     gIsClosetCutsceneRunning = false;
+
+DWORD gClosetVSShader = 0;
+DWORD gClosetPSShader = 0;
+BOOL  gClosetShouldSkipDIP = FALSE;
+
+void RunClosetDoorReplacementUpdateFunc() {
+    if (GetCutsceneID() == CS_APT_RPT_CLOSET) {
+
+    } else {
+        gIsClosetCutsceneRunning = false;
+    }
+}
+
+
+static ModelGLTF* GetOrCreateModel(IDirect3DDevice8* device) {
+    if (!gClosetModel && !gModelPath.empty()) {
+        gClosetModel = new ModelGLTF(ModelGLTF::VertexType::PosNormalTexcoord, false);
+        if (!gClosetModel->LoadFromFile(gModelPath.u8string(), device)) {
+            delete gClosetModel;
+            gClosetModel = nullptr;
+        } else {
+            gClosetModel->SetLoopAnimation(false);
+        }
+    }
+
+    return gClosetModel;
+}
+
+
+static double TimeGetNowSec() {
+    if (!gQPCFreq.QuadPart) {
+        ::QueryPerformanceFrequency(&gQPCFreq);
+    }
+
+    LARGE_INTEGER qpcNow = {};
+    ::QueryPerformanceCounter(&qpcNow);
+    return static_cast<double>(qpcNow.QuadPart) / static_cast<double>(gQPCFreq.QuadPart);
+}
+
+//static void DebugPrintMatrix(const D3DXMATRIX& mat) {
+//    std::string str = std::to_string(mat._11) + ", " + std::to_string(mat._12) + ", " + std::to_string(mat._13) + ", " + std::to_string(mat._14) + ",\n" +
+//                      std::to_string(mat._21) + ", " + std::to_string(mat._22) + ", " + std::to_string(mat._23) + ", " + std::to_string(mat._24) + ",\n" +
+//                      std::to_string(mat._31) + ", " + std::to_string(mat._32) + ", " + std::to_string(mat._33) + ", " + std::to_string(mat._34) + ",\n" +
+//                      std::to_string(mat._41) + ", " + std::to_string(mat._42) + ", " + std::to_string(mat._43) + ", " + std::to_string(mat._44) + ",\n";
+//
+//    OutputDebugStringA(str.c_str());
+//}
+
+static void DrawClosetModel(IDirect3DDevice8* device) {
+    if (!gIsClosetCutsceneRunning) {
+        gModelAnimTimer = 0.0f;
+        gStartTime = 0.0;
+
+        gIsClosetCutsceneRunning = true;
+    }
+
+    ModelGLTF* model = GetOrCreateModel(device);
+    if (!model) {
+        return;
+    }
+
+    if (!gStartTime) {
+        gStartTime = TimeGetNowSec();
+    }
+    const double timeNow = TimeGetNowSec();
+    const double timeDelta = static_cast<float>(timeNow - gStartTime);
+    gStartTime = timeNow;
+
+    D3DXMATRIX closetXForm = D3DXMATRIX(    -0.999675f,    0.000000f,       0.025510f, 0.000000f,
+                                            -0.025510f,    0.000240f,      -0.999675f, 0.000000f,
+                                            -0.000006f,   -1.000000f,      -0.000240f, 0.000000f,
+                                        -21059.994141f, -550.000549f, -101184.023438f, 1.000000f);
+
+
+    D3DXMATRIX actorXForm;
+    D3DXMatrixMultiply(&actorXForm, &closetXForm, gViewTransform);
+
+    model->Update(timeDelta, actorXForm, &gModelAnimTimer);
+
+    const float cutsceneTimer = GetCutsceneTimer();
+    if (cutsceneTimer < closet_replacement_model_hide_time || cutsceneTimer > closet_replacement_model_reveal_time) {
+        DWORD backCulling = 0;
+        device->GetRenderState(D3DRS_CULLMODE, &backCulling);
+        device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
+
+        //DWORD alphaBlend, alphaTest = 0;
+        //device->GetRenderState(D3DRS_ALPHABLENDENABLE, &alphaBlend);
+        //device->GetRenderState(D3DRS_ALPHATESTENABLE, &alphaTest);
+        //device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+        //device->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
+        //device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+        //device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+        //// Use texture color and alpha
+        //DWORD colorArg[3], colorOp, alphaArg[3], alphaOp, tcIdx;
+        //device->GetTextureStageState(0, D3DTSS_COLORARG0, &colorArg[0]);
+        //device->GetTextureStageState(0, D3DTSS_COLORARG1, &colorArg[1]);
+        //device->GetTextureStageState(0, D3DTSS_COLORARG2, &colorArg[2]);
+        //device->GetTextureStageState(0, D3DTSS_COLOROP, &colorOp);
+        //device->GetTextureStageState(0, D3DTSS_ALPHAARG0, &alphaArg[0]);
+        //device->GetTextureStageState(0, D3DTSS_ALPHAARG1, &alphaArg[1]);
+        //device->GetTextureStageState(0, D3DTSS_ALPHAARG2, &alphaArg[2]);
+        //device->GetTextureStageState(0, D3DTSS_ALPHAOP, &alphaOp);
+
+        //device->GetTextureStageState(0, D3DTSS_TEXCOORDINDEX, &tcIdx);
+        //device->SetTextureStageState(0, D3DTSS_COLORARG0, D3DTA_CURRENT);
+        //device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        //device->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_CURRENT);
+        //device->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
+        //device->SetTextureStageState(0, D3DTSS_ALPHAARG0, D3DTA_CURRENT);
+        //device->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        //device->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
+        //device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+        //device->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0);
+
+        DWORD savedPS, savedVS;
+        device->GetPixelShader(&savedPS);
+        device->GetVertexShader(&savedVS);
+
+        device->SetPixelShader(gClosetPSShader);
+        device->SetVertexShader(gClosetVSShader);
+
+        model->Draw(device, TRUE);
+
+        device->SetPixelShader(savedPS);
+        device->SetVertexShader(savedVS);
+
+        //device->SetTextureStageState(0, D3DTSS_COLORARG0, colorArg[0]);
+        //device->SetTextureStageState(0, D3DTSS_COLORARG1, colorArg[1]);
+        //device->SetTextureStageState(0, D3DTSS_COLORARG2, colorArg[2]);
+        //device->SetTextureStageState(0, D3DTSS_COLOROP, colorOp);
+        //device->SetTextureStageState(0, D3DTSS_ALPHAARG0, alphaArg[0]);
+        //device->SetTextureStageState(0, D3DTSS_ALPHAARG1, alphaArg[1]);
+        //device->SetTextureStageState(0, D3DTSS_ALPHAARG2, alphaArg[2]);
+        //device->SetTextureStageState(0, D3DTSS_ALPHAOP, alphaOp);
+        //device->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, tcIdx);
+
+        //device->SetRenderState(D3DRS_ALPHABLENDENABLE, alphaBlend);
+        //device->SetRenderState(D3DRS_ALPHATESTENABLE, alphaTest);
+
+        device->SetRenderState(D3DRS_CULLMODE, backCulling);
+    }
+}
+
+void PatchClosetRoomModel() {
+    RegisterActorDrawTopPrologue([](ModelOffsetTable* model, void* /*arg2*/)->bool {
+        const DWORD roomID = GetRoomID();
+        if (roomID == CS_APT_RPT_FIGHT) {
+            if (*model == kClosetModelTable) {
+                IDirect3DDevice8* device = SH2_GetD3dDevice();
+                if (device) {
+                    gClosetVSShader = 0;
+                    gClosetPSShader = 0;
+
+                    gClosetShouldSkipDIP = TRUE;
+
+                    return false;
+                }
+            }
+        }
+
+        // do not skip other stuff
+        return false;
+    });
+
+    RegisterActorDrawTopEpilogue([](ModelOffsetTable* model, void* /*arg2*/)->bool {
+        const DWORD roomID = GetRoomID();
+        if (roomID == CS_APT_RPT_FIGHT) {
+            if (*model == kClosetModelTable) {
+                gClosetShouldSkipDIP = FALSE;
+
+                IDirect3DDevice8* device = SH2_GetD3dDevice();
+                if (device) {
+                    DrawClosetModel(device);
+                }
+            }
+        }
+
+        return false;
+    });
+
+    gModelPath = GetModPath("");
+    gModelPath = gModelPath / R"(model\b_doo.glb)";
+    std::error_code errorCode{};
+    if (!std::filesystem::exists(gModelPath, errorCode)) {
+        gModelPath.clear();
+        return;
+    }
 }

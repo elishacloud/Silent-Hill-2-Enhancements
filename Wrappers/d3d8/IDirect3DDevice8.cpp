@@ -64,6 +64,11 @@ static double TimeGetNowSec() {
     return static_cast<double>(qpcNow.QuadPart) / static_cast<double>(sQPCFreq.QuadPart);
 }
 
+// closet enhanced drawing
+extern DWORD gClosetVSShader;
+extern DWORD gClosetPSShader;
+extern BOOL  gClosetShouldSkipDIP;
+
 // brightness (gamma) shader
 /*
 ps.1.4
@@ -1308,6 +1313,8 @@ HRESULT m_IDirect3DDevice8::SetPixelShader(THIS_ DWORD Handle)
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+    gClosetPSShader = (Handle == 0) ? gClosetPSShader : Handle;
+
 	return ProxyInterface->SetPixelShader(Handle);
 }
 
@@ -1847,6 +1854,12 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount)
 {
 	Logging::LogDebug() << __FUNCTION__;
+
+    if (gClosetShouldSkipDIP)
+    {
+        Logging::LogDebug() << "Skipping closet draw !";
+        return S_OK;
+    }
 
 	IsDrawCalled = true;
 
@@ -3213,6 +3226,8 @@ HRESULT m_IDirect3DDevice8::GetVertexShader(THIS_ DWORD* pHandle)
 HRESULT m_IDirect3DDevice8::SetVertexShader(THIS_ DWORD Handle)
 {
 	Logging::LogDebug() << __FUNCTION__;
+
+    gClosetVSShader = (Handle == 0) ? gClosetVSShader : Handle;
 
 	return ProxyInterface->SetVertexShader(Handle);
 }

@@ -227,6 +227,7 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClCompile Include="Patches\LabyrinthElevatorVolumeFix.cpp" />
     <ClCompile Include="Patches\LeaveEndingDrawDistance.cpp" />
     <ClCompile Include="Patches\LowHealthIndicator.cpp" />
+    <ClCompile Include="Patches\MapMeshToggle.cpp" />
     <ClCompile Include="Patches\MapTranscription.cpp" />
     <ClCompile Include="Patches\DelayedFadeIn.cpp" />
     <ClCompile Include="Patches\FmvSubtitles.cpp" />

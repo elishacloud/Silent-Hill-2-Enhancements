@@ -21,10 +21,18 @@
 #include "Logging\Logging.h"
 
 constexpr int kMetEddieGameFlag = 0x55;
+constexpr int kUsedBlueGemFirstTimeGameFlag = 0x2D5;
+constexpr int kUsedBlueGemSecondTimeGameFlag = 0x2D6;
+constexpr int kUsedVideoTapeGameFlag = 0x1DB;
 
 BYTE* GameFlagPtr = 0;
 void(*shDisplayControlEntry)(uint32_t*, uint32_t, int);
 void(*shDisplayControlExec)(uint32_t*);
+
+void* jmpHospitalGardenHandlerReturnAddr1 = nullptr;
+void* jmpHospitalGardenHandlerReturnAddr2 = nullptr;
+void* jmpHotelRoom312HandlerReturnAddr1 = nullptr;
+void* jmpHotelRoom312HandlerReturnAddr2 = nullptr;
 
 bool IsGameFlagSet(int flag)
 {
@@ -59,6 +67,70 @@ __declspec(naked) void __stdcall BlueCreek1FHandlerASM()
 	}
 }
 
+// Shows a hint in the hospital garden that suggests using the blue gem (first time).
+void HospitalGardenDisplayControl()
+{
+	uint32_t display_list[] = { 0, 0, 0 };
+	const bool has_blue_gem = (InventoryItemPointer()[0x07] & 0x40) > 0;
+	shDisplayControlEntry(display_list, /*room=*/0xAA, /*no=*/has_blue_gem ? 0 : -1);
+	shDisplayControlExec(display_list);
+}
+
+__declspec(naked) void __stdcall HospitalGardenHandlerASM()
+{
+	__asm
+	{
+		cmp eax, 0x49
+		jnz ExitASM
+		call HospitalGardenDisplayControl
+		jmp jmpHospitalGardenHandlerReturnAddr1
+
+	ExitASM:
+		jmp jmpHospitalGardenHandlerReturnAddr2
+	}
+}
+
+// Shows a hint on the shipping dock that suggests using the blue gem (second time).
+void ShippingDockDisplayControl()
+{
+	uint32_t display_list[] = { 0, 0, 0 };
+	shDisplayControlEntry(display_list, /*room=*/0x01, /*no=*/IsGameFlagSet(kUsedBlueGemFirstTimeGameFlag) ? 0 : -1);
+	shDisplayControlExec(display_list);
+}
+
+__declspec(naked) void __stdcall ShippingDockHandlerASM()
+{
+	__asm
+	{
+		call ShippingDockDisplayControl
+		ret
+	}
+}
+
+// Shows a hint in Lakeview Hotel Room 312 that suggests using the blue gem (third time).
+void HotelRoom312DisplayControl()
+{
+	uint32_t display_list[] = { 0, 0, 0 };
+	const bool show_hint = IsGameFlagSet(kUsedBlueGemSecondTimeGameFlag) && !IsGameFlagSet(kUsedVideoTapeGameFlag);
+	shDisplayControlEntry(display_list, /*room=*/0x5B, /*no=*/show_hint ? 0 : -1);
+	shDisplayControlExec(display_list);
+}
+
+__declspec(naked) void __stdcall HotelRoom312HandlerASM()
+{
+	__asm
+	{
+		cmp eax, 0xA2
+		mov dword ptr ds : [esp], 0x00
+		jnz ExitASM
+		call HotelRoom312DisplayControl
+		jmp jmpHotelRoom312HandlerReturnAddr1
+
+	ExitASM:
+		jmp jmpHotelRoom312HandlerReturnAddr2
+	}
+}
+
 // Toggles visibility of map meshes if certain conditions are met.
 void PatchMapMeshToggle()
 {
@@ -74,20 +146,40 @@ void PatchMapMeshToggle()
 	const BYTE BlueCreek1FHandlerSearchBytes[]{ 0xC1, 0xE8, 0x0E, 0xF7, 0xD0, 0x83, 0xE0, 0x01 };
 	const DWORD BlueCreek1FHandlerAddr = SearchAndGetAddresses(0x0059864A, 0x00598EFA, 0x0059881A, BlueCreek1FHandlerSearchBytes, sizeof(BlueCreek1FHandlerSearchBytes), 0x29, __FUNCTION__);
 
-	if (!StageDataAddr || !DisplayControlAddr || !GameFlagPtr || !BlueCreek1FHandlerAddr)
+	const BYTE HospitalGardenHandlerSearchBytes[]{ 0x83, 0xF8, 0x49, 0x0F, 0x85, 0x4E, 0x01, 0x00, 0x00 };
+	const DWORD HospitalGardenHandlerAddr = SearchAndGetAddresses(0x0058BFFC, 0x0058C8AC, 0x0058C1CC, HospitalGardenHandlerSearchBytes, sizeof(HospitalGardenHandlerSearchBytes), 0x00, __FUNCTION__);
+
+	const BYTE ShippingDockHandlerSearchBytes[]{ 0x50, 0x68, 0xF0, 0x3C, 0x00, 0x00, 0xE8 };
+	const DWORD ShippingDockHandlerAddr = SearchAndGetAddresses(0x0057ED1E, 0x0057F5CE, 0x0057EEEE, ShippingDockHandlerSearchBytes, sizeof(ShippingDockHandlerSearchBytes), 0x0F, __FUNCTION__);
+
+	const BYTE HotelRoom312HandlerSearchBytes[] { 0x3D, 0xA2, 0x00, 0x00, 0x00, 0xC7, 0x44, 0x24, 0x00, 0x00, 0x00, 0x00, 0x00 };
+	const DWORD HotelRoom312HandlerAddr = SearchAndGetAddresses(0x00578788, 0x00579038, 0x00578958, HotelRoom312HandlerSearchBytes, sizeof(HotelRoom312HandlerSearchBytes), 0x00, __FUNCTION__);
+
+	if (!StageDataAddr || !DisplayControlAddr || !GameFlagPtr || !BlueCreek1FHandlerAddr || !HospitalGardenHandlerAddr || !ShippingDockHandlerAddr || !HotelRoom312HandlerAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
 
 	const DWORD Hospital1FStageDataAddr = *(DWORD*)(StageDataAddr + 0x96);
+	jmpHospitalGardenHandlerReturnAddr1 = (void*)(HospitalGardenHandlerAddr + 0x09);
+	jmpHospitalGardenHandlerReturnAddr2 = (void*)(HospitalGardenHandlerAddr + 0x157);
+	jmpHotelRoom312HandlerReturnAddr1 = (void*)(HotelRoom312HandlerAddr + 0x0F);
+	jmpHotelRoom312HandlerReturnAddr2 = (void*)(HotelRoom312HandlerAddr + 0x89);
+	const DWORD ShippingDockInjectAddr = *(DWORD*)(ShippingDockHandlerAddr) + ShippingDockHandlerAddr + 0xC4;
 
 	shDisplayControlEntry = (void(*)(uint32_t*, uint32_t, int))(DisplayControlAddr + 0x04 + *(DWORD*)DisplayControlAddr);
 	shDisplayControlExec = (void(*)(uint32_t*))(DisplayControlAddr + 0x8C + *(DWORD*)(DisplayControlAddr + 0x88));
 
 	Logging::Log() << "Patching various map mesh toggles...";
 
+	// Use display control function directly for stages that do not have a handler function.
 	DWORD* Hospital1FDisplayControlAddr = (DWORD*)Hospital1FDisplayControl;
+
+	// Inject custom display control into existing stage handlers.
 	UpdateMemoryAddress((void*)(Hospital1FStageDataAddr + 0x20), &Hospital1FDisplayControlAddr, sizeof(DWORD*));
 	WriteJMPtoMemory((BYTE*)BlueCreek1FHandlerAddr, BlueCreek1FHandlerASM, 0x05);
+	WriteJMPtoMemory((BYTE*)HospitalGardenHandlerAddr, HospitalGardenHandlerASM, 0x09);
+	WriteJMPtoMemory((BYTE*)ShippingDockInjectAddr, ShippingDockHandlerASM, 0x05);
+	WriteJMPtoMemory((BYTE*)HotelRoom312HandlerAddr, HotelRoom312HandlerASM, 0x0F);
 }

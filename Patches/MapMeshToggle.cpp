@@ -28,6 +28,7 @@ constexpr int kUsedVideoTapeGameFlag = 0x1DB;
 BYTE* GameFlagPtr = 0;
 void(*shDisplayControlEntry)(uint32_t*, uint32_t, int);
 void(*shDisplayControlExec)(uint32_t*);
+WORD* HotelRoom312MemoFlagAddr = 0;
 
 void* jmpHospitalGardenHandlerReturnAddr1 = nullptr;
 void* jmpHospitalGardenHandlerReturnAddr2 = nullptr;
@@ -114,6 +115,9 @@ void HotelRoom312DisplayControl()
 	const bool show_hint = IsGameFlagSet(kUsedBlueGemSecondTimeGameFlag) && !IsGameFlagSet(kUsedVideoTapeGameFlag);
 	shDisplayControlEntry(display_list, /*room=*/0x5B, /*no=*/show_hint ? 0 : -1);
 	shDisplayControlExec(display_list);
+
+	// Disable memo text in Lakeview Hotel Room 312 while the hint is visible.
+	*HotelRoom312MemoFlagAddr = show_hint ? kUsedBlueGemSecondTimeGameFlag : 0;
 }
 
 __declspec(naked) void __stdcall HotelRoom312HandlerASM()
@@ -162,11 +166,13 @@ void PatchMapMeshToggle()
 	}
 
 	const DWORD Hospital1FStageDataAddr = *(DWORD*)(StageDataAddr + 0x96);
+	const DWORD Hotel3FStageDataAddr = *(DWORD*)(StageDataAddr + 0x108);
 	jmpHospitalGardenHandlerReturnAddr1 = (void*)(HospitalGardenHandlerAddr + 0x09);
 	jmpHospitalGardenHandlerReturnAddr2 = (void*)(HospitalGardenHandlerAddr + 0x157);
 	jmpHotelRoom312HandlerReturnAddr1 = (void*)(HotelRoom312HandlerAddr + 0x0F);
 	jmpHotelRoom312HandlerReturnAddr2 = (void*)(HotelRoom312HandlerAddr + 0x89);
 	const DWORD ShippingDockInjectAddr = *(DWORD*)(ShippingDockHandlerAddr) + ShippingDockHandlerAddr + 0xC4;
+	HotelRoom312MemoFlagAddr = (WORD*)(*(DWORD*)Hotel3FStageDataAddr + 0x130);
 
 	shDisplayControlEntry = (void(*)(uint32_t*, uint32_t, int))(DisplayControlAddr + 0x04 + *(DWORD*)DisplayControlAddr);
 	shDisplayControlExec = (void(*)(uint32_t*))(DisplayControlAddr + 0x8C + *(DWORD*)(DisplayControlAddr + 0x88));

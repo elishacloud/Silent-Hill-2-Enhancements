@@ -24,6 +24,8 @@ constexpr int kMetEddieGameFlag = 0x55;
 constexpr int kUsedBlueGemFirstTimeGameFlag = 0x2D5;
 constexpr int kUsedBlueGemSecondTimeGameFlag = 0x2D6;
 constexpr int kUsedVideoTapeGameFlag = 0x1DB;
+constexpr int kPlacedCopperRingGameFlag = 0xE3;
+constexpr int kPlacedLeadRingGameFlag = 0xE4;
 
 BYTE* GameFlagPtr = 0;
 void(*shDisplayControlEntry)(uint32_t*, uint32_t, int);
@@ -34,6 +36,8 @@ void* jmpHospitalGardenHandlerReturnAddr1 = nullptr;
 void* jmpHospitalGardenHandlerReturnAddr2 = nullptr;
 void* jmpHotelRoom312HandlerReturnAddr1 = nullptr;
 void* jmpHotelRoom312HandlerReturnAddr2 = nullptr;
+void* jmpHospital3FHandlerReturnAddr1 = nullptr;
+void* jmpHospital3FHandlerReturnAddr2 = nullptr;
 
 bool IsGameFlagSet(int flag)
 {
@@ -120,6 +124,48 @@ void HotelRoom312DisplayControl()
 	*HotelRoom312MemoFlagAddr = show_hint ? kUsedBlueGemSecondTimeGameFlag : 0;
 }
 
+// Shows the lead and copper rings on the Otherworld Hospital 3F stairwell door when
+// placed on the protruding hands.
+void Hospital3FDisplayControl()
+{
+	uint32_t display_list[] = { 0, 0, 0 };
+	const bool placed_copper_ring = IsGameFlagSet(kPlacedCopperRingGameFlag);
+	const bool placed_lead_ring = IsGameFlagSet(kPlacedLeadRingGameFlag);
+	if (placed_copper_ring)
+	{
+		shDisplayControlEntry(display_list, /*room=*/0xD6, /*no=*/0);
+	}
+	if (placed_lead_ring)
+	{
+		shDisplayControlEntry(display_list, /*room=*/0xD6, /*no=*/1);
+	}
+	if (!placed_copper_ring && !placed_lead_ring)
+	{
+		shDisplayControlEntry(display_list, /*room=*/0xD6, /*no=*/-1);
+	}
+	shDisplayControlExec(display_list);
+}
+
+__declspec(naked) void __stdcall Hospital3FHandlerASM()
+{
+	__asm
+	{
+		push eax
+		cmp eax, 0x57
+		jne ExitASM
+		call Hospital3FDisplayControl
+
+	ExitASM:
+		pop eax
+		sub eax, 0x54
+		jz ExitASM2
+		jmp jmpHospital3FHandlerReturnAddr1
+
+	ExitASM2:
+		jmp jmpHospital3FHandlerReturnAddr2
+	}
+}
+
 __declspec(naked) void __stdcall HotelRoom312HandlerASM()
 {
 	__asm
@@ -159,7 +205,10 @@ void PatchMapMeshToggle()
 	const BYTE HotelRoom312HandlerSearchBytes[] { 0x3D, 0xA2, 0x00, 0x00, 0x00, 0xC7, 0x44, 0x24, 0x00, 0x00, 0x00, 0x00, 0x00 };
 	const DWORD HotelRoom312HandlerAddr = SearchAndGetAddresses(0x00578788, 0x00579038, 0x00578958, HotelRoom312HandlerSearchBytes, sizeof(HotelRoom312HandlerSearchBytes), 0x00, __FUNCTION__);
 
-	if (!StageDataAddr || !DisplayControlAddr || !GameFlagPtr || !BlueCreek1FHandlerAddr || !HospitalGardenHandlerAddr || !ShippingDockHandlerAddr || !HotelRoom312HandlerAddr)
+	const BYTE Hospital3FHandlerSearchBytes[]{ 0x83, 0xE8, 0x54, 0x0F, 0x84, 0xBD, 0x00, 0x00, 0x00, 0x48 };
+	const DWORD Hospital3FHandlerAddr = SearchAndGetAddresses(0x00589DE0, 0x0058A690, 0x00589FB0, Hospital3FHandlerSearchBytes, sizeof(Hospital3FHandlerSearchBytes), 0x00, __FUNCTION__);
+
+	if (!StageDataAddr || !DisplayControlAddr || !GameFlagPtr || !BlueCreek1FHandlerAddr || !HospitalGardenHandlerAddr || !ShippingDockHandlerAddr || !HotelRoom312HandlerAddr || !Hospital3FHandlerAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
@@ -171,6 +220,8 @@ void PatchMapMeshToggle()
 	jmpHospitalGardenHandlerReturnAddr2 = (void*)(HospitalGardenHandlerAddr + 0x157);
 	jmpHotelRoom312HandlerReturnAddr1 = (void*)(HotelRoom312HandlerAddr + 0x0F);
 	jmpHotelRoom312HandlerReturnAddr2 = (void*)(HotelRoom312HandlerAddr + 0x89);
+	jmpHospital3FHandlerReturnAddr1 = (void*)(Hospital3FHandlerAddr + 0x09);
+	jmpHospital3FHandlerReturnAddr2 = (void*)(Hospital3FHandlerAddr + 0xC6);
 	const DWORD ShippingDockInjectAddr = *(DWORD*)(ShippingDockHandlerAddr) + ShippingDockHandlerAddr + 0xC4;
 	HotelRoom312MemoFlagAddr = (WORD*)(*(DWORD*)Hotel3FStageDataAddr + 0x130);
 
@@ -188,4 +239,5 @@ void PatchMapMeshToggle()
 	WriteJMPtoMemory((BYTE*)HospitalGardenHandlerAddr, HospitalGardenHandlerASM, 0x09);
 	WriteJMPtoMemory((BYTE*)ShippingDockInjectAddr, ShippingDockHandlerASM, 0x05);
 	WriteJMPtoMemory((BYTE*)HotelRoom312HandlerAddr, HotelRoom312HandlerASM, 0x0F);
+	WriteJMPtoMemory((BYTE*)Hospital3FHandlerAddr, Hospital3FHandlerASM, 0x09);
 }

@@ -49,6 +49,8 @@ bool IsGameFlagSet(int flag)
 // after the hospital chase.
 void Hospital1FDisplayControl()
 {
+	if (GetRoomID() != R_HSP_ALT_LOBBY) return;
+
 	uint32_t display_list[] = { 0, 0, 0 };
 	shDisplayControlEntry(display_list, /*room=*/0x97, /*no=*/GetCutsceneID() == CS_HSP_ALT_RPT_CHASE_3 ? 1 : 0);
 	shDisplayControlExec(display_list);

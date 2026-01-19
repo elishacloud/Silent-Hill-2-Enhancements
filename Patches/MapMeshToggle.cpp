@@ -26,6 +26,7 @@ constexpr int kUsedBlueGemSecondTimeGameFlag = 0x2D6;
 constexpr int kUsedVideoTapeGameFlag = 0x1DB;
 constexpr int kPlacedCopperRingGameFlag = 0xE3;
 constexpr int kPlacedLeadRingGameFlag = 0xE4;
+constexpr int kEnteredApartmentGate = 0x31;
 
 BYTE* GameFlagPtr = 0;
 void(*shDisplayControlEntry)(uint32_t*, uint32_t, int);
@@ -124,8 +125,23 @@ void HotelRoom312DisplayControl()
 	*HotelRoom312MemoFlagAddr = show_hint ? kUsedBlueGemSecondTimeGameFlag : 0;
 }
 
-// Shows the lead and copper rings on the Otherworld Hospital 3F stairwell door when
-// placed on the protruding hands.
+__declspec(naked) void __stdcall HotelRoom312HandlerASM()
+{
+	__asm
+	{
+		cmp eax, 0xA2
+		mov dword ptr ds : [esp], 0x00
+		jnz ExitASM
+		call HotelRoom312DisplayControl
+		jmp jmpHotelRoom312HandlerReturnAddr1
+
+		ExitASM :
+		jmp jmpHotelRoom312HandlerReturnAddr2
+	}
+}
+
+// Shows the lead and copper rings on the hands of the Otherworld Hospital 3F
+// stairwell door.
 void Hospital3FDisplayControl()
 {
 	uint32_t display_list[] = { 0, 0, 0 };
@@ -166,19 +182,14 @@ __declspec(naked) void __stdcall Hospital3FHandlerASM()
 	}
 }
 
-__declspec(naked) void __stdcall HotelRoom312HandlerASM()
+// Shows a hint in the motorhome before visiting the apartments.
+void MotorhomeDisplayControl()
 {
-	__asm
-	{
-		cmp eax, 0xA2
-		mov dword ptr ds : [esp], 0x00
-		jnz ExitASM
-		call HotelRoom312DisplayControl
-		jmp jmpHotelRoom312HandlerReturnAddr1
+	if (GetRoomID() != R_MOTORHOME) return;
 
-	ExitASM:
-		jmp jmpHotelRoom312HandlerReturnAddr2
-	}
+	uint32_t display_list[] = { 0, 0, 0 };
+	shDisplayControlEntry(display_list, /*room=*/0x05, /*no=*/IsGameFlagSet(kEnteredApartmentGate) ? -1 : 0);
+	shDisplayControlExec(display_list);
 }
 
 // Toggles visibility of map meshes if certain conditions are met.
@@ -216,6 +227,7 @@ void PatchMapMeshToggle()
 
 	const DWORD Hospital1FStageDataAddr = *(DWORD*)(StageDataAddr + 0x96);
 	const DWORD Hotel3FStageDataAddr = *(DWORD*)(StageDataAddr + 0x108);
+	const DWORD MotorhomeStageDataAddr = *(DWORD*)(StageDataAddr + 0x18);
 	jmpHospitalGardenHandlerReturnAddr1 = (void*)(HospitalGardenHandlerAddr + 0x09);
 	jmpHospitalGardenHandlerReturnAddr2 = (void*)(HospitalGardenHandlerAddr + 0x157);
 	jmpHotelRoom312HandlerReturnAddr1 = (void*)(HotelRoom312HandlerAddr + 0x0F);
@@ -232,9 +244,11 @@ void PatchMapMeshToggle()
 
 	// Use display control function directly for stages that do not have a handler function.
 	DWORD* Hospital1FDisplayControlAddr = (DWORD*)Hospital1FDisplayControl;
+	DWORD* MotorhomeDisplayControlAddr = (DWORD*)MotorhomeDisplayControl;
+	UpdateMemoryAddress((void*)(Hospital1FStageDataAddr + 0x20), &Hospital1FDisplayControlAddr, sizeof(DWORD*));
+	UpdateMemoryAddress((void*)(MotorhomeStageDataAddr + 0x20), &MotorhomeDisplayControlAddr, sizeof(DWORD*));
 
 	// Inject custom display control into existing stage handlers.
-	UpdateMemoryAddress((void*)(Hospital1FStageDataAddr + 0x20), &Hospital1FDisplayControlAddr, sizeof(DWORD*));
 	WriteJMPtoMemory((BYTE*)BlueCreek1FHandlerAddr, BlueCreek1FHandlerASM, 0x05);
 	WriteJMPtoMemory((BYTE*)HospitalGardenHandlerAddr, HospitalGardenHandlerASM, 0x09);
 	WriteJMPtoMemory((BYTE*)ShippingDockInjectAddr, ShippingDockHandlerASM, 0x05);

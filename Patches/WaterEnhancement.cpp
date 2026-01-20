@@ -25,6 +25,8 @@ DWORD vsDeclWater[] = {
 // eax == 3
 //eax, dword ptr[eax * 4 + 1DB9288h]
 static DWORD* g_vsHandles = nullptr;
+static BYTE* g_cemeteryWaterPlaneCheckFirstAddr = nullptr;
+static BYTE* g_cemeteryWaterPlaneCheckSecondAddr = nullptr;
 
 #define WATER_VSHADER_ORIGINAL  (g_vsHandles[3])
 #define WATER_FVF               (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
@@ -486,16 +488,44 @@ void PatchWaterEnhancement()
     {
     case SH2V_10:
         g_vsHandles = reinterpret_cast<DWORD*>(0x1DB9288);
+        g_cemeteryWaterPlaneCheckFirstAddr = reinterpret_cast<BYTE*>(0x004D41A8 - 0x3C);
+        g_cemeteryWaterPlaneCheckSecondAddr = reinterpret_cast<BYTE*>(0x004D41A8 - 0x25);
         break;
     case SH2V_11:
         g_vsHandles = reinterpret_cast<DWORD*>(0x1DBCE88);
+        g_cemeteryWaterPlaneCheckFirstAddr = reinterpret_cast<BYTE*>(0x004D4458 - 0x3C);
+        g_cemeteryWaterPlaneCheckSecondAddr = reinterpret_cast<BYTE*>(0x004D4458 - 0x25);
         break;
     case SH2V_DC:
         g_vsHandles = reinterpret_cast<DWORD*>(0x1DBBE88);
+        g_cemeteryWaterPlaneCheckFirstAddr = reinterpret_cast<BYTE*>(0x004D3D18 - 0x3C);
+        g_cemeteryWaterPlaneCheckSecondAddr = reinterpret_cast<BYTE*>(0x004D3D18 - 0x25);
         break;
     case SH2V_UNKNOWN:
         Logging::Log() << __FUNCTION__ << " Error: unknown game version!";
         WaterEnhancedRender = false;
         return;
     }
+}
+
+void CheckCemeteryWaterCulling()
+{
+    if (!WaterEnhancedRender)
+		return;
+
+	static bool cemeteryWaterCullingDisabled = false;
+
+    if (!cemeteryWaterCullingDisabled && GetRoomID() == R_FOREST_CEMETERY) 
+    {
+
+		UpdateMemoryAddress(g_cemeteryWaterPlaneCheckFirstAddr, "\x01", 1);
+        UpdateMemoryAddress(g_cemeteryWaterPlaneCheckSecondAddr, "\x01", 1);
+        cemeteryWaterCullingDisabled = true;
+	}
+    else if (cemeteryWaterCullingDisabled && GetRoomID() != R_FOREST_CEMETERY) 
+    {
+        UpdateMemoryAddress(g_cemeteryWaterPlaneCheckFirstAddr, "\x00", 1);
+        UpdateMemoryAddress(g_cemeteryWaterPlaneCheckSecondAddr, "\x00", 1);
+        cemeteryWaterCullingDisabled = false;
+	}
 }

@@ -2775,6 +2775,10 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		{
 			RunPlayLyingFigureSounds();
 		}
+		if (ClosetCutsceneBonusAudio)
+		{
+			RunPlayClosetCutsceneBonusAudio();
+		}
 
 		// Volume fixes for chainsaw sound effects
 		if (ChainsawSoundFix)

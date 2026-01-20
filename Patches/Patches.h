@@ -769,6 +769,7 @@ void RunLightingTransition();
 void RunMariaSpawnFix();
 void RunPlayFlashlightSounds();
 void RunPlayLyingFigureSounds();
+void RunPlayClosetCutsceneBonusAudio();
 void RunQuickSaveTweaks();
 void RunQuickSaveCancelFix();
 void RunRoomLighting();

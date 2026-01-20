@@ -13,6 +13,7 @@
 	visit(ChangeClosetSpawn, true) \
 	visit(CheckCompatibilityMode, true) \
 	visit(CheckForAdminAccess, true) \
+	visit(ClosetCutsceneBonusAudio, true) \
 	visit(ClosetCutsceneFix, true) \
 	visit(CommandWindowMouseFix, true) \
     visit(CockroachesReplacement, true) \
@@ -231,6 +232,7 @@
 	visit(AntiAliasing) \
 	visit(AudioFadeOutDelayMS) \
 	visit(ChainsawSoundFix) \
+	visit(ClosetCutsceneBonusAudio) \
 	visit(CommandWindowMouseFix) \
 	visit(CustomFontCharHeight) \
 	visit(CustomFontCharWidth) \

@@ -593,12 +593,6 @@ HRESULT m_IDirect3DDevice9::GetClipPlane(DWORD Index, float *pPlane)
 
 HRESULT m_IDirect3DDevice9::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value)
 {
-	if (State == D3DRS_DEPTHBIAS)
-	{
-		float fValue = *reinterpret_cast<float*>(&Value) / 30.0f;
-		Value = *reinterpret_cast<DWORD*>(&fValue);
-	}
-
 	return ProxyInterface->SetRenderState(State, Value);
 }
 

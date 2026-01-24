@@ -107,6 +107,7 @@
 	visit(MainMenuFix, true) \
 	visit(MainMenuInstantLoadOptions, true) \
 	visit(MainMenuTitlePerLang, true) \
+	visit(MapMeshToggle, true) \
 	visit(MariaSpawnFix, true) \
 	visit(MemoScreenFix, true) \
 	visit(MenuSoundsFix, true) \
@@ -272,6 +273,7 @@
 	visit(LimitPerFrameFPS) \
 	visit(LoadModulesFromMemory) \
 	visit(LockResolution) \
+	visit(MapMeshToggle) \
 	visit(MariaSpawnFix) \
 	visit(MusicBoxVolume) \
 	visit(NormalFontHeight) \

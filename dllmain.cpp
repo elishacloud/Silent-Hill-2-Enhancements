@@ -836,10 +836,16 @@ void DelayedStart()
 		PatchWoodsideMannequinState();
 	}
 
-	// Play a quieter music box track in certain rooms of the Lakeview Hotel.
+	// Play a quieter music box track in certain rooms of the Lakeview Hotel
 	if (MusicBoxVolume)
 	{
 		PatchMusicBoxVolume();
+	}
+
+	// Toggle map mesh visibility in certain rooms based on game flags or gameplay status
+	if (MapMeshToggle)
+	{
+		PatchMapMeshToggle();
 	}
 	
 	// Remove the "Now loading..." and "Press Return to continue." messages

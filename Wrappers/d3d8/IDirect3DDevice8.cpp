@@ -2792,6 +2792,9 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 			RunMariaSpawnFix();
 		}
 
+		// Extend cutscene between Eddia and Laura in the bowling alley.
+		RunEddieLauraCutscene();
+
 		NeedToGrabScreenForWater = true;
 		RoachesDrawingCounter = 0;
 	}

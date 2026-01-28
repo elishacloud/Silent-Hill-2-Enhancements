@@ -841,6 +841,12 @@ void DelayedStart()
 	{
 		PatchMusicBoxVolume();
 	}
+
+	// Restore the fade-out in the cutscene between Eddie and Laura in the bowling alley.
+	if (EddieLauraCutscene)
+	{
+		PatchEddieLauraCutscene();
+	}
 	
 	// Remove the "Now loading..." and "Press Return to continue." messages
 	if (DisableLoadingPressReturnMessages)

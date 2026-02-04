@@ -52,6 +52,9 @@ void *jmpEddieBossDeathAddr;
 void *jmpEddieBossDeathTimerAddr;
 void *jmpFleshLipsBossDeathReturnAddr1;
 void *jmpFleshLipsBossDeathReturnAddr2;
+void *jmpFleshLipsBossCutsceneBlurFactorReturnAddr1;
+void *jmpFleshLipsBossCutsceneBlurFactorReturnAddr2;
+void *jmpMotionBlurTexAlphaReturnAddr;
 void* jmpToMariaFadeOutAddr;
 void* jmpWorkingPuzzleFadeOutFunction;
 
@@ -266,8 +269,32 @@ __declspec(naked) void __stdcall FleshLipsBossDeathASM()
 __declspec(naked) void __stdcall FleshLipsBossCutsceneBlurFactorASM()
 {
 	__asm {
+		test eax, eax
+		jz ExitASM
 		mov eax, dword ptr ds : [FleshLipsCutsceneMotionBlurFactor]
-		ret
+		jmp jmpFleshLipsBossCutsceneBlurFactorReturnAddr1
+
+	ExitASM:
+		jmp jmpFleshLipsBossCutsceneBlurFactorReturnAddr2
+	}
+}
+
+// Fixes the texture factor for motion blur for specific cutscenes.
+__declspec(naked) void __stdcall MotionBlurTexAlphaASM()
+{
+	__asm {
+		or esi, ebp
+		push edx
+		mov edx, dword ptr ds : [CutsceneIDAddr]
+		cmp dword ptr ds : [edx], CS_HSP_BOSS_FINISH
+		pop edx
+		jne ExitASM
+		mov esi, ebp
+		or esi, 01
+
+	ExitASM:
+		call dword ptr ds : [ecx + 0xC8]
+		jmp jmpMotionBlurTexAlphaReturnAddr
 	}
 }
 
@@ -382,13 +409,15 @@ void PatchSpecialFX()
 	jmpFleshLipsBossDeathReturnAddr2 = (void*)(FleshLipsBossDeathPtr + 0x62);
 
 	// Get Flesh Lips Post-Boss Cutscene address
-	constexpr BYTE SearchBytesFleshLipsBossCutscene[]{ 0x85, 0xC0, 0x74, 0x16, 0xD9, 0x05 };
-	const DWORD FleshLipsBossCutscenePtr = SearchAndGetAddresses(0x0058B831, 0x0058C0E1, 0x0058BA01, SearchBytesFleshLipsBossCutscene, sizeof(SearchBytesFleshLipsBossCutscene), 0x04, __FUNCTION__);
+	constexpr BYTE SearchBytesFleshLipsBossCutscene[]{ 0x25, 0xFF, 0xFD, 0xFF, 0xFF, 0x83, 0xC4, 0x24 };
+	const DWORD FleshLipsBossCutscenePtr = SearchAndGetAddresses(0x0058B795, 0x0058C045, 0x0058B965, SearchBytesFleshLipsBossCutscene, sizeof(SearchBytesFleshLipsBossCutscene), 0xA0, __FUNCTION__);
 	if (!FleshLipsBossCutscenePtr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
+	jmpFleshLipsBossCutsceneBlurFactorReturnAddr1 = (void*)(FleshLipsBossCutscenePtr + 0x0B);
+	jmpFleshLipsBossCutsceneBlurFactorReturnAddr2 = (void*)(FleshLipsBossCutscenePtr + 0x16);
 
 	// Get motion blur texture alpha correction address
 	constexpr BYTE SearchBytesMotionBlurTexAlpha[]{ 0x8B, 0x08, 0x6A, 0x01, 0x6A, 0x1B, 0xC1, 0xE5, 0x19 };
@@ -398,6 +427,7 @@ void PatchSpecialFX()
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
 	}
+	jmpMotionBlurTexAlphaReturnAddr = (void*)(MotionBlurTexAlphaPtr + 0x08);
 
 	// Get room ID address
 	GetRoomIDPointer();
@@ -500,10 +530,11 @@ void PatchSpecialFX()
 	UpdateMemoryAddress((BYTE*)(FleshLipsBossDeathPtr - 0x14), "\x90\x90\x90\x90\x90", 5);
 
 	// Write Flesh Lips Post-Boss Cutscene Motion Blur Correction address
-	WriteCalltoMemory((BYTE*)FleshLipsBossCutscenePtr, FleshLipsBossCutsceneBlurFactorASM, 11);
+	WriteJMPtoMemory((BYTE*)FleshLipsBossCutscenePtr, FleshLipsBossCutsceneBlurFactorASM, 11);
+	UpdateMemoryAddress((BYTE*)(FleshLipsBossCutscenePtr - 0x01), "\x00", 1);
 
 	// Write motion blur texture alpha correction address
-	UpdateMemoryAddress((BYTE*)MotionBlurTexAlphaPtr, "\x8B", 1);
+	WriteJMPtoMemory((BYTE*)MotionBlurTexAlphaPtr, *MotionBlurTexAlphaASM, 8);
 
 	// Write CutSceme Fadeout Addr
 	WriteJMPtoMemory((BYTE*)MariaFadeOutFixAddr, *MariaCutsceneFadeoutASM, 5);

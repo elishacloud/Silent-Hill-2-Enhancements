@@ -5,7 +5,8 @@
 #include <vector>
 #include <cstdint>
 #include <string>
-#include "Common/Settings.h"
+#include "Common\FileSystemHooks.h"
+#include "Common\Settings.h"
 #include "Patches.h"
 #include "InputTweaks.h"
 #include <shlwapi.h>
@@ -414,7 +415,7 @@ static void InjectAction()
 }
 
 // Called from InputTweaks when player presses Skip during sequence
-extern "C" void StopAutoplayImmediate()
+void StopAutoplayImmediate()
 {
     Logging::LogDebug() << __FUNCTION__ << "stopping autoplay.";
 
@@ -504,7 +505,7 @@ void PatchUnusedAudio()
     g_dllDir = s;
 
     Logging::LogDebug() << __FUNCTION__ << "Starting PlayUnusedAudio...";
-    voicepath = g_dllDir + "\\sh2e\\sound\\adx\\voice\\voice.afs";
+    voicepath = g_dllDir + "\\" + GetModPath("") + "\\sound\\adx\\voice\\voice.afs";
     {
         std::ifstream test(voicepath, std::ios::binary);
         if (!test.is_open()) 

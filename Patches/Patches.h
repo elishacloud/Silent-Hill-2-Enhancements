@@ -626,6 +626,7 @@ void SetResolutionPatch();
 void SetRoom312Resolution(void *WidthAddress);
 void UnhookWindowHandle();
 void ValidateBinary();
+void StopAutoplayImmediate();
 
 void Patch2TBHardDrive();
 void PatchAdvancedOptions();

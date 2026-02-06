@@ -17,8 +17,8 @@
 #include "External\injector\include\injector\injector.hpp"
 #include "External\injector\include\injector\utility.hpp"
 #include "External\Hooking.Patterns\Hooking.Patterns.h"
+#include "Patches\Patches.h"
 #include "InputTweaks.h"
-extern "C" void StopAutoplayImmediate();
 
 InputTweaks InputTweaksRef;
 KeyBindsHandler KeyBinds;

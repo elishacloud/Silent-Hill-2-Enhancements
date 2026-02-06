@@ -36,6 +36,7 @@
 	visit(DisplayModeOption, true) \
     visit(DogRoomEnhanced, true) \
 	visit(DynamicResolution, true) \
+	visit(EddieLauraCutscene, true) \
 	visit(EnableDebugOverlay, true) \
 	visit(EnableEnhancedMouse, true) \
 	visit(EnableHoldToStomp, true) \
@@ -246,6 +247,7 @@
 	visit(DisableLogging) \
 	visit(DisableRedCross) \
 	visit(DogRoomEnhanced) \
+	visit(EddieLauraCutscene) \
 	visit(EnableDebugOverlay) \
 	visit(EnableInfoOverlay) \
 	visit(EnableScreenshots) \

@@ -626,6 +626,7 @@ void SetResolutionPatch();
 void SetRoom312Resolution(void *WidthAddress);
 void UnhookWindowHandle();
 void ValidateBinary();
+void StopAutoplayImmediate();
 
 void Patch2TBHardDrive();
 void PatchAdvancedOptions();
@@ -722,6 +723,7 @@ void PatchTexAddr();
 void PatchTownGateEvents();
 void PatchTreeLighting();
 void PatchVHSAudio();
+void PatchUnusedAudio();
 void PatchWaterDrawOrderFix();
 void PatchWindowIcon();
 void PatchWindowTitle();

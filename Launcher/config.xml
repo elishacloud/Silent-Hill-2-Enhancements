@@ -464,6 +464,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="PlayUnusedAudio">
+        <Title>Laura's Letter Unused Audio</Title>
+        <Description>In the cutscene where James reads Laura's letter, the unused audio of Mary reading the letter will play.</Description>
+        <Choices type="check">
+          <Value name="Disable" default="true">0</Value>
+          <Value name="Enable">1</Value>
+        </Choices>
+      </Feature>
+
     </Section>
 
   </Tab>

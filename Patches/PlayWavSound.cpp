@@ -34,11 +34,14 @@ const char* LoadGameWav = "\\sound\\extra\\g_start.wav";
 const char* FlashLightOnWav = "\\sound\\extra\\flashlight_on.wav";
 const char* FlashLightOffWav = "\\sound\\extra\\flashlight_off.wav";
 const char* LyingFigureFootstepWav = "\\sound\\extra\\machi.wav";
+const char* ClosetCutsceneBonusAudioWav = "\\sound\\extra\\sankaku_toujyou_2.wav";
+const char* ClosetCutsceneBonusAudioGlb = "\\model\\b_doo.glb";
 
 constexpr DWORD SaveID = 0;
 constexpr DWORD LoadID = 1;
 constexpr DWORD FlashlightID = 2;
 constexpr DWORD FootstepsID = 3;
+constexpr DWORD ClosetCutsceneID = 3;
 
 static int32_t PlaySaveSound(int32_t SoundId, float volume, DWORD param3)
 {
@@ -296,5 +299,49 @@ void RunPlayLyingFigureSounds()
 		DWORD Value = 0x00002EF3;
 		UpdateMemoryAddress(LyingFigureFootstepSFX, &Value, sizeof(Value));
 		m_IDirectSound8::StopWavFile(FootstepsID);
+	}
+}
+
+void RunPlayClosetCutsceneBonusAudio()
+{
+	// Checking wav file
+	static bool wavFound = false;
+	RUNCODEONCE(
+		if (PathFileExistsA((std::string(GetModPath("")) + ClosetCutsceneBonusAudioWav).c_str()))
+		{
+			wavFound = true;
+		});
+	if (!wavFound)
+	{
+		LOG_ONCE(__FUNCTION__ " Error: ClosetCutsceneBonusAudioWav file not found!");
+		return;
+	}
+
+	// Checking glb file
+	static bool glbFound = false;
+	RUNCODEONCE(
+		if (PathFileExistsA((std::string(GetModPath("")) + ClosetCutsceneBonusAudioGlb).c_str()))
+		{
+			glbFound = true;
+		});
+	if (!glbFound)
+	{
+		LOG_ONCE(__FUNCTION__ " Error: 'b_doo.glb' file not found!");
+		return;
+	}
+
+	static bool MatchFound = false;
+	if (GetCutsceneID() == CS_APT_RPT_CLOSET && GetCutsceneTimer() > 1900.0f)
+	{
+		if (!MatchFound)
+		{
+			MatchFound = true;
+			m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + ClosetCutsceneBonusAudioWav).c_str(), ClosetCutsceneID);
+		}
+	}
+	else if (MatchFound)
+	{
+		MatchFound = false;
+		m_IDirectSound8::StopWavFile(ClosetCutsceneID);
 	}
 }

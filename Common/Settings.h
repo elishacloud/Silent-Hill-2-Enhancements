@@ -13,6 +13,7 @@
 	visit(ChangeClosetSpawn, true) \
 	visit(CheckCompatibilityMode, true) \
 	visit(CheckForAdminAccess, true) \
+	visit(ClosetCutsceneBonusAudio, true) \
 	visit(ClosetCutsceneFix, true) \
 	visit(CommandWindowMouseFix, true) \
     visit(CockroachesReplacement, true) \
@@ -35,6 +36,7 @@
 	visit(DisplayModeOption, true) \
     visit(DogRoomEnhanced, true) \
 	visit(DynamicResolution, true) \
+	visit(EddieLauraCutscene, true) \
 	visit(EnableDebugOverlay, true) \
 	visit(EnableEnhancedMouse, true) \
 	visit(EnableHoldToStomp, true) \
@@ -155,7 +157,8 @@
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, true) \
-	visit(WoodsideRoom205Fix, true)
+	visit(WoodsideRoom205Fix, true) \
+    visit(PlayUnusedAudio, false)
 
 #define VISIT_INT_SETTINGS(visit) \
 	visit(AnisotropicFiltering, 0) \
@@ -232,6 +235,7 @@
 	visit(AntiAliasing) \
 	visit(AudioFadeOutDelayMS) \
 	visit(ChainsawSoundFix) \
+	visit(ClosetCutsceneBonusAudio) \
 	visit(CommandWindowMouseFix) \
 	visit(CustomFontCharHeight) \
 	visit(CustomFontCharWidth) \
@@ -244,6 +248,7 @@
 	visit(DisableLogging) \
 	visit(DisableRedCross) \
 	visit(DogRoomEnhanced) \
+	visit(EddieLauraCutscene) \
 	visit(EnableDebugOverlay) \
 	visit(EnableInfoOverlay) \
 	visit(EnableScreenshots) \

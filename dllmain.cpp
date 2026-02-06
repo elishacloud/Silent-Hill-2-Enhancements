@@ -847,6 +847,12 @@ void DelayedStart()
 	{
 		PatchMapMeshToggle();
 	}
+
+	// Restore the fade-out in the cutscene between Eddie and Laura in the bowling alley.
+	if (EddieLauraCutscene)
+	{
+		PatchEddieLauraCutscene();
+	}
 	
 	// Remove the "Now loading..." and "Press Return to continue." messages
 	if (DisableLoadingPressReturnMessages)
@@ -882,6 +888,13 @@ void DelayedStart()
 
 		BYTE Value = 0;
 		UpdateMemoryAddress(pHotelMap, &Value, sizeof(Value));
+	}
+
+	// === Set PlayUnusedAudio ===
+	if (PlayUnusedAudio)
+	{
+		PatchUnusedAudio();
+		Logging::Log() << "PlayUnusedAudio monitor thread initialized!";
 	}
 
 	// Flush cache

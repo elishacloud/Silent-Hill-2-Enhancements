@@ -165,6 +165,7 @@ private:
 	bool FleshRoomFix();
 	bool SetRMBAimFunction();
 	bool IsMovementPressed();
+	bool IsInputBlocked();
 
 public:
 	void SetKeyboardInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);

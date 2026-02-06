@@ -684,6 +684,7 @@ void PatchLowHealthIndicator();
 void PatchMainMenu();
 void PatchMainMenuInstantLoadOptions();
 void PatchMainMenuTitlePerLang();
+void PatchMapMeshToggle();
 void PatchMapTranscription();
 HRESULT PatchMasterVolumeSlider();
 void PatchMemoBrightnes();

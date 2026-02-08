@@ -503,6 +503,33 @@
     <ClCompile Include="Patches\EddieLauraCutscene.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="ReShade\stb\stb_impl.c">
+      <Filter>External\stb</Filter>
+    </ClCompile>
+    <ClCompile Include="External\reshade\source\effect_codegen_glsl.cpp">
+      <Filter>External\ReShadeFX</Filter>
+    </ClCompile>
+    <ClCompile Include="External\reshade\source\effect_codegen_hlsl.cpp">
+      <Filter>External\ReShadeFX</Filter>
+    </ClCompile>
+    <ClCompile Include="External\reshade\source\effect_codegen_spirv.cpp">
+      <Filter>External\ReShadeFX</Filter>
+    </ClCompile>
+    <ClCompile Include="External\reshade\source\effect_expression.cpp">
+      <Filter>External\ReShadeFX</Filter>
+    </ClCompile>
+    <ClCompile Include="External\reshade\source\effect_lexer.cpp">
+      <Filter>External\ReShadeFX</Filter>
+    </ClCompile>
+    <ClCompile Include="External\reshade\source\effect_parser.cpp">
+      <Filter>External\ReShadeFX</Filter>
+    </ClCompile>
+    <ClCompile Include="External\reshade\source\effect_preprocessor.cpp">
+      <Filter>External\ReShadeFX</Filter>
+    </ClCompile>
+    <ClCompile Include="External\reshade\source\effect_symbol_table.cpp">
+      <Filter>External\ReShadeFX</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">
@@ -751,6 +778,42 @@
     <ClInclude Include="Patches\ActorDrawingHook.h">
       <Filter>Patches</Filter>
     </ClInclude>
+    <ClInclude Include="External\reshade\deps\stb\stb_image.h">
+      <Filter>External\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="External\reshade\deps\stb_image_dds\stb_image_dds.h">
+      <Filter>External\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="External\reshade\deps\stb\stb_image_resize.h">
+      <Filter>External\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="External\reshade\deps\stb\stb_image_write.h">
+      <Filter>External\stb</Filter>
+    </ClInclude>
+    <ClInclude Include="External\reshade\source\effect_codegen.hpp">
+      <Filter>External\ReShadeFX</Filter>
+    </ClInclude>
+    <ClInclude Include="External\reshade\source\effect_expression.hpp">
+      <Filter>External\ReShadeFX</Filter>
+    </ClInclude>
+    <ClInclude Include="External\reshade\source\effect_lexer.hpp">
+      <Filter>External\ReShadeFX</Filter>
+    </ClInclude>
+    <ClInclude Include="External\reshade\source\effect_module.hpp">
+      <Filter>External\ReShadeFX</Filter>
+    </ClInclude>
+    <ClInclude Include="External\reshade\source\effect_parser.hpp">
+      <Filter>External\ReShadeFX</Filter>
+    </ClInclude>
+    <ClInclude Include="External\reshade\source\effect_preprocessor.hpp">
+      <Filter>External\ReShadeFX</Filter>
+    </ClInclude>
+    <ClInclude Include="External\reshade\source\effect_symbol_table.hpp">
+      <Filter>External\ReShadeFX</Filter>
+    </ClInclude>
+    <ClInclude Include="External\reshade\source\effect_token.hpp">
+      <Filter>External\ReShadeFX</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\sh2-enhce.rc">
@@ -772,6 +835,9 @@
     </None>
     <None Include="Resources\ReShade.ini">
       <Filter>Common</Filter>
+    </None>
+    <None Include="External\reshade\source\effect_symbol_table_intrinsics.inl">
+      <Filter>External\ReShadeFX</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -840,6 +906,12 @@
     </Filter>
     <Filter Include="Include\criware">
       <UniqueIdentifier>{5448b3d6-8d77-4320-8d53-37aed07543cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\stb">
+      <UniqueIdentifier>{b7006d68-4201-4019-a4c0-fd203185682f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\ReShadeFX">
+      <UniqueIdentifier>{0ee99de9-f725-4c28-a9fd-389662cbcd5a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

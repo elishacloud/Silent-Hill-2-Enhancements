@@ -40,6 +40,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="ReShade\spirv.props" />
     <Import Project="ReShade\stb\stb.props" />
     <Import Project="External\dsoal\openal\common.props" />
     <Import Project="External\dsoal\openal\OpenAL.props" />
@@ -163,14 +164,6 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ProjectReference Include="ReShade\stb\stb.vcxproj">
-      <Project>{723bdef8-4a39-4961-bdab-54074012ff47}</Project>
-    </ProjectReference>
-    <ProjectReference Include="ReShade\ReShadeFX\ReShadeFX.vcxproj">
-      <Project>{d1c2099b-bec7-4993-8947-01d4a1f7eae2}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="Common\AutoUpdate.cpp" />
     <ClCompile Include="Common\FileSystemHooks.cpp" />
     <ClCompile Include="Common\GfxUtils.cpp" />
@@ -194,6 +187,14 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClCompile Include="External\Hooking\Hook.cpp" />
     <ClCompile Include="External\Hooking\HotPatch.cpp" />
     <ClCompile Include="External\Logging\Logging.cpp" />
+    <ClCompile Include="External\reshade\source\effect_codegen_glsl.cpp" />
+    <ClCompile Include="External\reshade\source\effect_codegen_hlsl.cpp" />
+    <ClCompile Include="External\reshade\source\effect_codegen_spirv.cpp" />
+    <ClCompile Include="External\reshade\source\effect_expression.cpp" />
+    <ClCompile Include="External\reshade\source\effect_lexer.cpp" />
+    <ClCompile Include="External\reshade\source\effect_parser.cpp" />
+    <ClCompile Include="External\reshade\source\effect_preprocessor.cpp" />
+    <ClCompile Include="External\reshade\source\effect_symbol_table.cpp" />
     <ClCompile Include="External\WidescreenFixesPack\source\SilentHill2.WidescreenFix\dllmain.cpp" />
     <ClCompile Include="Include\criware\criware_adx.cpp" />
     <ClCompile Include="Include\criware\criware_adxfic.cpp" />
@@ -311,6 +312,7 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClCompile Include="Patches\WaterDrawOrderFix.cpp" />
     <ClCompile Include="Patches\WaterEnhancement.cpp" />
     <ClCompile Include="Patches\WoodsideMannequinState.cpp" />
+    <ClCompile Include="ReShade\stb\stb_impl.c" />
     <ClCompile Include="WidescreenFixesPack\WidescreenFixesPack.cpp" />
     <ClCompile Include="Wrappers\d3d8to9.cpp" />
     <ClCompile Include="Wrappers\d3d8\d3d8wrapper.cpp" />
@@ -369,6 +371,18 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClInclude Include="External\Hooking\Disasm.h" />
     <ClInclude Include="External\Hooking\Hook.h" />
     <ClInclude Include="External\Logging\Logging.h" />
+    <ClInclude Include="External\reshade\deps\stb\stb_image.h" />
+    <ClInclude Include="External\reshade\deps\stb\stb_image_resize.h" />
+    <ClInclude Include="External\reshade\deps\stb\stb_image_write.h" />
+    <ClInclude Include="External\reshade\deps\stb_image_dds\stb_image_dds.h" />
+    <ClInclude Include="External\reshade\source\effect_codegen.hpp" />
+    <ClInclude Include="External\reshade\source\effect_expression.hpp" />
+    <ClInclude Include="External\reshade\source\effect_lexer.hpp" />
+    <ClInclude Include="External\reshade\source\effect_module.hpp" />
+    <ClInclude Include="External\reshade\source\effect_parser.hpp" />
+    <ClInclude Include="External\reshade\source\effect_preprocessor.hpp" />
+    <ClInclude Include="External\reshade\source\effect_symbol_table.hpp" />
+    <ClInclude Include="External\reshade\source\effect_token.hpp" />
     <ClInclude Include="Include\criware\criware.h" />
     <ClInclude Include="Include\criware\criware_adx.h" />
     <ClInclude Include="Include\criware\criware_adxfic.h" />
@@ -450,6 +464,7 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="Common\Settings.ini" />
+    <None Include="External\reshade\source\effect_symbol_table_intrinsics.inl" />
     <None Include="Resources\ReShade.ini" />
     <None Include="Wrappers\wrapper.def" />
   </ItemGroup>

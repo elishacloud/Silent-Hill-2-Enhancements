@@ -75,7 +75,7 @@ static void StopAlertSound()
         g_pBuffer->Stop();
         g_pBuffer->Release();
         g_pBuffer = nullptr;
-        Logging::LogDebug() << __FUNCTION__ << "buffer stopped and released.";
+        Logging::LogDebug() << __FUNCTION__ << " buffer stopped and released.";
     }
 }
 
@@ -94,7 +94,7 @@ static bool EnsureDirectSoundInitialized()
     HRESULT hr = DSOAL_DirectSoundCreate8(nullptr, &pDS, nullptr);
     if (FAILED(hr) || !pDS)
     {
-        Logging::LogDebug() << __FUNCTION__ << "DSOAL_DirectSoundCreate8 failed hr=0x%08X";
+        Logging::LogDebug() << __FUNCTION__ << " DSOAL_DirectSoundCreate8 failed hr=0x%08X";
         return false;
     }
 
@@ -104,7 +104,7 @@ static bool EnsureDirectSoundInitialized()
 
     // keep global
     g_pDS = pDS;
-    Logging::LogDebug() << __FUNCTION__ << "DirectSound device created.";
+    Logging::LogDebug() << __FUNCTION__ << " DirectSound device created.";
     return true;
 }
 
@@ -170,7 +170,7 @@ static bool PlayWavWithDirectSound(const WAVEFORMATEX* wf, const BYTE* audioData
     HRESULT hr = g_pDS->CreateSoundBuffer(&desc, &localBuffer, nullptr);
     if (FAILED(hr))
     {
-        Logging::LogDebug() << __FUNCTION__ << "CreateSoundBuffer failed (hr=0x%08X)", (unsigned)hr;
+        Logging::LogDebug() << __FUNCTION__ << " CreateSoundBuffer failed (hr=0x%08X)", (unsigned)hr;
         return false;
     }
 
@@ -179,7 +179,7 @@ static bool PlayWavWithDirectSound(const WAVEFORMATEX* wf, const BYTE* audioData
     hr = localBuffer->Lock(0, audioSize, &p1, &b1, &p2, &b2, 0);
     if (FAILED(hr)) 
     {
-        Logging::LogDebug() << __FUNCTION__ << "Lock failed (hr=0x%08X)", (unsigned)hr;
+        Logging::LogDebug() << __FUNCTION__ << " Lock failed (hr=0x%08X)", (unsigned)hr;
         return false;  
     }
 
@@ -190,14 +190,14 @@ static bool PlayWavWithDirectSound(const WAVEFORMATEX* wf, const BYTE* audioData
     hr = localBuffer->Play(0, 0, 0);
     if (FAILED(hr))
     {
-        Logging::LogDebug() << __FUNCTION__ << "Lock failed (hr=0x%08X)", (unsigned)hr;
+        Logging::LogDebug() << __FUNCTION__ << " Lock failed (hr=0x%08X)", (unsigned)hr;
         return false;
     }
 
     // Transfer ownership
     g_pBuffer = localBuffer.ptr;
     localBuffer.ptr = nullptr;
-    Logging::LogDebug() << __FUNCTION__ << "playback OK (%u bytes).", audioSize;
+    Logging::LogDebug() << __FUNCTION__ << " playback OK (%u bytes).", audioSize;
     return true;
 }
 
@@ -208,7 +208,7 @@ static void PlayWavFromMemoryRange(BYTE* wavBuf, size_t wavSize, float startSec,
 {
     if (!wavBuf || wavSize < 44) 
     {
-        Logging::LogDebug() << __FUNCTION__ << "invalid buffer/size";
+        Logging::LogDebug() << __FUNCTION__ << " invalid buffer/size";
         return; 
     }
 
@@ -217,14 +217,14 @@ static void PlayWavFromMemoryRange(BYTE* wavBuf, size_t wavSize, float startSec,
 
     if (fmtSize < 16 || !wf->nSamplesPerSec || !wf->wBitsPerSample) 
     { 
-        Logging::LogDebug() << __FUNCTION__ << "invalid WAV header.";
+        Logging::LogDebug() << __FUNCTION__ << " invalid WAV header.";
         return; 
     }
 
     DWORD dataPos = 20 + fmtSize + 8;
     if (dataPos >= wavSize) 
     { 
-        Logging::LogDebug() << __FUNCTION__ << "dataPos >= wavSize";
+        Logging::LogDebug() << __FUNCTION__ << " dataPos >= wavSize";
         return; 
     }
 
@@ -239,7 +239,7 @@ static void PlayWavFromMemoryRange(BYTE* wavBuf, size_t wavSize, float startSec,
     if (end > audioSize) end = audioSize;
     if (end <= start) 
     { 
-        Logging::LogDebug() << __FUNCTION__ << "invalid PCM range.";
+        Logging::LogDebug() << __FUNCTION__ << " invalid PCM range.";
     return;
     }
 
@@ -253,10 +253,10 @@ static void PlayWavFromMemoryRange(BYTE* wavBuf, size_t wavSize, float startSec,
 
     if (!PlayWavWithDirectSound(wf, pcm.data(), playLen)) 
     { 
-        Logging::LogDebug() << __FUNCTION__ << "ERROR: DirectSound failed to play PCM.";
+        Logging::LogDebug() << __FUNCTION__ << " ERROR: DirectSound failed to play PCM.";
         return; 
     }
-    Logging::LogDebug() << __FUNCTION__ << "playback OK.";
+    Logging::LogDebug() << __FUNCTION__ << " playback OK.";
 }
 
 static void InitVoiceAFS()
@@ -264,24 +264,24 @@ static void InitVoiceAFS()
     std::vector<BYTE> buf;
     if (!LoadFileToMemory(voicepath, buf)) 
     { 
-        Logging::LogDebug() << __FUNCTION__ << "failed to open AFS file.";
+        Logging::LogDebug() << __FUNCTION__ << " failed to open AFS file.";
         return; 
     }
     if (buf.size() < 16 || memcmp(buf.data(), "AFS\0", 4) != 0) 
     { 
-        Logging::LogDebug() << __FUNCTION__ << "invalid AFS file.";
+        Logging::LogDebug() << __FUNCTION__ << " invalid AFS file.";
         return; 
     }
 
     uint32_t fileCount = *(uint32_t*)(buf.data() + 4);
-    Logging::LogDebug() << __FUNCTION__ << "fileCount=%u", fileCount;
+    Logging::LogDebug() << __FUNCTION__ << " fileCount=%u", fileCount;
 
 
     size_t tableStart = 8;
     size_t tableSize = (size_t)fileCount * 8;
     if (tableStart + tableSize > buf.size()) 
     { 
-        Logging::LogDebug() << __FUNCTION__ << "offset/size table exceeds file size.";
+        Logging::LogDebug() << __FUNCTION__ << " offset/size table exceeds file size.";
         return; 
     }
 
@@ -292,22 +292,22 @@ static void InitVoiceAFS()
         g_afsTable[i].offset = *(uint32_t*)(buf.data() + p);
         g_afsTable[i].size = *(uint32_t*)(buf.data() + p + 4);
     }
-    Logging::LogDebug() << __FUNCTION__ << "offset/size table loaded.";
+    Logging::LogDebug() << __FUNCTION__ << " offset/size table loaded.";
 }
 
 static bool PlayVoiceAfs(uint32_t index, float startSec, float endSec)
 {
     if (index >= g_afsTable.size()) 
     { 
-        Logging::LogDebug() << __FUNCTION__ << "invalid index %u", index;
+        Logging::LogDebug() << __FUNCTION__ << " invalid index %u", index;
         return false; 
     }
     const AfsEntry& e = g_afsTable[index];
-    Logging::LogDebug() << __FUNCTION__ << "index=%u offset=0x%X size=%u", index, e.offset, e.size;
+    Logging::LogDebug() << __FUNCTION__ << " index=%u offset=0x%X size=%u", index, e.offset, e.size;
     std::ifstream f(voicepath, std::ios::binary);
     if (!f.is_open()) 
     { 
-        Logging::LogDebug() << __FUNCTION__ << "cannot open AFS.";
+        Logging::LogDebug() << __FUNCTION__ << " cannot open AFS.";
 
         return false; 
     }
@@ -316,7 +316,7 @@ static bool PlayVoiceAfs(uint32_t index, float startSec, float endSec)
     std::vector<BYTE> wavData(e.size);
     if (!f.read((char*)wavData.data(), e.size)) 
     { 
-        Logging::LogDebug() << __FUNCTION__ << "reading block failed.";
+        Logging::LogDebug() << __FUNCTION__ << " reading block failed.";
         return false; 
     }
 
@@ -359,7 +359,7 @@ void ResolveLastTextPtr()
 
     if (!addr)
     {
-        Logging::LogDebug() << __FUNCTION__ << "Could not locate last-text address pattern!";
+        Logging::LogDebug() << __FUNCTION__ << " Could not locate last-text address pattern!";
         return;
     }
 
@@ -367,14 +367,14 @@ void ResolveLastTextPtr()
 
     g_lastTextValuePtr = (volatile WORD*)absolute;
 
-    Logging::LogDebug() << __FUNCTION__ << "Resolved last-text ptr = %p", g_lastTextValuePtr;
+    Logging::LogDebug() << __FUNCTION__ << " Resolved last-text ptr = %p", g_lastTextValuePtr;
 }
 
 void SetLastTextValueTo9()
 {
     if (!g_lastTextValuePtr)
     {
-        Logging::LogDebug() << __FUNCTION__ << "pointer unresolved";
+        Logging::LogDebug() << __FUNCTION__ << " pointer unresolved";
         return;
     }
 
@@ -385,11 +385,11 @@ void SetLastTextValueTo9()
         *g_lastTextValuePtr = 9;
         MemoryBarrier();
         VirtualProtect((LPVOID)g_lastTextValuePtr, sizeof(WORD), oldProtect, &oldProtect);
-        Logging::LogDebug() << __FUNCTION__ << "wrote 9 to %p", g_lastTextValuePtr;
+        Logging::LogDebug() << __FUNCTION__ << " wrote 9 to %p", g_lastTextValuePtr;
     }
     else
     {
-        Logging::LogDebug() << __FUNCTION__ << "VirtualProtect failed", g_lastTextValuePtr;
+        Logging::LogDebug() << __FUNCTION__ << " VirtualProtect failed", g_lastTextValuePtr;
     }
 }
 
@@ -417,7 +417,7 @@ static void InjectAction()
 // Called from InputTweaks when player presses Skip during sequence
 void StopAutoplayImmediate()
 {
-    Logging::LogDebug() << __FUNCTION__ << "stopping autoplay.";
+    Logging::LogDebug() << __FUNCTION__ << " stopping autoplay.";
 
     InterlockedExchange(&g_stopAutoplay, 1);
 
@@ -504,19 +504,19 @@ void PatchUnusedAudio()
     std::string s = path; size_t p = s.find_last_of("\\/"); if (p != std::string::npos) s = s.substr(0, p);
     g_dllDir = s;
 
-    Logging::LogDebug() << __FUNCTION__ << "Starting PlayUnusedAudio...";
+    Logging::LogDebug() << __FUNCTION__ << " Starting PlayUnusedAudio...";
     voicepath = g_dllDir + "\\" + GetModPath("") + "\\sound\\adx\\voice\\voice.afs";
     {
         std::ifstream test(voicepath, std::ios::binary);
-        if (!test.is_open()) 
-        { 
-            Logging::LogDebug() << __FUNCTION__ << "voice.afs NOT found: %s", voicepath.c_str();
-        return; 
+        if (!test.is_open())
+        {
+            Logging::LogDebug() << __FUNCTION__ << " voice.afs NOT found: " << voicepath.c_str();
+            return;
         }
     }
 
     ResolveLastTextPtr();
-    Logging::LogDebug() << __FUNCTION__ << "AFS file found. Continuing...";
+    Logging::LogDebug() << __FUNCTION__ << " AFS file found. Continuing...";
     InitVoiceAFS();
     CreateThread(NULL, 0, AudioMonitorThread, NULL, 0, NULL);
 }

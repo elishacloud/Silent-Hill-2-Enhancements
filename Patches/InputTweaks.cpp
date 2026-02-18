@@ -377,7 +377,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			return;
 		}
 
-		// Clear the the pause button if a quicksave is in progress
+		// Clear the pause button if a quicksave is in progress
 		if (GameLoadFix && (GetIsWritingQuicksave() == 1 || GetTextAddr() == 1))
 			ControllerData->rgbButtons[KeyBinds.GetPauseButtonBind()] = KEY_CLEAR;
 
@@ -386,6 +386,12 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
         {
             ControllerData->rgbButtons[KeyBinds.GetPauseButtonBind()] = KEY_CLEAR;
         }
+
+		// Clear the pause button if motion blur is active during gameplay
+		if (RestoreSpecialFX && IsMotionBlurActive() && GetCutsceneID() == 0 && GetEventIndex() == EVENT_IN_GAME)
+		{
+			ControllerData->rgbButtons[KeyBinds.GetPauseButtonBind()] = KEY_CLEAR;
+		}
 
 		// Clear controller data
 		ControllerData = nullptr;
@@ -659,6 +665,15 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
             ClearKey(KeyBinds.GetKeyBind(KEY_SKIP));
             ClearKey(KeyBinds.GetKeyBind(KEY_CANCEL));
         }
+
+		// Clear all menu keys if motion blur is active during gameplay
+		if (RestoreSpecialFX && IsMotionBlurActive() && GetCutsceneID() == 0 && GetEventIndex() == EVENT_IN_GAME)
+		{
+			ClearKey(KeyBinds.GetKeyBind(KEY_CANCEL));
+			ClearKey(KeyBinds.GetKeyBind(KEY_INVENTORY));
+			ClearKey(KeyBinds.GetKeyBind(KEY_MAP));
+			ClearKey(KeyBinds.GetKeyBind(KEY_SKIP));
+		}
 
 		if (RowboatAnimationFix && (GetBoatFlag() == 0x01 && GetRoomID() == R_TOWN_LAKE))
 		{

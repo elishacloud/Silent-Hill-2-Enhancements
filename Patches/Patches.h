@@ -779,6 +779,8 @@ float GetConditionalFlashlightBrightnessBlue();
 void CheckLakeMoonSize();
 void CheckRoom312Flashlight();
 
+bool IsMotionBlurActive();
+
 // Define the template function declaration
 template<typename T>
 void GetNonScaledResolution(T& Width, T& Height);

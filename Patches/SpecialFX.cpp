@@ -34,6 +34,8 @@ float LyingFigureTunnelCutsceneValue1 = 0;
 float LyingFigureTunnelCutsceneValue2 = 0;
 float HotelRoom312Value1 = 0;
 float HotelRoom312Value2 = 0;
+bool MotionBlurActive = 0;
+void* BlurStateAddr;
 void* FadeOutTypeAddr;
 void* EnemiesRemainingAddr;
 void *jmpCustomAddress2Addr;
@@ -57,6 +59,7 @@ void *jmpFleshLipsBossCutsceneBlurFactorReturnAddr2;
 void *jmpMotionBlurTexAlphaReturnAddr;
 void* jmpToMariaFadeOutAddr;
 void* jmpWorkingPuzzleFadeOutFunction;
+void *jmpMotionBlurActiveReturnAddr;
 
 // Fade out wasn't work when motion blur is on because it was changing type of fade out to 0. I found another memory that can help us too but that didn't work as i expected, so i decided to use like this
 #pragma warning(suppress: 4740)
@@ -298,6 +301,29 @@ __declspec(naked) void __stdcall MotionBlurTexAlphaASM()
 	}
 }
 
+// Tracks whether motion blur is active for the current frame.
+__declspec(naked) void __stdcall MotionBlurActiveASM()
+{
+	__asm {
+		sub esp, 0x08
+		push eax
+		mov eax, dword ptr ds : [BlurStateAddr]
+		cmp dword ptr ds : [eax], 03
+		jne IsActive
+
+		mov byte ptr ds : [MotionBlurActive], 00
+		jmp ExitASM
+
+	IsActive:
+		mov byte ptr ds : [MotionBlurActive], 01
+
+	ExitASM:
+		pop eax
+	    test al, al
+		jmp jmpMotionBlurActiveReturnAddr
+	}
+}
+
 // Patch SH2 code to reenable special FX
 void PatchSpecialFX()
 {
@@ -429,6 +455,24 @@ void PatchSpecialFX()
 	}
 	jmpMotionBlurTexAlphaReturnAddr = (void*)(MotionBlurTexAlphaPtr + 0x08);
 
+	// Get addresses for tracking whether motion blur is active
+	constexpr BYTE SearchBytesBlurState[]{ 0x8B, 0x10, 0x50, 0xFF, 0x92, 0x8C, 0x00, 0x00, 0x00, 0xA1 };
+	BlurStateAddr = (void*)ReadSearchedAddresses(0x00476132, 0x004763D2, 0x004765E2, SearchBytesBlurState, sizeof(SearchBytesBlurState), 0x0A, __FUNCTION__);
+	if (!BlurStateAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+
+	constexpr BYTE SearchBytesMotionBlurActive[]{ 0x83, 0xEC, 0x08, 0x84, 0xC0, 0x0F, 0x85, 0x6B, 0x03, 0x00, 0x00 };
+	const DWORD MotionBlurActiveInjectAddr = SearchAndGetAddresses(0x00479395, 0x00479635, 0x00479845, SearchBytesMotionBlurActive, sizeof(SearchBytesMotionBlurActive), 0x00, __FUNCTION__);
+	if (!MotionBlurActiveInjectAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return;
+	}
+	jmpMotionBlurActiveReturnAddr = (void*)(MotionBlurActiveInjectAddr + 0x05);
+
 	// Get room ID address
 	GetRoomIDPointer();
 
@@ -536,6 +580,9 @@ void PatchSpecialFX()
 	// Write motion blur texture alpha correction address
 	WriteJMPtoMemory((BYTE*)MotionBlurTexAlphaPtr, *MotionBlurTexAlphaASM, 8);
 
+	// Write motion blur active address
+	WriteJMPtoMemory((BYTE*)MotionBlurActiveInjectAddr, *MotionBlurActiveASM, 5);
+
 	// Write CutSceme Fadeout Addr
 	WriteJMPtoMemory((BYTE*)MariaFadeOutFixAddr, *MariaCutsceneFadeoutASM, 5);
 
@@ -586,4 +633,9 @@ void RunHotelRoom312FogVolumeFix()
 	{
 		*Address1 = 0;
 	}
+}
+
+bool IsMotionBlurActive()
+{
+	return MotionBlurActive;
 }

@@ -387,10 +387,12 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
             ControllerData->rgbButtons[KeyBinds.GetPauseButtonBind()] = KEY_CLEAR;
         }
 
-		// Clear the pause button if motion blur is active during gameplay
+		// Clear all menu buttons if motion blur is active during gameplay
 		if (RestoreSpecialFX && IsMotionBlurActive() && GetCutsceneID() == 0 && GetEventIndex() == EVENT_IN_GAME)
 		{
 			ControllerData->rgbButtons[KeyBinds.GetPauseButtonBind()] = KEY_CLEAR;
+			ControllerData->rgbButtons[KeyBinds.GetInventoryButtonBind()] = KEY_CLEAR;
+			ControllerData->rgbButtons[KeyBinds.GetMapButtonBind()] = KEY_CLEAR;
 		}
 
 		// Clear controller data
@@ -1099,6 +1101,16 @@ BYTE KeyBindsHandler::GetKeyBind(int KeyIndex)
 BYTE KeyBindsHandler::GetPauseButtonBind()
 {
 	return *(GetKeyBindsPointer() + 0xF0);
+}
+
+BYTE KeyBindsHandler::GetInventoryButtonBind()
+{
+	return *(GetKeyBindsPointer() + 0x108);
+}
+
+BYTE KeyBindsHandler::GetMapButtonBind()
+{
+	return *(GetKeyBindsPointer() + 0x118);
 }
 
 int CountCollectedMemos()

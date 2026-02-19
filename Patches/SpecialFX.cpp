@@ -250,9 +250,14 @@ __declspec(naked) void __stdcall FleshLipsBossDeathASM()
 		je EnableBlur
 		cmp al, 0x04
 		je EnableBlur
+		cmp al, 0x06
+		je EnableBlur
 		jmp ExitASM
 
 	EnableBlur:
+		call GetCutsceneID
+		test eax, eax
+		jnz ExitASM
 		mov eax, dword ptr ds : [EnemiesRemainingAddr]
 		cmp dword ptr ds : [eax], 0x00
 		jnz ExitASM

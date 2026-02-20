@@ -388,7 +388,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
         }
 
 		// Clear all menu buttons if motion blur is active during gameplay
-		if (RestoreSpecialFX && IsMotionBlurActive() && GetCutsceneID() == 0 && GetEventIndex() == EVENT_IN_GAME)
+		if (IsInBloomEffect && GetCutsceneID() == 0 && GetEventIndex() == EVENT_IN_GAME)
 		{
 			ControllerData->rgbButtons[KeyBinds.GetPauseButtonBind()] = KEY_CLEAR;
 			ControllerData->rgbButtons[KeyBinds.GetInventoryButtonBind()] = KEY_CLEAR;
@@ -669,7 +669,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
         }
 
 		// Clear all menu keys if motion blur is active during gameplay
-		if (RestoreSpecialFX && IsMotionBlurActive() && GetCutsceneID() == 0 && GetEventIndex() == EVENT_IN_GAME)
+		if (IsInBloomEffect && GetCutsceneID() == 0 && GetEventIndex() == EVENT_IN_GAME)
 		{
 			ClearKey(KeyBinds.GetKeyBind(KEY_CANCEL));
 			ClearKey(KeyBinds.GetKeyBind(KEY_INVENTORY));

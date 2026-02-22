@@ -234,6 +234,7 @@ __declspec(naked) void __stdcall EddieBossDeathASM()
 		push esi
 		jmp jmpEddieBossDeathAddr
 	MotionTimer:
+		call callEnMotionBlurAddr  // maintain motion blur before cutscene plays
 		jmp jmpEddieBossDeathTimerAddr
 	}
 }
@@ -529,6 +530,7 @@ void PatchSpecialFX()
 
 	// Write Eddie Boss Death Sequence address
 	WriteJMPtoMemory((BYTE*)EddieBossDeathPtr, *EddieBossDeathASM, 5);
+	UpdateMemoryAddress((BYTE*)(EddieBossDeathPtr + 0x37), "\x90\x90\x90\x90\x90", 5);
 	
 	// Write Flesh Lips Boss Death Motion Blur Correction address
 	WriteJMPtoMemory((BYTE*)FleshLipsBossDeathPtr, *FleshLipsBossDeathASM, 6);

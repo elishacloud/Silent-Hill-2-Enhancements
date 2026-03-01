@@ -464,6 +464,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="PlayUnusedAudio">
+        <Title>Usare l'audio inutilizzato della lettera di Laura.</Title>
+        <Description>Nella cutscene in cui James legge la lettera di Laura, verrà riprodotto l'audio inutilizzato di Mary che legge la lettera.</Description>
+        <Choices type="check">
+          <Value name="Disable" default="true">0</Value>
+          <Value name="Enable">1</Value>
+        </Choices>
+      </Feature>
+
     </Section>
 
   </Tab>

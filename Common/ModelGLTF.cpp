@@ -782,7 +782,10 @@ void ModelGLTF::XFormVertices(const D3DXMATRIX& globalXForm, T* dstVertices) {
 
                     D3DXVECTOR4 temp;
                     D3DXVec3Transform(&temp, &srcVertices[section.vbOffset + j].pos, &skinMat);
-                    D3DXVec3TransformNormal(&skinnedNorm, &srcVertices[section.vbOffset + j].normal, &skinMat);
+
+                    D3DXMATRIX skinMatInv, skinMatInvTrans;
+                    D3DXMatrixTranspose(&skinMatInvTrans, D3DXMatrixInverse(&skinMatInv, nullptr, &skinMat));
+                    D3DXVec3TransformNormal(&skinnedNorm, &srcVertices[section.vbOffset + j].normal, &skinMatInvTrans);
 
                     skinnedPos.x = temp.x;
                     skinnedPos.y = temp.y;
@@ -796,14 +799,16 @@ void ModelGLTF::XFormVertices(const D3DXMATRIX& globalXForm, T* dstVertices) {
                 }
 
                 D3DXVECTOR4 xformedV;
-                D3DXVECTOR3 xformedN;
+                D3DXVECTOR3 xformedN, xformedNNorm;
                 D3DXVec3Transform(&xformedV, vpos, &fullXForm);
                 D3DXVec3TransformNormal(&xformedN, vnorm, &fullXFormTI);
+
+                D3DXVec3Normalize(&xformedNNorm, &xformedN);
 
                 dstVertices[section.vbOffset + j].pos.x = xformedV.x;
                 dstVertices[section.vbOffset + j].pos.y = xformedV.y;
                 dstVertices[section.vbOffset + j].pos.z = xformedV.z;
-                dstVertices[section.vbOffset + j].normal = xformedN;
+                dstVertices[section.vbOffset + j].normal = xformedNNorm;
             }
         }
     }

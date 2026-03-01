@@ -32,149 +32,152 @@ void RunClosetDoorReplacementUpdateFunc();
 // ASM function to update to Fix RPT Apartment Closet Cutscene blur
 __declspec(naked) void __stdcall ClosetCutsceneASM()
 {
-	__asm
-	{
-		push edx
-		mov edx, dword ptr ds : [CutsceneIDAddr]	// moves cutscene ID pointer to edx
-		cmp dword ptr ds : [edx], CS_APT_RPT_CLOSET
-		jne near NotInCutscene
-		push eax
-		mov edx, dword ptr ds : [CutscenePosAddr]	// moves cutscene camera pos ID pointer to edx
-		mov eax, dword ptr ds : [ClosetCutsceneCameraPos]
-		cmp dword ptr ds : [edx], eax
-		pop eax
-		je near ExitASM
+    __asm
+    {
+        push edx
+        mov edx, dword ptr ds : [CutsceneIDAddr]	// moves cutscene ID pointer to edx
+        cmp dword ptr ds : [edx], CS_APT_RPT_CLOSET
+        jne near NotInCutscene
+        push eax
+        mov edx, dword ptr ds : [CutscenePosAddr]	// moves cutscene camera pos ID pointer to edx
+        mov eax, dword ptr ds : [ClosetCutsceneCameraPos]
+        cmp dword ptr ds : [edx], eax
+        pop eax
+        je near ExitASM
 
-	NotInCutscene:
-		mov edx, dword ptr ds : [ClosetCutsceneObject]
-		mov dword ptr ds : [edx], eax
+    NotInCutscene:
+        mov edx, dword ptr ds : [ClosetCutsceneObject]
+        mov dword ptr ds : [edx], eax
 
-	ExitASM:
-		pop edx
-		jmp jmpClosetCutsceneReturnAddr
-	}
+    ExitASM:
+        pop edx
+        jmp jmpClosetCutsceneReturnAddr
+    }
 }
 
 // Update SH2 code to Fix RPT Apartment Closet Cutscene blur
 void SetClosetCutscene()
 {
-	// Get Apartment Closet Cutscene address
-	constexpr BYTE SearchBytesClosetCutscene[]{ 0xFF, 0xFF, 0x90, 0x90, 0x8A, 0x4C, 0x24, 0x08, 0xB8, 0x05, 0x00, 0x00, 0x00, 0xA3 };
-	DWORD ClosetCutsceneAddr = SearchAndGetAddresses(0x0047832C, 0x004785CC, 0x004787DC, SearchBytesClosetCutscene, sizeof(SearchBytesClosetCutscene), 0x17, __FUNCTION__);
-	if (!ClosetCutsceneAddr)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
-		return;
-	}
-	jmpClosetCutsceneReturnAddr = (void*)(ClosetCutsceneAddr + 0x05);
-	memcpy(&ClosetCutsceneObject, (void*)(ClosetCutsceneAddr + 0x01), sizeof(DWORD));
+    // Get Apartment Closet Cutscene address
+    constexpr BYTE SearchBytesClosetCutscene[]{ 0xFF, 0xFF, 0x90, 0x90, 0x8A, 0x4C, 0x24, 0x08, 0xB8, 0x05, 0x00, 0x00, 0x00, 0xA3 };
+    DWORD ClosetCutsceneAddr = SearchAndGetAddresses(0x0047832C, 0x004785CC, 0x004787DC, SearchBytesClosetCutscene, sizeof(SearchBytesClosetCutscene), 0x17, __FUNCTION__);
+    if (!ClosetCutsceneAddr)
+    {
+        Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+        return;
+    }
+    jmpClosetCutsceneReturnAddr = (void*)(ClosetCutsceneAddr + 0x05);
+    memcpy(&ClosetCutsceneObject, (void*)(ClosetCutsceneAddr + 0x01), sizeof(DWORD));
 
-	// Get cutscene ID address
-	GetCutsceneIDPointer();
+    // Get cutscene ID address
+    GetCutsceneIDPointer();
 
-	// Get cutscene camera pos address
-	GetCutscenePosPointer();
+    // Get cutscene camera pos address
+    GetCutscenePosPointer();
 
-	// Checking address pointer
-	if (!CutscenePosAddr || !CutsceneIDAddr)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to get room ID or cutscene ID address!";
-		return;
-	}
+    // Checking address pointer
+    if (!CutscenePosAddr || !CutsceneIDAddr)
+    {
+        Logging::Log() << __FUNCTION__ << " Error: failed to get room ID or cutscene ID address!";
+        return;
+    }
 
-	// Update SH2 code
-	Logging::Log() << "Setting RPT Apartment Closet Cutscene Fix...";
-	WriteJMPtoMemory((BYTE*)ClosetCutsceneAddr, *ClosetCutsceneASM, 0x05);
+    // Update SH2 code
+    Logging::Log() << "Setting RPT Apartment Closet Cutscene Fix...";
+    WriteJMPtoMemory((BYTE*)ClosetCutsceneAddr, *ClosetCutsceneASM, 0x05);
 }
 
 // Run SH2 code to Fix RPT Apartment Closet Cutscene
 void RunClosetCutscene()
 {
-	// Update SH2 code to enable Lighting Transition fix
-	RUNCODEONCE(SetClosetCutscene());
+    if (ClosetCutsceneFix)
+    {
+        // Update SH2 code to enable Lighting Transition fix
+        RUNCODEONCE(SetClosetCutscene());
 
-	// Get Address1
-	static DWORD Address1 = NULL;
-	if (!Address1)
-	{
-		RUNONCE();
+        // Get Address1
+        static DWORD Address1 = NULL;
+        if (!Address1)
+        {
+            RUNONCE();
 
-		// Get Room 312 Shadow address
-		constexpr BYTE SearchBytes[]{ 0x7C, 0xDC, 0xB0, 0x0C, 0x5F, 0xC6, 0x05 };
-		Address1 = ReadSearchedAddresses(0x004799D4, 0x00479C74, 0x00479E84, SearchBytes, sizeof(SearchBytes), 0x07, __FUNCTION__);
+            // Get Room 312 Shadow address
+            constexpr BYTE SearchBytes[]{ 0x7C, 0xDC, 0xB0, 0x0C, 0x5F, 0xC6, 0x05 };
+            Address1 = ReadSearchedAddresses(0x004799D4, 0x00479C74, 0x00479E84, SearchBytes, sizeof(SearchBytes), 0x07, __FUNCTION__);
 
-		// Checking address pointer
-		if (!Address1)
-		{
-			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
-			return;
-		}
-	}
+            // Checking address pointer
+            if (!Address1)
+            {
+                Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+                return;
+            }
+        }
 
-	// Get Address3
-	static DWORD Address3 = NULL;
-	if (!Address3)
-	{
-		RUNONCE();
+        // Get Address3
+        static DWORD Address3 = NULL;
+        if (!Address3)
+        {
+            RUNONCE();
 
-		// Get Room 312 Shadow address
-		constexpr BYTE SearchBytes[]{ 0x5E, 0x83, 0xC4, 0x10, 0xC3, 0xC6, 0x46, 0x07, 0x00, 0x8B, 0x15 };
-		Address3 = ReadSearchedAddresses(0x0043F9BF, 0x0043FB7F, 0x0043FB7F, SearchBytes, sizeof(SearchBytes), -0x1B, __FUNCTION__);
+            // Get Room 312 Shadow address
+            constexpr BYTE SearchBytes[]{ 0x5E, 0x83, 0xC4, 0x10, 0xC3, 0xC6, 0x46, 0x07, 0x00, 0x8B, 0x15 };
+            Address3 = ReadSearchedAddresses(0x0043F9BF, 0x0043FB7F, 0x0043FB7F, SearchBytes, sizeof(SearchBytes), -0x1B, __FUNCTION__);
 
-		// Checking address pointer
-		if (!Address3)
-		{
-			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
-			return;
-		}
-	}
+            // Checking address pointer
+            if (!Address3)
+            {
+                Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+                return;
+            }
+        }
 
-	// Get flashlight render address
-	FlashLightRenderAddr = GetFlashLightRenderPointer();
+        // Get flashlight render address
+        FlashLightRenderAddr = GetFlashLightRenderPointer();
 
-	// Checking address pointer
-	if (!FlashLightRenderAddr)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to get flashlight render address!";
-		return;
-	}
+        // Checking address pointer
+        if (!FlashLightRenderAddr)
+        {
+            Logging::Log() << __FUNCTION__ << " Error: failed to get flashlight render address!";
+            return;
+        }
 
-	// Darken & blur more closet bars
-	static bool ValueSet1 = false;
-	if (GetCutsceneID() == CS_APT_RPT_CLOSET)
-	{
-		if (!ValueSet1)
-		{
-			BYTE ByteValue = 15;
-			UpdateMemoryAddress((void*)Address1, &ByteValue, sizeof(BYTE));		// "Time of Day"
-		}
-		ValueSet1 = true;
-	}
-	else if (ValueSet1)
-	{
-		BYTE ByteValue = 11;
-		UpdateMemoryAddress((void*)Address1, &ByteValue, sizeof(BYTE));		// "Time of Day"
-		ValueSet1 = false;
-	}
+        // Darken & blur more closet bars
+        static bool ValueSet1 = false;
+        if (GetCutsceneID() == CS_APT_RPT_CLOSET)
+        {
+            if (!ValueSet1)
+            {
+                BYTE ByteValue = 15;
+                UpdateMemoryAddress((void*)Address1, &ByteValue, sizeof(BYTE));		// "Time of Day"
+            }
+            ValueSet1 = true;
+        }
+        else if (ValueSet1)
+        {
+            BYTE ByteValue = 11;
+            UpdateMemoryAddress((void*)Address1, &ByteValue, sizeof(BYTE));		// "Time of Day"
+            ValueSet1 = false;
+        }
 
-	// Disable the flashlight during cutscene
-	static bool ValueSet3 = false;
-	if (GetCutsceneID() == CS_APT_RPT_CLOSET && GetCutscenePos() == -22256.61133f)
-	{
-		if (!ValueSet3)
-		{
-			*FlashLightRenderAddr = 0;													// Flashlight render
-			float Value = 0.0f;
-			UpdateMemoryAddress((void*)(Address3 + 0x60), &Value, sizeof(float));		// Flashlight light R
-			UpdateMemoryAddress((void*)(Address3 + 0x64), &Value, sizeof(float));		// Flashlight light G
-			UpdateMemoryAddress((void*)(Address3 + 0x68), &Value, sizeof(float));		// Flashlight light B
-		}
-		ValueSet3 = true;
-	}
-	else if (ValueSet3)
-	{
-		ValueSet3 = false;
-	}
+        // Disable the flashlight during cutscene
+        static bool ValueSet3 = false;
+        if (GetCutsceneID() == CS_APT_RPT_CLOSET && GetCutscenePos() == -22256.61133f)
+        {
+            if (!ValueSet3)
+            {
+                *FlashLightRenderAddr = 0;													// Flashlight render
+                float Value = 0.0f;
+                UpdateMemoryAddress((void*)(Address3 + 0x60), &Value, sizeof(float));		// Flashlight light R
+                UpdateMemoryAddress((void*)(Address3 + 0x64), &Value, sizeof(float));		// Flashlight light G
+                UpdateMemoryAddress((void*)(Address3 + 0x68), &Value, sizeof(float));		// Flashlight light B
+            }
+            ValueSet3 = true;
+        }
+        else if (ValueSet3)
+        {
+            ValueSet3 = false;
+        }
+    }
 
     if (ClosetRoomEnhanced) {
         RunClosetDoorReplacementUpdateFunc();
@@ -182,7 +185,7 @@ void RunClosetCutscene()
 }
 
 
-// closet model replacement
+// closet model replacement by iOrange
 #include "Common/ModelGLTF.h"
 #include "Common/FileSystemHooks.h"
 #include "ActorDrawingHook.h"
@@ -209,7 +212,7 @@ BOOL  gClosetShouldSkipDIP = FALSE;
 
 void RunClosetDoorReplacementUpdateFunc() {
     if (GetCutsceneID() == CS_APT_RPT_CLOSET) {
-
+        // 
     } else {
         gIsClosetCutsceneRunning = false;
     }

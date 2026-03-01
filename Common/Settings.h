@@ -214,8 +214,8 @@
 	visit(water_spec_uv_mult_hotel, 0.45f) \
     visit(water_spec_mult_cemetery, 0.15f) \
 	visit(water_spec_uv_mult_cemetery, 0.85f) \
-    visit(closet_replacement_model_hide_time, 9999.0f) \
-    visit(closet_replacement_model_reveal_time, 9999.0f)
+    visit(closet_replacement_model_hide_time, 359.5f) \
+    visit(closet_replacement_model_reveal_time, 1695.0f)
 
 #define VISIT_STR_SETTINGS(visit) \
 	visit(CustomModFolder, "") \

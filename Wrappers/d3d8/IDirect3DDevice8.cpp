@@ -2643,10 +2643,8 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		}
 
 		// RPT Apartment Closet Cutscene Fix
-		if (ClosetCutsceneFix)
-		{
-			RunClosetCutscene();
-		}
+        // run uncoditionally, it'll early-exit if fix is OFF
+		RunClosetCutscene();
 
 		// RPT Hospital Elevator Stabbing Animation Fix
 		if (HospitalChaseFix)

@@ -626,6 +626,11 @@ void DelayedStart()
 		PatchSpecular();
 	}
 
+    if (DogRoomEnhanced)
+    {
+        PatchDogRoom();
+    }
+
 	// Creates a reflection of the flashlight on glass and glossy surfaces throughout the game.
 	if (FlashlightReflection)
 	{
@@ -831,10 +836,22 @@ void DelayedStart()
 		PatchWoodsideMannequinState();
 	}
 
-	// Play a quieter music box track in certain rooms of the Lakeview Hotel.
+	// Play a quieter music box track in certain rooms of the Lakeview Hotel
 	if (MusicBoxVolume)
 	{
 		PatchMusicBoxVolume();
+	}
+
+	// Toggle map mesh visibility in certain rooms based on game flags or gameplay status
+	if (MapMeshToggle)
+	{
+		PatchMapMeshToggle();
+	}
+
+	// Restore the fade-out in the cutscene between Eddie and Laura in the bowling alley.
+	if (EddieLauraCutscene)
+	{
+		PatchEddieLauraCutscene();
 	}
 	
 	// Remove the "Now loading..." and "Press Return to continue." messages
@@ -871,6 +888,13 @@ void DelayedStart()
 
 		BYTE Value = 0;
 		UpdateMemoryAddress(pHotelMap, &Value, sizeof(Value));
+	}
+
+	// === Set PlayUnusedAudio ===
+	if (PlayUnusedAudio)
+	{
+		PatchUnusedAudio();
+		Logging::Log() << "PlayUnusedAudio monitor thread initialized!";
 	}
 
 	// Flush cache

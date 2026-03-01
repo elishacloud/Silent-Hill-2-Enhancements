@@ -13,6 +13,7 @@
 	visit(ChangeClosetSpawn, true) \
 	visit(CheckCompatibilityMode, true) \
 	visit(CheckForAdminAccess, true) \
+	visit(ClosetCutsceneBonusAudio, true) \
 	visit(ClosetCutsceneFix, true) \
 	visit(CommandWindowMouseFix, true) \
     visit(CockroachesReplacement, true) \
@@ -35,6 +36,7 @@
 	visit(DisplayModeOption, true) \
     visit(DogRoomEnhanced, true) \
 	visit(DynamicResolution, true) \
+	visit(EddieLauraCutscene, true) \
 	visit(EnableDebugOverlay, true) \
 	visit(EnableEnhancedMouse, true) \
 	visit(EnableHoldToStomp, true) \
@@ -106,6 +108,8 @@
 	visit(MainMenuFix, true) \
 	visit(MainMenuInstantLoadOptions, true) \
 	visit(MainMenuTitlePerLang, true) \
+	visit(MapMeshToggle, true) \
+	visit(MariaSpawnFix, true) \
 	visit(MemoScreenFix, true) \
 	visit(MenuSoundsFix, true) \
 	visit(MothDrawOrderFix, true) \
@@ -134,6 +138,7 @@
 	visit(SetSixtyFPS, true) \
 	visit(SetSwapEffectUpgradeShim, false) \
 	visit(ShowerRoomFlashlightFix, true) \
+	visit(SmokeFogFix, true) \
 	visit(Southpaw, false) \
 	visit(SpecificSoundLoopFix, true) \
 	visit(SpecularFix, true) \
@@ -152,7 +157,8 @@
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, true) \
-	visit(WoodsideRoom205Fix, true)
+	visit(WoodsideRoom205Fix, true) \
+    visit(PlayUnusedAudio, false)
 
 #define VISIT_INT_SETTINGS(visit) \
 	visit(AnisotropicFiltering, 0) \
@@ -229,6 +235,7 @@
 	visit(AntiAliasing) \
 	visit(AudioFadeOutDelayMS) \
 	visit(ChainsawSoundFix) \
+	visit(ClosetCutsceneBonusAudio) \
 	visit(CommandWindowMouseFix) \
 	visit(CustomFontCharHeight) \
 	visit(CustomFontCharWidth) \
@@ -241,6 +248,7 @@
 	visit(DisableLogging) \
 	visit(DisableRedCross) \
 	visit(DogRoomEnhanced) \
+	visit(EddieLauraCutscene) \
 	visit(EnableDebugOverlay) \
 	visit(EnableInfoOverlay) \
 	visit(EnableScreenshots) \
@@ -268,6 +276,8 @@
 	visit(LimitPerFrameFPS) \
 	visit(LoadModulesFromMemory) \
 	visit(LockResolution) \
+	visit(MapMeshToggle) \
+	visit(MariaSpawnFix) \
 	visit(MusicBoxVolume) \
 	visit(NormalFontHeight) \
 	visit(NormalFontWidth) \
@@ -281,6 +291,7 @@
 	visit(ShowerRoomFlashlightFix) \
 	visit(SmallFontHeight) \
 	visit(SmallFontWidth) \
+	visit(SmokeFogFix) \
 	visit(SpaceSize) \
 	visit(water_spec_mult_apt_staircase) \
 	visit(water_spec_mult_strange_area) \

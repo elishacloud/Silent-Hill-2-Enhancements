@@ -244,15 +244,6 @@ static double TimeGetNowSec() {
     return static_cast<double>(qpcNow.QuadPart) / static_cast<double>(gQPCFreq.QuadPart);
 }
 
-//static void DebugPrintMatrix(const D3DXMATRIX& mat) {
-//    std::string str = std::to_string(mat._11) + ", " + std::to_string(mat._12) + ", " + std::to_string(mat._13) + ", " + std::to_string(mat._14) + ",\n" +
-//                      std::to_string(mat._21) + ", " + std::to_string(mat._22) + ", " + std::to_string(mat._23) + ", " + std::to_string(mat._24) + ",\n" +
-//                      std::to_string(mat._31) + ", " + std::to_string(mat._32) + ", " + std::to_string(mat._33) + ", " + std::to_string(mat._34) + ",\n" +
-//                      std::to_string(mat._41) + ", " + std::to_string(mat._42) + ", " + std::to_string(mat._43) + ", " + std::to_string(mat._44) + ",\n";
-//
-//    OutputDebugStringA(str.c_str());
-//}
-
 static void DrawClosetModel(IDirect3DDevice8* device) {
     if (!gIsClosetCutsceneRunning) {
         gModelAnimTimer = 0.0f;
@@ -290,36 +281,6 @@ static void DrawClosetModel(IDirect3DDevice8* device) {
         device->GetRenderState(D3DRS_CULLMODE, &backCulling);
         device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
 
-        //DWORD alphaBlend, alphaTest = 0;
-        //device->GetRenderState(D3DRS_ALPHABLENDENABLE, &alphaBlend);
-        //device->GetRenderState(D3DRS_ALPHATESTENABLE, &alphaTest);
-        //device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-        //device->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
-        //device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-        //device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-
-        //// Use texture color and alpha
-        //DWORD colorArg[3], colorOp, alphaArg[3], alphaOp, tcIdx;
-        //device->GetTextureStageState(0, D3DTSS_COLORARG0, &colorArg[0]);
-        //device->GetTextureStageState(0, D3DTSS_COLORARG1, &colorArg[1]);
-        //device->GetTextureStageState(0, D3DTSS_COLORARG2, &colorArg[2]);
-        //device->GetTextureStageState(0, D3DTSS_COLOROP, &colorOp);
-        //device->GetTextureStageState(0, D3DTSS_ALPHAARG0, &alphaArg[0]);
-        //device->GetTextureStageState(0, D3DTSS_ALPHAARG1, &alphaArg[1]);
-        //device->GetTextureStageState(0, D3DTSS_ALPHAARG2, &alphaArg[2]);
-        //device->GetTextureStageState(0, D3DTSS_ALPHAOP, &alphaOp);
-
-        //device->GetTextureStageState(0, D3DTSS_TEXCOORDINDEX, &tcIdx);
-        //device->SetTextureStageState(0, D3DTSS_COLORARG0, D3DTA_CURRENT);
-        //device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-        //device->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_CURRENT);
-        //device->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
-        //device->SetTextureStageState(0, D3DTSS_ALPHAARG0, D3DTA_CURRENT);
-        //device->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-        //device->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
-        //device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
-        //device->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0);
-
         DWORD savedPS, savedVS;
         device->GetPixelShader(&savedPS);
         device->GetVertexShader(&savedVS);
@@ -331,19 +292,6 @@ static void DrawClosetModel(IDirect3DDevice8* device) {
 
         device->SetPixelShader(savedPS);
         device->SetVertexShader(savedVS);
-
-        //device->SetTextureStageState(0, D3DTSS_COLORARG0, colorArg[0]);
-        //device->SetTextureStageState(0, D3DTSS_COLORARG1, colorArg[1]);
-        //device->SetTextureStageState(0, D3DTSS_COLORARG2, colorArg[2]);
-        //device->SetTextureStageState(0, D3DTSS_COLOROP, colorOp);
-        //device->SetTextureStageState(0, D3DTSS_ALPHAARG0, alphaArg[0]);
-        //device->SetTextureStageState(0, D3DTSS_ALPHAARG1, alphaArg[1]);
-        //device->SetTextureStageState(0, D3DTSS_ALPHAARG2, alphaArg[2]);
-        //device->SetTextureStageState(0, D3DTSS_ALPHAOP, alphaOp);
-        //device->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, tcIdx);
-
-        //device->SetRenderState(D3DRS_ALPHABLENDENABLE, alphaBlend);
-        //device->SetRenderState(D3DRS_ALPHATESTENABLE, alphaTest);
 
         device->SetRenderState(D3DRS_CULLMODE, backCulling);
     }

@@ -257,11 +257,13 @@ static void DrawClosetModel(IDirect3DDevice8* device) {
         return;
     }
 
+    const bool isPaused = (GetEventIndex() == EVENT_PAUSE_MENU);
+
     if (!gStartTime) {
         gStartTime = TimeGetNowSec();
     }
     const double timeNow = TimeGetNowSec();
-    const double timeDelta = static_cast<float>(timeNow - gStartTime);
+    const double timeDelta = isPaused ? 0.0 : static_cast<double>(timeNow - gStartTime);
     gStartTime = timeNow;
 
     D3DXMATRIX closetXForm = D3DXMATRIX(    -0.999675f,    0.000000f,       0.025510f, 0.000000f,
@@ -273,7 +275,7 @@ static void DrawClosetModel(IDirect3DDevice8* device) {
     D3DXMATRIX actorXForm;
     D3DXMatrixMultiply(&actorXForm, &closetXForm, gViewTransform);
 
-    model->Update(timeDelta, actorXForm, &gModelAnimTimer);
+    model->Update(static_cast<float>(timeDelta), actorXForm, &gModelAnimTimer);
 
     const float cutsceneTimer = GetCutsceneTimer();
     if (cutsceneTimer < closet_replacement_model_hide_time || cutsceneTimer > closet_replacement_model_reveal_time) {

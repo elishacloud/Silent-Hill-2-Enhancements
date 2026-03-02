@@ -102,6 +102,8 @@ public:
     const SceneNode*                    GetSceneNode(const size_t idx) const;
     const D3DXMATRIX&                   GetAnimatedSceneNodeXForm(const size_t idx) const;
 
+    void                                SetLoopAnimation(bool loop);
+
 private:
     void                                CollectAnimation(const void* gltfModel);
     void                                CollectSkinning(const void* gltfModel);
@@ -136,6 +138,7 @@ private:
     std::vector<AnimTrack>              mAnimTracks;
     std::vector<D3DXMATRIX>             mAnimatedNodesXForms;
     float                               mAnimTime;
+    bool                                mLoopAnimation;
 
     // skinning
     std::vector<Vertex_Skin>            mSkinVertices;

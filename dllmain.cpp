@@ -631,6 +631,11 @@ void DelayedStart()
         PatchDogRoom();
     }
 
+    if (ClosetRoomEnhanced)
+    {
+        PatchClosetRoomModel();
+    }
+
 	// Creates a reflection of the flashlight on glass and glossy surfaces throughout the game.
 	if (FlashlightReflection)
 	{

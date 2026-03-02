@@ -164,6 +164,7 @@ ModelGLTF::ModelGLTF(const VertexType vtype, const bool uploadToGPU)
     : mVertexType(vtype)
     , mUploadToGPU(uploadToGPU)
     , mAnimTime(0.0f)
+    , mLoopAnimation(true)
 {
 }
 ModelGLTF::~ModelGLTF() {
@@ -343,8 +344,12 @@ bool ModelGLTF::LoadFromFile(const std::string& filePath, IDirect3DDevice8* devi
             section.numIndices = static_cast<uint32_t>(idxAcc.count);
             section.vbOffset = static_cast<uint32_t>(vertsOffset);
             section.ibOffset = static_cast<uint32_t>(indicesOffset);
-            const int albedoIdx = model.materials[prim.material].pbrMetallicRoughness.baseColorTexture.index;
-            section.textureIdx = static_cast<uint32_t>(model.textures[albedoIdx].source);
+            if (!model.materials.empty()) {
+                const int albedoIdx = model.materials[prim.material].pbrMetallicRoughness.baseColorTexture.index;
+                section.textureIdx = static_cast<uint32_t>(model.textures[albedoIdx].source);
+            } else {
+                section.textureIdx = ~0u;
+            }
         }
     }
 
@@ -435,12 +440,20 @@ void ModelGLTF::Update(const float deltaInSeconds, const D3DXMATRIX& globalXForm
         float& timer = (customTimer == nullptr) ? mAnimTime : *customTimer;
 
         timer += deltaInSeconds;
-        while (timer > mAnimTimeline.back()) {
-            timer -= mAnimTimeline.back();
+
+        const float animTimerMax = mAnimTimeline.back();
+        if (timer > animTimerMax) {
+            if (mLoopAnimation) {
+                while (timer > animTimerMax) {
+                    timer -= animTimerMax;
+                }
+            } else {
+                timer = animTimerMax;
+            }
         }
 
         auto it = std::upper_bound(mAnimTimeline.begin(), mAnimTimeline.end(), timer);
-        const size_t idxB = std::distance(mAnimTimeline.begin(), it);
+        const size_t idxB = (std::min)(mAnimTimeline.size() - 1, static_cast<size_t>(std::distance(mAnimTimeline.begin(), it)));
         const size_t idxA = idxB > 0 ? idxB - 1 : 0;
 
         const float t = (timer - mAnimTimeline[idxA]) / (mAnimTimeline[idxB] - mAnimTimeline[idxA]);
@@ -511,18 +524,20 @@ HRESULT ModelGLTF::Draw(IDirect3DDevice8* device, BOOL enableTransparency) {
                     continue;
                 }
 
-                const Texture& tex = mTextures[section.textureIdx];
-                if (enableTransparency) {
-                    if (pass == 0 && tex.transparent) {
-                        continue;
-                    } else if (pass == 1 && !tex.transparent) {
-                        continue;
+                if (section.textureIdx != ~0u) {
+                    const Texture& tex = mTextures[section.textureIdx];
+                    if (enableTransparency) {
+                        if (pass == 0 && tex.transparent) {
+                            continue;
+                        } else if (pass == 1 && !tex.transparent) {
+                            continue;
+                        }
                     }
-                }
 
-                if (section.textureIdx != lastTextureIdx) {
-                    device->SetTexture(0, mTextures[section.textureIdx].texture.GetPtr());
-                    lastTextureIdx = section.textureIdx;
+                    if (section.textureIdx != lastTextureIdx) {
+                        device->SetTexture(0, mTextures[section.textureIdx].texture.GetPtr());
+                        lastTextureIdx = section.textureIdx;
+                    }
                 }
 
                 if (mUploadToGPU) {
@@ -606,6 +621,10 @@ const D3DXMATRIX& ModelGLTF::GetAnimatedSceneNodeXForm(const size_t idx) const {
     return mAnimatedNodesXForms[idx];
 }
 
+void ModelGLTF::SetLoopAnimation(bool loop) {
+    mLoopAnimation = loop;
+}
+
 
 void ModelGLTF::CollectAnimation(const void* gltfModel) {
     const tinygltf::Model* model = reinterpret_cast<const tinygltf::Model*>(gltfModel);
@@ -626,6 +645,7 @@ void ModelGLTF::CollectAnimation(const void* gltfModel) {
     for (const tinygltf::AnimationChannel& channel : anim.channels) {
         const tinygltf::AnimationSampler& sampler = anim.samplers[channel.sampler];
         assert(sampler.input == timelineSampler);
+        //assert(sampler.interpolation == "LINEAR");  // WE ASSUME ALWAYS LINEAR !!!
         const int targetNode = channel.target_node;
 
         auto it = std::find_if(mAnimTracks.begin(), mAnimTracks.end(), [targetNode](const AnimTrack& track)->bool {
@@ -683,7 +703,7 @@ void ModelGLTF::CollectSkinning(const void* gltfModel) {
     mSkins.resize(numSkins);
 
     for (size_t skinIdx = 0; skinIdx < numSkins; ++skinIdx) {
-        const tinygltf::Skin& srcSkin = model->skins.front();
+        const tinygltf::Skin& srcSkin = model->skins[skinIdx];
         Skin& dstSkin = mSkins[skinIdx];
 
         dstSkin.joints = srcSkin.joints;
@@ -762,7 +782,10 @@ void ModelGLTF::XFormVertices(const D3DXMATRIX& globalXForm, T* dstVertices) {
 
                     D3DXVECTOR4 temp;
                     D3DXVec3Transform(&temp, &srcVertices[section.vbOffset + j].pos, &skinMat);
-                    D3DXVec3TransformNormal(&skinnedNorm, &srcVertices[section.vbOffset + j].normal, &skinMat);
+
+                    D3DXMATRIX skinMatInv, skinMatInvTrans;
+                    D3DXMatrixTranspose(&skinMatInvTrans, D3DXMatrixInverse(&skinMatInv, nullptr, &skinMat));
+                    D3DXVec3TransformNormal(&skinnedNorm, &srcVertices[section.vbOffset + j].normal, &skinMatInvTrans);
 
                     skinnedPos.x = temp.x;
                     skinnedPos.y = temp.y;
@@ -776,14 +799,16 @@ void ModelGLTF::XFormVertices(const D3DXMATRIX& globalXForm, T* dstVertices) {
                 }
 
                 D3DXVECTOR4 xformedV;
-                D3DXVECTOR3 xformedN;
+                D3DXVECTOR3 xformedN, xformedNNorm;
                 D3DXVec3Transform(&xformedV, vpos, &fullXForm);
                 D3DXVec3TransformNormal(&xformedN, vnorm, &fullXFormTI);
+
+                D3DXVec3Normalize(&xformedNNorm, &xformedN);
 
                 dstVertices[section.vbOffset + j].pos.x = xformedV.x;
                 dstVertices[section.vbOffset + j].pos.y = xformedV.y;
                 dstVertices[section.vbOffset + j].pos.z = xformedV.z;
-                dstVertices[section.vbOffset + j].normal = xformedN;
+                dstVertices[section.vbOffset + j].normal = xformedNNorm;
             }
         }
     }

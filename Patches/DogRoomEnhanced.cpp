@@ -13,11 +13,7 @@
 #include <sstream>
 #include <filesystem>
 
-static D3DXMATRIX* gActorXForm = reinterpret_cast<D3DXMATRIX*>(0xA3F590);  // 0x00A3F5AC - 0x1C
-
-IDirect3DDevice8* (__cdecl* SH2_GetD3dDevice)() = (IDirect3DDevice8* (__cdecl*)())(0x4F5480);
-
-HRESULT (__cdecl* SH2_AnimateActor)(ModelMaterial*) = (HRESULT (__cdecl*)(ModelMaterial*))(0x5014C0);
+static IDirect3DDevice8* (__cdecl* SH2_GetD3dDevice)() = (IDirect3DDevice8* (__cdecl*)())(0x4F5480);
 
 static ModelGLTF*               gLeversModel = nullptr;
 static std::filesystem::path    gModelPath;
@@ -61,8 +57,6 @@ static void DrawLeversModel(IDirect3DDevice8* device) {
 
     D3DXMATRIX actorXForm;
     D3DXMatrixIdentity(&actorXForm);
-    //D3DXMatrixTranslation(&actorXForm, 9692.0f, -507.0f, 10841.0f);
-    //D3DXMatrixTranspose(&actorXForm, gActorXForm);
 
     model->Update(timeDelta, actorXForm);
 
@@ -125,65 +119,11 @@ static void DrawLeversModel(IDirect3DDevice8* device) {
 constexpr ModelOffsetTable kLeversModelTable = { -65533, 4, 176, 3, 368, 0, 384, 384, 4, 640, 0, 1952, 1, 384, 4, 400, 432, 0, 496, 0 };
 constexpr ModelOffsetTable kDogModelTable = { -65533, 4, 176, 31, 2160, 43, 2192, 2288, 3, 5248, 0, 21792, 2, 5040, 2, 5056, 5072, 0, 5104, 0 };
 
-bool operator ==(const ModelOffsetTable& a, const ModelOffsetTable& b) {
-    return memcmp(&a, &b, sizeof(ModelOffsetTable)) == 0;
-}
-
-
 void PatchDogRoom() {
     RegisterActorDrawTopEpilogue([](ModelOffsetTable* model, void* /*arg2*/)->bool {
         const DWORD roomID = GetRoomID();
         if (roomID == R_END_DOG_RM) {
-            // levers
-            if (*model == kLeversModelTable) {
-#if 0
-                std::ostringstream ss;
-
-                ss << "ActorXForm = [" << std::endl;
-                for (int y = 0; y < 4; ++y) {
-                    for (int x = 0; x < 4; ++x) {
-                        ss << gActorXForm->m[x][y] << ",";
-                        if (x < 3) {
-                            ss << " ";
-                        }
-                    }
-                    ss << std::endl;
-                }
-                ss << "]" << std::endl;
-
-                OutputDebugStringA(ss.str().c_str());
-
-                /*
-                ActorXForm = [
-                -0.726921, -0.62711, -0.264167, 0,
-                -0.62646, 0.767617, -0.0989082, 0,
-                0.265497, 0.0944076, -0.958064, 0,
-                112.397, 171.652, 444.26, 1,
-                ]
-                */
-#endif
-
-#if 0
-                IDirect3DDevice8* device = SH2_GetD3dDevice();
-                if (device) {
-                    for (int i = 0; i < model->materialCount; ++i) {
-                        // the game is calling it in a weird way
-                        ModelMaterial* pMaterialArray = reinterpret_cast<ModelMaterial*>(reinterpret_cast<char*>(model) + model->materialsOffset);
-                        ModelMaterial* pMaterial = pMaterialArray + i;
-                        __asm {
-                            push    edi
-                            mov     edi, pMaterial
-                            call    SH2_AnimateActor
-                            pop     edi
-                        }
-                    }
-
-                    DrawLeversModel(device);
-                }
-
-                return;
-#endif
-            } else if (*model == kDogModelTable) {
+            if (*model == kDogModelTable) {
                 IDirect3DDevice8* device = SH2_GetD3dDevice();
                 if (device) {
                     DrawLeversModel(device);

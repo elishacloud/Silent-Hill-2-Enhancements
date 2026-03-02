@@ -18,6 +18,7 @@
 #include <Windows.h>
 #include "Patches.h"
 #include "Common\Utils.h"
+#include "Common\Settings.h"
 #include "Logging\Logging.h"
 
 // Variables for ASM
@@ -26,150 +27,320 @@ DWORD ClosetCutsceneObject;
 float f_ClosetCutsceneCameraPos = -21376.56445f;
 DWORD ClosetCutsceneCameraPos = *(DWORD*)(&f_ClosetCutsceneCameraPos);
 
+void RunClosetDoorReplacementUpdateFunc();
+
 // ASM function to update to Fix RPT Apartment Closet Cutscene blur
 __declspec(naked) void __stdcall ClosetCutsceneASM()
 {
-	__asm
-	{
-		push edx
-		mov edx, dword ptr ds : [CutsceneIDAddr]	// moves cutscene ID pointer to edx
-		cmp dword ptr ds : [edx], CS_APT_RPT_CLOSET
-		jne near NotInCutscene
-		push eax
-		mov edx, dword ptr ds : [CutscenePosAddr]	// moves cutscene camera pos ID pointer to edx
-		mov eax, dword ptr ds : [ClosetCutsceneCameraPos]
-		cmp dword ptr ds : [edx], eax
-		pop eax
-		je near ExitASM
+    __asm
+    {
+        push edx
+        mov edx, dword ptr ds : [CutsceneIDAddr]	// moves cutscene ID pointer to edx
+        cmp dword ptr ds : [edx], CS_APT_RPT_CLOSET
+        jne near NotInCutscene
+        push eax
+        mov edx, dword ptr ds : [CutscenePosAddr]	// moves cutscene camera pos ID pointer to edx
+        mov eax, dword ptr ds : [ClosetCutsceneCameraPos]
+        cmp dword ptr ds : [edx], eax
+        pop eax
+        je near ExitASM
 
-	NotInCutscene:
-		mov edx, dword ptr ds : [ClosetCutsceneObject]
-		mov dword ptr ds : [edx], eax
+    NotInCutscene:
+        mov edx, dword ptr ds : [ClosetCutsceneObject]
+        mov dword ptr ds : [edx], eax
 
-	ExitASM:
-		pop edx
-		jmp jmpClosetCutsceneReturnAddr
-	}
+    ExitASM:
+        pop edx
+        jmp jmpClosetCutsceneReturnAddr
+    }
 }
 
 // Update SH2 code to Fix RPT Apartment Closet Cutscene blur
 void SetClosetCutscene()
 {
-	// Get Apartment Closet Cutscene address
-	constexpr BYTE SearchBytesClosetCutscene[]{ 0xFF, 0xFF, 0x90, 0x90, 0x8A, 0x4C, 0x24, 0x08, 0xB8, 0x05, 0x00, 0x00, 0x00, 0xA3 };
-	DWORD ClosetCutsceneAddr = SearchAndGetAddresses(0x0047832C, 0x004785CC, 0x004787DC, SearchBytesClosetCutscene, sizeof(SearchBytesClosetCutscene), 0x17, __FUNCTION__);
-	if (!ClosetCutsceneAddr)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
-		return;
-	}
-	jmpClosetCutsceneReturnAddr = (void*)(ClosetCutsceneAddr + 0x05);
-	memcpy(&ClosetCutsceneObject, (void*)(ClosetCutsceneAddr + 0x01), sizeof(DWORD));
+    // Get Apartment Closet Cutscene address
+    constexpr BYTE SearchBytesClosetCutscene[]{ 0xFF, 0xFF, 0x90, 0x90, 0x8A, 0x4C, 0x24, 0x08, 0xB8, 0x05, 0x00, 0x00, 0x00, 0xA3 };
+    DWORD ClosetCutsceneAddr = SearchAndGetAddresses(0x0047832C, 0x004785CC, 0x004787DC, SearchBytesClosetCutscene, sizeof(SearchBytesClosetCutscene), 0x17, __FUNCTION__);
+    if (!ClosetCutsceneAddr)
+    {
+        Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+        return;
+    }
+    jmpClosetCutsceneReturnAddr = (void*)(ClosetCutsceneAddr + 0x05);
+    memcpy(&ClosetCutsceneObject, (void*)(ClosetCutsceneAddr + 0x01), sizeof(DWORD));
 
-	// Get cutscene ID address
-	GetCutsceneIDPointer();
+    // Get cutscene ID address
+    GetCutsceneIDPointer();
 
-	// Get cutscene camera pos address
-	GetCutscenePosPointer();
+    // Get cutscene camera pos address
+    GetCutscenePosPointer();
 
-	// Checking address pointer
-	if (!CutscenePosAddr || !CutsceneIDAddr)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to get room ID or cutscene ID address!";
-		return;
-	}
+    // Checking address pointer
+    if (!CutscenePosAddr || !CutsceneIDAddr)
+    {
+        Logging::Log() << __FUNCTION__ << " Error: failed to get room ID or cutscene ID address!";
+        return;
+    }
 
-	// Update SH2 code
-	Logging::Log() << "Setting RPT Apartment Closet Cutscene Fix...";
-	WriteJMPtoMemory((BYTE*)ClosetCutsceneAddr, *ClosetCutsceneASM, 0x05);
+    // Update SH2 code
+    Logging::Log() << "Setting RPT Apartment Closet Cutscene Fix...";
+    WriteJMPtoMemory((BYTE*)ClosetCutsceneAddr, *ClosetCutsceneASM, 0x05);
 }
 
 // Run SH2 code to Fix RPT Apartment Closet Cutscene
 void RunClosetCutscene()
 {
-	// Update SH2 code to enable Lighting Transition fix
-	RUNCODEONCE(SetClosetCutscene());
+    if (ClosetCutsceneFix)
+    {
+        // Update SH2 code to enable Lighting Transition fix
+        RUNCODEONCE(SetClosetCutscene());
 
-	// Get Address1
-	static DWORD Address1 = NULL;
-	if (!Address1)
-	{
-		RUNONCE();
+        // Get Address1
+        static DWORD Address1 = NULL;
+        if (!Address1)
+        {
+            RUNONCE();
 
-		// Get Room 312 Shadow address
-		constexpr BYTE SearchBytes[]{ 0x7C, 0xDC, 0xB0, 0x0C, 0x5F, 0xC6, 0x05 };
-		Address1 = ReadSearchedAddresses(0x004799D4, 0x00479C74, 0x00479E84, SearchBytes, sizeof(SearchBytes), 0x07, __FUNCTION__);
+            // Get Room 312 Shadow address
+            constexpr BYTE SearchBytes[]{ 0x7C, 0xDC, 0xB0, 0x0C, 0x5F, 0xC6, 0x05 };
+            Address1 = ReadSearchedAddresses(0x004799D4, 0x00479C74, 0x00479E84, SearchBytes, sizeof(SearchBytes), 0x07, __FUNCTION__);
 
-		// Checking address pointer
-		if (!Address1)
-		{
-			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
-			return;
-		}
-	}
+            // Checking address pointer
+            if (!Address1)
+            {
+                Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+                return;
+            }
+        }
 
-	// Get Address3
-	static DWORD Address3 = NULL;
-	if (!Address3)
-	{
-		RUNONCE();
+        // Get Address3
+        static DWORD Address3 = NULL;
+        if (!Address3)
+        {
+            RUNONCE();
 
-		// Get Room 312 Shadow address
-		constexpr BYTE SearchBytes[]{ 0x5E, 0x83, 0xC4, 0x10, 0xC3, 0xC6, 0x46, 0x07, 0x00, 0x8B, 0x15 };
-		Address3 = ReadSearchedAddresses(0x0043F9BF, 0x0043FB7F, 0x0043FB7F, SearchBytes, sizeof(SearchBytes), -0x1B, __FUNCTION__);
+            // Get Room 312 Shadow address
+            constexpr BYTE SearchBytes[]{ 0x5E, 0x83, 0xC4, 0x10, 0xC3, 0xC6, 0x46, 0x07, 0x00, 0x8B, 0x15 };
+            Address3 = ReadSearchedAddresses(0x0043F9BF, 0x0043FB7F, 0x0043FB7F, SearchBytes, sizeof(SearchBytes), -0x1B, __FUNCTION__);
 
-		// Checking address pointer
-		if (!Address3)
-		{
-			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
-			return;
-		}
-	}
+            // Checking address pointer
+            if (!Address3)
+            {
+                Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+                return;
+            }
+        }
 
-	// Get flashlight render address
-	FlashLightRenderAddr = GetFlashLightRenderPointer();
+        // Get flashlight render address
+        FlashLightRenderAddr = GetFlashLightRenderPointer();
 
-	// Checking address pointer
-	if (!FlashLightRenderAddr)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to get flashlight render address!";
-		return;
-	}
+        // Checking address pointer
+        if (!FlashLightRenderAddr)
+        {
+            Logging::Log() << __FUNCTION__ << " Error: failed to get flashlight render address!";
+            return;
+        }
 
-	// Darken & blur more closet bars
-	static bool ValueSet1 = false;
-	if (GetCutsceneID() == CS_APT_RPT_CLOSET)
-	{
-		if (!ValueSet1)
-		{
-			BYTE ByteValue = 15;
-			UpdateMemoryAddress((void*)Address1, &ByteValue, sizeof(BYTE));		// "Time of Day"
-		}
-		ValueSet1 = true;
-	}
-	else if (ValueSet1)
-	{
-		BYTE ByteValue = 11;
-		UpdateMemoryAddress((void*)Address1, &ByteValue, sizeof(BYTE));		// "Time of Day"
-		ValueSet1 = false;
-	}
+        // Darken & blur more closet bars
+        static bool ValueSet1 = false;
+        if (GetCutsceneID() == CS_APT_RPT_CLOSET)
+        {
+            if (!ValueSet1)
+            {
+                BYTE ByteValue = 15;
+                UpdateMemoryAddress((void*)Address1, &ByteValue, sizeof(BYTE));		// "Time of Day"
+            }
+            ValueSet1 = true;
+        }
+        else if (ValueSet1)
+        {
+            BYTE ByteValue = 11;
+            UpdateMemoryAddress((void*)Address1, &ByteValue, sizeof(BYTE));		// "Time of Day"
+            ValueSet1 = false;
+        }
 
-	// Disable the flashlight during cutscene
-	static bool ValueSet3 = false;
-	if (GetCutsceneID() == CS_APT_RPT_CLOSET && GetCutscenePos() == -22256.61133f)
-	{
-		if (!ValueSet3)
-		{
-			*FlashLightRenderAddr = 0;													// Flashlight render
-			float Value = 0.0f;
-			UpdateMemoryAddress((void*)(Address3 + 0x60), &Value, sizeof(float));		// Flashlight light R
-			UpdateMemoryAddress((void*)(Address3 + 0x64), &Value, sizeof(float));		// Flashlight light G
-			UpdateMemoryAddress((void*)(Address3 + 0x68), &Value, sizeof(float));		// Flashlight light B
-		}
-		ValueSet3 = true;
-	}
-	else if (ValueSet3)
-	{
-		ValueSet3 = false;
-	}
+        // Disable the flashlight during cutscene
+        static bool ValueSet3 = false;
+        if (GetCutsceneID() == CS_APT_RPT_CLOSET && GetCutscenePos() == -22256.61133f)
+        {
+            if (!ValueSet3)
+            {
+                *FlashLightRenderAddr = 0;													// Flashlight render
+                float Value = 0.0f;
+                UpdateMemoryAddress((void*)(Address3 + 0x60), &Value, sizeof(float));		// Flashlight light R
+                UpdateMemoryAddress((void*)(Address3 + 0x64), &Value, sizeof(float));		// Flashlight light G
+                UpdateMemoryAddress((void*)(Address3 + 0x68), &Value, sizeof(float));		// Flashlight light B
+            }
+            ValueSet3 = true;
+        }
+        else if (ValueSet3)
+        {
+            ValueSet3 = false;
+        }
+    }
+
+    if (ClosetRoomEnhanced) {
+        RunClosetDoorReplacementUpdateFunc();
+    }
+}
+
+
+// closet model replacement by iOrange
+#include "Common/ModelGLTF.h"
+#include "Common/FileSystemHooks.h"
+#include "ActorDrawingHook.h"
+
+#include <filesystem>
+
+constexpr ModelOffsetTable kClosetModelTable = { -65533, 4, 176, 2, 304, 0, 320, 320, 2, 560, 1, 5232, 3, 320, 3, 336, 368, 0, 416, 0 };
+
+static IDirect3DDevice8* (__cdecl* SH2_GetD3dDevice)() = (IDirect3DDevice8 * (__cdecl*)())(0x4F5480);
+
+//static D3DXMATRIX* gWorldTransform = reinterpret_cast<D3DXMATRIX*>(0x1F7D5F0);
+static D3DXMATRIX* gViewTransform  = reinterpret_cast<D3DXMATRIX*>(0x1F7D530);
+
+static std::filesystem::path    gModelPath;
+static ModelGLTF*               gClosetModel = nullptr;
+static LARGE_INTEGER            gQPCFreq = {};
+static double                   gStartTime = 0.0;
+static float                    gModelAnimTimer = 0.0f;
+static bool                     gIsClosetCutsceneRunning = false;
+
+DWORD gClosetVSShader = 0;
+DWORD gClosetPSShader = 0;
+BOOL  gClosetShouldSkipDIP = FALSE;
+
+void RunClosetDoorReplacementUpdateFunc() {
+    if (GetCutsceneID() == CS_APT_RPT_CLOSET) {
+        // 
+    } else {
+        gIsClosetCutsceneRunning = false;
+    }
+}
+
+
+static ModelGLTF* GetOrCreateModel(IDirect3DDevice8* device) {
+    if (!gClosetModel && !gModelPath.empty()) {
+        gClosetModel = new ModelGLTF(ModelGLTF::VertexType::PosNormalTexcoord, false);
+        if (!gClosetModel->LoadFromFile(gModelPath.u8string(), device)) {
+            delete gClosetModel;
+            gClosetModel = nullptr;
+        } else {
+            gClosetModel->SetLoopAnimation(false);
+        }
+    }
+
+    return gClosetModel;
+}
+
+
+static double TimeGetNowSec() {
+    if (!gQPCFreq.QuadPart) {
+        ::QueryPerformanceFrequency(&gQPCFreq);
+    }
+
+    LARGE_INTEGER qpcNow = {};
+    ::QueryPerformanceCounter(&qpcNow);
+    return static_cast<double>(qpcNow.QuadPart) / static_cast<double>(gQPCFreq.QuadPart);
+}
+
+static void DrawClosetModel(IDirect3DDevice8* device) {
+    if (!gIsClosetCutsceneRunning) {
+        gModelAnimTimer = 0.0f;
+        gStartTime = 0.0;
+
+        gIsClosetCutsceneRunning = true;
+    }
+
+    ModelGLTF* model = GetOrCreateModel(device);
+    if (!model) {
+        return;
+    }
+
+    const bool isPaused = (GetEventIndex() == EVENT_PAUSE_MENU);
+
+    if (!gStartTime) {
+        gStartTime = TimeGetNowSec();
+    }
+    const double timeNow = TimeGetNowSec();
+    const double timeDelta = isPaused ? 0.0 : static_cast<double>(timeNow - gStartTime);
+    gStartTime = timeNow;
+
+    D3DXMATRIX closetXForm = D3DXMATRIX(    -0.999675f,    0.000000f,       0.025510f, 0.000000f,
+                                            -0.025510f,    0.000240f,      -0.999675f, 0.000000f,
+                                            -0.000006f,   -1.000000f,      -0.000240f, 0.000000f,
+                                        -21059.994141f, -550.000549f, -101184.023438f, 1.000000f);
+
+
+    D3DXMATRIX actorXForm;
+    D3DXMatrixMultiply(&actorXForm, &closetXForm, gViewTransform);
+
+    model->Update(static_cast<float>(timeDelta), actorXForm, &gModelAnimTimer);
+
+    const float cutsceneTimer = GetCutsceneTimer();
+    if (cutsceneTimer < closet_replacement_model_hide_time || cutsceneTimer > closet_replacement_model_reveal_time) {
+        DWORD backCulling = 0;
+        device->GetRenderState(D3DRS_CULLMODE, &backCulling);
+        device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
+
+        DWORD savedPS, savedVS;
+        device->GetPixelShader(&savedPS);
+        device->GetVertexShader(&savedVS);
+
+        device->SetPixelShader(gClosetPSShader);
+        device->SetVertexShader(gClosetVSShader);
+
+        model->Draw(device, TRUE);
+
+        device->SetPixelShader(savedPS);
+        device->SetVertexShader(savedVS);
+
+        device->SetRenderState(D3DRS_CULLMODE, backCulling);
+    }
+}
+
+void PatchClosetRoomModel() {
+    RegisterActorDrawTopPrologue([](ModelOffsetTable* model, void* /*arg2*/)->bool {
+        const DWORD roomID = GetRoomID();
+        if (roomID == CS_APT_RPT_FIGHT) {
+            if (*model == kClosetModelTable) {
+                IDirect3DDevice8* device = SH2_GetD3dDevice();
+                if (device) {
+                    gClosetVSShader = 0;
+                    gClosetPSShader = 0;
+
+                    gClosetShouldSkipDIP = TRUE;
+
+                    return false;
+                }
+            }
+        }
+
+        // do not skip other stuff
+        return false;
+    });
+
+    RegisterActorDrawTopEpilogue([](ModelOffsetTable* model, void* /*arg2*/)->bool {
+        const DWORD roomID = GetRoomID();
+        if (roomID == CS_APT_RPT_FIGHT) {
+            if (*model == kClosetModelTable) {
+                gClosetShouldSkipDIP = FALSE;
+
+                IDirect3DDevice8* device = SH2_GetD3dDevice();
+                if (device) {
+                    DrawClosetModel(device);
+                }
+            }
+        }
+
+        return false;
+    });
+
+    gModelPath = GetModPath("");
+    gModelPath = gModelPath / R"(model\b_doo.glb)";
+    std::error_code errorCode{};
+    if (!std::filesystem::exists(gModelPath, errorCode)) {
+        gModelPath.clear();
+        return;
+    }
 }

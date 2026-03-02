@@ -786,6 +786,7 @@ void RunTreeColor();
 
 int GetNewScreenMode();
 
+void CheckCemeteryWaterCulling();
 void CheckFlashlightAvailable();
 float GetConditionalFlashlightBrightnessRed();
 float GetConditionalFlashlightBrightnessGreen();

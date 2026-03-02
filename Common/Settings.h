@@ -407,3 +407,5 @@ void __stdcall ParseCallback(char* lpName, char* lpValue, void*);
 void LogSettings();
 void UpdateConfigDefaults();
 void UpdateScaleResolution();
+
+

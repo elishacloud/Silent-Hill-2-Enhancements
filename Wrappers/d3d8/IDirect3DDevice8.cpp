@@ -1714,6 +1714,9 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 		OverlayRef.RenderMouseCursor();
 	}
 
+	// Fix water plane culling in Cemetery cutscene
+	CheckCemeteryWaterCulling();
+
 	// Fix pause menu before drawing scaled surface
 	bool PauseMenuFlag = FixPauseMenuOnPresent();
 

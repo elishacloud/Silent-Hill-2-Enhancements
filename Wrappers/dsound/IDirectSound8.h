@@ -55,4 +55,5 @@ public:
 	static HRESULT PlayWavFile(const char* filePath, DWORD BifferID);
 	static HRESULT StopWavFile(DWORD BifferID);
 	static void ReleaseSoundBuffer(DWORD BifferID);
+	static HRESULT PlayWavMemory(const WAVEFORMATEX* wf, const BYTE* audioData, DWORD audioSize, DWORD BufferID, bool useSfxVolume);
 };

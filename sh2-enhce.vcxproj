@@ -359,6 +359,7 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClInclude Include="Common\LoadModules.h" />
     <ClInclude Include="Common\md5.h" />
     <ClInclude Include="Common\ModelGLTF.h" />
+    <ClInclude Include="Common\ScopeGuard.h" />
     <ClInclude Include="Common\Settings.h" />
     <ClInclude Include="Common\Unicode.h" />
     <ClInclude Include="Common\Utils.h" />

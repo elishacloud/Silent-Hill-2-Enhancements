@@ -12,8 +12,6 @@
 #include "Wrappers/dsound/dsoundwrapper.h"
 #include <shlwapi.h>
 
-
-
 void PatchUnusedAudio();
 
 volatile LONG g_forceAction = 0;
@@ -27,14 +25,14 @@ extern "C" IMAGE_DOS_HEADER __ImageBase;
 static std::vector<AfsEntry> g_afsTable;
 static volatile LONG gStarted = 0;
 
-constexpr DWORD UnusedLauraLetterBufferID = 4;
+constexpr DWORD UnusedLauraLetterBufferID = 3;
 
 volatile LONG g_blockPlayerInputs = 0;
 volatile LONG g_stopAutoplay = 0;
 
 static void StopAlertSound()
 {
-    m_IDirectSound8::StopWavFile(UnusedLauraLetterBufferID);
+    m_IDirectSound8::StopWavSoundBuffer(UnusedLauraLetterBufferID);
 }
 
 static bool LoadFileToMemory(const std::string& path, std::vector<BYTE>& outBuf)
@@ -89,7 +87,7 @@ static void PlayWavFromMemoryRange(BYTE* wavBuf, size_t wavSize, float startSec,
     std::vector<BYTE> pcm(playLen);
     memcpy(pcm.data(), audio + start, playLen);
 
-    m_IDirectSound8::StopWavFile(UnusedLauraLetterBufferID);
+    m_IDirectSound8::StopWavSoundBuffer(UnusedLauraLetterBufferID);
     m_IDirectSound8::PlayWavMemory(wf, pcm.data(), playLen, UnusedLauraLetterBufferID, false);
 }
 

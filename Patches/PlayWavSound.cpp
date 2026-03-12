@@ -49,7 +49,7 @@ static int32_t PlaySaveSound(int32_t SoundId, float volume, DWORD param3)
 	UNREFERENCED_PARAMETER(volume);
 	UNREFERENCED_PARAMETER(param3);
 
-	m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + SaveGameWav).c_str(), SaveID);
+	m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + SaveGameWav).c_str(), SaveID, true);
 
 	return 0x10;	// PlaySound function success
 }
@@ -60,7 +60,7 @@ static int32_t PlayLoadSound(int32_t SoundId, float volume, DWORD param3)
 	UNREFERENCED_PARAMETER(volume);
 	UNREFERENCED_PARAMETER(param3);
 
-	m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + LoadGameWav).c_str(), LoadID);
+	m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + LoadGameWav).c_str(), LoadID, true);
 
 	return 0x10;	// PlaySound function success
 }
@@ -243,12 +243,12 @@ void RunPlayFlashlightSounds()
 		// play flashlight_off.wav
 		if (FlashLightSwitch == 0)
 		{
-			m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + FlashLightOffWav).c_str(), FlashlightID);
+			m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + FlashLightOffWav).c_str(), FlashlightID, true);
 		}
 		// play flashlight_on.wav
 		else if (FlashLightSwitch == 1)
 		{
-			m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + FlashLightOnWav).c_str(), FlashlightID);
+			m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + FlashLightOnWav).c_str(), FlashlightID, true);
 		}
 	}
 	LastRoomID = RoomID;
@@ -290,7 +290,7 @@ void RunPlayLyingFigureSounds()
 			MatchFound = true;
 			DWORD Value = 0x00000000;
 			UpdateMemoryAddress(LyingFigureFootstepSFX, &Value, sizeof(Value));
-			m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + LyingFigureFootstepWav).c_str(), FootstepsID);
+			m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + LyingFigureFootstepWav).c_str(), FootstepsID, true);
 		}
 	}
 	else if (MatchFound)
@@ -298,7 +298,7 @@ void RunPlayLyingFigureSounds()
 		MatchFound = false;
 		DWORD Value = 0x00002EF3;
 		UpdateMemoryAddress(LyingFigureFootstepSFX, &Value, sizeof(Value));
-		m_IDirectSound8::StopWavFile(FootstepsID);
+		m_IDirectSound8::StopWavSoundBuffer(FootstepsID);
 	}
 }
 
@@ -336,12 +336,12 @@ void RunPlayClosetCutsceneBonusAudio()
 		if (!MatchFound)
 		{
 			MatchFound = true;
-			m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + ClosetCutsceneBonusAudioWav).c_str(), ClosetCutsceneID);
+			m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + ClosetCutsceneBonusAudioWav).c_str(), ClosetCutsceneID, true);
 		}
 	}
 	else if (MatchFound)
 	{
 		MatchFound = false;
-		m_IDirectSound8::StopWavFile(ClosetCutsceneID);
+		m_IDirectSound8::StopWavSoundBuffer(ClosetCutsceneID);
 	}
 }

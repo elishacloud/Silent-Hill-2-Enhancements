@@ -814,6 +814,9 @@
     <ClInclude Include="External\reshade\source\effect_token.hpp">
       <Filter>External\ReShadeFX</Filter>
     </ClInclude>
+    <ClInclude Include="Common\ScopeGuard.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\sh2-enhce.rc">

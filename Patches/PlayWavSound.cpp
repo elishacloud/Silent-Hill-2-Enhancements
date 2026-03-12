@@ -331,7 +331,7 @@ void RunPlayClosetCutsceneBonusAudio()
 	}
 
 	static bool MatchFound = false;
-	if (GetCutsceneID() == CS_APT_RPT_CLOSET && GetCutsceneTimer() > 1900.0f)
+	if (ClosetRoomEnhanced && GetCutsceneID() == CS_APT_RPT_CLOSET && GetCutsceneTimer() > 1900.0f)
 	{
 		if (!MatchFound)
 		{

@@ -163,7 +163,6 @@
 	visit(EnableCriWareReimplementation, 1) \
 	visit(fog_transparency_layer1, 128) \
 	visit(fog_transparency_layer2, 112) \
-    visit(FleshLipsCutsceneMotionBlurFactor, 300) \
 	visit(FogFix, 0xFFFF) /* Overloading the old 'fog_custom_on' option */ \
 	visit(FogLayerFix, 0xFFFF) /* Overloading the old 'Fog2DFix' option */ \
 	visit(FrontBufferControl, 0) \
@@ -251,7 +250,6 @@
 	visit(fog_layer2_density_mult) \
 	visit(fog_transparency_layer1) \
 	visit(fog_transparency_layer2) \
-    visit(FleshLipsCutsceneMotionBlurFactor) \
 	visit(Fog2DFix) \
 	visit(FullscreenWndMode) \
 	visit(GameLoadFlashFix) \

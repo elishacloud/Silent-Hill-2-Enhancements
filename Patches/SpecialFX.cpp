@@ -26,6 +26,7 @@
 constexpr float CustomAddress1Value = 0.04f;
 constexpr float PointThreeBarValue = 0.3333333333f;
 constexpr float PointSixBarValue = 0.6666666666f;
+constexpr int FleshLipsCutsceneMotionBlurFactor = 300;
 float IntroCutsceneValue1 = 0;
 float IntroCutsceneValue2 = 0;
 float PyramidHeadCutsceneValue1 = 0;

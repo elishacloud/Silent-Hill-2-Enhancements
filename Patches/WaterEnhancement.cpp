@@ -597,13 +597,13 @@ void CheckCemeteryWaterCulling()
 
 	static bool cemeteryWaterCullingDisabled = false;
 
-    if (!cemeteryWaterCullingDisabled && GetRoomID() == R_FOREST_CEMETERY) 
+    if (!cemeteryWaterCullingDisabled && GetCutsceneID() == CS_ANGELA_CEMETERY)
     {
 		ReadMemoryAddress(g_cemeteryWaterPlaneCheckAddr, &g_cemeteryWaterPlaneCheckValue, sizeof(DWORD));
         UpdateMemoryAddress(g_cemeteryWaterPlaneCheckAddr, "\x00\x04\x00\x00", sizeof(DWORD));
         cemeteryWaterCullingDisabled = true;
 	}
-    else if (cemeteryWaterCullingDisabled && GetRoomID() != R_FOREST_CEMETERY) 
+    else if (cemeteryWaterCullingDisabled && GetCutsceneID() != CS_ANGELA_CEMETERY)
     {
         UpdateMemoryAddress(g_cemeteryWaterPlaneCheckAddr, &g_cemeteryWaterPlaneCheckValue, sizeof(DWORD));
         cemeteryWaterCullingDisabled = false;

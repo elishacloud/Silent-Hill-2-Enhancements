@@ -67,6 +67,11 @@ public:
         std::vector<D3DXMATRIX> invBindMatrices;
     };
 
+    struct Texture {
+        IUnknownPtr<IDirect3DTexture8>  texture;
+        BOOL                            transparent;
+    };
+
 public:
     ModelGLTF() = delete;
     ModelGLTF(const VertexType vtype, const bool uploadToGPU);
@@ -74,7 +79,7 @@ public:
 
     bool                                LoadFromFile(const std::string& filePath, IDirect3DDevice8* device);
     void                                Update(const float deltaInSeconds, const D3DXMATRIX& globalXForm, float* customTimer = nullptr);
-    HRESULT                             Draw(IDirect3DDevice8* device);
+    HRESULT                             Draw(IDirect3DDevice8* device, BOOL enableTransparency = FALSE);
 
     size_t                              GetNumMeshes() const;
     const Mesh&                         GetMesh(const size_t idx) const;
@@ -96,6 +101,8 @@ public:
     size_t                              GetNumSceneNodes() const;
     const SceneNode*                    GetSceneNode(const size_t idx) const;
     const D3DXMATRIX&                   GetAnimatedSceneNodeXForm(const size_t idx) const;
+
+    void                                SetLoopAnimation(bool loop);
 
 private:
     void                                CollectAnimation(const void* gltfModel);
@@ -119,7 +126,7 @@ private:
 
     std::vector<Mesh>                   mMeshes;
 
-    using TexturesArray = std::vector<IUnknownPtr<IDirect3DTexture8>>;
+    using TexturesArray = std::vector<Texture>;
     TexturesArray                       mTextures;
 
     // scene
@@ -131,6 +138,7 @@ private:
     std::vector<AnimTrack>              mAnimTracks;
     std::vector<D3DXMATRIX>             mAnimatedNodesXForms;
     float                               mAnimTime;
+    bool                                mLoopAnimation;
 
     // skinning
     std::vector<Vertex_Skin>            mSkinVertices;

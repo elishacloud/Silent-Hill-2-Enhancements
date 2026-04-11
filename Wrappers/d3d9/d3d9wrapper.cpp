@@ -27,7 +27,7 @@ Direct3DCreate9Proc m_pDirect3DCreate9 = nullptr;
 Direct3DCreate9Proc m_pDirect3DCreate9_local = nullptr;
 Direct3DCreate9On12Proc m_pDirect3DCreate9On12 = nullptr;
 
-HMODULE GetSystemD3d9()
+static HMODULE GetSystemD3d9()
 {
 	static HMODULE h_d3d9 = nullptr;
 
@@ -48,7 +48,7 @@ HMODULE GetSystemD3d9()
 }
 
 // Get 'Direct3DCreate9On12' for d3d9.dll
-bool GetDirect3DCreate9On12()
+static bool GetDirect3DCreate9On12()
 {
 	// Only allow function to run once
 	static bool AlreadyRun = false;
@@ -73,7 +73,7 @@ bool GetDirect3DCreate9On12()
 }
 
 // Get 'Direct3DCreate9' for d3d9.dll
-bool GetDirect3DCreate9()
+static bool GetDirect3DCreate9()
 {
 	// Only allow function to run once
 	static bool AlreadyRun = false;
@@ -98,7 +98,7 @@ bool GetDirect3DCreate9()
 }
 
 // Get 'Direct3DCreate9' for local d3d9.dll
-bool GetLocalDirect3DCreate9()
+static bool GetLocalDirect3DCreate9()
 {
 	// Only allow function to run once
 	static bool AlreadyRun = false;
@@ -125,7 +125,7 @@ bool GetLocalDirect3DCreate9()
 	return false;
 }
 
-FARPROC GetD3d9UnnamedOrdinal(WORD Ordinal)
+static FARPROC GetD3d9UnnamedOrdinal(WORD Ordinal)
 {
 	FARPROC proc = nullptr;
 
@@ -149,7 +149,7 @@ FARPROC GetD3d9UnnamedOrdinal(WORD Ordinal)
 	return proc;
 }
 
-void WINAPI Direct3D9ForceHybridEnumeration(UINT Mode)
+static void WINAPI Direct3D9ForceHybridEnumeration(UINT Mode)
 {
 	const WORD Ordinal = 16;
 
@@ -178,7 +178,7 @@ void WINAPI Direct3D9ForceHybridEnumeration(UINT Mode)
 	reinterpret_cast<decltype(&Direct3D9ForceHybridEnumeration)>(proc)(Mode);
 }
 
-void WINAPI Direct3D9SetSwapEffectUpgradeShim(int Unknown)
+static void WINAPI Direct3D9SetSwapEffectUpgradeShim(int Unknown)
 {
 	const WORD Ordinal = 18;
 
@@ -207,7 +207,7 @@ void WINAPI Direct3D9SetSwapEffectUpgradeShim(int Unknown)
 	reinterpret_cast<decltype(&Direct3D9SetSwapEffectUpgradeShim)>(proc)(Unknown);
 }
 
-void WINAPI Direct3D9DisableMaximizedWindowedMode()
+static void WINAPI Direct3D9DisableMaximizedWindowedMode()
 {
 	static FARPROC proc = nullptr;
 
@@ -252,7 +252,7 @@ void WINAPI Direct3D9DisableMaximizedWindowedMode()
 	return;
 }
 
-void CallDirect3D9System32Functions()
+static void CallDirect3D9System32Functions()
 {
 	if (ForceHybridEnumeration)
 	{
@@ -316,9 +316,7 @@ IDirect3D9* WINAPI Direct3DCreate9Wrapper(UINT SDKVersion)
 	if (EnableCustomShaders)
 	{
 		LOG_ONCE("Initializing crosire's ReShade version '" RESHADE_STRING_FILE "' (32-bit) built on '" RESHADE_DATE " " RESHADE_TIME "' loaded ...");
-
-		return new m_IDirect3D9((IDirect3D9Ex*)pD3D9);
 	}
 
-	return pD3D9;
+	return new m_IDirect3D9((IDirect3D9Ex*)pD3D9);
 }

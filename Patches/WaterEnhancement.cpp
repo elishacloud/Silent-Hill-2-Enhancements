@@ -25,6 +25,8 @@ DWORD vsDeclWater[] = {
 // eax == 3
 //eax, dword ptr[eax * 4 + 1DB9288h]
 static DWORD* g_vsHandles = nullptr;
+static DWORD* g_cemeteryWaterPlaneCheckAddr = nullptr;
+static DWORD g_cemeteryWaterPlaneCheckValue = NULL;
 
 #define WATER_VSHADER_ORIGINAL  (g_vsHandles[3])
 #define WATER_FVF               (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
@@ -33,13 +35,15 @@ static DWORD* g_vsHandles = nullptr;
 #define WATER_TEXTURE_SLOT_DUDV             2
 #define WATER_TEXTURE_SLOT_CAUSTICS         3
 
-#define WATER_DUDV_SCALE_PS_CB_SLOT         5
-#define WATER_DUDV_SPEC_SCALE_PS_CB_SLOT    6
-#define WATER_SPEC_MULT_PS_CB_SLOT          7
+#define WATER_DUDV_SCALE_PS_CB_SLOT         4
+#define WATER_DUDV_SPEC_SCALE_PS_CB_SLOT    5
+#define WATER_SPEC_MULT_PS_CB_SLOT          6
+#define WATER_FOG_COLOUR_PS_CB_SLOT         7
 
 #define WATER_UVADD_VS_CB_SLOT              90
 #define WATER_UVMUL_VS_CB_SLOT              91
 #define WATER_WORLD_VS_CB_SLOT              92
+#define WATER_COLOUR_VS_CB_SLOT             93
 
 /*
 vs.1.1
@@ -84,8 +88,9 @@ add oT1, r1, c90
 mov oT2, r0
 // scale caustics UVs
 mul oT3, r1, c91
-// pass-through vertex colour
+// pass-through vertex colour (contains fog)
 mov oD0, v5
+
 */
 DWORD g_WaterPondVSBytecode[] = {
     0xfffe0101, 0x0009fffe, 0x58443344, 0x68532038,
@@ -113,7 +118,7 @@ texcrd r4.xyz, t0
 texcrd r5.xyz, t3
 // sample dudv map, restore and rescale
 texld r2, t1
-mul r1, c5, r2_bx2
+mul r1, c4, r2_bx2
 // fill the void
 mov r3.zw, c0
 mov r4.zw, c0
@@ -123,7 +128,7 @@ mad r3, r3, c1, c0
 // disturb projected uv
 add r3, r3, r1
 // disturb caustics uv
-mad r5, r2_bx2, c6, r5
+mad r5, r2_bx2, c5, r5
 // pass along the disturbed base texture coords
 add r2, r4, r1
 
@@ -140,7 +145,7 @@ mul r0, r0, v0
 // blend them
 lrp_sat r0, r0.w, r0, r1
 // add modulated caustics
-mad_sat r0, r3, c7, r0
+mad_sat r0, r3, c6, r0
 // fill alpha
 mov r0.w, c0
 */
@@ -154,26 +159,94 @@ DWORD g_WaterPSBytecode[] = {
     0x80030003, 0xbaf40002, 0x00000040, 0x80070004,
     0xb0e40000, 0x00000040, 0x80070005, 0xb0e40003,
     0x00000042, 0x800f0002, 0xb0e40001, 0x00000005,
-    0x800f0001, 0xa0e40005, 0x84e40002, 0x00000001,
+    0x800f0001, 0xa0e40004, 0x84e40002, 0x00000001,
     0x800c0003, 0xa0e40000, 0x00000001, 0x800c0004,
     0xa0e40000, 0x00000001, 0x800c0005, 0xa0e40000,
     0x00000004, 0x800f0003, 0x80e40003, 0xa0e40001,
     0xa0e40000, 0x00000002, 0x800f0003, 0x80e40003,
     0x80e40001, 0x00000004, 0x800f0005, 0x84e40002,
-    0xa0e40006, 0x80e40005, 0x00000002, 0x800f0002,
+    0xa0e40005, 0x80e40005, 0x00000002, 0x800f0002,
     0x80e40004, 0x80e40001, 0x0000fffd, 0x00000042,
     0x800f0000, 0x80e40002, 0x00000042, 0x800f0001,
     0x80e40003, 0x00000042, 0x800f0003, 0x80e40005,
     0x00000005, 0x800f0000, 0x80e40000, 0x90e40000,
     0x00000012, 0x801f0000, 0x80ff0000, 0x80e40000,
     0x80e40001, 0x00000004, 0x801f0000, 0x80e40003,
-    0xa0e40007, 0x80e40000, 0x00000001, 0x80080000,
+    0xa0e40006, 0x80e40000, 0x00000001, 0x80080000,
     0xa0e40000, 0x0000ffff
+};
+
+/*
+ps.1.4
+  def c0, 0.5, 0.5, 1, 1
+  def c1, 0.5, -0.5, 1, 1
+
+  // calc projected uv
+  texcrd r3.xy, t2_dw.xyw
+  // save aside base texture coords
+  texcrd r4.xyz, t0
+  // save aside caustics texture coords
+  texcrd r5.xyz, t3
+  // sample dudv map, restore and rescale
+  texld r2, t1
+  mul r1, c4, r2_bx2
+  // fill the void
+  mov r3.zw, c0
+  mov r4.zw, c0
+  mov r5.zw, c0
+  // [-1;1] -> [0;1]
+  mad r3, r3, c1, c0
+  // disturb projected uv
+  add r3, r3, r1
+  // disturb caustics uv
+  mad r5, r2_bx2, c5, r5
+  // pass along the disturbed base texture coords
+  add r2, r4, r1
+
+phase
+
+  // sample water texture
+  texld r0, r2
+  // sample refraction texture
+  texld r1, r3
+  // sample caustics texture
+  texld r3, r5
+  // blend water colour and refraction
+  lrp r0, v0.w, v0, r1
+  // add modulated caustics
+  mad_sat r0.xyz, r3, c6, r0
+  // fill alpha
++ mov r0.w, c0
+*/
+DWORD g_WaterPondPSBytecode[] = {
+    0xffff0104, 0x0009fffe, 0x58443344, 0x68532038,
+    0x72656461, 0x73734120, 0x6c626d65, 0x56207265,
+    0x69737265, 0x30206e6f, 0x0031392e, 0x00000051,
+    0xa00f0000, 0x3f000000, 0x3f000000, 0x3f800000,
+    0x3f800000, 0x00000051, 0xa00f0001, 0x3f000000,
+    0xbf000000, 0x3f800000, 0x3f800000, 0x00000040,
+    0x80030003, 0xbaf40002, 0x00000040, 0x80070004,
+    0xb0e40000, 0x00000040, 0x80070005, 0xb0e40003,
+    0x00000042, 0x800f0002, 0xb0e40001, 0x00000005,
+    0x800f0001, 0xa0e40004, 0x84e40002, 0x00000001,
+    0x800c0003, 0xa0e40000, 0x00000001, 0x800c0004,
+    0xa0e40000, 0x00000001, 0x800c0005, 0xa0e40000,
+    0x00000004, 0x800f0003, 0x80e40003, 0xa0e40001,
+    0xa0e40000, 0x00000002, 0x800f0003, 0x80e40003,
+    0x80e40001, 0x00000004, 0x800f0005, 0x84e40002,
+    0xa0e40005, 0x80e40005, 0x00000002, 0x800f0002,
+    0x80e40004, 0x80e40001, 0x0000fffd, 0x00000042,
+    0x800f0000, 0x80e40002, 0x00000042, 0x800f0001,
+    0x80e40003, 0x00000042, 0x800f0003, 0x80e40005,
+    0x00000001, 0x800f0000, 0x80e40001, 0x00000004,
+    0x80170000, 0x80e40003, 0xa0e40006, 0x80e40000,
+    0x40000001, 0x80080000, 0xa0e40000, 0x0000ffff
 };
 
 DWORD g_WaterVSHandle = 0;
 DWORD g_WaterPondVSHandle = 0;
 DWORD g_WaterPSHandle = 0;
+DWORD g_WaterPondPSHandle = 0;
 
 IDirect3DTexture8* g_ScreenCopyTexture = nullptr;
 IDirect3DSurface8* g_ScreenCopySurface = nullptr;
@@ -335,7 +408,12 @@ static void GetWaterConstantsByRoom(D3DXVECTOR4& specMult, D3DXVECTOR4& specUvMu
     switch (roomID) {
         // Pond
         case R_FOREST_CEMETERY:
+        {
             dudvScale = { 0.005f, 0.005f, 0.005f, 0.005f };
+            const float specMultOverride = (GetCutsceneID() == CS_END_LEAVE_LETTER) ? 0.075f : water_spec_mult_cemetery;
+            specMult = { specMultOverride, specMultOverride, specMultOverride, 0.0f };
+            specUvMult = { water_spec_uv_mult_cemetery, water_spec_uv_mult_cemetery, water_spec_uv_mult_cemetery, water_spec_uv_mult_cemetery };
+        }
         break;
         // Pyramidhead submerge
         case R_APT_W_STAIRCASE_N:
@@ -411,7 +489,7 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 Devic
             Device->GetTexture(WATER_TEXTURE_SLOT_CAUSTICS, &tex2);
 
             Device->SetVertexShader((roomID == R_FOREST_CEMETERY) ? g_WaterPondVSHandle : g_WaterVSHandle);
-            Device->SetPixelShader(g_WaterPSHandle);
+            Device->SetPixelShader((roomID == R_FOREST_CEMETERY) ? g_WaterPondPSHandle : g_WaterPSHandle);
 
             Device->SetTexture(WATER_TEXTURE_SLOT_REFRACTION, g_ScreenCopyTexture);
             Device->SetTexture(WATER_TEXTURE_SLOT_DUDV, g_DuDvTexture);
@@ -446,14 +524,23 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 Devic
             Device->SetVertexShaderConstant(WATER_UVADD_VS_CB_SLOT, &uvAddition, 1);
             Device->SetVertexShaderConstant(WATER_UVMUL_VS_CB_SLOT, &specUvMult, 1);
 
+            bool forceFog = false;
             if (roomID == R_FOREST_CEMETERY) {
-                //D3DXMATRIX woldMat = {}, woldMatTrans = {};
-                //Device->GetTransform(D3DTS_WORLD, &woldMat);
-                //D3DXMatrixTranspose(&woldMatTrans, &woldMat);
-                //Device->SetVertexShaderConstant(WATER_WORLD_VS_CB_SLOT, &woldMatTrans, 4);
                 const float worldScale = 1.0f / 3000.0f;
                 D3DXVECTOR4 worldDiv = { worldScale, worldScale, worldScale, worldScale };
                 Device->SetVertexShaderConstant(WATER_WORLD_VS_CB_SLOT, &worldDiv, 1);
+
+                D3DXVECTOR4 waterColour = { 0.32f, 0.32f, 0.32f, 0.35f };
+                Device->SetVertexShaderConstant(WATER_COLOUR_VS_CB_SLOT, &waterColour, 1);
+
+                DWORD dwFogColour = 0u;
+                Device->GetRenderState(D3DRS_FOGCOLOR, &dwFogColour);
+                D3DXVECTOR4 fogColour(float((dwFogColour >> 16) & 0xFF) / 255.0f, float((dwFogColour >> 8) & 0xFF) / 255.0f, float(dwFogColour & 0xFF) / 255.0f, 1.0f);
+                Device->SetPixelShaderConstant(WATER_FOG_COLOUR_PS_CB_SLOT, &fogColour, 1u);
+
+                Device->SetRenderState(D3DRS_FOGENABLE, TRUE);
+                Device->SetRenderState(D3DRS_FOGTABLEMODE, D3DFOG_LINEAR);
+                forceFog = true;
             }
 
             Device->SetPixelShaderConstant(WATER_DUDV_SCALE_PS_CB_SLOT, &dudvScale, 1u);
@@ -486,16 +573,39 @@ void PatchWaterEnhancement()
     {
     case SH2V_10:
         g_vsHandles = reinterpret_cast<DWORD*>(0x1DB9288);
+        g_cemeteryWaterPlaneCheckAddr = reinterpret_cast<DWORD*>(0x1F7AA2C);
         break;
     case SH2V_11:
         g_vsHandles = reinterpret_cast<DWORD*>(0x1DBCE88);
+        g_cemeteryWaterPlaneCheckAddr = reinterpret_cast<DWORD*>(0x1F7E62C);
         break;
     case SH2V_DC:
         g_vsHandles = reinterpret_cast<DWORD*>(0x1DBBE88);
+        g_cemeteryWaterPlaneCheckAddr = reinterpret_cast<DWORD*>(0x1F7D62C);
         break;
     case SH2V_UNKNOWN:
         Logging::Log() << __FUNCTION__ << " Error: unknown game version!";
         WaterEnhancedRender = false;
         return;
     }
+}
+
+void CheckCemeteryWaterCulling()
+{
+    if (!WaterEnhancedRender)
+		return;
+
+	static bool cemeteryWaterCullingDisabled = false;
+
+    if (!cemeteryWaterCullingDisabled && GetCutsceneID() == CS_ANGELA_CEMETERY)
+    {
+		ReadMemoryAddress(g_cemeteryWaterPlaneCheckAddr, &g_cemeteryWaterPlaneCheckValue, sizeof(DWORD));
+        UpdateMemoryAddress(g_cemeteryWaterPlaneCheckAddr, "\x00\x04\x00\x00", sizeof(DWORD));
+        cemeteryWaterCullingDisabled = true;
+	}
+    else if (cemeteryWaterCullingDisabled && GetCutsceneID() != CS_ANGELA_CEMETERY)
+    {
+        UpdateMemoryAddress(g_cemeteryWaterPlaneCheckAddr, &g_cemeteryWaterPlaneCheckValue, sizeof(DWORD));
+        cemeteryWaterCullingDisabled = false;
+	}
 }

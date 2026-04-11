@@ -49,7 +49,7 @@ FARPROC f_D3DXAssembleShader = (FARPROC)*D3DXAssembleShader;
 FARPROC f_D3DXDisassembleShader = (FARPROC)*D3DXDisassembleShader;
 FARPROC f_D3DXLoadSurfaceFromSurface = (FARPROC)*D3DXLoadSurfaceFromSurface;
 
-void LoadD3dx9()
+static void LoadD3dx9()
 {
 	static bool RunOnce = true;
 	if (!RunOnce)

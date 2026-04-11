@@ -39,9 +39,11 @@ extern char* ResetTexNameAddr;
 extern DWORD g_WaterVSHandle;
 extern DWORD g_WaterPondVSHandle;
 extern DWORD g_WaterPSHandle;
+extern DWORD g_WaterPondPSHandle;
 extern DWORD g_WaterVSBytecode[];
 extern DWORD g_WaterPondVSBytecode[];
 extern DWORD g_WaterPSBytecode[];
+extern DWORD g_WaterPondPSBytecode[];
 extern DWORD vsDeclWater[];
 extern void WaterEnhancedReleaseScreenCopy();
 extern HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 ProxyInterface, LPDIRECT3DSURFACE8 pRenderTarget, D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, const void* pVertexStreamZeroData, UINT VertexStreamZeroStride);
@@ -61,6 +63,11 @@ static double TimeGetNowSec() {
     ::QueryPerformanceCounter(&qpcNow);
     return static_cast<double>(qpcNow.QuadPart) / static_cast<double>(sQPCFreq.QuadPart);
 }
+
+// closet enhanced drawing
+extern DWORD gClosetVSShader;
+extern DWORD gClosetPSShader;
+extern BOOL  gClosetShouldSkipDIP;
 
 // brightness (gamma) shader
 /*
@@ -879,8 +886,8 @@ HRESULT m_IDirect3DDevice8::SetRenderState(D3DRENDERSTATETYPE State, DWORD Value
 {
 	Logging::LogDebug() << __FUNCTION__;
 
-	// Fix for 2D Fog and glow around the flashlight lens for Nvidia cards
-	if (FogLayerFix && State == D3DRS_ZBIAS)
+	// Fix for 2D Fog, light switches, pictures and glow around the flashlight lens
+	if (d3d8to9 && State == D3DRS_ZBIAS)
 	{
 		Value = (Value * 15) / 16;
 	}
@@ -1282,6 +1289,10 @@ HRESULT m_IDirect3DDevice8::CreatePixelShader(THIS_ CONST DWORD* pFunction, DWOR
     {
         ProxyInterface->CreatePixelShader(g_WaterPSBytecode, &g_WaterPSHandle);
     }
+    if (!g_WaterPondPSHandle)
+    {
+        ProxyInterface->CreatePixelShader(g_WaterPondPSBytecode, &g_WaterPondPSHandle);
+    }
 
     if (!g_GammaPSHandle)
     {
@@ -1301,6 +1312,8 @@ HRESULT m_IDirect3DDevice8::GetPixelShader(THIS_ DWORD* pHandle)
 HRESULT m_IDirect3DDevice8::SetPixelShader(THIS_ DWORD Handle)
 {
 	Logging::LogDebug() << __FUNCTION__;
+
+    gClosetPSShader = (Handle == 0) ? gClosetPSShader : Handle;
 
 	return ProxyInterface->SetPixelShader(Handle);
 }
@@ -1529,13 +1542,10 @@ HRESULT m_IDirect3DDevice8::DrawShadersAndScaledSurface()
 		}
 
 		ProxyInterface->SetPixelShader(0);
-		ProxyInterface->SetVertexShader(0);
+		ProxyInterface->SetVertexShader(D3DFVF_XYZRHW | D3DFVF_TEX1);
 	}
 
-	// Set vertex declaration
-	ProxyInterface->SetVertexShader(D3DFVF_XYZRHW | D3DFVF_TEX1);
-
-	if (IsScaledResolutionsEnabled())
+	if (IsScaledResolutionsEnabled() && !RestoreBrightnessSelector)
 	{
 		// Set stream source
 		ProxyInterface->SetStreamSource(0, ScaleVertexBuffer, sizeof(CUSTOMVERTEX_TEX1));
@@ -1711,6 +1721,9 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 		OverlayRef.RenderMouseCursor();
 	}
 
+	// Fix water plane culling in Cemetery cutscene
+	CheckCemeteryWaterCulling();
+
 	// Fix pause menu before drawing scaled surface
 	bool PauseMenuFlag = FixPauseMenuOnPresent();
 
@@ -1845,6 +1858,12 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 {
 	Logging::LogDebug() << __FUNCTION__;
 
+    if (gClosetShouldSkipDIP)
+    {
+        Logging::LogDebug() << "Skipping closet draw !";
+        return S_OK;
+    }
+
 	IsDrawCalled = true;
 
 	// Drawing opaque map geometry and dynamic objects
@@ -1941,6 +1960,31 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
             return hr;
         }
     }
+
+	if (EnemyRevealLighting)
+	{
+		// Darken the lying figure in the tunnel radio cutscene
+		if (GetCutsceneID() == CS_TUNNEL_RADIO && GetCutsceneTimer() < 705.5f && GetModelID() == ModelID::chr_scu_scu)
+		{
+			constexpr float shaderConstants[][4] =
+			{
+				{ 0.065f, 0.065f, 0.065f, 0.0f }, // Ambient,  Game default: 0.7f, 0.7f, 0.7f, 0.0f
+				{ 0.03f,  0.03f,  0.03f,  0.0f }, // Diffuse,  Game default: 0.1209223f, 0.1209223f, 0.1209223f, 0.0f
+				{ 0.05f,  0.05f,  0.05f,  0.0f }  // Specular, Game default: 0.15f, 0.15f, 0.15f, GARBAGE
+			};
+
+			ProxyInterface->SetVertexShaderConstant(43, shaderConstants, 2);
+			ProxyInterface->SetPixelShaderConstant(3, &shaderConstants[2], 1);
+		}
+
+		// Disable specular highlights for the mannequin in apartments room 205 before acquring the flashlight
+		if (GetRoomID() == R_APT_E_RM_205 && !GetFlashLightAcquired() && GetModelID() == ModelID::chr_mkn_mkn)
+		{
+			constexpr float shaderConstants[] = { 0.0f, 0.0f, 0.0f, 0.0f }; // Specular, Game default: 0.4f, 0.4f, 0.4f, GARBAGE
+
+			ProxyInterface->SetPixelShaderConstant(3, shaderConstants, 1);
+		}
+	}
 
 	return ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
 }
@@ -2541,6 +2585,17 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 		}
 	}
 
+	// Draw smoke particles with fog enabled
+	if (SmokeFogFix && PrimitiveType == D3DPT_TRIANGLESTRIP && PrimitiveCount == 2 && VertexStreamZeroStride == 24 &&
+		pVertexStreamZeroData && GetEventIndex() == EVENT_IN_GAME)
+	{
+		CUSTOMVERTEX_TEX1 *pVertex = (CUSTOMVERTEX_TEX1*)pVertexStreamZeroData;
+		if (fabs(pVertex[0].x + 200.0f) < 1e-6 && fabs(pVertex[0].y + 400.0f) < 1e-6) {
+			ProxyInterface->SetRenderState(D3DRS_FOGENABLE, TRUE);
+			ProxyInterface->SetRenderState(D3DRS_FOGTABLEMODE, D3DFOG_LINEAR);
+		}
+	}
+
 	return ProxyInterface->DrawPrimitiveUP(PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride);
 }
 
@@ -2602,10 +2657,8 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		}
 
 		// RPT Apartment Closet Cutscene Fix
-		if (ClosetCutsceneFix)
-		{
-			RunClosetCutscene();
-		}
+        // run uncoditionally, it'll early-exit if fix is OFF
+		RunClosetCutscene();
 
 		// RPT Hospital Elevator Stabbing Animation Fix
 		if (HospitalChaseFix)
@@ -2736,6 +2789,25 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		{
 			RunPlayLyingFigureSounds();
 		}
+		if (ClosetCutsceneBonusAudio)
+		{
+			RunPlayClosetCutsceneBonusAudio();
+		}
+
+		// Volume fixes for chainsaw sound effects
+		if (ChainsawSoundFix)
+		{
+			RunChainsawSoundFix();
+		}
+
+		// Prevent Maria from spawning out of bounds in certain rooms
+		if (MariaSpawnFix)
+		{
+			RunMariaSpawnFix();
+		}
+
+		// Extend cutscene between Eddia and Laura in the bowling alley.
+		RunEddieLauraCutscene();
 
 		NeedToGrabScreenForWater = true;
 		RoachesDrawingCounter = 0;
@@ -3179,6 +3251,8 @@ HRESULT m_IDirect3DDevice8::GetVertexShader(THIS_ DWORD* pHandle)
 HRESULT m_IDirect3DDevice8::SetVertexShader(THIS_ DWORD Handle)
 {
 	Logging::LogDebug() << __FUNCTION__;
+
+    gClosetVSShader = (Handle == 0) ? gClosetVSShader : Handle;
 
 	return ProxyInterface->SetVertexShader(Handle);
 }

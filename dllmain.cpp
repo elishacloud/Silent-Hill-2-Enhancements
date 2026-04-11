@@ -626,6 +626,16 @@ void DelayedStart()
 		PatchSpecular();
 	}
 
+    if (DogRoomEnhanced)
+    {
+        PatchDogRoom();
+    }
+
+    if (ClosetRoomEnhanced)
+    {
+        PatchClosetRoomModel();
+    }
+
 	// Creates a reflection of the flashlight on glass and glossy surfaces throughout the game.
 	if (FlashlightReflection)
 	{
@@ -812,6 +822,42 @@ void DelayedStart()
 
 	// Increase cemetery draw distance for leave ending
 	PatchLeaveEndingCemeteryDrawDistance();
+
+	// Fix chainsaw idle and attack sound playback
+	if (ChainsawSoundFix)
+	{
+		PatchChainsawSoundFix();
+	}
+	
+	// Fix volume of the sound that plays in the labyrinth elevator
+	if (LabyrinthElevatorVolumeFix)
+	{
+		PatchLabyrinthElevatorVolumeFix();
+	}
+
+	// Fix Mannequin state in Woodside Apartments room 205
+	if (WoodsideRoom205Fix)
+	{
+		PatchWoodsideMannequinState();
+	}
+
+	// Play a quieter music box track in certain rooms of the Lakeview Hotel
+	if (MusicBoxVolume)
+	{
+		PatchMusicBoxVolume();
+	}
+
+	// Toggle map mesh visibility in certain rooms based on game flags or gameplay status
+	if (MapMeshToggle)
+	{
+		PatchMapMeshToggle();
+	}
+
+	// Restore the fade-out in the cutscene between Eddie and Laura in the bowling alley.
+	if (EddieLauraCutscene)
+	{
+		PatchEddieLauraCutscene();
+	}
 	
 	// Remove the "Now loading..." and "Press Return to continue." messages
 	if (DisableLoadingPressReturnMessages)
@@ -847,6 +893,13 @@ void DelayedStart()
 
 		BYTE Value = 0;
 		UpdateMemoryAddress(pHotelMap, &Value, sizeof(Value));
+	}
+
+	// === Set PlayUnusedAudio ===
+	if (PlayUnusedAudio)
+	{
+		PatchUnusedAudio();
+		Logging::Log() << "PlayUnusedAudio monitor thread initialized!";
 	}
 
 	// Flush cache

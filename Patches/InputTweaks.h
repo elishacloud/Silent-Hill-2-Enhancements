@@ -165,6 +165,7 @@ private:
 	bool FleshRoomFix();
 	bool SetRMBAimFunction();
 	bool IsMovementPressed();
+	bool IsInputBlocked();
 
 public:
 	void SetKeyboardInterfaceAddr(LPDIRECTINPUTDEVICE8A ProxyInterface);
@@ -202,6 +203,7 @@ public:
 	BYTE GetPauseButtonBind();
 	BYTE GetInventoryButtonBind();
 	BYTE GetMapButtonBind();
+	BYTE GetReadyWeaponButtonBind();
 };
 
 // Hitboxes for pause and memo menu

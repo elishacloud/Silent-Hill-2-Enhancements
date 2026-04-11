@@ -9,7 +9,7 @@
 #include <random>
 #include <filesystem>
 
-std::filesystem::path               gModelPath;
+static std::filesystem::path        gModelPath;
 static LARGE_INTEGER                gQPCFreq = {};
 static ModelGLTF*                   gCocroachesModel = nullptr;
 static float                        gUpdateTimers[32] = {};
@@ -17,7 +17,7 @@ static float                        gUpdateTimers[32] = {};
 // mov     eax, 0x00A3F5AC
 // ...
 // fmul    dword ptr [eax-1Ch]
-D3DXMATRIX* gActorTransformMatrix = reinterpret_cast<D3DXMATRIX*>(0xA3F590);  // 0x00A3F5AC - 0x1C
+static D3DXMATRIX* gActorTransformMatrix = reinterpret_cast<D3DXMATRIX*>(0xA3F590);  // 0x00A3F5AC - 0x1C
 
 void PatchCockroachesReplacement() {
     gModelPath = GetModPath("");

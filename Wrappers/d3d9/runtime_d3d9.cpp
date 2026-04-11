@@ -602,7 +602,7 @@ bool reshade::d3d9::runtime_d3d9::init_effect(size_t index)
 		if (FAILED(_device->CreateVertexBuffer(max_vertices * sizeof(float), D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, &_effect_vertex_buffer, nullptr)))
 			return false;
 
-		if (float *data;
+		if (float *data = nullptr;
 			SUCCEEDED(_effect_vertex_buffer->Lock(0, max_vertices * sizeof(float), reinterpret_cast<void **>(&data), 0)))
 		{
 			for (UINT i = 0; i < max_vertices; i++)

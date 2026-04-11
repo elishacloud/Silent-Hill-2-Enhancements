@@ -9,10 +9,13 @@
 	visit(BFaWAtticFix, true) \
 	visit(CatacombsMeatRoomFix, true) \
 	visit(CenterPuzzleCursor, true) \
+	visit(ChainsawSoundFix, true) \
 	visit(ChangeClosetSpawn, true) \
 	visit(CheckCompatibilityMode, true) \
 	visit(CheckForAdminAccess, true) \
+	visit(ClosetCutsceneBonusAudio, true) \
 	visit(ClosetCutsceneFix, true) \
+    visit(ClosetRoomEnhanced, true) \
 	visit(CommandWindowMouseFix, true) \
     visit(CockroachesReplacement, true) \
 	visit(CreateLocalFix, true) \
@@ -32,7 +35,9 @@
 	visit(DisableSafeMode, true) \
 	visit(DisableScreenSaver, true) \
 	visit(DisplayModeOption, true) \
+    visit(DogRoomEnhanced, true) \
 	visit(DynamicResolution, true) \
+	visit(EddieLauraCutscene, true) \
 	visit(EnableDebugOverlay, true) \
 	visit(EnableEnhancedMouse, true) \
 	visit(EnableHoldToStomp, true) \
@@ -46,6 +51,7 @@
 	visit(EnableSoftShadows, true) \
 	visit(EnableTexAddrHack, true) \
 	visit(EnableToggleSprint, true) \
+	visit(EnemyRevealLighting, true) \
 	visit(EnhanceMouseCursor, true) \
 	visit(FastTransitions, true) \
 	visit(ForceHybridEnumeration, true) \
@@ -89,6 +95,7 @@
 	visit(ImproveStorageSupport, true) \
 	visit(IncreaseBlood, true) \
 	visit(IncreaseDrawDistance, true) \
+	visit(LabyrinthElevatorVolumeFix, true) \
 	visit(LegacyFixGPUAntiAliasing, false) \
 	visit(LightingFix, true) \
 	visit(LightingTransitionFix, true) \
@@ -102,9 +109,12 @@
 	visit(MainMenuFix, true) \
 	visit(MainMenuInstantLoadOptions, true) \
 	visit(MainMenuTitlePerLang, true) \
+	visit(MapMeshToggle, true) \
+	visit(MariaSpawnFix, true) \
 	visit(MemoScreenFix, true) \
 	visit(MenuSoundsFix, true) \
 	visit(MothDrawOrderFix, true) \
+	visit(MusicBoxVolume, true) \
 	visit(NoCDPatch, true) \
 	visit(ObservationDeckFogFix, true) \
 	visit(OldManCoinFix, true) \
@@ -129,6 +139,7 @@
 	visit(SetSixtyFPS, true) \
 	visit(SetSwapEffectUpgradeShim, false) \
 	visit(ShowerRoomFlashlightFix, true) \
+	visit(SmokeFogFix, true) \
 	visit(Southpaw, false) \
 	visit(SpecificSoundLoopFix, true) \
 	visit(SpecularFix, true) \
@@ -147,7 +158,8 @@
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, true) \
-	visit(WoodsideRoom205Fix, true)
+	visit(WoodsideRoom205Fix, true) \
+    visit(PlayUnusedAudio, false)
 
 #define VISIT_INT_SETTINGS(visit) \
 	visit(AnisotropicFiltering, 0) \
@@ -164,7 +176,6 @@
 	visit(fog_transparency_layer1, 128) \
 	visit(fog_transparency_layer2, 112) \
 	visit(FogFix, 0xFFFF) /* Overloading the old 'fog_custom_on' option */ \
-	visit(FogLayerFix, 0xFFFF) /* Overloading the old 'Fog2DFix' option */ \
 	visit(FrontBufferControl, 0) \
 	visit(FullscreenImages, 3) \
 	visit(FullscreenVideos, 3) \
@@ -200,7 +211,11 @@
 	visit(water_spec_mult_strange_area, 0.017f) \
 	visit(water_spec_mult_labyrinth, 0.017f) \
 	visit(water_spec_mult_hotel, 0.05f) \
-	visit(water_spec_uv_mult_hotel, 0.45f)
+	visit(water_spec_uv_mult_hotel, 0.45f) \
+    visit(water_spec_mult_cemetery, 0.15f) \
+	visit(water_spec_uv_mult_cemetery, 0.85f) \
+    visit(closet_replacement_model_hide_time, 359.5f) \
+    visit(closet_replacement_model_reveal_time, 1695.0f)
 
 #define VISIT_STR_SETTINGS(visit) \
 	visit(CustomModFolder, "") \
@@ -209,7 +224,6 @@
 #define VISIT_LEGACY_BOOL_SETTINGS(visit) \
 	visit(EnableWndMode, true) \
 	visit(fog_custom_on, true) \
-	visit(Fog2DFix, true) \
 	visit(FullscreenWndMode, false)
 
 #define VISIT_ALL_SETTING(visit) \
@@ -223,6 +237,9 @@
 	visit(AnisotropicFiltering) \
 	visit(AntiAliasing) \
 	visit(AudioFadeOutDelayMS) \
+	visit(ChainsawSoundFix) \
+	visit(ClosetCutsceneBonusAudio) \
+        visit(ClosetRoomEnhanced) \
 	visit(CommandWindowMouseFix) \
 	visit(CustomFontCharHeight) \
 	visit(CustomFontCharWidth) \
@@ -234,6 +251,8 @@
 	visit(DisableLoadingPressReturnMessages) \
 	visit(DisableLogging) \
 	visit(DisableRedCross) \
+	visit(DogRoomEnhanced) \
+	visit(EddieLauraCutscene) \
 	visit(EnableDebugOverlay) \
 	visit(EnableInfoOverlay) \
 	visit(EnableScreenshots) \
@@ -250,17 +269,20 @@
 	visit(fog_layer2_density_mult) \
 	visit(fog_transparency_layer1) \
 	visit(fog_transparency_layer2) \
-	visit(Fog2DFix) \
 	visit(FullscreenWndMode) \
 	visit(GameLoadFlashFix) \
 	visit(HookDirect3D) \
 	visit(HookDirectInput) \
 	visit(HookDirectSound) \
 	visit(HookWndProc) \
+	visit(LabyrinthElevatorVolumeFix) \
 	visit(LetterSpacing) \
 	visit(LimitPerFrameFPS) \
 	visit(LoadModulesFromMemory) \
 	visit(LockResolution) \
+	visit(MapMeshToggle) \
+	visit(MariaSpawnFix) \
+	visit(MusicBoxVolume) \
 	visit(NormalFontHeight) \
 	visit(NormalFontWidth) \
 	visit(OldManCoinFix) \
@@ -273,12 +295,17 @@
 	visit(ShowerRoomFlashlightFix) \
 	visit(SmallFontHeight) \
 	visit(SmallFontWidth) \
+	visit(SmokeFogFix) \
 	visit(SpaceSize) \
 	visit(water_spec_mult_apt_staircase) \
 	visit(water_spec_mult_strange_area) \
 	visit(water_spec_mult_labyrinth) \
 	visit(water_spec_mult_hotel) \
 	visit(water_spec_uv_mult_hotel) \
+    visit(water_spec_mult_cemetery) \
+	visit(water_spec_uv_mult_cemetery) \
+    visit(closet_replacement_model_hide_time) \
+    visit(closet_replacement_model_reveal_time) \
 	visit(WrapperType)
 
 typedef enum _SCREENMODE {
@@ -386,3 +413,5 @@ void __stdcall ParseCallback(char* lpName, char* lpValue, void*);
 void LogSettings();
 void UpdateConfigDefaults();
 void UpdateScaleResolution();
+
+

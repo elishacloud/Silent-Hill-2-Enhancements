@@ -17,11 +17,12 @@
 #include "dsoundwrapper.h"
 #include <fstream>
 #include <shlwapi.h>
+#include "Common\ScopeGuard.h"
 #include "Patches\Patches.h"
 
 namespace {
 	CRITICAL_SECTION dscs = {};
-	constexpr DWORD MaxBuffers = 4;
+	constexpr DWORD MaxBuffers = 4;		// 0 = Save; 1 = Load; 2 = Flashlight; 3 = Footsteps/ClosetCutscene/UnusedLauraLetter
 	m_IDirectSound8* pCurrentDirectSound = nullptr;
 	m_IDirectSoundBuffer8* pDirectSoundWavBuffer[MaxBuffers] = {};
 }
@@ -69,7 +70,7 @@ ULONG m_IDirectSound8::Release()
 	{
 		for (DWORD x = 0; x < MaxBuffers; x++)
 		{
-			ReleaseSoundBuffer(x);
+			ReleaseWavSoundBuffer(x);
 		}
 		count = ProxyInterface->Release();	// Release extra ref count
 	}
@@ -227,7 +228,7 @@ void m_IDirectSound8::ReleaseDevice()
 	dscs = {};
 }
 
-HRESULT m_IDirectSound8::CreateWAVSoundBuffer(const char* filePath, m_IDirectSoundBuffer8** ppDSBuffer)
+HRESULT m_IDirectSound8::CreateWavSoundBuffer(DWORD BufferID, DSBUFFERDESC& dsbd, m_IDirectSoundBuffer8** ppDSBuffer)
 {
 	// Check buffer
 	if (!ppDSBuffer)
@@ -235,43 +236,61 @@ HRESULT m_IDirectSound8::CreateWAVSoundBuffer(const char* filePath, m_IDirectSou
 		Logging::Log() << __FUNCTION__ << " Error: bad buffer address!";
 		return DSERR_INVALIDPARAM;
 	}
+	*ppDSBuffer = nullptr;
 
-	// Buffer variables
-	DSBUFFERDESC dsbd = {};
-	WAVEFORMATEX waveFormat = {};
-	std::vector<char> AudioBuffer;
-
-	// Parse WAV files
-	HRESULT hr = ParseWavFile(filePath, dsbd, waveFormat, AudioBuffer);
-	if (FAILED(hr))
+	// Check buffer ID
+	if (BufferID + 1 > MaxBuffers)
 	{
-		Logging::Log() << __FUNCTION__ << " Error: failed to load WAV! file: " << filePath << " hr: " << (DSERR)hr;
-		return hr;
+		Logging::Log() << __FUNCTION__ << " Error: invalid buffer ID! " << BufferID;
+		return DSERR_INVALIDPARAM;
 	}
+
+	// Release all buffers that are not playing
+	for (DWORD x = 0; x < MaxBuffers; x++)
+	{
+		if (pDirectSoundWavBuffer[x])
+		{
+			DWORD Status = 0;
+			if (SUCCEEDED(pDirectSoundWavBuffer[x]->GetStatus(&Status)) && !(Status & DSBSTATUS_PLAYING))
+			{
+				ReleaseWavSoundBuffer(x);
+			}
+		}
+	}
+
+	// Release current buffer
+	ReleaseWavSoundBuffer(BufferID);
 
 	// Create a sound buffer
 	LPDIRECTSOUNDBUFFER pBuffer = nullptr;
-	hr = ProxyInterface->CreateSoundBuffer(&dsbd, &pBuffer, nullptr);
+	HRESULT hr = ProxyInterface->CreateSoundBuffer(&dsbd, &pBuffer, nullptr);
 	if (FAILED(hr))
 	{
-		Logging::Log() << __FUNCTION__ << " Error: Failed to create buffer! file: " << filePath << " hr: " << (DSERR)hr;
+		Logging::Log() << __FUNCTION__ << " Error: Failed to create buffer! ID: " << BufferID << " hr: " << (DSERR)hr;
 		return hr;
 	}
-	*ppDSBuffer = new m_IDirectSoundBuffer8((IDirectSoundBuffer8*)pBuffer);
+	pDirectSoundWavBuffer[BufferID] = new m_IDirectSoundBuffer8((IDirectSoundBuffer8*)pBuffer);
 
-	// Lock the buffer and copy the audio data
-	LPVOID pData = nullptr;
-	DWORD dataSize = dsbd.dwBufferBytes;
-	hr = (*ppDSBuffer)->Lock(0, dataSize, &pData, &dataSize, nullptr, nullptr, DSBLOCK_ENTIREBUFFER);
-	if (FAILED(hr))
-	{
-		Logging::Log() << __FUNCTION__ << " Error: Failed to lock buffer! file: " << filePath << " hr: " << (DSERR)hr;
-		return hr;
-	}
-	memcpy(pData, AudioBuffer.data(), dataSize);
-	(*ppDSBuffer)->Unlock(pData, dataSize, nullptr, 0);
+	*ppDSBuffer = pDirectSoundWavBuffer[BufferID];
 
 	return hr;
+}
+
+void m_IDirectSound8::ReleaseWavSoundBuffer(DWORD BufferID)
+{
+	if (pDirectSoundWavBuffer[BufferID])
+	{
+		// Mute volume
+		pDirectSoundWavBuffer[BufferID]->SetVolume(0);
+
+		// Release buffer
+		UINT ref = pDirectSoundWavBuffer[BufferID]->Release();
+		if (ref != 0)
+		{
+			Logging::Log() << __FUNCTION__ << " Error: there is still a reference to the sound buffer " << ref;
+		}
+		pDirectSoundWavBuffer[BufferID] = nullptr;
+	}
 }
 
 HRESULT m_IDirectSound8::ParseWavFile(const char* filePath, DSBUFFERDESC& dsbd, WAVEFORMATEX& waveFormat, std::vector<char>& AudioBuffer)
@@ -392,15 +411,13 @@ HRESULT m_IDirectSound8::ParseWavFile(const char* filePath, DSBUFFERDESC& dsbd, 
 			break;
 		}
 
-		// Settings the buffer desc
-		dsbd = {};
-		dsbd.dwSize = sizeof(DSBUFFERDESC);
-		dsbd.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY | DSBCAPS_CTRLPAN | DSBCAPS_CTRLPOSITIONNOTIFY;
+		// Set the buffer desc
 		dsbd.dwBufferBytes = dataSize;
 		dsbd.lpwfxFormat = &waveFormat;
 
 		// Set hr to success
 		hr = DS_OK;
+
 	} while (false);
 
 	// Close and exit
@@ -408,7 +425,7 @@ HRESULT m_IDirectSound8::ParseWavFile(const char* filePath, DSBUFFERDESC& dsbd, 
 	return hr;
 }
 
-HRESULT m_IDirectSound8::PlayWavFile(const char* filePath, DWORD BifferID)
+HRESULT m_IDirectSound8::PlayWavFile(const char* filePath, DWORD BufferID, bool useSfxVolume)
 {
 	if (!filePath)
 	{
@@ -416,11 +433,7 @@ HRESULT m_IDirectSound8::PlayWavFile(const char* filePath, DWORD BifferID)
 		return DSERR_INVALIDPARAM;
 	}
 
-	if (BifferID + 1 > MaxBuffers)
-	{
-		Logging::Log() << __FUNCTION__ << " Error: invalid buffer ID!";
-		return DSERR_INVALIDPARAM;
-	}
+	ScopedCriticalSection ThreatLock(&dscs);
 
 	if (!pCurrentDirectSound)
 	{
@@ -428,57 +441,167 @@ HRESULT m_IDirectSound8::PlayWavFile(const char* filePath, DWORD BifferID)
 		return DSERR_DS8_REQUIRED;
 	}
 
-	EnterCriticalSection(&dscs);
+	// Setting the buffer desc
+	DSBUFFERDESC dsbd = {};
+	dsbd = {};
+	dsbd.dwSize = sizeof(DSBUFFERDESC);
+	dsbd.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY | DSBCAPS_CTRLPAN | DSBCAPS_CTRLPOSITIONNOTIFY;
 
-	// Release all buffers that are not playing
-	for (DWORD x = 0; x < MaxBuffers; x++)
+	// Buffer variables
+	WAVEFORMATEX waveFormat = {};
+	std::vector<char> AudioBuffer;
+
+	// Parse WAV files
+	HRESULT hr = ParseWavFile(filePath, dsbd, waveFormat, AudioBuffer);
+	if (FAILED(hr))
 	{
-		if (pDirectSoundWavBuffer[x])
-		{
-			DWORD Status = 0;
-			if (SUCCEEDED(pDirectSoundWavBuffer[x]->GetStatus(&Status)) && !(Status & DSBSTATUS_PLAYING))
-			{
-				ReleaseSoundBuffer(x);
-			}
-		}
+		Logging::Log() << __FUNCTION__ << " Error: failed to load WAV! file: " << filePath << " hr: " << (DSERR)hr;
+		return hr;
 	}
 
-	// Release current buffer
-	ReleaseSoundBuffer(BifferID);
-
-	HRESULT hr = pCurrentDirectSound->CreateWAVSoundBuffer(filePath, &pDirectSoundWavBuffer[BifferID]);
-
-	if (SUCCEEDED(hr))
+	// Create sound buffer
+	m_IDirectSoundBuffer8* pBuffer = nullptr;
+	hr = pCurrentDirectSound->CreateWavSoundBuffer(BufferID, dsbd, &pBuffer);
+	if (FAILED(hr))
 	{
-		// Get the volume level
-		LONG SFXVolume = DSBVOLUME_MAX;
+		Logging::Log() << __FUNCTION__ << " Error: Failed to create buffer! file: " << filePath << " hr: " << (DSERR)hr;
+		return hr;
+	}
+
+	// Lock the buffer and copy the audio data
+	LPVOID pData = nullptr;
+	DWORD dataSize = dsbd.dwBufferBytes;
+
+	hr = pBuffer->Lock(0, dataSize, &pData, &dataSize, nullptr, nullptr, DSBLOCK_ENTIREBUFFER);
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to lock buffer! file: " << filePath << " hr: " << (DSERR)hr;
+		return hr;
+	}
+
+	memcpy(pData, AudioBuffer.data(), dataSize);
+
+	pBuffer->Unlock(pData, dataSize, nullptr, 0);
+
+	// Get the volume level
+	LONG Volume = DSBVOLUME_MAX;
+	if (useSfxVolume)
+	{
 		BYTE SFXVolumeLevel = GetSFXVolume();
 		if (SFXVolumeLevel < 16)
 		{
-			SFXVolume = VolumeArray[SFXVolumeLevel];
+			Volume = VolumeArray[SFXVolumeLevel];
 		}
-
-		// Set the volume
-		pDirectSoundWavBuffer[BifferID]->SetVolume(SFXVolume);
-
-		// Play the loaded WAV file
-		pDirectSoundWavBuffer[BifferID]->Play(0, 0, 0);
-
-		Logging::LogDebug() << __FUNCTION__ << " Playing sound: " << filePath;
 	}
 
-	LeaveCriticalSection(&dscs);
+	// Set the volume
+	pBuffer->SetVolume(Volume);
+
+	// Play the loaded WAV file
+	hr = pBuffer->Play(0, 0, 0);
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Play failed! file: " << filePath << " hr: " << (DSERR)hr;
+		return hr;
+	}
+
+	Logging::LogDebug() << __FUNCTION__ << " Playing sound: " << filePath;
 
 	return hr;
 }
 
-HRESULT m_IDirectSound8::StopWavFile(DWORD BifferID)
+HRESULT m_IDirectSound8::PlayWavMemory(const WAVEFORMATEX* waveFormat, const BYTE* audioData, DWORD audioSize, DWORD BufferID, bool useSfxVolume)
 {
-	if (BifferID + 1 > MaxBuffers)
+	if (!waveFormat || !audioData || audioSize == 0)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: bad audio parameters!";
+		return DSERR_INVALIDPARAM;
+	}
+
+	ScopedCriticalSection ThreatLock(&dscs);
+
+	if (!pCurrentDirectSound)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: current DirectSound8 not setup!";
+		return DSERR_DS8_REQUIRED;
+	}
+
+	// Setting the buffer desc
+	DSBUFFERDESC dsbd = {};
+	dsbd.dwSize = sizeof(DSBUFFERDESC);
+	dsbd.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY | DSBCAPS_CTRLPAN | DSBCAPS_CTRLPOSITIONNOTIFY;
+	dsbd.dwBufferBytes = audioSize;
+	dsbd.lpwfxFormat = const_cast<WAVEFORMATEX*>(waveFormat);
+
+	// Create sound buffer
+	m_IDirectSoundBuffer8* pBuffer = nullptr;
+	HRESULT hr = pCurrentDirectSound->CreateWavSoundBuffer(BufferID, dsbd, &pBuffer);
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Failed to create buffer! ID: " << BufferID << " hr: " << (DSERR)hr;
+		return hr;
+	}
+
+	// Lock the buffer and copy the audio data
+	LPVOID pData1 = nullptr;
+	DWORD dataSize1 = 0;
+	LPVOID pData2 = nullptr;
+	DWORD dataSize2 = 0;
+
+	hr = pBuffer->Lock(0, audioSize, &pData1, &dataSize1, &pData2, &dataSize2, DSBLOCK_ENTIREBUFFER);
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Lock failed! ID: " << BufferID << " hr: " << (DSERR)hr;
+		return hr;
+	}
+
+	if (pData1 && dataSize1)
+	{
+		memcpy(pData1, audioData, dataSize1);
+	}
+	if (pData2 && dataSize2)
+	{
+		memcpy(pData2, audioData + dataSize1, dataSize2);
+	}
+
+	pBuffer->Unlock(pData1, dataSize1, pData2, dataSize2);
+
+	// Get the volume level
+	LONG Volume = DSBVOLUME_MAX;
+	if (useSfxVolume)
+	{
+		BYTE SFXVolumeLevel = GetSFXVolume();
+		if (SFXVolumeLevel < 16)
+		{
+			Volume = VolumeArray[SFXVolumeLevel];
+		}
+	}
+
+	// Set the volume
+	pBuffer->SetVolume(Volume);
+
+	// Play the loaded WAV file
+	hr = pBuffer->Play(0, 0, 0);
+	if (FAILED(hr))
+	{
+		Logging::Log() << __FUNCTION__ << " Error: Play failed! ID: " << BufferID << " hr: " << (DSERR)hr;
+		return hr;
+	}
+
+	Logging::LogDebug() << __FUNCTION__ << " Playing in-memory WAV buffer. ID: " << BufferID;
+
+	return hr;
+}
+
+HRESULT m_IDirectSound8::StopWavSoundBuffer(DWORD BufferID)
+{
+	if (BufferID + 1 > MaxBuffers)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: invalid buffer ID!";
 		return DSERR_INVALIDPARAM;
 	}
+
+	ScopedCriticalSection ThreatLock(&dscs);
 
 	if (!pCurrentDirectSound)
 	{
@@ -486,31 +609,10 @@ HRESULT m_IDirectSound8::StopWavFile(DWORD BifferID)
 		return DSERR_DS8_REQUIRED;
 	}
 
-	if (pDirectSoundWavBuffer[BifferID])
+	if (pDirectSoundWavBuffer[BufferID])
 	{
-		EnterCriticalSection(&dscs);
-
-		ReleaseSoundBuffer(BifferID);
-
-		LeaveCriticalSection(&dscs);
+		pCurrentDirectSound->ReleaseWavSoundBuffer(BufferID);
 	}
 
 	return DS_OK;
-}
-
-void m_IDirectSound8::ReleaseSoundBuffer(DWORD BifferID)
-{
-	if (pDirectSoundWavBuffer[BifferID])
-	{
-		// Mute volume
-		pDirectSoundWavBuffer[BifferID]->SetVolume(0);
-
-		// Release buffer
-		UINT ref = pDirectSoundWavBuffer[BifferID]->Release();
-		if (ref != 0)
-		{
-			Logging::Log() << __FUNCTION__ << " Error: there is still a reference to the sound buffer " << ref;
-		}
-		pDirectSoundWavBuffer[BifferID] = nullptr;
-	}
 }

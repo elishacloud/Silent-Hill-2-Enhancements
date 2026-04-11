@@ -34,11 +34,14 @@ const char* LoadGameWav = "\\sound\\extra\\g_start.wav";
 const char* FlashLightOnWav = "\\sound\\extra\\flashlight_on.wav";
 const char* FlashLightOffWav = "\\sound\\extra\\flashlight_off.wav";
 const char* LyingFigureFootstepWav = "\\sound\\extra\\machi.wav";
+const char* ClosetCutsceneBonusAudioWav = "\\sound\\extra\\sankaku_toujyou_2.wav";
+const char* ClosetCutsceneBonusAudioGlb = "\\model\\b_doo.glb";
 
 constexpr DWORD SaveID = 0;
 constexpr DWORD LoadID = 1;
 constexpr DWORD FlashlightID = 2;
 constexpr DWORD FootstepsID = 3;
+constexpr DWORD ClosetCutsceneID = 3;
 
 static int32_t PlaySaveSound(int32_t SoundId, float volume, DWORD param3)
 {
@@ -46,7 +49,7 @@ static int32_t PlaySaveSound(int32_t SoundId, float volume, DWORD param3)
 	UNREFERENCED_PARAMETER(volume);
 	UNREFERENCED_PARAMETER(param3);
 
-	m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + SaveGameWav).c_str(), SaveID);
+	m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + SaveGameWav).c_str(), SaveID, true);
 
 	return 0x10;	// PlaySound function success
 }
@@ -57,7 +60,7 @@ static int32_t PlayLoadSound(int32_t SoundId, float volume, DWORD param3)
 	UNREFERENCED_PARAMETER(volume);
 	UNREFERENCED_PARAMETER(param3);
 
-	m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + LoadGameWav).c_str(), LoadID);
+	m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + LoadGameWav).c_str(), LoadID, true);
 
 	return 0x10;	// PlaySound function success
 }
@@ -240,12 +243,12 @@ void RunPlayFlashlightSounds()
 		// play flashlight_off.wav
 		if (FlashLightSwitch == 0)
 		{
-			m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + FlashLightOffWav).c_str(), FlashlightID);
+			m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + FlashLightOffWav).c_str(), FlashlightID, true);
 		}
 		// play flashlight_on.wav
 		else if (FlashLightSwitch == 1)
 		{
-			m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + FlashLightOnWav).c_str(), FlashlightID);
+			m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + FlashLightOnWav).c_str(), FlashlightID, true);
 		}
 	}
 	LastRoomID = RoomID;
@@ -287,7 +290,7 @@ void RunPlayLyingFigureSounds()
 			MatchFound = true;
 			DWORD Value = 0x00000000;
 			UpdateMemoryAddress(LyingFigureFootstepSFX, &Value, sizeof(Value));
-			m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + LyingFigureFootstepWav).c_str(), FootstepsID);
+			m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + LyingFigureFootstepWav).c_str(), FootstepsID, true);
 		}
 	}
 	else if (MatchFound)
@@ -295,6 +298,50 @@ void RunPlayLyingFigureSounds()
 		MatchFound = false;
 		DWORD Value = 0x00002EF3;
 		UpdateMemoryAddress(LyingFigureFootstepSFX, &Value, sizeof(Value));
-		m_IDirectSound8::StopWavFile(FootstepsID);
+		m_IDirectSound8::StopWavSoundBuffer(FootstepsID);
+	}
+}
+
+void RunPlayClosetCutsceneBonusAudio()
+{
+	// Checking wav file
+	static bool wavFound = false;
+	RUNCODEONCE(
+		if (PathFileExistsA((std::string(GetModPath("")) + ClosetCutsceneBonusAudioWav).c_str()))
+		{
+			wavFound = true;
+		});
+	if (!wavFound)
+	{
+		LOG_ONCE(__FUNCTION__ " Error: ClosetCutsceneBonusAudioWav file not found!");
+		return;
+	}
+
+	// Checking glb file
+	static bool glbFound = false;
+	RUNCODEONCE(
+		if (PathFileExistsA((std::string(GetModPath("")) + ClosetCutsceneBonusAudioGlb).c_str()))
+		{
+			glbFound = true;
+		});
+	if (!glbFound)
+	{
+		LOG_ONCE(__FUNCTION__ " Error: 'b_doo.glb' file not found!");
+		return;
+	}
+
+	static bool MatchFound = false;
+	if (ClosetRoomEnhanced && GetCutsceneID() == CS_APT_RPT_CLOSET && GetCutsceneTimer() > 1900.0f)
+	{
+		if (!MatchFound)
+		{
+			MatchFound = true;
+			m_IDirectSound8::PlayWavFile((std::string(GetModPath("")) + ClosetCutsceneBonusAudioWav).c_str(), ClosetCutsceneID, true);
+		}
+	}
+	else if (MatchFound)
+	{
+		MatchFound = false;
+		m_IDirectSound8::StopWavSoundBuffer(ClosetCutsceneID);
 	}
 }

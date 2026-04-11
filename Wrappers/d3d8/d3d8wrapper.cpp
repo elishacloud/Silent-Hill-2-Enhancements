@@ -100,7 +100,7 @@ void HookDirect3DCreate8(HMODULE ScriptDll)
 }
 
 // Get 'Direct3DCreate8' for local d3d8.dll
-bool GetLocalDirect3DCreate8()
+static bool GetLocalDirect3DCreate8()
 {
 	// Only allow function to run once
 	static bool AlreadyRun = false;

@@ -48,11 +48,12 @@ public:
 	STDMETHOD(VerifyCertification)(THIS_ _Out_ LPDWORD pdwCertified);
 
 	// Helper functions
-	HRESULT CreateWAVSoundBuffer(const char* filePath, m_IDirectSoundBuffer8** ppDSBuffer);
+	HRESULT CreateWavSoundBuffer(DWORD BufferID, DSBUFFERDESC& dsbd, m_IDirectSoundBuffer8** ppDSBuffer);
+	void ReleaseWavSoundBuffer(DWORD BufferID);
 
-	// static functions
+	// Static functions
 	static HRESULT ParseWavFile(const char* filePath, DSBUFFERDESC& dsbd, WAVEFORMATEX& waveFormat, std::vector<char>& AudioBuffer);
-	static HRESULT PlayWavFile(const char* filePath, DWORD BifferID);
-	static HRESULT StopWavFile(DWORD BifferID);
-	static void ReleaseSoundBuffer(DWORD BifferID);
+	static HRESULT PlayWavFile(const char* filePath, DWORD BufferID, bool useSfxVolume);
+	static HRESULT PlayWavMemory(const WAVEFORMATEX* wf, const BYTE* audioData, DWORD audioSize, DWORD BufferID, bool useSfxVolume);
+	static HRESULT StopWavSoundBuffer(DWORD BufferID);
 };

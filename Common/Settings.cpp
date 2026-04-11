@@ -296,12 +296,6 @@ void UpdateConfigDefaults()
 		FogFix = fog_custom_on;
 	}
 
-	// Set FogLayerFix
-	if (FogLayerFix == 0xFFFF)
-	{
-		FogLayerFix = Fog2DFix;
-	}
-
 	// Set FullscreenImages
 	switch (FullscreenImages)
 	{

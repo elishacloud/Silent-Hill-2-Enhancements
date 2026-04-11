@@ -1,5 +1,5 @@
 /**
-* Copyright (C) 2024 Elisha Riedlinger
+* Copyright (C) 2025 Murugo
 *
 * This software is  provided 'as-is', without any express  or implied  warranty. In no event will the
 * authors be held liable for any damages arising from the use of this software.
@@ -16,47 +16,34 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include "patches.h"
+#include "Patches.h"
 #include "Common\Utils.h"
 #include "Logging\Logging.h"
 
-// Run SH2 code to fix the rotating Mannequin glitch
-void RunRotatingMannequin()
+// Prevents Maria from spawning out of bounds in certain rooms after reuniting with her outside of
+// Pete's Bowl-O-Rama or in the basement of the Otherworld Hospital.
+void RunMariaSpawnFix()
 {
-	// Get Mannequin state Address
-	static DWORD *MannequinStateAddr = nullptr;
-	if (!MannequinStateAddr)
+	// If enabled, when loading the next room, the game will set Maria's position to her last saved
+	// position from the current save file.
+	static WORD* UseSavedPos = nullptr;
+
+	if (!UseSavedPos)
 	{
 		RUNONCE();
 
-		// Get address
-		constexpr BYTE SearchBytes[]{ 0x68, 0x00, 0x02, 0x00, 0x00, 0x33, 0xF6, 0x33, 0xDB, 0x50, 0x89, 0x94, 0x24, 0x50, 0x04, 0x00, 0x00 };
-		MannequinStateAddr = (DWORD*)ReadSearchedAddresses(0x0048CBC5, 0x0048CE65, 0x0048D075, SearchBytes, sizeof(SearchBytes), 0x34, __FUNCTION__);
-
-		// Checking address pointer
-		if (!MannequinStateAddr)
+		constexpr BYTE SearchBytes[]{ 0x33, 0xC9, 0xB8, 0x21, 0x00, 0x00, 0x00, 0xBA };
+		UseSavedPos = (WORD*)ReadSearchedAddresses(0x0052D9FB, 0x0052DD2B, 0x0052D64B, SearchBytes, sizeof(SearchBytes), -0x21, __FUNCTION__);
+		if (!UseSavedPos)
 		{
 			Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 			return;
 		}
-		MannequinStateAddr = (DWORD*)((DWORD)MannequinStateAddr + 0x60);
 	}
 
-	LOG_ONCE("Fixing the rotating Mannequin glitch...");
-
-	// Static updates
-	static bool ValueSet = false;
-	if (GetRoomID() == R_APT_E_HALLWAY_2F && *MannequinStateAddr != 0x00 && GetFlashLightAcquired())
+	if (GetCutsceneID() == CS_BOWL_MARIA_JAMES || GetCutsceneID() == CS_HSP_ALT_MARIA_BASEMENT ||
+		(GetRoomID() == R_HSP_ALT_BASEMENT && GetEventIndex() == EVENT_GAME_FMV))
 	{
-		if (!ValueSet && *MannequinStateAddr == 0x206)
-		{
-			DWORD Value = 0x207;
-			UpdateMemoryAddress(MannequinStateAddr, &Value, sizeof(DWORD));
-		}
-		ValueSet = true;
-	}
-	else if (ValueSet)
-	{
-		ValueSet = false;
+		*UseSavedPos = 0;
 	}
 }

@@ -201,6 +201,8 @@ class KeyBindsHandler
 public:
 	BYTE GetKeyBind(int KeyIndex);
 	BYTE GetPauseButtonBind();
+	BYTE GetInventoryButtonBind();
+	BYTE GetMapButtonBind();
 	BYTE GetReadyWeaponButtonBind();
 };
 

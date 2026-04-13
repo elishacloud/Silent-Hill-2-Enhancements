@@ -409,7 +409,7 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 			ControllerData->rgbButtons[KeyBinds.GetReadyWeaponButtonBind()] = KEY_CLEAR;
 		}
 
-		// Clear the the pause button if a quicksave is in progress
+		// Clear the pause button if a quicksave is in progress
 		if (GameLoadFix && (GetIsWritingQuicksave() == 1 || GetTextAddr() == 1))
 			ControllerData->rgbButtons[KeyBinds.GetPauseButtonBind()] = KEY_CLEAR;
 
@@ -417,6 +417,14 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		if (GameLoadFix && (GetPlayerIsDying() != 0 || GetMariaNpcIsDying() != 0))
 		{
 			ControllerData->rgbButtons[KeyBinds.GetPauseButtonBind()] = KEY_CLEAR;
+		}
+
+		// Clear all menu buttons if motion blur is active during gameplay
+		if (IsInBloomEffect && GetCutsceneID() == 0 && GetEventIndex() == EVENT_IN_GAME)
+		{
+			ControllerData->rgbButtons[KeyBinds.GetPauseButtonBind()] = KEY_CLEAR;
+			ControllerData->rgbButtons[KeyBinds.GetInventoryButtonBind()] = KEY_CLEAR;
+			ControllerData->rgbButtons[KeyBinds.GetMapButtonBind()] = KEY_CLEAR;
 		}
 
 		// Clear controller data
@@ -726,6 +734,15 @@ void InputTweaks::TweakGetDeviceState(LPDIRECTINPUTDEVICE8A ProxyInterface, DWOR
 		{
 			ClearKey(KeyBinds.GetKeyBind(KEY_SKIP));
 			ClearKey(KeyBinds.GetKeyBind(KEY_CANCEL));
+		}
+
+		// Clear all menu keys if motion blur is active during gameplay
+		if (IsInBloomEffect && GetCutsceneID() == 0 && GetEventIndex() == EVENT_IN_GAME)
+		{
+			ClearKey(KeyBinds.GetKeyBind(KEY_CANCEL));
+			ClearKey(KeyBinds.GetKeyBind(KEY_INVENTORY));
+			ClearKey(KeyBinds.GetKeyBind(KEY_MAP));
+			ClearKey(KeyBinds.GetKeyBind(KEY_SKIP));
 		}
 
 		if (RowboatAnimationFix && (GetBoatFlag() == 0x01 && GetRoomID() == R_TOWN_LAKE))
@@ -1169,6 +1186,16 @@ BYTE KeyBindsHandler::GetKeyBind(int KeyIndex)
 BYTE KeyBindsHandler::GetPauseButtonBind()
 {
 	return *(GetKeyBindsPointer() + 0xF0);
+}
+
+BYTE KeyBindsHandler::GetInventoryButtonBind()
+{
+	return *(GetKeyBindsPointer() + 0x108);
+}
+
+BYTE KeyBindsHandler::GetMapButtonBind()
+{
+	return *(GetKeyBindsPointer() + 0x118);
 }
 
 BYTE KeyBindsHandler::GetReadyWeaponButtonBind()

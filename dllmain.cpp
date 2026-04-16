@@ -512,7 +512,8 @@ void DelayedStart()
 	// Fixes crash when loading Game Results
 	if (GameLoadFix)
 	{
-		PatchGameLoad();
+		PatchGameSave();
+		PatchGameQuickLoad();
 	}
 
 	// Fixes momentarily "flash" when save file is loaded

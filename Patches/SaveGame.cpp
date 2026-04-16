@@ -228,7 +228,7 @@ void __cdecl NewMariaFunction()
 	return oMariaFunction();
 }
 
-void PatchGameLoad()
+void PatchGameSave()
 {
 	// Get in-game check address
 	constexpr BYTE InGameCheckSearchBytes[]{ 0x80, 0x3A, 0xD8, 0x74, 0x11, 0x41, 0x83, 0xC2, 0x18, 0x3B, 0xCF, 0x7C, 0xF3, 0x5F, 0x5E, 0xB8, 0x02, 0x00, 0x00, 0x00, 0x5B, 0xC3, 0x8B, 0xD6, 0x6B, 0xD2, 0x64, 0x03, 0xCA, 0x8D, 0x0C, 0x49 };
@@ -281,7 +281,7 @@ void PatchGameLoadFlashFix()
 
 DWORD quickSaveToggle;
 
-void SetGameLoad()
+void SetGameSave()
 {
 	// Get elevator room save address
 	constexpr BYTE GameLoadSearchBytes[]{ 0x83, 0xC4, 0x10, 0xF7, 0xC1, 0x00, 0x00, 0x00, 0x04, 0x5E, 0x74, 0x0F, 0xC7, 0x05 };
@@ -364,10 +364,10 @@ void SetGameLoad()
 	ClearFontBeforePrint = true;
 }
 
-void RunGameLoad()
+void RunGameSave()
 {
 	// Update save code elevator room
-	RUNCODEONCE(SetGameLoad());
+	RUNCODEONCE(SetGameSave());
 
 	// Get game save address
 	static BYTE *SaveGameAddress = nullptr;

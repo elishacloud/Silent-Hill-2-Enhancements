@@ -228,6 +228,7 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClCompile Include="Patches\HoldDamage.cpp" />
     <ClCompile Include="Patches\LabyrinthElevatorVolumeFix.cpp" />
     <ClCompile Include="Patches\LeaveEndingDrawDistance.cpp" />
+    <ClCompile Include="Patches\QuickLoadGame.cpp" />
     <ClCompile Include="Patches\LowHealthIndicator.cpp" />
     <ClCompile Include="Patches\MapMeshToggle.cpp" />
     <ClCompile Include="Patches\MapTranscription.cpp" />
@@ -288,7 +289,7 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClCompile Include="Patches\TexPatch.cpp" />
     <ClCompile Include="Patches\FogAdjustments.cpp" />
     <ClCompile Include="Patches\Fonts.cpp" />
-    <ClCompile Include="Patches\GameLoad.cpp" />
+    <ClCompile Include="Patches\SaveGame.cpp" />
     <ClCompile Include="Patches\HangOnEsc.cpp" />
     <ClCompile Include="Patches\HospitalChase.cpp" />
     <ClCompile Include="Patches\HotelWater.cpp" />

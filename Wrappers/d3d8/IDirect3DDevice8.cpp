@@ -2693,7 +2693,8 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		// Game save fix
 		if (GameLoadFix)
 		{
-			RunGameLoad();
+			RunGameSave();
+			RunGameQuickLoadCheck();
 		}
 
 		// Cancel an in-progress quick save when entering another room or interacting with a save point

@@ -155,7 +155,7 @@
     <ClCompile Include="Patches\Resolution.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
-    <ClCompile Include="Patches\GameLoad.cpp">
+    <ClCompile Include="Patches\SaveGame.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
     <ClCompile Include="Patches\BloodSize.cpp">
@@ -529,6 +529,9 @@
     </ClCompile>
     <ClCompile Include="External\reshade\source\effect_symbol_table.cpp">
       <Filter>External\ReShadeFX</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\QuickLoadGame.cpp">
+      <Filter>Patches</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -159,7 +159,8 @@
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, true) \
 	visit(WoodsideRoom205Fix, true) \
-    visit(PlayUnusedAudio, false)
+	visit(PlayUnusedAudio, false) \
+	visit(RainParticles, true)
 
 #define VISIT_INT_SETTINGS(visit) \
 	visit(AnisotropicFiltering, 0) \

@@ -35,6 +35,11 @@
 extern char** TexNameAddr;
 extern char* ResetTexNameAddr;
 
+// rain particles
+extern DWORD g_RainVSHandle;
+extern DWORD g_VsDeclRain[];
+extern DWORD g_RainVSBytecode[];
+
 // enhanced water drawing
 extern DWORD g_WaterVSHandle;
 extern DWORD g_WaterPondVSHandle;
@@ -3238,6 +3243,10 @@ HRESULT m_IDirect3DDevice8::CreateVertexShader(THIS_ CONST DWORD* pDeclaration, 
         ProxyInterface->CreateVertexShader(vsDeclFullScreenQuad, g_GammaLUTShaderCodeVS, &g_GammaVSHandle, 0);
     }
 
+	if (!g_RainVSHandle)
+	{
+		ProxyInterface->CreateVertexShader(g_VsDeclRain, g_RainVSBytecode, &g_RainVSHandle, 0);
+	}
 
 	return ProxyInterface->CreateVertexShader(pDeclaration, pFunction, pHandle, Usage);
 }

@@ -265,8 +265,8 @@
       </Feature>
 
       <Feature name="RainParticles">
-        <Title>Rain Particles</Title>
-        <Description>Replaces the 1 px thick lines used for rain and water droplets throughout the game with resolution-independent particles.</Description>
+        <Title>Particelle d'acqua</Title>
+        <Description>Sostituisce le linee larghe 1px usate per la pioggia e le gocce d'acqua utilizzate nel gioco con particelle che non dipendono dalla risoluzione.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>

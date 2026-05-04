@@ -654,7 +654,7 @@ BYTE* GetFlashlightAvailablePointer()
 		return FlashlightAvailableAddr;
 	}
 
-	// Get address for flashlight available address
+	// Get address for if flashlight is available in the current room
 	constexpr BYTE FlashlightAvailableSearchBytes[]{ 0x8B, 0x4C, 0x24, 0x04, 0x33, 0xC0, 0x85, 0xC9, 0x0F, 0x95, 0xC0, 0x40 };
 	FlashlightAvailableAddr = (BYTE*)ReadSearchedAddresses(0x47AD50, 0x47AFF0, 0x47B200, FlashlightAvailableSearchBytes, sizeof(FlashlightAvailableSearchBytes), 0x0E, __FUNCTION__);
 
@@ -696,7 +696,7 @@ float* GetFlashlightDirPointer()
 		return FlashlightDirAddr;
 	}
 
-	// Get address for flashlight direction address
+	// Get address for flashlight direction
 	constexpr BYTE FlashlightDirSearchBytes[]{ 0x00, 0x00, 0x80, 0x3E, 0xEB, 0x1D, 0xD9 };
 	FlashlightDirAddr = (float*)ReadSearchedAddresses(0x536A85, 0x536DB5, 0x5366D5, FlashlightDirSearchBytes, sizeof(FlashlightDirSearchBytes), 0x4F, __FUNCTION__);
 

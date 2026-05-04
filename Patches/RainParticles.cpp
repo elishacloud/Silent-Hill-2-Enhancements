@@ -17,7 +17,7 @@ DWORD g_VsDeclRain[] = {
 vs.1.1
 // c32 = wvp matrix
 // c90 = camera right vector
-// c91 = camera up vector
+// c91 = world up vector
 // c92 = james position
 // c93 = flashlight direction
 // c94 = parameters (halfWidth, halfHeight, cos(45°), flashlightActive)

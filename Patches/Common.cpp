@@ -31,6 +31,8 @@ float *FlashlightBrightnessAddr = nullptr;
 BYTE *FlashLightRenderAddr = nullptr;
 BYTE *FlashlightSwitchAddr = nullptr;
 DWORD *FlashLightAcquiredAddr = nullptr;
+BYTE *FlashlightAvailableAddr = nullptr;
+float *FlashlightDirAddr = nullptr;
 float *JamesPosXAddr = nullptr;
 float *JamesPosYAddr = nullptr;
 float *JamesPosZAddr = nullptr;
@@ -158,6 +160,25 @@ bool ShowInfoOverlay = false;
 std::string AuxDebugOvlString = "";
 bool IsControllerConnected = false;
 HWND GameWindowHandle = NULL;
+
+void* GetD3dDevice()
+{
+	switch (GameVersion)
+	{
+	case SH2V_10:
+		return reinterpret_cast<void* (__cdecl*)()>(0x4F5480)();
+		break;
+	case SH2V_11:
+		return reinterpret_cast<void* (__cdecl*)()>(0x4F5730)();
+		break;
+	case SH2V_DC:
+		return reinterpret_cast<void* (__cdecl*)()>(0x4F4FF0)();
+		break;
+	}
+
+	Logging::Log() << __FUNCTION__ << " Error: failed to find d3dDevice!";
+	return nullptr;
+}
 
 bool IsInFullScreenImageEvent()
 {
@@ -617,6 +638,76 @@ float *GetFlashlightBrightnessPointer()
 	}
 
 	return FlashlightBrightnessAddr;
+}
+
+bool GetFlashlightAvailable()
+{
+	BYTE* pFlashlightAvailable = GetFlashlightAvailablePointer();
+
+	return *pFlashlightAvailable != 1;
+}
+
+BYTE* GetFlashlightAvailablePointer()
+{
+	if (FlashlightAvailableAddr)
+	{
+		return FlashlightAvailableAddr;
+	}
+
+	// Get address for if flashlight is available in the current room
+	constexpr BYTE FlashlightAvailableSearchBytes[]{ 0x8B, 0x4C, 0x24, 0x04, 0x33, 0xC0, 0x85, 0xC9, 0x0F, 0x95, 0xC0, 0x40 };
+	FlashlightAvailableAddr = (BYTE*)ReadSearchedAddresses(0x47AD50, 0x47AFF0, 0x47B200, FlashlightAvailableSearchBytes, sizeof(FlashlightAvailableSearchBytes), 0x0E, __FUNCTION__);
+
+	// Checking address pointer
+	if (!FlashlightAvailableAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find flashlight available address!";
+		return nullptr;
+	}
+
+	return FlashlightAvailableAddr;
+}
+
+float GetFlashlightDirX()
+{
+	float* pFlashlightDir = GetFlashlightDirPointer();
+
+	return (pFlashlightDir) ? *(float*)((DWORD)pFlashlightDir) : 0.0f;
+}
+
+float GetFlashlightDirY()
+{
+	float* pFlashlightDir = GetFlashlightDirPointer();
+
+	return (pFlashlightDir) ? *(float*)((DWORD)pFlashlightDir + 0x4) : 0.0f;
+}
+
+float GetFlashlightDirZ()
+{
+	float* pFlashlightDir = GetFlashlightDirPointer();
+
+	return (pFlashlightDir) ? *(float*)((DWORD)pFlashlightDir + 0x8) : 0.0f;
+}
+
+float* GetFlashlightDirPointer()
+{
+	if (FlashlightDirAddr)
+	{
+		return FlashlightDirAddr;
+	}
+
+	// Get address for flashlight direction
+	constexpr BYTE FlashlightDirSearchBytes[]{ 0x00, 0x00, 0x80, 0x3E, 0xEB, 0x1D, 0xD9 };
+	FlashlightDirAddr = (float*)ReadSearchedAddresses(0x536A85, 0x536DB5, 0x5366D5, FlashlightDirSearchBytes, sizeof(FlashlightDirSearchBytes), 0x4F, __FUNCTION__);
+
+	// Checking address pointer
+	if (!FlashlightDirAddr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find flashlight direction address!";
+		return nullptr;
+	}
+
+	return FlashlightDirAddr;
 }
 
 BYTE GetEventIndex()

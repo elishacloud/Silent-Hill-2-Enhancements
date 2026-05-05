@@ -194,8 +194,6 @@ void RunClosetCutscene()
 
 constexpr ModelOffsetTable kClosetModelTable = { -65533, 4, 176, 2, 304, 0, 320, 320, 2, 560, 1, 5232, 3, 320, 3, 336, 368, 0, 416, 0 };
 
-static IDirect3DDevice8* (__cdecl* SH2_GetD3dDevice)() = (IDirect3DDevice8 * (__cdecl*)())(0x4F5480);
-
 //static D3DXMATRIX* gWorldTransform = reinterpret_cast<D3DXMATRIX*>(0x1F7D5F0);
 static D3DXMATRIX* gViewTransform  = reinterpret_cast<D3DXMATRIX*>(0x1F7D530);
 
@@ -304,7 +302,7 @@ void PatchClosetRoomModel() {
         const DWORD roomID = GetRoomID();
         if (roomID == CS_APT_RPT_FIGHT) {
             if (*model == kClosetModelTable) {
-                IDirect3DDevice8* device = SH2_GetD3dDevice();
+                IDirect3DDevice8* device = static_cast<IDirect3DDevice8*>(GetD3dDevice());
                 if (device) {
                     gClosetVSShader = 0;
                     gClosetPSShader = 0;
@@ -326,7 +324,7 @@ void PatchClosetRoomModel() {
             if (*model == kClosetModelTable) {
                 gClosetShouldSkipDIP = FALSE;
 
-                IDirect3DDevice8* device = SH2_GetD3dDevice();
+                IDirect3DDevice8* device = static_cast<IDirect3DDevice8*>(GetD3dDevice());
                 if (device) {
                     DrawClosetModel(device);
                 }

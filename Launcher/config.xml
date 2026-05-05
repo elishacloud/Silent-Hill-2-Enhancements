@@ -264,6 +264,15 @@
         </Choices>
       </Feature>
 
+      <Feature name="RainParticles">
+        <Title>Rain Particles</Title>
+        <Description>Replaces the 1 px thick lines used for rain and water droplets throughout the game with resolution-independent particles.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
     </Section>
 
     <Section name="Noise Filter">

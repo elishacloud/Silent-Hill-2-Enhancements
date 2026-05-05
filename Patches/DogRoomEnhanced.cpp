@@ -13,8 +13,6 @@
 #include <sstream>
 #include <filesystem>
 
-static IDirect3DDevice8* (__cdecl* SH2_GetD3dDevice)() = (IDirect3DDevice8* (__cdecl*)())(0x4F5480);
-
 static ModelGLTF*               gLeversModel = nullptr;
 static std::filesystem::path    gModelPath;
 static LARGE_INTEGER            gQPCFreq = {};
@@ -124,7 +122,7 @@ void PatchDogRoom() {
         const DWORD roomID = GetRoomID();
         if (roomID == R_END_DOG_RM) {
             if (*model == kDogModelTable) {
-                IDirect3DDevice8* device = SH2_GetD3dDevice();
+                IDirect3DDevice8* device = static_cast<IDirect3DDevice8*>(GetD3dDevice());
                 if (device) {
                     DrawLeversModel(device);
                 }

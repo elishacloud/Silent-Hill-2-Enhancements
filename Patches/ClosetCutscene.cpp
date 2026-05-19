@@ -302,7 +302,7 @@ void PatchClosetRoomModel() {
         const DWORD roomID = GetRoomID();
         if (roomID == CS_APT_RPT_FIGHT) {
             if (*model == kClosetModelTable) {
-                IDirect3DDevice8* device = static_cast<IDirect3DDevice8*>(GetD3dDevice());
+                IDirect3DDevice8* device = GetD3dDevice();
                 if (device) {
                     gClosetVSShader = 0;
                     gClosetPSShader = 0;
@@ -324,7 +324,7 @@ void PatchClosetRoomModel() {
             if (*model == kClosetModelTable) {
                 gClosetShouldSkipDIP = FALSE;
 
-                IDirect3DDevice8* device = static_cast<IDirect3DDevice8*>(GetD3dDevice());
+                IDirect3DDevice8* device = GetD3dDevice();
                 if (device) {
                     DrawClosetModel(device);
                 }

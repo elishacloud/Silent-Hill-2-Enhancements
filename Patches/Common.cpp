@@ -161,18 +161,18 @@ std::string AuxDebugOvlString = "";
 bool IsControllerConnected = false;
 HWND GameWindowHandle = NULL;
 
-void* GetD3dDevice()
+IDirect3DDevice8* GetD3dDevice()
 {
 	switch (GameVersion)
 	{
 	case SH2V_10:
-		return reinterpret_cast<void* (__cdecl*)()>(0x4F5480)();
+		return reinterpret_cast<IDirect3DDevice8 * (__cdecl*)()>(0x4F5480)();
 		break;
 	case SH2V_11:
-		return reinterpret_cast<void* (__cdecl*)()>(0x4F5730)();
+		return reinterpret_cast<IDirect3DDevice8 * (__cdecl*)()>(0x4F5730)();
 		break;
 	case SH2V_DC:
-		return reinterpret_cast<void* (__cdecl*)()>(0x4F4FF0)();
+		return reinterpret_cast<IDirect3DDevice8 * (__cdecl*)()>(0x4F4FF0)();
 		break;
 	}
 

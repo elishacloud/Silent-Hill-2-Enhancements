@@ -391,8 +391,10 @@ enum class WEAPONTYPE : uint8_t {
 
 enum class ModelID;
 
+struct IDirect3DDevice8;
+
 // Shared function declaration
-void* GetD3dDevice();
+IDirect3DDevice8* GetD3dDevice();
 DWORD GetRoomID();
 DWORD GetCutsceneID();
 float GetCutscenePos();

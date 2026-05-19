@@ -122,7 +122,7 @@ void PatchDogRoom() {
         const DWORD roomID = GetRoomID();
         if (roomID == R_END_DOG_RM) {
             if (*model == kDogModelTable) {
-                IDirect3DDevice8* device = static_cast<IDirect3DDevice8*>(GetD3dDevice());
+                IDirect3DDevice8* device = GetD3dDevice();
                 if (device) {
                     DrawLeversModel(device);
                 }

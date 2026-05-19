@@ -132,7 +132,7 @@ static void drawRain(std::vector<TriVertex>& triList)
 
     if (triList.size() > 0)
     {
-        IDirect3DDevice8* device = static_cast<IDirect3DDevice8*>(GetD3dDevice());
+        IDirect3DDevice8* device = GetD3dDevice();
 
         constexpr float upVec[4] = { 0.0f, -1.0f, 0.0f, 0.0f };
 

@@ -386,6 +386,7 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClInclude Include="External\reshade\source\effect_preprocessor.hpp" />
     <ClInclude Include="External\reshade\source\effect_symbol_table.hpp" />
     <ClInclude Include="External\reshade\source\effect_token.hpp" />
+    <ClInclude Include="Include\ComPtr.h" />
     <ClInclude Include="Include\criware\criware.h" />
     <ClInclude Include="Include\criware\criware_adx.h" />
     <ClInclude Include="Include\criware\criware_adxfic.h" />

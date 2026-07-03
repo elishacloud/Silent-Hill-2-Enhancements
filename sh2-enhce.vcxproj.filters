@@ -533,6 +533,9 @@
     <ClCompile Include="Patches\QuickLoadGame.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\RainParticles.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Settings.h">
@@ -819,6 +822,9 @@
     </ClInclude>
     <ClInclude Include="Common\ScopeGuard.h">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Patches\TransparentDrawTypes.h">
+      <Filter>Patches</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

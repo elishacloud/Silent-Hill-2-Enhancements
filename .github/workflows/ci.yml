@@ -24,7 +24,7 @@ jobs:
     steps:
     - uses: actions/checkout@v5
       with:
-        submodules: true
+        submodules: recursive
 
     - name: Setup MSBuild
       shell: pwsh

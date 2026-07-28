@@ -22,14 +22,27 @@ jobs:
         platform: [Win32]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v5
       with:
-        submodules: recursive
-    - uses: microsoft/setup-msbuild@v1
-    - uses: Trass3r/setup-cpp@master
+        submodules: true
+
+    - name: Setup MSBuild
+      shell: pwsh
+      run: |
+        $msbuild = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" `
+          -latest `
+          -requires Microsoft.Component.MSBuild `
+          -find MSBuild\**\Bin\MSBuild.exe
+
+        if (-not $msbuild) { throw "MSBuild not found." }
+
+        $msbuildDir = Split-Path $msbuild
+        Add-Content $env:GITHUB_PATH $msbuildDir
+
     - name: Build
-      run: msbuild /m /p:Configuration=${{ matrix.config }} /p:Platform=${{ matrix.platform }} sh2-enhce.sln
-    - uses: actions/upload-artifact@v4
+      run: msbuild sh2-enhce.sln /m /p:Configuration=${{ matrix.config }} /p:Platform=${{ matrix.platform }}
+
+    - uses: actions/upload-artifact@v6
       with:
         name: ${{ matrix.config }} binaries
         path: |

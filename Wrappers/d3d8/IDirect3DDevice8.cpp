@@ -1889,61 +1889,45 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 		}
 	}
 
-	// Exclude Woodside Room 208 TV static geometry from receiving shadows
-	if (EnableSoftShadows && GetRoomID() == R_APT_E_RM_208 && GetModelID() == ModelID::chr_item_noa)
+	// Exclude specific geometry from receiving shadows
+	if (EnableSoftShadows)
 	{
-		DWORD stencilPass = 0;
-		ProxyInterface->GetRenderState(D3DRS_STENCILPASS, &stencilPass);
+		const auto modelId = GetModelID();
+		const auto roomId = GetRoomID();
 
-		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);
+		if (
+			// Woodside Apts room 208 TV static
+			(modelId == ModelID::chr_item_noa) ||
+			// Heaven's Night neon sign
+			(modelId == ModelID::chr_item_nef) ||
+			// Heaven's Night "Paradise" neon sign
+			(modelId == ModelID::chr_item_neo && GetCurrentMaterialIndex() != 1) ||
+			// Heaven's Night "KISS" neon sign
+			(modelId == ModelID::chr_item_nep) ||
+			// Heaven's Night back hallway windows
+			(roomId == R_HEAVENS_NIGHT_BACK && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 18 && startIndex == 0 && primCount == 21) ||
+			// Hotel 2F west hallway window
+			(roomId == R_HTL_W_ROOM_HALL_2F && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 10 && startIndex == 0 && primCount == 10) ||
+			// Hotel 1F store room hallway window
+			(roomId == R_HTL_STORE_RM_1F && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 8 && startIndex == 0 && primCount == 8) ||
+			// Alternate hospital day room refrigerator interior
+			(roomId == R_HSP_ALT_DAY_ROOM && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 1037 && startIndex == 0 && primCount == 1580)
+		)
+		{
+			DWORD stencilPass, stencilRef = 0;
+			ProxyInterface->GetRenderState(D3DRS_STENCILPASS, &stencilPass);
+			ProxyInterface->GetRenderState(D3DRS_STENCILREF, &stencilRef);
+			
+			// Configure render states so the object's silhouette is removed from the stencil buffer
+			ProxyInterface->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);
+			ProxyInterface->SetRenderState(D3DRS_STENCILREF, 1);
+			HRESULT hr = ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
 
-		HRESULT hr = ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
+			ProxyInterface->SetRenderState(D3DRS_STENCILPASS, stencilPass);
+			ProxyInterface->SetRenderState(D3DRS_STENCILREF, stencilRef);
 
-		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, stencilPass);
-
-		return hr;
-	}
-	// Exclude windows in Heaven's Night, Hotel 2F Room Hallway and Hotel Storeroom from receiving shadows
-	else if (EnableSoftShadows &&
-		((GetRoomID() == R_HEAVENS_NIGHT_BACK && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 18 && startIndex == 0 && primCount == 21) ||
-		(GetRoomID() == R_HTL_W_ROOM_HALL_2F && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 10 && startIndex == 0 && primCount == 10) ||
-		(GetRoomID() == R_HTL_STORE_RM_1F && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 8 && startIndex == 0 && primCount == 8)))
-	{
-		DWORD stencilPass, stencilRef = 0;
-
-		// Backup renderstates
-		ProxyInterface->GetRenderState(D3DRS_STENCILPASS, &stencilPass);
-		ProxyInterface->GetRenderState(D3DRS_STENCILREF, &stencilRef);
-
-		// Set states so we don't receive shadows
-		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);
-		ProxyInterface->SetRenderState(D3DRS_STENCILREF, 1);
-
-		HRESULT hr = ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
-
-		// Restore renderstates
-		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, stencilPass);
-		ProxyInterface->SetRenderState(D3DRS_STENCILREF, stencilRef);
-
-		return hr;
-	}
-	// Exclude refrigerator interior in hospital from receiving shadows
-	else if (EnableSoftShadows && GetRoomID() == R_HSP_ALT_DAY_ROOM && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 1037 && startIndex == 0 && primCount == 1580)
-	{
-		DWORD stencilPass = 0;
-
-		// Backup renderstates
-		ProxyInterface->GetRenderState(D3DRS_STENCILPASS, &stencilPass);
-
-		// Set states so we don't receive shadows
-		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);
-
-		HRESULT hr = ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
-
-		// Restore renderstates
-		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, stencilPass);
-
-		return hr;
+			return hr;
+		}
 	}
 
 	// Creates a reflection of the flashlight on glass and glossy surfaces throughout the game.

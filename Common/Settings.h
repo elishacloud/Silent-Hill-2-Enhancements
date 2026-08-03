@@ -199,12 +199,12 @@
 	visit(SmallFontWidth, 16) \
 	visit(SpaceSize, 7) \
 	visit(SpeedrunMode, 0) \
-	visit(water_uv_mode_cemetery, 0) \
-	visit(water_uv_mode_lake, 0) \
-	visit(water_alpha_cemetery, 40) \
-	visit(water_alpha_lake, 70) \
-	visit(water_rgb_cemetery, 50) \
-	visit(water_rgb_lake, 24)
+	visit(water_uv_mode_cemetery, 1) \
+	visit(water_uv_mode_lake, 1) \
+	visit(water_alpha_cemetery, 255) \
+	visit(water_alpha_lake, 255) \
+	visit(water_rgb_cemetery, 255) \
+	visit(water_rgb_lake, 255)
 
 #define VISIT_FLOAT_SETTINGS(visit) \
 	visit(fog_layer1_x1, 0.250f) \
@@ -216,22 +216,22 @@
 	visit(fog_layer2_density_mult, 1.4f) \
 	visit(LimitPerFrameFPS, 59.997f) \
 	visit(water_spec_mult_apt_staircase, 0.035f) \
-	visit(water_spec_mult_cemetery, 0.15f) \
+	visit(water_spec_mult_cemetery, 0.1f) \
 	visit(water_spec_mult_hotel, 0.05f) \
 	visit(water_spec_mult_labyrinth, 0.017f) \
-	visit(water_spec_mult_lake, 0.15f) \
+	visit(water_spec_mult_lake, 0.07f) \
 	visit(water_spec_mult_strange_area, 0.017f) \
 	visit(water_spec_uv_mult_cemetery, 0.85f) \
 	visit(water_spec_uv_mult_hotel, 0.45f) \
-	visit(water_spec_uv_mult_lake, 0.85f) \
+	visit(water_spec_uv_mult_lake, 1.0f) \
 	visit(water_uv_rot_radius_cemetery, 100.0f) \
 	visit(water_uv_rot_radius_lake, 100.0f) \
 	visit(water_uv_rot_speed_cemetery, 0.1f) \
 	visit(water_uv_rot_speed_lake, 0.1f) \
-	visit(water_uv_scroll_u_speed_cemetery, 0.02f) \
-	visit(water_uv_scroll_u_speed_lake, 0.0f) \
-	visit(water_uv_scroll_v_speed_cemetery, -0.02f) \
-	visit(water_uv_scroll_v_speed_lake, -0.02f) \
+	visit(water_uv_scroll_u_speed_cemetery, -0.01f) \
+	visit(water_uv_scroll_u_speed_lake, -0.04f) \
+	visit(water_uv_scroll_v_speed_cemetery, 0.03f) \
+	visit(water_uv_scroll_v_speed_lake, 0.02f) \
 	visit(closet_replacement_model_hide_time, 359.5f) \
 	visit(closet_replacement_model_reveal_time, 1695.0f)
 

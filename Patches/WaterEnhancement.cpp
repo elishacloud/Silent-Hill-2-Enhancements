@@ -415,7 +415,7 @@ static void GetWaterConstantsByRoom(D3DXVECTOR4& specMult, D3DXVECTOR4& specUvMu
         case R_FOREST_CEMETERY:
         {
             dudvScale = { 0.005f, 0.005f, 0.005f, 0.005f };
-            const float specMultOverride = (GetCutsceneID() == CS_END_LEAVE_LETTER) ? 0.075f : water_spec_mult_cemetery;
+            const float specMultOverride = (GetCutsceneID() == CS_END_LEAVE_LETTER) ? 0.05f : water_spec_mult_cemetery;
             specMult = { specMultOverride, specMultOverride, specMultOverride, 0.0f };
             specUvMult = { water_spec_uv_mult_cemetery, water_spec_uv_mult_cemetery, water_spec_uv_mult_cemetery, water_spec_uv_mult_cemetery };
         }

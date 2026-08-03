@@ -495,28 +495,14 @@ D3DXVECTOR4 GetBaseUVOffset(DWORD roomID, DWORD cutsceneID, int64_t inGameTimerM
     if (roomID != R_FOREST_CEMETERY && roomID != R_TOWN_LAKE)
         return uvOffset;
 
-    const int mode = roomID == R_FOREST_CEMETERY ? water_uv_mode_cemetery : cutsceneID == CS_END_REBIRTH_EPILOGUE ? water_uv_mode_lake_rebirth : water_uv_mode_lake;
-    if (mode == 0) {
-        const double speed = roomID == R_FOREST_CEMETERY ? water_uv_rot_speed_cemetery : cutsceneID == CS_END_REBIRTH_EPILOGUE ? water_uv_rot_speed_lake_rebirth : water_uv_rot_speed_lake;
-        const double radius = roomID == R_FOREST_CEMETERY ? water_uv_rot_radius_cemetery : cutsceneID == CS_END_REBIRTH_EPILOGUE ? water_uv_rot_radius_lake_rebirth : water_uv_rot_radius_lake;
-        const double theta = static_cast<double>(inGameTimerMs) * speed * kPi / 1000.0;
-        uvOffset = {
-            static_cast<float>(std::sin(theta) * radius * kWorldScale),
-            static_cast<float>(std::cos(theta) * radius * kWorldScale),
-            0.0f,
-            0.0f
-        };
-    }
-    else {
-        const double speedU = roomID == R_FOREST_CEMETERY ? water_uv_scroll_u_speed_cemetery : cutsceneID == CS_END_REBIRTH_EPILOGUE ? water_uv_scroll_u_speed_lake_rebirth : water_uv_scroll_u_speed_lake;
-        const double speedV = roomID == R_FOREST_CEMETERY ? water_uv_scroll_v_speed_cemetery : cutsceneID == CS_END_REBIRTH_EPILOGUE ? water_uv_scroll_v_speed_lake_rebirth : water_uv_scroll_v_speed_lake;
-        uvOffset = {
-            static_cast<float>(GetFracPart(static_cast<double>(inGameTimerMs) * 0.00005 * speedU) * 20.0),
-            static_cast<float>(GetFracPart(static_cast<double>(inGameTimerMs) * 0.00005 * speedV) * 20.0),
-            0.0f,
-            0.0f
-        };
-    }
+    const double speedU = roomID == R_FOREST_CEMETERY ? water_uv_scroll_u_speed_cemetery : cutsceneID == CS_END_REBIRTH_EPILOGUE ? water_uv_scroll_u_speed_lake_rebirth : water_uv_scroll_u_speed_lake;
+    const double speedV = roomID == R_FOREST_CEMETERY ? water_uv_scroll_v_speed_cemetery : cutsceneID == CS_END_REBIRTH_EPILOGUE ? water_uv_scroll_v_speed_lake_rebirth : water_uv_scroll_v_speed_lake;
+    uvOffset = {
+        static_cast<float>(GetFracPart(static_cast<double>(inGameTimerMs) * 0.00005 * speedU) * 20.0),
+        static_cast<float>(GetFracPart(static_cast<double>(inGameTimerMs) * 0.00005 * speedV) * 20.0),
+        0.0f,
+        0.0f
+    };
     if (roomID == R_TOWN_LAKE && GetCutsceneID() != CS_END_REBIRTH_EPILOGUE) {
         D3DXMATRIX transform;
         Device->GetTransform(D3DTS_WORLDMATRIX(0), &transform);

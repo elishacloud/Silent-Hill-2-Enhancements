@@ -28,11 +28,15 @@ static DWORD* g_vsHandles = nullptr;
 static DWORD* g_cemeteryWaterPlaneCheckAddr = nullptr;
 static DWORD g_cemeteryWaterPlaneCheckValue = NULL;
 
+BYTE*(*shGetTexture)(UINT);
+
+constexpr UINT kExteriorWaterTextureId = 0x52F6;
 constexpr float kLakeWaterCullDistZ = -8000.0f;
 
 #define WATER_VSHADER_ORIGINAL  (g_vsHandles[3])
 #define WATER_FVF               (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
 
+#define WATER_TEXTURE_SLOT_BASE             0
 #define WATER_TEXTURE_SLOT_REFRACTION       1
 #define WATER_TEXTURE_SLOT_DUDV             2
 #define WATER_TEXTURE_SLOT_CAUSTICS         3
@@ -217,36 +221,37 @@ phase
   texld r1, r3
   // sample caustics texture
   texld r3, r5
-  // blend water colour and refraction
-  lrp r0, v0.w, v0, r1
+  // tint water texture by the vertex colour (x2)
+  mul r0, r0, v0_x2
+  // blend them
+  lrp_sat r0, r0.w, r0, r1
   // add modulated caustics
-  mad_sat r0.xyz, r3, c6, r0
+  mad_sat r0, r3, c6, r0
   // fill alpha
-+ mov r0.w, c0
+  mov r0.w, c0
 */
 DWORD g_WaterPondPSBytecode[] = {
-    0xffff0104, 0x0009fffe, 0x58443344, 0x68532038,
-    0x72656461, 0x73734120, 0x6c626d65, 0x56207265,
-    0x69737265, 0x30206e6f, 0x0031392e, 0x00000051,
-    0xa00f0000, 0x3f000000, 0x3f000000, 0x3f800000,
-    0x3f800000, 0x00000051, 0xa00f0001, 0x3f000000,
-    0xbf000000, 0x3f800000, 0x3f800000, 0x00000040,
-    0x80030003, 0xbaf40002, 0x00000040, 0x80070004,
-    0xb0e40000, 0x00000040, 0x80070005, 0xb0e40003,
-    0x00000042, 0x800f0002, 0xb0e40001, 0x00000005,
-    0x800f0001, 0xa0e40004, 0x84e40002, 0x00000001,
-    0x800c0003, 0xa0e40000, 0x00000001, 0x800c0004,
-    0xa0e40000, 0x00000001, 0x800c0005, 0xa0e40000,
-    0x00000004, 0x800f0003, 0x80e40003, 0xa0e40001,
-    0xa0e40000, 0x00000002, 0x800f0003, 0x80e40003,
-    0x80e40001, 0x00000004, 0x800f0005, 0x84e40002,
-    0xa0e40005, 0x80e40005, 0x00000002, 0x800f0002,
-    0x80e40004, 0x80e40001, 0x0000fffd, 0x00000042,
-    0x800f0000, 0x80e40002, 0x00000042, 0x800f0001,
-    0x80e40003, 0x00000042, 0x800f0003, 0x80e40005,
-    0x00000001, 0x800f0000, 0x80e40001, 0x00000004,
-    0x80170000, 0x80e40003, 0xa0e40006, 0x80e40000,
-    0x40000001, 0x80080000, 0xa0e40000, 0x0000ffff
+    0xffff0104, 0x00000051, 0xa00f0000, 0x3f000000,
+    0x3f000000, 0x3f800000, 0x3f800000, 0x00000051,
+    0xa00f0001, 0x3f000000, 0xbf000000, 0x3f800000,
+    0x3f800000, 0x00000040, 0x80030003, 0xbaf40002,
+    0x00000040, 0x80070004, 0xb0e40000, 0x00000040,
+    0x80070005, 0xb0e40003, 0x00000042, 0x800f0002,
+    0xb0e40001, 0x00000005, 0x800f0001, 0xa0e40004,
+    0x84e40002, 0x00000001, 0x800c0003, 0xa0e40000,
+    0x00000001, 0x800c0004, 0xa0e40000, 0x00000001,
+    0x800c0005, 0xa0e40000, 0x00000004, 0x800f0003,
+    0x80e40003, 0xa0e40001, 0xa0e40000, 0x00000002,
+    0x800f0003, 0x80e40003, 0x80e40001, 0x00000004,
+    0x800f0005, 0x84e40002, 0xa0e40005, 0x80e40005,
+    0x00000002, 0x800f0002, 0x80e40004, 0x80e40001,
+    0x0000fffd, 0x00000042, 0x800f0000, 0x80e40002,
+    0x00000042, 0x800f0001, 0x80e40003, 0x00000042,
+    0x800f0003, 0x80e40005, 0x00000005, 0x800f0000,
+    0x80e40000, 0x97e40000, 0x00000012, 0x801f0000,
+    0x80ff0000, 0x80e40000, 0x80e40001, 0x00000004,
+    0x801f0000, 0x80e40003, 0xa0e40006, 0x80e40000,
+    0x00000001, 0x80080000, 0xa0e40000, 0x0000ffff,
 };
 
 DWORD g_WaterVSHandle = 0;
@@ -451,6 +456,16 @@ static void GetWaterConstantsByRoom(D3DXVECTOR4& specMult, D3DXVECTOR4& specUvMu
     }
 }
 
+IDirect3DBaseTexture8* GetTexture(UINT id)
+{
+    BYTE* texturePtr = shGetTexture(id);
+    if (texturePtr == nullptr)
+    {
+        return nullptr;
+    }
+    return (IDirect3DBaseTexture8*)*(DWORD*)(texturePtr + 0x8C);
+}
+
 HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, LPDIRECT3DDEVICE8 Device, LPDIRECT3DSURFACE8 backBufferSurface, D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, const void* pVertexStreamZeroData, UINT VertexStreamZeroStride) {
     DWORD colorOp0 = 0;
     Device->GetTextureStageState(0, D3DTSS_COLOROP, &colorOp0);
@@ -545,6 +560,11 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, 
                 Device->SetRenderState(D3DRS_FOGENABLE, TRUE);
                 Device->SetRenderState(D3DRS_FOGTABLEMODE, D3DFOG_LINEAR);
                 forceFog = true;
+
+                if (auto* tex = GetTexture(kExteriorWaterTextureId); tex != nullptr)
+                {
+                    Device->SetTexture(WATER_TEXTURE_SLOT_BASE, tex);
+                }
             }
 
             Device->SetPixelShaderConstant(WATER_DUDV_SCALE_PS_CB_SLOT, &dudvScale, 1u);
@@ -593,9 +613,19 @@ void PatchWaterEnhancement()
         return;
     }
 
+    constexpr BYTE GetTextureSearchBytes[]{ 0xB9, 0x2E, 0x00, 0x00, 0x00, 0x8B, 0xFE, 0xF3, 0xAB, 0x8B, 0x7C, 0x24, 0x10 };
+    const DWORD GetTextureAddr = SearchAndGetAddresses(0x0045AE98, 0x0045B0F8, 0x0045B0F8, GetTextureSearchBytes, sizeof(GetTextureSearchBytes), 0x0F, __FUNCTION__);
+    if (!GetTextureAddr)
+    {
+        Logging::Log() << __FUNCTION__ << " Error: failed to find pointer address!";
+        WaterEnhancedRender = false;
+        return;
+    }
+    shGetTexture = (BYTE*(*)(UINT))((BYTE*)(GetTextureAddr + 0x04) + *(DWORD*)GetTextureAddr);
+
     // Increase distance after which the lake water disappears when James leaves the hotel dock
-    constexpr BYTE SearchBytes[]{ 0x83, 0xC4, 0x10, 0xEB, 0x06, 0xC7, 0x07, 0x01, 0x00, 0x00, 0x00 };
-    DWORD LakeWaterCullDistZAddr = SearchAndGetAddresses(0x004D5768, 0x004D5A18, 0x004D52D8, SearchBytes, sizeof(SearchBytes), 0x11, __FUNCTION__);
+    constexpr BYTE CullDistSearchBytes[]{ 0x83, 0xC4, 0x10, 0xEB, 0x06, 0xC7, 0x07, 0x01, 0x00, 0x00, 0x00 };
+    DWORD LakeWaterCullDistZAddr = SearchAndGetAddresses(0x004D5768, 0x004D5A18, 0x004D52D8, CullDistSearchBytes, sizeof(CullDistSearchBytes), 0x11, __FUNCTION__);
     if (!LakeWaterCullDistZAddr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find pointer address!";

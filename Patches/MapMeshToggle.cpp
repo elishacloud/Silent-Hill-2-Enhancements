@@ -39,6 +39,7 @@ void* jmpHotelRoom312HandlerReturnAddr1 = nullptr;
 void* jmpHotelRoom312HandlerReturnAddr2 = nullptr;
 void* jmpHospital3FHandlerReturnAddr1 = nullptr;
 void* jmpHospital3FHandlerReturnAddr2 = nullptr;
+void* jmpTownLakeReturnAddr = nullptr;
 
 bool IsGameFlagSet(int flag)
 {
@@ -114,7 +115,7 @@ __declspec(naked) void __stdcall TownLakeHandlerASM()
 	__asm
 	{
 		call TownLakeDisplayControl
-		ret
+		jmp jmpTownLakeReturnAddr
 	}
 }
 
@@ -239,7 +240,8 @@ void PatchMapMeshToggle()
 	jmpHotelRoom312HandlerReturnAddr2 = (void*)(HotelRoom312HandlerAddr + 0x89);
 	jmpHospital3FHandlerReturnAddr1 = (void*)(Hospital3FHandlerAddr + 0x09);
 	jmpHospital3FHandlerReturnAddr2 = (void*)(Hospital3FHandlerAddr + 0xC6);
-	const DWORD TownLakeInjectAddr = *(DWORD*)(TownLakeHandlerAddr) + TownLakeHandlerAddr + 0xC4;
+	jmpTownLakeReturnAddr = (void*)(*(DWORD*)(TownLakeHandlerAddr) + TownLakeHandlerAddr + 0x04);
+	const DWORD TownLakeInjectAddr = TownLakeHandlerAddr - 1;
 	HotelRoom312MemoFlagAddr = (WORD*)(*(DWORD*)Hotel3FStageDataAddr + 0x130);
 
 	shDisplayControlEntry = (void(*)(uint32_t*, uint32_t, int))(DisplayControlAddr + 0x04 + *(DWORD*)DisplayControlAddr);

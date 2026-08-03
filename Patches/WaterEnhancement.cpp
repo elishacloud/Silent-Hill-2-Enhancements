@@ -9,6 +9,7 @@
 #include "Wrappers\d3d8\DirectX81SDK\include\d3dx8math.h"
 
 #include <cmath>
+#include <functional>
 
 #include "WaterEnhancement_dudv.h"
 #include "WaterEnhancement_caustics.h"
@@ -36,6 +37,7 @@ BYTE*(*shGetTexture)(UINT);
 constexpr double kPi = 3.141592653589793;
 constexpr UINT kExteriorWaterTextureId = 0x52F6;
 constexpr UINT kCemeteryLeaveTextureId = 0x52F7;
+constexpr UINT kLakeRebirthTextureId = 0x1B58;
 constexpr float kWorldScale = 1.0f / 3000.0f;
 constexpr float kLakeWaterCullDistZ = -8000.0f;
 
@@ -368,7 +370,7 @@ static bool CheckWaterPrimitivesCountByRoom(const UINT PrimitiveCount) {
         break;
         // Lake
         case R_TOWN_LAKE:
-            isWater = (PrimitiveCount == 68u);
+            isWater = (PrimitiveCount == 68u || PrimitiveCount == 104u);
         break;
         // Pyramidhead submerge
         case R_APT_W_STAIRCASE_N:
@@ -501,7 +503,7 @@ D3DXVECTOR4 GetBaseUVOffset(DWORD roomID, int64_t inGameTimerMs, LPDIRECT3DDEVIC
             0.0f
         };
     }
-    if (roomID == R_TOWN_LAKE) {
+    if (roomID == R_TOWN_LAKE && GetCutsceneID() != CS_END_REBIRTH_EPILOGUE) {
         D3DXMATRIX transform;
         Device->GetTransform(D3DTS_WORLDMATRIX(0), &transform);
         uvOffset.x += transform.m[3][0] * kWorldScale;
@@ -510,19 +512,20 @@ D3DXVECTOR4 GetBaseUVOffset(DWORD roomID, int64_t inGameTimerMs, LPDIRECT3DDEVIC
     return uvOffset;
 }
 
-HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, LPDIRECT3DDEVICE8 Device, LPDIRECT3DSURFACE8 backBufferSurface, D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, const void* pVertexStreamZeroData, UINT VertexStreamZeroStride) {
+HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, LPDIRECT3DDEVICE8 Device, LPDIRECT3DSURFACE8 backBufferSurface, UINT PrimitiveCount, std::function<HRESULT()> DrawFunc) {
     DWORD colorOp0 = 0;
     Device->GetTextureStageState(0, D3DTSS_COLOROP, &colorOp0);
 
     const DWORD roomID = GetRoomID();
 
-    if ((colorOp0 == D3DTOP_MODULATE2X || roomID == R_FOREST_CEMETERY || roomID == R_TOWN_LAKE) && PrimitiveType == D3DPT_TRIANGLESTRIP && CheckWaterPrimitivesCountByRoom(PrimitiveCount) && VertexStreamZeroStride == 24u && pVertexStreamZeroData != nullptr) {
+    if ((colorOp0 == D3DTOP_MODULATE2X || roomID == R_FOREST_CEMETERY || roomID == R_TOWN_LAKE) && CheckWaterPrimitivesCountByRoom(PrimitiveCount)) {
         DWORD currVS = 0u;
         Device->GetVertexShader(&currVS);
         DWORD currPS = 0u;
         Device->GetPixelShader(&currPS);
 
-        if ((currVS == WATER_VSHADER_ORIGINAL || currVS == WATER_FVF) && currPS == 0u && g_WaterVSHandle != 0u && g_WaterPSHandle != 0u) {
+        const bool waterShaderActive = g_WaterVSHandle != 0u && g_WaterPSHandle != 0u && currVS != g_WaterPondVSHandle && currVS != g_WaterVSHandle && currPS != g_WaterPondPSHandle && currPS != g_WaterPSHandle;
+        if (waterShaderActive) {
             if (needToGrabScreenForWater) {
                 WaterEnhancedGrabScreen(Device, backBufferSurface);
             }
@@ -544,7 +547,7 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, 
             Device->GetTexture(WATER_TEXTURE_SLOT_DUDV, &tex1);
             Device->GetTexture(WATER_TEXTURE_SLOT_CAUSTICS, &tex2);
 
-            Device->SetVertexShader((roomID == R_FOREST_CEMETERY || roomID == R_TOWN_LAKE) ? g_WaterPondVSHandle : g_WaterVSHandle);
+            Device->SetVertexShader((roomID == R_FOREST_CEMETERY || (roomID == R_TOWN_LAKE && GetCutsceneID() != CS_END_REBIRTH_EPILOGUE)) ? g_WaterPondVSHandle : g_WaterVSHandle);
             Device->SetPixelShader((roomID == R_FOREST_CEMETERY || roomID == R_TOWN_LAKE) ? g_WaterPondPSHandle : g_WaterPSHandle);
 
             Device->SetTexture(WATER_TEXTURE_SLOT_REFRACTION, g_ScreenCopyTexture);
@@ -581,6 +584,8 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, 
             Device->SetVertexShaderConstant(WATER_UVMUL_VS_CB_SLOT, &specUvMult, 1);
 
             bool forceFog = false;
+            DWORD fogEnablePreserve = 0;
+            DWORD fogModePreserve = 0;
             if (roomID == R_FOREST_CEMETERY || roomID == R_TOWN_LAKE) {
                 D3DXVECTOR4 worldDiv = { kWorldScale, kWorldScale, kWorldScale, kWorldScale };
                 Device->SetVertexShaderConstant(WATER_WORLD_VS_CB_SLOT, &worldDiv, 1);
@@ -593,14 +598,34 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, 
                 D3DXVECTOR4 fogColour(float((dwFogColour >> 16) & 0xFF) / 255.0f, float((dwFogColour >> 8) & 0xFF) / 255.0f, float(dwFogColour & 0xFF) / 255.0f, 1.0f);
                 Device->SetPixelShaderConstant(WATER_FOG_COLOUR_PS_CB_SLOT, &fogColour, 1u);
 
+                Device->GetRenderState(D3DRS_FOGENABLE, &fogEnablePreserve);
+                Device->GetRenderState(D3DRS_FOGTABLEMODE, &fogModePreserve);
+
                 Device->SetRenderState(D3DRS_FOGENABLE, TRUE);
                 Device->SetRenderState(D3DRS_FOGTABLEMODE, D3DFOG_LINEAR);
                 forceFog = true;
 
-                IDirect3DBaseTexture8* tex = GetCutsceneID() == CS_END_LEAVE_LETTER ? GetTexture(kCemeteryLeaveTextureId) : GetTexture(kExteriorWaterTextureId);
+                IDirect3DBaseTexture8* tex = nullptr;
+                switch (GetCutsceneID())
+                {
+                case CS_END_LEAVE_LETTER:
+                    tex = GetTexture(kCemeteryLeaveTextureId);
+                    break;
+                case CS_END_REBIRTH_EPILOGUE:
+                    tex = GetTexture(kLakeRebirthTextureId);
+                    break;
+                default:
+                    tex = GetTexture(kExteriorWaterTextureId);
+                }
                 if (tex != nullptr)
                 {
                     Device->SetTexture(WATER_TEXTURE_SLOT_BASE, tex);
+
+                    Device->SetTextureStageState(WATER_TEXTURE_SLOT_BASE, D3DTSS_ADDRESSU, D3DTADDRESS_WRAP);
+                    Device->SetTextureStageState(WATER_TEXTURE_SLOT_BASE, D3DTSS_ADDRESSV, D3DTADDRESS_WRAP);
+                    Device->SetTextureStageState(WATER_TEXTURE_SLOT_BASE, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
+                    Device->SetTextureStageState(WATER_TEXTURE_SLOT_BASE, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
+                    Device->SetTextureStageState(WATER_TEXTURE_SLOT_BASE, D3DTSS_MIPFILTER, D3DTEXF_LINEAR);
                 }
 
                 D3DXVECTOR4 uvOffset = GetBaseUVOffset(roomID, inGameTimerMs, Device);
@@ -611,7 +636,13 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, 
             Device->SetPixelShaderConstant(WATER_DUDV_SPEC_SCALE_PS_CB_SLOT, &dudvSpecScale, 1u);
             Device->SetPixelShaderConstant(WATER_SPEC_MULT_PS_CB_SLOT, &specMult, 1u);
 
-            HRESULT hr = Device->DrawPrimitiveUP(PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride);
+            HRESULT hr = DrawFunc();
+
+            if (forceFog)
+            {
+                Device->SetRenderState(D3DRS_FOGENABLE, fogEnablePreserve);
+                Device->SetRenderState(D3DRS_FOGTABLEMODE, fogModePreserve);
+            }
 
             Device->SetVertexShader(currVS);
             Device->SetPixelShader(currPS);

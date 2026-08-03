@@ -330,8 +330,8 @@ static void LoadWaterUtilityTextures(LPDIRECT3DDEVICE8 Device) {
     }
 }
 
-static float GetFracPart(float f) {
-    return f - std::floorf(f);
+static double GetFracPart(double f) {
+    return f - std::floor(f);
 }
 
 static void SaveTextureStates(LPDIRECT3DDEVICE8 Device, const DWORD stage, DWORD* saveTo) {
@@ -484,7 +484,7 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, 
             }
             LoadWaterUtilityTextures(Device);
 
-            const float fraction = GetFracPart(static_cast<float>(inGameTimerMs) * 0.00005f);
+            const float fraction = static_cast<float>(GetFracPart(static_cast<double>(inGameTimerMs) * 0.00005));
             const D3DXVECTOR4 uvAddition(fraction, fraction, fraction, fraction);
 
             D3DXVECTOR4 specMult;

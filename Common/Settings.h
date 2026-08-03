@@ -222,9 +222,11 @@
 	visit(water_spec_mult_labyrinth, 0.017f) \
 	visit(water_spec_mult_lake, 0.07f) \
 	visit(water_spec_mult_strange_area, 0.017f) \
+	visit(water_spec_mult_town_east, 0.07f) \
 	visit(water_spec_uv_mult_cemetery, 0.85f) \
 	visit(water_spec_uv_mult_hotel, 0.45f) \
 	visit(water_spec_uv_mult_lake, 1.0f) \
+	visit(water_spec_uv_mult_town_east, 1.0f) \
 	visit(water_uv_rot_radius_cemetery, 100.0f) \
 	visit(water_uv_rot_radius_lake, 100.0f) \
 	visit(water_uv_rot_radius_lake_rebirth, 100.0f) \
@@ -331,9 +333,11 @@
 	visit(water_spec_mult_labyrinth) \
 	visit(water_spec_mult_lake) \
 	visit(water_spec_mult_strange_area) \
+	visit(water_spec_mult_town_east) \
 	visit(water_spec_uv_mult_cemetery) \
 	visit(water_spec_uv_mult_hotel) \
 	visit(water_spec_uv_mult_lake) \
+	visit(water_spec_uv_mult_town_east) \
 	visit(water_uv_mode_cemetery) \
 	visit(water_uv_mode_lake) \
 	visit(water_uv_mode_lake_rebirth) \

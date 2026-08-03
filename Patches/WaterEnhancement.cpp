@@ -376,6 +376,9 @@ static bool CheckWaterPrimitivesCountByRoom(const UINT PrimitiveCount) {
         case R_TOWN_LAKE:
             isWater = (PrimitiveCount == 68u || PrimitiveCount == 104u);
         break;
+        case R_TOWN_EAST:
+            isWater = (PrimitiveCount == 104u);
+            break;
         // Pyramidhead submerge
         case R_APT_W_STAIRCASE_N:
             isWater = (PrimitiveCount == 38u);
@@ -433,6 +436,14 @@ static void GetWaterConstantsByRoom(D3DXVECTOR4& specMult, D3DXVECTOR4& specUvMu
             dudvScale = { 0.005f, 0.005f, 0.005f, 0.005f };
             specMult = { water_spec_mult_lake, water_spec_mult_lake, water_spec_mult_lake, 0.0f };
             specUvMult = { water_spec_uv_mult_lake, water_spec_uv_mult_lake, water_spec_uv_mult_lake, water_spec_uv_mult_lake };
+        }
+        break;
+        // Town East (along entrance road)
+        case R_TOWN_EAST:
+        {
+            dudvScale = { 0.005f, 0.005f, 0.005f, 0.005f };
+            specMult = { water_spec_mult_town_east, water_spec_mult_town_east, water_spec_mult_town_east, 0.0f };
+            specUvMult = { water_spec_uv_mult_town_east, water_spec_uv_mult_town_east, water_spec_uv_mult_town_east, water_spec_uv_mult_town_east };
         }
         break;
         // Pyramidhead submerge
@@ -521,7 +532,7 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, 
 
     const DWORD roomID = GetRoomID();
 
-    if ((colorOp0 == D3DTOP_MODULATE2X || roomID == R_FOREST_CEMETERY || roomID == R_TOWN_LAKE) && CheckWaterPrimitivesCountByRoom(PrimitiveCount)) {
+    if ((colorOp0 == D3DTOP_MODULATE2X || roomID == R_FOREST_CEMETERY || roomID == R_TOWN_LAKE || roomID == R_TOWN_EAST) && CheckWaterPrimitivesCountByRoom(PrimitiveCount)) {
         DWORD currVS = 0u;
         Device->GetVertexShader(&currVS);
         DWORD currPS = 0u;

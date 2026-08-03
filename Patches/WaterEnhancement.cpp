@@ -44,6 +44,7 @@ static DWORD g_cemeteryWaterPlaneCheckValue = NULL;
 #define WATER_UVMUL_VS_CB_SLOT              91
 #define WATER_WORLD_VS_CB_SLOT              92
 #define WATER_COLOUR_VS_CB_SLOT             93
+#define WATER_UVOFFS_VS_CB_SLOT             94
 
 /*
 vs.1.1
@@ -80,6 +81,8 @@ m4x4 r0, v0, c32
 mov oPos, r0
 // make main UVs by using world pos
 mul r1, v0.xzzz, c92
+// offset UVs by water pos
+add r1, r1.xy, c94.xy
 // pass-through UVs
 mov oT0, r1
 // animate UVs for the DuDv map
@@ -98,7 +101,8 @@ DWORD g_WaterPondVSBytecode[] = {
     0x69737265, 0x30206e6f, 0x0031392e, 0x00000014,
     0x800f0000, 0x90e40000, 0xa0e40020, 0x00000001,
     0xc00f0000, 0x80e40000, 0x00000005, 0x800f0001,
-    0x90a80000, 0xa0e4005c, 0x00000001, 0xe00f0000,
+    0x90a80000, 0xa0e4005c, 0x00000002, 0x800f0001,
+    0x80540001, 0xa054005e, 0x00000001, 0xe00f0000,
     0x80e40001, 0x00000002, 0xe00f0001, 0x80e40001,
     0xa0e4005a, 0x00000001, 0xe00f0002, 0x80e40000,
     0x00000005, 0xe00f0003, 0x80e40001, 0xa0e4005b,
@@ -350,9 +354,9 @@ static bool CheckWaterPrimitivesCountByRoom(const UINT PrimitiveCount) {
             isWater = (PrimitiveCount == 102u);
         break;
         // Lake
-        //case R_TOWN_LAKE:
-        //    isWater = (PrimitiveCount == 68u);
-        //break;
+        case R_TOWN_LAKE:
+            isWater = (PrimitiveCount == 68u);
+        break;
         // Pyramidhead submerge
         case R_APT_W_STAIRCASE_N:
             isWater = (PrimitiveCount == 38u);
@@ -404,6 +408,14 @@ static void GetWaterConstantsByRoom(D3DXVECTOR4& specMult, D3DXVECTOR4& specUvMu
             specUvMult = { water_spec_uv_mult_cemetery, water_spec_uv_mult_cemetery, water_spec_uv_mult_cemetery, water_spec_uv_mult_cemetery };
         }
         break;
+        // Lake
+        case R_TOWN_LAKE:
+        {
+            dudvScale = { 0.005f, 0.005f, 0.005f, 0.005f };
+            const float specMultOverride = water_spec_mult_cemetery;
+            specMult = { specMultOverride, specMultOverride, specMultOverride, 0.0f };
+            specUvMult = { water_spec_uv_mult_cemetery, water_spec_uv_mult_cemetery, water_spec_uv_mult_cemetery, water_spec_uv_mult_cemetery };
+        }
         // Pyramidhead submerge
         case R_APT_W_STAIRCASE_N:
             specMult = { water_spec_mult_apt_staircase, water_spec_mult_apt_staircase, water_spec_mult_apt_staircase, 0.0f };
@@ -443,7 +455,7 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, 
 
     const DWORD roomID = GetRoomID();
 
-    if ((colorOp0 == D3DTOP_MODULATE2X || roomID == R_FOREST_CEMETERY) && PrimitiveType == D3DPT_TRIANGLESTRIP && CheckWaterPrimitivesCountByRoom(PrimitiveCount) && VertexStreamZeroStride == 24u && pVertexStreamZeroData != nullptr) {
+    if ((colorOp0 == D3DTOP_MODULATE2X || roomID == R_FOREST_CEMETERY || roomID == R_TOWN_LAKE) && PrimitiveType == D3DPT_TRIANGLESTRIP && CheckWaterPrimitivesCountByRoom(PrimitiveCount) && VertexStreamZeroStride == 24u && pVertexStreamZeroData != nullptr) {
         DWORD currVS = 0u;
         Device->GetVertexShader(&currVS);
         DWORD currPS = 0u;
@@ -471,8 +483,8 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, 
             Device->GetTexture(WATER_TEXTURE_SLOT_DUDV, &tex1);
             Device->GetTexture(WATER_TEXTURE_SLOT_CAUSTICS, &tex2);
 
-            Device->SetVertexShader((roomID == R_FOREST_CEMETERY) ? g_WaterPondVSHandle : g_WaterVSHandle);
-            Device->SetPixelShader((roomID == R_FOREST_CEMETERY) ? g_WaterPondPSHandle : g_WaterPSHandle);
+            Device->SetVertexShader((roomID == R_FOREST_CEMETERY || roomID == R_TOWN_LAKE) ? g_WaterPondVSHandle : g_WaterVSHandle);
+            Device->SetPixelShader((roomID == R_FOREST_CEMETERY || roomID == R_TOWN_LAKE) ? g_WaterPondPSHandle : g_WaterPSHandle);
 
             Device->SetTexture(WATER_TEXTURE_SLOT_REFRACTION, g_ScreenCopyTexture);
             Device->SetTexture(WATER_TEXTURE_SLOT_DUDV, g_DuDvTexture);
@@ -508,10 +520,17 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, 
             Device->SetVertexShaderConstant(WATER_UVMUL_VS_CB_SLOT, &specUvMult, 1);
 
             bool forceFog = false;
-            if (roomID == R_FOREST_CEMETERY) {
+            if (roomID == R_FOREST_CEMETERY || roomID == R_TOWN_LAKE) {
                 const float worldScale = 1.0f / 3000.0f;
                 D3DXVECTOR4 worldDiv = { worldScale, worldScale, worldScale, worldScale };
                 Device->SetVertexShaderConstant(WATER_WORLD_VS_CB_SLOT, &worldDiv, 1);
+
+                if (roomID == R_TOWN_LAKE) {
+                    D3DXMATRIX transform;
+                    Device->GetTransform(D3DTS_WORLDMATRIX(0), &transform);
+                    D3DXVECTOR4 uvOffset = { transform.m[3][0] * worldScale, transform.m[3][2] * worldScale, 0.0f, 0.0f };
+                    Device->SetVertexShaderConstant(WATER_UVOFFS_VS_CB_SLOT, &uvOffset, 1);
+                }
 
                 D3DXVECTOR4 waterColour = { 0.32f, 0.32f, 0.32f, 0.35f };
                 Device->SetVertexShaderConstant(WATER_COLOUR_VS_CB_SLOT, &waterColour, 1);

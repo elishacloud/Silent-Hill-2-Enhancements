@@ -65,14 +65,16 @@ vs.1.1
 // to clip pos
 m4x4 r0, v0, c32
 mov oPos, r0
+// apply base UV offset
+add r1, v7.xy, c94.xy
 // pass-through UVs
-mov oT0, v7
+mov oT0, r1
 // animate UVs for the DuDv map
-add oT1, v7, c90
+add oT1, r1, c90
 // pass our ptojected pos for the refraction perspective UVs
 mov oT2, r0
 // scale caustics UVs
-mul oT3, v7, c91
+mul oT3, r1, c91
 // pass-through vertex colour
 mov oD0, v5
 */
@@ -81,10 +83,11 @@ DWORD g_WaterVSBytecode[] = {
     0x72656461, 0x73734120, 0x6c626d65, 0x56207265,
     0x69737265, 0x30206e6f, 0x0031392e, 0x00000014,
     0x800f0000, 0x90e40000, 0xa0e40020, 0x00000001,
-    0xc00f0000, 0x80e40000, 0x00000001, 0xe00f0000,
-    0x90e40007, 0x00000002, 0xe00f0001, 0x90e40007,
+    0xc00f0000, 0x80e40000, 0x00000002, 0x800f0001,
+    0x90540007, 0xa054005e, 0x00000001, 0xe00f0000,
+    0x80e40001, 0x00000002, 0xe00f0001, 0x80e40001,
     0xa0e4005a, 0x00000001, 0xe00f0002, 0x80e40000,
-    0x00000005, 0xe00f0003, 0x90e40007, 0xa0e4005b,
+    0x00000005, 0xe00f0003, 0x80e40001, 0xa0e4005b,
     0x00000001, 0xd00f0000, 0x90e40005, 0x0000ffff
 };
 
@@ -95,7 +98,7 @@ m4x4 r0, v0, c32
 mov oPos, r0
 // make main UVs by using world pos
 mul r1, v0.xzzz, c92
-// offset UVs by water pos
+// apply base UV offset
 add r1, r1.xy, c94.xy
 // pass-through UVs
 mov oT0, r1
@@ -474,16 +477,16 @@ IDirect3DBaseTexture8* GetTexture(UINT id)
     return (IDirect3DBaseTexture8*)*(DWORD*)(texturePtr + 0x8C);
 }
 
-D3DXVECTOR4 GetBaseUVOffset(DWORD roomID, int64_t inGameTimerMs, LPDIRECT3DDEVICE8 Device) {
+D3DXVECTOR4 GetBaseUVOffset(DWORD roomID, DWORD cutsceneID, int64_t inGameTimerMs, LPDIRECT3DDEVICE8 Device) {
     D3DXVECTOR4 uvOffset;
 
     if (roomID != R_FOREST_CEMETERY && roomID != R_TOWN_LAKE)
         return uvOffset;
 
-    const int mode = roomID == R_FOREST_CEMETERY ? water_uv_mode_cemetery : water_uv_mode_lake;
+    const int mode = roomID == R_FOREST_CEMETERY ? water_uv_mode_cemetery : cutsceneID == CS_END_REBIRTH_EPILOGUE ? water_uv_mode_lake_rebirth : water_uv_mode_lake;
     if (mode == 0) {
-        const double speed = roomID == R_FOREST_CEMETERY ? water_uv_rot_speed_cemetery : water_uv_rot_speed_lake;
-        const double radius = roomID == R_FOREST_CEMETERY ? water_uv_rot_radius_cemetery : water_uv_rot_radius_lake;
+        const double speed = roomID == R_FOREST_CEMETERY ? water_uv_rot_speed_cemetery : cutsceneID == CS_END_REBIRTH_EPILOGUE ? water_uv_rot_speed_lake_rebirth : water_uv_rot_speed_lake;
+        const double radius = roomID == R_FOREST_CEMETERY ? water_uv_rot_radius_cemetery : cutsceneID == CS_END_REBIRTH_EPILOGUE ? water_uv_rot_radius_lake_rebirth : water_uv_rot_radius_lake;
         const double theta = static_cast<double>(inGameTimerMs) * speed * kPi / 1000.0;
         uvOffset = {
             static_cast<float>(std::sin(theta) * radius * kWorldScale),
@@ -493,10 +496,9 @@ D3DXVECTOR4 GetBaseUVOffset(DWORD roomID, int64_t inGameTimerMs, LPDIRECT3DDEVIC
         };
     }
     else {
-        const double speedU = roomID == R_FOREST_CEMETERY ? water_uv_scroll_u_speed_cemetery : water_uv_scroll_u_speed_lake;
-        const double speedV = roomID == R_FOREST_CEMETERY ? water_uv_scroll_v_speed_cemetery : water_uv_scroll_v_speed_lake;
+        const double speedU = roomID == R_FOREST_CEMETERY ? water_uv_scroll_u_speed_cemetery : cutsceneID == CS_END_REBIRTH_EPILOGUE ? water_uv_scroll_u_speed_lake_rebirth : water_uv_scroll_u_speed_lake;
+        const double speedV = roomID == R_FOREST_CEMETERY ? water_uv_scroll_v_speed_cemetery : cutsceneID == CS_END_REBIRTH_EPILOGUE ? water_uv_scroll_v_speed_lake_rebirth : water_uv_scroll_v_speed_lake;
         uvOffset = {
-            // static_cast<float>(inGameTimerMs) * 0.00005f * speed,
             static_cast<float>(GetFracPart(static_cast<double>(inGameTimerMs) * 0.00005 * speedU) * 20.0),
             static_cast<float>(GetFracPart(static_cast<double>(inGameTimerMs) * 0.00005 * speedV) * 20.0),
             0.0f,
@@ -583,6 +585,7 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, 
             Device->SetVertexShaderConstant(WATER_UVADD_VS_CB_SLOT, &uvAddition, 1);
             Device->SetVertexShaderConstant(WATER_UVMUL_VS_CB_SLOT, &specUvMult, 1);
 
+            D3DXVECTOR4 uvOffset;
             bool forceFog = false;
             DWORD fogEnablePreserve = 0;
             DWORD fogModePreserve = 0;
@@ -606,7 +609,8 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, 
                 forceFog = true;
 
                 IDirect3DBaseTexture8* tex = nullptr;
-                switch (GetCutsceneID())
+                const DWORD cutsceneID = GetCutsceneID();
+                switch (cutsceneID)
                 {
                 case CS_END_LEAVE_LETTER:
                     tex = GetTexture(kCemeteryLeaveTextureId);
@@ -628,13 +632,13 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, 
                     Device->SetTextureStageState(WATER_TEXTURE_SLOT_BASE, D3DTSS_MIPFILTER, D3DTEXF_LINEAR);
                 }
 
-                D3DXVECTOR4 uvOffset = GetBaseUVOffset(roomID, inGameTimerMs, Device);
-                Device->SetVertexShaderConstant(WATER_UVOFFS_VS_CB_SLOT, &uvOffset, 1);
+                uvOffset = GetBaseUVOffset(roomID, cutsceneID, inGameTimerMs, Device);
             }
 
             Device->SetPixelShaderConstant(WATER_DUDV_SCALE_PS_CB_SLOT, &dudvScale, 1u);
             Device->SetPixelShaderConstant(WATER_DUDV_SPEC_SCALE_PS_CB_SLOT, &dudvSpecScale, 1u);
             Device->SetPixelShaderConstant(WATER_SPEC_MULT_PS_CB_SLOT, &specMult, 1u);
+            Device->SetVertexShaderConstant(WATER_UVOFFS_VS_CB_SLOT, &uvOffset, 1);
 
             HRESULT hr = DrawFunc();
 

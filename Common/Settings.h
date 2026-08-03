@@ -201,6 +201,7 @@
 	visit(SpeedrunMode, 0) \
 	visit(water_uv_mode_cemetery, 1) \
 	visit(water_uv_mode_lake, 1) \
+	visit(water_uv_mode_lake_rebirth, 1) \
 	visit(water_alpha_cemetery, 255) \
 	visit(water_alpha_lake, 255) \
 	visit(water_rgb_cemetery, 255) \
@@ -226,12 +227,16 @@
 	visit(water_spec_uv_mult_lake, 1.0f) \
 	visit(water_uv_rot_radius_cemetery, 100.0f) \
 	visit(water_uv_rot_radius_lake, 100.0f) \
+	visit(water_uv_rot_radius_lake_rebirth, 100.0f) \
 	visit(water_uv_rot_speed_cemetery, 0.1f) \
 	visit(water_uv_rot_speed_lake, 0.1f) \
+	visit(water_uv_rot_speed_lake_rebirth, 0.1f) \
 	visit(water_uv_scroll_u_speed_cemetery, -0.01f) \
 	visit(water_uv_scroll_u_speed_lake, -0.04f) \
+	visit(water_uv_scroll_u_speed_lake_rebirth, -0.04f) \
 	visit(water_uv_scroll_v_speed_cemetery, 0.03f) \
 	visit(water_uv_scroll_v_speed_lake, 0.02f) \
+	visit(water_uv_scroll_v_speed_lake_rebirth, 0.02f) \
 	visit(closet_replacement_model_hide_time, 359.5f) \
 	visit(closet_replacement_model_reveal_time, 1695.0f)
 
@@ -331,14 +336,19 @@
 	visit(water_spec_uv_mult_lake) \
 	visit(water_uv_mode_cemetery) \
 	visit(water_uv_mode_lake) \
+	visit(water_uv_mode_lake_rebirth) \
 	visit(water_uv_rot_radius_cemetery) \
 	visit(water_uv_rot_radius_lake) \
+	visit(water_uv_rot_radius_lake_rebirth) \
 	visit(water_uv_rot_speed_cemetery) \
 	visit(water_uv_rot_speed_lake) \
+	visit(water_uv_rot_speed_lake_rebirth) \
 	visit(water_uv_scroll_u_speed_cemetery) \
 	visit(water_uv_scroll_u_speed_lake) \
+	visit(water_uv_scroll_u_speed_lake_rebirth) \
 	visit(water_uv_scroll_v_speed_cemetery) \
 	visit(water_uv_scroll_v_speed_lake) \
+	visit(water_uv_scroll_v_speed_lake_rebirth) \
 	visit(closet_replacement_model_hide_time) \
 	visit(closet_replacement_model_reveal_time) \
 	visit(WrapperType)

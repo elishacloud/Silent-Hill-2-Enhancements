@@ -221,8 +221,8 @@ phase
   texld r1, r3
   // sample caustics texture
   texld r3, r5
-  // tint water texture by the vertex colour (x2)
-  mul r0, r0, v0_x2
+  // tint water texture by the vertex colour
+  mul r0, r0, v0
   // blend them
   lrp_sat r0, r0.w, r0, r1
   // add modulated caustics
@@ -248,7 +248,7 @@ DWORD g_WaterPondPSBytecode[] = {
     0x0000fffd, 0x00000042, 0x800f0000, 0x80e40002,
     0x00000042, 0x800f0001, 0x80e40003, 0x00000042,
     0x800f0003, 0x80e40005, 0x00000005, 0x800f0000,
-    0x80e40000, 0x97e40000, 0x00000012, 0x801f0000,
+    0x80e40000, 0x90e40000, 0x00000012, 0x801f0000,
     0x80ff0000, 0x80e40000, 0x80e40001, 0x00000004,
     0x801f0000, 0x80e40003, 0xa0e40006, 0x80e40000,
     0x00000001, 0x80080000, 0xa0e40000, 0x0000ffff,

@@ -233,10 +233,10 @@
 	visit(water_uv_rot_speed_lake_rebirth, 0.1f) \
 	visit(water_uv_scroll_u_speed_cemetery, -0.01f) \
 	visit(water_uv_scroll_u_speed_lake, -0.04f) \
-	visit(water_uv_scroll_u_speed_lake_rebirth, -0.04f) \
+	visit(water_uv_scroll_u_speed_lake_rebirth, -0.03f) \
 	visit(water_uv_scroll_v_speed_cemetery, 0.03f) \
 	visit(water_uv_scroll_v_speed_lake, 0.02f) \
-	visit(water_uv_scroll_v_speed_lake_rebirth, 0.02f) \
+	visit(water_uv_scroll_v_speed_lake_rebirth, 0.03f) \
 	visit(closet_replacement_model_hide_time, 359.5f) \
 	visit(closet_replacement_model_reveal_time, 1695.0f)
 

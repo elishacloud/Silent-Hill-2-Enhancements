@@ -51,7 +51,7 @@ extern DWORD g_WaterPSBytecode[];
 extern DWORD g_WaterPondPSBytecode[];
 extern DWORD vsDeclWater[];
 extern void WaterEnhancedReleaseScreenCopy();
-extern HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 ProxyInterface, LPDIRECT3DSURFACE8 pRenderTarget, D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, const void* pVertexStreamZeroData, UINT VertexStreamZeroStride);
+extern HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, LPDIRECT3DDEVICE8 ProxyInterface, LPDIRECT3DSURFACE8 pRenderTarget, D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, const void* pVertexStreamZeroData, UINT VertexStreamZeroStride);
 
 // roaches replacement
 static float sFrameTimeInSeconds = 0.0f;
@@ -2578,7 +2578,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 		{
 			backBufferSurface = ProxyAddressLookupTableD3d8->FindAddress<m_IDirect3DSurface8>(backBufferSurface);
 		}
-		HRESULT hr = DrawWaterEnhanced(NeedToGrabScreenForWater, this, backBufferSurface, PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride);
+		HRESULT hr = DrawWaterEnhanced(NeedToGrabScreenForWater, InGameTimerMs, this, backBufferSurface, PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride);
 		if (backBufferSurface)
 		{
 			backBufferSurface->Release();
@@ -2817,6 +2817,10 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 
 		NeedToGrabScreenForWater = true;
 		RoachesDrawingCounter = 0;
+
+		if (GetEventIndex() == EVENT_IN_GAME) {
+			InGameTimerMs += static_cast<int>(GetFrametime() * 1000);
+		}
 	}
 
 	if (!isInScene)

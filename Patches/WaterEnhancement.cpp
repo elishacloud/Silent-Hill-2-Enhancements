@@ -254,17 +254,6 @@ IDirect3DTexture8* g_DuDvTexture = nullptr;
 IDirect3DTexture8* g_CausticsTexture = nullptr;
 
 static LARGE_INTEGER    g_QPCFreq = {};
-static uint64_t         g_StartTimeMS = 0;
-
-static uint64_t TimeGetNowMS() {
-    if (!g_QPCFreq.QuadPart) {
-        ::QueryPerformanceFrequency(&g_QPCFreq);
-    }
-
-    LARGE_INTEGER qpcNow = {};
-    ::QueryPerformanceCounter(&qpcNow);
-    return (qpcNow.QuadPart * 1000) / g_QPCFreq.QuadPart;
-}
 
 template <typename T>
 static void SafeRelease(T*& ptr) {
@@ -448,7 +437,7 @@ static void GetWaterConstantsByRoom(D3DXVECTOR4& specMult, D3DXVECTOR4& specUvMu
     }
 }
 
-HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 Device, LPDIRECT3DSURFACE8 backBufferSurface, D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, const void* pVertexStreamZeroData, UINT VertexStreamZeroStride) {
+HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, LPDIRECT3DDEVICE8 Device, LPDIRECT3DSURFACE8 backBufferSurface, D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, const void* pVertexStreamZeroData, UINT VertexStreamZeroStride) {
     DWORD colorOp0 = 0;
     Device->GetTextureStageState(0, D3DTSS_COLOROP, &colorOp0);
 
@@ -466,13 +455,7 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 Devic
             }
             LoadWaterUtilityTextures(Device);
 
-            if (!g_StartTimeMS) {
-                g_StartTimeMS = TimeGetNowMS();
-            }
-            const uint64_t timeNow = TimeGetNowMS();
-            const uint64_t timeDelta = timeNow - g_StartTimeMS;
-
-            const float fraction = GetFracPart(static_cast<float>(timeDelta) * 0.00005f);
+            const float fraction = GetFracPart(static_cast<float>(inGameTimerMs) * 0.00005f);
             const D3DXVECTOR4 uvAddition(fraction, fraction, fraction, fraction);
 
             D3DXVECTOR4 specMult;

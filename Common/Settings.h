@@ -200,7 +200,11 @@
 	visit(SpaceSize, 7) \
 	visit(SpeedrunMode, 0) \
 	visit(water_uv_mode_cemetery, 0) \
-	visit(water_uv_mode_lake, 0)
+	visit(water_uv_mode_lake, 0) \
+	visit(water_alpha_cemetery, 40) \
+	visit(water_alpha_lake, 70) \
+	visit(water_rgb_cemetery, 50) \
+	visit(water_rgb_lake, 24)
 
 #define VISIT_FLOAT_SETTINGS(visit) \
 	visit(fog_layer1_x1, 0.250f) \
@@ -312,6 +316,10 @@
 	visit(SmallFontWidth) \
 	visit(SmokeFogFix) \
 	visit(SpaceSize) \
+	visit(water_alpha_cemetery) \
+	visit(water_alpha_lake) \
+	visit(water_rgb_cemetery) \
+	visit(water_rgb_lake) \
 	visit(water_spec_mult_apt_staircase) \
 	visit(water_spec_mult_cemetery) \
 	visit(water_spec_mult_hotel) \

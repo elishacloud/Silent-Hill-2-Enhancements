@@ -27,6 +27,9 @@ DWORD vsDeclWater[] = {
 static DWORD* g_vsHandles = nullptr;
 static DWORD* g_cemeteryWaterPlaneCheckAddr = nullptr;
 static DWORD g_cemeteryWaterPlaneCheckValue = NULL;
+static float* g_cemeteryWaterRGB = NULL;
+static float* g_cemeteryWaterAlpha = NULL;
+static float* g_lakeWaterRGBA = NULL;
 
 BYTE*(*shGetTexture)(UINT);
 
@@ -648,6 +651,25 @@ void PatchWaterEnhancement()
         return;
     }
 
+    constexpr BYTE CemeteryWaterAlphaSearchBytes[]{ 0x89, 0x95, 0xC0, 0xFE, 0xFF, 0xFF, 0x8B, 0x45, 0x84 };
+    g_cemeteryWaterAlpha = (float*)ReadSearchedAddresses(0x004D3505, 0x004D37B5, 0x004D3075, CemeteryWaterAlphaSearchBytes, sizeof(CemeteryWaterAlphaSearchBytes), -0x10, __FUNCTION__);
+    if (!g_cemeteryWaterAlpha)
+    {
+        Logging::Log() << __FUNCTION__ << " Error: failed to find pointer address!";
+        WaterEnhancedRender = false;
+        return;
+    }
+    g_cemeteryWaterRGB = g_cemeteryWaterAlpha - 4;
+
+    constexpr BYTE LakeWaterAlphaSearchBytes[]{ 0x83, 0xC4, 0x0C, 0x68, 0x00, 0x00, 0x7F, 0x43, 0x6A, 0x00, 0x8D, 0x85, 0xEC, 0xFD, 0xFF, 0xFF };
+    g_lakeWaterRGBA = (float*)ReadSearchedAddresses(0x004D5075, 0x004D5325, 0x004D4BE5, LakeWaterAlphaSearchBytes, sizeof(LakeWaterAlphaSearchBytes), -0x17, __FUNCTION__);
+    if (!g_lakeWaterRGBA)
+    {
+        Logging::Log() << __FUNCTION__ << " Error: failed to find pointer address!";
+        WaterEnhancedRender = false;
+        return;
+    }
+
     constexpr BYTE GetTextureSearchBytes[]{ 0xB9, 0x2E, 0x00, 0x00, 0x00, 0x8B, 0xFE, 0xF3, 0xAB, 0x8B, 0x7C, 0x24, 0x10 };
     const DWORD GetTextureAddr = SearchAndGetAddresses(0x0045AE98, 0x0045B0F8, 0x0045B0F8, GetTextureSearchBytes, sizeof(GetTextureSearchBytes), 0x0F, __FUNCTION__);
     if (!GetTextureAddr)
@@ -689,4 +711,22 @@ void CheckCemeteryWaterCulling()
         UpdateMemoryAddress(g_cemeteryWaterPlaneCheckAddr, &g_cemeteryWaterPlaneCheckValue, sizeof(DWORD));
         cemeteryWaterCullingDisabled = false;
 	}
+}
+
+void UpdateExteriorWaterVertexColors()
+{
+    if (!WaterEnhancedRender)
+        return;
+
+    const DWORD roomID = GetRoomID();
+    if (g_cemeteryWaterRGB && g_cemeteryWaterAlpha && roomID == R_FOREST_CEMETERY && GetTexture(kExteriorWaterTextureId) != nullptr)
+    {
+        g_cemeteryWaterRGB[0] = g_cemeteryWaterRGB[1] = g_cemeteryWaterRGB[2] = water_rgb_cemetery;
+        *g_cemeteryWaterAlpha = water_alpha_cemetery;
+    }
+    if (g_lakeWaterRGBA && roomID == R_TOWN_LAKE && GetTexture(kExteriorWaterTextureId) != nullptr)
+    {
+        g_lakeWaterRGBA[0] = g_lakeWaterRGBA[1] = g_lakeWaterRGBA[2] = water_rgb_lake;
+        g_lakeWaterRGBA[3] = water_alpha_lake;
+    }
 }

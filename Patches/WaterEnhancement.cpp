@@ -30,7 +30,9 @@ static DWORD g_cemeteryWaterPlaneCheckValue = NULL;
 
 BYTE*(*shGetTexture)(UINT);
 
+constexpr double kPi = 3.141592653589793;
 constexpr UINT kExteriorWaterTextureId = 0x52F6;
+constexpr float kWorldScale = 1.0f / 3000.0f;
 constexpr float kLakeWaterCullDistZ = -8000.0f;
 
 #define WATER_VSHADER_ORIGINAL  (g_vsHandles[3])
@@ -466,6 +468,44 @@ IDirect3DBaseTexture8* GetTexture(UINT id)
     return (IDirect3DBaseTexture8*)*(DWORD*)(texturePtr + 0x8C);
 }
 
+D3DXVECTOR4 GetBaseUVOffset(DWORD roomID, int64_t inGameTimerMs, LPDIRECT3DDEVICE8 Device) {
+    D3DXVECTOR4 uvOffset;
+
+    if (roomID != R_FOREST_CEMETERY && roomID != R_TOWN_LAKE)
+        return uvOffset;
+
+    const int mode = roomID == R_FOREST_CEMETERY ? water_uv_mode_cemetery : water_uv_mode_lake;
+    if (mode == 0) {
+        const double speed = roomID == R_FOREST_CEMETERY ? water_uv_rot_speed_cemetery : water_uv_rot_speed_lake;
+        const double radius = roomID == R_FOREST_CEMETERY ? water_uv_rot_radius_cemetery : water_uv_rot_radius_lake;
+        const double theta = static_cast<double>(inGameTimerMs) * speed * kPi / 1000.0;
+        uvOffset = {
+            static_cast<float>(std::sin(theta) * radius * kWorldScale),
+            static_cast<float>(std::cos(theta) * radius * kWorldScale),
+            0.0f,
+            0.0f
+        };
+    }
+    else {
+        const double speedU = roomID == R_FOREST_CEMETERY ? water_uv_scroll_u_speed_cemetery : water_uv_scroll_u_speed_lake;
+        const double speedV = roomID == R_FOREST_CEMETERY ? water_uv_scroll_v_speed_cemetery : water_uv_scroll_v_speed_lake;
+        uvOffset = {
+            // static_cast<float>(inGameTimerMs) * 0.00005f * speed,
+            static_cast<float>(GetFracPart(static_cast<double>(inGameTimerMs) * 0.00005 * speedU) * 20.0),
+            static_cast<float>(GetFracPart(static_cast<double>(inGameTimerMs) * 0.00005 * speedV) * 20.0),
+            0.0f,
+            0.0f
+        };
+    }
+    if (roomID == R_TOWN_LAKE) {
+        D3DXMATRIX transform;
+        Device->GetTransform(D3DTS_WORLDMATRIX(0), &transform);
+        uvOffset.x += transform.m[3][0] * kWorldScale;
+        uvOffset.y += transform.m[3][2] * kWorldScale;
+    };
+    return uvOffset;
+}
+
 HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, LPDIRECT3DDEVICE8 Device, LPDIRECT3DSURFACE8 backBufferSurface, D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, const void* pVertexStreamZeroData, UINT VertexStreamZeroStride) {
     DWORD colorOp0 = 0;
     Device->GetTextureStageState(0, D3DTSS_COLOROP, &colorOp0);
@@ -538,16 +578,8 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, 
 
             bool forceFog = false;
             if (roomID == R_FOREST_CEMETERY || roomID == R_TOWN_LAKE) {
-                const float worldScale = 1.0f / 3000.0f;
-                D3DXVECTOR4 worldDiv = { worldScale, worldScale, worldScale, worldScale };
+                D3DXVECTOR4 worldDiv = { kWorldScale, kWorldScale, kWorldScale, kWorldScale };
                 Device->SetVertexShaderConstant(WATER_WORLD_VS_CB_SLOT, &worldDiv, 1);
-
-                if (roomID == R_TOWN_LAKE) {
-                    D3DXMATRIX transform;
-                    Device->GetTransform(D3DTS_WORLDMATRIX(0), &transform);
-                    D3DXVECTOR4 uvOffset = { transform.m[3][0] * worldScale, transform.m[3][2] * worldScale, 0.0f, 0.0f };
-                    Device->SetVertexShaderConstant(WATER_UVOFFS_VS_CB_SLOT, &uvOffset, 1);
-                }
 
                 D3DXVECTOR4 waterColour = { 0.32f, 0.32f, 0.32f, 0.35f };
                 Device->SetVertexShaderConstant(WATER_COLOUR_VS_CB_SLOT, &waterColour, 1);
@@ -565,6 +597,9 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, 
                 {
                     Device->SetTexture(WATER_TEXTURE_SLOT_BASE, tex);
                 }
+
+                D3DXVECTOR4 uvOffset = GetBaseUVOffset(roomID, inGameTimerMs, Device);
+                Device->SetVertexShaderConstant(WATER_UVOFFS_VS_CB_SLOT, &uvOffset, 1);
             }
 
             Device->SetPixelShaderConstant(WATER_DUDV_SCALE_PS_CB_SLOT, &dudvScale, 1u);

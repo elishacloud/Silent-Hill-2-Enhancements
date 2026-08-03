@@ -40,6 +40,7 @@ constexpr UINT kCemeteryLeaveTextureId = 0x52F7;
 constexpr UINT kLakeRebirthTextureId = 0x1B58;
 constexpr float kWorldScale = 1.0f / 3000.0f;
 constexpr float kLakeWaterCullDistZ = -8000.0f;
+constexpr float kRebirthFogMinDistance = 15000.0f;
 
 #define WATER_VSHADER_ORIGINAL  (g_vsHandles[3])
 #define WATER_FVF               (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
@@ -714,7 +715,6 @@ void PatchWaterEnhancement()
     }
     shGetTexture = (BYTE*(*)(UINT))((BYTE*)(GetTextureAddr + 0x04) + *(DWORD*)GetTextureAddr);
 
-    // Increase distance after which the lake water disappears when James leaves the hotel dock
     constexpr BYTE CullDistSearchBytes[]{ 0x83, 0xC4, 0x10, 0xEB, 0x06, 0xC7, 0x07, 0x01, 0x00, 0x00, 0x00 };
     DWORD LakeWaterCullDistZAddr = SearchAndGetAddresses(0x004D5768, 0x004D5A18, 0x004D52D8, CullDistSearchBytes, sizeof(CullDistSearchBytes), 0x11, __FUNCTION__);
     if (!LakeWaterCullDistZAddr)
@@ -723,8 +723,22 @@ void PatchWaterEnhancement()
         WaterEnhancedRender = false;
         return;
     }
+
+    constexpr BYTE RebirthFogMinDistSearchBytes[]{ 0x83, 0xF8, 0x4D, 0x75, 0x43, 0xD9, 0x05 };
+    DWORD RebirthFogMinDistAddr = ReadSearchedAddresses(0x0057E765, 0x0057F015, 0x0057E935, RebirthFogMinDistSearchBytes, sizeof(RebirthFogMinDistSearchBytes), 0x91, __FUNCTION__);
+    if (!RebirthFogMinDistAddr)
+    {
+        Logging::Log() << __FUNCTION__ << " Error: failed to find pointer address!";
+        WaterEnhancedRender = false;
+        return;
+    }
+
+    // Increase distance after which the lake water disappears when James leaves the hotel dock
     const float* LakeWaterCullDistZ = &kLakeWaterCullDistZ;
     UpdateMemoryAddress((void*)LakeWaterCullDistZAddr, &LakeWaterCullDistZ, sizeof(float));
+
+    // Adjust min fog distance during Rebirth ending cutscene
+    UpdateMemoryAddress((void*)RebirthFogMinDistAddr, &kRebirthFogMinDistance, sizeof(float));
 }
 
 void CheckCemeteryWaterCulling()

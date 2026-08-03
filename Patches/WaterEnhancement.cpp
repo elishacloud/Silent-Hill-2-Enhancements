@@ -419,10 +419,10 @@ static void GetWaterConstantsByRoom(D3DXVECTOR4& specMult, D3DXVECTOR4& specUvMu
         case R_TOWN_LAKE:
         {
             dudvScale = { 0.005f, 0.005f, 0.005f, 0.005f };
-            const float specMultOverride = water_spec_mult_cemetery;
-            specMult = { specMultOverride, specMultOverride, specMultOverride, 0.0f };
-            specUvMult = { water_spec_uv_mult_cemetery, water_spec_uv_mult_cemetery, water_spec_uv_mult_cemetery, water_spec_uv_mult_cemetery };
+            specMult = { water_spec_mult_lake, water_spec_mult_lake, water_spec_mult_lake, 0.0f };
+            specUvMult = { water_spec_uv_mult_lake, water_spec_uv_mult_lake, water_spec_uv_mult_lake, water_spec_uv_mult_lake };
         }
+        break;
         // Pyramidhead submerge
         case R_APT_W_STAIRCASE_N:
             specMult = { water_spec_mult_apt_staircase, water_spec_mult_apt_staircase, water_spec_mult_apt_staircase, 0.0f };

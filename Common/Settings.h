@@ -210,14 +210,16 @@
 	visit(fog_layer2_density_mult, 1.4f) \
 	visit(LimitPerFrameFPS, 59.997f) \
 	visit(water_spec_mult_apt_staircase, 0.035f) \
-	visit(water_spec_mult_strange_area, 0.017f) \
-	visit(water_spec_mult_labyrinth, 0.017f) \
+	visit(water_spec_mult_cemetery, 0.15f) \
 	visit(water_spec_mult_hotel, 0.05f) \
-	visit(water_spec_uv_mult_hotel, 0.45f) \
-    visit(water_spec_mult_cemetery, 0.15f) \
+	visit(water_spec_mult_labyrinth, 0.017f) \
+	visit(water_spec_mult_lake, 0.15f) \
+	visit(water_spec_mult_strange_area, 0.017f) \
 	visit(water_spec_uv_mult_cemetery, 0.85f) \
-    visit(closet_replacement_model_hide_time, 359.5f) \
-    visit(closet_replacement_model_reveal_time, 1695.0f)
+	visit(water_spec_uv_mult_hotel, 0.45f) \
+	visit(water_spec_uv_mult_lake, 0.85f) \
+	visit(closet_replacement_model_hide_time, 359.5f) \
+	visit(closet_replacement_model_reveal_time, 1695.0f)
 
 #define VISIT_STR_SETTINGS(visit) \
 	visit(CustomModFolder, "") \
@@ -301,14 +303,16 @@
 	visit(SmokeFogFix) \
 	visit(SpaceSize) \
 	visit(water_spec_mult_apt_staircase) \
-	visit(water_spec_mult_strange_area) \
-	visit(water_spec_mult_labyrinth) \
+	visit(water_spec_mult_cemetery) \
 	visit(water_spec_mult_hotel) \
-	visit(water_spec_uv_mult_hotel) \
-    visit(water_spec_mult_cemetery) \
+	visit(water_spec_mult_labyrinth) \
+	visit(water_spec_mult_lake) \
+	visit(water_spec_mult_strange_area) \
 	visit(water_spec_uv_mult_cemetery) \
-    visit(closet_replacement_model_hide_time) \
-    visit(closet_replacement_model_reveal_time) \
+	visit(water_spec_uv_mult_hotel) \
+	visit(water_spec_uv_mult_lake) \
+	visit(closet_replacement_model_hide_time) \
+	visit(closet_replacement_model_reveal_time) \
 	visit(WrapperType)
 
 typedef enum _SCREENMODE {

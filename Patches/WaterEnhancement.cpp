@@ -585,10 +585,17 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, 
             Device->SetVertexShaderConstant(WATER_UVADD_VS_CB_SLOT, &uvAddition, 1);
             Device->SetVertexShaderConstant(WATER_UVMUL_VS_CB_SLOT, &specUvMult, 1);
 
-            D3DXVECTOR4 uvOffset{ 0.0f, 0.0f, 0.0f, 0.0f };
-            bool forceFog = false;
             DWORD fogEnablePreserve = 0;
             DWORD fogModePreserve = 0;
+
+            Device->GetRenderState(D3DRS_FOGENABLE, &fogEnablePreserve);
+            Device->GetRenderState(D3DRS_FOGTABLEMODE, &fogModePreserve);
+
+            Device->SetRenderState(D3DRS_FOGENABLE, TRUE);
+            Device->SetRenderState(D3DRS_FOGTABLEMODE, D3DFOG_LINEAR);
+
+            D3DXVECTOR4 uvOffset{ 0.0f, 0.0f, 0.0f, 0.0f };
+            
             if (roomID == R_FOREST_CEMETERY || roomID == R_TOWN_LAKE) {
                 D3DXVECTOR4 worldDiv = { kWorldScale, kWorldScale, kWorldScale, kWorldScale };
                 Device->SetVertexShaderConstant(WATER_WORLD_VS_CB_SLOT, &worldDiv, 1);
@@ -600,13 +607,6 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, 
                 Device->GetRenderState(D3DRS_FOGCOLOR, &dwFogColour);
                 D3DXVECTOR4 fogColour(float((dwFogColour >> 16) & 0xFF) / 255.0f, float((dwFogColour >> 8) & 0xFF) / 255.0f, float(dwFogColour & 0xFF) / 255.0f, 1.0f);
                 Device->SetPixelShaderConstant(WATER_FOG_COLOUR_PS_CB_SLOT, &fogColour, 1u);
-
-                Device->GetRenderState(D3DRS_FOGENABLE, &fogEnablePreserve);
-                Device->GetRenderState(D3DRS_FOGTABLEMODE, &fogModePreserve);
-
-                Device->SetRenderState(D3DRS_FOGENABLE, TRUE);
-                Device->SetRenderState(D3DRS_FOGTABLEMODE, D3DFOG_LINEAR);
-                forceFog = true;
 
                 IDirect3DBaseTexture8* tex = nullptr;
                 const DWORD cutsceneID = GetCutsceneID();
@@ -642,11 +642,8 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, 
 
             HRESULT hr = DrawFunc();
 
-            if (forceFog)
-            {
-                Device->SetRenderState(D3DRS_FOGENABLE, fogEnablePreserve);
-                Device->SetRenderState(D3DRS_FOGTABLEMODE, fogModePreserve);
-            }
+            Device->SetRenderState(D3DRS_FOGENABLE, fogEnablePreserve);
+            Device->SetRenderState(D3DRS_FOGTABLEMODE, fogModePreserve);
 
             Device->SetVertexShader(currVS);
             Device->SetPixelShader(currPS);

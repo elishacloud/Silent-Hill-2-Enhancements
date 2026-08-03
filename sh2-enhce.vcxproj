@@ -278,6 +278,7 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClCompile Include="Patches\Room312FlashlightFix.cpp" />
     <ClCompile Include="Patches\RotatingMannequinGlitch.cpp" />
     <ClCompile Include="Patches\RowboatFix.cpp" />
+    <ClCompile Include="Patches\RowboatSpawn.cpp" />
     <ClCompile Include="Patches\SaveBGImage.cpp" />
     <ClCompile Include="Patches\AtticShadowFixes.cpp" />
     <ClCompile Include="Patches\ShowerRoomFlashlightFix.cpp" />

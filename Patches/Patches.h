@@ -719,6 +719,7 @@ void PatchRemoveWeaponFromCutscene();
 void PatchRoom312ShadowFix();
 void PatchRoomLighting();
 void PatchRowboatAnimation();
+void PatchRowboatSpawn();
 void PatchSaveBGImage();
 void PatchSearchViewOptionName();
 void PatchSpeakerConfigLock();

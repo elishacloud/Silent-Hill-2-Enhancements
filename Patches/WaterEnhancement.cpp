@@ -35,6 +35,7 @@ BYTE*(*shGetTexture)(UINT);
 
 constexpr double kPi = 3.141592653589793;
 constexpr UINT kExteriorWaterTextureId = 0x52F6;
+constexpr UINT kCemeteryLeaveTextureId = 0x52F7;
 constexpr float kWorldScale = 1.0f / 3000.0f;
 constexpr float kLakeWaterCullDistZ = -8000.0f;
 
@@ -596,7 +597,8 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, 
                 Device->SetRenderState(D3DRS_FOGTABLEMODE, D3DFOG_LINEAR);
                 forceFog = true;
 
-                if (auto* tex = GetTexture(kExteriorWaterTextureId); tex != nullptr)
+                IDirect3DBaseTexture8* tex = GetCutsceneID() == CS_END_LEAVE_LETTER ? GetTexture(kCemeteryLeaveTextureId) : GetTexture(kExteriorWaterTextureId);
+                if (tex != nullptr)
                 {
                     Device->SetTexture(WATER_TEXTURE_SLOT_BASE, tex);
                 }
@@ -719,10 +721,21 @@ void UpdateExteriorWaterVertexColors()
         return;
 
     const DWORD roomID = GetRoomID();
-    if (g_cemeteryWaterRGB && g_cemeteryWaterAlpha && roomID == R_FOREST_CEMETERY && GetTexture(kExteriorWaterTextureId) != nullptr)
+    if (g_cemeteryWaterRGB && g_cemeteryWaterAlpha && roomID == R_FOREST_CEMETERY)
     {
-        g_cemeteryWaterRGB[0] = g_cemeteryWaterRGB[1] = g_cemeteryWaterRGB[2] = water_rgb_cemetery;
-        *g_cemeteryWaterAlpha = water_alpha_cemetery;
+        if (GetCutsceneID() == CS_END_LEAVE_LETTER)
+        {
+            if (GetTexture(kCemeteryLeaveTextureId) != nullptr)
+            {
+                g_cemeteryWaterRGB[0] = g_cemeteryWaterRGB[1] = g_cemeteryWaterRGB[2] = 128.0f;
+                *g_cemeteryWaterAlpha = water_alpha_cemetery;
+            }
+        }
+        else if (GetTexture(kExteriorWaterTextureId) != nullptr)
+        {
+            g_cemeteryWaterRGB[0] = g_cemeteryWaterRGB[1] = g_cemeteryWaterRGB[2] = water_rgb_cemetery;
+            *g_cemeteryWaterAlpha = water_alpha_cemetery;
+        }
     }
     if (g_lakeWaterRGBA && roomID == R_TOWN_LAKE && GetTexture(kExteriorWaterTextureId) != nullptr)
     {

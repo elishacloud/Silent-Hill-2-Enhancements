@@ -585,7 +585,7 @@ HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, 
             Device->SetVertexShaderConstant(WATER_UVADD_VS_CB_SLOT, &uvAddition, 1);
             Device->SetVertexShaderConstant(WATER_UVMUL_VS_CB_SLOT, &specUvMult, 1);
 
-            D3DXVECTOR4 uvOffset;
+            D3DXVECTOR4 uvOffset{ 0.0f, 0.0f, 0.0f, 0.0f };
             bool forceFog = false;
             DWORD fogEnablePreserve = 0;
             DWORD fogModePreserve = 0;

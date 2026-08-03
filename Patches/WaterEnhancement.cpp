@@ -362,10 +362,24 @@ static void RestoreTextureStates(LPDIRECT3DDEVICE8 Device, const DWORD stage, co
     Device->SetTextureStageState(stage, D3DTSS_MIPFILTER, loadFrom[4]);
 }
 
-static bool CheckWaterPrimitivesCountByRoom(const UINT PrimitiveCount) {
+static bool CheckWaterPrimitivesCountByRoom(const UINT PrimitiveCount, bool DrawUP) {
     bool isWater = false;
 
     const DWORD roomID = GetRoomID();
+
+    if (!DrawUP) {
+        switch (roomID) {
+            // Lake
+            case R_TOWN_LAKE:
+                isWater = (PrimitiveCount == 104u && GetCutsceneID() == CS_END_REBIRTH_EPILOGUE);
+            break;
+            // Town East (along entrance road)
+            case R_TOWN_EAST:
+                isWater = (PrimitiveCount == 104u);
+            break;
+        }
+        return isWater;
+    }
 
     switch (roomID) {
         // Pond
@@ -374,11 +388,8 @@ static bool CheckWaterPrimitivesCountByRoom(const UINT PrimitiveCount) {
         break;
         // Lake
         case R_TOWN_LAKE:
-            isWater = (PrimitiveCount == 68u || PrimitiveCount == 104u);
+            isWater = (PrimitiveCount == 68u);
         break;
-        case R_TOWN_EAST:
-            isWater = (PrimitiveCount == 104u);
-            break;
         // Pyramidhead submerge
         case R_APT_W_STAIRCASE_N:
             isWater = (PrimitiveCount == 38u);
@@ -512,13 +523,13 @@ D3DXVECTOR4 GetBaseUVOffset(DWORD roomID, DWORD cutsceneID, int64_t inGameTimerM
     return uvOffset;
 }
 
-HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, LPDIRECT3DDEVICE8 Device, LPDIRECT3DSURFACE8 backBufferSurface, UINT PrimitiveCount, std::function<HRESULT()> DrawFunc) {
+HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, LPDIRECT3DDEVICE8 Device, LPDIRECT3DSURFACE8 backBufferSurface, UINT PrimitiveCount, bool DrawUP, std::function<HRESULT()> DrawFunc) {
     DWORD colorOp0 = 0;
     Device->GetTextureStageState(0, D3DTSS_COLOROP, &colorOp0);
 
     const DWORD roomID = GetRoomID();
 
-    if ((colorOp0 == D3DTOP_MODULATE2X || roomID == R_FOREST_CEMETERY || roomID == R_TOWN_LAKE || roomID == R_TOWN_EAST) && CheckWaterPrimitivesCountByRoom(PrimitiveCount)) {
+    if ((colorOp0 == D3DTOP_MODULATE2X || roomID == R_FOREST_CEMETERY || roomID == R_TOWN_LAKE || roomID == R_TOWN_EAST) && CheckWaterPrimitivesCountByRoom(PrimitiveCount, DrawUP)) {
         DWORD currVS = 0u;
         Device->GetVertexShader(&currVS);
         DWORD currPS = 0u;

@@ -52,7 +52,7 @@ extern DWORD g_WaterPSBytecode[];
 extern DWORD g_WaterPondPSBytecode[];
 extern DWORD vsDeclWater[];
 extern void WaterEnhancedReleaseScreenCopy();
-extern HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, LPDIRECT3DDEVICE8 ProxyInterface, LPDIRECT3DSURFACE8 pRenderTarget, UINT PrimitiveCount, std::function<HRESULT()> DrawFunc);
+extern HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, LPDIRECT3DDEVICE8 ProxyInterface, LPDIRECT3DSURFACE8 pRenderTarget, UINT PrimitiveCount, bool DrawUP, std::function<HRESULT()> DrawFunc);
 
 // roaches replacement
 static float sFrameTimeInSeconds = 0.0f;
@@ -2175,7 +2175,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
 		{
 			backBufferSurface = ProxyAddressLookupTableD3d8->FindAddress<m_IDirect3DSurface8>(backBufferSurface);
 		}
-		HRESULT hr = DrawWaterEnhanced(NeedToGrabScreenForWater, InGameTimerMs, this, backBufferSurface, PrimitiveCount, [&]() { return ProxyInterface->DrawPrimitive(PrimitiveType, StartVertex, PrimitiveCount); });
+		HRESULT hr = DrawWaterEnhanced(NeedToGrabScreenForWater, InGameTimerMs, this, backBufferSurface, PrimitiveCount, /*DrawUP=*/false, [&]() { return ProxyInterface->DrawPrimitive(PrimitiveType, StartVertex, PrimitiveCount); });
 		if (backBufferSurface)
 		{
 			backBufferSurface->Release();
@@ -2601,7 +2601,7 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 		{
 			backBufferSurface = ProxyAddressLookupTableD3d8->FindAddress<m_IDirect3DSurface8>(backBufferSurface);
 		}
-		HRESULT hr = DrawWaterEnhanced(NeedToGrabScreenForWater, InGameTimerMs, this, backBufferSurface, PrimitiveCount, [&]() { return ProxyInterface->DrawPrimitiveUP(PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride); });
+		HRESULT hr = DrawWaterEnhanced(NeedToGrabScreenForWater, InGameTimerMs, this, backBufferSurface, PrimitiveCount, /*DrawUP=*/true, [&]() { return ProxyInterface->DrawPrimitiveUP(PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride); });
 		if (backBufferSurface)
 		{
 			backBufferSurface->Release();

@@ -21,6 +21,7 @@
 #include <array>
 #include <deque>
 #include <ctime>
+#include <functional>
 #include <numeric>
 #include "Common\Utils.h"
 #include "stb_image.h"
@@ -51,7 +52,7 @@ extern DWORD g_WaterPSBytecode[];
 extern DWORD g_WaterPondPSBytecode[];
 extern DWORD vsDeclWater[];
 extern void WaterEnhancedReleaseScreenCopy();
-extern HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 ProxyInterface, LPDIRECT3DSURFACE8 pRenderTarget, D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, const void* pVertexStreamZeroData, UINT VertexStreamZeroStride);
+extern HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, LPDIRECT3DDEVICE8 ProxyInterface, LPDIRECT3DSURFACE8 pRenderTarget, UINT PrimitiveCount, bool DrawUP, std::function<HRESULT()> DrawFunc);
 
 // roaches replacement
 static float sFrameTimeInSeconds = 0.0f;
@@ -1729,6 +1730,9 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 	// Fix water plane culling in Cemetery cutscene
 	CheckCemeteryWaterCulling();
 
+	// Set cemetery and lake vertex color overrides
+	UpdateExteriorWaterVertexColors();
+
 	// Fix pause menu before drawing scaled surface
 	bool PauseMenuFlag = FixPauseMenuOnPresent();
 
@@ -2164,6 +2168,25 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
         }
     }
 
+	if (WaterEnhancedRender && PrimitiveType == D3DPT_TRIANGLESTRIP)
+	{
+		LPDIRECT3DSURFACE8 backBufferSurface = nullptr;
+		if (SUCCEEDED(ProxyInterface->GetRenderTarget(&backBufferSurface)))
+		{
+			backBufferSurface = ProxyAddressLookupTableD3d8->FindAddress<m_IDirect3DSurface8>(backBufferSurface);
+		}
+		HRESULT hr = DrawWaterEnhanced(NeedToGrabScreenForWater, InGameTimerMs, this, backBufferSurface, PrimitiveCount, /*DrawUP=*/false, [&]() { return ProxyInterface->DrawPrimitive(PrimitiveType, StartVertex, PrimitiveCount); });
+		if (backBufferSurface)
+		{
+			backBufferSurface->Release();
+		}
+		if (hr != -1)
+		{
+			NeedToGrabScreenForWater = false;
+			return hr;
+		}
+	}
+
 	return ProxyInterface->DrawPrimitive(PrimitiveType, StartVertex, PrimitiveCount);
 }
 
@@ -2571,14 +2594,14 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 		}
 	}
 
-	if (WaterEnhancedRender)
+	if (WaterEnhancedRender && PrimitiveType == D3DPT_TRIANGLESTRIP && VertexStreamZeroStride == 24u && pVertexStreamZeroData != nullptr)
 	{
 		LPDIRECT3DSURFACE8 backBufferSurface = nullptr;
 		if (SUCCEEDED(ProxyInterface->GetRenderTarget(&backBufferSurface)))
 		{
 			backBufferSurface = ProxyAddressLookupTableD3d8->FindAddress<m_IDirect3DSurface8>(backBufferSurface);
 		}
-		HRESULT hr = DrawWaterEnhanced(NeedToGrabScreenForWater, this, backBufferSurface, PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride);
+		HRESULT hr = DrawWaterEnhanced(NeedToGrabScreenForWater, InGameTimerMs, this, backBufferSurface, PrimitiveCount, /*DrawUP=*/true, [&]() { return ProxyInterface->DrawPrimitiveUP(PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride); });
 		if (backBufferSurface)
 		{
 			backBufferSurface->Release();
@@ -2817,6 +2840,10 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 
 		NeedToGrabScreenForWater = true;
 		RoachesDrawingCounter = 0;
+
+		if (GetEventIndex() == EVENT_IN_GAME) {
+			InGameTimerMs += static_cast<int>(GetFrametime() * 1000);
+		}
 	}
 
 	if (!isInScene)

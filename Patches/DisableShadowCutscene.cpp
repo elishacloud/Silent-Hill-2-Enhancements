@@ -42,7 +42,7 @@ void RunShadowCutscene()
 	static bool ValueSet = false;
 	static BYTE LastValue = 0x01;
 	if (GetCutsceneID() == CS_ANGELA_CEMETERY || GetCutsceneID() == CS_HSP_ALT_RADIO_QUIZ || GetCutsceneID() == CS_BOWL_MARIA || GetCutsceneID() == CS_HSP_ALT_LAURA_LEAVES || GetCutsceneID() == CS_END_MARIA_EPILOGUE || GetCutsceneID() == CS_END_REBIRTH_EPILOGUE ||
-		(GetCutsceneID() == CS_APT_RPT_CLOSET && GetCutscenePos() == -20133.99805f))
+		(GetCutsceneID() == CS_APT_RPT_CLOSET && GetCutscenePos() == -20133.99805f) || (GetCutsceneID() == CS_HTL_ALT_RPT_BOSS_INTRO && GetCutscenePos() == -19808.11523f))
 	{
 		if (!ValueSet)
 		{

@@ -130,6 +130,14 @@ __declspec(naked) void __stdcall SkipBlendDrawASM() {
 }
 
 void PatchMariaCutsceneModel() {
+    gModelPath = GetModPath("");
+    gModelPath = gModelPath / R"(model\dmr.glb)";
+    std::error_code errorCode{};
+    if (!std::filesystem::exists(gModelPath, errorCode)) {
+        gModelPath.clear();
+        return;
+    }
+
     constexpr BYTE SearchBytes[]{ 0x83, 0xEC, 0x08, 0x53, 0x8B, 0x5E, 0x2C };
     DWORD SkipBlendDrawInjectAddr = SearchAndGetAddresses(0x00504E00, 0x00505130, 0x00504A50, SearchBytes, sizeof(SearchBytes), 0x04, __FUNCTION__);
     if (!SkipBlendDrawInjectAddr) {
@@ -167,12 +175,4 @@ void PatchMariaCutsceneModel() {
         // return false to not skip the actual draw
         return false;
         });
-
-    gModelPath = GetModPath("");
-    gModelPath = gModelPath / R"(model\dmr.glb)";
-    std::error_code errorCode{};
-    if (!std::filesystem::exists(gModelPath, errorCode)) {
-        gModelPath.clear();
-        return;
-    }
 }

@@ -118,6 +118,14 @@ constexpr ModelOffsetTable kLeversModelTable = { -65533, 4, 176, 3, 368, 0, 384,
 constexpr ModelOffsetTable kDogModelTable = { -65533, 4, 176, 31, 2160, 43, 2192, 2288, 3, 5248, 0, 21792, 2, 5040, 2, 5056, 5072, 0, 5104, 0 };
 
 void PatchDogRoom() {
+    gModelPath = GetModPath("");
+    gModelPath = gModelPath / R"(model\mon.glb)";
+    std::error_code errorCode{};
+    if (!std::filesystem::exists(gModelPath, errorCode)) {
+        gModelPath.clear();
+        return;
+    }
+
     RegisterActorDrawTopEpilogue([](ModelOffsetTable* model, void* /*arg2*/)->bool {
         const DWORD roomID = GetRoomID();
         if (roomID == R_END_DOG_RM) {
@@ -132,12 +140,4 @@ void PatchDogRoom() {
         // return false to not skip the actual draw
         return(false);
     });
-
-    gModelPath = GetModPath("");
-    gModelPath = gModelPath / R"(model\mon.glb)";
-    std::error_code errorCode{};
-    if (!std::filesystem::exists(gModelPath, errorCode)) {
-        gModelPath.clear();
-        return;
-    }
 }

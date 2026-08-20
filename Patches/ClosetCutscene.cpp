@@ -298,6 +298,14 @@ static void DrawClosetModel(IDirect3DDevice8* device) {
 }
 
 void PatchClosetRoomModel() {
+    gModelPath = GetModPath("");
+    gModelPath = gModelPath / R"(model\b_doo.glb)";
+    std::error_code errorCode{};
+    if (!std::filesystem::exists(gModelPath, errorCode)) {
+        gModelPath.clear();
+        return;
+    }
+
     RegisterActorDrawTopPrologue([](ModelOffsetTable* model, void* /*arg2*/)->bool {
         const DWORD roomID = GetRoomID();
         if (roomID == CS_APT_RPT_FIGHT) {
@@ -333,12 +341,4 @@ void PatchClosetRoomModel() {
 
         return false;
     });
-
-    gModelPath = GetModPath("");
-    gModelPath = gModelPath / R"(model\b_doo.glb)";
-    std::error_code errorCode{};
-    if (!std::filesystem::exists(gModelPath, errorCode)) {
-        gModelPath.clear();
-        return;
-    }
 }

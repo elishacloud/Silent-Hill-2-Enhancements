@@ -698,6 +698,7 @@ void PatchMainMenuInstantLoadOptions();
 void PatchMainMenuTitlePerLang();
 void PatchMapMeshToggle();
 void PatchMapTranscription();
+void PatchMariaCutsceneModel();
 HRESULT PatchMasterVolumeSlider();
 void PatchMemoBrightnes();
 void PatchMenuSounds();

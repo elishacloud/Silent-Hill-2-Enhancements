@@ -73,6 +73,8 @@ static double TimeGetNowSec() {
 extern DWORD gClosetVSShader;
 extern DWORD gClosetPSShader;
 extern BOOL  gClosetShouldSkipDIP;
+extern DWORD gMdrVSShader;
+extern DWORD gMdrPSShader;
 
 // brightness (gamma) shader
 /*
@@ -1319,6 +1321,7 @@ HRESULT m_IDirect3DDevice8::SetPixelShader(THIS_ DWORD Handle)
 	Logging::LogDebug() << __FUNCTION__;
 
     gClosetPSShader = (Handle == 0) ? gClosetPSShader : Handle;
+	gMdrPSShader = (Handle == 0) ? gMdrPSShader : Handle;
 
 	return ProxyInterface->SetPixelShader(Handle);
 }
@@ -3263,6 +3266,7 @@ HRESULT m_IDirect3DDevice8::SetVertexShader(THIS_ DWORD Handle)
 	Logging::LogDebug() << __FUNCTION__;
 
     gClosetVSShader = (Handle == 0) ? gClosetVSShader : Handle;
+	gMdrVSShader = (Handle == 0) ? gMdrVSShader : Handle;
 
 	return ProxyInterface->SetVertexShader(Handle);
 }

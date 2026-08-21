@@ -719,6 +719,7 @@ void PatchRemoveWeaponFromCutscene();
 void PatchRoom312ShadowFix();
 void PatchRoomLighting();
 void PatchRowboatAnimation();
+void PatchRowboatSpawn();
 void PatchSaveBGImage();
 void PatchSearchViewOptionName();
 void PatchSpeakerConfigLock();
@@ -806,6 +807,7 @@ float GetConditionalFlashlightBrightnessGreen();
 float GetConditionalFlashlightBrightnessBlue();
 void CheckLakeMoonSize();
 void CheckRoom312Flashlight();
+void UpdateExteriorWaterVertexColors();
 
 // Define the template function declaration
 template<typename T>

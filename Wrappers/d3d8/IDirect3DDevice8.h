@@ -88,6 +88,9 @@ private:
 	bool OverrideTextureLoop = false;
 	bool PresentFlag = false;
 
+	// Elapsed milliseconds while in-game. Used for animating effects.
+	int64_t InGameTimerMs = 0;
+
     // Enhanced water rendering
     bool NeedToGrabScreenForWater = true;
     // Cockroaches replacement

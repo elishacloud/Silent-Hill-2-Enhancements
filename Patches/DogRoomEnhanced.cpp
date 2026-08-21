@@ -16,6 +16,7 @@
 static ModelGLTF*               gLeversModel = nullptr;
 static std::filesystem::path    gModelPath;
 static LARGE_INTEGER            gQPCFreq = {};
+static bool                     gActive = false;
 static double                   gStartTime = 0.0;
 
 static ModelGLTF* GetOrCreateModel(IDirect3DDevice8* device) {
@@ -130,11 +131,18 @@ void PatchDogRoom() {
         const DWORD roomID = GetRoomID();
         if (roomID == R_END_DOG_RM) {
             if (*model == kDogModelTable) {
+                if (!gActive) {
+                    gStartTime = 0.0;
+                    gActive = true;
+                }
                 IDirect3DDevice8* device = GetD3dDevice();
                 if (device) {
                     DrawLeversModel(device);
                 }
             }
+        }
+        else {
+            gActive = false;
         }
 
         // return false to not skip the actual draw

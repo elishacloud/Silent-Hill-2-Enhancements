@@ -53,21 +53,8 @@ static ModelGLTF* GetOrCreateModel(IDirect3DDevice8* device) {
     return gMdrModel;
 }
 
-static double TimeGetNowSec() {
-    if (!gQPCFreq.QuadPart) {
-        ::QueryPerformanceFrequency(&gQPCFreq);
-    }
-
-    LARGE_INTEGER qpcNow = {};
-    ::QueryPerformanceCounter(&qpcNow);
-    return static_cast<double>(qpcNow.QuadPart) / static_cast<double>(gQPCFreq.QuadPart);
-}
-
 static void DrawMariaModel(IDirect3DDevice8* device) {
-    if (!gStartTime) {
-        gStartTime = TimeGetNowSec();
-    }
-    const double timeNow = TimeGetNowSec();
+    const double timeNow = GetCutsceneTimer() / 30.0f;
     const double timeDelta = static_cast<float>(timeNow - gStartTime);
     gStartTime = timeNow;
 
@@ -151,8 +138,8 @@ void PatchMariaCutsceneModel() {
         if (GetCutsceneID() == CS_HTL_ALT_RPT_BOSS_INTRO) {
             if (IsDmrModel(model)) {
                 if (!gActive) {
-                    gStartTime = 0.0;
-                    gModelAnimTimer = GetCutsceneTimer() / 30.0f;
+                    gStartTime = GetCutsceneTimer() / 30.0f;
+                    gModelAnimTimer = gStartTime;
                     gActive = true;
                 }
                 return true;

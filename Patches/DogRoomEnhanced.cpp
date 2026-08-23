@@ -31,21 +31,8 @@ static ModelGLTF* GetOrCreateModel(IDirect3DDevice8* device) {
     return gLeversModel;
 }
 
-static double TimeGetNowSec() {
-    if (!gQPCFreq.QuadPart) {
-        ::QueryPerformanceFrequency(&gQPCFreq);
-    }
-
-    LARGE_INTEGER qpcNow = {};
-    ::QueryPerformanceCounter(&qpcNow);
-    return static_cast<double>(qpcNow.QuadPart) / static_cast<double>(gQPCFreq.QuadPart);
-}
-
 static void DrawLeversModel(IDirect3DDevice8* device) {
-    if (!gStartTime) {
-        gStartTime = TimeGetNowSec();
-    }
-    const double timeNow = TimeGetNowSec();
+    const double timeNow = GetCutsceneTimer() / 30.0f;
     const double timeDelta = static_cast<float>(timeNow - gStartTime);
     gStartTime = timeNow;
 
@@ -132,7 +119,7 @@ void PatchDogRoom() {
         if (roomID == R_END_DOG_RM) {
             if (*model == kDogModelTable) {
                 if (!gActive) {
-                    gStartTime = 0.0;
+                    gStartTime = GetCutsceneTimer() / 30.0f;
                     gActive = true;
                 }
                 IDirect3DDevice8* device = GetD3dDevice();

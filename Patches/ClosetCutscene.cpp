@@ -231,21 +231,10 @@ static ModelGLTF* GetOrCreateModel(IDirect3DDevice8* device) {
     return gClosetModel;
 }
 
-
-static double TimeGetNowSec() {
-    if (!gQPCFreq.QuadPart) {
-        ::QueryPerformanceFrequency(&gQPCFreq);
-    }
-
-    LARGE_INTEGER qpcNow = {};
-    ::QueryPerformanceCounter(&qpcNow);
-    return static_cast<double>(qpcNow.QuadPart) / static_cast<double>(gQPCFreq.QuadPart);
-}
-
 static void DrawClosetModel(IDirect3DDevice8* device) {
     if (!gIsClosetCutsceneRunning) {
         gModelAnimTimer = 0.0f;
-        gStartTime = 0.0;
+        gStartTime = GetCutsceneTimer() / 30.0f;
 
         gIsClosetCutsceneRunning = true;
     }
@@ -257,10 +246,7 @@ static void DrawClosetModel(IDirect3DDevice8* device) {
 
     const bool isPaused = (GetEventIndex() == EVENT_PAUSE_MENU);
 
-    if (!gStartTime) {
-        gStartTime = TimeGetNowSec();
-    }
-    const double timeNow = TimeGetNowSec();
+    const double timeNow = GetCutsceneTimer() / 30.0f;
     const double timeDelta = isPaused ? 0.0 : static_cast<double>(timeNow - gStartTime);
     gStartTime = timeNow;
 

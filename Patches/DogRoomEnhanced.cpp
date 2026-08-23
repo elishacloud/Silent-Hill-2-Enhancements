@@ -18,6 +18,7 @@ static std::filesystem::path    gModelPath;
 static LARGE_INTEGER            gQPCFreq = {};
 static bool                     gActive = false;
 static double                   gStartTime = 0.0;
+static float                    gModelAnimTimer = 0.0f;
 
 static ModelGLTF* GetOrCreateModel(IDirect3DDevice8* device) {
     if (!gLeversModel && !gModelPath.empty()) {
@@ -44,7 +45,7 @@ static void DrawLeversModel(IDirect3DDevice8* device) {
     D3DXMATRIX actorXForm;
     D3DXMatrixIdentity(&actorXForm);
 
-    model->Update(timeDelta, actorXForm);
+    model->Update(timeDelta, actorXForm, &gModelAnimTimer);
 
     DWORD alphaBlend, alphaTest = 0;
     device->GetRenderState(D3DRS_ALPHABLENDENABLE, &alphaBlend);
@@ -119,6 +120,7 @@ void PatchDogRoom() {
         if (roomID == R_END_DOG_RM) {
             if (*model == kDogModelTable) {
                 if (!gActive) {
+                    gModelAnimTimer = 0.0f;
                     gStartTime = GetCutsceneTimer() / 30.0f;
                     gActive = true;
                 }

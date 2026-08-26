@@ -2668,6 +2668,18 @@ HRESULT m_IDirect3DDevice8::BeginScene()
         // run uncoditionally, it'll early-exit if fix is OFF
 		RunClosetCutscene();
 
+        // Load Maria cutscene replacement model
+		if (MariaCutsceneReplacement)
+		{
+			RunMariaCutsceneModel();
+		}
+
+		// Load Dog ending monitor replacement model
+		if (DogRoomEnhanced)
+		{
+			RunDogRoom();
+		}
+
 		// RPT Hospital Elevator Stabbing Animation Fix
 		if (HospitalChaseFix)
 		{

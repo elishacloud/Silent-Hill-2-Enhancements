@@ -208,15 +208,6 @@ DWORD gClosetVSShader = 0;
 DWORD gClosetPSShader = 0;
 BOOL  gClosetShouldSkipDIP = FALSE;
 
-void RunClosetDoorReplacementUpdateFunc() {
-    if (GetCutsceneID() == CS_APT_RPT_CLOSET) {
-        // 
-    } else {
-        gIsClosetCutsceneRunning = false;
-    }
-}
-
-
 static ModelGLTF* GetOrCreateModel(IDirect3DDevice8* device) {
     if (!gClosetModel && !gModelPath.empty()) {
         gClosetModel = new ModelGLTF(ModelGLTF::VertexType::PosNormalTexcoord, false);
@@ -229,6 +220,19 @@ static ModelGLTF* GetOrCreateModel(IDirect3DDevice8* device) {
     }
 
     return gClosetModel;
+}
+
+void RunClosetDoorReplacementUpdateFunc() {
+    if (GetCutsceneID() == CS_APT_RPT_CLOSET) {
+        // 
+    } else {
+        gIsClosetCutsceneRunning = false;
+    }
+
+    // Pre-load replacement model during room transition before the cutscene
+    if (GetEventIndex() == 3 && GetRoomID() == R_APT_E_RM_307) {
+        GetOrCreateModel(GetD3dDevice());
+    }
 }
 
 static void DrawClosetModel(IDirect3DDevice8* device) {

@@ -53,6 +53,13 @@ static ModelGLTF* GetOrCreateModel(IDirect3DDevice8* device) {
     return gMdrModel;
 }
 
+void RunMariaCutsceneModel() {
+    // Pre-load replacement model during room transition before cutscene starts
+    if (GetEventIndex() == 3 && GetRoomID() == R_HTL_ALT_RPT_BOSS_RM) {
+        GetOrCreateModel(GetD3dDevice());
+    }
+}
+
 static void DrawMariaModel(IDirect3DDevice8* device) {
     const double timeNow = GetCutsceneTimer() / 30.0f;
     const double timeDelta = static_cast<float>(timeNow - gStartTime);

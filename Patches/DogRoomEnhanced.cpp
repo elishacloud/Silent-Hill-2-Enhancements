@@ -138,3 +138,10 @@ void PatchDogRoom() {
         return(false);
     });
 }
+
+void RunDogRoom() {
+    // Pre-load replacement model during room transition before cutscene starts
+    if (GetEventIndex() == 3 && GetRoomID() == R_END_DOG_RM) {
+        GetOrCreateModel(GetD3dDevice());
+    }
+}

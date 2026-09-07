@@ -562,7 +562,7 @@ HRESULT ModelGLTF::Draw(IDirect3DDevice8* device, BOOL enableTransparency) {
     return hr;
 }
 
-HRESULT ModelGLTF::DrawWithBlendPass(IDirect3DDevice8* device) {
+HRESULT ModelGLTF::DrawWithBlendPass(IDirect3DDevice8* device, bool enableViewSpaceSort) {
     const DWORD vertexSize = (mVertexType == VertexType::PosNormalTexcoord) ? sizeof(Vertex_PNT) : sizeof(Vertex_PNCT);
 
     HRESULT hr = S_OK;
@@ -592,7 +592,7 @@ HRESULT ModelGLTF::DrawWithBlendPass(IDirect3DDevice8* device) {
         else {
             device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
             device->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
-            device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+            device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
             device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
             device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
         }
@@ -625,7 +625,49 @@ HRESULT ModelGLTF::DrawWithBlendPass(IDirect3DDevice8* device) {
                     hr = device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, section.numVertices, section.ibOffset, section.numIndices / 3u);
                 }
                 else {
-                    hr = device->DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST, 0, section.numVertices, section.numIndices / 3u, indices + section.ibOffset, D3DFMT_INDEX16, vertices + section.vbOffset * vertexSize, vertexSize);
+                    if (pass == 0 || !enableViewSpaceSort) {
+                        hr = device->DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST, 0, section.numVertices, section.numIndices / 3u, indices + section.ibOffset, D3DFMT_INDEX16, vertices + section.vbOffset * vertexSize, vertexSize);
+                    }
+                    else {
+                        // Draw triangles from back to front during the blend pass.
+                        // This assumes vertices are already transformed in view space, placing the camera at the origin.
+                        const uint8_t* vertexData = mXFormedVertices.data() + section.vbOffset * vertexSize;
+                        std::vector<std::pair<double, UINT>> triDist;
+                        triDist.reserve(section.numIndices / 3u);
+                        for (UINT i = 0; i < section.numIndices; i += 3) {
+                            const UINT indStart = section.ibOffset + i;
+                            D3DXVECTOR3 center;
+                            if (mVertexType == VertexType::PosNormalTexcoord) {
+                                const auto vertices = reinterpret_cast<const Vertex_PNT*>(vertexData);
+                                center = (
+                                    vertices[indices[indStart]].pos +
+                                    vertices[indices[indStart + 1]].pos +
+                                    vertices[indices[indStart + 2]].pos
+                                ) / 3.0f;
+                            }
+                            else {
+                                const auto vertices = reinterpret_cast<const Vertex_PNCT*>(vertexData);
+                                center = (
+                                    vertices[indices[indStart]].pos +
+                                    vertices[indices[indStart + 1]].pos +
+                                    vertices[indices[indStart + 2]].pos
+                                ) / 3.0f;
+                            }
+                            double dist2 = center.x * center.x + center.y * center.y + center.z * center.z;
+                            triDist.push_back({ dist2, i });
+                        }
+                        std::sort(triDist.begin(), triDist.end(), std::greater());
+
+                        std::vector<uint16_t> indicesSorted;
+                        indicesSorted.reserve(section.numIndices);
+                        for (const auto tri : triDist) {
+                            indicesSorted.push_back(indices[tri.second + section.ibOffset]);
+                            indicesSorted.push_back(indices[tri.second + 1 + section.ibOffset]);
+                            indicesSorted.push_back(indices[tri.second + 2 + section.ibOffset]);
+                        }
+
+                        hr = device->DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST, 0, section.numVertices, section.numIndices / 3u, indicesSorted.data(), D3DFMT_INDEX16, vertices + section.vbOffset * vertexSize, vertexSize);
+                    }
                 }
 
                 if (FAILED(hr)) {

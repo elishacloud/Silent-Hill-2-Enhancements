@@ -81,7 +81,7 @@ public:
     bool                                LoadFromFile(const std::string& filePath, IDirect3DDevice8* device);
     void                                Update(const float deltaInSeconds, const D3DXMATRIX& globalXForm, float* customTimer = nullptr);
     HRESULT                             Draw(IDirect3DDevice8* device, BOOL enableTransparency = FALSE);
-    HRESULT                             DrawWithBlendPass(IDirect3DDevice8* device);
+    HRESULT                             DrawWithBlendPass(IDirect3DDevice8* device, bool enableViewSpaceSort);
 
     size_t                              GetNumMeshes() const;
     const Mesh&                         GetMesh(const size_t idx) const;

@@ -320,7 +320,6 @@
 	visit(water_alpha_lake) \
 	visit(water_rgb_cemetery) \
 	visit(water_rgb_lake) \
-	
 	visit(water_spec_mult_apt_staircase) \
 	visit(water_spec_mult_cemetery) \
 	visit(water_spec_mult_hotel) \

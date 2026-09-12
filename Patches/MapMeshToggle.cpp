@@ -39,6 +39,7 @@ void* jmpHotelRoom312HandlerReturnAddr1 = nullptr;
 void* jmpHotelRoom312HandlerReturnAddr2 = nullptr;
 void* jmpHospital3FHandlerReturnAddr1 = nullptr;
 void* jmpHospital3FHandlerReturnAddr2 = nullptr;
+void* jmpTownLakeReturnAddr = nullptr;
 
 bool IsGameFlagSet(int flag)
 {
@@ -98,20 +99,23 @@ __declspec(naked) void __stdcall HospitalGardenHandlerASM()
 	}
 }
 
-// Shows a hint on the shipping dock that suggests using the blue gem (second time).
-void ShippingDockDisplayControl()
+
+void TownLakeDisplayControl()
 {
-	uint32_t display_list[] = { 0, 0, 0 };
+	uint32_t display_list[] = { 0, 0, 0, 0, 0 };
+	// Shows a hint on the shipping dock that suggests using the blue gem (second time).
 	shDisplayControlEntry(display_list, /*room=*/0x01, /*no=*/IsGameFlagSet(kUsedBlueGemFirstTimeGameFlag) ? 0 : -1);
+	// Shows a static water mesh during the Rebirth ending epilogue.
+	shDisplayControlEntry(display_list, /*room=*/0x0B, /*no=*/GetCutsceneID() == CS_END_REBIRTH_EPILOGUE ? 3 : -1);
 	shDisplayControlExec(display_list);
 }
 
-__declspec(naked) void __stdcall ShippingDockHandlerASM()
+__declspec(naked) void __stdcall TownLakeHandlerASM()
 {
 	__asm
 	{
-		call ShippingDockDisplayControl
-		ret
+		call TownLakeDisplayControl
+		jmp jmpTownLakeReturnAddr
 	}
 }
 
@@ -212,8 +216,8 @@ void PatchMapMeshToggle()
 	const BYTE HospitalGardenHandlerSearchBytes[]{ 0x83, 0xF8, 0x49, 0x0F, 0x85, 0x4E, 0x01, 0x00, 0x00 };
 	const DWORD HospitalGardenHandlerAddr = SearchAndGetAddresses(0x0058BFFC, 0x0058C8AC, 0x0058C1CC, HospitalGardenHandlerSearchBytes, sizeof(HospitalGardenHandlerSearchBytes), 0x00, __FUNCTION__);
 
-	const BYTE ShippingDockHandlerSearchBytes[]{ 0x50, 0x68, 0xF0, 0x3C, 0x00, 0x00, 0xE8 };
-	const DWORD ShippingDockHandlerAddr = SearchAndGetAddresses(0x0057ED1E, 0x0057F5CE, 0x0057EEEE, ShippingDockHandlerSearchBytes, sizeof(ShippingDockHandlerSearchBytes), 0x0F, __FUNCTION__);
+	const BYTE TownLakeHandlerSearchBytes[]{ 0x50, 0x68, 0xF0, 0x3C, 0x00, 0x00, 0xE8 };
+	const DWORD TownLakeHandlerAddr = SearchAndGetAddresses(0x0057ED1E, 0x0057F5CE, 0x0057EEEE, TownLakeHandlerSearchBytes, sizeof(TownLakeHandlerSearchBytes), 0x0F, __FUNCTION__);
 
 	const BYTE HotelRoom312HandlerSearchBytes[] { 0x3D, 0xA2, 0x00, 0x00, 0x00, 0xC7, 0x44, 0x24, 0x00, 0x00, 0x00, 0x00, 0x00 };
 	const DWORD HotelRoom312HandlerAddr = SearchAndGetAddresses(0x00578788, 0x00579038, 0x00578958, HotelRoom312HandlerSearchBytes, sizeof(HotelRoom312HandlerSearchBytes), 0x00, __FUNCTION__);
@@ -221,7 +225,7 @@ void PatchMapMeshToggle()
 	const BYTE Hospital3FHandlerSearchBytes[]{ 0x83, 0xE8, 0x54, 0x0F, 0x84, 0xBD, 0x00, 0x00, 0x00, 0x48 };
 	const DWORD Hospital3FHandlerAddr = SearchAndGetAddresses(0x00589DE0, 0x0058A690, 0x00589FB0, Hospital3FHandlerSearchBytes, sizeof(Hospital3FHandlerSearchBytes), 0x00, __FUNCTION__);
 
-	if (!StageDataAddr || !DisplayControlAddr || !GameFlagPtr || !BlueCreek1FHandlerAddr || !HospitalGardenHandlerAddr || !ShippingDockHandlerAddr || !HotelRoom312HandlerAddr || !Hospital3FHandlerAddr)
+	if (!StageDataAddr || !DisplayControlAddr || !GameFlagPtr || !BlueCreek1FHandlerAddr || !HospitalGardenHandlerAddr || !TownLakeHandlerAddr || !HotelRoom312HandlerAddr || !Hospital3FHandlerAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;
@@ -236,7 +240,8 @@ void PatchMapMeshToggle()
 	jmpHotelRoom312HandlerReturnAddr2 = (void*)(HotelRoom312HandlerAddr + 0x89);
 	jmpHospital3FHandlerReturnAddr1 = (void*)(Hospital3FHandlerAddr + 0x09);
 	jmpHospital3FHandlerReturnAddr2 = (void*)(Hospital3FHandlerAddr + 0xC6);
-	const DWORD ShippingDockInjectAddr = *(DWORD*)(ShippingDockHandlerAddr) + ShippingDockHandlerAddr + 0xC4;
+	jmpTownLakeReturnAddr = (void*)(*(DWORD*)(TownLakeHandlerAddr) + TownLakeHandlerAddr + 0x04);
+	const DWORD TownLakeInjectAddr = TownLakeHandlerAddr - 1;
 	HotelRoom312MemoFlagAddr = (WORD*)(*(DWORD*)Hotel3FStageDataAddr + 0x130);
 
 	shDisplayControlEntry = (void(*)(uint32_t*, uint32_t, int))(DisplayControlAddr + 0x04 + *(DWORD*)DisplayControlAddr);
@@ -253,7 +258,7 @@ void PatchMapMeshToggle()
 	// Inject custom display control into existing stage handlers.
 	WriteJMPtoMemory((BYTE*)BlueCreek1FHandlerAddr, BlueCreek1FHandlerASM, 0x05);
 	WriteJMPtoMemory((BYTE*)HospitalGardenHandlerAddr, HospitalGardenHandlerASM, 0x09);
-	WriteJMPtoMemory((BYTE*)ShippingDockInjectAddr, ShippingDockHandlerASM, 0x05);
+	WriteJMPtoMemory((BYTE*)TownLakeInjectAddr, TownLakeHandlerASM, 0x05);
 	WriteJMPtoMemory((BYTE*)HotelRoom312HandlerAddr, HotelRoom312HandlerASM, 0x0F);
 	WriteJMPtoMemory((BYTE*)Hospital3FHandlerAddr, Hospital3FHandlerASM, 0x09);
 }

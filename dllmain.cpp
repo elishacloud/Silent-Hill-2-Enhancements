@@ -365,6 +365,12 @@ void DelayedStart()
 		PatchRowboatAnimation();
 	}
 
+	// Rowboat Spawn fix at hotel dock
+	if (RowboatSpawnFix)
+	{
+		PatchRowboatSpawn();
+	}
+
 	// Catacombs Meat Room
 	if (CatacombsMeatRoomFix)
 	{
@@ -648,6 +654,10 @@ void DelayedStart()
 	{
 		PatchWaterEnhancement();
 		PatchWaterDrawOrderFix();
+	}
+
+	if (RainParticles) {
+		PatchRainParticles();
 	}
 
     if (CockroachesReplacement)

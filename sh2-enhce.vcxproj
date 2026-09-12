@@ -218,6 +218,7 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClCompile Include="Patches\DogRoomEnhanced.cpp" />
     <ClCompile Include="Patches\DoubleFootstepFix.cpp" />
     <ClCompile Include="Patches\EddieLauraCutscene.cpp" />
+    <ClCompile Include="Patches\RainParticles.cpp" />
     <ClCompile Include="Patches\ElevatorCursorColorFix.cpp" />
     <ClCompile Include="Patches\FlashlightReflection.cpp" />
     <ClCompile Include="Patches\FinalBossRoomFix.cpp" />
@@ -277,6 +278,7 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClCompile Include="Patches\Room312FlashlightFix.cpp" />
     <ClCompile Include="Patches\RotatingMannequinGlitch.cpp" />
     <ClCompile Include="Patches\RowboatFix.cpp" />
+    <ClCompile Include="Patches\RowboatSpawn.cpp" />
     <ClCompile Include="Patches\SaveBGImage.cpp" />
     <ClCompile Include="Patches\AtticShadowFixes.cpp" />
     <ClCompile Include="Patches\ShowerRoomFlashlightFix.cpp" />
@@ -386,6 +388,7 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClInclude Include="External\reshade\source\effect_preprocessor.hpp" />
     <ClInclude Include="External\reshade\source\effect_symbol_table.hpp" />
     <ClInclude Include="External\reshade\source\effect_token.hpp" />
+    <ClInclude Include="Include\ComPtr.h" />
     <ClInclude Include="Include\criware\criware.h" />
     <ClInclude Include="Include\criware\criware_adx.h" />
     <ClInclude Include="Include\criware\criware_adxfic.h" />
@@ -404,6 +407,7 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClInclude Include="Include\winmm.h" />
     <ClInclude Include="Logging\Logging.h" />
     <ClInclude Include="Patches\ActorDrawingHook.h" />
+    <ClInclude Include="Patches\TransparentDrawTypes.h" />
     <ClInclude Include="Patches\FlashlightReflection.h" />
     <ClInclude Include="Patches\FullscreenImages.h" />
     <ClInclude Include="Patches\InputTweaks.h" />

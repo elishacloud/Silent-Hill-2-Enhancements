@@ -391,7 +391,10 @@ enum class WEAPONTYPE : uint8_t {
 
 enum class ModelID;
 
+struct IDirect3DDevice8;
+
 // Shared function declaration
+IDirect3DDevice8* GetD3dDevice();
 DWORD GetRoomID();
 DWORD GetCutsceneID();
 float GetCutscenePos();
@@ -409,6 +412,10 @@ BYTE GetFlashlightSwitch();
 float GetFlashlightBrightnessRed();
 float GetFlashlightBrightnessGreen();
 float GetFlashlightBrightnessBlue();
+bool GetFlashlightAvailable();
+float GetFlashlightDirX();
+float GetFlashlightDirY();
+float GetFlashlightDirZ();
 BYTE GetEventIndex();
 BYTE GetMenuEvent();
 DWORD GetTransitionState();
@@ -493,6 +500,8 @@ DWORD *GetSpecializedLight1Pointer();
 DWORD *GetSpecializedLight2Pointer();
 BYTE *GetFlashlightSwitchPointer();
 float *GetFlashlightBrightnessPointer();
+BYTE* GetFlashlightAvailablePointer();
+float* GetFlashlightDirPointer();
 BYTE *GetEventIndexPointer();
 BYTE *GetMenuEventPointer();
 DWORD *GetTransitionStatePointer();
@@ -663,6 +672,7 @@ void PatchFlashlightClockPush();
 void PatchFlashlightFlicker();
 void PatchFlashlightReflection();
 void PatchWaterEnhancement();
+void PatchRainParticles();
 void PatchFMV();
 void PatchFMVFramerate();
 void PatchFmvSubtitlesNoiseFix();
@@ -710,6 +720,7 @@ void PatchRemoveWeaponFromCutscene();
 void PatchRoom312ShadowFix();
 void PatchRoomLighting();
 void PatchRowboatAnimation();
+void PatchRowboatSpawn();
 void PatchSaveBGImage();
 void PatchSearchViewOptionName();
 void PatchSpeakerConfigLock();
@@ -799,6 +810,7 @@ float GetConditionalFlashlightBrightnessGreen();
 float GetConditionalFlashlightBrightnessBlue();
 void CheckLakeMoonSize();
 void CheckRoom312Flashlight();
+void UpdateExteriorWaterVertexColors();
 
 bool CheckGameFlag(int flag);
 
@@ -825,6 +837,8 @@ extern DWORD *SpecializedLight1Addr;
 extern DWORD *SpecializedLight2Addr;
 extern BYTE *FlashlightSwitchAddr;
 extern float *FlashlightBrightnessAddr;
+extern BYTE *FlashlightAvailableAddr;
+extern float *FlashlightDirAddr;
 extern BYTE *EventIndexAddr;
 extern BYTE *MenuEventAddr;
 extern DWORD *TransitionStateAddr;

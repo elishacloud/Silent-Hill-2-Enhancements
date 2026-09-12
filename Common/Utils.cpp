@@ -1,5 +1,5 @@
 /**
-* Copyright (C) 2024 Elisha Riedlinger
+* Copyright (C) 2026 Elisha Riedlinger
 *
 * This software is  provided 'as-is', without any express  or implied  warranty. In no event will the
 * authors be held liable for any damages arising from the use of this software.
@@ -23,7 +23,7 @@
 #include <winnt.h>
 #include <ShlObj.h>
 #include <Propkey.h>
-#include <atlbase.h>
+#include "ComPtr.h"
 #endif
 #include <psapi.h>
 #include <shlwapi.h>
@@ -776,10 +776,10 @@ bool CheckFileIsSH2EEModule(const wchar_t* Path)
 				HRESULT hr = CoInitialize(nullptr);
 				if (hr == S_OK || hr == S_FALSE)
 				{
-					CComPtr<IShellItem2> pItem;
+					ComPtr<IShellItem2> pItem;
 					if (SUCCEEDED(p_SHCreateItemFromParsingNameProc(Path, nullptr, IID_PPV_ARGS(&pItem))))
 					{
-						CComHeapPtr<WCHAR> pValue;
+						ComHeapPtr<WCHAR> pValue;
 						if (SUCCEEDED(pItem->GetString(PKEY_Software_ProductName, &pValue)))
 						{
 							if (wcscmp(pValue, L"Silent Hill 2: Enhanced Edition") == 0)

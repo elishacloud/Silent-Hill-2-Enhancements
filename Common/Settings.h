@@ -120,12 +120,14 @@
 	visit(OldManCoinFix, true) \
 	visit(PauseScreenFix, true) \
 	visit(PistonRoomFix, true) \
+	visit(PlayUnusedAudio, false) \
 	visit(PreserveSoundsOnLoad, true) \
 	visit(PS2CameraSpeed, true) \
 	visit(PS2FlashlightBrightness, true) \
 	visit(PS2StyleNoiseFilter, true) \
 	visit(QuickSaveTweaks, true) \
 	visit(QuickSaveCancelFix, true) \
+	visit(RainParticles, true) \
 	visit(ReduceCutsceneFOV, true) \
 	visit(RemoveEffectsFlicker, true) \
 	visit(RemoveEnvironmentFlicker, true) \
@@ -135,6 +137,7 @@
 	visit(Room312ShadowFix, true) \
 	visit(RoomLightingFix, true) \
 	visit(RowboatAnimationFix, true) \
+	visit(RowboatSpawnFix, true) \
 	visit(SetBlackPillarBoxes, true) \
 	visit(SetSixtyFPS, true) \
 	visit(SetSwapEffectUpgradeShim, false) \
@@ -159,8 +162,7 @@
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, true) \
-	visit(WoodsideRoom205Fix, true) \
-    visit(PlayUnusedAudio, false)
+	visit(WoodsideRoom205Fix, true)
 
 #define VISIT_INT_SETTINGS(visit) \
 	visit(AnisotropicFiltering, 0) \
@@ -197,7 +199,11 @@
 	visit(SmallFontHeight, 24) \
 	visit(SmallFontWidth, 16) \
 	visit(SpaceSize, 7) \
-	visit(SpeedrunMode, 0)
+	visit(SpeedrunMode, 0) \
+	visit(water_alpha_cemetery, 255) \
+	visit(water_alpha_lake, 255) \
+	visit(water_rgb_cemetery, 255) \
+	visit(water_rgb_lake, 255)
 
 #define VISIT_FLOAT_SETTINGS(visit) \
 	visit(fog_layer1_x1, 0.250f) \
@@ -209,14 +215,24 @@
 	visit(fog_layer2_density_mult, 1.4f) \
 	visit(LimitPerFrameFPS, 59.997f) \
 	visit(water_spec_mult_apt_staircase, 0.035f) \
-	visit(water_spec_mult_strange_area, 0.017f) \
-	visit(water_spec_mult_labyrinth, 0.017f) \
+	visit(water_spec_mult_cemetery, 0.1f) \
 	visit(water_spec_mult_hotel, 0.05f) \
-	visit(water_spec_uv_mult_hotel, 0.45f) \
-    visit(water_spec_mult_cemetery, 0.15f) \
+	visit(water_spec_mult_labyrinth, 0.017f) \
+	visit(water_spec_mult_lake, 0.07f) \
+	visit(water_spec_mult_strange_area, 0.017f) \
+	visit(water_spec_mult_town_east, 0.07f) \
 	visit(water_spec_uv_mult_cemetery, 0.85f) \
-    visit(closet_replacement_model_hide_time, 359.5f) \
-    visit(closet_replacement_model_reveal_time, 1695.0f)
+	visit(water_spec_uv_mult_hotel, 0.45f) \
+	visit(water_spec_uv_mult_lake, 1.0f) \
+	visit(water_spec_uv_mult_town_east, 1.0f) \
+	visit(water_uv_scroll_u_speed_cemetery, -0.01f) \
+	visit(water_uv_scroll_u_speed_lake, -0.04f) \
+	visit(water_uv_scroll_u_speed_lake_rebirth, -0.03f) \
+	visit(water_uv_scroll_v_speed_cemetery, 0.03f) \
+	visit(water_uv_scroll_v_speed_lake, 0.02f) \
+	visit(water_uv_scroll_v_speed_lake_rebirth, 0.03f) \
+	visit(closet_replacement_model_hide_time, 359.5f) \
+	visit(closet_replacement_model_reveal_time, 1695.0f)
 
 #define VISIT_STR_SETTINGS(visit) \
 	visit(CustomModFolder, "") \
@@ -290,6 +306,7 @@
 	visit(QuickSaveCancelFix) \
 	visit(ResX) \
 	visit(ResY) \
+	visit(RowboatSpawnFix) \
 	visit(ScaleWindowedResolution)\
 	visit(ScreenMode) \
 	visit(SetSwapEffectUpgradeShim) \
@@ -299,15 +316,33 @@
 	visit(SmokeFogFix) \
 	visit(SpaceSize) \
 	visit(WaterMoveSpeedFix) \
+	visit(water_alpha_cemetery) \
+	visit(water_alpha_lake) \
+	visit(water_rgb_cemetery) \
+	visit(water_rgb_lake) \
+	
 	visit(water_spec_mult_apt_staircase) \
-	visit(water_spec_mult_strange_area) \
-	visit(water_spec_mult_labyrinth) \
+	visit(water_spec_mult_cemetery) \
 	visit(water_spec_mult_hotel) \
-	visit(water_spec_uv_mult_hotel) \
-    visit(water_spec_mult_cemetery) \
+	visit(water_spec_mult_labyrinth) \
+	visit(water_spec_mult_lake) \
+	visit(water_spec_mult_strange_area) \
+	visit(water_spec_mult_town_east) \
 	visit(water_spec_uv_mult_cemetery) \
-    visit(closet_replacement_model_hide_time) \
-    visit(closet_replacement_model_reveal_time) \
+	visit(water_spec_uv_mult_hotel) \
+	visit(water_spec_uv_mult_lake) \
+	visit(water_spec_uv_mult_town_east) \
+	visit(water_uv_mode_cemetery) \
+	visit(water_uv_mode_lake) \
+	visit(water_uv_mode_lake_rebirth) \
+	visit(water_uv_scroll_u_speed_cemetery) \
+	visit(water_uv_scroll_u_speed_lake) \
+	visit(water_uv_scroll_u_speed_lake_rebirth) \
+	visit(water_uv_scroll_v_speed_cemetery) \
+	visit(water_uv_scroll_v_speed_lake) \
+	visit(water_uv_scroll_v_speed_lake_rebirth) \
+	visit(closet_replacement_model_hide_time) \
+	visit(closet_replacement_model_reveal_time) \
 	visit(WrapperType)
 
 typedef enum _SCREENMODE {

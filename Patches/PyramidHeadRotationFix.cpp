@@ -36,9 +36,8 @@ void RunPhRotationFix()
 	{
 		EnteredCutscene = true;
 		Logging::LogDebug() << "Entered Cutscene: CS_HTL_ALT_RPT_BOSS_FINISH";
-		return;
 	}
-	else if (!IsInCutscene && EnteredCutscene)
+	else if (EnteredCutscene)
 	{
 		EnteredCutscene = false;
 		Logging::LogDebug() << "Exited Cutscene: CS_HTL_ALT_RPT_BOSS_FINISH";

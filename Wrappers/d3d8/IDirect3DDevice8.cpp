@@ -1721,6 +1721,9 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 	// Fix flashlight glitch in room 312
 	CheckRoom312Flashlight();
 
+	// Fix the 2 ph rotation after boss fight
+	RunPhRotationFix();
+
 	// Enable enhaced mouse cursor
 	if (EnableEnhancedMouse || EnhanceMouseCursor)
 	{

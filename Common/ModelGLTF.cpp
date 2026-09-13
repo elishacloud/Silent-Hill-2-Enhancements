@@ -638,19 +638,19 @@ HRESULT ModelGLTF::DrawWithBlendPass(IDirect3DDevice8* device, bool enableViewSp
                             const UINT indStart = section.ibOffset + i;
                             D3DXVECTOR3 center;
                             if (mVertexType == VertexType::PosNormalTexcoord) {
-                                const auto vertices = reinterpret_cast<const Vertex_PNT*>(vertexData);
+                                const auto pntVertices = reinterpret_cast<const Vertex_PNT*>(vertexData);
                                 center = (
-                                    vertices[indices[indStart]].pos +
-                                    vertices[indices[indStart + 1]].pos +
-                                    vertices[indices[indStart + 2]].pos
+                                    pntVertices[indices[indStart]].pos +
+                                    pntVertices[indices[indStart + 1]].pos +
+                                    pntVertices[indices[indStart + 2]].pos
                                 ) / 3.0f;
                             }
                             else {
-                                const auto vertices = reinterpret_cast<const Vertex_PNCT*>(vertexData);
+                                const auto pnctVertices = reinterpret_cast<const Vertex_PNCT*>(vertexData);
                                 center = (
-                                    vertices[indices[indStart]].pos +
-                                    vertices[indices[indStart + 1]].pos +
-                                    vertices[indices[indStart + 2]].pos
+                                    pnctVertices[indices[indStart]].pos +
+                                    pnctVertices[indices[indStart + 1]].pos +
+                                    pnctVertices[indices[indStart + 2]].pos
                                 ) / 3.0f;
                             }
                             double dist2 = center.x * center.x + center.y * center.y + center.z * center.z;

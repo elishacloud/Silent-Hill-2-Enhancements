@@ -195,7 +195,7 @@ void RunClosetCutscene()
 constexpr ModelOffsetTable kClosetModelTable = { -65533, 4, 176, 2, 304, 0, 320, 320, 2, 560, 1, 5232, 3, 320, 3, 336, 368, 0, 416, 0 };
 
 //static D3DXMATRIX* gWorldTransform = reinterpret_cast<D3DXMATRIX*>(0x1F7D5F0);
-static D3DXMATRIX* gViewTransform  = reinterpret_cast<D3DXMATRIX*>(0x1F7D530);
+static D3DXMATRIX* gViewTransform = nullptr;
 
 static std::filesystem::path    gModelPath;
 static ModelGLTF*               gClosetModel = nullptr;
@@ -293,6 +293,13 @@ void PatchClosetRoomModel() {
     std::error_code errorCode{};
     if (!std::filesystem::exists(gModelPath, errorCode)) {
         gModelPath.clear();
+        return;
+    }
+
+    constexpr BYTE ViewTransformSearchBytes[]{ 0x56, 0x57, 0x8D, 0x94, 0x24, 0x90, 0x00, 0x00, 0x00, 0x52 };
+    gViewTransform = reinterpret_cast<D3DXMATRIX*>(ReadSearchedAddresses(0x0050DB13, 0x0050DE43, 0x0050D763, ViewTransformSearchBytes, sizeof(ViewTransformSearchBytes), 0x10, __FUNCTION__));
+    if (gViewTransform == nullptr) {
+        Logging::Log() << __FUNCTION__ << "Error: failed to find memory address!";
         return;
     }
 

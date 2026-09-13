@@ -21,7 +21,7 @@ struct RPTVector4 {
 	float x, y, z, w;
 };
 
-RPTVector4 FirstRPTVec = { 0.f, -1.f, 0.f, 1.f };
+RPTVector4 FirstRPTVec = { 0.f, -1.75f, 0.f, 1.f };
 RPTVector4 SecondRPTVec = { 0.f, 2.9f, 0.f, 1.f };
 
 BYTE* FirstRPTJmpAddr = nullptr;

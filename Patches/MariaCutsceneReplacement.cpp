@@ -39,7 +39,7 @@ DWORD gMdrPSShader = 0;
 
 void* jmpSkipBlendDrawReturnAddr = nullptr;
 
-static D3DXMATRIX* gViewTransform = reinterpret_cast<D3DXMATRIX*>(0x1F7D530);  // TODO: Needs 1.1 and DC addresses?
+static D3DXMATRIX* gViewTransform = nullptr;
 
 static ModelGLTF* GetOrCreateModel(IDirect3DDevice8* device) {
     if (!gMdrModel && !gModelPath.empty()) {
@@ -132,8 +132,15 @@ void PatchMariaCutsceneModel() {
         return;
     }
 
-    constexpr BYTE SearchBytes[]{ 0x83, 0xEC, 0x08, 0x53, 0x8B, 0x5E, 0x2C };
-    DWORD SkipBlendDrawInjectAddr = SearchAndGetAddresses(0x00504E00, 0x00505130, 0x00504A50, SearchBytes, sizeof(SearchBytes), 0x04, __FUNCTION__);
+    constexpr BYTE ViewTransformSearchBytes[]{ 0x56, 0x57, 0x8D, 0x94, 0x24, 0x90, 0x00, 0x00, 0x00, 0x52 };
+    gViewTransform = reinterpret_cast<D3DXMATRIX*>(ReadSearchedAddresses(0x0050DB13, 0x0050DE43, 0x0050D763, ViewTransformSearchBytes, sizeof(ViewTransformSearchBytes), 0x10, __FUNCTION__));
+    if (gViewTransform == nullptr) {
+        Logging::Log() << __FUNCTION__ << "Error: failed to find memory address!";
+        return;
+    }
+
+    constexpr BYTE BlendDrawSearchBytes[]{ 0x83, 0xEC, 0x08, 0x53, 0x8B, 0x5E, 0x2C };
+    DWORD SkipBlendDrawInjectAddr = SearchAndGetAddresses(0x00504E00, 0x00505130, 0x00504A50, BlendDrawSearchBytes, sizeof(BlendDrawSearchBytes), 0x04, __FUNCTION__);
     if (!SkipBlendDrawInjectAddr) {
         Logging::Log() << __FUNCTION__ << "Error: failed to find memory address!";
         return;

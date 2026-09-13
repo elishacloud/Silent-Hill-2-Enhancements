@@ -89,7 +89,7 @@ static void DrawMariaModel(IDirect3DDevice8* device) {
     device->SetPixelShader(gMdrPSShader);
     device->SetVertexShader(gMdrVSShader);
 
-    model->DrawWithBlendPass(device, MariaCutsceneReplacementBlendSort);
+    model->DrawWithBlendPass(device, /*enableViewSpaceSort=*/true);
 
     device->SetPixelShader(savedPS);
     device->SetVertexShader(savedVS);

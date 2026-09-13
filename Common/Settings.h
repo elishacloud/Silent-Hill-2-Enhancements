@@ -111,7 +111,6 @@
 	visit(MainMenuTitlePerLang, true) \
 	visit(MapMeshToggle, true) \
 	visit(MariaCutsceneReplacement, true) \
-	visit(MariaCutsceneReplacementBlendSort, true) \
 	visit(MariaSpawnFix, true) \
 	visit(MemoScreenFix, true) \
 	visit(MenuSoundsFix, true) \
@@ -285,7 +284,6 @@
 	visit(LockResolution) \
 	visit(MapMeshToggle) \
 	visit(MariaCutsceneReplacement) \
-	visit(MariaCutsceneReplacementBlendSort) \
 	visit(MariaSpawnFix) \
 	visit(MusicBoxVolume) \
 	visit(NormalFontHeight) \

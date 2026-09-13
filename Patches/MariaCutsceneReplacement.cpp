@@ -115,11 +115,11 @@ __declspec(naked) void __stdcall SkipBlendDrawASM() {
         add esp, 0x08
         ret
 
-        ExitASM :
+    ExitASM:
         mov ebx, dword ptr ds : [esi + 0x2C]
-            push ebp
-            mov ebp, dword ptr ds : [esi + 0x28]
-            jmp jmpSkipBlendDrawReturnAddr
+        push ebp
+        mov ebp, dword ptr ds : [esi + 0x28]
+        jmp jmpSkipBlendDrawReturnAddr
     }
 }
 

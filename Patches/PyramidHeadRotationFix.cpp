@@ -17,33 +17,36 @@
 #include "Common\Utils.h"
 #include "Patches\Patches.h"
 
-float* FirstAddr = nullptr;
-float* SecondAddr = nullptr;
+struct RPTVector4 {
+	float x, y, z, w;
+};
 
-bool EnteredCutscene = false;
+RPTVector4 FirstRPTVec = { 0.f, -1.f, 0.f, 1.f };
+RPTVector4 SecondRPTVec = { 0.f, 2.9f, 0.f, 1.f };
 
-void RunPhRotationFix()
+BYTE* FirstRPTJmpAddr = nullptr;
+BYTE* SecondRPTJmpAddr = nullptr;
+
+BYTE* FirstRPTReturnAddr = nullptr;
+BYTE* SecondRPTReturnAddr = nullptr;
+
+__declspec(naked) void __stdcall InjectSecondRPTVec()
 {
-	if (!FirstAddr || !SecondAddr)
-	{
-		Logging::LogDebug() << __FUNCTION__ << " No addresses set for PH Rotation Fix. Skipping patch.";
-		return;
+	__asm
+	{		
+		push offset SecondRPTVec
+
+		jmp SecondRPTReturnAddr
 	}
+}
 
-	bool IsInCutscene = GetCutsceneID() == CS_HTL_ALT_RPT_BOSS_FINISH;
-
-	if (IsInCutscene)
+__declspec(naked) void __stdcall InjectFirstRPTVec()
+{
+	__asm
 	{
-		EnteredCutscene = true;
-		Logging::LogDebug() << "Entered Cutscene: CS_HTL_ALT_RPT_BOSS_FINISH";
-	}
-	else if (EnteredCutscene)
-	{
-		EnteredCutscene = false;
-		Logging::LogDebug() << "Exited Cutscene: CS_HTL_ALT_RPT_BOSS_FINISH";
+		push offset FirstRPTVec
 
-		*FirstAddr = 0.0;
-		*SecondAddr = 2.5;
+		jmp FirstRPTReturnAddr
 	}
 }
 
@@ -57,15 +60,21 @@ void PatchPhRotationAfterBossFight()
 		return;
 	}
 
-	FirstAddr = GameVersion == SH2V_10 ?
-		(float*)0x1FB2690 :
+	FirstRPTJmpAddr = GameVersion == SH2V_10 ?
+		(BYTE*)0x005760C1 :
 		GameVersion == SH2V_11 ?
-		(float*)0x1FB6290 :
-		(float*)0x1FB5290;
+		(BYTE*)0x00576937 :
+		(BYTE*)0x00576257;
 
-	SecondAddr = GameVersion == SH2V_10 ?
-		(float*)0x1FB295C :
+	SecondRPTJmpAddr = GameVersion == SH2V_10 ?
+		(BYTE*)0x00576087 :
 		GameVersion == SH2V_11 ?
-		(float*)0x1FB655C :
-		(float*)0x1FB555C;
+		(BYTE*)0x00576971 :
+		(BYTE*)0x00576291;
+
+	FirstRPTReturnAddr = FirstRPTJmpAddr + 0x05;
+	SecondRPTReturnAddr = SecondRPTJmpAddr + 0x05;
+
+	WriteJMPtoMemory(FirstRPTJmpAddr, InjectFirstRPTVec, 5);
+	WriteJMPtoMemory(SecondRPTJmpAddr, InjectSecondRPTVec, 5);
 }

@@ -787,7 +787,6 @@ void RunInfiniteRumbleFix();
 void RunInnerFlashlightGlow(DWORD Height);
 void RunLightingTransition();
 void RunMariaSpawnFix();
-void RunPhRotationFix();
 void RunPlayFlashlightSounds();
 void RunPlayLyingFigureSounds();
 void RunPlayClosetCutsceneBonusAudio();

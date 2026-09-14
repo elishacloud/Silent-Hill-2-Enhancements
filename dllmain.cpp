@@ -724,6 +724,9 @@ void DelayedStart()
 		PatchInputTweaks();
 	}
 
+	// Patch RPT rotation after hotel boss fight
+	PatchPhRotationAfterBossFight();
+
 	// Patch master volume slider and strings
 	if (EnableMasterVolume)
 	{

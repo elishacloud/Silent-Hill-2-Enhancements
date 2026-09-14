@@ -708,6 +708,7 @@ void PatchMusicBoxVolume();
 void PatchOldManCoinFix();
 void PatchObservationDeckFogFix();
 void PatchPauseScreen();
+void PatchPhRotationAfterBossFight();
 void PatchPistonRoom();
 void PatchPreventChainsawSpawn();
 void PatchPrisonerTimer();

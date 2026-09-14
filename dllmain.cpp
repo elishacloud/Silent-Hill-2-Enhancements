@@ -869,6 +869,12 @@ void DelayedStart()
 	{
 		PatchEddieLauraCutscene();
 	}
+
+    // Replace James' texture during the noose cutscene to hide shoulder clipping
+    if (JamesTextureFix)
+    {
+        PatchJamesTexture();
+    }
 	
 	// Remove the "Now loading..." and "Press Return to continue." messages
 	if (DisableLoadingPressReturnMessages)

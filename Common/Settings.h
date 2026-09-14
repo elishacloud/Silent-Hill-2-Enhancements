@@ -95,6 +95,7 @@
 	visit(ImproveStorageSupport, true) \
 	visit(IncreaseBlood, true) \
 	visit(IncreaseDrawDistance, true) \
+	visit(JamesTextureFix, true) \
 	visit(LabyrinthElevatorVolumeFix, true) \
 	visit(LegacyFixGPUAntiAliasing, false) \
 	visit(LightingFix, true) \
@@ -291,6 +292,7 @@
 	visit(HookDirectInput) \
 	visit(HookDirectSound) \
 	visit(HookWndProc) \
+	visit(JamesTextureFix) \
 	visit(LabyrinthElevatorVolumeFix) \
 	visit(LetterSpacing) \
 	visit(LimitPerFrameFPS) \

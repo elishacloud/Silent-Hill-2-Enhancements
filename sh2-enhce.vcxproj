@@ -218,6 +218,7 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClCompile Include="Patches\DogRoomEnhanced.cpp" />
     <ClCompile Include="Patches\DoubleFootstepFix.cpp" />
     <ClCompile Include="Patches\EddieLauraCutscene.cpp" />
+    <ClCompile Include="Patches\JamesTexture.cpp" />
     <ClCompile Include="Patches\RainParticles.cpp" />
     <ClCompile Include="Patches\ElevatorCursorColorFix.cpp" />
     <ClCompile Include="Patches\FlashlightReflection.cpp" />

@@ -21,6 +21,7 @@
 #include <array>
 #include <deque>
 #include <ctime>
+#include <functional>
 #include <numeric>
 #include "Common\Utils.h"
 #include "stb_image.h"
@@ -51,7 +52,7 @@ extern DWORD g_WaterPSBytecode[];
 extern DWORD g_WaterPondPSBytecode[];
 extern DWORD vsDeclWater[];
 extern void WaterEnhancedReleaseScreenCopy();
-extern HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, LPDIRECT3DDEVICE8 ProxyInterface, LPDIRECT3DSURFACE8 pRenderTarget, D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, const void* pVertexStreamZeroData, UINT VertexStreamZeroStride);
+extern HRESULT DrawWaterEnhanced(bool needToGrabScreenForWater, int64_t inGameTimerMs, LPDIRECT3DDEVICE8 ProxyInterface, LPDIRECT3DSURFACE8 pRenderTarget, UINT PrimitiveCount, bool DrawUP, std::function<HRESULT()> DrawFunc);
 
 // roaches replacement
 static float sFrameTimeInSeconds = 0.0f;
@@ -1732,6 +1733,9 @@ HRESULT m_IDirect3DDevice8::Present(CONST RECT* pSourceRect, CONST RECT* pDestRe
 	// Fix water plane culling in Cemetery cutscene
 	CheckCemeteryWaterCulling();
 
+	// Set cemetery and lake vertex color overrides
+	UpdateExteriorWaterVertexColors();
+
 	// Fix pause menu before drawing scaled surface
 	bool PauseMenuFlag = FixPauseMenuOnPresent();
 
@@ -1892,61 +1896,45 @@ HRESULT m_IDirect3DDevice8::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, UI
 		}
 	}
 
-	// Exclude Woodside Room 208 TV static geometry from receiving shadows
-	if (EnableSoftShadows && GetRoomID() == R_APT_E_RM_208 && GetModelID() == ModelID::chr_item_noa)
+	// Exclude specific geometry from receiving shadows
+	if (EnableSoftShadows)
 	{
-		DWORD stencilPass = 0;
-		ProxyInterface->GetRenderState(D3DRS_STENCILPASS, &stencilPass);
+		const auto modelId = GetModelID();
+		const auto roomId = GetRoomID();
 
-		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);
+		if (
+			// Woodside Apts room 208 TV static
+			(modelId == ModelID::chr_item_noa) ||
+			// Heaven's Night neon sign
+			(modelId == ModelID::chr_item_nef) ||
+			// Heaven's Night "Paradise" neon sign
+			(modelId == ModelID::chr_item_neo && GetCurrentMaterialIndex() != 1) ||
+			// Heaven's Night "KISS" neon sign
+			(modelId == ModelID::chr_item_nep) ||
+			// Heaven's Night back hallway windows
+			(roomId == R_HEAVENS_NIGHT_BACK && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 18 && startIndex == 0 && primCount == 21) ||
+			// Hotel 2F west hallway window
+			(roomId == R_HTL_W_ROOM_HALL_2F && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 10 && startIndex == 0 && primCount == 10) ||
+			// Hotel 1F store room hallway window
+			(roomId == R_HTL_STORE_RM_1F && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 8 && startIndex == 0 && primCount == 8) ||
+			// Alternate hospital day room refrigerator interior
+			(roomId == R_HSP_ALT_DAY_ROOM && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 1037 && startIndex == 0 && primCount == 1580)
+		)
+		{
+			DWORD stencilPass, stencilRef = 0;
+			ProxyInterface->GetRenderState(D3DRS_STENCILPASS, &stencilPass);
+			ProxyInterface->GetRenderState(D3DRS_STENCILREF, &stencilRef);
+			
+			// Configure render states so the object's silhouette is removed from the stencil buffer
+			ProxyInterface->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);
+			ProxyInterface->SetRenderState(D3DRS_STENCILREF, 1);
+			HRESULT hr = ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
 
-		HRESULT hr = ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
+			ProxyInterface->SetRenderState(D3DRS_STENCILPASS, stencilPass);
+			ProxyInterface->SetRenderState(D3DRS_STENCILREF, stencilRef);
 
-		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, stencilPass);
-
-		return hr;
-	}
-	// Exclude windows in Heaven's Night, Hotel 2F Room Hallway and Hotel Storeroom from receiving shadows
-	else if (EnableSoftShadows &&
-		((GetRoomID() == R_HEAVENS_NIGHT_BACK && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 18 && startIndex == 0 && primCount == 21) ||
-		(GetRoomID() == R_HTL_W_ROOM_HALL_2F && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 10 && startIndex == 0 && primCount == 10) ||
-		(GetRoomID() == R_HTL_STORE_RM_1F && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 8 && startIndex == 0 && primCount == 8)))
-	{
-		DWORD stencilPass, stencilRef = 0;
-
-		// Backup renderstates
-		ProxyInterface->GetRenderState(D3DRS_STENCILPASS, &stencilPass);
-		ProxyInterface->GetRenderState(D3DRS_STENCILREF, &stencilRef);
-
-		// Set states so we don't receive shadows
-		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);
-		ProxyInterface->SetRenderState(D3DRS_STENCILREF, 1);
-
-		HRESULT hr = ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
-
-		// Restore renderstates
-		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, stencilPass);
-		ProxyInterface->SetRenderState(D3DRS_STENCILREF, stencilRef);
-
-		return hr;
-	}
-	// Exclude refrigerator interior in hospital from receiving shadows
-	else if (EnableSoftShadows && GetRoomID() == R_HSP_ALT_DAY_ROOM && Type == D3DPT_TRIANGLESTRIP && MinVertexIndex == 0 && NumVertices == 1037 && startIndex == 0 && primCount == 1580)
-	{
-		DWORD stencilPass = 0;
-
-		// Backup renderstates
-		ProxyInterface->GetRenderState(D3DRS_STENCILPASS, &stencilPass);
-
-		// Set states so we don't receive shadows
-		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);
-
-		HRESULT hr = ProxyInterface->DrawIndexedPrimitive(Type, MinVertexIndex, NumVertices, startIndex, primCount);
-
-		// Restore renderstates
-		ProxyInterface->SetRenderState(D3DRS_STENCILPASS, stencilPass);
-
-		return hr;
+			return hr;
+		}
 	}
 
 	// Creates a reflection of the flashlight on glass and glossy surfaces throughout the game.
@@ -2166,6 +2154,25 @@ HRESULT m_IDirect3DDevice8::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT S
             return hr;
         }
     }
+
+	if (WaterEnhancedRender && PrimitiveType == D3DPT_TRIANGLESTRIP)
+	{
+		LPDIRECT3DSURFACE8 backBufferSurface = nullptr;
+		if (SUCCEEDED(ProxyInterface->GetRenderTarget(&backBufferSurface)))
+		{
+			backBufferSurface = ProxyAddressLookupTableD3d8->FindAddress<m_IDirect3DSurface8>(backBufferSurface);
+		}
+		HRESULT hr = DrawWaterEnhanced(NeedToGrabScreenForWater, InGameTimerMs, this, backBufferSurface, PrimitiveCount, /*DrawUP=*/false, [&]() { return ProxyInterface->DrawPrimitive(PrimitiveType, StartVertex, PrimitiveCount); });
+		if (backBufferSurface)
+		{
+			backBufferSurface->Release();
+		}
+		if (hr != -1)
+		{
+			NeedToGrabScreenForWater = false;
+			return hr;
+		}
+	}
 
 	return ProxyInterface->DrawPrimitive(PrimitiveType, StartVertex, PrimitiveCount);
 }
@@ -2574,14 +2581,14 @@ HRESULT m_IDirect3DDevice8::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT
 		}
 	}
 
-	if (WaterEnhancedRender)
+	if (WaterEnhancedRender && PrimitiveType == D3DPT_TRIANGLESTRIP && VertexStreamZeroStride == 24u && pVertexStreamZeroData != nullptr)
 	{
 		LPDIRECT3DSURFACE8 backBufferSurface = nullptr;
 		if (SUCCEEDED(ProxyInterface->GetRenderTarget(&backBufferSurface)))
 		{
 			backBufferSurface = ProxyAddressLookupTableD3d8->FindAddress<m_IDirect3DSurface8>(backBufferSurface);
 		}
-		HRESULT hr = DrawWaterEnhanced(NeedToGrabScreenForWater, this, backBufferSurface, PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride);
+		HRESULT hr = DrawWaterEnhanced(NeedToGrabScreenForWater, InGameTimerMs, this, backBufferSurface, PrimitiveCount, /*DrawUP=*/true, [&]() { return ProxyInterface->DrawPrimitiveUP(PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride); });
 		if (backBufferSurface)
 		{
 			backBufferSurface->Release();
@@ -2830,8 +2837,18 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		// Extend cutscene between Eddia and Laura in the bowling alley.
 		RunEddieLauraCutscene();
 
+		// Fixes James' movement speed in certain flooded rooms
+		if (WaterMoveSpeedFix)
+		{
+			RunWaterMoveSpeed();
+		}
+
 		NeedToGrabScreenForWater = true;
 		RoachesDrawingCounter = 0;
+
+		if (GetEventIndex() == EVENT_IN_GAME) {
+			InGameTimerMs += static_cast<int>(GetFrametime() * 1000);
+		}
 	}
 
 	if (!isInScene)

@@ -619,6 +619,7 @@ WEAPONTYPE GetWeaponRender();
 WEAPONTYPE* GetWeaponHandGripPointer();
 WEAPONTYPE GetWeaponHandGrip();
 BYTE* GetInGameVoiceEvent();
+BYTE* GetGameFlagPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -720,6 +721,7 @@ void PatchRemoveWeaponFromCutscene();
 void PatchRoom312ShadowFix();
 void PatchRoomLighting();
 void PatchRowboatAnimation();
+void PatchRowboatSpawn();
 void PatchSaveBGImage();
 void PatchSearchViewOptionName();
 void PatchSpeakerConfigLock();
@@ -740,6 +742,7 @@ void PatchTreeLighting();
 void PatchVHSAudio();
 void PatchUnusedAudio();
 void PatchWaterDrawOrderFix();
+void PatchWaterMoveSpeed();
 void PatchWindowIcon();
 void PatchWindowTitle();
 void PatchWoodsideMannequinState();
@@ -799,6 +802,7 @@ void RunSaveBGImage();
 void RunShadowCutscene();
 void RunSpecialFXScale(DWORD Height);
 void RunTreeColor();
+void RunWaterMoveSpeed();
 
 int GetNewScreenMode();
 
@@ -809,6 +813,9 @@ float GetConditionalFlashlightBrightnessGreen();
 float GetConditionalFlashlightBrightnessBlue();
 void CheckLakeMoonSize();
 void CheckRoom312Flashlight();
+void UpdateExteriorWaterVertexColors();
+
+bool CheckGameFlag(int flag);
 
 // Define the template function declaration
 template<typename T>

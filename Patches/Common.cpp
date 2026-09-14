@@ -3639,3 +3639,32 @@ BYTE* GetInGameVoiceEvent()
 
 	return InGameVoiceEvent;
 }
+
+BYTE* GetGameFlagPointer()
+{
+	static BYTE* GameFlagPtr = 0;
+
+	if (GameFlagPtr)
+	{
+		return GameFlagPtr;
+	}
+
+	constexpr BYTE SearchBytes[]{ 0x83, 0xFE, 0x01, 0x55, 0x57, 0xBD, 0x00, 0x01, 0x00, 0x00 };
+	GameFlagPtr = (BYTE*)ReadSearchedAddresses(0x0048AA9E, 0x0048AD3E, 0x0048AF4E, SearchBytes, sizeof(SearchBytes), 0x24, __FUNCTION__);
+	if (!GameFlagPtr)
+	{
+		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
+		return false;
+	}
+
+	return GameFlagPtr;
+}
+
+bool CheckGameFlag(int flag)
+{
+	if (BYTE* GameFlagPtr = GetGameFlagPointer(); GameFlagPtr != nullptr)
+	{
+		return GameFlagPtr[flag >> 3] & (1 << (flag & 0x07));
+	}
+	return false;
+}

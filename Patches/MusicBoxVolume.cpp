@@ -26,13 +26,12 @@ namespace
     constexpr int kMusicBoxSolvedFlag = 0x1D8;
 
     // Variables for ASM
-    BYTE* GameFlagAddr = 0;
     DWORD BgmChangeReturnAddr = 0;
     void(*shBgmCall)(int);
 
     bool IsHotelMusicBoxSolved()
     {
-        return GameFlagAddr[kMusicBoxSolvedFlag >> 3] & (1 << (kMusicBoxSolvedFlag & 0x07));
+        return CheckGameFlag(kMusicBoxSolvedFlag);
     }
 
     // Returns the BGM bank index to use for Lakeview Hotel 2F.
@@ -82,10 +81,7 @@ void PatchMusicBoxVolume()
     const BYTE BgmChangeSearchBytes[]{ 0x83, 0xC1, 0xFE, 0x83, 0xF9, 0x38 };
     const DWORD BgmChangeAddr = SearchAndGetAddresses(0x0051601C, 0x0051634C, 0x00515C6C, BgmChangeSearchBytes, sizeof(BgmChangeSearchBytes), 0x00, __FUNCTION__);
 
-    const BYTE GameFlagSearchBytes[]{ 0x83, 0xFE, 0x01, 0x55, 0x57, 0xBD, 0x00, 0x01, 0x00, 0x00 };
-    GameFlagAddr = (BYTE*)ReadSearchedAddresses(0x0048AA9E, 0x0048AD3E, 0x0048AF4E, GameFlagSearchBytes, sizeof(GameFlagSearchBytes), 0x24, __FUNCTION__);
-
-    if (!Hotel1FSoundDataAddr || !Hotel2FSoundDataAddr || !Hotel2FStageAddr || !BgmChangeAddr || !GameFlagAddr)
+    if (!Hotel1FSoundDataAddr || !Hotel2FSoundDataAddr || !Hotel2FStageAddr || !BgmChangeAddr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
         return;

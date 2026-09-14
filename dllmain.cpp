@@ -365,6 +365,12 @@ void DelayedStart()
 		PatchRowboatAnimation();
 	}
 
+	// Rowboat Spawn fix at hotel dock
+	if (RowboatSpawnFix)
+	{
+		PatchRowboatSpawn();
+	}
+
 	// Catacombs Meat Room
 	if (CatacombsMeatRoomFix)
 	{
@@ -868,6 +874,12 @@ void DelayedStart()
 	{
 		PatchEddieLauraCutscene();
 	}
+
+    // Smoothly adjust move speed when entering and exiting water
+    if (WaterMoveSpeedFix)
+    {
+        PatchWaterMoveSpeed();
+    }
 	
 	// Remove the "Now loading..." and "Press Return to continue." messages
 	if (DisableLoadingPressReturnMessages)

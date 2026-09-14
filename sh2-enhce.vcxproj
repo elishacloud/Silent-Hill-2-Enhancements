@@ -219,6 +219,7 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClCompile Include="Patches\DoubleFootstepFix.cpp" />
     <ClCompile Include="Patches\EddieLauraCutscene.cpp" />
     <ClCompile Include="Patches\PyramidHeadRotationFix.cpp" />
+    <ClCompile Include="Patches\MariaCutsceneReplacement.cpp" />
     <ClCompile Include="Patches\RainParticles.cpp" />
     <ClCompile Include="Patches\ElevatorCursorColorFix.cpp" />
     <ClCompile Include="Patches\FlashlightReflection.cpp" />
@@ -315,6 +316,7 @@ copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     <ClCompile Include="Patches\VHSAudio.cpp" />
     <ClCompile Include="Patches\WaterDrawOrderFix.cpp" />
     <ClCompile Include="Patches\WaterEnhancement.cpp" />
+    <ClCompile Include="Patches\WaterMoveSpeed.cpp" />
     <ClCompile Include="Patches\WoodsideMannequinState.cpp" />
     <ClCompile Include="ReShade\stb\stb_impl.c" />
     <ClCompile Include="WidescreenFixesPack\WidescreenFixesPack.cpp" />

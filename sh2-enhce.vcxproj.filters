@@ -536,10 +536,16 @@
     <ClCompile Include="Patches\RainParticles.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\MariaCutsceneReplacement.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
     <ClCompile Include="Patches\RowboatSpawn.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
     <ClCompile Include="Patches\PyramidHeadRotationFix.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\WaterMoveSpeed.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
   </ItemGroup>

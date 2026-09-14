@@ -665,6 +665,11 @@ void DelayedStart()
         PatchCockroachesReplacement();
     }
 
+	if (MariaCutsceneReplacement)
+	{
+		PatchMariaCutsceneModel();
+	}
+
 	// Enables a complete rewrite of the game's audio engine
 	if (EnableCriWareReimplementation)
 	{
@@ -872,6 +877,12 @@ void DelayedStart()
 	{
 		PatchEddieLauraCutscene();
 	}
+
+    // Smoothly adjust move speed when entering and exiting water
+    if (WaterMoveSpeedFix)
+    {
+        PatchWaterMoveSpeed();
+    }
 	
 	// Remove the "Now loading..." and "Press Return to continue." messages
 	if (DisableLoadingPressReturnMessages)

@@ -28,7 +28,6 @@ constexpr int kPlacedCopperRingGameFlag = 0xE3;
 constexpr int kPlacedLeadRingGameFlag = 0xE4;
 constexpr int kEnteredApartmentGate = 0x31;
 
-BYTE* GameFlagPtr = 0;
 void(*shDisplayControlEntry)(uint32_t*, uint32_t, int);
 void(*shDisplayControlExec)(uint32_t*);
 WORD* HotelRoom312MemoFlagAddr = 0;
@@ -40,11 +39,6 @@ void* jmpHotelRoom312HandlerReturnAddr2 = nullptr;
 void* jmpHospital3FHandlerReturnAddr1 = nullptr;
 void* jmpHospital3FHandlerReturnAddr2 = nullptr;
 void* jmpTownLakeReturnAddr = nullptr;
-
-bool IsGameFlagSet(int flag)
-{
-	return GameFlagPtr[flag >> 3] & (1 << (flag & 0x07));
-}
 
 // Prevents casting light out of the side of the elevator during the cutscene that takes place
 // after the hospital chase.
@@ -62,7 +56,7 @@ void Hospital1FDisplayControl()
 void BlueCreek1FDisplayControl()
 {
 	uint32_t display_list[] = { 0, 0, 0 };
-	shDisplayControlEntry(display_list, /*room=*/0x5C, /*no=*/IsGameFlagSet(kMetEddieGameFlag) ? 1 : 0);
+	shDisplayControlEntry(display_list, /*room=*/0x5C, /*no=*/CheckGameFlag(kMetEddieGameFlag) ? 1 : 0);
 	shDisplayControlExec(display_list);
 }
 
@@ -104,7 +98,7 @@ void TownLakeDisplayControl()
 {
 	uint32_t display_list[] = { 0, 0, 0, 0, 0 };
 	// Shows a hint on the shipping dock that suggests using the blue gem (second time).
-	shDisplayControlEntry(display_list, /*room=*/0x01, /*no=*/IsGameFlagSet(kUsedBlueGemFirstTimeGameFlag) ? 0 : -1);
+	shDisplayControlEntry(display_list, /*room=*/0x01, /*no=*/CheckGameFlag(kUsedBlueGemFirstTimeGameFlag) ? 0 : -1);
 	// Shows a static water mesh during the Rebirth ending epilogue.
 	shDisplayControlEntry(display_list, /*room=*/0x0B, /*no=*/GetCutsceneID() == CS_END_REBIRTH_EPILOGUE ? 3 : -1);
 	shDisplayControlExec(display_list);
@@ -123,7 +117,7 @@ __declspec(naked) void __stdcall TownLakeHandlerASM()
 void HotelRoom312DisplayControl()
 {
 	uint32_t display_list[] = { 0, 0, 0 };
-	const bool show_hint = IsGameFlagSet(kUsedBlueGemSecondTimeGameFlag) && !IsGameFlagSet(kUsedVideoTapeGameFlag);
+	const bool show_hint = CheckGameFlag(kUsedBlueGemSecondTimeGameFlag) && !CheckGameFlag(kUsedVideoTapeGameFlag);
 	shDisplayControlEntry(display_list, /*room=*/0x5B, /*no=*/show_hint ? 0 : -1);
 	shDisplayControlExec(display_list);
 
@@ -151,8 +145,8 @@ __declspec(naked) void __stdcall HotelRoom312HandlerASM()
 void Hospital3FDisplayControl()
 {
 	uint32_t display_list[] = { 0, 0, 0 };
-	const bool placed_copper_ring = IsGameFlagSet(kPlacedCopperRingGameFlag);
-	const bool placed_lead_ring = IsGameFlagSet(kPlacedLeadRingGameFlag);
+	const bool placed_copper_ring = CheckGameFlag(kPlacedCopperRingGameFlag);
+	const bool placed_lead_ring = CheckGameFlag(kPlacedLeadRingGameFlag);
 	if (placed_copper_ring)
 	{
 		shDisplayControlEntry(display_list, /*room=*/0xD6, /*no=*/0);
@@ -194,7 +188,7 @@ void MotorhomeDisplayControl()
 	if (GetRoomID() != R_MOTORHOME) return;
 
 	uint32_t display_list[] = { 0, 0, 0 };
-	shDisplayControlEntry(display_list, /*room=*/0x05, /*no=*/IsGameFlagSet(kEnteredApartmentGate) ? -1 : 0);
+	shDisplayControlEntry(display_list, /*room=*/0x05, /*no=*/CheckGameFlag(kEnteredApartmentGate) ? -1 : 0);
 	shDisplayControlExec(display_list);
 }
 
@@ -206,9 +200,6 @@ void PatchMapMeshToggle()
 
 	const BYTE DisplayControlSearchBytes[]{ 0x6A, 0xFF, 0x8D, 0x44, 0x24, 0x08, 0x6A, 0x27, 0x50 };
 	const DWORD DisplayControlAddr = SearchAndGetAddresses(0x0058BE95, 0x0058C745, 0x0058C065, DisplayControlSearchBytes, sizeof(DisplayControlSearchBytes), 0x0A, __FUNCTION__);
-
-	constexpr BYTE GameFlagSearchBytes[]{ 0x83, 0xFE, 0x01, 0x55, 0x57, 0xBD, 0x00, 0x01, 0x00, 0x00 };
-	GameFlagPtr = (BYTE*)ReadSearchedAddresses(0x0048AA9E, 0x0048AD3E, 0x0048AF4E, GameFlagSearchBytes, sizeof(GameFlagSearchBytes), 0x24, __FUNCTION__);
 
 	const BYTE BlueCreek1FHandlerSearchBytes[]{ 0xC1, 0xE8, 0x0E, 0xF7, 0xD0, 0x83, 0xE0, 0x01 };
 	const DWORD BlueCreek1FHandlerAddr = SearchAndGetAddresses(0x0059864A, 0x00598EFA, 0x0059881A, BlueCreek1FHandlerSearchBytes, sizeof(BlueCreek1FHandlerSearchBytes), 0x29, __FUNCTION__);
@@ -225,7 +216,7 @@ void PatchMapMeshToggle()
 	const BYTE Hospital3FHandlerSearchBytes[]{ 0x83, 0xE8, 0x54, 0x0F, 0x84, 0xBD, 0x00, 0x00, 0x00, 0x48 };
 	const DWORD Hospital3FHandlerAddr = SearchAndGetAddresses(0x00589DE0, 0x0058A690, 0x00589FB0, Hospital3FHandlerSearchBytes, sizeof(Hospital3FHandlerSearchBytes), 0x00, __FUNCTION__);
 
-	if (!StageDataAddr || !DisplayControlAddr || !GameFlagPtr || !BlueCreek1FHandlerAddr || !HospitalGardenHandlerAddr || !TownLakeHandlerAddr || !HotelRoom312HandlerAddr || !Hospital3FHandlerAddr)
+	if (!StageDataAddr || !DisplayControlAddr || !BlueCreek1FHandlerAddr || !HospitalGardenHandlerAddr || !TownLakeHandlerAddr || !HotelRoom312HandlerAddr || !Hospital3FHandlerAddr)
 	{
 		Logging::Log() << __FUNCTION__ << " Error: failed to find memory address!";
 		return;

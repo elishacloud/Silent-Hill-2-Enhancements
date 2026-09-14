@@ -158,6 +158,7 @@
 	visit(UsePS2LowResTextures, false) \
 	visit(VHSAudioFix, false) \
 	visit(WaterEnhancedRender, true) \
+	visit(WaterMoveSpeedFix, true) \
 	visit(WhiteShaderFix, true) \
 	visit(WidescreenFix, true) \
 	visit(WndModeBorder, true) \
@@ -314,6 +315,7 @@
 	visit(SmallFontWidth) \
 	visit(SmokeFogFix) \
 	visit(SpaceSize) \
+	visit(WaterMoveSpeedFix) \
 	visit(water_alpha_cemetery) \
 	visit(water_alpha_lake) \
 	visit(water_rgb_cemetery) \

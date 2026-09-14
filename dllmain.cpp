@@ -665,6 +665,11 @@ void DelayedStart()
         PatchCockroachesReplacement();
     }
 
+	if (MariaCutsceneReplacement)
+	{
+		PatchMariaCutsceneModel();
+	}
+
 	// Enables a complete rewrite of the game's audio engine
 	if (EnableCriWareReimplementation)
 	{

@@ -110,6 +110,7 @@
 	visit(MainMenuInstantLoadOptions, true) \
 	visit(MainMenuTitlePerLang, true) \
 	visit(MapMeshToggle, true) \
+	visit(MariaCutsceneReplacement, true) \
 	visit(MariaSpawnFix, true) \
 	visit(MemoScreenFix, true) \
 	visit(MenuSoundsFix, true) \
@@ -298,6 +299,7 @@
 	visit(LoadModulesFromMemory) \
 	visit(LockResolution) \
 	visit(MapMeshToggle) \
+	visit(MariaCutsceneReplacement) \
 	visit(MariaSpawnFix) \
 	visit(MusicBoxVolume) \
 	visit(NormalFontHeight) \

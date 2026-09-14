@@ -74,6 +74,8 @@ static double TimeGetNowSec() {
 extern DWORD gClosetVSShader;
 extern DWORD gClosetPSShader;
 extern BOOL  gClosetShouldSkipDIP;
+extern DWORD gMdrVSShader;
+extern DWORD gMdrPSShader;
 
 // brightness (gamma) shader
 /*
@@ -1320,6 +1322,7 @@ HRESULT m_IDirect3DDevice8::SetPixelShader(THIS_ DWORD Handle)
 	Logging::LogDebug() << __FUNCTION__;
 
     gClosetPSShader = (Handle == 0) ? gClosetPSShader : Handle;
+	gMdrPSShader = (Handle == 0) ? gMdrPSShader : Handle;
 
 	return ProxyInterface->SetPixelShader(Handle);
 }
@@ -2672,6 +2675,18 @@ HRESULT m_IDirect3DDevice8::BeginScene()
         // run uncoditionally, it'll early-exit if fix is OFF
 		RunClosetCutscene();
 
+        // Load Maria cutscene replacement model
+		if (MariaCutsceneReplacement)
+		{
+			RunMariaCutsceneModel();
+		}
+
+		// Load Dog ending monitor replacement model
+		if (DogRoomEnhanced)
+		{
+			RunDogRoom();
+		}
+
 		// RPT Hospital Elevator Stabbing Animation Fix
 		if (HospitalChaseFix)
 		{
@@ -3280,6 +3295,7 @@ HRESULT m_IDirect3DDevice8::SetVertexShader(THIS_ DWORD Handle)
 	Logging::LogDebug() << __FUNCTION__;
 
     gClosetVSShader = (Handle == 0) ? gClosetVSShader : Handle;
+	gMdrVSShader = (Handle == 0) ? gMdrVSShader : Handle;
 
 	return ProxyInterface->SetVertexShader(Handle);
 }

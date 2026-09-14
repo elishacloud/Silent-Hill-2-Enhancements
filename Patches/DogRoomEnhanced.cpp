@@ -16,7 +16,9 @@
 static ModelGLTF*               gLeversModel = nullptr;
 static std::filesystem::path    gModelPath;
 static LARGE_INTEGER            gQPCFreq = {};
+static bool                     gActive = false;
 static double                   gStartTime = 0.0;
+static float                    gModelAnimTimer = 0.0f;
 
 static ModelGLTF* GetOrCreateModel(IDirect3DDevice8* device) {
     if (!gLeversModel && !gModelPath.empty()) {
@@ -30,21 +32,8 @@ static ModelGLTF* GetOrCreateModel(IDirect3DDevice8* device) {
     return gLeversModel;
 }
 
-static double TimeGetNowSec() {
-    if (!gQPCFreq.QuadPart) {
-        ::QueryPerformanceFrequency(&gQPCFreq);
-    }
-
-    LARGE_INTEGER qpcNow = {};
-    ::QueryPerformanceCounter(&qpcNow);
-    return static_cast<double>(qpcNow.QuadPart) / static_cast<double>(gQPCFreq.QuadPart);
-}
-
 static void DrawLeversModel(IDirect3DDevice8* device) {
-    if (!gStartTime) {
-        gStartTime = TimeGetNowSec();
-    }
-    const double timeNow = TimeGetNowSec();
+    const double timeNow = GetCutsceneTimer() / 30.0f;
     const double timeDelta = static_cast<float>(timeNow - gStartTime);
     gStartTime = timeNow;
 
@@ -56,7 +45,7 @@ static void DrawLeversModel(IDirect3DDevice8* device) {
     D3DXMATRIX actorXForm;
     D3DXMatrixIdentity(&actorXForm);
 
-    model->Update(timeDelta, actorXForm);
+    model->Update(timeDelta, actorXForm, &gModelAnimTimer);
 
     DWORD alphaBlend, alphaTest = 0;
     device->GetRenderState(D3DRS_ALPHABLENDENABLE, &alphaBlend);
@@ -118,26 +107,41 @@ constexpr ModelOffsetTable kLeversModelTable = { -65533, 4, 176, 3, 368, 0, 384,
 constexpr ModelOffsetTable kDogModelTable = { -65533, 4, 176, 31, 2160, 43, 2192, 2288, 3, 5248, 0, 21792, 2, 5040, 2, 5056, 5072, 0, 5104, 0 };
 
 void PatchDogRoom() {
-    RegisterActorDrawTopEpilogue([](ModelOffsetTable* model, void* /*arg2*/)->bool {
-        const DWORD roomID = GetRoomID();
-        if (roomID == R_END_DOG_RM) {
-            if (*model == kDogModelTable) {
-                IDirect3DDevice8* device = GetD3dDevice();
-                if (device) {
-                    DrawLeversModel(device);
-                }
-            }
-        }
-
-        // return false to not skip the actual draw
-        return(false);
-    });
-
     gModelPath = GetModPath("");
     gModelPath = gModelPath / R"(model\mon.glb)";
     std::error_code errorCode{};
     if (!std::filesystem::exists(gModelPath, errorCode)) {
         gModelPath.clear();
         return;
+    }
+
+    RegisterActorDrawTopEpilogue([](ModelOffsetTable* model, void* /*arg2*/)->bool {
+        const DWORD roomID = GetRoomID();
+        if (roomID == R_END_DOG_RM) {
+            if (*model == kDogModelTable) {
+                if (!gActive) {
+                    gModelAnimTimer = 0.0f;
+                    gStartTime = GetCutsceneTimer() / 30.0f;
+                    gActive = true;
+                }
+                IDirect3DDevice8* device = GetD3dDevice();
+                if (device) {
+                    DrawLeversModel(device);
+                }
+            }
+        }
+        else {
+            gActive = false;
+        }
+
+        // return false to not skip the actual draw
+        return(false);
+    });
+}
+
+void RunDogRoom() {
+    // Pre-load replacement model during room transition before cutscene starts
+    if (GetEventIndex() == 3 && GetRoomID() == R_END_DOG_RM) {
+        GetOrCreateModel(GetD3dDevice());
     }
 }

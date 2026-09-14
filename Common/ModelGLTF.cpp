@@ -347,8 +347,10 @@ bool ModelGLTF::LoadFromFile(const std::string& filePath, IDirect3DDevice8* devi
             if (!model.materials.empty()) {
                 const int albedoIdx = model.materials[prim.material].pbrMetallicRoughness.baseColorTexture.index;
                 section.textureIdx = static_cast<uint32_t>(model.textures[albedoIdx].source);
+                section.alphaModeBlend = model.materials[prim.material].alphaMode == "BLEND";
             } else {
                 section.textureIdx = ~0u;
+                section.alphaModeBlend = false;
             }
         }
     }
@@ -555,6 +557,131 @@ HRESULT ModelGLTF::Draw(IDirect3DDevice8* device, BOOL enableTransparency) {
             }
         }
     }
+
+    hr = device->SetTexture(0, savedTexture.GetPtr());
+    return hr;
+}
+
+HRESULT ModelGLTF::DrawWithBlendPass(IDirect3DDevice8* device, bool enableViewSpaceSort) {
+    const DWORD vertexSize = (mVertexType == VertexType::PosNormalTexcoord) ? sizeof(Vertex_PNT) : sizeof(Vertex_PNCT);
+
+    HRESULT hr = S_OK;
+
+    IUnknownPtr<IDirect3DBaseTexture8> savedTexture;
+    hr = device->GetTexture(0, savedTexture.ReleaseAndGetAddressOf());
+    if (FAILED(hr)) {
+        return hr;
+    }
+
+    const uint8_t* vertices = mXFormedVertices.data();
+    const uint16_t* indices = mIndices.data();
+
+    DWORD alphaBlend = 0, alphaTest = 0, zWrite = 0, srcBlend = 0, destBlend = 0;
+    device->GetRenderState(D3DRS_ALPHABLENDENABLE, &alphaBlend);
+    device->GetRenderState(D3DRS_ALPHATESTENABLE, &alphaTest);
+    device->GetRenderState(D3DRS_ZWRITEENABLE, &zWrite);
+    device->GetRenderState(D3DRS_SRCBLEND, &srcBlend);
+    device->GetRenderState(D3DRS_DESTBLEND, &destBlend);
+
+    for (size_t pass = 0; pass < 2; ++pass) {
+        if (pass == 0) {
+            device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+            device->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
+            device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+        }
+        else {
+            device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+            device->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
+            device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+            device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+            device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+        }
+        uint32_t lastTextureIdx = ~0u;
+
+        for (const ModelGLTF::Mesh& mesh : mMeshes) {
+            for (const ModelGLTF::Section& section : mesh.sections) {
+                if (!section.numVertices) {
+                    continue;
+                }
+
+                if (section.textureIdx != ~0u) {
+                    if (pass == 0 && section.alphaModeBlend) {
+                        continue;
+                    }
+                    else if (pass == 1 && !section.alphaModeBlend) {
+                        continue;
+                    }
+
+                    if (section.textureIdx != lastTextureIdx) {
+                        device->SetTexture(0, mTextures[section.textureIdx].texture.GetPtr());
+                        lastTextureIdx = section.textureIdx;
+                    }
+                }
+
+                if (mUploadToGPU) {
+                    device->SetIndices(mIB.GetPtr(), section.vbOffset);
+                    device->SetStreamSource(0, mVB.GetPtr(), vertexSize);
+
+                    hr = device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, section.numVertices, section.ibOffset, section.numIndices / 3u);
+                }
+                else {
+                    if (pass == 0 || !enableViewSpaceSort) {
+                        hr = device->DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST, 0, section.numVertices, section.numIndices / 3u, indices + section.ibOffset, D3DFMT_INDEX16, vertices + section.vbOffset * vertexSize, vertexSize);
+                    }
+                    else {
+                        // Draw triangles from back to front during the blend pass.
+                        // This assumes vertices are already transformed in view space, placing the camera at the origin.
+                        const uint8_t* vertexData = mXFormedVertices.data() + section.vbOffset * vertexSize;
+                        std::vector<std::pair<double, UINT>> triDist;
+                        triDist.reserve(section.numIndices / 3u);
+                        for (UINT i = 0; i < section.numIndices; i += 3) {
+                            const UINT indStart = section.ibOffset + i;
+                            D3DXVECTOR3 center;
+                            if (mVertexType == VertexType::PosNormalTexcoord) {
+                                const auto pntVertices = reinterpret_cast<const Vertex_PNT*>(vertexData);
+                                center = (
+                                    pntVertices[indices[indStart]].pos +
+                                    pntVertices[indices[indStart + 1]].pos +
+                                    pntVertices[indices[indStart + 2]].pos
+                                ) / 3.0f;
+                            }
+                            else {
+                                const auto pnctVertices = reinterpret_cast<const Vertex_PNCT*>(vertexData);
+                                center = (
+                                    pnctVertices[indices[indStart]].pos +
+                                    pnctVertices[indices[indStart + 1]].pos +
+                                    pnctVertices[indices[indStart + 2]].pos
+                                ) / 3.0f;
+                            }
+                            double dist2 = center.x * center.x + center.y * center.y + center.z * center.z;
+                            triDist.push_back({ dist2, i });
+                        }
+                        std::sort(triDist.begin(), triDist.end(), std::greater());
+
+                        std::vector<uint16_t> indicesSorted;
+                        indicesSorted.reserve(section.numIndices);
+                        for (const auto tri : triDist) {
+                            indicesSorted.push_back(indices[tri.second + section.ibOffset]);
+                            indicesSorted.push_back(indices[tri.second + 1 + section.ibOffset]);
+                            indicesSorted.push_back(indices[tri.second + 2 + section.ibOffset]);
+                        }
+
+                        hr = device->DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST, 0, section.numVertices, section.numIndices / 3u, indicesSorted.data(), D3DFMT_INDEX16, vertices + section.vbOffset * vertexSize, vertexSize);
+                    }
+                }
+
+                if (FAILED(hr)) {
+                    return hr;
+                }
+            }
+        }
+    }
+
+    device->SetRenderState(D3DRS_ALPHABLENDENABLE, alphaBlend);
+    device->SetRenderState(D3DRS_ALPHATESTENABLE, alphaTest);
+    device->SetRenderState(D3DRS_ZWRITEENABLE, zWrite);
+    device->SetRenderState(D3DRS_SRCBLEND, srcBlend);
+    device->SetRenderState(D3DRS_DESTBLEND, destBlend);
 
     hr = device->SetTexture(0, savedTexture.GetPtr());
     return hr;

@@ -195,7 +195,7 @@ void RunClosetCutscene()
 constexpr ModelOffsetTable kClosetModelTable = { -65533, 4, 176, 2, 304, 0, 320, 320, 2, 560, 1, 5232, 3, 320, 3, 336, 368, 0, 416, 0 };
 
 //static D3DXMATRIX* gWorldTransform = reinterpret_cast<D3DXMATRIX*>(0x1F7D5F0);
-static D3DXMATRIX* gViewTransform  = reinterpret_cast<D3DXMATRIX*>(0x1F7D530);
+static D3DXMATRIX* gViewTransform = nullptr;
 
 static std::filesystem::path    gModelPath;
 static ModelGLTF*               gClosetModel = nullptr;
@@ -207,15 +207,6 @@ static bool                     gIsClosetCutsceneRunning = false;
 DWORD gClosetVSShader = 0;
 DWORD gClosetPSShader = 0;
 BOOL  gClosetShouldSkipDIP = FALSE;
-
-void RunClosetDoorReplacementUpdateFunc() {
-    if (GetCutsceneID() == CS_APT_RPT_CLOSET) {
-        // 
-    } else {
-        gIsClosetCutsceneRunning = false;
-    }
-}
-
 
 static ModelGLTF* GetOrCreateModel(IDirect3DDevice8* device) {
     if (!gClosetModel && !gModelPath.empty()) {
@@ -231,21 +222,23 @@ static ModelGLTF* GetOrCreateModel(IDirect3DDevice8* device) {
     return gClosetModel;
 }
 
-
-static double TimeGetNowSec() {
-    if (!gQPCFreq.QuadPart) {
-        ::QueryPerformanceFrequency(&gQPCFreq);
+void RunClosetDoorReplacementUpdateFunc() {
+    if (GetCutsceneID() == CS_APT_RPT_CLOSET) {
+        // 
+    } else {
+        gIsClosetCutsceneRunning = false;
     }
 
-    LARGE_INTEGER qpcNow = {};
-    ::QueryPerformanceCounter(&qpcNow);
-    return static_cast<double>(qpcNow.QuadPart) / static_cast<double>(gQPCFreq.QuadPart);
+    // Pre-load replacement model during room transition before the cutscene
+    if (GetEventIndex() == 3 && GetRoomID() == R_APT_E_RM_307) {
+        GetOrCreateModel(GetD3dDevice());
+    }
 }
 
 static void DrawClosetModel(IDirect3DDevice8* device) {
     if (!gIsClosetCutsceneRunning) {
         gModelAnimTimer = 0.0f;
-        gStartTime = 0.0;
+        gStartTime = GetCutsceneTimer() / 30.0f;
 
         gIsClosetCutsceneRunning = true;
     }
@@ -257,10 +250,7 @@ static void DrawClosetModel(IDirect3DDevice8* device) {
 
     const bool isPaused = (GetEventIndex() == EVENT_PAUSE_MENU);
 
-    if (!gStartTime) {
-        gStartTime = TimeGetNowSec();
-    }
-    const double timeNow = TimeGetNowSec();
+    const double timeNow = GetCutsceneTimer() / 30.0f;
     const double timeDelta = isPaused ? 0.0 : static_cast<double>(timeNow - gStartTime);
     gStartTime = timeNow;
 
@@ -298,6 +288,21 @@ static void DrawClosetModel(IDirect3DDevice8* device) {
 }
 
 void PatchClosetRoomModel() {
+    gModelPath = GetModPath("");
+    gModelPath = gModelPath / R"(model\b_doo.glb)";
+    std::error_code errorCode{};
+    if (!std::filesystem::exists(gModelPath, errorCode)) {
+        gModelPath.clear();
+        return;
+    }
+
+    constexpr BYTE ViewTransformSearchBytes[]{ 0x56, 0x57, 0x8D, 0x94, 0x24, 0x90, 0x00, 0x00, 0x00, 0x52 };
+    gViewTransform = reinterpret_cast<D3DXMATRIX*>(ReadSearchedAddresses(0x0050DB13, 0x0050DE43, 0x0050D763, ViewTransformSearchBytes, sizeof(ViewTransformSearchBytes), 0x10, __FUNCTION__));
+    if (gViewTransform == nullptr) {
+        Logging::Log() << __FUNCTION__ << "Error: failed to find memory address!";
+        return;
+    }
+
     RegisterActorDrawTopPrologue([](ModelOffsetTable* model, void* /*arg2*/)->bool {
         const DWORD roomID = GetRoomID();
         if (roomID == CS_APT_RPT_FIGHT) {
@@ -333,12 +338,4 @@ void PatchClosetRoomModel() {
 
         return false;
     });
-
-    gModelPath = GetModPath("");
-    gModelPath = gModelPath / R"(model\b_doo.glb)";
-    std::error_code errorCode{};
-    if (!std::filesystem::exists(gModelPath, errorCode)) {
-        gModelPath.clear();
-        return;
-    }
 }

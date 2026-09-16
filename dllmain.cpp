@@ -878,11 +878,17 @@ void DelayedStart()
 		PatchEddieLauraCutscene();
 	}
 
-    // Smoothly adjust move speed when entering and exiting water
-    if (WaterMoveSpeedFix)
-    {
-        PatchWaterMoveSpeed();
-    }
+	// Replace James' texture during the noose cutscene to hide shoulder clipping
+	if (JamesTextureFix)
+	{
+		PatchJamesTexture();
+	}
+
+	// Smoothly adjust move speed when entering and exiting water
+	if (WaterMoveSpeedFix)
+	{
+		PatchWaterMoveSpeed();
+	}
 	
 	// Remove the "Now loading..." and "Press Return to continue." messages
 	if (DisableLoadingPressReturnMessages)

@@ -542,6 +542,10 @@
     <ClCompile Include="Patches\RowboatSpawn.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\JamesTexture.cpp">
+      <Filter>Common</Filter>
+      <Filter>Patches</Filter>
+    </ClCompile>
     <ClCompile Include="Patches\PyramidHeadRotationFix.cpp">
       <Filter>Patches</Filter>
     </ClCompile>

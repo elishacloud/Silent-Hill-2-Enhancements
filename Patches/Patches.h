@@ -689,6 +689,7 @@ void PatchHoldDamage();
 void PatchHoldToStomp();
 void PatchInputTweaks();
 void PatchInventoryBGMBug();
+void PatchJamesTexture();
 void PatchLabyrinthElevatorVolumeFix();
 void PatchLakeMoonSize();
 void PatchLeaveEndingCemeteryDrawDistance();

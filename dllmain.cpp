@@ -665,6 +665,11 @@ void DelayedStart()
         PatchCockroachesReplacement();
     }
 
+	if (MariaCutsceneReplacement)
+	{
+		PatchMariaCutsceneModel();
+	}
+
 	// Enables a complete rewrite of the game's audio engine
 	if (EnableCriWareReimplementation)
 	{
@@ -718,6 +723,9 @@ void DelayedStart()
 	{
 		PatchInputTweaks();
 	}
+
+	// Patch RPT rotation after hotel boss fight
+	PatchPhRotationAfterBossFight();
 
 	// Patch master volume slider and strings
 	if (EnableMasterVolume)
@@ -874,6 +882,12 @@ void DelayedStart()
 	if (JamesTextureFix)
 	{
 		PatchJamesTexture();
+	}
+
+	// Smoothly adjust move speed when entering and exiting water
+	if (WaterMoveSpeedFix)
+	{
+		PatchWaterMoveSpeed();
 	}
 	
 	// Remove the "Now loading..." and "Press Return to continue." messages

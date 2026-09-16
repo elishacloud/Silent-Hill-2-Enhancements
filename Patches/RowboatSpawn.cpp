@@ -23,16 +23,9 @@
 namespace {
     constexpr int kEnteredRowboatGameFlag = 0x17B;
 
-    BYTE* GameFlagPtr = 0;
-
-    bool IsGameFlagSet(int flag)
-    {
-        return GameFlagPtr[flag >> 3] & (1 << (flag & 0x07));
-    }
-
     void MoveRowboatToHotelDock(BYTE* RowboatSubCharPtr)
     {
-        if (!IsGameFlagSet(kEnteredRowboatGameFlag)) return;
+        if (!CheckGameFlag(kEnteredRowboatGameFlag)) return;
 
         float* RowboatPos = (float*)(RowboatSubCharPtr + 0x1C);
         RowboatPos[0] = -8915.900391f;
@@ -60,12 +53,9 @@ namespace {
 // Spawns the rowboat at the dock outside of Lakeview Hotel when the player re-enters the area.
 void PatchRowboatSpawn()
 {
-    constexpr BYTE GameFlagSearchBytes[]{ 0x83, 0xFE, 0x01, 0x55, 0x57, 0xBD, 0x00, 0x01, 0x00, 0x00 };
-    GameFlagPtr = (BYTE*)ReadSearchedAddresses(0x0048AA9E, 0x0048AD3E, 0x0048AF4E, GameFlagSearchBytes, sizeof(GameFlagSearchBytes), 0x24, __FUNCTION__);
-
     constexpr BYTE SpawnRowboatSearchBytes[]{ 0xC7, 0x44, 0x24, 0x38, 0xDB, 0x0F, 0xC9, 0x3F };
     DWORD RowboatSpawnAddr = SearchAndGetAddresses(0x0057E64B, 0x0057EEFB, 0x0057E81B, SpawnRowboatSearchBytes, sizeof(SpawnRowboatSearchBytes), 0x15, __FUNCTION__);
-    if (!GameFlagPtr || !RowboatSpawnAddr)
+    if (!RowboatSpawnAddr)
     {
         Logging::Log() << __FUNCTION__ << " Error: failed to find pointer address!";
         return;

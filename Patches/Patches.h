@@ -619,6 +619,7 @@ WEAPONTYPE GetWeaponRender();
 WEAPONTYPE* GetWeaponHandGripPointer();
 WEAPONTYPE GetWeaponHandGrip();
 BYTE* GetInGameVoiceEvent();
+BYTE* GetGameFlagPointer();
 
 // Function patch declaration
 void CheckArgumentsForPID();
@@ -699,6 +700,7 @@ void PatchMainMenuInstantLoadOptions();
 void PatchMainMenuTitlePerLang();
 void PatchMapMeshToggle();
 void PatchMapTranscription();
+void PatchMariaCutsceneModel();
 HRESULT PatchMasterVolumeSlider();
 void PatchMemoBrightnes();
 void PatchMenuSounds();
@@ -707,6 +709,7 @@ void PatchMusicBoxVolume();
 void PatchOldManCoinFix();
 void PatchObservationDeckFogFix();
 void PatchPauseScreen();
+void PatchPhRotationAfterBossFight();
 void PatchPistonRoom();
 void PatchPreventChainsawSpawn();
 void PatchPrisonerTimer();
@@ -741,6 +744,7 @@ void PatchTreeLighting();
 void PatchVHSAudio();
 void PatchUnusedAudio();
 void PatchWaterDrawOrderFix();
+void PatchWaterMoveSpeed();
 void PatchWindowIcon();
 void PatchWindowTitle();
 void PatchWoodsideMannequinState();
@@ -772,6 +776,7 @@ void RunBloodSize();
 void RunChainsawSoundFix();
 void RunClosetCutscene();
 void RunClosetSpawn();
+void RunDogRoom();
 void RunDynamicDrawDistance();
 void RunEddieLauraCutscene();
 void RunFinalBossRoomFix();
@@ -786,6 +791,7 @@ void RunHotelWater();
 void RunInfiniteRumbleFix();
 void RunInnerFlashlightGlow(DWORD Height);
 void RunLightingTransition();
+void RunMariaCutsceneModel();
 void RunMariaSpawnFix();
 void RunPlayFlashlightSounds();
 void RunPlayLyingFigureSounds();
@@ -798,6 +804,7 @@ void RunSaveBGImage();
 void RunShadowCutscene();
 void RunSpecialFXScale(DWORD Height);
 void RunTreeColor();
+void RunWaterMoveSpeed();
 
 int GetNewScreenMode();
 
@@ -809,6 +816,8 @@ float GetConditionalFlashlightBrightnessBlue();
 void CheckLakeMoonSize();
 void CheckRoom312Flashlight();
 void UpdateExteriorWaterVertexColors();
+
+bool CheckGameFlag(int flag);
 
 // Define the template function declaration
 template<typename T>

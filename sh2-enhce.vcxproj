@@ -91,6 +91,7 @@ copy /Y "$(ProjectDir)Resources\Xidi.32.dll" "$(TargetDir)" &gt;nul
 copy /Y "$(ProjectDir)Resources\Xidi.ini" "$(TargetDir)" &gt;nul
 copy /Y "$(ProjectDir)Resources\SDL3.dll" "$(TargetDir)" &gt;nul
 copy /Y "$(ProjectDir)Resources\SDL.XidiPlugin.32.dll" "$(TargetDir)" &gt;nul
+copy /Y "$(ProjectDir)Resources\keyconf.dat" "$(TargetDir)" &gt;nul
 copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -137,6 +138,7 @@ copy /Y "$(ProjectDir)Resources\Xidi.32.dll" "$(TargetDir)" &gt;nul
 copy /Y "$(ProjectDir)Resources\Xidi.ini" "$(TargetDir)" &gt;nul
 copy /Y "$(ProjectDir)Resources\SDL3.dll" "$(TargetDir)" &gt;nul
 copy /Y "$(ProjectDir)Resources\SDL.XidiPlugin.32.dll" "$(TargetDir)" &gt;nul
+copy /Y "$(ProjectDir)Resources\keyconf.dat" "$(TargetDir)" &gt;nul
 copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -169,6 +171,7 @@ copy /Y "$(ProjectDir)Resources\Xidi.32.dll" "$(TargetDir)" &gt;nul
 copy /Y "$(ProjectDir)Resources\Xidi.ini" "$(TargetDir)" &gt;nul
 copy /Y "$(ProjectDir)Resources\SDL3.dll" "$(TargetDir)" &gt;nul
 copy /Y "$(ProjectDir)Resources\SDL.XidiPlugin.32.dll" "$(TargetDir)" &gt;nul
+copy /Y "$(ProjectDir)Resources\keyconf.dat" "$(TargetDir)" &gt;nul
 copy /Y "$(ProjectDir)Resources\SH2EEsetup.exe" "$(TargetDir)" &gt;nul</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

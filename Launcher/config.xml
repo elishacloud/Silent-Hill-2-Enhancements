@@ -43,6 +43,15 @@
           <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
+        
+      <Feature name="UseBestGraphics">
+        <Title>Always launch game using best graphics settings</Title>
+        <Description>Enables all advanced graphics settings from MusicBoxVolumethe game's Options > Advanced Options menu (complex fog, shadows, lens flare, etc) by default upon each game launch.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
 
     </Section>
 
@@ -192,15 +201,6 @@
 
     <Section name="Effects">
 
-      <Feature name="UseBestGraphics">
-        <Title>Always launch game using best graphics settings</Title>
-        <Description>Enables all advanced graphics settings from the game's Options > Advanced Options menu (complex fog, shadows, lens flare, etc) by default upon each game launch.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="EnableSoftShadows">
         <Title>Restore soft shadows</Title>
         <Description>Restores shadows and shadow behaviors throughout the game. This includes the use of soft shadows, correct shadow level intensities, accurate shadow fading on flashlight toggles, and the restoration of self shadows (shadows being casted upon dynamic objects such as items and characters).</Description>
@@ -265,8 +265,8 @@
       </Feature>
 
       <Feature name="RainParticles">
-        <Title>Rain Particles</Title>
-        <Description>Replaces the 1 px thick lines used for rain and water droplets throughout the game with resolution-independent particles.</Description>
+        <Title>Improved rain particles</Title>
+        <Description>Replaces the 1 pixel thick lines used for rain and water droplets throughout the game with resolution-independent particles.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -277,7 +277,7 @@
 
     <Section name="Noise Filter">
 
-      <Feature name="IncreaseNoiseEffectRes">
+      <Feature name="IncreaseNoiseEffectRes" speedrun="true">
         <Title>Adjust noise filter grain</Title>
         <Description>Adjust the grain size of the noise filter.</Description>
         <Choices type="list">
@@ -344,14 +344,10 @@
           <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
-
-    </Section>
-
-    <Section name="Bonus Graphics">
-
-      <Feature name="CockroachesReplacement" speedrun="true">
-        <Title>Improved cockroaches in bug room</Title>
-        <Description>Replaces the static, scenery cockroaches in the prison's bug room with large clusters of animated cockroaches.&#x0a;&#x0a;Note: ty3.glb must be present in "sh2e\model\" for this feature to work.</Description>
+        
+      <Feature name="SmokeFogFix">
+        <Title>Fix smoke particle rendering</Title>
+        <Description>Adds proper distance fading to smoke particles so that it interacts correctly with the regular fog in the game. These areas are the chainsaw smoke when finding it stuck in a log and the car's engine smoke where the steel pipe is found.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -450,35 +446,31 @@
           <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
-
-    </Section>
-
-    <Section name="Bonus Audio">
-
-      <Feature name="FlashlightToggleSFX">
-        <Title>Flashlight sound effects</Title>
-        <Description>Enables a flashlight sound effect when turning the light on or off.&#x0a;&#x0a;Note: flashlight_on.wav and flashlight_off.wav must be present in "sh2e\sound\extra\" for this feature to work.</Description>
+        
+      <Feature name="MusicBoxVolume">
+        <Title>Refined music box audio</Title>
+        <Description>The audio of the hotel music box will play quieter in rooms adjacent to the main lobby, where the music box is located.&#x0a;&#x0a;Note: Modified bgm_112.aix must be present in "sh2e\sound\adx\hotel\" for this feature to work.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
-
-      <Feature name="VHSAudioFix">
-        <Title>Use alternate, cut VHS audio</Title>
-        <Description>Plays an alternate, cut audio track for the VHS tape FMV. We recommend to only enable this after beating the game at least once.&#x0a;&#x0a;Note: You must have the correct version of this FMV that contains both audio tracks. If you do not, then only the original audio will play. You can obtain the correct version of this FMV by downloading the project's FMV Enhancement Pack.</Description>
+        
+      <Feature name="ChainsawSoundFix">
+        <Title>Chainsaw SFX fix</Title>
+        <Description>Overhauls and fixes the overall buggy audio behavior for the chainsaw's sound effects.&#x0a;&#x0a;Tip: Use with the project's Audio Enhancement Pack for the best results of the chainsaw's audio.</Description>
         <Choices type="check">
-          <Value name="Disable" default="true">0</Value>
-          <Value name="Enable">1</Value>
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
-
-      <Feature name="PlayUnusedAudio">
-        <Title>Laura's Letter Unused Audio</Title>
-        <Description>In the cutscene where James reads Laura's letter, the unused audio of Mary reading the letter will play.</Description>
+        
+      <Feature name="LabyrinthElevatorVolumeFix">
+        <Title>Labyrinth elevator sound fix</Title>
+        <Description>Fixes 'stuttering' playback issues of the labyrinth elevator's sound effects.</Description>
         <Choices type="check">
-          <Value name="Disable" default="true">0</Value>
-          <Value name="Enable">1</Value>
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -622,6 +614,37 @@
         </Choices>
       </Feature>
 
+    </Section>
+      
+    <Section name="Gameplay">
+          
+      <Feature name="EnableHoldToStomp" speedrun="true">
+        <Title>Restore alternate stomp</Title>
+        <Description>Restores the secondary/alternate stomp animation. When nearby an enemy on the ground, press and quickly release the attack button to perform a kick. Press and hold the attack button to perform a stomp.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+          
+      <Feature name="EnableToggleSprint">
+        <Title>Enable Toggle Sprint</Title>
+        <Description>Changes the "Analog" movement selection to "Toggle", found in the game's Options > Game Options menu. This option will allow you to toggle between walk/run, instead of having to hold down the button. (Analog movement for controllers is retained when this feature is enabled.)</Description>
+        <Choices type="check">
+          <Value name="Disable" speedrun-default="true">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+          
+      <Feature name="SwapLightHeavyAttack" speedrun="true">
+        <Title>Swap light and heavy melee attack inputs</Title>
+        <Description>Swaps the priority of light and heavy attacks for melee weapons. Press and quickly release the attack button to perform a light attack. Press and hold the attack button to perform a heavy attack.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+          
     </Section>
 
   </Tab>
@@ -803,6 +826,15 @@
           <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
+        
+      <Feature name="MemoScreenFix">
+        <Title>Fix navigation for the memo screen</Title>
+        <Description>Enables arrow navigation and Enter selection in the memo screen.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
 
     </Section>
 
@@ -833,15 +865,6 @@
       <Feature name="ChangeClosetSpawn">
         <Title>Change apartment closet spawn</Title>
         <Description>Places James inside the closet after the Wood Side Apartments Room 307 cutscene ends, to help guide the player's attention to the key inside.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="EnableToggleSprint">
-        <Title>Enable Toggle Sprint</Title>
-        <Description>Changes the "Analog" movement selection to "Toggle", found in the game's Options > Game Options menu. This option will allow you to toggle between walk/run, instead of having to hold down the button. (Analog movement for controllers is retained when this feature is enabled.)</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -903,7 +926,7 @@
       </Feature>
 
       <Feature name="BFaWAtticFix">
-        <Title>Fix glitchy shadow behavior</Title>
+        <Title>BFaW attic shadow fix</Title>
         <Description>Fixes glitchy shadow behavior and improves/synchronizes the candle flame animation in the mansion's attic for Maria's campaign.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
@@ -932,15 +955,6 @@
       <Feature name="FixCreatureVehicleSpawn">
         <Title>Fix Lying Figures exiting from under vehicles</Title>
         <Description>Fixes an issue where Lying Figures would exit from underneath vehicles incorrectly.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="MemoScreenFix">
-        <Title>Fix navigation for the memo screen</Title>
-        <Description>Enables arrow navigation and Enter selection in the memo screen.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -992,15 +1006,6 @@
         </Choices>
       </Feature>
 
-      <Feature name="EnableHoldToStomp" speedrun="true">
-        <Title>Restore alternate stomp</Title>
-        <Description>Restores the secondary/alternate stomp animation. When nearby an enemy on the ground, press and quickly release the attack button to perform a kick. Press and hold the attack button to perform a stomp.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="HalogenLightFix">
         <Title>Restore unlit vertex shader</Title>
         <Description>Restores luminance for certain environment assets.</Description>
@@ -1022,15 +1027,6 @@
       <Feature name="RowboatAnimationFix">
         <Title>Various rowboat stage fixes</Title>
         <Description>Fixes an issue with James' character model sometimes being placed erratically into the rowboat. Fixes an issue with the rowboat's speed being negatively affected if the Great Knife was equipped before entering the boat. Disables quick weapon swapping while on the boat to prevent animation breaking.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="SwapLightHeavyAttack" speedrun="true">
-        <Title>Swap light and heavy melee attack inputs</Title>
-        <Description>Swaps the priority of light and heavy attacks for melee weapons. Press and quickly release the attack button to perform a light attack. Press and hold the attack button to perform a heavy attack.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -1064,9 +1060,63 @@
         </Choices>
       </Feature>
 
-      <Feature name="CutsceneUnequip" speedrun="true">
+      <Feature name="CutsceneUnequip">
         <Title>Remove weapon during cutscenes</Title>
         <Description>Unequips James during cutscenes so that the weapons don't appear "weightless" in his hands as his animation plays out.</Description>
+        <Choices type="check">
+          <Value name="Disable" speedrun-default="true">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="JamesTextureFix">
+        <Title>Fix noose pull jacket clipping</Title>
+        <Description>Prevents geometry of James' own body from clipping through his jacket when he raises his arms to pull down a noose.&#x0a;&#x0a;Note: Modified ps113.map file must be present in "sh2e\bg\ps\" for this feature to work.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="RunPhRotationFix">
+        <Title>Fix final Pyramid Head rotation</Title>
+        <Description>Position/rotates the twin Pyramid Head corpses to be aligned as how they're seen in the cutscene leading up to their death.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="WaterMoveSpeedFix">
+        <Title>Water movement speed fix</Title>
+        <Description>Correctly decelerates and accelerates James as he enters and exits bodies of water.</Description>
+        <Choices type="check">
+          <Value name="Disable" speedrun-default="true">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="MariaSpawnFix">
+        <Title>Prevent Maria out-of-bounds</Title>
+        <Description>Fixes a rare issue where Maria sometimes will not spawn in the room with James under certain conditions.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="CheckLakeMoonSize">
+        <Title>Consistent lake light fix</Title>
+        <Description>Ensures the size of the lake light remains consistent regardless of resolution the game is being played on.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="RowboatSpawnFix">
+        <Title>Rowboat spawn fix</Title>
+        <Description>Ensures the rowboat stays spawned at the Lakeview Hotel dock when reloading a save or exiting and re-entering the area.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -1215,8 +1265,8 @@
       </Feature>
 
       <Feature name="EnemyRevealLighting">
-        <Title>Adjust lighting of enemies during reveal setpieces</Title>
-        <Description>Adjust the lighting of the enemies in the tunnel radio cutscene and Apt Room 205 to make them less conspicuous before their reveal.</Description>
+        <Title>Enemy reveal lighting fix</Title>
+        <Description>Heavily darkens the Lying Figure during the first camera cut when James enters the roadway tunnel to make the surprise more impactful. Removes specularity on the first, dormant mannequin on the floor before acquiring the flashlight to make the suprise more impactful.</Description>
         <Choices type="check">
           <Value name="Disable">0</Value>
           <Value name="Enable" default="true">1</Value>
@@ -1254,6 +1304,99 @@
         </Choices>
       </Feature>
 
+    </Section>
+      
+  </Tab>
+
+  <Tab name="Bonus">
+      
+    <Section name="Visuals">
+        
+      <Feature name="RunClosetCutscene">
+        <Title>Breakable closet door</Title>
+        <Description>The closet slats will break and shatter into pieces when James shoots through them during the apartment closet cutscene.&#x0a;&#x0a;Note: b_doo.glb must be present in "sh2e\model\" for this feature to work.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="EddieLauraCutscene">
+        <Title>Extend Eddie/Laura cutscene</Title>
+        <Description>Continues animating Eddie and Laura during the slow fade to black at the end of their cutscene in the bowling alley.&#x0a;&#x0a;Note: Modified b_piz.anm, bp_edi_a.dds, hhh_edi.anm, and lau.anm files must be present in "sh2e\demo\bp_edi1\" for this feature to work.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="CockroachesReplacement" speedrun="true">
+        <Title>Improved cockroaches in bug room</Title>
+        <Description>Replaces the static, scenery cockroaches in the prison's bug room with large clusters of animated cockroaches.&#x0a;&#x0a;Note: ty3.glb must be present in "sh2e\model\" for this feature to work.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="MariaCutsceneReplacement">
+        <Title>Upside down Maria hair</Title>
+        <Description>Adds dynamic, physics-based animation to Maria's hair while she's hanging upside down.&#x0a;&#x0a;Note: dmr.glb must be present in "sh2e\model\" for this feature to work.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="DogRoomEnhanced">
+        <Title>Interactive DOG monitor</Title>
+        <Description>Animates the buttons, doo-dads, beep-bops, and adds footage to the TV screens on the control panel during the DOG ending.&#x0a;&#x0a;Note: mon.glb must be present in "sh2e\model\" for this feature to work.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="MapMeshToggle">
+        <Title>Dynamic environment toggles</Title>
+        <Description>Dynamically adds and removes geometry from certain areas for enhanced effects. This includes: Proper day/night visuals while in the motorhome; A visual clue to meet Eddie in the apartments first if you try to interact with Angela beforehand; Visually showing the rings on the hands for the 3D hospital door; Preventing James' flashlight from casting light through the wall of the elevator during the cutscene after escaping the hospital hallway chase; Adding subtle visual clues on where to use the Blue Gem in the three required areas.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+    </Section>
+      
+    <Section name="Audio">
+        
+      <Feature name="FlashlightToggleSFX">
+        <Title>Flashlight sound effects</Title>
+        <Description>Enables a flashlight sound effect when turning the light on or off.&#x0a;&#x0a;Note: flashlight_on.wav and flashlight_off.wav must be present in "sh2e\sound\extra\" for this feature to work.</Description>
+        <Choices type="check">
+          <Value name="Disable">0</Value>
+          <Value name="Enable" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="VHSAudioFix">
+        <Title>Use alternate, cut VHS audio</Title>
+        <Description>Plays an alternate, cut audio track for the VHS tape FMV. We recommend to only enable this after beating the game at least once.&#x0a;&#x0a;Note: You must have the correct version of this FMV that contains both audio tracks. If you do not, then only the original audio will play. You can obtain the correct version of this FMV by downloading the project's FMV Enhancement Pack.</Description>
+        <Choices type="check">
+          <Value name="Disable" default="true">0</Value>
+          <Value name="Enable">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="PlayUnusedAudio">
+        <Title>Use cut Laura's letter audio</Title>
+        <Description>Plays cut audio of Mary reading Laura's letter and syncs the audio to the on-screen letter as its being read.</Description>
+        <Choices type="check">
+          <Value name="Disable" default="true">0</Value>
+          <Value name="Enable">1</Value>
+        </Choices>
+      </Feature>
+        
     </Section>
 
   </Tab>

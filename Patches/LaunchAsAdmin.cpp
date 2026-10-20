@@ -237,7 +237,7 @@ void RemoveVirtualStoreFiles()
 
 	// Get local appdata path
 	wchar_t vspath[MAX_PATH];
-	if (FAILED(SHGetFolderPath(nullptr, CSIDL_LOCAL_APPDATA, nullptr, 0, vspath)))
+	if (SHGetFolderPath(nullptr, CSIDL_LOCAL_APPDATA, nullptr, 0, vspath) != S_OK)
 	{
 		return;
 	}

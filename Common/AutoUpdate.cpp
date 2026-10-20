@@ -42,13 +42,13 @@ typedef HRESULT(WINAPI *URLDownloadToFileProc)(LPUNKNOWN pCaller, LPCWSTR szURL,
 bool IsSetupToolUpdateAvailable = false;
 bool IsProjectUpdateAvailable = false;
 
-HMODULE GetUrlDll()
+static HMODULE GetUrlDll()
 {
 	static HMODULE urlmondll = LoadLibraryA("urlmon.dll");
 	return urlmondll;
 }
 
-HRESULT URLOpenBlockingStreamHandler(LPUNKNOWN pCaller, LPCSTR szURL, LPSTREAM *ppStream, _Reserved_ DWORD dwReserved, LPBINDSTATUSCALLBACK lpfnCB)
+static HRESULT URLOpenBlockingStreamHandler(LPUNKNOWN pCaller, LPCSTR szURL, LPSTREAM *ppStream, _Reserved_ DWORD dwReserved, LPBINDSTATUSCALLBACK lpfnCB)
 {
 	HMODULE urlmondll = GetUrlDll();
 	if (!urlmondll)
@@ -67,7 +67,7 @@ HRESULT URLOpenBlockingStreamHandler(LPUNKNOWN pCaller, LPCSTR szURL, LPSTREAM *
 	return pURLOpenBlockingStream(pCaller, szURL, ppStream, dwReserved, lpfnCB);
 }
 
-HRESULT URLDownloadToFileHandler(LPUNKNOWN pCaller, LPCWSTR szURL, LPCWSTR szFileName, _Reserved_ DWORD dwReserved, LPBINDSTATUSCALLBACK lpfnCB)
+static HRESULT URLDownloadToFileHandler(LPUNKNOWN pCaller, LPCWSTR szURL, LPCWSTR szFileName, _Reserved_ DWORD dwReserved, LPBINDSTATUSCALLBACK lpfnCB)
 {
 	HMODULE urlmondll = GetUrlDll();
 	if (!urlmondll)
@@ -86,7 +86,7 @@ HRESULT URLDownloadToFileHandler(LPUNKNOWN pCaller, LPCWSTR szURL, LPCWSTR szFil
 	return pURLDownloadToFile(pCaller, szURL, szFileName, dwReserved, lpfnCB);
 }
 
-bool GetURLString(const char *URL, std::string &data)
+static bool GetURLString(const char *URL, std::string &data)
 {
 	IStream* stream;
 	if (FAILED(URLOpenBlockingStreamHandler(nullptr, URL, &stream, 0, nullptr)))
@@ -145,7 +145,7 @@ std::string ReadFileContents(std::wstring &path)
 	return std::string(str.begin(), str.end());
 }
 
-bool NewModuleReleaseBuildAvailable(std::string &urlDownload, DWORD CurrentBuildNo)
+static bool NewModuleReleaseBuildAvailable(std::string &urlDownload, DWORD CurrentBuildNo)
 {
 	// Get GitHub url for the latest released build
 	std::string data;
@@ -216,7 +216,7 @@ bool NewModuleReleaseBuildAvailable(std::string &urlDownload, DWORD CurrentBuild
 	return true;
 }
 
-bool NewProjectReleaseAvailable(std::string &path_str)
+static bool NewProjectReleaseAvailable(std::string &path_str)
 {
 	// Parse local CSV file
 	rapidcsv::Document localcsv(path_str + "\\" + SH2EE_SETUP_DATA_FILE, rapidcsv::LabelParams(), rapidcsv::SeparatorParams(),
@@ -322,7 +322,7 @@ void GetSH2Path(T &path, T &name)
 	}
 }
 
-HRESULT UpdatedllFile(std::wstring &currentDll, std::wstring &tempDll, std::wstring &updatePath)
+static HRESULT UpdatedllFile(const std::wstring &currentDll, const std::wstring &tempDll, const std::wstring &updatePath)
 {
 	// Read configuration file
 	std::wstring newdll(updatePath + L"\\d3d8.dll");
@@ -458,7 +458,8 @@ std::string MergeiniFile(std::stringstream &s_currentini, std::stringstream &s_i
 	return newini;
 }
 
-HRESULT UpdateiniFile(std::wstring &path, std::wstring &name, std::wstring &updatePath)
+#ifndef ISLAUNCHER
+static HRESULT UpdateiniFile(std::wstring &path, std::wstring &name, const std::wstring &updatePath)
 {
 	// Read configuration file
 	std::wstring configPath(path + L"\\" + name + L".ini");
@@ -491,8 +492,9 @@ HRESULT UpdateiniFile(std::wstring &path, std::wstring &name, std::wstring &upda
 
 	return S_OK;
 }
+#endif
 
-HRESULT UpdateAllFiles(std::wstring &path, std::wstring &name, std::wstring &updatePath)
+static HRESULT UpdateAllFiles(std::wstring &path, std::wstring &name, const std::wstring &updatePath)
 {
 	// Find the first file in the directory.
 	WIN32_FIND_DATA ffd;
@@ -531,7 +533,7 @@ HRESULT UpdateAllFiles(std::wstring &path, std::wstring &name, std::wstring &upd
 	return hr;
 }
 
-void RestoreMainWindow()
+static void RestoreMainWindow()
 {
 	if (IsWindow(DeviceWindow) && IsIconic(DeviceWindow))
 	{
@@ -539,7 +541,7 @@ void RestoreMainWindow()
 	}
 }
 
-LRESULT WINAPI ChangeCaptionButtons(int nCode, WPARAM wParam, LPARAM)
+static LRESULT WINAPI ChangeCaptionButtons(int nCode, WPARAM wParam, LPARAM)
 {
 	if (nCode == HCBT_ACTIVATE)
 	{
@@ -568,11 +570,11 @@ DWORD WINAPI CheckForUpdate(LPVOID lpName)
 		Logging::Log() << __FUNCTION__ " Failed to get module path or name!";
 		return S_OK;
 	}
-	std::wstring downloadPath(path + L"\\" + name + L".zip");
-	std::wstring updatePath(path + L"\\~update");
-	std::wstring currentDll(path + L"\\" + name + L".dll");
-	std::wstring tempDll(path + L"\\~" + name + L".dll");
-	std::wstring SH2EEsetupExePath(path + L"\\" + TEXT(SH2EE_SETUP_EXE_FILE));
+	const std::wstring downloadPath(path + L"\\" + name + L".zip");
+	const std::wstring updatePath(path + L"\\~update");
+	const std::wstring currentDll(path + L"\\" + name + L".dll");
+	const std::wstring tempDll(path + L"\\~" + name + L".dll");
+	const std::wstring SH2EEsetupExePath(path + L"\\" + TEXT(SH2EE_SETUP_EXE_FILE));
 
 	// Delete old module if it exists
 	DeleteFile(tempDll.c_str());

@@ -2672,7 +2672,7 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		}
 
 		// RPT Apartment Closet Cutscene Fix
-		if (FixClosetCutscene)
+		if (ClosetRoomEnhanced)
 		{
 			RunClosetCutscene();
 		}

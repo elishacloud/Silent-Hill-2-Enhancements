@@ -60,7 +60,6 @@
 	visit(FixAdvancedOptions, true) \
 	visit(FixAptClockFlashlight, true) \
 	visit(FixChainsawSpawn, true) \
-	visit(FixClosetCutscene, true) \
 	visit(FixCreatureVehicleSpawn, true) \
 	visit(FixDrawingTextLine, true) \
 	visit(FixElevatorCursorColor, true) \
@@ -260,7 +259,6 @@
 	visit(AntiAliasing) \
 	visit(AudioFadeOutDelayMS) \
 	visit(ClosetCutsceneBonusAudio) \
-	visit(ClosetRoomEnhanced) \
 	visit(CommandWindowMouseFix) \
 	visit(CustomFontCharHeight) \
 	visit(CustomFontCharWidth) \

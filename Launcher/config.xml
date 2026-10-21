@@ -1312,7 +1312,7 @@
       
     <Section name="Visuals">
         
-      <Feature name="FixClosetCutscene">
+      <Feature name="ClosetRoomEnhanced">
         <Title>Breakable closet door</Title>
         <Description>The closet slats will break and shatter into pieces when James shoots through them during the apartment closet cutscene.&#x0a;&#x0a;Note: b_doo.glb must be present in "sh2e\model\" for this feature to work.</Description>
         <Choices type="check">

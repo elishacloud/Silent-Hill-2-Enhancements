@@ -2672,8 +2672,10 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		}
 
 		// RPT Apartment Closet Cutscene Fix
-        // run uncoditionally, it'll early-exit if fix is OFF
-		RunClosetCutscene();
+		if (FixClosetCutscene)
+		{
+			RunClosetCutscene();
+		}
 
         // Load Maria cutscene replacement model
 		if (MariaCutsceneReplacement)

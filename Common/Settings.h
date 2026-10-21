@@ -60,6 +60,7 @@
 	visit(FixAdvancedOptions, true) \
 	visit(FixAptClockFlashlight, true) \
 	visit(FixChainsawSpawn, true) \
+	visit(FixClosetCutscene, true) \
 	visit(FixCreatureVehicleSpawn, true) \
 	visit(FixDrawingTextLine, true) \
 	visit(FixElevatorCursorColor, true) \
@@ -68,6 +69,7 @@
 	visit(FixFMVSpeed, true) \
 	visit(FixHangOnEsc, true) \
 	visit(FixInventoryBGM, true) \
+	visit(FixLakeMoonSize, true) \
 	visit(FixLyingFigureFootsteps, true) \
 	visit(FixMemoFading, true) \
 	visit(FixMissingWallChunks, true) \
@@ -140,6 +142,7 @@
 	visit(RoomLightingFix, true) \
 	visit(RowboatAnimationFix, true) \
 	visit(RowboatSpawnFix, true) \
+	visit(RunPhRotationFix, true) \
 	visit(SetBlackPillarBoxes, true) \
 	visit(SetSixtyFPS, true) \
 	visit(SetSwapEffectUpgradeShim, false) \
@@ -256,9 +259,8 @@
 	visit(AnisotropicFiltering) \
 	visit(AntiAliasing) \
 	visit(AudioFadeOutDelayMS) \
-	visit(ChainsawSoundFix) \
 	visit(ClosetCutsceneBonusAudio) \
-        visit(ClosetRoomEnhanced) \
+	visit(ClosetRoomEnhanced) \
 	visit(CommandWindowMouseFix) \
 	visit(CustomFontCharHeight) \
 	visit(CustomFontCharWidth) \
@@ -270,8 +272,6 @@
 	visit(DisableLoadingPressReturnMessages) \
 	visit(DisableLogging) \
 	visit(DisableRedCross) \
-	visit(DogRoomEnhanced) \
-	visit(EddieLauraCutscene) \
 	visit(EnableDebugOverlay) \
 	visit(EnableInfoOverlay) \
 	visit(EnableScreenshots) \
@@ -294,32 +294,23 @@
 	visit(HookDirectInput) \
 	visit(HookDirectSound) \
 	visit(HookWndProc) \
-	visit(JamesTextureFix) \
-	visit(LabyrinthElevatorVolumeFix) \
 	visit(LetterSpacing) \
 	visit(LimitPerFrameFPS) \
 	visit(LoadModulesFromMemory) \
 	visit(LockResolution) \
-	visit(MapMeshToggle) \
-	visit(MariaCutsceneReplacement) \
-	visit(MariaSpawnFix) \
-	visit(MusicBoxVolume) \
 	visit(NormalFontHeight) \
 	visit(NormalFontWidth) \
 	visit(OldManCoinFix) \
 	visit(QuickSaveCancelFix) \
 	visit(ResX) \
 	visit(ResY) \
-	visit(RowboatSpawnFix) \
 	visit(ScaleWindowedResolution)\
 	visit(ScreenMode) \
 	visit(SetSwapEffectUpgradeShim) \
 	visit(ShowerRoomFlashlightFix) \
 	visit(SmallFontHeight) \
 	visit(SmallFontWidth) \
-	visit(SmokeFogFix) \
 	visit(SpaceSize) \
-	visit(WaterMoveSpeedFix) \
 	visit(water_alpha_cemetery) \
 	visit(water_alpha_lake) \
 	visit(water_rgb_cemetery) \

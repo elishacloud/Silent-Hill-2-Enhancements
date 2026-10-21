@@ -601,7 +601,10 @@ void DelayedStart()
 	}
 
 	// Fix lake moon size
-	PatchLakeMoonSize();
+	if (FixLakeMoonSize)
+	{
+		PatchLakeMoonSize();
+	}
 
 	// Fixes issues in the Advanced Options screen
 	if (FixAdvancedOptions)
@@ -725,7 +728,10 @@ void DelayedStart()
 	}
 
 	// Patch RPT rotation after hotel boss fight
-	PatchPhRotationAfterBossFight();
+	if (RunPhRotationFix)
+	{
+		PatchPhRotationAfterBossFight();
+	}
 
 	// Patch master volume slider and strings
 	if (EnableMasterVolume)

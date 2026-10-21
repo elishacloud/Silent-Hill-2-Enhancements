@@ -1105,7 +1105,7 @@
         </Choices>
       </Feature>
         
-      <Feature name="CheckLakeMoonSize">
+      <Feature name="FixLakeMoonSize">
         <Title>Consistent lake light fix</Title>
         <Description>Ensures the size of the lake light remains consistent regardless of resolution the game is being played on.</Description>
         <Choices type="check">
@@ -1312,7 +1312,7 @@
       
     <Section name="Visuals">
         
-      <Feature name="RunClosetCutscene">
+      <Feature name="FixClosetCutscene">
         <Title>Breakable closet door</Title>
         <Description>The closet slats will break and shatter into pieces when James shoots through them during the apartment closet cutscene.&#x0a;&#x0a;Note: b_doo.glb must be present in "sh2e\model\" for this feature to work.</Description>
         <Choices type="check">

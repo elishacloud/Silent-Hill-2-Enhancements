@@ -2837,7 +2837,10 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 		}
 
 		// Extend cutscene between Eddia and Laura in the bowling alley.
-		RunEddieLauraCutscene();
+		if (EddieLauraCutscene)
+		{
+			RunEddieLauraCutscene();
+		}
 
 		// Fixes James' movement speed in certain flooded rooms
 		if (WaterMoveSpeedFix)

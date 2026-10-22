@@ -345,16 +345,70 @@
         </Choices>
       </Feature>
 
+      <Feature name="SmokeFogFix">
+        <Title>Correggi il rendering delle particelle di fumo</Title>
+        <Description>Aggiunge una corretta dissolvenza in base alla distanza alle particelle di fumo, in modo che interagiscano correttamente con la normale nebbia del gioco. Le aree interessate sono il fumo della motosega quando la si trova incastrata in un tronco e il fumo del motore dell'auto dove si trova l'arma tubo d'acciaio.</Description>
+        <Choices type="check">
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
+        </Choices>
+      </Feature>
+
     </Section>
 
     <Section name="Bonus Graphics">
 
-      <Feature name="CockroachesReplacement" speedrun="true">
-        <Title>Improved cockroaches in bug room</Title>
-        <Description>Replaces the static, scenery cockroaches in the prison's bug room with large clusters of animated cockroaches.&#x0a;&#x0a;Note: ty3.glb must be present in "sh2e\model\" for this feature to work.</Description>
+      <Feature name="ClosetRoomEnhanced">
+        <Title>Porta dell'armadio distruttibile</Title>
+        <Description>Le lamelle dell'armadio si romperanno andando in frantumi quando James ci spara attraverso durante la cutscene dell'armadio nell'appartamento.&#x0a;&#x0a;Nota: Il file b_doo.glb deve essere presente in "sh2e\model\" affinché questa feature funzioni.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="EddieLauraCutscene">
+        <Title>Estendi la cutscene di Eddie/Laura</Title>
+        <Description>Continua ad animare Eddie e Laura durante la lenta dissolvenza alla fine della loro cutscene nella sala da bowling.&#x0a;&#x0a;Nota: I file modificati b_piz.anm, bp_edi_a.dds, hhh_edi.anm e lau.anm devono essere presenti in "sh2e\demo\bp_edi1\" affinché questa feature funzioni.</Description>
+        <Choices type="check">
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="CockroachesReplacement" speedrun="true">
+        <Title>Scarafaggi migliorati nella stanza degli insetti</Title>
+        <Description>Sostituisce gli scarafaggi statici nella stanza della prigione con agglomerati di scarafaggi animati.&#x0a;&#x0a;Nota: Il file ty3.glb deve essere presente in "sh2e\model\" affinché questa feature funzioni.</Description>
+        <Choices type="check">
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="MariaCutsceneReplacement">
+        <Title>Capelli di Maria a testa in giù</Title>
+        <Description>Aggiunge un'animazione dinamica basata sulla fisica ai capelli di Maria mentre è appesa a testa in giù.&#x0a;&#x0a;Nota: Il file dmr.glb deve essere presente in "sh2e\model\" affinché questa feature funzioni.</Description>
+        <Choices type="check">
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="DogRoomEnhanced">
+        <Title>Monitor stanza di Mira interattivo</Title>
+        <Description>Anima pulsanti, aggeggi e ammennicoli, e aggiunge filmati agli schermi TV del pannello di controllo durante il dog ending.&#x0a;&#x0a;Nota: Il file mon.glb deve essere presente in "sh2e\model\" affinché questa feature funzioni.</Description>
+        <Choices type="check">
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="MapMeshToggle">
+        <Title>Elementi ambientali dinamici</Title>
+        <Description>Aggiunge e rimuove dinamicamente della geometria in determinate aree per migliorare la resa. Questo include: corretti effetti giorno/notte mentre ci si trova nel camper; un indizio visivo per incontrare prima Eddie negli appartamenti se si prova a interagire con Angela in anticipo; la visualizzazione degli anelli sulle mani per la porta 3D dell'ospedale; l'impedire che la torcia di James proietti luce attraverso la parete dell'ascensore durante la cutscene dopo essere sfuggiti all'inseguimento nel corridoio dell'ospedale; l'aggiunta di piccoli indizi visivi su dove usare la Gemma Blu nelle tre aree richieste.</Description>
+        <Choices type="check">
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -416,11 +470,11 @@
       </Feature>
 
       <Feature name="FixLyingFigureFootsteps">
-        <Title>Fade first creature's footsteps</Title>
-        <Description>Fades the Lying Figure's footsteps in and out during the cutscene first introducing the creature as it's walking away. Otherwise, the footsteps remain at a constant volume throughout the whole cutscene until the creature despawns.&#x0a;&#x0a;Note: machi.wav must be present in "sh2\sound\extra\" for this feature to work.</Description>
+        <Title>Dissolvenza per i passi della Lying Figure</Title>
+        <Description>Aggiunge dissolvenza ai passi della Lying Figure durante la cutscene che introduce la creatura mentre cammina via. Altrimenti, i passi rimarrebbero allo stesso volume nell'intera cutscene finché non despawna.&#x0a;&#x0a;Nota: machi.wav deve essere presente in "sh2\sound\extra\" affinché questa feature funzioni.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -445,6 +499,33 @@
       <Feature name="MenuSoundsFix">
         <Title>Ripristina suoni nei menu</Title>
         <Description>Ripristina suoni di selezione nei menu. Ripristina anche suoni di selezione mentre si naviga il menu col mouse nel menu Pause, Filmati e vari menu Opzioni.</Description>
+        <Choices type="check">
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="MusicBoxVolume">
+        <Title>Audio del carillon migliorato</Title>
+        <Description>L'audio del carillon dell'Hotel verrà riprodotto a un volume più basso nelle stanze adiacenti alla hall principale, dove si trova il carillon.&#x0a;&#x0a;Nota: Il file modificato bgm_112.aix deve essere presente in "sh2e\sound\adx\hotel\" affinché questa feature funzioni.</Description>
+        <Choices type="check">
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="ChainsawSoundFix">
+        <Title>Correggi gli effetti sonori della motosega</Title>
+        <Description>Rivede e corregge la gestione audio, generalmente problematica, degli effetti sonori della motosega.&#x0a;&#x0a;Suggerimento: Utilizzare insieme all'Audio Enhancement Pack del progetto per ottenere i migliori risultati con l'audio della motosega.</Description>
+        <Choices type="check">
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="LabyrinthElevatorVolumeFix">
+        <Title>Correggi il suono dell'ascensore del Labirinto</Title>
+        <Description>Corregge i problemi di riproduzione a scatti ('stuttering') degli effetti sonori dell'ascensore del Labirinto.</Description>
         <Choices type="check">
           <Value name="Disabilitato">0</Value>
           <Value name="Abilitato" default="true">1</Value>
@@ -477,8 +558,8 @@
         <Title>Usare l'audio inutilizzato della lettera di Laura.</Title>
         <Description>Nella cutscene in cui James legge la lettera di Laura, verrà riprodotto l'audio inutilizzato di Mary che legge la lettera.</Description>
         <Choices type="check">
-          <Value name="Disable" default="true">0</Value>
-          <Value name="Enable">1</Value>
+          <Value name="Disabilitato" default="true">0</Value>
+          <Value name="Abilitato">1</Value>
         </Choices>
       </Feature>
 
@@ -505,7 +586,7 @@
         <Title>Ripristina movimento con i tasti direzionali</Title>
         <Description>Modalità Movimento: I tasti direzionali controllano il movimento di James e la navigazione nei menu.&#x0a;Modalità Tasto: I tasti direzionali fungeranno da pulsanti addizionali del controller, permettendo loro l'assegnamento di funzioni di gioco. NON sarà possibile controllare James o navigare menu coi tasti direzionali.&#x0a;Modalità Ibrida: I tasti direzionali fungeranno da tasti addizionali del controller, permettendo loro l'assegnazione di funzioni di gioco. NON sarà possibile controllare James MA sarà possibile navigare menu coi tasti direzionali.</Description>
         <Choices type="list">
-          <Value name="Disable">0</Value>
+          <Value name="Disabilitato">0</Value>
           <Value name="Modalità Movimento" default="true">1</Value>
           <Value name="Modalità Tasto">3</Value>
           <Value name="Modalità Ibrida">2</Value>
@@ -516,8 +597,8 @@
         <Title>Icone dei bottoni in opzioni comandi</Title>
         <Description>Sostituisce il testo "Bottone #" nel menu opzioni comandi con icone custom.&#x0a;&#x0a;Nota: Il file controller_buttons_icons.png deve essere presente nella cartella "sh2e\pic\etc\" per il funzionamento di questa opzione.</Description>
         <Choices type="list">
-          <Value name="Disable">0</Value>
-          <Value name="Generic" default="true">1</Value>
+          <Value name="Disabilitato">0</Value>
+          <Value name="Generico" default="true">1</Value>
           <Value name="Xbox">2</Value>
           <Value name="Playstation">3</Value>
           <Value name="Nintendo">4</Value>
@@ -705,8 +786,8 @@
         <Title>Opzioni risoluzione di render e indicatore salute</Title>
         <Description>Aggiunge le opzioni Risoluzione di Render e Indicatore Salute nel menu Opzioni > Opzioni Avanzate.&#x0a;&#x0a;Nota: Il file .\sh2e\resources\r_menu_*.res deve essere presente nella cartella del gioco affinché questa feature funzioni.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -1065,11 +1146,65 @@
       </Feature>
 
       <Feature name="CutsceneUnequip" speedrun="true">
-        <Title>Remove weapon during cutscenes</Title>
-        <Description>Unequips James during cutscenes so that the weapons don't appear "weightless" in his hands as his animation plays out.</Description>
+        <Title>Disabilita l'arma di James nelle cutscene</Title>
+        <Description>Disabilita l'arma di James nelle cutscene affinché le armi non appaiano senza peso nelle sue mani durante l'animazione.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="JamesTextureFix">
+        <Title>Correggi il clipping della giacca nella prigione</Title>
+        <Description>Impedisce che la geometria del corpo di James attraversi la sua giacca quando alza le braccia per tirare giù un cappio.&#x0a;&#x0a;Nota: Il file modificato ps113.map deve essere presente in "sh2e\bg\ps\" affinché questa feature funzioni.</Description>
+        <Choices type="check">
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="RunPhRotationFix">
+        <Title>Correggi la rotazione dei Pyramid Head</Title>
+        <Description>Posiziona/ruota i cadaveri dei due Pyramid Head in modo che siano allineati come li si vede nella cutscene che precede la loro morte.</Description>
+        <Choices type="check">
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="WaterMoveSpeedFix">
+        <Title>Correggi la velocità di movimento nell'acqua</Title>
+        <Description>Fa rallentare e accelerare correttamente James quando entra ed esce dall'acqua.</Description>
+        <Choices type="check">
+          <Value name="Disabilitato" speedrun-default="true">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="MariaSpawnFix">
+        <Title>Impedisci che Maria finisca fuori dalla mappa</Title>
+        <Description>Corregge un raro problema per cui, in determinate condizioni, Maria a volte non compare nella stanza insieme a James.</Description>
+        <Choices type="check">
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="FixLakeMoonSize">
+        <Title>Correggi la luce del lago per renderla coerente</Title>
+        <Description>Assicura che la dimensione della luce del lago rimanga costante, indipendentemente dalla risoluzione con cui si sta giocando.</Description>
+        <Choices type="check">
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="RowboatSpawnFix">
+        <Title>Correggi la comparsa della barca a remi</Title>
+        <Description>Assicura che la barca a remi rimanga presente al molo del Lakeview Hotel quando si ricarica un salvataggio oppure si esce e si rientra nell'area.</Description>
+        <Choices type="check">
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -1215,11 +1350,11 @@
       </Feature>
 
       <Feature name="EnemyRevealLighting">
-        <Title>Adjust lighting of enemies during reveal setpieces</Title>
-        <Description>Adjust the lighting of the enemies in the tunnel radio cutscene and Apt Room 205 to make them less conspicuous before their reveal.</Description>
+        <Title>Regola l'illuminazione dei nemici durante i setpiece</Title>
+        <Description>Regola l'illuminazione dei nemici durante la cutscene nel tunnel e nella stanza 205 degli appartamenti per renderli meno evidenti prima della loro apparizione.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="Disabilitato">0</Value>
+          <Value name="Abilitato" default="true">1</Value>
         </Choices>
       </Feature>
 

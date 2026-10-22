@@ -1,7 +1,7 @@
 <Config>
 
   <Ini>
-    <Preface>; Archivo de configuración del módulo de mejoras de SH2&#x0a;; Para más información sobre estos ajustes, visita http://enhanced.townofsilenthill.com/SH2/config.htm&#x0a;; ¡Se recomienda experimentar Silent Hill 2: Enhanced Edition con una relación de aspecto de 16:9!</Preface>
+    <Preface>; Archivo de configuración del módulo de mejoras de SH2&#x0a;; Para más información sobre estos ajustes, visita http://enhanced.townofsilenthill.com/SH2/config.htm&#x0a;; ¡Se recomienda jugar a Silent Hill 2: Enhanced Edition con una relación de aspecto de 16:9!</Preface>
   </Ini>
 
   <Tab name="Visualización">
@@ -17,7 +17,7 @@
         </Choices>
       </Feature>
 
-      <Feature name="ForceTopMost">
+      <Feature name="ForceTopMost" speedrun="true">
         <Title>Mantener la ventana del juego en primer plano</Title>
         <Description>Fuerza a la ventana del juego a situarse por delante del resto de ventanas, incluyendo la barra del menú Inicio.&#x0a;&#x0a;Esta opción solo funcionará si utilizas el modo en ventana.</Description>
         <Choices type="check">
@@ -41,6 +41,15 @@
         <Choices type="check">
           <Value name="Desactivado">0</Value>
           <Value name="Activado" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="UseBestGraphics">
+        <Title>Ejecutar siempre el juego con la mejor configuración de gráficos</Title>
+        <Description>Activa todos los ajustes del menú Opciones > Opciones avanzadas del juego (niebla compleja, sombras, destellos de luz, etc.) de forma predeterminada al ejecutar el juego.</Description>
+        <Choices type="check">
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -192,15 +201,6 @@
 
     <Section name="Efectos">
 
-      <Feature name="UseBestGraphics">
-        <Title>Ejecutar siempre el juego con la mejor configuración de gráficos</Title>
-        <Description>Activa todos los ajustes del menú Opciones > Opciones avanzadas del juego (niebla compleja, sombras, destellos de luz, etc.) de forma predeterminada al ejecutar el juego.</Description>
-        <Choices type="check">
-          <Value name="No">0</Value>
-          <Value name="Sí" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="EnableSoftShadows">
         <Title>Restaurar las sombras difuminadas</Title>
         <Description>Restaura las sombras y sus comportamientos en el juego, incluyendo el uso de sombras difuminadas, las intensidades correctas de los niveles de sombras, el fundido correcto de las sombras al encender o apagar la linterna, y la restauración del «self-shadowing» (sombras proyectadas sobre objetos dinámicos, como pueden ser objetos y personajes).</Description>
@@ -265,8 +265,8 @@
       </Feature>
 
       <Feature name="RainParticles">
-        <Title>Rain Particles</Title>
-        <Description>Replaces the 1 px thick lines used for rain and water droplets throughout the game with resolution-independent particles.</Description>
+        <Title>Partículas de lluvia</Title>
+        <Description>Sustituye las líneas de un píxel de grosor que se utilizan para las gotas de lluvia del juego por partículas a las que no les afecta la resolución.</Description>
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
@@ -277,7 +277,7 @@
 
     <Section name="Filtro de ruido">
 
-      <Feature name="IncreaseNoiseEffectRes">
+      <Feature name="IncreaseNoiseEffectRes" speedrun="true">
         <Title>Ajuste de los granos del filtro de ruido</Title>
         <Description>Ajusta el tamaño de los granos del filtro de ruido.</Description>
         <Choices type="list">
@@ -344,14 +344,10 @@
           <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
-
-    </Section>
-
-    <Section name="Bonus Graphics">
-
-      <Feature name="CockroachesReplacement" speedrun="true">
-        <Title>Cucarachas mejoradas en la sala de los bichos</Title>
-        <Description>Sustituye las cucarachas estáticas de la sala de los bichos en la prisión con grandes grupos de cucarachas animadas.&#x0a;&#x0a;Nota: el archivo ty3.glb debe estar presente en la carpeta «sh2e\model\» para que pueda funcionar esta característica.</Description>
+        
+      <Feature name="SmokeFogFix">
+        <Title>Corregir renderizado de humo</Title>
+        <Description>Añade a las partículas de humo el desvanecimiento por distancia necesario para que interactúen correctamente con la niebla normal del juego. Estos casos son el humo de la motosierra al encontrarla en un tronco y el humo del motor del coche donde se encuentra la cañería de acero.</Description>
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
@@ -416,11 +412,11 @@
       </Feature>
 
       <Feature name="FixLyingFigureFootsteps">
-        <Title>Fade first creature's footsteps</Title>
-        <Description>Fades the Lying Figure's footsteps in and out during the cutscene first introducing the creature as it's walking away. Otherwise, the footsteps remain at a constant volume throughout the whole cutscene until the creature despawns.&#x0a;&#x0a;Note: machi.wav must be present in "sh2\sound\extra\" for this feature to work.</Description>
+        <Title>Bajar volumen de las pisadas de la primera criatura</Title>
+        <Description>Reduce paulatinamente el volumen de las pisadas de la figura tendida que aparece y desaparece en la escena que la presenta alejándose. Sin este arreglo, las pisadas sonarán a un volumen constante a lo largo de toda la escena hasta que desaparezca la criatura de golpe.&#x0a;&#x0a;Nota: el archivo machi.wav debe estar presente en la carpeta «sh2\sound\extra\» para que pueda funcionar esta característica.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -450,35 +446,31 @@
           <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
-
-    </Section>
-
-    <Section name="Audios extra">
-
-      <Feature name="FlashlightToggleSFX">
-        <Title>Efectos de sonido de la linterna</Title>
-        <Description>Habilita un efecto de sonido de la linterna al encenderla o apagarla.&#x0a;&#x0a;Nota: los archivos flashlight_on.wav y flashlight_off.wav deben estar presentes en la carpeta «sh2e\sound\extra\» para que pueda funcionar esta característica.</Description>
+        
+      <Feature name="MusicBoxVolume">
+        <Title>Refinar audio de la caja de música</Title>
+        <Description>La melodía de la caja de música del hotel se escuchará a menor volumen en las habitaciones contiguas al vestíbulo donde se encuentra dicha caja.&#x0a;&#x0a;Nota: el archivo modificado bgm_112.aix debe estar presente en la carpeta «sh2e\sound\adx\hotel\» para que pueda funcionar esta característica.</Description>
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
-
-      <Feature name="VHSAudioFix">
-        <Title>Utilizar audio alternativo y suprimido de la cinta VHS</Title>
-        <Description>Reproduce un audio alternativo, previamente suprimido, de la escena de la cinta VHS. Recomendamos activar esta opción solo si ya te has pasado el juego una vez.&#x0a;&#x0a;Nota: debes tener la versión correcta de este vídeo FMV con las pistas de audio censurada y sin censurar. Si no tienes la versión correcta, solo se reproducirá el audio original. Puedes conseguir la versión correcta de este vídeo descargando el FMV Enhancement Pack (paquete de mejora de FMVs) del proyecto.</Description>
+        
+      <Feature name="ChainsawSoundFix">
+        <Title>Arreglo de los sonidos de la motosierra</Title>
+        <Description>Revisa y corrige el comportamiento incorrecto de los efectos de sonido de la motosierra.&#x0a;&#x0a;Consejo: utiliza esta opción junto con el Audio Enhancement Pack (paquete de mejora de audio) para conseguir los mejores resultados.</Description>
         <Choices type="check">
-          <Value name="No" default="true">0</Value>
-          <Value name="Sí">1</Value>
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
-
-      <Feature name="PlayUnusedAudio">
-        <Title>Usar el audio no utilizado de la carta de Laura.</Title>
-        <Description>En la escena en la que James lee la carta de Laura, se reproducirá el audio no utilizado de Mary leyendo la carta.</Description>
+        
+      <Feature name="LabyrinthElevatorVolumeFix">
+        <Title>Arreglo de los sonidos del ascensor del laberinto</Title>
+        <Description>Corrige los «tirones» al reproducir los efectos de sonido del ascensor del laberinto.</Description>
         <Choices type="check">
-          <Value name="Disable" default="true">0</Value>
-          <Value name="Enable">1</Value>
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -622,6 +614,37 @@
         </Choices>
       </Feature>
 
+    </Section>
+      
+    <Section name="Gameplay">
+          
+      <Feature name="EnableHoldToStomp" speedrun="true">
+        <Title>Restaurar el pisotón alternativo</Title>
+        <Description>Restaura la animación secundaria/alternativa del pisotón. Cuando haya un enemigo cercano en el suelo, pulsa y suelta rápidamente el botón de atacar para dar una patada. Pulsa y mantén pulsado el botón de ataque para dar un pisotón.</Description>
+        <Choices type="check">
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+          
+      <Feature name="EnableToggleSprint">
+        <Title>Activar opción para correr alternando</Title>
+        <Description>Cambia la selección de movimiento analógico a «Alternativo», disponible en el menú de Opciones del juego -> Opciones del juego. Esta opción te permitirá alternar entre ir andando y corriendo sin tener que mantener pulsado el botón correspondiente (cuando se active esta opción, se mantendrá el movimiento analógico para los mandos/controladores).</Description>
+        <Choices type="check">
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+          
+      <Feature name="SwapLightHeavyAttack" speedrun="true">
+        <Title>Intercambiar ataques cuerpo a cuerpo ligero/pesado</Title>
+        <Description>Intercambia la prioridad de los ataques ligeros y pesados en las armas cuerpo a cuerpo. Pulsa y mantén pulsado el botón de atacar para lanzar un ataque ligero. Pulsa y mantén pulsado el botón de atacar para lanzar un ataque pesado.</Description>
+        <Choices type="check">
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+          
     </Section>
 
   </Tab>
@@ -803,6 +826,15 @@
           <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
+        
+      <Feature name="MemoScreenFix">
+        <Title>Corregir la navegación en la pantalla de Notas</Title>
+        <Description>Permite utilizar las flechas para navegar dentro de la pantalla de Notas y la tecla Enter/Intro para seleccionar.</Description>
+        <Choices type="check">
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
 
     </Section>
 
@@ -833,15 +865,6 @@
       <Feature name="ChangeClosetSpawn">
         <Title>Cambiar el punto de aparición en el armario</Title>
         <Description>Sitúa a James dentro del armario al terminar la escena cinemática del apartamento 307 de los apartamentos Wood Side para ayudar al jugador a fijarse en la llave que hay dentro.</Description>
-        <Choices type="check">
-          <Value name="No">0</Value>
-          <Value name="Sí" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="EnableToggleSprint">
-        <Title>Activar opción para correr alternando</Title>
-        <Description>Cambia la selección de movimiento analógico a «Alternativo», disponible en el menú de Opciones del juego -> Opciones del juego. Esta opción te permitirá alternar entre ir andando y corriendo sin tener que mantener pulsado el botón correspondiente (cuando se active esta opción, se mantendrá el movimiento analógico para los mandos/controladores).</Description>
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
@@ -938,15 +961,6 @@
         </Choices>
       </Feature>
 
-      <Feature name="MemoScreenFix">
-        <Title>Corregir la navegación en la pantalla de Notas</Title>
-        <Description>Permite utilizar las flechas para navegar dentro de la pantalla de Notas y la tecla Enter/Intro para seleccionar.</Description>
-        <Choices type="check">
-          <Value name="No">0</Value>
-          <Value name="Sí" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="MothDrawOrderFix">
         <Title>Corregir el orden de dibujado de las polillas</Title>
         <Description>Corrige un fallo visual que provoca que las polillas de la habitación 202 de los apartamentos Wood Side y las de la habitación del jefe final aparezcan por detrás de objetos translúcidos, tales como ventanas.</Description>
@@ -992,15 +1006,6 @@
         </Choices>
       </Feature>
 
-      <Feature name="EnableHoldToStomp" speedrun="true">
-        <Title>Restaurar el pisotón alternativo</Title>
-        <Description>Restaura la animación secundaria/alternativa del pisotón. Cuando haya un enemigo cercano en el suelo, pulsa y suelta rápidamente el botón de atacar para dar una patada. Pulsa y mantén pulsado el botón de ataque para dar un pisotón.</Description>
-        <Choices type="check">
-          <Value name="No">0</Value>
-          <Value name="Sí" default="true">1</Value>
-        </Choices>
-      </Feature>
-
       <Feature name="HalogenLightFix">
         <Title>Restaurar el shader de vértices no iluminados</Title>
         <Description>Restaura la luminancia de ciertos elementos del entorno.</Description>
@@ -1022,15 +1027,6 @@
       <Feature name="RowboatAnimationFix">
         <Title>Correcciones diversas de la escena de la barca</Title>
         <Description>Corrige un problema en el que, a veces, el modelo de James se coloca de forma errática sobre la barca. Corrige un problema en el que la velocidad de la barca se ve afectada negativamente si se había equipado el cuchillo grande antes de montar en la barca. Desactiva el cambio rápido de armas al estar James montado en la barca para evitar fallos en la animación.</Description>
-        <Choices type="check">
-          <Value name="No">0</Value>
-          <Value name="Sí" default="true">1</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="SwapLightHeavyAttack" speedrun="true">
-        <Title>Intercambiar ataques cuerpo a cuerpo ligero/pesado</Title>
-        <Description>Intercambia la prioridad de los ataques ligeros y pesados en las armas cuerpo a cuerpo. Pulsa y mantén pulsado el botón de atacar para lanzar un ataque ligero. Pulsa y mantén pulsado el botón de atacar para lanzar un ataque pesado.</Description>
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>
@@ -1064,12 +1060,66 @@
         </Choices>
       </Feature>
 
-      <Feature name="CutsceneUnequip" speedrun="true">
-        <Title>Remove weapon during cutscenes</Title>
-        <Description>Unequips James during cutscenes so that the weapons don't appear "weightless" in his hands as his animation plays out.</Description>
+      <Feature name="CutsceneUnequip">
+        <Title>Guardar arma durante escenas</Title>
+        <Description>Guarda el arma de James durante las escenas para que no parezca que las armas no tienen peso durante sus animaciones.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="No" speedrun-default="true">0</Value>
+          <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="JamesTextureFix">
+        <Title>Corregir fallo en chaqueta al tirar de horca</Title>
+        <Description>Evita que la geometría del cuerpo de James haga que su cuerpo atraviese su chaqueta al levantar los brazos para tirar de una horca.&#x0a;&#x0a;Nota: el archivo modificado ps113.map debe estar presente en la carpeta «sh2e\bg\ps\» para que pueda funcionar esta característica.</Description>
+        <Choices type="check">
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="RunPhRotationFix">
+        <Title>Corregir rotación final de los Cabeza Pirámide</Title>
+        <Description>Ajusta la posición y rotación de los cadáveres de los Cabeza Pirámide para que estén alineados a la posición en la que se encuentran en la escena que muestra sus muertes.</Description>
+        <Choices type="check">
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="WaterMoveSpeedFix">
+        <Title>Corregir velocidad de movimientos en el agua</Title>
+        <Description>Desacelera y acelera correctamente a James cuando este entra y sale de masas de agua.</Description>
+        <Choices type="check">
+          <Value name="No" speedrun-default="true">0</Value>
+          <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="MariaSpawnFix">
+        <Title>Evitar que María se salga del mapa</Title>
+        <Description>Corrige un problema poco común en el que, en ocasiones, María no aparecerá acompañando a James en una habitación en circunstancias concretas.</Description>
+        <Choices type="check">
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="FixLakeMoonSize">
+        <Title>Corregir luz inconsistente del lago</Title>
+        <Description>Mantiene la luz del lago con un tamaño consistente, sin importar la resolución con la que se esté jugando.</Description>
+        <Choices type="check">
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="RowboatSpawnFix">
+        <Title>Corregir aparición de la barca</Title>
+        <Description>Mantiene la barca presente en el muelle del hotel Lakeview tras cargar una partida guardada o al salir y volver a entrar de la zona.</Description>
+        <Choices type="check">
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -1127,15 +1177,6 @@
         <Choices type="list">
           <Value name="Cruz roja">1</Value>
           <Value name="Viñeta inferior" default="true">2</Value>
-        </Choices>
-      </Feature>
-
-      <Feature name="CustomAdvancedOptions">
-        <Title>Extend advanced options</Title>
-        <Description>Adds Display Mode, Render Resolution, and Health Indicator options to the Options > Advanced Options menu.</Description>
-        <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -1224,11 +1265,11 @@
       </Feature>
 
       <Feature name="EnemyRevealLighting">
-        <Title>Adjust lighting of enemies during reveal setpieces</Title>
-        <Description>Adjust the lighting of the enemies in the tunnel radio cutscene and Apt Room 205 to make them less conspicuous before their reveal.</Description>
+        <Title>Ajustar iluminación de enemigos en sus presentaciones</Title>
+        <Description>Ajusta la iluminación de los enemigos en la escena de la radio en el túnel y en la habitación 205 de los apartamentos para que disimulen más antes de revelarse.</Description>
         <Choices type="check">
-          <Value name="Disable">0</Value>
-          <Value name="Enable" default="true">1</Value>
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
         </Choices>
       </Feature>
 
@@ -1264,6 +1305,99 @@
       </Feature>
 
     </Section>
+      
+  </Tab>
+
+  <Tab name="Opciones extra">
+      
+    <Section name="Gráficos">
+        
+      <Feature name="ClosetRoomEnhanced">
+        <Title>Puerta del armario rompible</Title>
+        <Description>Las lamas del armario en el que James se pone a disparar se partirán durante la escena del armario de los apartamentos.&#x0a;&#x0a;Nota: el archivo b_doo.glb debe estar presente en la carpeta «sh2e\model\» para que pueda funcionar esta característica.</Description>
+        <Choices type="check">
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="EddieLauraCutscene">
+        <Title>Extender escena entre Eddie y Laura</Title>
+        <Description>Sigue animando a Eddie y a Laura durante el fundido a negro del final de su escena en la bolera.&#x0a;&#x0a;Nota: los archivos modificados b_piz.anm, bp_edi_a.dds, hhh_edi.anm y lau.anm deben estar presentes en la carpeta «sh2e\demo\bp_edi1\» para que pueda funcionar esta característica.</Description>
+        <Choices type="check">
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="CockroachesReplacement" speedrun="true">
+        <Title>Cucarachas mejoradas en la sala de los bichos</Title>
+        <Description>Sustituye las cucarachas estáticas de la sala de los bichos en la prisión con grandes grupos de cucarachas animadas.&#x0a;&#x0a;Nota: el archivo ty3.glb debe estar presente en la carpeta «sh2e\model\» para que pueda funcionar esta característica.</Description>
+        <Choices type="check">
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="MariaCutsceneReplacement">
+        <Title>Pelo de María boca abajo</Title>
+        <Description>Añade una animación dinámica con físicas al pelo de María cuando está boca abajo.&#x0a;&#x0a;Nota: el archivo dmr.glb debe estar presente en la carpeta «sh2e\model\» para que pueda funcionar esta característica.</Description>
+        <Choices type="check">
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="DogRoomEnhanced">
+        <Title>Monitor interactivo del final PERRO</Title>
+        <Description>Anima los botones y cachivaches y muestra imágenes en los monitores del panel de control del final PERRO.&#x0a;&#x0a;Nota: el archivo mon.glb debe estar presente en la carpeta «sh2e\model\» para que pueda funcionar esta característica.</Description>
+        <Choices type="check">
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+      <Feature name="MapMeshToggle">
+        <Title>Alternar entornos dinámicos</Title>
+        <Description>Añade y elimina geometrías en ciertas zonas de forma dinámica para mejorar efectos. Entre ellos se incluyen: gráficos arreglados entre el día y la noche dentro de la caravana, una pista visual que lleve a ver a Eddie dentro de los apartamentos si antes intentas interactuar con Angela, mostrar los anillos en las manos tridimensionales de la puerta del hospital, evitar que la linterna de James proyecte luz a través de la pared del ascensor en la escena posterior a la huida del pasillo del hospital, añadir pistas visuales sutiles sobre dónde hay que utilizar la gema azul en las tres zonas correspondientes.</Description>
+        <Choices type="check">
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+        
+    </Section>
+      
+    <Section name="Audio">
+        
+      <Feature name="FlashlightToggleSFX">
+        <Title>Efectos de sonido de la linterna</Title>
+        <Description>Habilita un efecto de sonido de la linterna al encenderla o apagarla.&#x0a;&#x0a;Nota: los archivos flashlight_on.wav y flashlight_off.wav deben estar presentes en la carpeta «sh2e\sound\extra\» para que pueda funcionar esta característica.</Description>
+        <Choices type="check">
+          <Value name="No">0</Value>
+          <Value name="Sí" default="true">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="VHSAudioFix">
+        <Title>Utilizar audio alternativo y suprimido de la cinta VHS</Title>
+        <Description>Reproduce un audio alternativo, previamente suprimido, de la escena de la cinta VHS. Recomendamos activar esta opción solo si ya te has pasado el juego una vez.&#x0a;&#x0a;Nota: debes tener la versión correcta de este vídeo FMV con las pistas de audio censurada y sin censurar. Si no tienes la versión correcta, solo se reproducirá el audio original. Puedes conseguir la versión correcta de este vídeo descargando el FMV Enhancement Pack (paquete de mejora de FMVs) del proyecto.</Description>
+        <Choices type="check">
+          <Value name="No" default="true">0</Value>
+          <Value name="Sí">1</Value>
+        </Choices>
+      </Feature>
+
+      <Feature name="PlayUnusedAudio">
+        <Title>Usar el audio no utilizado de la carta de Laura.</Title>
+        <Description>En la escena en la que James lee la carta de Laura, se reproducirá el audio no utilizado de Mary leyendo la carta.</Description>
+        <Choices type="check">
+          <Value name="No" default="true">0</Value>
+          <Value name="Sí">1</Value>
+        </Choices>
+      </Feature>
+        
+    </Section>
 
   </Tab>
 
@@ -1291,7 +1425,7 @@
 
       <Feature name="EnableLangPath">
         <Title>Utilizar carpeta «lang»</Title>
-        <Description>Silent Hill 2: Enhanced Edition leerá y utilizará cuando sea posible las tipografías y archivos de idioma de la carpeta «lang» en lugar de utilizar las carpetas «data» o «sh2e». Esto permite utilizar archivos de idioma personalizados (como el parche de traducción en castellano en vez del español neutro incluido de serie con el proyecto) para sustituir los archivos originales del juego.&#x0a;&#x0a;Nota: es necesario activar la opción «Utilizar la carpeta personalizada "sh2e"».</Description>
+        <Description>Silent Hill 2: Enhanced Edition leerá y utilizará cuando sea posible las tipografías y archivos de idioma de la carpeta «lang» en lugar de utilizar las carpetas «data» o «sh2e». Esto permite utilizar archivos de idioma personalizados (como el parche de traducción en castellano en vez del español neutro incluido de serie con el proyecto) para sustituir los archivos originales del juego.&#x0a;&#x0a;Nota: es necesario activar la opción «Utilizar la carpeta personalizada "sh2e"».</Description>
         <Choices type="check">
           <Value name="No">0</Value>
           <Value name="Sí" default="true">1</Value>

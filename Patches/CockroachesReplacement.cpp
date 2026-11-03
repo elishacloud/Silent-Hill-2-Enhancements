@@ -141,7 +141,7 @@ HRESULT DrawCockroachesReplacement_DP(LPDIRECT3DDEVICE8 ProxyInterface, D3DPRIMI
 
     if (roomID == R_BUG_RM) {
         if (PrimitiveType == D3DPT_TRIANGLELIST && StartVertex == 0) {
-            if (GetModelID() == ModelID::chr_item_ty3) {
+            if ((PrimitiveCount == 256 && GetModelID() == ModelID::chr_item_ty3) || PrimitiveCount == 160) { // ty3 bug limbs
                 result = S_OK;
             } else if (PrimitiveCount == 96) { // ty2 bug limbs
                 IUnknownPtr<IDirect3DTexture8> texture;

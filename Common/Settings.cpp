@@ -463,10 +463,4 @@ void UpdateScaleResolution()
 	{
 		IsFixGPUAntiAliasingEnabled = LegacyFixGPUAntiAliasing;
 	}
-
-	// Handle frame limiter to better match actual display refresh timing
-	if (LimitPerFrameFPS && fabsf(LimitPerFrameFPS - roundf(LimitPerFrameFPS)) < 0.0001f)
-	{
-		LimitPerFrameFPS = roundf(LimitPerFrameFPS) / 1.00125f;
-	}
 }

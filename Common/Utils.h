@@ -53,6 +53,7 @@ HMONITOR GetMonitorHandle();
 BOOL GetDesktopRes(LONG &screenWidth, LONG &screenHeight);
 BOOL SetDesktopRes(LONG screenWidth, LONG screenHeight);
 void GetDesktopRect(RECT &screenRect);
+bool WaitForDwm();
 bool ReadRegistryStruct(const std::wstring& lpzSection, const std::wstring& lpzKey, const LPVOID& lpStruct, UINT uSizeStruct);
 bool WriteRegistryStruct(const std::wstring& lpzSection, const std::wstring& lpzKey, DWORD dwType, const LPVOID lpStruct, UINT uSizeStruct);
 HRESULT GetConfigData();

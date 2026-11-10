@@ -1282,6 +1282,19 @@ void GetDesktopRect(RECT &screenRect)
 	screenRect.bottom = info.rcMonitor.bottom;
 }
 
+bool WaitForDwm()
+{
+	typedef HRESULT(WINAPI* DwmFlushProc)(void);
+
+	static HMODULE hDwmApi = LoadLibraryW(L"dwmapi.dll");
+
+	static DwmFlushProc pDwmFlush = hDwmApi
+		? reinterpret_cast<DwmFlushProc>(GetProcAddress(hDwmApi, "DwmFlush"))
+		: nullptr;
+
+	return pDwmFlush && SUCCEEDED(pDwmFlush());
+}
+
 bool ReadRegistryStruct(const std::wstring& lpzSection, const std::wstring& lpzKey, const LPVOID& lpStruct, UINT uSizeStruct)
 {
 	HKEY hKey;

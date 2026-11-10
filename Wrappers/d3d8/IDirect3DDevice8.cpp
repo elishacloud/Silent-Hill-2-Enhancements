@@ -2878,6 +2878,9 @@ HRESULT m_IDirect3DDevice8::BeginScene()
 			RunWaterMoveSpeed();
 		}
 
+		// Fix map arrow hitbox for hospital section
+		RunHospitalMapArrowHitboxFix();
+
 		NeedToGrabScreenForWater = true;
 		RoachesDrawingCounter = 0;
 

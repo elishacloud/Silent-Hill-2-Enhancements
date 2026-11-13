@@ -787,7 +787,6 @@ void RunGameSave();
 void RunGameQuickLoadCheck();
 void RunHangOnEsc();
 void RunHospitalChase();
-void RunHospitalMapArrowHitboxFix();
 void RunHotelRoom312FogVolumeFix();
 void RunHotelWater();
 void RunInfiniteRumbleFix();

@@ -18,22 +18,9 @@
 #include "Patches\Patches.h"
 
 BYTE* ArrowHitboxXAxis = nullptr;
-BYTE* ArrowHitboxYAxis = nullptr;
+const float BaseXOffset = -240.f;
 
-extern long BufferWidth, BufferHeight;
-
-const float BaseBufferWidth = 1920.f;
-const float BaseBufferHeight = 1080.f;
-
-const float BaseXOffset = -235.f;
-const float BaseYOffset = 170.f;
-
-float CurrentXOffset = NULL;
-float CurrentYOffset = NULL;
-
-long LastBufferWidth = 0;
-long LastBufferHeight = 0;
-
+// Bottom arrow map hospital 2F
 
 void PatchHospitalMapArrowHitbox()
 {
@@ -46,48 +33,22 @@ void PatchHospitalMapArrowHitbox()
 	}
 
 	ArrowHitboxXAxis = GameVersion == SH2V_10 ?
-		(BYTE*)0x006AF03C :
+		(BYTE*)0x0049D55D :
 		GameVersion == SH2V_11 ?
-		(BYTE*)0x006B001C :
-		(BYTE*)0x006AF01C;
+		(BYTE*)0x0049D80D :
+        GameVersion == SH2V_DC ?
+		(BYTE*)0x0049D0CD :
+        nullptr;
 
-	ArrowHitboxYAxis = GameVersion == SH2V_10 ?
-		(BYTE*)0x006AF038 :
-		GameVersion == SH2V_11 ?
-		(BYTE*)0x006B0018 :
-		(BYTE*)0x006AF018;
-
-    if (!ArrowHitboxXAxis || !ArrowHitboxYAxis)
+    if (!ArrowHitboxXAxis)
     {
         Logging::Log() << __FUNCTION__ << " Error: Couldn't find arrow hitbox addresses.";
         return;
     }
-}
 
-void RunHospitalMapArrowHitboxFix()
-{
+    ArrowHitboxXAxis += 2;
 
-    if (!ArrowHitboxXAxis || !ArrowHitboxYAxis)
-    {
-        RUNONCE();
-        Logging::Log() << __FUNCTION__ << " Error: Couldn't find the arrow hitbox addresses.";
-        return;
-    }
+    const float* baseXOffsetPtr = &BaseXOffset;
 
-    if (LastBufferHeight != BufferHeight || LastBufferWidth != BufferWidth)
-    {
-        if (BufferWidth <= 0 || BufferHeight <= 0)
-        {
-            return;
-        }
-
-        CurrentXOffset = BaseXOffset * ((float)BufferWidth / BaseBufferWidth);
-        CurrentYOffset = BaseYOffset * ((float)BufferHeight / BaseBufferHeight);
-
-        UpdateMemoryAddress(ArrowHitboxXAxis, &CurrentXOffset, sizeof(float));
-        UpdateMemoryAddress(ArrowHitboxYAxis, &CurrentYOffset, sizeof(float));
-
-        LastBufferWidth = BufferWidth;
-        LastBufferHeight = BufferHeight;
-    }
+    UpdateMemoryAddress(ArrowHitboxXAxis, &baseXOffsetPtr, sizeof(float));
 }

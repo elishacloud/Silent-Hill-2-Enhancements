@@ -687,6 +687,7 @@ void PatchHealthIndicatorOption();
 void PatchGreatKnifeBoatSpeed();
 void PatchHoldDamage();
 void PatchHoldToStomp();
+void PatchHospitalMapArrowHitbox();
 void PatchInputTweaks();
 void PatchInventoryBGMBug();
 void PatchJamesTexture();

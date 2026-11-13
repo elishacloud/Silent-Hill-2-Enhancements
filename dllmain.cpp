@@ -311,6 +311,9 @@ void DelayedStart()
 		PatchTexAddr();
 	}
 
+	// Patch Hospital Map Arrow Hitbox
+	PatchHospitalMapArrowHitbox();
+
 	// Disable screensaver
 	if (DisableScreenSaver)
 	{
